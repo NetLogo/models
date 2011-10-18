@@ -12,9 +12,7 @@ JAVA_OPTS=-Dfile.encoding=UTF-8 exec bin/scala -classpath bin -deprecation -noco
 /// takes a long time), but when run that way it will make hundreds of changes you should be careful
 /// not to commit to Subversion.
 ///
-/// To determine the contents of the notices, it looks in the dist/legal.txt file, also relative to
-/// the current directory.  (bin/release.sh makes a symlink so dist/legal.txt can be found in the
-/// temporary working directory where the release is being assembled.)
+/// To determine the contents of the notices, it looks in legal.txt.
 ///
 /// The NetLogo version comes from resources/system/version.txt; ditto on release.sh and symlinking.
 
@@ -33,12 +31,12 @@ def addSuffix(path: String) =
                      else "")
 val legal = Map() ++ {
   val format = "(.*?): (.*)".r
-  for{line <- read("dist/legal.txt")
+  for{line <- read("models/legal.txt")
       if !line.startsWith("#") && !line.trim.isEmpty
       format(model, spec) = line.trim}
   yield (addSuffix(model), spec)
 }      
-val paths = shell("find models -name *.nlogo -o -name *.nlogo3d")
+val paths = shell("find models -name test -prune -o -name *.nlogo -print -o -name *.nlogo3d -print")
              .map(_.drop("models/".size))
              .toSeq
 
