@@ -8,7 +8,6 @@ The NetLogo Models Library is bundled with NetLogo.  You can download NetLogo an
 
 The models in this repository are provided under a variety of licenses.
 
-Some models are public domain, some models are open source, some models are neither (but free for noncommercial distribution and use).
+Some models are public domain, some models are open source, some models are CC BY-NC-SA (free for noncommercial distribution and use).
 
 See legal.txt for details.
-

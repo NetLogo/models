@@ -10,7 +10,7 @@ JAVA_OPTS=-Dfile.encoding=UTF-8 exec bin/scala -classpath bin -deprecation -noco
 /// Operates on models directory inside current directory.  Normally this is run from release.sh.
 /// It can be run from the top-level directory for testing purposes (since running all of release.sh
 /// takes a long time), but when run that way it will make hundreds of changes you should be careful
-/// not to commit to Subversion.
+/// not to commit to version control.
 ///
 /// To determine the contents of the notices, it looks in legal.txt.
 ///
@@ -108,15 +108,15 @@ def munge(path: String): String = {
     slurp("models/" + path).split("\\@\\#\\$\\#\\@\\#\\$\\#\\@\n", -1).toList
   def copyright = {
     if(keywords.contains("Steiner"))
-      "Copyright " + year + " Uri Wilensky. Some rights reserved. Includes code by James P. Steiner. "
+      "Copyright " + year + " Uri Wilensky. Includes code by James P. Steiner. "
     else if(keywords.contains("Stroup"))
-      "Copyright " + year + " Uri Wilensky and Walter Stroup. All rights reserved."
+      "Copyright " + year + " Uri Wilensky and Walter Stroup."
     else if(keywords.contains("NIELS"))
-      "Copyright " + year + " Pratim Sengupta and Uri Wilensky. All rights reserved."
+      "Copyright " + year + " Pratim Sengupta and Uri Wilensky."
     else if(path.containsSlice("Code Examples/") && !keywords.contains("specialCE"))
       "Public Domain"
     else
-      "Copyright " + year + " Uri Wilensky. All rights reserved."
+      "Copyright " + year + " Uri Wilensky."
   }
   def mungeCode(path: String, code: String) = {
     require(code == code.trim + "\n",
@@ -129,7 +129,7 @@ def munge(path: String): String = {
         "; copyright and related or neighboring rights to this Code Example.\n"
       }
       else
-        "; " + copyright + "\n" + "; The full copyright notice is in the Info tab.\n"
+        "; " + copyright + "\n" + "; See Info tab for full copyright and license.\n"
      )
   }
   def mungeInfo(path: String, info: String) = {
@@ -145,7 +145,7 @@ def munge(path: String): String = {
             .forall(line => !line.startsWith("#")),
             "CREDITS AND REFERENCES must be the last header (line starting with #) in the info tab")
     (removeBlankCredits(lines.mkString("", "\n", "\n")) + "\n\n" +
-      howToCiteSection + "\n\n" +
+      howToCiteSection + "\n" +
       copyrightSection)
   }
   def removeBlankCredits(info: String): String = {
@@ -190,7 +190,7 @@ def munge(path: String): String = {
   }
   def copyrightSection = {
     val builder = new StringBuilder
-    builder.append("## COPYRIGHT NOTICE\n")
+    builder.append("## COPYRIGHT AND LICENSE\n")
     if(keywords.contains("Steiner")) {
       builder.append(copyright + "\n")
       builder.append("\n")
@@ -204,23 +204,15 @@ def munge(path: String): String = {
     else {
       builder.append(copyright + "\n")
       builder.append("\n")
-      builder.append("Permission to use, modify or redistribute this model is hereby granted, ")
-      builder.append("provided that both of the following requirements are followed:  \n")
-      builder.append("a) this copyright notice is included.  \n")
-      builder.append("b) this model will not be redistributed for profit without permission ")
-      if(keywords.contains("Stroup")) {
-        builder.append("from the copyright holders. ")
-        builder.append("Contact the copyright holders for appropriate licenses for redistribution for ")
-      }
-      else if(keywords.contains("NIELS")) {
-        builder.append("from Pratim Sengupta and Uri Wilensky. ")
-        builder.append("Contact Uri Wilensky for appropriate licenses for redistribution for ")
-      }
-      else {
-        builder.append("from Uri Wilensky. ")
-        builder.append("Contact Uri Wilensky for appropriate licenses for redistribution for ")
-      }
-      builder.append("profit.\n")
+      builder.append("![CC BY-NC-SA 3.0](http://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png)\n")
+      builder.append("\n")
+      builder.append("This work is licensed under the Creative Commons ")
+      builder.append("Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of ")
+      builder.append("this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ ")
+      builder.append("or send a letter to Creative Commons, 559 Nathan Abbott Way, ")
+      builder.append("Stanford, California 94305, USA.\n")
+      builder.append("\n")
+      builder.append("Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.\n")
       builder.append("\n")
     }
     if(keywords.contains("3D"))
