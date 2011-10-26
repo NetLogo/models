@@ -621,6 +621,8 @@ Wolf Sheep Predation and Rabbits Weeds Grass are other examples of interacting p
 Refer to Bug Hunt Predators for extensions of this model that include predators (birds that eat bugs) and an invasive species (another population of consumers).
 
 NetLogo Wolf Sheep Predation model. http://ccl.northwestern.edu/netlogo/models/WolfSheepPredation. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 true
