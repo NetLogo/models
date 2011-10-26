@@ -624,7 +624,7 @@ Several of the equations in this model are derived from Tom Mitchell's book "Mac
 
 Perceptrons were initially proposed in the late 1950s by Frank Rosenblatt.
 
-A standard work on perceptrons is the book Perceptrons by Marvin Minsky and Seymour Paper (1969).  The book includes the result that single-layer perceptrons cannot learn XOR.  The discovery that multi-layer perceptrons can learn it came later, in the 1980s.
+A standard work on perceptrons is the book Perceptrons by Marvin Minsky and Seymour Papert (1969).  The book includes the result that single-layer perceptrons cannot learn XOR.  The discovery that multi-layer perceptrons can learn it came later, in the 1980s.
 
 Thanks to Craig Brozefsky for his work in improving this model.
 @#$#@#$#@
