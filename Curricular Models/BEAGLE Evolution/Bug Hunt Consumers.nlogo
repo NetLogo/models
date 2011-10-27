@@ -1,21 +1,19 @@
 globals
 [
-
   bugs-stride ;; how much a bug moves in each simulation step
   bug-size    ;; the size of the shape for a bug
   bug-reproduce-age ;; age at which bug reproduces
   bugs-born ;; number of bugs born
   bugs-died ;; number of bugs that died
-  max-bugs-age ;; the oldest a bug can be before it dies
+  max-bugs-age 
   min-reproduce-energy-bugs ;; how much energy, at minimum, bug needs to reproduce
   max-bugs-offspring ;; max offsprings a bug can have
       
   max-plant-energy ;; the maximum amount of energy a plant in a patch can accumulate
-  sprout-delay-time ;; how many ticks before regrowth of the plant begings
+  sprout-delay-time ;; number of ticks before grass starts regrowing
   grass-level ;; a measure of the amount of grass currently in the ecosystem
-  grass-growth-rate ;; the amount of energy units a plant gains every tick from retrwoth
+  grass-growth-rate ;; the amount of energy units a plant gains every tick from regrowth
 
-  
   bugs-color
   grass-color
   dirt-color
@@ -25,23 +23,15 @@ breed [ bugs bug ]
 breed [ disease-markers a-disease-marker] ;; visual cue, red "X" that bug has a disease and will die
 breed [ embers ember] ;; visual cue that a grass patch is on fire
 
-turtles-own [ energy current-age max-age #-offspring]
+turtles-own [ energy current-age max-age female? #-offspring]
 
 patches-own [ fertile?  plant-energy countdown]
 
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; setup procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 to setup
-  ;; (for this model to work with NetLogo's new plotting features,
-  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
-  ;; the beginning of your setup procedure and reset-ticks at the end
-  ;; of the procedure.)
-  __clear-all-and-reset-ticks
+  clear-all
   set bugs-born 0
   set bugs-died 0
   
@@ -57,7 +47,6 @@ to setup
   set grass-growth-rate 10
   set max-plant-energy 100
 
-
   set bugs-color (violet )
   set grass-color (green)
   set dirt-color (white)
@@ -67,7 +56,7 @@ to setup
   add-starting-grass
   add-bugs
   
-  do-plots
+  reset-ticks
 end
 
 to add-starting-grass
@@ -78,7 +67,7 @@ to add-starting-grass
     ]
   ask n-of number-patches-with-grass patches  [
       set fertile? true
-      set plant-energy max-plant-energy / 2
+      set plant-energy max-plant-energy / 2  
     ]
   ask patches [color-grass] 
 end
@@ -88,8 +77,8 @@ to add-bugs
   [
     set color bugs-color
     set size bug-size
-    set energy 20 + random 20 - random 20        ;;randomize starting energies
-    set current-age 0  + random max-bugs-age     ;;start out bugs at different ages
+    set energy 20 + random 20 - random 20 ;; randomize starting energies
+    set current-age 0  + random max-bugs-age     ;; start out bugs at different ages
     set max-age max-bugs-age
     set #-offspring 0
     setxy random world-width random world-height
@@ -97,11 +86,7 @@ to add-bugs
 end
 
 
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; runtime procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to go
  if ticks >= 1000 and constant-simulation-length? [stop]  
@@ -112,10 +97,9 @@ to go
   ask patches [
     set countdown random sprout-delay-time 
     grow-grass
-    ] 
+    ]   ;; only the fertile patches can grow grass
   fade-embers
   age-disease-markers
-  do-plots  ;; plot populations
   tick
 end
 
@@ -130,11 +114,10 @@ to remove-a-%-of-bugs
      set color red
      set shape "x"
      ]
-    set bugs-died bugs-died + 1
+    set bugs-died (bugs-died + 1)
     die
   ]
 end
-
 
 to start-fire
   let current-grass-patches patches with [fertile?]
@@ -147,17 +130,20 @@ to start-fire
     ]
 end
 
-
-to create-ember ;; patch procedures
-  sprout 1 [set breed embers set current-age (round countdown / 4) set color [255 255 0 255] set size 1]
+to create-ember ;; patch procedure
+  sprout 1 [
+    set breed embers 
+    set current-age (round countdown / 4) 
+    set color [255 255 0 255] 
+    set size 1
+    ]
 end
-
 
 to age-disease-markers
   ask disease-markers [
       set current-age (current-age  + 1)
       set size (1.5 - (1.5 * current-age  / 20))
-      if current-age  > 25  or (ticks >= 999  and constant-simulation-length?)  [die]
+      if current-age  > 25  or (ticks = 999 and constant-simulation-length?)  [die]
    ]
 end
 
@@ -166,9 +152,11 @@ to fade-embers
   let transparency 0
   ask embers [
     set shape "fire"
-    set current-age current-age - 1
+    set current-age (current-age - 1)
     set transparency round floor current-age * 255 / sprout-delay-time
+   ;; show transparency
     set ember-color lput transparency [255 155 0]
+  ;;  show ember-color
     if current-age <= 0 [die]
     set color ember-color    
   ]
@@ -176,8 +164,8 @@ end
 
 to bugs-live
     move-bugs
-    set energy energy - 1  ;; bugs lose energy as they move
-    set current-age current-age + 1
+    set energy (energy - 1)  ;; bugs lose energy as they move
+    set current-age (current-age + 1)
     bugs-eat-grass
     death
 end
@@ -200,12 +188,10 @@ to bugs-eat-grass  ;; bugs procedure
   if plant-energy <=  amount-of-food-bugs-eat  [set countdown sprout-delay-time ]
 end
 
-
 to reproduce-bugs  ;; bugs procedure
   let number-new-offspring (random (max-bugs-offspring + 1)) ;; set number of potential offpsring from 1 to (max-bugs-offspring)
   if (energy > ((number-new-offspring + 1) * min-reproduce-energy-bugs)  and current-age > bug-reproduce-age)
   [
-
       set energy (energy - (number-new-offspring  * min-reproduce-energy-bugs))      ;;lose energy when reproducing --- given to children
       set #-offspring #-offspring + number-new-offspring
       set bugs-born bugs-born + number-new-offspring
@@ -218,30 +204,29 @@ to reproduce-bugs  ;; bugs procedure
         set #-offspring 0
         rt random 360 fd bugs-stride
       ]    ;; hatch an offspring set it heading off in a a random direction and move it forward a step
-
   ]
 end
-
 
 to death 
   ;; die when energy dips below zero (starvation), or get too old
   if (current-age > max-age) or (energy < 0)
-  [ set bugs-died bugs-died + 1 die ]
+  [ set bugs-died (bugs-died + 1) 
+    die ]
 end
 
-
 to grow-grass  ;; patch procedure
-  set countdown countdown - 1
+  set countdown (countdown - 1)
   ;; fertile patches gain 1 energy unit per turn, up to a maximum max-plant-energy threshold
   if fertile? and countdown <= 0
-     [set plant-energy (plant-energy + grass-growth-rate) if plant-energy > max-plant-energy [set plant-energy max-plant-energy]]
-
+     [set plant-energy (plant-energy + grass-growth-rate) 
+       if plant-energy > max-plant-energy 
+       [set plant-energy max-plant-energy]
+       ]
   if not fertile?
      [set plant-energy 0]
   if plant-energy < 0 [set plant-energy 0 set countdown sprout-delay-time]
   color-grass
 end
-
 
 to color-grass
   ifelse fertile? [
@@ -252,43 +237,14 @@ to color-grass
     ]
   [set pcolor dirt-color]
 end
-
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; plotting procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-to do-plots
-    set-current-plot "Population Size vs. Time"
-    set-current-plot-pen "bugs"
-    plot count bugs
-    set-current-plot-pen "grass"
-    set grass-level ( sum [plant-energy] of patches / (max-plant-energy ))
-    plot grass-level
-    
-    set-current-plot "Distribution of Bug Values"
-     set-histogram-num-bars 10
-     if graph-values-for = "energy of bugs" [ 
-       set-plot-x-range 0 100
-       histogram [ energy ] of bugs ]
-     if graph-values-for = "age of bugs" [  
-       set-plot-x-range 0 100
-       histogram [ current-age ] of bugs ]
-     if graph-values-for = "# of offspring of bugs" [ 
-       set-plot-x-range 0 10
-       histogram [ #-offspring ] of bugs ]
-end
 @#$#@#$#@
 GRAPHICS-WINDOW
 405
 13
-888
-517
-21
-21
+932
+561
+23
+23
 11.0
 1
 10
@@ -299,10 +255,10 @@ GRAPHICS-WINDOW
 1
 1
 1
--21
-21
--21
-21
+-23
+23
+-23
+23
 1
 1
 1
@@ -344,10 +300,10 @@ NIL
 1
 
 PLOT
-9
-198
-403
-378
+5
+207
+399
+414
 Population Size vs. Time
 time
 population size
@@ -357,16 +313,16 @@ population size
 1200.0
 true
 true
-"" ""
+"" "set grass-level ( sum [plant-energy] of patches / (max-plant-energy ))"
 PENS
-"bugs" 1.0 0 -8630108 true "" ""
-"grass" 1.0 0 -10899396 true "" ""
+"bugs" 1.0 0 -8630108 true "" "plot count bugs"
+"grass" 1.0 0 -10899396 true "" "plot grass-level"
 
 MONITOR
-250
-381
-324
-426
+287
+416
+361
+461
 bugs
 count bugs
 3
@@ -374,10 +330,10 @@ count bugs
 11
 
 SLIDER
-6
-126
-232
-159
+5
+135
+231
+168
 initial-number-bugs
 initial-number-bugs
 1
@@ -389,10 +345,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-7
-89
-232
-122
+6
+98
+231
+131
 amount-of-grassland
 amount-of-grassland
 0
@@ -404,10 +360,10 @@ amount-of-grassland
 HORIZONTAL
 
 SLIDER
-8
-162
-232
-195
+5
+170
+229
+203
 amount-of-food-bugs-eat
 amount-of-food-bugs-eat
 0
@@ -419,26 +375,15 @@ NIL
 HORIZONTAL
 
 SWITCH
-7
-53
-231
-86
+6
+62
+230
+95
 constant-simulation-length?
 constant-simulation-length?
 0
 1
 -1000
-
-MONITOR
-328
-382
-405
-427
-time
-ticks
-0
-1
-11
 
 BUTTON
 239
@@ -505,10 +450,10 @@ bugs-to-remove
 HORIZONTAL
 
 PLOT
-8
-377
-249
-521
+5
+412
+246
+558
 Distribution of Bug Values
 Selected Bug Value
 # bugs
@@ -518,25 +463,25 @@ Selected Bug Value
 10.0
 true
 false
-"" ""
+"" "set-histogram-num-bars 10\nif graph-values-for = \"energy of bugs\" [ \n       set-plot-x-range 0 100\n       histogram [ energy ] of bugs ]\n     if graph-values-for = \"age of bugs\" [  \n       set-plot-x-range 0 100\n       histogram [ current-age ] of bugs ]\n     if graph-values-for = \"# of offspring of bugs\" [ \n       set-plot-x-range 0 10\n       histogram [ #-offspring ] of bugs ]"
 PENS
 "default" 1.0 1 -16777216 true "" ""
 
 CHOOSER
-250
-477
-404
-522
+247
+512
+401
+557
 graph-values-for
 graph-values-for
 "energy of bugs" "age of bugs" "# of offspring of bugs"
 0
 
 MONITOR
-250
-429
-324
-474
+247
+464
+321
+509
 bugs died
 bugs-died
 17
@@ -544,10 +489,10 @@ bugs-died
 11
 
 MONITOR
-329
-428
-407
-473
+326
+463
+404
+508
 bugs born
 bugs-born
 17
@@ -559,11 +504,12 @@ bugs-born
 
 This model explores the stability of consumer producer ecosystems and how temporary disturbances and more sustained environmental changes affect the stability of the population and the ecosystem.
 
+
 ## HOW IT WORKS
 
 Bugs wander randomly around the landscape.  Each step each bug loses one unit of energy and they must consume a food source (grass) to replenish their energy. When they run out of energy, they die. To allow the population to continue, each bug must have enough energy to have an offspring.  When that threshold is reached, the offspring and parent split the energy amongst themselves.  Grass grows at a fixed rate, and when it is eaten, a fixed amount of grass energy is deducted from the patch (square) where the grass was eaten.
 
-Different disturbances can be tested in this system - including temporary removal of grass (simulating a fire) and removal of some of the bugs (simulating disease).
+Different disturbances can be tested in this system, including temporary removal of grass (simulating a fire) and removal of some of the bugs (simulating disease).
 
 
 ## HOW TO USE IT
@@ -572,16 +518,16 @@ Different disturbances can be tested in this system - including temporary remova
 2. Press the SETUP button.  
 4. Press the GO button to begin the model run.  
 5. View the POPULATION SIZE VS. TIME plot to watch the bug and grass populations fluctuate over time
-6. View the DISTRIBUTION OF BUG VALUES plot to watch how variation in energy levels,  ages, or reproduction within in population changes over time.
+6. View the DISTRIBUTION OF BUG VALUES plot to watch how variation in energy levels, ages, or reproduction within in population changes over time.
 7. View the BUGS DIED and BUGS BORN monitors to keep track of the total number of new bugs that have been born since the model run started and the number of bugs that have died.
 
 Initial Settings:  
 
 CONSTANT-SIMULATION-LENGTH:  When turned "on" the model run will automatically stop at 1000 ticks.  When turned "off" the model run will continue without automatically stopping.
 
-PERCENT-GRASS: The percentage of patches in the world & view that produce grass.
+AMOUNT-OF-GRASSLAND: The percentage of patches in the world & view that produce grass.
 
-INITIAL-NUMBER-BUGS: The initial size of bug population  
+INITIAL-NUMBER-BUGS: The initial size of bug population.  
 
 AMOUNT-OF-FOOD-BUGS-EAT:  Sets the amount of energy that a bugs gains from eating grass at a patch as well as the amount of energy deducted from that grass.
 
@@ -589,7 +535,7 @@ GRASS-TO-BURN-DOWN:  Sets the % of grassland patches that will have all their gr
 
 BUGS-TO-REMOVE:  Sets the % of existing bug population that will be removed when the REMOVE BUGS button is pressed.
 
-GRAPH-VALUES-FOR:  Sets the x-axis values of the bugs that are graphed in the DISTRIBUTION OF BUG VALUES histogram.  Options include "energy of the bugs", "age of the bugs", and "# of offspring of bugs" (bugs that have had many offspring will have high values).
+GRAPH-VALUES-FOR:  Sets the x-axis values of the bugs that are graphed in the DISTRIBUTION OF BUG VALUES histogram.  Options include "energy of the bugs", "age of the bugs", and "# of offspring of bugs".
 
 
 ## THINGS TO NOTICE
@@ -605,22 +551,24 @@ Different AMOUNT-OF-GRASSLAND values affect the carrying capacity (average value
 
 Try adjusting the parameters under various settings. How sensitive is the stability of the model to the particular parameters.  Does the parameter setting affect the amount of fluctuations, the average values of bugs and grass, or does it lead to the collapse of the ecosystem (death of all the bugs)?
 
+
 ## EXTENDING THE MODEL
 
 In this model, all the bugs are identical to each other and follow the same rules. Try modeling variation in the bug population that would make it easier for some bugs to get food.
+
 Try extending the model by introducing a predator that eats the bugs, or a competing population that also eats grass. 
+
 
 ## NETLOGO FEATURES
 
-The visualization of fire embers uses the transparency value for the color to gradually fade out the color of the fire and let the background show through, before the embers disappear completely.
+The visualization of fire embers uses the transparency value for the color to gradually fade out the color of the fire and let the background show through, before the embers disappear completely. 
+
 
 ## RELATED MODELS
 
 Wolf Sheep Predation and Rabbits Weeds Grass are other examples of interacting predator/prey populations with different rules.
 
 Refer to Bug Hunt Predators for extensions of this model that include predators (birds that eat bugs) and an invasive species (another population of consumers).
-
-NetLogo Wolf Sheep Predation model. http://ccl.northwestern.edu/netlogo/models/WolfSheepPredation. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 ## CREDITS AND REFERENCES
 @#$#@#$#@
@@ -923,7 +871,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta3
+NetLogo 5.0RC3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
