@@ -35,16 +35,10 @@ turtles-own
 ;;;
 
 to setup
-  ;; (for this model to work with NetLogo's new plotting features,
-  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
-  ;; the beginning of your setup procedure and reset-ticks at the end
-  ;; of the procedure.)
-  __clear-all-and-reset-ticks
+  clear-all
   setup-globals
   setup-people
   setup-ambulance
-  setup-plot
-  update-plot
   reset-ticks
 end
 
@@ -57,9 +51,9 @@ to setup-globals
 end
 
 ;; Create initial-people number of people.
-;; Those that live on the border are squares; those on the right, circles.
+;; Those that live on the left are squares; those on the right, circles.
 to setup-people
-  crt initial-people
+  create-turtles initial-people
     [ setxy random-xcor random-ycor
       ifelse xcor <= 0
       [ set continent 1 ]
@@ -99,7 +93,7 @@ to setup-people
 end
 
 to setup-ambulance
-  crt initial-ambulance
+  create-turtles initial-ambulance
   [
     ifelse random 2 < 1
     [
@@ -124,15 +118,22 @@ to setup-ambulance
   ]
 end
 
-to assign-tendency ;; turtle procedure
+to assign-tendency ;; Turtle procedure
 
   set isolation-tendency random-normal average-isolation-tendency average-isolation-tendency / 4
   set hospital-going-tendency random-normal average-hospital-going-tendency average-hospital-going-tendency / 4
   set recovery-time random-normal average-recovery-time average-recovery-time / 4
 
-  ;; make sure it lies between 0 and 2x average-recovery-time
+  ;; Make sure recovery-time lies between 0 and 2x average-recovery-time
   if recovery-time > average-recovery-time * 2 [ set recovery-time average-recovery-time * 2 ]
   if recovery-time < 0 [ set recovery-time 0 ]
+  
+  ;; Similarly for isolation and hospital going tendencies
+  if isolation-tendency > average-isolation-tendency * 2 [ set isolation-tendency average-isolation-tendency * 2 ]
+  if isolation-tendency < 0 [ set isolation-tendency 0 ]
+  
+  if hospital-going-tendency > average-hospital-going-tendency * 2 [ set hospital-going-tendency average-hospital-going-tendency * 2 ]
+  if hospital-going-tendency < 0 [ set hospital-going-tendency 0 ]
 end
 
 
@@ -217,7 +218,6 @@ to go
     [ assign-color
       calculate-r0 ]
 
-  update-plot
   tick
 end
 
@@ -419,36 +419,6 @@ end                                                                     ;; we ge
                                                                         ;; N - gamma*ln(S(0)) / beta = S(t) - gamma*ln(S(t)) / beta, where N is the initial 'susceptible' population.
                                                                         ;; Since N >> 1
                                                                         ;; Using this, we have R_0 = beta*N / gamma = N*ln(S(0)/S(t)) / (K-S(t))
-
-
-;;;
-;;; PLOTTING PROCEDURES
-;;;
-
-to setup-plot
-  set-current-plot "Populations"
-  set-plot-y-range 0 (initial-people)
-end
-
-to update-plot
-  set-current-plot "Populations"
-  set-current-plot-pen "Infected"
-  plot count turtles with [ infected? ]
-  set-current-plot-pen "Not Infected"
-  plot count turtles with [ not infected? ]
-
-  set-current-plot "Infection and Recovery Rates"
-  set-current-plot-pen "Infection Rate"
-  plot (betaN * nbInfected-previous)   ;; Multiply by previous infected to get rate of change of cumulative infected
-  set-current-plot-pen "Recovery Rate"
-  plot (gamma * nbInfected-previous)
-
-  set-current-plot "Cumulative Infected and Recovered"
-  set-current-plot-pen "% infected"
-  plot (((count turtles with [ cured? ] + count turtles with [ infected? ]) / initial-people) * 100)
-  set-current-plot-pen "% recovered"
-  plot ((count turtles with [ cured? ] / initial-people) * 100)
-end
 @#$#@#$#@
 GRAPHICS-WINDOW
 646
@@ -557,8 +527,8 @@ true
 true
 "" ""
 PENS
-"Infected" 1.0 0 -2674135 true "" ""
-"Not Infected" 1.0 0 -10899396 true "" ""
+"Infected" 1.0 0 -2674135 true "" "plot count turtles with [ infected? ]"
+"Not Infected" 1.0 0 -10899396 true "" "plot count turtles with [ not infected? ]"
 
 SLIDER
 315
@@ -584,7 +554,7 @@ initial-ambulance
 initial-ambulance
 0
 4
-0
+2
 1
 1
 NIL
@@ -621,8 +591,8 @@ true
 true
 "" ""
 PENS
-"Infection Rate" 1.0 0 -2674135 true "" ""
-"Recovery Rate" 1.0 0 -10899396 true "" ""
+"Infection Rate" 1.0 0 -2674135 true "" "plot (betaN * nbInfected-previous)"
+"Recovery Rate" 1.0 0 -10899396 true "" "plot (gamma * nbInfected-previous)"
 
 SLIDER
 18
@@ -685,7 +655,7 @@ intra-mobility
 intra-mobility
 0
 1
-0.8
+0.4
 0.1
 1
 NIL
@@ -748,31 +718,31 @@ true
 true
 "" ""
 PENS
-"% infected" 1.0 0 -2674135 true "" ""
-"% recovered" 1.0 0 -10899396 true "" ""
+"% infected" 1.0 0 -2674135 true "" "plot (((count turtles with [ cured? ] + count turtles with [ infected? ]) / initial-people) * 100)"
+"% recovered" 1.0 0 -10899396 true "" "plot ((count turtles with [ cured? ] / initial-people) * 100)"
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model is an extension of the basic model of epiDEM (a curricular unit which stands for Epidemiology: Understanding Disease Dynamics and Emergence through Modeling). It simulates the spread of an infectious disease in a semi-closed population, but with additional features such as travel, isolation, quarantine, inoculation, and links between individuals. However, we still assume that the virus does not mutate, and that once an individual recovers, he or she is no longer susceptible to contracting the disease. To help visualize the effects of travel, two different populations, indicated by either a square or a circle, are initially divided by the yellow border which they can "travel" or cross over.
+This model is an extension of the basic model of epiDEM (a curricular unit which stands for Epidemiology: Understanding Disease Dynamics and Emergence through Modeling). It simulates the spread of an infectious disease in a semi-closed population, but with additional features such as travel, isolation, quarantine, inoculation, and links between individuals. However, we still assume that the virus does not mutate, and that upon recovery, an individual will have perfect immunity. 
 
 Overall, this model helps users:  
-1) engage in a new way of viewing/modeling epidemics that is more personable and relatable,  
-2) situate and understand the emergent disease spread dynamics in relation to the changes in various assumptions in prevention measures, travel, and mobility,  
-3) understand how the reproduction number, R_0, represents the threshold for an epidemic,  
-4) think about different ways to calculate R_0, and the strengths and weaknesses in each approach,  
-5) understand the relationship between derivatives and integrals, represented simply as rates and cumulative number of cases, and  
-6) provide opportunities to extend or change the model to include some properties of a disease that interest users the most.
+1) understand the emergent disease spread dynamics in relation to the changes in control measures, travel, and mobility  
+2) understand how the reproduction number, R_0, represents the threshold for an epidemic
+3) understand the relationship between derivatives and integrals, represented simply as rates and cumulative number of cases, and  
+4) provide opportunities to extend or change the model to include some properties of a disease that interest users the most.
+
 
 ## HOW IT WORKS
 
-Individuals wander around the world in random motion. Upon coming into contact with an infected person, he or she has a chance of contracting the illness. Depending on their tendencies, which are set by the user, sick individuals will either isolate themselves at "home," go to a hospital, be force-quarantined into a hospital by health officials, or just move about. An infected individual has a chance of recovery after the given recovery time has elapsed.
+Individuals wander around the world in random motion. There are two groups of individuals, represented as either squares or circles, and are geographically divided by the yellow border. Upon coming into contact with an infected person, he or she has a chance of contracting the illness. Depending on their tendencies, which are set by the user, sick individuals will either isolate themselves at "home," go to a hospital, be force-quarantined into a hospital by health officials, or just move about. An infected individual has a chance of recovery after the given recovery time has elapsed.
 
 The presence of the virus in the population is represented by the colors of individuals. Four colors are used: white individuals are uninfected, red individuals are infected, green individuals are recovered, and blue individuals are inoculated. Once recovered, the individual is permanently immune to the virus. The yellow person symbolizes the health official or ambulance, who patrols the world in search of ill people. Once coming in contact with an infected individual, the ambulance immediately delivers the infected to the hospital within the region of residence.
 
 The graph INFECTION AND RECOVERY RATES shows the rate of change of the cumulative infected and recovered in the population. It tracks the average number of secondary infections and recoveries per tick. The reproduction number is calculated under different assumptions than those of the KM model, as we allow for more than one infected individual in the population, and introduce aforementioned variables.
 
-At the end of the simulaiton, the R_0 reflects the estimate of the reproduction number, the final size relation that indicates whether there will be (or there was, in the model sense) an epidemic. This again closely follows the mathematical derivation that R_0 = beta*S(0)/ gamma = N*ln(S(0) / S(t)) / (N - S(t)), where N is the total population, S(0) is the initial number of susceptibles, and S(t) is the total number of susceptibles at time t. In this model, the R_0 estimate is the number of secondary infections that arise for an average infected individual over the course of the person's infected period.
+At the end of the simulation, the R_0 reflects the estimate of the reproduction number, the final size relation that indicates whether there will be (or there was, in the model sense) an epidemic. This again closely follows the mathematical derivation that R_0 = beta*S(0)/ gamma = N*ln(S(0) / S(t)) / (N - S(t)), where N is the total population, S(0) is the initial number of susceptibles, and S(t) is the total number of susceptibles at time t. In this model, the R_0 estimate is the number of secondary infections that arise for an average infected individual over the course of the person's infected period.
+
 
 ## HOW TO USE IT
 
@@ -782,57 +752,42 @@ Each time-step can be considered to be in hours, although any suitable time unit
 
 What follows is a summary of the sliders in the model.
 
-- INITIAL-PEOPLE: How many people the simulation begins with.  
-- INFECTION-CHANCE: Probability of disease transmission.  
-- RECOVERY-CHANCE: Probability of an individual recovering.  
-- AVERAGE-RECOVERY-TIME: Average time it takes for an individual to recover. Each time-step can be considered to be in hours, although any suitable time unit will do.  
-- AVERAGE-ISOLATION-TENDENCY: Average tendency of individuals to want to isolate themselves and limit contact with others.  
-- AVERAGE-HOSPITAL-GOING-TENDENCY: Average tendency of individuals to go to a hospital when sick.  
-- INITIAL-AMBULANCE: the number of health officials or ambulances that force-quarantine sick individuals upon contact  
-- INOCULATION-CHANCE: Probability of an individual getting vaccinated, and hence immune from the virus.  
-- INTRA-MOBILITY: This indicates how "mobile" an individual is. Individuals move randomly by this assigned value; ambulances always move 5 times faster than this assigned value.
+INITIAL-PEOPLE (initialized to vary between 50 - 400): The total number of individuals the simulation begins with.  
+INFECTION-CHANCE (10 - 50): Probability of disease transmission from one individual to another. 
+RECOVERY-CHANCE (10 - 100): Probability of an individual's recovery, after the average recovery tie has elapsed.
+AVERAGE-RECOVERY-TIME (50 - 300): Time it takes for an individual to recover, on average. The actual individual's recovery time is pulled from a normal distribution centered around the AVERAGE-RECOVERY-TIME at its mean, with a standard deviation of a quarter of the AVERAGE-RECOVERY-TIME. Each time-step can be considered to be in hours, although any suitable time unit will do.  
+AVERAGE-ISOLATION-TENDENCY (0 - 50): Average tendency of individuals to isolate themselves and will not spread the disease. Once an infected person is identified as an "isolator," the individual will isolate himself in the current location (as indicated by the grey patch) and will stay there until full recovery. 
+AVERAGE-HOSPITAL-GOING-TENDENCY (0 - 50): Average tendency of individuals to go to a hospital when sick. If an infected person is identified as a "hospital goer," then he or she will go to the hospital, and will recover in half the time of an average recovery period, due to better medication and rest. 
+INITIAL-AMBULANCE (0 - 4): Number of health officials or ambulances that move about at random, and force-quarantine sick individuals upon contact. The health officials are immune to the disease, and they themselves do not physically accompany the patient to the hospital. They move at a speed 5 times as fast as other individuals in the world and are not bounded by geographic region.  
+INOCULATION-CHANCE (0 - 50): Probability of an individual getting vaccinated, and hence immune from the virus.  
+INTRA-MOBILITY (0 - 1): This indicates how "mobile" an individual is. Usually, an individual at each time step moves by a distance 1. In this model, the person will move at a distance indicated by the INTRA-MOBILITY at each time-step. Thus, the lower the intra-mobility level, the less the movement in the individuals. Individuals move randomly by this assigned value; ambulances always move 5 times faster than this assigned value.
 
-The total number of individuals in the simulation is controlled by the slider INITIAL-PEOPLE (initialized to vary between 50 - 400).
+In addition, there are two switches, and a related slider:
 
-The slider INFECTION-CHANCE (10 - 50) determines the rate at which the disease spreads from one individual to another. When the INFECTION-RATE slider is set at zero, disease spread is unlikely, although (because the rates are assigned in a normal distribution) it is still possible.
-
-The slider RECOVERY-CHANCE (10 - 100) determines how likely individuals are to recover, after the average recovery time has elapsed.
-
-The slider AVERAGE-RECOVERY-TIME (50 - 300) determines the time required for each individual in the population to recover from the illness. This value indicates the time required, on average, for a person to recover. The actual individual's recovery time is pulled from a normal distribution centered around the AVERAGE-RECOVERY-TIME at its mean,  
-with a standard deviation of a quarter of the AVERAGE-RECOVERY-TIME.
-
-The sliders for AVERAGE-ISOLATION-TENDENCY (0 - 50) and AVERAGE-HOSPITAL-GOING-TENDENCY (0 - 50) are similar. Once an infected person is identified as an "isolator," the individual will isolate himself in the current location (as indicated by the grey patch) and will stay there until full recovery. During the isolation period the infected individual does not communicate the disease. If an infected person is identified as a "hospital goer," then he or she will go to the hospital, and will recover in half the time of an average recovery period, due to better medication and rest.
-
-INITIAL-AMBULANCE (0 - 4)indicates the number of health officials in the world. These are the equivalent of Medecins sans frontieres, except perhaps even more mobile. They wander around the world in a random fashion, and upon encountering an infected person, will immediately transfer the individual to a hospital in the region in which the person was found. The health officials are immune to the disease, and they themselves do not physically accompany the patient to the hospital. They move at a speed 5 times as fast as other individuals in the world.
-
-INOCULATION-CHANCE (0 - 50): This indicates the probability in which an individual will be inoculated from the virus. If an individual is inoculated, that is indicated by the color blue.
-
-INTRA-MOBILITY (0 - 1): Usually, a person at each time step moves by a distance 1. In this model, the person will move at a distance indicated by the INTRA-MOBILITY at each tick. Thus, the lower the intra-mobility level, the less the movement in the individuals.
-
-In addition, there are two choosers, and a related slider:
-
-- LINKS? : When ON, there will be links randomly assigned between people, and the disease will spread twice as fast to those that the infected person is linked with as to the others. When OFF, the disease spreads with an equal chance to those around the infected person.  
-- TRAVEL? : When ON, people from the two regions (separated by the yellow border in the middle) are allowed to migrate and mix. When OFF, the people stay in the region in which they live.  
-- TRAVEL-TENDENCY (0 - 1): When TRAVEL? is ON, this slider indicates the probability of an individual to be traveling at each tick. The 1 indicates a 1 percent chance of travel per tick.
+LINKS? : When ON, there will be links randomly assigned between people, and the disease will spread twice as fast to those that the infected person is linked with as to the others. When OFF, the disease spreads with an equal chance to those around the infected person.  
+TRAVEL? : When ON, people from the two regions (separated by the yellow border in the middle) are allowed to migrate and mix. When OFF, the people stay in the region in which they live.  
+TRAVEL-TENDENCY (0 - 1): When TRAVEL? is ON, this slider indicates the probability of an individual to be traveling at each tick. The 1 indicates a 1 percent chance of travel per tick.
 
 A number of graphs are also plotted in this model.
 
-- CUMULATIVE INFECTED AND RECOVERED: This plots the total percentage of individuals who have ever been infected or recovered.  
-- POPULATIONS: This plots the number of people with or without the disease.  
-- INFECTION AND RECOVERY RATES: This plots the estimated rates at which the disease is spreading. BetaN is the rate at which the cumulative infected changes, and Gamma rate at which the cumulative recovered changes.  
-- R_0: This is an estimate of the reproduction number.
+CUMULATIVE INFECTED AND RECOVERED: This plots the total percentage of individuals who have ever been infected or recovered.  
+POPULATIONS: This plots the number of people with or without the disease.  
+INFECTION AND RECOVERY RATES: This plots the estimated rates at which the disease is spreading. BetaN is the rate at which the cumulative infected changes, and Gamma rate at which the cumulative recovered changes.  
+R_0: This is an estimate of the reproduction number.
+
 
 ## THINGS TO NOTICE
 
 As with many epidemiological models, the number of people becoming infected over time, in the event of an epidemic, traces out an "S-curve." It is called an S-curve because it is shaped like a sideways S. By changing the values of the parameters using the slider, try to see what kinds of changes make the S curve stretch or shrink.
 
-Whenever there's a spread of the disease that reaches most of the population, we say that there was an epidemic. As mentioned before, the reproduction number serves as an indicator for the likeliness of an epidemic to occur, if it is greater than 1. If it is smaller than 1, then it is likely that the disease spread will stop short, and we call this an endemic.
+Whenever there's a spread of the disease that reaches most of the population, we say that there was an epidemic. The reproduction number serves as an indicator for the likeliness of an epidemic to occur, if it is greater than 1. If it is smaller than 1, then it is likely that the disease spread will stop short, and we call this an endemic.
 
 Notice how the introduction of various human behaviors, such as travel, inoculation, isolation and quarantine, help constrain the spread of the disease, and what changes that brings to the population level in terms of rate and time taken of disease spread, as well as the population affected.
 
+
 ## THINGS TO TRY
 
-Compare with the simpler model. Do the added complexities significantly change the disease spread? What kinds of changes bring about interesting outcomes?
+Compare this model with the epiDEM basic model. Do the added complexities significantly change the disease spread? What kinds of changes bring about interesting outcomes?
 
 Notice the difference in dynamics when the travel chooser is on versus off. What happens to the population and the disease spread in both cases?
 
@@ -840,21 +795,31 @@ Does the disease spread change when the link chooser is on? What about when you 
 
 Based on this model, what are some strategies or preventive measures that you think are important to undertake on the onset of a disease outbreak? Are there some that are more effective than others? Why might that be? What combinations work well? Are there some measures that seem redundant?
 
+
 ## EXTENDING THE MODEL
 
 Are there other ways to change the behavior of the people once they are infected? Try to think about how you would introduce such a variable.
 
-In this model, we introduce an option for travel, so that there is mixing between two otherwise closed populations. What happens when you introduce births and deaths to each region? or just one?
+In this model, we introduce an option for travel, so that there is mixing between two otherwise closed populations. What happens when you introduce births and deaths to each region or just one?
 
 What would happen when the virus mutates? How will that change the population dynamic and disease spread?
 
 What would happen if the population had a mix of healthy and less healthy people, so as to have differing levels of susceptibility?
 
+
 ## NETLOGO FEATURES
+
+Notice that each agent pulls from a truncated normal distribution, centered around the AVERAGE-RECOVERY-TIME set by the user, to determine its recovery-time. This is to account for the variation in genetic differences and the immune system functions of individuals. Similarly, an individual's isolation-tendency and hospital-going-tendency are pulled from truncated normal distributions centered around AVERAGE-ISOLATION-TENDENCY and AVERAGE-HOSPITAL-GOING-TENDENCY respectively. 
+
+Notice that R_0 calculated in this model is a numerical estimate to the analytic R_0. In the special case of one infective introduced to a wholly susceptible population (i.e., the Kermack-McKendrick assumptions), the numerical estimations of R_0 are very close to the analytic values. With added complexity in the models, such as the introduction of travel and control measures, the analytic R_0 becomes harder to derive. The numerical estimation is therefore a crude measure of what the actual R_0 might be.
+
+In addition to travel and control measures, notice that this model introduces links amongst individuals and the individual's mobility, which also affect the dynamics of the disease transmission.
+
 
 ## RELATED MODELS
 
-Some related models are AIDS, Virus, and Virus on a Network. These can be found in the sample models section in the models library.
+epiDEM basic, AIDS, Virus and Virus on a Network are related models. 
+
 
 ## CREDITS AND REFERENCES
 @#$#@#$#@
@@ -1159,7 +1124,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta3
+NetLogo 5.0RC3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

@@ -23,14 +23,8 @@ turtles-own
 ;;;
 
 to setup
-  ;; (for this model to work with NetLogo's new plotting features,
-  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
-  ;; the beginning of your setup procedure and reset-ticks at the end
-  ;; of the procedure.)
-  __clear-all-and-reset-ticks
+  clear-all
   setup-people
-  setup-plot
-  update-plot
   reset-ticks
 end
 
@@ -60,7 +54,6 @@ to setup-people
       set susceptible-0 0
       set infection-length random recovery-time
     ]
-
     assign-color
   ]
 end
@@ -99,7 +92,6 @@ to go
     [ assign-color
       calculate-r0 ]
 
-  update-plot
   tick
 end
 
@@ -172,38 +164,6 @@ end                                                                     ;; we ge
                                                                         ;; N - gamma*ln(S(0)) / beta = S(t) - gamma*ln(S(t)) / beta, where N is the initial 'susceptible' population
                                                                         ;; Since N >> 1
                                                                         ;; Using this, we have R_0 = beta*N / gamma = N*ln(S(0)/S(t)) / (K-S(t))
-
-
-
-;;;
-;;; PLOTTING PROCEDURES
-;;;
-
-to setup-plot
-  set-current-plot "Populations"
-  set-plot-y-range 0 (initial-people)
-end
-
-to update-plot
-  set-current-plot "Populations"
-  set-current-plot-pen "Not Infected"
-  plot count turtles with [ not infected? ]
-  set-current-plot-pen "Infected"
-  plot count turtles with [ infected? ]
-
-  set-current-plot "Infection and Recovery Rates"
-  set-current-plot-pen "Infection Rate"
-  plot (betaN * nbInfected-previous)   ;; Multiply by previous infected to get rate of change of cumulative infected
-  set-current-plot-pen "Recovery Rate"
-  plot (gamma * nbInfected-previous)
-
-  set-current-plot "Cumulative Infected and Recovered"
-  set-current-plot-pen "% infected"
-  plot (((count turtles with [ cured? ] + count turtles with [ infected? ]) / initial-people) * 100)
-  set-current-plot-pen "% recovered"
-  plot ((count turtles with [ cured? ] / initial-people) * 100)
-
-end
 @#$#@#$#@
 GRAPHICS-WINDOW
 656
@@ -297,8 +257,8 @@ true
 true
 "" ""
 PENS
-"Infected" 1.0 0 -2674135 true "" ""
-"Not Infected" 1.0 0 -10899396 true "" ""
+"Infected" 1.0 0 -2674135 true "" "plot count turtles with [ infected? ]"
+"Not Infected" 1.0 0 -10899396 true "" "plot count turtles with [ not infected? ]"
 
 PLOT
 15
@@ -316,8 +276,8 @@ true
 true
 "" ""
 PENS
-"Infection Rate" 1.0 0 -2674135 true "" ""
-"Recovery Rate" 1.0 0 -10899396 true "" ""
+"Infection Rate" 1.0 0 -2674135 true "" "plot (betaN * nbInfected-previous) "
+"Recovery Rate" 1.0 0 -10899396 true "" "plot (gamma * nbInfected-previous)"
 
 SLIDER
 46
@@ -365,8 +325,8 @@ true
 true
 "" ""
 PENS
-"% infected" 1.0 0 -2674135 true "" ""
-"% recovered" 1.0 0 -10899396 true "" ""
+"% infected" 1.0 0 -2674135 true "" "plot (((count turtles with [ cured? ] + count turtles with [ infected? ]) / initial-people) * 100)"
+"% recovered" 1.0 0 -10899396 true "" "plot ((count turtles with [ cured? ] / initial-people) * 100)"
 
 SLIDER
 331
@@ -397,7 +357,7 @@ r0
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model simulates the spread of an infectious disease in a closed population. It is an introductory model in the curricular unit called epiDEM (which stands for Epidemiology: Understanding Disease Dynamics and Emergence through Modeling). This particular model is formulated based on a mathematical model that describes the systemic dynamics of a phenomena that emerges when one infected person is introduced in a wholly susceptible population. This basic model, in mathematical epidemiology, is known as the Kermack-McKendrick model.
+This model simulates the spread of an infectious disease in a closed population. It is an introductory model in the curricular unit called epiDEM (Epidemiology: Understanding Disease Dynamics and Emergence through Modeling). This particular model is formulated based on a mathematical model that describes the systemic dynamics of a phenomenon that emerges when one infected person is introduced in a wholly susceptible population. This basic model, in mathematical epidemiology, is known as the Kermack-McKendrick model.
 
 The Kermack-McKendrick model assumes a closed population, meaning there are no births, deaths, or travel into or out of the population. It also assumes that there is homogeneous mixing, in that each person in the world has the same chance of interacting with any other person within the world. In terms of the virus, the model assumes that there are no latent or dormant periods, nor a chance of viral mutation.
 
@@ -406,51 +366,46 @@ Because this model is so simplistic in nature, it facilitates mathematical analy
 This model incorporates all of the above assumptions, but each individual has a 5% chance of being initialized as infected. This model shows the disease spread as a phenomenon with an element of stochasticity. Small perturbations in the parameters included here can in fact lead to different final outcomes.
 
 Overall, this model helps users  
-1) engage in a new way of viewing/modeling epidemics that is more personable and relatable,  
-2) understand how the reproduction number, R_0, represents the threshold for an epidemic,  
-3) think about different ways to calculate R_0, and the strengths and weaknesses in each approach,  
+1) engage in a new way of viewing/modeling epidemics that is more personable and relatable 
+2) understand how the reproduction number, R_0, represents the threshold for an epidemic
+3) think about different ways to calculate R_0, and the strengths and weaknesses in each approach  
 4) understand the relationship between derivatives and integrals, represented simply as rates and cumulative number of cases, and  
 5) provide opportunities to extend or change the model to include some properties of a disease that interest users the most.
+
 
 ## HOW IT WORKS
 
 Individuals wander around the world in random motion. Upon coming into contact with an infected person, by being in any of the eight surrounding neighbors of the infected person or in the same location, an uninfected individual has a chance of contracting the illness. The user sets the number of people in the world, as well as the probability of contracting the disease.
 
-An infected person has a probability of recovering after reaching their recovery time period, and is also set by the user. The recovery time of each individual is determined by pulling from an approximately normal distribution with a mean of the average recovery time set by the user.
+An infected person has a probability of recovering after reaching their recovery time period, which is also set by the user. The recovery time of each individual is determined by pulling from an approximately normal distribution with a mean of the average recovery time set by the user.
 
 The colors of the individuals indicate the state of their health. Three colors are used: white individuals are uninfected, red individuals are infected, green individuals are recovered. Once recovered, the individual is permanently immune to the virus.
 
-The graph INFECTION AND RECOVERY RATES shows the rate of change of the cumulative infected and recovered in the population. It tracks the average number of secondary infections and recoveries per tick. The reproduction number is calculated under different assumptions than those of the KM model, as we allow for more than one infected individual in the population, and introduce aforementioned variables.
+The graph INFECTION AND RECOVERY RATES shows the rate of change of the cumulative infected and recovered in the population. It tracks the average number of secondary infections and recoveries per tick. The reproduction number is calculated under different assumptions than those of the Kermack McKendrick model, as we allow for more than one infected individual in the population, and introduce aforementioned variables.
 
-At the end of the simulaiton, the R_0 reflects the estimate of the reproduction number, the final size relation that indicates whether there will be (or there was, in the model sense) an epidemic. This again closely follows the mathematical derivation that R_0 = beta*S(0)/ gamma = N*ln(S(0) / S(t)) / (N - S(t)), where N is the total population, S(0) is the initial number of susceptibles, and S(t) is the total number of susceptibles at time t. In this model, the R_0 estimate is the number of secondary infections that arise for an average infected individual over the course of the person's infected period.
+At the end of the simulation, the R_0 reflects the estimate of the reproduction number, the final size relation that indicates whether there will be (or there was, in the model sense) an epidemic. This again closely follows the mathematical derivation that R_0 = beta*S(0)/ gamma = N*ln(S(0) / S(t)) / (N - S(t)), where N is the total population, S(0) is the initial number of susceptibles, and S(t) is the total number of susceptibles at time t. In this model, the R_0 estimate is the number of secondary infections that arise for an average infected individual over the course of the person's infected period.
+
 
 ## HOW TO USE IT
 
-The SETUP button creates individuals according to the parameter values chosen by the user. Each individual has a 5% chance of being initialized as infected. Once the simulation has been setup, push the GO button to run the model. GO starts the simulation and runs it continuously until GO is pushed again.
+The SETUP button creates individuals according to the parameter values chosen by the user. Each individual has a 5% chance of being initialized as infected. Once the model has been setup, push the GO button to run the model. GO starts the model and runs it continuously until GO is pushed again.
 
 Note that in this model each time-step can be considered to be in hours, although any suitable time unit will do.
 
 What follows is a summary of the sliders in the model.
 
-- INITIAL-PEOPLE: How many people the simulation begins with.  
-- INFECTION-CHANCE: Probability of disease transmission.  
-- RECOVERY-CHANCE: Probability of an individual recovering.  
-- AVERAGE-RECOVERY-TIME: Average time it takes for an individual to recover. Each time-step can be considered to be in hours, although any suitable time unit will do.
-
-The total number of individuals in the simulation is controlled by the slider INITIAL-PEOPLE (initialized to vary between 50 - 400).
-
-The slider INFECTION-CHANCE (10 - 100) determines the likelihood at which the disease spreads from one individual to another.
-
-The slider RECOVERY-CHANCE (10 - 100) determines how likely individuals are to recover, once infected.
-
-The slider AVERAGE-RECOVERY-TIME (50 - 300) determines the time required for each individual in the population to recover from the illness. This value indicates the time required, on average, for a person to recover. The actual individual's recovery time is pulled from a normal distribution centered around the AVERAGE-RECOVERY-TIME at its mean, with a standard deviation of a quarter of the AVERAGE-RECOVERY-TIME.
+INITIAL-PEOPLE (initialized to vary between 50 - 400): The total number of individuals in the simulation, determined by the user.
+INFECTION-CHANCE (10 - 100): Probability of disease transmission from one individual to another.  
+RECOVERY-CHANCE (10 - 100): Probability of an infected individual to recover.  
+AVERAGE-RECOVERY-TIME (50 - 300): The time it takes for an individual to recover on average. The actual individual's recovery time is pulled from a normal distribution centered around the AVERAGE-RECOVERY-TIME at its mean, with a standard deviation of a quarter of the AVERAGE-RECOVERY-TIME. Each time-step can be considered to be in hours, although any suitable time unit will do.
 
 A number of graphs are also plotted in this model.
 
-- CUMULATIVE INFECTED AND RECOVERED: This plots the total percentage of infected and recovered individuals over the course of the disease spread.  
-- POPULATION: This plots the total number of people with or without the flu over time.  
-- INFECTION AND RECOVERY RATES: This plots the estimated rates at which the disease is spreading. BetaN is the rate at which the cumulative infected changes, and Gamma rate at which the cumulative recovered changes.  
-- R_0: This is an estimate of the reproduction number, only comparable to the Kermack McKendrick's definition if the initial number of infected were 1.
+CUMULATIVE INFECTED AND RECOVERED: This plots the total percentage of infected and recovered individuals over the course of the disease spread.  
+POPULATIONS: This plots the total number of people with or without the flu over time. 
+INFECTION AND RECOVERY RATES: This plots the estimated rates at which the disease is spreading. BetaN is the rate at which the cumulative infected changes, and Gamma rate at which the cumulative recovered changes.  
+R_0: This is an estimate of the reproduction number, only comparable to the Kermack McKendrick's definition if the initial number of infected were 1.
+
 
 ## THINGS TO NOTICE
 
@@ -458,16 +413,17 @@ As with many epidemiological models, the number of people becoming infected over
 
 Whenever there's a spread of the disease that reaches most of the population, we say that there was an epidemic. As mentioned before, the reproduction number indicates the number of secondary infections that arise as a result of introducing one infected person in a totally susceptible population, over the course of the infected person's contagious period (i.e. while the person is infected). If it is greater than 1, an epidemic occurs. If it is less than 1, then it is likely that the disease spread will stop short, and we call this an endemic.
 
+
 ## THINGS TO TRY
 
 Try running the model by varying one slider at a time. For example:
-
 How does increasing the number of initial people affect the disease spread?  
 How does increasing the recovery chance the shape of the graphs? What about changes to average recovery time? Or the infection rate?
 
 What happens to the shape of the graphs as you increase the recovery chance and decrease the recovery time? Vice versa?
 
 Notice the graph Cumulative Infected and Recovered, and Infection and Recovery Rates. What are the relationships between the two? Why is the latter graph jagged?
+
 
 ## EXTENDING THE MODEL
 
@@ -477,9 +433,15 @@ In this model, we also assume that the population is closed. Can you think of wa
 
 ## NETLOGO FEATURES
 
+Notice that each agent pulls from a truncated normal distribution, centered around the AVERAGE-RECOVERY-TIME set by the user. This is to account for the variation in genetic differences and the immune system functions of individuals.
+
+Notice that R_0 calculated in this model is a numerical estimate to the analytic R_0. In the special case of one infective introduced to a wholly susceptible population (i.e., the Kermack-McKendrick assumptions), the numerical estimations of R0 are very close to the analytic values.
+
+
 ## RELATED MODELS
 
-Some related models are AIDS, Virus, and Virus on a Network. These can be found in the sample models section in the models library.
+AIDS, Virus and Virus on a Network are related models. 
+
 
 ## CREDITS AND REFERENCES
 @#$#@#$#@
@@ -784,7 +746,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta3
+NetLogo 5.0RC3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
