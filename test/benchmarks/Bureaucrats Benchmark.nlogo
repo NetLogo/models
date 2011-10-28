@@ -163,6 +163,17 @@ OUTPUT
 164
 12
 
+MONITOR
+200
+15
+285
+60
+NIL
+result
+17
+1
+11
+
 @#$#@#$#@
 ## WHAT IS IT?
 
@@ -176,7 +187,7 @@ true
 Polygon -7500403 true true 150 5 40 250 150 205 260 250
 
 @#$#@#$#@
-NetLogo 5.0RC2
+NetLogo 5.0RC3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
