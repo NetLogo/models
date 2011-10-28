@@ -5,7 +5,7 @@ to benchmark
   random-seed 0
   reset-timer
   setup
-  repeat 8000 [ go ]
+  repeat 5000 [ go ]
   set result timer
 end
 
