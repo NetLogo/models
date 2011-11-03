@@ -63,9 +63,9 @@ The remainder of this document shows how to use Markdown.
 
 ## Headings
 
-Headings are produced by placing one or more hash marks (`#`) at the start of a line. First level headings get one hash, second level headings get two, and so on up to a maximum of four levels.
+A heading begins with one or more hash marks (`#`). First level headings get one hash, second level headings get two, and so on up to four levels.
 
-#### Example
+#### Input
 
     # First-level heading
     ## Second-level heading
@@ -82,19 +82,19 @@ Headings are produced by placing one or more hash marks (`#`) at the start of a 
     This is another paragraph. The first line has two sentences.
     The entire paragraph has two lines and three sentences.
 
-    You don't have to put blank lines around paragraphs.
-    You can simply move to the next line.
-    It's that easy.
+    Line breaks in the input,
+    Make line breaks in the output,
+    Like this.
 
-#### Output
+#### Formatted
 
 This is a paragraph. There are no spaces before the word 'This'.
 
 This is another paragraph. The first line has two sentences. The entire paragraph has two lines and three sentences.
 
-You don't have to put blank lines around paragraphs.
-You can simply move to the next line.
-It's that easy.
+Line breaks in the input,
+Make line breaks in the output,
+Like this.
 
 ## Italicized and bold text
 
@@ -109,7 +109,7 @@ It's that easy.
     You can also combine them:
     _**hello**_ and **_goodbye_**
 
-#### Output
+#### Formatted
 
 For italics, surround  text with underscores:
 _hello, world_.
@@ -132,7 +132,7 @@ _**hello**_ and **_goodbye_**
       2. The next item in the list starts with the next number.
       3. And so on...
 
-#### Output
+#### Formatted
 
 We are about to start an ordered list.
 
@@ -153,7 +153,7 @@ We are about to start an ordered list.
         * Sub items are indented 2 more spaces.
         * Here's another sub item.
 
-#### Output
+#### Formatted
 
 We are about to start an unordered list.
 
@@ -172,7 +172,7 @@ The simplest way to create a link is to just type it in:
 
     http://ccl.northwestern.edu/netlogo
 
-#### Output
+#### Formatted
 
 http://ccl.northwestern.edu/netlogo
 
@@ -186,31 +186,27 @@ If you want to use your own text for the link, here's how:
 
     [NetLogo](http://ccl.northwestern.edu/netlogo)
 
-#### Output
+#### Formatted
 
 [NetLogo](http://ccl.northwestern.edu/netlogo)
 
-### Local Links
+### Local links
 
 It is also possible to link to a page on your computer, instead of a page somewhere on the Internet. 
 
 Local links have this form:
 
-    [alt text](page-path)
+    [alt text](file:path)
 
-Where page-path has this form:
+Any spaces in the path must be converted to %20. For example, this:
 
-    file:path/relative/to/model/directory/index.html
+    file:my page.html
+
+must be written as:
+
+    file:my%20page.html
 
 The path is relative to the directory that the model file is in.
-
-Any spaces in the name of the file or the path must be converted to %20. For example, this:
-
-    file:path relative/to model directory/the page.html
-
-must be converted to:
-
-    file:path%20relative/to%20model%20directory/the%20page.html
 
 #### Example
 
@@ -236,29 +232,19 @@ Images are very similar to links, but have an exclamation point in front:
 
     ![NetLogo](http://ccl.northwestern.edu/netlogo/images/netlogo-title-new.jpg)
 
-#### Output
+#### Formatted
 
 ![NetLogo](http://ccl.northwestern.edu/netlogo/images/netlogo-title-new.jpg)
 
-### Local Images
+### Local images
 
 Also very similar to links, it is possible to display an image on your computer instead of an image somewhere on the Internet. Assuming you have an image named `image.jpg`, local images look like this:
 
-    ![Alt Text](image-path)
-
-Where image-path has this form:
-
-    file:path/relative/to/model/directory/image.jpg
+    ![alt text](file:path)
 
 The path is relative to the directory that the model file is in.
 
-As with local links, any spaces in the name of the file or the path must be converted to %20. For example, this:
-
-    file:path relative/to model directory/the image.jpg
-
-must be converted to:
-
-    file:path%20relative/to%20model%20directory/the%20image.jpg
+As with local links, any spaces in the name of the file or the path must be converted to %20.
 
 #### Example
 
@@ -266,7 +252,7 @@ Like local links, the easiest way to display images on your computer is to put t
 
     ![Example](file:Perspective%20Example.png)
 
-#### Output
+#### Formatted
 
 ![Example](file:Perspective%20Example.png)
 
@@ -281,7 +267,7 @@ You can put whatever text you like inside of it and you can also style it.
     > and four times seven is --- _oh dear!_
     > I shall never get to twenty at that rate!
 
-#### Output
+#### Formatted
 
 > Let me see: four times five is twelve, and four times six is thirteen,
 > and four times seven is --- _oh dear!_
@@ -289,20 +275,19 @@ You can put whatever text you like inside of it and you can also style it.
 
 ## Code
 
-To put code in a sentence, simply surround it with backticks (`).
+To include a short piece of code in a sentence, surround it with backticks (`).
 
 #### Example
 
     You can create a single turtle with the `crt 1` command.
 
-#### Output
+#### Formatted
 
 You can create a single turtle with the `crt 1` command.
 
+## Code blocks
 
-## Code blocks (Preformatted text)
-
-It is also possible to have blocks of code. To create a code block, indent every line of the block by 4 spaces. This is also useful for diagrams and formulas.
+It is also possible to have blocks of code. To create a code block, indent every line of the block by 4 spaces.
 
 #### Example
 
@@ -316,7 +301,7 @@ It is also possible to have blocks of code. To create a code block, indent every
           tick
         end
 
-#### Output
+#### Formatted
 
 About to start the code block.
 Leave a blank line after this one, and then indent four spaces:
@@ -341,7 +326,7 @@ Superscripts and subscripts are useful for writing formulas, equations, footnote
 
     WWW<sup>[1]</sup>
 
-#### Output
+#### Formatted
 
 H<sub>2</sub>O
 
@@ -351,11 +336,11 @@ WWW<sup>[1]</sup>
 
 ## Notes on usage
 
- * Paragraphs, lists, code blocks and other features should be separated from each other with a blank line.  If you find that something isn't formatted the way you expected, it might be because you need to add a blank lines before or after it.
+ * Paragraphs, lists, code blocks and other features should be separated from each other with a blank line.  If you find that something isn't formatted the way you expected, it might be because you need to add a blank line before it.
 
- * If you need to prevent a special character from being treated as a markup, put a backslash (`\`) before it.
+ * To prevent a special character from being treated as markup, put a backslash (`\`) before it.
 
- * We use GitHub flavored newlines (http://github.github.com/github-flavored-markdown/) instead of traditional Markdown handling of newlines. This means that newlines are treated as real line breaks, instead of being being combined with the previous line into a single paragraph. We believe this is more intuitive.
+ * We use GitHub flavored newlines (http://github.github.com/github-flavored-markdown/) instead of traditional Markdown handling of newlines. This means that newlines are treated as real line breaks, instead of being being combined with the previous line into a single paragraph.
 
 ## Other features
 
@@ -363,9 +348,9 @@ Markdown has additional features that we have not shown here.
 
 We have tested the features shown above on a variety of systems.  If you use other Markdown features, you may find that they work on your computer, or not.  Even a feature that works on your computer might work differently, or not work at all, for someone with a different operating system or Java virtual machine.
 
-If you want all NetLogo users to be able to read your writing, use only the features shown above.
+If you want all NetLogo users to be able to read your Info tab, use only the features shown above.
 
-More information about Markdown is at http://daringfireball.net/projects/markdown/. For rendering Markdown, NetLogo uses [pegdown](http://github.com/sirthias/pegdown).
+More information about Markdown is at http://daringfireball.net/projects/markdown/. For rendering Markdown, NetLogo uses the [Pegdown](http://github.com/sirthias/pegdown) library.
 
 [netlogo-link]: http://ccl.northwestern.edu/netlogo
 @#$#@#$#@
