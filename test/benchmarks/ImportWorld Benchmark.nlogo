@@ -8,9 +8,9 @@ to benchmark
    set p2 random 100
    set pcolor one-of base-colors
   ]
-  export-world "/tmp/firebig.csv"
+  export-world "firebig.csv"
   reset-timer
-  import-world "/tmp/firebig.csv"
+  import-world "firebig.csv"
   set result timer
 end
 @#$#@#$#@
