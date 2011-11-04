@@ -136,9 +136,6 @@ def munge(path: String): String = {
     require(info == info.trim + "\n",
             path + ": extra whitespace at beginning or end of info tab")
     val lines = info.split('\n').toList
-    // The "_.endsWith" check (repeated twice) is too loose.  Both times it should check for exact equality.
-    // I'm leaving the loose check in for now because we haven't been over all the info tabs manually yet.
-    // Once that's done, the tighter check should be reinstated. - ST 10/21/10
     require(lines.filter(_ == "## CREDITS AND REFERENCES").size == 1,
             "there must be exactly one CREDITS AND REFERENCES line in the info tab")
     require(lines.dropWhile(_ != "## CREDITS AND REFERENCES").drop(1)
