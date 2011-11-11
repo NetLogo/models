@@ -72,7 +72,7 @@ def validateYear(y:Int) {
 }
 
 lazy val validKeywords = List("MIT", "Wilensky", "specialCE", "MAC",
-                              "Steiner", "Stroup", "3D", "NIELS")
+                              "Steiner", "Stroup", "3D", "NIELS", "CC0")
 
 def munge(path: String): String = {
   def require(requirement:Boolean, message: => String) = Predef.require(requirement, message + " ("+path+")")
@@ -113,7 +113,7 @@ def munge(path: String): String = {
       "Copyright " + year + " Uri Wilensky and Walter Stroup."
     else if(keywords.contains("NIELS"))
       "Copyright " + year + " Pratim Sengupta and Uri Wilensky."
-    else if(path.containsSlice("Code Examples/") && !keywords.contains("specialCE"))
+    else if(keywords.contains("CC0") || (path.containsSlice("Code Examples/") && !keywords.contains("specialCE")))
       "Public Domain"
     else
       "Copyright " + year + " Uri Wilensky."
@@ -122,11 +122,11 @@ def munge(path: String): String = {
     require(code == code.trim + "\n",
             path + ": extra whitespace at beginning or end of Code tab")
     code + "\n\n" +
-      (if(path.containsSlice("Code Examples/") && !keywords.contains("specialCE")) {
+      (if(keywords.contains("CC0") || (path.containsSlice("Code Examples/") && !keywords.contains("specialCE"))) {
         require(!year2.isDefined, "can't specify two years for code examples")
         "; " + copyright + ":\n" +
         "; To the extent possible under law, Uri Wilensky has waived all\n" +
-        "; copyright and related or neighboring rights to this Code Example.\n"
+        "; copyright and related or neighboring rights to this model.\n"
       }
       else
         "; " + copyright + "\n" + "; See Info tab for full copyright and license.\n"
@@ -153,7 +153,7 @@ def munge(path: String): String = {
   }
   def howToCiteSection = {
     val builder = new StringBuilder
-    builder.append("## HOW TO CITE\n")
+    builder.append("## HOW TO CITE\n\n")
     builder.append("If you mention this model in an academic publication, we ask that you ")
     builder.append("include these citations for the model itself and for the NetLogo software:  \n")
     builder.append("- ")
@@ -170,10 +170,13 @@ def munge(path: String): String = {
     builder.append("http://ccl.northwestern.edu/netlogo/. ")
     builder.append("Center for Connected Learning and ")
     builder.append("Computer-Based Modeling, Northwestern University, Evanston, IL.  \n")
-    builder.append("\n\n")
+    builder.append("\n")
     builder.append("In other publications, please use:  \n")
     builder.append("- ")
-    builder.append(copyright + " See ")
+    if (keywords.contains("CC0"))
+      builder.append("See ")
+    else
+      builder.append(copyright + " See ")
     builder.append("http://ccl.northwestern.edu/netlogo/models/" + compressedname + " ")
     builder.append("for terms of use.  \n")
     if(keywords.contains("NIELS")) {
@@ -187,7 +190,7 @@ def munge(path: String): String = {
   }
   def copyrightSection = {
     val builder = new StringBuilder
-    builder.append("## COPYRIGHT AND LICENSE\n")
+    builder.append("## COPYRIGHT AND LICENSE\n\n")
     if(keywords.contains("Steiner")) {
       builder.append(copyright + "\n")
       builder.append("\n")
@@ -196,6 +199,13 @@ def munge(path: String): String = {
       builder.append("this license, visit http://creativecommons.org/licenses/by-nc-sa/2.5/ ")
       builder.append("or send a letter to Creative Commons, 559 Nathan Abbott Way, ")
       builder.append("Stanford, California 94305, USA.\n")
+    }
+    else if(keywords.contains("CC0")) {
+      builder.append("[![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)](http://creativecommons.org/publicdomain/zero/1.0/)\n")
+      builder.append("\n")
+      builder.append(copyright + ": ")
+      builder.append("To the extent possible under law, Uri Wilensky has waived all ")
+      builder.append("copyright and related or neighboring rights to this model.")
       builder.append("\n")
     }
     else {
