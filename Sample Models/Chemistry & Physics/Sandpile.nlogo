@@ -2,7 +2,7 @@ globals [
   ;; By always keeping track of how much sand is on the table, we can compute the 
   ;; average number of grains per patch instantly, without having to count.
   total
-  ;; Keep track of avalanche sizes so we can histogram their sizes
+  ;; Keep track of avalanche sizes so we can histogram them
   sizes
 ]
 
