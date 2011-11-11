@@ -154,7 +154,7 @@ def munge(path: String): String = {
   def howToCiteSection = {
     val builder = new StringBuilder
     builder.append("## HOW TO CITE\n\n")
-    builder.append("If you mention this model in an academic publication, we ask that you ")
+    builder.append("If you mention this model in a publication, we ask that you ")
     builder.append("include these citations for the model itself and for the NetLogo software:  \n")
     builder.append("- ")
     if(!cite.isEmpty)
@@ -170,18 +170,9 @@ def munge(path: String): String = {
     builder.append("http://ccl.northwestern.edu/netlogo/. ")
     builder.append("Center for Connected Learning and ")
     builder.append("Computer-Based Modeling, Northwestern University, Evanston, IL.  \n")
-    builder.append("\n")
-    builder.append("In other publications, please use:  \n")
-    builder.append("- ")
-    if (keywords.contains("CC0"))
-      builder.append("See ")
-    else
-      builder.append(copyright + " See ")
-    builder.append("http://ccl.northwestern.edu/netlogo/models/" + compressedname + " ")
-    builder.append("for terms of use.  \n")
     if(keywords.contains("NIELS")) {
       builder.append("\n\n")
-      builder.append("To refer to the NIELS curriculum as a whole in academic publications, please use: ")
+      builder.append("To cite the NIELS curriculum as a whole, please use: ")
       builder.append("Sengupta, P. and Wilensky, U. (2008). NetLogo NIELS curriculum. ")
       builder.append("http://ccl.northwestern.edu/NIELS. ")
       builder.append("Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.  \n")
