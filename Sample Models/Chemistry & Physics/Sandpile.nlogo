@@ -9,7 +9,9 @@ globals [
 ;; n is how many grains of sand are on this patch
 patches-own [n]
 
-;; The input task says what each patch should do at setup time.
+;; The input task says what each patch should do at setup time
+;; to compute its initial value for n.  (See the Tasks section
+;; of the Programming Guide for information on tasks.)
 to setup [setup-task]
   clear-all
   ask patches [
@@ -17,53 +19,70 @@ to setup [setup-task]
     recolor
   ]
   set total sum [n] of patches
+  ;; set this to the empty list so we can add items to it later
   set sizes []
   reset-ticks
 end
 
+;; For example, "setup-uniform 2" gives every patch a task which reports 2.
 to setup-uniform [initial]
   setup task [initial]
 end
 
+;; Every patch uses a task which reports a random value.
 to setup-random
   setup task [random 4]
 end
 
-to recolor  ;; patch procedure
+;; patch procedure; the colors are like a stoplight
+to recolor
   ifelse n <= 3
     [ set pcolor item n [black green yellow red] ]
     [ set pcolor white ]
 end
 
 to go
+  ;; drop-patch reports a single patch.  initially, the set of active
+  ;; patches contains just that one patch.
   let active-patches patch-set drop-patch
-  ask active-patches [ update-folders 1 ]
+  ;; update-n adds or subtracts sand. here, we add 1.
+  ask active-patches [ update-n 1 ]
+  ;; we want to count how many patches became overloaded at some point
+  ;; during the avalanche, and also flash those patches. so as we go, we'll
+  ;; keep adding more patches to to this initially empty set.
   let avalanche-patches no-patches
   while [any? active-patches] [
     let overloaded-patches active-patches with [n > 3]
     ask overloaded-patches [
-      update-folders -4
-      ask neighbors4 [ update-folders 1 ]
+      ;; subtract 4 from this patch
+      update-n -4
+      ;; edge patches have less than four neighbors, so some sand may fall off the edge
+      ask neighbors4 [ update-n 1 ]
     ]
     if animate-avalanches? [ display ]
-    set avalanche-patches (patch-set avalanche-patches overloaded-patches)
+    ;; add the current round of overloaded patches to our record of the avalanche
     ;; the patch-set primitive combines agentsets, removing duplicates
+    set avalanche-patches (patch-set avalanche-patches overloaded-patches)
+    ;; find the set of patches which *might* be overloaded, so we will check
+    ;; them the next time through the loop
     set active-patches patch-set [neighbors4] of overloaded-patches
   ]
+  ;; compute the size of the avalanche and throw it on the end of the sizes list
   if any? avalanche-patches [
     set sizes lput (count avalanche-patches) sizes
   ]
   if animate-avalanches? [
     ask avalanche-patches [ set pcolor white ]
     ;; repeated to increase the chances the white flash is visible even when fast-forwarding
+    ;; (which means some view updates are being skipped)
     display display display
     ask avalanche-patches [ recolor ]
   ]
   tick
 end
 
-;; patch procedure. input might be positive or negative, to add or subtract folders
-to update-folders [how-much]
+;; patch procedure. input might be positive or negative, to add or subtract sand
+to update-n [how-much]
   set n n + how-much
   set total total + how-much
   recolor
