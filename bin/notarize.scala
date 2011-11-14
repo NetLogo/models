@@ -72,7 +72,8 @@ def validateYear(y:Int) {
 }
 
 lazy val validKeywords = List("MIT", "Wilensky", "specialCE", "MAC",
-                              "Steiner", "Stroup", "3D", "NIELS", "CC0")
+                              "Steiner", "Stroup", "3D", "NIELS",
+                              "CC0", "BYSA")
 
 def munge(path: String): String = {
   def require(requirement:Boolean, message: => String) = Predef.require(requirement, message + " ("+path+")")
@@ -199,7 +200,21 @@ def munge(path: String): String = {
       builder.append("copyright and related or neighboring rights to this model.")
       builder.append("\n")
     }
-    else {
+    else if(keywords.contains("BYSA")) {
+      builder.append(copyright + "\n")
+      builder.append("\n")
+      builder.append("![CC BY-SA 3.0](http://i.creativecommons.org/l/by-sa/3.0/88x31.png)\n")
+      builder.append("\n")
+      builder.append("This work is licensed under the Creative Commons ")
+      builder.append("Attribution-ShareAlike 3.0 License.  To view a copy of ")
+      builder.append("this license, visit http://creativecommons.org/licenses/by-sa/3.0/ ")
+      builder.append("or send a letter to Creative Commons, 559 Nathan Abbott Way, ")
+      builder.append("Stanford, California 94305, USA.\n")
+      builder.append("\n")
+      builder.append("Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.\n")
+      builder.append("\n")
+    }
+    else {  // default license is CC BY-NC-SA
       builder.append(copyright + "\n")
       builder.append("\n")
       builder.append("![CC BY-NC-SA 3.0](http://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png)\n")
