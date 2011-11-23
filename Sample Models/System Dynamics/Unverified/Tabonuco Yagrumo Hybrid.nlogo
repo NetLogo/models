@@ -133,16 +133,11 @@ to do-plot
   set-current-plot "productivity"
   set-current-plot-pen "productivity"
   plotxy ticks productivity
-  ;set-current-plot-pen "disturbance"
-  ;plotxy system-dynamics-t disturbance
   set-current-plot "trees"
   set-current-plot-pen "tabonuco"
   plotxy ticks amount-of-tabonuco
   set-current-plot-pen "yagrumo"
   plotxy ticks amount-of-yagrumo
- ;; set-current-plot "gaps"
- ;; set-current-plot-pen "gaps"
- ;; plotxy system-dynamics-t gaps
 end
 
 to-report pulse [ volume initial interval ]
