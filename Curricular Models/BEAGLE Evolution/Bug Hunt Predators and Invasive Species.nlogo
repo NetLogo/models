@@ -752,6 +752,8 @@ scale-color is used to visualize the amount of food (energy) available for bugs 
 Look at the Wolf-Sheep model for a basic predator prey model example.
 
 Look at Bug Hunt Consumers for a simpler version of this model that includes no predators or invaders.
+
+## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 true
