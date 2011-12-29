@@ -67,7 +67,7 @@ for(path <- paths) {
 require(!(requirePreviews && missingPreviews), "missing previews")
 
 def validateYear(y:Int) {
-  require(y >= 1996 && y <= 2011,
+  require(y >= 1996 && y <= 2012,
           "invalid year: " + y)
 }
 
