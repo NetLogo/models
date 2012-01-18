@@ -17,7 +17,6 @@ third-order-builders-own [ energy weight origin ]
 globals [ values weights marginal-value marginal-weight crossed third-phase max-cost]
 
 to setup
-  reset-ticks
   tick
 
   generate-cityscape
@@ -606,6 +605,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
+30.0
 
 SLIDER
 5
@@ -677,7 +677,7 @@ BUTTON
 70
 43
 1  clear
-without-interruption\n[ no-display\nca\nask patches [ set pcolor white ]\ndisplay ]
+clear-all\nwithout-interruption\n[ no-display\nca\nask patches [ set pcolor white ]\ndisplay ]\nreset-ticks
 NIL
 1
 T
@@ -1418,7 +1418,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.0RC7
 @#$#@#$#@
 ask patches [ set pcolor white ]
 setup while [ticks > 0] [ setup ]

@@ -63,7 +63,7 @@ to setup
         set size 2.5
          ] ]
 
-  setup-plots
+  reset-ticks
 end
 
 to-report top-wire?  ;; turtle or patch procedure
@@ -100,8 +100,7 @@ to go
         ]
         die
       ] ]
-  tick-advance 1  ;; advance tick counter without plotting
-  if ticks > 50 [ update-plots ]
+  tick
 end
 
 ;; perform simple point collisions
@@ -152,6 +151,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
+30.0
 
 BUTTON
 6
@@ -203,7 +203,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plotxy ticks (bottom-current / ticks)"
+"default" 1.0 0 -16777216 true "" "if (ticks > 50) [plotxy ticks (bottom-current / ticks)]"
 
 TEXTBOX
 192
@@ -241,7 +241,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plotxy ticks (top-current / ticks)"
+"default" 1.0 0 -16777216 true "" "if (ticks > 50) [plotxy ticks (top-current / ticks)]"
 
 MONITOR
 712
@@ -695,7 +695,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.0RC7
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
