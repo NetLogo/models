@@ -757,7 +757,6 @@ All the models from the BEAGLE curriculum.
 ## CREDITS AND REFERENCES
 
 Antonovics, J. (2006). "Evolution in closely adjacent plant populations X: long-term persistence of prereproductive isolation at a mine boundary". Heredity, 97(1), p33-37.
-
 @#$#@#$#@
 default
 true
