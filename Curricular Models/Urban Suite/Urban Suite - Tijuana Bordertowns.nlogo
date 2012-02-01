@@ -1421,6 +1421,7 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 NetLogo 5.0RC7
 @#$#@#$#@
 ask patches [ set pcolor white ]
+reset-ticks
 setup while [ticks > 0] [ setup ]
 repeat 25 [ go ]
 @#$#@#$#@
