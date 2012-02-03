@@ -55,7 +55,8 @@ var missingPreviews = false
 for(path <- paths) {
   val preview = path.reverse.dropWhile(_ != '.').reverse + "png"
   if(!new java.io.File("models/" + preview).exists) {
-    println("MISSING PREVIEW: " + preview)
+    if(requirePreviews)
+      println("MISSING PREVIEW: " + preview)
     missingPreviews = true
   }
   val munged = munge(path)
