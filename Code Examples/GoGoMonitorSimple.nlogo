@@ -26,12 +26,6 @@ to test-connection
     stop ]
   
 end
-
-
-; Created by Paulo Blikstein at Stanford's Transformative Learning Technologies Lab (http://tltl.stanford.edu)
-; Public Domain:
-; To the extent possible under law, Uri Wilensky and Paulo Blikstein have waived all
-; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 800
@@ -405,6 +399,8 @@ This model uses the NetLogo GoGo Extension. For more information, see the GoGo E
 ## CREDITS AND REFERENCES
 
 To learn about GoGo Boards, see http://www.gogoboard.org.
+
+This model was created by Paulo Blikstein at Stanford's [Transformative Learning Technologies Lab](http://tltl.stanford.edu).
 @#$#@#$#@
 default
 true
