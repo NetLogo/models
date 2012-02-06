@@ -56,9 +56,9 @@ ticks
 
 BUTTON
 15
-130
+140
 120
-164
+174
 NIL
 setup
 NIL
@@ -73,9 +73,9 @@ NIL
 
 MONITOR
 15
-295
+310
 120
-340
+355
 sensor 1
 gogo:sensor 1
 0
@@ -84,9 +84,9 @@ gogo:sensor 1
 
 PLOT
 15
-345
+360
 835
-515
+530
 Sensor 1
 NIL
 NIL
@@ -146,9 +146,9 @@ Sensors
 
 BUTTON
 125
-130
+140
 230
-165
+175
 test connection
 test-connection
 NIL
@@ -268,8 +268,8 @@ TEXTBOX
 15
 215
 400
-295
-Sensor values are arbitrary units that go from 0 to 1023. To get \"real\" units such as degrees (for temperature), you need to look at the sensor documentation or use a real thermometer to build a conversion table or graph.\nYou can add up to eight sensor monitors, but each additional monitor makes NetLogo slighly slower.
+300
+Sensor values are arbitrary units that go from 0 to 1023. To get \"real\" units such as degrees (for temperature), you need to look at the sensor documentation or use a real thermometer to build a conversion table or graph.\nYou can add up to eight sensor monitors, but each additional monitor makes NetLogo slightly slower.
 11
 0.0
 1
@@ -278,7 +278,7 @@ TEXTBOX
 15
 30
 385
-120
+130
 To use this model, you should have connected the USB cable to the computer and to the GoGo Board, and installed the USB-Serial drivers. Most connection problems are solved by (1) closing NetLogo, (2) turning the GoGo Board off, (3) Waiting 5 seconds, (4) turning the board back on, (5) waiting 5 seconds, (6) opening NetLogo again.\nRefer to the NetLogo documentation for more information.  
 11
 0.0
@@ -306,9 +306,9 @@ Plotting
 
 MONITOR
 345
-120
+130
 425
-165
+175
 Connected to:
 serial-port
 17
@@ -317,9 +317,9 @@ serial-port
 
 BUTTON
 235
-130
+140
 340
-165
+175
 close connection
 gogo:close\nset serial-port \"\"
 NIL
