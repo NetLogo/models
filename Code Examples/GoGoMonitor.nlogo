@@ -892,7 +892,7 @@ Initialize & test
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model communicates with the sensors and output ports of a GoGo Board (http://www.gogoboard.org), an open source, easy-to-build, low cost, general purpose circuit board designed for educational projects.
+This model communicates with the sensors and output ports of a [GoGo Board](http://www.gogoboard.org), an open source, easy-to-build, low cost, general purpose circuit board designed for educational projects.
 
 This model helps you test your connection to your GoGo Board, and serves as a starting point for building NetLogo activities that interact with the physical world. For a simpler version of this model, try the GoGoMonitorSimple.
 
@@ -935,14 +935,14 @@ Connect various motors, lights, and other circuits to the GoGo Board's output po
 
 Change the refresh rates by editing the code in the plot, and modifying the wait time (default value is 0.01 or 0.1, higher values would cause the sampling rate to decrease).
   
-To find out where to buy sensors and motors, go to the GoGo Board website (www.gogoboard.org)
+To find out where to buy sensors and motors, go to the [GoGo Board website](http://www.gogoboard.org).
 
 ## EXTENDING THE MODEL
 
 Add filters and normalization to the sensor data.
 Using a light sensor, make a turtle move forward when it's dark, and stop when there is light.
 Create animations that are controlled by sensors
-Create Bifocal Models (see http://tltl.stanford.edu/projects/bifocalmodeling)
+Create Bifocal Models (see [bifocal modeling](http://tltl.stanford.edu/projects/bifocal-modeling))
 
 ## NETLOGO FEATURES
 
@@ -952,7 +952,7 @@ This model uses the NetLogo GoGo Extension. For more information, see the GoGo E
 
 To learn about GoGo Boards, see http://www.gogoboard.org.
 
-This model was created by Paulo Blikstein at Stanford's Transformative Learning Technologies Lab (http://tltl.stanford.edu).
+This model was created by Paulo Blikstein at Stanford's [Transformative Learning Technologies Lab](http://tltl.stanford.edu).
 @#$#@#$#@
 default
 true
