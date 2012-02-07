@@ -56,6 +56,7 @@ to create-new-student
     set user-id hubnet-message-source
     set label user-id
     set step-size 1
+    pen-down
     send-info-to-clients
   ]
 end
@@ -116,6 +117,7 @@ GRAPHICS-WINDOW
 1
 0
 ticks
+30.0
 
 BUTTON
 12
@@ -509,7 +511,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.0RC10
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
