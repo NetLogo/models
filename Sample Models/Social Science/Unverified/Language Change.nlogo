@@ -911,33 +911,6 @@ NetLogo 5.0beta2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
-<experiments>
-  <experiment name="threshold" repetitions="1000" runMetricsEveryStep="false">
-    <setup>setup</setup>
-    <go>go</go>
-    <timeLimit steps="20"/>
-    <metric>mean [state] of nodes</metric>
-    <enumeratedValueSet variable="num-nodes">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="threshold-val">
-      <value value="0.05"/>
-      <value value="0.1"/>
-      <value value="0.15"/>
-      <value value="0.2"/>
-      <value value="0.5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="categorical?">
-      <value value="&quot;threshold&quot;"/>
-    </enumeratedValueSet>
-  </experiment>
-  <experiment name="one run" repetitions="1" runMetricsEveryStep="true">
-    <setup>reset-nodes</setup>
-    <go>go</go>
-    <timeLimit steps="1000"/>
-    <metric>mean [state] of nodes</metric>
-  </experiment>
-</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default
