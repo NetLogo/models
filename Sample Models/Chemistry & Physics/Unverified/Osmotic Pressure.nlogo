@@ -623,7 +623,7 @@ count particles with [xcor > split and linked? = true]
 @#$#@#$#@
 ## WHAT IS IT?
 
-Osmotic Pressure is generally defined as the amount of pressure required to bring solvent movement across a semipermeable membrane to equilibrium. This model attempts to model an agent-based description of the movement of solution particles across a semipermeable membrane and illustrate the colligative nature of osmotic pressure.
+Osmotic pressure is generally defined as the amount of pressure required to bring solvent movement across a semipermeable membrane to equilibrium. This model attempts to model an agent-based description of the movement of solution particles across a semipermeable membrane and illustrate the colligative nature of osmotic pressure.
 
 Osmotic pressure is a colligative property of a solution, meaning the number of particles matter more than the identity of the particles. Because adding pressure to the solution on one side of the membrane changes the rate at which the solvent passes through the membrane (a rate that is restricted by the presence of solute particles), osmotic pressure can be thought of as a measurement of the tendency of a solute to restrict osmosis. As a colligative property, changes in osmotic pressure are proportional to the number of solute particles, not the identity of the particles.  The colligative nature of osmotic pressure can be explored in this model by experimenting with different types and number of solute particles.
 
@@ -639,16 +639,19 @@ At each tick, the membrane moves according to the difference in the number of so
 
 ## HOW TO USE IT
 
-###Initial settings:  
+###Initial settings
+
 **SOLUTE:** Choose the solute to add to the solution.  The chemical formula of the solute will be printed in the output box to the right.  Each solute will act differently in solution depending on its bonding behavior.  
 **SOLUTE-LEFT:** This number will determine the number of solute particles added to the solution on the left side of the membrane.  Keep in mind, due to various bonding behaviors, the total number of dissolved particles may be different from this value.  
 **SOLUTE-RIGHT:** This number will determine the number of solute particles added to the solution on the right side of the membrane.  Keep in mind, due to various bonding behaviors, the total number of dissolved particles may be different from this value.
 
-###Buttons  
+###Buttons
+
 **SETUP:** Sets up the model  
 **GO:** Runs the model
 
-###Monitors  
+###Monitors
+
 **WATER # LEFT:** Shows the number of solvent particles on the left side of the membrane.  
 **WATER # RIGHT:** Shows the number of solvent particles on the right side of the membrane.
 **SOLUTE LEFT:** Shows the number of solute particles on the left side of the membrane.
@@ -657,7 +660,8 @@ At each tick, the membrane moves according to the difference in the number of so
 **STUCK RIGHT:** Shows the number of solvent particles currently stuck to solute particles on the right side of the membrane  
 **MEMBRANE:** Shows the x-cor of the membrane. Note: The membrane moves based on the difference between the amount of particles moving across the membrane in a given direction each step.
 
-###Plot  
+###Plot
+
 **WATER #:** Plots the number of solvent particles on the left and right side of the membrane over time (ticks).
 
 
@@ -681,20 +685,20 @@ Try making new solutes.
 
 There are at least two other common proposals for an agent-based explanations for the process of osmosis.
 
-  1. Solute particles "block" solvent particles from moving across the membrane. Solvent particles will then show a net movement from a side of fewer solute particles (because there are less solute particles blocking their path) to a side with more solvent particles.  
-  2. Solute particles are generally larger than solvent particles (usually water). The size of the solute particles leads to frequent collisions of solvent-solute particles. On the side with more solute particles, the mean free path of solvent particles will be lower, leading to a net movement of particles from the low solute side.
+ 1. Solute particles "block" solvent particles from moving across the membrane. Solvent particles will then show a net movement from a side of fewer solute particles (because there are less solute particles blocking their path) to a side with more solvent particles.  
+ 2. Solute particles are generally larger than solvent particles (usually water). The size of the solute particles leads to frequent collisions of solvent-solute particles. On the side with more solute particles, the mean free path of solvent particles will be lower, leading to a net movement of particles from the low solute side.
 
 Can you model these alternate explanations?
 
 
 ## NETLOGO FEATURES
  
-Fixed length links are simulated by first tying particles together, and then applying motion rules to only the solute particles.
+Fixed length links are simulated by first tying particles together, then applying motion rules to only the solute particles.
 
 
 ## RELATED MODELS
 
-Look at GasLab models under the Curricular models folder.
+GasLab suite
 
 
 ## CREDITS AND REFERENCES
