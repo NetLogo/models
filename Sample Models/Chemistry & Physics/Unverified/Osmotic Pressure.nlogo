@@ -698,6 +698,8 @@ Look at GasLab models under the Curricular models folder.
 
 
 ## CREDITS AND REFERENCES
+
+We thank Luis Amaral for his scientific consultation.
 @#$#@#$#@
 default
 true
