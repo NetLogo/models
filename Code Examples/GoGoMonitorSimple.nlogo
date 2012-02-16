@@ -57,8 +57,8 @@ ticks
 BUTTON
 15
 140
-120
-174
+145
+185
 NIL
 setup
 NIL
@@ -145,10 +145,10 @@ Sensors
 0
 
 BUTTON
-125
+160
 140
-230
-175
+290
+185
 test connection
 test-connection
 NIL
@@ -278,8 +278,8 @@ TEXTBOX
 15
 30
 385
-130
-To use this model, you should have connected the USB cable to the computer and to the GoGo Board, and installed the USB-Serial drivers. Most connection problems are solved by (1) closing NetLogo, (2) turning the GoGo Board off, (3) Waiting 5 seconds, (4) turning the board back on, (5) waiting 5 seconds, (6) opening NetLogo again.\nRefer to the NetLogo documentation for more information.  
+135
+To use this model, you should have connected the USB cable to the computer and to the GoGo Board, and installed the USB-Serial drivers. Most connection problems are solved by (1) closing NetLogo, (2) turning the GoGo Board off, (3) Waiting 5 seconds, (4) turning the board back on, (5) waiting 5 seconds, (6) opening NetLogo again.\nRefer to the NetLogo documentation for more information.  \n(NOTE: Pressing \"setup\" twice on Mac OS currently results in a crash)
 11
 0.0
 1
@@ -305,32 +305,15 @@ Plotting
 1
 
 MONITOR
-345
-130
+305
+140
 425
-175
+185
 Connected to:
 serial-port
 17
 1
 11
-
-BUTTON
-235
-140
-340
-175
-close connection
-gogo:close\nset serial-port \"\"
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
 
 CHOOSER
 670
@@ -685,7 +668,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0RC9
+NetLogo 5.0RC10
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
