@@ -836,7 +836,7 @@ TEXTBOX
 280
 780
 485
-Check the if the USB cable is connected to the computer and to the GoGo Board, and if you have installed the USB-Serial drivers. Most connection problems are solved by:\n(1) Closing NetLogo.\n(2) Turning the GoGo Board off.\n(3) Waiting 5 seconds.\n(4) Turning the board back on.\n(5) Waiting 5 seconds.\n(6) Opening NetLogo again.\n\nRefer to the NetLogo documentation for more information.  
+Check if the USB cable is connected to the computer and to the GoGo Board, and if you have installed the USB-Serial drivers. Most connection problems are solved by:\n(1) Closing NetLogo.\n(2) Turning the GoGo Board off.\n(3) Waiting 5 seconds.\n(4) Turning the board back on.\n(5) Waiting 5 seconds.\n(6) Opening NetLogo again.\n\nRefer to the NetLogo documentation for more information.  
 11
 0.0
 1
@@ -865,11 +865,21 @@ serial-port
 TEXTBOX
 10
 0
-565
-76
-Initialize & test   (Note: Pressing \"setup\" twice on Mac OS currently results in a crash)
+170
+20
+Initialize & test
 14
 15.0
+1
+
+TEXTBOX
+130
+10
+495
+28
+note: pressing \"setup\" twice on Mac OS X may cause a crash
+11
+0.0
 1
 
 @#$#@#$#@
@@ -1220,7 +1230,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0RC10
+NetLogo 5.0
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

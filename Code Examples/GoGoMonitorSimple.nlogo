@@ -56,9 +56,9 @@ ticks
 
 BUTTON
 15
-140
+155
 145
-185
+200
 NIL
 setup
 NIL
@@ -73,9 +73,9 @@ NIL
 
 MONITOR
 15
-310
+325
 120
-355
+370
 sensor 1
 gogo:sensor 1
 0
@@ -84,9 +84,9 @@ gogo:sensor 1
 
 PLOT
 15
-360
+375
 835
-530
+545
 Sensor 1
 NIL
 NIL
@@ -102,9 +102,9 @@ PENS
 
 BUTTON
 450
-300
+315
 555
-333
+348
 plot sensor
 update-plots
 T
@@ -119,9 +119,9 @@ NIL
 
 BUTTON
 560
-300
+315
 665
-333
+348
 Clear plot
 clear-plot
 NIL
@@ -136,9 +136,9 @@ NIL
 
 TEXTBOX
 15
-190
+205
 165
-208
+223
 Sensors
 14
 15.0
@@ -146,9 +146,9 @@ Sensors
 
 BUTTON
 160
-140
+155
 290
-185
+200
 test connection
 test-connection
 NIL
@@ -163,9 +163,9 @@ NIL
 
 BUTTON
 450
-130
+145
 555
-165
+180
 a-on
 gogo:talk-to-output-ports [ \"a\" ]\ngogo:output-port-on
 NIL
@@ -180,9 +180,9 @@ NIL
 
 BUTTON
 565
-130
+145
 670
-165
+180
 a-off
 gogo:talk-to-output-ports [ \"a\" ]\ngogo:output-port-off
 NIL
@@ -197,9 +197,9 @@ NIL
 
 BUTTON
 450
-175
+190
 670
-208
+223
 a-reverse direction
 gogo:talk-to-output-ports [ \"a\" ]\ngogo:output-port-reverse
 NIL
@@ -214,9 +214,9 @@ NIL
 
 BUTTON
 450
-220
+235
 555
-253
+268
 set-a-power
 gogo:talk-to-output-ports [ \"a\" ]\ngogo:set-output-port-power a-power
 NIL
@@ -231,9 +231,9 @@ NIL
 
 SLIDER
 565
-220
+235
 755
-253
+268
 a-power
 a-power
 0
@@ -266,9 +266,9 @@ Initialize & test
 
 TEXTBOX
 15
-215
+230
 400
-300
+315
 Sensor values are arbitrary units that go from 0 to 1023. To get \"real\" units such as degrees (for temperature), you need to look at the sensor documentation or use a real thermometer to build a conversion table or graph.\nYou can add up to eight sensor monitors, but each additional monitor makes NetLogo slightly slower.
 11
 0.0
@@ -278,8 +278,8 @@ TEXTBOX
 15
 30
 385
-135
-To use this model, you should have connected the USB cable to the computer and to the GoGo Board, and installed the USB-Serial drivers. Most connection problems are solved by (1) closing NetLogo, (2) turning the GoGo Board off, (3) Waiting 5 seconds, (4) turning the board back on, (5) waiting 5 seconds, (6) opening NetLogo again.\nRefer to the NetLogo documentation for more information.  \n(NOTE: Pressing \"setup\" twice on Mac OS currently results in a crash)
+145
+To use this model, you should have connected the USB cable to the computer and to the GoGo Board, and installed the USB-Serial drivers. Most connection problems are solved by (1) closing NetLogo, (2) turning the GoGo Board off, (3) Waiting 5 seconds, (4) turning the board back on, (5) waiting 5 seconds, (6) opening NetLogo again.\nRefer to the NetLogo documentation for more information.  \n(NOTE: Pressing \"setup\" twice on Mac OS may cause a crash)
 11
 0.0
 1
@@ -296,9 +296,9 @@ You can control motors, LEDs, small light bulbs or relays: turn them on and off,
 
 TEXTBOX
 450
-275
+290
 600
-295
+310
 Plotting
 14
 15.0
@@ -306,9 +306,9 @@ Plotting
 
 MONITOR
 305
-140
+155
 425
-185
+200
 Connected to:
 serial-port
 17
@@ -317,9 +317,9 @@ serial-port
 
 CHOOSER
 670
-290
+305
 790
-335
+350
 refresh-rate
 refresh-rate
 "fast" "medium" "slow"
@@ -668,7 +668,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0RC10
+NetLogo 5.0
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
