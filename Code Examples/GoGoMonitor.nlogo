@@ -57,8 +57,8 @@ ticks
 BUTTON
 10
 30
-115
-65
+135
+75
 NIL
 setup
 NIL
@@ -229,10 +229,10 @@ Sensors
 0
 
 BUTTON
-120
+160
 30
-225
-65
+290
+75
 test connection
 test-connection
 NIL
@@ -851,25 +851,8 @@ If you cannot connect to the GoGo Board:
 15.0
 1
 
-BUTTON
-230
-30
-335
-65
-close connection
-gogo:close\nset serial-port \"\"
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
 MONITOR
-340
+315
 30
 440
 75
@@ -882,9 +865,9 @@ serial-port
 TEXTBOX
 10
 0
-160
-16
-Initialize & test
+565
+76
+Initialize & test   (Note: Pressing \"setup\" twice on Mac OS currently results in a crash)
 14
 15.0
 1
@@ -1237,7 +1220,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0RC9
+NetLogo 5.0RC10
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
