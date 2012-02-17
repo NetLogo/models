@@ -6,6 +6,7 @@ globals [
   equilibrium                               ;; the difference in number of particles moving each direction across membrane
   tick-delta                                ;; how much we advance the tick counter this time through
   max-tick-delta                            ;; the largest tick-delta is allowed to be
+  membrane-list                             ;; list of membrane locations during a model run, for computing average
 ]
 
 breed [solutes solute]
@@ -32,6 +33,7 @@ to setup
   create-container
   spawn-particles
   set split 0
+  set membrane-list [0]
   calculate-wall
   reset-ticks
 end
@@ -155,7 +157,7 @@ end
 
 to calculate-wall
   set pre-split split                                                  ;; save location of the membrane before it moves
-  let nudge ((equilibrium * -1) / 10)                                  ;; calculates the amount to move the membrane
+  let nudge ((equilibrium * -1) / count solvents) * 50                 ;; calculates the amount to move the membrane - based on fraction of solvents passing
   set split split + nudge                                              ;; set split to be the new location of the membrane
   particle-jump                                                        ;; move solutes in the way of the membrane jump
   ask membranes [
@@ -164,6 +166,7 @@ to calculate-wall
 
   set left-side patches with [pxcor < split]                           ;; redefine right and left sides
   set right-side patches with [pxcor > split]
+  set membrane-list lput precision split 2 membrane-list
   set equilibrium 0                                                    ;; reset equilibrium so we can keep track of what happens during the next tick
 end
 
@@ -236,8 +239,8 @@ to move  ;; particle procedure
 end
 
 to check-for-release
-  ;; there is a 5% chance that a stuck particle will become unstuck
-  if random 100 <= 5 [
+  ;; there is a 2% chance that a stuck particle will become unstuck
+  if random 100 <= 2 [
     ask end1 [
       set stick-count stick-count - 1                                   ;; lower the stick counter of the solute
     ]
@@ -485,7 +488,7 @@ CHOOSER
 Solute_Type
 Solute_Type
 "Sugar" "Sodium Chloride" "Magnesium Chloride" "Aluminum Chloride"
-0
+3
 
 SLIDER
 20
@@ -559,7 +562,7 @@ solute-right
 solute-right
 1
 100
-50
+25
 1
 1
 NIL
@@ -620,6 +623,17 @@ count particles with [xcor > split and linked? = true]
 1
 11
 
+MONITOR
+105
+215
+175
+260
+Average
+mean membrane-list
+2
+1
+11
+
 @#$#@#$#@
 ## WHAT IS IT?
 
@@ -632,7 +646,7 @@ Osmotic pressure is a colligative property of a solution, meaning the number of 
 
 In this model, blue patches represent a container divided by a semipermeable membrane (the red squares) -- a physical, porous barrier separating two solutions that allows some particles to pass but not others. Blue circles represent solvent molecules (water in this model) that can pass freely through the membrane. At setup, 1000 of these solvent molecules are created and randomly distributed throughout the container.  White circles represent particles of added solute. The amount of solute defined by the sliders is placed on the appropriate side of the membrane. If a solute is an ionic compound, it breaks apart into the appropriate number of ions.  If the solute is covalent, the compound does not break apart. Solute particles cannot pass through the membrane.
 
-As the model runs, particles move through the container according to kinetic molecular theory using NetLogo code first defined in the GasLab suite of models.  All particles move in a straight line until they collide with another particle, the wall, or the membrane (only solute particles collide with the membrane). Particles collide with one another in an elastic collision. While solvent molecules (water represented by the blue circles) may pass through the membrane freely, solute particles (white circles) are restricted to the side they are created on. In addition, at each step solvent molecules have a 50% chance to "stick" to solute molecules occupying the same patch (solute particles can hold a maximum of five solvent molecules). "Stuck" molecules have a 5% chance to become unstuck at each step of the model. In this model, changes in volume for each side occur through the movement of the membrane.
+As the model runs, particles move through the container according to kinetic molecular theory using NetLogo code first defined in the GasLab suite of models.  All particles move in a straight line until they collide with another particle, the wall, or the membrane (only solute particles collide with the membrane). Particles collide with one another in an elastic collision. While solvent molecules (water represented by the blue circles) may pass through the membrane freely, solute particles (white circles) are restricted to the side they are created on. In addition, at each step solvent molecules have a 50% chance to "stick" to solute molecules occupying the same patch (solute particles can hold a maximum of five solvent molecules). "Stuck" molecules have a 2% chance to become unstuck at each step of the model. In this model, changes in volume for each side occur through the movement of the membrane.
 
 At each tick, the membrane moves according to the difference in the number of solvent molecules moving from left to right and those moving from right to left. As the model progresses, according to the phenomenon of osmosis, the solvent (water) shows a net movement towards the side of higher solute concentration.
 
@@ -659,6 +673,7 @@ At each tick, the membrane moves according to the difference in the number of so
 **STUCK LEFT:** Shows the number of solvent particles currently stuck to solute particles on the left side of the membrane  
 **STUCK RIGHT:** Shows the number of solvent particles currently stuck to solute particles on the right side of the membrane  
 **MEMBRANE:** Shows the x-cor of the membrane. Note: The membrane moves based on the difference between the amount of particles moving across the membrane in a given direction each step.
+**AVERAGE:** Shows mean of the membrane location over the entire model run.
 
 ###Plot
 
@@ -1002,12 +1017,14 @@ NetLogo 5.0RC7
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="experiment" repetitions="5" runMetricsEveryStep="true">
+  <experiment name="experiment" repetitions="7" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
-    <timeLimit steps="2000"/>
+    <timeLimit steps="3000"/>
     <metric>split</metric>
-    <enumeratedValueSet variable="Solute">
+    <metric>mean membrane-list</metric>
+    <metric>count solutes with [pxcor &lt; split]</metric>
+    <enumeratedValueSet variable="Solute_Type">
       <value value="&quot;Sugar&quot;"/>
       <value value="&quot;Sodium Chloride&quot;"/>
       <value value="&quot;Magnesium Chloride&quot;"/>
