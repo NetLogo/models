@@ -4,17 +4,19 @@ patches-own [
 ]
 
 to setup-blank
-  reset-ticks
+  clear-all
   ask patches
     [ cell-death ]
+  reset-ticks
 end
 
 to setup-random
-  reset-ticks
+  clear-all
   ask patches
     [ ifelse random-float 100.0 < initial-density
         [ cell-birth ]
         [ cell-death ] ]
+  reset-ticks
 end
 
 to cell-birth
