@@ -146,6 +146,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
+30.0
 
 SLIDER
 3
@@ -758,20 +759,11 @@ Line -7500403 true 84 40 221 269
 wolf
 false
 0
-Rectangle -7500403 true true 195 106 285 150
-Rectangle -7500403 true true 195 90 255 105
-Polygon -7500403 true true 240 90 217 44 196 90
-Polygon -16777216 true false 234 89 218 59 203 89
-Rectangle -1 true false 240 93 252 105
-Rectangle -16777216 true false 242 96 249 104
-Rectangle -16777216 true false 241 125 285 139
-Polygon -1 true false 285 125 277 138 269 125
-Polygon -1 true false 269 140 262 125 256 140
-Rectangle -7500403 true true 45 120 195 195
-Rectangle -7500403 true true 45 114 185 120
-Rectangle -7500403 true true 165 195 180 270
-Rectangle -7500403 true true 60 195 75 270
-Polygon -7500403 true true 45 105 15 30 15 75 45 150 60 120
+Polygon -7500403 true true 135 285 195 285 270 90 30 90 105 285
+Polygon -7500403 true true 270 90 225 15 180 90
+Polygon -7500403 true true 30 90 75 15 120 90
+Circle -1 true false 183 138 24
+Circle -1 true false 93 138 24
 
 x
 false
@@ -780,7 +772,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.0.1
 @#$#@#$#@
 setup
 set grass? true
