@@ -156,6 +156,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
+30.0
 
 BUTTON
 67
@@ -222,8 +223,8 @@ true
 false
 "" ""
 PENS
-"size" 1.0 0 -2674135 true "" ";; We multiply by 2 because every edge should be counted twice while calculating,\n;; the average, since an edge connects two turtles.\n;; We divide by the node count to normalize the y axis to a 0 to 1 range.\nplotxy (2 * count links / count turtles)\n       (giant-component-size / count turtles)\n"
-"transition" 1.0 0 -7500403 true "plot-pen-up\nplotxy 1 0\nplot-pen-down\nplotxy 1 1\n" ""
+"size" 1.0 0 -2674135 true "" ";; We multiply by 2 because every edge should be counted twice while calculating,\n;; the average, since an edge connects two turtles.\n;; We divide by the node count to normalize the y axis to a 0 to 1 range.\nplotxy (2 * count links / count turtles)\n       (giant-component-size / count turtles)"
+"transition" 1.0 0 -7500403 true "plot-pen-up\nplotxy 1 0\nplot-pen-down\nplotxy 1 1" ""
 
 MONITOR
 226
@@ -330,9 +331,7 @@ The position of the nodes is determined by the "spring" method, which is further
 
 ## NETLOGO FEATURES
 
-Both nodes and edges are turtles.  Edge turtles have the "line" shape.  The edge turtle's `size` variable is used to make the edge be the right length.
-
-Lists are used heavily in this model.  Each node maintains a list of its neighboring nodes.  Lists are also used in the procedure that identifies the components.
+Nodes are turtle agents and edges are link agents. The `layout-spring` primitive places the nodes, as if the edges are springs and the nodes are repelling each other.
 
 ## RELATED MODELS
 
@@ -636,7 +635,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
