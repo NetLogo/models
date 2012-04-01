@@ -340,9 +340,8 @@ There are many ways to graphically display networks.  This model uses a common "
 
 ## NETLOGO FEATURES
 
-Both nodes and edges are turtles.  Edge turtles have the "line" shape.  The edge turtle's `size` variable is used to make the edge be the right length.
+Nodes are turtle agents and edges are link agents. The `layout-spring` primitive places the nodes, as if the edges are springs and the nodes are repelling each other.
 
-Lists are used heavily in this model.  Each node maintains a list of its neighboring nodes.
 
 ## RELATED MODELS
 
@@ -648,7 +647,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0RC6
+NetLogo 5.0
 @#$#@#$#@
 set layout? false
 set plot? false
