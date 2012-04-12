@@ -1257,7 +1257,7 @@ PENS
 "a" 1.0 0 -8990512 true "plotxy number-selections frequency-allele-recessive-first-trait" "if new-selection-event-occurred? [plotxy number-selections frequency-allele-recessive-first-trait]"
 "b" 1.0 0 -2674135 true "plotxy number-selections frequency-allele-recessive-second-trait" "if new-selection-event-occurred? [plotxy number-selections frequency-allele-recessive-second-trait]"
 "c" 1.0 0 -1664597 true "plotxy number-selections frequency-allele-recessive-third-trait" "if new-selection-event-occurred? [plotxy number-selections frequency-allele-recessive-third-trait]"
-"d" 1.0 0 -7858858 true "plotxy number-selections frequency-allele-recessive-forth-trait" "if new-selection-event-occurred? [plotxy number-selections frequency-allele-recessive-forth-trait]"
+"d" 1.0 0 -7858858 true "plotxy number-selections frequency-allele-recessive-fourth-trait" "if new-selection-event-occurred? [plotxy number-selections frequency-allele-recessive-fourth-trait]"
 
 PLOT
 15
@@ -1278,7 +1278,7 @@ PENS
 "A" 1.0 0 -16777216 true "plotxy number-selections frequency-allele-dominant-first-trait" "if new-selection-event-occurred? \n[plotxy number-selections frequency-allele-dominant-first-trait]"
 "B" 1.0 0 -3026479 true "plotxy number-selections frequency-allele-dominant-second-trait" "if new-selection-event-occurred? \n[plotxy number-selections frequency-allele-dominant-second-trait]"
 "C" 1.0 0 -3889007 true "plotxy number-selections frequency-allele-dominant-third-trait" "if new-selection-event-occurred? \n[plotxy number-selections frequency-allele-dominant-third-trait]"
-"D" 1.0 0 -7500403 true "plotxy number-selections frequency-allele-dominant-forth-trait" "if new-selection-event-occurred? \n[plotxy number-selections frequency-allele-dominant-forth-trait]"
+"D" 1.0 0 -7500403 true "plotxy number-selections frequency-allele-dominant-fourth-trait" "if new-selection-event-occurred? \n[plotxy number-selections frequency-allele-dominant-fourth-trait]"
 
 PLOT
 15

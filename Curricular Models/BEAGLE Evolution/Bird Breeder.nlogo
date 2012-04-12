@@ -11,11 +11,11 @@ globals [
   frequency-allele-recessive-first-trait
   frequency-allele-dominant-third-trait
   frequency-allele-recessive-third-trait
-  frequency-allele-dominant-forth-trait
-  frequency-allele-recessive-forth-trait
+  frequency-allele-dominant-fourth-trait
+  frequency-allele-recessive-fourth-trait
 
   second-trait-shape-1 second-trait-shape-2 second-trait-shape-3
-  forth-shape-1 forth-shape-2 forth-shape-3
+  fourth-shape-1 fourth-shape-2 fourth-shape-3
 
   bird-size
   current-funds                             ;; money the user has available
@@ -28,7 +28,7 @@ breed [birds bird]
 breed [first-traits  first-trait]   ;; shape that is the crest in birds and the wings in dragons
 breed [second-traits second-trait]  ;; shape that is the wings in birds and breath in dragons
 breed [third-traits  third-trait]   ;; shape that determines breast in birds and in dragons
-breed [forth-traits  forth-trait]   ;; shape that determines tail in birds and in dragons
+breed [fourth-traits  fourth-trait]   ;; shape that determines tail in birds and in dragons
 breed [cages cage]
 breed [users user]
 
@@ -36,11 +36,11 @@ breed [users user]
 
 
 patches-own [site-id owner]
-birds-own         [first-genes second-genes third-genes forth-genes fifth-genes sex-gene selected? owned-by]
-first-traits-own  [first-genes second-genes third-genes forth-genes fifth-genes sex-gene selected? owned-by]
-second-traits-own [first-genes second-genes third-genes forth-genes fifth-genes sex-gene selected? owned-by]
-third-traits-own  [first-genes second-genes third-genes forth-genes fifth-genes sex-gene selected? owned-by]
-forth-traits-own  [first-genes second-genes third-genes forth-genes fifth-genes sex-gene selected? owned-by]
+birds-own         [first-genes second-genes third-genes fourth-genes fifth-genes sex-gene selected? owned-by]
+first-traits-own  [first-genes second-genes third-genes fourth-genes fifth-genes sex-gene selected? owned-by]
+second-traits-own [first-genes second-genes third-genes fourth-genes fifth-genes sex-gene selected? owned-by]
+third-traits-own  [first-genes second-genes third-genes fourth-genes fifth-genes sex-gene selected? owned-by]
+fourth-traits-own  [first-genes second-genes third-genes fourth-genes fifth-genes sex-gene selected? owned-by]
 
 users-own [user-id moving-a-bird?]
 
@@ -92,7 +92,7 @@ to set-scenario
     set-default-shape first-traits "bird-cap"
     set-default-shape second-traits "bird-wing"
     set-default-shape third-traits "bird-breast"
-    set-default-shape forth-traits "bird-tail"
+    set-default-shape fourth-traits "bird-tail"
 
     set-default-shape cages "cage"
     set genes-to-phenotype
@@ -110,16 +110,16 @@ to set-scenario
     set second-trait-shape-2 "dragon-breath-cloud"
     set second-trait-shape-3 "dragon-breath-ice"
     set-default-shape third-traits "dragon-chest"          ;; one shape for the chest trait
-    set forth-shape-1 "dragon-tail-spade"                  ;; three variations of shape for the tail trait
-    set forth-shape-2 "dragon-tail-rope-spade"
-    set forth-shape-3 "dragon-tail-rope"
+    set fourth-shape-1 "dragon-tail-spade"                  ;; three variations of shape for the tail trait
+    set fourth-shape-2 "dragon-tail-rope-spade"
+    set fourth-shape-3 "dragon-tail-rope"
 
     set genes-to-phenotype
       [
         ["AA"  "set color (yellow - 1)"] ["Aa"  "set color orange"] ["aA"  "set color orange"] ["aa"  "set color red"]                                                       ;; sets body color
         ["BB"  "set shape second-trait-shape-3"] ["Bb"  "set shape second-trait-shape-2"] ["bB"  "set shape second-trait-shape-2"] ["bb"  "set shape second-trait-shape-1"]  ;; fire shape
         ["CC"  "set color (gray - 2.5)"] ["Cc"  "set color (gray + 1)"] ["cC"  "set color (gray + 1)"] ["cc"  "set color white"]                                             ;; sets breast color
-        ["DD"  "set shape forth-shape-1"] ["Dd"  "set shape forth-shape-2"] ["dD"  "set shape forth-shape-2"] ["dd"  "set shape forth-shape-3" ]                             ;; sets tail shape
+        ["DD"  "set shape fourth-shape-1"] ["Dd"  "set shape fourth-shape-2"] ["dD"  "set shape fourth-shape-2"] ["dd"  "set shape fourth-shape-3" ]                             ;; sets tail shape
       ]
     ]
 end
@@ -338,7 +338,7 @@ to visualize-genetics
   set label-color black
     ifelse show-genetics?
        [
-       set label (word first-genes " " second-genes " " forth-genes " "
+       set label (word first-genes " " second-genes " " fourth-genes " "
           third-genes " " sex-gene) ]         ;; show the representation of the genes this bird has
        [set label owned-by]                   ;; show the player id that owns this bird
   ]
@@ -391,9 +391,9 @@ to calculate-all-alleles
   set frequency-allele-recessive-second-trait (count birds with [(item 1 second-genes) = "b"]) + (count birds with [(item 1 second-genes) = "B"])
   set frequency-allele-dominant-third-trait (count birds with [(item 0 third-genes) = "C"]) + (count birds with [(item 0 third-genes) = "C"])
   set frequency-allele-recessive-third-trait (count birds with [(item 1 third-genes) = "c"]) + (count birds with [(item 1 third-genes) = "c"])
-  set frequency-allele-dominant-forth-trait (count birds with [(item 0 forth-genes) = "D"]) + (count birds with [(item 0 forth-genes) = "D"])
-  set frequency-allele-recessive-forth-trait (count birds with [(item 1 forth-genes) = "d"]) + (count birds with [(item 1 forth-genes) = "d"])
-  ifelse (both-second-trait-alleles-exist? and both-first-trait-alleles-exist? and both-forth-alleles-exist? and both-third-trait-alleles-exist? and both-sexes-exist?)
+  set frequency-allele-dominant-fourth-trait (count birds with [(item 0 fourth-genes) = "D"]) + (count birds with [(item 0 fourth-genes) = "D"])
+  set frequency-allele-recessive-fourth-trait (count birds with [(item 1 fourth-genes) = "d"]) + (count birds with [(item 1 fourth-genes) = "d"])
+  ifelse (both-second-trait-alleles-exist? and both-first-trait-alleles-exist? and both-fourth-alleles-exist? and both-third-trait-alleles-exist? and both-sexes-exist?)
    []
    [user-message (word "The current of birds in all the cages of all the player does not have"
     "enough genetic diversity for it to be possible for you to find a way to develop the desired breed."
@@ -464,7 +464,7 @@ to assign-all-genes
   set first-genes (word random-first-genes random-first-genes)
   set second-genes (word random-second-genes random-second-genes)
   set third-genes (word random-third-genes random-third-genes)
-  set forth-genes (word random-forth-genes random-forth-genes)
+  set fourth-genes (word random-fourth-genes random-fourth-genes)
   set sex-gene random-sex-genes
 end
 
@@ -479,7 +479,7 @@ to build-body-parts
       hatch 1 [run lookup-phenotype-for-gene first-genes set breed first-traits   create-link-from myself  [tie] ]
     ]
    hatch 1 [run lookup-phenotype-for-gene second-genes set breed second-traits  create-link-from myself  [tie] ]
-   hatch 1 [run lookup-phenotype-for-gene forth-genes  set breed forth-traits   create-link-from myself  [tie] ]
+   hatch 1 [run lookup-phenotype-for-gene fourth-genes  set breed fourth-traits   create-link-from myself  [tie] ]
    hatch 1 [run lookup-phenotype-for-gene third-genes  set breed third-traits   create-link-from myself  [tie] ]
   ]
 
@@ -495,7 +495,7 @@ to build-body-parts
 
     hatch 1 [set breed second-traits run lookup-phenotype-for-gene second-genes   create-link-from myself  [tie] ]
     hatch 1 [set breed third-traits run lookup-phenotype-for-gene third-genes    create-link-from myself  [tie] ]
-    hatch 1 [set breed forth-traits run lookup-phenotype-for-gene forth-genes   create-link-from myself  [tie] ]
+    hatch 1 [set breed fourth-traits run lookup-phenotype-for-gene fourth-genes   create-link-from myself  [tie] ]
  ]
   set label body-label
 end
@@ -559,7 +559,7 @@ to assign-genetics-from-parents
   set first-genes inherited-first-genes
   set third-genes inherited-third-genes
   set second-genes inherited-second-genes
-  set forth-genes inherited-forth-genes
+  set fourth-genes inherited-fourth-genes
   set sex-gene inherited-sex-genes
 end
 
@@ -594,13 +594,13 @@ to-report inherited-second-genes
 end
 
 
-to-report inherited-forth-genes
+to-report inherited-fourth-genes
   let mother-loci (random 2)
   let father-loci (random 2)
   let mother-allele ""
   let father-allele ""
-  ask parent-female [set mother-allele (item mother-loci forth-genes)]
-  ask parent-male [set father-allele  (item father-loci forth-genes)]
+  ask parent-female [set mother-allele (item mother-loci fourth-genes)]
+  ask parent-male [set father-allele  (item father-loci fourth-genes)]
   report (word mother-allele father-allele)
 end
 
@@ -633,7 +633,7 @@ to-report random-third-genes
      [report "c"]
 end
 
-to-report random-forth-genes
+to-report random-fourth-genes
    ifelse random 2 = 0
      [report "D"]
      [report "d"]
@@ -694,8 +694,8 @@ to-report both-third-trait-alleles-exist?
     [report false]
 end
 
-to-report both-forth-alleles-exist?
-  ifelse (frequency-allele-dominant-forth-trait > 0 and frequency-allele-recessive-forth-trait  > 0)
+to-report both-fourth-alleles-exist?
+  ifelse (frequency-allele-dominant-fourth-trait > 0 and frequency-allele-recessive-fourth-trait  > 0)
     [report true]
     [report false]
 end
@@ -712,7 +712,7 @@ end
 
 
 to-report is-goal-bird?
-  ifelse ( first-genes = "aa" and second-genes = "bb" and third-genes = "cc" and forth-genes = "dd" )
+  ifelse ( first-genes = "aa" and second-genes = "bb" and third-genes = "cc" and fourth-genes = "dd" )
     [report true]
     [report false]
 end
