@@ -40,7 +40,6 @@ to setup
   ca
   set total-caught 0
   set histogram-interval-size 1
-  set old-color-map speed-color-map   ;; holds the starting value of the chooser
   set old-show-initial-bug-vision-cone? 0
   set old-vision-cone-distance initial-bug-vision
   set reproduce-birds-after-eating 25
@@ -75,7 +74,6 @@ to setup
     attach-vision-cone
   ]
 
-  ask bugs [set-colors]
   ask vision-cones [set-visualize-vision-cone]
   reset-ticks
   do-plots
@@ -105,7 +103,6 @@ end
 
 
 to go
-  check-color-map-change
   check-visualize-vision-cone-change
   check-player-caught
   check-bird-catch
@@ -242,11 +239,11 @@ to check-player-caught
   let snap-mouse-xcor mouse-xcor
   let snap-mouse-ycor mouse-ycor
   if mouse-down? and mouse-inside? [
-    if (any? bugs-on patch snap-mouse-xcor snap-mouse-ycor) [
-      set local-bugs count bugs-on patch snap-mouse-xcor snap-mouse-ycor
-      set total-caught (total-caught + local-bugs)
+    set local-bugs bugs-on patch snap-mouse-xcor snap-mouse-ycor
+    if (any? local-bugs) [
+      set total-caught (total-caught + 1)
       ;; eat only one of the bugs at the mouse location
-      ask n-of local-bugs bugs-on patch snap-mouse-xcor snap-mouse-ycor [
+      ask one-of local-bugs  [
         set speed-of-caught speed
         if (speed-of-caught = 1) [ set total-speed-6-caught (total-speed-6-caught + 1) ]
         if (speed-of-caught = 2) [ set total-speed-5-caught (total-speed-5-caught + 1) ]
@@ -257,7 +254,7 @@ to check-player-caught
         ask out-link-neighbors [set color red die]
         die
       ]
-      repeat local-bugs [reproduce-one-bug]  ;; replace the eaten bug with a random offspring from the remaining population
+      reproduce-one-bug  ;; replace the eaten bug with a random offspring from the remaining population
     ]
   ]
 end
@@ -354,14 +351,7 @@ end
 ;; Visualization Procedures
 ;;;;;;;;;;;;;;;;;;;;;
 
-;; apply color map change only once each time
-;; a new value for speed-color-map is selected
-to check-color-map-change
-  if (old-color-map != speed-color-map) [
-    set old-color-map speed-color-map
-    ask bugs [ set-colors ]
-  ]
-end
+
 
 
 to check-visualize-vision-cone-change
@@ -384,11 +374,6 @@ to set-visualize-vision-cone
 
 end
 
-to set-colors ;; turtle procedure
-  if (speed-color-map = "all green") [ set color green ]
-  if (speed-color-map = "violet shades") [ recolor-shade  ]
-  if (speed-color-map = "rainbow") [ recolor-rainbow ]
-end
 
 
 to recolor-shade
@@ -523,12 +508,12 @@ to plot-histograms-initial-bird-vision
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-548
+500
 10
-958
-441
-12
-12
+942
+473
+13
+13
 16.0
 1
 10
@@ -539,15 +524,15 @@ GRAPHICS-WINDOW
 1
 1
 1
--12
-12
--12
-12
+-13
+13
+-13
+13
 1
 1
 1
 ticks
-30
+30.0
 
 MONITOR
 90
@@ -595,10 +580,10 @@ NIL
 1
 
 PLOT
-6
-373
-185
-493
+10
+370
+170
+490
 Avg. Vision vs. Time
 time
 vision
@@ -614,10 +599,10 @@ PENS
 "birds" 1.0 0 -6459832 true "" ""
 
 PLOT
-185
-253
-364
-373
+170
+250
+330
+370
 Speed of Bugs
 speed
 frequency
@@ -637,21 +622,11 @@ PENS
 "pen5" 0.1 1 -955883 true "" ""
 "pen6" 0.1 1 -2674135 true "" ""
 
-CHOOSER
-429
-16
-541
-61
-speed-color-map
-speed-color-map
-"all green" "rainbow" "violet shades"
-2
-
 PLOT
-6
-253
-185
-373
+10
+250
+170
+370
 Avg. Speed vs. Time
 time
 rate
@@ -667,10 +642,10 @@ PENS
 "bugs" 1.0 0 -16777216 true "" ""
 
 PLOT
-364
-253
-542
-373
+330
+250
+490
+370
 Speed of Birds
 speed
 frequency
@@ -702,25 +677,25 @@ alive bugs
 11
 
 SLIDER
-11
-97
-144
-130
+30
+120
+160
+153
 number-bugs
 number-bugs
 1
 100
-60
+30
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-12
-179
-147
-212
+30
+185
+160
+218
 number-birds
 number-birds
 0
@@ -732,10 +707,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-12
-215
-198
-248
+165
+175
+325
+208
 initial-bird-speed
 initial-bird-speed
 0
@@ -747,10 +722,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-200
-215
-383
-248
+165
+210
+325
+243
 initial-bird-vision
 initial-bird-vision
 0
@@ -762,10 +737,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-199
-132
-382
 165
+135
+325
+168
 initial-bug-vision
 initial-bug-vision
 0
@@ -777,10 +752,10 @@ NIL
 HORIZONTAL
 
 SWITCH
-271
-16
-427
-49
+300
+15
+470
+48
 show-vision-cone?
 show-vision-cone?
 0
@@ -788,10 +763,10 @@ show-vision-cone?
 -1000
 
 SWITCH
-170
-16
-269
-49
+184
+15
+299
+48
 wiggle?
 wiggle?
 0
@@ -799,10 +774,10 @@ wiggle?
 -1000
 
 SLIDER
-386
-180
-541
-213
+330
+210
+485
+243
 bird-vision-mutation
 bird-vision-mutation
 0
@@ -814,25 +789,25 @@ NIL
 HORIZONTAL
 
 SLIDER
-386
-215
-541
-248
+330
+175
+485
+208
 bird-speed-mutation
 bird-speed-mutation
 0
 1
-0
+1
 .1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-385
-98
-541
-131
+330
+135
+486
+168
 bug-vision-mutation
 bug-vision-mutation
 0
@@ -844,10 +819,10 @@ NIL
 HORIZONTAL
 
 PLOT
-185
-373
-364
-493
+170
+370
+330
+490
 Vision of Bugs
 vision
 frequency
@@ -862,10 +837,10 @@ PENS
 "#" 1.0 1 -16777216 true "" ""
 
 PLOT
-364
-373
-542
-493
+330
+370
+490
+490
 Vision of Birds
 vision
 birds
@@ -880,45 +855,45 @@ PENS
 "#" 1.0 1 -6459832 true "" ""
 
 SLIDER
-385
+330
+100
+486
 133
-541
-166
 bug-speed-mutation
 bug-speed-mutation
 0
 1
-0
+1
 .1
 1
 NIL
 HORIZONTAL
 
 CHOOSER
-696
-444
-839
-489
+325
+50
+470
+95
 bug-pursuit-strategy
 bug-pursuit-strategy
-"lock on one" "nearest"
+"lock on one" "nearest" "none"
 1
 
 CHOOSER
-552
-444
-690
-489
+181
+50
+319
+95
 bug-flee-strategy
 bug-flee-strategy
-"any" "nearest"
+"any" "nearest" "none"
 1
 
 SLIDER
-9
-131
-195
-164
+165
+100
+325
+133
 initial-bug-speed
 initial-bug-speed
 0
@@ -951,6 +926,7 @@ The six different speeds that a bug might move at are distributed amongst six di
 The number of birds that are in the world is determined by the INITIAL-BIRDS slider.  The birds have an initial speed (INITIAL-BIRD-SPEED) and initial vision (INITIAL-BIRD-VISION) values.  The birds respond to bugs in their vision cone by turning toward the bug they select using the specified BUG-PURSUIT-STRATEGY.  The speed and vision of the birds, like the bugs, is genetically inherited.  Variation is offspring speed and vision is controlled by BIRD-SPEED-MUTATION and BIRD-VISION-MUTATION.  An update to the bird population occurs after a fixed number of bugs is eaten by the total population.  At this point the bird who has eaten the least number of bugs since the last bird population update is removed (representing death from starvation), and a new bird is copied from an existing individual in the population (representing a new birth).  The creation of this new offspring keeps the overall population of the birds constant.
 
 Initially there are equal numbers of each sub-population of bug (e.g. ten bugs at each of the 6 speeds).  This is the only inherited attribute that has a distribution of different values.  The other attributes (vision for bugs and birds, and speed for birds) has only a single starting value for all of the members of the population.
+
 Over time, however, as bugs are eaten and new bugs are born and birds die and new birds are born, the distribution of the vision and speed for both birds and bugs will change as shown in the histograms.  In some scenarios you might see the speed distribution move to the left, representing that more slow individuals are surviving.  In other scenarios you may see the vision histogram shift to the right, representing that more far sighted individuals are surviving.  In some scenarios you will see the histogram shift toward some intermediate value and then remain relatively stable with a maximum number of individuals having that value in the histogram.  Comparing the proportions of individuals with different values for vision and speed in the histograms to the average values of these attributes for the population, will help you make important links between how the population is evolving and how the individuals are being selected for or against, and how proportions of traits in the population are changing over time.
 
 In addition to the automated predators (the birds), you may also assume the role of an additional predator amongst a population of bugs.  To join in the pursuit of bugs as another bird simply use your mouse in the WORLD & VIEW to click on bugs and eat them as they move.  As they move around, try to eat as many bugs as fast as you can by clicking on them.  Alternatively, you may hold the mouse button down and move the mouse pointer over the bugs.
@@ -967,14 +943,10 @@ INITIAL-BIRD-VISION and INITIAL-BUG-VISION is the radius the vision cones that t
 
 BIRD-VISION-MUTATION, BIRD-SPEED-MUTATION, BUG-VISION-MUTATION, BUG-SPEED-MUTATION are each sliders that control the amount of maximum possible random mutation (up or down) in the value of the speed or vision that occur in the offspring.
 
-SPEED-COLOR-MAP settings help you apply or remove color visualization to the speed of the bugs.  The "all green" setting does not show a different color for each bug based on its speed".  Keeping the color settings switched to something besides "all green" can tend to result in the predator (the user) unconsciously selecting bugs based on color instead of speed.
-The "rainbow" setting shows 6 distinct colors for the 6 different speeds a bug might have.  These color settings correspond to the plot pen colors in the graphs.
-The "purple shades" setting shows a gradient of dark purple to light purple for slow to fast bug speed.
-
 SHOW-VISION-CONE? switch helps you visualize the vision detection and response cone of the birds and bugs.
 
 BUG-FLEE-STRATEGY sets which predator the bug will turn away from - "nearest" or "any".
-BIRD-PURSUIT-STRATEGY sets which bug the bird will turn toward - "nearest" or "lock on one" (which means the bird keeps following the same bug until it is either outside its vision cone or it catches it.
+BIRD-PURSUIT-STRATEGY sets which bug the bird will turn toward - "nearest" or "lock on one" (which means the bird keeps following the same bug until it is either outside its vision cone or it catches it.  "None" will cause the bugs or birds not react at all to nearby prey or predators.
 
 ## THINGS TO NOTICE
 
@@ -1339,7 +1311,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1357,5 +1329,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
