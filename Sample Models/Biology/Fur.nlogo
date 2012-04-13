@@ -117,6 +117,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
+30.0
 
 BUTTON
 205
@@ -279,7 +280,7 @@ HORIZONTAL
 @#$#@#$#@
 ## WHAT IS IT?
 
-Does a single mechanism underlies such diverse patterns such as the stripes on a zebra, the spots on a leopard, and the blobs on a giraffe?  This model is a possible explanation of how the patterns on animals' skin self-organize.  If the model is right, then even though the animals may appear to have altogether different patterns, the rules underlying the formation of these patterns are the same and only some of the parameters (the numbers that the rules work on) are slightly different.
+Does a single mechanism underlies such diverse patterns such as the stripes on a zebra, the spots on a leopard, and the blobs on a giraffe?  This model is a possible explanation of how the patterns on animals' skin self-organize. It was first proposed by Alan Turing. If the model is right, then even though the animals may appear to have altogether different patterns, the rules underlying the formation of these patterns are the same and only some of the parameters (the numbers that the rules work on) are slightly different.
 
 Thinking of the formation of fur in terms of rules also helps us understand how offspring of animals may have the same type of pattern, but not the same exact pattern. This is because what they have inherited is the rules and the values rather than a fixed picture. The process by which the rules and values generate a pattern is affected by chance factors, so each individual's pattern is different, but as long as the offspring receive the same rules and values, their own fur will self organize into the same type of pattern as their parents'.
 
@@ -336,7 +337,46 @@ Voting, in the Social Science section, is based on simpler rules but generates p
 
 The mechanism of "diffusion-driven instability" was first proposed by Alan Turing in 1952. B.N. Nagorcka first proposed applying it to hair and fur. The particular variant presented in this model was proposed by David Young.
 
-In building this model, we used information on this web site: http://classes.yale.edu/fractals/Panorama/Biology/Leopard/Leopard.html
+In building this model, we used information on this web site: http://classes.yale.edu/fractals/Panorama/Biology/Leopard/Leopard.html .
+
+New research published in Nature Genetics (Economou et al, 2012) appears to confirm the mechanisms the model proposes.
+http://www.nature.com/ng/journal/vaop/ncurrent/full/ng.1090.html
+
+A news article in IO9 by Alasdair Wilkins describing the research can be found here.
+http://io9.com/5886406/scientists-confirm-alan-turings-50+year+old-theory-for-why-tigers-have-stripes
+
+Here is a quote from the Wilkins article:
+
+	 Turing's idea was that biological patterns - such as a tiger's stripes or a 
+         leopard's spots - are formed by the interactions of a pair of morphogens, which
+	 are the signaling molecules that govern tissue development. The particular pair
+	 that Turing proposed was an activator and an inhibitor. Turing proposed that the
+	 activator would form something like a tiger's stripe, but then interaction with
+	 the inhibitor would shut down its expression, creating a blank space. Then the
+         process would reverse, and the next stripe would form. The interaction of these
+	 two morphogens would combine to create the full stripe pattern.
+
+	This hypothesis has remained mostly just speculation until now, as researchers
+	 at King's College London have now tested the idea in the mouths of mice. The              roofs of mice's mouths contain regularly spaced ridges, and the researchers 
+	 discovered the precise two morphogens that were working as activator and
+	 inhibitor to create the pattern, just as Turing suggested. What's more, when the
+	 researchers tampered with one morphogen or the other to increase or decrease
+	 their activity,the pattern of the ridges changed just as Turing's initial
+	 equations predicted they would. Researcher Dr. Jeremy Green adds:
+
+	"Regularly spaced structures, from vertebrae and hair follicles to the stripes on
+	 a tiger or zebrafish, are a fundamental motif in biology. There are several
+	 theories about how patterns in nature are formed, but until now there was only
+	 circumstantial evidence for Turing's mechanism. Our study provides the first
+	 experimental identification of an activator-inhibitor system at work in the
+	 generation of stripes – in this case, in the ridges of the mouth palate.
+	 Although important in feeling and tasting food, ridges in the mouth are not of
+	 great medical significance. However, they have proven extremely valuable here in
+	 validating an old theory of the activator-inhibitor model first put forward by
+	 Alan Turing in the 50s."
+
+Other new research published in the Journal of Experimenatl Biology (Egri et al, 2011) proposes an evolutionary explanation for the advantage conferred by stripes.
+http://jeb.biologists.org/content/215/5/736.abstract
 
 Thanks to Seth Tisue and Dor Abrahamson for their work on this model.
 @#$#@#$#@
@@ -623,7 +663,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
