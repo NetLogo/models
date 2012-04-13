@@ -12,7 +12,7 @@ import collection.mutable.{ HashMap, ListBuffer, HashSet }
 val results = new HashMap[String, ListBuffer[Double]]
 val haveGoodResult = new HashSet[String]
 
-shell("""java -classpath target/scala_2.9.1/classes:project/boot/scala-2.9.1/lib/scala-library.jar:resources org.nlogo.headless.Main --fullversion""")
+shell("""java -classpath target/scala_2.9.2/classes:project/boot/scala-2.9.2/lib/scala-library.jar:resources org.nlogo.headless.Main --fullversion""")
   .foreach(println)
 
 // 4.0 & 4.1 numbers from my home iMac on Sep. 13 2011, running Mac OS X Lion.
