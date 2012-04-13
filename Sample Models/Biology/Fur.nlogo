@@ -347,36 +347,36 @@ http://io9.com/5886406/scientists-confirm-alan-turings-50+year+old-theory-for-wh
 
 Here is a quote from the Wilkins article:
 
-	 Turing's idea was that biological patterns - such as a tiger's stripes or a 
-         leopard's spots - are formed by the interactions of a pair of morphogens, which
-	 are the signaling molecules that govern tissue development. The particular pair
-	 that Turing proposed was an activator and an inhibitor. Turing proposed that the
-	 activator would form something like a tiger's stripe, but then interaction with
-	 the inhibitor would shut down its expression, creating a blank space. Then the
-         process would reverse, and the next stripe would form. The interaction of these
-	 two morphogens would combine to create the full stripe pattern.
+>Turing's idea was that biological patterns --- such as a tiger's stripes or a 
+>leopard's spots - are formed by the interactions of a pair of morphogens, which
+>are the signaling molecules that govern tissue development. The particular pair
+>that Turing proposed was an activator and an inhibitor. Turing proposed that the
+>activator would form something like a tiger's stripe, but then interaction with
+>the inhibitor would shut down its expression, creating a blank space. Then the
+>process would reverse, and the next stripe would form. The interaction of these
+>two morphogens would combine to create the full stripe pattern.
+>
+>This hypothesis has remained mostly just speculation until now, as researchers
+>at King's College London have now tested the idea in the mouths of mice. The
+>roofs of mice's mouths contain regularly spaced ridges, and the researchers 
+>discovered the precise two morphogens that were working as activator and
+>inhibitor to create the pattern, just as Turing suggested. What's more, when the
+>researchers tampered with one morphogen or the other to increase or decrease
+>their activity,the pattern of the ridges changed just as Turing's initial
+>equations predicted they would. Researcher Dr. Jeremy Green adds:
+>
+>"Regularly spaced structures, from vertebrae and hair follicles to the stripes on
+>a tiger or zebrafish, are a fundamental motif in biology. There are several
+>theories about how patterns in nature are formed, but until now there was only
+>circumstantial evidence for Turing's mechanism. Our study provides the first
+>experimental identification of an activator-inhibitor system at work in the
+>generation of stripes – in this case, in the ridges of the mouth palate.
+>Although important in feeling and tasting food, ridges in the mouth are not of
+>great medical significance. However, they have proven extremely valuable here in
+>validating an old theory of the activator-inhibitor model first put forward by
+>Alan Turing in the 50s."
 
-	This hypothesis has remained mostly just speculation until now, as researchers
-	 at King's College London have now tested the idea in the mouths of mice. The              roofs of mice's mouths contain regularly spaced ridges, and the researchers 
-	 discovered the precise two morphogens that were working as activator and
-	 inhibitor to create the pattern, just as Turing suggested. What's more, when the
-	 researchers tampered with one morphogen or the other to increase or decrease
-	 their activity,the pattern of the ridges changed just as Turing's initial
-	 equations predicted they would. Researcher Dr. Jeremy Green adds:
-
-	"Regularly spaced structures, from vertebrae and hair follicles to the stripes on
-	 a tiger or zebrafish, are a fundamental motif in biology. There are several
-	 theories about how patterns in nature are formed, but until now there was only
-	 circumstantial evidence for Turing's mechanism. Our study provides the first
-	 experimental identification of an activator-inhibitor system at work in the
-	 generation of stripes – in this case, in the ridges of the mouth palate.
-	 Although important in feeling and tasting food, ridges in the mouth are not of
-	 great medical significance. However, they have proven extremely valuable here in
-	 validating an old theory of the activator-inhibitor model first put forward by
-	 Alan Turing in the 50s."
-
-Other new research published in the Journal of Experimenatl Biology (Egri et al, 2011) proposes an evolutionary explanation for the advantage conferred by stripes.
-http://jeb.biologists.org/content/215/5/736.abstract
+Other new research published in the Journal of Experimental Biology (Egri et al, 2011) proposes an evolutionary explanation for the advantage conferred by stripes. http://jeb.biologists.org/content/215/5/736.abstract
 
 Thanks to Seth Tisue and Dor Abrahamson for their work on this model.
 @#$#@#$#@
