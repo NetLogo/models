@@ -61,6 +61,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
+30.0
 
 BUTTON
 34
@@ -129,6 +130,10 @@ NIL
 NetLogo makes it easy to make a random choice where every outcome is equally likely. But what if you want different outcomes to have different chances of being chosen...?
 
 In this example, we show how to run a "lottery" in which we pick a random turtle, and a turtle's chance of winning is proportional to its size.
+
+## EXTENDING THE MODEL
+
+In this version of the code, the agentset for the lottery (`turtles`) and the reporter run by each agent (`size`) are both hardcoded in the `lottery-winner` procedure. If those were passed as inputs to the procedure instead, then the same procedure could be used to run different lotteries. This would be possible using reporter tasks. (See the Tasks section of the Programming Guide.)
 
 ## RELATED MODELS
 
@@ -417,7 +422,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.0.2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
