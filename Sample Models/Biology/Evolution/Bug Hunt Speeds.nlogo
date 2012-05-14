@@ -114,12 +114,9 @@ to check-caught
 end
 
 to set-color  ;; turtle procedure
-  if speed-color-map = "all green"
-    [ set color green ]
-  if speed-color-map = "violet shades"
-    [ set color violet - 4 + speed ]
-  if speed-color-map = "rainbow"
+  ifelse show-colors? 
     [ set color item (speed - 1) [violet blue green brown orange red] ]
+    [ set color gray]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -208,7 +205,7 @@ frequency
 50.0
 true
 false
-"" ";; the HISTOGRAM primitive can't make a multi-colored histogram,\n;; so instead we plot each bar individually\nclear-plot\nforeach [1 2 3 4 5 6] [\n  set-current-plot-pen word \"pen\" ?\n  plotxy ? count bugs with [speed = ?]\n]\n"
+"" ";; the HISTOGRAM primitive can't make a multi-colored histogram,\n;; so instead we plot each bar individually\nclear-plot\nforeach [1 2 3 4 5 6] [\n  set-current-plot-pen word \"pen\" ?\n  plotxy ? count bugs with [speed = ?]\n]"
 PENS
 "pen1" 1.0 1 -8630108 true "" ""
 "pen2" 1.0 1 -13345367 true "" ""
@@ -216,16 +213,6 @@ PENS
 "pen4" 1.0 1 -3355648 true "" ""
 "pen5" 1.0 1 -955883 true "" ""
 "pen6" 1.0 1 -2674135 true "" ""
-
-CHOOSER
-136
-87
-264
-132
-speed-color-map
-speed-color-map
-"all green" "rainbow" "violet shades"
-1
 
 PLOT
 3
@@ -285,7 +272,7 @@ number
 10.0
 true
 false
-"" "clear-plot\n\n  plotxy 2 total-speed-2-caught\n\n  set-histogram-num-bars 8\n  set-current-plot-pen \"pen3\"\n  plotxy 3 total-speed-3-caught\n\n  set-histogram-num-bars 8\n  set-current-plot-pen \"pen4\"\n  plotxy 4 total-speed-3-caught\n\n  set-histogram-num-bars 8\n  set-current-plot-pen \"pen5\"\n  plotxy 5  total-speed-5-caught\n\n  set-histogram-num-bars 8\n  set-current-plot-pen \"pen6\"\n  plotxy 6  total-speed-6-caught\n"
+"" "clear-plot\n\n  plotxy 2 total-speed-2-caught\n\n  set-histogram-num-bars 8\n  set-current-plot-pen \"pen3\"\n  plotxy 3 total-speed-3-caught\n\n  set-histogram-num-bars 8\n  set-current-plot-pen \"pen4\"\n  plotxy 4 total-speed-3-caught\n\n  set-histogram-num-bars 8\n  set-current-plot-pen \"pen5\"\n  plotxy 5  total-speed-5-caught\n\n  set-histogram-num-bars 8\n  set-current-plot-pen \"pen6\"\n  plotxy 6  total-speed-6-caught"
 PENS
 "pen1" 1.0 1 -8630108 true "set-histogram-num-bars 8" "plotxy 1 total-speed-1-caught"
 "pen2" 1.0 1 -13345367 true "set-histogram-num-bars 8" "plotxy 2 total-speed-2-caught"
@@ -306,12 +293,23 @@ wiggle?
 -1000
 
 SWITCH
-175
-49
-265
-82
+176
+53
+266
+86
 flee?
 flee?
+0
+1
+-1000
+
+SWITCH
+140
+93
+266
+126
+show-colors?
+show-colors?
 0
 1
 -1000
@@ -341,13 +339,7 @@ Initially there are equal numbers of each sub-population of bug (e.g. ten bugs a
 
 INITIAL-BUGS-EACH-SPEED is the number of bugs you start with in each of the six sub-populations.  The overall population of bugs is determined by multiplying this value by 6.
 
-SPEED-COLOR-MAP settings help you apply or remove color visualization to the speed of the bugs:
-
-- The "all green" setting does not show a different color for each bug based on its speed.  Keeping the color settings switched to something besides "all green" can tend to result in the predator (the user) unconsciously selecting bugs based on color instead of speed.
-
-- The "rainbow" setting shows 6 distinct colors for the 6 different speeds a bug might have.  These color settings correspond to the plot pen colors in the graphs.
-
-- The "purple shades" setting shows a gradient of dark purple to light purple for slow to fast bug speed.
+SHOW-COLORS? helps you apply or remove color visualization based on the speed of the bugs.  When turned on, it shows 6 distinct colors for the 6 different speeds a bug might have.  These color settings correspond to the plot pen colors in the graphs.  When turned off, each bug is colored gray.  This prevents the predator (the model player) from unintentionally selecting bugs based on color.
 
 NUMBER OF BUGS is a histogram showing the distribution of bugs at different speeds.
 
@@ -680,7 +672,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta3
+NetLogo 5.0.1
 @#$#@#$#@
 setup
 repeat 17
