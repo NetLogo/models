@@ -334,6 +334,8 @@ Increase the THRUST-AMOUNT to make the game harder.
 
 ## EXTENDING THE MODEL
 
+Add one or more plots to the model. For example, you might plot the position, velocity, and/or acceleration of the module, in the plane or just on the Y axis.
+
 Currently, collisions with the edges of the module are not detected, so you can graze the side of a peak with the edge of the module without crashing.  It would be more realistic if these crashes were detected.
 
 Add levels to the game by continually making the terrain bumpier, the platform smaller, or by some other method of making the game more difficult, perhaps alien spaceships.
