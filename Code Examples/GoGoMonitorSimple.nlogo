@@ -330,7 +330,7 @@ refresh-rate
 
 This simple model communicates with the sensors and output ports of a GoGo Board, an open source, easy-to-build, low cost, general purpose circuit board designed for educational projects.
 
-This model helps you test your connection to your GoGo Board, and serves as a starting point for building NetLogo activities that interact with the physical world. For a more comple version of this model, try the GoGoMonitor.
+This model helps you test your connection to your GoGo Board, and serves as a starting point for building NetLogo activities that interact with the physical world. For a more complete version of this model, try the GoGoMonitor.
 
 ## HOW IT WORKS
 
@@ -357,7 +357,7 @@ A-REVERSE-DIRECTION reverses the direction of current to the output port(s). For
 
 To change the amount of current going to the output port(s), set the A-POWER slider, then press the SET-A-POWER button.
 
-To plot sensor 1 values, start the PLOT SENSOR forever button.  At any time, you can clear the plot with the CLEAR PLOT button.  Changing the REFRESH RATE chooser adds small delay between each data point, effectively decreasing the sampling rate.  The "FAST" mode adds no delay (resulting in 500 Hz on a fast computer), the "MEDIUM" mode adds 0.01 seconds of delay (resukting in approximatelly 80 Hz), and the "SLOW" mode adds 0.1 second between each measure (approximatelly 10 Hz). A high refresh rate ("FAST" mode) is better for data that change very quickly, but it is prone to have more noise and result in a huge data set. Slow refresh rates will result in a smoother line, but you might miss some data in between recorded data points. To export the data in your plot, right-click (on Macs, control-click) on the plot and choose "Export...".
+To plot sensor 1 values, start the PLOT SENSOR forever button.  At any time, you can clear the plot with the CLEAR PLOT button.  Changing the REFRESH RATE chooser adds small delay between each data point, effectively decreasing the sampling rate.  The "FAST" mode adds no delay (resulting in 500 Hz on a fast computer), the "MEDIUM" mode adds 0.01 seconds of delay (resulting in approximately 80 Hz), and the "SLOW" mode adds 0.1 second between each measure (approximately 10 Hz). A high refresh rate ("FAST" mode) is better for data that change very quickly, but it is prone to have more noise and result in a huge data set. Slow refresh rates will result in a smoother line, but you might miss some data in between recorded data points. To export the data in your plot, right-click (on Macs, control-click) on the plot and choose "Export...".
 
 ## THINGS TO TRY
 

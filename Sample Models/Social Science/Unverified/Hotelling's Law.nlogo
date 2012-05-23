@@ -92,7 +92,7 @@ to do-movement ;; Stores consider the benefits of taking a unit step in each of 
   ]
   move-to old-position
   
-  ;; Sort candidate moves in order of the market share area they acheive, from largest to smallest
+  ;; Sort candidate moves in order of the market share area they achieve, from largest to smallest
   let sorted-candidates sort-by [ (last ?1) > (last ?2) ] (candidate-moves)
   
   let best-move (first (first sorted-candidates)) 
@@ -148,7 +148,7 @@ to recalculate-area
   ;; (because this situation is often indicative of a programming error). 
   ;; However in this model, we actually do need every turtle to be able to run this recalculate-area procedure, 
   ;; which in turn asks all turtles and all patches to perform an action. To work around NetLogo's overzealous 
-  ;; error-checking, we use the idiosyncracy of writing "turtles with [true]" and "patches with [true]", 
+  ;; error-checking, we use the idiosyncrasy of writing "turtles with [true]" and "patches with [true]", 
   ;; which includes all agents without NetLogo complaining.
   
   ask turtles with [true] [set area-count 0]
@@ -449,7 +449,7 @@ One can extend this model further by introducing a different layout. How would t
 
 Each store can move up to two distance units per time unit, as each store does a test step, in one cardinal direction and back, when deciding on its moving strategy. However, as this model is tick based, the user only sees one step per store. This also comes into play when recalculating the market share area as the world may partition itself up to fifty-one times per tick, but the user only sees it occurring once.
 
-Also, when recalculating the market share area, a slight work-around was necessary. In general, NetLogo will complain if a turtle asks all turtles in the world to perform some action, because this situation is often indicative of a programming error. However in this model, every turtle does need to be able to run the RECALCULATE-AREA procedure, which in turn asks all turtles and all patches to perform an action. To work around NetLogo's overzealous error-checking, we use the idiosyncracy of writing "turtles with [TRUE]" and "patches with [TRUE]", which includes all agents without NetLogo complaining.
+Also, when recalculating the market share area, a slight work-around was necessary. In general, NetLogo will complain if a turtle asks all turtles in the world to perform some action, because this situation is often indicative of a programming error. However in this model, every turtle does need to be able to run the RECALCULATE-AREA procedure, which in turn asks all turtles and all patches to perform an action. To work around NetLogo's overzealous error-checking, we use the idiosyncrasy of writing "turtles with [TRUE]" and "patches with [TRUE]", which includes all agents without NetLogo complaining.
 
 
 ## RELATED MODELS

@@ -1,6 +1,6 @@
 patches-own [own-weight
-             neighbours-weight
-             neighbours-state
+             neighbors-weight
+             neighbors-state
              own-state
              ]
 
@@ -16,14 +16,14 @@ end
 
 to go
 
-ask patches [ifelse (neighbours?)
+ask patches [ifelse (neighbors?)
                [set own-weight 0.5
-                set neighbours-weight 0.5 / 4]
+                set neighbors-weight 0.5 / 4]
                [set own-weight 1
-                set neighbours-weight 0]
-             set neighbours-state (sum [own-state] of neighbors4)
-             set own-state (A * (own-weight * own-state + neighbours-weight * neighbours-state) * (1 -
-             own-weight * own-state - neighbours-weight * neighbours-state))]
+                set neighbors-weight 0]
+             set neighbors-state (sum [own-state] of neighbors4)
+             set own-state (A * (own-weight * own-state + neighbors-weight * neighbors-state) * (1 -
+             own-weight * own-state - neighbors-weight * neighbors-state))]
 ask patches [set pcolor 10 * own-state
              ]
 tick
@@ -136,8 +136,8 @@ SWITCH
 207
 778
 240
-neighbours?
-neighbours?
+neighbors?
+neighbors?
 0
 1
 -1000

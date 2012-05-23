@@ -7,7 +7,7 @@ globals
   bugs-died ;; number of bugs that died
   max-bugs-age 
   min-reproduce-energy-bugs ;; how much energy, at minimum, bug needs to reproduce
-  max-bugs-offspring ;; max offsprings a bug can have
+  max-bugs-offspring ;; max offspring a bug can have
       
   max-plant-energy ;; the maximum amount of energy a plant in a patch can accumulate
   sprout-delay-time ;; number of ticks before grass starts regrowing

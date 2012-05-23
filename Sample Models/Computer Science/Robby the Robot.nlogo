@@ -27,9 +27,9 @@ globals [
   step-counter ;; used for keeping track of Robby's movements in the trial
   visuals?     ;; only true when the set up environment button (SETUP-VISUALS procedure) is called. During the regular GA runs we
                ;; skimp on visuals to get greater speed.
-  minfit
-  maxfit
-  xoffset       ; For placing individuals in world
+  min-fit
+  max-fit
+  x-offset       ; For placing individuals in world
   tournament-size ; Size of "tournament" used to choose each parent. 
   num-environments-for-fitness ; Number of environments for Robby to run in to calculate fitness
   num-actions-per-environment; Number of actions Robby takes in each environment for calculating fitness
@@ -80,9 +80,9 @@ to initialize-globals
   set wall-penalty 5
   set can-reward 10
   set pick-up-penalty 1
-  set minfit  -100; For display.  Any fitness less than minfit is displayed at the same location as minfit.  
-  set maxfit 500 ; (approximate) maximum possible fitness that an individual could obtain assuming approx. 50 cans per environment.  
-  set xoffset 0
+  set min-fit  -100; For display.  Any fitness less than min-fit is displayed at the same location as min-fit.  
+  set max-fit 500 ; (approximate) maximum possible fitness that an individual could obtain assuming approx. 50 cans per environment.  
+  set x-offset 0
   set tournament-size 15
   set num-environments-for-fitness 20
   set num-actions-per-environment 100
@@ -165,12 +165,12 @@ to display-fitness [best-individual]
   let mid-x max-pxcor / 2
   let mid-y max-pycor / 2
   ask best-individual [
-    setxy ((precision scaled-fitness 2) * max-pxcor + xoffset) mid-y 
-    setxy ( scaled-fitness * max-pxcor + xoffset) mid-y 
+    setxy ((precision scaled-fitness 2) * max-pxcor + x-offset) mid-y 
+    setxy ( scaled-fitness * max-pxcor + x-offset) mid-y 
     ;; place the individuals at a distance from the center based on the similarity of their chromosome to the best chromosome
     ask other individuals [
-      setxy ((precision scaled-fitness 2) * max-pxcor + xoffset) mid-y 
-      setxy ( scaled-fitness * max-pxcor + xoffset) mid-y 
+      setxy ((precision scaled-fitness 2) * max-pxcor + x-offset) mid-y 
+      setxy ( scaled-fitness * max-pxcor + x-offset) mid-y 
       set heading one-of [0 180] 
       fd chromosome-distance self myself
       ]
@@ -259,9 +259,9 @@ to calculate-population-fitnesses
     ]
     ask current-individual [
       set fitness score-sum / num-environments-for-fitness
-      ifelse fitness < minfit 
+      ifelse fitness < min-fit 
         [set scaled-fitness 0] 
-        [set scaled-fitness (fitness + (abs minfit)) / (maxfit + (abs minfit))]
+        [set scaled-fitness (fitness + (abs min-fit)) / (max-fit + (abs min-fit))]
     ]
   ]
 end
@@ -408,7 +408,7 @@ end
 ;; distance is Euclidean distance between their allele distributions, scaled to fit in view
 to-report chromosome-distance [individual1 individual2]
   let max-dist  273 * sqrt 2
-  ;; compute the euclidean distance between allele distrbutions
+  ;; compute the euclidean distance between allele distributions
   let dist2 reduce + (map [(?1  - ?2) ^ 2] [allele-distribution] of individual1 [allele-distribution] of individual2)
   ;; scale the distance to fit in the view
   let dist-candidate max-pxcor * sqrt dist2 / ( max-dist / 10)
@@ -788,7 +788,7 @@ A "strategy" for Robby specifies one of his seven possible actions for each of t
 
 There are many possible variations on the basic concept of a genetic algorithm. Here is the particular variant implemented in this model.
 
-We begin with a pool of randomly generated strategies.  We load each strategy into Robby in turn, and then run that strategy in a series of randomly generated arrangements of cans ("environments").  We score Robby on how well he does in each environment. If Robby hits a wall, he loses 5 points. If he succesfully picks up a can, he gains 10 points. If he tries to pick up a can, but there isn't one there, he loses 1 point.  Robby's average score across all these environments is taken as the "fitness" of that strategy.
+We begin with a pool of randomly generated strategies.  We load each strategy into Robby in turn, and then run that strategy in a series of randomly generated arrangements of cans ("environments").  We score Robby on how well he does in each environment. If Robby hits a wall, he loses 5 points. If he successfully picks up a can, he gains 10 points. If he tries to pick up a can, but there isn't one there, he loses 1 point.  Robby's average score across all these environments is taken as the "fitness" of that strategy.
 
 Once we have measured the fitness of the current pool of strategies, we construct the next generation of strategies.  Each new strategy has two parents.  We pick the first parent by picking 15 random candidate parents, then choose the one with the highest fitness.  We repeat this to pick the second parent. Each pair of parents creates two new children via crossover and mutation (see below).  We keep repeating this process until we have enough new children to fill up the population (settable by the POPULATION-SIZE slider).   This "generation" of new children replaces the previous generation.  We then similarly calculate the fitness of the current generation, choose parents, and create a new generation.  This process continues as long as the GO button is pressed, or is controlled by the NUMBER-OF-GENERATIONS slider when the GO-N-GENERATIONS button is pressed. 
 
@@ -800,9 +800,9 @@ In addition to crossover, the children's strategies are subject to occasional ra
 
 Press SETUP to create the initial pool of random strategies.  Press GO-FOREVER to start the genetic algorithm running, or GO-N-GENERATIONS to run the genetic algorithm for a fixed number of generations (settable by the NUMBER-OF-GENERATIONS slider).  
 
-In the view, you'll see the pool of strategies (represented by "person" icons). The strategies are heterogenous. The diversity in their fitness is visualized by color and position on the x-axis.  Their color is a shade of red, scaled by their fitness. It's  lightest when the fitness is low and darkest when it's high. In addition, the fitness of a strategy determines where it is along the x-axis, with the least fit strategies on the left, and the fittest strategies on the right.    
+In the view, you'll see the pool of strategies (represented by "person" icons). The strategies are heterogeneous. The diversity in their fitness is visualized by color and position on the x-axis.  Their color is a shade of red, scaled by their fitness. It's  lightest when the fitness is low and darkest when it's high. In addition, the fitness of a strategy determines where it is along the x-axis, with the least fit strategies on the left, and the fittest strategies on the right.    
 
-Another apsect of diversity is the difference between the strategies. This difference is measured by counting the frequency of each of the 7 basic actions in the strategy (the "allele-diversity"), forming a 7 dimensional vector and then calculating the Euclidean distance between two such vectors.  One of the strategies with the highest fitness is placed in the center of the y-axis. The other strategies are placed at locations whose distance from the center along the y-axis is proportional to the difference between their strategy and the winning strategy.  
+Another aspect of diversity is the difference between the strategies. This difference is measured by counting the frequency of each of the 7 basic actions in the strategy (the "allele-diversity"), forming a 7 dimensional vector and then calculating the Euclidean distance between two such vectors.  One of the strategies with the highest fitness is placed in the center of the y-axis. The other strategies are placed at locations whose distance from the center along the y-axis is proportional to the difference between their strategy and the winning strategy.  
 
 All of this takes a fair amount of time to show, so for long runs of the GA you'll want to move the speed slider to the right or uncheck the "view updates" checkbox to get results faster.
 
