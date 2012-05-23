@@ -12,7 +12,7 @@ exec bin/scala -classpath bin -deprecation -nocompdaemon "$0" "$@"
 
 import Scripting.{shell,read}
 
-val ignores = List("/3D/", "/Curricular Models/Urban Suite/")
+val ignores = List("/3D/", "/Curricular Models/Urban Suite/", "/test/")
 
 for{path <- shell("find models -name \\*.nlogo")
     if ignores.forall(!path.containsSlice(_))
