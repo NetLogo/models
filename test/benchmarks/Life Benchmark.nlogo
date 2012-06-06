@@ -40,8 +40,6 @@ to cell-death
 end
 
 to go
-  if mouse-down?
-    [ stop ]  ;; wait for user to stop drawing
   ask patches
     [ set live-neighbors count neighbors with [living?] ]
   ;; Starting a new "ask patches" here ensures that all the patches
