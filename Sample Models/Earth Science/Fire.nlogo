@@ -188,6 +188,8 @@ See the "CA 1D Rule 30" and "CA 1D Rule 30 Turtle" for an example of a model wri
 * Rumor Mill
 
 ## CREDITS AND REFERENCES
+
+http://en.wikipedia.org/wiki/Forest-fire_model
 @#$#@#$#@
 default
 true
