@@ -1,5 +1,5 @@
 #!/bin/sh
-exec bin/scala -nocompdaemon -deprecation -classpath bin "$0" "$@" 
+exec bin/scala -nocompdaemon -deprecation -classpath bin -Dfile.encoding=UTF-8 "$0" "$@" 
 !# 
 
 // Local Variables:

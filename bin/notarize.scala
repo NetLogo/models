@@ -1,5 +1,5 @@
 #!/bin/sh
-JAVA_OPTS=-Dfile.encoding=UTF-8 exec bin/scala -classpath bin -deprecation -nocompdaemon "$0" "$@"
+exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "$0" "$@"
 !# 
 // Local Variables:
 // mode: scala
