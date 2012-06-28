@@ -383,7 +383,6 @@ layout
 @#$#@#$#@
 ## WHAT IS IT?
 
-
 This model is a representation of Hotelling's law (1929), which examines the optimal placement of stores and pricing of their goods in order to maximize profit. In Hotelling's original paper, the stores were confined to a single dimension.  This model replicates and extends Hotelling's law, by allowing the stores to move freely on a plane.
    
 In this model, several stores attempt to maximize their profits by moving and changing their prices.  Each consumer chooses their store of preference based on the distance to the store and the price of the goods it offers.
@@ -391,12 +390,10 @@ In this model, several stores attempt to maximize their profits by moving and ch
 
 ## HOW IT WORKS
 
-
 Each consumer adds up the price and distance from each store, and then chooses to go to the store that offers the lowest sum. In the event of a tie, the consumer chooses randomly. The stores can either be constrained to one dimension, in which case all stores operate on a line, or they can be placed on a plane. Under the normal rule, each store tries to move randomly in the four cardinal directions to see if it can gain a larger market share; if not, it does not move. Then each store checks if it can earn a greater profit by increasing or decreasing the price of their goods; if not, it does not change the price. This decision is made without any knowledge of their competitors' strategies. There are two other conditions under which one can run this model: stores can either only change prices, or only move their location.
 
 
 ## HOW TO USE IT
-
 
 Press SETUP to create the stores and a visualization of their starting market share areas.    
 Press GO to have the model run continuously.
@@ -410,7 +407,6 @@ If the RULES chooser is on PRICING-ONLY, then stores can only change their price
 
 ## THINGS TO NOTICE
 
-
 On the default settings, notice that the two stores end up in very close contact and with minimal prices. This is because each store tries to cut into their competitor's fringe consumers by moving closer and reducing their prices.
 
 Also notice how the shapes of the boundaries end up as perpendicular bisectors or hyperbolic arcs. The distance between the stores and their difference in prices determines the eccentricity of these arcs.
@@ -422,14 +418,12 @@ Plots show the prices, areas, and revenues of all stores.
 
 ## THINGS TO TRY
 
-
 Try to see how stores behave differently when they are either prohibited from moving or changing their prices.
 
 Try increasing the number of stores. Examine how they behave differently and watch which ones are the most successful.  What patterns emerge?
 
 
 ## EXTENDING THE MODEL
-
 
 In this model, information is free, but this is not a realistic assumption. Can you think of a way to add a price when stores try to gain information?
 
@@ -446,14 +440,12 @@ One can extend this model further by introducing a different layout. How would t
 
 ## NETLOGO FEATURES
 
-
 Each store can move up to two distance units per time unit, as each store does a test step, in one cardinal direction and back, when deciding on its moving strategy. However, as this model is tick based, the user only sees one step per store. This also comes into play when recalculating the market share area as the world may partition itself up to fifty-one times per tick, but the user only sees it occurring once.
 
 Also, when recalculating the market share area, a slight work-around was necessary. In general, NetLogo will complain if a turtle asks all turtles in the world to perform some action, because this situation is often indicative of a programming error. However in this model, every turtle does need to be able to run the RECALCULATE-AREA procedure, which in turn asks all turtles and all patches to perform an action. To work around NetLogo's overzealous error-checking, we use the idiosyncrasy of writing "turtles with [TRUE]" and "patches with [TRUE]", which includes all agents without NetLogo complaining.
 
 
 ## RELATED MODELS
-
 
 Voronoi
 
