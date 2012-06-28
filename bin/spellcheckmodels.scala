@@ -10,7 +10,7 @@ exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "
 
 // installing aspell: brew install aspell --lang=en
 
-import Scripting.{shell,read}
+import Scripting.shell
 
 val ignores = List("/3D/", "/Curricular Models/Urban Suite/", "/test/")
 
