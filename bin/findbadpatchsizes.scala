@@ -7,9 +7,11 @@ exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "
 
 // finds models with non-integer patch sizes (because yea, verily,
 // non-integer patch sizes are an abomination)
-import Scripting.shell
+
+import sys.process._
+
 println
-for{path <- shell("find models -name \\*.nlogo -o -name \\*.nlogo3d")
+for{path <- Process("find models -name *.nlogo -o -name *.nlogo3d").lines
     patchSize = io.Source.fromFile(path).getLines
                   .dropWhile(_ != "GRAPHICS-WINDOW")
                   .takeWhile(!_.isEmpty).drop(7).next

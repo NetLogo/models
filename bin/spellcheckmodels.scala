@@ -10,15 +10,16 @@ exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "
 
 // installing aspell: brew install aspell --lang=en
 
-import Scripting.shell
+import sys.process._
+import java.io.File
 
 val ignores = List("/3D/", "/Curricular Models/Urban Suite/", "/test/")
 
-for{path <- shell("find models -name \\*.nlogo")
+for{path <- Process("find models -name *.nlogo -or -name *.nlogo3d").lines
     if ignores.forall(!path.containsSlice(_))
-    lines = shell("cat \"" + path + "\" | sed -e 's/\\\\n/ /g' | aspell -H -p ./dist/modelwords.txt list")
-    if lines.hasNext}
+    lines = (new File(path) #> "aspell --encoding=UTF-8 -H -p ./dist/modelwords.txt list").lines
+    if lines.nonEmpty}
 {
   println(path)
-  lines.foreach(line => println("  " + line))
+  lines.map("  " + _).foreach(println)
 }

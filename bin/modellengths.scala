@@ -6,7 +6,7 @@ exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "
 // End:
 
 /// print and histogram the lengths of the Code tabs of all Sample Models
-import Scripting.shell
+import sys.process._
 
 println("Counting lines containing something besides a bracket or paren and/or a comment.")
 println("Of the GasLab suite, only Circular Particles and Gas in a Box are included.")
@@ -19,7 +19,7 @@ def hasActualCode(line:String):Boolean =
   !line.matches("""\s*[\[\]\(\)]\s*;.*""")    // ignore if nothing but a bracket/paren and a comment
 
 val hash = collection.mutable.HashMap[String,Int]()
-for{path <- shell("""find models/Sample\ Models -name \*.nlogo -o -name \*.nlogo3d""")
+for{path <- Process(Seq("find", "models/Sample Models", "-name", "*.nlogo", "-o", "-name", "*.nlogo3d")).lines
     name = path.split("/").last.dropRight(6)
     if !path.containsSlice("/System Dynamics/")
     if !path.containsSlice("/GasLab/") || List("GasLab Circular Particles","GasLab Gas in a Box").contains(name)}

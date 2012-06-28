@@ -15,11 +15,12 @@ exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "
 // are a pain because the updates setting is on a different line
 // than 2D models use
 
-import Scripting.shell
+import sys.process._
 
 def read(s: String) = io.Source.fromFile(s).getLines
 
-shell("find models -name \\*.nlogo -o -name \\*.nlogo3d")
+Process("find models -name *.nlogo -o -name *.nlogo3d")
+  .lines
   .filter(!_.containsSlice("/3D/"))
   .filter(!read(_).dropWhile(_ != "GRAPHICS-WINDOW")
                   .takeWhile(!_.isEmpty)

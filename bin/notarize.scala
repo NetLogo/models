@@ -16,7 +16,7 @@ exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "
 ///
 /// The NetLogo version comes from resources/system/version.txt; ditto on release.sh and symlinking.
 
-import Scripting.shell
+import sys.process._
 import java.io.File
 
 def read(file: String) = io.Source.fromFile(file).getLines
@@ -38,7 +38,8 @@ val legal = Map() ++ {
       format(model, spec) = line.trim}
   yield (addSuffix(model), spec)
 }      
-val paths = shell("find models -name test -prune -o -name *.nlogo -print -o -name *.nlogo3d -print")
+val paths = Process("find models -name test -prune -o -name *.nlogo -print -o -name *.nlogo3d -print")
+             .lines
              .map(_.drop("models/".size))
              .toSeq
 
@@ -56,7 +57,7 @@ require(bogusEntries.isEmpty,
 var missingPreviews = false
 for(path <- paths) {
   val preview = path.reverse.dropWhile(_ != '.').reverse + "png"
-  if(!new java.io.File("models/" + preview).exists) {
+  if(!new File("models/" + preview).exists) {
     if(requirePreviews)
       println("MISSING PREVIEW: " + preview)
     missingPreviews = true
