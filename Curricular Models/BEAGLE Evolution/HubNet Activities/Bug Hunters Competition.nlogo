@@ -683,7 +683,9 @@ x-interval-histogram
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model shows how competition emerges between individuals in the same population.  In a consumer / producer ecosystem, competition for shared resources emerges whenever there is a limited sappy of those resources.  Such competition may be intentional or unintentional, but similar outcomes result in either case - some individuals outcompete others for those shared resources.  Even when individuals are identical, differences in where and when shared resources in the ecosystem are available will lead to variation in competitive advantages for some individuals over time (some individuals happen to be closer to those resources than other individuals).  This variation in competitive advantage, will enable some individuals to survive while others die.   
+This model shows how competition emerges between individuals in the same population.  In a consumer / producer ecosystem, competition for shared resources emerges whenever there is a limited sappy of those resources.  Such competition may be intentional or unintentional, but similar outcomes result in either case - some individuals outcompete others for those shared resources.
+
+Even when individuals are identical, differences in where and when shared resources in the ecosystem are available will lead to variation in competitive advantages for some individuals over time (some individuals happen to be closer to those resources than other individuals).  This variation in competitive advantage, will enable some individuals to survive while others die.   
 
 The degree of competition in an ecosystem depends on the number of individuals in the ecosystem and the amount of resources available per individual. A very small number of individuals may generate very little or no competition (individuals may have all the resources that they need).  However, many individuals will generate intensive competition for resources, such that very few resources are available for each individual and many individuals will die for lack of adequate resources.
 
