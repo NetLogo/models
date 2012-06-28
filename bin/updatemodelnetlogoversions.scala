@@ -10,11 +10,11 @@ exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "
 // that happening with models we release to the public, so sometimes the versions recorded in our
 // model files need to be updated en masse. 
 
-import Scripting.{ shell, read, slurp }
+import io.Source.fromFile
 
-val version = read("resources/system/version.txt").next
+val version = fromFile("resources/system/version.txt").getLines.next
 for(path <- args) {
-  val sections = slurp(path).split("\\@\\#\\$\\#\\@\\#\\$\\#\\@\n",-1)
+  val sections = fromFile(path).mkString.split("\\@\\#\\$\\#\\@\\#\\$\\#\\@\n",-1)
   val newSections = sections.map(section => if(section.matches("NetLogo .*\n")) version + "\n"
                                             else section)
   new java.io.PrintStream(new java.io.FileOutputStream(new java.io.File(path)))
