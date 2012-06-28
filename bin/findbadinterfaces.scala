@@ -21,7 +21,7 @@ val allowedLengths = Map("BUTTON" -> (11,16),
                          "INPUTBOX" -> (8,10),
                          "PLOT" -> (14,999999)) // any number of pens
 
-for{path <- stringToProcess("find models -name \\*.nlogo -o -name \\*.nlogo3d").lines
+for{path <- Process("find models -name \\*.nlogo -o -name \\*.nlogo3d").lines
     interface = path.!!.split("\\@\\#\\$\\#\\@\\#\\$\\#\\@\n")(1)
     widget <- interface.split("\n\n")}
 {
