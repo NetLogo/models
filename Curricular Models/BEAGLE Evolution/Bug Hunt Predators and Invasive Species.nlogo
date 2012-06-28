@@ -679,7 +679,7 @@ SLIDER
 HORIZONTAL
 
 @#$#@#$#@
-## WHAT IS IT? 
+## WHAT IS IT?
 
 This model explores the stability of predator-prey ecosystems and how that stability is affected when new species are introduced into the ecosystem.
 
