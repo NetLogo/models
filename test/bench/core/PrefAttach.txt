@@ -382,7 +382,7 @@ procedure MAKE-NODE:[OLD-NODE]{O---}:
          L6
           RETURN
 [2]_asm_proceduremakenode_if_2 "if old-node != nobody" boolean => void
-      _notequal Object,Nobody$ => boolean
+      _notequal Object,Object => boolean
         _procedurevariable:OLD-NODE => Object
         _nobody => Nobody$
          L0
@@ -397,34 +397,25 @@ procedure MAKE-NODE:[OLD-NODE]{O---}:
           ASTORE 3
           ASTORE 2
           ALOAD 2
-          GETSTATIC org/nlogo/api/Nobody$.MODULE$ : Lorg/nlogo/api/Nobody$;
-          IF_ACMPEQ L3
-          ALOAD 2
-          INSTANCEOF org/nlogo/agent/Agent
-          IFEQ L4
-          ALOAD 2
-          CHECKCAST org/nlogo/agent/Agent
-          GETFIELD org/nlogo/agent/Agent.id : J
-          LDC -1
-          LCMP
-          IFEQ L3
-         L4
+          ALOAD 3
+          INVOKESTATIC org/nlogo/api/Equality.equals (Ljava/lang/Object;Ljava/lang/Object;)Z
+          IFNE L3
           ICONST_1
-          GOTO L5
+          GOTO L4
          L3
           ICONST_0
-         L5
+         L4
           ISTORE 2
           ALOAD 1
           ILOAD 2
-          IFEQ L6
+          IFEQ L5
           ICONST_3
-          GOTO L7
-         L6
+          GOTO L6
+         L5
           BIPUSH 10
-         L7
+         L6
           PUTFIELD org/nlogo/nvm/Context.ip : I
-         L8
+         L7
           RETURN
 [3]_createlinkwith:null,+6
       _asm_proceduremakenode_procedurevariable_3 "old-node" => Object
@@ -1084,7 +1075,7 @@ procedure FIND-PARTNER:[TOTAL PARTNER]{OTPL}:
             INVOKESPECIAL java/lang/Double.<init> (D)V
             ARETURN
 [4]_asm_procedurefindpartner_if_7 "if partner = nobody" boolean => void
-      _equal Object,Nobody$ => boolean
+      _equal Object,Object => boolean
         _procedurevariable:PARTNER => Object
         _nobody => Nobody$
          L0
@@ -1099,34 +1090,20 @@ procedure FIND-PARTNER:[TOTAL PARTNER]{OTPL}:
           ASTORE 3
           ASTORE 2
           ALOAD 2
-          GETSTATIC org/nlogo/api/Nobody$.MODULE$ : Lorg/nlogo/api/Nobody$;
-          IF_ACMPEQ L3
-          ALOAD 2
-          INSTANCEOF org/nlogo/agent/Agent
-          IFEQ L4
-          ALOAD 2
-          CHECKCAST org/nlogo/agent/Agent
-          GETFIELD org/nlogo/agent/Agent.id : J
-          LDC -1
-          LCMP
-          IFNE L4
+          ALOAD 3
+          INVOKESTATIC org/nlogo/api/Equality.equals (Ljava/lang/Object;Ljava/lang/Object;)Z
          L3
-          ICONST_1
-          GOTO L5
-         L4
-          ICONST_0
-         L5
           ISTORE 2
           ALOAD 1
           ILOAD 2
-          IFEQ L6
+          IFEQ L4
           ICONST_5
-          GOTO L7
-         L6
+          GOTO L5
+         L4
           BIPUSH 9
-         L7
+         L5
           PUTFIELD org/nlogo/nvm/Context.ip : I
-         L8
+         L6
           RETURN
 [5]_asm_procedurefindpartner_ifelse_8 "ifelse nc > total" boolean => void
       _greaterthan Object,Object => boolean
