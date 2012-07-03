@@ -147,7 +147,7 @@ keep-adding-randomness?
 
 This model demonstrates the concept of "structure from randomness".  In particular, it is an implementation of the model described in the book "Cities and Complexity" by Michael Batty, on pages 43-45.  For analysis and discussion beyond that provided with this model, the reader is encouraged to refer to this text.
 
-The basic idea here is demonstrating how structured formations can easily from completely random initial data, through a simple process.
+The basic idea here is demonstrating how structured formations can easily emerge from completely random initial data, through a simple process.
 
 ## HOW IT WORKS
 
