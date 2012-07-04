@@ -1,19 +1,23 @@
 #!/bin/sh
-exec bin/scala -deprecation -classpath bin -nocompdaemon -Dfile.encoding=UTF-8 "$0" "$@"
+exec bin/scala -nocompdaemon -deprecation -classpath bin -Dfile.encoding=UTF-8 "$0" "$@"
 !#
 
-// Local Variables:
-// mode: scala
-// End:
-
-import Scripting.shell
+import sys.process._
 import collection.mutable.{ HashMap, ListBuffer, HashSet }
 
 val results = new HashMap[String, ListBuffer[Double]]
 val haveGoodResult = new HashSet[String]
 
-shell("""java -classpath target/scala_2.9.2/classes:project/boot/scala-2.9.2/lib/scala-library.jar:resources org.nlogo.headless.Main --fullversion""")
-  .foreach(println)
+val classpath =
+  Seq("target/scala-2.9.2/classes",
+      System.getenv("HOME") + "/.sbt/boot/scala-2.9.2/lib/scala-library.jar",
+      "resources",
+      "lib_managed/jars/asm/asm-all/asm-all-3.3.1.jar",
+      "lib_managed/bundles/log4j/log4j/log4j-1.2.16.jar",
+      "lib_managed/jars/org.picocontainer/picocontainer/picocontainer-2.13.6.jar")
+    .mkString(":")
+Process("java -classpath " + classpath + " org.nlogo.headless.Main --fullversion")
+  .lines.foreach(println)
 
 // 4.0 & 4.1 numbers from my home iMac on Sep. 13 2011, running Mac OS X Lion.
 // quad-core 2.8 GHz Intel Core i5, memory 4 GB 1333 Mhz DDR3 - ST 9/13/11
@@ -33,18 +37,22 @@ val results41 =
 val allNames: List[String] = {
   val nameArgs = args.takeWhile(!_.head.isDigit).toList
   if(!nameArgs.isEmpty) nameArgs
-  else shell("""find models/test/benchmarks -name \*.nlogo -maxdepth 1""")
-        .map(_.split("/").last.split(" ").head).toList
+  else Process("find models/test/benchmarks -name *.nlogo -maxdepth 1")
+         .lines.map(_.split("/").last.split(" ").head).toList
 }
 allNames.foreach(name => results += (name -> new ListBuffer[Double]))
 val width = allNames.map(_.size).max
 
-def outputLines(name: String): Iterator[String] =
-  shell("make bench ARGS=\"" + name + args.dropWhile(!_.head.isDigit).mkString(" ", " ", "") + "\"")
+def outputLines(name: String): Stream[String] =
+  Process("java -classpath " + classpath +
+          " org.nlogo.headless.HeadlessBenchmarker " +
+          name + args.dropWhile(!_.head.isDigit).mkString(" ", " ", ""))
+    .lines
 def record(name: String, line: String) {
   val Match = ("@@@ " + name + """ Benchmark: (\d+\.\d+)( \(hit time limit\))?""").r
   val Match(num, warning) = line
-  if(warning == null) haveGoodResult += name
+  if (warning == null)
+    haveGoodResult += name
   results(name) += num.toDouble
 }
 def printResults() {
@@ -79,3 +87,7 @@ while(true) {
   // make extra efforts to get at least one good result for each model
   allNames.filter(!haveGoodResult(_)).foreach(runIt)
 }
+
+// Local Variables:
+// mode: scala
+// End:
