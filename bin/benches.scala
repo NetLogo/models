@@ -1,6 +1,6 @@
 #!/bin/sh
-exec bin/scala -deprecation -classpath bin -nocompdaemon -Dfile.encoding=UTF-8 "$0" "$@" 
-!# 
+exec bin/scala -deprecation -classpath bin -nocompdaemon -Dfile.encoding=UTF-8 "$0" "$@"
+!#
 
 // Local Variables:
 // mode: scala
@@ -17,7 +17,7 @@ shell("""java -classpath target/scala_2.9.2/classes:project/boot/scala-2.9.2/lib
 
 // 4.0 & 4.1 numbers from my home iMac on Sep. 13 2011, running Mac OS X Lion.
 // quad-core 2.8 GHz Intel Core i5, memory 4 GB 1333 Mhz DDR3 - ST 9/13/11
-val results40 = 
+val results40 =
   Map("Ants" -> 4.797, "BZ" -> 4.816, "CA1D" -> 4.714, "Erosion" -> 3.663, "Fire" -> 0.206,
       "FireBig" -> 3.585, "Flocking" -> 2.399, "GasLabCirc" -> 3.955, "GasLabNew" -> 4.268,
       "GasLabOld" -> 3.533, "GridWalk" -> 6.099, "Heatbugs" -> 3.160, "Ising" -> 4.042,
