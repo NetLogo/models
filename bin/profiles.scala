@@ -2,26 +2,31 @@
 exec bin/scala -nocompdaemon -deprecation -classpath bin -Dfile.encoding=UTF-8 "$0" "$@"
 !#
 
-import sys.process._
-import Scripting.shell
+import sys.process.Process
+
+val classpath =
+  Seq("target/scala-2.9.2/classes",
+      System.getenv("HOME") + "/.sbt/boot/scala-2.9.2/lib/scala-library.jar",
+      "resources",
+      "lib_managed/jars/asm/asm-all/asm-all-3.3.1.jar",
+      "lib_managed/bundles/log4j/log4j/log4j-1.2.16.jar",
+      "lib_managed/jars/org.picocontainer/picocontainer/picocontainer-2.13.6.jar")
+    .mkString(":")
 
 val allNames: List[String] =
-  shell("""find models/test/benchmarks -name \*.nlogo -maxdepth 1""")
-    .map(_.split("/").last.split(" ").head).toList
+  Process("find models/test/benchmarks -name *.nlogo -maxdepth 1")
+    .lines.map(_.split("/").last.split(" ").head).toList
 
-"mkdir -p tmp/profiles".!
+Process("mkdir -p tmp/profiles").!
 
-val version =
-  shell("""java -classpath target/classes:project/boot/scala-2.9.2/lib/scala-library.jar:resources org.nlogo.headless.Main --fullversion""")
-    .next
-
-def benchCommand(name:String) =
-  "make bench ARGS=\"" + name + " 60 60\" " +
-  "JARGS=-Xrunhprof:cpu=samples,depth=40,file=tmp/profiles/" + name + ".txt"
+def benchCommand(name: String) =
+  "java -classpath " + classpath + " " +
+  "-Xrunhprof:cpu=samples,depth=40,file=tmp/profiles/" + name + ".txt " +
+  "org.nlogo.headless.HeadlessBenchmarker " + name + " 60 60"
 
 for(name <- allNames) {
   println(name)
-  benchCommand(name).!
+  Process(benchCommand(name)).!
 }
 
 // Local Variables:
