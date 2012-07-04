@@ -1,9 +1,6 @@
 #!/bin/sh
-exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "$0" "$@" 
-!# 
-// Local Variables:
-// mode: scala
-// End:
+exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "$0" "$@"
+!#
 
 // finds models with spelling mistakes (because yea, verily,
 // spelling mistakes are an abomination unto the Lord)
@@ -23,3 +20,7 @@ for{path <- Process("find models -name *.nlogo -or -name *.nlogo3d").lines
   println(path)
   lines.map("  " + _).foreach(println)
 }
+
+// Local Variables:
+// mode: scala
+// End:

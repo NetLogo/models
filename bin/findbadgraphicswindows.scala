@@ -1,9 +1,6 @@
 #!/bin/sh
-exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "$0" "$@" 
-!# 
-// Local Variables:
-// mode: scala
-// End:
+exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "$0" "$@"
+!#
 
 // finds models whose graphics windows' saved sizes don't match the size you should get if you
 // compute from the saved patch size and screen-edge-x/y
@@ -34,3 +31,7 @@ for{path <- Process("find models -name *.nlogo").lines
   if(computedHeight != y2 - y1)
     println(path + " (" + version + "): computed height " + computedHeight + ", actual height " + (y2 - y1))
 }
+
+// Local Variables:
+// mode: scala
+// End:

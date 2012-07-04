@@ -1,9 +1,6 @@
 #!/bin/sh
-exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "$0" "$@" 
-!# 
-// Local Variables:
-// mode: scala
-// End:
+exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "$0" "$@"
+!#
 
 // find models with malformed interface tabs
 
@@ -36,3 +33,7 @@ for{path <- Process("find models -name \\*.nlogo -o -name \\*.nlogo3d").lines
       complain()
   }
 }
+
+// Local Variables:
+// mode: scala
+// End:

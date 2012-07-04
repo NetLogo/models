@@ -2,10 +2,6 @@
 exec bin/scala -nocompdaemon -deprecation -classpath bin -Dfile.encoding=UTF-8 "$0" "$@"
 !#
 
-// Local Variables:
-// mode: scala
-// End:
-
 import sys.process._
 import Scripting.shell
 
@@ -27,3 +23,7 @@ for(name <- allNames) {
   println(name)
   benchCommand(name).!
 }
+
+// Local Variables:
+// mode: scala
+// End:

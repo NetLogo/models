@@ -1,9 +1,6 @@
 #!/bin/sh
 exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "$0" "$@"
-!# 
-// Local Variables:
-// mode: scala
-// End:
+!#
 
 /// Adds legal and academic notices to procedures and/or info tabs of all models.
 ///
@@ -37,7 +34,7 @@ val legal = Map() ++ {
       if !line.startsWith("#") && !line.trim.isEmpty
       format(model, spec) = line.trim}
   yield (addSuffix(model), spec)
-}      
+}
 val paths = Process("find models -name test -prune -o -name *.nlogo -print -o -name *.nlogo3d -print")
              .lines
              .map(_.drop("models/".size))
@@ -311,3 +308,7 @@ def munge(path: String): String = {
   val newSections = newCode :: sections(1) :: newInfo :: sections.drop(3)
   newSections.mkString("@#$#@#$#@\n")
 }
+
+// Local Variables:
+// mode: scala
+// End:

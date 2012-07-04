@@ -1,9 +1,6 @@
 #!/bin/sh
-exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "$0" "$@" 
-!# 
-// Local Variables:
-// mode: scala
-// End:
+exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "$0" "$@"
+!#
 
 /// print and histogram the lengths of the Code tabs of all Sample Models
 import sys.process._
@@ -36,3 +33,7 @@ println
 
 for(name <- hash.keys.toList.sortBy(hash).reverse)
   printf("%4d %s\n",hash(name),name)
+
+// Local Variables:
+// mode: scala
+// End:
