@@ -5,7 +5,7 @@ exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "
 // finds models with non-integer patch sizes (because yea, verily,
 // non-integer patch sizes are an abomination)
 
-import sys.process._
+import sys.process.Process
 
 println
 for{path <- Process("find models -name *.nlogo -o -name *.nlogo3d").lines

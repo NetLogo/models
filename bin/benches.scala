@@ -2,7 +2,7 @@
 exec bin/scala -nocompdaemon -deprecation -classpath bin -Dfile.encoding=UTF-8 "$0" "$@"
 !#
 
-import sys.process._
+import sys.process.Process
 import collection.mutable.{ HashMap, ListBuffer, HashSet }
 
 val results = new HashMap[String, ListBuffer[Double]]

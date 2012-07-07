@@ -13,7 +13,7 @@ exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "
 ///
 /// The NetLogo version comes from resources/system/version.txt; ditto on release.sh and symlinking.
 
-import sys.process._
+import sys.process.Process
 import java.io.File
 
 def read(file: String) = io.Source.fromFile(file).getLines

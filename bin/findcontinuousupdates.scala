@@ -12,7 +12,7 @@ exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "
 // are a pain because the updates setting is on a different line
 // than 2D models use
 
-import sys.process._
+import sys.process.Process
 
 def read(s: String) = io.Source.fromFile(s).getLines
 

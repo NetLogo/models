@@ -5,7 +5,7 @@ exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "
 // finds models whose graphics windows' saved sizes don't match the size you should get if you
 // compute from the saved patch size and screen-edge-x/y
 
-import sys.process._
+import sys.process.Process
 
 for{path <- Process("find models -name *.nlogo").lines
     lines = io.Source.fromFile(path).getLines.toSeq}

@@ -5,7 +5,7 @@ exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "
 // finds models with tabs anywhere in them
 // (because yea, verily, tabs are an abomination)
 
-import sys.process._
+import sys.process.Process
 
 def read(s: String) = io.Source.fromFile(s).getLines
 

@@ -5,7 +5,7 @@ exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "
 // finds models that have first paragraphs of their WHAT IS IT? sections that are too long, or
 // otherwise malformed
 
-import sys.process._
+import sys.process.Process
 
 for{path <- Process("find models -name *.nlogo -o -name *.nlogo3d").lines
     if !path.startsWith("models/test/")
