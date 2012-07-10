@@ -3441,7 +3441,7 @@ procedure CATCH-SHEEP:[]{-T--}:
          L13
           RETURN
 [1]_asm_procedurecatchsheep_if_1 "if (prey != nobody" boolean => void
-      _notequal Object,Nobody$ => boolean
+      _notequal Object,Object => boolean
         _turtlevariable:PREY => Object
         _nobody => Nobody$
           TRYCATCHBLOCK L0 L1 L2 org/nlogo/api/AgentException
@@ -3468,34 +3468,25 @@ procedure CATCH-SHEEP:[]{-T--}:
           ASTORE 3
           ASTORE 2
           ALOAD 2
-          GETSTATIC org/nlogo/api/Nobody$.MODULE$ : Lorg/nlogo/api/Nobody$;
-          IF_ACMPEQ L5
-          ALOAD 2
-          INSTANCEOF org/nlogo/agent/Agent
-          IFEQ L6
-          ALOAD 2
-          CHECKCAST org/nlogo/agent/Agent
-          GETFIELD org/nlogo/agent/Agent.id : J
-          LDC -1
-          LCMP
-          IFEQ L5
-         L6
+          ALOAD 3
+          INVOKESTATIC org/nlogo/api/Equality.equals (Ljava/lang/Object;Ljava/lang/Object;)Z
+          IFNE L5
           ICONST_1
-          GOTO L7
+          GOTO L6
          L5
           ICONST_0
-         L7
+         L6
           ISTORE 2
           ALOAD 1
           ILOAD 2
-          IFEQ L8
+          IFEQ L7
           ICONST_2
-          GOTO L9
-         L8
+          GOTO L8
+         L7
           BIPUSH 6
-         L9
+         L8
           PUTFIELD org/nlogo/nvm/Context.ip : I
-         L10
+         L9
           RETURN
 [2]_asm_procedurecatchsheep_ask_2 "ask prey" Object => void
       _turtlevariable:PREY => Object

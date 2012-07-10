@@ -3711,7 +3711,7 @@ procedure CHECK-FOR-COLLISION:[CANDIDATE]{-T--}:
           RETURN
 [2]_asm_procedurecheckforcollision_if_3 "if (candidate != nobody) and (speed > 0 or [speed] of candidate > 0" boolean => void
       _and
-        _notequal Object,Nobody$ => boolean
+        _notequal Object,Object => boolean
           _procedurevariable:CANDIDATE => Object
           _nobody => Nobody$
         _or
@@ -3743,31 +3743,22 @@ procedure CHECK-FOR-COLLISION:[CANDIDATE]{-T--}:
           ASTORE 3
           ASTORE 2
           ALOAD 2
-          GETSTATIC org/nlogo/api/Nobody$.MODULE$ : Lorg/nlogo/api/Nobody$;
-          IF_ACMPEQ L6
-          ALOAD 2
-          INSTANCEOF org/nlogo/agent/Agent
-          IFEQ L7
-          ALOAD 2
-          CHECKCAST org/nlogo/agent/Agent
-          GETFIELD org/nlogo/agent/Agent.id : J
-          LDC -1
-          LCMP
-          IFEQ L6
-         L7
+          ALOAD 3
+          INVOKESTATIC org/nlogo/api/Equality.equals (Ljava/lang/Object;Ljava/lang/Object;)Z
+          IFNE L6
           ICONST_1
-          GOTO L8
+          GOTO L7
          L6
           ICONST_0
-         L8
-          IFEQ L9
+         L7
+          IFEQ L8
          L0
           ALOAD 1
           GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
           LDC "SPEED"
           INVOKEVIRTUAL org/nlogo/agent/Agent.getBreedVariable (Ljava/lang/String;)Ljava/lang/Object;
          L1
-          GOTO L10
+          GOTO L9
          L2
           ASTORE 2
           NEW org/nlogo/nvm/EngineException
@@ -3778,27 +3769,27 @@ procedure CHECK-FOR-COLLISION:[CANDIDATE]{-T--}:
           INVOKEVIRTUAL org/nlogo/api/AgentException.getMessage ()Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L10
+         L9
           DCONST_0
-         L11
+         L10
           DSTORE 3
           ASTORE 2
           ALOAD 2
           INSTANCEOF java/lang/Double
-          IFEQ L12
+          IFEQ L11
           ALOAD 2
           CHECKCAST java/lang/Double
           INVOKEVIRTUAL java/lang/Double.doubleValue ()D
           DLOAD 3
           DCMPL
-          IFLE L13
+          IFLE L12
           ICONST_1
-          GOTO L14
-         L13
-          ICONST_0
-         L14
-          GOTO L15
+          GOTO L13
          L12
+          ICONST_0
+         L13
+          GOTO L14
+         L11
           NEW org/nlogo/nvm/EngineException
           DUP
           ALOAD 1
@@ -3821,33 +3812,33 @@ procedure CHECK-FOR-COLLISION:[CANDIDATE]{-T--}:
           INVOKEINTERFACE org/nlogo/api/I18NJava.getN (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L15
-          IFNE L16
+         L14
+          IFNE L15
           ALOAD 0
           GETFIELD org/nlogo/prim/_asm_procedurecheckforcollision_if_3.keptinstr11 : Lorg/nlogo/prim/_breedvariableof;
           ALOAD 1
           INVOKEVIRTUAL org/nlogo/prim/_breedvariableof.report (Lorg/nlogo/nvm/Context;)Ljava/lang/Object;
-         L17
+         L16
           DCONST_0
-         L18
+         L17
           DSTORE 3
           ASTORE 2
           ALOAD 2
           INSTANCEOF java/lang/Double
-          IFEQ L19
+          IFEQ L18
           ALOAD 2
           CHECKCAST java/lang/Double
           INVOKEVIRTUAL java/lang/Double.doubleValue ()D
           DLOAD 3
           DCMPL
-          IFLE L20
+          IFLE L19
           ICONST_1
-          GOTO L21
-         L20
-          ICONST_0
-         L21
-          GOTO L22
+          GOTO L20
          L19
+          ICONST_0
+         L20
+          GOTO L21
+         L18
           NEW org/nlogo/nvm/EngineException
           DUP
           ALOAD 1
@@ -3870,26 +3861,26 @@ procedure CHECK-FOR-COLLISION:[CANDIDATE]{-T--}:
           INVOKEINTERFACE org/nlogo/api/I18NJava.getN (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
+         L21
+          GOTO L22
+         L15
+          ICONST_1
          L22
           GOTO L23
-         L16
-          ICONST_1
-         L23
-          GOTO L24
-         L9
+         L8
           ICONST_0
-         L24
+         L23
           ISTORE 2
           ALOAD 1
           ILOAD 2
-          IFEQ L25
+          IFEQ L24
           ICONST_3
-          GOTO L26
-         L25
+          GOTO L25
+         L24
           BIPUSH 8
-         L26
+         L25
           PUTFIELD org/nlogo/nvm/Context.ip : I
-         L27
+         L26
           RETURN
 [3]_asm_procedurecheckforcollision_call_5 "collide-with candidate"
       _procedurevariable:CANDIDATE => Object
