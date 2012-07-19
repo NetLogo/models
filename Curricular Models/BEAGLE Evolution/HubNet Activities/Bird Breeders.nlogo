@@ -1119,9 +1119,6 @@ to-report instructions
     ]
   ]
 end
-
-; Copyright 2011 Uri Wilensky.
-; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 455
@@ -1531,21 +1528,7 @@ The order of how breeds are defined, determine which breed appears on top of the
 Plant Hybridization and Fish Tank Genetic Drift from the BEAGLE curricular folder.
 
 
-## HOW TO CITE
-
-If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
-- Novak, M. and Wilensky, U. (2011).  NetLogo Bird Breeders model.  http://ccl.northwestern.edu/netlogo/models/BirdBreeders.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-- Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-
-## COPYRIGHT AND LICENSE
-
-Copyright 2011 Uri Wilensky.
-
-![CC BY-NC-SA 3.0](http://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png)
-
-This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
-
-Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 true
