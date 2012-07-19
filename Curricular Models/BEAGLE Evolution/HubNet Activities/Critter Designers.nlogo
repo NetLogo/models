@@ -12,7 +12,7 @@ globals
   dt                              ;; a time scaling unit used in the simulation to adjust how quickly events are rendered.  
   player-spam-countdown           ;; the number of ticks a player must wait before placing a new species  
   #-environment-changes           ;; the number of times the environment has changed
-  events                          ;; a string holding a description of all the automatic environment changes that occured in grass growth and max-grass
+  events                          ;; a string holding a description of all the automatic environment changes that occurred in grass growth and max-grass
   total-species-created           ;; the total number of species created
   max-species-age                 ;; the maximum age of all species created
 ]
@@ -60,7 +60,7 @@ critters-own
   current-action                 ;; this critter's current action from their behavior-dna
   action-index                   ;; the list index of this critter's current action in their behavior-dna
   movement-counter               ;; a counter that ticks down for a certain number of tics for each action in the 
-                                 ;; critters movement.  This allows the particpants to be able to see the critters turning
+                                 ;; critters movement.  This allows the participants to be able to see the critters turning
                                  ;; and sliding forward or backward fluidly.
   movement-delta                 ;; the distance the critter moves
   species-start-tick             ;; the time (number of ticks) when this critter was made
@@ -932,7 +932,7 @@ As new critters are added and/or as the environmental conditions change, the sta
 
 Since individuals show no trait variation different from their ancestors, evolution does not occur in this model. When evolution does not occur, species designed to have a strong competitive edge for one set of environmental conditions are destined to go extinct when environmental changes are large enough or frequent enough. So, all species introduced into the ecosystem eventually go extinct as the environment keeps changing and new species are introduced. 
 
-In the real world, the traits of individuals in a species don't remain fixed.  New traits that have never appeared before emerge in populations.  This occurs because offspring can incur mutations that give them different traits from their ancenstors.  Though mutations are random, they introduce new trait variations into a population.   In a way, mutation serves like a "random design changer".  As many minor random design changes emerge in a population from mutations, some are bound to result in individuals that have a greater competitive advantage than the ancestors.  This permits species to keep "unitentionally" experimenting with alterante design plans as the environment changes.  Some such species continue to evolve over time, so that offspring can appear and behave very differently than their original ancestors.  In the real world then, while some species may go extinct, others continue to evolve to accumulate beneficial trait variations as the environment keeps changing. 
+In the real world, the traits of individuals in a species don't remain fixed.  New traits that have never appeared before emerge in populations.  This occurs because offspring can incur mutations that give them different traits from their ancestors.  Though mutations are random, they introduce new trait variations into a population.   In a way, mutation serves like a "random design changer".  As many minor random design changes emerge in a population from mutations, some are bound to result in individuals that have a greater competitive advantage than the ancestors.  This permits species to keep "unintentionally" experimenting with alternate design plans as the environment changes.  Some such species continue to evolve over time, so that offspring can appear and behave very differently than their original ancestors.  In the real world then, while some species may go extinct, others continue to evolve to accumulate beneficial trait variations as the environment keeps changing. 
 
 
 ## HOW TO USE IT
@@ -949,11 +949,11 @@ _ENVIRONMENT-CHANGES?_ when turned to "off" keeps MAX-GRASS and GRASS-GROWTH lev
 
 _MINIMUM-RANDOM-SPECIES_ adjusts the number of random species the computer adds. When one of the species goes extinct, another randomly generated species replaces it. When set to 0, only species that client participants add will be in the ecosystem.
 
-_# ENVIRONMENTAL-CHANGES_ keeps track of the number of automatic (computer selected) shifts in the MAX-GRASS and GRASS-GROWTH levels occured. 
+_# ENVIRONMENTAL-CHANGES_ keeps track of the number of automatic (computer selected) shifts in the MAX-GRASS and GRASS-GROWTH levels occurred. 
 
 _PLACEMENTS-PER-CLIENT_ sets the maximum number of critter designs each client can release and test in the ecosystem.
 
-_# ALIVE-SPECES_ is a histogram of the number of current species that are alive by % of time that they are alive for the simulation.  For short model runs, there may be some species that are alive for 100% of the time the simulation ran.  For long model runs it becomes progressively less likely that any species will be alive for 100% of the time of the model run.  The histogram will cluster to the left the longer the model runs. 
+_# ALIVE-SPECIES_ is a histogram of the number of current species that are alive by % of time that they are alive for the simulation.  For short model runs, there may be some species that are alive for 100% of the time the simulation ran.  For long model runs it becomes progressively less likely that any species will be alive for 100% of the time of the model run.  The histogram will cluster to the left the longer the model runs. 
 
 _# EXTINCT-SPECIES_ is a histogram of the number of species that died by % of time that they are alive for the simulation.  The longer the model runs, the smaller the percent of time that the extinct species were alive for.  Species that came into existence at the start of the model run and went extinct just before the model run ended will appear clustered toward the right side of the histogram.  Species that came into existence at any point in the model run and then went extinct shortly after will tend to cluster toward the left side of the histogram. 
 
@@ -1019,13 +1019,29 @@ Use the model with an entire class to serve as an introduction to the topic of t
 
 One or more computer generated species could be given the ability to generate mutations that cause minor changes in the traits of the offspring. Longevity experiments could be conducted to compare the success of computer generated, evolving species to the success of purposefully designed "fixed trait" species created by participants.
 
+
 ## NETLOGO FEATURES
 
-The population graph updates to have a continually rolling x-axis.  This means that when a new maximum x-value is reached, that x-value becomes the new x-minimun value and the plots are wiped clean and the x-axis is reset with same x range as before, but the new minimum and maximum values.
+The population graph updates to have a continually rolling x-axis.  This means that when a new maximum x-value is reached, that x-value becomes the new x-minimum value and the plots are wiped clean and the x-axis is reset with same x range as before, but the new minimum and maximum values.
 
-The command hubnet-send-override is used to change the appearance of agents in the client view, so that each leint can customized what is displayed for that client.  This allows clients to "gray out" species that aren't their own in their client view or turn on labels for the agents in their view only.  
+The command hubnet-send-override is used to change the appearance of agents in the client view, so that each client can customized what is displayed for that client.  This allows clients to "gray out" species that aren't their own in their client view or turn on labels for the agents in their view only.
 
-## CREDITS AND REFERENCES
+
+## HOW TO CITE
+
+If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:  
+- Stonedahl, F., Novak, M. and Wilensky, U. (2011).  NetLogo Critter Designers model.  http://ccl.northwestern.edu/netlogo/models/CritterDesigners.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.  
+- Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.  
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2011 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 @#$#@#$#@
 default
 true
@@ -1235,7 +1251,7 @@ Line -7500403 true 84 40 210 255
 Circle -7500403 true true 120 0 60
 
 @#$#@#$#@
-NetLogo 5.0
+NetLogo 5.0.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

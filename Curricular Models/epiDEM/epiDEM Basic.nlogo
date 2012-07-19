@@ -11,7 +11,7 @@ turtles-own
 [
   infected?           ;; If true, the person is infected
   cured?              ;; If true, the person has lived through an infection. They cannot be re-infected.
-  susceptible-0       ;; Initial number of suscpetible people
+  susceptible-0       ;; Initial number of susceptible people
   infection-length    ;; How long the person has been infected
   nbInfected          ;; Number of secondary infections caused by an infected person at the end of the tick
   nbRecovered         ;; Number of recovered people at the end of the tick
@@ -276,7 +276,7 @@ true
 true
 "" ""
 PENS
-"Infection Rate" 1.0 0 -2674135 true "" "plot (betaN * nbInfected-previous) "
+"Infection Rate" 1.0 0 -2674135 true "" "plot (betaN * nbInfected-previous)"
 "Recovery Rate" 1.0 0 -10899396 true "" "plot (gamma * nbInfected-previous)"
 
 SLIDER
@@ -746,7 +746,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0RC3
+NetLogo 5.0.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

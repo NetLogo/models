@@ -10,7 +10,7 @@ globals [
    old-visualize-time-steps-state  ;; allows for switching between visualization modes during model run
    chance-death-per-year           ;; the probability that the plant will die this year
    chance-seed-dispersal           ;; the probability that a newborn plant grows in a patch adjacent to its parents', instead of in the same patch.
-   average-number-offspring        ;; avg. number of dees dispersed by the plant when it does disperse them
+   average-number-offspring        ;; avg. number of seeds dispersed by the plant when it does disperse them
    percent-same-flowering-time
 ]
 
@@ -103,9 +103,9 @@ to do-end-of-days-events
       mark-turtles-to-kill
       set transition-time? true
     ]
-    ;; 10 ticks of transition time will elaspe between years when visualize-time-steps is in "day" mode
+    ;; 10 ticks of transition time will elapse between years when visualize-time-steps is in "day" mode
     ;; this transition time is for animation events to show death and growth of new plants before the next
-    ;; year begins. It is done before day 0 of the new year so that these visualizations do not interefere
+    ;; year begins. It is done before day 0 of the new year so that these visualizations do not interfere
     ;; with flower time speciation mechanisms in the model
 
     if transition-time? [
@@ -199,7 +199,7 @@ to mark-turtles-to-kill
     ;; This is a model of a "tradeoff", where specializing in one variation of trait is advantageous
     ;; in one environmental extreme, but specializing in another variation of the trait is advantageous in a different
     ;; environmental extreme. Intermediate "hybridization" or averaging between both variations is disadvantageous
-    ;; in both enviornments or at the very least it is not advantageous in either extreme environment.  
+    ;; in both environments or at the very least it is not advantageous in either extreme environment.  
     ;; Such tradeoff models can lead to speciation when other traits permit a population to reproductively 
     ;; fragment and isolate itself into non-interbreeding sub populations.
 
@@ -209,7 +209,7 @@ to mark-turtles-to-kill
     ;; where fitness is 1 at clean ground and no tolerance
     ;; A is the penalty (0 to 1) for having tolerance in clean ground, therefore fitness is (1 - A)
     ;; B is the penalty (0 to 1) for having the highest level of metal in the ground and no tolerance, therefore fitness is (1 - B)
-    ;; C is the penalty (0 to 1) for having the highest tolerance in the highest level of metal, therfore fitness is (1 - C)
+    ;; C is the penalty (0 to 1) for having the highest tolerance in the highest level of metal, therefore fitness is (1 - C)
     ;; As long as C is less than both B and A, then you will have a fitness function that can be used in this section
     ;; The fitness function has been hard coded here to use A = .4 and B = .4 and C = 0
 
@@ -217,7 +217,7 @@ to mark-turtles-to-kill
 
     ;; survival probability based on fitness
     if (random-float 1) > (fitness) [set will-die? true]
-    ;; survival probablity based on fixed number of additional deaths-a-year
+    ;; survival probability based on fixed number of additional deaths-a-year
     if random-float 100 < chance-death-per-year [set will-die? true]
   ]
 
@@ -277,7 +277,7 @@ end
 
 to visualize-bloom
   ask turtles [
-    ;; If day of the year is greater than this plants flower time and less than the flower time plus the length of flowertime, then it is in the
+    ;; If day of the year is greater than this plants flower time and less than the flower time plus the length of flower time, then it is in the
     ;; the flowering time window and a flower should be located here
     ifelse day >= (flower-time  ) and day <= (flower-time + (flower-duration)  )
        [ set shape "flower"]
@@ -682,7 +682,7 @@ Fitness is a hyperbolic paraboloid function that can be visualized as a linear f
     - positive slope in dirty ground -> high tolerance is good
     - slope of zero: in between -> no benefit or disadvantage to any tolerance level
 
-This is a model of a "tradeoff", where specializing in one variation of a trait is advantageous in one environmental extreme, but specializing in another variation of the trait is advantageous in a different environmental extreme. Intermediate "hybridization," or averaging between both variations, is disadvantageous in both enviornments or at least not advantageous in any.  Such tradeoff models can lead to speciation when other traits permit a population to reproductively fragment and isolate itself into non-interbreeding sub populations.
+This is a model of a "tradeoff", where specializing in one variation of a trait is advantageous in one environmental extreme, but specializing in another variation of the trait is advantageous in a different environmental extreme. Intermediate "hybridization," or averaging between both variations, is disadvantageous in both environments or at least not advantageous in any.  Such tradeoff models can lead to speciation when other traits permit a population to reproductively fragment and isolate itself into non-interbreeding sub populations.
 
 The hyperbolic paraboloid or saddle shaped function that is used in the model is dependent on metal amount and tolerance.  A general form of this fitness function would be the following:
   fitness =  (1 +  (A * t * m + B * t * m - C * t * m) - ( A * t + B * m) ) 
@@ -699,11 +699,11 @@ As long as C is less than both B and A, then you will have a fitness function th
 
 ## HOW TO USE IT
 
-PLANT-TYPE: When set to "annual", all old plants die at the end of the year. "Perennial" allows some old plants to remain behind to reflower the next year.
+PLANT-TYPE: When set to "annual", all old plants die at the end of the year. "Perennial" allows some old plants to remain behind to re-flower the next year.
 
 VISUALIZE-TIME-STEPS: This can be set to "days" so that the flowering of the plants can be visualized during the year and the growth of seedlings and death of old plants can be visualized at the end of the year.  When set to "years" the model skips these visualizations and runs much quicker.
 
-GENETICS-MODEL: Allows you to change the recombination rules for sexual reproduction.  If set to "avg. genotype", the parent genotypes are averaged in the offspring.  This is a simplification of hybridization outcomes. Speciation should be more difficult to achieve at this setting since variation is removed more readily than using Mendellian genetics models (that retain variation in genotype over many generations through recessive alleles).  However, speciation can still emerge at this setting.  If set to "sex linked genes" the genotype is inherited from the male (pollen) only.
+GENETICS-MODEL: Allows you to change the recombination rules for sexual reproduction.  If set to "avg. genotype", the parent genotypes are averaged in the offspring.  This is a simplification of hybridization outcomes. Speciation should be more difficult to achieve at this setting since variation is removed more readily than using Mendelian genetics models (that retain variation in genotype over many generations through recessive alleles).  However, speciation can still emerge at this setting.  If set to "sex linked genes" the genotype is inherited from the male (pollen) only.
 
 SHOW-LABELS-AS: Shows the value for "metal in soil" for each patch, the "metal tolerance" for each plants", or the "flowering time" for each plant.
 
@@ -717,7 +717,7 @@ CHANCE-TOLERANCE-MUTATION, CHANCE-FLOWER-TIME-MUTATION, FLOWER-TIME-MUTATION-STD
 
 
 
-There are a variety of plots. The histograms show the distribution of metal tolerance and flowering time for plants on the left and right side of the environment. Graphs on the right show the mean tolerance and flowering time for the left and right sides of the environment over time. The "simultaneous flowering" graph shows the probability that a randomly chosen plant from the left flowers at the same time as a randomly chosen plant from the right--that is, the probability that they can fertilize each other. If this nears 0 speciation has occurred--the left and right sides are no longer interbreeding. Though the model only rarely reaches this value as 0, it does often achieve stable states very close to 0, showing that the first step in speciation has been achieved -- that a population has split into two sub-populations that are coevolving behavior to reinforce sexual isolation from one another.
+There are a variety of plots. The histograms show the distribution of metal tolerance and flowering time for plants on the left and right side of the environment. Graphs on the right show the mean tolerance and flowering time for the left and right sides of the environment over time. The "simultaneous flowering" graph shows the probability that a randomly chosen plant from the left flowers at the same time as a randomly chosen plant from the right--that is, the probability that they can fertilize each other. If this nears 0 speciation has occurred--the left and right sides are no longer interbreeding. Though the model only rarely reaches this value as 0, it does often achieve stable states very close to 0, showing that the first step in speciation has been achieved -- that a population has split into two sub-populations that are co-evolving behavior to reinforce sexual isolation from one another.
 
 
 ## THINGS TO NOTICE
@@ -735,7 +735,7 @@ If you change the FRONTIER-SHARPNESS to make a more gradual shift in metal conce
 
 Sometimes flower-times for one population become isolated between two sub-groups in the other population, making for 3 effectively non-interbreeding sub-populations.  This shows how one speciation event can fragment the reproductive compatibility of the other population leading to even more possible species.
 
-Because of what is described above, parapatric speciation (in which two budding species continue to exchange genes as they diverge) is a rare form of speciation. More commonly accepted is the idea of allopatric speciation, which avoids these difficulties by positing that species arise when two subpopulations are separated completely, so that they cannot exchange genes and there is no homogeneizing force preventing them from developing reproductive isolation. However, the process observed in the model where partial reproductive isolation allows increased differentiation due to selection, which in turn encourages more complete reproductive isolation, is often held to "reinforce" allopatric speciation when the two separated subpopulations come back into contact with each other.
+Because of what is described above, parapatric speciation (in which two budding species continue to exchange genes as they diverge) is a rare form of speciation. More commonly accepted is the idea of allopatric speciation, which avoids these difficulties by positing that species arise when two subpopulations are separated completely, so that they cannot exchange genes and there is no homogenizing force preventing them from developing reproductive isolation. However, the process observed in the model where partial reproductive isolation allows increased differentiation due to selection, which in turn encourages more complete reproductive isolation, is often held to "reinforce" allopatric speciation when the two separated subpopulations come back into contact with each other.
 
 Playing with the other parameters of the model can alter the details of what happens; in particular the flow of genes between the sides is affected by fertilization-radius and flower-duration in proportion to the world size.
 
@@ -754,9 +754,27 @@ Complex plotting procedures:  The histograms plot the populations of two regions
 
 All the models from the BEAGLE curriculum.
 
+
 ## CREDITS AND REFERENCES
 
-Antonovics, J. (2006). "Evolution in closely adjacent plant populations X: long-term persistence of prereproductive isolation at a mine boundary". Heredity, 97(1), p33-37.
+Antonovics, J. (2006). "Evolution in closely adjacent plant populations X: long-term persistence of reproductive isolation at a mine boundary". Heredity, 97(1), p33-37.
+
+
+## HOW TO CITE
+
+If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:  
+- Novak, M., McGlynn, G. and Wilensky, U. (2012).  NetLogo Plant Speciation model.  http://ccl.northwestern.edu/netlogo/models/PlantSpeciation.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.  
+- Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.  
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2012 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 @#$#@#$#@
 default
 true
@@ -1055,7 +1073,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0RC7
+NetLogo 5.0.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

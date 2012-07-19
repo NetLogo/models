@@ -22,12 +22,12 @@ globals [
   #-birds-with-3-target-traits 
   #-birds-with-4-target-traits 
   
-  breeding-site-color-1                     ;; colors for the patches that are breeding ssites
+  breeding-site-color-1                     ;; colors for the patches that are breeding sites
   breeding-site-color-2 
   bird-body-color                           ;; color of the bird body shape
   bird-size                                 ;; size of bird shape
   egg-size                                  ;; size of egg shape
-  instruction                               ;; which instruction the player is viewing  
+  current-instruction                       ;; which instruction the player is viewing  
 
   number-of-goal-birds                      ;; keeps track of how many birds you have currently that have the phenotype combinations you have been trying to breed for.
   sequencings-performed                     ;; keeps track of the number of DNA sequencings performed
@@ -43,10 +43,10 @@ globals [
 
 breed [grasses grass]                      ;; used for the shapes on the patches that are considered the "wild"
 breed [DNA-sequencers DNA-sequencer]       ;; used for the shape that shows the location of where DNA tests can be conducted for eggs or birds (test tube shape)
-breed [cages cage]                         ;; used for the shape of cages - black lined squre
-breed [selection-tags selection-tag]       ;; the selection tag is a visualiztion tool - it is an assigned to a bird or egg that is selected with the mouse
+breed [cages cage]                         ;; used for the shape of cages - black lined square
+breed [selection-tags selection-tag]       ;; the selection tag is a visualization tool - it is assigned to a bird or egg that is selected with the mouse
 breed [destination-flags destination-flag] ;; the destination flag is a visualization tool - it is a turtle showing the target patch where the bird or egg is headed
-breed [karotype-tags karotype-tag]         ;; the karyotype tag is a visualization tool - it allow the genotype to be displayed off center of the bird
+breed [karyotype-tags karyotype-tag]         ;; the karyotype tag is a visualization tool - it allows the genotype to be displayed off center of the bird
 breed [birds bird]                         ;; the creature that is being bred
 breed [eggs egg]                           ;; what is laid by birds and must be returned to cages to hatch into birds
 breed [first-traits  first-trait]          ;; shape that is the crest in birds 
@@ -76,7 +76,7 @@ eggs-own  [
   release-counter                                                         ;; this variable counts down to keep track of how to visualize the "fading" out of a released egg
 ]
 
-;; owned-by corresponds a paricular user-id
+;; owned-by corresponds a particular user-id
 dna-sequencers-own    [owned-by]
 selection-tags-own    [owned-by]
 destination-flags-own [owned-by]
@@ -110,7 +110,6 @@ to setup
   set parent-female nobody
   set parent-male nobody
   set number-of-goal-birds 0
-  set instruction 0
   set number-selections 0
   set number-matings 0
   set number-releases 0
@@ -149,7 +148,7 @@ to setup
   set-default-shape second-traits "bird-wing"
   set-default-shape third-traits "bird-breast"
   set-default-shape fourth-traits "bird-tail"
-  set-default-shape karotype-tags "karyotype-tag"
+  set-default-shape karyotype-tags "karyotype-tag"
   set-default-shape DNA-sequencers "test-tubes"
   set-default-shape selection-tags "tag"
   set-default-shape destination-flags "flag"
@@ -161,7 +160,8 @@ to setup
   setup-breeding-sites
   setup-grasses
   calculate-all-alleles
-  give-instructions
+  
+  show-instruction 1
   reset-ticks
 end
 
@@ -186,7 +186,7 @@ to clear-non-player-turtles
    ask eggs [die]
    ask selection-tags [die]
    ask destination-flags [die]
-   ask karotype-tags [die]
+   ask karyotype-tags [die]
    ask first-traits [die]
    ask second-traits [die]
    ask third-traits [die]
@@ -288,7 +288,7 @@ to setup-grasses
       fd random-float .45   ;; move the grass shape a bit within the patch
       set size 0.35 + random-float 0.15
    ]
-   set pcolor [205 235 205]]   ;; set the color of the patch to a liqht green
+   set pcolor [205 235 205]]   ;; set the color of the patch to a light green
 end
 
 
@@ -386,7 +386,7 @@ to sequence-this-bird
     set sequenced? true
     set heading 0
     hatch 1 [
-      set breed karotype-tags 
+      set breed karyotype-tags 
       set hidden? false 
       set heading 55 
       fd .55
@@ -524,7 +524,7 @@ end
 
 
 to initialize-mating
-  ;; when a remale bird lands at a breeding site... it becomes breeding ready
+  ;; when a female bird lands at a breeding site... it becomes breeding ready
   ;; when a mate lands at this location eggs are hatched....eggs have an owner (one of two parents)
   ask birds with [is-ready-for-mating?] [  
     let this-site-id site-id  
@@ -571,7 +571,7 @@ to make-eggs [this-site-id]  ;; make eggs in all open patches at this breeding s
    ask open-patches  [ 
      ifelse egg-counter mod 2 = 0
         [sprout 1 [make-an-egg parent-female]]   ;; every even egg (0, 2) will be owned by player who contributed the female bird
-        [sprout 1 [make-an-egg parent-male]]     ;; every odd egg  (1, 3) will be owned by player who contributethe  male bird     
+        [sprout 1 [make-an-egg parent-male]]     ;; every odd egg  (1, 3) will be owned by player who contribute the male bird     
      set egg-counter egg-counter + 1 
    ]
    set number-offspring number-offspring + egg-counter    
@@ -691,7 +691,7 @@ to check-click-on-bird-or-egg [msg]
   let birds-or-eggs-selectable-at-clicked-patch (turtle-set birds eggs) with [pxcor = snap-xcor and pycor = snap-ycor and is-selectable-by-me? this-player-number]
   if any? birds-or-eggs-selectable-at-clicked-patch    [
     ;; when a bird is clicked on (mouse down, that is the players bird, the bird becomes a "selected bird"
-    ;; and a visual selection "selection-tag" is assigned to it. All other tags need to be wipped out
+    ;; and a visual selection "selection-tag" is assigned to it. All other tags need to be wiped out
     ;; ask all birds/eggs owned to deselect
     deselect-all-my-birds-and-eggs this-player-number    
     ask one-of birds-or-eggs-selectable-at-clicked-patch [
@@ -926,7 +926,7 @@ to-report lookup-phenotype-for-gene [x]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;; elligbilitly & state of bird/egg reporters  ;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;; eligibility & state of bird/egg reporters  ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -1044,92 +1044,84 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-to give-instructions
-  set instruction (instruction + 1)
-  if instruction = 10 [set instruction 1]
-  if instruction = 1 [
-    output-print " "
-    output-print " "
-    output-print "You will be running a selective"
-    output-print "breeding program, attempting to"
-    output-print "develop a breed of fancy looking"
-    output-print "birds."
-    output-print " "
-    output-print "Press NEXT INSTRUCTION to continue."
-  ] 
-  if instruction = 2 [
-    output-print " "
-    output-print " "
-    output-print "There are 4 players in this"
-    output-print "selective breeding program and "
-    output-print "you are one of them."
-    output-print " "
-    output-print "Press NEXT INSTRUCTION to continue."
-  ]
-  if instruction = 3 [
-    output-print " "
-    output-print " "
-    output-print " "
-    output-print "You start with 3 birds that you"
-    output-print "own in your six cages"
-    output-print ""
-    output-print "Press NEXT INSTRUCTION to continue."
-  ]
-  if instruction = 4 [
-    output-print " "
-    output-print " "
-    output-print " "
-    output-print "There are 6 breeding rectangles"
-    output-print "in the middle of the world."
-    output-print " "
-    output-print "Press NEXT INSTRUCTION to continue."
-    ]
-  if instruction = 5 [
-    output-print " "
-    output-print "Cick the mouse button and hold and"
-    output-print "drag one male and one female bird"
-    output-print "into a breeding location and"
-    output-print "eggs will hatch."
-    output-print " "
-    output-print "Press NEXT INSTRUCTION to continue."
-  ]
-  if instruction = 6 [
-    output-print " "
-    output-print "You must move eggs back to your"
-    output-print "cages to see what the birds look like."
-    output-print "Birds that have mated need to first"
-    output-print "return to cages before mating again."
-    output-print " "
-    output-print "Press NEXT INSTRUCTION to continue."
-  ]  
- if instruction = 7 [
-    output-print " "
-    output-print "You can set an egg or a bird that you"
-    output-print "own free. To do so, click the mouse"
-    output-print "button, and hold and drag the egg or "
-    output-print "bird onto one of the grassy squares."
-    output-print " "
-    output-print "Press NEXT INSTRUCTION to continue."
-  ]
-  if instruction = 8 [
-    output-print " "
-    output-print "You are trying to breed for blue"
-    output-print "head cap, pink chest, purple wing"
-    output-print "and red tail, all in a single individual."
-    output-print (word "Try to breed " #-of-required-goal-birds " of these birds.")
-    output-print " "
-    output-print "Press NEXT INSTRUCTION to continue."
-  ]
-  if instruction = 9 [
-    output-print " "
-    output-print "See if you can accomplish your goal "
-    output-print "in less matings than other teams. "
-    output-print "Press GO if you are ready to begin."
-    output-print "These instructions can be repeated."
-    output-print " "
-    output-print "by pressing NEXT INSTRUCTION."
+
+to-report current-instruction-label
+  report ifelse-value (current-instruction = 0)
+    [ "press setup" ]
+    [ (word current-instruction " / " length instructions) ]
+end
+
+to next-instruction
+  show-instruction current-instruction + 1 
+end
+
+to previous-instruction
+  show-instruction current-instruction - 1
+end
+
+to show-instruction [ i ]
+  if i >= 1 and i <= length instructions [
+    set current-instruction i
+    clear-output
+    foreach item (current-instruction - 1) instructions output-print 
   ]
 end
+
+to-report instructions
+  report [
+    [
+     "You will be running a selective breeding"
+     "program, attempting to develop a breed "
+     "of fancy looking birds."
+    ]
+    [
+     "There are 4 players working together on"
+     "a team and you are one of them.  Each "
+     "player starts with 3 birds in six of the"
+     "cages they own."
+    ]
+    [
+      "To breed birds, a male and female bird"
+      "must be moved to one of the 6 breeding"
+      "rectangles in the middle of the world."
+    ]
+    [
+      "To do this click on a bird and hold the"
+      "mouse button down the entire time while"
+      "you drag the cursor to the breeding"
+      "rectangle.  Then release the mouse button."
+      "Eggs will appear where birds have bred."
+    ]
+    [
+      "You must move an egg back to your cage to "
+      "hatch it.  Birds that have mated also need"
+      "to be returned to a cage before it is"
+      "ready to mate again"
+    ]
+    [
+      "You can set an egg or a bird that you"
+      "own free.  To do so, click the mouse"
+      "button, and hold and drag the egg or "
+      "bird onto one of the grassy squares."
+      "Then release the mouse button."
+    ]
+    [
+      "You ultimate goal is to breed the" 
+      "#-of-required-goal-birds, each"
+      "having a blue head cap, pink chest,"
+      "purple wing and red tail."
+    ]
+    [
+      "See if you can accomplish your goal "
+      "in less matings than other teams."
+      "Press GO if you are ready to begin."
+      "Good luck!"
+    ]
+  ]
+end
+
+; Copyright 2011 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 455
@@ -1161,7 +1153,7 @@ ticks
 BUTTON
 15
 10
-127
+95
 43
 NIL
 setup
@@ -1176,9 +1168,9 @@ NIL
 1
 
 BUTTON
-130
+95
 10
-264
+195
 43
 go/pause
 go
@@ -1194,33 +1186,16 @@ NIL
 
 OUTPUT
 15
-200
-335
-322
+125
+365
+225
 11
 
-BUTTON
-65
-167
-224
-200
-next instruction
-give-instructions
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
 MONITOR
-95
-325
-180
-370
+110
+290
+210
+335
 # of eggs laid
 number-offspring
 17
@@ -1228,10 +1203,10 @@ number-offspring
 11
 
 MONITOR
-180
-325
+215
+290
+365
 335
-370
 # of birds/eggs released
 number-releases
 17
@@ -1239,10 +1214,10 @@ number-releases
 11
 
 PLOT
-15
-495
-335
-620
+20
+475
+340
+610
 # of Recessive Alleles in Gene Pool
 # of selections
 #
@@ -1260,10 +1235,10 @@ PENS
 "d" 1.0 0 -7858858 true "plotxy number-selections frequency-allele-recessive-fourth-trait" "if new-selection-event-occurred? [plotxy number-selections frequency-allele-recessive-fourth-trait]"
 
 PLOT
-15
-370
-335
-495
+20
+345
+340
+475
 # of Dominant Alleles in Gene Pool
 # of selections
 #
@@ -1281,9 +1256,9 @@ PENS
 "D" 1.0 0 -7500403 true "plotxy number-selections frequency-allele-dominant-fourth-trait" "if new-selection-event-occurred? \n[plotxy number-selections frequency-allele-dominant-fourth-trait]"
 
 PLOT
-15
-620
-385
+20
+610
+395
 745
 # of Birds with # of Desirable Variations
 # of selections
@@ -1302,10 +1277,10 @@ PENS
 "4 variations" 1.0 0 -14333415 true "plotxy number-selections #-birds-with-4-target-traits" "if new-selection-event-occurred? [plotxy number-selections #-birds-with-4-target-traits]"
 
 SLIDER
-15
-85
-265
-118
+195
+45
+365
+78
 max-#-of-DNA-tests
 max-#-of-DNA-tests
 0
@@ -1317,10 +1292,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-15
-120
-172
-165
+200
+80
+365
+125
 # of DNA tests remaining
 sequencings-left
 17
@@ -1372,11 +1347,11 @@ player-4
 11
 
 MONITOR
-175
-120
-265
-165
-# goal birds
+15
+80
+200
+125
+# goal birds you have bred
 number-of-goal-birds
 17
 1
@@ -1384,9 +1359,9 @@ number-of-goal-birds
 
 SLIDER
 15
-50
-265
-83
+45
+200
+78
 #-of-required-goal-birds
 #-of-required-goal-birds
 1
@@ -1399,11 +1374,56 @@ HORIZONTAL
 
 MONITOR
 15
-325
-95
-370
+290
+105
+335
 # of matings
 number-matings
+17
+1
+11
+
+BUTTON
+235
+230
+365
+263
+NIL
+next-instruction
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+BUTTON
+15
+230
+145
+263
+NIL
+previous-instruction
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+MONITOR
+140
+230
+235
+275
+instruction #
+current-instruction-label
 17
 1
 11
@@ -1456,7 +1476,8 @@ The male birds have a crown of feather on their head, but the females do not.
 **Buttons:** 
 SETUP:  Press this first to assign a new batch of starting birds to the players.
 GO:     Press this second to start allowing the players to interact with the shared interface in the breeding challenge
-NEXT INSTRUCTION:  Use this to display a series of instructions about how to user the interface and mouse interactions with the birds.
+NEXT-INSTRUCTION:  Use this to display the next instruction about how to user the interface and mouse interactions with the birds.
+PREVIOUS-INSTRUCTION:  :  Use this to display the previous instruction about how to user the interface and mouse interactions with the birds.
 
 **Sliders:**
  #-OF-REQUIRED-GOAL-BIRDS sets the number of goal birds that must be accumulated in the player cages in order to successfully complete the scenario.
@@ -1465,6 +1486,7 @@ MAX-#-OF-DNA-TEST sets the maximum limit of birds or eggs that can have their ge
 **Monitors:  **
 DNA-TESTS-REMAINING indicates how many times left that you (or another player) can still drag an egg or bird to a DNA sequencer and get the genotype to appear on that agent.  MAX-#-OF-DNA-TEST sets the maximum limit.
  #-OF-REQUIRED-GOAL-BIRDS indicates how many goal birds have been accumulated in the player cages.
+INSTRUCTION-#: displays which instruction is being displayed out of how many total instructions there are to view.
  # OF MATINGS:  keeps track of the number of times birds were mated together
  # OF EGGS LAID:  keeps track of the eggs laid.  
  # OF BIRDS/EGGS RELEASED:  keeps track of the number of birds or eggs you released from the world.  
@@ -1509,7 +1531,21 @@ The order of how breeds are defined, determine which breed appears on top of the
 Plant Hybridization and Fish Tank Genetic Drift from the BEAGLE curricular folder.
 
 
-## CREDITS AND REFERENCES
+## HOW TO CITE
+
+If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:  
+- Novak, M. and Wilensky, U. (2011).  NetLogo Bird Breeders model.  http://ccl.northwestern.edu/netlogo/models/BirdBreeders.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.  
+- Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.  
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2011 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 @#$#@#$#@
 default
 true
@@ -2184,7 +2220,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0
+NetLogo 5.0.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

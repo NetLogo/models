@@ -13,7 +13,7 @@ globals
   invader-size    ;; size of invaders
   
   bug-reproduce-age      ;;  min age of bugs before they can reproduce
-  invader-reproduce-age  ;;  min age of invasders before they can reproduce
+  invader-reproduce-age  ;;  min age of invaders before they can reproduce
   bird-reproduce-age     ;;  min age of birds before they can reproduce
   max-bugs-age           ;;  max age of bugs before they automatically die
   max-birds-age          ;;  max age of birds before they automatically die
@@ -277,10 +277,10 @@ end
 
 
 to reproduce-bugs  ;; bugs procedure
-  let number-offspring (random (max-bugs-offspring + 1)) ;; set number of potential offpsring from 1 to (max-bugs-offspring)
+  let number-offspring (random (max-bugs-offspring + 1)) ;; set number of potential offspring from 1 to (max-bugs-offspring)
   if (energy > ((number-offspring + 1) * min-reproduce-energy-bugs)  and current-age > bug-reproduce-age)
   [ 
-    if random 2 = 1           ;;only half of the fertile bugss reproduce (gender)
+    if random 2 = 1           ;;only half of the fertile bugs reproduce (gender)
     [
       set energy (energy - (number-offspring  * min-reproduce-energy-invaders)) ;;lose energy when reproducing- given to children 
       hatch number-offspring
@@ -317,10 +317,10 @@ end
  
  
 to reproduce-birds  ;; bugs procedure
-  let number-offspring (random (max-birds-offspring + 1)) ;; set number of potential offpsring from 1 to (max-invaders-offspring)
+  let number-offspring (random (max-birds-offspring + 1)) ;; set number of potential offspring from 1 to (max-invaders-offspring)
   if (energy > ((number-offspring + 1) * min-reproduce-energy-birds)  and current-age > bird-reproduce-age)
   [ 
-    if random 2 = 1           ;;only half of the fertile bugss reproduce (gender)
+    if random 2 = 1           ;;only half of the fertile bugs reproduce (gender)
     [
       set energy (energy - (number-offspring * min-reproduce-energy-birds)) ;;lose energy when reproducing - given to children
       hatch number-offspring
@@ -892,7 +892,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0RC4
+NetLogo 5.0.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

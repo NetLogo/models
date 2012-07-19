@@ -8,7 +8,7 @@ breed [alleles allele]              ;; alleles are tied to somatic cells or game
 breed [fish-bones a-fish-bones]     ;; used for visualization of fish death
 breed [fish-zygotes a-fish-zygote]  ;; used for visualization of a fish mating event
 
-breed [mouse-cursors mouse-cursor]  ;; used for visualization of different types of mouse actions the user can do in the fish tank - namely removing fish and adding/substracting dividers
+breed [mouse-cursors mouse-cursor]  ;; used for visualization of different types of mouse actions the user can do in the fish tank - namely removing fish and adding/subtracting dividers
 
 fish-own          [sex bearing]
 somatic-cells-own [sex]
@@ -49,7 +49,7 @@ globals [
   num-fish-in-tank
   fish-forward-step      ;; size of movement steps each tick
   gamete-forward-step    ;; size of movement steps each tick
-  intra-chromsome-pair-spacing inter-chromsome-pair-spacing  ;; used for spacing the chromosomes out in the karyotypes of the somatic cells and gametes
+  intra-chromosome-pair-spacing inter-chromosome-pair-spacing  ;; used for spacing the chromosomes out in the karyotypes of the somatic cells and gametes
   size-of-karyotype-background-for-cells 
   
   initial-#-females
@@ -64,13 +64,13 @@ globals [
 to setup
   clear-all
   set mouse-continuous-down? false
-  set intra-chromsome-pair-spacing 0.20
-  set inter-chromsome-pair-spacing 0.55
+  set intra-chromosome-pair-spacing 0.20
+  set inter-chromosome-pair-spacing 0.55
   set fish-forward-step 0.04
   set num-fish-removed 0
   set num-fish-born 0
   set num-fish-in-tank 0
-  set size-of-karyotype-background-for-cells 5.2   ;;; the size of the large pink rectangle used as the background for the cell or kayotype of the cell
+  set size-of-karyotype-background-for-cells 5.2   ;;; the size of the large pink rectangle used as the background for the cell or karyotype of the cell
 
   set initial-#-females (floor ((initial-females / 100) * carrying-capacity))
   set initial-#-males carrying-capacity - initial-#-females
@@ -119,19 +119,19 @@ end
 
 
 to create-initial-gene-pool
-  let num-small-alleles 0
+  let num-big-alleles 0
   let initial-number-fish (carrying-capacity)
   
-  set num-small-alleles round ((initial-alleles-big-b * 2 *  initial-number-fish) / 100)
-  make-initial-alleles-for-gene 1 "B" "b" num-small-alleles
-  set num-small-alleles round ((initial-alleles-big-t * 2 *  initial-number-fish) / 100)
-  make-initial-alleles-for-gene 2 "T" "t" num-small-alleles
-  set num-small-alleles round ((initial-alleles-big-f * 2 *  initial-number-fish) / 100)
-  make-initial-alleles-for-gene 3 "F" "f" num-small-alleles 
-  set num-small-alleles round ((initial-alleles-big-g * 2 *  initial-number-fish) / 100)
-  make-initial-alleles-for-gene 4 "G" "g" num-small-alleles
+  set num-big-alleles  round ((initial-alleles-big-b * 2 *  initial-number-fish) / 100)
+  make-initial-alleles-for-gene 1 "B" "b" num-big-alleles 
+  set num-big-alleles  round ((initial-alleles-big-t * 2 *  initial-number-fish) / 100)
+  make-initial-alleles-for-gene 2 "T" "t" num-big-alleles 
+  set num-big-alleles  round ((initial-alleles-big-f * 2 *  initial-number-fish) / 100)
+  make-initial-alleles-for-gene 3 "F" "f" num-big-alleles  
+  set num-big-alleles  round ((initial-alleles-big-g * 2 *  initial-number-fish) / 100)
+  make-initial-alleles-for-gene 4 "G" "g" num-big-alleles 
    
-  make-initial-alleles-for-gene 5 "X" "Y" initial-#-males
+  make-initial-alleles-for-gene 5 "Y" "X" initial-#-males
 end
 
 
@@ -163,22 +163,22 @@ to distribute-fish-in-tank
 end
 
 
-to make-initial-alleles-for-gene [gene-number allele-1 allele-2 num-small-alleles]
+to make-initial-alleles-for-gene [gene-number allele-1 allele-2 num-big-alleles ]
   let initial-number-fish initial-#-males + initial-#-females
   create-alleles 2 * (initial-number-fish) [
     set gene gene-number
     set shape (word "gene-" gene-number)
     set heading 0
     set owned-by-fish? false 
-    set value allele-1
+    set value allele-2
     set color  [0 0 0 255]
     set label-color color
     set label (word value "     " )
   ]
   ;; after coloring all the alleles with black band on chromosomes with the dominant allele label, now go back and
-  ;; select the corret proportion of these to recolor code as recessive alleleswiths white bands on chromosomes and add recessive letter label
-  ask n-of num-small-alleles alleles with [gene = gene-number] [
-    set value allele-2 
+  ;; select the correct proportion of these to recolor code as recessive alleles with white bands on chromosomes and add recessive letter label
+  ask n-of num-big-alleles  alleles with [gene = gene-number] [
+    set value allele-1
     set color [220 220 220 255] 
     set label (word value "     " ) 
     set label-color color
@@ -201,12 +201,12 @@ to distribute-gene-pool-to-somatic-cells
        
     ;;; now assign the sex chromosome pair, putting one of the Xs on the left, and the other chromosome (whether it is an X or } on the right  
     ask one-of alleles with [not owned-by-fish? and gene = 5 and value = "X"] [
-       set owned-by-fish? true set size 1.2 set xcor ((inter-chromsome-pair-spacing * 4) + .1) set ycor -0.4 set side "left"
+       set owned-by-fish? true set size 1.2 set xcor ((inter-chromosome-pair-spacing * 4) + .1) set ycor -0.4 set side "left"
        create-link-from this-somatic-cell  [set hidden? true set tie-mode "fixed" tie ] 
     ]  
     ifelse sex = "male" [set last-sex-allele "Y"] [set last-sex-allele "X"]
     ask one-of alleles with [not owned-by-fish? and gene = 5 and value = last-sex-allele] [
-       set owned-by-fish? true set size 1.2 set xcor ((inter-chromsome-pair-spacing * 4) + intra-chromsome-pair-spacing + .1) set ycor -0.4 set side "right"
+       set owned-by-fish? true set size 1.2 set xcor ((inter-chromosome-pair-spacing * 4) + intra-chromosome-pair-spacing + .1) set ycor -0.4 set side "right"
        create-link-from this-somatic-cell  [set hidden? true set tie-mode "fixed" tie ] 
     ] 
  
@@ -218,9 +218,9 @@ to position-and-link-alleles [this-somatic-cell gene-number which-side]
   let pair-shift-right 0
   let side-shift 0
   
-  ;; adjusts the spacing between chromsome pairs (1-4( so that one of each pair is moved to the left and one of each pair is moved to the right
-  ifelse which-side = "right" [set side-shift intra-chromsome-pair-spacing][set side-shift 0]
-  set pair-shift-right  ((inter-chromsome-pair-spacing * gene-number) - .45)
+  ;; adjusts the spacing between chromosome pairs (1-4( so that one of each pair is moved to the left and one of each pair is moved to the right
+  ifelse which-side = "right" [set side-shift intra-chromosome-pair-spacing][set side-shift 0]
+  set pair-shift-right  ((inter-chromosome-pair-spacing * gene-number) - .45)
   
   ask one-of alleles with [not owned-by-fish? and gene = gene-number] [
        set owned-by-fish? true 
@@ -319,9 +319,9 @@ to align-alleles-for-this-somatic-cell [this-zygote]
   let all-alleles alleles with [in-link-neighbor? this-zygote]
   foreach [1 2 3 4 5] [
     if count all-alleles with [gene = ? and side = "left"]  > 1  
-       [ask one-of all-alleles with [gene = ?] [set heading 90 forward intra-chromsome-pair-spacing set side "right"] ]
+       [ask one-of all-alleles with [gene = ?] [set heading 90 forward intra-chromosome-pair-spacing set side "right"] ]
     if count all-alleles with [gene = ? and side = "right"] > 1 
-       [ask one-of all-alleles with [gene = ?] [set heading 90 back intra-chromsome-pair-spacing set side "left"] ]
+       [ask one-of all-alleles with [gene = ?] [set heading 90 back intra-chromosome-pair-spacing set side "left"] ]
   ]
 end
   
@@ -344,7 +344,8 @@ to find-potential-mates
     if any? potential-mates [
        ask one-of potential-mates  [ set mom self ]   
        ;;; only reproduce up to the carrying capacity in this region allowed
-       if count all-fish-and-fish-zygotes < carrying-capacity-in-this-region xcor-dad [reproduce-offspring-from-these-two-parents mom dad  ]
+       let this-carrying-capacity  carrying-capacity-in-this-region xcor-dad 
+       if count all-fish-and-fish-zygotes < this-carrying-capacity [reproduce-offspring-from-these-two-parents mom dad  ]
     ]
   ]
 end
@@ -614,7 +615,7 @@ to-report dorsal-fin-color-phenotype
   [
     ifelse  has-at-least-one-dominant-set-of-instructions-for "G"
       [set this-color green-dorsal-fin-color  ]      ;; green color results in dorsal fins if protein is produced
-      [set this-color no-green-dorsal-fin-color ]    ;; no freen color results in dorsal fins if protein is not produced (underlying tissue color is grayish)
+      [set this-color no-green-dorsal-fin-color ]    ;; no green color results in dorsal fins if protein is not produced (underlying tissue color is grayish)
   ]
   report this-color
 end
@@ -658,26 +659,9 @@ end
 
 
 to-report right-side-of-water-in-tank
-  report  ((50 / 2)) + 2
+  report  (max-pxcor) - 2
 end    
 
-to-report both-sexes-in-this-fishs-tank-region?
-  ;; it reports whether both female and male fish are in this region for this turtle
-  let fish-in-this-region nobody
-  let xcor-of-this-turtle xcor
-  let this-region-left-side left-side-of-water-in-tank
-  let this-region-right-side right-side-of-water-in-tank
-  let dividers-to-the-right patches with [divider-here? and pxcor > xcor-of-this-turtle]
-  let dividers-to-the-left  patches with [divider-here? and pxcor < xcor-of-this-turtle]
-  
-  if any? dividers-to-the-right [set this-region-right-side min [pxcor] of dividers-to-the-right ]
-  if any? dividers-to-the-left  [set this-region-left-side max [pxcor] of dividers-to-the-left   ]  
-  
-  set fish-in-this-region fish with [xcor > this-region-left-side and xcor < this-region-right-side]
-  let male-fish-in-this-region fish-in-this-region with [sex = "male"] 
-  let female-fish-in-this-region fish-in-this-region with [sex = "female"] 
-  ifelse (any? male-fish-in-this-region and any? female-fish-in-this-region ) [report true] [report false]
-end
   
 
 to-report other-turtles-in-this-turtles-tank-region
@@ -692,9 +676,18 @@ to-report other-turtles-in-this-turtles-tank-region
   if any? dividers-to-the-right [set this-region-right-side min [pxcor] of dividers-to-the-right ]
   if any? dividers-to-the-left  [set this-region-left-side max [pxcor] of dividers-to-the-left   ]  
   
-  set turtles-in-this-region turtles with [xcor > this-region-left-side and xcor < this-region-right-side]  
+  set turtles-in-this-region turtles with [xcor >= this-region-left-side and xcor <= this-region-right-side]  
   report turtles-in-this-region
 end
+
+
+to-report both-sexes-in-this-fishs-tank-region?
+  let fish-in-this-region other-turtles-in-this-turtles-tank-region with [breed = fish]
+  let male-fish-in-this-region fish-in-this-region with [sex = "male"] 
+  let female-fish-in-this-region fish-in-this-region with [sex = "female"] 
+  ifelse (any? male-fish-in-this-region and any? female-fish-in-this-region ) [report true] [report false]  
+end
+
   
   
 to-report carrying-capacity-in-this-region [this-xcor]
@@ -705,14 +698,14 @@ to-report carrying-capacity-in-this-region [this-xcor]
   
   if any? dividers-to-the-right [ set this-region-right-side min [pxcor] of dividers-to-the-right ]
   if any? dividers-to-the-left  [ set this-region-left-side max [pxcor] of dividers-to-the-left   ]  
-  let tank-capacity-of-this-region (this-region-right-side - this-region-left-side) * 2 * carrying-capacity / 60
+  let tank-capacity-of-this-region (this-region-right-side - this-region-left-side) * carrying-capacity / 25
   report tank-capacity-of-this-region
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-578
+579
 10
-1428
+1429
 489
 -1
 -1
@@ -805,7 +798,7 @@ initial-alleles-big-t
 initial-alleles-big-t
 0
 100
-100
+50
 1
 1
 %
@@ -835,7 +828,7 @@ initial-alleles-big-f
 initial-alleles-big-f
 0
 100
-70
+50
 1
 1
 %
@@ -926,8 +919,8 @@ carrying-capacity
 carrying-capacity
 2
 60
-20
-2
+30
+1
 1
 NIL
 HORIZONTAL
@@ -1230,7 +1223,7 @@ Here is the genotype to phenotype mapping:
 Spotting: (BB, Bb, bB) yes or (bb) no
 Dorsal Fin Color: (GG, Gg, gG) green or (bb) non-green (gray)
 Tail Fin Shape: (FF, Ff, fF) forked or (ff) no fork
-Tail color: (TT, Tt, tT) yellow or (tt) non-yellw (gray) 
+Tail color: (TT, Tt, tT) yellow or (tt) non-yellow (gray) 
 
 A male fish can interbreed with a female fish in the same region of the tank.  By default the tank is all one large region.  But dividers can be added to the tank to split the tank up into separate regions.
 
@@ -1276,7 +1269,7 @@ AUTO-REPLACE?: when turned "on" will cause the computer select a fish at random 
 
 ## THINGS TO NOTICE
 
-When fish are randomly replaced fluctuation in the proportion of each allele in the population will occurr.  This is because only 1 of every two alleles for a gene is passed on to an offspring, and the process of separating out which allele is passed on through a gamete (via. meiosis) is fundamentally a random outcome.  When fluctuations bring the number of alleles down to zero, that allele is gone from the fish population and can't return.  
+When fish are randomly replaced fluctuation in the proportion of each allele in the population will occur  This is because only 1 of every two alleles for a gene is passed on to an offspring, and the process of separating out which allele is passed on through a gamete (via. meiosis) is fundamentally a random outcome.  When fluctuations bring the number of alleles down to zero, that allele is gone from the fish population and can't return.  
 
 Randomly selecting individuals out of the population and/or randomly producing new offspring will eventually result in this loss of diversity in the gene pool of the population, eventually leading to a single gene or trait in the population.  This process and resulting outcome is referred to as genetic drift.
 
@@ -1713,7 +1706,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0
+NetLogo 5.0.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
