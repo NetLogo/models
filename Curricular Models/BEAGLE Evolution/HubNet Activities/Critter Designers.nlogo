@@ -9,8 +9,8 @@ globals
   longevity-leader-age-and-status ;; holds age of the species and whether it is extinct or alive
   max-critter-lifespan            ;; the max number of ticks a critter can live
   birth-cost                      ;; the amount of energy needed to give birth
-  dt                              ;; a time scaling unit used in the simulation to adjust how quickly events are rendered.  
-  player-spam-countdown           ;; the number of ticks a player must wait before placing a new species  
+  dt                              ;; a time scaling unit used in the simulation to adjust how quickly events are rendered.
+  player-spam-countdown           ;; the number of ticks a player must wait before placing a new species
   #-environment-changes           ;; the number of times the environment has changed
   events                          ;; a string holding a description of all the automatic environment changes that occurred in grass growth and max-grass
   total-species-created           ;; the total number of species created
@@ -28,18 +28,18 @@ clients-own
   user-id                        ;; unique id, input by the client when they log in, to identify each client turtle
   ; we have to keep track of the values from the client interface, whenever they change
   ; although we do not pass them on to critters they have already created.
-  gray-out-others?               ;; if false, only this client's critters will be colored 
+  gray-out-others?               ;; if false, only this client's critters will be colored
   show-energy?                   ;; if true, display the energy level for each individual critter of this client's species
   placing-spam-countdown         ;; the number of ticks this client must wait before placing a new species
   placements-made                ;; the number of species this client has placed
 
   population-size                ;; the number of critters this client has
   current-longevity              ;; the age of this client's current species
-  max-longevity                  ;; the age of the oldest species this client has created 
-  
+  max-longevity                  ;; the age of the oldest species this client has created
+
   speed                          ;; how fast this client's critters move
   behavior-dna                   ;; the pattern of steps that this client's critters move in
-  birthing-level                 ;; the energy level each individual must reach before reproducing as well as 
+  birthing-level                 ;; the energy level each individual must reach before reproducing as well as
                                  ;; how much energy is split between the parent and the offspring when this occurs
   carnivore?                     ;; if true, this client's species can eat other critters
 ]
@@ -55,11 +55,11 @@ critters-own
   speed
   behavior-dna
   birthing-level
-  carnivore?                    
+  carnivore?
 
   current-action                 ;; this critter's current action from their behavior-dna
   action-index                   ;; the list index of this critter's current action in their behavior-dna
-  movement-counter               ;; a counter that ticks down for a certain number of tics for each action in the 
+  movement-counter               ;; a counter that ticks down for a certain number of tics for each action in the
                                  ;; critters movement.  This allows the participants to be able to see the critters turning
                                  ;; and sliding forward or backward fluidly.
   movement-delta                 ;; the distance the critter moves
@@ -72,7 +72,7 @@ species-logs-own
   species-id                     ;; number to identify this species
   age                            ;; the number of ticks this species has been alive for
   created-on                     ;; the time (number of ticks) when this species was made
-  last-alive-on                  ;; the time (number of ticks) when this species was last alive   
+  last-alive-on                  ;; the time (number of ticks) when this species was last alive
   extinct?                       ;; if true, this species is no longer alive
 ]
 
@@ -91,7 +91,7 @@ to startup
   setup-vars
 end
 
-to reset-client-stats 
+to reset-client-stats
       set placements-made 0
       set population-size 0
       set current-longevity 0
@@ -150,11 +150,11 @@ end
 
 to make-a-species-log
    set total-species-created total-species-created + 1
-   set species-id total-species-created 
+   set species-id total-species-created
    hatch 1  [
       set breed species-logs
       set hidden? true
-      set created-on ticks 
+      set created-on ticks
       set last-alive-on ticks
       set extinct? false
       ]
@@ -213,7 +213,7 @@ end
 to go
   every 0.01
   [
-    calc-leader-stats 
+    calc-leader-stats
     ; possibly add a random critter of a new species at every 20th tick
     if (ticks mod 20 = 0) and (random 50 < 1 or species-count < minimum-random-species)
     [
@@ -325,14 +325,14 @@ to go
         die
       ]
     ]
-    
+
     ask n-of ((grass-growth / 100)  * dt * count patches ) patches  [
       add-sugar 0.1
       recolor-patch
     ]
 
-     update-species-logs ;; keep historical record of all species 
-     
+     update-species-logs ;; keep historical record of all species
+
     ; we do hubnet commands right before a tick, because the override lists get set here,
     ; and the display gets updated after a tick.
     listen-clients
@@ -356,24 +356,24 @@ to recolor-patch
 end
 
 
-to change-environmental-conditions  
+to change-environmental-conditions
      let growth-rate-change random 100 - random 100 ;sets growth-rate-change to a number between -99 and 99
      let max-grass-change random 80 - random 80 ;sets max-grass-change to a number between -79 and 79
      let old-max-grass max-grass
      let old-grass-growth grass-growth
-  
+
      set grass-growth grass-growth + growth-rate-change
      if grass-growth < 10 [set grass-growth 10]
      if grass-growth > 100 [set grass-growth 100]
-     
+
      set max-grass max-grass + max-grass-change
      if max-grass > 100 [set max-grass 100]
-     if max-grass < 10 [set max-grass 10] 
+     if max-grass < 10 [set max-grass 10]
      let this-event (word "time: " ticks )
-     set events lput  ( word  this-event " ggr: " grass-growth " mgpp: " max-grass) events 
+     set events lput  ( word  this-event " ggr: " grass-growth " mgpp: " max-grass) events
      set #-environment-changes #-environment-changes + 1
       output-print (word "Environmental change (time:" ticks ", grass-growth:" grass-growth ", max-grass:" max-grass )
- 
+
 end
 
 
@@ -382,7 +382,7 @@ to update-species-logs
      let this-creator-id creator-id
      let this-species-id species-id
      let this-extinct-status extinct?
-     ifelse any? critters with [creator-id = this-creator-id and this-species-id = species-id] 
+     ifelse any? critters with [creator-id = this-creator-id and this-species-id = species-id]
        [set last-alive-on ticks ]
        [if not extinct? [set extinct? true]]
      set age (last-alive-on - created-on)
@@ -538,13 +538,13 @@ to send-info-to-client
   hubnet-send user-id "Your Current Species Size" population-size
   hubnet-send user-id "Your Current Species Longevity"  current-longevity
   hubnet-send user-id "Your Max. Species Longevity"  max-longevity
-  
+
   if (gray-out-others?)  [ hubnet-send-override user-id critters with [ creator-id != (user-id-to-creator-id [user-id] of myself)] "color" [gray - 2] ]
   if (show-energy?)      [ hubnet-send-override user-id my-critters "label" [ (word round energy "     ") ]  ]
 end
 
 
-to broadcast-info-to-clients  
+to broadcast-info-to-clients
   if any? clients [
     hubnet-broadcast "# Alive Species" species-count
     hubnet-broadcast "# Extinct Species" count species-logs with [extinct?]
@@ -552,18 +552,18 @@ to broadcast-info-to-clients
     hubnet-broadcast "Species Longevity Leader" longevity-leader-info
     hubnet-broadcast "Longevity Record" longevity-leader-age-and-status
     hubnet-broadcast "time" ticks
-  ]  
+  ]
 end
 
 
-to calc-leader-stats   
+to calc-leader-stats
   if any? species-logs [
     let leader-log max-one-of species-logs [age]  ;; pull out a log
     let leader-species-extinct? [extinct?] of leader-log
     let leader-id [creator-id] of leader-log
     let leader-shape ""
     let leader-status ""
-    ifelse leader-species-extinct? 
+    ifelse leader-species-extinct?
        [set leader-shape "" set leader-status "extinct"]
        [set leader-shape  [(word (color-string color) " " shape)] of one-of critters with [creator-id = leader-id] set leader-status "alive"]
 
@@ -911,33 +911,33 @@ OUTPUT
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model simulates competition between many different species in a complex ecosystem. The outcome of the competition shows that when all individuals in a population are identical to each other, the competitive advantage of a species will continue to change compared to other species when the environmental conditions keep changing. 
+This model simulates competition between many different species in a complex ecosystem. The outcome of the competition shows that when all individuals in a population are identical to each other, the competitive advantage of a species will continue to change compared to other species when the environmental conditions keep changing.
 
-The model can be set so that the computer randomly adds new species into the ecosystem as well.  Since different species outcompete each other at different times in a changing environment, this tends to result in the eventual disappearance of some species in the ecosystem over time.   
+The model can be set so that the computer randomly adds new species into the ecosystem as well.  Since different species outcompete each other at different times in a changing environment, this tends to result in the eventual disappearance of some species in the ecosystem over time.
 
 Any attempt by a participant to create an "optimal design" for a species is doomed to eventual failure and extinction if the model is run long enough.  This outcome suggests that the inclusion of evolutionary mechanisms (such as random mutations in offspring) might lead to some species that can survive longer in the ecosystem without going extinct than any species with a purposefully designed combination of unchanging traits.
 
 
 ## HOW IT WORKS
 
-_**Species**._ Participants use the HubNet client interface to interact with the model and design new types of critters to test in the ecosystem. A single critter can be designed and then released into the environment at a time.  As this critter gains energy, it can reproduce offspring, which in turn can reproduce more offspring when they gain enough energy.  Each new offspring will have identical trait variations as the original ancestor critter, as each offspring is reproduced asexually from a single parent. All the descendants from the first ancestor critter are defined as being part of the same species.  
+_**Species**._ Participants use the HubNet client interface to interact with the model and design new types of critters to test in the ecosystem. A single critter can be designed and then released into the environment at a time.  As this critter gains energy, it can reproduce offspring, which in turn can reproduce more offspring when they gain enough energy.  Each new offspring will have identical trait variations as the original ancestor critter, as each offspring is reproduced asexually from a single parent. All the descendants from the first ancestor critter are defined as being part of the same species.
 
-New critter species can be designed to follow different patterns of movement, have different speeds at which they move around the ecosystem, and have different energy levels required for giving birth to an offspring. Each new design you test can be either a herbivore or a carnivore.  A single individual is what is released into the ecosystem by the participants when a participant tests a new critter design.  Since your entire species of critters will have identical traits, the same shape and color of all the offspring of the critter design you test will also look the same.  
+New critter species can be designed to follow different patterns of movement, have different speeds at which they move around the ecosystem, and have different energy levels required for giving birth to an offspring. Each new design you test can be either a herbivore or a carnivore.  A single individual is what is released into the ecosystem by the participants when a participant tests a new critter design.  Since your entire species of critters will have identical traits, the same shape and color of all the offspring of the critter design you test will also look the same.
 
-When a participant releases an individual with a new critter design into the ecosystem, all of the critters of the previous species are instantly removed from the ecosystem. 
+When a participant releases an individual with a new critter design into the ecosystem, all of the critters of the previous species are instantly removed from the ecosystem.
 
-_**Ecosystem**._ Activity leaders use the model interface to set up the ecosystem. The interface allows them to set the amount of grass that can grow and how fast it grows. These changes are attempting to represent the effects of variation of rainfall in time and space. The environmental conditions can be set to be fixed or varying in the ecosystem. When environmental conditions vary, the grass growth and speed values shift from time to time. 
+_**Ecosystem**._ Activity leaders use the model interface to set up the ecosystem. The interface allows them to set the amount of grass that can grow and how fast it grows. These changes are attempting to represent the effects of variation of rainfall in time and space. The environmental conditions can be set to be fixed or varying in the ecosystem. When environmental conditions vary, the grass growth and speed values shift from time to time.
 
 As new critters are added and/or as the environmental conditions change, the stability of the ecosystem changes. New selective pressures may emerge with each change, which in turn leads to different levels of competitive advantage for a given combinations of traits. Over time, a design that gave a competitive advantage in one environment is likely to have less of a competitive advantage in another environment.
 
-Since individuals show no trait variation different from their ancestors, evolution does not occur in this model. When evolution does not occur, species designed to have a strong competitive edge for one set of environmental conditions are destined to go extinct when environmental changes are large enough or frequent enough. So, all species introduced into the ecosystem eventually go extinct as the environment keeps changing and new species are introduced. 
+Since individuals show no trait variation different from their ancestors, evolution does not occur in this model. When evolution does not occur, species designed to have a strong competitive edge for one set of environmental conditions are destined to go extinct when environmental changes are large enough or frequent enough. So, all species introduced into the ecosystem eventually go extinct as the environment keeps changing and new species are introduced.
 
-In the real world, the traits of individuals in a species don't remain fixed.  New traits that have never appeared before emerge in populations.  This occurs because offspring can incur mutations that give them different traits from their ancestors.  Though mutations are random, they introduce new trait variations into a population.   In a way, mutation serves like a "random design changer".  As many minor random design changes emerge in a population from mutations, some are bound to result in individuals that have a greater competitive advantage than the ancestors.  This permits species to keep "unintentionally" experimenting with alternate design plans as the environment changes.  Some such species continue to evolve over time, so that offspring can appear and behave very differently than their original ancestors.  In the real world then, while some species may go extinct, others continue to evolve to accumulate beneficial trait variations as the environment keeps changing. 
+In the real world, the traits of individuals in a species don't remain fixed.  New traits that have never appeared before emerge in populations.  This occurs because offspring can incur mutations that give them different traits from their ancestors.  Though mutations are random, they introduce new trait variations into a population.   In a way, mutation serves like a "random design changer".  As many minor random design changes emerge in a population from mutations, some are bound to result in individuals that have a greater competitive advantage than the ancestors.  This permits species to keep "unintentionally" experimenting with alternate design plans as the environment changes.  Some such species continue to evolve over time, so that offspring can appear and behave very differently than their original ancestors.  In the real world then, while some species may go extinct, others continue to evolve to accumulate beneficial trait variations as the environment keeps changing.
 
 
 ## HOW TO USE IT
 
-###_Activity Leader_  
+###_Activity Leader_
 In the HubNet Control Center, press SETUP and GO once all clients have connected to the model. Once the model is running place a check mark next to both "Mirror 2D view on clients" and "Mirror plots on clients (experimental)". _Note: these options should always be unchecked before you press SETUP._  If you don't follow this order for checking these options after pressing SETUP an error will occur in the experimental plotting code.
 
 **Model sliders and switches:**
@@ -945,20 +945,20 @@ _GRASS-GROWTH_ controls how fast the grass grows back on each patch.
 
 _MAX-GRASS_ sets the % of patches that grow grass. 50% would allow only half the patches to grow grass.
 
-_ENVIRONMENT-CHANGES?_ when turned to "off" keeps MAX-GRASS and GRASS-GROWTH levels set to whatever values the user left them at in the interface. When turned to "on", those levels will shift occasionally to random values picked by the computer. 
+_ENVIRONMENT-CHANGES?_ when turned to "off" keeps MAX-GRASS and GRASS-GROWTH levels set to whatever values the user left them at in the interface. When turned to "on", those levels will shift occasionally to random values picked by the computer.
 
 _MINIMUM-RANDOM-SPECIES_ adjusts the number of random species the computer adds. When one of the species goes extinct, another randomly generated species replaces it. When set to 0, only species that client participants add will be in the ecosystem.
 
-_# ENVIRONMENTAL-CHANGES_ keeps track of the number of automatic (computer selected) shifts in the MAX-GRASS and GRASS-GROWTH levels occurred. 
+_# ENVIRONMENTAL-CHANGES_ keeps track of the number of automatic (computer selected) shifts in the MAX-GRASS and GRASS-GROWTH levels occurred.
 
 _PLACEMENTS-PER-CLIENT_ sets the maximum number of critter designs each client can release and test in the ecosystem.
 
-_# ALIVE-SPECIES_ is a histogram of the number of current species that are alive by % of time that they are alive for the simulation.  For short model runs, there may be some species that are alive for 100% of the time the simulation ran.  For long model runs it becomes progressively less likely that any species will be alive for 100% of the time of the model run.  The histogram will cluster to the left the longer the model runs. 
+_# ALIVE-SPECIES_ is a histogram of the number of current species that are alive by % of time that they are alive for the simulation.  For short model runs, there may be some species that are alive for 100% of the time the simulation ran.  For long model runs it becomes progressively less likely that any species will be alive for 100% of the time of the model run.  The histogram will cluster to the left the longer the model runs.
 
-_# EXTINCT-SPECIES_ is a histogram of the number of species that died by % of time that they are alive for the simulation.  The longer the model runs, the smaller the percent of time that the extinct species were alive for.  Species that came into existence at the start of the model run and went extinct just before the model run ended will appear clustered toward the right side of the histogram.  Species that came into existence at any point in the model run and then went extinct shortly after will tend to cluster toward the left side of the histogram. 
+_# EXTINCT-SPECIES_ is a histogram of the number of species that died by % of time that they are alive for the simulation.  The longer the model runs, the smaller the percent of time that the extinct species were alive for.  Species that came into existence at the start of the model run and went extinct just before the model run ended will appear clustered toward the right side of the histogram.  Species that came into existence at any point in the model run and then went extinct shortly after will tend to cluster toward the left side of the histogram.
 
 
-###_HubNet Participant_  
+###_HubNet Participant_
 Open up a HubNet client on your machine and type your user name, select this activity and press ENTER.
 
 **Client sliders, input boxes, and buttons:**
@@ -967,9 +967,9 @@ _CHANGE SHAPE_ randomly changes the shape of the critters you are going to relea
 _BEHAVIOR-DNA_ allows you to input a string of characters that describe the pattern of steps that the critters move in (F = forward, L = left, R = right, * = random).
 
 _SPEED_ controls how fast the critters move. Faster moving critters use up energy more quickly.
- 
+
 _BIRTHING-LEVEL_ controls the energy level each individual must reach before reproducing as well as how much energy is split between the parent and the offspring when this occurs.
- 
+
 _CARNIVORE?_ controls whether the species eats other critters (set the value to "On") or the species eats grass (set the value to "Off").
 
 _PLACE NEW SPECIES_ this button releases one new individual that has the trait variations specified by _YOUR CRITTER SHAPE_, _BEHAVIOR-DNA_, _SPEED_, _BIRTHING-LEVEL_, and _CARNIVORE?_. When a new species is placed, that client's old species is automatically removed from the ecosystem.
@@ -986,14 +986,14 @@ _YOUR CURRENT SPECIES LONGEVITY_ reports how long the current species has existe
 
 _YOUR MAX. SPECIES LONGEVITY_ reports the longest existence for any species you have tested in this ecosystem for this model run.
 
-_YOUR CURRENT SPECIES SIZE_ reports how many individuals are in the current species. 
+_YOUR CURRENT SPECIES SIZE_ reports how many individuals are in the current species.
 
-_SPECIES LONGEVITY LEADER_ reports which participant has the record for the longest lasting species. 
+_SPECIES LONGEVITY LEADER_ reports which participant has the record for the longest lasting species.
 
 ###_Common to Both Participant Leader and Client Views_
 _POPULATION_ graphs all the population percentages for each species on the same axis (percent of living creatures vs. time). Population percentages are a calculation of what number of individuals in the ecosystem belong to this species / total individuals in all species in the ecosystem * 100. So a level of 50% for one species graph would mean that half of the individuals from all species in the ecosystem are of that one species.
 
-_LONGEVITY RECORD_ reports the record for the longest lasting species (elapsed time) in this model run. 
+_LONGEVITY RECORD_ reports the record for the longest lasting species (elapsed time) in this model run.
 
 _TIME_ reports how much time has elapsed in this model run.
 
@@ -1004,9 +1004,9 @@ _EXTINCT SPECIES_ reports how many species have died out completely in this ecos
 
 ## THINGS TO NOTICE
 
-No matter how successful a critter design is at one instant in the ecosystem, its level of success will soon change as the ecosystem starts changing. Eventually, if the new species are continually being "tested out" in the environment enough times, one of them will end up outcompeting the current "native species". 
+No matter how successful a critter design is at one instant in the ecosystem, its level of success will soon change as the ecosystem starts changing. Eventually, if the new species are continually being "tested out" in the environment enough times, one of them will end up outcompeting the current "native species".
 
-The important evolutionary outcome here is that if species can't evolve, they are doomed to extinction if they must go head to head with alternate "designs" in a changing environment. Also, people who test multiple designs within the environment are more likely to strike upon a relatively successful design (at least in the short term), than those who stick with only one design. 
+The important evolutionary outcome here is that if species can't evolve, they are doomed to extinction if they must go head to head with alternate "designs" in a changing environment. Also, people who test multiple designs within the environment are more likely to strike upon a relatively successful design (at least in the short term), than those who stick with only one design.
 
 And the most intentional design by a participant will still eventually get outcompeted and driven to extinction by many random designs thrown into the competition over a long period of time by the computer.
 
@@ -1029,9 +1029,9 @@ The command hubnet-send-override is used to change the appearance of agents in t
 
 ## HOW TO CITE
 
-If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:  
-- Stonedahl, F., Novak, M. and Wilensky, U. (2011).  NetLogo Critter Designers model.  http://ccl.northwestern.edu/netlogo/models/CritterDesigners.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.  
-- Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.  
+If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
+- Stonedahl, F., Novak, M. and Wilensky, U. (2011).  NetLogo Critter Designers model.  http://ccl.northwestern.edu/netlogo/models/CritterDesigners.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+- Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 ## COPYRIGHT AND LICENSE
 

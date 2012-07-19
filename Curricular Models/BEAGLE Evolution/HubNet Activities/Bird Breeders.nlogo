@@ -1,13 +1,13 @@
 globals [
-  player-1 player-2 player-3 player-4       ;; player names 
+  player-1 player-2 player-3 player-4       ;; player names
   player-1-cage-color player-2-cage-color   ;; colors for cages (patches) for each player
   player-3-cage-color player-4-cage-color
   player-1-tag-color  player-2-tag-color    ;; colors for tags (visualization of where the destination patch is for a moving bird)
-  player-3-tag-color  player-4-tag-color   
-  
+  player-3-tag-color  player-4-tag-color
+
   genes-to-phenotype                        ;; a list that contains a map of genotypes to phenotypes
   parent-female  parent-male                ;; the two parents of a breeding event - used for determining genotype of any potential eggs
-  
+
   frequency-allele-dominant-second-trait    ;; keeps track of allele frequencies in the gene pool of the current population (of birds, but not eggs)
   frequency-allele-dominant-first-trait
   frequency-allele-recessive-second-trait
@@ -16,22 +16,22 @@ globals [
   frequency-allele-recessive-third-trait
   frequency-allele-dominant-fourth-trait
   frequency-allele-recessive-fourth-trait
-  
+
   #-birds-with-1-target-trait               ;; used for keeping track of phenotype frequencies
-  #-birds-with-2-target-traits 
-  #-birds-with-3-target-traits 
-  #-birds-with-4-target-traits 
-  
+  #-birds-with-2-target-traits
+  #-birds-with-3-target-traits
+  #-birds-with-4-target-traits
+
   breeding-site-color-1                     ;; colors for the patches that are breeding sites
-  breeding-site-color-2 
+  breeding-site-color-2
   bird-body-color                           ;; color of the bird body shape
   bird-size                                 ;; size of bird shape
   egg-size                                  ;; size of egg shape
-  current-instruction                       ;; which instruction the player is viewing  
+  current-instruction                       ;; which instruction the player is viewing
 
   number-of-goal-birds                      ;; keeps track of how many birds you have currently that have the phenotype combinations you have been trying to breed for.
   sequencings-performed                     ;; keeps track of the number of DNA sequencings performed
-  sequencings-left                          ;; keeps track of the number of sequencings left 
+  sequencings-left                          ;; keeps track of the number of sequencings left
   number-offspring                          ;; keeps track of number of eggs laid
   number-hatchings                          ;; keeps track of number of eggs hatched at cages
   number-releases                           ;; keeps track of number of eggs and birds released into the wild (grass patches)
@@ -49,27 +49,27 @@ breed [destination-flags destination-flag] ;; the destination flag is a visualiz
 breed [karyotype-tags karyotype-tag]         ;; the karyotype tag is a visualization tool - it allows the genotype to be displayed off center of the bird
 breed [birds bird]                         ;; the creature that is being bred
 breed [eggs egg]                           ;; what is laid by birds and must be returned to cages to hatch into birds
-breed [first-traits  first-trait]          ;; shape that is the crest in birds 
-breed [second-traits second-trait]         ;; shape that is the wings in birds 
-breed [third-traits  third-trait]          ;; shape that determines breast in birds 
-breed [fourth-traits  fourth-trait]          ;; shape that determines tail in birds 
+breed [first-traits  first-trait]          ;; shape that is the crest in birds
+breed [second-traits second-trait]         ;; shape that is the wings in birds
+breed [third-traits  third-trait]          ;; shape that determines breast in birds
+breed [fourth-traits  fourth-trait]          ;; shape that determines tail in birds
 breed [players player]                     ;; one player is assigned to each participant
 
 
 
 patches-own [site-id patch-owned-by closed? reserved?]
 players-own [user-id player-number moving-a-bird? origin-patch assigned?]
- 
+
 birds-own [
-  owned-by                                                                ;; birds are owned-by a particular user-id. 
+  owned-by                                                                ;; birds are owned-by a particular user-id.
   first-genes second-genes third-genes fourth-genes fifth-genes sex-gene   ;; genetic information is stored in these five variables
   transporting? breeding? selected? just-bred? sequenced? released?       ;; the state of the bird is stored in these seven variables
   destination-patch                                                       ;; this variable is used for keeping track of where the bird is moving toward
   release-counter                                                         ;; this variable counts down to keep track of how to visualize the "fading" out of a released bird
 ]
-                                   
+
 eggs-own  [
-  owned-by                                                                ;; eggs are owned-by a particular user-id. 
+  owned-by                                                                ;; eggs are owned-by a particular user-id.
   first-genes second-genes third-genes fourth-genes fifth-genes sex-gene   ;; genetic information is stored in these five variables
   transporting? breeding? selected? just-bred? sequenced? released?       ;; the state of the egg is stored in these seven variables
   destination-patch                                                       ;; this variable is used for keeping track of where the egg is moving toward
@@ -80,7 +80,7 @@ eggs-own  [
 dna-sequencers-own    [owned-by]
 selection-tags-own    [owned-by]
 destination-flags-own [owned-by]
-first-traits-own      [owned-by first-genes  ] 
+first-traits-own      [owned-by first-genes  ]
 second-traits-own     [owned-by second-genes ]
 third-traits-own      [owned-by third-genes  ]
 fourth-traits-own      [owned-by fourth-genes fifth-genes sex-gene ]       ;; the fourth trait related to presence of feathers (head cap) is sex linked - it only appears if the individual is male)
@@ -100,13 +100,13 @@ end
 
 
 to setup
-  ;; these clear commands are used in place of clear all, because SETUP should not remove the players from the simulation   
-  clear-patches   
+  ;; these clear commands are used in place of clear all, because SETUP should not remove the players from the simulation
+  clear-patches
   clear-drawing
   clear-all-plots
   clear-non-player-turtles
   reset-player-numbers
-    
+
   set parent-female nobody
   set parent-male nobody
   set number-of-goal-birds 0
@@ -117,7 +117,7 @@ to setup
   set number-offspring 0
   set sequencings-performed 0
   set sequencings-left (max-#-of-DNA-tests - sequencings-performed)
-  set new-selection-event-occurred? false   
+  set new-selection-event-occurred? false
   set #-birds-with-1-target-trait 0
   set #-birds-with-2-target-traits 0
   set #-birds-with-3-target-traits 0
@@ -135,7 +135,7 @@ to setup
   set player-4-tag-color   player-4-cage-color  - 5
   set bird-size 0.8
   set egg-size  0.55
-        
+
   set genes-to-phenotype [
     ["AA" "set color [150 150 150 255]"] ["Aa" "set color [150 150 150 255]"] ["aA" "set color [150 150 150 255]"] ["aa" "set color [0 150 255 255]"]        ;; sets crest colors
     ["BB" "set color [150 150 150 255]"] ["Bb" "set color [150 150 150 255]"] ["bB" "set color [150 150 150 255]"] ["bb" "set color [155 0 100 255]"]        ;; sets wing colors
@@ -153,14 +153,14 @@ to setup
   set-default-shape selection-tags "tag"
   set-default-shape destination-flags "flag"
   set-default-shape DNA-sequencers "test-tubes"
-    
+
   ask patches [set pcolor white set reserved? false]
   setup-cages
   setup-DNA-sequencers
   setup-breeding-sites
   setup-grasses
   calculate-all-alleles
-  
+
   show-instruction 1
   reset-ticks
 end
@@ -168,12 +168,12 @@ end
 
 to make-players
   let player-number-counter 1
-  create-players 4 [ 
+  create-players 4 [
     set hidden? true  ;; players are invisible agents
     set player-number player-number-counter
     set player-number-counter player-number-counter + 1
-    set user-id ""        ;; this player is currently unassigned to a participant 
-    set assigned? false 
+    set user-id ""        ;; this player is currently unassigned to a participant
+    set assigned? false
   ]
 end
 
@@ -211,15 +211,15 @@ to setup-cages
    set these-cages patches with [pxcor = -4 and pycor <= 3 and pycor >= -2]
    ask these-cages [set pcolor player-1-cage-color  set patch-owned-by 1 sprout 1 [set breed cages set shape "cage"]]
    ask n-of 3 these-cages  [setup-birds]
-   ;; make cages and birds for player 2   
+   ;; make cages and birds for player 2
    set these-cages patches with [pxcor <= 3 and pxcor >= -2 and pycor = 5]
    ask these-cages [set pcolor player-2-cage-color set patch-owned-by 2 sprout 1 [set breed cages set shape "cage"]]
    ask n-of 3 these-cages  [setup-birds]
-   ;; make cages and birds for player 3   
+   ;; make cages and birds for player 3
    set these-cages patches with [pxcor = 5 and pycor >= -2 and pycor <= 3]
    ask these-cages [set pcolor player-3-cage-color  set patch-owned-by 3 sprout 1 [set breed cages set shape "cage"]]
    ask n-of 3 these-cages  [setup-birds]
-   ;; make cages and birds for player 4   
+   ;; make cages and birds for player 4
    set these-cages patches with [pycor = -4 and pxcor >= -2 and pxcor <= 3]
    ask these-cages [set pcolor player-4-cage-color set patch-owned-by 4 sprout 1 [set breed cages set shape "cage"]]
    ask n-of 3 these-cages  [setup-birds]
@@ -228,11 +228,11 @@ end
 
 to setup-birds
    let this-cage patch-owned-by
-   sprout 1 [ 
+   sprout 1 [
      build-body-base
      set owned-by this-cage
      assign-all-genes
-     build-body-parts  
+     build-body-parts
    ]
 end
 
@@ -280,11 +280,11 @@ end
 
 to setup-grasses
   ask patches with [is-a-release-site?] [
-    sprout 1 [  
+    sprout 1 [
       set breed grasses
       set shape "grass"
-      set color [50 150 50 150] 
-      set heading random 360 
+      set color [50 150 50 150]
+      set heading random 360
       fd random-float .45   ;; move the grass shape a bit within the patch
       set size 0.35 + random-float 0.15
    ]
@@ -302,9 +302,9 @@ to go
   open-eggs
   check-for-DNA-test
   update-mating-ready-visualization
-  every 0.1 [ 
+  every 0.1 [
     ask (turtle-set birds eggs) with [released?] [release-this-bird-or-egg]
-    visualize-bird-and-egg-movement 
+    visualize-bird-and-egg-movement
     ask selection-tags [rt 5]
     listen-clients
     if any? players with [assigned?] [send-common-info]
@@ -317,9 +317,9 @@ end
 
 to update-mating-ready-visualization
   ask birds  [
-    ifelse just-bred? 
-      [ set shape (word "bird-ready-to-go-home-" which-player-bird-or-egg-is-this? self) ] 
-      [ ifelse is-at-mating-site?  [set shape "bird-ready-to-mate"] [set shape "bird-waiting"]] 
+    ifelse just-bred?
+      [ set shape (word "bird-ready-to-go-home-" which-player-bird-or-egg-is-this? self) ]
+      [ ifelse is-at-mating-site?  [set shape "bird-ready-to-mate"] [set shape "bird-waiting"]]
   ]
 end
 
@@ -327,15 +327,15 @@ end
 to visualize-bird-and-egg-movement
   ask (turtle-set birds eggs) with [transporting? and destination-patch != nobody] [
     let bird-owned-by owned-by
-    ifelse distance destination-patch < .25  
-      [ setxy [pxcor] of destination-patch [pycor] of destination-patch 
-          set transporting? false set breeding? false set selected? false 
+    ifelse distance destination-patch < .25
+      [ setxy [pxcor] of destination-patch [pycor] of destination-patch
+          set transporting? false set breeding? false set selected? false
           set destination-patch nobody
           set reserved? false
-          ask destination-flags-here [die] 
+          ask destination-flags-here [die]
           ask selection-tags-here [die]
           if is-a-release-site? [set released? true]
-          if in-cage? [set just-bred? false]  
+          if in-cage? [set just-bred? false]
       ]
       [set heading towards destination-patch fd .2 set heading 0]
   ]
@@ -354,12 +354,12 @@ to release-this-bird-or-egg
   let color-list []
   set release-counter release-counter - 1
   let this-release-counter release-counter
-  set color-list but-last color 
+  set color-list but-last color
   set bird-transparency (release-counter * 60 / 6)
   set color-list lput bird-transparency color-list
   set color color-list
-  ask out-link-neighbors [ 
-     set color-list but-last color 
+  ask out-link-neighbors [
+     set color-list but-last color
      set color-list lput bird-transparency color-list
      set color color-list
      ask out-link-neighbors [set color color-list]
@@ -371,7 +371,7 @@ end
 to remove-this-bird-or-egg
   if release-counter <= 0 [
     set number-releases number-releases + 1
-    ask out-link-neighbors [ask out-link-neighbors [die]]     
+    ask out-link-neighbors [ask out-link-neighbors [die]]
     ask out-link-neighbors [die]
     die
   ]
@@ -386,12 +386,12 @@ to sequence-this-bird
     set sequenced? true
     set heading 0
     hatch 1 [
-      set breed karyotype-tags 
-      set hidden? false 
-      set heading 55 
+      set breed karyotype-tags
+      set hidden? false
+      set heading 55
       fd .55
       set heading 0
-      create-link-from this-bird-wing [set tie-mode "free" tie set hidden? true] 
+      create-link-from this-bird-wing [set tie-mode "free" tie set hidden? true]
       set size .2
       set label tag-label
       set label-color [255 0 0]
@@ -414,19 +414,19 @@ end
 to listen-clients
   while [ hubnet-message-waiting? ]   [
     hubnet-fetch-message
-    ifelse hubnet-enter-message? 
+    ifelse hubnet-enter-message?
     [ assign-new-player ]
     [
       ifelse hubnet-exit-message?
       [ remove-player ]
-      [ ask players with [user-id = hubnet-message-source] [  execute-command hubnet-message-tag hubnet-message ]]    
+      [ ask players with [user-id = hubnet-message-source] [  execute-command hubnet-message-tag hubnet-message ]]
     ]
   ]
 end
 
 
 to execute-command [command msg]
-  if command = "View" [check-click-on-bird-or-egg msg]         
+  if command = "View" [check-click-on-bird-or-egg msg]
   if command = "Mouse Up" [ check-release-mouse-button msg]
 end
 
@@ -474,10 +474,10 @@ end
 
 to check-for-meeting-goals
   set new-selection-event-occurred? false
-  let new-number-selections (number-releases + number-hatchings) 
+  let new-number-selections (number-releases + number-hatchings)
   ;; number-selections updates everytime an action is done that would potentially change the gene pool of the population
   if new-number-selections > number-selections [
-    set number-selections new-number-selections 
+    set number-selections new-number-selections
     set new-selection-event-occurred? true
   ]
   set number-of-goal-birds count birds with [is-goal-bird-and-in-cage?]
@@ -495,13 +495,13 @@ end
 to calculate-all-alleles
   ;; check to make sure one of each allele exists somewhere in the starting population
   ;; otherwise breeding for the target bird would be impossible
-  
+
   set #-birds-with-1-target-trait  count birds with [ how-many-target-traits = 1]
   set #-birds-with-2-target-traits count birds with [ how-many-target-traits = 2]
   set #-birds-with-3-target-traits count birds with [ how-many-target-traits = 3]
   set #-birds-with-4-target-traits count birds with [ how-many-target-traits = 4]
 
-  set frequency-allele-dominant-first-trait   (count birds with [(item 0 first-genes)  = "A"]) + (count birds with [(item 1 first-genes)  = "A"]) 
+  set frequency-allele-dominant-first-trait   (count birds with [(item 0 first-genes)  = "A"]) + (count birds with [(item 1 first-genes)  = "A"])
   set frequency-allele-recessive-first-trait  (count birds with [(item 0 first-genes)  = "a"]) + (count birds with [(item 1 first-genes)  = "a"])
   set frequency-allele-dominant-second-trait  (count birds with [(item 0 second-genes) = "B"]) + (count birds with [(item 1 second-genes) = "B"])
   set frequency-allele-recessive-second-trait (count birds with [(item 0 second-genes) = "b"]) + (count birds with [(item 1 second-genes) = "b"])
@@ -509,7 +509,7 @@ to calculate-all-alleles
   set frequency-allele-recessive-third-trait  (count birds with [(item 0 third-genes)  = "c"]) + (count birds with [(item 1 third-genes)  = "c"])
   set frequency-allele-dominant-fourth-trait   (count birds with [(item 0 fourth-genes)  = "D"]) + (count birds with [(item 1 fourth-genes)  = "D"])
   set frequency-allele-recessive-fourth-trait  (count birds with [(item 0 fourth-genes)  = "d"]) + (count birds with [(item 1 fourth-genes)  = "d"])
-  
+
   if ((both-second-trait-alleles-exist? and both-first-trait-alleles-exist? and both-fourth-alleles-exist? and both-third-trait-alleles-exist? and both-sexes-exist?) = false)
    [user-message (word "The current of birds in all the cages of all the player does not have"
     " enough genetic diversity for it to be possible for you to find a way to develop the desired breed."
@@ -526,25 +526,25 @@ end
 to initialize-mating
   ;; when a female bird lands at a breeding site... it becomes breeding ready
   ;; when a mate lands at this location eggs are hatched....eggs have an owner (one of two parents)
-  ask birds with [is-ready-for-mating?] [  
-    let this-site-id site-id  
+  ask birds with [is-ready-for-mating?] [
+    let this-site-id site-id
     let female-owned-by [owned-by] of self
-    set parent-female self          
-    remove-eggs-at-nest 
-    if (has-one-mate-in-nest? this-site-id ) [ 
-      make-eggs this-site-id 
+    set parent-female self
+    remove-eggs-at-nest
+    if (has-one-mate-in-nest? this-site-id ) [
+      make-eggs this-site-id
       set just-bred? true
       set breeding? false
       ask parent-male [ set just-bred? true set breeding? false]
       set number-matings number-matings + 1
-    ]         
+    ]
   ]
 end
 
 
 to remove-eggs-at-nest
-  let this-site-id site-id  
-  ask eggs with [site-id = this-site-id and not transporting?] [set number-releases number-releases + 1 die]   
+  let this-site-id site-id
+  ask eggs with [site-id = this-site-id and not transporting?] [set number-releases number-releases + 1 die]
 end
 
 
@@ -568,13 +568,13 @@ to make-eggs [this-site-id]  ;; make eggs in all open patches at this breeding s
    let number-of-existing-female-eggs 0
    let number-of-existing-male-eggs 0
    let open-patches patches with [site-id = this-site-id and not any? birds-here]  ;;;  number of open patches is equal to number of eggs created
-   ask open-patches  [ 
+   ask open-patches  [
      ifelse egg-counter mod 2 = 0
         [sprout 1 [make-an-egg parent-female]]   ;; every even egg (0, 2) will be owned by player who contributed the female bird
-        [sprout 1 [make-an-egg parent-male]]     ;; every odd egg  (1, 3) will be owned by player who contribute the male bird     
-     set egg-counter egg-counter + 1 
+        [sprout 1 [make-an-egg parent-male]]     ;; every odd egg  (1, 3) will be owned by player who contribute the male bird
+     set egg-counter egg-counter + 1
    ]
-   set number-offspring number-offspring + egg-counter    
+   set number-offspring number-offspring + egg-counter
 end
 
 
@@ -596,7 +596,7 @@ to make-an-egg [which-bird]
 end
 
 
-to reset-egg-or-bird-state 
+to reset-egg-or-bird-state
   set breeding? false
   set selected? false
   set sequenced? false
@@ -614,7 +614,7 @@ end
 
 to build-body-base
   set breed birds
-  set shape "bird-waiting" 
+  set shape "bird-waiting"
   set size bird-size
   set color bird-body-color
   set heading 0
@@ -662,12 +662,12 @@ end
 
 ;; when a complete mouse drag is finished here is what should occur;
 ;; a mouse action number is assigned to the bird or and egg  and the destination patch
-;; the origin patch should hatch a destination-flag to show where the egg or bird/egg is headed.  
-;; A selection-tag is also attached to the bird when a bird/egg is clicked on, the bird/egg becomes 
-;; selected? = true and a visual selection "selection-tag" is assigned to it.  
+;; the origin patch should hatch a destination-flag to show where the egg or bird/egg is headed.
+;; A selection-tag is also attached to the bird when a bird/egg is clicked on, the bird/egg becomes
+;; selected? = true and a visual selection "selection-tag" is assigned to it.
 
 ;; when a mouse drag is released the selected birds is assigned a destination patch (a bird/egg variable)
-;; The patch itself also is given a "reserved?" = true state so that it can not be set as a destination patch by other 
+;; The patch itself also is given a "reserved?" = true state so that it can not be set as a destination patch by other
 ;; mouse drags nor have eggs hatched on it.  And now the bird/egg becomes unselected and becomes a "moving" bird/egg.
 ;; moving birds can not be stopped in mid flight (they are not valid birds to be selected)
 ;; once moving birds reach their destination patch, the patch is no longer reserved
@@ -677,8 +677,8 @@ end
 
 ;; when a moving bird/egg reaches the destination patch (or within its radius), the reserved patches for this bird/egg are
 ;; cleared to be unreserved (both origin and destination).  The selected bird/egg is the agent then that is assigned
-;; a patch and a destination flag for a valid destination.  Valid destination patches are then switched to reserved 
-;; until the bird gets to the patch.  Reserved patches then can not be destinations.  
+;; a patch and a destination flag for a valid destination.  Valid destination patches are then switched to reserved
+;; until the bird gets to the patch.  Reserved patches then can not be destinations.
 
 
 to check-click-on-bird-or-egg [msg]
@@ -686,14 +686,14 @@ to check-click-on-bird-or-egg [msg]
   let snap-ycor round item 1 msg
   let this-player-number player-number
   let this-bird-or-egg nobody
-  
+
   ;; birds-available is agent set of players birds at mouse location
   let birds-or-eggs-selectable-at-clicked-patch (turtle-set birds eggs) with [pxcor = snap-xcor and pycor = snap-ycor and is-selectable-by-me? this-player-number]
   if any? birds-or-eggs-selectable-at-clicked-patch    [
     ;; when a bird is clicked on (mouse down, that is the players bird, the bird becomes a "selected bird"
     ;; and a visual selection "selection-tag" is assigned to it. All other tags need to be wiped out
     ;; ask all birds/eggs owned to deselect
-    deselect-all-my-birds-and-eggs this-player-number    
+    deselect-all-my-birds-and-eggs this-player-number
     ask one-of birds-or-eggs-selectable-at-clicked-patch [
       set-as-only-selected
       set destination-patch nobody
@@ -702,7 +702,7 @@ to check-click-on-bird-or-egg [msg]
         set breed selection-tags set owned-by this-player-number set color (lput 150 extract-rgb (player-tag-and-destination-flag-color this-player-number ) ) set heading 0 set size 1.0 set label ""
         create-link-from this-bird-or-egg [set hidden? true tie]
       ]
-    ]  
+    ]
   ]
 end
 
@@ -711,35 +711,35 @@ to check-release-mouse-button [msg]
   let snap-xcor round item 0 msg
   let snap-ycor round item 1 msg
   let is-destination-patch-illegal? true
-  let this-player-number player-number 
+  let this-player-number player-number
   let this-user-id user-id
   let currently-selected-birds-or-eggs (turtle-set birds eggs) with [selected? and is-bird-or-egg-owned-by-this-player? this-player-number]
-  
+
   if any? currently-selected-birds-or-eggs [
-    let this-selected-bird-or-egg one-of currently-selected-birds-or-eggs 
-    let this-selected-is-an-egg? is-egg? this-selected-bird-or-egg 
-    let tag-for-this-destination-flag one-of selection-tags with [owned-by = this-player-number] 
+    let this-selected-bird-or-egg one-of currently-selected-birds-or-eggs
+    let this-selected-is-an-egg? is-egg? this-selected-bird-or-egg
+    let tag-for-this-destination-flag one-of selection-tags with [owned-by = this-player-number]
     let possible-destination-patch patch-at snap-xcor snap-ycor
-    
-    ask possible-destination-patch [set is-destination-patch-illegal? is-other-players-cage-or-occupied-site? this-player-number this-user-id ] 
-    
+
+    ask possible-destination-patch [set is-destination-patch-illegal? is-other-players-cage-or-occupied-site? this-player-number this-user-id ]
+
     ifelse is-destination-patch-illegal? [
     ;; deselect all bird and start over in detecting selection
-       deselect-all-my-birds-and-eggs this-player-number   
+       deselect-all-my-birds-and-eggs this-player-number
     ]
     ;; the destination patch is not illegal, so assign destination patch to the bird
     [
-      ask currently-selected-birds-or-eggs [set destination-patch  possible-destination-patch set-as-only-transporting]  
+      ask currently-selected-birds-or-eggs [set destination-patch  possible-destination-patch set-as-only-transporting]
       ask possible-destination-patch [
         set reserved? true
         sprout 1 [
-          set breed destination-flags 
-          set owned-by this-user-id 
-          set color (lput 150 extract-rgb (player-tag-and-destination-flag-color this-player-number ) )  
-          set size 1.0 
+          set breed destination-flags
+          set owned-by this-user-id
+          set color (lput 150 extract-rgb (player-tag-and-destination-flag-color this-player-number ) )
+          set size 1.0
         ]
       ]
-    ]  
+    ]
   ]
 
 end
@@ -905,9 +905,9 @@ end
 to-report how-many-target-traits  ;; used to determine how many desirable traits a bird has, based on its genotype
    let #-target-traits 0
    if first-genes  =  "aa"  [set #-target-traits #-target-traits + 1]
-   if second-genes =  "bb"  [set #-target-traits #-target-traits + 1] 
+   if second-genes =  "bb"  [set #-target-traits #-target-traits + 1]
    if third-genes  =  "cc"  [set #-target-traits #-target-traits + 1]
-   if fourth-genes  =  "dd"  [set #-target-traits #-target-traits + 1]  
+   if fourth-genes  =  "dd"  [set #-target-traits #-target-traits + 1]
    report #-target-traits
 end
 
@@ -917,7 +917,7 @@ to-report lookup-phenotype-for-gene [x]
   let target-phenotype 0
   let target-item 0
   repeat length genes-to-phenotype [   ;; go through the entire genes to phenotype map
-    if (item 0 (item item-counter genes-to-phenotype)) = x 
+    if (item 0 (item item-counter genes-to-phenotype)) = x
       [set target-phenotype (item 1 (item item-counter genes-to-phenotype))]   ;; when the genotype is find, assign the corresponding phenotype to target-phenotype
     set item-counter (item-counter + 1)
   ]
@@ -984,13 +984,13 @@ end
 
 to-report is-ready-for-mating?
   let response false
-  if is-female? and is-at-mating-site? and not breeding? and not transporting? and not selected? and not just-bred? and destination-patch = nobody 
+  if is-female? and is-at-mating-site? and not breeding? and not transporting? and not selected? and not just-bred? and destination-patch = nobody
     [set response true]
   report response
 end
 
 
-to-report is-at-mating-site? 
+to-report is-at-mating-site?
   ifelse site-id != 0 [report true][report false]
 end
 
@@ -1001,16 +1001,16 @@ to-report is-goal-bird-and-in-cage?
     [report false]
 end
 
-    
+
 to-report is-other-players-cage-or-occupied-site? [this-player-number this-user-id ]
-  let validity? false 
+  let validity? false
   if ((patch-owned-by >= 1 and patch-owned-by <= 4) and patch-owned-by != this-player-number)  [set validity? true ]   ;;You can not move a bird/egg to another players cage or dna sequencer
   if (any? other birds-here or any? other eggs-here) [set validity? true ]                 ;; You can not move a bird/egg on top of another bird/egg
   report validity?
 end
 
 
-to-report is-a-cage?   
+to-report is-a-cage?
   ifelse (patch-owned-by > 0 and patch-owned-by <= 4) [report true] [report false]
 end
 
@@ -1028,7 +1028,7 @@ end
 to-report this-players-short-name [this-owned-by]
   let name-of-player ""
   if any? players with [player-number = this-owned-by] [
-     ask one-of players with [player-number = this-owned-by] [set name-of-player user-id ]] 
+     ask one-of players with [player-number = this-owned-by] [set name-of-player user-id ]]
   if length name-of-player > 6 [set name-of-player substring name-of-player 1 7 ]
   report name-of-player
 end
@@ -1052,7 +1052,7 @@ to-report current-instruction-label
 end
 
 to next-instruction
-  show-instruction current-instruction + 1 
+  show-instruction current-instruction + 1
 end
 
 to previous-instruction
@@ -1063,7 +1063,7 @@ to show-instruction [ i ]
   if i >= 1 and i <= length instructions [
     set current-instruction i
     clear-output
-    foreach item (current-instruction - 1) instructions output-print 
+    foreach item (current-instruction - 1) instructions output-print
   ]
 end
 
@@ -1106,7 +1106,7 @@ to-report instructions
       "Then release the mouse button."
     ]
     [
-      "You ultimate goal is to breed the" 
+      "You ultimate goal is to breed the"
       "#-of-required-goal-birds, each"
       "having a blue head cap, pink chest,"
       "purple wing and red tail."
@@ -1440,13 +1440,13 @@ The birds have a simple genetic representation for five traits:  Crest color, wi
 These traits are represented with genes that have one of two possible alleles each (A or a, B or b, C or c, D or d, and W or Z, for the traits listed above).  Upper case letters represent dominant alleles and lower case represent recessive alleles?.  Therefore the three combinations AA, Aa, and aA result in expression of the trait for A (e.g. gray crest), and only aa results in the expression of the trait for a (e.g. red crest).  Males and Females are determined by whether the bird has ZZ  (male) or WZ (female) genetic information.  One trait, crest color, is sex linked.  Male birds (ZZ) display a crest on their head, while females (WZ) do not (though they still carry the genetic information for how it should be expressed if they were male).
 
 _Here is the genotype to phenotype mapping:_
-Crest color:   (AA, Aa, aA) grey   or   (aa) blue  
+Crest color:   (AA, Aa, aA) grey   or   (aa) blue
 Wing color:    (BB, Bb, bB) grey   or   (bb) purple
-Chest color:   (CC, Cc, cC) grey   or   (cc) pink  
+Chest color:   (CC, Cc, cC) grey   or   (cc) pink
 Tail color:    (DD, Dd, dD) grey   or   (dd) red
 Sex:            ZZ   male          or    WZ female
 
-Along the edge of the WORLD & VIEW are cages to store birds in.  In the middle of the WORLD & VIEW are six sites to breed birds in.  In the corner of the model is a DNA sequencer that can be used to discover the genotype of a bird.  In the rest of the model are spaces with grass in them where birds or eggs can put to be released into the wild. 
+Along the edge of the WORLD & VIEW are cages to store birds in.  In the middle of the WORLD & VIEW are six sites to breed birds in.  In the corner of the model is a DNA sequencer that can be used to discover the genotype of a bird.  In the rest of the model are spaces with grass in them where birds or eggs can put to be released into the wild.
 
 
 ## HOW TO USE IT
@@ -1459,8 +1459,8 @@ _**How do you determine which birds and eggs are yours?**_
 Birds and eggs have numbers (1-4) corresponding to the player number that owns them.  You can only move birds and eggs that are your player number.
 
 _**How do you breed birds?**_
-Move one male and one female bird into a breeding location.  Hearts will appear on the birds, indicating they are ready to mate.  When two birds with hearts of opposite genders are at a breeding location, they will breed and lay eggs.  After breeding, colored arrows will appear on the birds indicating that they must return to their cages before being ready to return to a new breeding site to breed again. To hatch the newly laid eggs, players must drag the eggs back to their cages. As soon as an egg is put in a player’s cage, the egg is hatched, and the player can decide to keep the bird or set it free.  Ownership of eggs is determined by the ownership of the breeding birds: If a player owns both birds, all the eggs will belong to that player, but if two birds belonging to two different learners breed, each player will own half of the eggs. 
- 
+Move one male and one female bird into a breeding location.  Hearts will appear on the birds, indicating they are ready to mate.  When two birds with hearts of opposite genders are at a breeding location, they will breed and lay eggs.  After breeding, colored arrows will appear on the birds indicating that they must return to their cages before being ready to return to a new breeding site to breed again. To hatch the newly laid eggs, players must drag the eggs back to their cages. As soon as an egg is put in a player’s cage, the egg is hatched, and the player can decide to keep the bird or set it free.  Ownership of eggs is determined by the ownership of the breeding birds: If a player owns both birds, all the eggs will belong to that player, but if two birds belonging to two different learners breed, each player will own half of the eggs.
+
 _**How do you get rid of extra birds or eggs?**_
 To set a bird or egg free, just click on it and drag it into the green spaces with grass shapes in them and release the mouse button.  You can only set birds free or remove eggs if you own them (they have the same player number on them as you do).
 
@@ -1473,7 +1473,7 @@ _**How can you tell the male birds apart from the female birds?**_
 The male birds have a crown of feather on their head, but the females do not.
 
 
-**Buttons:** 
+**Buttons:**
 SETUP:  Press this first to assign a new batch of starting birds to the players.
 GO:     Press this second to start allowing the players to interact with the shared interface in the breeding challenge
 NEXT-INSTRUCTION:  Use this to display the next instruction about how to user the interface and mouse interactions with the birds.
@@ -1488,19 +1488,19 @@ DNA-TESTS-REMAINING indicates how many times left that you (or another player) c
  #-OF-REQUIRED-GOAL-BIRDS indicates how many goal birds have been accumulated in the player cages.
 INSTRUCTION-#: displays which instruction is being displayed out of how many total instructions there are to view.
  # OF MATINGS:  keeps track of the number of times birds were mated together
- # OF EGGS LAID:  keeps track of the eggs laid.  
- # OF BIRDS/EGGS RELEASED:  keeps track of the number of birds or eggs you released from the world.  
+ # OF EGGS LAID:  keeps track of the eggs laid.
+ # OF BIRDS/EGGS RELEASED:  keeps track of the number of birds or eggs you released from the world.
 
 
 **Graphs:**
 NUMBER OF RECESSIVE ALLELES IN GENE POOL graphs the number of recessive alleles (a, b, c, and d) in the gene pool vs. the number of selections (the sum of the # of birds/eggs released + # of eggs hatched).
 NUMBER OF DOMINANT ALLELES IN GENE POOL graphs the number of dominant alleles (A, B, C, and D) in the gene pool vs. the number of selections (the sum of the # of birds/eggs released + # of eggs hatched).
-NUMBER OF BIRDS WITH # OF DESIRABLE VARIATIONS graphs all the phenotype frequencies in the population.  It graphs the number of birds that show 1, 2, 3, and 4 of the 4 possible desirable variations in the traits that you are breeding for.  
+NUMBER OF BIRDS WITH # OF DESIRABLE VARIATIONS graphs all the phenotype frequencies in the population.  It graphs the number of birds that show 1, 2, 3, and 4 of the 4 possible desirable variations in the traits that you are breeding for.
 
 
 ## THINGS TO NOTICE
 
-Even though birds produce four eggs when they mate, the four eggs may or may not produce the expected probabilities of a theoretical Punnett square.  This is because the expected probabilities represent what would result after an infinite set of crosses. 
+Even though birds produce four eggs when they mate, the four eggs may or may not produce the expected probabilities of a theoretical Punnett square.  This is because the expected probabilities represent what would result after an infinite set of crosses.
 
 If additional birds occupy a nesting site, then less than four eggs will be laid, since fewer patches are available.
 
@@ -1516,7 +1516,7 @@ Track the changes in the frequency of recessive and dominant alleles.  Compare t
 
 ## EXTENDING THE MODEL
 
-The model shows one scenarios of breeding birds.  The bird shapes could be changed to show breeding of other virtual creatures (reptiles, cats, fish, etc...)  
+The model shows one scenarios of breeding birds.  The bird shapes could be changed to show breeding of other virtual creatures (reptiles, cats, fish, etc...)
 
 
 ## NETLOGO FEATURES
@@ -1533,9 +1533,9 @@ Plant Hybridization and Fish Tank Genetic Drift from the BEAGLE curricular folde
 
 ## HOW TO CITE
 
-If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:  
-- Novak, M. and Wilensky, U. (2011).  NetLogo Bird Breeders model.  http://ccl.northwestern.edu/netlogo/models/BirdBreeders.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.  
-- Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.  
+If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
+- Novak, M. and Wilensky, U. (2011).  NetLogo Bird Breeders model.  http://ccl.northwestern.edu/netlogo/models/BirdBreeders.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+- Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 ## COPYRIGHT AND LICENSE
 

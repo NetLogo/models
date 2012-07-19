@@ -40,7 +40,7 @@ to setup
     sprout plants-per-patch [
       if initial-tolerance = "all no tolerance" [set tolerance 0]
       if initial-tolerance = "all full tolerance" [set tolerance 100]
-      if initial-tolerance = "random tolerances" [set tolerance random-float 100]  
+      if initial-tolerance = "random tolerances" [set tolerance random-float 100]
       set flower-time (365 / 2)
       set heading random 360
       fd random-float .5
@@ -157,13 +157,13 @@ to do-reproduction
         set tolerance (tolerance + [tolerance] of mate) / 2
         set flower-time (flower-time + [flower-time] of mate) / 2
       ]
-  
+
       ;mutate tolerance gene
       if (random-float 100) < chance-tolerance-mutation [
         set tolerance (tolerance + (random-normal 0 tolerance-mutation-stdev))
       ;; set tolerance (tolerance + random tolerance-mutation - random tolerance-mutation)
       ]
- 
+
       ;mutate flowering time gene
       if (random-float 100) < chance-flower-time-mutation [
         set flower-time (flower-time + (random-normal 0 flower-time-mutation-stdev))
@@ -199,8 +199,8 @@ to mark-turtles-to-kill
     ;; This is a model of a "tradeoff", where specializing in one variation of trait is advantageous
     ;; in one environmental extreme, but specializing in another variation of the trait is advantageous in a different
     ;; environmental extreme. Intermediate "hybridization" or averaging between both variations is disadvantageous
-    ;; in both environments or at the very least it is not advantageous in either extreme environment.  
-    ;; Such tradeoff models can lead to speciation when other traits permit a population to reproductively 
+    ;; in both environments or at the very least it is not advantageous in either extreme environment.
+    ;; Such tradeoff models can lead to speciation when other traits permit a population to reproductively
     ;; fragment and isolate itself into non-interbreeding sub populations.
 
     ;; This makes for a hyperbolic paraboloid or saddle shaped function that is dependent on metal amount and
@@ -685,7 +685,7 @@ Fitness is a hyperbolic paraboloid function that can be visualized as a linear f
 This is a model of a "tradeoff", where specializing in one variation of a trait is advantageous in one environmental extreme, but specializing in another variation of the trait is advantageous in a different environmental extreme. Intermediate "hybridization," or averaging between both variations, is disadvantageous in both environments or at least not advantageous in any.  Such tradeoff models can lead to speciation when other traits permit a population to reproductively fragment and isolate itself into non-interbreeding sub populations.
 
 The hyperbolic paraboloid or saddle shaped function that is used in the model is dependent on metal amount and tolerance.  A general form of this fitness function would be the following:
-  fitness =  (1 +  (A * t * m + B * t * m - C * t * m) - ( A * t + B * m) ) 
+  fitness =  (1 +  (A * t * m + B * t * m - C * t * m) - ( A * t + B * m) )
 
   - where fitness is 1 at clean ground and no tolerance
   - A is the penalty (0 to 1) for having tolerance in clean ground: so fitness is (1 - A)
@@ -762,9 +762,9 @@ Antonovics, J. (2006). "Evolution in closely adjacent plant populations X: long-
 
 ## HOW TO CITE
 
-If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:  
-- Novak, M., McGlynn, G. and Wilensky, U. (2012).  NetLogo Plant Speciation model.  http://ccl.northwestern.edu/netlogo/models/PlantSpeciation.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.  
-- Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.  
+If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
+- Novak, M., McGlynn, G. and Wilensky, U. (2012).  NetLogo Plant Speciation model.  http://ccl.northwestern.edu/netlogo/models/PlantSpeciation.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+- Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 ## COPYRIGHT AND LICENSE
 
