@@ -3,23 +3,10 @@ interfaceGlobals [number-of-particles collide? trace? init-particle-speed partic
 turtles-own [WHO COLOR HEADING XCOR YCOR SHAPE LABEL LABEL-COLOR BREED HIDDEN? SIZE PEN-SIZE PEN-MODE]
 patches-own [PXCOR PYCOR PCOLOR PLABEL PLABEL-COLOR]
 links-own [END1 END2 COLOR LABEL LABEL-COLOR HIDDEN? BREED THICKNESS SHAPE TIE-MODE]
-breeds PARTICLES = TreeAgentSet
-...... type: class org.nlogo.agent.Turtle
-...... count(): 0
-...... agents: 
-FLASHES = TreeAgentSet
-...... type: class org.nlogo.agent.Turtle
-...... count(): 0
-...... agents: 
-CLOCKERS = TreeAgentSet
-...... type: class org.nlogo.agent.Turtle
-...... count(): 0
-...... agents:
-breeds-own PARTICLES = [SPEED, MASS, ENERGY, WALL-HITS, MOMENTUM-DIFFERENCE, LAST-COLLISION]
-FLASHES = [BIRTHDAY]
-CLOCKERS = []
+breeds PARTICLES = Breed(PARTICLES, PARTICLE, SPEED MASS ENERGY WALL-HITS MOMENTUM-DIFFERENCE LAST-COLLISION, false)
+FLASHES = Breed(FLASHES, FLASH, BIRTHDAY, false)
+CLOCKERS = Breed(CLOCKERS, CLOCKER, , false)
 link-breeds 
-link-breeds-own 
 
 procedure CALCULATE-PRESSURE:[]{OTPL}:
 [0]_asm_procedurecalculatepressure_setobservervariable_0 "set pressure 15 * sum [momentum-difference] of particles" Object => void
