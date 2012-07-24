@@ -73,7 +73,7 @@ def validateYear(y:Int) {
 }
 
 lazy val validKeywords = List("MIT", "Wilensky", "specialCE", "MAC",
-                              "Steiner", "Stroup", "3D", "NIELS",
+                              "Steiner", "Stroup", "3D", "NIELS", "ConChem",
                               "CC0", "BYSA")
 
 def munge(path: String): String = {
@@ -177,6 +177,14 @@ def munge(path: String): String = {
       builder.append("To cite the NIELS curriculum as a whole, please use: ")
       builder.append("Sengupta, P. and Wilensky, U. (2008). NetLogo NIELS curriculum. ")
       builder.append("http://ccl.northwestern.edu/NIELS. ")
+      builder.append("Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.  \n")
+    }
+    if(keywords.contains("ConChem")) {
+      builder.append("\n\n")
+      builder.append("To cite the Connected Chemistry curriculum as a whole, please use: ")
+      builder.append("Wilensky, U., Levy, S. T., & Novak, M. (2004). ")
+      builder.append("Connected Chemistry curriculum. ")
+      builder.append("http://ccl.northwestern.edu/curriculum/chemistry. ")
       builder.append("Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.  \n")
     }
     builder.toString
