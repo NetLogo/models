@@ -21,8 +21,8 @@ breed [mouse-cursors mouse-cursor]                           ;; follows the curs
 breed [chromosome-builders initial-chromsomes-builder]       ;; initial temporary construction turtle
 
                                                              ;;;;;;;;;;;;; links ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-undirected-link-breed [old-stairs old-stair]                 ;; the link between nucleotide base pairs that made the old stairs of the "spiral staircase" in the DNA 
-undirected-link-breed [new-stairs new-stair]                 ;; the link between nucleotide base pairs that makes the new stairs of the "spiral staircase" in the replicated DNA 
+undirected-link-breed [old-stairs old-stair]                 ;; the link between nucleotide base pairs that made the old stairs of the "spiral staircase" in the DNA
+undirected-link-breed [new-stairs new-stair]                 ;; the link between nucleotide base pairs that makes the new stairs of the "spiral staircase" in the replicated DNA
 undirected-link-breed [taglines tagline]                     ;; the link between an agent and where its label agent is.  This allows fine tuned placement of visualizing of labels
 directed-link-breed [gearlines gearline]                     ;; the link between topoisomerase and its topoisomerases-gears
 directed-link-breed [cursor-drags cursor-drag]               ;; the link the mouse-cursor and any other agent it is dragging with it during a mouse-down? event
@@ -30,19 +30,19 @@ directed-link-breed [backbones backbone]                     ;; the link between
                                                              ;;   it allows the entire strand to be wound or unwound
 
                                                              ;;;;;;;;;;;;;;;;;;;turtle variables ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-nucleosides-own [class value place]                          ;; class is top or bottom and copy or original / value is A, G, C, or T /  place is a # of order in sequence 
+nucleosides-own [class value place]                          ;; class is top or bottom and copy or original / value is A, G, C, or T /  place is a # of order in sequence
 nucleotides-own [class value place unwound? unzipped-stage]  ;; nucleotides may be any of 4 unzipped-stages (how far the zipper is undone)
 nucleotide-tags-own [value]                                  ;; the value for their label when visualized
-polymerases-own [locked-state]                               ;; locked-state can be four possible values for polymerase for when it is bound to a nucleotide and 
+polymerases-own [locked-state]                               ;; locked-state can be four possible values for polymerase for when it is bound to a nucleotide and
                                                              ;;   responding to confirmation of whether a matched nucleoside is nearby or not
 topoisomerases-own [locked?]                                 ;; locked? is true/false for when the topoisomerase is on the site of the primase
 
 globals [                                                    ;;;;;;;;;;;;;;;;;;;;globals ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   initial-length-dna
   mouse-continuous-down?
-  
+
   instruction ;; counter which keeps track of which instruction is being displayed in the output
-  
+
   ;; colors for various agents and states of agents
   cursor-detect-color
   cursor-drag-color
@@ -51,27 +51,27 @@ globals [                                                    ;;;;;;;;;;;;;;;;;;;
   nucleo-tag-color
   enzyme-tag-color
   nucleoside-color
-  
+
   ;; colors for the four different states the polymerase enzyme can be in
   polymerase-color-0
   polymerase-color-1
   polymerase-color-2
   polymerase-color-3
-  
+
   ;; colors for the two different states the helicase enzyme can be in
   helicase-color-0
   helicase-color-1
-  
+
   ;; colors for the two different states the topoisomerase enzyme can be in
   topoisomerase-color-0
   topoisomerase-color-1
-  
+
   ;; colors for the two different states the primase enzyme can be in
   primase-color-0
   primase-color-1
-  
-  final-time 
-  
+
+  final-time
+
   ;; for keeping track of the total number of mutations
   total-deletion-mutations-top-strand
   total-substitution-mutations-top-strand
@@ -79,15 +79,15 @@ globals [                                                    ;;;;;;;;;;;;;;;;;;;
   total-deletion-mutations-bottom-strand
   total-substitution-mutations-bottom-strand
   total-correct-duplications-bottom-strand
-  
+
   lock-radius           ;; how far away an enzyme must be from a target interaction (with another molecule ) for it to lock those molecules (or itself) into a confirmation state/site
   mouse-drag-radius     ;; how far away a molecule must be in order for the mouse-cursor to link to it and the user to be able to drag it (with mouse-down?
   molecule-step         ;; how far each molecules moves each tick
   wind-angle            ;; angle of winding used for twisting up the DNA
-  
+
   length-of-simulation  ;; number of seconds for this simulation
   time-remaining        ;; time-remaining in the simulation
-  current-instruction   ;; counter for keeping track of which instruction is displayed in output window  
+  current-instruction   ;; counter for keeping track of which instruction is displayed in output window
   using-time-limit      ;; boolean for keeping track of whether this is a timed model run
   simulation-started?   ;; boolean for keeping track of whether the simulation started
   cell-divided?         ;; boolean for keeping track of whether the end of the simulation was cued
@@ -103,7 +103,7 @@ globals [                                                    ;;;;;;;;;;;;;;;;;;;
 
 to setup
   clear-all
-  
+
   set polymerase-color-0    [150 150 150 150]
   set polymerase-color-1    [75  200  75 200]
   set polymerase-color-2    [0   255   0 220]
@@ -111,7 +111,7 @@ to setup
   set nucleo-tag-color      [255 255 255 200]
   set enzyme-tag-color      [255 255 255 200]
   set primase-color-0       [255 255 255 150]
-  set primase-color-1       [255 255 255 200] 
+  set primase-color-1       [255 255 255 200]
   set helicase-color-1      [255 255 210 200]
   set helicase-color-0      [255 255 210 150]
   set topoisomerase-color-0 [210 255 255 150]
@@ -120,7 +120,7 @@ to setup
   set wound-dna-color       [255 255 255 150]
   set unwound-dna-color     [255 255 255 255]
   set cursor-detect-color   [255 255 255 150]
-  set cursor-drag-color     [255 255 255 200] 
+  set cursor-drag-color     [255 255 255 200]
   set instruction 0
   set wind-angle 25
   set lock-radius 0.3
@@ -128,17 +128,17 @@ to setup
   set molecule-step 0.025
   set final-time 0
   set current-instruction 0
-  
+
   set total-deletion-mutations-top-strand "N/A"
   set total-substitution-mutations-top-strand  "N/A"
   set total-correct-duplications-top-strand  "N/A"
   set total-deletion-mutations-bottom-strand  "N/A"
   set total-substitution-mutations-bottom-strand  "N/A"
   set total-correct-duplications-bottom-strand  "N/A"
-  
+
   set-default-shape chromosome-builders "empty"
   set-default-shape nucleotide-tags "empty"
-  
+
   set mouse-continuous-down? false
   set simulation-started? false
   set length-of-simulation 0
@@ -148,16 +148,16 @@ to setup
   set cell-message-shown? false
   set timer-message-shown? false
   set initial-length-dna dna-strand-length
-  
+
   create-mouse-cursors 1 [set shape "target" set color [255 255 255 100] set hidden? true] ;; make turtle for mouse cursor
   repeat free-nucleosides [make-a-nucleoside ] ;;make initial nucleosides
   make-initial-dna-strip
-  make-polymerases 
+  make-polymerases
   make-a-helicase
   make-a-topoisomerase
   wind-initial-dna-into-bundle
   visualize-agents
-  
+
   initialize-length-of-time
   show-instruction 1
   reset-ticks
@@ -171,8 +171,8 @@ end
 
 to make-a-nucleoside
   create-nucleosides 1 [
-    set value random-base-letter 
-    set shape (word "nucleoside-tri-" value) 
+    set value random-base-letter
+    set shape (word "nucleoside-tri-" value)
     set color nucleoside-color
     attach-nucleo-tag 0 0
     setxy random-pxcor random-pycor ;*** replaces: setxy random 100 random 100 (see log for explanation)
@@ -187,14 +187,14 @@ to make-polymerases
     setxy (((max-pxcor - min-pxcor) / 2) + 3) (max-pycor - 1)
   ]
   create-polymerases 1 [
-    set heading (90 - random 20 + random 20) 
+    set heading (90 - random 20 + random 20)
     setxy (((max-pxcor - min-pxcor) / 2) - 5) (max-pycor - 1)
   ]
   ask polymerases [
     attach-enzyme-tag 150 .85 "polymerase"
     set locked-state 0
-    set shape "polymerase-0"    
-    set color polymerase-color-0 
+    set shape "polymerase-0"
+    set color polymerase-color-0
   ]
 end
 
@@ -223,7 +223,7 @@ to make-a-topoisomerase
 end
 
 ;; primase is attached to the very first nucleotide in the initial DNA strand
-to make-and-attach-a-primase  
+to make-and-attach-a-primase
   hatch 1 [
     set breed primases
     set shape "primase"
@@ -243,17 +243,17 @@ to make-initial-dna-strip
   let first-base-pair-value ""
   let is-this-the-first-base? true
   create-turtles 1 [set breed chromosome-builders set heading 90 fd 1 ]
-  
+
   ask chromosome-builders [
     repeat initial-length-dna [
       set place-counter place-counter + 1
       hatch 1 [
-        set breed nucleotides 
-        set value random-base-letter 
+        set breed nucleotides
+        set value random-base-letter
         set first-base-pair-value value
-        set shape (word "nucleotide-" value) 
-        set heading 0          
-        set class "original-dna-top" 
+        set shape (word "nucleotide-" value)
+        set heading 0
+        set class "original-dna-top"
         set unwound? true
         set color unwound-dna-color
         set place place-counter
@@ -263,27 +263,27 @@ to make-initial-dna-strip
         set last-nucleotide-top-strand self
         if is-this-the-first-base? [make-and-attach-a-primase]
         set is-this-the-first-base? false
-        
-        ;; make complementary base side   
+
+        ;; make complementary base side
         hatch 1 [     ;*** removed "if true", which was probably a left over from some experimentation...
           rt 180
           set value complementary-base first-base-pair-value  ;; this second base pair value is based on the first base pair value
-          set shape (word "nucleotide-" value) 
-          set class "original-dna-bottom" 
+          set shape (word "nucleotide-" value)
+          set class "original-dna-bottom"
           create-old-stair-with last-nucleotide-top-strand [set hidden? false]
           attach-nucleo-tag 175 0.7
-          if last-nucleotide-bottom-strand != nobody [create-backbone-to last-nucleotide-bottom-strand [set hidden? true tie]]      
+          if last-nucleotide-bottom-strand != nobody [create-backbone-to last-nucleotide-bottom-strand [set hidden? true tie]]
           set last-nucleotide-bottom-strand self
-        ] 
+        ]
       ]
-      fd .45    
+      fd .45
     ]
     die ;; remove the chromosome builder (a temporary construction turtle)
   ]
 end
 
 ;; fine tuned placement of the location of a label for a nucleoside or nucleotide
-to attach-nucleo-tag [direction displacement]  
+to attach-nucleo-tag [direction displacement]
   hatch 1 [
     set heading direction
     fd displacement
@@ -331,14 +331,14 @@ to go
   if (cell-divided? and not cell-message-shown?) [
     calculate-mutations
     if final-time = 0 [ set final-time timer ]  ;; record final time
-    user-message (word "You have cued the cell division.  Let's see how you did in replicating " 
+    user-message (word "You have cued the cell division.  Let's see how you did in replicating "
       "an exact copy of the DNA.")
     user-message user-message-string-for-mutations
     set cell-message-shown? true
   ]
   if ((using-time-limit and time-remaining <= 0) and not timer-message-shown?) [
     calculate-mutations
-    user-message (word "The timer has expired.  Let's see how you did in replicating " 
+    user-message (word "The timer has expired.  Let's see how you did in replicating "
       "an exact copy of it.")
     user-message  user-message-string-for-mutations
     set timer-message-shown? true
@@ -362,8 +362,8 @@ to visualize-agents
   ask nucleotide-tags  [ set hidden? not nucleo-labels?]
   ask topoisomerases [
     ;; spin at different speeds depending if you are locked into the primase location
-    ifelse locked? 
-      [ask topoisomerases-gears [lt 10 set color topoisomerase-color-1]] 
+    ifelse locked?
+      [ask topoisomerases-gears [lt 10 set color topoisomerase-color-1]]
       [ask topoisomerases-gears [lt 3  set color topoisomerase-color-0]]
   ]
   ask polymerases [
@@ -378,8 +378,8 @@ end
 ;;;;;; winding and unwinding chromosome procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-to wind-initial-dna-into-bundle 
-  repeat (initial-length-dna ) [ wind-dna ]   
+to wind-initial-dna-into-bundle
+  repeat (initial-length-dna ) [ wind-dna ]
 end
 
 to unwind-dna
@@ -389,7 +389,7 @@ to unwind-dna
     ask wound-nucleotides with [place = max-wound-place] [
       lt wind-angle  ;; left turn unwinds, right turn winds
       set unwound? true
-      set color unwound-dna-color 
+      set color unwound-dna-color
       wait 0.02   ;; for visualization purposes
     ]
   ]
@@ -402,7 +402,7 @@ to wind-dna
     ask unwound-nucleotides with [place = min-unwound-place  ] [
       rt wind-angle  ;; right turn winds, left turn unwinds
       set unwound? false
-      set color wound-dna-color 
+      set color wound-dna-color
     ]
   ]
 end
@@ -413,7 +413,7 @@ end
 
 to unzip-nucleotides
   let were-any-nucleotides-unzipped-further? false
-  
+
   ask nucleotides with [next-nucleotide-unzipped-the-same? and unzipped-stage > 0] [
     let fractional-separation (unzipped-stage / 2)  ;; every unzipped stage will increment the fractional separation by 1/2 of a patch width
     if unzipped-stage = 3 [ask my-old-stairs [die] ask my-out-backbones [die] ]  ;; break the linking between the nucleotide bases (the stairs of the staircase)
@@ -422,7 +422,7 @@ to unzip-nucleotides
       set unzipped-stage unzipped-stage + 1
       set were-any-nucleotides-unzipped-further? true                            ;; if any nucleotide was unzipped partially this stage
       if class = "original-dna-top"      [set ycor fractional-separation  ]      ;; move upward
-      if class = "original-dna-bottom"   [set ycor -1 * fractional-separation ]  ;; move downward   
+      if class = "original-dna-bottom"   [set ycor -1 * fractional-separation ]  ;; move downward
     ]
   ]
   ask helicases [
@@ -434,11 +434,11 @@ to separate-base-pairs
   let lowest-place 0
   ask helicases  [
     let this-helicase self
-    let unzipped-nucleotides nucleotides with [unzipped-stage = 0]  
+    let unzipped-nucleotides nucleotides with [unzipped-stage = 0]
     if any? unzipped-nucleotides [ set lowest-place min-one-of unzipped-nucleotides [place] ]  ;; any unzipped nucleotides
     let available-nucleotides unzipped-nucleotides  with [distance this-helicase < 1  and are-previous-nucleotides-unzipped?]
     if any? available-nucleotides [
-      let lowest-value-nucleotide min-one-of available-nucleotides [place]  
+      let lowest-value-nucleotide min-one-of available-nucleotides [place]
       ask lowest-value-nucleotide [
         let base self
         let base-place place
@@ -446,7 +446,7 @@ to separate-base-pairs
         if any? other-base  [
           set unzipped-stage 1
           ask other-base [set unzipped-stage 1]
-        ]     
+        ]
       ]
     ]
   ]
@@ -478,21 +478,21 @@ to lock-polymerase-to-one-nucleotide
   let target-xcor 0
   let target-ycor 0
   let target-class ""
-  
+
   ask polymerases  [
     let nucleosides-ready-to-gear-to-polymerase nobody
     let potential-nucleoside-ready-to-gear-to-polymerase nobody
     let target-nucleotide-ready-to-gear-to-polymerase nobody
     set nucleosides-ready-to-gear-to-polymerase nucleosides with [distance myself < lock-radius]  ;; find  nucleosides floating nearby
     if count nucleosides-ready-to-gear-to-polymerase > 1 [
-      set potential-nucleoside-ready-to-gear-to-polymerase min-one-of nucleosides-ready-to-gear-to-polymerase [distance myself] 
+      set potential-nucleoside-ready-to-gear-to-polymerase min-one-of nucleosides-ready-to-gear-to-polymerase [distance myself]
     ]
     if count nucleosides-ready-to-gear-to-polymerase = 1 [
       set potential-nucleoside-ready-to-gear-to-polymerase nucleosides-ready-to-gear-to-polymerase
     ]
-    let nucleotides-ready-to-gear-to-polymerase nucleotides with 
-      [not any? my-old-stairs and not any? my-new-stairs and (class = "original-dna-bottom" or class = "original-dna-top") and distance myself < lock-radius]  ;; nearby nucleotides (different than nucleosides) that are not stair lined to any other nucleotides    
-    
+    let nucleotides-ready-to-gear-to-polymerase nucleotides with
+      [not any? my-old-stairs and not any? my-new-stairs and (class = "original-dna-bottom" or class = "original-dna-top") and distance myself < lock-radius]  ;; nearby nucleotides (different than nucleosides) that are not stair lined to any other nucleotides
+
     if any? nucleotides-ready-to-gear-to-polymerase and all-base-pairs-unwound? and not being-dragged-by-cursor? [
       set target-nucleotide-ready-to-gear-to-polymerase min-one-of nucleotides-ready-to-gear-to-polymerase [distance myself]
       set target-xcor   [xcor] of target-nucleotide-ready-to-gear-to-polymerase
@@ -500,29 +500,29 @@ to lock-polymerase-to-one-nucleotide
       set target-class [class] of target-nucleotide-ready-to-gear-to-polymerase
       setxy target-xcor target-ycor
     ]
-    
-    if not any? nucleotides-ready-to-gear-to-polymerase or any? other polymerases-here [set locked-state 0]   ;; if no open nucleotide are present then no gearing 
+
+    if not any? nucleotides-ready-to-gear-to-polymerase or any? other polymerases-here [set locked-state 0]   ;; if no open nucleotide are present then no gearing
     if any? nucleotides-ready-to-gear-to-polymerase and all-base-pairs-unwound? and potential-nucleoside-ready-to-gear-to-polymerase = nobody and not any? other polymerases-here [set locked-state 1]   ;; if an open nucleotide is present but no nucleosides
     if target-nucleotide-ready-to-gear-to-polymerase != nobody and all-base-pairs-unwound? and potential-nucleoside-ready-to-gear-to-polymerase != nobody and not any? other polymerases-here   [
       set locked-state 2   ;; if an open nucleotide is present and a nucleosides is present
-      
+
       ifelse ((would-these-nucleotides-pair-correctly? target-nucleotide-ready-to-gear-to-polymerase potential-nucleoside-ready-to-gear-to-polymerase) or (substitutions?)) [
         ask potential-nucleoside-ready-to-gear-to-polymerase  [
-          ask my-in-cursor-drags  [die]  
+          ask my-in-cursor-drags  [die]
           ask tagline-neighbors [die]
-          set breed nucleotides 
+          set breed nucleotides
           set shape (word "nucleotide-"  value)
           set unwound? true
           if target-class = "original-dna-top"     [  set heading 180 set class "copy-of-dna-bottom" attach-nucleo-tag 175 0.7]
           if target-class = "original-dna-bottom"  [ set heading 0 set class "copy-of-dna-top" attach-nucleo-tag 5 0.5]
-          setxy target-xcor target-ycor 
-          break-off-phosphates-from-nucleoside     
-          create-new-stair-with target-nucleotide-ready-to-gear-to-polymerase [set hidden? false tie]         
-        ]     
+          setxy target-xcor target-ycor
+          break-off-phosphates-from-nucleoside
+          create-new-stair-with target-nucleotide-ready-to-gear-to-polymerase [set hidden? false tie]
+        ]
       ]
-      [ ;; if an open nucleotide is present, and a nucleoside is present, but it is not the correct nucleosides to pair 
+      [ ;; if an open nucleotide is present, and a nucleoside is present, but it is not the correct nucleosides to pair
         set locked-state 3
-      ]  
+      ]
     ]
   ]
 end
@@ -539,7 +539,7 @@ end
 ;;;;;; setting locking topoisomerases onto primase ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-to lock-topoisomerase-to-wound-primase  
+to lock-topoisomerase-to-wound-primase
   let target-xcor 0
   let target-ycor 0
   let target-class ""
@@ -548,11 +548,11 @@ to lock-topoisomerase-to-wound-primase
     ifelse any? wound-nucleotides [
       let target-primases-ready-to-gear-to-topoisomerase primases  with [distance myself < lock-radius ]
       ifelse any? target-primases-ready-to-gear-to-topoisomerase [
-        let target-primase-ready-to-gear-to-topoisomerase one-of target-primases-ready-to-gear-to-topoisomerase 
-        set locked? true  
+        let target-primase-ready-to-gear-to-topoisomerase one-of target-primases-ready-to-gear-to-topoisomerase
+        set locked? true
         if not mouse-down? [
           unwind-dna
-          ask my-in-cursor-drags  [die] 
+          ask my-in-cursor-drags  [die]
           set target-xcor   [xcor] of target-primase-ready-to-gear-to-topoisomerase
           set target-ycor   [ycor] of target-primase-ready-to-gear-to-topoisomerase
           setxy target-xcor target-ycor
@@ -560,7 +560,7 @@ to lock-topoisomerase-to-wound-primase
       ]
       [
         set locked? false
-      ] 
+      ]
     ]
     [
       set locked? false
@@ -579,22 +579,22 @@ to calculate-mutations
   set total-deletion-mutations-bottom-strand 0
   set total-substitution-mutations-bottom-strand 0
   set total-correct-duplications-bottom-strand 0
-  
+
   let original-nucleotides nucleotides with [class = "original-dna-top" ]
   ask original-nucleotides [
     if not any? my-new-stairs [set total-deletion-mutations-top-strand total-deletion-mutations-top-strand + 1]
     if count my-new-stairs >= 1 [
-      ifelse is-this-nucleotide-paired-correctly? 
+      ifelse is-this-nucleotide-paired-correctly?
         [set total-correct-duplications-top-strand total-correct-duplications-top-strand + 1]
         [set total-substitution-mutations-top-strand total-substitution-mutations-top-strand + 1]
     ]
   ]
-  
-  set original-nucleotides nucleotides with [class = "original-dna-bottom" ] 
+
+  set original-nucleotides nucleotides with [class = "original-dna-bottom" ]
   ask original-nucleotides [
     if not any? my-new-stairs [set total-deletion-mutations-bottom-strand total-deletion-mutations-bottom-strand + 1]
     if count my-new-stairs >= 1 [
-      ifelse is-this-nucleotide-paired-correctly? 
+      ifelse is-this-nucleotide-paired-correctly?
         [set total-correct-duplications-bottom-strand total-correct-duplications-bottom-strand + 1]
         [set total-substitution-mutations-bottom-strand total-substitution-mutations-bottom-strand + 1]
     ]
@@ -610,20 +610,20 @@ to detect-mouse-selection-event
   let p-mouse-ycor mouse-ycor
   let current-mouse-down? mouse-down?
   let target-turtle nobody
-  let current-mouse-inside? mouse-inside? 
+  let current-mouse-inside? mouse-inside?
   ask mouse-cursors [
     setxy p-mouse-xcor p-mouse-ycor
     ;;;;;;  cursor visualization ;;;;;;;;;;;;
     set hidden? true
     let all-moveable-molecules (turtle-set nucleosides polymerases helicases topoisomerases)
     let dragable-molecules all-moveable-molecules with [not  being-dragged-by-cursor? and distance myself <= mouse-drag-radius]
-    
+
     ;; when mouse button has not been down and you are hovering over a dragable molecules - then the mouse cursor appears and is rotating
-    if not current-mouse-down? and mouse-inside? and (any? dragable-molecules) [ set color cursor-detect-color  set hidden? false rt 4 ] 
+    if not current-mouse-down? and mouse-inside? and (any? dragable-molecules) [ set color cursor-detect-color  set hidden? false rt 4 ]
     ;; when things are being dragged the mouse cursor is a different color and it is not rotating
     if is-this-cursor-dragging-anything? and mouse-inside? [ set color cursor-drag-color set hidden? false]
-    
-    if not mouse-continuous-down? and current-mouse-down? and not is-this-cursor-dragging-anything? and any? dragable-molecules [  
+
+    if not mouse-continuous-down? and current-mouse-down? and not is-this-cursor-dragging-anything? and any? dragable-molecules [
       set target-turtle min-one-of dragable-molecules  [distance myself]
       ask target-turtle [setxy p-mouse-xcor p-mouse-ycor]
       create-cursor-drag-to target-turtle [ set hidden? false tie ]
@@ -639,7 +639,7 @@ end
 
 to-report random-base-letter
   let r random 4
-  let letter-to-report "" 
+  let letter-to-report ""
   if r = 0 [set letter-to-report "A"]
   if r = 1 [set letter-to-report "G"]
   if r = 2 [set letter-to-report "T"]
@@ -653,7 +653,7 @@ to-report complementary-base [base]
   if base = "T" [set base-to-report "A"]
   if base = "G" [set base-to-report "C"]
   if base = "C" [set base-to-report "G"]
-  report base-to-report 
+  report base-to-report
 end
 
 to-report time-remaining-to-display
@@ -668,28 +668,28 @@ to-report being-dragged-by-cursor?
   ifelse any? my-in-cursor-drags [report true][report false]
 end
 
-to-report all-base-pairs-unwound? 
+to-report all-base-pairs-unwound?
   ifelse any? nucleotides with [not unwound?] [report false][report true]
 end
 
-to-report would-these-nucleotides-pair-correctly? [nucleotide-1 nucleotide-2]  
-  ifelse ( (complementary-base [value] of nucleotide-1) = item 0 [value] of nucleotide-2) [report true][report false ] 
+to-report would-these-nucleotides-pair-correctly? [nucleotide-1 nucleotide-2]
+  ifelse ( (complementary-base [value] of nucleotide-1) = item 0 [value] of nucleotide-2) [report true][report false ]
 end
 
-to-report is-this-nucleotide-paired-correctly? 
+to-report is-this-nucleotide-paired-correctly?
   let original-nucleotide self
   let this-stair one-of my-new-stairs
   let this-paired-nucleotide nobody
   let overwrite? false
-  ask this-stair [set this-paired-nucleotide other-end 
+  ask this-stair [set this-paired-nucleotide other-end
     if this-paired-nucleotide != nobody [
-      if [class] of this-paired-nucleotide != "copy-of-dna-bottom" and [class] of this-paired-nucleotide  != "copy-of-dna-top" [set overwrite? true];; [set 
+      if [class] of this-paired-nucleotide != "copy-of-dna-bottom" and [class] of this-paired-nucleotide  != "copy-of-dna-top" [set overwrite? true];; [set
     ]
-  ] 
+  ]
   ifelse (value = (complementary-base [value] of this-paired-nucleotide) and not overwrite?) [report true] [report false ]
 end
 
-to-report next-nucleotide-unzipped-the-same? 
+to-report next-nucleotide-unzipped-the-same?
   let my-unzipped-stage unzipped-stage
   let my-place place
   let my-class class
@@ -704,11 +704,11 @@ to-report next-nucleotide-unzipped-the-same?
 end
 
 
-to-report are-previous-nucleotides-unzipped? 
+to-report are-previous-nucleotides-unzipped?
   let my-place place
   let previous-nucleotides nucleotides with [place = (my-place - 1)]
   let value-to-return false
-  ifelse not any? previous-nucleotides 
+  ifelse not any? previous-nucleotides
   [set value-to-return true]
   [
     let previous-nucleotides-are-unzipped previous-nucleotides  with [unzipped-stage > 0]
@@ -719,10 +719,10 @@ end
 
 to-report user-message-string-for-mutations
   let duplication-rate  precision ( (total-correct-duplications-top-strand + total-correct-duplications-bottom-strand)  / final-time) 4
-  report (word "You had " (total-correct-duplications-top-strand + total-correct-duplications-bottom-strand) 
-    " correct replications and " (total-substitution-mutations-top-strand + total-substitution-mutations-bottom-strand) 
-    " substitutions and "  (total-deletion-mutations-top-strand + total-deletion-mutations-bottom-strand)  "  deletions."  
-    " That replication process took you " final-time " seconds.  This was a rate of " duplication-rate 
+  report (word "You had " (total-correct-duplications-top-strand + total-correct-duplications-bottom-strand)
+    " correct replications and " (total-substitution-mutations-top-strand + total-substitution-mutations-bottom-strand)
+    " substitutions and "  (total-deletion-mutations-top-strand + total-deletion-mutations-bottom-strand)  "  deletions."
+    " That replication process took you " final-time " seconds.  This was a rate of " duplication-rate
     " correct nucleotides duplicated per second." )
 end
 
@@ -738,7 +738,7 @@ to-report current-instruction-label
 end
 
 to next-instruction
-  show-instruction current-instruction + 1 
+  show-instruction current-instruction + 1
 end
 
 to previous-instruction
@@ -749,7 +749,7 @@ to show-instruction [ i ]
   if i >= 1 and i <= length instructions [
     set current-instruction i
     clear-output
-    foreach item (current-instruction - 1) instructions output-print 
+    foreach item (current-instruction - 1) instructions output-print
   ]
 end
 
@@ -762,10 +762,10 @@ to-report instructions
       "as part of mitosis or meiosis."
     ]
     [
-      "To do this you will need to complete"  
-      "4 tasks in the shortest time you" 
+      "To do this you will need to complete"
+      "4 tasks in the shortest time you"
       "can. Each of these tasks requires"
-      "you to drag a molecule using your" 
+      "you to drag a molecule using your"
       "mouse, from one location to another."
     ]
     [
@@ -781,7 +781,7 @@ to-report instructions
       "base pair to the last base pair."
     ]
     [
-      "The 3rd task will be to first drag"  
+      "The 3rd task will be to first drag"
       "a polymerase enzyme to an open"
       "nucleotide and then drag a floating"
       "nucleoside to the same location."
@@ -1107,13 +1107,13 @@ NIL
 
 
 
-In this model you can orchestrate the DNA replication fork process that occurs in the cells of all living creatures before cells divide.  Both mitosis and meiosis rely on this process to make copies of existing DNA before making new cells.  
+In this model you can orchestrate the DNA replication fork process that occurs in the cells of all living creatures before cells divide.  Both mitosis and meiosis rely on this process to make copies of existing DNA before making new cells.
 
 In a real cell, the DNA replication begins by unwinding and unzipping of the twisted double helix structure of DNA at specific location in the genome.  It is then followed by construction of a new DNA strand to match the template strand.  This entire process is aided by many proteins which initiate, facilitate, and terminate the DNA replication process.  It is this process that the model replicates.
 
 As the model runs you will can facilitate the placement and assembly of some of the molecules involved this process by dragging and dropping relevant proteins and nucleosides to help catalyze various reactions at different steps of the process
 
-Alternatively, you can let the model run on its own without interacting with any of the proteins and nucleosides in the model.  As these molecules float freely about the cell nucleus they will eventually make a copy of the DNA strand autonomously, as the eventually wander into the correct locations and configurations that permit them to interact for DNA replication. 
+Alternatively, you can let the model run on its own without interacting with any of the proteins and nucleosides in the model.  As these molecules float freely about the cell nucleus they will eventually make a copy of the DNA strand autonomously, as the eventually wander into the correct locations and configurations that permit them to interact for DNA replication.
 
 By attempting to speed up this process using the mouse cursor you may find that the replication process incurs errors in the duplication.  These errors, though relatively rare in the cell duplication in living organisms do occur, are the basis for some types of mutations.  These mutations will in turn lead to the emergence of new proteins in daughter cells when the DNA is translated.
 
@@ -1132,16 +1132,16 @@ The nitrogen bases for nucleotides and nucleotide come in four variations: ([A]d
 
 Four enzymes are included in this model of the DNA replication fork process:
 
-* The entire DNA polymerase enzyme is be modeled as a single agent 
+* The entire DNA polymerase enzyme is be modeled as a single agent
 * The entire Helicase enzyme will is modeled as a single agent
 * The entire Topoisomerase enzyme is modeled as a two agents. That includes a base agent (topoisomares) that maintains a specific heading and a rotating set of "gear shaped" proteins that is attached to it (topoisomare-gears)
 * The primase enzyme is used both for showing where Helicase and Topoisomerase should start their work. In reality, primase is used for showing the starting location for where the polymerase enzyme begins duplication, but in this model polymerase can duplicate at any nucleotide that is unwound and unzipped.
 
-When the substitution switch is turned "on", then the polymerase protein does not catch any mismatches between which nitrogen bases are to be paired together in the new DNA strand based on the template DNA strand.  In reality, polymerase can auto-correct many errors and will check and confirm that the correct bases are paired up (e.g. A goes with T and G goes with C).  But in a real cell this is not an error free process.  Other molecules in the cell can interfere with the double checking chemical processes that polymerase can perform.  UV light and other forms of radiation can cause unwanted chemical changes that interfere with correct base pair matching.  
+When the substitution switch is turned "on", then the polymerase protein does not catch any mismatches between which nitrogen bases are to be paired together in the new DNA strand based on the template DNA strand.  In reality, polymerase can auto-correct many errors and will check and confirm that the correct bases are paired up (e.g. A goes with T and G goes with C).  But in a real cell this is not an error free process.  Other molecules in the cell can interfere with the double checking chemical processes that polymerase can perform.  UV light and other forms of radiation can cause unwanted chemical changes that interfere with correct base pair matching.
 
-When this interference results in a incorrect pairing of bases (e.g. an A with an A, or an A with a G), this is a type of substitution mutation.  
+When this interference results in a incorrect pairing of bases (e.g. an A with an A, or an A with a G), this is a type of substitution mutation.
 
-When a base is not paired up, or a section of DNA is not replicated, this is known as a deletion mutation.  
+When a base is not paired up, or a section of DNA is not replicated, this is known as a deletion mutation.
 
 
 
@@ -1149,12 +1149,12 @@ When a base is not paired up, or a section of DNA is not replicated, this is kno
 
 ## HOW TO USE IT
 
-Your goal is to speed up the DNA replication process that occurs in every cell in every living creature as part of mitosis or meiosis.  
+Your goal is to speed up the DNA replication process that occurs in every cell in every living creature as part of mitosis or meiosis.
 
 To do this you will need to complete 4 tasks in the shortest time you can (with the greatest fidelity possible). Each of these tasks requires you to drag a molecule using your mouse, from one location to another.  The 1st task will be to unwind a twisted bundle of DNA by using your mouse to place a topoisomerase enzyme on top of the primase enzyme. The 2nd task will be to unzip the DNA ladder structure by dragging a helicase enzyme from the 1st base pair to the last base pair.  The 3rd task will be to first drag a polymerase enzyme to an open nucleotide and then drag a floating nucleoside to the same location.  The last task is to simply repeat the previous task of connecting nucleosides to open nucleotides until as much of the DNA as possible has been replicated.
 
 To increase the chances that DNA replication coordinated by the user will unintentionally lead to the emergence of two types of mutations (deletions and substitutions), make sure the TIME-LIMIT chooser is set to something other than "none" and make sure the SUBSTITUTIONS? is set to "on".  This last setting allows substitution mutations to occur when incorrect bases are paired up at a polymerase facilitated location.  When set to "off" SUBSTITUTIONS? will ensure no substitution errors can occur (the polymerase will automatically reject any nucleosides that do not pair correctly when it is synthesizing a complementary strand of DNA).
-     
+
 The model will automatically duplicate the entire DNA strand correctly on its own when the TIME-LIMIT is set to "none" and SUBSTITUTIONS? are set to "off".  It just will take a lot more time for the process to be completed than it would if the user were to help it along.
 
 DNA-STRAND-LENGTH sets the length of the initial DNA strand you are going to copy.
@@ -1181,7 +1181,7 @@ DIVIDE-THE-CELL marks that you are done with the duplication process and you wan
 
 CORRECT DUPLICATIONS (both for the top and bottom strands).  This is a count of every A that is paired with a T and every G that is paired with a C.
 
-DELETIONS (both for the top and bottom strands).  This is a count of every base pair that was skipped and not paired with any other nucleotide.  
+DELETIONS (both for the top and bottom strands).  This is a count of every base pair that was skipped and not paired with any other nucleotide.
 
 SUBSTITUTIONS (both for the top and bottom strands).  This is a count of every A that is paired but not with a T and every G that is paired but not with a C.
 
@@ -1189,13 +1189,13 @@ SUBSTITUTIONS (both for the top and bottom strands).  This is a count of every A
 
 ## THINGS TO NOTICE
 
-Mutations can be incurred both in the top and bottom strands of DNA.  Since the mutation that affects one strand of DNA is not the same that necessarily affects another strand, different replication mutations may affect different daughter cells in mitosis or meiosis.  
+Mutations can be incurred both in the top and bottom strands of DNA.  Since the mutation that affects one strand of DNA is not the same that necessarily affects another strand, different replication mutations may affect different daughter cells in mitosis or meiosis.
 
 
 
 ## THINGS TO TRY
 
-Compete against another user who also is running their own version of the model at the same time with the SUBSTITUTIONS? setting set to "on".  This element of competition will encourage the emergence of unintentional mutations as each player is tries to increase their rate of duplications, but end up decreasing their fidelity of duplication in the process. 
+Compete against another user who also is running their own version of the model at the same time with the SUBSTITUTIONS? setting set to "on".  This element of competition will encourage the emergence of unintentional mutations as each player is tries to increase their rate of duplications, but end up decreasing their fidelity of duplication in the process.
 
 
 ## EXTENDING THE MODEL
@@ -1215,7 +1215,7 @@ Shape and color changes of the polymerase molecule simulate the confirmation sha
 The DNA Protein Synthesis in BEAGLE is the follow-up model for this one.  It shows how different mutations then lead to different types of proteins produced in cells. It is still under development and will be included in a future release.
 
 
-## CREDITS & REFERENCES 
+## CREDITS & REFERENCES
 
 @#$#@#$#@
 default

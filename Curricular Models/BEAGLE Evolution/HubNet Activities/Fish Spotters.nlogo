@@ -111,7 +111,7 @@ to setup
   set tank-1-avg-motion 0
   set tank-2-avg-motion 0
   set tank-1-avg-size 0
-  set tank-2-avg-size 0 
+  set tank-2-avg-size 0
   set adult-age 50               ;; ensures it takes a bit over a second to grow to full size
 
   ;; make sure to return players to initial conditions
@@ -127,7 +127,7 @@ to setup
   setup-regions
   check-debris-count
   ask debris [ set-debris-appearance]
-  update-tank-states  
+  update-tank-states
   adjust-fish-population-size-to-carrying-capacity
 
   calculate-statistics
@@ -140,7 +140,7 @@ end
 
 to make-one-initial-fish [in-tank]
     let target-patch one-of patches with [type-of-patch = "water" and tank = in-tank]
-    move-to target-patch 
+    move-to target-patch
     set birthday ticks  ;; start at full size
     assign-initial-color-genes
     set spot-transparency-gene 0
@@ -148,7 +148,7 @@ to make-one-initial-fish [in-tank]
     set motion-gene 2
     set heading random 360
     color-this-fish
-    add-fish-spots 
+    add-fish-spots
     grow-this-fish
 end
 
@@ -178,7 +178,7 @@ end
 
 to add-fish-spots ;; fish procedure
     hatch-fish-spots 1 [     ;;;make tail
-       set size 1    
+       set size 1
        set shape "spots"
        set color (list [red-gene] of myself [green-gene] of myself [blue-gene] of myself [spot-transparency-gene] of myself) ;; set color to rgb values of attached fish
        create-link-with myself [set hidden? true set tie-mode "fixed" tie ]   ;; fish-spots will link to the fish body - thus following the fish body around as it moves
@@ -193,7 +193,7 @@ to change-bottom
   let gravel-size .6
   let bottom-patches patches with [pycor < 0]
   let top-patches patches with [pycor > 0]
- 
+
   clear-drawing
   create-rocks 1 [set shape top-ground set which-tank "top tank"]
   create-rocks 1 [set shape bottom-ground set which-tank "bottom tank"]
@@ -207,7 +207,7 @@ to change-bottom
   if bottom-ground = "nothing" [ask bottom-patches [set pcolor approximate-hsb 0 0 255]]
   if top-ground    = "nothing" [ask top-patches [set pcolor approximate-hsb  0 0 255]]
 
-  ;; 3000 repetitions ensures that the bottom looks covered with rocks or plants or sand   
+  ;; 3000 repetitions ensures that the bottom looks covered with rocks or plants or sand
   repeat 3000 [
     ask rocks [
       penup
@@ -225,7 +225,7 @@ end
 
 to setup-regions
   let min-pycor-edge min-pycor let max-pycor-edge max-pycor
-  let water-patches nobody  
+  let water-patches nobody
   ask edges [die]
   ask patches [
     set tank 0
@@ -272,7 +272,7 @@ to wander ;; fish procedure
   ask fish [
     rt random 70 - random 70
     fd motion-gene / 20
-    
+
     set nearest-water-patch  min-one-of water-patches [distance myself]
     if type-of-patch != "water" [
       face nearest-water-patch
@@ -334,7 +334,7 @@ end
 ;; used to move fish slightly away from their parent
 to lay-offspring ;; fish procedure
    let this-tank tank
-   let birth-sites-in-radius patches with [distance myself <= offspring-distance] 
+   let birth-sites-in-radius patches with [distance myself <= offspring-distance]
    let birth-sites-in-tank birth-sites-in-radius with [tank = this-tank]
    if any? birth-sites-in-tank [ move-to one-of birth-sites-in-tank ]
 end
@@ -365,7 +365,7 @@ to check-finish-flash-predator-strike
   ]
 end
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;               
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Environmental Debris Procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -422,11 +422,11 @@ end
 
 to set-debris-appearance
   if top-water    = "clear"   and tank = 1 [set heading 90  set shape "empty" ]
-  if bottom-water = "clear"   and tank = 2 [set heading 90  set shape "empty" ]  
+  if bottom-water = "clear"   and tank = 2 [set heading 90  set shape "empty" ]
   if top-water    = "ripples" and tank = 1 [set heading 0 bk 0.5 fd random-float 1 set heading 90  bk 0.5 fd random-float 1 set color ripple-debris-color set shape "ripples" ]
   if bottom-water = "ripples" and tank = 2 [set heading 0 bk 0.5 fd random-float 1 set heading 90  bk 0.5 fd random-float 1 set color ripple-debris-color set shape "ripples" ]
-  if top-water    = "debris"  and tank = 1 [set heading random 360  set color (list 0 (100 + random 155) 0 (50 + random 205)) set shape "debris" ] 
-  if bottom-water = "debris"  and tank = 2 [set heading random 360  set color (list 0 (100 + random 155) 0 (50 + random 205)) set shape "debris" ] 
+  if top-water    = "debris"  and tank = 1 [set heading random 360  set color (list 0 (100 + random 155) 0 (50 + random 205)) set shape "debris" ]
+  if bottom-water = "debris"  and tank = 2 [set heading random 360  set color (list 0 (100 + random 155) 0 (50 + random 205)) set shape "debris" ]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -441,7 +441,7 @@ to listen-clients
     [
      ifelse hubnet-exit-message?
        [ remove-player ]
-       [ 
+       [
          if ( listening? ) [
            if hubnet-message-tag = "View" [
              ask players with [ user-name = hubnet-message-source ] [check-caught-fish]
@@ -487,7 +487,7 @@ to check-change-player-roles
       set number-of-mates count players with [role = "mate"]
       set number-of-predators count players with [role = "predator"]
       if client-roles = "all mates" [set role "mate"]
-      if client-roles = "all predators" [set role "predator"] 
+      if client-roles = "all predators" [set role "predator"]
       if client-roles = "mix of mates & predators"  [
         ifelse number-of-mates >= number-of-predators [set role "predator"] [set role "mate"]
       ]
@@ -510,7 +510,7 @@ to check-caught-fish
   let this-tank 0
   if clicked-ycor > 0 [set this-tank 1]
   if clicked-ycor < 0 [set this-tank 2]
-  
+
   ask players with [ user-name = hubnet-message-source ]
   [
     let this-player-role role
@@ -529,7 +529,7 @@ to check-caught-fish
       let caught-fish one-of candidates
       set caught caught + 1
 
-      ifelse this-player-role = "mate" 
+      ifelse this-player-role = "mate"
         [set mate-total-found mate-total-found + 1]
         [set predator-total-found predator-total-found + 1]
       ask caught-fish [
@@ -582,7 +582,7 @@ to update-leader-stats
          [ set predator-leader word number-predator-leaders "-way tie" ]
          [ ask one-of predator-leaders [ set predator-leader user-name ] ]
          set predator-leader-caught [caught] of one-of predator-leaders
-  ] 
+  ]
   if any? all-mates [
     let mate-leaders all-mates with-max [ caught ]
     let number-mate-leaders count mate-leaders
@@ -651,7 +651,7 @@ to-report my-tank
   let value-to-report ""
   if which-tank = "top tank"    [ set value-to-report top-ground]
   if which-tank = "bottom tank" [ set value-to-report  bottom-ground]
-  report value-to-report 
+  report value-to-report
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1023,17 +1023,17 @@ a
 @#$#@#$#@
 ## WHAT IS IT?
 
-This is a HubNet activity of natural selection.  This selection model shows how the interaction of mates and predators on a population can generate two opposing pressures from natural selection. One of these pressures is from sexual selection and the other is from predation.  
+This is a HubNet activity of natural selection.  This selection model shows how the interaction of mates and predators on a population can generate two opposing pressures from natural selection. One of these pressures is from sexual selection and the other is from predation.
 
 When you run the model, you can either play the role of a predator or the role of a mate.
 
-As a predator, you will try to find fish, trying to click on them to "eat" them as fast as you can.  As you hunt it is likely that you will find more fish that are easier to see.  In other words, the more the appearance of the fish stands out from the background, the more likely it will be seen by you, the predator. In this model the fish population over many generations, pushed by predation pressures, will adapt to accumulate trait variations that make them better camouflaged and harder to find.  Such changes typically include a smaller body size, a color similar to the tank background, spotting (or lack of) that makes the fish appear to have a texture similar to the background, and movement that is similar to the movement of the debris in its environment. 
+As a predator, you will try to find fish, trying to click on them to "eat" them as fast as you can.  As you hunt it is likely that you will find more fish that are easier to see.  In other words, the more the appearance of the fish stands out from the background, the more likely it will be seen by you, the predator. In this model the fish population over many generations, pushed by predation pressures, will adapt to accumulate trait variations that make them better camouflaged and harder to find.  Such changes typically include a smaller body size, a color similar to the tank background, spotting (or lack of) that makes the fish appear to have a texture similar to the background, and movement that is similar to the movement of the debris in its environment.
 
 As a mate, you will try to mate with fish by clicking on them.  As you mate with more and more fish, you will notice that it becomes progressively easier to find fish.  In this model the fish population over many generations, pushed by sexual selection pressures, will adapt to accumulate trait variations that make them easier to find.   Such changes typically include a larger body size, a color that is "flashier" against the background, spotting (or lack of) that makes the fish appear to have a texture different than the background, and movement that is different than the movement of the debris in its environment.  The "flashier" a male fish is, the more likely a female fish will choose him as a mate, passing his genes to the next generation. This is sexual selection at work, and it is the force that drives the fish population to greater conspicuousness.
 
 When both predators and mates interact with a population the outcomes are more difficult to predict, since each type of interaction tends to counterbalance the effects of the other type.
 
-Quoting from "Sex and the Single fish"  [2]:  
+Quoting from "Sex and the Single fish"  [2]:
 There may be several evolutionary reasons why fishs (or fish) prefer flashier mates. On the most basic level, the male with the biggest, brightest tail spot announces most loudly, "Hey, I'm over here" to any female it can see. Flashy colors are simply easier to locate.  However, there is also research to suggest that bright colors serve as an indicator of good genes in the way the strong physique of a human athlete is a direct indicator of that individual's health and vitality.  Or, bright coloration may signal to a potential mate that he's got something else going for him. After all, he's been able to survive the very handicap -- conspicuousness to predators -- that his flashiness creates.
 
 
@@ -1049,7 +1049,7 @@ When GO is pressed, if you are a predator you should try to click on the fish, a
 
 If you are a mate (a female fish), you should try to click on the male fish as fast as you can (they are all males).  When you click on a fish that is old enough to mate, your mating will hatch an offspring that is similar in appearance to its dad.  In this way the population increases with each mating event.  But, when the population of fish exceeds the carrying capacity, a random fish will be removed.
 
-Each new offspring fish may undergo small mutations in its genetics for its color, size, motion, and visibility of a spotting pattern (5 spots) based on the genetic information inherited from the fish clicked on (the male) only.  
+Each new offspring fish may undergo small mutations in its genetics for its color, size, motion, and visibility of a spotting pattern (5 spots) based on the genetic information inherited from the fish clicked on (the male) only.
 
 Predators prey on the most easily spotted individuals more often than those that are hard to spot eliminating them from the gene pool. Thus, predators cause fish populations to remain relatively drab, small, and still (with respect to colors and patterns of the environment they live in).
 
@@ -1061,18 +1061,18 @@ The adaptation of spotting patterns for a population is also sometimes harder to
 
 In general however, the population will evolve to blend in, and/or stand out (being more easily spotted), from their environment depending on which of the selective pressures are stronger.  When there is an equal number of predators and mates, the selective pressures may not strongly push the adaptation of the population in a clear direction - the result may be a population that is balanced between having traits that help the fish stand out and traits that help the fish remain hidden.
 
-When you run the simulation you can set up two different tank environments to compare the outcomes from the same selective pressures from mates and predators in these different surroundings. 
+When you run the simulation you can set up two different tank environments to compare the outcomes from the same selective pressures from mates and predators in these different surroundings.
 
 
 ## HOW TO USE IT
 
-To run the activity press the GO/STOP button.  To start the activity over with the same group of students stop the GO/STOP button by pressing it again, press the SETUP button, and press GO/STOP again.  
+To run the activity press the GO/STOP button.  To start the activity over with the same group of students stop the GO/STOP button by pressing it again, press the SETUP button, and press GO/STOP again.
 
 Make sure you select Mirror 2D view on clients in the HubNet Control Center after you press SETUP.
 
 LISTENING? when switched "off," prevents clients from clicking on the WORLD & VIEW and selecting fishes.  Turn this switch to "on" after GO/STOP is pressed to allow clients to interact with the fishes and turn it "off" if you want to ignore any of the mouse clicks registered in the client windows.
 
-CLIENT-ROLES can be set to "all mates", in which case every client assumes the role of a a mate, or it can be set to "all predators", in which case every client assumes the role of a predator.  This chooser can also be set to "mix of predators & mates", in which case for every client assigned the role of a predator, the next client is assigned the role of a mate.  This last setting allows you to coordinate an experiment where all the mates interact with the fish in one tank and all the predators interact with the fish in another tank.  While such coordination can be directed by the teacher, or designed by the entire class, this model is embedded within the BEAGLE curriculum, and serves as a test bed for designing an experiment by a team of students.  Decisions about how to coordinate participant roles in such an experiment is part of the challenge of the related student activities. 
+CLIENT-ROLES can be set to "all mates", in which case every client assumes the role of a a mate, or it can be set to "all predators", in which case every client assumes the role of a predator.  This chooser can also be set to "mix of predators & mates", in which case for every client assigned the role of a predator, the next client is assigned the role of a mate.  This last setting allows you to coordinate an experiment where all the mates interact with the fish in one tank and all the predators interact with the fish in another tank.  While such coordination can be directed by the teacher, or designed by the entire class, this model is embedded within the BEAGLE curriculum, and serves as a test bed for designing an experiment by a team of students.  Decisions about how to coordinate participant roles in such an experiment is part of the challenge of the related student activities.
 
 TANK-CAPACITY determines the size of the population in each of the two tanks on SETUP.  It also determines how many fish are in each tank at one time when GO is pressed and fish are being eaten or offspring are being produced.  Sliding it back and forth while the model runs can simulate the effects of population effects and founder effects, since it will cause the population to be culled or undergo a population boom, depending which way you slide it.
 
@@ -1096,7 +1096,7 @@ The PREDATIONS monitor keeps track of how many fish the predators have caught.
 
 The MATING monitor keeps track of the number of mating events that have occurred.
 
-FLASH FISH will temporarily alternately flash the fish black and white so that they are visible.  This will last for about 3 seconds.  
+FLASH FISH will temporarily alternately flash the fish black and white so that they are visible.  This will last for about 3 seconds.
 
 
 ## THINGS TO NOTICE
@@ -1127,7 +1127,7 @@ The background for each fish tank is created using the stamp command for turtle 
 
 ## RELATED MODELS
 
-Bub Hunters Camouflage  
+Bub Hunters Camouflage
 Peppered Moth
 
 

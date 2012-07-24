@@ -1,4 +1,4 @@
-globals 
+globals
 [
   birds-color     ;; color of birds
   bugs-color      ;; color of bugs
@@ -11,7 +11,7 @@ globals
   bird-size       ;; size of birds
   bug-size        ;; size of bugs
   invader-size    ;; size of invaders
-  
+
   bug-reproduce-age      ;;  min age of bugs before they can reproduce
   invader-reproduce-age  ;;  min age of invaders before they can reproduce
   bird-reproduce-age     ;;  min age of birds before they can reproduce
@@ -26,7 +26,7 @@ globals
   max-bugs-offspring              ;; maximum number of offspring per reproductive event for a bug
   max-birds-offspring             ;; maximum number of offspring per reproductive event for a bird
   max-invaders-offspring          ;; maximum number of offspring per reproductive event for an invader
-  
+
   max-plant-energy                ;; maximum amount of energy a plant can "grow" to store in a patch
   sprout-delay-time               ;; delay time before a plant begins to grow back, after all of its foliage has been eaten
   plant-growth-rate               ;; amount of energy the plant stores as food per tick as it grows back
@@ -45,11 +45,11 @@ turtles-own [ energy current-age max-age ]       ;; these three variables are us
 ;; fertile? are patches that can grow grass
 ;; plant-energy keeps track of the amount of food or foliage at that patch
 ;; countdown keeps track of how much longer until the sprout-delay-time has elapsed for this patch
-patches-own [ fertile?  plant-energy  countdown] 
+patches-own [ fertile?  plant-energy  countdown]
 
 
-to setup 
-  clear-all  
+to setup
+  clear-all
   set max-plant-energy 100
   set plant-growth-rate 10
   set sprout-delay-time 25
@@ -57,7 +57,7 @@ to setup
   set invaders-stride 0.3
   set birds-stride 0.4
   ;;  a larger birds-stride than bugs-stride leads to scenarios where less birds
-  ;;  can keep a larger number of bugs in balance.  
+  ;;  can keep a larger number of bugs in balance.
   set bug-reproduce-age 20
   set invader-reproduce-age 20
   set bird-reproduce-age 40
@@ -69,7 +69,7 @@ to setup
   set min-reproduce-energy-bugs 10
   set min-reproduce-energy-invaders 10
   set max-bugs-offspring 3
-  set max-invaders-offspring 3 
+  set max-invaders-offspring 3
   set max-birds-offspring 2
   set bird-size 2.5
   set bug-size 1.2
@@ -80,31 +80,31 @@ to setup
   set grass-color (green)
   set dirt-color (white)
   set-default-shape bugs "bug"
-  set-default-shape birds "bird"  
-  set-default-shape invaders "mouse" 
+  set-default-shape birds "bird"
+  set-default-shape invaders "mouse"
   add-starting-grass
-  add-bugs  
-  add-birds  
+  add-bugs
+  add-birds
   reset-ticks
 end
 
 
-to go 
+to go
  if ticks >= 1000 and constant-simulation-length? [stop]
   ask disease-markers [
     age-disease-markers]
-  ask bugs [ 
-    bugs-live 
-    reproduce-bugs] 
-  ask birds [ 
-    birds-live 
+  ask bugs [
+    bugs-live
+    reproduce-bugs]
+  ask birds [
+    birds-live
     reproduce-birds]
   ask invaders [
-    invaders-live 
+    invaders-live
     reproduce-invaders]
   ask patches [
-    set countdown random sprout-delay-time 
-    grow-grass]   ;;only the fertile patches can grow grass  
+    set countdown random sprout-delay-time
+    grow-grass]   ;;only the fertile patches can grow grass
   tick
 end
 
@@ -131,8 +131,8 @@ end
 
 to start-fire
   ask patches [
-    set countdown sprout-delay-time 
-    set plant-energy 0 
+    set countdown sprout-delay-time
+    set plant-energy 0
     color-grass]
 end
 
@@ -147,7 +147,7 @@ to add-starting-grass ;; setup patch procedure to add grass based on initial set
       set fertile? true
       set plant-energy max-plant-energy / 2;; (max-plant-energy - random max-plant-energy)
     ]
-  ask patches [color-grass] 
+  ask patches [color-grass]
 end
 
 to add-bugs ;; setup bugs procedure to add bugs based on initial settings
@@ -156,33 +156,33 @@ to add-bugs ;; setup bugs procedure to add bugs based on initial settings
     set energy 20 + random 20 - random 20        ;;randomize starting energies
     set current-age 0  + random max-bugs-age     ;;don't start out with everyone at the same age
     set max-age max-bugs-age
-    set size bug-size    
+    set size bug-size
     setxy random world-width random world-height
-  ] 
+  ]
 end
 
 to add-birds ;; setup birds procedure
   create-birds initial-number-birds  ;; create the bugs, then initialize their variables
-  [ 
+  [
     set color birds-color
     set energy 40 + random 40 - random 40         ;;randomize starting energies
     set current-age 0  + random max-birds-age     ;;don't start out with everyone at the same age
     set max-age max-birds-age
     set size bird-size
-    setxy random world-width random world-height 
-  ] 
+    setxy random world-width random world-height
+  ]
 end
 
 to add-invaders
   create-invaders number-invaders-to-add ;; create the bugs, then initialize their variables
-  [ 
+  [
     set color invasive-color
     set energy 20 + random 20 - random 20            ;;randomize starting energies
     set current-age 0  + random max-invaders-age     ;;don't start out with everyone at the same age
     set max-age max-invaders-age
     set size invader-size
     setxy random world-width random world-height
-   ] 
+   ]
 end
 
 to bugs-live ;; bugs procedure
@@ -198,7 +198,7 @@ to birds-live ;; birds procedure
   set energy (energy - 1)  ;; birds lose energy as they move
   set current-age (current-age + 1)
   birds-eat-prey
-  death  
+  death
 end
 
 to invaders-live ;; invaders procedure
@@ -226,12 +226,12 @@ end
 
 to bugs-eat-grass  ;; bugs procedure
   ;; if there is enough grass to eat at this patch, the bugs eat it
-  ;; and then gain energy from it. 
-  if plant-energy > amount-of-food-bugs-eat [ 
+  ;; and then gain energy from it.
+  if plant-energy > amount-of-food-bugs-eat [
     ;; plants lose ten times as much energy as the bugs gains (trophic level assumption)
     set plant-energy (plant-energy - (amount-of-food-bugs-eat * 10))
     set energy (energy + amount-of-food-bugs-eat)  ;; bugs gain energy by eating
-  ] 
+  ]
   ;; if plant-energy is negative, make it positive
   if plant-energy <=  amount-of-food-bugs-eat  [set plant-energy 0]
 end
@@ -239,12 +239,12 @@ end
 
 to invaders-eat-grass  ;; invaders procedure
   ;; if there is enough grass to eat at this patch, the invaders eat it
-  ;; and then gain energy from it. 
-  if plant-energy > amount-of-food-invaders-eat  [ 
+  ;; and then gain energy from it.
+  if plant-energy > amount-of-food-invaders-eat  [
     ;; plants lose 10 * as much energy as the invader gains (trophic level assumption)
     set plant-energy (plant-energy - (amount-of-food-invaders-eat * 10))
     set energy energy + amount-of-food-invaders-eat  ;; bugs gain energy by eating
-  ] 
+  ]
   ;; if plant-energy is negative, make it positive
   if plant-energy <=  amount-of-food-invaders-eat  [set plant-energy 0]
 end
@@ -252,46 +252,46 @@ end
 
 
 to birds-eat-prey  ;; birds procedure
-    if (any? bugs-here and not any? invaders-here) 
-        [ask one-of  bugs-here  
-          [die]    
+    if (any? bugs-here and not any? invaders-here)
+        [ask one-of  bugs-here
+          [die]
            set energy (energy + birds-energy-gain-from-bugs)
-         ]      
-      if (any? invaders-here and not any? bugs-here) 
-        [ask one-of  invaders-here  
-          [die]    
+         ]
+      if (any? invaders-here and not any? bugs-here)
+        [ask one-of  invaders-here
+          [die]
            set energy (energy + birds-energy-gain-from-invaders)
-         ]  
+         ]
       if (any? invaders-here and any? bugs-here)
         [ifelse random 2 = 0   ;; 50/50 chance to eat an invader or a bug if both are on this patch
-           [ask one-of  invaders-here  
-             [die] 
+           [ask one-of  invaders-here
+             [die]
              set energy (energy + birds-energy-gain-from-invaders)
              ]
-           [ask one-of  bugs-here  
-             [die] 
+           [ask one-of  bugs-here
+             [die]
              set energy (energy + birds-energy-gain-from-bugs)
              ]
-         ]     
+         ]
 end
 
 
 to reproduce-bugs  ;; bugs procedure
   let number-offspring (random (max-bugs-offspring + 1)) ;; set number of potential offspring from 1 to (max-bugs-offspring)
   if (energy > ((number-offspring + 1) * min-reproduce-energy-bugs)  and current-age > bug-reproduce-age)
-  [ 
+  [
     if random 2 = 1           ;;only half of the fertile bugs reproduce (gender)
     [
-      set energy (energy - (number-offspring  * min-reproduce-energy-invaders)) ;;lose energy when reproducing- given to children 
+      set energy (energy - (number-offspring  * min-reproduce-energy-invaders)) ;;lose energy when reproducing- given to children
       hatch number-offspring
-      [ 
+      [
         set size bug-size
         set color bugs-color
         set energy min-reproduce-energy-bugs ;; split remaining half of energy amongst litter
-        set current-age 0 
-        rt random 360 fd bugs-stride 
+        set current-age 0
+        rt random 360 fd bugs-stride
       ]    ;; hatch an offspring set it heading off in a random direction and move it forward a step
-    ] 
+    ]
   ]
 end
 
@@ -299,46 +299,46 @@ end
 to reproduce-invaders  ;; bugs procedure
   let number-offspring (random (max-invaders-offspring + 1)) ;; set number of potential offpsring from 1 to (max-invaders-offspring)
   if (energy > ((number-offspring + 1) *  min-reproduce-energy-invaders)  and current-age > invader-reproduce-age)
-  [ 
+  [
     if random 2 = 1           ;;only half of the fertile invaders reproduce (gender)
     [
       set energy (energy - ( number-offspring * min-reproduce-energy-invaders))  ;;lose energy when reproducing - given to children
       hatch number-offspring
-      [ 
+      [
         set size invader-size
         set color invasive-color
         set energy min-reproduce-energy-invaders ;; split remaining half of energy amongst litter
-        set current-age 0 
-        rt random 360 fd invaders-stride 
+        set current-age 0
+        rt random 360 fd invaders-stride
       ]    ;; hatch an offspring set it heading off in a random direction and move it forward a step
-    ] 
+    ]
   ]
 end
- 
- 
+
+
 to reproduce-birds  ;; bugs procedure
   let number-offspring (random (max-birds-offspring + 1)) ;; set number of potential offspring from 1 to (max-invaders-offspring)
   if (energy > ((number-offspring + 1) * min-reproduce-energy-birds)  and current-age > bird-reproduce-age)
-  [ 
+  [
     if random 2 = 1           ;;only half of the fertile bugs reproduce (gender)
     [
       set energy (energy - (number-offspring * min-reproduce-energy-birds)) ;;lose energy when reproducing - given to children
       hatch number-offspring
-      [ 
+      [
         set current-age 0
         set size bird-size
         set color birds-color
         set energy min-reproduce-energy-birds ;; split remaining half of energy amongst litter
-        set current-age 0 
-        rt random 360 fd birds-stride 
+        set current-age 0
+        rt random 360 fd birds-stride
       ]    ;; hatch an offspring set it heading off in a random direction and move it forward a step
-    ] 
+    ]
   ]
 end
 
 
 to death  ;; common procedure for bugs, birds & invaders to die
-  ;; die when energy dips below zero (starvation), or get too old 
+  ;; die when energy dips below zero (starvation), or get too old
   if (current-age > max-age) or (energy < 0)
   [ die ]
 
@@ -348,7 +348,7 @@ to grow-grass  ;; patch procedure
   set countdown (countdown - 1)
   ;; fertile patches gain 1 energy unit per turn, up to a maximum max-plant-energy threshold
   if fertile? and countdown <= 0
-     [set plant-energy (plant-energy + plant-growth-rate) 
+     [set plant-energy (plant-energy + plant-growth-rate)
        if plant-energy > max-plant-energy [set plant-energy max-plant-energy]]
   if not fertile?
      [set plant-energy 0]
@@ -360,7 +360,7 @@ to color-grass ;; patch procedure
   ifelse fertile? [
     ifelse plant-energy > 0
     ;; scale color of patch from whitish green for low energy (less foliage) to green - high energy (lots of foliage)
-    [set pcolor (scale-color green plant-energy  (max-plant-energy * 2)  0)] 
+    [set pcolor (scale-color green plant-energy  (max-plant-energy * 2)  0)]
     [set pcolor dirt-color]
     ]
   [set pcolor dirt-color]
@@ -686,38 +686,38 @@ This model explores the stability of predator-prey ecosystems and how that stabi
 
 ## HOW IT WORKS
 
-Birds and bugs wander randomly around the landscape.  Each step costs both animals energy and they must consume a food source (bugs must eat grass and birds must eat bugs & the invaders) to replenish their energy - when they run out of energy they die. To allow the population to continue, each bird or bug must have enough energy to have a litter of offspring and the offspring and parent split the energy amongst themselves.  Grass grows at a fixed rate, and when it is eaten, a fixed amount of grass energy is deducted from the patch (square) where the grass was eaten. 
+Birds and bugs wander randomly around the landscape.  Each step costs both animals energy and they must consume a food source (bugs must eat grass and birds must eat bugs & the invaders) to replenish their energy - when they run out of energy they die. To allow the population to continue, each bird or bug must have enough energy to have a litter of offspring and the offspring and parent split the energy amongst themselves.  Grass grows at a fixed rate, and when it is eaten, a fixed amount of grass energy is deducted from the patch (square) where the grass was eaten.
 
-Invasive species (mice) can be introduced to this ecosystem as well.  The mice are indirect competitors of the bugs.  They also eat grass.  They reproduce following the same rules as bugs.  The eating behavior of the mice and the bugs can be adjusted.  
+Invasive species (mice) can be introduced to this ecosystem as well.  The mice are indirect competitors of the bugs.  They also eat grass.  They reproduce following the same rules as bugs.  The eating behavior of the mice and the bugs can be adjusted.
 
 Other disruptions such as removing a portion of the bug population (simulating a disease) or burning down the grass (removing the food source for bugs and invasive species temporarily) can also be tested to see how these disruptions affect the stability of the ecosystem.
 
 
-## HOW TO USE IT 
+## HOW TO USE IT
 
-1. Adjust the slider parameters (see below), or use the default settings.  
-2. Press the SETUP button.  
-4. Press the GO button to begin the simulation.  
-5. View the POPULATIONS plot to watch the populations fluctuate over time.  
-6. View the birds/bugs and invaders monitors to view current population sizes.  
-7. Adjust the NUMBER-INVADERS-TO-ADD and AMOUNT-OF-FOOD-INVADERS-EAT and press LAUNCH INVASION. 
-8. View the POPULATIONS plot to watch the populations fluctuate over time.  
+1. Adjust the slider parameters (see below), or use the default settings.
+2. Press the SETUP button.
+4. Press the GO button to begin the simulation.
+5. View the POPULATIONS plot to watch the populations fluctuate over time.
+6. View the birds/bugs and invaders monitors to view current population sizes.
+7. Adjust the NUMBER-INVADERS-TO-ADD and AMOUNT-OF-FOOD-INVADERS-EAT and press LAUNCH INVASION.
+8. View the POPULATIONS plot to watch the populations fluctuate over time.
 
-Initial Settings:  
+Initial Settings:
 
 CONSTANT-SIMULATION-LENGTH:  When turned "on" the model run will automatically stop at 2500 ticks.  When turned "off" the model run will continue without automatically stopping.
-AMOUNT-OF-GRASSLAND: The percentage of patches in the world & view that produce grass.  
-INITIAL-NUMBER-BUGS: The initial size of the bug population.  
+AMOUNT-OF-GRASSLAND: The percentage of patches in the world & view that produce grass.
+INITIAL-NUMBER-BUGS: The initial size of the bug population.
 INITIAL-NUMBER-BIRDS: The initial size of the bird population.
 AMOUNT-OF-FOOD-BUGS-EAT: The amount of grass consumed at each simulation step by each one of the bugs.
 MIN-REPRODUCE-ENERGY-BIRDS:  The amount of energy required for a bird to accumulate before it automatically produces an offspring.
 
-Other Settings:  
+Other Settings:
 
 GRASS-TO-BURN-DOWN:  Sets the % of designated grassland patches that will have all their grass immediately removed when the BURN THE DOWN GRASS button is pressed.
 %-OF-BUGS-TO-REMOVE:  Sets the % of existing bug population that will be immediately removed when the REMOVE BUGS button is pressed.
 
-NUMBER-INVADERS-TO-ADD: The number of the invasive species introduced when LAUNCH INVASION is pressed. 
+NUMBER-INVADERS-TO-ADD: The number of the invasive species introduced when LAUNCH INVASION is pressed.
 AMOUNT-OF-FOOD-INVADERS-EAT: The amount of grass consumed at each simulation step by each one of the invasive species.
 
 
@@ -736,7 +736,7 @@ Try adjusting the parameters under various settings. How sensitive is the stabil
 
 
 ## EXTENDING THE MODEL
-Additional invasive plant or invasive predator could be added. 
+Additional invasive plant or invasive predator could be added.
 
 The amount of food a predator or a bug eats could be adjusted so that faster food consumption also corresponds to higher metabolism (cost of energy per move per turn), so that there is a competitive disadvantage for rapid food consumption in some environments.
 
@@ -744,7 +744,7 @@ Traits such as amount of food a predator eats, or min-reproduction energy could 
 
 
 ## NETLOGO FEATURES
-scale-color is used to visualize the amount of food (energy) available for bugs or invaders at each patch.  A whitish green (color of 59.9) is used to represent little grass foliage (not much food available at this patch) and green (color of 55) is used to represents lots of foliage (max. food available at this patch).  All other values for food plant-energy are linearly scaled between this range of colors. 
+scale-color is used to visualize the amount of food (energy) available for bugs or invaders at each patch.  A whitish green (color of 59.9) is used to represent little grass foliage (not much food available at this patch) and green (color of 55) is used to represents lots of foliage (max. food available at this patch).  All other values for food plant-energy are linearly scaled between this range of colors.
 
 
 ## RELATED MODELS

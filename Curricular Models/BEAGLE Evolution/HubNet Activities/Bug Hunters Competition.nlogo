@@ -6,7 +6,7 @@ globals
   dirt-color
   invasive-color
   not-grown-back-color
-  
+
   ;; global variables related to bugs
   bugs-size             ;; the shape size for a bug
   bugs-stride           ;; how much a bug moves at every tick
@@ -17,29 +17,29 @@ globals
   offspring-bugs        ;; keeps count of the number of bugs  reproduced by automated bugs
   bugs-energy-from-food ;; energy that the bug eat from the food (the grass) each tick
                         ;; set to 4 in this model, but is adjustable in other Bug Hunt models (such as Bug Hunt Consumers).
-                          
+
   ;; global variables related to grass
   max-grass-energy      ;; the most amount of grass that can grow in a single patch (determined by a max. energy threshold)
   grass-growth-rate     ;; set to 1 in this model, but is adjustable in other Bug Hunt models (such as Bug Hunt Consumers).
-  
+
   competition-status    ;; updates users with a message about the status of the competition
-  
+
   ;; global variables related to time and histogram
   time-remaining        ;; time left for the competition to end
   x-min-histogram
   x-max-histogram
   x-interval-histogram
-  
+
   old-player-vision
 ]
 
-breed [ bugs bug ] 
-breed [ players player ] 
+breed [ bugs bug ]
+breed [ players player ]
 
-bugs-own    [destination-patch controlled-by-player? owned-by energy]  
+bugs-own    [destination-patch controlled-by-player? owned-by energy]
 players-own [destination-patch user-id dead?]
 
-patches-own [ 
+patches-own [
   fertile?              ;; whether or not a grass patch is fertile is determined by the amount-of-grassland slider
   grass-energy          ;; energy for grass
   countdown
@@ -55,44 +55,44 @@ end
 to setup
   ask bugs [die]
   clear-all-plots
-  
+
   ;; time variables
   set time-remaining 0
-  
-  
+
+
   ;; variables for the histogram
   set x-min-histogram 0
   set x-max-histogram 0
   set x-interval-histogram 0
-  
+
   set old-player-vision 0
-  
+
   ;; variables for grass
   set max-grass-energy 100
   set grass-growth-rate 1     ;; set to 1 by default in this model.  But in other Bug Hunt Models (such as Bug Hunt Consumers), this is adjustable
                               ;; In other Bug Hunt Models (such as Bug Hunt Consumers), grass-growth-rate has a default of 1, but is slider adjustable.
-  
+
   ;; variables for bugs
   set-default-shape bugs "bug"
-  set bugs-size 1.0 
+  set bugs-size 1.0
   set bugs-stride 0.2
-  set bugs-reproduce-energy 100   
-  set bugs-energy-from-food 4  ;; set to 4 by default in this model.  
+  set bugs-reproduce-energy 100
+  set bugs-energy-from-food 4  ;; set to 4 by default in this model.
                                ;; In other Bug Hunt Models (such as Bug Hunt Consumers), bug-energy-from-food has a default of 4, but is slider adjustable.
   set dead-bugs 0
   set offspring-bugs 0
-  
-  ;; setting colors 
+
+  ;; setting colors
   set bugs-color (violet )
   set grass-color (green)
   set dirt-color (gray - 1)
   set not-grown-back-color white
-  
+
   set competition-status "Get Ready"
   add-starting-grass
   if setup-clients-as-bugs? [ask players [assign-bug-to-player]]
   add-bugs
-  
+
   display-labels
   listen-clients
   check-reset-perspective
@@ -106,7 +106,7 @@ to setup-a-new-bugs-for-a-new-player [p-user-id]
    set hidden? false
    set color (magenta - 1)
    set size 1.4  ;; easier to see
-   set label-color blue 
+   set label-color blue
 
    set energy 10 * bugs-energy-from-food
    set owned-by p-user-id
@@ -116,7 +116,7 @@ end
 
 
 to go
-  ifelse ticks < length-competition 
+  ifelse ticks < length-competition
   [
     set competition-status "Running"
     update-statistics
@@ -125,18 +125,18 @@ to go
       send-all-info
       ask patches [ grow-grass ]
       ask bugs [
-        if bugs-lose-energy? [ set energy energy - 1 ] ;; deduct energy for bugs only if bugs-lose-energy? switch is on 
-        if automated-bugs-reproduce? [ reproduce-bugs ]     
-        fd bugs-stride 
+        if bugs-lose-energy? [ set energy energy - 1 ] ;; deduct energy for bugs only if bugs-lose-energy? switch is on
+        if automated-bugs-reproduce? [ reproduce-bugs ]
+        fd bugs-stride
         bugs-eat-grass
         bug-death
-      ]        
+      ]
       set time-remaining (length-competition - ticks)
       if time-remaining < 0 [set time-remaining 0]
       display-labels
       check-reset-perspective
       tick
-    ]  
+    ]
   ]
   [
     if ticks = length-competition  [ display set competition-status "Over" send-all-info tick]
@@ -149,7 +149,7 @@ to add-starting-grass
       ifelse random 100 < amount-of-grassland    ;;  the maximum number of fertile patches is set by a slider
     [
       set fertile? true
-      set grass-energy max-grass-energy  
+      set grass-energy max-grass-energy
     ]
     [
       set fertile? false
@@ -178,7 +178,7 @@ to bugs-eat-grass  ;; bugs procedure
   if grass-energy > bugs-energy-from-food  [
     ;; grass lose ten times as much energy as the bugs gains (trophic level assumption)
     set grass-energy (grass-energy - (bugs-energy-from-food * 10))
-    set energy (energy + bugs-energy-from-food)  ;; bugs gain energy by eating    
+    set energy (energy + bugs-energy-from-food)  ;; bugs gain energy by eating
   ]
   ;; if grass-energy is negative, make it positive
   if grass-energy <=  bugs-energy-from-food  [set countdown sprout-delay-time ]
@@ -187,7 +187,7 @@ end
 
 
 to reproduce-bugs  ;; automated bugs procedure
-  if (energy > ( bugs-reproduce-energy)) 
+  if (energy > ( bugs-reproduce-energy))
   [
     if random 2 = 1 and not controlled-by-player?          ;; only half of the fertile bugs reproduce (gender)
     [
@@ -198,7 +198,7 @@ to reproduce-bugs  ;; automated bugs procedure
         set size bugs-size
         set color bugs-color
         rt random 360 fd bugs-stride
-      ]   
+      ]
     ]
   ]
 end
@@ -215,7 +215,7 @@ to grow-grass  ;; patch procedure
   set countdown (countdown - 1)
   ;; fertile patches gain 1 energy unit per turn, up to a maximum max-grass-energy threshold
   if fertile? and countdown <= 0 [
-    set grass-energy (grass-energy + grass-growth-rate) 
+    set grass-energy (grass-energy + grass-growth-rate)
     if grass-energy > max-grass-energy [set grass-energy max-grass-energy]
   ]
   if not fertile? [set grass-energy 0]
@@ -261,8 +261,8 @@ to assign-bug-to-player
       set breed bugs
       set child-bug self
       setup-a-new-bugs-for-a-new-player p-user-id
-      ask parent-player [ create-link-from child-bug [ tie ] set dead? false]  
-    ]  
+      ask parent-player [ create-link-from child-bug [ tie ] set dead? false]
+    ]
   ]
 end
 
@@ -316,9 +316,9 @@ end
 
 to display-labels
   let b-color 0
-  let energy-range (word  " [" min-energy-of-any-bug " to " max-energy-of-any-bug "]: ") 
-  
-  ask bugs [ 
+  let energy-range (word  " [" min-energy-of-any-bug " to " max-energy-of-any-bug "]: ")
+
+  ask bugs [
     set label-color black
     if show-labels-as = "none" [set label ""]
     if show-labels-as = "player energy"  [ set label (word round energy) ]
@@ -328,7 +328,7 @@ to display-labels
     ]
     if show-labels-as = "player energy:name" [
       ifelse controlled-by-player? [set label (word round energy ":" owned-by)] [set label ""]
-    ]   
+    ]
   ]
 end
 
@@ -353,7 +353,7 @@ to-report energy-of-your-bug
   let this-user-id user-id
   let this-bug-energy 0
   if any? bugs with [owned-by = this-user-id] [
-    ask bugs with [owned-by = this-user-id] [set this-bug-energy energy] 
+    ask bugs with [owned-by = this-user-id] [set this-bug-energy energy]
   ]
   report this-bug-energy
 end
@@ -364,15 +364,15 @@ to send-this-players-info ;; player procedure
   let message-to-send ""
   let my-energy energy-of-your-bug
   let place 1 + (count bugs with [energy > my-energy])
-  let num-ties count bugs with [energy = my-energy]  
+  let num-ties count bugs with [energy = my-energy]
   let total-number-bugs count bugs
   let any-ties ""
   let out-of (word " out of " total-number-bugs "  ")
-  if num-ties < 0 [set num-ties 0]    
-  ifelse setup-clients-as-bugs? 
+  if num-ties < 0 [set num-ties 0]
+  ifelse setup-clients-as-bugs?
     [set message-to-send (word user-id "  " place  any-ties out-of)]
     [set message-to-send "not currently in this competion"]
-  hubnet-send user-id "Name & Place in the Competition" message-to-send   
+  hubnet-send user-id "Name & Place in the Competition" message-to-send
 end
 
 
@@ -685,51 +685,51 @@ x-interval-histogram
 
 This model shows how competition emerges between individuals in the same population.  In a consumer / producer ecosystem, competition for shared resources emerges whenever there is a limited sappy of those resources.  Such competition may be intentional or unintentional, but similar outcomes result in either case - some individuals outcompete others for those shared resources.
 
-Even when individuals are identical, differences in where and when shared resources in the ecosystem are available will lead to variation in competitive advantages for some individuals over time (some individuals happen to be closer to those resources than other individuals).  This variation in competitive advantage, will enable some individuals to survive while others die.   
+Even when individuals are identical, differences in where and when shared resources in the ecosystem are available will lead to variation in competitive advantages for some individuals over time (some individuals happen to be closer to those resources than other individuals).  This variation in competitive advantage, will enable some individuals to survive while others die.
 
 The degree of competition in an ecosystem depends on the number of individuals in the ecosystem and the amount of resources available per individual. A very small number of individuals may generate very little or no competition (individuals may have all the resources that they need).  However, many individuals will generate intensive competition for resources, such that very few resources are available for each individual and many individuals will die for lack of adequate resources.
 
 
 ## HOW IT WORKS
 
-In this model, you can have two kinds of bugs; bugs controlled by players using HubNet or automated bugs. 
+In this model, you can have two kinds of bugs; bugs controlled by players using HubNet or automated bugs.
 
 Each HubNet player assumes the role of a consumer.  When the HubNet simulation is started after pressing GO, players should try to eat as much grass as they can. A bug controlled by a player may be turned left or right by clicking on a destination  in the client view of the World.  As the controlled bug moves across a green patch, some of the "grass" at the spot is automatically eaten.  Grass grows at a fixed rate, and when it is eaten, a fixed amount of grass energy is deducted from the patch (square) where the grass was eaten and a fixed amount of time must pass before new grass grows back at that spot.
 
-In addition, automated bugs can be included in the model. They wander around the world randomly, eating grass.   
+In addition, automated bugs can be included in the model. They wander around the world randomly, eating grass.
 
-When bugs-lose-energy? is on, bugs lose energy at each step and they must eat grass to replenish their energy. When they run out of energy, they die. Automated bugs can be set to reproduce automatically when they have enough energy to have an offspring. In such a case, the offspring and parent split the energy amongst themselves.  
+When bugs-lose-energy? is on, bugs lose energy at each step and they must eat grass to replenish their energy. When they run out of energy, they die. Automated bugs can be set to reproduce automatically when they have enough energy to have an offspring. In such a case, the offspring and parent split the energy amongst themselves.
 
 
 ## HOW TO USE IT
 
-Make sure you select Mirror 2D view on clients in the HubNet Control Center. Once all the players have joined the simulation through hubnet, press SETUP. To run the activity, press GO.  
+Make sure you select Mirror 2D view on clients in the HubNet Control Center. Once all the players have joined the simulation through hubnet, press SETUP. To run the activity, press GO.
 
 To start the activity over with the same group of players, stop the model by pressing the GO button again, press the SETUP button, and press GO again.  To run the activity with a new group of players press the RESET button in the Control Center.
 
-The controls included in this model are: 
+The controls included in this model are:
 
 AMOUNT-OF-GRASSLAND: The percentage of patches in the World & View that produce grass.
 
-INITIAL-NUMBER-AUTOMATED-BUGS: The initial size of bug population that is not controlled by a player. 
+INITIAL-NUMBER-AUTOMATED-BUGS: The initial size of bug population that is not controlled by a player.
 
 SPROUT-DELAY-TIME:  Controls how long before "eaten" grass starts sprouting and growing back.  Increase this value for large numbers of players to make the competition more difficult (and when there are no automated bugs in the ecosystem).  Decrease this value for small numbers of players and when there are lots of automated bugs in the ecosystem.
 
-LENGTH-COMPETITION:  Determines how long the competition will last. The unit of length is ticks. 
+LENGTH-COMPETITION:  Determines how long the competition will last. The unit of length is ticks.
 
 SETUP-CLIENTS-AS-BUGS?:  When "On", all HubNet connected clients will be given an individual bug to control that is assigned to their client when SETUP is pressed. When this is "Off", the model will run only on your local machine.
 
-BUGS-LOSE-ENERGY?: When "On", bugs lose one unit of energy for each tick.  
+BUGS-LOSE-ENERGY?: When "On", bugs lose one unit of energy for each tick.
 
 AUTOMATED-BUGS-REPRODUCE?:  When "On", automated bugs will reproduce one offspring when they reach a set threshold of energy. The parent bug's energy will be split between the parent and the offspring. The count of offspring is kept track of in the monitor "# OFFSPRING".
 
 PLAYER-VISION:  Used to set the radius shown when hubnet-send-follow is applied for sending a client view update for each player showing a radius sized Moore neighborhood around the bug the player is controlling.
 
-SHOW-LABELS-AS:  when set to "player name" will show a player name label next to each bug controlled by a client.  When set to "energy levels" will show the amount of energy on the label next to each bug (controlled by clients and automated bugs).  When set to   "energy ranges" will show the range of energy values and the energy value of all bugs in this format "[min, max]: this bug".  When set to "player energy:name" will show the player energy for their bug followed by a colon and then their user name, for only the bugs controlled by clients. 
+SHOW-LABELS-AS:  when set to "player name" will show a player name label next to each bug controlled by a client.  When set to "energy levels" will show the amount of energy on the label next to each bug (controlled by clients and automated bugs).  When set to   "energy ranges" will show the range of energy values and the energy value of all bugs in this format "[min, max]: this bug".  When set to "player energy:name" will show the player energy for their bug followed by a colon and then their user name, for only the bugs controlled by clients.
 
 The plots in the model are:
 
-ENERGY LEVELS OF BUGS:  Shows a histogram of bugs and their respective energy levels. 
+ENERGY LEVELS OF BUGS:  Shows a histogram of bugs and their respective energy levels.
 
 POPULATION:  Shows the size of the bug population size over time.
 
@@ -739,7 +739,7 @@ X-MAX: reports the maximum value on the graph.  This value starts at 500 and wil
 
 X-INTERVAL:  reports whatever the x-interval is for 25 bars in a range from (X-MAX - X-MIN).  It is reported for use in the classroom BEAGLE activity where students build a histogram using the same x-interval as the NetLogo ENERGY LEVELS OF BUGS graph.
 
-Note: Grass squares grow back (become darker green) over time and accumulate more stored energy (food) as they become darker. 
+Note: Grass squares grow back (become darker green) over time and accumulate more stored energy (food) as they become darker.
 
 
 

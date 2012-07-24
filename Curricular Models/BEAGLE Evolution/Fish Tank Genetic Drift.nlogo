@@ -13,13 +13,13 @@ breed [mouse-cursors mouse-cursor]  ;; used for visualization of different types
 fish-own          [sex bearing]
 somatic-cells-own [sex]
 gamete-cells-own  [sex]
-fish-bones-own    [countdown]  
+fish-bones-own    [countdown]
 alleles-own       [gene value owned-by-fish? side]
 
 patches-own [type-of-patch divider-here?]
 
 globals [
-  
+
   ;; for keeping track of the # of alleles of each type
   #-big-B-alleles  #-small-b-alleles
   #-big-T-alleles  #-small-t-alleles
@@ -30,28 +30,28 @@ globals [
   ;; globals for keeping track of default values for shapes and colors used for phenotypes
   water-color
   green-dorsal-fin-color  no-green-dorsal-fin-color
-  yellow-tail-fin-color   no-yellow-tail-fin-color  
+  yellow-tail-fin-color   no-yellow-tail-fin-color
   male-color              female-color
   spots-shape             no-spots-shape
   forked-tail-shape       no-forked-tail-shape
-  
-  ;;  globals for keeping track of phenotypes 
+
+  ;;  globals for keeping track of phenotypes
   #-of-green-dorsal-fins  #-of-no-green-dorsal-fins
   #-of-yellow-tail-fins   #-of-no-yellow-tail-fins
   #-of-spots              #-of-no-spots
   #-of-forked-tails       #-of-no-forked-tails
   #-of-males              #-of-females
-  
+
   mouse-continuous-down?      ;; keeps track of whether the mouse button was down on last tick
-  
+
   num-fish-removed
   num-fish-born
   num-fish-in-tank
   fish-forward-step      ;; size of movement steps each tick
   gamete-forward-step    ;; size of movement steps each tick
   intra-chromosome-pair-spacing inter-chromosome-pair-spacing  ;; used for spacing the chromosomes out in the karyotypes of the somatic cells and gametes
-  size-of-karyotype-background-for-cells 
-  
+  size-of-karyotype-background-for-cells
+
   initial-#-females
   initial-#-males
 ]
@@ -74,7 +74,7 @@ to setup
 
   set initial-#-females (floor ((initial-females / 100) * carrying-capacity))
   set initial-#-males carrying-capacity - initial-#-females
-  
+
   set green-dorsal-fin-color    [90 255 90 255]
   set no-green-dorsal-fin-color [176 196 222 255]
   set yellow-tail-fin-color     [255 255 0 255]
@@ -82,31 +82,31 @@ to setup
   set female-color              [255 150 150 255]
   set male-color                [150 150 255 255]
   set water-color               blue - 1.5
- 
+
   set spots-shape                 "fish-spots"
-  set no-spots-shape              "none"  
+  set no-spots-shape              "none"
   set forked-tail-shape           "fish-forked-tail"
   set no-forked-tail-shape        "fish-no-forked-tail"
   set-default-shape fish          "fish-body"
   set-default-shape somatic-cells "cell-somatic"
   set-default-shape fish-bones    "fish-bones"
-  
+
   create-mouse-cursors 1 [set shape "x" set hidden? true set color red set heading 0]
-  
+
   set-tank-regions
   create-initial-gene-pool
   create-initial-fish
   visualize-tank
-  visualize-fish-and-alleles  
+  visualize-fish-and-alleles
   reset-ticks
 end
 
 
 to set-tank-regions
   let min-pycor-edge min-pycor  let max-pycor-edge max-pycor
-  let water-patches nobody  
+  let water-patches nobody
   ask patches [
-    set divider-here? false 
+    set divider-here? false
     set type-of-patch "water"
     ;; water edge are the patches right up against the tank wall on the inside of the tank - they are used to determine whether to turn the fish around as they are moving about the tank
     if pycor =  (max-pycor-edge - 2) or pycor = (min-pycor-edge + 2) or pxcor = left-side-of-water-in-tank or pxcor = right-side-of-water-in-tank   [set type-of-patch "water-edge"]
@@ -114,23 +114,23 @@ to set-tank-regions
     if pxcor <= (left-side-of-water-in-tank - 1) or pxcor >= (right-side-of-water-in-tank + 1) or pycor <= (min-pycor-edge + 1) [set type-of-patch "tank-wall"]
     if pycor = (max-pycor-edge )  or pycor = (min-pycor-edge)  or pxcor = (left-side-of-water-in-tank - 2) or pxcor >= (right-side-of-water-in-tank + 2) [set type-of-patch "air"]
   ]
-  set water-patches  patches with [type-of-patch = "water"] 
+  set water-patches  patches with [type-of-patch = "water"]
 end
 
 
 to create-initial-gene-pool
   let num-big-alleles 0
   let initial-number-fish (carrying-capacity)
-  
+
   set num-big-alleles  round ((initial-alleles-big-b * 2 *  initial-number-fish) / 100)
-  make-initial-alleles-for-gene 1 "B" "b" num-big-alleles 
+  make-initial-alleles-for-gene 1 "B" "b" num-big-alleles
   set num-big-alleles  round ((initial-alleles-big-t * 2 *  initial-number-fish) / 100)
-  make-initial-alleles-for-gene 2 "T" "t" num-big-alleles 
+  make-initial-alleles-for-gene 2 "T" "t" num-big-alleles
   set num-big-alleles  round ((initial-alleles-big-f * 2 *  initial-number-fish) / 100)
-  make-initial-alleles-for-gene 3 "F" "f" num-big-alleles  
+  make-initial-alleles-for-gene 3 "F" "f" num-big-alleles
   set num-big-alleles  round ((initial-alleles-big-g * 2 *  initial-number-fish) / 100)
-  make-initial-alleles-for-gene 4 "G" "g" num-big-alleles 
-   
+  make-initial-alleles-for-gene 4 "G" "g" num-big-alleles
+
   make-initial-alleles-for-gene 5 "Y" "X" initial-#-males
 end
 
@@ -140,20 +140,20 @@ to create-initial-fish
     create-somatic-cells initial-#-males [set sex "male"]
     create-somatic-cells initial-#-females [set sex "female"]
     ask somatic-cells [setup-new-somatic-cell-attributes]
-  ;; randomly sorts out the gene pool to each somatic cell    
-    distribute-gene-pool-to-somatic-cells 
+  ;; randomly sorts out the gene pool to each somatic cell
+    distribute-gene-pool-to-somatic-cells
   ;; grows the body parts from the resulting genotype, and distributes the fish
     ask somatic-cells [grow-fish-parts-from-somatic-cell]
-    distribute-fish-in-tank    
+    distribute-fish-in-tank
 end
-  
+
 
 to setup-new-somatic-cell-attributes
   ;; somatic cells are the same as body cells - they are the rectangle shape that is tied to the fish and chromosomes that looks like a karyotype
   set heading 0  set breed somatic-cells set color [100 100 100 100]  set size size-of-karyotype-background-for-cells set hidden? true
 end
 
- 
+
 to distribute-fish-in-tank
    let water-patches patches with [type-of-patch = "water"]
    let water-patch nobody
@@ -169,7 +169,7 @@ to make-initial-alleles-for-gene [gene-number allele-1 allele-2 num-big-alleles 
     set gene gene-number
     set shape (word "gene-" gene-number)
     set heading 0
-    set owned-by-fish? false 
+    set owned-by-fish? false
     set value allele-2
     set color  [0 0 0 255]
     set label-color color
@@ -179,56 +179,56 @@ to make-initial-alleles-for-gene [gene-number allele-1 allele-2 num-big-alleles 
   ;; select the correct proportion of these to recolor code as recessive alleles with white bands on chromosomes and add recessive letter label
   ask n-of num-big-alleles  alleles with [gene = gene-number] [
     set value allele-1
-    set color [220 220 220 255] 
-    set label (word value "     " ) 
+    set color [220 220 220 255]
+    set label (word value "     " )
     set label-color color
-    ]  
+    ]
 end
 
 
 
-to distribute-gene-pool-to-somatic-cells 
+to distribute-gene-pool-to-somatic-cells
   ;; randomly selects some chromosomes for this cell
   let this-somatic-cell nobody
   let last-sex-allele ""
-  
+
   ask somatic-cells [
     set this-somatic-cell self
     foreach [1 2 3 4 ] [
       position-and-link-alleles self  ? "left"  ;; assign one of the alleles to appear on the left side of the chromosome pair
       position-and-link-alleles self  ? "right" ;; assign the other allele to appear on the right side
     ]
-       
-    ;;; now assign the sex chromosome pair, putting one of the Xs on the left, and the other chromosome (whether it is an X or } on the right  
+
+    ;;; now assign the sex chromosome pair, putting one of the Xs on the left, and the other chromosome (whether it is an X or } on the right
     ask one-of alleles with [not owned-by-fish? and gene = 5 and value = "X"] [
        set owned-by-fish? true set size 1.2 set xcor ((inter-chromosome-pair-spacing * 4) + .1) set ycor -0.4 set side "left"
-       create-link-from this-somatic-cell  [set hidden? true set tie-mode "fixed" tie ] 
-    ]  
+       create-link-from this-somatic-cell  [set hidden? true set tie-mode "fixed" tie ]
+    ]
     ifelse sex = "male" [set last-sex-allele "Y"] [set last-sex-allele "X"]
     ask one-of alleles with [not owned-by-fish? and gene = 5 and value = last-sex-allele] [
        set owned-by-fish? true set size 1.2 set xcor ((inter-chromosome-pair-spacing * 4) + intra-chromosome-pair-spacing + .1) set ycor -0.4 set side "right"
-       create-link-from this-somatic-cell  [set hidden? true set tie-mode "fixed" tie ] 
-    ] 
- 
-  ] 
+       create-link-from this-somatic-cell  [set hidden? true set tie-mode "fixed" tie ]
+    ]
+
+  ]
 end
 
 
 to position-and-link-alleles [this-somatic-cell gene-number which-side]
   let pair-shift-right 0
   let side-shift 0
-  
+
   ;; adjusts the spacing between chromosome pairs (1-4( so that one of each pair is moved to the left and one of each pair is moved to the right
   ifelse which-side = "right" [set side-shift intra-chromosome-pair-spacing][set side-shift 0]
   set pair-shift-right  ((inter-chromosome-pair-spacing * gene-number) - .45)
-  
+
   ask one-of alleles with [not owned-by-fish? and gene = gene-number] [
-       set owned-by-fish? true 
+       set owned-by-fish? true
        set side which-side
-       set size 1.2 
-       setxy ([xcor] of this-somatic-cell + (pair-shift-right + side-shift)) ([ycor] of this-somatic-cell - 0.4) 
-       create-link-from this-somatic-cell  [set hidden? true set tie-mode "fixed" tie ] 
-  ] 
+       set size 1.2
+       setxy ([xcor] of this-somatic-cell + (pair-shift-right + side-shift)) ([ycor] of this-somatic-cell - 0.4)
+       create-link-from this-somatic-cell  [set hidden? true set tie-mode "fixed" tie ]
+  ]
 end
 
 
@@ -247,16 +247,16 @@ to go
    if auto-replace? [find-potential-mates]
    move-gametes-together
    convert-zygote-into-somatic-cell
-   detect-mouse-selection-event 
+   detect-mouse-selection-event
    visualize-fish-and-alleles
-   
+
    visualize-tank
    tick
 end
 
 
 to auto-selection
-  if auto-replace? [every 0.25 [    ;; use EVERY to limit the rate of selection - to slow things down for visualization purposes 
+  if auto-replace? [every 0.25 [    ;; use EVERY to limit the rate of selection - to slow things down for visualization purposes
     ;;let under-carrying-capacity carrying-capacity -  num-fish-in-tank
     if any? fish [ask one-of fish [ if both-sexes-in-this-fishs-tank-region? [remove-this-fish]]]
   ] ]
@@ -265,12 +265,12 @@ end
 
 
 to move-gametes-together
-  ;; moves the male sex cell (gamete) toward its target female sex cell it will fertilize (zygote). 
+  ;; moves the male sex cell (gamete) toward its target female sex cell it will fertilize (zygote).
   let my-zygote nobody
   let distance-to-zygote 0
   ;; if the user as the see-sex-cells? switch on then slow down their motion
   ifelse see-sex-cells? [ set gamete-forward-step 0.08] [ set gamete-forward-step 1.0]
-    
+
    ask gamete-cells [
      set my-zygote one-of fish-zygotes with [in-link-neighbor? myself]
      set distance-to-zygote distance my-zygote
@@ -291,7 +291,7 @@ to convert-zygote-into-somatic-cell
   let male-gamete nobody
   let female-gamete nobody
   let this-somatic-cell nobody
-  
+
   ask fish-zygotes [
    set male-gamete gamete-cells with [out-link-neighbor? myself and sex = "male"]
    set female-gamete gamete-cells with [out-link-neighbor? myself and sex = "female"]
@@ -300,51 +300,51 @@ to convert-zygote-into-somatic-cell
        setup-new-somatic-cell-attributes
        set this-somatic-cell self
        ask male-gamete   [ set male-sex-cell-alleles alleles-that-belong-to-this-gamete die]
-       ask female-gamete [ set female-sex-cell-alleles alleles-that-belong-to-this-gamete die]   
+       ask female-gamete [ set female-sex-cell-alleles alleles-that-belong-to-this-gamete die]
        ask male-sex-cell-alleles      [ create-link-from this-somatic-cell  [set hidden? true  set tie-mode "fixed" tie]]
        ask female-sex-cell-alleles    [ create-link-from this-somatic-cell  [set hidden? true  set tie-mode "fixed" tie]]
        align-alleles-for-this-somatic-cell this-somatic-cell
        set sex sex-phenotype
        grow-fish-parts-from-somatic-cell
        set num-fish-born num-fish-born + 1
-     ] 
+     ]
    ]
  ]
 end
 
 
-to align-alleles-for-this-somatic-cell [this-zygote] 
+to align-alleles-for-this-somatic-cell [this-zygote]
   ;; when gametes merge they may both have chromosomes on the right (for each matching pair) or both on the left
-  ;; this procedure moves one of them over if that is the case 
+  ;; this procedure moves one of them over if that is the case
   let all-alleles alleles with [in-link-neighbor? this-zygote]
   foreach [1 2 3 4 5] [
-    if count all-alleles with [gene = ? and side = "left"]  > 1  
+    if count all-alleles with [gene = ? and side = "left"]  > 1
        [ask one-of all-alleles with [gene = ?] [set heading 90 forward intra-chromosome-pair-spacing set side "right"] ]
-    if count all-alleles with [gene = ? and side = "right"] > 1 
+    if count all-alleles with [gene = ? and side = "right"] > 1
        [ask one-of all-alleles with [gene = ?] [set heading 90 back intra-chromosome-pair-spacing set side "left"] ]
   ]
 end
-  
+
 
 to find-potential-mates
   let mom nobody
   let dad nobody
   let xcor-dad 0
-  let turtles-in-this-region nobody 
+  let turtles-in-this-region nobody
   let potential-mates nobody
   let all-fish-and-fish-zygotes nobody
-  
+
   if any? somatic-cells with [sex = "male"] [
-    ask one-of somatic-cells with [sex = "male"]    [ set dad self set xcor-dad xcor] 
+    ask one-of somatic-cells with [sex = "male"]    [ set dad self set xcor-dad xcor]
     ask dad [ set turtles-in-this-region other-turtles-in-this-turtles-tank-region ]  ;; if  parent genetic information for sexual reproduction still exists in the gene pool in this region
     set all-fish-and-fish-zygotes turtles-in-this-region  with [breed = fish or breed = fish-zygotes]
 
     set potential-mates turtles-in-this-region with [breed = somatic-cells and sex = "female"]
-   
+
     if any? potential-mates [
-       ask one-of potential-mates  [ set mom self ]   
+       ask one-of potential-mates  [ set mom self ]
        ;;; only reproduce up to the carrying capacity in this region allowed
-       let this-carrying-capacity  carrying-capacity-in-this-region xcor-dad 
+       let this-carrying-capacity  carrying-capacity-in-this-region xcor-dad
        if count all-fish-and-fish-zygotes < this-carrying-capacity [reproduce-offspring-from-these-two-parents mom dad  ]
     ]
   ]
@@ -353,15 +353,15 @@ end
 
 to reproduce-offspring-from-these-two-parents [mom dad]
   let child nobody
-    ask mom [   
+    ask mom [
       hatch 1 [
        set heading 0
-       set breed fish-zygotes 
+       set breed fish-zygotes
        set size 1
        set shape "heart"
        set color red
        set child self
-      ]  
+      ]
 
     ]
     ask mom [ link-alleles-to-gametes-and-gametes-to-zygote child ]
@@ -370,26 +370,26 @@ end
 
 
 to link-alleles-to-gametes-and-gametes-to-zygote [child]
-  let this-new-gamete-cell nobody 
+  let this-new-gamete-cell nobody
   hatch 1 [
-    set breed gamete-cells 
+    set breed gamete-cells
     set heading 0
     create-link-to child [set hidden? false] ;; link these gametes to the child
-    ifelse sex = "male" 
+    ifelse sex = "male"
       [set shape "cell-gamete-male"]
       [set shape "cell-gamete-female"]
-      
-       set this-new-gamete-cell self 
+
+       set this-new-gamete-cell self
     ]
-      
+
   foreach [1 2 3 4 5] [
-    ask n-of 1 alleles with [in-link-neighbor? myself and  gene = ?] 
-    [hatch 1 [set owned-by-fish? false  
+    ask n-of 1 alleles with [in-link-neighbor? myself and  gene = ?]
+    [hatch 1 [set owned-by-fish? false
        create-link-from this-new-gamete-cell  [set hidden? true  set tie-mode "fixed" tie]
       ]
     ]
   ]
-  
+
 end
 
 
@@ -415,13 +415,13 @@ to detect-and-move-fish-at-inside-tank-boundary
    let nearest-water-patch nobody
    let water-patches patches with [type-of-patch = "water" and not divider-here?]
    ask fish [
-    set nearest-water-patch  min-one-of water-patches [distance myself] 
+    set nearest-water-patch  min-one-of water-patches [distance myself]
     if type-of-patch = "tank-wall" or type-of-patch = "water-edge"   [
       set heading towards nearest-water-patch
       fd fish-forward-step * 2
-      set heading 0 
-      set bearing  random-float 360 
-    ] 
+      set heading 0
+      set bearing  random-float 360
+    ]
     if divider-here? [move-to nearest-water-patch]
    ]
 end
@@ -454,24 +454,24 @@ to detect-mouse-selection-event
   let p-mouse-ycor mouse-ycor
   let p-type-of-patch [type-of-patch] of patch p-mouse-xcor p-mouse-ycor
   let mouse-was-just-down? mouse-down?
-  
+
   ask mouse-cursors [
     setxy p-mouse-xcor p-mouse-ycor
     ;;;;;;  cursor visualization ;;;;;;;;;;;;
     if (p-type-of-patch = "water") [set hidden? false set shape "x"  set label-color white set label "remove fish"]
     if divider-here? and p-type-of-patch = "tank-wall" [set hidden? false set shape "subtract divider" set label-color white set label "remove divider"]
-    if not divider-here? and p-type-of-patch = "tank-wall" [set hidden? false set shape "add divider" set label-color white set label "add divider"] 
+    if not divider-here? and p-type-of-patch = "tank-wall" [set hidden? false set shape "add divider" set label-color white set label "add divider"]
     if (p-type-of-patch != "water" and p-type-of-patch != "tank-wall") [set hidden? true set shape "x" set label ""]
     ;;;;; cursor actions ;;;;;;;;;;;;;;;
-    if mouse-was-just-down? [ask fish-here [remove-this-fish]]  
-    if (mouse-was-just-down? and not mouse-continuous-down? and p-type-of-patch = "tank-wall" and pycor = (min-pycor + 1)  and pxcor > (min-pxcor + 1) and pxcor < (max-pxcor - 1)) [ 
-      set divider-here? not divider-here? 
+    if mouse-was-just-down? [ask fish-here [remove-this-fish]]
+    if (mouse-was-just-down? and not mouse-continuous-down? and p-type-of-patch = "tank-wall" and pycor = (min-pycor + 1)  and pxcor > (min-pxcor + 1) and pxcor < (max-pxcor - 1)) [
+      set divider-here? not divider-here?
       let divider-xcor pxcor
       ask patches with [(type-of-patch = "water" or type-of-patch = "water-edge") and pxcor = divider-xcor] [set divider-here? not divider-here?]
     ]
     ifelse not mouse-inside? [set hidden? true][set hidden? false]
   ]
-  
+
   ifelse mouse-was-just-down? [set mouse-continuous-down? true][set mouse-continuous-down? false]
 end
 
@@ -481,7 +481,7 @@ end
 
 to update-statistics
   set num-fish-in-tank (count fish )
-  
+
   set #-big-B-alleles   count alleles with [value = "B"]
   set #-small-b-alleles count alleles with [value = "b"]
   set #-big-T-alleles   count alleles with [value = "T"]
@@ -489,22 +489,22 @@ to update-statistics
   set #-big-F-alleles   count alleles with [value = "F"]
   set #-small-f-alleles count alleles with [value = "f"]
   set #-big-G-alleles   count alleles with [value = "G"]
-  set #-small-g-alleles count alleles with [value = "g"]  
+  set #-small-g-alleles count alleles with [value = "g"]
   set #-Y-chromosomes   count alleles with [value = "Y"]
   set #-X-chromosomes   count alleles with [value = "X"]
-  
-  
+
+
   set #-of-green-dorsal-fins     count fish-parts with [color = green-dorsal-fin-color]
-  set #-of-no-green-dorsal-fins  count fish-parts with [color = no-green-dorsal-fin-color]  
+  set #-of-no-green-dorsal-fins  count fish-parts with [color = no-green-dorsal-fin-color]
   set #-of-yellow-tail-fins      count fish-parts with [color = yellow-tail-fin-color]
-  set #-of-no-yellow-tail-fins   count fish-parts with [color = no-yellow-tail-fin-color] 
-  set #-of-spots               count fish-parts with [shape = spots-shape and hidden? = false]    
-  set #-of-no-spots            count fish-parts with [shape = spots-shape and hidden? = true] 
+  set #-of-no-yellow-tail-fins   count fish-parts with [color = no-yellow-tail-fin-color]
+  set #-of-spots               count fish-parts with [shape = spots-shape and hidden? = false]
+  set #-of-no-spots            count fish-parts with [shape = spots-shape and hidden? = true]
   set #-of-forked-tails        count fish-parts with [shape = forked-tail-shape]
-  set #-of-no-forked-tails     count fish-parts with [shape = no-forked-tail-shape]   
+  set #-of-no-forked-tails     count fish-parts with [shape = no-forked-tail-shape]
   set #-of-males               count fish with [sex = "male"]
   set #-of-females             count fish with [sex = "female"]
- 
+
 end
 
 
@@ -529,88 +529,88 @@ to visualize-fish-and-alleles
      [ ask gamete-cells [set hidden? true   ask alleles with [in-link-neighbor? myself] [set hidden? true ] ] ask fish-zygotes [set hidden? true ]]
    ifelse see-fish?
      [ask fish [set hidden? false]  ask fish-parts [set hidden? false]]
-     [ask fish [set hidden? true ]  ask fish-parts [set hidden? true]]   
+     [ask fish [set hidden? true ]  ask fish-parts [set hidden? true]]
 
 end
 
 
 to grow-fish-parts-from-somatic-cell
   let this-fish-body nobody
-  
+
   hatch 1 [
     set breed fish
-    set bearing  random-float 360 
+    set bearing  random-float 360
     set heading 0
     set size 1
     set this-fish-body self
     if sex = "male" [set color male-color]
-    if sex = "female" [set color female-color]  
+    if sex = "female" [set color female-color]
   ]
   create-link-from  this-fish-body  [set hidden? true set tie-mode "fixed" tie ]  ;; somatic cell will link to the fish body - thus following the fish body around as it moves
-   
+
     hatch 1 [set breed fish-parts  ;;;make tail
-       set breed fish-parts 
-       set size 1     
-       set shape tail-shape-phenotype  
-       set color tail-color-phenotype 
+       set breed fish-parts
+       set size 1
+       set shape tail-shape-phenotype
+       set color tail-color-phenotype
        set heading -90 fd .4
        create-link-from this-fish-body  [set hidden? true set tie-mode "fixed" tie ]   ;; fish-parts will link to the fish body - thus following the fish body around as it moves
-     ]   
+     ]
     hatch 1 [                      ;;;make fins
-       set breed fish-parts 
-       set size 1 
+       set breed fish-parts
+       set size 1
        set shape "fish-fins"
-       set color dorsal-fin-color-phenotype 
+       set color dorsal-fin-color-phenotype
        create-link-from this-fish-body  [set hidden? true set tie-mode "fixed" tie ]    ;; fish-parts will link to the fish body - thus following the fish body around as it moves
-     ]  
-    
+     ]
+
     hatch 1 [                      ;;;make spots
-       set breed fish-parts 
+       set breed fish-parts
        set size 1
        set shape rear-spots-phenotype
-       set color [ 0 0 0 255] 
+       set color [ 0 0 0 255]
        create-link-from this-fish-body  [set hidden? true set tie-mode "fixed" tie ]   ;; fish-parts will link to the fish body - thus following the fish body around as it moves
-     ]      
+     ]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;; phenotype reporters ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  
-to-report has-at-least-one-dominant-set-of-instructions-for [dominant-allele] 
+
+to-report has-at-least-one-dominant-set-of-instructions-for [dominant-allele]
   let this-somatic-cell self
-  let #-of-dominant-alleles count alleles with [in-link-neighbor? this-somatic-cell  and value = dominant-allele]   
+  let #-of-dominant-alleles count alleles with [in-link-neighbor? this-somatic-cell  and value = dominant-allele]
   ifelse #-of-dominant-alleles > 0  [report true][report false]   ;; if it has at least one set of instructions (DNA) on how to build the protein reports true
 end
 
-  
-to-report tail-shape-phenotype 
+
+to-report tail-shape-phenotype
   let this-shape ""
   let this-fish  myself
   ask myself ;; the somatic-cell
   [
-    ifelse  has-at-least-one-dominant-set-of-instructions-for "F" 
+    ifelse  has-at-least-one-dominant-set-of-instructions-for "F"
        [set this-shape forked-tail-shape]      ;; tail fin forking results if protein is produced
        [set this-shape no-forked-tail-shape]   ;; no tail fin forking results if protein is not produced (underlying tissue is continuous triangle shape)
   ]
   report this-shape
 end
-  
-  
-to-report rear-spots-phenotype 
+
+
+to-report rear-spots-phenotype
   let this-spots-shape ""
   ask myself
   [
-    ifelse has-at-least-one-dominant-set-of-instructions-for "B" 
+    ifelse has-at-least-one-dominant-set-of-instructions-for "B"
        [set this-spots-shape spots-shape]    ;; spots on the rear of the fish result if protein is produced
        [set this-spots-shape no-spots-shape]     ;; no spots on the rear of the fish result if protein is not produced
   ]
   report this-spots-shape
 end
- 
+
 
 to-report dorsal-fin-color-phenotype
-  let this-color []  
+  let this-color []
   ask myself
   [
     ifelse  has-at-least-one-dominant-set-of-instructions-for "G"
@@ -621,7 +621,7 @@ to-report dorsal-fin-color-phenotype
 end
 
 
-to-report tail-color-phenotype 
+to-report tail-color-phenotype
   let this-color []
   let this-fish  myself
   ask myself
@@ -642,8 +642,8 @@ to-report sex-phenotype
      [set this-sex "female"]
    report this-sex
 end
-  
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;    
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;; other reporters ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -660,9 +660,9 @@ end
 
 to-report right-side-of-water-in-tank
   report  (max-pxcor) - 2
-end    
+end
 
-  
+
 
 to-report other-turtles-in-this-turtles-tank-region
   ;; when dividers are up, it reports how many turtles are in this region for this turtle
@@ -672,32 +672,32 @@ to-report other-turtles-in-this-turtles-tank-region
   let this-region-right-side right-side-of-water-in-tank
   let dividers-to-the-right patches with [divider-here? and pxcor > xcor-of-this-turtle]
   let dividers-to-the-left  patches with [divider-here? and pxcor < xcor-of-this-turtle]
-  
+
   if any? dividers-to-the-right [set this-region-right-side min [pxcor] of dividers-to-the-right ]
-  if any? dividers-to-the-left  [set this-region-left-side max [pxcor] of dividers-to-the-left   ]  
-  
-  set turtles-in-this-region turtles with [xcor >= this-region-left-side and xcor <= this-region-right-side]  
+  if any? dividers-to-the-left  [set this-region-left-side max [pxcor] of dividers-to-the-left   ]
+
+  set turtles-in-this-region turtles with [xcor >= this-region-left-side and xcor <= this-region-right-side]
   report turtles-in-this-region
 end
 
 
 to-report both-sexes-in-this-fishs-tank-region?
   let fish-in-this-region other-turtles-in-this-turtles-tank-region with [breed = fish]
-  let male-fish-in-this-region fish-in-this-region with [sex = "male"] 
-  let female-fish-in-this-region fish-in-this-region with [sex = "female"] 
-  ifelse (any? male-fish-in-this-region and any? female-fish-in-this-region ) [report true] [report false]  
+  let male-fish-in-this-region fish-in-this-region with [sex = "male"]
+  let female-fish-in-this-region fish-in-this-region with [sex = "female"]
+  ifelse (any? male-fish-in-this-region and any? female-fish-in-this-region ) [report true] [report false]
 end
 
-  
-  
+
+
 to-report carrying-capacity-in-this-region [this-xcor]
   let this-region-left-side left-side-of-water-in-tank
   let this-region-right-side right-side-of-water-in-tank
   let dividers-to-the-right patches with [divider-here? and pxcor > this-xcor]
   let dividers-to-the-left  patches with [divider-here? and pxcor < this-xcor]
-  
+
   if any? dividers-to-the-right [ set this-region-right-side min [pxcor] of dividers-to-the-right ]
-  if any? dividers-to-the-left  [ set this-region-left-side max [pxcor] of dividers-to-the-left   ]  
+  if any? dividers-to-the-left  [ set this-region-left-side max [pxcor] of dividers-to-the-left   ]
   let tank-capacity-of-this-region (this-region-right-side - this-region-left-side) * carrying-capacity / 25
   report tank-capacity-of-this-region
 end
@@ -841,7 +841,7 @@ PLOT
 490
 Tail Shape Alleles
 time
-# of 
+# of
 0.0
 10.0
 0.0
@@ -898,7 +898,7 @@ PLOT
 130
 Sex Chromosomes
 time
-# of 
+# of
 0.0
 10.0
 0.0
@@ -1206,10 +1206,10 @@ num-fish-born
 @#$#@#$#@
 ## WHAT IS IT?
 
-This is a genetic drift model that shows how gene frequencies change in a population due to purely random events.  The effect of random selection of certain individuals in a population (either through death or through reproduction) and/or the effect of random selection as to which chromosome (from every chromosome pair) end up being sorted into each gamete (sex cells), results in the loss or gains of alleles in the population.  
+This is a genetic drift model that shows how gene frequencies change in a population due to purely random events.  The effect of random selection of certain individuals in a population (either through death or through reproduction) and/or the effect of random selection as to which chromosome (from every chromosome pair) end up being sorted into each gamete (sex cells), results in the loss or gains of alleles in the population.
 
 Over multiple generations this shift in gene distribution leads to alleles becoming progressively more rare or more common (or disappearing completely) in a population. This effect is called genetic drift.
-   
+
 The underlying mechanism of random selection generates different outcomes than in  natural selection (where individual traits and genes are selected for the advantages they confer on the survival and reproduction of individuals).  In addition to natural selection, however, this random selection and resulting effects of genetic drift is one of the primary mechanisms, which drive evolution.  It is also believed to be one of the mechanisms, which contributes to speciation.
 
 
@@ -1219,19 +1219,19 @@ The fish have a simple genetic representation for five traits: sex (and correspo
 
 These traits are represented with genes that have one of two possible alleles each (X or Y, B or b, G or g, F or f, and T or f, for the traits listed above). Upper case letters represent dominant alleles and lower case represent recessive alleles.  Therefore the three combinations BB, Bb, and bB result in expression of the trait for B (e.g. black spots), and only bb results in the expression of the trait for b (e.g. no black spots). Males and Females are determined by whether the bird has XY (male) or XX (female).  Body color is trait determined by what sex the fish is.  Females are salmon colored and males are blue colored.
 
-Here is the genotype to phenotype mapping: 
+Here is the genotype to phenotype mapping:
 Spotting: (BB, Bb, bB) yes or (bb) no
 Dorsal Fin Color: (GG, Gg, gG) green or (bb) non-green (gray)
 Tail Fin Shape: (FF, Ff, fF) forked or (ff) no fork
-Tail color: (TT, Tt, tT) yellow or (tt) non-yellow (gray) 
+Tail color: (TT, Tt, tT) yellow or (tt) non-yellow (gray)
 
 A male fish can interbreed with a female fish in the same region of the tank.  By default the tank is all one large region.  But dividers can be added to the tank to split the tank up into separate regions.
 
 The genotype for each fish is represented as a karyotype of a body cell.  A visualization of the chromosome pairs (one pair for each gene) and the corresponding band showing the location of the gene on the chromosome can be seen in the model.
 
-The arrows and hearts in the model represent the movement and recombination of alleles through sexual reproduction.  Arrows represent the movement of the male sex cell to the female sex cell.  The heart represents a fertilization event that will occur when that male sex cell reaches the randomly selected female sex cell.  A karyotype of the alleles in both the body cells (somatic cells) and/or the sex cells (gametes) for all the fish involved in reproduction can also be visualized as this process is occurring.      
+The arrows and hearts in the model represent the movement and recombination of alleles through sexual reproduction.  Arrows represent the movement of the male sex cell to the female sex cell.  The heart represents a fertilization event that will occur when that male sex cell reaches the randomly selected female sex cell.  A karyotype of the alleles in both the body cells (somatic cells) and/or the sex cells (gametes) for all the fish involved in reproduction can also be visualized as this process is occurring.
 
-The model has two random selection mechanisms used for driving the effects of genetic drift.  One of these is the AUTO-REPLACE switch.  It is used to continually remove a randomly selected individual from the population and replace it with an offspring from a randomly selected pair of parents.  
+The model has two random selection mechanisms used for driving the effects of genetic drift.  One of these is the AUTO-REPLACE switch.  It is used to continually remove a randomly selected individual from the population and replace it with an offspring from a randomly selected pair of parents.
 
 
 
@@ -1244,7 +1244,7 @@ When you run the model the fish in the fish tank begin to move around.  If you c
 
 CARRYING-CAPACITY: of the population sets the carrying capacity of the tank. Whatever this is set to, the population will automatically reproduce (if AUTO-REPLACE? is "on") or die off to reach this level.
 
-INITIAL-FEMALES: sets the % of initial females put in the tank.  The initial number of females is the % of the carrying-capacity. 
+INITIAL-FEMALES: sets the % of initial females put in the tank.  The initial number of females is the % of the carrying-capacity.
 
 INITIAL-ALLELES-BIG-B: sets the % of alleles related to the gene for black spots in the population that will have the recessive "b" allele.  The % of alleles that will have the dominant "B" (large B) allele will be = (100% - INITIAL-ALLELES-BIG-B).
 
@@ -1256,20 +1256,20 @@ INITIAL-ALLELES-BIG-T: sets the % of alleles related to the gene for yellow tail
 
 SEE-FISH?: when turned "on" allows you to see the fish and their phenotypes.  It may be useful to turn it "off" though when looking at the genotypes (SEE-BODY-CELLS? or SEE-SEX-CELLS) as there may be too much visual information with everything on.
 
-SEE-BODY-CELLS?: when it is set to "on" a karyotype of all the chromosomes in the body cells for this fish will be shown.  Each chromosome has a band on it that is either black or light gray.  If it is black it represents the dominant version of the allele for a given gene and if it is light gray it represents the recessive version.  Letters (Capital for dominant and lower case for recessive) are also shown below the chromosome.  Chromosome pairs for each gene have matching lengths.  And, all but the chromosomes for sex also have matching colors.  
+SEE-BODY-CELLS?: when it is set to "on" a karyotype of all the chromosomes in the body cells for this fish will be shown.  Each chromosome has a band on it that is either black or light gray.  If it is black it represents the dominant version of the allele for a given gene and if it is light gray it represents the recessive version.  Letters (Capital for dominant and lower case for recessive) are also shown below the chromosome.  Chromosome pairs for each gene have matching lengths.  And, all but the chromosomes for sex also have matching colors.
 
 SEE-SEX-CELLS?: when it is set to "on", a karyotype of all the chromosomes in each sex cell will be shown.  When reproduction occurs, a sex cell from the male (sperm) must travel to the sex cell from the female (egg).  Sex cells contain half the genetic information of a body cell, and 1 allele for each gene (which is shown as 1 chromosome from each chromosome pair).  The male sex cell is shown as a triangle whose upper left corner makes a right angle.  The female sex cell is shown as a triangle whose lower right corner makes a right angle.  When both triangles meet, they form a whole rectangle and a whole karyotype for a fish.  At this point the heart disappears, the sex cells disappears, and a new body cells of a new fish (and the corresponding new fish) appears.  This entire process is shown as occurring outside the fish, to allow the user to watch the flow of alleles from somatic cells into gametes and back into the new offspring's somatic cells.  This process of "gene flow" is referred to in other mechanisms and phenomena related to evolution.  Here that flow can actually be visualized.  In the model the reproductive process is visualized outside the fish.  In reality, insemination occurs when a sperm cell and an egg cell merge inside a female fish.
 
 RANDOMLY-REPLACE-A-FISH: is a button that when pressed will have the computer select a fish at random to remove and replace it with a new one through reproduction between two randomly selected fish remaining in the population (a male and female). If there are no males or females in the tank, then no fish can be born to replace the fish (there aren't two parents available), and only a fish will be removed but not replaced when that is the case.
 
-You can add dividers to break the tank up into smaller regions, by clicking on the bottom of the tank using your mouse cursor.  The mouse cursor will turn to an up arrow when you are able to do this.  To remove the divider that you put up, hover your mouse cursor over the same spot on the bottom of the tank and the it will turn to a down arrow.  Click the mouse button when you see this down arrow to remove the divider.  When dividers are added, the carrying capacity of each region of the tank is calculated to be the fraction of the water in that portion of the tank out of the whole tank's water times the CARRYING-CAPACITY slider value.  
- 
-AUTO-REPLACE?: when turned "on" will cause the computer select a fish at random to remove and replace it with a new one every .25 seconds.  The new fish will be an offspring of two randomly selected fish remaining in the population (one male and one female parent).  This can only occur if there is at least one male and at least one female available in that section of the fish tank.  For example, if a tank is divided into two regions, and the right region has only males, and the left region has both males and females, auto-replace will replace fish on the right side only.   If no region has both males and females, then no fish will be replaced in any part of the tank, even when AUTO-REPLACE? is set to "On". 
+You can add dividers to break the tank up into smaller regions, by clicking on the bottom of the tank using your mouse cursor.  The mouse cursor will turn to an up arrow when you are able to do this.  To remove the divider that you put up, hover your mouse cursor over the same spot on the bottom of the tank and the it will turn to a down arrow.  Click the mouse button when you see this down arrow to remove the divider.  When dividers are added, the carrying capacity of each region of the tank is calculated to be the fraction of the water in that portion of the tank out of the whole tank's water times the CARRYING-CAPACITY slider value.
+
+AUTO-REPLACE?: when turned "on" will cause the computer select a fish at random to remove and replace it with a new one every .25 seconds.  The new fish will be an offspring of two randomly selected fish remaining in the population (one male and one female parent).  This can only occur if there is at least one male and at least one female available in that section of the fish tank.  For example, if a tank is divided into two regions, and the right region has only males, and the left region has both males and females, auto-replace will replace fish on the right side only.   If no region has both males and females, then no fish will be replaced in any part of the tank, even when AUTO-REPLACE? is set to "On".
 
 
 ## THINGS TO NOTICE
 
-When fish are randomly replaced fluctuation in the proportion of each allele in the population will occur  This is because only 1 of every two alleles for a gene is passed on to an offspring, and the process of separating out which allele is passed on through a gamete (via. meiosis) is fundamentally a random outcome.  When fluctuations bring the number of alleles down to zero, that allele is gone from the fish population and can't return.  
+When fish are randomly replaced fluctuation in the proportion of each allele in the population will occur  This is because only 1 of every two alleles for a gene is passed on to an offspring, and the process of separating out which allele is passed on through a gamete (via. meiosis) is fundamentally a random outcome.  When fluctuations bring the number of alleles down to zero, that allele is gone from the fish population and can't return.
 
 Randomly selecting individuals out of the population and/or randomly producing new offspring will eventually result in this loss of diversity in the gene pool of the population, eventually leading to a single gene or trait in the population.  This process and resulting outcome is referred to as genetic drift.
 
@@ -1279,7 +1279,7 @@ Likewise, alleles that are less frequent in a population are more likely to disa
 
 Bottle neck affects can be simulated by sweeping the population size down to very low levels and then allowing it to return to higher population sizes.  This can be done by reducing the size of the fish tank and the allowing it to become big again.  Each time the population is reduced to only a few fish, that even increases the chances that one or more alleles have removed from the population and that the remaining population now has less diversity in its traits than its ancestors.
 
-Bottle necks can also be created by adding dividers in the fish tank to separate the main population into smaller sub populations. 
+Bottle necks can also be created by adding dividers in the fish tank to separate the main population into smaller sub populations.
 
 One limiting bottleneck factor to notice is related to the proportion of males and females.  A population can be very large overall, but if it only has one or two males than the males end up being a potential bottle neck for what type of genes can be passed on. This is also true if the population has only one or two females.
 
@@ -1288,9 +1288,9 @@ When pressing SETUP for the same initial conditions for the % of each allele obs
 
 ## THINGS TO TRY
 
-You can watch random selection occur by "random selection" by turning on an auto replace process (which will steadily remove four fish from the population and replace them with new offspring fish from the population every second). 
+You can watch random selection occur by "random selection" by turning on an auto replace process (which will steadily remove four fish from the population and replace them with new offspring fish from the population every second).
 
-You can set the % of each type of allele you wish to start off with in the gene pool of the population, as well as the % of males and females. If you don't include at least 1 male and 1 female the population will not be able to reproduce.  
+You can set the % of each type of allele you wish to start off with in the gene pool of the population, as well as the % of males and females. If you don't include at least 1 male and 1 female the population will not be able to reproduce.
 
 Try intentionally selecting a particular phenotype to remove from the fish and keep selecting to see how many selections it takes to remove all that variants from the population.  If the trait variation you are trying to remove is apparent only when two recessive alleles are present, you may see the trait resurface in future generations (due to the recombination of the recessive alleles in offspring). Watch the graphs to see if you have removed the corresponding alleles completely.
 
@@ -1300,12 +1300,12 @@ Vary the size of the initial fish tank to explore how fast genetic drift occurs 
 
 Simulate the reduction the effects of a disease, temporary loss of habitat, temporary loss of food, etc.. by reducing the carrying capacity of the ecosystem for a brief time.  Do this by reducing the size of the fish tank to sweep away some portion of the fish (e.g. over half of them).  Then simulate the ecosystem returning to it previous stable state, by increasing the fish tank size to it previous level.
 
-Try adding barriers in the fish tank (by clicking on the black bottom of the fish tank) to geographically isolate portions of the population from one another.  You can cause the isolated sub population to lose diversity of traits and alleles, but the overall population to keep the allele diversity needed for any variation.  
+Try adding barriers in the fish tank (by clicking on the black bottom of the fish tank) to geographically isolate portions of the population from one another.  You can cause the isolated sub population to lose diversity of traits and alleles, but the overall population to keep the allele diversity needed for any variation.
 
 
 ## NETLOGO FEATURES
 
-Transparency is used to visualize the death of fish.  When a fish dies, the fish shape is removed and a bone shape appears and then gradually fades to transparent when a fish is removed from the population.  
+Transparency is used to visualize the death of fish.  When a fish dies, the fish shape is removed and a bone shape appears and then gradually fades to transparent when a fish is removed from the population.
 
 Directional links are used to visualize the transmission of a gamete to a "fertilization event" (shown as a heart)
 
@@ -1314,7 +1314,7 @@ Tie is used to build hierarchies of shapes that belong to parent shapes.  For ex
 
 ## EXTENDING THE MODEL
 
-It might be useful to add the code that allows you to drag agents (fish) around using a mouse cursor.  That way you could move a fish from one region to another to explore what happens when a pioneer brings in new genes into a gene pool from a previously isolated population.  
+It might be useful to add the code that allows you to drag agents (fish) around using a mouse cursor.  That way you could move a fish from one region to another to explore what happens when a pioneer brings in new genes into a gene pool from a previously isolated population.
 
 
 ## RELATED MODELS
