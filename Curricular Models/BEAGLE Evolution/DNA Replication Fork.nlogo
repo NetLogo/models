@@ -1204,7 +1204,7 @@ Shape and color changes of the polymerase molecule simulate the confirmation sha
 The DNA Protein Synthesis in BEAGLE is the follow-up model for this one.  It shows how different mutations then lead to different types of proteins produced in cells. It is still under development and will be included in a future release.
 
 
-## CREDITS & REFERENCES
+## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 true
