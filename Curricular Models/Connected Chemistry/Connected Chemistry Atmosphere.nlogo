@@ -672,6 +672,10 @@ See, in particular, the models "Gas in a Box" and "Gravity Box", which is a modi
 See other Connected Chemistry models.
 
 ## CREDITS AND REFERENCES
+
+This model is part of the Connected Chemistry curriculum.  See http://ccl.northwestern.edu/curriculum/chemistry.
+
+We would like to thank Sharona Levy and Michael Novak for their substantial contributions to this model.
 @#$#@#$#@
 default
 true

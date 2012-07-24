@@ -880,6 +880,10 @@ This model shows a good way of preventing particles that bounce off the world-wa
 When a gas particle is detected as having accidentally entered into the space of a patch that is a wall or has an iron particle in it, it is moved to the nearest open patch.
 
 ## CREDITS AND REFERENCES
+
+This model is part of the Connected Chemistry curriculum.  See http://ccl.northwestern.edu/curriculum/chemistry.
+
+We would like to thank Sharona Levy and Michael Novak for their substantial contributions to this model.
 @#$#@#$#@
 default
 true
