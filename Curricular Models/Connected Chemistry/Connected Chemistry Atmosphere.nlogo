@@ -108,7 +108,7 @@ to go
     ask particles [ check-for-collision ]
   ]
   ifelse trace?
-  [ if any? particles with [not dark-particle?] 
+  [ if any? particles with [not dark-particle?]
     [ask min-one-of particles with [not dark-particle?] [who] [ pen-down ] ] ]
   [ ask particles [ pen-up ] ]
   set clock clock + tick-length
@@ -209,7 +209,7 @@ to check-for-collision  ;; particle procedure
   ;; Here we impose a rule that collisions only take place when there
   ;; are exactly two particles per patch.
 
-  let potentials other particles-here 
+  let potentials other particles-here
   if any? potentials
   [
     ;; the following conditions are imposed on collision candidates:
@@ -580,42 +580,42 @@ In this model, a gaseous atmosphere is placed above the surface of a "planet". T
 
 The basic principle of all GasLab models is the following algorithm (for more details, see the model "GasLab Gas in a Box"):
 
-1) A particle moves in a straight line without changing its speed, unless it collides with another particle or bounces off the wall.  
-2) Two particles "collide" if they find themselves on the same patch (the NetLogo world is composed of a grid of small squares called patches).  
-3) An angle of collision for the particles is chosen, as if they were two solid balls that hit, and this angle describes the direction of the line connecting their centers.  
-4) The particles exchange momentum and energy only along this line, conforming to the conservation of momentum and energy for elastic collisions.  
-5) Each particle is assigned its new speed, heading and energy.  
+1) A particle moves in a straight line without changing its speed, unless it collides with another particle or bounces off the wall.
+2) Two particles "collide" if they find themselves on the same patch (the NetLogo world is composed of a grid of small squares called patches).
+3) An angle of collision for the particles is chosen, as if they were two solid balls that hit, and this angle describes the direction of the line connecting their centers.
+4) The particles exchange momentum and energy only along this line, conforming to the conservation of momentum and energy for elastic collisions.
+5) Each particle is assigned its new speed, heading and energy.
 6) If a particle is on or very close to the surface of the planet (the yellow line at the bottom), it "bounces" -- that is, reflects its direction and keeps its same speed.
 
 In this model, the effect of gravity is calculated as follows: every particle is given additional velocity downward during each clock tick, as it would get in a gravitational field. The particles bounce off the "ground". They disappear if they reach the top of the world, as if they had escaped the planet's gravitational field. The percentage of lost particles is shown in the PERCENT LOST PARTICLES monitor.
 
 ## HOW TO USE IT
 
-Initial settings:  
-- NUMBER-OF-PARTICLES: number of gas particles  
+Initial settings:
+- NUMBER-OF-PARTICLES: number of gas particles
 - INIT-PARTICLE-SPEED: initial speed of each particle
 
 ## BUTTONS:
 
-The SETUP button will set the initial conditions.  The GO button will run the simulation.  
-- INCREASE-GRAVITY: incrementally increases value of the gravitational acceleration  
-- DECREASE-GRAVITY: incrementally increases value of the gravitational acceleration  
+The SETUP button will set the initial conditions.  The GO button will run the simulation.
+- INCREASE-GRAVITY: incrementally increases value of the gravitational acceleration
+- DECREASE-GRAVITY: incrementally increases value of the gravitational acceleration
 - CLEAR TRACE: removes the traces of the particle paths.
 
-Other settings:  
-- COLLIDE?: Turns collisions between particles on and off.  
+Other settings:
+- COLLIDE?: Turns collisions between particles on and off.
 - TRACE?: Traces the path of one of the particles.
 
-Monitors:  
-- AVERAGE SPEED: average speed of the particles.  
-- ACCELERATION FROM GRAVITY: acceleration from the force of gravity on each particle.  
-- PERCENT LOST PARTICLES: percentage of particles that have disappeared off the top of the world.  
+Monitors:
+- AVERAGE SPEED: average speed of the particles.
+- ACCELERATION FROM GRAVITY: acceleration from the force of gravity on each particle.
+- PERCENT LOST PARTICLES: percentage of particles that have disappeared off the top of the world.
 
-Choosers:  
-SPEED-AS-COLOR? allows you to visualize particle speed using a color palette.  
-- The "blue-green-red" setting shows the lower half of the speeds of the starting population as blue, and the upper half as red.  
-- The "violet shades" setting shows a gradient from dark violet (slow) to light violet (fast).  
-- The "all green" setting shows all particles in green, regardless of speed.  
+Choosers:
+SPEED-AS-COLOR? allows you to visualize particle speed using a color palette.
+- The "blue-green-red" setting shows the lower half of the speeds of the starting population as blue, and the upper half as red.
+- The "violet shades" setting shows a gradient from dark violet (slow) to light violet (fast).
+- The "all green" setting shows all particles in green, regardless of speed.
 - The "custom color" setting, referenced in the Pedagogica version of this model, allows the user to modify the color of one or more particles, without having to worry that the particles will be recolored with each tick of the clock (as is the case for the other color options).
 
 ## THINGS TO NOTICE
@@ -666,7 +666,7 @@ For example, if a model is limited to a maximum of 400 particles, then when ther
 
 ## RELATED MODELS
 
-This model is modified from those in the GasLab suite and curriculum.  
+This model is modified from those in the GasLab suite and curriculum.
 See, in particular, the models "Gas in a Box" and "Gravity Box", which is a modified version of the "Atmosphere" model, with a ceiling on the atmosphere.
 
 See other Connected Chemistry models.

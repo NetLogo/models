@@ -224,7 +224,7 @@ to speed-up-one-molecule
   ask gas-molecules [penup]
   ask one-of gas-molecules  [
     set energy (max-energy / 2)
-    set speed speed-from-energy 
+    set speed speed-from-energy
     pendown
   ]
   calculate-tick-length
@@ -600,7 +600,7 @@ INITIAL-O2-MOLECULES determines the number of initial oxygen (O2) molecules the 
 
 INITIAL-N2-MOLECULES determines the number of initial oxygen (N2) molecules the simulation starts with.  (The composition of the atmosphere has approximately 78% nitrogen and 21% oxygen).
 
-INITIAL-GAS-TEMP sets the initial temperature of the gases.  Charcoal will not burn if the total kinetic energy of the carbon atom and oxygen molecule that are set to react is lower than the activation energy 
+INITIAL-GAS-TEMP sets the initial temperature of the gases.  Charcoal will not burn if the total kinetic energy of the carbon atom and oxygen molecule that are set to react is lower than the activation energy
 
 ENERGY-RELEASED is the amount of potential chemical energy released in the burning reaction.  This energy is converted and transferred into the kinetic energy of the products.
 

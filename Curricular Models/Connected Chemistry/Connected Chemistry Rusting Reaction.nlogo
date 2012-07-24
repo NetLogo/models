@@ -3,7 +3,7 @@ globals
   tick-length                                ;; clock variable
   max-tick-length                            ;; the largest a tick length is allowed to be
   avg-speed avg-energy                       ;; current averages
-  show-rust-molecule-boundaries?             
+  show-rust-molecule-boundaries?
   total-iron-atoms
   total-oxygen-atoms
   reactant-count-iron-atoms
@@ -73,7 +73,7 @@ to go
 
   visualize-vibrational-energy
   visualize-rust-molecule-boundaries
-  
+
   ask oxygen-molecules
   [
    check-for-collision
@@ -214,7 +214,7 @@ to make-iron-atom
   if iron-block-geometry = "19 x 1 bottom box" [
     ask patches with [ pxcor <= 9 and pxcor >= -9 and pycor > min-pxcor and pycor <= (min-pxcor + 1)] [
     sprout-iron-atoms 1 [setup-iron-atom]]
-  ]  
+  ]
   if iron-block-geometry = "19 x 2 bottom box" [
     ask patches with [ pxcor <= 9 and  pxcor >= -9 and pycor > min-pxcor  and pycor <= (min-pxcor + 2)] [
     sprout-iron-atoms 1 [setup-iron-atom]]
@@ -357,7 +357,7 @@ to check-for-bounce-off-iron-atom
    ]
    [if hit-rust-molecule != nobody [
       let hit-angle towards hit-rust-molecule
-      ifelse (hit-angle < 135 and hit-angle > 45) or (hit-angle < 315 and hit-angle > 225) 
+      ifelse (hit-angle < 135 and hit-angle > 45) or (hit-angle < 315 and hit-angle > 225)
         [set heading (- heading)] [set heading (180 - heading)]
    ]]
 end
@@ -802,19 +802,19 @@ mouse-interaction
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model simulates the behavior of oxygen gas particles in a closed container with solid iron.  It is one in a series of Connected Chemistry models, that the same basic rules for simulating the behavior of gases and chemical reactions.  Each model integrates different features in order to highlight different aspects of chemical reactions. 
+This model simulates the behavior of oxygen gas particles in a closed container with solid iron.  It is one in a series of Connected Chemistry models, that the same basic rules for simulating the behavior of gases and chemical reactions.  Each model integrates different features in order to highlight different aspects of chemical reactions.
 
 The basic principle of this rusting model is that oxygen gas particles are assumed to have three elementary actions: 1) they move, 2) they collide,  - either with other gas  particles or with any other objects such as non-reacting solid surfaces (walls), 3) and they can react with iron particles.
 
 A basic representation of the oxidation reaction that occurs between oxygen particles and iron particles is  30<sub>2</sub> + 4Fe --> 2Fe<sub>2</sub>O<sub>3</sub>.  This represents a chemical reaction that requires three oxygen molecules and 4 iron atoms as reactants to create two rust molecules.  While this appears to be a single reaction, in reality, a series of intermediate compounds are created before rust as a product is formed.  But this simplified chemical reaction, without intermediates is often presented in introductory chemistry units and courses as a way to make sense of the initial reactants and final products in a rusting reaction.
 
-In our everyday experiences, iron will not rust spontaneously with oxygen.  For iron to rust, three things are needed: iron, water and oxygen.  When these three type of molecules are near each other, the water acts as a catalyst for the rust reaction, acting as a good electrolyte permitting easier electron flow between atoms. 
+In our everyday experiences, iron will not rust spontaneously with oxygen.  For iron to rust, three things are needed: iron, water and oxygen.  When these three type of molecules are near each other, the water acts as a catalyst for the rust reaction, acting as a good electrolyte permitting easier electron flow between atoms.
 
 A second lesson common everyday pathway for the rusting reaction occurs in the presence of high energy UV radiation, and requires no water catalyst.  This is the rusting reaction that is believed to  occur on the surface of Mars.  The iron oxide on the surface of Mars accounts for much of its red-orange color.
 
-Both of these pathways are represented in the model.  
+Both of these pathways are represented in the model.
 
-The catalytic role of water is simplified to be a geometric catalyst (a cluster of water molecules is represented by a blue patch).  It keeps the necessary reactants (dissolved oxygen molecules) trapped in that for a longer period of time than would occur otherwise if they were a gas.  This modeling assumption is different than representing the water an electron-transfer catalyst.   
+The catalytic role of water is simplified to be a geometric catalyst (a cluster of water molecules is represented by a blue patch).  It keeps the necessary reactants (dissolved oxygen molecules) trapped in that for a longer period of time than would occur otherwise if they were a gas.  This modeling assumption is different than representing the water an electron-transfer catalyst.
 
 The contributing role of UV radiation is simplified to be a localized and temporary energy boost in the vibrational energy of the iron atoms, which in turn brings the reactants closer to the activation energy required for the reaction.
 
@@ -825,25 +825,25 @@ The gas particles are modeled as hard balls with no internal energy except that 
 
 The basic principle of all gas behavior in the Connected Chemistry models, including this one, is the following algorithm:
 
-1. A particle moves in a straight line without changing its speed, unless it collides with another particle or bounces off the wall.  
-2. Two particles "collide" if they find themselves on the same patch.  
-3. A random axis is chosen, as if they are two balls that hit each other and this axis is the line connecting their centers.  
-4. They exchange momentum and energy along that axis, according to the conservation of momentum and energy.  This calculation is done in the center of mass system.  
-5. Each particle is assigned its new velocity, energy, and heading.  
-6. If a particle finds itself on or very close to a wall of the container, it "bounces" -- that is, reflects its direction and keeps its same speed.  
+1. A particle moves in a straight line without changing its speed, unless it collides with another particle or bounces off the wall.
+2. Two particles "collide" if they find themselves on the same patch.
+3. A random axis is chosen, as if they are two balls that hit each other and this axis is the line connecting their centers.
+4. They exchange momentum and energy along that axis, according to the conservation of momentum and energy.  This calculation is done in the center of mass system.
+5. Each particle is assigned its new velocity, energy, and heading.
+6. If a particle finds itself on or very close to a wall of the container, it "bounces" -- that is, reflects its direction and keeps its same speed.
 7. If a particle ever penetrates into the solid iron/rust matrix, it has moved too far forward in the last simulation time step, and is bounced back out to the closest open spot (patch).
 
 ## HOW TO USE IT
 
-Initial settings:  
-INITIAL-GAS-TEMPERATURE: Sets the initial kinetic energy of each of the gas particles 
-INITIAL-OXYGEN-MOLECULES: Sets the number of initial oxygen gas particles  
-ACTIVATION-ENERGY: Sets the energy threshold required for a reaction to occur between the products.  The sum of the energies of the reactants must exceed this level for a reaction to occur. 
-IRON-BLOCK-GEOMETRY: Sets possible size and location of the iron block.  
-RUST-FORMS-AT: Determines whether rust molecules form within the metal block or on the surface of it or both.  
+Initial settings:
+INITIAL-GAS-TEMPERATURE: Sets the initial kinetic energy of each of the gas particles
+INITIAL-OXYGEN-MOLECULES: Sets the number of initial oxygen gas particles
+ACTIVATION-ENERGY: Sets the energy threshold required for a reaction to occur between the products.  The sum of the energies of the reactants must exceed this level for a reaction to occur.
+IRON-BLOCK-GEOMETRY: Sets possible size and location of the iron block.
+RUST-FORMS-AT: Determines whether rust molecules form within the metal block or on the surface of it or both.
 MOUSE-INTERACTION: Gives the user options to "add water", "remove water", "remove rust", and "shine a UV beam on the iron".
 
-The SETUP button will set the initial conditions.  
+The SETUP button will set the initial conditions.
 The GO/STOP button will run the simulation.
 
 
@@ -864,18 +864,18 @@ Explore different surface geometries of iron.  How does the surface area affect 
 
 ## EXTENDING THE MODEL
 
-Rust molecules could be knocked off the iron block when fast colliding molecules hit them.  
+Rust molecules could be knocked off the iron block when fast colliding molecules hit them.
 
 Water could be modeled as particles (H<sub>2</sub>O molecules) instead of colored patches.  Oil is often used as a protective layer for preventing the rusting of iron.  Oil molecules (which repel water), but allow some oxygen through could be added to the model.
 
-Salt water vs. fresh water could be added to the model, such that the salt water served as a better catalyst than fresh water.  
+Salt water vs. fresh water could be added to the model, such that the salt water served as a better catalyst than fresh water.
 
 UV light energy that is absorbed by the iron atom and converted to vibrational energy (particulate kinetic energy) could be reradiated as infra-red energy or conducted to particles in contact with each iron atom.  Currently such energy remains trapped in the iron atom unless a chemical reaction happens.
 
 
 ## NETLOGO FEATURES
 
-This model shows a good way of preventing particles that bounce off the world-walls from penetrating the walls. By having a dynamic tick duration calculated every tick, it attempts that even the fastest moving particle never moves more than one patch per tick. The patch-ahead primitive can therefore always be used to check whether to change the heading of a particle that is ready to reflect or 'bounce' off of a wall.   
+This model shows a good way of preventing particles that bounce off the world-walls from penetrating the walls. By having a dynamic tick duration calculated every tick, it attempts that even the fastest moving particle never moves more than one patch per tick. The patch-ahead primitive can therefore always be used to check whether to change the heading of a particle that is ready to reflect or 'bounce' off of a wall.
 
 When a gas particle is detected as having accidentally entered into the space of a patch that is a wall or has an iron particle in it, it is moved to the nearest open patch.
 

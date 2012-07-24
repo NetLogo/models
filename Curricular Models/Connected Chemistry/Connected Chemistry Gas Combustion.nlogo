@@ -58,7 +58,7 @@ end
 
 
 to make-box
-  ask patches with 
+  ask patches with
   [ ((abs pxcor = (max-pxcor - margin-outside-box)) and (abs pycor <= (max-pycor - margin-outside-box))) or
     ((abs pycor = (max-pxcor - margin-outside-box)) and (abs pxcor <= (max-pycor - margin-outside-box))) ]
     [ set pcolor gray ]
@@ -123,9 +123,9 @@ end
 to go
   if count gas-molecules = 0 [stop]
   ifelse box-intact? [ask gas-molecules [bounce]] [shatter-box]
-  ask gas-molecules [ 
-    move 
-    check-for-collision 
+  ask gas-molecules [
+    move
+    check-for-collision
   ]
   ask gas-molecules with [molecule-type = "oxygen"] [check-for-reaction]
   update-variables
@@ -133,7 +133,7 @@ to go
   if pressure > (pressure-limit-container) [set box-intact? false]
   calculate-tick-length
   tick-advance tick-length
-  update-flash-visualization  
+  update-flash-visualization
   update-plots
   display
 end
@@ -193,15 +193,15 @@ to bounce  ;; particle procedure
 end
 
 
-to make-a-flash 
+to make-a-flash
   sprout 1 [
     set breed flashes
     set color [20 20 20 255]
     set birthday ticks
   ]
 end
-  
-  
+
+
 to shatter-box
   let center-patch one-of patches with [pxcor = 0 and pycor = 0]
   ask broken-walls  [
@@ -210,7 +210,7 @@ to shatter-box
     if pxcor = max-pxcor or pycor = max-pycor or pycor = min-pycor or pxcor = min-pxcor [die]
     fd avg-speed * tick-length
   ]
-  ask patches with [pcolor = gray] 
+  ask patches with [pcolor = gray]
   [ sprout 1 [set breed broken-walls set color gray set shape "square"] set pcolor black]
   ask flashes [die]
 end
@@ -231,7 +231,7 @@ to calculate-pressure
   ;; by summing the momentum change for each particle,
   ;; the wall's total momentum change is calculated
   ;; the 100 is an arbitrary scalar (constant)
-  
+
   set pressure 100 * sum [momentum-difference] of gas-molecules
   set pressure-history lput pressure but-first pressure-history
   ask gas-molecules
@@ -253,7 +253,7 @@ to calculate-tick-length
 end
 
 
-to speed-up-one-molecule 
+to speed-up-one-molecule
   clear-drawing
   ask gas-molecules [penup]
   ask one-of gas-molecules  [
@@ -414,7 +414,7 @@ to-report speed-from-energy
 end
 
 to-report energy-from-speed
-  report 0.5 * mass * speed * speed 
+  report 0.5 * mass * speed * speed
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -679,9 +679,9 @@ H<sub>2</sub> and O<sub>2</sub> are called the reactants and (H<sub>2</sub>O) is
 
 For a reaction to occur, oxygen (O<sub>2</sub>) and hydrogen (H<sub>2</sub>) must have enough energy to break the atomic bonds in oxygen and hydrogen and allow the atoms to rearrange to make (H<sub>2</sub>O).  This bond breaking energy threshold is called the ACTIVATION-ENERGY.
 
-When a chemical reaction occurs then, the chemical potential energy stored in the atomic configurations of the reactants is transformed into kinetic energy as a new configuration of atoms (the products) is created.  This excess energy released in the reaction is called the BOND-ENERGY-RELEASED.  When the bond energy released is increased the products will have greater thermal energy, due to their increased kinetic molecular energy that came from the bond energy released through the chemical reaction. 
+When a chemical reaction occurs then, the chemical potential energy stored in the atomic configurations of the reactants is transformed into kinetic energy as a new configuration of atoms (the products) is created.  This excess energy released in the reaction is called the BOND-ENERGY-RELEASED.  When the bond energy released is increased the products will have greater thermal energy, due to their increased kinetic molecular energy that came from the bond energy released through the chemical reaction.
 
-If BOND-ENERGY-RELEASED was set to a negative number it would model an endothermic reaction will be modeled.  This is one in which the thermal energy of the products is less than the thermal energy of the reactants due to molecular kinetic energy being converted into chemical potential energy in the chemical reaction.  
+If BOND-ENERGY-RELEASED was set to a negative number it would model an endothermic reaction will be modeled.  This is one in which the thermal energy of the products is less than the thermal energy of the reactants due to molecular kinetic energy being converted into chemical potential energy in the chemical reaction.
 
 For reactions that require lots of activation-energy, some reactions will not occur at low temperatures, or will occur more slowly at lower temperatures.
 
@@ -697,14 +697,14 @@ The phenomena of a container walls failing when hydrogen and oxygen ignite can b
 
 Press SETUP to set up the simulation. Press GO to run the simulation.
 
-INITIAL-OXYGEN-MOLECULES sets the initial number of oxygen (O<sub>2</sub>) molecules.  
+INITIAL-OXYGEN-MOLECULES sets the initial number of oxygen (O<sub>2</sub>) molecules.
 INITIAL-HYDROGEN-MOLECULES sets the initial number of hydrogen (H<sub>2</sub>) molecules.
 INITIAL-GAS-TEMPERATURE sets the temperature of the gas container.
 ACTIVATION-ENERGY is the energy threshold for breaking the atomic bonds in oxygen and hydrogen molecules.
 BOND-ENERGY-RELEASED is thermal energy (kinetic molecular energy) that the product molecules gain after releasing the chemical potential energy in reactants.
 PRESSURE-LIMIT-CONTAINER determines the level of pressure that will cause the walls of the gas container to break or explode.
-SPEED-UP-AND-TRACE-ONE-MOLECULE selects one of the hydrogen molecules at random and increases its speed by a factor of 10 times its current speed. 
-HIGHLIGHT-PRODUCT? helps make the water molecules that are produced easier to see when it is set to "on", as it draw each water molecule with a yellow ring drawn around it. 
+SPEED-UP-AND-TRACE-ONE-MOLECULE selects one of the hydrogen molecules at random and increases its speed by a factor of 10 times its current speed.
+HIGHLIGHT-PRODUCT? helps make the water molecules that are produced easier to see when it is set to "on", as it draw each water molecule with a yellow ring drawn around it.
 SHOW-WALL-HITS? helps visualize where particles hit the wall (and therefore where contributions to the pressure of the gas occur and are measured).
 
 ## THINGS TO NOTICE
