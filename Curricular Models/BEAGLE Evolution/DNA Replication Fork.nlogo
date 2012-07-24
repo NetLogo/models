@@ -1,5 +1,3 @@
-
-
 ;;;;;;;;;;;;; small molecules  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 breed [phosphates phosphate]                                 ;; the free floating phosphates that are broken off a nucleoside-tri-phosphate when a nucleotide is formed
 breed [nucleosides nucleoside]                               ;; the free floating nucleoside-tri-phosphates
@@ -1105,8 +1103,6 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-
-
 In this model you can orchestrate the DNA replication fork process that occurs in the cells of all living creatures before cells divide.  Both mitosis and meiosis rely on this process to make copies of existing DNA before making new cells.
 
 In a real cell, the DNA replication begins by unwinding and unzipping of the twisted double helix structure of DNA at specific location in the genome.  It is then followed by construction of a new DNA strand to match the template strand.  This entire process is aided by many proteins which initiate, facilitate, and terminate the DNA replication process.  It is this process that the model replicates.
@@ -1116,8 +1112,6 @@ As the model runs you will can facilitate the placement and assembly of some of 
 Alternatively, you can let the model run on its own without interacting with any of the proteins and nucleosides in the model.  As these molecules float freely about the cell nucleus they will eventually make a copy of the DNA strand autonomously, as the eventually wander into the correct locations and configurations that permit them to interact for DNA replication.
 
 By attempting to speed up this process using the mouse cursor you may find that the replication process incurs errors in the duplication.  These errors, though relatively rare in the cell duplication in living organisms do occur, are the basis for some types of mutations.  These mutations will in turn lead to the emergence of new proteins in daughter cells when the DNA is translated.
-
-
 
 
 ## HOW IT WORKS
@@ -1142,9 +1136,6 @@ When the substitution switch is turned "on", then the polymerase protein does no
 When this interference results in a incorrect pairing of bases (e.g. an A with an A, or an A with a G), this is a type of substitution mutation.
 
 When a base is not paired up, or a section of DNA is not replicated, this is known as a deletion mutation.
-
-
-
 
 
 ## HOW TO USE IT
@@ -1186,11 +1177,9 @@ DELETIONS (both for the top and bottom strands).  This is a count of every base 
 SUBSTITUTIONS (both for the top and bottom strands).  This is a count of every A that is paired but not with a T and every G that is paired but not with a C.
 
 
-
 ## THINGS TO NOTICE
 
 Mutations can be incurred both in the top and bottom strands of DNA.  Since the mutation that affects one strand of DNA is not the same that necessarily affects another strand, different replication mutations may affect different daughter cells in mitosis or meiosis.
-
 
 
 ## THINGS TO TRY
@@ -1216,7 +1205,6 @@ The DNA Protein Synthesis in BEAGLE is the follow-up model for this one.  It sho
 
 
 ## CREDITS & REFERENCES
-
 @#$#@#$#@
 default
 true
