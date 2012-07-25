@@ -891,7 +891,7 @@ Look at the other GasLab models, especially "GasLab Isothermal Piston" and "GasL
 
 ## CREDITS AND REFERENCES
 
-This model was developed as part of the GasLab curriculum (http://ccl.northwestern.edu/curriculum/gaslab/) and has also been incorporated into the Connected Chemistry curriculum (http://ccl.northwestern.edu/curriculum/ConnectedChemistry/).
+This model was developed as part of the GasLab curriculum (http://ccl.northwestern.edu/curriculum/gaslab/) and has also been incorporated into the Connected Chemistry curriculum (http://ccl.northwestern.edu/curriculum/ConnectedChemistry/)
 
 Wilensky, U. (1999). GasLab--an Extensible Modeling Toolkit for Exploring Micro- and Macro- Views of Gases. In Roberts, N. , Feurzeig, W. & Hunter, B. (Eds.) Computer Modeling and Simulation in Science Education. Berlin: Springer Verlag.  (this is the best and most detailed source)
 

@@ -764,7 +764,7 @@ See, in particular, the models "Gas in a Box" and "Gravity Box", which is a modi
 
 ## CREDITS AND REFERENCES
 
-This model was developed as part of the GasLab curriculum (http://ccl.northwestern.edu/curriculum/gaslab/) and has also been incorporated into the Connected Chemistry curriculum (http://ccl.northwestern.edu/curriculum/ConnectedChemistry/).
+This model was developed as part of the GasLab curriculum (http://ccl.northwestern.edu/curriculum/gaslab/) and has also been incorporated into the Connected Chemistry curriculum (http://ccl.northwestern.edu/curriculum/ConnectedChemistry/)
 @#$#@#$#@
 default
 true

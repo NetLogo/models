@@ -624,10 +624,9 @@ Notice how collisions are detected by the turtles and how the code guarantees th
 
 ## CREDITS AND REFERENCES
 
-This model was developed as part of the GasLab curriculum (http://ccl.northwestern.edu/curriculum/gaslab/) and has also been incorporated into the Connected Chemistry curriculum (http://ccl.northwestern.edu/curriculum/ConnectedChemistry/).
+This model was developed as part of the GasLab curriculum (http://ccl.northwestern.edu/curriculum/gaslab/) and has also been incorporated into the Connected Chemistry curriculum (http://ccl.northwestern.edu/curriculum/ConnectedChemistry/)
 
 This was one of the original Connection Machine StarLogo applications (under the name GPCEE) and is now ported to NetLogo as part of the Participatory Simulations project.
-
 @#$#@#$#@
 default
 true
