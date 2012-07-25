@@ -1323,6 +1323,8 @@ GenDrift models in the Genetic Drift folder, under Biology
 Bug Hunt Drift, under BEAGLE Evolution folder, under Curricular Resources
 
 ## CREDITS AND REFERENCES
+
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
 @#$#@#$#@
 default
 true

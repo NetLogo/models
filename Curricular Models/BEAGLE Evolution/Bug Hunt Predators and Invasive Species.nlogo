@@ -754,6 +754,8 @@ Look at the Wolf-Sheep model for a basic predator prey model example.
 Look at Bug Hunt Consumers for a simpler version of this model that includes no predators or invaders.
 
 ## CREDITS AND REFERENCES
+
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
 @#$#@#$#@
 default
 true

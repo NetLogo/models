@@ -1133,6 +1133,8 @@ Peppered Moth
 
 ## CREDITS AND REFERENCES
 
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
+
 [1] Inspired by Sex and the Single Guppy http://www.pbs.org/wgbh/evolution/sex/guppy/index.html
 @#$#@#$#@
 default

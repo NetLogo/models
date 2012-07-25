@@ -1513,7 +1513,7 @@ Track the changes in the frequency of recessive and dominant alleles.  Compare t
 
 ## EXTENDING THE MODEL
 
-The model shows one scenarios of breeding birds.  The bird shapes could be changed to show breeding of other virtual creatures (reptiles, cats, fish, etc...)
+The model shows one scenarios of breeding birds.  The bird shapes could be changed to show breeding of other virtual creatures (reptiles, cats, fish, etc)
 
 
 ## NETLOGO FEATURES
@@ -1529,6 +1529,8 @@ Plant Hybridization and Fish Tank Genetic Drift from the BEAGLE curricular folde
 
 
 ## CREDITS AND REFERENCES
+
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
 @#$#@#$#@
 default
 true

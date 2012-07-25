@@ -154,6 +154,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
+30.0
 
 BUTTON
 112
@@ -419,6 +420,8 @@ This model uses the "frog top" shape that was imported from the Shapes Library.
 This model is related to the other BEAGLE models since they all examine evolution.
 
 ## CREDITS AND REFERENCES
+
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
 
 This model is related to a model that was used as the basis for a poster published at the Genetic and Evolutionary Computation Conference.  This model uses a more individual-based reproductive mechanism, whereas the model in the paper used a global one:
 
@@ -718,7 +721,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.0.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
