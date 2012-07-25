@@ -443,11 +443,11 @@ count
 10.0
 false
 true
-"set-plot-x-range 0 (0.5 * ((init-particle-speed * 3) ^ 2 ) * particle-mass)\nset-plot-y-range 0 ceiling (number-of-particles / 10)\n" ""
+"set-plot-x-range 0 (0.5 * ((init-particle-speed * 3) ^ 2 ) * particle-mass)\nset-plot-y-range 0 ceiling (number-of-particles / 10)" ""
 PENS
-"fast" 1.0 1 -1893860 true "set-histogram-num-bars 45\n" "histogram [ energy ] of particles with [color = red]"
-"medium" 1.0 1 -11686070 true "set-histogram-num-bars 45\n" "histogram [ energy ] of particles with [color = green]"
-"slow" 1.0 1 -14979122 true "set-histogram-num-bars 45\n" "histogram [ energy ] of particles with [color = blue]"
+"fast" 1.0 1 -1893860 true "set-histogram-num-bars 45" "histogram [ energy ] of particles with [color = red]"
+"medium" 1.0 1 -11686070 true "set-histogram-num-bars 45" "histogram [ energy ] of particles with [color = green]"
+"slow" 1.0 1 -14979122 true "set-histogram-num-bars 45" "histogram [ energy ] of particles with [color = blue]"
 "avg-energy" 1.0 0 -7500403 true "" "plot-pen-reset  draw-vert-line avg-energy"
 "init-avg-energy" 1.0 0 -16777216 true "draw-vert-line avg-energy-init" ""
 
@@ -496,7 +496,7 @@ count
 40.0
 false
 true
-"set-plot-x-range 0 (init-particle-speed * 3)\nset-plot-y-range 0 ceiling (number-of-particles / 10)\n" ""
+"set-plot-x-range 0 (init-particle-speed * 3)\nset-plot-y-range 0 ceiling (number-of-particles / 10)" ""
 PENS
 "fast" 5.0 1 -1893860 true "set-histogram-num-bars 45" "histogram [ speed ] of particles with [color = red]"
 "medium" 5.0 1 -11686070 true "set-histogram-num-bars 45" "histogram [ speed ] of particles with [color = green]"
@@ -763,6 +763,8 @@ This model is part of the GasLab suite and curriculum.
 See, in particular, the models "Gas in a Box" and "Gravity Box", which is a modified version of the "Atmosphere" model, with a ceiling on the atmosphere.
 
 ## CREDITS AND REFERENCES
+
+This model was developed as part of the GasLab curriculum (http://ccl.northwestern.edu/curriculum/gaslab/) and has also been incorporated into the Connected Chemistry curriculum (http://ccl.northwestern.edu/curriculum/ConnectedChemistry/).
 @#$#@#$#@
 default
 true
@@ -1059,7 +1061,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0RC2
+NetLogo 5.0.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

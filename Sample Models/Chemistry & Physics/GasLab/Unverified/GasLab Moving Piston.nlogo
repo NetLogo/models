@@ -755,6 +755,8 @@ Add in a temperature variable that allows for the particles to move the piston t
 Notice how collisions are detected by the turtles and how the code guarantees that the same two particles do not collide twice.  What happens if we let the patches detect them?
 
 ## CREDITS AND REFERENCES
+
+This model was developed as part of the GasLab curriculum (http://ccl.northwestern.edu/curriculum/gaslab/) and has also been incorporated into the Connected Chemistry curriculum (http://ccl.northwestern.edu/curriculum/ConnectedChemistry/).
 @#$#@#$#@
 default
 true
@@ -1046,7 +1048,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta4
+NetLogo 5.0.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
