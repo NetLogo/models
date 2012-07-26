@@ -120,6 +120,10 @@ to fade ;; Patch Procedure
   [ set pcolor new-color ]
   [ set pcolor black ]
 end
+
+
+; Copyright 1998 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 195
@@ -146,7 +150,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
-10
+10.0
 
 BUTTON
 10
@@ -243,7 +247,7 @@ TEXTBOX
 232
 182
 311
-Click and hold the mouse in the view while GO is running to act as a gravitational source of mass MASS.
+Click and hold the mouse in the view while GO is running to act as a gravitational source with mass set by the slider value.
 11
 0.0
 0
@@ -301,7 +305,8 @@ This model creates the illusion of a plane of infinite size, to better model the
 
 When you examine the code, take note that standard turtle commands like `set heading`, `fd 1`, and so on aren't used here. Everything is done directly to the x  and y coordinates of the turtles.
 
-## CREDITS AND REFERENCES
+
+## HOW TO CITE
 @#$#@#$#@
 default
 true
@@ -586,7 +591,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta2
+NetLogo 5.0.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

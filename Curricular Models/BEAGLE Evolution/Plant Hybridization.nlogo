@@ -395,6 +395,7 @@ GRAPHICS-WINDOW
 1
 0
 ticks
+30.0
 
 BUTTON
 40
@@ -694,6 +695,8 @@ An output area is used to give instructions to the user.
 The model makes heavy use of the MOUSE-* and USER-* primitives to allow the user to interact with the model.
 
 ## CREDITS AND REFERENCES
+
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
 
 Other references to Gregor Mendel's 1865 paper "Versuche ueber Pflanzen-Hybriden" and a revised version of the English translation by C.T. Druery and William Bateson, "Experiments in Plant Hybridization", can be found at http://www.mendelweb.org/Mendel.html
 @#$#@#$#@
@@ -1167,7 +1170,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.0.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

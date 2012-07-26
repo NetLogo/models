@@ -197,6 +197,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
+30.0
 
 MONITOR
 5
@@ -257,7 +258,7 @@ variation
 10.0
 true
 true
-"" ";; the HISTOGRAM primitive can't make a multi-colored histogram,\n;; so instead we plot each bar individually, after clearing the plot\nclear-plot\n"
+"" ";; the HISTOGRAM primitive can't make a multi-colored histogram,\n;; so instead we plot each bar individually, after clearing the plot\nclear-plot"
 PENS
 "1" 1.0 1 -8630108 true "" "plotxy 1 count bugs with [color-variation = 1]"
 "2" 1.0 1 -13345367 true "" "plotxy 2 count bugs with [color-variation = 2]"
@@ -451,7 +452,7 @@ Try changing the number of INITIAL-BUGS-EACH-VARIATION to compare how population
 
 ## EXTENDING THE MODEL
 
-Add a 2nd or third trait to add to the population.
+Add a second or third trait to add to the population.
 
 Add a mechanism of sexual reproduction and genetic recombination to the population.
 
@@ -462,6 +463,8 @@ Add walls to geographically isolate portions of the population from one another.
 GenDrift models in the Genetic Drift folder, under Biology
 
 ## CREDITS AND REFERENCES
+
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
 @#$#@#$#@
 default
 true
@@ -776,7 +779,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.0.1
 @#$#@#$#@
 setup
 @#$#@#$#@

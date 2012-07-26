@@ -517,6 +517,8 @@ The GasLab suite of models, especially GasLab Maxwell's Demon, which models a th
 ## CREDITS AND REFERENCES
 
 Thanks to Brent Collins and Seth Tisue for their work on this model.
+
+This model was developed as part of the GasLab curriculum (http://ccl.northwestern.edu/curriculum/gaslab/) and has also been incorporated into the Connected Chemistry curriculum (http://ccl.northwestern.edu/curriculum/ConnectedChemistry/)
 @#$#@#$#@
 default
 true
@@ -808,7 +810,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta4
+NetLogo 5.0.1
 @#$#@#$#@
 setup "corner"
 repeat 75 [ go ]

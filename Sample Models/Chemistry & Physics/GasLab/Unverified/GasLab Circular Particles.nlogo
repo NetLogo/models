@@ -753,6 +753,8 @@ Instead of advancing one tick at a time as in most models, the tick counter take
 Look at the other GasLab models to see collisions of "point" particles, that is, the particles are assumed to have an area or volume of zero.
 
 ## CREDITS AND REFERENCES
+
+This model was developed as part of the GasLab curriculum (http://ccl.northwestern.edu/curriculum/gaslab/) and has also been incorporated into the Connected Chemistry curriculum (http://ccl.northwestern.edu/curriculum/ConnectedChemistry/)
 @#$#@#$#@
 default
 true
@@ -1043,7 +1045,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta4
+NetLogo 5.0.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

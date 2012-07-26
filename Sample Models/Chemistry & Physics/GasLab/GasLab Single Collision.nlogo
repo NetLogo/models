@@ -492,10 +492,10 @@ speed
 20.0
 true
 true
-"" "ifelse after-collision?\n   [set plot-clock (ticks - (tick-delta))]\n   [set plot-clock ticks]\n"
+"" "ifelse after-collision?\n   [set plot-clock (ticks - (tick-delta))]\n   [set plot-clock ticks]"
 PENS
 "pink" 1.0 0 -2064490 true "" "if [speed] of turtle 0 != [speed] of turtle 1\n  [ plotxy plot-clock ([speed] of turtle 0) ]"
-"blue" 1.0 0 -13345367 true "" "if [speed] of turtle 0 != [speed] of turtle 1\n  [ plotxy plot-clock ([speed] of turtle 1) ]\n"
+"blue" 1.0 0 -13345367 true "" "if [speed] of turtle 0 != [speed] of turtle 1\n  [ plotxy plot-clock ([speed] of turtle 1) ]"
 "both" 1.0 0 -16777216 true "" "if [speed] of turtle 0 = [speed] of turtle 1\n  [ plotxy plot-clock ([speed] of turtle 0) ]"
 
 BUTTON
@@ -614,6 +614,8 @@ After you have gotten used to observing and understanding these simple collision
 Record the velocities of each particle after each collision. After you have several sets of velocities, look at the entire velocity distribution. What do you notice? Is it the Maxwell-Boltzmann distribution?
 
 ## CREDITS AND REFERENCES
+
+This model was developed as part of the GasLab curriculum (http://ccl.northwestern.edu/curriculum/gaslab/) and has also been incorporated into the Connected Chemistry curriculum (http://ccl.northwestern.edu/curriculum/ConnectedChemistry/)
 @#$#@#$#@
 default
 true
@@ -905,7 +907,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0RC2
+NetLogo 5.0.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

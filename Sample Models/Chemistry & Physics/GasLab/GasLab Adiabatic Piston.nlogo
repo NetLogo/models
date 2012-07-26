@@ -891,6 +891,8 @@ Look at the other GasLab models, especially "GasLab Isothermal Piston" and "GasL
 
 ## CREDITS AND REFERENCES
 
+This model was developed as part of the GasLab curriculum (http://ccl.northwestern.edu/curriculum/gaslab/) and has also been incorporated into the Connected Chemistry curriculum (http://ccl.northwestern.edu/curriculum/ConnectedChemistry/)
+
 Wilensky, U. (1999). GasLab--an Extensible Modeling Toolkit for Exploring Micro- and Macro- Views of Gases. In Roberts, N. , Feurzeig, W. & Hunter, B. (Eds.) Computer Modeling and Simulation in Science Education. Berlin: Springer Verlag.  (this is the best and most detailed source)
 
 Wilensky, U. & Resnick, M. (1999). Thinking in Levels: A Dynamic Systems Perspective to Making Sense of the World. Journal of Science Education and Technology. Vol. 8 No. 1
@@ -1192,7 +1194,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta4
+NetLogo 5.0.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

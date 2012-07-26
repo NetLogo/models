@@ -73,7 +73,7 @@ def validateYear(y:Int) {
 }
 
 lazy val validKeywords = List("MIT", "Wilensky", "specialCE", "MAC",
-                              "Steiner", "Stroup", "3D", "NIELS",
+                              "Steiner", "Stroup", "3D", "NIELS", "ConChem",
                               "CC0", "BYSA")
 
 def munge(path: String): String = {
@@ -157,8 +157,8 @@ def munge(path: String): String = {
     val builder = new StringBuilder
     builder.append("## HOW TO CITE\n\n")
     builder.append("If you mention this model in a publication, we ask that you ")
-    builder.append("include these citations for the model itself and for the NetLogo software:  \n")
-    builder.append("- ")
+    builder.append("include these citations for the model itself and for the NetLogo software:\n\n")
+    builder.append("* ")
     if(!cite.isEmpty)
       builder.append(cite + " and Wilensky, U. (" + year + ").  " + netlogohubnet + " " + name + " model.  ")
     else if(keywords.contains("Stroup"))
@@ -167,17 +167,25 @@ def munge(path: String): String = {
       builder.append("Wilensky, U. (" + year + ").  " + netlogohubnet + " " + name + " model.  ")
     builder.append("http://ccl.northwestern.edu/netlogo/models/" + compressedname + ".  ")
     builder.append("Center for Connected Learning and Computer-Based Modeling, ")
-    builder.append("Northwestern University, Evanston, IL.  \n")
-    builder.append("- Wilensky, U. (1999). NetLogo. ")
+    builder.append("Northwestern University, Evanston, IL.\n")
+    builder.append("* Wilensky, U. (1999). NetLogo. ")
     builder.append("http://ccl.northwestern.edu/netlogo/. ")
     builder.append("Center for Connected Learning and ")
-    builder.append("Computer-Based Modeling, Northwestern University, Evanston, IL.  \n")
+    builder.append("Computer-Based Modeling, Northwestern University, Evanston, IL.\n")
     if(keywords.contains("NIELS")) {
-      builder.append("\n\n")
+      builder.append("\n")
       builder.append("To cite the NIELS curriculum as a whole, please use: ")
       builder.append("Sengupta, P. and Wilensky, U. (2008). NetLogo NIELS curriculum. ")
       builder.append("http://ccl.northwestern.edu/NIELS. ")
-      builder.append("Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.  \n")
+      builder.append("Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.\n")
+    }
+    if(keywords.contains("ConChem")) {
+      builder.append("\n")
+      builder.append("To cite the Connected Chemistry curriculum as a whole, please use: ")
+      builder.append("Wilensky, U., Levy, S. T., & Novak, M. (2004). ")
+      builder.append("Connected Chemistry curriculum. ")
+      builder.append("http://ccl.northwestern.edu/curriculum/chemistry. ")
+      builder.append("Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.\n")
     }
     builder.toString
   }

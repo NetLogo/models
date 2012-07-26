@@ -520,7 +520,7 @@ count
 40.0
 false
 true
-"set-plot-x-range 0 (init-particle-speed * 3)\nset-plot-y-range 0 ceiling (number-of-particles / 10)\n" ""
+"set-plot-x-range 0 (init-particle-speed * 3)\nset-plot-y-range 0 ceiling (number-of-particles / 10)" ""
 PENS
 "fast" 5.0 1 -2674135 true "set-histogram-num-bars 45" "histogram [ speed ] of particles with [color = red]"
 "medium" 5.0 1 -10899396 true "set-histogram-num-bars 45" "histogram [ speed ] of particles with [color = green]"
@@ -799,6 +799,8 @@ Because of the influence of gravity, the particles follow curved paths.  Since N
 This model is part of the GasLab suite and curriculum.  See, in particular, Gas in a Box and GasLab Atmosphere.
 
 ## CREDITS AND REFERENCES
+
+This model was developed as part of the GasLab curriculum (http://ccl.northwestern.edu/curriculum/gaslab/) and has also been incorporated into the Connected Chemistry curriculum (http://ccl.northwestern.edu/curriculum/ConnectedChemistry/)
 @#$#@#$#@
 default
 true
@@ -1095,7 +1097,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0RC2
+NetLogo 5.0.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
