@@ -120,10 +120,6 @@ to fade ;; Patch Procedure
   [ set pcolor new-color ]
   [ set pcolor black ]
 end
-
-
-; Copyright 1998 Uri Wilensky.
-; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 195
@@ -305,8 +301,7 @@ This model creates the illusion of a plane of infinite size, to better model the
 
 When you examine the code, take note that standard turtle commands like `set heading`, `fd 1`, and so on aren't used here. Everything is done directly to the x  and y coordinates of the turtles.
 
-
-## HOW TO CITE
+## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 true
