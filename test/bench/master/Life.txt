@@ -783,20 +783,30 @@ procedure GO:[]{O---}:
          L3
           ALOAD 1
           GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+          ASTORE 2
+          ALOAD 2
           INSTANCEOF org/nlogo/agent/Turtle
           IFEQ L4
-          ALOAD 1
-          GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+          ALOAD 2
           CHECKCAST org/nlogo/agent/Turtle
           INVOKEVIRTUAL org/nlogo/agent/Turtle.getPatchHere ()Lorg/nlogo/agent/Patch;
-          INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors ()Lorg/nlogo/agent/AgentSet;
           GOTO L5
          L4
-          ALOAD 1
-          GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+          ALOAD 2
+          INSTANCEOF org/nlogo/agent/Patch
+          IFEQ L6
+          ALOAD 2
           CHECKCAST org/nlogo/agent/Patch
-          INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors ()Lorg/nlogo/agent/AgentSet;
          L5
+          INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors ()Lorg/nlogo/agent/AgentSet;
+          GOTO L7
+         L6
+          NEW scala/MatchError
+          DUP
+          ALOAD 2
+          INVOKESPECIAL scala/MatchError.<init> (Ljava/lang/Object;)V
+          ATHROW
+         L7
           ALOAD 0
           GETFIELD org/nlogo/prim/_asm_procedurego_setpatchvariable_1.keptinstr4 : Lorg/nlogo/prim/_asm_procedurego_patchvariable_2;
           ASTORE 3
@@ -816,10 +826,10 @@ procedure GO:[]{O---}:
           ALOAD 2
           INVOKEVIRTUAL org/nlogo/agent/AgentSet.iterator ()Lorg/nlogo/agent/AgentIterator;
           ASTORE 6
-         L6
+         L8
           ALOAD 6
           INVOKEINTERFACE org/nlogo/agent/AgentIterator.hasNext ()Z
-          IFEQ L7
+          IFEQ L9
           ALOAD 6
           INVOKEINTERFACE org/nlogo/agent/AgentIterator.next ()Lorg/nlogo/agent/Agent;
           ASTORE 7
@@ -830,7 +840,7 @@ procedure GO:[]{O---}:
           ASTORE 8
           ALOAD 8
           INSTANCEOF java/lang/Boolean
-          IFNE L8
+          IFNE L10
           NEW org/nlogo/nvm/EngineException
           DUP
           ALOAD 1
@@ -856,18 +866,18 @@ procedure GO:[]{O---}:
           INVOKEINTERFACE org/nlogo/api/I18NJava.getN (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L8
+         L10
           ALOAD 8
           CHECKCAST java/lang/Boolean
           INVOKEVIRTUAL java/lang/Boolean.booleanValue ()Z
-          IFEQ L9
+          IFEQ L11
           IINC 5 1
+         L11
+          GOTO L8
          L9
-          GOTO L6
-         L7
           ILOAD 5
           I2D
-         L10
+         L12
           DSTORE 2
           NEW java/lang/Double
           DUP
@@ -881,7 +891,7 @@ procedure GO:[]{O---}:
           ALOAD 2
           INVOKEVIRTUAL org/nlogo/agent/Agent.setPatchVariable (ILjava/lang/Object;)V
          L1
-          GOTO L11
+          GOTO L13
          L2
           ASTORE 3
           NEW org/nlogo/nvm/EngineException
@@ -892,11 +902,11 @@ procedure GO:[]{O---}:
           INVOKEVIRTUAL org/nlogo/api/AgentException.getMessage ()Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L11
+         L13
           ALOAD 1
           ICONST_2
           PUTFIELD org/nlogo/nvm/Context.ip : I
-         L12
+         L14
           RETURN
 [2]_asm_procedurego_done_3 "" => void
          L0

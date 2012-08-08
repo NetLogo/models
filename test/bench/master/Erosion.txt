@@ -758,44 +758,54 @@ procedure SETUP:[_repeatlocal:0]{O---}:
              L0
               ALOAD 1
               GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+              ASTORE 2
+              ALOAD 2
               INSTANCEOF org/nlogo/agent/Turtle
               IFEQ L1
-              ALOAD 1
-              GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+              ALOAD 2
               CHECKCAST org/nlogo/agent/Turtle
               INVOKEVIRTUAL org/nlogo/agent/Turtle.getPatchHere ()Lorg/nlogo/agent/Patch;
-              INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors ()Lorg/nlogo/agent/AgentSet;
               GOTO L2
              L1
-              ALOAD 1
-              GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+              ALOAD 2
+              INSTANCEOF org/nlogo/agent/Patch
+              IFEQ L3
+              ALOAD 2
               CHECKCAST org/nlogo/agent/Patch
-              INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors ()Lorg/nlogo/agent/AgentSet;
              L2
+              INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors ()Lorg/nlogo/agent/AgentSet;
+              GOTO L4
+             L3
+              NEW scala/MatchError
+              DUP
+              ALOAD 2
+              INVOKESPECIAL scala/MatchError.<init> (Ljava/lang/Object;)V
+              ATHROW
+             L4
               ASTORE 2
               ALOAD 2
               INVOKEINTERFACE org/nlogo/api/AgentSet.count ()I
               I2D
-             L3
+             L5
               LDC 8.0
-             L4
+             L6
               DSTORE 4
               DSTORE 2
               DLOAD 2
               DLOAD 4
               DCMPL
-              IFEQ L5
-              ICONST_1
-              GOTO L6
-             L5
-              ICONST_0
-             L6
               IFEQ L7
-              GETSTATIC java/lang/Boolean.TRUE : Ljava/lang/Boolean;
+              ICONST_1
               GOTO L8
              L7
-              GETSTATIC java/lang/Boolean.FALSE : Ljava/lang/Boolean;
+              ICONST_0
              L8
+              IFEQ L9
+              GETSTATIC java/lang/Boolean.TRUE : Ljava/lang/Boolean;
+              GOTO L10
+             L9
+              GETSTATIC java/lang/Boolean.FALSE : Ljava/lang/Boolean;
+             L10
               ARETURN
          L0
           ALOAD 0
@@ -3194,20 +3204,30 @@ procedure FLOW:[TARGET AMOUNT EROSION]{-TP-}:
              L0
               ALOAD 1
               GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+              ASTORE 2
+              ALOAD 2
               INSTANCEOF org/nlogo/agent/Turtle
               IFEQ L1
-              ALOAD 1
-              GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+              ALOAD 2
               CHECKCAST org/nlogo/agent/Turtle
               INVOKEVIRTUAL org/nlogo/agent/Turtle.getPatchHere ()Lorg/nlogo/agent/Patch;
-              INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors ()Lorg/nlogo/agent/AgentSet;
               GOTO L2
              L1
-              ALOAD 1
-              GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+              ALOAD 2
+              INSTANCEOF org/nlogo/agent/Patch
+              IFEQ L3
+              ALOAD 2
               CHECKCAST org/nlogo/agent/Patch
-              INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors ()Lorg/nlogo/agent/AgentSet;
              L2
+              INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors ()Lorg/nlogo/agent/AgentSet;
+              GOTO L4
+             L3
+              NEW scala/MatchError
+              DUP
+              ALOAD 2
+              INVOKESPECIAL scala/MatchError.<init> (Ljava/lang/Object;)V
+              ATHROW
+             L4
               ARETURN
         _asm_procedureflow_plus_2 "elevation + water" double,double => double
           _patchvariable:ELEVATION => Object
