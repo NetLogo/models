@@ -24,14 +24,7 @@ val requirePreviews = args.nonEmpty && args(0).trim == "1"
 
 // Read version.txt, legal.txt, models directory.
 
-// paper over difference between master and 5.0.x branches
-val path = "resources/system/version.txt"
-val netlogo = read(
-  if (new File(path).exists)
-    path
-  else
-    "headless/" + path).next()  // for example "NetLogo 7.8"
-
+val netlogo = read("resources/system/version.txt").next  // for example "NetLogo 7.8"
 def addSuffix(path: String) =
   path + ".nlogo" + (if(path.startsWith("3D/")) "3d"
                      else "")
