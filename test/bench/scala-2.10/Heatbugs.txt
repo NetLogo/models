@@ -929,12 +929,12 @@ procedure GO:[]{O---}:
          L1
           ASTORE 2
           ALOAD 2
-          INVOKEVIRTUAL org/nlogo/agent/AgentSet.isEmpty ()Z
-          IFNE L2
-          ICONST_1
+          INVOKEINTERFACE org/nlogo/api/AgentSet.isEmpty ()Z
+          IFEQ L2
+          ICONST_0
           GOTO L3
          L2
-          ICONST_0
+          ICONST_1
          L3
           ISTORE 2
           ILOAD 2
@@ -2232,20 +2232,37 @@ procedure FIND-TARGET:[]{-T--}:
              L0
               ALOAD 1
               GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+              ASTORE 2
+              ALOAD 2
               INSTANCEOF org/nlogo/agent/Turtle
               IFEQ L1
-              ALOAD 1
-              GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+              ALOAD 2
               CHECKCAST org/nlogo/agent/Turtle
+              ASTORE 3
+              ALOAD 3
               INVOKEVIRTUAL org/nlogo/agent/Turtle.getPatchHere ()Lorg/nlogo/agent/Patch;
-              INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors ()Lorg/nlogo/agent/AgentSet;
+              ASTORE 4
               GOTO L2
              L1
-              ALOAD 1
-              GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+              ALOAD 2
+              INSTANCEOF org/nlogo/agent/Patch
+              IFEQ L3
+              ALOAD 2
               CHECKCAST org/nlogo/agent/Patch
-              INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors ()Lorg/nlogo/agent/AgentSet;
+              ASTORE 5
+              ALOAD 5
+              ASTORE 4
              L2
+              ALOAD 4
+              INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors ()Lorg/nlogo/agent/AgentSet;
+              GOTO L4
+             L3
+              NEW scala/MatchError
+              DUP
+              ALOAD 2
+              INVOKESPECIAL scala/MatchError.<init> (Ljava/lang/Object;)V
+              ATHROW
+             L4
               ARETURN
         _asm_procedurefindtarget_patchvariable_3 "temp" => Object
               TRYCATCHBLOCK L0 L1 L2 org/nlogo/api/AgentException
@@ -2347,20 +2364,37 @@ procedure FIND-TARGET:[]{-T--}:
              L0
               ALOAD 1
               GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+              ASTORE 2
+              ALOAD 2
               INSTANCEOF org/nlogo/agent/Turtle
               IFEQ L1
-              ALOAD 1
-              GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+              ALOAD 2
               CHECKCAST org/nlogo/agent/Turtle
+              ASTORE 3
+              ALOAD 3
               INVOKEVIRTUAL org/nlogo/agent/Turtle.getPatchHere ()Lorg/nlogo/agent/Patch;
-              INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors ()Lorg/nlogo/agent/AgentSet;
+              ASTORE 4
               GOTO L2
              L1
-              ALOAD 1
-              GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+              ALOAD 2
+              INSTANCEOF org/nlogo/agent/Patch
+              IFEQ L3
+              ALOAD 2
               CHECKCAST org/nlogo/agent/Patch
-              INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors ()Lorg/nlogo/agent/AgentSet;
+              ASTORE 5
+              ALOAD 5
+              ASTORE 4
              L2
+              ALOAD 4
+              INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors ()Lorg/nlogo/agent/AgentSet;
+              GOTO L4
+             L3
+              NEW scala/MatchError
+              DUP
+              ALOAD 2
+              INVOKESPECIAL scala/MatchError.<init> (Ljava/lang/Object;)V
+              ATHROW
+             L4
               ARETURN
         _asm_procedurefindtarget_patchvariable_7 "temp" => Object
               TRYCATCHBLOCK L0 L1 L2 org/nlogo/api/AgentException
@@ -2520,12 +2554,12 @@ procedure BUG-MOVE:[TARGET TRIES]{-T--}:
          L3
           ASTORE 2
           ALOAD 2
-          INVOKEVIRTUAL org/nlogo/agent/AgentSet.isEmpty ()Z
-          IFNE L4
-          ICONST_1
+          INVOKEINTERFACE org/nlogo/api/AgentSet.isEmpty ()Z
+          IFEQ L4
+          ICONST_0
           GOTO L5
          L4
-          ICONST_0
+          ICONST_1
          L5
           ISTORE 2
           ILOAD 2
@@ -2674,29 +2708,46 @@ procedure BUG-MOVE:[TARGET TRIES]{-T--}:
          L0
           ALOAD 1
           GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+          ASTORE 2
+          ALOAD 2
           INSTANCEOF org/nlogo/agent/Turtle
           IFEQ L1
-          ALOAD 1
-          GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+          ALOAD 2
           CHECKCAST org/nlogo/agent/Turtle
+          ASTORE 3
+          ALOAD 3
           INVOKEVIRTUAL org/nlogo/agent/Turtle.getPatchHere ()Lorg/nlogo/agent/Patch;
-          INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors ()Lorg/nlogo/agent/AgentSet;
+          ASTORE 4
           GOTO L2
          L1
-          ALOAD 1
-          GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+          ALOAD 2
+          INSTANCEOF org/nlogo/agent/Patch
+          IFEQ L3
+          ALOAD 2
           CHECKCAST org/nlogo/agent/Patch
-          INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors ()Lorg/nlogo/agent/AgentSet;
+          ASTORE 5
+          ALOAD 5
+          ASTORE 4
          L2
+          ALOAD 4
+          INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors ()Lorg/nlogo/agent/AgentSet;
+          GOTO L4
+         L3
+          NEW scala/MatchError
+          DUP
+          ALOAD 2
+          INVOKESPECIAL scala/MatchError.<init> (Ljava/lang/Object;)V
+          ATHROW
+         L4
           ASTORE 2
           ALOAD 2
           INVOKEVIRTUAL org/nlogo/agent/AgentSet.count ()I
           ISTORE 3
           ILOAD 3
-          IFNE L3
+          IFNE L5
           GETSTATIC org/nlogo/api/Nobody$.MODULE$ : Lorg/nlogo/api/Nobody$;
-          GOTO L4
-         L3
+          GOTO L6
+         L5
           ALOAD 2
           ILOAD 3
           ALOAD 1
@@ -2705,7 +2756,7 @@ procedure BUG-MOVE:[TARGET TRIES]{-T--}:
           ILOAD 3
           INVOKEVIRTUAL org/nlogo/util/MersenneTwisterFast.nextInt (I)I
           INVOKEVIRTUAL org/nlogo/agent/AgentSet.randomOne (II)Lorg/nlogo/agent/Agent;
-         L4
+         L6
           ASTORE 2
           ALOAD 1
           GETFIELD org/nlogo/nvm/Context.activation : Lorg/nlogo/nvm/Activation;
@@ -2716,7 +2767,7 @@ procedure BUG-MOVE:[TARGET TRIES]{-T--}:
           ALOAD 1
           BIPUSH 7
           PUTFIELD org/nlogo/nvm/Context.ip : I
-         L5
+         L7
           RETURN
 [7]_asm_procedurebugmove_if_8 "if not any? turtles-on target" boolean => void
       _not boolean => boolean
@@ -2756,12 +2807,12 @@ procedure BUG-MOVE:[TARGET TRIES]{-T--}:
          L3
           ASTORE 2
           ALOAD 2
-          INVOKEVIRTUAL org/nlogo/agent/AgentSet.isEmpty ()Z
-          IFNE L4
-          ICONST_1
+          INVOKEINTERFACE org/nlogo/api/AgentSet.isEmpty ()Z
+          IFEQ L4
+          ICONST_0
           GOTO L5
          L4
-          ICONST_0
+          ICONST_1
          L5
           ISTORE 2
           ILOAD 2
