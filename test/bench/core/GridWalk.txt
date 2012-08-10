@@ -236,29 +236,39 @@ procedure SETUP:[]{O---}:
          L2
           ALOAD 1
           GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+          ASTORE 2
+          ALOAD 2
           INSTANCEOF org/nlogo/agent/Turtle
           IFEQ L3
-          ALOAD 1
-          GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+          ALOAD 2
           CHECKCAST org/nlogo/agent/Turtle
           INVOKEVIRTUAL org/nlogo/agent/Turtle.getPatchHere ()Lorg/nlogo/agent/Patch;
-          INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors4 ()Lorg/nlogo/agent/AgentSet;
           GOTO L4
          L3
-          ALOAD 1
-          GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+          ALOAD 2
+          INSTANCEOF org/nlogo/agent/Patch
+          IFEQ L5
+          ALOAD 2
           CHECKCAST org/nlogo/agent/Patch
-          INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors4 ()Lorg/nlogo/agent/AgentSet;
          L4
+          INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors4 ()Lorg/nlogo/agent/AgentSet;
+          GOTO L6
+         L5
+          NEW scala/MatchError
+          DUP
+          ALOAD 2
+          INVOKESPECIAL scala/MatchError.<init> (Ljava/lang/Object;)V
+          ATHROW
+         L6
           ASTORE 2
           ALOAD 2
           INVOKEVIRTUAL org/nlogo/agent/AgentSet.count ()I
           ISTORE 3
           ILOAD 3
-          IFNE L5
+          IFNE L7
           GETSTATIC org/nlogo/api/Nobody$.MODULE$ : Lorg/nlogo/api/Nobody$;
-          GOTO L6
-         L5
+          GOTO L8
+         L7
           ALOAD 2
           ILOAD 3
           ALOAD 1
@@ -267,12 +277,12 @@ procedure SETUP:[]{O---}:
           ILOAD 3
           INVOKEVIRTUAL org/nlogo/util/MersenneTwisterFast.nextInt (I)I
           INVOKEVIRTUAL org/nlogo/agent/AgentSet.randomOne (II)Lorg/nlogo/agent/Agent;
-         L6
+         L8
           ASTORE 2
          L0
           ALOAD 2
           CHECKCAST org/nlogo/agent/Agent
-          GOTO L7
+          GOTO L9
          L1
           POP
           NEW org/nlogo/nvm/ArgumentTypeException
@@ -284,11 +294,11 @@ procedure SETUP:[]{O---}:
           ALOAD 2
           INVOKESPECIAL org/nlogo/nvm/ArgumentTypeException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;IILjava/lang/Object;)V
           ATHROW
-         L7
+         L9
           ASTORE 2
           ALOAD 2
           INSTANCEOF org/nlogo/agent/Link
-          IFEQ L8
+          IFEQ L10
           NEW org/nlogo/nvm/EngineException
           DUP
           ALOAD 1
@@ -299,12 +309,12 @@ procedure SETUP:[]{O---}:
           INVOKEVIRTUAL org/nlogo/api/I18N$BundleKind.get (Ljava/lang/String;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L8
+         L10
           ALOAD 2
           GETFIELD org/nlogo/agent/Agent.id : J
           LDC -1
           LCMP
-          IFNE L9
+          IFNE L11
           NEW org/nlogo/nvm/EngineException
           DUP
           ALOAD 1
@@ -324,7 +334,7 @@ procedure SETUP:[]{O---}:
           INVOKEVIRTUAL org/nlogo/api/I18N$BundleKind.getN (Ljava/lang/String;Lscala/collection/Seq;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L9
+         L11
           ALOAD 1
           GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
           CHECKCAST org/nlogo/agent/Turtle
@@ -334,7 +344,7 @@ procedure SETUP:[]{O---}:
           ALOAD 1
           ICONST_5
           PUTFIELD org/nlogo/nvm/Context.ip : I
-         L10
+         L12
           RETURN
 [5]_asm_proceduresetup_done_3 "" => void
          L0
@@ -412,29 +422,39 @@ procedure GO:[]{O---}:
          L2
           ALOAD 1
           GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+          ASTORE 2
+          ALOAD 2
           INSTANCEOF org/nlogo/agent/Turtle
           IFEQ L3
-          ALOAD 1
-          GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+          ALOAD 2
           CHECKCAST org/nlogo/agent/Turtle
           INVOKEVIRTUAL org/nlogo/agent/Turtle.getPatchHere ()Lorg/nlogo/agent/Patch;
-          INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors4 ()Lorg/nlogo/agent/AgentSet;
           GOTO L4
          L3
-          ALOAD 1
-          GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
+          ALOAD 2
+          INSTANCEOF org/nlogo/agent/Patch
+          IFEQ L5
+          ALOAD 2
           CHECKCAST org/nlogo/agent/Patch
-          INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors4 ()Lorg/nlogo/agent/AgentSet;
          L4
+          INVOKEVIRTUAL org/nlogo/agent/Patch.getNeighbors4 ()Lorg/nlogo/agent/AgentSet;
+          GOTO L6
+         L5
+          NEW scala/MatchError
+          DUP
+          ALOAD 2
+          INVOKESPECIAL scala/MatchError.<init> (Ljava/lang/Object;)V
+          ATHROW
+         L6
           ASTORE 2
           ALOAD 2
           INVOKEVIRTUAL org/nlogo/agent/AgentSet.count ()I
           ISTORE 3
           ILOAD 3
-          IFNE L5
+          IFNE L7
           GETSTATIC org/nlogo/api/Nobody$.MODULE$ : Lorg/nlogo/api/Nobody$;
-          GOTO L6
-         L5
+          GOTO L8
+         L7
           ALOAD 2
           ILOAD 3
           ALOAD 1
@@ -443,12 +463,12 @@ procedure GO:[]{O---}:
           ILOAD 3
           INVOKEVIRTUAL org/nlogo/util/MersenneTwisterFast.nextInt (I)I
           INVOKEVIRTUAL org/nlogo/agent/AgentSet.randomOne (II)Lorg/nlogo/agent/Agent;
-         L6
+         L8
           ASTORE 2
          L0
           ALOAD 2
           CHECKCAST org/nlogo/agent/Agent
-          GOTO L7
+          GOTO L9
          L1
           POP
           NEW org/nlogo/nvm/ArgumentTypeException
@@ -460,11 +480,11 @@ procedure GO:[]{O---}:
           ALOAD 2
           INVOKESPECIAL org/nlogo/nvm/ArgumentTypeException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;IILjava/lang/Object;)V
           ATHROW
-         L7
+         L9
           ASTORE 2
           ALOAD 2
           INSTANCEOF org/nlogo/agent/Link
-          IFEQ L8
+          IFEQ L10
           NEW org/nlogo/nvm/EngineException
           DUP
           ALOAD 1
@@ -475,12 +495,12 @@ procedure GO:[]{O---}:
           INVOKEVIRTUAL org/nlogo/api/I18N$BundleKind.get (Ljava/lang/String;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L8
+         L10
           ALOAD 2
           GETFIELD org/nlogo/agent/Agent.id : J
           LDC -1
           LCMP
-          IFNE L9
+          IFNE L11
           NEW org/nlogo/nvm/EngineException
           DUP
           ALOAD 1
@@ -500,7 +520,7 @@ procedure GO:[]{O---}:
           INVOKEVIRTUAL org/nlogo/api/I18N$BundleKind.getN (Ljava/lang/String;Lscala/collection/Seq;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L9
+         L11
           ALOAD 1
           GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
           CHECKCAST org/nlogo/agent/Turtle
@@ -510,7 +530,7 @@ procedure GO:[]{O---}:
           ALOAD 1
           ICONST_2
           PUTFIELD org/nlogo/nvm/Context.ip : I
-         L10
+         L12
           RETURN
 [2]_asm_procedurego_fd1_2 "fd" => void
           TRYCATCHBLOCK L0 L1 L1 org/nlogo/api/AgentException
