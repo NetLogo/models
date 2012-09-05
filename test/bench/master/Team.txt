@@ -5579,18 +5579,31 @@ procedure DO-PLOT:[TOTAL]{OTPL}:
             DCONST_0
             DSTORE 3
             ALOAD 2
+            INVOKEVIRTUAL org/nlogo/api/LogoList.isEmpty ()Z
+            IFEQ L5
+            NEW org/nlogo/nvm/EngineException
+            DUP
+            ALOAD 1
+            ALOAD 0
+            INVOKESTATIC org/nlogo/api/I18N.errorsJ ()Lorg/nlogo/api/I18NJava;
+            LDC "org.nlogo.prim.etc.$common.emptyList"
+            INVOKEINTERFACE org/nlogo/api/I18NJava.get (Ljava/lang/String;)Ljava/lang/String;
+            INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
+            ATHROW
+           L5
+            ALOAD 2
             INVOKEVIRTUAL org/nlogo/api/LogoList.iterator ()Ljava/util/Iterator;
             ASTORE 5
-           L5
+           L6
             ALOAD 5
             INVOKEINTERFACE java/util/Iterator.hasNext ()Z
-            IFEQ L6
+            IFEQ L7
             ALOAD 5
             INVOKEINTERFACE java/util/Iterator.next ()Ljava/lang/Object;
             ASTORE 6
             ALOAD 6
             INSTANCEOF java/lang/Double
-            IFNE L7
+            IFNE L8
             NEW org/nlogo/nvm/EngineException
             DUP
             ALOAD 1
@@ -5612,15 +5625,15 @@ procedure DO-PLOT:[TOTAL]{OTPL}:
             INVOKEINTERFACE org/nlogo/api/I18NJava.getN (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
             INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
             ATHROW
-           L7
+           L8
             DLOAD 3
             ALOAD 6
             CHECKCAST java/lang/Double
             INVOKEVIRTUAL java/lang/Double.doubleValue ()D
             DADD
             DSTORE 3
-            GOTO L5
-           L6
+            GOTO L6
+           L7
             ALOAD 0
             DLOAD 3
             ALOAD 2
@@ -5628,7 +5641,7 @@ procedure DO-PLOT:[TOTAL]{OTPL}:
             I2D
             DDIV
             INVOKEVIRTUAL org/nlogo/prim/_asm_proceduredoplot_mean_36.validDouble (D)D
-           L8
+           L9
             DSTORE 2
             NEW java/lang/Double
             DUP
