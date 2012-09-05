@@ -65,7 +65,7 @@ to startup
   initialize-shapes
 
   ;; make Current Profit a plot that can vary by client
- ;; __hubnet-make-plot-narrowcast "Current Profit Plot"
+  __hubnet-make-plot-narrowcast "Current Profit Plot"
 
 end
 
@@ -91,7 +91,7 @@ to reset
 
   ;; Reset plots
   set-current-plot "Current Profit Plot"
-  ;;ask sellers [ __hubnet-clear-plot user-id ]
+  ask sellers [ __hubnet-clear-plot user-id ]
 
   set-current-plot "Oil Sold on Market"
   clear-plot
@@ -704,7 +704,7 @@ to plot-current-profit
   set-current-plot "Current Profit Plot"
 
   ask sellers [
-    ;;__hubnet-plot user-id last-sale-profit
+    __hubnet-plot user-id last-sale-profit
   ]
 end
 @#$#@#$#@
@@ -733,6 +733,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
+30.0
 
 MONITOR
 15
@@ -929,7 +930,7 @@ NIL
 0.0
 500.0
 0.0
-2.0E7
+2.0E8
 true
 false
 "" ""
@@ -1352,7 +1353,7 @@ Polygon -6459832 true true 46 128 33 120 21 118 11 123 3 138 5 160 13 178 9 192 
 Polygon -6459832 true true 67 122 96 126 63 144
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.0.2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1422,20 +1423,18 @@ PLOT
 10
 605
 231
-Oil Sold on Market
+Current Profit Plot
 NIL
 NIL
 0.0
 500.0
 0.0
-6000.0
+2.0E7
 true
 false
 "" ""
 PENS
-"Actual" 1.0 0 -13345367 true
-"Competitive" 1.0 0 -10899396 true
-"Agreement" 1.0 0 -2674135 true
+"default" 1.0 0 -13345367 true
 
 MONITOR
 18
