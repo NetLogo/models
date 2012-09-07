@@ -632,8 +632,8 @@ procedure MAKE-NODE:[OLD-NODE]{O---}:
           RETURN
 [9]_asm_proceduremakenode_fdinternal_9 "" => void
           TRYCATCHBLOCK L0 L1 L2 org/nlogo/api/AgentException
-          TRYCATCHBLOCK L3 L4 L5 org/nlogo/api/AgentException
-         L6
+          TRYCATCHBLOCK L3 L4 L1 org/nlogo/api/AgentException
+         L5
           ALOAD 1
           GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
           CHECKCAST org/nlogo/agent/Turtle
@@ -651,43 +651,37 @@ procedure MAKE-NODE:[OLD-NODE]{O---}:
           INVOKESTATIC java/lang/StrictMath.abs (D)D
           DSTORE 6
           DLOAD 6
-          INVOKESTATIC org/nlogo/api/Constants.Infinitesimal ()D
+          GETSTATIC org/nlogo/api/Constants$.MODULE$ : Lorg/nlogo/api/Constants$;
+          INVOKEVIRTUAL org/nlogo/api/Constants$.Infinitesimal ()D
           DCMPG
-          IFGT L7
+          IFGT L6
           ALOAD 1
           BIPUSH 10
           PUTFIELD org/nlogo/nvm/Context.ip : I
-          GOTO L8
-         L7
+          GOTO L7
+         L6
           DLOAD 6
           DCONST_1
           DCMPG
-          IFGT L9
-         L0
+          IFGT L4
+         L3
           ALOAD 2
           DLOAD 4
           INVOKEVIRTUAL org/nlogo/agent/Turtle.jump (D)V
-         L1
-          GOTO L10
-         L2
-          ASTORE 8
-         L10
-          ALOAD 1
-          BIPUSH 10
-          PUTFIELD org/nlogo/nvm/Context.ip : I
           GOTO L8
-         L9
+         L4
           DLOAD 4
-          DCONST_0
+          ICONST_0
+          I2D
           DCMPL
-          IFLE L11
+          IFLE L9
           ICONST_1
-          GOTO L12
-         L11
+          GOTO L10
+         L9
           ICONST_M1
-         L12
+         L10
           ISTORE 8
-         L3
+         L0
           ALOAD 2
           ILOAD 8
           I2D
@@ -699,14 +693,20 @@ procedure MAKE-NODE:[OLD-NODE]{O---}:
           I2D
           DSUB
           INVOKEVIRTUAL org/nlogo/nvm/MutableDouble.value_$eq (D)V
-         L4
-          GOTO L8
-         L5
-          ASTORE 9
+          GOTO L7
+         L1
+          POP
+         L8
           ALOAD 1
           BIPUSH 10
           PUTFIELD org/nlogo/nvm/Context.ip : I
-         L8
+          GOTO L7
+         L2
+          POP
+          ALOAD 1
+          BIPUSH 10
+          PUTFIELD org/nlogo/nvm/Context.ip : I
+         L7
           RETURN
 [10]_asm_proceduremakenode_done_10 "" => void
          L0
