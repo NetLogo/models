@@ -3503,7 +3503,7 @@ procedure CHECK-FOR-COLLISION:[]{-T--}:
           ALOAD 2
           INVOKEVIRTUAL org/nlogo/agent/AgentSet.kind ()Lorg/nlogo/api/AgentKind;
           ALOAD 2
-          INVOKEVIRTUAL org/nlogo/agent/AgentSet.count ()I
+          INVOKEINTERFACE org/nlogo/api/AgentSet.count ()I
           ICONST_0
           ALOAD 0
           GETFIELD org/nlogo/prim/_asm_procedurecheckforcollision_setturtlevariable_1.world : Lorg/nlogo/agent/World;
@@ -3522,24 +3522,23 @@ procedure CHECK-FOR-COLLISION:[]{-T--}:
           ALOAD 1
           GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
           ALOAD 5
-          IF_ACMPEQ L9
+          IF_ACMPEQ L7
           ALOAD 3
           ALOAD 5
-          INVOKEVIRTUAL org/nlogo/agent/AgentSet.add (Lorg/nlogo/agent/Agent;)V
-         L9
+          INVOKEVIRTUAL org/nlogo/agent/ArrayAgentSet.add (Lorg/nlogo/agent/Agent;)V
           GOTO L7
          L8
           ALOAD 3
-         L10
+         L9
           ASTORE 2
           ALOAD 2
           INVOKEVIRTUAL org/nlogo/agent/AgentSet.count ()I
           ISTORE 3
           ILOAD 3
-          IFNE L11
+          IFNE L10
           GETSTATIC org/nlogo/api/Nobody$.MODULE$ : Lorg/nlogo/api/Nobody$;
-          GOTO L12
-         L11
+          GOTO L11
+         L10
           ALOAD 2
           ILOAD 3
           ALOAD 1
@@ -3548,7 +3547,7 @@ procedure CHECK-FOR-COLLISION:[]{-T--}:
           ILOAD 3
           INVOKEVIRTUAL org/nlogo/util/MersenneTwisterFast.nextInt (I)I
           INVOKEVIRTUAL org/nlogo/agent/AgentSet.randomOne (II)Lorg/nlogo/agent/Agent;
-         L12
+         L11
           ASTORE 2
          L0
           ALOAD 1
@@ -3557,7 +3556,7 @@ procedure CHECK-FOR-COLLISION:[]{-T--}:
           ALOAD 2
           INVOKEVIRTUAL org/nlogo/agent/Agent.setTurtleVariable (ILjava/lang/Object;)V
          L1
-          GOTO L13
+          GOTO L12
          L2
           ASTORE 3
           NEW org/nlogo/nvm/EngineException
@@ -3568,11 +3567,11 @@ procedure CHECK-FOR-COLLISION:[]{-T--}:
           INVOKEVIRTUAL org/nlogo/api/AgentException.getMessage ()Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L13
+         L12
           ALOAD 1
           ICONST_2
           PUTFIELD org/nlogo/nvm/Context.ip : I
-         L14
+         L13
           RETURN
 [2]_asm_procedurecheckforcollision_if_2 "if ((who > [who] of tmp-turtle) and (turtle2 != tmp-turtle" boolean => void
       _and
