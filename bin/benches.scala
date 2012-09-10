@@ -9,7 +9,7 @@ val results = new HashMap[String, ListBuffer[Double]]
 val haveGoodResult = new HashSet[String]
 
 val classpath =
-  Seq("target/scala-2.9.2/classes",
+  Seq("headless/target/classes",
       System.getenv("HOME") + "/.sbt/boot/scala-2.9.2/lib/scala-library.jar",
       "resources",
       "lib_managed/jars/asm/asm-all/asm-all-3.3.1.jar",
