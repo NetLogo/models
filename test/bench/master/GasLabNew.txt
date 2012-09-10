@@ -6058,9 +6058,10 @@ procedure CHECK-FOR-COLLISION:[CANDIDATE]{-T--}:
           ALOAD 2
           INVOKESPECIAL org/nlogo/nvm/Context.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/agent/AgentSet;)V
           ASTORE 4
-          NEW java/util/ArrayList
-          DUP
-          INVOKESPECIAL java/util/ArrayList.<init> ()V
+          GETSTATIC scala/collection/mutable/ArrayBuffer$.MODULE$ : Lscala/collection/mutable/ArrayBuffer$;
+          GETSTATIC scala/collection/immutable/Nil$.MODULE$ : Lscala/collection/immutable/Nil$;
+          INVOKEVIRTUAL scala/collection/mutable/ArrayBuffer$.apply (Lscala/collection/Seq;)Lscala/collection/GenTraversable;
+          CHECKCAST scala/collection/mutable/ArrayBuffer
           ASTORE 5
           ALOAD 3
           ALOAD 2
@@ -6079,9 +6080,7 @@ procedure CHECK-FOR-COLLISION:[CANDIDATE]{-T--}:
           ALOAD 7
           ALOAD 1
           GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
-          IF_ACMPNE L9
-          GOTO L7
-         L9
+          IF_ACMPEQ L9
           ALOAD 4
           ALOAD 7
           ALOAD 3
@@ -6089,13 +6088,27 @@ procedure CHECK-FOR-COLLISION:[CANDIDATE]{-T--}:
           ASTORE 8
           ALOAD 8
           INSTANCEOF java/lang/Boolean
-          IFNE L10
+          IFEQ L10
+          ALOAD 8
+          CHECKCAST java/lang/Boolean
+          INVOKEVIRTUAL java/lang/Boolean.booleanValue ()Z
+          IFEQ L11
+          ALOAD 5
+          ALOAD 7
+          INVOKEVIRTUAL scala/collection/mutable/ArrayBuffer.$plus$eq (Ljava/lang/Object;)Lscala/collection/mutable/ArrayBuffer;
+          GOTO L12
+         L11
+          GETSTATIC scala/runtime/BoxedUnit.UNIT : Lscala/runtime/BoxedUnit;
+          GOTO L12
+         L10
           NEW org/nlogo/nvm/EngineException
           DUP
           ALOAD 1
           ALOAD 0
-          INVOKESTATIC org/nlogo/api/I18N.errorsJ ()Lorg/nlogo/api/I18NJava;
+          GETSTATIC org/nlogo/api/I18N$.MODULE$ : Lorg/nlogo/api/I18N$;
+          INVOKEVIRTUAL org/nlogo/api/I18N$.errors ()Lorg/nlogo/api/I18N$BundleKind;
           LDC "org.nlogo.prim.$common.expectedBooleanValue"
+          GETSTATIC scala/Predef$.MODULE$ : Lscala/Predef$;
           ICONST_3
           ANEWARRAY java/lang/Object
           DUP
@@ -6104,27 +6117,24 @@ procedure CHECK-FOR-COLLISION:[CANDIDATE]{-T--}:
           AASTORE
           DUP
           ICONST_1
+          GETSTATIC org/nlogo/api/Dump$.MODULE$ : Lorg/nlogo/api/Dump$;
           ALOAD 7
-          INVOKESTATIC org/nlogo/api/Dump.logoObject (Ljava/lang/Object;)Ljava/lang/String;
+          INVOKEVIRTUAL org/nlogo/api/Dump$.logoObject (Ljava/lang/Object;)Ljava/lang/String;
           AASTORE
           DUP
           ICONST_2
+          GETSTATIC org/nlogo/api/Dump$.MODULE$ : Lorg/nlogo/api/Dump$;
           ALOAD 8
-          INVOKESTATIC org/nlogo/api/Dump.logoObject (Ljava/lang/Object;)Ljava/lang/String;
+          INVOKEVIRTUAL org/nlogo/api/Dump$.logoObject (Ljava/lang/Object;)Ljava/lang/String;
           AASTORE
-          INVOKEINTERFACE org/nlogo/api/I18NJava.getN (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+          INVOKEVIRTUAL scala/Predef$.wrapRefArray ([Ljava/lang/Object;)Lscala/collection/mutable/WrappedArray;
+          INVOKEVIRTUAL org/nlogo/api/I18N$BundleKind.getN (Ljava/lang/String;Lscala/collection/Seq;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L10
-          ALOAD 8
-          CHECKCAST java/lang/Boolean
-          INVOKEVIRTUAL java/lang/Boolean.booleanValue ()Z
-          IFEQ L11
-          ALOAD 5
-          ALOAD 7
-          INVOKEINTERFACE java/util/List.add (Ljava/lang/Object;)Z
+         L9
+          GETSTATIC scala/runtime/BoxedUnit.UNIT : Lscala/runtime/BoxedUnit;
+         L12
           POP
-         L11
           GOTO L7
          L8
           NEW org/nlogo/agent/ArrayAgentSet
@@ -6132,24 +6142,24 @@ procedure CHECK-FOR-COLLISION:[CANDIDATE]{-T--}:
           ALOAD 2
           INVOKEVIRTUAL org/nlogo/agent/AgentSet.kind ()Lorg/nlogo/api/AgentKind;
           ALOAD 5
-          ALOAD 5
-          INVOKEINTERFACE java/util/List.size ()I
-          ANEWARRAY org/nlogo/agent/Agent
-          INVOKEINTERFACE java/util/List.toArray ([Ljava/lang/Object;)[Ljava/lang/Object;
+          GETSTATIC scala/reflect/ClassManifest$.MODULE$ : Lscala/reflect/ClassManifest$;
+          LDC Lorg/nlogo/agent/Agent;.class
+          INVOKEVIRTUAL scala/reflect/ClassManifest$.classType (Ljava/lang/Class;)Lscala/reflect/ClassManifest;
+          INVOKEINTERFACE scala/collection/TraversableOnce.toArray (Lscala/reflect/ClassManifest;)Ljava/lang/Object;
           CHECKCAST [Lorg/nlogo/agent/Agent;
           ALOAD 0
           GETFIELD org/nlogo/prim/_asm_procedurecheckforcollision_setprocedurevariable_1.world : Lorg/nlogo/agent/World;
           INVOKESPECIAL org/nlogo/agent/ArrayAgentSet.<init> (Lorg/nlogo/api/AgentKind;[Lorg/nlogo/agent/Agent;Lorg/nlogo/agent/World;)V
-         L12
+         L13
           ASTORE 2
           ALOAD 2
           INVOKEVIRTUAL org/nlogo/agent/AgentSet.count ()I
           ISTORE 3
           ILOAD 3
-          IFNE L13
+          IFNE L14
           GETSTATIC org/nlogo/api/Nobody$.MODULE$ : Lorg/nlogo/api/Nobody$;
-          GOTO L14
-         L13
+          GOTO L15
+         L14
           ALOAD 2
           ILOAD 3
           ALOAD 1
@@ -6158,7 +6168,7 @@ procedure CHECK-FOR-COLLISION:[CANDIDATE]{-T--}:
           ILOAD 3
           INVOKEVIRTUAL org/nlogo/util/MersenneTwisterFast.nextInt (I)I
           INVOKEVIRTUAL org/nlogo/agent/AgentSet.randomOne (II)Lorg/nlogo/agent/Agent;
-         L14
+         L15
           ASTORE 2
           ALOAD 1
           GETFIELD org/nlogo/nvm/Context.activation : Lorg/nlogo/nvm/Activation;
@@ -6169,7 +6179,7 @@ procedure CHECK-FOR-COLLISION:[CANDIDATE]{-T--}:
           ALOAD 1
           ICONST_2
           PUTFIELD org/nlogo/nvm/Context.ip : I
-         L15
+         L16
           RETURN
 [2]_asm_procedurecheckforcollision_if_3 "if (candidate != nobody) and (speed > 0 or [speed] of candidate > 0" boolean => void
       _and

@@ -13726,9 +13726,7 @@ procedure OVERLAPPING?:[]{-T--}:
           ALOAD 6
           ALOAD 1
           GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
-          IF_ACMPNE L16
-          GOTO L14
-         L16
+          IF_ACMPEQ L14
           ALOAD 4
           ALOAD 6
           ALOAD 3
@@ -13736,13 +13734,22 @@ procedure OVERLAPPING?:[]{-T--}:
           ASTORE 7
           ALOAD 7
           INSTANCEOF java/lang/Boolean
-          IFNE L17
+          IFEQ L16
+          ALOAD 7
+          CHECKCAST java/lang/Boolean
+          INVOKEVIRTUAL java/lang/Boolean.booleanValue ()Z
+          IFEQ L14
+          ICONST_1
+          GOTO L17
+         L16
           NEW org/nlogo/nvm/EngineException
           DUP
           ALOAD 1
           ALOAD 0
-          INVOKESTATIC org/nlogo/api/I18N.errorsJ ()Lorg/nlogo/api/I18NJava;
+          GETSTATIC org/nlogo/api/I18N$.MODULE$ : Lorg/nlogo/api/I18N$;
+          INVOKEVIRTUAL org/nlogo/api/I18N$.errors ()Lorg/nlogo/api/I18N$BundleKind;
           LDC "org.nlogo.prim.$common.expectedBooleanValue"
+          GETSTATIC scala/Predef$.MODULE$ : Lscala/Predef$;
           ICONST_3
           ANEWARRAY java/lang/Object
           DUP
@@ -13751,35 +13758,29 @@ procedure OVERLAPPING?:[]{-T--}:
           AASTORE
           DUP
           ICONST_1
+          GETSTATIC org/nlogo/api/Dump$.MODULE$ : Lorg/nlogo/api/Dump$;
           ALOAD 6
-          INVOKESTATIC org/nlogo/api/Dump.logoObject (Ljava/lang/Object;)Ljava/lang/String;
+          INVOKEVIRTUAL org/nlogo/api/Dump$.logoObject (Ljava/lang/Object;)Ljava/lang/String;
           AASTORE
           DUP
           ICONST_2
+          GETSTATIC org/nlogo/api/Dump$.MODULE$ : Lorg/nlogo/api/Dump$;
           ALOAD 7
-          INVOKESTATIC org/nlogo/api/Dump.logoObject (Ljava/lang/Object;)Ljava/lang/String;
+          INVOKEVIRTUAL org/nlogo/api/Dump$.logoObject (Ljava/lang/Object;)Ljava/lang/String;
           AASTORE
-          INVOKEINTERFACE org/nlogo/api/I18NJava.getN (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+          INVOKEVIRTUAL scala/Predef$.wrapRefArray ([Ljava/lang/Object;)Lscala/collection/mutable/WrappedArray;
+          INVOKEVIRTUAL org/nlogo/api/I18N$BundleKind.getN (Ljava/lang/String;Lscala/collection/Seq;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L17
-          ALOAD 7
-          CHECKCAST java/lang/Boolean
-          INVOKEVIRTUAL java/lang/Boolean.booleanValue ()Z
-          IFEQ L18
-          ICONST_1
-          GOTO L19
-         L18
-          GOTO L14
          L15
           ICONST_0
-         L19
-          IFEQ L20
+         L17
+          IFEQ L18
           GETSTATIC java/lang/Boolean.TRUE : Ljava/lang/Boolean;
-          GOTO L21
-         L20
+          GOTO L19
+         L18
           GETSTATIC java/lang/Boolean.FALSE : Ljava/lang/Boolean;
-         L21
+         L19
           ASTORE 2
           ALOAD 1
           GETFIELD org/nlogo/nvm/Context.job : Lorg/nlogo/nvm/Job;
@@ -13795,16 +13796,16 @@ procedure OVERLAPPING?:[]{-T--}:
           GETFIELD org/nlogo/nvm/Context.activation : Lorg/nlogo/nvm/Activation;
           INVOKEVIRTUAL org/nlogo/nvm/Activation.procedure ()Lorg/nlogo/nvm/Procedure;
           INVOKEVIRTUAL org/nlogo/nvm/Procedure.isTask ()Z
-          IFEQ L22
+          IFEQ L20
           GETSTATIC org/nlogo/nvm/NonLocalExit$.MODULE$ : Lorg/nlogo/nvm/NonLocalExit$;
           ATHROW
-         L22
+         L20
           ALOAD 1
           GETFIELD org/nlogo/nvm/Context.activation : Lorg/nlogo/nvm/Activation;
           INVOKEVIRTUAL org/nlogo/nvm/Activation.procedure ()Lorg/nlogo/nvm/Procedure;
           GETFIELD org/nlogo/nvm/Procedure.tpe : Lorg/nlogo/nvm/Procedure$Type;
           GETSTATIC org/nlogo/nvm/Procedure$Type.REPORTER : Lorg/nlogo/nvm/Procedure$Type;
-          IF_ACMPEQ L23
+          IF_ACMPEQ L21
           NEW org/nlogo/nvm/EngineException
           DUP
           ALOAD 1
@@ -13820,10 +13821,10 @@ procedure OVERLAPPING?:[]{-T--}:
           INVOKEINTERFACE org/nlogo/api/I18NJava.getN (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L23
+         L21
           ALOAD 1
           INVOKEVIRTUAL org/nlogo/nvm/Context.atTopActivation ()Z
-          IFNE L24
+          IFNE L22
           NEW org/nlogo/nvm/EngineException
           DUP
           ALOAD 1
@@ -13839,7 +13840,7 @@ procedure OVERLAPPING?:[]{-T--}:
           INVOKEINTERFACE org/nlogo/api/I18NJava.getN (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L24
+         L22
           RETURN
 [1]_asm_procedureoverlapping_returnreport_2 "" => void
          L0
