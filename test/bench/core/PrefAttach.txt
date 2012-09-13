@@ -149,7 +149,7 @@ procedure BENCHMARK:[_repeatlocal:0]{O---}:
          L3
           ALOAD 0
           GETFIELD org/nlogo/prim/_asm_procedurebenchmark_setobservervariable_5.world : Lorg/nlogo/agent/World;
-          GETFIELD org/nlogo/agent/World.timer : Lorg/nlogo/api/Timer;
+          INVOKEVIRTUAL org/nlogo/agent/World.timer ()Lorg/nlogo/api/Timer;
           INVOKEVIRTUAL org/nlogo/api/Timer.read ()D
          L4
           DSTORE 2
@@ -330,9 +330,10 @@ procedure GO:[]{O---}:
           DUP
           ALOAD 1
           ALOAD 0
-          INVOKESTATIC org/nlogo/api/I18N.errorsJ ()Lorg/nlogo/api/I18NJava;
+          GETSTATIC org/nlogo/api/I18N$.MODULE$ : Lorg/nlogo/api/I18N$;
+          INVOKEVIRTUAL org/nlogo/api/I18N$.errors ()Lorg/nlogo/api/I18N$BundleKind;
           LDC "org.nlogo.prim.$common.onlyObserverCanAskAllTurtles"
-          INVOKEINTERFACE org/nlogo/api/I18NJava.get (Ljava/lang/String;)Ljava/lang/String;
+          INVOKEVIRTUAL org/nlogo/api/I18N$BundleKind.get (Ljava/lang/String;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
          L3
@@ -345,9 +346,10 @@ procedure GO:[]{O---}:
           DUP
           ALOAD 1
           ALOAD 0
-          INVOKESTATIC org/nlogo/api/I18N.errorsJ ()Lorg/nlogo/api/I18NJava;
+          GETSTATIC org/nlogo/api/I18N$.MODULE$ : Lorg/nlogo/api/I18N$;
+          INVOKEVIRTUAL org/nlogo/api/I18N$.errors ()Lorg/nlogo/api/I18N$BundleKind;
           LDC "org.nlogo.prim.$common.onlyObserverCanAskAllPatches"
-          INVOKEINTERFACE org/nlogo/api/I18NJava.get (Ljava/lang/String;)Ljava/lang/String;
+          INVOKEVIRTUAL org/nlogo/api/I18N$BundleKind.get (Ljava/lang/String;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
          L2
@@ -531,7 +533,7 @@ procedure MAKE-NODE:[OLD-NODE]{O---}:
           PUTFIELD org/nlogo/nvm/Context.ip : I
          L7
           RETURN
-[3]_createlinkwith:null,+6
+[3]_createlinkwith:,+6
       _asm_proceduremakenode_procedurevariable_3 "old-node" => Object
            L0
             ALOAD 1
@@ -632,8 +634,8 @@ procedure MAKE-NODE:[OLD-NODE]{O---}:
           RETURN
 [9]_asm_proceduremakenode_fdinternal_9 "" => void
           TRYCATCHBLOCK L0 L1 L2 org/nlogo/api/AgentException
-          TRYCATCHBLOCK L3 L4 L5 org/nlogo/api/AgentException
-         L6
+          TRYCATCHBLOCK L3 L4 L1 org/nlogo/api/AgentException
+         L5
           ALOAD 1
           GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
           CHECKCAST org/nlogo/agent/Turtle
@@ -651,43 +653,37 @@ procedure MAKE-NODE:[OLD-NODE]{O---}:
           INVOKESTATIC java/lang/StrictMath.abs (D)D
           DSTORE 6
           DLOAD 6
-          INVOKESTATIC org/nlogo/api/Constants.Infinitesimal ()D
+          GETSTATIC org/nlogo/api/Constants$.MODULE$ : Lorg/nlogo/api/Constants$;
+          INVOKEVIRTUAL org/nlogo/api/Constants$.Infinitesimal ()D
           DCMPG
-          IFGT L7
+          IFGT L6
           ALOAD 1
           BIPUSH 10
           PUTFIELD org/nlogo/nvm/Context.ip : I
-          GOTO L8
-         L7
+          GOTO L7
+         L6
           DLOAD 6
           DCONST_1
           DCMPG
-          IFGT L9
-         L0
+          IFGT L4
+         L3
           ALOAD 2
           DLOAD 4
           INVOKEVIRTUAL org/nlogo/agent/Turtle.jump (D)V
-         L1
-          GOTO L10
-         L2
-          ASTORE 8
-         L10
-          ALOAD 1
-          BIPUSH 10
-          PUTFIELD org/nlogo/nvm/Context.ip : I
           GOTO L8
-         L9
+         L4
           DLOAD 4
-          DCONST_0
+          ICONST_0
+          I2D
           DCMPL
-          IFLE L11
+          IFLE L9
           ICONST_1
-          GOTO L12
-         L11
+          GOTO L10
+         L9
           ICONST_M1
-         L12
+         L10
           ISTORE 8
-         L3
+         L0
           ALOAD 2
           ILOAD 8
           I2D
@@ -699,14 +695,20 @@ procedure MAKE-NODE:[OLD-NODE]{O---}:
           I2D
           DSUB
           INVOKEVIRTUAL org/nlogo/nvm/MutableDouble.value_$eq (D)V
-         L4
-          GOTO L8
-         L5
-          ASTORE 9
+          GOTO L7
+         L1
+          POP
+         L8
           ALOAD 1
           BIPUSH 10
           PUTFIELD org/nlogo/nvm/Context.ip : I
-         L8
+          GOTO L7
+         L2
+          POP
+          ALOAD 1
+          BIPUSH 10
+          PUTFIELD org/nlogo/nvm/Context.ip : I
+         L7
           RETURN
 [10]_asm_proceduremakenode_done_10 "" => void
          L0
@@ -817,20 +819,19 @@ procedure FIND-PARTNER:[TOTAL PARTNER]{OTPL}:
           ASTORE 6
           ALOAD 6
           INSTANCEOF java/lang/Double
-          IFEQ L6
+          IFEQ L4
           DLOAD 3
           ALOAD 6
           CHECKCAST java/lang/Double
           INVOKEVIRTUAL java/lang/Double.doubleValue ()D
           DADD
           DSTORE 3
-         L6
           GOTO L4
          L5
           ALOAD 0
           DLOAD 3
           INVOKEVIRTUAL org/nlogo/prim/_asm_procedurefindpartner_setprocedurevariable_0.validDouble (D)D
-         L7
+         L6
           DSTORE 2
           DLOAD 2
           ALOAD 1
@@ -838,7 +839,7 @@ procedure FIND-PARTNER:[TOTAL PARTNER]{OTPL}:
           GETFIELD org/nlogo/nvm/Job.random : Lorg/nlogo/util/MersenneTwisterFast;
           INVOKEVIRTUAL org/nlogo/util/MersenneTwisterFast.nextDouble ()D
           DMUL
-         L8
+         L7
           DSTORE 2
           NEW java/lang/Double
           DUP
@@ -854,7 +855,7 @@ procedure FIND-PARTNER:[TOTAL PARTNER]{OTPL}:
           ALOAD 1
           ICONST_1
           PUTFIELD org/nlogo/nvm/Context.ip : I
-         L9
+         L8
           RETURN
 [1]_asm_procedurefindpartner_setprocedurevariable_3 "" Object => void
       _nobody => Nobody$
@@ -894,9 +895,10 @@ procedure FIND-PARTNER:[TOTAL PARTNER]{OTPL}:
           DUP
           ALOAD 1
           ALOAD 0
-          INVOKESTATIC org/nlogo/api/I18N.errorsJ ()Lorg/nlogo/api/I18NJava;
+          GETSTATIC org/nlogo/api/I18N$.MODULE$ : Lorg/nlogo/api/I18N$;
+          INVOKEVIRTUAL org/nlogo/api/I18N$.errors ()Lorg/nlogo/api/I18N$BundleKind;
           LDC "org.nlogo.prim.$common.onlyObserverCanAskAllTurtles"
-          INVOKEINTERFACE org/nlogo/api/I18NJava.get (Ljava/lang/String;)Ljava/lang/String;
+          INVOKEVIRTUAL org/nlogo/api/I18N$BundleKind.get (Ljava/lang/String;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
          L3
@@ -909,9 +911,10 @@ procedure FIND-PARTNER:[TOTAL PARTNER]{OTPL}:
           DUP
           ALOAD 1
           ALOAD 0
-          INVOKESTATIC org/nlogo/api/I18N.errorsJ ()Lorg/nlogo/api/I18NJava;
+          GETSTATIC org/nlogo/api/I18N$.MODULE$ : Lorg/nlogo/api/I18N$;
+          INVOKEVIRTUAL org/nlogo/api/I18N$.errors ()Lorg/nlogo/api/I18N$BundleKind;
           LDC "org.nlogo.prim.$common.onlyObserverCanAskAllPatches"
-          INVOKEINTERFACE org/nlogo/api/I18NJava.get (Ljava/lang/String;)Ljava/lang/String;
+          INVOKEVIRTUAL org/nlogo/api/I18N$BundleKind.get (Ljava/lang/String;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
          L2
@@ -1056,7 +1059,8 @@ procedure FIND-PARTNER:[TOTAL PARTNER]{OTPL}:
           ALOAD 3
           CHECKCAST java/lang/String
           INVOKEVIRTUAL java/lang/String.compareTo (Ljava/lang/String;)I
-          IFLE L8
+          ICONST_0
+          IF_ICMPLE L8
           ICONST_1
           GOTO L9
          L8
@@ -1084,7 +1088,8 @@ procedure FIND-PARTNER:[TOTAL PARTNER]{OTPL}:
           ALOAD 4
           ALOAD 5
           INVOKEVIRTUAL org/nlogo/agent/Agent.compareTo (Lorg/nlogo/agent/Agent;)I
-          IFLE L11
+          ICONST_0
+          IF_ICMPLE L11
           ICONST_1
           GOTO L12
          L11
@@ -1096,21 +1101,26 @@ procedure FIND-PARTNER:[TOTAL PARTNER]{OTPL}:
           DUP
           ALOAD 1
           ALOAD 0
-          INVOKESTATIC org/nlogo/api/I18N.errorsJ ()Lorg/nlogo/api/I18NJava;
+          GETSTATIC org/nlogo/api/I18N$.MODULE$ : Lorg/nlogo/api/I18N$;
+          INVOKEVIRTUAL org/nlogo/api/I18N$.errors ()Lorg/nlogo/api/I18N$BundleKind;
           LDC "org.nlogo.prim._greaterthan.cannotCompareParameters"
+          GETSTATIC scala/Predef$.MODULE$ : Lscala/Predef$;
           ICONST_2
           ANEWARRAY java/lang/Object
           DUP
           ICONST_0
+          GETSTATIC org/nlogo/api/TypeNames$.MODULE$ : Lorg/nlogo/api/TypeNames$;
           ALOAD 2
-          INVOKESTATIC org/nlogo/api/TypeNames.aName (Ljava/lang/Object;)Ljava/lang/String;
+          INVOKEVIRTUAL org/nlogo/api/TypeNames$.aName (Ljava/lang/Object;)Ljava/lang/String;
           AASTORE
           DUP
           ICONST_1
+          GETSTATIC org/nlogo/api/TypeNames$.MODULE$ : Lorg/nlogo/api/TypeNames$;
           ALOAD 3
-          INVOKESTATIC org/nlogo/api/TypeNames.aName (Ljava/lang/Object;)Ljava/lang/String;
+          INVOKEVIRTUAL org/nlogo/api/TypeNames$.aName (Ljava/lang/Object;)Ljava/lang/String;
           AASTORE
-          INVOKEINTERFACE org/nlogo/api/I18NJava.getN (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+          INVOKEVIRTUAL scala/Predef$.wrapRefArray ([Ljava/lang/Object;)Lscala/collection/mutable/WrappedArray;
+          INVOKEVIRTUAL org/nlogo/api/I18N$BundleKind.getN (Ljava/lang/String;Lscala/collection/Seq;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
          L6

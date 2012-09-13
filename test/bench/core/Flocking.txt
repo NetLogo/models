@@ -149,7 +149,7 @@ procedure BENCHMARK:[_repeatlocal:0]{O---}:
          L3
           ALOAD 0
           GETFIELD org/nlogo/prim/_asm_procedurebenchmark_setobservervariable_5.world : Lorg/nlogo/agent/World;
-          GETFIELD org/nlogo/agent/World.timer : Lorg/nlogo/api/Timer;
+          INVOKEVIRTUAL org/nlogo/agent/World.timer ()Lorg/nlogo/api/Timer;
           INVOKEVIRTUAL org/nlogo/api/Timer.read ()D
          L4
           DSTORE 2
@@ -399,9 +399,10 @@ procedure GO:[]{O---}:
           DUP
           ALOAD 1
           ALOAD 0
-          INVOKESTATIC org/nlogo/api/I18N.errorsJ ()Lorg/nlogo/api/I18NJava;
+          GETSTATIC org/nlogo/api/I18N$.MODULE$ : Lorg/nlogo/api/I18N$;
+          INVOKEVIRTUAL org/nlogo/api/I18N$.errors ()Lorg/nlogo/api/I18N$BundleKind;
           LDC "org.nlogo.prim.$common.onlyObserverCanAskAllTurtles"
-          INVOKEINTERFACE org/nlogo/api/I18NJava.get (Ljava/lang/String;)Ljava/lang/String;
+          INVOKEVIRTUAL org/nlogo/api/I18N$BundleKind.get (Ljava/lang/String;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
          L3
@@ -414,9 +415,10 @@ procedure GO:[]{O---}:
           DUP
           ALOAD 1
           ALOAD 0
-          INVOKESTATIC org/nlogo/api/I18N.errorsJ ()Lorg/nlogo/api/I18NJava;
+          GETSTATIC org/nlogo/api/I18N$.MODULE$ : Lorg/nlogo/api/I18N$;
+          INVOKEVIRTUAL org/nlogo/api/I18N$.errors ()Lorg/nlogo/api/I18N$BundleKind;
           LDC "org.nlogo.prim.$common.onlyObserverCanAskAllPatches"
-          INVOKEINTERFACE org/nlogo/api/I18NJava.get (Ljava/lang/String;)Ljava/lang/String;
+          INVOKEVIRTUAL org/nlogo/api/I18N$BundleKind.get (Ljava/lang/String;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
          L2
@@ -898,7 +900,7 @@ procedure FIND-FLOCKMATES:[]{-T--}:
           ALOAD 2
           INVOKEVIRTUAL org/nlogo/agent/AgentSet.kind ()Lorg/nlogo/api/AgentKind;
           ALOAD 2
-          INVOKEVIRTUAL org/nlogo/agent/AgentSet.count ()I
+          INVOKEINTERFACE org/nlogo/api/AgentSet.count ()I
           ICONST_0
           ALOAD 0
           GETFIELD org/nlogo/prim/_asm_procedurefindflockmates_setturtlevariable_0.world : Lorg/nlogo/agent/World;
@@ -917,15 +919,14 @@ procedure FIND-FLOCKMATES:[]{-T--}:
           ALOAD 1
           GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
           ALOAD 5
-          IF_ACMPEQ L14
+          IF_ACMPEQ L12
           ALOAD 3
           ALOAD 5
-          INVOKEVIRTUAL org/nlogo/agent/AgentSet.add (Lorg/nlogo/agent/Agent;)V
-         L14
+          INVOKEVIRTUAL org/nlogo/agent/ArrayAgentSet.add (Lorg/nlogo/agent/Agent;)V
           GOTO L12
          L13
           ALOAD 3
-         L15
+         L14
           ASTORE 2
          L2
           ALOAD 1
@@ -934,7 +935,7 @@ procedure FIND-FLOCKMATES:[]{-T--}:
           ALOAD 2
           INVOKEVIRTUAL org/nlogo/agent/Agent.setTurtleVariable (ILjava/lang/Object;)V
          L3
-          GOTO L16
+          GOTO L15
          L4
           ASTORE 3
           NEW org/nlogo/nvm/EngineException
@@ -945,11 +946,11 @@ procedure FIND-FLOCKMATES:[]{-T--}:
           INVOKEVIRTUAL org/nlogo/api/AgentException.getMessage ()Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L16
+         L15
           ALOAD 1
           ICONST_1
           PUTFIELD org/nlogo/nvm/Context.ip : I
-         L17
+         L16
           RETURN
 [1]_asm_procedurefindflockmates_return_1 "" => void
          L0
@@ -1455,18 +1456,31 @@ procedure AVERAGE-FLOCKMATE-HEADING:[]{-T--}:
           DCONST_0
           DSTORE 3
           ALOAD 2
+          INVOKEVIRTUAL org/nlogo/api/LogoList.isEmpty ()Z
+          IFEQ L6
+          NEW org/nlogo/nvm/EngineException
+          DUP
+          ALOAD 1
+          ALOAD 0
+          INVOKESTATIC org/nlogo/api/I18N.errorsJ ()Lorg/nlogo/api/I18NJava;
+          LDC "org.nlogo.prim.etc.$common.emptyList"
+          INVOKEINTERFACE org/nlogo/api/I18NJava.get (Ljava/lang/String;)Ljava/lang/String;
+          INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
+          ATHROW
+         L6
+          ALOAD 2
           INVOKEVIRTUAL org/nlogo/api/LogoList.iterator ()Ljava/util/Iterator;
           ASTORE 5
-         L6
+         L7
           ALOAD 5
           INVOKEINTERFACE java/util/Iterator.hasNext ()Z
-          IFEQ L7
+          IFEQ L8
           ALOAD 5
           INVOKEINTERFACE java/util/Iterator.next ()Ljava/lang/Object;
           ASTORE 6
           ALOAD 6
           INSTANCEOF java/lang/Double
-          IFNE L8
+          IFNE L9
           NEW org/nlogo/nvm/EngineException
           DUP
           ALOAD 1
@@ -1488,15 +1502,15 @@ procedure AVERAGE-FLOCKMATE-HEADING:[]{-T--}:
           INVOKEINTERFACE org/nlogo/api/I18NJava.getN (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L8
+         L9
           DLOAD 3
           ALOAD 6
           CHECKCAST java/lang/Double
           INVOKEVIRTUAL java/lang/Double.doubleValue ()D
           DADD
           DSTORE 3
-          GOTO L6
-         L7
+          GOTO L7
+         L8
           ALOAD 0
           DLOAD 3
           ALOAD 2
@@ -1504,17 +1518,17 @@ procedure AVERAGE-FLOCKMATE-HEADING:[]{-T--}:
           I2D
           DDIV
           INVOKEVIRTUAL org/nlogo/prim/_asm_procedureaverageflockmateheading_report_0.validDouble (D)D
-         L9
+         L10
           ALOAD 0
           GETFIELD org/nlogo/prim/_asm_procedureaverageflockmateheading_report_0.keptinstr6 : Lorg/nlogo/prim/_of;
           ALOAD 1
           INVOKEVIRTUAL org/nlogo/prim/_of.report (Lorg/nlogo/nvm/Context;)Ljava/lang/Object;
-         L10
+         L11
           ASTORE 2
          L2
           ALOAD 2
           CHECKCAST org/nlogo/api/LogoList
-          GOTO L11
+          GOTO L12
          L3
           POP
           NEW org/nlogo/nvm/ArgumentTypeException
@@ -1526,23 +1540,36 @@ procedure AVERAGE-FLOCKMATE-HEADING:[]{-T--}:
           ALOAD 2
           INVOKESPECIAL org/nlogo/nvm/ArgumentTypeException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;IILjava/lang/Object;)V
           ATHROW
-         L11
+         L12
           ASTORE 2
           DCONST_0
           DSTORE 3
           ALOAD 2
+          INVOKEVIRTUAL org/nlogo/api/LogoList.isEmpty ()Z
+          IFEQ L13
+          NEW org/nlogo/nvm/EngineException
+          DUP
+          ALOAD 1
+          ALOAD 0
+          INVOKESTATIC org/nlogo/api/I18N.errorsJ ()Lorg/nlogo/api/I18NJava;
+          LDC "org.nlogo.prim.etc.$common.emptyList"
+          INVOKEINTERFACE org/nlogo/api/I18NJava.get (Ljava/lang/String;)Ljava/lang/String;
+          INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
+          ATHROW
+         L13
+          ALOAD 2
           INVOKEVIRTUAL org/nlogo/api/LogoList.iterator ()Ljava/util/Iterator;
           ASTORE 5
-         L12
+         L14
           ALOAD 5
           INVOKEINTERFACE java/util/Iterator.hasNext ()Z
-          IFEQ L13
+          IFEQ L15
           ALOAD 5
           INVOKEINTERFACE java/util/Iterator.next ()Ljava/lang/Object;
           ASTORE 6
           ALOAD 6
           INSTANCEOF java/lang/Double
-          IFNE L14
+          IFNE L16
           NEW org/nlogo/nvm/EngineException
           DUP
           ALOAD 1
@@ -1564,15 +1591,15 @@ procedure AVERAGE-FLOCKMATE-HEADING:[]{-T--}:
           INVOKEINTERFACE org/nlogo/api/I18NJava.getN (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L14
+         L16
           DLOAD 3
           ALOAD 6
           CHECKCAST java/lang/Double
           INVOKEVIRTUAL java/lang/Double.doubleValue ()D
           DADD
           DSTORE 3
-          GOTO L12
-         L13
+          GOTO L14
+         L15
           ALOAD 0
           DLOAD 3
           ALOAD 2
@@ -1580,19 +1607,19 @@ procedure AVERAGE-FLOCKMATE-HEADING:[]{-T--}:
           I2D
           DDIV
           INVOKEVIRTUAL org/nlogo/prim/_asm_procedureaverageflockmateheading_report_0.validDouble (D)D
-         L15
+         L17
           DSTORE 4
           DSTORE 2
           DLOAD 2
           ICONST_0
           I2D
           DCMPL
-          IFNE L16
+          IFNE L18
           DLOAD 4
           ICONST_0
           I2D
           DCMPL
-          IFNE L16
+          IFNE L18
           NEW org/nlogo/nvm/EngineException
           DUP
           ALOAD 1
@@ -1603,43 +1630,43 @@ procedure AVERAGE-FLOCKMATE-HEADING:[]{-T--}:
           INVOKEVIRTUAL org/nlogo/api/I18N$BundleKind.get (Ljava/lang/String;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L16
-          DLOAD 2
-          ICONST_0
-          I2D
-          DCMPL
-          IFNE L17
-          DLOAD 4
-          ICONST_0
-          I2D
-          DCMPL
-          IFLE L18
-          ICONST_0
-          GOTO L19
          L18
-          SIPUSH 180
-         L19
-          I2D
-          GOTO L20
-         L17
-          DLOAD 4
-          ICONST_0
-          I2D
-          DCMPL
-          IFNE L21
           DLOAD 2
           ICONST_0
           I2D
           DCMPL
-          IFLE L22
-          BIPUSH 90
-          GOTO L23
-         L22
-          SIPUSH 270
-         L23
+          IFNE L19
+          DLOAD 4
+          ICONST_0
           I2D
-          GOTO L20
+          DCMPL
+          IFLE L20
+          ICONST_0
+          GOTO L21
+         L20
+          SIPUSH 180
          L21
+          I2D
+          GOTO L22
+         L19
+          DLOAD 4
+          ICONST_0
+          I2D
+          DCMPL
+          IFNE L23
+          DLOAD 2
+          ICONST_0
+          I2D
+          DCMPL
+          IFLE L24
+          BIPUSH 90
+          GOTO L25
+         L24
+          SIPUSH 270
+         L25
+          I2D
+          GOTO L22
+         L23
           DLOAD 2
           DLOAD 4
           INVOKESTATIC java/lang/StrictMath.atan2 (DD)D
@@ -1650,7 +1677,7 @@ procedure AVERAGE-FLOCKMATE-HEADING:[]{-T--}:
           SIPUSH 360
           I2D
           DREM
-         L20
+         L22
           DSTORE 2
           NEW java/lang/Double
           DUP
@@ -1671,16 +1698,16 @@ procedure AVERAGE-FLOCKMATE-HEADING:[]{-T--}:
           GETFIELD org/nlogo/nvm/Context.activation : Lorg/nlogo/nvm/Activation;
           INVOKEVIRTUAL org/nlogo/nvm/Activation.procedure ()Lorg/nlogo/nvm/Procedure;
           INVOKEVIRTUAL org/nlogo/nvm/Procedure.isTask ()Z
-          IFEQ L24
+          IFEQ L26
           GETSTATIC org/nlogo/nvm/NonLocalExit$.MODULE$ : Lorg/nlogo/nvm/NonLocalExit$;
           ATHROW
-         L24
+         L26
           ALOAD 1
           GETFIELD org/nlogo/nvm/Context.activation : Lorg/nlogo/nvm/Activation;
           INVOKEVIRTUAL org/nlogo/nvm/Activation.procedure ()Lorg/nlogo/nvm/Procedure;
           GETFIELD org/nlogo/nvm/Procedure.tpe : Lorg/nlogo/nvm/Procedure$Type;
           GETSTATIC org/nlogo/nvm/Procedure$Type.REPORTER : Lorg/nlogo/nvm/Procedure$Type;
-          IF_ACMPEQ L25
+          IF_ACMPEQ L27
           NEW org/nlogo/nvm/EngineException
           DUP
           ALOAD 1
@@ -1696,10 +1723,10 @@ procedure AVERAGE-FLOCKMATE-HEADING:[]{-T--}:
           INVOKEINTERFACE org/nlogo/api/I18NJava.getN (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L25
+         L27
           ALOAD 1
           INVOKEVIRTUAL org/nlogo/nvm/Context.atTopActivation ()Z
-          IFNE L26
+          IFNE L28
           NEW org/nlogo/nvm/EngineException
           DUP
           ALOAD 1
@@ -1715,7 +1742,7 @@ procedure AVERAGE-FLOCKMATE-HEADING:[]{-T--}:
           INVOKEINTERFACE org/nlogo/api/I18NJava.getN (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L26
+         L28
           RETURN
 [1]_asm_procedureaverageflockmateheading_returnreport_5 "" => void
          L0
@@ -2019,18 +2046,31 @@ procedure AVERAGE-HEADING-TOWARDS-FLOCKMATES:[]{-T--}:
           DCONST_0
           DSTORE 3
           ALOAD 2
+          INVOKEVIRTUAL org/nlogo/api/LogoList.isEmpty ()Z
+          IFEQ L6
+          NEW org/nlogo/nvm/EngineException
+          DUP
+          ALOAD 1
+          ALOAD 0
+          INVOKESTATIC org/nlogo/api/I18N.errorsJ ()Lorg/nlogo/api/I18NJava;
+          LDC "org.nlogo.prim.etc.$common.emptyList"
+          INVOKEINTERFACE org/nlogo/api/I18NJava.get (Ljava/lang/String;)Ljava/lang/String;
+          INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
+          ATHROW
+         L6
+          ALOAD 2
           INVOKEVIRTUAL org/nlogo/api/LogoList.iterator ()Ljava/util/Iterator;
           ASTORE 5
-         L6
+         L7
           ALOAD 5
           INVOKEINTERFACE java/util/Iterator.hasNext ()Z
-          IFEQ L7
+          IFEQ L8
           ALOAD 5
           INVOKEINTERFACE java/util/Iterator.next ()Ljava/lang/Object;
           ASTORE 6
           ALOAD 6
           INSTANCEOF java/lang/Double
-          IFNE L8
+          IFNE L9
           NEW org/nlogo/nvm/EngineException
           DUP
           ALOAD 1
@@ -2052,15 +2092,15 @@ procedure AVERAGE-HEADING-TOWARDS-FLOCKMATES:[]{-T--}:
           INVOKEINTERFACE org/nlogo/api/I18NJava.getN (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L8
+         L9
           DLOAD 3
           ALOAD 6
           CHECKCAST java/lang/Double
           INVOKEVIRTUAL java/lang/Double.doubleValue ()D
           DADD
           DSTORE 3
-          GOTO L6
-         L7
+          GOTO L7
+         L8
           ALOAD 0
           DLOAD 3
           ALOAD 2
@@ -2068,17 +2108,17 @@ procedure AVERAGE-HEADING-TOWARDS-FLOCKMATES:[]{-T--}:
           I2D
           DDIV
           INVOKEVIRTUAL org/nlogo/prim/_asm_procedureaverageheadingtowardsflockmates_report_0.validDouble (D)D
-         L9
+         L10
           ALOAD 0
           GETFIELD org/nlogo/prim/_asm_procedureaverageheadingtowardsflockmates_report_0.keptinstr6 : Lorg/nlogo/prim/_of;
           ALOAD 1
           INVOKEVIRTUAL org/nlogo/prim/_of.report (Lorg/nlogo/nvm/Context;)Ljava/lang/Object;
-         L10
+         L11
           ASTORE 2
          L2
           ALOAD 2
           CHECKCAST org/nlogo/api/LogoList
-          GOTO L11
+          GOTO L12
          L3
           POP
           NEW org/nlogo/nvm/ArgumentTypeException
@@ -2090,23 +2130,36 @@ procedure AVERAGE-HEADING-TOWARDS-FLOCKMATES:[]{-T--}:
           ALOAD 2
           INVOKESPECIAL org/nlogo/nvm/ArgumentTypeException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;IILjava/lang/Object;)V
           ATHROW
-         L11
+         L12
           ASTORE 2
           DCONST_0
           DSTORE 3
           ALOAD 2
+          INVOKEVIRTUAL org/nlogo/api/LogoList.isEmpty ()Z
+          IFEQ L13
+          NEW org/nlogo/nvm/EngineException
+          DUP
+          ALOAD 1
+          ALOAD 0
+          INVOKESTATIC org/nlogo/api/I18N.errorsJ ()Lorg/nlogo/api/I18NJava;
+          LDC "org.nlogo.prim.etc.$common.emptyList"
+          INVOKEINTERFACE org/nlogo/api/I18NJava.get (Ljava/lang/String;)Ljava/lang/String;
+          INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
+          ATHROW
+         L13
+          ALOAD 2
           INVOKEVIRTUAL org/nlogo/api/LogoList.iterator ()Ljava/util/Iterator;
           ASTORE 5
-         L12
+         L14
           ALOAD 5
           INVOKEINTERFACE java/util/Iterator.hasNext ()Z
-          IFEQ L13
+          IFEQ L15
           ALOAD 5
           INVOKEINTERFACE java/util/Iterator.next ()Ljava/lang/Object;
           ASTORE 6
           ALOAD 6
           INSTANCEOF java/lang/Double
-          IFNE L14
+          IFNE L16
           NEW org/nlogo/nvm/EngineException
           DUP
           ALOAD 1
@@ -2128,15 +2181,15 @@ procedure AVERAGE-HEADING-TOWARDS-FLOCKMATES:[]{-T--}:
           INVOKEINTERFACE org/nlogo/api/I18NJava.getN (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L14
+         L16
           DLOAD 3
           ALOAD 6
           CHECKCAST java/lang/Double
           INVOKEVIRTUAL java/lang/Double.doubleValue ()D
           DADD
           DSTORE 3
-          GOTO L12
-         L13
+          GOTO L14
+         L15
           ALOAD 0
           DLOAD 3
           ALOAD 2
@@ -2144,19 +2197,19 @@ procedure AVERAGE-HEADING-TOWARDS-FLOCKMATES:[]{-T--}:
           I2D
           DDIV
           INVOKEVIRTUAL org/nlogo/prim/_asm_procedureaverageheadingtowardsflockmates_report_0.validDouble (D)D
-         L15
+         L17
           DSTORE 4
           DSTORE 2
           DLOAD 2
           ICONST_0
           I2D
           DCMPL
-          IFNE L16
+          IFNE L18
           DLOAD 4
           ICONST_0
           I2D
           DCMPL
-          IFNE L16
+          IFNE L18
           NEW org/nlogo/nvm/EngineException
           DUP
           ALOAD 1
@@ -2167,43 +2220,43 @@ procedure AVERAGE-HEADING-TOWARDS-FLOCKMATES:[]{-T--}:
           INVOKEVIRTUAL org/nlogo/api/I18N$BundleKind.get (Ljava/lang/String;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L16
-          DLOAD 2
-          ICONST_0
-          I2D
-          DCMPL
-          IFNE L17
-          DLOAD 4
-          ICONST_0
-          I2D
-          DCMPL
-          IFLE L18
-          ICONST_0
-          GOTO L19
          L18
-          SIPUSH 180
-         L19
-          I2D
-          GOTO L20
-         L17
-          DLOAD 4
-          ICONST_0
-          I2D
-          DCMPL
-          IFNE L21
           DLOAD 2
           ICONST_0
           I2D
           DCMPL
-          IFLE L22
-          BIPUSH 90
-          GOTO L23
-         L22
-          SIPUSH 270
-         L23
+          IFNE L19
+          DLOAD 4
+          ICONST_0
           I2D
-          GOTO L20
+          DCMPL
+          IFLE L20
+          ICONST_0
+          GOTO L21
+         L20
+          SIPUSH 180
          L21
+          I2D
+          GOTO L22
+         L19
+          DLOAD 4
+          ICONST_0
+          I2D
+          DCMPL
+          IFNE L23
+          DLOAD 2
+          ICONST_0
+          I2D
+          DCMPL
+          IFLE L24
+          BIPUSH 90
+          GOTO L25
+         L24
+          SIPUSH 270
+         L25
+          I2D
+          GOTO L22
+         L23
           DLOAD 2
           DLOAD 4
           INVOKESTATIC java/lang/StrictMath.atan2 (DD)D
@@ -2214,7 +2267,7 @@ procedure AVERAGE-HEADING-TOWARDS-FLOCKMATES:[]{-T--}:
           SIPUSH 360
           I2D
           DREM
-         L20
+         L22
           DSTORE 2
           NEW java/lang/Double
           DUP
@@ -2235,16 +2288,16 @@ procedure AVERAGE-HEADING-TOWARDS-FLOCKMATES:[]{-T--}:
           GETFIELD org/nlogo/nvm/Context.activation : Lorg/nlogo/nvm/Activation;
           INVOKEVIRTUAL org/nlogo/nvm/Activation.procedure ()Lorg/nlogo/nvm/Procedure;
           INVOKEVIRTUAL org/nlogo/nvm/Procedure.isTask ()Z
-          IFEQ L24
+          IFEQ L26
           GETSTATIC org/nlogo/nvm/NonLocalExit$.MODULE$ : Lorg/nlogo/nvm/NonLocalExit$;
           ATHROW
-         L24
+         L26
           ALOAD 1
           GETFIELD org/nlogo/nvm/Context.activation : Lorg/nlogo/nvm/Activation;
           INVOKEVIRTUAL org/nlogo/nvm/Activation.procedure ()Lorg/nlogo/nvm/Procedure;
           GETFIELD org/nlogo/nvm/Procedure.tpe : Lorg/nlogo/nvm/Procedure$Type;
           GETSTATIC org/nlogo/nvm/Procedure$Type.REPORTER : Lorg/nlogo/nvm/Procedure$Type;
-          IF_ACMPEQ L25
+          IF_ACMPEQ L27
           NEW org/nlogo/nvm/EngineException
           DUP
           ALOAD 1
@@ -2260,10 +2313,10 @@ procedure AVERAGE-HEADING-TOWARDS-FLOCKMATES:[]{-T--}:
           INVOKEINTERFACE org/nlogo/api/I18NJava.getN (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L25
+         L27
           ALOAD 1
           INVOKEVIRTUAL org/nlogo/nvm/Context.atTopActivation ()Z
-          IFNE L26
+          IFNE L28
           NEW org/nlogo/nvm/EngineException
           DUP
           ALOAD 1
@@ -2279,7 +2332,7 @@ procedure AVERAGE-HEADING-TOWARDS-FLOCKMATES:[]{-T--}:
           INVOKEINTERFACE org/nlogo/api/I18NJava.getN (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L26
+         L28
           RETURN
 [1]_asm_procedureaverageheadingtowardsflockmates_returnreport_7 "" => void
          L0
@@ -2558,10 +2611,12 @@ procedure TURN-AT-MOST:[TURN MAX-TURN]{-T--}:
           ASTORE 4
           DSTORE 2
           ALOAD 4
+          ASTORE 5
+          ALOAD 5
           INSTANCEOF java/lang/Double
           IFEQ L8
           DLOAD 2
-          ALOAD 4
+          ALOAD 5
           CHECKCAST java/lang/Double
           INVOKEVIRTUAL java/lang/Double.doubleValue ()D
           DCMPL
@@ -2577,22 +2632,27 @@ procedure TURN-AT-MOST:[TURN MAX-TURN]{-T--}:
           DUP
           ALOAD 1
           ALOAD 0
-          INVOKESTATIC org/nlogo/api/I18N.errorsJ ()Lorg/nlogo/api/I18NJava;
+          GETSTATIC org/nlogo/api/I18N$.MODULE$ : Lorg/nlogo/api/I18N$;
+          INVOKEVIRTUAL org/nlogo/api/I18N$.errors ()Lorg/nlogo/api/I18N$BundleKind;
           LDC "org.nlogo.prim._greaterthan.cannotCompareParameters"
+          GETSTATIC scala/Predef$.MODULE$ : Lscala/Predef$;
           ICONST_2
           ANEWARRAY java/lang/Object
           DUP
           ICONST_0
+          GETSTATIC org/nlogo/api/TypeNames$.MODULE$ : Lorg/nlogo/api/TypeNames$;
           DLOAD 2
-          INVOKESTATIC java/lang/Double.valueOf (D)Ljava/lang/Double;
-          INVOKESTATIC org/nlogo/api/TypeNames.aName (Ljava/lang/Object;)Ljava/lang/String;
+          INVOKESTATIC scala/runtime/BoxesRunTime.boxToDouble (D)Ljava/lang/Double;
+          INVOKEVIRTUAL org/nlogo/api/TypeNames$.aName (Ljava/lang/Object;)Ljava/lang/String;
           AASTORE
           DUP
           ICONST_1
+          GETSTATIC org/nlogo/api/TypeNames$.MODULE$ : Lorg/nlogo/api/TypeNames$;
           ALOAD 4
-          INVOKESTATIC org/nlogo/api/TypeNames.aName (Ljava/lang/Object;)Ljava/lang/String;
+          INVOKEVIRTUAL org/nlogo/api/TypeNames$.aName (Ljava/lang/Object;)Ljava/lang/String;
           AASTORE
-          INVOKEINTERFACE org/nlogo/api/I18NJava.getN (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+          INVOKEVIRTUAL scala/Predef$.wrapRefArray ([Ljava/lang/Object;)Lscala/collection/mutable/WrappedArray;
+          INVOKEVIRTUAL org/nlogo/api/I18N$BundleKind.getN (Ljava/lang/String;Lscala/collection/Seq;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
          L11
@@ -2624,9 +2684,11 @@ procedure TURN-AT-MOST:[TURN MAX-TURN]{-T--}:
           DSTORE 3
           ASTORE 2
           ALOAD 2
+          ASTORE 5
+          ALOAD 5
           INSTANCEOF java/lang/Double
           IFEQ L3
-          ALOAD 2
+          ALOAD 5
           CHECKCAST java/lang/Double
           INVOKEVIRTUAL java/lang/Double.doubleValue ()D
           DLOAD 3
@@ -2643,22 +2705,27 @@ procedure TURN-AT-MOST:[TURN MAX-TURN]{-T--}:
           DUP
           ALOAD 1
           ALOAD 0
-          INVOKESTATIC org/nlogo/api/I18N.errorsJ ()Lorg/nlogo/api/I18NJava;
+          GETSTATIC org/nlogo/api/I18N$.MODULE$ : Lorg/nlogo/api/I18N$;
+          INVOKEVIRTUAL org/nlogo/api/I18N$.errors ()Lorg/nlogo/api/I18N$BundleKind;
           LDC "org.nlogo.prim._greaterthan.cannotCompareParameters"
+          GETSTATIC scala/Predef$.MODULE$ : Lscala/Predef$;
           ICONST_2
           ANEWARRAY java/lang/Object
           DUP
           ICONST_0
+          GETSTATIC org/nlogo/api/TypeNames$.MODULE$ : Lorg/nlogo/api/TypeNames$;
           ALOAD 2
-          INVOKESTATIC org/nlogo/api/TypeNames.aName (Ljava/lang/Object;)Ljava/lang/String;
+          INVOKEVIRTUAL org/nlogo/api/TypeNames$.aName (Ljava/lang/Object;)Ljava/lang/String;
           AASTORE
           DUP
           ICONST_1
+          GETSTATIC org/nlogo/api/TypeNames$.MODULE$ : Lorg/nlogo/api/TypeNames$;
           DLOAD 3
-          INVOKESTATIC java/lang/Double.valueOf (D)Ljava/lang/Double;
-          INVOKESTATIC org/nlogo/api/TypeNames.aName (Ljava/lang/Object;)Ljava/lang/String;
+          INVOKESTATIC scala/runtime/BoxesRunTime.boxToDouble (D)Ljava/lang/Double;
+          INVOKEVIRTUAL org/nlogo/api/TypeNames$.aName (Ljava/lang/Object;)Ljava/lang/String;
           AASTORE
-          INVOKEINTERFACE org/nlogo/api/I18NJava.getN (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+          INVOKEVIRTUAL scala/Predef$.wrapRefArray ([Ljava/lang/Object;)Lscala/collection/mutable/WrappedArray;
+          INVOKEVIRTUAL org/nlogo/api/I18N$BundleKind.getN (Ljava/lang/String;Lscala/collection/Seq;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
          L6
@@ -3102,7 +3169,8 @@ procedure MY-SUBTRACT-HEADINGS:[H1 H2]{OTPL}:
           ALOAD 3
           CHECKCAST java/lang/String
           INVOKEVIRTUAL java/lang/String.compareTo (Ljava/lang/String;)I
-          IFLE L8
+          ICONST_0
+          IF_ICMPLE L8
           ICONST_1
           GOTO L9
          L8
@@ -3130,7 +3198,8 @@ procedure MY-SUBTRACT-HEADINGS:[H1 H2]{OTPL}:
           ALOAD 4
           ALOAD 5
           INVOKEVIRTUAL org/nlogo/agent/Agent.compareTo (Lorg/nlogo/agent/Agent;)I
-          IFLE L11
+          ICONST_0
+          IF_ICMPLE L11
           ICONST_1
           GOTO L12
          L11
@@ -3142,21 +3211,26 @@ procedure MY-SUBTRACT-HEADINGS:[H1 H2]{OTPL}:
           DUP
           ALOAD 1
           ALOAD 0
-          INVOKESTATIC org/nlogo/api/I18N.errorsJ ()Lorg/nlogo/api/I18NJava;
+          GETSTATIC org/nlogo/api/I18N$.MODULE$ : Lorg/nlogo/api/I18N$;
+          INVOKEVIRTUAL org/nlogo/api/I18N$.errors ()Lorg/nlogo/api/I18N$BundleKind;
           LDC "org.nlogo.prim._greaterthan.cannotCompareParameters"
+          GETSTATIC scala/Predef$.MODULE$ : Lscala/Predef$;
           ICONST_2
           ANEWARRAY java/lang/Object
           DUP
           ICONST_0
+          GETSTATIC org/nlogo/api/TypeNames$.MODULE$ : Lorg/nlogo/api/TypeNames$;
           ALOAD 2
-          INVOKESTATIC org/nlogo/api/TypeNames.aName (Ljava/lang/Object;)Ljava/lang/String;
+          INVOKEVIRTUAL org/nlogo/api/TypeNames$.aName (Ljava/lang/Object;)Ljava/lang/String;
           AASTORE
           DUP
           ICONST_1
+          GETSTATIC org/nlogo/api/TypeNames$.MODULE$ : Lorg/nlogo/api/TypeNames$;
           ALOAD 3
-          INVOKESTATIC org/nlogo/api/TypeNames.aName (Ljava/lang/Object;)Ljava/lang/String;
+          INVOKEVIRTUAL org/nlogo/api/TypeNames$.aName (Ljava/lang/Object;)Ljava/lang/String;
           AASTORE
-          INVOKEINTERFACE org/nlogo/api/I18NJava.getN (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+          INVOKEVIRTUAL scala/Predef$.wrapRefArray ([Ljava/lang/Object;)Lscala/collection/mutable/WrappedArray;
+          INVOKEVIRTUAL org/nlogo/api/I18N$BundleKind.getN (Ljava/lang/String;Lscala/collection/Seq;)Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
          L6
