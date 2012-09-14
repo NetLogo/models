@@ -1664,30 +1664,35 @@ procedure STEP:[TARGET]{-T--}:
           DSTORE 3
           ASTORE 2
           ALOAD 2
+          ASTORE 5
+          ALOAD 5
           INSTANCEOF java/lang/Double
           IFEQ L5
           DLOAD 3
-          ALOAD 2
+          ALOAD 5
           CHECKCAST java/lang/Double
           INVOKEVIRTUAL java/lang/Double.doubleValue ()D
           DCMPL
-          IFNE L5
+          IFNE L6
           ICONST_1
-          GOTO L6
+          GOTO L7
+         L6
+          ICONST_0
+          GOTO L7
          L5
           ICONST_0
-         L6
+         L7
           ISTORE 2
           ALOAD 1
           ILOAD 2
-          IFEQ L7
+          IFEQ L8
           ICONST_2
-          GOTO L8
-         L7
-          ICONST_4
+          GOTO L9
          L8
-          PUTFIELD org/nlogo/nvm/Context.ip : I
+          ICONST_4
          L9
+          PUTFIELD org/nlogo/nvm/Context.ip : I
+         L10
           RETURN
 [2]_asm_procedurestep_setpatchvariable_2 "set temp temp + output-heat" Object => void
       _plus double,double => double
@@ -1870,14 +1875,15 @@ procedure STEP:[TARGET]{-T--}:
          L2
           ASTORE 3
           ASTORE 2
+          GETSTATIC org/nlogo/api/Equality$.MODULE$ : Lorg/nlogo/api/Equality$;
           ALOAD 2
           ALOAD 3
-          INVOKESTATIC org/nlogo/api/Equality.equals (Ljava/lang/Object;Ljava/lang/Object;)Z
-          IFNE L3
-          ICONST_1
+          INVOKEVIRTUAL org/nlogo/api/Equality$.equals (Ljava/lang/Object;Ljava/lang/Object;)Z
+          IFEQ L3
+          ICONST_0
           GOTO L4
          L3
-          ICONST_0
+          ICONST_1
          L4
           IFNE L5
          L6
