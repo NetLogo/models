@@ -1213,7 +1213,8 @@ procedure FIND-NEW-STATE:[A B S]{-TP-}:
               ALOAD 3
               CHECKCAST java/lang/String
               INVOKEVIRTUAL java/lang/String.compareTo (Ljava/lang/String;)I
-              IFGE L20
+              ICONST_0
+              IF_ICMPGE L20
               ICONST_1
               GOTO L21
              L20
@@ -1241,7 +1242,8 @@ procedure FIND-NEW-STATE:[A B S]{-TP-}:
               ALOAD 4
               ALOAD 5
               INVOKEVIRTUAL org/nlogo/agent/Agent.compareTo (Lorg/nlogo/agent/Agent;)I
-              IFGE L23
+              ICONST_0
+              IF_ICMPGE L23
               ICONST_1
               GOTO L24
              L23
@@ -1253,21 +1255,26 @@ procedure FIND-NEW-STATE:[A B S]{-TP-}:
               DUP
               ALOAD 1
               ALOAD 0
-              INVOKESTATIC org/nlogo/api/I18N.errorsJ ()Lorg/nlogo/api/I18NJava;
+              GETSTATIC org/nlogo/api/I18N$.MODULE$ : Lorg/nlogo/api/I18N$;
+              INVOKEVIRTUAL org/nlogo/api/I18N$.errors ()Lorg/nlogo/api/I18N$BundleKind;
               LDC "org.nlogo.prim._lessthan.cantUseLessthanOnDifferentArgs"
+              GETSTATIC scala/Predef$.MODULE$ : Lscala/Predef$;
               ICONST_2
               ANEWARRAY java/lang/Object
               DUP
               ICONST_0
+              GETSTATIC org/nlogo/api/TypeNames$.MODULE$ : Lorg/nlogo/api/TypeNames$;
               ALOAD 2
-              INVOKESTATIC org/nlogo/api/TypeNames.aName (Ljava/lang/Object;)Ljava/lang/String;
+              INVOKEVIRTUAL org/nlogo/api/TypeNames$.aName (Ljava/lang/Object;)Ljava/lang/String;
               AASTORE
               DUP
               ICONST_1
+              GETSTATIC org/nlogo/api/TypeNames$.MODULE$ : Lorg/nlogo/api/TypeNames$;
               ALOAD 3
-              INVOKESTATIC org/nlogo/api/TypeNames.aName (Ljava/lang/Object;)Ljava/lang/String;
+              INVOKEVIRTUAL org/nlogo/api/TypeNames$.aName (Ljava/lang/Object;)Ljava/lang/String;
               AASTORE
-              INVOKEINTERFACE org/nlogo/api/I18NJava.getN (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;
+              INVOKEVIRTUAL scala/Predef$.wrapRefArray ([Ljava/lang/Object;)Lscala/collection/mutable/WrappedArray;
+              INVOKEVIRTUAL org/nlogo/api/I18N$BundleKind.getN (Ljava/lang/String;Lscala/collection/Seq;)Ljava/lang/String;
               INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
               ATHROW
              L18
