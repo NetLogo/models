@@ -436,118 +436,104 @@ procedure SETUP:[INITIAL-MAGNETIZATION]{O---}:
           RETURN
 [9]_asm_proceduresetup_setobservervariable_7 "set sum-of-spins sum [spin] of patches" Object => void
       _sum LogoList => double
-        _patchvariableof:SPIN AgentSet => Object
+        _patchvariableof:SPIN AgentSet => LogoList
           _patches => AgentSet
           TRYCATCHBLOCK L0 L1 L2 org/nlogo/api/AgentException
-          TRYCATCHBLOCK L3 L4 L4 java/lang/ClassCastException
-          TRYCATCHBLOCK L5 L6 L7 org/nlogo/api/AgentException
-         L8
+          TRYCATCHBLOCK L3 L4 L5 org/nlogo/api/AgentException
+         L6
           ALOAD 0
           GETFIELD org/nlogo/prim/_asm_proceduresetup_setobservervariable_7.world : Lorg/nlogo/agent/World;
           INVOKEVIRTUAL org/nlogo/agent/World.patches ()Lorg/nlogo/agent/AgentSet;
-         L9
+         L7
           ASTORE 2
           NEW org/nlogo/api/LogoListBuilder
           DUP
           INVOKESPECIAL org/nlogo/api/LogoListBuilder.<init> ()V
           ASTORE 3
+          ACONST_NULL
+          ASTORE 4
          L0
           ALOAD 2
           ALOAD 1
           GETFIELD org/nlogo/nvm/Context.job : Lorg/nlogo/nvm/Job;
           GETFIELD org/nlogo/nvm/Job.random : Lorg/nlogo/util/MersenneTwisterFast;
           INVOKEVIRTUAL org/nlogo/agent/AgentSet.shufflerator (Lorg/nlogo/util/MersenneTwisterFast;)Lorg/nlogo/agent/AgentIterator;
-          ASTORE 4
-         L10
-          ALOAD 4
+          ASTORE 6
+         L8
+          ALOAD 6
           INVOKEINTERFACE org/nlogo/agent/AgentIterator.hasNext ()Z
-          IFEQ L1
+          IFEQ L9
           ALOAD 3
-          ALOAD 4
+          ALOAD 6
           INVOKEINTERFACE org/nlogo/agent/AgentIterator.next ()Lorg/nlogo/agent/Agent;
           ICONST_5
           INVOKEVIRTUAL org/nlogo/agent/Agent.getPatchVariable (I)Ljava/lang/Object;
           INVOKEVIRTUAL org/nlogo/api/LogoListBuilder.add (Ljava/lang/Object;)V
-          GOTO L10
-         L1
-          GOTO L11
-         L2
+          GOTO L8
+         L9
+          ALOAD 3
+          INVOKEVIRTUAL org/nlogo/api/LogoListBuilder.toLogoList ()Lorg/nlogo/api/LogoList;
           ASTORE 4
+         L1
+          ALOAD 4
+          GOTO L10
+         L2
+          ASTORE 5
           NEW org/nlogo/nvm/EngineException
           DUP
           ALOAD 1
           ALOAD 0
-          ALOAD 4
+          ALOAD 5
           INVOKEVIRTUAL org/nlogo/api/AgentException.getMessage ()Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L11
-          ALOAD 3
-          INVOKEVIRTUAL org/nlogo/api/LogoListBuilder.toLogoList ()Lorg/nlogo/api/LogoList;
-         L12
-          ASTORE 2
-         L3
-          ALOAD 2
-          CHECKCAST org/nlogo/api/LogoList
-          GOTO L13
-         L4
-          POP
-          NEW org/nlogo/nvm/ArgumentTypeException
-          DUP
-          ALOAD 1
-          ALOAD 0
-          BIPUSH 0
-          LDC 8
-          ALOAD 2
-          INVOKESPECIAL org/nlogo/nvm/ArgumentTypeException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;IILjava/lang/Object;)V
-          ATHROW
-         L13
+         L10
           ASTORE 2
           DCONST_0
           DSTORE 3
           ALOAD 2
           INVOKEVIRTUAL org/nlogo/api/LogoList.iterator ()Ljava/util/Iterator;
           ASTORE 5
-         L14
+         L11
           ALOAD 5
           INVOKEINTERFACE java/util/Iterator.hasNext ()Z
-          IFEQ L15
+          IFEQ L12
           ALOAD 5
           INVOKEINTERFACE java/util/Iterator.next ()Ljava/lang/Object;
           ASTORE 6
           ALOAD 6
           INSTANCEOF java/lang/Double
-          IFEQ L14
+          IFEQ L11
           DLOAD 3
           ALOAD 6
           CHECKCAST java/lang/Double
           INVOKEVIRTUAL java/lang/Double.doubleValue ()D
           DADD
           DSTORE 3
-          GOTO L14
-         L15
+          GOTO L11
+         L12
           ALOAD 0
           DLOAD 3
           INVOKEVIRTUAL org/nlogo/prim/_asm_proceduresetup_setobservervariable_7.validDouble (D)D
-         L16
+         L13
           DSTORE 2
           NEW java/lang/Double
           DUP
           DLOAD 2
           INVOKESPECIAL java/lang/Double.<init> (D)V
           ASTORE 2
-         L5
+         L3
           ALOAD 1
           GETFIELD org/nlogo/nvm/Context.agent : Lorg/nlogo/agent/Agent;
           ICONST_2
           ALOAD 2
           INVOKEVIRTUAL org/nlogo/agent/Agent.setObserverVariable (ILjava/lang/Object;)V
-         L6
+         L4
           ALOAD 1
           BIPUSH 10
           PUTFIELD org/nlogo/nvm/Context.ip : I
-          GOTO L17
-         L7
+          GOTO L14
+         L5
           ASTORE 3
           NEW org/nlogo/nvm/EngineException
           DUP
@@ -557,7 +543,7 @@ procedure SETUP:[INITIAL-MAGNETIZATION]{O---}:
           INVOKEVIRTUAL org/nlogo/api/AgentException.getMessage ()Ljava/lang/String;
           INVOKESPECIAL org/nlogo/nvm/EngineException.<init> (Lorg/nlogo/nvm/Context;Lorg/nlogo/nvm/Instruction;Ljava/lang/String;)V
           ATHROW
-         L17
+         L14
           RETURN
 [10]_asm_proceduresetup_call_8 "setup-plot"
          L0
