@@ -1,18 +1,14 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Variables
-;;;;;;;;;;;;;;;;;;;;;;;;;
-
 breed [nodes node]
 
 nodes-own [
-  state            ; current grammar state (ranges from 0 to 1)
-  orig-state       ; remember this so we can reset the states
-  spoken-state     ; output of agent's speech (1 or 0)
+  state            ;; current grammar state (ranges from 0 to 1)
+  orig-state       ;; each person's initially assigned grammar state 
+  spoken-state     ;; output of person's speech (0 or 1)
 ]
 
-;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Setup
-;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; SETUP PROCEDURES  
+;;;
 
 to setup
   clear-all
@@ -25,16 +21,26 @@ to setup
   reset-ticks
 end
 
-;;; initialize nodes so a proportion start out with grammar 1
+;; Create a new node, initialize its state
+to make-node
+  create-nodes 1 [
+    ;; start in random position near edge of world
+    rt random-float 360
+    fd max-pxcor
+    set size 2
+    set state 0.0
+  ]
+end
+
+;; Initialize a select proportion of individuals to start with grammar 1
 to distribute-grammars
-  ;; wipe everyone's grammars back to 0
   ask nodes [ set state 0 ]
-  ;; then ask a select few to switch on to 1
+  ;; ask a select proportion of people to switch to 1
   ask n-of ((percent-grammar-1 / 100) * num-nodes) nodes
     [ set state 1.0 ]
   ask nodes [
-    set orig-state state     ; used for resetting states
-    set spoken-state state   ; initial spoken state, for first timestep
+    set orig-state state     ;; used in reset-states
+    set spoken-state state   ;; initial spoken state, for first timestep
     update-color
   ]
 end
@@ -57,17 +63,6 @@ to create-network
   ]
 end
 
-;;; creates a new node, initializes its state
-to make-node
-  create-nodes 1 [
-    ;; start in random position near edge of world
-    rt random-float 360
-    fd max-pxcor
-    set size 2
-    set state 0.0
-  ]
-end
-
 to update-color
   set color scale-color red state 0 1
 end
@@ -87,14 +82,14 @@ to redistribute-grammars
   reset-ticks
 end
 
-;;; reports a string of the agent's initial grammar - "one" or "zero"
+;; reports a string of the agent's initial grammar
 to-report orig-grammar-string
-  report ifelse-value (orig-state = 1.0) ["one"] ["zero"]
+  report ifelse-value (orig-state = 1.0) ["1"] ["0"]
 end
 
-;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Go
-;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;;; GO PROCEDURES
+;;;
 
 to go
   ask nodes [ communicate-via update-algorithm ]
@@ -102,132 +97,104 @@ to go
   tick
 end
 
-to communicate-via [ algorithm ] ; node procedure
-  ;; Discrete Grammars ;;
-  ifelse (algorithm = "threshold") [
-    listen-threshold
-    ] [
-    ifelse (algorithm = "individual") [
-      listen-individual
-    ] [
-      ;; Probabilistic Grammar ;;
+to communicate-via [ algorithm ] ;; node procedure
+  ;; Discrete Grammar ;;
+  ifelse (algorithm = "threshold") 
+  [ listen-threshold ] 
+  [ ifelse (algorithm = "individual") 
+    [ listen-individual ] 
+    [ ;; Probabilistic Grammar ;;
       ;; speak and ask all neighbors to listen
-      if (algorithm = "reward") [
-        speak
-        ask link-neighbors [
-          listen [spoken-state] of myself
-        ]
-  ]]]
+      if (algorithm = "reward") 
+      [ speak
+        ask link-neighbors 
+        [ listen [spoken-state] of myself ]
+   ]]]
 end
 
-;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Speaking & listening
-;;;;;;;;;;;;;;;;;;;;;;;;;
-
-to listen-threshold ; node procedure
+;; Speaking & Listening
+to listen-threshold ;; node procedure
   let grammar-one-sum sum [state] of link-neighbors
-  ifelse grammar-one-sum >= (count link-neighbors * threshold-val) [
-    set state 1
-  ][
-    ;; else - you don't have enough neighbors with grammar 1, and 1 is not a sink state, then change to 0
+  ifelse grammar-one-sum >= (count link-neighbors * threshold-val) 
+  [ set state 1 ]
+  [ ;; if there are not enough neighbors with grammar 1, 
+    ;; and 1 is not a sink state, then change to 0
     if not sink-state-1? [ set state 0 ]
   ]
 end
 
-to listen-individual ; node procedure
+to listen-individual 
   set state [state] of one-of link-neighbors
 end
 
-to speak ; node procedure
-  ;; *FILTERING* ;;
+to speak ;; node procedure
   ;; alpha is the level of bias in favor of grammar 1
-  ;; alpha is constant for all nodes. value of 0.025 works best with logistic
-  ;; this is the logistic equation
-  ;; it looks complicated in order to input values [0,1] and output to [0,1]
-  if logistic? [
-    let gain (alpha + 0.1) * 20
+  ;; alpha is constant for all nodes. 
+  ;; the alpha value of 0.025 works best with the logistic function
+  ;; adjusted so that it takes input values [0,1] and output to [0,1]
+  if logistic? 
+  [ let gain (alpha + 0.1) * 20
     let filter-val 1 / (1 + exp (- (gain * state - 1) * 5))
-    ifelse random-float 1.0 <= filter-val [
-      set spoken-state 1
-    ][
-      set spoken-state 0
-    ]
+    ifelse random-float 1.0 <= filter-val 
+    [ set spoken-state 1 ]
+    [ set spoken-state 0 ]
   ]
   ;; for probabilistic learners who only have bias for grammar 1
-  ;; no preference for discrete grammars (ie, no logistic)
-  if not logistic? [
-    ;; slope needs to be greater than 1... arbitrarily set to 1.5
-    ;; when state is >= 2/3, the biased-val would be greater than 1
+  ;; no preference for discrete grammars (i.e., no logistic)
+  if not logistic? 
+  [ ;; the slope needs to be greater than 1, so we arbitrarily set to 1.5
+    ;; when state is >= 2/3, the biased-val would be greater than or equal to 1
     let biased-val 1.5 * state
-    if biased-val > 1 [ set biased-val 1 ]
-    ;; let biased-val (state / (state + .9 * (1 - state)))
-    ifelse random-float 1.0 <= biased-val [
-      set spoken-state 1
-    ][
-      set spoken-state 0
-    ]
+    if biased-val >= 1 [ set biased-val 1 ]
+    ifelse random-float 1.0 <= biased-val 
+    [ set spoken-state 1 ]
+    [ set spoken-state 0 ]
   ]
 end
 
-;;; listening uses a linear reward/punish algorithm
-to listen [heard-state] ; node procedure
-  let gamma 0.01 ; for now gamma is the same for all nodes
+;; Listening uses a linear reward/punish algorithm
+to listen [heard-state] ;; node procedure
+  let gamma 0.01 ;; for now, gamma is the same for all nodes
   ;; choose a grammar state to be in
-  ifelse random-float 1.0 <= state [
+  ifelse random-float 1.0 <= state 
+  [
     ;; if grammar 1 was heard
-    ifelse heard-state = 1 [
-      set state state + (gamma * (1 - state))
-    ][
-      set state (1 - gamma) * state
-    ]
+    ifelse heard-state = 1 
+    [ set state state + (gamma * (1 - state)) ]
+    [ set state (1 - gamma) * state ]
   ][
     ;; if grammar 0 was heard
-    ifelse heard-state = 0 [
-      set state state * (1 - gamma)
-    ][
-      set state gamma + state * (1 - gamma)
-    ]
+    ifelse heard-state = 0 
+    [ set state state * (1 - gamma) ]
+    [ set state gamma + state * (1 - gamma) ]
   ]
 end
 
-;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Making the network
-;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;; This code is borrowed from Lottery Example, from the Code Examples
-;;; section of the Models Library.
-;;; The idea behind this procedure is a bit tricky to understand.
-;;; Basically we take the sum of the sizes of the turtles, and
-;;; that's how many "tickets" we have in our lottery.  Then we pick
-;;; a random "ticket" (a random number).  Then we step through the
-;;; turtles to figure out which turtle holds that ticket.
+;;
+;; Making the network
+;;
+;; This code is borrowed from Lottery Example, from the Code Examples section of the Models Library.
+;; The idea behind this procedure is as the following.
+;; The sum of the sizes of the turtles is set as the number of "tickets" we have in our lottery.
+;; Then we pick a random "ticket" (a random number), and we step through the
+;; turtles to find which turtle holds that ticket.
 to-report find-partner
   let pick random-float sum [count link-neighbors] of (nodes with [any? link-neighbors])
   let partner nobody
-  ask nodes [
-    ;; if there's no winner yet...
-    if partner = nobody [
-      ifelse count link-neighbors > pick [
-        set partner self
-      ][
-        set pick pick - (count link-neighbors)
-      ]
+  ask nodes 
+  [ ;; if there's no winner yet
+    if partner = nobody 
+    [ ifelse count link-neighbors > pick 
+      [ set partner self]
+      [ set pick pick - (count link-neighbors)]
     ]
   ]
   report partner
 end
 
-;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Layout
-;;;;;;;;;;;;;;;;;;;;;;;;;
-
 to layout
   layout-spring (turtles with [any? link-neighbors]) links 0.4 6 1
 end
-
-;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Highlighting
-;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to highlight
   ifelse mouse-inside?
@@ -236,7 +203,7 @@ to highlight
   display
 end
 
-;;; remove any previous highlights
+;; remove any previous highlights
 to undo-highlight
   clear-output
   ask nodes [ update-color ]
@@ -247,15 +214,16 @@ to do-highlight
   let highlight-color blue
   let min-d min [distancexy mouse-xcor mouse-ycor] of nodes
   ;; get the node closest to the mouse
-  let the-node one-of nodes with [any? link-neighbors and distancexy mouse-xcor mouse-ycor = min-d]
+  let the-node one-of nodes with 
+  [any? link-neighbors and distancexy mouse-xcor mouse-ycor = min-d]
   ;; get the node that was previously the highlight-color
   let highlighted-node one-of nodes with [color = highlight-color]
-  if the-node != nobody and the-node != highlighted-node [
-    ;; highlight the chosen node
-    ask the-node [
-      undo-highlight
+  if the-node != nobody and the-node != highlighted-node 
+  [ ;; highlight the chosen node
+    ask the-node 
+    [ undo-highlight
       output-print word "original grammar state: "  orig-grammar-string
-      output-print word "state: " precision state 5
+      output-print word "current grammar state: " precision state 5
       set color highlight-color
       ;; highlight edges connecting the chosen node to its neighbors
       ask my-links [ set color cyan - 1 ]
@@ -266,13 +234,13 @@ to do-highlight
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-354
+373
 10
-637
-314
+696
+354
 45
 45
-3.0
+3.44
 1
 10
 1
@@ -290,14 +258,14 @@ GRAPHICS-WINDOW
 1
 1
 ticks
-30
+30.0
 
 PLOT
-10
-375
-595
-550
-Mean state of agents in the network
+5
+365
+365
+485
+Mean state of language users in the network
 Time
 State
 0.0
@@ -313,9 +281,9 @@ PENS
 BUTTON
 10
 10
-115
+105
 43
-setup everything
+setup
 setup
 NIL
 1
@@ -328,10 +296,10 @@ NIL
 1
 
 BUTTON
-205
+226
 10
-280
-43
+366
+44
 NIL
 go
 T
@@ -345,9 +313,9 @@ NIL
 1
 
 BUTTON
-120
+110
 10
-200
+205
 43
 layout
 layout\ndisplay
@@ -363,9 +331,9 @@ NIL
 
 BUTTON
 10
-295
-110
-328
+160
+203
+194
 reset states
 reset-nodes
 NIL
@@ -379,10 +347,10 @@ NIL
 1
 
 BUTTON
-257
-324
-347
-357
+226
+80
+366
+114
 NIL
 highlight
 T
@@ -396,22 +364,22 @@ NIL
 1
 
 OUTPUT
-355
-317
-638
-372
-12
+375
+367
+698
+429
+14
 
 SLIDER
 10
-50
-118
-83
+45
+205
+78
 num-nodes
 num-nodes
 2
 100
-40
+100
 1
 1
 NIL
@@ -419,34 +387,34 @@ HORIZONTAL
 
 SLIDER
 10
-90
-178
-123
+81
+204
+114
 percent-grammar-1
 percent-grammar-1
 0
 100
-25
+60
 1
 1
 %
 HORIZONTAL
 
 CHOOSER
-186
-90
-320
-135
+225
+150
+365
+195
 update-algorithm
 update-algorithm
 "individual" "threshold" "reward"
-2
+0
 
 SLIDER
-184
-256
-318
-289
+225
+320
+365
+353
 alpha
 alpha
 0
@@ -459,10 +427,10 @@ HORIZONTAL
 
 BUTTON
 10
-333
-150
-368
-NIL
+120
+204
+155
+redistribute grammars
 redistribute-grammars
 NIL
 1
@@ -475,10 +443,10 @@ NIL
 1
 
 SLIDER
-186
-140
-320
-173
+225
+205
+365
+238
 threshold-val
 threshold-val
 0
@@ -490,10 +458,10 @@ NIL
 HORIZONTAL
 
 SWITCH
-186
-179
-320
-212
+225
+245
+365
+278
 sink-state-1?
 sink-state-1?
 0
@@ -501,10 +469,10 @@ sink-state-1?
 -1000
 
 SWITCH
-184
-218
-319
-251
+225
+284
+365
+317
 logistic?
 logistic?
 0
@@ -512,20 +480,20 @@ logistic?
 -1000
 
 TEXTBOX
-12
-145
-177
-286
-*threshold-val and sink state only apply for \"individual\" and \"threshold\" updating algorithms\n\n*when logistic? is off, there's a built-in bias towards grammar 1\n\n*alpha only applies for the \"reward\" updating algorithm, when logistic? is on
+15
+205
+195
+360
+* threshold-val and sink state only apply for \"individual\" and \"threshold\" updating algorithms\n\n* when logistic? is off, there's a built-in bias towards grammar 1\n\n* alpha only applies to the \"reward\" updating algorithm and when logistic? is on
 10
 0.0
 0
 
 BUTTON
-205
-50
-280
-83
+226
+45
+366
+79
 go once
 go
 NIL
@@ -543,44 +511,43 @@ NIL
 
 This model explores how the properties of language users and the structure of their social networks can affect the course of language change.
 
-In this model, there are two linguistic variants in competition within the social network --- one variant generated by grammar 0 and the other generated by grammar 1. Language users interact with each other based on who they are connected to in the network. At each iteration, everyone speaks by passing an utterance using either grammar 0 or grammar 1 to their neighbors in the network. Individuals then listen to their neighbors by changing their grammars based on what they received as input from the speakers.
+In this model, there are two linguistic variants in competition within the social network -- one variant generated by grammar 0 and the other generated by grammar 1. Language users interact with each other based on whom they are connected to in the network. At each iteration, each individual speaks by passing an utterance using either grammar 0 or grammar 1 to the neighbors in the network. Individuals then listen to their neighbors and change their grammars based on what they heard.
 
 ## HOW IT WORKS
 
 The networks in this model are constructed through the process of "preferential attachment" in which individuals enter the network one by one, and prefer to connect to those language users who already have many connections. This leads to the emergence of a few "hubs", or language users who are very well connected; most other language users have very few connections.
 
-There are three different options to control how language users listen and learn from their neighbors, listed in the UPDATE-ALGORITHM chooser. For two of these options, "individual" and "threshold", language users can only access one grammar at a time. Those that can only access grammar 1 are white in color, and those that can access only grammar 0 are black. For the third option, "reward", each grammar is associated with a weight, which determines the language user's probability of accessing that grammar. Because there are only two grammars in competition here, the weights are represented with a single value - the weight of grammar 1. The color of the nodes represent this probability; the larger the weight of grammar 1, the lighter the node.
+There are three different options to control how language users listen and learn from their neighbors, listed in the UPDATE-ALGORITHM chooser. For two of these options, INDIVIDUAL and THRESHOLD, language users can only access one grammar at a time. Those that can only access grammar 1 are white in color, and those that can access only grammar 0 are black. For the third option, REWARD, each grammar is associated with a weight, which determines the language user's probability of accessing that grammar. Because there are only two grammars in competition here, the weights are represented with a single value - the weight of grammar 1. The color of the nodes reflect this probability; the larger the weight of grammar 1, the lighter the node.
 
-- Individual: Learners choose one of their neighbors randomly, and adopt that neighbor's grammar.
+- INDIVIDUAL: Language users choose one of their neighbors randomly, and adopt that neighbor's grammar.
 
-- Threshold: Learners adopt grammar 1 if some proportion of their neighbors are already using grammar 1. This proportion is set with the THRESHOLD-VAL slider. For example, if THRESHOLD-VAL is 0.30, then a learner will adopt grammar 1 if at least 30% of his neighbors have grammar 1.
+- THRESHOLD: Language users adopt grammar 1 if some proportion of their neighbors is already using grammar 1. This proportion is set with the THRESHOLD-VAL slider. For example, if THRESHOLD-VAL is 0.30, then an individual will adopt grammar 1 if at least 30% of his neighbors have grammar 1.
 
-- Reward: Learners update their probability of using one grammar or the other. In this algorithm, if an individual hears an utterance from grammar 1, the individual's weight of grammar 1 is increased, and they will be more likely to access that grammar in the next iteration. Similarly, hearing an utterance from grammar 0 increases the likelihood of accessing grammar 0 in the next iteration.
+- REWARD: Language users update their probability of using one grammar or the other. In this algorithm, if an individual hears an utterance from grammar 1, the individual's weight of grammar 1 is increased, and they will be more likely to use that grammar in the next iteration. Similarly, hearing an utterance from grammar 0 increases the likelihood of using grammar 0 in the next iteration.
 
 ## HOW TO USE IT
 
-The NUM-NODES slider determines the number of nodes to be included in the network population. PERCENT-GRAMMAR-1 determines the proportion of these nodes which will be initialized to use grammar 1. The remaining nodes will be initialized to use grammar 0.
+The NUM-NODES slider determines the number of nodes (or individuals) to be included in the network population. PERCENT-GRAMMAR-1 determines the proportion of these language learners who will be initialized to use grammar 1. The remaining nodes will be initialized to use grammar 0.
 
-Pressing the SETUP-EVERYTHING button generates a new network based on NUM-NODES and PERCENT-GRAMMAR-1.
+Press SETUP-EVERYTHING to generate a new network based on NUM-NODES and PERCENT-GRAMMAR-1.
 
-The REDISTRIBUTE-GRAMMARS button keeps the same proportion of nodes with grammar 0 or 1, but reassigns who has these initial grammars. For example, if 20% of nodes are initialized with grammar 1, clicking REDISTRIBUTE-GRAMMARS will assign grammar 1 to a new sample of 20% of the population.
+Press GO ONCE to allow all language users to "speak" and "listen" only once, according to the algorithm in the UPDATE-ALGORITHM dropdown menu (see the above section for more about these options). Press GO for the simulation to run continuously; pressing GO again will halt the simulation.
 
-Press RESET-STATES to reinitialize all nodes to their original grammars. This allows you to run the model multiple times without generating a new network structure.
+Press LAYOUT to move the nodes around so that the structure of the network easier to see.
 
-The LAYOUT button attempts to move the nodes around to make the structure of the network easier to see.
+When the HIGHLIGHT button is pressed, rolling over a node in the network will highlight the nodes to which it is connected. Additionally, the node's initial and current grammar state will be displayed in the output area.
 
-When the HIGHLIGHT button is pressed, roll over a node in the network to see who that node is connected to. Additionally, information about that node's initial and current grammar state will be displayed in the output area.
+Press REDISTRIBUTE-GRAMMARS to reassign grammars to all language users, under the same initial condition. For example, if 20% of the nodes were initialized with grammar 1, pressing REDISTRIBUTE-GRAMMARS will assign grammar 1 to a new sample of 20% of the population.
 
-Press GO ONCE to allow all nodes to "speak" and "listen" once, according to the algorithm in the UPDATE-ALGORITHM dropdown menu (see the above section for more about these options). Press GO for this procedure to repeat continually.
+Press RESET-STATES to reinitialize all language users to their original grammars. This allows you to run the model multiple times without generating a new network structure.
 
-The SINK-STATE-1? switch applies only for the "individual" and "threshold" updating algorithms. If on, once someone adopts grammar 1, they can never go back to grammar 0.
+The SINK-STATE-1? switch applies only for the INDIVIDUAL and THRESHOLD updating algorithms. If on, once an individual adopts grammar 1, then he can never go back to grammar 0.
 
-The LOGISTIC? switch applies only for the "reward" updating algorithm. If on, a speaker's probability of using one of the grammars while speaking is pushed to the extremes (closer to 0% or 100%), based on the output of the logistic function (see 
-http://en.wikipedia.org/wiki/Logistic_function ).
+The LOGISTIC? switch applies only for the REWARD updating algorithm. If on, an individual's probability of using one of the grammars is pushed to the extremes (closer to 0% or 100%), based on the output of the logistic function. For more details, see http://en.wikipedia.org/wiki/Logistic_function.
 
-The ALPHA slider also applies only for the "reward" updating algorithm, and only when LOGISTIC? is turned on. ALPHA represents a bias in favor of grammar 1. Probabilities are pushed to the extremes, then shifted toward selecting grammar 1. The larger the value of ALPHA, the more likely a language user is to speak using grammar 1.
+The ALPHA slider also applies only for the REWARD updating algorithm, and only when LOGISTIC? is turned on. ALPHA represents a bias in favor of grammar 1. Probabilities are pushed to the extremes, and shifted toward selecting grammar 1. The larger the value of ALPHA, the more likely a language user will speak using grammar 1.
 
-The plot "Mean state of agents in the network" calculates the average weight of grammar 1 for all nodes in the network, at each iteration.
+The plot "Mean state of language users in the network" calculates the average weight of grammar 1 for all nodes in the network, at each iteration.
 
 ## THINGS TO NOTICE
 
@@ -588,7 +555,7 @@ Over time, language users tend to arrive at using just one grammar all of the ti
 
 ## THINGS TO TRY
 
-Under what conditions is it possible to get one grammar to spread through the entire network? Try manipulating PERCENT-GRAMMAR-1, the updating algorithm, and the various other parameters. Does the number of nodes matter too?
+Under what conditions is it possible to get one grammar to spread through the entire network? Try manipulating PERCENT-GRAMMAR-1, the updating algorithm, and the various other parameters. Does the number of nodes matter?
 
 ## EXTENDING THE MODEL
 
@@ -598,7 +565,7 @@ In this model, only two grammars are in competition in the network. Try extendin
 
 The updating algorithm currently has agents updating asynchronously. Currently, the grammar may spread one step or several within one tick, depending on the links. Try implementing synchronous updating.
 
-Regardless of the updating algorithm, language users always start out using one grammar categorically (that is, with a weight of 0 or 1). Edit the model to allow some language users to be initialized to an intermediate weight (i.e., 0.5)
+Regardless of the updating algorithm, language users always start out using one grammar categorically (that is, with a weight of 0 or 1). Edit the model to allow some language users to be initialized to an intermediate weight (e.g., 0.5).
 
 ## NETLOGO FEATURES
 
@@ -606,7 +573,7 @@ Networks are represented using turtles (nodes) and links.  In NetLogo, both turt
 
 ## RELATED MODELS
 
-Networks --> Preferential Attachment
+Preferential Attachment
 
 ## CREDITS AND REFERENCES
 
@@ -907,7 +874,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta2
+NetLogo 5.0.2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -925,5 +892,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
