@@ -577,8 +577,8 @@ Preferential Attachment
 
 ## CREDITS AND REFERENCES
 
-This model was also described in Troutman, C., Clark, B., and Goldrick, M. "Social Networks and Intraspeaker Variation During Periods of Language Change." Presented at the 31st Annual Penn Linguistics Colloquium 2007, University of Pennsylvania.  
-http://ling.northwestern.edu/~cet883/PLC_TroutmanClarkGoldrick.pdf
+This model was also described in Troutman, Celina; Clark, Brady; and Goldrick, Matthew (2008) "Social networks and intraspeaker variation during periods of language change," University of Pennsylvania Working Papers in Linguistics: Vol. 14: Iss. 1, Article 25.
+http://repository.upenn.edu/pwpl/vol14/iss1/25
 @#$#@#$#@
 default
 true
