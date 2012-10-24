@@ -740,7 +740,7 @@ to-report mrna-string-from-dna-string [dna-string]
 end
 
 ;; reports a string of dna where any A, G, C, T letter is replaced with a random one of these, and any length beyond
-;; characters is depricated
+;; characters is deprecated
 to-report dna-string-with-non-nucleotide-characters-replaced [dna-string]
   let new-string dna-string
   let next-item 0 
@@ -1423,7 +1423,7 @@ This model allows you to explore the effects of deletion, substitution, and inse
 
 In this model nucleotides are molecules, that when joined together, make up the structural units of DNA.  Visually this appears as single nitrogen base (represented as a colored polygon) and 1 phosphate group (represented as a yellow circle).  Only a single strand of the double stranded DNA molecule is show in this model, as the protein synthesis process starts with the doubled stranded DNA being unwound into two single strands to permit mRNA production.
 
-The nitrogen bases for DNA come in four variations: ([A]denine, [G]uanine, [T]hymine, [C]ytosine) bound to a ribose or deoxiribose backbone.
+The nitrogen bases for DNA come in four variations: ([A]denine, [G]uanine, [T]hymine, [C]ytosine) bound to a ribose or deoxyribose backbone.
 
 The same nitrogen bases are used for mRNA and tRNA, as for DNA, except no [T]hymine is used.  Instead it is replaced with [U]racil. 
 
@@ -1477,7 +1477,7 @@ to “from-user-code”.  The default is set to "AAAAA", but any sequence of let
 
 Other Setting Information:
 
-SHOW-GENES? controls whether the start and end condons for each gene are visibly tagged in the DNA.
+SHOW-GENES? controls whether the start and end codons for each gene are visibly tagged in the DNA.
 
 INITIAL-DNA-STRING can be set to "from user-created-code" (see above), or to any of the following: "no genes (short strand)", "no genes (long strand)", "1 short gene", "1 long gene", "2 sequential genes", "2 nested genes", "3 sequential genes", "random (short strand)", "random (long strand)".  Both random settings are fixed length, but random code in that length of DNA.
 
