@@ -1523,6 +1523,11 @@ The model makes use of "tag" turtles.  These breeds of turtles have no visible s
 ## RELATED MODELS
 
 DNA Replication Fork is the precursor model to this one.  It shows how two types of mutations (deletion and substitution) cam emerge when DNA is duplicated in mitosis or meiosis through simple unintentional copying errors.
+
+
+## CREDITS AND REFERENCES
+
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
 @#$#@#$#@
 default
 true
