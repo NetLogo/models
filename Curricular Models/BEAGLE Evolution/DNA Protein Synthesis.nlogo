@@ -1522,13 +1522,7 @@ The model makes use of "tag" turtles.  These breeds of turtles have no visible s
 
 ## RELATED MODELS
 
-DNA Replication Fork is the precursor model to this one.  It shows how two types of mutations (deletion and substitution) cam emerge when DNA is duplicated in mitosis or meiosis through simple unintentional copying errors.  
-
-## HOW TO CITE
-
-If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:  
-- Novak, M. and Wilensky, U. (2012).  NetLogo DNA Protein Synthesis model.  http://ccl.northwestern.edu/netlogo/models/DNA Protein Synthesis.nlogo.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.  
-- Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.  
+DNA Replication Fork is the precursor model to this one.  It shows how two types of mutations (deletion and substitution) cam emerge when DNA is duplicated in mitosis or meiosis through simple unintentional copying errors.
 @#$#@#$#@
 default
 true
@@ -2188,7 +2182,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.2
+NetLogo 5.0.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
