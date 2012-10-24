@@ -11,15 +11,18 @@ globals [
 ]
 
 breed [particles particle]
+
 particles-own [
   speed
   mass
-  energy          ;; particle info
+  energy        
 ]
 
-;;;
-;;; SETUP PROCEDURES
-;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;; setup procedures ;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to setup
   clear-all
@@ -42,14 +45,14 @@ to setup
 end
 
 to make-particles
-  create-particles number [
+  create-particles initial-number-particles [
     set speed 1
 
     set size smallest-particle-size
              + random-float (largest-particle-size - smallest-particle-size)
     ;; set the mass proportional to the area of the particle
     set mass (size * size)
-    set energy (0.5 * mass * speed * speed)
+    set energy kinetic-energy
 
     recolor
   ]
@@ -63,12 +66,6 @@ to make-particles
   ]
 end
 
-to position-randomly  ;; particle procedure
-  ;; place particle at random location inside the box
-  setxy one-of [1 -1] * random-float (box-edge - 0.5 - size / 2)
-        one-of [1 -1] * random-float (box-edge - 0.5 - size / 2)
-end
-
 to-report overlapping?  ;; particle procedure
   ;; here, we use IN-RADIUS just for improved speed; the real testing
   ;; is done by DISTANCE
@@ -76,9 +73,16 @@ to-report overlapping?  ;; particle procedure
                               with [distance myself < (size + [size] of myself) / 2]
 end
 
-;;;
-;;; GO PROCEDURES
-;;;
+to position-randomly  ;; particle procedure
+  ;; place particle at random location inside the box
+  setxy one-of [1 -1] * random-float (box-edge - 0.5 - size / 2)
+        one-of [1 -1] * random-float (box-edge - 0.5 - size / 2)
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;; go procedures  ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to go
   choose-next-collision
@@ -363,14 +367,14 @@ to collide-with [other-particle]  ;; particle procedure
   ;; if the magnitude of the velocity vector is 0, atan is undefined. but
   ;; speed will be 0, so heading is irrelevant anyway. therefore, in that
   ;; case we'll just leave it unmodified.
-  set energy (0.5 * mass * speed ^ 2)
+  set energy kinetic-energy
 
   if v1l != 0 or v1t != 0
     [ set heading (theta - (atan v1l v1t)) ]
   ;; and do the same for other-particle
   ask other-particle [
     set speed sqrt ((v2t ^ 2) + (v2l ^ 2))
-    set energy (0.5 * mass * speed ^ 2)
+    set energy kinetic-energy
 
     if v2l != 0 or v2t != 0
       [ set heading (theta - (atan v2l v2t)) ]
@@ -382,10 +386,11 @@ to collide-with [other-particle]  ;; particle procedure
   ask other-particle [ recolor ]
 end
 
-;;;
-;;; COLOR PROCEDURES
-;;;
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;; particle coloring procedures ;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to recolor ;; particle procedure
   ;;let avg-speed 1
@@ -400,9 +405,10 @@ to recolor ;; particle procedure
 end
 
 
-;;;
-;;; AN EXPERIMENT IN TIME REVERSAL
-;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;; time reversal procedure  ;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Here's a procedure that demonstrates time-reversing the model.
 ;; You can run it from the command center.  When it finishes,
@@ -446,8 +452,10 @@ to reverse-time
 end
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;; reporters ;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;;; plotting procedures
 to-report init-particle-speed
   report 1
 end
@@ -455,6 +463,10 @@ end
 to-report max-particle-mass
   report max [mass] of particles
 end
+
+to-report kinetic-energy
+   report (0.5 * mass * speed * speed)
+end   
 
 to draw-vert-line [ xval ]
   plotxy xval plot-y-min
@@ -491,10 +503,10 @@ ticks
 30.0
 
 BUTTON
-8
-130
-101
-163
+4
+10
+97
+43
 NIL
 setup
 NIL
@@ -508,12 +520,12 @@ NIL
 1
 
 SLIDER
-10
-13
-199
-46
-number
-number
+0
+45
+190
+78
+initial-number-particles
+initial-number-particles
 1
 250
 60
@@ -523,11 +535,11 @@ NIL
 HORIZONTAL
 
 BUTTON
-107
-130
-194
-163
-NIL
+98
+10
+188
+43
+go/pause
 go
 T
 1
@@ -540,10 +552,10 @@ NIL
 1
 
 SLIDER
-10
-92
-198
-125
+0
+120
+190
+153
 largest-particle-size
 largest-particle-size
 1
@@ -555,10 +567,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-10
-52
-198
-85
+0
+84
+190
+117
 smallest-particle-size
 smallest-particle-size
 1
@@ -571,9 +583,9 @@ HORIZONTAL
 
 MONITOR
 5
-167
+155
 101
-212
+200
 average speed
 avg-speed
 2
@@ -581,10 +593,10 @@ avg-speed
 11
 
 PLOT
-6
-265
-269
-446
+5
+250
+268
+445
 Speed Counts
 NIL
 NIL
@@ -604,7 +616,7 @@ PLOT
 6
 449
 340
-627
+604
 Speed Histogram
 NIL
 NIL
@@ -626,7 +638,7 @@ PLOT
 343
 449
 687
-627
+604
 Energy Histogram
 NIL
 NIL
@@ -644,9 +656,9 @@ PENS
 
 MONITOR
 102
-166
+154
 205
-211
+199
 average-energy
 avg-energy
 2
@@ -654,33 +666,33 @@ avg-energy
 11
 
 MONITOR
-6
-217
-83
-262
-percent fast
+5
+205
+82
+250
+% fast
 percent-fast
 0
 1
 11
 
 MONITOR
-86
-217
-182
-262
-percent medium
+85
+205
+181
+250
+% medium
 percent-medium
 0
 1
 11
 
 MONITOR
-186
-217
-269
-262
-percent slow
+185
+205
+268
+250
+% slow
 percent-slow
 0
 1
@@ -689,7 +701,9 @@ percent-slow
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model is one in a series of GasLab models. They use the same basic rules for simulating the behavior of gases.  Each model integrates different features in order to highlight different aspects of gas behavior.  This model is different from the other GasLab models in that the collision calculations take the circular shape and size of the particles into account, instead of modeling the particles as dimensionless points.
+This model is one in a series of GasLab models. They use the same basic rules for simulating the behavior of gases.  Each model integrates different features in order to highlight different aspects of gas behavior.  
+
+This model is different from the other GasLab models in that the collision calculations take the circular shape and size of the particles into account, instead of modeling the particles as dimensionless points.
 
 ## HOW IT WORKS
 
@@ -701,7 +715,7 @@ By performing such a calculation, one can determine when the next collision anyw
 
 ## HOW TO USE IT
 
-NUMBER determines the number of gas particles used with SETUP.  If the world is too small or the particles are too large, the SETUP procedure of the particles will stop so as to prevent overlapping particles.
+INITIAL-NUMBER-PARTICLES determines the number of gas particles used with SETUP.  If the world is too small or the particles are too large, the SETUP procedure of the particles will stop so as to prevent overlapping particles.
 
 SMALLEST-PARTICLE-SIZE and LARGEST-PARTICLE-SIZE determines the range of particle sizes that will be created when SETUP is pressed.  (Particles are also assigned a mass proportional to the area of the particle that is created.)
 
@@ -709,7 +723,7 @@ The SETUP button will set the initial conditions.
 The GO button will run the simulation.
 
 Monitors:  
-- FAST, MEDIUM, SLOW: numbers of particles with different speeds: fast (red), medium (green), and slow (blue).  
+- % FAST, % MEDIUM, % SLOW: the percentage of particles with different speeds: fast (red), medium (green), and slow (blue).  
 - AVERAGE SPEED: average speed of the particles.  
 - AVERAGE ENERGY: average kinetic energy of the particles.
 
@@ -743,6 +757,7 @@ To see what the approximate mass of each particle is, type this in the command c
 ## EXTENDING THE MODEL
 
 Collisions between boxes and circles could also be explored.  Variations in size between particles could investigated or variations in the mass of some of the particle could be made to explore other factors that affect the outcome of collisions.
+
 
 ## NETLOGO FEATURES
 
@@ -1045,7 +1060,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.1
+NetLogo 5.0.2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1063,5 +1078,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
