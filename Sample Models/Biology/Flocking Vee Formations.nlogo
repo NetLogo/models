@@ -44,6 +44,7 @@ to adjust ;; turtle procedure
   ;; if I am too far away from the nearest bird I can see, then try to get near them
   if closest-distance > updraft-distance [
     turn-towards (towards closest-neighbor)
+    ;; speed up to catch up
     set speed base-speed * (1 + speed-change-factor)
     set happy? false
     stop
@@ -52,6 +53,7 @@ to adjust ;; turtle procedure
   ;; if my view is obstructed, move sideways randomly
   if any? visible-neighbors in-cone vision-distance obstruction-cone [
     turn-at-most (random-float (max-turn * 2) - max-turn)
+    ;; speed up to get out of the way
     set speed base-speed * (1 + speed-change-factor)
     set happy? false
     stop
@@ -60,6 +62,7 @@ to adjust ;; turtle procedure
   ;; if i am too close to the nearest bird slow down
   if closest-distance < too-close [
     set happy? false
+    ;; speed down to let the bird in front of me move away
     set speed base-speed * (1 - speed-change-factor)
     stop
   ]
@@ -138,7 +141,7 @@ vision-distance
 vision-distance
 0
 20
-20
+10
 1
 1
 NIL
@@ -288,7 +291,7 @@ number-of-birds
 number-of-birds
 0
 100
-30
+40
 1
 1
 NIL
@@ -346,11 +349,11 @@ This is an adaptation of the Flocking model to produce V-like formations in arti
 
 ## HOW IT WORKS
 
-Each bird starts out with a random position and heading in the world. If the bird cannot see any other birds in its limited vision range, it will continue to fly straight at its normal base speed.  Otherwise, each bird follow four basic rules, given by this order of precedence.
+Each bird starts out with a random position and heading in the world. If the bird cannot see any other birds in its limited vision range, it will continue to fly straight at its normal base speed.  If it can see another bird, it follows four basic rules, given by this order of precedence.
 
-1. If a bird is too far away (that is, further than the distance for getting an updraft benefit) from the nearest visible bird, it will turn toward that bird and speed up to get near it.
-2. Once a bird is near enough another bird, it will move randomly to one side or another until its view is no longer obstructed.
-3. If a bird gets too close to another bird, it will slow down.
+1. If it is too far away (that is, further than the distance for getting an updraft benefit) from the nearest visible bird, it will turn toward that bird and speed up to get near it.
+2. Once it is near enough to another bird, it will move randomly to one side or another until its view is no longer obstructed.
+3. If it gets too close to another bird, it will slow down.
 4. Once the three conditions above are met (the bird has an unobstructed view and is sufficiently close but not too close to another bird), the bird will set both its speed and its heading that of its closest visible neighbor.
 
 ## HOW TO USE IT
@@ -359,13 +362,13 @@ NUMBER-OF-BIRDS sets the number of birds in the world.
 Use SETUP to populate the world with birds, and GO to run the model.
 
 Vision Parameters:  
-VISION-DISTANCE and VISION-CONE defines the radius and angle span, respectively, of the area within which a bird can see another bird. A VISION-CONE of 120 means that the bird can see up to 60 degrees to the right and 60 degrees to the left. OBSTRUCTION-CONE defines the angle span for which a bird considers its vision to be obstructed by another bird.
+VISION-DISTANCE and VISION-CONE defines the radius and angle span, respectively, of the area within which a bird can see another bird. A VISION-CONE of 120 means that the bird can see up to 60 degrees to its right and 60 degrees to its left. OBSTRUCTION-CONE defines the angle span for which a bird considers its vision to be obstructed by another bird.
 
 Motion Parameters:  
 BASE-SPEED defines the speed that birds will fly if they are not speeding up to catch another bird that they see, or slowing down to avoid colliding with a bird.  
 SPEED-CHANGE-FACTOR is the factor by which birds increase or decrease their speed, given as a fraction of their base speed.  A BASE-SPEED of 1 with a SPEED-CHANGE-FACTOR of 0.25 means that birds will travel at speeds of 0.75 (slow speed), 1.0 (normal speed), or 1.25 (fast speed).  
 UPDRAFT-DISTANCE defines how near to another bird one must be to take advantage of its upwash.  
-TOO-CLOSE defines how close one can be to another bird before slowing down to avoid collision.  
+TOO-CLOSE defines how close one bird can be to another bird before slowing down to avoid collision.  
 MAX-TURN sets the maximum number of degrees that a bird can turn during a single tick.
 
 Visualization Parameters:  
@@ -375,7 +378,7 @@ If SHOW-UNHAPPY? is switched ON, birds that have not satisfied the conditions ou
 
 After forming a vee-flock for a while, birds tend to drift apart from one another.
 
-Birds following these rules may form flock formations other than a balanced V. These include asymmetrical (unbalanced) V shapes, echelons (diagonal lines), or inverted V shapes.  In fact, imperfect formations such as these are more commonly observed than balanced vees in nature as well.
+Birds following these rules may form flock formations other than a balanced V. These include asymmetrical (unbalanced) V shapes, echelons (diagonal lines), or inverted V shapes.  In fact, imperfect formations such as these are more commonly observed than balanced vees in nature too.
 
 ## THINGS TO TRY
 
@@ -383,11 +386,11 @@ Play with the sliders to see if you can get tighter flocks, looser flocks, fewer
 
 Does having lots of birds make it more or less likely to form good V shapes?
 
-Can you find parameters such that running the model for a long time produces a single static flock?  Or will the birds never settle down to a fixed formation?
+Can you set parameters such that running the model for a long time produces a single static flock?  Or will the birds never settle down to a fixed formation?
 
 ## EXTENDING THE MODEL
 
-What would happen if you put walls around the edges of the world that the birds can't fly into?
+What would happen if you put walls around the edges of the world that the birds can't fly through?
 
 What would happen if you gave birds limited energy levels, so that flying fast would make them expend more energy and eventually become exhausted.  Flying slowly, or within another bird's updraft, could allow them to recoup some energy.
 
@@ -691,7 +694,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta3
+NetLogo 5.0.2
 @#$#@#$#@
 setup
 repeat 1000 [ go ]
