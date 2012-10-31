@@ -1086,7 +1086,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "if is-list? pressure-history \n  [ plotxy ticks (mean pressure-history) ]\n"
+"default" 1.0 0 -16777216 true "" "if is-list? pressure-history \n  [ plotxy ticks (mean pressure-history) ]"
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -1230,7 +1230,7 @@ false
 Rectangle -7500403 true true 0 0 297 299
 
 @#$#@#$#@
-NetLogo 5.0beta3
+NetLogo 5.0.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

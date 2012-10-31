@@ -138,7 +138,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
-30
+30.0
 
 BUTTON
 241
@@ -302,7 +302,7 @@ ave-metal-temp
 1550.0
 true
 true
-"set-plot-y-range room-temp init-metal-temp" "if not histogram? [ stop ]\n"
+"set-plot-y-range room-temp init-metal-temp" "if not histogram? [ stop ]"
 PENS
 "ave-metal-temp" 1.0 0 -2674135 false "" "plot ave-metal-temp"
 
@@ -340,7 +340,7 @@ false
 true
 "set-plot-y-range 0 count turtles\nset-histogram-num-bars 1 + (length colors)\n\nlet bottom (round room-temp)\nlet top (round melting-temp)\nlet index 0\nforeach colors [\n  create-temporary-plot-pen (word bottom \" - \" top)\n  set-plot-pen-mode 1\n  set-plot-pen-color ?\n  set pens lput (word bottom \" - \" top) pens\n\n  set index index + 1\n  set bottom top\n  set top (round ((index * temp-range) + melting-temp))\n]" ""
 PENS
-"quantity" 1.0 1 -2674135 false "" "if not histogram? [ stop ]\nlet index 0\nforeach colors [\n  set-current-plot-pen (item index pens)\n  plot-pen-reset\n  if any? turtles with [color = ?]\n  [ plotxy index count turtles with [color = ?] ]\n  set index index + 1\n]\n"
+"quantity" 1.0 1 -2674135 false "" "if not histogram? [ stop ]\nlet index 0\nforeach colors [\n  set-current-plot-pen (item index pens)\n  plot-pen-reset\n  if any? turtles with [color = ?]\n  [ plotxy index count turtles with [color = ?] ]\n  set index index + 1\n]"
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -698,7 +698,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.0.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

@@ -314,9 +314,9 @@ true
 true
 "" ""
 PENS
-"anions" 1.0 0 -2674135 true "" "let anions-left count anions with [xcor < 0]\nlet anions-right count anions with [xcor >= 0]\nplot (anions-right - anions-left)\n"
-"water" 1.0 0 -13345367 true "" "let water-left count waters with [xcor < 0]\nlet water-right count waters with [xcor >= 0]\nplot (water-right - water-left)\n"
-"midline" 1.0 0 -16777216 false ";; draw the x axis in black\nauto-plot-off\nset-current-plot-pen \"midline\"\nplot 0\nplotxy 10000 0\nauto-plot-on\n" ""
+"anions" 1.0 0 -2674135 true "" "let anions-left count anions with [xcor < 0]\nlet anions-right count anions with [xcor >= 0]\nplot (anions-right - anions-left)"
+"water" 1.0 0 -13345367 true "" "let water-left count waters with [xcor < 0]\nlet water-right count waters with [xcor >= 0]\nplot (water-right - water-left)"
+"midline" 1.0 0 -16777216 false ";; draw the x axis in black\nauto-plot-off\nset-current-plot-pen \"midline\"\nplot 0\nplotxy 10000 0\nauto-plot-on" ""
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -648,7 +648,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta3
+NetLogo 5.0.3
 @#$#@#$#@
 setup false
 @#$#@#$#@

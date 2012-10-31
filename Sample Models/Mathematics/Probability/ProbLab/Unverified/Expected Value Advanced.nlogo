@@ -786,7 +786,7 @@ Count
 10.0
 true
 true
-"clear-plot\nset-plot-x-range (ceiling (monitor-exp-val / 5)) * 5 - 10  (ceiling (monitor-exp-val / 5)) * 5 + 10\n\n  " ""
+"clear-plot\nset-plot-x-range (ceiling (monitor-exp-val / 5)) * 5 - 10  (ceiling (monitor-exp-val / 5)) * 5 + 10" ""
 PENS
 "Count" 1.0 1 -16777216 true "" ""
 "Mean" 1.0 0 -13840069 true "" ""
@@ -828,7 +828,7 @@ Count
 10.0
 true
 true
-"clear-plot\nset-plot-x-range 0 ((ceiling (((width-of-sample * height-of-sample) * 2) / 5)) * 5)\n\n  " ""
+"clear-plot\nset-plot-x-range 0 ((ceiling (((width-of-sample * height-of-sample) * 2) / 5)) * 5)" ""
 PENS
 "default" 1.0 1 -16777216 true "" ""
 "Mean" 1.0 0 -13840069 true "" ""
@@ -859,7 +859,7 @@ Mean Value
 10.0
 true
 true
-"clear-plot\nset-plot-y-range (ceiling (monitor-exp-val / 5)) * 5 - 10  (ceiling (monitor-exp-val / 5)) * 5 + 10\n" ""
+"clear-plot\nset-plot-y-range (ceiling (monitor-exp-val / 5)) * 5 - 10  (ceiling (monitor-exp-val / 5)) * 5 + 10" ""
 PENS
 "Mean" 1.0 0 -16777216 true "" ""
 "ExpVal" 1.0 0 -2674135 true "plotxy plot-x-min monitor-exp-val\nplotxy plot-x-max monitor-exp-val" ""
@@ -1382,7 +1382,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta4
+NetLogo 5.0.3
 @#$#@#$#@
 setup
 repeat 75 [ random-select ]

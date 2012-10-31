@@ -255,7 +255,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 2 -16777216 true "" "if ticks mod 100 = 0 and not empty? sizes [\n  plot-pen-reset\n  foreach n-values (log (max sizes) 2) [?] [\n    let exponent ?\n    plot length filter [? >= 2 ^ exponent and ? < 2 ^ (exponent + 1)] sizes\n  ]\n]\n"
+"default" 1.0 2 -16777216 true "" "if ticks mod 100 = 0 and not empty? sizes [\n  plot-pen-reset\n  foreach n-values (log (max sizes) 2) [?] [\n    let exponent ?\n    plot length filter [? >= 2 ^ exponent and ? < 2 ^ (exponent + 1)] sizes\n  ]\n]"
 
 BUTTON
 820
@@ -368,7 +368,7 @@ true
 Polygon -7500403 true true 150 5 40 250 150 205 260 250
 
 @#$#@#$#@
-NetLogo 5.0RC4
+NetLogo 5.0.3
 @#$#@#$#@
 setup-random repeat 50 [ go ]
 @#$#@#$#@

@@ -38,6 +38,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
+30.0
 
 BUTTON
 11
@@ -440,11 +441,11 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.0.3
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
-0.001
+0.0010
     org.nlogo.sdm.gui.AggregateDrawing 25
         org.nlogo.sdm.gui.StockFigure "attributes" "attributes" 1 "FillColor" "Color" 225 225 175 233 88 60 40
             org.nlogo.sdm.gui.WrappedStock "sheep" "100" 1
@@ -454,7 +455,7 @@ need-to-manually-make-preview-for-this-model
         org.nlogo.sdm.gui.ReservoirFigure "attributes" "attributes" 1 "FillColor" "Color" 192 192 192 38 284 30 30
         org.nlogo.sdm.gui.ReservoirFigure "attributes" "attributes" 1 "FillColor" "Color" 192 192 192 487 96 30 30
         org.nlogo.sdm.gui.ReservoirFigure "attributes" "attributes" 1 "FillColor" "Color" 192 192 192 487 278 30 30
-        org.nlogo.sdm.gui.RateConnection 3 69 107 144 107 221 107 NULL NULL 0 0 0
+        org.nlogo.sdm.gui.RateConnection 3 69 107 145 107 221 107 NULL NULL 0 0 0
             org.jhotdraw.contrib.ChopDiamondConnector REF 5
             org.jhotdraw.standard.ChopBoxConnector REF 1
             org.nlogo.sdm.gui.WrappedRate "sheep-birth-rate * sheep" "sheep-births"
@@ -482,10 +483,10 @@ need-to-manually-make-preview-for-this-model
             org.nlogo.sdm.gui.WrappedConverter ".8" "predator-efficiency"
         org.nlogo.sdm.gui.ConverterFigure "attributes" "attributes" 1 "FillColor" "Color" 120 188 182 337 372 50 50
             org.nlogo.sdm.gui.WrappedConverter "0.15" "wolf-death-rate"
-        org.nlogo.sdm.gui.BindingConnection 2 72 182 144 107 NULL NULL 0 0 0
+        org.nlogo.sdm.gui.BindingConnection 2 72 182 145 107 NULL NULL 0 0 0
             org.jhotdraw.figures.ChopEllipseConnector REF 29
             org.nlogo.sdm.gui.ChopRateConnector REF 9
-        org.nlogo.sdm.gui.BindingConnection 2 221 107 144 107 NULL NULL 0 0 0
+        org.nlogo.sdm.gui.BindingConnection 2 221 107 145 107 NULL NULL 0 0 0
             org.jhotdraw.standard.ChopBoxConnector REF 1
             org.nlogo.sdm.gui.ChopRateConnector REF 9
         org.nlogo.sdm.gui.BindingConnection 2 279 187 396 109 NULL NULL 0 0 0

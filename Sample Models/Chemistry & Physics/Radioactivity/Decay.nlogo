@@ -180,7 +180,7 @@ true
 false
 "set-plot-y-range 0 number-nuclei" ""
 PENS
-"lines" 1.0 0 -2674135 true "" ";; when half of the original nuclei have decayed draw a line to mark the half-life\nlet undecayed count turtles with [color = cyan]\nif (last-count / 2) > undecayed\n  [ draw-vertical-line ticks\n    draw-horizontal-line undecayed\n    set last-count undecayed ]\n"
+"lines" 1.0 0 -2674135 true "" ";; when half of the original nuclei have decayed draw a line to mark the half-life\nlet undecayed count turtles with [color = cyan]\nif (last-count / 2) > undecayed\n  [ draw-vertical-line ticks\n    draw-horizontal-line undecayed\n    set last-count undecayed ]"
 "default" 1.0 0 -16777216 true "" "plot count turtles with [color = cyan]"
 
 PLOT
@@ -546,7 +546,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta2
+NetLogo 5.0.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

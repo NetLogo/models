@@ -246,7 +246,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 1 -16777216 true "" "set-histogram-num-bars 10\nset-plot-x-range 0 (max [sugar] of turtles)\nset-plot-pen-interval ((max [sugar] of turtles) / 10)\nhistogram [sugar] of turtles  "
+"default" 1.0 1 -16777216 true "" "set-histogram-num-bars 10\nset-plot-x-range 0 (max [sugar] of turtles)\nset-plot-pen-interval ((max [sugar] of turtles) / 10)\nhistogram [sugar] of turtles"
 
 SLIDER
 10
@@ -643,7 +643,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta2
+NetLogo 5.0.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

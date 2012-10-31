@@ -605,7 +605,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
-30
+30.0
 
 BUTTON
 140
@@ -921,7 +921,7 @@ true
 0
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.0.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

@@ -321,11 +321,11 @@ Amplitude
 50.0
 false
 true
-"set-plot-y-range ((- amplitude-left) - amplitude-right)\n                  (  amplitude-left  + amplitude-right)\n" "if ticks mod 200 = 0 [\n  ifelse show-only-recent-plot?\n    [ set-plot-x-range max list 0 (ticks - 210) (ticks + 210)]\n    [ set-plot-x-range 0 (ticks + 200) ]\n]\n"
+"set-plot-y-range ((- amplitude-left) - amplitude-right)\n                  (  amplitude-left  + amplitude-right)" "if ticks mod 200 = 0 [\n  ifelse show-only-recent-plot?\n    [ set-plot-x-range max list 0 (ticks - 210) (ticks + 210)]\n    [ set-plot-x-range 0 (ticks + 200) ]\n]"
 PENS
 "left" 1.0 0 -1184463 true "" "if show-left? and any? lefts with [round xcor = listening-point]\n[ plotxy ticks [ypos-new] of one-of lefts with [ round xcor = listening-point ] ]"
-"right" 1.0 0 -11221820 true "" "if show-right? and any? rights with [ round xcor = listening-point ]\n [ plotxy ticks [ypos-new] of one-of rights with [ round xcor = listening-point ] ]\n"
-"sum" 1.0 0 -2674135 true "" "if show-sum? and any? sums with [ round xcor = listening-point ]\n  [ plotxy ticks [ypos-new] of one-of sums with [ round xcor = listening-point  ] ]\n"
+"right" 1.0 0 -11221820 true "" "if show-right? and any? rights with [ round xcor = listening-point ]\n [ plotxy ticks [ypos-new] of one-of rights with [ round xcor = listening-point ] ]"
+"sum" 1.0 0 -2674135 true "" "if show-sum? and any? sums with [ round xcor = listening-point ]\n  [ plotxy ticks [ypos-new] of one-of sums with [ round xcor = listening-point  ] ]"
 
 SWITCH
 11
@@ -769,7 +769,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0RC2
+NetLogo 5.0.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

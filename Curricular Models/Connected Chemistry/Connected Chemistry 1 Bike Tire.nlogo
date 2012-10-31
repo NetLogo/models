@@ -308,6 +308,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
+30.0
 
 SLIDER
 14
@@ -528,7 +529,7 @@ true
 0
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.0.3
 @#$#@#$#@
 setup
 set box-x 18

@@ -224,7 +224,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
-30
+30.0
 
 SLIDER
 138
@@ -304,7 +304,7 @@ Mny + Lns
 600.0
 true
 true
-"set-plot-x-range 0 x-max\nset-plot-y-range -50 y-max\n" ""
+"set-plot-x-range 0 x-max\nset-plot-y-range -50 y-max" ""
 PENS
 "money" 1.0 0 -16777216 true "" "plot money-total"
 "loans" 1.0 0 -2674135 true "" "plot loans-total"
@@ -430,7 +430,7 @@ false
 false
 "set-plot-y-range 0 (count turtles)" ""
 PENS
-"hist" 1.0 0 -13345367 true "" "if( ticks mod 10 = 1 ) [\n  let max-wealth max [wealth] of turtles\n  let min-wealth min [wealth] of turtles\n  let one-fifth-wealth 0.2 * (max-wealth - min-wealth)\n  let num-bins 10\n  let index 1\n  let interval round ((plot-x-max - plot-x-min) / num-bins)\n  plot-pen-reset\n  repeat num-bins [\n    plotxy ((index - 1) * interval + 0.002)\n                 (count turtles with [\n                      wealth < (min-wealth + index * one-fifth-wealth) and\n                      wealth >= (min-wealth + (index - 1) * one-fifth-wealth)\n                  ]\n                 )\n\n    plotxy  (index * interval)\n                 (count turtles with [\n                      wealth < (min-wealth + index * one-fifth-wealth) and\n                      wealth >= (min-wealth + (index - 1) * one-fifth-wealth)\n                  ]\n                 )\n\n    plotxy (index * interval + 0.001) 0\n    set index index + 1\n  ]\n]\n"
+"hist" 1.0 0 -13345367 true "" "if( ticks mod 10 = 1 ) [\n  let max-wealth max [wealth] of turtles\n  let min-wealth min [wealth] of turtles\n  let one-fifth-wealth 0.2 * (max-wealth - min-wealth)\n  let num-bins 10\n  let index 1\n  let interval round ((plot-x-max - plot-x-min) / num-bins)\n  plot-pen-reset\n  repeat num-bins [\n    plotxy ((index - 1) * interval + 0.002)\n                 (count turtles with [\n                      wealth < (min-wealth + index * one-fifth-wealth) and\n                      wealth >= (min-wealth + (index - 1) * one-fifth-wealth)\n                  ]\n                 )\n\n    plotxy  (index * interval)\n                 (count turtles with [\n                      wealth < (min-wealth + index * one-fifth-wealth) and\n                      wealth >= (min-wealth + (index - 1) * one-fifth-wealth)\n                  ]\n                 )\n\n    plotxy (index * interval + 0.001) 0\n    set index index + 1\n  ]\n]"
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -768,7 +768,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.0.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

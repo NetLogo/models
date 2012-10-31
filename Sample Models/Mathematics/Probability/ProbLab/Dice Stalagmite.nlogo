@@ -245,7 +245,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 1 -16777216 true "" "histogram single-outcomes\nlet maxbar modes single-outcomes\nlet maxrange length filter [ ? = item 0 maxbar ] single-outcomes\nset-plot-y-range 0 max list 51 maxrange\n"
+"default" 1.0 1 -16777216 true "" "histogram single-outcomes\nlet maxbar modes single-outcomes\nlet maxrange length filter [ ? = item 0 maxbar ] single-outcomes\nset-plot-y-range 0 max list 51 maxrange"
 
 PLOT
 562
@@ -692,7 +692,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta3
+NetLogo 5.0.3
 @#$#@#$#@
 setup repeat 150 [ go ]
 @#$#@#$#@

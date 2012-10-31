@@ -268,7 +268,7 @@ true
 PENS
 "sheep" 1.0 0 -13345367 true "" "plot count sheep"
 "wolves" 1.0 0 -2674135 true "" "plot count wolves"
-"grass / 4" 1.0 0 -10899396 true "" ";; divide by four to keep it within similar\n;; range as wolf and sheep populations\nplot count patches with [ pcolor = green ] / 4  "
+"grass / 4" 1.0 0 -10899396 true "" ";; divide by four to keep it within similar\n;; range as wolf and sheep populations\nplot count patches with [ pcolor = green ] / 4"
 
 MONITOR
 74
@@ -828,7 +828,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta3
+NetLogo 5.0.3
 @#$#@#$#@
 setup
 repeat 75 [ go ]

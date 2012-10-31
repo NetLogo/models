@@ -222,7 +222,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
-30
+30.0
 
 SLIDER
 138
@@ -345,8 +345,8 @@ false
 false
 "set-plot-y-range 0 people" ""
 PENS
-"hist" 1.0 1 -13345367 true "" "set-histogram-num-bars 10\nhistogram [wealth] of turtles\n"
-"ave-wealth" 1.0 0 -7500403 true "" "let wealth-list [wealth] of turtles\nlet min-wealth round (min wealth-list)\nlet max-wealth round (max wealth-list)\nifelse min-wealth < max-wealth\n  [ set-plot-x-range min-wealth max-wealth ]\n  [ set-plot-x-range min-wealth (min-wealth + 1) ]\n\n;; draw gray line in center of distribution\nplot-pen-reset\nlet ave-wealth mean wealth-list\nplotxy ave-wealth 0\nplotxy ave-wealth people\n"
+"hist" 1.0 1 -13345367 true "" "set-histogram-num-bars 10\nhistogram [wealth] of turtles"
+"ave-wealth" 1.0 0 -7500403 true "" "let wealth-list [wealth] of turtles\nlet min-wealth round (min wealth-list)\nlet max-wealth round (max wealth-list)\nifelse min-wealth < max-wealth\n  [ set-plot-x-range min-wealth max-wealth ]\n  [ set-plot-x-range min-wealth (min-wealth + 1) ]\n\n;; draw gray line in center of distribution\nplot-pen-reset\nlet ave-wealth mean wealth-list\nplotxy ave-wealth 0\nplotxy ave-wealth people"
 
 MONITOR
 38
@@ -776,7 +776,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.0.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

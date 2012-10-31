@@ -88,6 +88,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
+30.0
 
 BUTTON
 66
@@ -154,7 +155,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "ask walker 0 [\n  plot-pen-reset\n  set-plot-x-range 0 (maximum-visibility + 1)\n  let dist 0\n  while [dist <= maximum-visibility] [\n    let p patch-ahead dist\n    ifelse any? (turtles-on p) with [ color = [color] of myself ]\n      [ set-plot-pen-color color ]\n      [ set-plot-pen-color black ]\n    plot-pen-up\n    plotxy dist 0\n    plot-pen-down\n    plotxy dist [elevation] of p\n    set dist dist + 1\n  ]\n]\n"
+"default" 1.0 0 -16777216 true "" "ask walker 0 [\n  plot-pen-reset\n  set-plot-x-range 0 (maximum-visibility + 1)\n  let dist 0\n  while [dist <= maximum-visibility] [\n    let p patch-ahead dist\n    ifelse any? (turtles-on p) with [ color = [color] of myself ]\n      [ set-plot-pen-color color ]\n      [ set-plot-pen-color black ]\n    plot-pen-up\n    plotxy dist 0\n    plot-pen-down\n    plotxy dist [elevation] of p\n    set dist dist + 1\n  ]\n]"
 
 TEXTBOX
 8
@@ -466,7 +467,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.0.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

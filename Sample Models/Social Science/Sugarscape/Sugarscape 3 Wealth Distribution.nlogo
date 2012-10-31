@@ -313,8 +313,8 @@ false
 true
 "" ""
 PENS
-"equal" 100.0 0 -16777216 true ";; draw a straight line from lower left to upper right\nset-current-plot-pen \"equal\"\nplot 0\nplot 100\n" ""
-"lorenz" 1.0 0 -2674135 true "" "plot-pen-reset\nset-plot-pen-interval 100 / count turtles\nplot 0\nforeach lorenz-points plot\n"
+"equal" 100.0 0 -16777216 true ";; draw a straight line from lower left to upper right\nset-current-plot-pen \"equal\"\nplot 0\nplot 100" ""
+"lorenz" 1.0 0 -2674135 true "" "plot-pen-reset\nset-plot-pen-interval 100 / count turtles\nplot 0\nforeach lorenz-points plot"
 
 PLOT
 720
@@ -332,7 +332,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -13345367 true "" "plot (gini-index-reserve / count turtles) * 2\n"
+"default" 1.0 0 -13345367 true "" "plot (gini-index-reserve / count turtles) * 2"
 
 SLIDER
 10
@@ -698,7 +698,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0RC2
+NetLogo 5.0.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

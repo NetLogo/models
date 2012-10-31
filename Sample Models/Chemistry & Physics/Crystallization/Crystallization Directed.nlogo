@@ -300,7 +300,7 @@ quantity
 625.0
 false
 true
-"set-plot-y-range 0 count turtles\nset-histogram-num-bars 1 + (length colors)\n\nlet bottom (round room-temp)\nlet top (round melting-temp)\nlet index 0\nforeach colors [\n  create-temporary-plot-pen (word bottom \" - \" top)\n  set-plot-pen-mode 1\n  set-plot-pen-color ?\n  set pens lput (word bottom \" - \" top) pens\n\n  set index index + 1\n  set bottom top\n  set top (round ((index * temp-range) + melting-temp))\n]" "if histogram? [\n  let index 0\n  foreach colors [\n    set-current-plot-pen (item index pens)\n    plot-pen-reset\n    if any? turtles with [color = ?]\n    [ plotxy index count turtles with [color = ?] ]\n    set index index + 1\n  ]\n]\n"
+"set-plot-y-range 0 count turtles\nset-histogram-num-bars 1 + (length colors)\n\nlet bottom (round room-temp)\nlet top (round melting-temp)\nlet index 0\nforeach colors [\n  create-temporary-plot-pen (word bottom \" - \" top)\n  set-plot-pen-mode 1\n  set-plot-pen-color ?\n  set pens lput (word bottom \" - \" top) pens\n\n  set index index + 1\n  set bottom top\n  set top (round ((index * temp-range) + melting-temp))\n]" "if histogram? [\n  let index 0\n  foreach colors [\n    set-current-plot-pen (item index pens)\n    plot-pen-reset\n    if any? turtles with [color = ?]\n    [ plotxy index count turtles with [color = ?] ]\n    set index index + 1\n  ]\n]"
 PENS
 "quantity" 1.0 1 -2674135 false "" ""
 
@@ -740,7 +740,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0RC2
+NetLogo 5.0.3
 @#$#@#$#@
 setup
 repeat 37 [ go ]

@@ -506,7 +506,7 @@ true
 true
 "" "if not plot? [ stop ]"
 PENS
-"topologic" 1.0 0 -8630108 true "" ";; X = 4 (correlation length): size of subsequences analyzed\n;; topological entropy = 1/X * the log of the sum of the probabilities rounded up\nplotxy ticks 1 / 4 * (log (sum (map [1] (filter [? > 0] prob-list))) 2)\n"
+"topologic" 1.0 0 -8630108 true "" ";; X = 4 (correlation length): size of subsequences analyzed\n;; topological entropy = 1/X * the log of the sum of the probabilities rounded up\nplotxy ticks 1 / 4 * (log (sum (map [1] (filter [? > 0] prob-list))) 2)"
 "metric" 1.0 0 -955883 true "" ";; metric entropy = -1/X * the sum of the products of each probability and its log\nplotxy ticks -1 / 4 * sum ( map[? * log ? 2] (filter [? > 0] prob-list))"
 
 SWITCH
@@ -927,7 +927,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0RC2
+NetLogo 5.0.3
 @#$#@#$#@
 set example 4
 setup-example

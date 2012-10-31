@@ -346,7 +346,7 @@ end
 GRAPHICS-WINDOW
 428
 61
-654
+673
 308
 1
 1
@@ -368,6 +368,7 @@ GRAPHICS-WINDOW
 0
 0
 ticks
+30.0
 
 MONITOR
 82
@@ -1108,7 +1109,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.0.3
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

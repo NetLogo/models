@@ -360,7 +360,7 @@ true
 false
 "set-plot-x-range 0 length all-tags" ""
 PENS
-"default" 1.0 1 -16777216 true "" ";; The HISTOGRAM primitive doesn't support giving different bars\n;; different colors, so we roll our own histogramming code here.\nplot-pen-reset\nforeach all-tags [\n  set-plot-pen-color tag-color ?\n  plot count turtles with [mating = ?]\n]\n"
+"default" 1.0 1 -16777216 true "" ";; The HISTOGRAM primitive doesn't support giving different bars\n;; different colors, so we roll our own histogramming code here.\nplot-pen-reset\nforeach all-tags [\n  set-plot-pen-color tag-color ?\n  plot count turtles with [mating = ?]\n]"
 
 SLIDER
 329
@@ -402,7 +402,7 @@ NIL
 1.0
 true
 true
-"" "set-current-plot-pen \"largest species\"\nlet biggest-mating modes [mating] of turtles\nifelse (length biggest-mating > 0)\n[\n  set-plot-pen-color first modes [color] of turtles with [first biggest-mating = mating]\n  plot count turtles with [first biggest-mating = mating]\n  set-current-plot-pen \"2nd largest\"\n  let second-mating modes [mating] of turtles with [first biggest-mating != mating]\n  ifelse (length second-mating > 0 )\n  [\n    set-plot-pen-color first modes [color] of turtles with [first second-mating = mating]\n    plot count turtles with [first second-mating = mating]\n  ]\n  [ plot 0 ]\n ]\n [ plot 0 ]\n"
+"" "set-current-plot-pen \"largest species\"\nlet biggest-mating modes [mating] of turtles\nifelse (length biggest-mating > 0)\n[\n  set-plot-pen-color first modes [color] of turtles with [first biggest-mating = mating]\n  plot count turtles with [first biggest-mating = mating]\n  set-current-plot-pen \"2nd largest\"\n  let second-mating modes [mating] of turtles with [first biggest-mating != mating]\n  ifelse (length second-mating > 0 )\n  [\n    set-plot-pen-color first modes [color] of turtles with [first second-mating = mating]\n    plot count turtles with [first second-mating = mating]\n  ]\n  [ plot 0 ]\n ]\n [ plot 0 ]"
 PENS
 "largest species" 1.0 0 -13345367 true "" ""
 "2nd largest" 1.0 0 -6459832 true "" ""
@@ -883,7 +883,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta3
+NetLogo 5.0.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

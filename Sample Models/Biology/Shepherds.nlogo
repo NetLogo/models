@@ -117,6 +117,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
+30.0
 
 PLOT
 7
@@ -134,7 +135,7 @@ true
 false
 "" ""
 PENS
-"efficiency" 1.0 0 -13345367 true "" "if ticks mod 50 = 0  ;; since the calculations are expensive\n[\n  update-sheep-counts\n  calculate-herding-efficiency\n  plotxy ticks herding-efficiency\n]\n"
+"efficiency" 1.0 0 -13345367 true "" "if ticks mod 50 = 0  ;; since the calculations are expensive\n[\n  update-sheep-counts\n  calculate-herding-efficiency\n  plotxy ticks herding-efficiency\n]"
 
 SLIDER
 38
@@ -602,7 +603,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.0.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

@@ -307,7 +307,7 @@ true
 false
 "set-plot-y-range 0 max-pycor" ""
 PENS
-"turtle 0" 1.0 0 -13345367 true "" "if turtle 0 != nobody ;; if turtle 0 hasn't died yet\n  [ plot [dist] of turtle 0 ]\n"
+"turtle 0" 1.0 0 -13345367 true "" "if turtle 0 != nobody ;; if turtle 0 hasn't died yet\n  [ plot [dist] of turtle 0 ]"
 
 MONITOR
 491
@@ -679,7 +679,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta2
+NetLogo 5.0.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
