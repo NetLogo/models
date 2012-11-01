@@ -1,7 +1,7 @@
 #!/bin/sh
 jars=`find lib_managed/ -name \*jar`
 cp=`echo $jars | sed 's/ /:/g'`
-exec bin/scala -classpath NetLogo.jar:$cp -deprecation -nocompdaemon -Dfile.encoding=UTF-8 -DXX:MaxPermSize=128m -Djava.ext.dir= -Djava.library.path=./lib "$0" "$@"
+exec bin/scala -classpath target/classes:$cp -deprecation -nocompdaemon -Dfile.encoding=UTF-8 -DXX:MaxPermSize=128m -Djava.ext.dir= -Djava.library.path=./lib "$0" "$@"
 !#
 
 /*
