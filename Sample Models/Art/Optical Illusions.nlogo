@@ -141,6 +141,23 @@ to illusion-6
     ]
   ]
 end
+
+to illusion-7
+  clear-all
+  set caption "Spirals or circles?"
+  ask patches [ set pcolor gray ]
+  set-default-shape turtles "square 3"
+  cro 16 [ fd  4 rt 15 ]
+  cro 32 [ fd  8 lt 15 ]
+  cro 46 [ fd 12 rt 15 ]
+  cro 60 [ fd 16 lt 15 ]
+  ask turtles [
+    set size 1.7
+    ifelse who mod 2 = 0
+    [ set color black ]
+    [ set color white ]
+  ]
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 190
@@ -170,10 +187,10 @@ ticks
 30.0
 
 BUTTON
-28
-34
-154
-82
+30
+30
+156
+75
 illusion #1
 illusion-1
 NIL
@@ -187,10 +204,10 @@ NIL
 1
 
 BUTTON
-28
-97
-154
-145
+30
+80
+156
+125
 illusion #2
 illusion-2
 NIL
@@ -204,10 +221,10 @@ NIL
 1
 
 BUTTON
-28
-162
-154
-210
+30
+130
+156
+175
 illusion #3
 illusion-3
 NIL
@@ -221,10 +238,10 @@ NIL
 1
 
 BUTTON
-28
-297
-154
-345
+30
+230
+156
+275
 illusion #5
 illusion-5
 NIL
@@ -238,10 +255,10 @@ NIL
 1
 
 BUTTON
-28
-229
-154
-277
+30
+180
+156
+225
 illusion #4
 illusion-4
 NIL
@@ -266,12 +283,29 @@ caption
 11
 
 BUTTON
-28
-365
-154
-413
+30
+280
+156
+325
 illusion #6
 illusion-6
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+30
+330
+155
+371
+illusion #7
+illusion-7
 NIL
 1
 T
@@ -285,7 +319,7 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model presents six optical illusions.
+This model presents seven optical illusions.
 
 ## HOW IT WORKS
 
@@ -315,6 +349,10 @@ Circles of diamonds seem to rotate as you focus your eyes on their center.
 
 Intensely saturated colors create an illusion of rippling waves of motion.
 
+### Illusion #7
+
+Four simple concentric circles look like interlocking spirals.
+
 ## HOW TO USE IT
 
 Press a button to choose an illusion, and it will be presented in the NetLogo view.
@@ -327,7 +365,7 @@ Add more illusions.
 
 ## NETLOGO FEATURES
 
-Many of the illusions in the model, such as illusions 2, 4 and 5, involve turtles positioned in a circle around a middle point.  This shows how to use `forward` and `heading` to position objects in a pattern.
+Many of the illusions in the model, such as illusions 2, 4, 5 and 7, involve turtles positioned in a circle around a middle point.  This shows how to use `create-ordered-turtles`, `forward` and `heading` to position objects in a pattern.
 
 ## RELATED MODELS
 
@@ -573,6 +611,11 @@ false
 Rectangle -7500403 true true 30 30 270 270
 Rectangle -16777216 true false 60 60 240 240
 
+square 3
+true
+0
+Rectangle -7500403 false true 45 45 255 255
+
 star
 false
 0
@@ -672,5 +715,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
