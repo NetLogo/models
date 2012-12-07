@@ -13,9 +13,24 @@ globals [
          ]
 
 patches-own [ column ]
+
 breed [ column-kids column-kid ]
+column-kids-own [ binomial-coefficient sample-list ]
+
 breed [ sample-dudes sample-dude ]
+sample-dudes-own [ distance-for-jump ]
+
 breed [ baby-dudes baby-dude ]
+
+;; jwu - instead of having the sample-dudes stamp, they're going to create
+;; a sample-organizer. the sample-organizers are going to have a better idea
+;; of which specific sample the sample-dudes represented.
+breed [ sample-organizers ]
+sample-organizers-own [
+  sample-values
+  original-pycor
+]
+
 
 to Go-org
   if stop-all? [stop]
@@ -52,15 +67,6 @@ end
 to-report popping-color ; sample-organizers procedure
   report 15 + ((sample-summary-value * 10) mod 120)
 end
-
-;; jwu - instead of having the sample-dudes stamp, they're going to create
-;; a sample-organizer. the sample-organizers are going to have a better idea
-;; of which specific sample the sample-dudes represented.
-breed [ sample-organizers ]
-sample-organizers-own [
-  sample-values
-  original-pycor
-]
 
 to-report sample-summary-value ; sample-organizers reporter
   let result 0
@@ -155,9 +161,6 @@ to disorganize-results
  ]
  recolor-columns
 end
-
-sample-dudes-own [ distance-for-jump ]
-column-kids-own [ binomial-coefficient sample-list ]
 
 to startup
   ;set total-samples

@@ -18,8 +18,13 @@ globals [
          ]
 
 patches-own [ column ]
+
 breed [ column-kids column-kid ]
+column-kids-own [ binomial-coefficient sample-list ]
+
 breed [ sample-dudes sample-dude ]
+sample-dudes-own [distance-for-jump ]
+
 breed [ baby-dudes baby-dude ]
 
 ;; JWU: added these two breeds to make the left-hand stuff
@@ -27,6 +32,15 @@ breed [ left-column-kids left-column-kid ]
 breed [ left-sample-dudes left-sample-dude ]
 breed [ left-dummies left-dummy ] ; they're hatched when the left-sample-dudes die. they stick around (unless "bumped")
 
+;; jwu - instead of having the sample-dudes stamp, they're going to create
+;; a sample-organizer. the sample-organizers are going to have a better idea
+;; of which specific sample the sample-dudes represented.
+;; also, this way we can kill the old sample dudes to help the new ones find their place.
+breed [ sample-organizers sample-organizer ]
+sample-organizers-own [
+  sample-values
+  original-pycor
+]
 
 to Go-org
   super-go
@@ -71,16 +85,6 @@ to-report popping-color ; sample-organizers procedure
   ;;report 15 + ((4 * sample-summary-value * 10) mod 120)
   report 15 + ((sample-summary-value * 10) mod 120)
 end
-
-;; jwu - instead of having the sample-dudes stamp, they're going to create
-;; a sample-organizer. the sample-organizers are going to have a better idea
-;; of which specific sample the sample-dudes represented.
-;; also, this way we can kill the old sample dudes to help the new ones find their place.
-breed [ sample-organizers sample-organizer ]
-sample-organizers-own [
-  sample-values
-  original-pycor
-]
 
 ;; each 4-block gets a value greenness in the individual spots count for this much:
 ;; 84
@@ -182,9 +186,6 @@ to disorganize-results
  ]
  recolor-columns
 end
-
-sample-dudes-own [distance-for-jump ]
-column-kids-own [ binomial-coefficient sample-list ]
 
 to startup
   ;set total-samples
