@@ -137,10 +137,6 @@ The `people` breed has a variable called `target`, which holds the agent the per
 The `face` command points the person towards the target.  `fd` moves the person.  `distance` measures the distance to the target.
 
 When a person reaches their target, they pick a random new target.
-
-## THINGS TO NOTICE
-
-On some computers, the model may run too quickly for you to see that the "people" are taking small steps toward their target. Use the speed slider to slow the model down and watch the people move step by step.
 @#$#@#$#@
 default
 true
