@@ -59,4 +59,3 @@ def wait(block: => Unit) {
     }
   )
 }
-
