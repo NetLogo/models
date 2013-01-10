@@ -1,10 +1,8 @@
 globals [ glob1 result ]
 
 to benchmark
-  set result 0.0
+  set result 0
   random-seed 362
-  ;; note we setup before resetting the timer, because
-  ;; we only want to benchmark the go stuff
   setup
   reset-timer
   repeat 1000 [ go ]
@@ -12,8 +10,8 @@ to benchmark
 end
 
 to setup
-  ca
-  cro 1000 [ ht ]
+  clear-all
+  cro 20000 [ ht ]
   set glob1 0
 end
 
@@ -46,10 +44,11 @@ GRAPHICS-WINDOW
 40
 -40
 40
-0
+1
 1
 1
 ticks
+30.0
 
 BUTTON
 19
@@ -66,6 +65,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 BUTTON
 99
@@ -82,6 +82,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 BUTTON
 15
@@ -98,6 +99,18 @@ NIL
 NIL
 NIL
 NIL
+1
+
+MONITOR
+86
+217
+174
+262
+NIL
+result
+17
+1
+11
 
 @#$#@#$#@
 @#$#@#$#@
@@ -369,9 +382,23 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 4.0alpha3
+NetLogo 5.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
+@#$#@#$#@
+default
+0.0
+-0.2 0 1.0 0.0
+0.0 1 1.0 0.0
+0.2 0 1.0 0.0
+link direction
+true
+0
+Line -7500403 true 150 150 90 180
+Line -7500403 true 150 150 210 180
+
+@#$#@#$#@
+0
 @#$#@#$#@
