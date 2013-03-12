@@ -175,7 +175,7 @@ to couple  ;; turtle procedure -- righties only!
         ask partner [ set coupled? true ]
         ask partner [ set partner myself ]
         move-to patch-here ;; move to center of patch
-        move-to patch-here ;; partner moves to center of patch
+        ask potential-partner [move-to patch-here] ;; partner moves to center of patch
         set pcolor gray - 3
         ask (patch-at -1 0) [ set pcolor gray - 3 ] ] ]
 end
