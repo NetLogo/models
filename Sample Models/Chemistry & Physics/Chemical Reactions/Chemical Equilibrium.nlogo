@@ -302,6 +302,9 @@ The line `if any? turtles-here with [ color = reactant-2-color ]` uses a combina
 
 Enzyme Kinetics
 Simple Kinetics 1
+
+## CREDITS AND REFERENCES
+
 @#$#@#$#@
 default
 true
