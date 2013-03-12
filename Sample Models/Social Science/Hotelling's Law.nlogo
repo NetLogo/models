@@ -1,179 +1,174 @@
 turtles-own [
-            store-color ;; Color of the store
-            area-count  ;; Keeps track of the area (market share) a store holds
-            price       ;; How much each store charges for its product
-            chosen-move ;; Prepares the stores to change location
-            chosen-price-change ;; Prepares the stores to change price
+  price               ; How much each store charges for its product
+  area-count          ; The area (market share) that a store held at the end of the last tick
+]
 
-            old-area    ;; The area (market share) that a store held at the end of the last tick
-            old-position ;; The location a store was on at the end of the last tick
-            old-price   ;; The price the store was charging at the end of the last tick
-            ] 
-            
 patches-own [
-            preferred-store ;; The store with the smallest sum of price and distance
-            ]
+  preferred-store     ; The store currently preferred by the consumer
+]
 
-
-;;;;;;;;;;;;;;;;;;;;;;;
-;;; setup procedure ;;;
-;;;;;;;;;;;;;;;;;;;;;;;
+globals [
+  consumers           ; The patches that will act as consumers, either a vertical line or all patches
+]
+  
+;;;;;;;;;;;;;;;;;;;;;;;;
+;;; setup procedures ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;
 
 to setup        
   clear-all
+  setup-consumers
   setup-stores
   recalculate-area
   reset-ticks
 end
 
+to setup-consumers
+  ; Store the agentset of patches that are going to be our
+  ; consumers in a global variable for easy reference.
+  set consumers ifelse-value (layout = "line")
+    [ patches with [ pxcor = 0 ] ]
+    [ patches ]
+end
+
 to setup-stores 
-  let index 5 ;; Variable that determines color of each store
-  create-turtles store-number 
-  [
-     set shape "Circle (2)" 
-     set size 2 
-     set color index ;; Set color from the color palette with the corresponding number
-     ifelse layout = "line"
-         [setxy 0 round random-ycor]
-         [setxy round random-xcor round random-ycor]
-     set price 10
-     set store-color (word "store" color)
-     set index index + 10 ;; Change color
-     pendown
-     set pen-size 5
+  ; We choose as many random colors as the number of stores we want to create
+  foreach n-of number-of-stores base-colors [ 
+    ; ...and we create a store of each of these colors on random consumer patches
+    ask one-of consumers [
+      sprout 1 [
+        set color ? ; use the color from the list that we are looping through
+        set shape "Circle (2)" 
+        set size 2 
+        set price 10
+        set pen-size 5
+      ]
+    ]
   ]
 end
 
+to go
+  ; We accumulate location and price changes as list of tasks to be run later
+  ; in order to simulate simultaneous decision making on the part of the stores
+     
+  let location-changes ifelse-value (rules = "pricing-only")
+    [ (list) ] ; if we are doing "pricing-only", the list of moves is empty
+    [ [ new-location-task ] of turtles ]
+  
+  let price-changes ifelse-value (rules = "moving-only")
+    [ (list) ] ; if we are doing "moving-only", the list of price changes is empty
+    [ [ new-price-task ] of turtles ]
 
-;;;;;;;;;;;;;;;;;;;;;;;;
-;;; turtle procedure ;;;
-;;;;;;;;;;;;;;;;;;;;;;;;
-
-to go    
-  ask turtles [ 
-    set old-area area-count 
-    set old-price price
-    set old-position patch-here
-    set chosen-move nobody
-    set chosen-price-change 0
-  ]
-  
-  if rules != "pricing-only" ;; Under the rules normal and moving-only, stores prepare to move
-  [
-    ask turtles [penup do-movement] 
-  ]
- 
-  if rules != "moving-only" ;; Under the rules normal and pricing-only, stores prepare to change price
-  [
-    ask turtles [do-prices] 
-  ]  
-  
-  ask turtles ;; To make sure there is simultaneous decision-making, all movements and price-changes take place here
-  [
-    pendown
-    if (chosen-move != nobody)
-    [ move-to chosen-move ]
-    set price price + chosen-price-change
-  ]
-  
+  foreach location-changes run
+  foreach price-changes run
   recalculate-area
   tick  
 end
 
-to do-movement ;; Stores consider the benefits of taking a unit step in each of the four cardinal directions 
-               
-  let candidate-moves (list (list old-position old-area))
-  
-  ;; Calculate and store position and market share associated with that move, for each of the four hypothetical moves
-  foreach [self] of neighbors4 [
-    move-to ?
-    recalculate-area
-    set candidate-moves fput (list ? area-count) candidate-moves
+to recalculate-area
+  ; Have each consumer (patch) indicate its preference by 
+  ; taking on the color of the store it chooses
+  ask consumers [ 
+    set preferred-store choose-store
+    set pcolor ([ color ] of preferred-store + 2)
   ]
-  move-to old-position
-  
-  ;; Sort candidate moves in order of the market share area they achieve, from largest to smallest
-  let sorted-candidates sort-by [ (last ?1) > (last ?2) ] (candidate-moves)
-  
-  let best-move (first (first sorted-candidates)) 
-  let best-move-area (last (first sorted-candidates))
-  
-  if (best-move-area > old-area)
-  [
-    set chosen-move best-move
-  ]
-  if (best-move-area = old-area and best-move-area = 0)
-  [ 
-    set chosen-move best-move
+  ask turtles [
+    set area-count count consumers with [ preferred-store = myself ]
   ]
 end
 
-to do-prices ;; Here, each turtle considers the revenue from hypothetically increasing or decreasing its price by one unit
-  let old-revenue (old-area * old-price)
-  
-  set price old-price + 1
-  recalculate-area
-  let up-revenue (area-count * price)
-  
-  set price old-price - 1
-  recalculate-area  
-  let down-revenue (area-count * price)
-  
-  set price old-price
+;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; turtle procedures ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;
 
-  ;; The three measured revenues are compared here, and the store selects the most profitable one
-  if old-revenue = up-revenue and up-revenue = down-revenue and price > 1 and old-revenue = 0 ;; If the store gets "stranded" it goes into an emergency procedure
-    [set chosen-price-change -1 stop]
+; Have the store consider the benefits of taking a unit step in each of the four cardinal directions
+; and report a task that will allow the chosen location change to be enacted later
+to-report new-location-task
+
+  ; we want the neighbors4 in random order, but we want to turn them from an agentset to a list
+  ; and `sort` is the way to do that, hence the weird `shuffle sort` expression
+  let possible-moves shuffle sort (neighbors4 with [ member? self consumers ])
   
-  if old-revenue >= up-revenue and old-revenue >= down-revenue
-    [set chosen-price-change 0 stop]    
-  
-  if up-revenue > old-revenue and up-revenue = down-revenue ;; A tie causes a random increase or decrease
-    [ set chosen-price-change one-of [-1 1] stop]
-    
-  if up-revenue > old-revenue and up-revenue > down-revenue
-    [set chosen-price-change 1 stop]
-    
-  if down-revenue > old-revenue
-    [set chosen-price-change -1 stop]    
+  if area-count > 0 [
+    ; Only consider the status quo if we already have a market share, but if we consider it,
+    ; put it at the front of the list so it is favored in case of ties in sort-by
+    set possible-moves fput patch-here possible-moves
+  ]
+
+  ; pair the potiental moves with their revenues, and sort these pairs by revenues
+  let moves-with-market-shares
+    sort-by [ last ?1 > last ?2 ]
+    map [ list ? (market-share-if-move-to ?) ] possible-moves
+
+  ; report the first item of the first pair, i.e., the move with the best revenues
+  let chosen-location first first moves-with-market-shares
+
+  let store self ; put self in a local variable so that it can be "captured" by the task
+  report task [
+    ask store [
+      pen-down 
+      move-to chosen-location
+      pen-up
+    ]
+  ]
 end
 
+; report the market share area the store would have if it moved to destination
+to-report market-share-if-move-to [ destination ] ; turtle procedure
+  let current-position patch-here
+  move-to destination
+  let market-share-at-destination potential-market-share
+  move-to current-position
+  report market-share-at-destination
+end
+
+to-report potential-market-share
+  report count consumers with [ choose-store = myself ]
+end
+
+; Have the store consider the revenue from hypothetically increasing or decreasing its price by one unit
+; and report a task that will allow the chosen price change to be enacted later
+to-report new-price-task
+
+  ; We build a list of candidate prices, keeping the status quo in first, but having -1 and +1 in random 
+  ; order after that. This order is going to be preserved by the `sort-by` primitive in case of ties,
+  ; and we always want the status quo to win in this case, but -1 and +1 to have equal chances
+  let possible-prices fput price shuffle list (price - 1) (price + 1)
+
+  ; pair each potential price change with its potential revenue
+  ; and sort them in decreasing order of revenue
+  let prices-with-revenues
+    sort-by [ last ?1 > last ?2 ]
+    map [ list ? (potential-revenue ?) ] possible-prices
+
+  let all-zeros? (not member? false map [ last ? = 0 ] prices-with-revenues)
+  let chosen-price ifelse-value (all-zeros? and price > 1)
+    [ price - 1 ] ; if all potential revenues are zero, the store lowers its price as an emergency procedure if it can
+    [ first first prices-with-revenues ] ; in any other case, we pick the price with the best potential revenues
+
+  let store self ; put self in a local variable so that it can be "captured" by the task
+  report task [
+    ask store [
+      set price chosen-price
+    ]
+  ]
+end
+
+to-report potential-revenue [ target-price ]
+  let current-price price
+  set price target-price
+  let new-revenue (potential-market-share * target-price)
+  set price current-price
+  report new-revenue
+end
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;;; patch procedure ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;
 
-to recalculate-area
-  ;; In general, NetLogo will complain if a turtle asks all turtles in the world to perform some action 
-  ;; (because this situation is often indicative of a programming error). 
-  ;; However in this model, we actually do need every turtle to be able to run this recalculate-area procedure, 
-  ;; which in turn asks all turtles and all patches to perform an action. To work around NetLogo's overzealous 
-  ;; error-checking, we use the idiosyncrasy of writing "turtles with [true]" and "patches with [true]", 
-  ;; which includes all agents without NetLogo complaining.
-  
-  ask turtles with [true] [set area-count 0]
-  
-  if layout = "plane"
-  [
-      ask patches with [true]
-      [  
-        set preferred-store min-one-of turtles [(price) + (distance myself)] ;; consumers select the store with the best deal
-        ;; Each consumer (patch) indicates its preference by taking on the color of the store, and the store updates its area-count (market share)  
-        set pcolor ([color] of preferred-store + 2)
-        ask preferred-store [set area-count area-count + 1]
-      ]
-  ]
-  
-  if layout = "line"
-  [
-      ask patches with [pxcor = 0]
-      [  
-        set preferred-store min-one-of turtles [(price) + (distance myself)] ;; consumers select the store with the best deal
-        ;; Each consumer (patch) indicates its preference by taking on the color of the store, and the store updates its area-count (market share)  
-        set pcolor ([color] of preferred-store + 2)
-        ask preferred-store [set area-count area-count + 1]
-      ]
-  ]
+; report the store with the best deal, defined as the smallest sum of price and distance
+to-report choose-store
+  report min-one-of turtles [ (price) + (distance myself) ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -235,7 +230,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 180
@@ -252,7 +247,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 PLOT
 855
@@ -268,39 +263,19 @@ revenue
 10.0
 true
 false
-"" "ask turtles \n[ \n set-current-plot-pen store-color\n plot (area-count *  price)\n ]"
+"ask turtles [\n  create-temporary-plot-pen (word who)\n  set-plot-pen-color color\n]" "ask turtles [\n  set-current-plot-pen (word who)\n  plot (area-count *  price)\n]"
 PENS
-"store5" 1.0 0 -7500403 true "" ""
-"store15" 1.0 0 -2674135 true "" ""
-"store25" 1.0 0 -955883 true "" ""
-"store35" 1.0 0 -6459832 true "" ""
-"store45" 1.0 0 -1184463 true "" ""
-"store55" 1.0 0 -10899396 true "" ""
-"store65" 1.0 0 -13840069 true "" ""
-"store75" 1.0 0 -14835848 true "" ""
-"store85" 1.0 0 -11221820 true "" ""
-"store95" 1.0 0 -13791810 true "" ""
-
-TEXTBOX
-40
-50
-152
-68
-setup variables
-13
-0.0
-1
 
 SLIDER
 10
 75
 165
 108
-store-number
-store-number
+number-of-stores
+number-of-stores
 2
 10
-2
+6
 1
 1
 NIL
@@ -320,18 +295,8 @@ price
 10.0
 true
 false
-"" "ask turtles \n[ \n set-current-plot-pen store-color\n plot (price)\n ]"
+"ask turtles [\n  create-temporary-plot-pen (word who)\n  set-plot-pen-color color\n]" "ask turtles [\n  set-current-plot-pen (word who)\n  plot (price)\n]"
 PENS
-"store5" 1.0 0 -7500403 true "" ""
-"store15" 1.0 0 -2674135 true "" ""
-"store25" 1.0 0 -955883 true "" ""
-"store35" 1.0 0 -6459832 true "" ""
-"store45" 1.0 0 -1184463 true "" ""
-"store55" 1.0 0 -10899396 true "" ""
-"store65" 1.0 0 -13840069 true "" ""
-"store75" 1.0 0 -14835848 true "" ""
-"store85" 1.0 0 -11221820 true "" ""
-"store95" 1.0 0 -13791810 true "" ""
 
 PLOT
 855
@@ -347,18 +312,8 @@ area
 10.0
 true
 false
-"" "ask turtles \n[ \n set-current-plot-pen store-color\n plot (area-count)\n ]"
+"ask turtles [\n  create-temporary-plot-pen (word who)\n  set-plot-pen-color color\n]" "ask turtles [ \n  set-current-plot-pen (word who)\n  plot (area-count)\n]"
 PENS
-"store5" 1.0 0 -7500403 true "" ""
-"store15" 1.0 0 -2674135 true "" ""
-"store25" 1.0 0 -955883 true "" ""
-"store35" 1.0 0 -6459832 true "" ""
-"store45" 1.0 0 -1184463 true "" ""
-"store55" 1.0 0 -10899396 true "" ""
-"store65" 1.0 0 -13840069 true "" ""
-"store75" 1.0 0 -14835848 true "" ""
-"store85" 1.0 0 -11221820 true "" ""
-"store95" 1.0 0 -13791810 true "" ""
 
 CHOOSER
 10
@@ -398,7 +353,7 @@ Each consumer adds up the price and distance from each store, and then chooses t
 Press SETUP to create the stores and a visualization of their starting market share areas.    
 Press GO to have the model run continuously.
 Press GO-ONCE to have the model run once.
-The STORE-NUMBER slider decides how many stores are in the world.
+The NUMBER-OF-STORES slider decides how many stores are in the world.
 
 If the LAYOUT chooser is on LINE, then the stores will operate only on one dimension. If it is on PLANE, then the stores will operate in a two dimensional space.
 
@@ -429,26 +384,32 @@ In this model, information is free, but this is not a realistic assumption. Can 
 
 In this model, the stores always seek to increase their profits immediately instead of showing any capacity to plan. They are also incapable of predicting what the competitors might do. Making the stores more intelligent would make this model more realistic.
 
+Maybe one way to make the stores more intelligent would be to have them consider their moving and pricing options in conjunction. Right now, they consider the question "would it be good for me to move North" and "would it be good for me to increase my price" completely separately. But what if they asked "would it be good for me to move North AND increase my price"? Would it make a difference in their decision making?
+
 As of now, the consumers are very static. Is there a way to make the consumers move as well or react in some manner to the competition amongst the stores?
 
 Is there a way to include consumer limitations in their spending power or ability to travel? That is, if all stores charge too much or are too far, the consumer could refuse to go to any store.
 
-In this model, if two or more stores are identical from a consumer's point of view, the consumer will choose to go to one of those at random. If the stores are only slightly different for the consumer, is it possible to have the consumer go to either one? 
+In this model, if two or more stores are identical from a consumer's point of view, the consumer will choose to go to one of those at random. If the stores are only slightly different for the consumer, is it possible to have the consumer go to either one?
 
-One can extend this model further by introducing a different layout. How would the patterns change, for example, if the layout of the world were circular?
-
+One can extend this model further by introducing a different layout. How would the patterns change, for example, if the layout of the world were circular? What if we just enable world wrapping?
 
 ## NETLOGO FEATURES
 
-Each store can move up to two distance units per time unit, as each store does a test step, in one cardinal direction and back, when deciding on its moving strategy. However, as this model is tick based, the user only sees one step per store. This also comes into play when recalculating the market share area as the world may partition itself up to fifty-one times per tick, but the user only sees it occurring once.
+* Each store can move up to four times each tick, as each store takes test steps in cardinal directions when deciding on its moving strategy. However, as this model is tick based, the user only sees one step per store.
 
-Also, when recalculating the market share area, a slight work-around was necessary. In general, NetLogo will complain if a turtle asks all turtles in the world to perform some action, because this situation is often indicative of a programming error. However in this model, every turtle does need to be able to run the RECALCULATE-AREA procedure, which in turn asks all turtles and all patches to perform an action. To work around NetLogo's overzealous error-checking, we use the idiosyncrasy of writing "turtles with [TRUE]" and "patches with [TRUE]", which includes all agents without NetLogo complaining.
+* Notice, also, how the plot pens are dynamically created in the setup code of each plot. There has to be one pen for each store, but we don't know in advance how many there will be, so we use the `create-temporary-plot-pen` primitive to create the pens we need and assign them the right color upon setup.
 
+* In the procedures where a store chooses a new price or location, we make use of a subtle property of the `sort-by` primitive: the fact that the order of items in the initial list is preserved in case of ties during sorting. What we do is that we put the "status quo" option at the front of the list possible moves, but shuffle all other possible moves. Because of that, when we sort the moves by potential revenues, the status quo is always preferred in case of equal revenues.
+
+* What if want to know if all members of a list have a certain property? (This is the equivalent of the "for all" universal quantifier (∀) in predicate logic.) NetLogo doesn't have a primitive to do that directly, but we can easily write it ourselves using the `member?` and `map` primitives. The trick is to first [map](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#map) the list to the predicate we want to test. Let's say we want to test if all members of a list are zeros: `map [? = 0] [1 0 0]` will report `[false true true]`, and `map [? = 0] [ 0 0 0 ]` will report `[true true true]`. All we have to is to test the "for all" condition is to make sure that `false` is not a [member](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#member) of that new list: `not member? false map [? = 0] [1 0 0]` will report `false`, and `not member? false map [? = 0] [0 0 0]` will report `true`. We use a variant of this in the `new-price-task` reporter.
+
+* The procedures for choosing new prices and locations do not actually perform these changes right away. Instead, they report `task`s that will be run later in the `go` procedure. Notice how we put `self` in a local variable before creating our task: this is because NetLogo tasks "capture" local variables, but not agent context. See [the "Tasks" section in the NetLogo Programming guide](http://ccl.northwestern.edu/netlogo/docs/programming.html#tasks) for more details about this.
 
 ## RELATED MODELS
 
-Voronoi
-
+* Voronoi
+* Voronoi - Emergent
 
 ## CREDITS AND REFERENCES
 
