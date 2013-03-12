@@ -62,21 +62,21 @@ to check-for-reaction [ reactant-1-color reactant-2-color product-1-color produc
   ;; if we are the right color for this reaction
   if ready-timer = 0 and color = reactant-1-color [
     ;; try to find a partner of the appropriate color with whom to react
-    let reactant-2 one-of turtles-here with [ color = reactant-2-color ]
-    if reactant-2 != nobody [
-      ;; if we have found someone, have both molecules react
+    
+    if any? turtles-here with [ color = reactant-2-color ] [ 
+      ;; there is a reactant here, so do the reaction
       react product-1-color
-      ask reactant-2 [ react product-2-color ]
+      ask one-of turtles-here with [ color = reactant-2-color ] [ react product-2-color ]
     ]
   ]
 end
 
-;; When a molecule react, it changes its color, sets a new heading, and
+;; When a molecule reacts, it changes its color, sets a new heading, and
 ;; sets a timer that will give it enough time to move out of the way
 ;; before reacting again.
 to react [ new-color ] ;; turtle procedure
   set color new-color
-  set heading random-float 360
+  rt random-float 360
   set ready-timer 2
 end
 @#$#@#$#@
@@ -150,7 +150,7 @@ yellow-molecules
 yellow-molecules
 0.0
 500.0
-300
+250
 1.0
 1
 NIL
@@ -165,7 +165,7 @@ blue-molecules
 blue-molecules
 0.0
 500.0
-100
+250
 1.0
 1
 NIL
@@ -241,18 +241,28 @@ PENS
 
 This model shows how a simple chemical system comes to different equilibrium states depending on the concentrations of the initial reactants. Equilibrium is the term we use to describe a system in which there are no macroscopic changes.  This means that the system "looks" like nothing is happening.  In fact, in all chemical systems atomic-level processes continue but in a balance that yields no changes at the macroscopic level.
 
-This model simulates two simple reactions of four molecules.  The reactions can be written A + B yields C + D.  And at the same time, of course, C + D yields A + B.
+This model simulates two simple reactions of four molecules. The reactions can be written:
 
-A classic real-life example of such a reactions occurs when carbon monoxide reacts with nitrogen dioxide to produce carbon dioxide and nitrogen monoxide (or, nitric oxide).  The reverse reaction (where carbon dioxide and nitrogen monoxide react to form carbon monoxide and nitrogen dioxide) is also possible. While all substances in the reaction are gases, we could watch such a system reach equilibrium as nitrogen dioxide (NO<sub>2</sub>) is a visible reddish colored gas. However, when nitrogen dioxide (NO<sub>2</sub>) combines with carbon monoxide (CO), the resulting products -- nitrogen monoxide (NO) and carbon dioxide (CO<sub>2</sub>) -- are colorless, causing the system to lose some of its reddish color. Ultimately the system comes to a state of equilibrium with some of the "reactants" and some of the "products" present.
+            A + B =======> C + D
+
+and
+
+            C + D =======> A + B
+
+This can also be written as a single, reversible reaction:
+
+            A + B <=======> C + D
+
+A classic real-life example of such a reaction occurs when carbon monoxide reacts with nitrogen dioxide to produce carbon dioxide and nitrogen monoxide (or, nitric oxide).  The reverse reaction (where carbon dioxide and nitrogen monoxide react to form carbon monoxide and nitrogen dioxide) is also possible. While all substances in the reaction are gases, we could actually watch such a system reach equilibrium as nitrogen dioxide (NO<sub>2</sub>) is a visible reddish colored gas. When nitrogen dioxide (NO<sub>2</sub>) combines with carbon monoxide (CO), the resulting products -- nitrogen monoxide (NO) and carbon dioxide (CO<sub>2</sub>) -- are colorless, causing the system to lose some of its reddish color. Ultimately the system comes to a state of equilibrium with some of the "reactants" and some of the "products" present.
 
 While how much of each "reactant" and "product" a system ends up with depends on a number of factors (including, for example, how much energy is released when substances react or the temperature of the system), this model focuses on the concentrations of the reactants.
 
 
 ## HOW IT WORKS
 
-At each tick, molecules move randomly throughout the world until they reach an empty patch. Blue and yellow molecules can react with one another as can green and brown molecules. If there is a reactable molecule on the same patch (for example a yellow molecule and a blue molecule on the same patch, or a brown and green molecule on the same patch), a reaction occurs. Because blue and yellow molecules react to produce green and brown molecules, and green and brown molecules react to produce blue and yellow molecules, eventually a state of equilibrium is reached.
+In the model, blue and yellow molecules can react with one another as can green and brown molecules. At each tick, each molecule move randomly throughout the world encountering other molecules. If it meets a molecule with which it can react (for example a yellow molecule meeting a blue, or a brown meeting a green, a reaction occurs. Because blue and yellow molecules react to produce green and brown molecules, and green and brown molecules react to produce blue and yellow molecules, eventually a state of equilibrium is reached.
 
-To keep molecules from immediately reacting twice in a row, each molecule has a "ready-timer." When this timer is at zero molecules are free to react. After a reaction, this timer is set to 2, and over two ticks, the timer is decremented back to zero so that it is once again ready to react.
+To keep molecules from immediately reacting twice in a row, each molecule has a "ready-timer." After a reaction, this timer is set to 2, and over two ticks, the timer is decremented back to zero, allowing the molecule to react again.
 
 
 ## HOW TO USE IT
@@ -261,37 +271,37 @@ The YELLOW-MOLECULES and BLUE-MOLECULES sliders determine the starting number of
 
 The GO button sets the simulation in motion. Molecules move randomly and react with each other, changing color to represent rearrangement of atoms into different molecular structures. The system soon comes into equilibrium.
 
-Four monitors show how many of each kind of molecule are present in the system. The plot MOLECULE AMOUNTS shows the number of each kind of molecule present each tick.
+Four monitors show how many of each kind of molecule are present in the system. The plot MOLECULE AMOUNTS shows the number of each kind of molecule present over time.
 
 
 ## THINGS TO NOTICE
 
-You may notice that the number of product molecules is limited by the smallest amount of initial reactant molecules. Notice that there are always the same number of product molecules since they are formed in a one-to-one correspondence with each other.
+You may notice that the number of product molecules is limited by the smallest amount of initial reactant molecules. Notice that there is always the same number of product molecules since they are formed in a one-to-one correspondence with each other.
 
 
 ## THINGS TO TRY
 
-How do different amounts of the two reactants affect the final equilibrium. Are absolute amounts important, is it the difference between the amounts, or is it a ratio of the two reactants that matters?
+How do different amounts of the two reactants affect the final equilibrium? Are absolute amounts important, is it the difference between the amounts, or is it a ratio of the two reactants that matters?
 
 Try setting the YELLOW-MOLECULES slider to 400 and the BLUE-MOLECULES slider to 20, 40, 100, 200, and 400 in five successive simulations. What sort of equilibrium state do you predict in each case? Are certain ratios predictable?
 
+What happens when you start with the same number of YELLOW-MOLECULES and BLUE-MOLECULES? After running the model, what is the relationship between the count of these two types of molecules?
 
 ## EXTENDING THE MODEL
 
-What if the forward and reverse reaction rates were determined by a variable instead of initial concentrations. You could compare such a simulation with the one in this model and see if concentration and reaction rates act independently of each other, as measured by the final equilibrium state.
+What if the forward and reverse reaction rates were determined by a variable instead of initial concentrations? You could compare such a simulation with the one in this model and see if concentration and reaction rates act independently of each other, as measured by the final equilibrium state.
 
 You could also extend the program by allowing the user to introduce new molecules into the simulation while it is running.  How would the addition of fifty blue molecules affect a system that was already at equilibrium?
 
+
+## NETLOGO FEATURES
+
+The line `if any? turtles-here with [ color = reactant-2-color ]` uses a combination of the `any?` and `turtles-here` commands to check to see if there are any other turtles of a specific type occupying the same path. This is both a succinct and easily readable way to achieve this behavior.
 
 ## RELATED MODELS
 
 Enzyme Kinetics
 Simple Kinetics 1
-Simple Kinetics 2
-Simple Kinetics 3
-
-
-## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 true
