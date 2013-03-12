@@ -21,7 +21,6 @@ globals
   ;; global variables related to grass
   max-grass-energy      ;; the most amount of grass that can grow in a single patch (determined by a max. energy threshold)
   grass-growth-rate     ;; set to 1 in this model, but is adjustable in other Bug Hunt models (such as Bug Hunt Consumers).
-
   competition-status    ;; updates users with a message about the status of the competition
 
   ;; global variables related to time and histogram
@@ -40,7 +39,7 @@ bugs-own    [destination-patch controlled-by-player? owned-by energy]
 players-own [destination-patch user-id dead?]
 
 patches-own [
-  fertile?              ;; whether or not a grass patch is fertile is determined by the amount-of-grassland slider
+  fertile?              ;; whether or not a grass patch is fertile is determined by the amount-grassland slider
   grass-energy          ;; energy for grass
   countdown
   ]
@@ -49,6 +48,7 @@ patches-own [
 to startup ;; setting up hubnet
   hubnet-set-client-interface "COMPUTER" []
   hubnet-reset
+  setup
 end
 
 
@@ -90,15 +90,17 @@ to setup
 
   set competition-status "Get Ready"
   add-starting-grass
-  if setup-clients-as-bugs? [ask players [assign-bug-to-player]]
+  if include-clients-as-bugs? [ask players [assign-bug-to-player]]
   add-bugs
 
-  display-labels
+  
   listen-clients
   check-reset-perspective
-  send-all-info
+  display-labels
+  
   reset-ticks
   set time-remaining (length-competition - ticks)
+  send-all-info
 end
 
 
@@ -116,37 +118,38 @@ end
 
 
 to go
-  ifelse ticks < length-competition
-  [
+  if ticks < length-competition  [
     set competition-status "Running"
     update-statistics
-    every 0.1 [
-      listen-clients
-      send-all-info
-      ask patches [ grow-grass ]
-      ask bugs [
-        if bugs-lose-energy? [ set energy energy - 1 ] ;; deduct energy for bugs only if bugs-lose-energy? switch is on
-        if automated-bugs-reproduce? [ reproduce-bugs ]
-        fd bugs-stride
-        bugs-eat-grass
-        bug-death
-      ]
-      set time-remaining (length-competition - ticks)
-      if time-remaining < 0 [set time-remaining 0]
-      display-labels
-      check-reset-perspective
-      tick
+    listen-clients
+    send-all-info
+    ask patches [ grow-grass ]
+    ask bugs [
+      if automated-bugs-lose-energy? [ set energy energy - 1 ] ;; deduct energy for bugs only if bugs-lose-energy? switch is on
+      if automated-bugs-reproduce? [ reproduce-bugs ]
+      if automated-bugs-wander? [right random 30 left random 30]
+      fd bugs-stride
+      bugs-eat-grass
+      bug-death
     ]
+    display-labels
+    check-reset-perspective
+    tick
+    set time-remaining (length-competition - ticks)
   ]
-  [
-    if ticks = length-competition  [ display set competition-status "Over" send-all-info tick]
+  if ticks = length-competition  [ 
+    display 
+    set competition-status "Over"
+    if time-remaining <= 0 [set time-remaining 0] 
+    send-all-info 
+    tick
   ]
 end
 
 
 to add-starting-grass
   ask patches [
-      ifelse random 100 < amount-of-grassland    ;;  the maximum number of fertile patches is set by a slider
+      ifelse random 100 < amount-grassland    ;;  the maximum number of fertile patches is set by a slider
     [
       set fertile? true
       set grass-energy max-grass-energy
@@ -251,7 +254,7 @@ end
 
 
 to assign-bug-to-player
-  if setup-clients-as-bugs? [
+  if include-clients-as-bugs? [
     let p-user-id user-id
     let parent-player self
     let child-bug nobody
@@ -368,16 +371,18 @@ to send-this-players-info ;; player procedure
   let total-number-bugs count bugs
   let any-ties ""
   let out-of (word " out of " total-number-bugs "  ")
-  if num-ties < 0 [set num-ties 0]
-  ifelse setup-clients-as-bugs?
-    [set message-to-send (word user-id "  " place  any-ties out-of)]
+  if num-ties > 1 [set any-ties (word " [" num-ties "-way tie]") ]
+  ifelse include-clients-as-bugs?
+    [set message-to-send (word  place  out-of any-ties)]
     [set message-to-send "not currently in this competion"]
-  hubnet-send user-id "Name & Place in the Competition" message-to-send
+  hubnet-send user-id "Your Place in the Competition" message-to-send
+  
 end
 
 
 to send-all-info     ;;send common info to this client
-  ask players with [ user-id = hubnet-message-source ] [send-this-players-info]
+  ask players [send-this-players-info]
+  hubnet-broadcast "time remaining" time-remaining
 end
 
 
@@ -416,10 +421,10 @@ ticks
 30.0
 
 BUTTON
-13
-10
-73
-43
+0
+80
+60
+113
 setup
 setup
 NIL
@@ -433,10 +438,10 @@ NIL
 1
 
 BUTTON
-75
-10
-148
-43
+62
+80
+135
+113
 go/stop
 go
 T
@@ -450,11 +455,11 @@ NIL
 1
 
 PLOT
-5
-250
-385
-370
-Population
+0
+420
+380
+540
+Population Size
 time
 bugs
 0.0
@@ -465,13 +470,13 @@ true
 true
 "" ""
 PENS
-"bugs" 1.0 0 -16777216 true "set-current-plot \"population\"\nset-current-plot-pen \"bugs\"" "plotxy ticks count bugs"
+"bugs" 1.0 0 -16777216 true "" "plotxy ticks count bugs"
 
 MONITOR
-44
-205
-141
-250
+0
+375
+75
+420
 # bugs
 count bugs
 3
@@ -479,10 +484,10 @@ count bugs
 11
 
 SLIDER
-5
-60
-215
-93
+0
+45
+220
+78
 initial-#-automated-bugs
 initial-#-automated-bugs
 0
@@ -494,12 +499,12 @@ NIL
 HORIZONTAL
 
 SLIDER
-5
-95
-180
-128
-amount-of-grassland
-amount-of-grassland
+225
+45
+385
+78
+amount-grassland
+amount-grassland
 0
 100
 100
@@ -509,47 +514,47 @@ amount-of-grassland
 HORIZONTAL
 
 SLIDER
-5
-165
-180
-198
+225
+10
+385
+43
 length-competition
 length-competition
 0
 3000
-1500
+500
 100
 1
 NIL
 HORIZONTAL
 
 SWITCH
-180
-133
-390
-166
-bugs-lose-energy?
-bugs-lose-energy?
+0
+165
+220
+198
+automated-bugs-lose-energy?
+automated-bugs-lose-energy?
 1
 1
 -1000
 
 SWITCH
-180
-165
-390
-198
-automated-bugs-reproduce?
-automated-bugs-reproduce?
 0
+200
+220
+233
+automated-bugs-reproduce?
+automated-bugs-reproduce?
+1
 1
 -1000
 
 PLOT
-5
-370
-385
-490
+0
+240
+380
+360
 Energy Levels of Bugs
 energy level
 bugs
@@ -559,40 +564,25 @@ bugs
 40.0
 true
 true
-"" "let y-axis-max-histogram  (5 + ((floor (count bugs with [floor (energy / 20) = (item 0 modes [floor (energy / 20)] of bugs)] / 5)) * 5))\nset-current-plot \"Energy Levels of Bugs\"\nif true [  plot-pen-reset ]       \n;; autoscale x axis by 500s\nset-plot-x-range 0 (500 + 500 *  (floor (max-energy-of-any-bug / 500)))\nif y-axis-max-histogram < 10 [set y-axis-max-histogram 10]\n;; autoscale y axis by 5s, when above 10\n set-plot-y-range 0 y-axis-max-histogram   \n       set-histogram-num-bars 25\n   ;;  set-plot-pen-interval 20 + (20 * (floor (max-energy-of-any-bug / 500)))\n       histogram [ energy ] of bugs\n        \n       set  x-min-histogram plot-x-min\n       set  x-max-histogram plot-x-max\n      set   x-interval-histogram (x-max-histogram - x-min-histogram) / 25"
+"let num-bars 20\n let y-axis-max-histogram  (5 + ((floor (count bugs with [floor (energy / 20) = (item 0 modes [floor (energy / 20)] of bugs)] / 5)) * 5))\n set-current-plot \"Energy Levels of Bugs\"\n plot-pen-reset       \n  ;; autoscale x axis by 500s\n set-plot-x-range (500 * floor (min-energy-of-any-bug / 500)) (500 + 500 *  (floor (max-energy-of-any-bug / 500)))\n  if y-axis-max-histogram < 10 [set y-axis-max-histogram 10]\n  ;; autoscale y axis by 5s, when above 10\n  set-plot-y-range 0 y-axis-max-histogram   \n  set-histogram-num-bars num-bars\n  set  x-min-histogram plot-x-min\n  set  x-max-histogram plot-x-max\n  set   x-interval-histogram (x-max-histogram - x-min-histogram) / num-bars\n  \n  histogram [ energy ] of bugs" "let num-bars 20\n let y-axis-max-histogram  (5 + ((floor (count bugs with [floor (energy / 20) = (item 0 modes [floor (energy / 20)] of bugs)] / 5)) * 5))\n set-current-plot \"Energy Levels of Bugs\"\n plot-pen-reset       \n  ;; autoscale x axis by 500s\n set-plot-x-range (500 * floor (min-energy-of-any-bug / 500)) (500 + 500 *  (floor (max-energy-of-any-bug / 500)))\n  if y-axis-max-histogram < 10 [set y-axis-max-histogram 10]\n  ;; autoscale y axis by 5s, when above 10\n  set-plot-y-range 0 y-axis-max-histogram   \n  set-histogram-num-bars num-bars\n  set  x-min-histogram plot-x-min\n  set  x-max-histogram plot-x-max\n  set   x-interval-histogram (x-max-histogram - x-min-histogram) / num-bars\n  \n  histogram [ energy ] of bugs"
 PENS
 "bugs" 20.0 1 -16777216 true "" ""
 
 CHOOSER
-255
-10
-390
-55
+250
+80
+385
+125
 show-labels-as
 show-labels-as
 "none" "player name" "player energy" "energy ranges" "player energy:name"
 4
 
 SLIDER
-5
-130
-180
-163
-sprout-delay-time
-sprout-delay-time
-0
-200
-50
-10
-1
-NIL
-HORIZONTAL
-
-SLIDER
-220
-60
-390
-93
+225
+165
+385
+198
 player-vision
 player-vision
 1
@@ -604,10 +594,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-143
-205
-240
-250
+77
+375
+174
+420
 bugs that died
 dead-bugs
 17
@@ -615,10 +605,10 @@ dead-bugs
 11
 
 MONITOR
-242
-205
-339
-250
+176
+375
+273
+420
 # offspring
 offspring-bugs
 17
@@ -626,10 +616,10 @@ offspring-bugs
 11
 
 MONITOR
-158
-10
-251
-55
+153
+80
+246
+125
 time remaining
 time-remaining
 0
@@ -637,48 +627,52 @@ time-remaining
 11
 
 SWITCH
-180
-100
-390
-133
-setup-clients-as-bugs?
-setup-clients-as-bugs?
+0
+10
+220
+43
+include-clients-as-bugs?
+include-clients-as-bugs?
 0
 1
 -1000
 
 MONITOR
-5
-490
-95
-535
-x-min
-x-min-histogram
-17
-1
-11
-
-MONITOR
-295
-490
-385
-535
-x-max
-x-max-histogram
-17
-1
-11
-
-MONITOR
-150
-490
-241
-535
+300
+360
+380
+405
 x-interval
 x-interval-histogram
 17
 1
 11
+
+SWITCH
+0
+130
+220
+163
+automated-bugs-wander?
+automated-bugs-wander?
+0
+1
+-1000
+
+SLIDER
+225
+130
+385
+163
+sprout-delay-time
+sprout-delay-time
+0
+200
+50
+50
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -709,7 +703,7 @@ To start the activity over with the same group of players, stop the model by pre
 
 The controls included in this model are:
 
-AMOUNT-OF-GRASSLAND: The percentage of patches in the World & View that produce grass.
+AMOUNT-GRASSLAND: The percentage of patches in the World & View that produce grass.
 
 INITIAL-NUMBER-AUTOMATED-BUGS: The initial size of bug population that is not controlled by a player.
 
@@ -717,9 +711,11 @@ SPROUT-DELAY-TIME:  Controls how long before "eaten" grass starts sprouting and 
 
 LENGTH-COMPETITION:  Determines how long the competition will last. The unit of length is ticks.
 
-SETUP-CLIENTS-AS-BUGS?:  When "On", all HubNet connected clients will be given an individual bug to control that is assigned to their client when SETUP is pressed. When this is "Off", the model will run only on your local machine.
+INCLUDE-CLIENTS-AS-BUGS?:  When "On", all HubNet connected clients will be given an individual bug to control that is assigned to their client when SETUP is pressed. When this is "Off", the model will run only on your local machine.
 
-BUGS-LOSE-ENERGY?: When "On", bugs lose one unit of energy for each tick.
+AUTOMATED-BUGS-WANDER?:  When "On", automated bugs will turn a random amount left or right (between 30 and -30 degrees from its current heading) each tick.  When "off" the automated bugs will move in a straight line.  
+
+AUTOMATED-BUGS-LOSE-ENERGY?: When "On", bugs lose one unit of energy for each tick.
 
 AUTOMATED-BUGS-REPRODUCE?:  When "On", automated bugs will reproduce one offspring when they reach a set threshold of energy. The parent bug's energy will be split between the parent and the offspring. The count of offspring is kept track of in the monitor "# OFFSPRING".
 
@@ -731,13 +727,9 @@ The plots in the model are:
 
 ENERGY LEVELS OF BUGS:  Shows a histogram of bugs and their respective energy levels.
 
-POPULATION:  Shows the size of the bug population size over time.
+POPULATION SIZE:  Shows the size of the bug population size over time.
 
-X-MIN: reports the minimum value on the graph.  This value will remain 0 throughout the simulation.  It is reported for use in the classroom BEAGLE activity where students build a histogram using the same x-min as the NetLogo ENERGY LEVELS OF BUGS graph.
-
-X-MAX: reports the maximum value on the graph.  This value starts at 500 and will jump up by another 500 every time the previous x-max for an energy value is reached by one of the bug.   It is reported for use in the classroom BEAGLE activity where students build a histogram using the same x-max as the NetLogo ENERGY LEVELS OF BUGS graph.
-
-X-INTERVAL:  reports whatever the x-interval is for 25 bars in a range from (X-MAX - X-MIN).  It is reported for use in the classroom BEAGLE activity where students build a histogram using the same x-interval as the NetLogo ENERGY LEVELS OF BUGS graph.
+X-INTERVAL:  reports whatever the x-interval is for 20 bars in the historgram range.  It is being reported for use in the classroom BEAGLE activity where students build a histogram using the same x-interval as the NetLogo ENERGY LEVELS OF BUGS graph.
 
 Note: Grass squares grow back (become darker green) over time and accumulate more stored energy (food) as they become darker.
 
@@ -922,16 +914,16 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.1
+NetLogo 5.0.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
 VIEW
-25
-73
-525
-573
+355
+10
+855
+510
 0
 0
 0
@@ -950,14 +942,60 @@ VIEW
 12
 
 MONITOR
-26
-14
-527
-63
-Name & Place in the Competition
+115
+10
+345
+59
+Your Place in the Competition
 NIL
 3
 1
+
+PLOT
+10
+210
+345
+360
+Energy Levels of Bugs
+energy level
+bugs
+0.0
+500.0
+0.0
+10.0
+true
+true
+"" ""
+PENS
+"bugs" 20.0 1 -16777216 true
+
+MONITOR
+10
+10
+112
+59
+time remaining
+NIL
+0
+1
+
+PLOT
+10
+60
+345
+210
+Population Size
+time
+bugs
+0.0
+1000.0
+0.0
+10.0
+true
+true
+"" ""
+PENS
+"bugs" 1.0 0 -16777216 true
 
 @#$#@#$#@
 default

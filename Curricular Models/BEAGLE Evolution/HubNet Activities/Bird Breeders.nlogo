@@ -202,11 +202,13 @@ to reset-player-numbers
     if player-number = 3 [set player-3 user-id]
     if player-number = 4 [set player-4 user-id]
   ]
+
 end
 
 
 to setup-cages
    let these-cages nobody
+   show count players with [assigned?]
    ;; make cages and birds for player 1
    set these-cages patches with [pxcor = -4 and pycor <= 3 and pycor >= -2]
    ask these-cages [set pcolor player-1-cage-color  set patch-owned-by 1 sprout 1 [set breed cages set shape "cage"]]
@@ -257,7 +259,7 @@ to setup-DNA-sequencers
   ask DNA-sequencers [
     set color 68
     set label-color gray - 2.5
-    set label patch-owned-by
+    set label (word patch-owned-by " ")
   ]
 end
 
@@ -302,15 +304,16 @@ to go
   open-eggs
   check-for-DNA-test
   update-mating-ready-visualization
-  every 0.1 [
+;;  every 0.1 [
     ask (turtle-set birds eggs) with [released?] [release-this-bird-or-egg]
     visualize-bird-and-egg-movement
     ask selection-tags [rt 5]
     listen-clients
     if any? players with [assigned?] [send-common-info]
-  ]
+;;  ]
   calculate-all-alleles
   check-for-meeting-goals
+  
   tick
 end
 
@@ -1123,11 +1126,11 @@ end
 GRAPHICS-WINDOW
 455
 55
-1125
-746
+1025
+646
 -1
 -1
-66.0
+56.0
 1
 10
 1
@@ -1148,10 +1151,10 @@ ticks
 30.0
 
 BUTTON
-15
-10
-95
-43
+185
+45
+265
+78
 NIL
 setup
 NIL
@@ -1165,10 +1168,10 @@ NIL
 1
 
 BUTTON
-95
-10
-195
-43
+265
+45
+365
+78
 go/pause
 go
 T
@@ -1190,9 +1193,9 @@ OUTPUT
 
 MONITOR
 110
-290
+280
 210
-335
+325
 # of eggs laid
 number-offspring
 17
@@ -1201,9 +1204,9 @@ number-offspring
 
 MONITOR
 215
-290
+280
 365
-335
+325
 # of birds/eggs released
 number-releases
 17
@@ -1212,9 +1215,9 @@ number-releases
 
 PLOT
 20
-475
+460
 340
-610
+595
 # of Recessive Alleles in Gene Pool
 # of selections
 #
@@ -1233,9 +1236,9 @@ PENS
 
 PLOT
 20
-345
+330
 340
-475
+460
 # of Dominant Alleles in Gene Pool
 # of selections
 #
@@ -1250,13 +1253,13 @@ PENS
 "A" 1.0 0 -16777216 true "plotxy number-selections frequency-allele-dominant-first-trait" "if new-selection-event-occurred? \n[plotxy number-selections frequency-allele-dominant-first-trait]"
 "B" 1.0 0 -3026479 true "plotxy number-selections frequency-allele-dominant-second-trait" "if new-selection-event-occurred? \n[plotxy number-selections frequency-allele-dominant-second-trait]"
 "C" 1.0 0 -3889007 true "plotxy number-selections frequency-allele-dominant-third-trait" "if new-selection-event-occurred? \n[plotxy number-selections frequency-allele-dominant-third-trait]"
-"D" 1.0 0 -7500403 true "plotxy number-selections frequency-allele-dominant-fourth-trait" "if new-selection-event-occurred? \n[plotxy number-selections frequency-allele-dominant-fourth-trait]"
+"D" 1.0 0 -9276814 true "plotxy number-selections frequency-allele-dominant-fourth-trait" "if new-selection-event-occurred? \n[plotxy number-selections frequency-allele-dominant-fourth-trait]"
 
 PLOT
 20
-610
-395
-745
+595
+425
+730
 # of Birds with # of Desirable Variations
 # of selections
 # birds
@@ -1275,9 +1278,9 @@ PENS
 
 SLIDER
 195
-45
+10
 365
-78
+43
 max-#-of-DNA-tests
 max-#-of-DNA-tests
 0
@@ -1301,9 +1304,9 @@ sequencings-left
 
 MONITOR
 370
-385
+340
 453
-430
+385
 Player 1
 player-1
 17
@@ -1311,9 +1314,9 @@ player-1
 11
 
 MONITOR
-748
+700
 10
-833
+785
 55
 Player 2
 player-2
@@ -1322,10 +1325,10 @@ player-2
 11
 
 MONITOR
-1130
-385
-1209
-430
+1030
+345
+1109
+390
 Player 3
 player-3
 17
@@ -1333,10 +1336,10 @@ player-3
 11
 
 MONITOR
-745
-745
-838
-790
+695
+645
+788
+690
 Player 4
 player-4
 17
@@ -1356,9 +1359,9 @@ number-of-goal-birds
 
 SLIDER
 15
-45
+10
 200
-78
+43
 #-of-required-goal-birds
 #-of-required-goal-birds
 1
@@ -1371,9 +1374,9 @@ HORIZONTAL
 
 MONITOR
 15
-290
+280
 105
-335
+325
 # of matings
 number-matings
 17
@@ -1381,7 +1384,7 @@ number-matings
 11
 
 BUTTON
-235
+245
 230
 365
 263
@@ -1400,7 +1403,7 @@ NIL
 BUTTON
 15
 230
-145
+155
 263
 NIL
 previous-instruction
@@ -1415,15 +1418,30 @@ NIL
 0
 
 MONITOR
-140
+155
 230
-235
+250
 275
 instruction #
 current-instruction-label
 17
 1
 11
+
+SLIDER
+15
+45
+180
+78
+#-of-players
+#-of-players
+1
+4
+4
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -2205,57 +2223,35 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.1
+NetLogo 5.0.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
-VIEW
-102
-61
-782
-741
-0
-0
-0
-1
-1
-1
-1
-1
-0
-1
-1
-1
--4
-5
--4
-5
-
 MONITOR
-4
-382
-102
-431
+270
+345
+368
+394
 Player 1:
 NIL
 3
 1
 
 MONITOR
-783
-385
-876
-434
+930
+345
+1023
+394
 Player 3:
 NIL
 3
 1
 
 MONITOR
-394
+630
 10
-494
+730
 59
 Player 2:
 NIL
@@ -2263,54 +2259,139 @@ NIL
 1
 
 MONITOR
-397
-744
-499
-793
+625
+630
+727
+679
 Player 4:
 NIL
 3
 1
 
 MONITOR
-20
-57
-95
-106
+165
+370
+240
+419
 # eggs laid
 NIL
 3
 1
 
 MONITOR
-19
 10
-173
-59
+320
+165
+369
 # of birds/eggs released
 NIL
 3
 1
 
 MONITOR
-728
 10
-879
-59
+370
+165
+419
 # of DNA tests remaining
 NIL
 3
 1
 
 MONITOR
-20
-105
-94
-154
+165
+320
+239
+369
 # matings
 NIL
 3
 1
+
+VIEW
+370
+65
+930
+625
+0
+0
+0
+1
+1
+1
+1
+1
+0
+1
+1
+1
+-4
+5
+-4
+5
+
+PLOT
+10
+165
+350
+315
+# of Recessive Alleles in Gene Pool
+# of selections
+#
+0.0
+10.0
+0.0
+20.0
+true
+true
+"" ""
+PENS
+"a" 1.0 0 -8990512 true
+"b" 1.0 0 -2674135 true
+"c" 1.0 0 -1664597 true
+"d" 1.0 0 -7858858 true
+
+PLOT
+10
+10
+350
+160
+# of Dominant Alleles in Gene Pool
+# of selections
+#
+0.0
+10.0
+0.0
+20.0
+true
+true
+"" ""
+PENS
+"A" 1.0 0 -16777216 true
+"B" 1.0 0 -3026479 true
+"C" 1.0 0 -3889007 true
+"D" 1.0 0 -9276814 true
+
+PLOT
+10
+430
+355
+680
+# of Birds with # of Desirable Variations
+# of selections
+# birds
+0.0
+10.0
+0.0
+10.0
+true
+true
+"" ""
+PENS
+"1 variation" 1.0 0 -4079321 true
+"2 variations" 1.0 0 -8330359 true
+"3 variations" 1.0 0 -12087248 true
+"4 variations" 1.0 0 -14333415 true
 
 @#$#@#$#@
 default

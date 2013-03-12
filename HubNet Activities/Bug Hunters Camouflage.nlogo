@@ -75,8 +75,8 @@ to make-initial-bugs
     set blue-gene random 255
     set green-gene random 255
     setxy random-xcor random-ycor
-    assign-genotype-labels
     set-phenotype-color
+    assign-genotype-labels
   ]
 end
 
@@ -190,10 +190,10 @@ end
 
 ;; imposes a threshold limit on gene-frequency.
 ;; without this genes could drift into negative values
-;; or very large values (any value above 100%)
+;; or very large values 
 to-report limit-gene [gene]
   if gene < 0   [ report 0   ]
-  if gene > 100 [ report 100 ]
+  if gene > 255 [ report 255 ]
   report gene
 end
 
@@ -333,10 +333,10 @@ to do-plots
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-364
-18
-784
-459
+502
+10
+922
+451
 20
 20
 10.0
@@ -357,11 +357,12 @@ GRAPHICS-WINDOW
 1
 1
 ticks
+30.0
 
 BUTTON
-13
+180
 10
-91
+305
 43
 NIL
 setup
@@ -376,9 +377,9 @@ NIL
 1
 
 BUTTON
-93
+310
 10
-171
+425
 43
 NIL
 go
@@ -393,10 +394,10 @@ NIL
 1
 
 MONITOR
-160
-239
-288
-284
+173
+210
+423
+255
 Top hunter's catches
 leader-caught
 0
@@ -404,25 +405,25 @@ leader-caught
 11
 
 SLIDER
-174
+5
 10
-339
+170
 43
 carrying-capacity
 carrying-capacity
 0
 100
-40
+20
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-173
-201
-338
-234
+175
+170
+425
+203
 offspring-distance
 offspring-distance
 1
@@ -434,20 +435,20 @@ NIL
 HORIZONTAL
 
 CHOOSER
-49
-68
-181
-113
+5
+50
+137
+95
 environment
 environment
 "seashore.jpg" "glacier.jpg" "poppyfield.jpg"
 2
 
 BUTTON
-183
-57
-316
-90
+140
+50
+285
+95
 change background
 import-drawing environment
 NIL
@@ -461,10 +462,10 @@ NIL
 1
 
 BUTTON
-210
-131
-290
-164
+175
+100
+425
+133
 flash
 flash-bugs
 NIL
@@ -479,35 +480,35 @@ NIL
 
 SWITCH
 6
-201
+172
 171
-234
+205
 show-genotype?
 show-genotype?
-1
+0
 1
 -1000
 
 SLIDER
-43
-131
-208
-164
+5
+100
+170
+133
 bug-size
 bug-size
 0.1
 10
-1
+1.5
 0.1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-173
-166
-337
-199
+175
+135
+425
+168
 make a generation
 make-generation\nask bugs [assign-genotype-labels]
 NIL
@@ -521,10 +522,10 @@ NIL
 1
 
 PLOT
-40
-290
-319
-474
+5
+260
+425
+444
 Bugs Caught by All Hunters vs. Time
 days
 bugs
@@ -539,10 +540,10 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 BUTTON
-183
-91
-316
-124
+290
+50
+425
+95
 clear background
 cd
 NIL
@@ -557,9 +558,9 @@ NIL
 
 SLIDER
 6
-166
+137
 171
-199
+170
 max-mutation-step
 max-mutation-step
 0
@@ -571,10 +572,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-80
-239
-154
-284
+5
+210
+170
+255
 Top hunter
 leader
 3
@@ -1005,7 +1006,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.0.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1125,5 +1126,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
