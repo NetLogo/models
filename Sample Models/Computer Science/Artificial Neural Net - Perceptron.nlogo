@@ -12,7 +12,7 @@ globals [
 ;; in a perceptron.
 links-own [ weight ]
 
-;; all nodes have an activation 
+;; all nodes an activation
 ;; input nodes have a value of 1 or -1
 ;; bias-nodes are always 1
 turtles-own [activation]
@@ -23,7 +23,7 @@ breed [ input-nodes input-node ]
 ;; is always 1.
 breed [ bias-nodes bias-node ]
 
-;; output nodes compute the weighted sum of their
+;; output nodes compute the weighted some of their
 ;; inputs and then set their activation to 1 if
 ;; the sum is greater than their threshold.  An
 ;; output node can also be the input-node for another
@@ -39,7 +39,7 @@ to setup
   clear-all
 
   ;; set our background to something more viewable than black
-  ask patches [ set pcolor white - 3 ]
+  ask patches [ set pcolor grey ]
 
   set-default-shape input-nodes "circle"
   set-default-shape bias-nodes "bias-node"
@@ -57,19 +57,18 @@ to setup
     set activation 1
     setxy 3 7
     set size 1.5
-    my-create-link-to perceptron
+    my-create-link-to perceptron 
+    
   ]
 
   create-input-nodes 1 [
     setup-input-node
-    set label "Node 1"
     setxy -6 5
     set input-node-1 self
   ]
 
   create-input-nodes 1 [
     setup-input-node
-    set label "Node 2"
     setxy -6 0
     set input-node-2 self
   ]
@@ -82,7 +81,6 @@ to setup-input-node
     set activation random-activation
     set size 1.5
     my-create-link-to perceptron
-    set label-color magenta
 end
 
 ;; links an input or bias node to an output node
@@ -91,6 +89,8 @@ to my-create-link-to [ anode ] ;; input or bias node procedure
     set color red + 1
     ;; links start with a random weight
     set weight random-float 0.1 - 0.05
+    set shape "small-arrow-shape"
+    
   ]
 end
 
@@ -121,9 +121,11 @@ to train ;; observer procedure
   set epoch-error epoch-error / examples-per-epoch
   set epoch-error epoch-error * 0.5
   tick
+  plot-error
+  plot-learned-line
 end
 
-;; compute activation by summing the inputs * weights 
+;; compute activation by summing the inputs * weights \
 ;; and run through sign function which determines whether
 ;; the computed value is above or below the threshold
 to compute-activation ;; output-node procedure
@@ -188,8 +190,8 @@ end
 
 ;; test runs one instance and computes the output
 to test ;; observer procedure
-  ask input-node-1 [ set activation test-input-node-1-value ]
-  ask input-node-2 [ set activation test-input-node-2-value ]
+  ask input-node-1 [ set activation input-1 ]
+  ask input-node-2 [ set activation input-2 ]
 
   ;; compute the correct answer
   let correct-answer target-answer
@@ -220,15 +222,7 @@ to recolor ;; output, input, or bias node procedure
     [ set color black ]
   ask in-link-neighbors [ recolor ]
 
-  ifelse show-weights?
-  [ resize-recolor-links ]
-  [
-    ask my-in-links [
-      set thickness 0
-      set label ""
-      set color red + 1
-    ]
-  ]
+  resize-recolor-links
 end
 
 ;; resize and recolor the edges
@@ -236,22 +230,105 @@ end
 ;; recolor to indicate positive or negative
 to resize-recolor-links
   ask links [
-    set label precision weight 4
-    set thickness 0.1 + 4 * abs weight
+    ifelse show-weights?
+    [ set label precision weight 4 ]
+    [ set label "" ]
+    set thickness 0.1 + 20 * abs weight
     ifelse weight > 0
-    [ set color red + 1 ]
-    [ set color blue ]
+      [ set color [ 255 0 0 196 ] ]   ; transparent red
+      [ set color [ 0 0 255 196 ] ] ; transparent light blue
   ]
+end
+
+;;
+;; Plotting Procedures
+;;
+
+;; plot the error from the training
+to plot-error ;; observer procedure
+  set-current-plot "Error vs. Epochs"
+  plotxy ticks epoch-error
+end
+
+;; plot the decision line learned
+to plot-learned-line ;; observer procedure
+  set-current-plot "Rule Learned"
+  clear-plot
+
+  run word "plot-" target-function
+
+  ;; cycle through all the x-values and plot the corresponding x-values
+  let x1 -2
+  let edge1 [out-link-to perceptron] of input-node-1
+  let edge2 [out-link-to perceptron] of input-node-2
+
+  foreach n-values 5 [? - 2]
+  [
+    ;; calculate w0 (the bias weight)
+    let w0 sum [[weight] of out-link-to perceptron] of bias-nodes
+
+    ;; put it all together
+    let x2 ( (- w0 - [weight] of edge1 * ?) / [weight] of edge2 )
+
+    ;; plot x1, x2
+    set-current-plot-pen "rule"
+    plotxy ? x2
+  ]
+end
+
+to plot-or
+  set-current-plot-pen "positives"
+  plotxy -1 1
+  plotxy 1 1
+  plotxy 1 -1
+  set-current-plot-pen "negatives"
+  plotxy -1 -1
+end
+
+to plot-xor
+  set-current-plot-pen "positives"
+  plotxy -1 1
+  plotxy 1 -1
+  set-current-plot-pen "negatives"
+  plotxy 1 1
+  plotxy -1 -1
+end
+
+to plot-and
+  set-current-plot-pen "positives"
+  plotxy 1 1
+  set-current-plot-pen "negatives"
+  plotxy 1 -1
+  plotxy -1 1
+  plotxy -1 -1
+end
+
+to plot-nor
+  set-current-plot-pen "positives"
+  plotxy -1 -1
+  set-current-plot-pen "negatives"
+  plotxy 1 1
+  plotxy 1 -1
+  plotxy -1 1
+end
+
+to plot-nand
+  set-current-plot-pen "positives"
+  plotxy -1 -1
+  plotxy 1 -1
+  plotxy -1 1
+  set-current-plot-pen "negatives"
+  plotxy 1 1
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
 217
-11
-493
+10
+495
 280
 9
 8
-14.0
+14.11
 1
 10
 1
@@ -272,27 +349,27 @@ ticks
 30.0
 
 BUTTON
-140
-20
-206
-53
-setup
-setup
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-120
-75
+130
+10
 205
-108
+43
+setup
+setup
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+130
+50
+205
+83
 train
 train
 T
@@ -306,10 +383,10 @@ NIL
 1
 
 BUTTON
-635
-40
-698
-73
+505
+135
+605
+168
 test
 test
 NIL
@@ -323,30 +400,30 @@ NIL
 1
 
 CHOOSER
-516
-90
-708
-135
-test-input-node-1-value
-test-input-node-1-value
+505
+35
+605
+80
+input-1
+input-1
 -1 1
 1
 
 CHOOSER
-516
-144
-708
-189
-test-input-node-2-value
-test-input-node-2-value
+505
+85
+605
+130
+input-2
+input-2
 -1 1
 1
 
 MONITOR
-218
-287
-275
-332
+435
+285
+492
+330
 output
 [activation] of perceptron
 3
@@ -355,24 +432,24 @@ output
 
 SLIDER
 5
-160
+130
 205
-193
+163
 learning-rate
 learning-rate
 0.0
-.1
+1.0
 0.0050
-.0001
+1.0E-4
 1
 NIL
 HORIZONTAL
 
 PLOT
 4
+209
 204
-204
-354
+369
 Error vs. Epochs
 Epochs
 Error
@@ -384,13 +461,13 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plotxy ticks epoch-error"
+"default" 1.0 0 -16777216 true "" ""
 
 SLIDER
-6
-119
-205
-152
+5
+170
+204
+203
 examples-per-epoch
 examples-per-epoch
 1.0
@@ -402,10 +479,10 @@ NIL
 HORIZONTAL
 
 PLOT
-513
-203
-713
-353
+505
+185
+710
+365
 Rule Learned
 x1
 x2
@@ -415,57 +492,57 @@ x2
 2.0
 false
 false
-"clear-plot" "clear-plot"
+"" ""
 PENS
-"rule" 1.0 0 -16777216 true "" "let edge1-weight [weight] of [out-link-to perceptron] of input-node-1\n  let edge2-weight [weight] of [out-link-to perceptron] of input-node-2\n  let bias-edge-weight sum [[weight] of out-link-to perceptron] of bias-nodes\n\n  ;; cycle through all the x-values and plot the corresponding x-values\n  foreach n-values 5 [? - 2]\n  [\n    ;; put it all together\n    let x2 ( (- bias-edge-weight - edge1-weight * ?) / edge2-weight )\n\n    ;; plot x1, x2\n    plotxy ? x2\n  ]"
-"negatives" 1.0 2 -2674135 true "" "if target-function = \"or\" [\nplotxy -1 -1\n]\nif target-function = \"xor\" [\nplotxy 1 1 \nplotxy -1 -1 ]\nif target-function = \"and\" [\nplotxy 1 -1\nplotxy -1 1\nplotxy -1 -1\n]\nif target-function = \"nor\" [\nplotxy 1 1\nplotxy 1 -1\nplotxy -1 1\n]\nif target-function = \"nand\" [\nplotxy 1 1\n]"
-"positives" 1.0 2 -10899396 true "" "if target-function = \"or\" [\nplotxy -1 1\nplotxy 1 1\nplotxy 1 -1 ]\nif target-function = \"xor\" [\nplotxy -1 1 \nplotxy 1 -1 ]\nif target-function = \"and\" [\nplotxy 1 1\n]\nif target-function = \"nor\" [\nplotxy -1 -1\n]\nif target-function = \"nand\" [\nplotxy -1 -1\nplotxy 1 -1\nplotxy -1 1\n]"
+"rule" 1.0 0 -16777216 true "" ""
+"negatives" 1.0 2 -2674135 true "" ""
+"positives" 1.0 2 -10899396 true "" ""
 
 CHOOSER
-282
-289
-454
-334
+220
+285
+365
+330
 target-function
 target-function
 "or" "xor" "and" "nor" "nand"
-2
+4
 
 SWITCH
-218
-347
-455
-380
+220
+335
+365
+368
 show-weights?
 show-weights?
-0
+1
 1
 -1000
 
 TEXTBOX
-10
-50
-130
-68
+5
+60
+125
+78
 2. Train perceptron:
 11
 0.0
 0
 
 TEXTBOX
-513
-41
-627
-59
+505
+15
+619
+33
 3. Test perceptron:
 11
 0.0
 0
 
 TEXTBOX
-10
+5
 20
-134
+129
 38
 1. Setup perceptron:
 11
@@ -473,10 +550,10 @@ TEXTBOX
 0
 
 BUTTON
-7
-75
-104
-108
+130
+90
+205
+123
 train once
 train
 NIL
@@ -498,7 +575,7 @@ For a while it was thought that perceptrons might make good general pattern reco
 
 ## HOW IT WORKS
 
-The two nodes on the left are the input nodes. They can have a value of 1 or -1.   These are how one presents input to the perceptron.  The single node on top is the bias node.  Its value is constantly set to '1' and allows the perceptron to use a constant in its calculation.  The one output node is on the right.  The nodes are connected by links.  Each link has a weight.
+The nodes on the left are the input nodes. They can have a value of 1 or -1.   These are how one presents input to the perceptron.  The node in the middle is the bias node.  Its value is constantly set to '1' and allows the perceptron to use a constant in its calculation.  The one output node is on the right.  The nodes are connected by links.  Each link has a weight.
 
 To determine its value, an output node computes the weighted sum of its input nodes.  The value of each input node is multiplied by the weight of the link connecting it to the output node to give a weighted value.  The weighted values are then all added up. If the result is above a threshold value, then the value is 1, otherwise it is -1.  The threshold value for the output node in this model is 0.
 
@@ -508,23 +585,25 @@ While the network is training, inputs are presented to the perceptron.  The outp
 
 SETUP will initialize the model and reset any weights to a small random number.
 
-Pressing the TRAIN button will present a group of examples to the perceptron and weight will be updated. Press TRAIN ONCE to run only one epoch of training. 
+Press TRAIN ONCE to run one epoch of training.  The number of examples presented to the network during this epoch is controlled by EXAMPLES-PER-EPOCH slider.
 
-Moving the EXAMPLES-PER-EPOCH slider changes the number of training examples presented to the perceptron during each step of the TRAIN event.
+Press TRAIN to continually train the network.
 
-Moving the LEARNING-RATE slider changes the maximum amount of movement that any one example can have on a particular weight. While the theoretical LEARNING-RATE range continues all the way to 1, the max in this model is set to .1 as high values can make the perceptron oscillate between different solutions, a low rate encourages convergence.
+Moving the LEARNING-RATE slider changes the maximum amount of movement that any one example can have on a particular weight.
 
-Pressing TEST will input the values of TEST-INPUT-NODE-1-VALUE and TEST-INPUT-NODE-2-VALUE to the perceptron and compute the output.
+Pressing TEST will input the values of INPUT-1 and INPUT-2 to the perceptron and compute the output.
 
-If SHOW-WEIGHTS? is on then the size of the edges will indicate the weight, and the color will indicate the sign.  Blue indicates negative edges, and red indicates positive edges.
+In the view, the larger the size of the link the greater the weight it has.  If the link is red then its a positive weight.  If the link is blue then its a negative weight.
+
+If SHOW-WEIGHTS? is on then the links will be labelled with their weights.
 
 The TARGET-FUNCTION chooser allows you to decide which function the perceptron is trying to learn.
 
 ## THINGS TO NOTICE
 
-The perceptron will quickly learn the all of the functions except for 'xor', it will never learn the 'xor' function.  Not only that but when trying to learn the 'xor' function it will never settle down to a particular set of weights as a result it is completely useless as a pattern classifier for non-linearly separable functions.  This problem with perceptrons can be solved by combining several of them together as is done in multi-layer networks.  An example of that can be found in the Artificial Neural Network model.
+The perceptron will quickly learn the 'or' function.  However it will never learn the 'xor' function.  Not only that but when trying to learn the 'xor' function it will never settle down to a particular set of weights as a result it is completely useless as a pattern classifier for non-linearly separable functions.  This problem with perceptrons can be solved by combining several of them together as is done in multi-layer networks.  For an example of that please examine the ANN Neural Network model.
 
-The RULE LEARNED graph visually demonstrates the line of separation that the perceptron has learned, and presents the current inputs and their classifications.  Dots that are green represent points that should be classified positively.  Dots that are red represent points that should be classified negatively.  Everything on one side of the line will be classified positively and everything on the other side of the line will be classified negatively.  As should be obvious from watching this graph, it is impossible to draw a straight line that separates the red and the green dots in the 'xor' function.  This is what is meant when it is said that the 'xor' function is not linearly separable.
+The RULE LEARNED graph visually demonstrates the line of separation that the perceptron has learned, and presents the current inputs and their classifications.  Dots that are green represent points that should be classified positively.  Dots that are red represent points that should be classified negatively.  The line that is presented is what the perceptron has learned.  Everything on one side of the line will be classified positively and everything on the other side of the line will be classified negatively.  As should be obvious from watching this graph, it is impossible to draw a straight line that separates the red and the green dots in the 'xor' function.  This is what is meant when it is said that the 'xor' function is not linearly separable.
 
 The ERROR VS. EPOCHS graph displays the relationship between the squared error and the number of training epochs.
 
@@ -532,9 +611,9 @@ The ERROR VS. EPOCHS graph displays the relationship between the squared error a
 
 Try different learning rates and see how this affects the motion of the RULE LEARNED graph.
 
-Try training the perceptron several times using one of the non-'xor' rules and turning on SHOW-WEIGHTS?  Does the model ever change after a rule has been learned?
+Try training the perceptron several times using the 'or' rule and turning on SHOW-WEIGHTS?  Does the model ever change?
 
-Try modifying the EXAMPLES-PER-EPOCH slider. How does this affect the quickness of the rule being learned? How does it affect the ERROR vs. EPOCHS graph?
+How does modifying the number of EXAMPLES-PER-EPOCH affect the ERROR graph?
 
 ## EXTENDING THE MODEL
 
@@ -868,6 +947,17 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
+
+small-arrow-shape
+0.0
+-0.2 0 0.0 1.0
+0.0 1 1.0 0.0
+0.2 0 0.0 1.0
+link direction
+true
+0
+Line -7500403 true 150 150 135 180
+Line -7500403 true 150 150 165 180
 
 @#$#@#$#@
 1

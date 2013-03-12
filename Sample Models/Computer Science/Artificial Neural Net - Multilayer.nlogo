@@ -5,10 +5,13 @@ breed [input-nodes input-node]
 breed [output-nodes output-node]
 breed [hidden-nodes hidden-node]
 
-turtles-own [activation err]
+turtles-own [
+  activation     ;; Determines the nodes output
+  err            ;; Used by backpropogation to feed error backwards
+]
 
 globals [
-  epoch-error
+  epoch-error    ;; measurement of how many training examples the network got wrong in the epoch
   input-node-1   ;; keep the input and output nodes
   input-node-2   ;; in global variables so we can
   output-node-1  ;; refer to them directly
@@ -20,11 +23,12 @@ globals [
 
 to setup
   clear-all
-  ask patches [ set pcolor gray + 2 ]
+  ask patches [ set pcolor gray ]
   set-default-shape bias-nodes "bias-node"
   set-default-shape input-nodes "circle"
   set-default-shape output-nodes "output-node"
   set-default-shape hidden-nodes "output-node"
+  set-default-shape links "small-arrow-shape"
   setup-nodes
   setup-links
   propagate
@@ -32,24 +36,28 @@ to setup
 end
 
 to setup-nodes
-  create-bias-nodes 1 [ setxy -5 5 ]
+  create-bias-nodes 1 [ setxy -4 6 ]
   ask bias-nodes [ set activation 1 ]
-  create-input-nodes 1
-  [ setxy -5 -1
-    set input-node-1 self ]
-  create-input-nodes 1
-  [ setxy -5 1
-    set input-node-2 self ]
+  create-input-nodes 1 [
+    setxy -6 -2
+    set input-node-1 self
+  ]
+  create-input-nodes 1 [
+    setxy -6 2
+    set input-node-2 self
+  ]
   ask input-nodes [ set activation random 2 ]
-  create-hidden-nodes 1 [ setxy 0 -1 ]
-  create-hidden-nodes 1 [ setxy 0 1 ]
-  ask hidden-nodes
-  [ set activation random 2
-    set size 1.5 ]
-  create-output-nodes 1
-  [ setxy 5 0
-    set output-node-1 self ]
-  ask output-nodes [ set activation random 2 ]
+  create-hidden-nodes 1 [ setxy 0 -2 ]
+  create-hidden-nodes 1 [ setxy 0  2 ]
+  ask hidden-nodes [
+    set activation random 2
+    set size 1.5
+  ]
+  create-output-nodes 1 [
+    setxy 5 0
+    set output-node-1 self
+    set activation random 2
+  ]
 end
 
 to setup-links
@@ -72,10 +80,15 @@ to recolor
     set color item (step activation) [black white]
   ]
   ask links [
-    set thickness 0.1 * abs weight
+    set thickness 0.05 * abs weight
+    ifelse show-weights? [
+      set label precision weight 4
+    ] [
+      set label ""
+    ]
     ifelse weight > 0
-      [ set color red ]
-      [ set color blue ]
+      [ set color [ 255 0 0 196 ] ]   ; transparent red
+      [ set color [ 0 0 255 196 ] ] ; transparent light blue
   ]
 end
 
@@ -90,9 +103,8 @@ to train
     propagate
     back-propagate
   ]
-  tick
   set epoch-error epoch-error / examples-per-epoch
-  plotxy ticks epoch-error
+  tick
 end
 
 ;;;
@@ -102,6 +114,7 @@ end
 to-report target-answer
   let a [activation] of input-node-1 = 1
   let b [activation] of input-node-2 = 1
+  ;; run-result will interpret target-function as the appropriate boolean operator
   report ifelse-value run-result
     (word "a " target-function " b") [1][0]
 end
@@ -117,6 +130,7 @@ to propagate
   recolor
 end
 
+;; Determine the activation of a node based on the activation of its input nodes
 to-report new-activation  ;; node procedure
   report sigmoid sum [[activation] of end1 * weight] of my-in-links
 end
@@ -131,6 +145,9 @@ to back-propagate
     set example-error example-error + ( (answer - activation) ^ 2 )
   ]
   set epoch-error epoch-error + example-error
+  
+  ;; The hidden layer nodes are given error values adjusted appropriately for their
+  ;; link weights
   ask hidden-nodes [
     set err activation * (1 - activation) * sum [weight * [err] of end2] of my-out-links
   ]
@@ -173,10 +190,10 @@ to-report test-success? [n1 n2]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-222
-10
-538
-275
+233
+11
+549
+276
 8
 -1
 18.0
@@ -200,10 +217,10 @@ ticks
 30.0
 
 BUTTON
-133
-31
-214
-64
+135
+10
+220
+43
 setup
 setup
 NIL
@@ -217,10 +234,10 @@ NIL
 1
 
 BUTTON
-126
+135
+50
+220
 85
-211
-118
 train
 train
 T
@@ -234,10 +251,10 @@ NIL
 1
 
 BUTTON
-557
-64
-620
-97
+560
+135
+655
+169
 test
 test
 NIL
@@ -251,32 +268,32 @@ NIL
 1
 
 CHOOSER
-556
-105
-648
-150
+560
+35
+655
+80
 input-1
 input-1
 0 1
 1
 
 CHOOSER
-556
-159
-648
-204
+560
+85
+655
+130
 input-2
 input-2
 0 1
 1
 
 MONITOR
-373
+490
 280
-430
+547
 325
 output
-[precision activation 2] of output-nodes
+[precision activation 2] of one-of output-nodes
 3
 1
 11
@@ -284,13 +301,13 @@ output
 SLIDER
 14
 128
-214
+220
 161
 learning-rate
 learning-rate
 0.0
 1.0
-0.2
+0.5
 1.0E-4
 1
 NIL
@@ -299,8 +316,8 @@ HORIZONTAL
 PLOT
 13
 209
-213
-359
+220
+364
 Error vs. Epochs
 Epochs
 Error
@@ -312,29 +329,12 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" ""
-
-BUTTON
-13
-85
-107
-118
-train once
-train
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
+"default" 1.0 0 -16777216 true "" "plot epoch-error"
 
 SLIDER
 14
 168
-213
+220
 201
 examples-per-epoch
 examples-per-epoch
@@ -347,55 +347,89 @@ NIL
 HORIZONTAL
 
 CHOOSER
-223
-281
-361
-326
+235
+280
+395
+325
 target-function
 target-function
 "or" "xor"
 1
 
 TEXTBOX
-16
+10
+20
+127
 38
-133
-56
-1. Setup Neural Net
+1. Setup neural net:
 11
 0.0
 0
 
 TEXTBOX
+10
+60
+119
+88
+2. Train neural net:
+11
+0.0
+0
+
+TEXTBOX
+560
 15
-63
-109
-81
-2. Train Net
+710
+33
+3. Test neural net:
 11
 0.0
 0
 
-TEXTBOX
-556
-32
-706
-50
-3. Test Net
-11
-0.0
-0
+SWITCH
+235
+330
+395
+363
+show-weights?
+show-weights?
+1
+1
+-1000
+
+BUTTON
+135
+90
+220
+123
+train once
+train
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-This is a model of a very small neural network.  It is based on the Perceptron model, but instead of one layer, this network has two layers of "perceptrons".  That means it can learn operations a single layer cannot.
+This is a model of a very small neural network.  It is based on the Perceptron model, but instead of one layer, this network has two layers of "perceptrons".  Furthermore, the layers activate each other in a nonlinear way. These two additions means it can learn operations a single layer cannot.
 
 The goal of a network is to take input from its input nodes on the far left and classify those inputs appropriately in the output nodes on the far right.  It does this by being given a lot of examples and attempting to classify them, and having a supervisor tell it if the classification was right or wrong.  Based on this information the neural network updates its weight until it correctly classifies all inputs correctly.
 
 ## HOW IT WORKS
 
-Initially the weights on the links of the networks are random.  When inputs are fed into the network on the far left, those inputs times the random weights are added up to create the activation for the next node in the network.  The next node then sends out an activation along its output link.  These link weights and activations are summed up by the final output node which reports a value.  This activation is passed through a sigmoid function, which means that values near 0 are assigned values close to 0, and vice versa for 1.  The values increase nonlinearly between 0 and 1 with a sharp transition at 0.5.
+Initially the weights on the links of the networks are random.  
+
+The nodes on the left are the called the input nodes, the nodes in the middle are called the hidden nodes, and the node on the right is called the output node.
+
+The activation values of the input nodes are the inputs to the network. The activation values of the hidden nodes are equal to the activation values of inputs nodes, multiplied by their link weights, summed together, and passed through the [sigmoid function](http://en.wikipedia.org/wiki/Sigmoid_function). Similarly, the activation value of the output node is equal to the activation values of hidden nodes, multiplied by the link weights, summed together, and passed through the sigmoid function. The output of the network is 1 if the activation of the output node is greater than 0.5 and 0 if it is less than 0.5.
+
+The sigmoid function maps negative values to values between 0 and 0.5, and maps positive values to values between 0.5 and 1.  The values increase nonlinearly between 0 and 1 with a sharp transition at 0.5. 
 
 To train the network a lot of inputs are presented to the network along with how the network should correctly classify the inputs.  The network uses a back-propagation algorithm to pass error back from the output node and uses this error to update the weights along each link.
 
@@ -407,7 +441,9 @@ Press TRAIN ONCE to run one epoch of training.  The number of examples presented
 
 Press TRAIN to continually train the network.
 
-In the view, the larger the size of the link the greater the weight it has.  If the link is red then its a positive weight.  If the link is blue then its a negative weight.
+In the view, the larger the size of the link the greater the weight it has.  If the link is red then it has a positive weight.  If the link is blue then it has a negative weight.
+
+If SHOW-WEIGHTS? is on then the links will be labelled with their weights.
 
 To test the network, set INPUT-1 and INPUT-2, then press the TEST button.  A dialog box will appear telling you whether or not the network was able to correctly classify the input that you gave it.
 
@@ -417,7 +453,7 @@ TARGET-FUNCTION allows you to choose which function the network is trying to sol
 
 ## THINGS TO NOTICE
 
-Unlike the Perceptron model, this model is able to learn both OR and XOR.  It is able to learn XOR because the hidden layer (the middle nodes) in a way allows the network to draw two lines classifying the input into positive and negative regions.  As a result one of the nodes will learn essentially the OR function that if either of the inputs is on it should be on, and the other node will learn an exclusion function that if both of the inputs or on it should be on (but weighted negatively).
+Unlike the Perceptron model, this model is able to learn both OR and XOR.  It is able to learn XOR because the hidden layer (the middle nodes) and the nonlinear activation allows the network to draw two lines classifying the input into positive and negative regions.  A perceptron with a linear activation can only draw a single line. As a result one of the nodes will learn essentially the OR function that if either of the inputs is on it should be on, and the other node will learn an exclusion function that if both of the inputs or on it should be on (but weighted negatively).
 
 However unlike the perceptron model, the neural network model takes longer to learn any of the functions, including the simple OR function.  This is because it has a lot more that it needs to learn.  The perceptron model had to learn three different weights (the input links, and the bias link).  The neural network model has to learn ten weights (4 input to hidden layer weights, 2 hidden layer to output weight and the three bias weights).
 
@@ -769,6 +805,17 @@ link direction
 true
 0
 
-@#$#@#$#@
+small-arrow-shape
+0.0
+-0.2 0 0.0 1.0
+0.0 1 1.0 0.0
+0.2 0 0.0 1.0
+link direction
+true
 0
+Line -7500403 true 150 150 135 180
+Line -7500403 true 150 150 165 180
+
+@#$#@#$#@
+1
 @#$#@#$#@
