@@ -364,6 +364,11 @@ Simple Kinetics 1, Simple Kinetics 2
 ## CREDITS AND REFERENCES
 
 Thanks to Mike Stieff for his work on this model.
+
+## RELATED MODELS
+
+Simple Kinetics 1
+Simple Kinetics 2
 @#$#@#$#@
 default
 true

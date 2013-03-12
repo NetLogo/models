@@ -481,6 +481,11 @@ Notice how we store an agentset of patches in the `black-patches` variable.  Com
 ## CREDITS AND REFERENCES
 
 Thanks to Mike Stieff for his work on this model.
+
+## RELATED MODELS
+
+Simple Kinetics 1
+Simple Kinetics 3
 @#$#@#$#@
 default
 true
