@@ -304,7 +304,6 @@ Enzyme Kinetics
 Simple Kinetics 1
 
 ## CREDITS AND REFERENCES
-
 @#$#@#$#@
 default
 true
