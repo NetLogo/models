@@ -290,16 +290,15 @@ Try to implement the following reaction:
             A + B <======> C -------> D
                      Ku
 
-## CREDITS AND REFERENCES
-
-Thanks to Mike Stieff for his work on this model.
-
 ## RELATED MODELS
 
 Enzyme Kinetics
 Chemical Equilbrium
 Simple Kinetics 2
 Simple Kinetics 3
+## CREDITS AND REFERENCES
+
+Thanks to Mike Stieff for his work on this model.
 @#$#@#$#@
 default
 true
