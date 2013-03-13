@@ -478,14 +478,14 @@ Notice the use of breeds in the model.
 
 Notice how we store an agentset of patches in the `black-patches` variable.  Computing this agentset once ahead of time (at the time the box is drawn) is faster than recomputing it at every iteration.
 
-## CREDITS AND REFERENCES
-
-Thanks to Mike Stieff for his work on this model.
-
 ## RELATED MODELS
 
 Simple Kinetics 1
 Simple Kinetics 3
+
+## CREDITS AND REFERENCES
+
+Thanks to Mike Stieff for his work on this model.
 @#$#@#$#@
 default
 true
