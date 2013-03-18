@@ -394,9 +394,9 @@ to update-statistics
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-392
+405
 10
-902
+915
 541
 12
 12
@@ -457,7 +457,7 @@ NIL
 PLOT
 0
 420
-380
+400
 540
 Population Size
 time
@@ -501,7 +501,7 @@ HORIZONTAL
 SLIDER
 225
 45
-385
+400
 78
 amount-grassland
 amount-grassland
@@ -516,7 +516,7 @@ HORIZONTAL
 SLIDER
 225
 10
-385
+400
 43
 length-competition
 length-competition
@@ -531,7 +531,7 @@ HORIZONTAL
 SWITCH
 0
 165
-220
+235
 198
 automated-bugs-lose-energy?
 automated-bugs-lose-energy?
@@ -542,7 +542,7 @@ automated-bugs-lose-energy?
 SWITCH
 0
 200
-220
+235
 233
 automated-bugs-reproduce?
 automated-bugs-reproduce?
@@ -553,7 +553,7 @@ automated-bugs-reproduce?
 PLOT
 0
 240
-380
+400
 360
 Energy Levels of Bugs
 energy level
@@ -569,9 +569,9 @@ PENS
 "bugs" 20.0 1 -16777216 true "" ""
 
 CHOOSER
-250
+260
 80
-385
+400
 125
 show-labels-as
 show-labels-as
@@ -579,9 +579,9 @@ show-labels-as
 4
 
 SLIDER
-225
+240
 165
-385
+400
 198
 player-vision
 player-vision
@@ -638,9 +638,9 @@ include-clients-as-bugs?
 -1000
 
 MONITOR
-300
+320
 360
-380
+400
 405
 x-interval
 x-interval-histogram
@@ -651,7 +651,7 @@ x-interval-histogram
 SWITCH
 0
 130
-220
+235
 163
 automated-bugs-wander?
 automated-bugs-wander?
@@ -660,9 +660,9 @@ automated-bugs-wander?
 -1000
 
 SLIDER
-225
+240
 130
-385
+400
 163
 sprout-delay-time
 sprout-delay-time
@@ -914,7 +914,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.3
+NetLogo 5.0.4-RC2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
