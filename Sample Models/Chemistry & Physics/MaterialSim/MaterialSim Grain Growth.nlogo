@@ -1,6 +1,6 @@
 ;; two different materials or phases
 breed [ element1s element1 ]  ;; element1 is the main material
-breed [ element2s element1 ]  ;; element2 is the materials which is
+breed [ element2s element2 ]  ;; element2 is the materials which is
                               ;; dispersed inside element1 (second-phase particles)
 
 element1s-own [
