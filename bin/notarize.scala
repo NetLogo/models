@@ -68,7 +68,7 @@ for(path <- paths) {
 require(!(requirePreviews && missingPreviews), "missing previews")
 
 def validateYear(y:Int) {
-  require(y >= 1996 && y <= 2013,
+  require(y >= 1996 && y <= 2012,
           "invalid year: " + y)
 }
 
@@ -167,19 +167,17 @@ def munge(path: String): String = {
       builder.append("Wilensky, U. (" + year + ").  " + netlogohubnet + " " + name + " model.  ")
     builder.append("http://ccl.northwestern.edu/netlogo/models/" + compressedname + ".  ")
     builder.append("Center for Connected Learning and Computer-Based Modeling, ")
-    builder.append("Northwestern Institute on Complex Systems, ")
     builder.append("Northwestern University, Evanston, IL.\n")
     builder.append("* Wilensky, U. (1999). NetLogo. ")
     builder.append("http://ccl.northwestern.edu/netlogo/. ")
-    builder.append("Center for Connected Learning and Computer-Based Modeling, ")
-    builder.append("Northwestern Institute on Complex Systems, ")
-    builder.append("Northwestern University, Evanston, IL.\n")
+    builder.append("Center for Connected Learning and ")
+    builder.append("Computer-Based Modeling, Northwestern University, Evanston, IL.\n")
     if(keywords.contains("NIELS")) {
       builder.append("\n")
       builder.append("To cite the NIELS curriculum as a whole, please use: ")
       builder.append("Sengupta, P. and Wilensky, U. (2008). NetLogo NIELS curriculum. ")
       builder.append("http://ccl.northwestern.edu/NIELS. ")
-      builder.append("Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.\n")
+      builder.append("Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.\n")
     }
     if(keywords.contains("ConChem")) {
       builder.append("\n")
@@ -187,7 +185,7 @@ def munge(path: String): String = {
       builder.append("Wilensky, U., Levy, S. T., & Novak, M. (2004). ")
       builder.append("Connected Chemistry curriculum. ")
       builder.append("http://ccl.northwestern.edu/curriculum/chemistry. ")
-      builder.append("Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.\n")
+      builder.append("Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.\n")
     }
     builder.toString
   }
