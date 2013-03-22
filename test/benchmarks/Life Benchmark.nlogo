@@ -13,14 +13,6 @@ to benchmark
   set result timer
 end
 
-to benchmark-__life
-  random-seed 22
-  reset-timer
-  setup-random
-  repeat 500 [ __life ]
-  set result timer
-end
-
 to setup-random
   clear-all reset-ticks
   ask patches
@@ -194,40 +186,6 @@ BUTTON
 346
 NIL
 benchmark
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-174
-363
-238
-396
-NIL
-__life
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-9
-351
-167
-417
-NIL
-benchmark-__life
 NIL
 1
 T

@@ -9,14 +9,6 @@ to benchmark
   set result timer
 end
 
-to benchmark-__fire
-  random-seed 362
-  reset-timer
-  setup
-  repeat 100 [ __fire tick ]
-  set result timer
-end
-
 to setup
   ca reset-ticks
   ask patches [
@@ -152,40 +144,6 @@ BUTTON
 230
 NIL
 benchmark
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-1
-300
-85
-336
-NIL
-__fire tick
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-90
-293
-262
-349
-NIL
-benchmark-__fire
 NIL
 1
 T
