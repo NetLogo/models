@@ -8,9 +8,16 @@ to benchmark
    set p2 random 100
    set pcolor one-of base-colors
   ]
-  export-world "firebig.csv"
+  ;; avoid name collisions when running test in parallel
+  let name ""
+  with-local-randomness [
+    random-seed new-seed
+    let salt random 10000000
+    set name (word "firebig-" salt ".csv")
+  ]
+  export-world name
   reset-timer
-  import-world "firebig.csv"
+  import-world name
   set result timer
 end
 @#$#@#$#@
