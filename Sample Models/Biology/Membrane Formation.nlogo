@@ -118,7 +118,7 @@ num-water
 num-water
 0
 1000
-500
+750
 1
 1
 NIL
@@ -133,7 +133,7 @@ num-lipids
 num-lipids
 1
 500
-500
+250
 1
 1
 NIL
@@ -608,7 +608,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.4
+NetLogo 5.0.5
 @#$#@#$#@
 setup
 repeat 250 [ go ]
