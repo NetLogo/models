@@ -1384,8 +1384,13 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
 NetLogo 5.0.4
 @#$#@#$#@
+;; this model was tickling some weird Oracle renderer bug that was making
+;; a few pixels in the preview a little different between Mac and Linux
+;; on Java 7, causing graphics checksum failures... the preview commands
+;; here are now a little unusual, to avoid the issue - ST 4/30/13
 setup
-repeat 75 [ random-select ]
+repeat 74 [ random-select ]
+ask turtles [ set heading random 360 ]
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
