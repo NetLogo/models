@@ -176,17 +176,18 @@ end
 
 ;; test runs one instance and computes the output
 to test
-  ;; output the result
-  ifelse test-success? input-1 input-2
-    [ user-message "Correct." ]
-    [ user-message "Incorrect." ]
+  let result result-for-inputs input-1 input-2
+  let correct? ifelse-value (result = target-answer) ["correct"] ["incorrect"]
+  user-message (word
+    "The expected answer for " input-1 " " target-function " " input-2 " is " target-answer ".\n\n"
+    "The network reported " result ", which is " correct? ".")
 end
 
-to-report test-success? [n1 n2]
+to-report result-for-inputs [n1 n2]
   ask input-node-1 [ set activation n1 ]
   ask input-node-2 [ set activation n2 ]
   propagate
-  report target-answer = step [activation] of one-of output-nodes
+  report step [activation] of one-of output-nodes
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -285,7 +286,7 @@ CHOOSER
 input-2
 input-2
 0 1
-1
+0
 
 MONITOR
 490
@@ -789,7 +790,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.4
+NetLogo 5.0.5
 @#$#@#$#@
 setup repeat 100 [ train ]
 @#$#@#$#@
