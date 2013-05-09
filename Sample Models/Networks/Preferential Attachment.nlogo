@@ -38,7 +38,7 @@ to make-node [old-node]
   ]
 end
 
-;; This code is the heart of the "preferential attachment" mecanism, and acts like
+;; This code is the heart of the "preferential attachment" mechanism, and acts like
 ;; a lottery where each node gets a ticket for every connection it already has.
 ;; While the basic idea is the same as in the Lottery Example (in the Code Examples
 ;; section of the Models Library), things are made simpler here by the fact that we
