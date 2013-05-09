@@ -131,7 +131,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
-30.0
+60.0
 
 PLOT
 8
@@ -238,7 +238,7 @@ SWITCH
 97
 layout?
 layout?
-1
+0
 1
 -1000
 
