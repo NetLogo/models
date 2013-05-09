@@ -38,28 +38,14 @@ to make-node [old-node]
   ]
 end
 
-;; This code is borrowed from Lottery Example (in the Code Examples
-;; section of the Models Library).
-;; The idea behind the code is a bit tricky to understand.
-;; Basically we take the sum of the degrees (number of connections)
-;; of the turtles, and that's how many "tickets" we have in our lottery.
-;; Then we pick a random "ticket" (a random number).  Then we step
-;; through the turtles to figure out which node holds the winning ticket.
+;; This code is the heart of the "preferential attachment" mecanism, and acts like
+;; a lottery where each node gets a ticket for every connection it already has.
+;; While the basic idea is the same as in the Lottery Example (in the Code Examples
+;; section of the Models Library), things are made simpler here by the fact that we
+;; can just use the links as if they were the "tickets": we first pick a random link,
+;; and than we pick one of the two ends of that link.
 to-report find-partner
-  let total random-float sum [count link-neighbors] of turtles
-  let partner nobody
-  ask turtles
-  [
-    let nc count link-neighbors
-    ;; if there's no winner yet...
-    if partner = nobody
-    [
-      ifelse nc > total
-        [ set partner self ]
-        [ set total total - nc ]
-    ]
-  ]
-  report partner
+  report one-of [both-ends] of one-of links
 end
 
 ;;;;;;;;;;;;;;
@@ -131,7 +117,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
-60.0
+30.0
 
 PLOT
 8
@@ -238,7 +224,7 @@ SWITCH
 97
 layout?
 layout?
-0
+1
 1
 -1000
 
@@ -647,7 +633,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.4
+NetLogo 5.0.5
 @#$#@#$#@
 set layout? false
 set plot? false
