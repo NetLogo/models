@@ -45,7 +45,7 @@ end
 ;; can just use the links as if they were the "tickets": we first pick a random link,
 ;; and than we pick one of the two ends of that link.
 to-report find-partner
-  report one-of [both-ends] of one-of links
+  report [one-of both-ends] of one-of links
 end
 
 ;;;;;;;;;;;;;;
