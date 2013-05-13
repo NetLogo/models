@@ -9,6 +9,7 @@ to setup
     setxy random-xcor random-ycor
     set value 5
   ]
+  reset-ticks
   let file user-new-file
   ;; We check to make sure we actually got a string just in case
   ;; the user hits the cancel button.
@@ -110,7 +111,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 78
@@ -127,34 +128,24 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 TEXTBOX
-32
-172
-234
-200
+15
+165
+270
+193
 After you stop the GO button, click this to close the file.
 11
 0.0
 0
 
 TEXTBOX
-8
-34
-295
-52
-Choose a directory where you have write permission
-11
-0.0
-0
-
-TEXTBOX
-60
-48
-236
-66
-and choose a unique filename.
+15
+20
+279
+54
+Choose a directory where you have write permission and choose a unique filename.
 11
 0.0
 0
@@ -453,7 +444,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.4
+NetLogo 5.0.5
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
@@ -472,5 +463,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
