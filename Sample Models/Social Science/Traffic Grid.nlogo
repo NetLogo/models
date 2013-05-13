@@ -286,8 +286,8 @@ to set-car-speed  ;; turtle procedure
   ]
 end
 
-;; set the speed variable of the turtle to an appropriate value (not exceeding the
-;; speed limit) based on whether there are turtles on the patch in front of the turtle
+;; set the speed variable of the car to an appropriate value (not exceeding the
+;; speed limit) based on whether there are cars on the patch in front of the car
 to set-speed [ delta-x delta-y ]  ;; turtle procedure
   ;; get the turtles on the patch in front of the turtle
   let turtles-ahead turtles-at delta-x delta-y
@@ -631,13 +631,13 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-You control traffic lights and overall variables, such as the speed limit and the number of cars, in a real-time traffic simulation.  This allows you to explore traffic dynamics, which can lead into many areas of study, from calculus to social studies.
+This is a model of traffic moving in a city grid. It allows you to control traffic lights and global variables, such as the speed limit and the number of cars, and explore traffic dynamics.
 
 Try to develop strategies to improve traffic and to understand the different ways to measure the quality of traffic.
 
 ## HOW IT WORKS
 
-Each time step, the cars attempt to move forward at their current speed.  If their current speed is less than the speed limit and there is no car directly in front of them, they accelerate.  If there is a slower car in front of them, they match the speed of the slower car and decelerate.  If there is a red light or a stopped car in front of them, they stop.
+Each time step, the cars attempt to move forward at their current speed.  If their current speed is less than the speed limit and there is no car directly in front of them, they accelerate.  If there is a slower car in front of them, they match the speed of the slower car and deccelerate.  If there is a red light or a stopped car in front of them, they stop.
 
 There are two different ways the lights can change.  First, the user can change any light at any time by making the light current, and then clicking CHANGE LIGHT.  Second, lights can change automatically, once per cycle.  Initially, all lights will automatically change at the beginning of each cycle.
 
