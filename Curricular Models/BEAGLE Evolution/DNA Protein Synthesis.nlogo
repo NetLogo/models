@@ -552,7 +552,7 @@ end
 to go
   visualize-all-genes
   ;; these ? variables keep track of button press events being cued by the user
-  if event-1-triggered?  [ show-next-mrna "original"                  set event-1-triggered? false  set event-1-completed? true set event-2-completed? false set event-3-completed? false set event-4-completed? false]
+  if event-1-triggered?                         [ show-next-mrna "original"                  set event-1-triggered? false  set event-1-completed? true set event-2-completed? false set event-3-completed? false set event-4-completed? false]
   if event-2-triggered? and event-1-completed?  [ release-next-mRNA-from-nucleus "original"  set event-2-triggered? false set event-3-completed? false set event-4-completed? false]
   if event-3-triggered? and event-2-completed?  [ show-next-trna "original"                  set event-3-triggered? false  set event-3-completed? true set event-4-completed? false]
   if event-4-triggered? and event-3-completed?  [ release-next-protein "original"            set event-4-triggered? false  set event-4-completed? true]
@@ -574,7 +574,7 @@ to move-mRNA-molecules-out-of-nucleus
     ]
     if strand = "duplicate" [
       if ycor > duplicate-ribosome-ycor [ set ycor ycor - .1] 
-      if ycor <= duplicate-ribosome-ycor [ set traveling? false set released? true set event-6-completed? true]
+      if ycor <= duplicate-ribosome-ycor [ set traveling? false set released? true set event-7-completed? true]
     ]
   ]
 end
@@ -1174,7 +1174,7 @@ BUTTON
 445
 373
 7. release
-set event-7-triggered? true\nreset-completed-events
+if event-6-completed? [\n  set event-7-triggered? true\n  reset-completed-events\n]
 NIL
 1
 T
@@ -1191,7 +1191,7 @@ BUTTON
 365
 428
 8. translate
-set event-8-triggered? true\nreset-completed-events
+if event-7-completed? [\n  set event-8-triggered? true\n  reset-completed-events\n]
 NIL
 1
 T
@@ -1208,7 +1208,7 @@ BUTTON
 445
 428
 9. release
-set event-9-triggered? true\nreset-completed-events
+if event-8-completed? [\n  set event-9-triggered? true\n  reset-completed-events\n]
 NIL
 1
 T
