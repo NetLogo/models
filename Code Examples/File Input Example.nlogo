@@ -38,7 +38,7 @@ end
 ;; one file to load from, but you can create your own using the function save-patch-data
 ;; near the bottom which saves all the current patches into a file.
 to load-own-patch-data
-  let file user-new-file
+  let file user-file
 
   if ( file != false )
   [
@@ -466,7 +466,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.4
+NetLogo 5.0.5
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
