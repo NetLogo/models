@@ -137,8 +137,8 @@ to release-forks-smart  ;; philosopher procedure
 end
 
 ;; to release a fork, we set its owner to nobody and replace it on the table.
-to release [fork]  ;; philosopher procedure
-  ask fork [
+to release [the-fork]  ;; philosopher procedure
+  ask the-fork [
     if owner != nobody [
       set owner nobody
       setxy home-xpos home-ypos
@@ -190,8 +190,8 @@ to acquire-right  ;; philosopher procedure
 end
 
 ;; I've got a fork if it's owned by me.
-to-report got? [fork]  ;; philosopher procedure
-  report self = [owner] of fork
+to-report got? [the-fork]  ;; philosopher procedure
+  report self = [owner] of the-fork
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
