@@ -50,8 +50,7 @@ to go
   ask turtles [
     let car-ahead one-of turtles-on patch-ahead 1
     ifelse car-ahead != nobody
-      [ set speed [speed] of car-ahead
-        slow-down-car ]
+      [ slow-down-car car-ahead ]
       ;; otherwise, speed up
       [ speed-up-car ]
     ;;; don't slow down below speed minimum or speed up beyond speed limit
@@ -61,11 +60,15 @@ to go
   tick
 end
 
-to slow-down-car  ;; turtle procedure
-  set speed speed - deceleration
+;; turtle (car) procedure
+to slow-down-car  [car-ahead]
+  ;; slow down so you are driving more slowly than the car ahead of you
+  set speed [speed] of car-ahead - deceleration
 end
 
-to speed-up-car  ;; turtle procedure
+
+;; turtle (car) procedure
+to speed-up-car
   set speed speed + acceleration
 end
 @#$#@#$#@
