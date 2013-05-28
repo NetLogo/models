@@ -13,8 +13,10 @@ to setup
   ;; if it false, then the sheep don't need to eat
   if grass? [
     ask patches [
-      set countdown random grass-regrowth-time ;; initialize grass grow clocks randomly
       set pcolor one-of [green brown]
+      if-else pcolor = green
+        [ set countdown grass-regrowth-time ]
+        [ set countdown random grass-regrowth-time ] ;; initialize grass grow clocks randomly for brown patches
     ]
   ]
   set-default-shape sheep "sheep"
@@ -777,7 +779,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.4
+NetLogo 5.0.5
 @#$#@#$#@
 setup
 set grass? true
