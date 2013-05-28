@@ -89,7 +89,7 @@ to get-older
     if sick?
       [ set sick-count (sick-count + 1) ]
     ;; Turtles die of old age once their age equals the
-    ;; lifespan (set at 1500 in this model).
+    ;; lifespan (set at 100 in this model).
     if age > lifespan
       [ die ]
   ]
@@ -673,7 +673,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.4
+NetLogo 5.0.5
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
