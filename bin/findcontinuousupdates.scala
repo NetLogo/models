@@ -1,6 +1,5 @@
-#!/bin/sh
-exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "$0" "$@"
-!#
+#!/usr/bin/env scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8
+//!#
 
 // find models that use continuous updates (instead of tick based)
 
@@ -23,7 +22,3 @@ Process("find models -name *.nlogo -o -name *.nlogo3d")
                   .takeWhile(!_.isEmpty)
                   .drop(21).take(1).contains("1"))
   .foreach(println(_))
-
-// Local Variables:
-// mode: scala
-// End:

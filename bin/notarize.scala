@@ -1,6 +1,5 @@
-#!/bin/sh
-exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "$0" "$@"
-!#
+#!/usr/bin/env scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8
+//!#
 
 /// Adds legal and academic notices to procedures and/or info tabs of all models.
 ///
@@ -316,7 +315,3 @@ def munge(path: String): String = {
   val newSections = newCode :: sections(1) :: newInfo :: sections.drop(3)
   newSections.mkString("@#$#@#$#@\n")
 }
-
-// Local Variables:
-// mode: scala
-// End:

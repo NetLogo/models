@@ -1,6 +1,5 @@
-#!/bin/sh
-exec bin/scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8 "$0" "$@"
-!#
+#!/usr/bin/env scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8
+//!#
 
 // finds models that have first paragraphs of their WHAT IS IT? sections that are too long, or
 // otherwise malformed
@@ -24,7 +23,3 @@ for{path <- Process("find models -name *.nlogo -o -name *.nlogo3d").lines
     }
   }
 }
-
-// Local Variables:
-// mode: scala
-// End:
