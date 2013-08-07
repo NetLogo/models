@@ -123,24 +123,32 @@ to sample
     ( pxcor <= sample-right-xcor ) and
     ( pxcor > sample-right-xcor - side ) and
     ( pycor > ( max-pycor - side ) ) ]
-  ask sample-location-patch-agentset
-  [
-    sprout 1
+  ;; has to be in a sorted order because of how the finish-off procedure works
+  foreach sort sample-location-patch-agentset [
+    ask ?
     [
-      ht
-      set breed sample-dudes
-      setxy pxcor pycor
+      sprout-a-sample-dude
+    ]
+  ]
+    ;; num-target-color reports how many sample-dudes in the random sample are of the target color
+  set num-target-color count sample-dudes with [ color = target-color ]
+end
+
+;; patch procedure
+to sprout-a-sample-dude
+  sprout 1
+  [
+    ht
+    set breed sample-dudes
+    setxy pxcor pycor
 
     ;; Each turtle in the sample area chooses randomly between the target-color and the other color.
     ;; The higher you have set the probability slider, the higher the chance the turtle will get the target color
     ifelse random 100 < probability-to-be-target-color
-      [ set color target-color ]
-      [ set color other-color ]
+    [ set color target-color ]
+    [ set color other-color ]
     st
-    ]
   ]
-  ;; num-target-color reports how many sample-dudes in the random sample are of the target color
-  set num-target-color count sample-dudes with [ color = target-color ]
 end
 
 ;; procedure in which the sample turtles create an enlarged duplicate on the left side of the view and this enlarged sample makes
@@ -229,7 +237,8 @@ to finish-off
   ;; creates local list of the colors of this specific sample, for instance the color combination of a 9-square,
   ;; beginning from its top-left corner and running to the right and then taking the next row and so on
   ;; might be "green green red green red green"
-  let sample-color-combination [ color ] of sample-dudes
+  ;; depends on the sample-dudes being created in a specific order inside of the sample procedure
+  let sample-color-combination map [ [ color ] of ? ] sort sample-dudes
 
   ;; determines which turtle lives at the bottom of the column where the sample is
   let this-column-kid one-of column-kids with [ column = [column] of token-sample-dude]
@@ -537,27 +546,27 @@ Note that for a 9-block there are 10 columns in the view.  This is because we ne
 
 ### Buttons
 
-'Setup' - prepares the view, including erasing the coloration from a previous run of the experiment.  
-'Go' - a forever button that runs the experiment according to the values you have set in the sliders.  
+'Setup' - prepares the view, including erasing the coloration from a previous run of the experiment.
+'Go' - a forever button that runs the experiment according to the values you have set in the sliders.
 'Go Once' - a button that runs the experiment only once.
 
 ### Sliders
 
-'side' - determines the size of the square sample arrays.  For instance, for a value of 3, the model will create a 3-by-3 square (9 turtles).  
+'side' - determines the size of the square sample arrays.  For instance, for a value of 3, the model will create a 3-by-3 square (9 turtles).
 'probability-to-be-target-color' - determines the chance of each turtle in the sample array to be green (or any other color you have set the model to).  A value of 50 means that each turtle has an equal chance of being green or blue, a value of 80 means that each turtle has a 80% chance of being green (so each has a 20% chance of being blue).
 
 ### Switches
 
-'keep-repeats?' - when "Off," each column will have only different combinations with no repetitions; when "On," there will most probably be repetitions in at least some of the columns.  (For 2-by-2 samples, there will be very rare cases that the whole sample space will be discovered without repetitions.  For 3-by-3 samples, the cases are so rare that you probably won't ever see it!! Actually, how rare are they?..)  
-'magnify?' - when "On," you get a larger version of the sample on the side.  This helps when you're working with very small patch sizes, such as when you want to have very tall columns so as to exhaust the sample space corresponding to the value of 'side,' e.g,. 512 for 'side = 3.'  
+'keep-repeats?' - when "Off," each column will have only different combinations with no repetitions; when "On," there will most probably be repetitions in at least some of the columns.  (For 2-by-2 samples, there will be very rare cases that the whole sample space will be discovered without repetitions.  For 3-by-3 samples, the cases are so rare that you probably won't ever see it!! Actually, how rare are they?..)
+'magnify?' - when "On," you get a larger version of the sample on the side.  This helps when you're working with very small patch sizes, such as when you want to have very tall columns so as to exhaust the sample space corresponding to the value of 'side,' e.g,. 512 for 'side = 3.'
 'stop-at-all-found?' - when "On," each run will end if all the different combinations have been discovered.  When "Off," the run will continue until one of the columns reaches the top.
 
 ### Monitors
 
-'#-target-color' - displays the total number of squares of target-color, e.g., 'green.'  
-'#-other-color' - displays the total number of squares of other-color, e.g., 'blue.'  
-'%-target-color' - displays as a percentage the proportion of target-color squares out of all colored squares.  
-'combinations found' - displays the proportion of the sample space that has been revealed  
+'#-target-color' - displays the total number of squares of target-color, e.g., 'green.'
+'#-other-color' - displays the total number of squares of other-color, e.g., 'blue.'
+'%-target-color' - displays as a percentage the proportion of target-color squares out of all colored squares.
+'combinations found' - displays the proportion of the sample space that has been revealed
 '?-blocks' shows the square of 'side.' So if 'side' is set to 3, '?-blocks' will show 9. This means that each sample of side 3 has 9 squares.
 
 ### Plots
@@ -586,9 +595,9 @@ Edit the view so that the y-axis value is 260 and the patch size is 1 pixel. Now
 
 ## EXTENDING THE MODEL
 
-Add monitors and/or graphs that will feature aspects of the experiments that are difficult to see in the current version.  For instance:  
-- How many samples does it take for the experiment to produce an all-green sample?  How is this dependent on the various settings?  
-- Are there more samples with an even number of green squares as compared to those with an odd number of green squares?  
+Add monitors and/or graphs that will feature aspects of the experiments that are difficult to see in the current version.  For instance:
+- How many samples does it take for the experiment to produce an all-green sample?  How is this dependent on the various settings?
+- Are there more samples with an even number of green squares as compared to those with an odd number of green squares?
 - How symmetrical is the histogram?  How would you define "symmetry?"  How would you quantify and display its change over time?
 
 ## NETLOGO FEATURES
