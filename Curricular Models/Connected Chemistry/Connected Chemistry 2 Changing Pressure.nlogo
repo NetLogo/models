@@ -851,7 +851,7 @@ false
 Rectangle -7500403 true true 0 0 300 300
 
 @#$#@#$#@
-NetLogo 5.0.4
+NetLogo 5.0.5
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
