@@ -1,5 +1,5 @@
 #!/usr/bin/env scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8
-!#
+//!#
 
 // find models that use continuous updates (instead of tick based)
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8
-!#
+//!#
 
 // find models with malformed interface tabs
 

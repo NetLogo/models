@@ -1,5 +1,5 @@
 #!/usr/bin/env scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8
-!#
+//!#
 
 // finds models that have first paragraphs of their WHAT IS IT? sections that are too long, or
 // otherwise malformed

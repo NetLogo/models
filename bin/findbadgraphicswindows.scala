@@ -1,5 +1,5 @@
 #!/usr/bin/env scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8
-!#
+//!#
 
 // finds models whose graphics windows' saved sizes don't match the size you should get if you
 // compute from the saved patch size and screen-edge-x/y
