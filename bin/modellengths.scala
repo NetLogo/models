@@ -1,5 +1,5 @@
 #!/usr/bin/env scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8
-//!#
+!#
 
 /// print and histogram the lengths of the Code tabs of all Sample Models
 import sys.process.Process

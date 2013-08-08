@@ -1,5 +1,5 @@
 #!/usr/bin/env scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8
-//!#
+!#
 
 // finds models with non-integer patch sizes (because yea, verily,
 // non-integer patch sizes are an abomination)

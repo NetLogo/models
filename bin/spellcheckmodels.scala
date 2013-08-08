@@ -1,5 +1,5 @@
 #!/usr/bin/env scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8
-//!#
+!#
 
 // finds models with spelling mistakes (because yea, verily,
 // spelling mistakes are an abomination unto the Lord)

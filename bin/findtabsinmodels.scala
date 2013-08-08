@@ -1,5 +1,5 @@
 #!/usr/bin/env scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8
-//!#
+!#
 
 // finds models with tabs anywhere in them
 // (because yea, verily, tabs are an abomination)

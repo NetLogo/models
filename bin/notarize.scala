@@ -1,5 +1,5 @@
 #!/usr/bin/env scala -classpath bin -deprecation -nocompdaemon -Dfile.encoding=UTF-8
-//!#
+!#
 
 /// Adds legal and academic notices to procedures and/or info tabs of all models.
 ///
