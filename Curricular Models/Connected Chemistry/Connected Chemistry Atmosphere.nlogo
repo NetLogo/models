@@ -103,13 +103,7 @@ to go
   ask particles [ bounce ]
   ask particles [ move ]
   if not any? particles [stop]  ;; particles can die when they float too high
-  if collide? [
-    ask particles with [dark-particle? = false]
-      [ check-for-collision-regular ]
-
-    ask particles with [dark-particle? = true]
-      [ check-for-collision-dark ]
-    ]
+  if collide? [ ask particles [ check-for-collision ] ]
   ifelse trace?
   [ if any? particles with [not dark-particle?]
     [ask min-one-of particles with [not dark-particle?] [who] [ pen-down ] ] ]
@@ -207,10 +201,7 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;from GasLab
 
-
-to check-for-collision-regular  ;; particle procedure
-  let candidate 0
-
+to check-for-collision ;; particle procedure
   ;; Here we impose a rule that collisions only take place when there
   ;; are exactly two particles per patch.  We do this because when the
   ;; student introduces new particles from the side, we want them to
@@ -242,77 +233,23 @@ to check-for-collision-regular  ;; particle procedure
   ;; the wavefront closely, you will see that it is not completely smooth,
   ;; because some collisions eventually do start occurring when it thins out while fanning.)
 
-  if count other particles-here with [dark-particle? = false] = 1
-  [
+  let candidates other particles-here with [ dark-particle? = [ dark-particle? ] of myself ]
+  if count candidates = 1 [
     ;; the following conditions are imposed on collision candidates:
-    ;;   1. they must have a lower who number than my own, because collision
-    ;;      code is asymmetrical: it must always happen from the point of view
-    ;;      of just one particle.
-    ;;   2. they must not be the same particle that we last collided with on
-    ;;      this patch, so that we have a chance to leave the patch after we've
-    ;;      collided with someone.
-    set candidate one-of other particles-here with
-      [who < [who] of myself and myself != last-collision and dark-particle? = false]
-    ;; we also only collide if one of us has non-zero speed. It's useless
-    ;; (and incorrect, actually) for two particles with zero speed to collide.
-    if (candidate != nobody) and (speed > 0 or [speed] of candidate > 0)
-    [
-      collide-with candidate
-      set last-collision candidate
-      ask candidate [ set last-collision myself ]
+    ;;  1. they must have a lower who number than my own, because collision
+    ;;     code is asymmetrical: it must always happen from the point of view
+    ;;     of just one particle.
+    ;;  2. they must not be the same particle that we last collided with on
+    ;;     this patch, so that we have a chance to leave the patch after we've
+    ;;     collided with someone.
+    ;;  3. we also only collide if one of us has non-zero speed. It's useless
+    ;;     (and incorrect, actually) for two particles with zero speed to collide.
+    let candidate one-of candidates with [
+      (who < [ who ] of myself) and
+      (last-collision != myself) and
+      (speed > 0 or [ speed ] of myself > 0)
     ]
-  ]
-end
-
-to check-for-collision-dark  ;; particle procedure
-  let candidate 0
-
-  ;; Here we impose a rule that collisions only take place when there
-  ;; are exactly two particles per patch.  We do this because when the
-  ;; student introduces new particles from the side, we want them to
-  ;; form a uniform wavefront.
-  ;;
-  ;; Why do we want a uniform wavefront?  Because it is actually more
-  ;; realistic.  (And also because the curriculum uses the uniform
-  ;; wavefront to help teach the relationship between particle collisions,
-  ;; wall hits, and pressure.)
-  ;;
-  ;; Why is it realistic to assume a uniform wavefront?  Because in reality,
-  ;; whether a collision takes place would depend on the actual headings
-  ;; of the particles, not merely on their proximity.  Since the particles
-  ;; in the wavefront have identical speeds and near-identical headings,
-  ;; in reality they would not collide.  So even though the two-particles
-  ;; rule is not itself realistic, it produces a realistic result.  Also,
-  ;; unless the number of particles is extremely large, it is very rare
-  ;; for three or more particles to land on the same patch (for example,
-  ;; with 400 particles it happens less than 1% of the time).  So imposing
-  ;; this additional rule should have only a negligible effect on the
-  ;; aggregate behavior of the system.
-  ;;
-  ;; Why does this rule produce a uniform wavefront?  The particles all
-  ;; start out on the same patch, which means that without the only-two
-  ;; rule, they would all start colliding with each other immediately,
-  ;; resulting in much random variation of speeds and headings.  With
-  ;; the only-two rule, they are prevented from colliding with each other
-  ;; until they have spread out a lot.  (And in fact, if you observe
-  ;; the wavefront closely, you will see that it is not completely smooth,
-  ;; because some collisions eventually do start occurring when it thins out while fanning.)
-
-  if count other particles-here with [dark-particle? = true] = 1
-  [
-    ;; the following conditions are imposed on collision candidates:
-    ;;   1. they must have a lower who number than my own, because collision
-    ;;      code is asymmetrical: it must always happen from the point of view
-    ;;      of just one particle.
-    ;;   2. they must not be the same particle that we last collided with on
-    ;;      this patch, so that we have a chance to leave the patch after we've
-    ;;      collided with someone.
-    set candidate one-of other particles-here with
-      [who < [who] of myself and myself != last-collision and dark-particle? = true]
-    ;; we also only collide if one of us has non-zero speed. It's useless
-    ;; (and incorrect, actually) for two particles with zero speed to collide.
-    if (candidate != nobody) and (speed > 0 or [speed] of candidate > 0)
-    [
+    if (candidate != nobody) [
       collide-with candidate
       set last-collision candidate
       ask candidate [ set last-collision myself ]
@@ -747,7 +684,7 @@ This basic model could be used to explore other situations where freely moving p
 
 Because of the influence of gravity, the particles follow curved paths.  Since NetLogo models time in discrete steps, these curved paths must be approximated with a series of short straight lines.  This is the source of a slight inaccuracy where the particles gradually lose energy if the model runs for a long time.  The effect is as though the collisions with the ground were slightly inelastic.  Increasing the variable "vsplit" can reduce the inaccuracy, but the model will run slower.
 
-The Connected Chemistry models include invisible dark particles (the "dark-particles" breed), which only interact with each other and the walls of the yellow box. The inclusion of dark particles ensures that the speed of simulation remains constant, regardless of the number of particles visible in the simulation.
+The Connected Chemistry models include invisible dark particles (those with `dark-particle? = true`), which only interact with each other and the walls of the yellow box. The inclusion of dark particles ensures that the speed of simulation remains constant, regardless of the number of particles visible in the simulation.
 
 For example, if a model is limited to a maximum of 400 particles, then when there are 10 visible particles, there are 390 dark particles and when there are 400 visible particles, there are 0 dark particles.  The total number of particles in both cases remains 400, and the computational load of calculating what each of these particles does (collides, bounces, etc...) is close to the same.  Without dark particles, it would seem that small numbers of particles are faster than large numbers of particles -- when in reality, it is simply a reflection of the computational load.  Such behavior would encourage student misconceptions related to particle behavior.
 
