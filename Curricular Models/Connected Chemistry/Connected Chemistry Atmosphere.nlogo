@@ -103,10 +103,13 @@ to go
   ask particles [ bounce ]
   ask particles [ move ]
   if not any? particles [stop]  ;; particles can die when they float too high
-  if collide?
-  [
-    ask particles [ check-for-collision ]
-  ]
+  if collide? [
+    ask particles with [dark-particle? = false]
+      [ check-for-collision-regular ]
+
+    ask particles with [dark-particle? = true]
+      [ check-for-collision-dark ]
+    ]
   ifelse trace?
   [ if any? particles with [not dark-particle?]
     [ask min-one-of particles with [not dark-particle?] [who] [ pen-down ] ] ]
@@ -205,12 +208,41 @@ end
 ;;from GasLab
 
 
-to check-for-collision  ;; particle procedure
-  ;; Here we impose a rule that collisions only take place when there
-  ;; are exactly two particles per patch.
+to check-for-collision-regular  ;; particle procedure
+  let candidate 0
 
-  let potentials other particles-here
-  if any? potentials
+  ;; Here we impose a rule that collisions only take place when there
+  ;; are exactly two particles per patch.  We do this because when the
+  ;; student introduces new particles from the side, we want them to
+  ;; form a uniform wavefront.
+  ;;
+  ;; Why do we want a uniform wavefront?  Because it is actually more
+  ;; realistic.  (And also because the curriculum uses the uniform
+  ;; wavefront to help teach the relationship between particle collisions,
+  ;; wall hits, and pressure.)
+  ;;
+  ;; Why is it realistic to assume a uniform wavefront?  Because in reality,
+  ;; whether a collision takes place would depend on the actual headings
+  ;; of the particles, not merely on their proximity.  Since the particles
+  ;; in the wavefront have identical speeds and near-identical headings,
+  ;; in reality they would not collide.  So even though the two-particles
+  ;; rule is not itself realistic, it produces a realistic result.  Also,
+  ;; unless the number of particles is extremely large, it is very rare
+  ;; for three or more particles to land on the same patch (for example,
+  ;; with 400 particles it happens less than 1% of the time).  So imposing
+  ;; this additional rule should have only a negligible effect on the
+  ;; aggregate behavior of the system.
+  ;;
+  ;; Why does this rule produce a uniform wavefront?  The particles all
+  ;; start out on the same patch, which means that without the only-two
+  ;; rule, they would all start colliding with each other immediately,
+  ;; resulting in much random variation of speeds and headings.  With
+  ;; the only-two rule, they are prevented from colliding with each other
+  ;; until they have spread out a lot.  (And in fact, if you observe
+  ;; the wavefront closely, you will see that it is not completely smooth,
+  ;; because some collisions eventually do start occurring when it thins out while fanning.)
+
+  if count other particles-here with [dark-particle? = false] = 1
   [
     ;; the following conditions are imposed on collision candidates:
     ;;   1. they must have a lower who number than my own, because collision
@@ -219,8 +251,8 @@ to check-for-collision  ;; particle procedure
     ;;   2. they must not be the same particle that we last collided with on
     ;;      this patch, so that we have a chance to leave the patch after we've
     ;;      collided with someone.
-    let candidate one-of potentials with
-      [ who < [who] of myself and myself != last-collision]
+    set candidate one-of other particles-here with
+      [who < [who] of myself and myself != last-collision and dark-particle? = false]
     ;; we also only collide if one of us has non-zero speed. It's useless
     ;; (and incorrect, actually) for two particles with zero speed to collide.
     if (candidate != nobody) and (speed > 0 or [speed] of candidate > 0)
@@ -230,7 +262,62 @@ to check-for-collision  ;; particle procedure
       ask candidate [ set last-collision myself ]
     ]
   ]
+end
 
+to check-for-collision-dark  ;; particle procedure
+  let candidate 0
+
+  ;; Here we impose a rule that collisions only take place when there
+  ;; are exactly two particles per patch.  We do this because when the
+  ;; student introduces new particles from the side, we want them to
+  ;; form a uniform wavefront.
+  ;;
+  ;; Why do we want a uniform wavefront?  Because it is actually more
+  ;; realistic.  (And also because the curriculum uses the uniform
+  ;; wavefront to help teach the relationship between particle collisions,
+  ;; wall hits, and pressure.)
+  ;;
+  ;; Why is it realistic to assume a uniform wavefront?  Because in reality,
+  ;; whether a collision takes place would depend on the actual headings
+  ;; of the particles, not merely on their proximity.  Since the particles
+  ;; in the wavefront have identical speeds and near-identical headings,
+  ;; in reality they would not collide.  So even though the two-particles
+  ;; rule is not itself realistic, it produces a realistic result.  Also,
+  ;; unless the number of particles is extremely large, it is very rare
+  ;; for three or more particles to land on the same patch (for example,
+  ;; with 400 particles it happens less than 1% of the time).  So imposing
+  ;; this additional rule should have only a negligible effect on the
+  ;; aggregate behavior of the system.
+  ;;
+  ;; Why does this rule produce a uniform wavefront?  The particles all
+  ;; start out on the same patch, which means that without the only-two
+  ;; rule, they would all start colliding with each other immediately,
+  ;; resulting in much random variation of speeds and headings.  With
+  ;; the only-two rule, they are prevented from colliding with each other
+  ;; until they have spread out a lot.  (And in fact, if you observe
+  ;; the wavefront closely, you will see that it is not completely smooth,
+  ;; because some collisions eventually do start occurring when it thins out while fanning.)
+
+  if count other particles-here with [dark-particle? = true] = 1
+  [
+    ;; the following conditions are imposed on collision candidates:
+    ;;   1. they must have a lower who number than my own, because collision
+    ;;      code is asymmetrical: it must always happen from the point of view
+    ;;      of just one particle.
+    ;;   2. they must not be the same particle that we last collided with on
+    ;;      this patch, so that we have a chance to leave the patch after we've
+    ;;      collided with someone.
+    set candidate one-of other particles-here with
+      [who < [who] of myself and myself != last-collision and dark-particle? = true]
+    ;; we also only collide if one of us has non-zero speed. It's useless
+    ;; (and incorrect, actually) for two particles with zero speed to collide.
+    if (candidate != nobody) and (speed > 0 or [speed] of candidate > 0)
+    [
+      collide-with candidate
+      set last-collision candidate
+      ask candidate [ set last-collision myself ]
+    ]
+  ]
 end
 
 
