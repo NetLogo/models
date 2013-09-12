@@ -26,7 +26,6 @@ to setup
   setup-world
   set temperature 12
   reset-ticks
-  plot temperature
 end
 
 to setup-world
@@ -60,7 +59,6 @@ to go
   run-IR    ;; step IR
   run-CO2   ;; moves CO2 molecules
   tick
-  plot temperature
 end
 
 to update-albedo ;; patch procedure
@@ -325,7 +323,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -2674135 true "" ""
+"default" 1.0 0 -2674135 true "" "plot temperature"
 
 BUTTON
 7
