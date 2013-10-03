@@ -1,4 +1,5 @@
 ;; Tortoise issue numbers that required workarounds in this model:
+;; #5 (set-default-shape)
 ;; #6 (sliders)
 
 globals [
@@ -23,11 +24,6 @@ clouds-own [cloud-speed cloud-id]
 
 to setup
   clear-all
-  set-default-shape rays "ray"
-  set-default-shape IRs "ray"
-  set-default-shape clouds "cloud"
-  set-default-shape heats "dot"
-  set-default-shape CO2s "CO2-molecule"
   setup-sliders
   setup-world
   set temperature 12
@@ -93,6 +89,7 @@ to add-cloud            ;; erase clouds and then create new ones, plus one
 
   create-clouds 3 + random 20
   [
+    set shape "cloud"
     set cloud-speed speed
     set cloud-id id
     ;; all the cloud turtles in each larger cloud should
@@ -133,6 +130,7 @@ to create-sunshine
   ;; as brightness gets higher make more
   if 10 * sun-brightness > random 50 [
     create-rays 1 [
+      set shape "ray"
       set heading 160
       set color yellow
       ;; rays only come from a small area
@@ -156,7 +154,8 @@ to encounter-earth
       [ set heading 180 - heading  ] ;; reflect
       [ rt random 45 - random 45 ;; absorb into the earth
         set color red - 2 + random 4
-        set breed heats ]
+        set breed heats
+        set shape "dot"]
   ]
 end
 
@@ -176,6 +175,7 @@ to run-heat    ;; advances the heat energy turtles
               ;; to the rate at which heat can be lost
               and xcor > 0 and xcor < max-pxcor - 8
         [ set breed IRs                    ;; let some escape as IR
+          set shape "ray"
           set heading 20
           set color magenta ]
         [ set heading 100 + random 160 ] ;; return them to earth
@@ -189,6 +189,7 @@ to run-IR
     fd 0.3
     if ycor <= earth-top [   ;; convert to heat if we hit the earth's surface again
       set breed heats
+      set shape "dot"
       rt random 45
       lt random 45
       set color red - 2 + random 4
@@ -201,6 +202,7 @@ end
 to add-CO2  ;; randomly adds 25 CO2 molecules to atmosphere
   let sky-height sky-top - earth-top
   create-CO2s 25 [
+    set shape "CO2-molecule"
     set color green
     ;; pick a random position in the sky area
     setxy random-xcor
