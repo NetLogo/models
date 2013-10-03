@@ -4,7 +4,6 @@
 ;; #6 (sliders)
 ;; #7 (vertical cylinder)
 ;; #8 (random-normal)
-;; #9 (capital letters in shape names)
 ;; #10 (turtle death)
 
 ;; other issues:
