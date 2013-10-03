@@ -1,6 +1,7 @@
 ;; Tortoise issue numbers that required workarounds in this model:
 ;; #5 (set-default-shape)
 ;; #6 (sliders)
+;; #8 (random-normal)
 ;; #9 (capital letters in shape names)
 
 ;; other issues:
@@ -103,7 +104,7 @@ to add-cloud            ;; erase clouds and then create new ones, plus one
     setxy x + random 9 - 4
           ;; the clouds should generally be clustered around the
           ;; center with occasional larger variations
-          y + random-normal 2.5 1
+          y + my-random-normal 2.5 1
     set color white
     ;; varying size is also purely for visualization
     ;; since we're only doing patch-based collisions
@@ -232,6 +233,13 @@ to run-CO2
       [ set heading 180 - heading ]
     fd dist ;; move forward a bit
   ]
+end
+
+;;; compensate for lack of random-normal in Tortoise
+
+to-report my-random-normal [center sdev]
+  ;; not a bell curve, just a triangle
+  report center - random-float sdev + random-float sdev
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
