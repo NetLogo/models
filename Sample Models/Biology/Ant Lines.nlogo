@@ -25,7 +25,7 @@ to setup
       die
     ]
   ]
-  ;; draw the nest in orange by stamping a circular
+  ;; draw the food in orange by stamping a circular
   ;; orange turtle
   ask patch food-x food-y [
     sprout 1 [
