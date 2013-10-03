@@ -2,6 +2,7 @@
 ;; #4 (breeds)
 ;; #5 (set-default-shape)
 ;; #6 (sliders)
+;; #7 (vertical cylinder)
 ;; #8 (random-normal)
 ;; #9 (capital letters in shape names)
 ;; #10 (turtle death)
@@ -124,7 +125,7 @@ end
 
 to run-sunshine
   ask rays [
-    if not can-move? 0.3 [ die ]  ;; kill them off at the edge
+    if not my-can-move? 0.3 [ die ]  ;; kill them off at the edge
   ]
   ask rays [
     fd 0.3                        ;; otherwise keep moving
@@ -175,7 +176,7 @@ to run-heat    ;; advances the heat energy turtles
   ask heats
   [
     let dist 0.5 * random-float 1
-    ifelse can-move? dist
+    ifelse my-can-move? dist
       [ fd dist ]
       [ set heading 180 - heading ] ;; if we're hitting the edge of the world, turn around
     if ycor >= earth-top [  ;; if heading back into sky
@@ -195,7 +196,7 @@ end
 
 to run-IR
   ask IRs [
-    if not can-move? 0.3 [ die ]
+    if not my-can-move? 0.3 [ die ]
   ]
   ask IRs [
     fd 0.3
@@ -270,6 +271,16 @@ to-report IRs
   report turtles with [kind = "IR"]
 end
 
+;;; compensate for lack of can-move? in Tortoise
+
+;; this is only just good enough for this model only
+to-report my-can-move? [amount]
+  let new-y ycor + amount * cos heading
+  ifelse ycor > 0
+    [ report new-y < max-pycor + 0.5 ]
+    [ report new-y >= min-pycor - 0.5 ]
+end
+
 ;;; compensate for lack of random-normal in Tortoise
 
 to-report my-random-normal [center sdev]
@@ -292,7 +303,7 @@ GRAPHICS-WINDOW
 1
 0
 1
-0
+1
 1
 -24
 24
