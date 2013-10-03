@@ -1,12 +1,18 @@
-globals [grass]  ;; keep track of how much grass there is
-;; Sheep and wolves are both breeds of turtle.
-breed [sheep a-sheep]  ;; sheep is its own plural, so we use "a-sheep" as the singular.
-breed [wolves wolf]
-turtles-own [energy]       ;; both wolves and sheep have energy
+globals [grass grass? grass-regrowth-time initial-number-sheep initial-number-wolves sheep-gain-from-food wolf-gain-from-food sheep-reproduce wolf-reproduce show-energy?]
+turtles-own [energy kind]       ;; both wolves and sheep have energy
 patches-own [countdown]
 
 to setup
   clear-all
+  set grass? true
+  set grass-regrowth-time 30
+  set initial-number-sheep 100
+  set initial-number-wolves 50
+  set sheep-gain-from-food 4
+  set wolf-gain-from-food 20
+  set sheep-reproduce 4
+  set wolf-reproduce 5
+  set show-energy? false
   ask patches [ set pcolor green ]
   ;; check GRASS? switch.
   ;; if it is true, then grass grows and the sheep eat it
@@ -19,18 +25,20 @@ to setup
         [ set countdown random grass-regrowth-time ] ;; initialize grass grow clocks randomly for brown patches
     ]
   ]
-  set-default-shape sheep "sheep"
-  create-sheep initial-number-sheep  ;; create the sheep, then initialize their variables
+  create-turtles initial-number-sheep  ;; create the sheep, then initialize their variables
   [
+    set kind "sheep"
+    set shape "sheep"
     set color white
     set size 1.5  ;; easier to see
     set label-color blue - 2
     set energy random (2 * sheep-gain-from-food)
     setxy random-xcor random-ycor
   ]
-  set-default-shape wolves "wolf"
-  create-wolves initial-number-wolves  ;; create the wolves, then initialize their variables
+  create-turtles initial-number-wolves  ;; create the wolves, then initialize their variables
   [
+    set kind "wolf"
+    set shape "wolf"
     set color black
     set size 2  ;; easier to see
     set energy random (2 * wolf-gain-from-food)
@@ -42,7 +50,7 @@ to setup
 end
 
 to go
-  if not any? turtles [ stop ]
+  ;; if not any? turtles [ stop ]
   ask sheep [
     move
     if grass? [
@@ -50,14 +58,14 @@ to go
       eat-grass
     ]
     death
-    reproduce-sheep
+    ;; TODO reproduce-sheep
   ]
   ask wolves [
     move
     set energy energy - 1  ;; wolves lose energy as they move
-    catch-sheep
+    ;; TODO catch-sheep
     death
-    reproduce-wolves
+    ;; TODO reproduce-wolves
   ]
   if grass? [ ask patches [ grow-grass ] ]
   set grass count patches with [pcolor = green]
@@ -82,14 +90,14 @@ end
 to reproduce-sheep  ;; sheep procedure
   if random-float 100 < sheep-reproduce [  ;; throw "dice" to see if you will reproduce
     set energy (energy / 2)                ;; divide energy between parent and offspring
-    hatch 1 [ rt random-float 360 fd 1 ]   ;; hatch an offspring and move it forward 1 step
+    ;; hatch 1 [ rt random-float 360 fd 1 ]   ;; hatch an offspring and move it forward 1 step
   ]
 end
 
 to reproduce-wolves  ;; wolf procedure
   if random-float 100 < wolf-reproduce [  ;; throw "dice" to see if you will reproduce
     set energy (energy / 2)               ;; divide energy between parent and offspring
-    hatch 1 [ rt random-float 360 fd 1 ]  ;; hatch an offspring and move it forward 1 step
+    ;; hatch 1 [ rt random-float 360 fd 1 ]  ;; hatch an offspring and move it forward 1 step
   ]
 end
 
@@ -122,6 +130,22 @@ to display-labels
     if grass? [ ask sheep [ set label round energy ] ]
   ]
 end
+
+;;; compensate for lack of breeds in Tortoise
+
+to-report sheep
+  report turtles with [kind = "sheep"]
+end
+to-report sheep-here
+  report turtles-here with [kind = "sheep"]
+end
+
+to-report wolves
+  report turtles with [kind = "wolf"]
+end
+to-report wolves-here
+  report turtles-here with [kind = "wolf"]
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 350
@@ -149,122 +173,6 @@ GRAPHICS-WINDOW
 1
 ticks
 30.0
-
-SLIDER
-3
-150
-177
-183
-initial-number-sheep
-initial-number-sheep
-0
-250
-100
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-3
-187
-177
-220
-sheep-gain-from-food
-sheep-gain-from-food
-0.0
-50.0
-4
-1.0
-1
-NIL
-HORIZONTAL
-
-SLIDER
-3
-222
-177
-255
-sheep-reproduce
-sheep-reproduce
-1.0
-20.0
-4
-1.0
-1
-%
-HORIZONTAL
-
-SLIDER
-181
-150
-346
-183
-initial-number-wolves
-initial-number-wolves
-0
-250
-50
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-181
-186
-346
-219
-wolf-gain-from-food
-wolf-gain-from-food
-0.0
-100.0
-20
-1.0
-1
-NIL
-HORIZONTAL
-
-SLIDER
-181
-222
-346
-255
-wolf-reproduce
-wolf-reproduce
-0.0
-20.0
-5
-1.0
-1
-%
-HORIZONTAL
-
-SWITCH
-5
-87
-99
-120
-grass?
-grass?
-1
-1
--1000
-
-SLIDER
-106
-88
-318
-121
-grass-regrowth-time
-grass-regrowth-time
-0
-100
-30
-1
-1
-NIL
-HORIZONTAL
 
 BUTTON
 8
@@ -383,95 +291,7 @@ Grass settings
 0.0
 0
 
-SWITCH
-167
-28
-303
-61
-show-energy?
-show-energy?
-1
-1
--1000
-
 @#$#@#$#@
-## WHAT IS IT?
-
-This model explores the stability of predator-prey ecosystems. Such a system is called unstable if it tends to result in extinction for one or more species involved.  In contrast, a system is stable if it tends to maintain itself over time, despite fluctuations in population sizes.
-
-## HOW IT WORKS
-
-There are two main variations to this model.
-
-In the first variation, wolves and sheep wander randomly around the landscape, while the wolves look for sheep to prey on. Each step costs the wolves energy, and they must eat sheep in order to replenish their energy - when they run out of energy they die. To allow the population to continue, each wolf or sheep has a fixed probability of reproducing at each time step. This variation produces interesting population dynamics, but is ultimately unstable.
-
-The second variation includes grass (green) in addition to wolves and sheep. The behavior of the wolves is identical to the first variation, however this time the sheep must eat grass in order to maintain their energy - when they run out of energy they die. Once grass is eaten it will only regrow after a fixed amount of time. This variation is more complex than the first, but it is generally stable.
-
-The construction of this model is described in two papers by Wilensky & Reisman referenced below.
-
-## HOW TO USE IT
-
-1. Set the GRASS? switch to TRUE to include grass in the model, or to FALSE to only include wolves (red) and sheep (white).
-2. Adjust the slider parameters (see below), or use the default settings.
-3. Press the SETUP button.
-4. Press the GO button to begin the simulation.
-5. Look at the monitors to see the current population sizes
-6. Look at the POPULATIONS plot to watch the populations fluctuate over time
-
-Parameters:
-INITIAL-NUMBER-SHEEP: The initial size of sheep population
-INITIAL-NUMBER-WOLVES: The initial size of wolf population
-SHEEP-GAIN-FROM-FOOD: The amount of energy sheep get for every grass patch eaten
-WOLF-GAIN-FROM-FOOD: The amount of energy wolves get for every sheep eaten
-SHEEP-REPRODUCE: The probability of a sheep reproducing at each time step
-WOLF-REPRODUCE: The probability of a wolf reproducing at each time step
-GRASS?: Whether or not to include grass in the model
-GRASS-REGROWTH-TIME: How long it takes for grass to regrow once it is eaten
-SHOW-ENERGY?: Whether or not to show the energy of each animal as a number
-
-Notes:
-- one unit of energy is deducted for every step a wolf takes
-- when grass is included, one unit of energy is deducted for every step a sheep takes
-
-## THINGS TO NOTICE
-
-When grass is not included, watch as the sheep and wolf populations fluctuate. Notice that increases and decreases in the sizes of each population are related. In what way are they related? What eventually happens?
-
-Once grass is added, notice the green line added to the population plot representing fluctuations in the amount of grass. How do the sizes of the three populations appear to relate now? What is the explanation for this?
-
-Why do you suppose that some variations of the model might be stable while others are not?
-
-## THINGS TO TRY
-
-Try adjusting the parameters under various settings. How sensitive is the stability of the model to the particular parameters?
-
-Can you find any parameters that generate a stable ecosystem that includes only wolves and sheep?
-
-Try setting GRASS? to TRUE, but setting INITIAL-NUMBER-WOLVES to 0. This gives a stable ecosystem with only sheep and grass. Why might this be stable while the variation with only sheep and wolves is not?
-
-Notice that under stable settings, the populations tend to fluctuate at a predictable pace. Can you find any parameters that will speed this up or slow it down?
-
-Try changing the reproduction rules -- for example, what would happen if reproduction depended on energy rather than being determined by a fixed probability?
-
-## EXTENDING THE MODEL
-
-There are a number ways to alter the model so that it will be stable with only wolves and sheep (no grass). Some will require new elements to be coded in or existing behaviors to be changed. Can you develop such a version?
-
-## NETLOGO FEATURES
-
-Note the use of breeds to model two different kinds of "turtles": wolves and sheep. Note the use of patches to model grass.
-
-Note use of the ONE-OF agentset reporter to select a random sheep to be eaten by a wolf.
-
-## RELATED MODELS
-
-Look at Rabbits Grass Weeds for another model of interacting populations with different rules.
-
-## CREDITS AND REFERENCES
-
-Wilensky, U. & Reisman, K. (1999). Connected Science: Learning Biology through Constructing and Testing Computational Theories -- an Embodied Modeling Approach. International Journal of Complex Systems, M. 234, pp. 1 - 12. (This model is a slightly extended version of the model described in the paper.)
-
-Wilensky, U. & Reisman, K. (2006). Thinking like a Wolf, a Sheep or a Firefly: Learning Biology through Constructing and Testing Computational Theories -- an Embodied Modeling Approach. Cognition & Instruction, 24(2), pp. 171-209. http://ccl.northwestern.edu/papers/wolfsheep.pdf
 @#$#@#$#@
 default
 true
@@ -779,7 +599,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.5
+NetLogo 5.0.4
 @#$#@#$#@
 setup
 set grass? true
