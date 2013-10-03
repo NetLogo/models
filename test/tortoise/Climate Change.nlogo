@@ -214,7 +214,7 @@ to add-CO2  ;; randomly adds 25 CO2 molecules to atmosphere
   let sky-height sky-top - earth-top
   create-turtles 25 [
     set kind "CO2"
-    set shape "co2-molecule"
+    set shape "CO2-molecule"
     set color green
     ;; pick a random position in the sky area
     setxy random-xcor
