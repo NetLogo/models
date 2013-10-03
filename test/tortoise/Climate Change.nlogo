@@ -1,6 +1,7 @@
 ;; Tortoise issue numbers that required workarounds in this model:
 ;; #5 (set-default-shape)
 ;; #6 (sliders)
+;; #9 (capital letters in shape names)
 
 globals [
   sky-top      ;; y coordinate of top row of sky
@@ -202,7 +203,7 @@ end
 to add-CO2  ;; randomly adds 25 CO2 molecules to atmosphere
   let sky-height sky-top - earth-top
   create-CO2s 25 [
-    set shape "CO2-molecule"
+    set shape "co2-molecule"
     set color green
     ;; pick a random position in the sky area
     setxy random-xcor
