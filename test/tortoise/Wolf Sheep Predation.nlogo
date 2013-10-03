@@ -1,3 +1,13 @@
+;; bugs:
+;; - TODO: reproduction commented out
+;; - TODO: predation commented out
+;; workarounds:
+;; - sliders and switches replaced with global variables
+;; - no set-default-shape, use "set shape" instead
+;; - breeds removed:
+;;   - use a string "kind" instead
+;; - stop condition commented out
+
 globals [grass grass? grass-regrowth-time initial-number-sheep initial-number-wolves sheep-gain-from-food wolf-gain-from-food sheep-reproduce wolf-reproduce show-energy?]
 turtles-own [energy kind]       ;; both wolves and sheep have energy
 patches-own [countdown]
