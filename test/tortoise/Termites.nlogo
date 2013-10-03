@@ -1,11 +1,16 @@
+;; workarounds:
+;; - #6 (sliders)
+
 turtles-own [next steps]
 
 to setup
   clear-all
+  set density 20
+  set number 50
   ask patches [
-    if random 100 < 20
+    if random 100 < density
       [ set pcolor yellow ] ]
-  create-turtles 50 [
+  create-turtles number [
     set color white
     setxy random-xcor random-ycor
     set size 3
@@ -66,9 +71,9 @@ to get-away
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
+236
 10
-598
+624
 419
 10
 10
@@ -93,10 +98,10 @@ ticks
 30.0
 
 BUTTON
-60
-59
-126
-92
+43
+120
+109
+153
 NIL
 setup
 NIL
@@ -110,10 +115,10 @@ NIL
 1
 
 BUTTON
-94
-113
-157
-146
+116
+120
+179
+153
 NIL
 go
 T
@@ -125,6 +130,36 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+8
+39
+219
+72
+number
+number
+1
+1000
+400
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+8
+73
+219
+106
+density
+density
+0.0
+100.0
+20
+1.0
+1
+%
+HORIZONTAL
 
 @#$#@#$#@
 @#$#@#$#@

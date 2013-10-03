@@ -15,8 +15,6 @@ globals [
   sky-top      ;; y coordinate of top row of sky
   earth-top    ;; y coordinate of top row of earth
   temperature  ;; overall temperature
-  sun-brightness ;; slider
-  albedo         ;; slider
 ]
 
 turtles-own [
@@ -348,6 +346,36 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+18
+47
+191
+80
+sun-brightness
+sun-brightness
+0
+5
+1
+0.2
+1
+NIL
+HORIZONTAL
+
+SLIDER
+18
+82
+191
+115
+albedo
+albedo
+0
+1
+0.6
+0.05
+1
+NIL
+HORIZONTAL
 
 PLOT
 9

@@ -2,13 +2,13 @@
 ;; - TODO: reproduction commented out
 ;; - TODO: predation commented out
 ;; workarounds:
-;; - sliders and switches replaced with global variables
+;; - slider and switch initial values set with code
 ;; - no set-default-shape, use "set shape" instead
 ;; - breeds removed:
 ;;   - use a string "kind" instead
 ;; - stop condition commented out
 
-globals [grass grass? grass-regrowth-time initial-number-sheep initial-number-wolves sheep-gain-from-food wolf-gain-from-food sheep-reproduce wolf-reproduce show-energy?]
+globals [grass]
 turtles-own [energy kind]       ;; both wolves and sheep have energy
 patches-own [countdown]
 
@@ -184,6 +184,122 @@ GRAPHICS-WINDOW
 ticks
 30.0
 
+SLIDER
+3
+150
+177
+183
+initial-number-sheep
+initial-number-sheep
+0
+250
+100
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+3
+187
+177
+220
+sheep-gain-from-food
+sheep-gain-from-food
+0.0
+50.0
+4
+1.0
+1
+NIL
+HORIZONTAL
+
+SLIDER
+3
+222
+177
+255
+sheep-reproduce
+sheep-reproduce
+1.0
+20.0
+4
+1.0
+1
+%
+HORIZONTAL
+
+SLIDER
+181
+150
+346
+183
+initial-number-wolves
+initial-number-wolves
+0
+250
+50
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+181
+186
+346
+219
+wolf-gain-from-food
+wolf-gain-from-food
+0.0
+100.0
+20
+1.0
+1
+NIL
+HORIZONTAL
+
+SLIDER
+181
+222
+346
+255
+wolf-reproduce
+wolf-reproduce
+0.0
+20.0
+5
+1.0
+1
+%
+HORIZONTAL
+
+SWITCH
+5
+87
+99
+120
+grass?
+grass?
+1
+1
+-1000
+
+SLIDER
+106
+88
+318
+121
+grass-regrowth-time
+grass-regrowth-time
+0
+100
+30
+1
+1
+NIL
+HORIZONTAL
+
 BUTTON
 8
 28
@@ -300,6 +416,17 @@ Grass settings
 11
 0.0
 0
+
+SWITCH
+167
+28
+303
+61
+show-energy?
+show-energy?
+1
+1
+-1000
 
 @#$#@#$#@
 @#$#@#$#@
