@@ -1,7 +1,12 @@
+;; Tortoise issue numbers that required workarounds in this model:
+;; #6 (sliders)
+
 globals [
   sky-top      ;; y coordinate of top row of sky
   earth-top    ;; y coordinate of top row of earth
   temperature  ;; overall temperature
+  sun-brightness ;; slider
+  albedo         ;; slider
 ]
 
 breed [rays ray]     ;; packets of sunlight
@@ -23,9 +28,15 @@ to setup
   set-default-shape clouds "cloud"
   set-default-shape heats "dot"
   set-default-shape CO2s "CO2-molecule"
+  setup-sliders
   setup-world
   set temperature 12
   reset-ticks
+end
+
+to setup-sliders
+  set sun-brightness 1.0
+  set albedo 0.60
 end
 
 to setup-world
@@ -276,36 +287,6 @@ NIL
 NIL
 NIL
 1
-
-SLIDER
-18
-47
-191
-80
-sun-brightness
-sun-brightness
-0
-5
-1
-0.2
-1
-NIL
-HORIZONTAL
-
-SLIDER
-18
-82
-191
-115
-albedo
-albedo
-0
-1
-0.6
-0.05
-1
-NIL
-HORIZONTAL
 
 PLOT
 9
