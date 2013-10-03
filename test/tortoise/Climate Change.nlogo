@@ -3,6 +3,10 @@
 ;; #6 (sliders)
 ;; #9 (capital letters in shape names)
 
+;; other issues:
+;; #11 (slow turtles-here)
+;; #12 (plots and monitors not docked/tested)
+
 globals [
   sky-top      ;; y coordinate of top row of sky
   earth-top    ;; y coordinate of top row of earth
