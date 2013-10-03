@@ -2,7 +2,6 @@
 ;; - TODO: reproduction commented out
 ;; - TODO: predation commented out
 ;; workarounds:
-;; - slider and switch initial values set with code
 ;; - no set-default-shape, use "set shape" instead
 ;; - breeds removed:
 ;;   - use a string "kind" instead
@@ -15,14 +14,6 @@ patches-own [countdown]
 to setup
   clear-all
   set grass? true
-  set grass-regrowth-time 30
-  set initial-number-sheep 100
-  set initial-number-wolves 50
-  set sheep-gain-from-food 4
-  set wolf-gain-from-food 20
-  set sheep-reproduce 4
-  set wolf-reproduce 5
-  set show-energy? false
   ask patches [ set pcolor green ]
   ;; check GRASS? switch.
   ;; if it is true, then grass grows and the sheep eat it

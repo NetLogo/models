@@ -1,7 +1,6 @@
 ;; Tortoise issue numbers that required workarounds in this model:
 ;; #4 (breeds)
 ;; #5 (set-default-shape)
-;; #6 (sliders)
 ;; #7 (vertical cylinder)
 ;; #8 (random-normal)
 ;; #10 (turtle death)
@@ -28,15 +27,9 @@ turtles-own [
 
 to setup
   clear-all
-  setup-sliders
   setup-world
   set temperature 12
   reset-ticks
-end
-
-to setup-sliders
-  set sun-brightness 1.0
-  set albedo 0.60
 end
 
 to setup-world

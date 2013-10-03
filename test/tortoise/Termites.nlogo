@@ -1,12 +1,7 @@
-;; workarounds:
-;; - #6 (sliders)
-
 turtles-own [next steps]
 
 to setup
   clear-all
-  set density 20
-  set number 50
   ask patches [
     if random 100 < density
       [ set pcolor yellow ] ]
