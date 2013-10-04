@@ -90,7 +90,7 @@ to add-cloud            ;; erase clouds and then create new ones, plus one
     setxy x + random 9 - 4
           ;; the clouds should generally be clustered around the
           ;; center with occasional larger variations
-          y + random-normal 2.5 1
+          y + 2.5 + random-float 2 - random-float 2
     set color white
     ;; varying size is also purely for visualization
     ;; since we're only doing patch-based collisions
