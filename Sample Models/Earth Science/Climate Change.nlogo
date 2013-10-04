@@ -275,7 +275,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 18
@@ -340,7 +340,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 104
@@ -357,7 +357,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 MONITOR
 210
@@ -385,7 +385,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 104
@@ -402,7 +402,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 MONITOR
 210
@@ -430,7 +430,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
