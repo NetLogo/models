@@ -2,7 +2,6 @@
 ;; #4 (breeds)
 ;; #5 (set-default-shape)
 ;; #7 (vertical cylinder)
-;; #8 (random-normal)
 ;; #10 (turtle death)
 
 ;; other issues:
@@ -96,7 +95,7 @@ to add-cloud            ;; erase clouds and then create new ones, plus one
     setxy x + random 9 - 4
           ;; the clouds should generally be clustered around the
           ;; center with occasional larger variations
-          y + my-random-normal 2.5 1
+          y + 2.5 + random-float 2 - random-float 2
     set color white
     ;; varying size is also purely for visualization
     ;; since we're only doing patch-based collisions
@@ -270,13 +269,6 @@ to-report my-can-move? [amount]
     [ report new-y < max-pycor + 0.5 ]
     [ report new-y >= min-pycor - 0.5 ]
 end
-
-;;; compensate for lack of random-normal in Tortoise
-
-to-report my-random-normal [center sdev]
-  ;; not a bell curve, just a triangle
-  report center - random-float sdev + random-float sdev
-end
 @#$#@#$#@
 GRAPHICS-WINDOW
 317
@@ -337,7 +329,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 18
@@ -402,7 +394,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 104
@@ -419,7 +411,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 MONITOR
 210
@@ -447,7 +439,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 104
@@ -464,7 +456,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 MONITOR
 210
@@ -492,7 +484,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
