@@ -1,7 +1,7 @@
 ;; bugs:
-;; - TODO: reproduction commented out
 ;; - TODO: predation commented out
 ;; workarounds:
+;; - #10 (turtle death)
 ;; - no set-default-shape, use "set shape" instead
 ;; - breeds removed:
 ;;   - use a string "kind" instead
@@ -59,14 +59,18 @@ to go
       eat-grass
     ]
     death
-    ;; TODO reproduce-sheep
+  ]
+  ask sheep [
+    reproduce-sheep
   ]
   ask wolves [
     move
     set energy energy - 1  ;; wolves lose energy as they move
     ;; TODO catch-sheep
     death
-    ;; TODO reproduce-wolves
+  ]
+  ask wolves [
+    reproduce-wolves
   ]
   if grass? [ ask patches [ grow-grass ] ]
   set grass count patches with [pcolor = green]
