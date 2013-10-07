@@ -1,5 +1,3 @@
-;; bugs:
-;; - TODO: predation commented out
 ;; workarounds:
 ;; - #10 (turtle death)
 
@@ -63,7 +61,7 @@ to go
   ask wolves [
     move
     set energy energy - 1  ;; wolves lose energy as they move
-    ;; TODO catch-sheep
+    catch-sheep
     death
   ]
   ask wolves [
@@ -92,14 +90,14 @@ end
 to reproduce-sheep  ;; sheep procedure
   if random-float 100 < sheep-reproduce [  ;; throw "dice" to see if you will reproduce
     set energy (energy / 2)                ;; divide energy between parent and offspring
-    ;; hatch 1 [ rt random-float 360 fd 1 ]   ;; hatch an offspring and move it forward 1 step
+    hatch 1 [ rt random-float 360 fd 1 ]   ;; hatch an offspring and move it forward 1 step
   ]
 end
 
 to reproduce-wolves  ;; wolf procedure
   if random-float 100 < wolf-reproduce [  ;; throw "dice" to see if you will reproduce
     set energy (energy / 2)               ;; divide energy between parent and offspring
-    ;; hatch 1 [ rt random-float 360 fd 1 ]  ;; hatch an offspring and move it forward 1 step
+    hatch 1 [ rt random-float 360 fd 1 ]  ;; hatch an offspring and move it forward 1 step
   ]
 end
 
