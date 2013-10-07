@@ -5,7 +5,6 @@
 ;; - no set-default-shape, use "set shape" instead
 ;; - breeds removed:
 ;;   - use a string "kind" instead
-;; - stop condition commented out
 
 globals [grass]
 turtles-own [energy kind]       ;; both wolves and sheep have energy
