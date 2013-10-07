@@ -2,12 +2,12 @@
 ;; - TODO: predation commented out
 ;; workarounds:
 ;; - #10 (turtle death)
-;; - no set-default-shape, use "set shape" instead
-;; - breeds removed:
-;;   - use a string "kind" instead
 
 globals [grass]
-turtles-own [energy kind]       ;; both wolves and sheep have energy
+;; Sheep and wolves are both breeds of turtle.
+breed [sheep a-sheep]  ;; sheep is its own plural, so we use "a-sheep" as the singular.
+breed [wolves wolf]
+turtles-own [energy]       ;; both wolves and sheep have energy
 patches-own [countdown]
 
 to setup
@@ -25,20 +25,18 @@ to setup
         [ set countdown random grass-regrowth-time ] ;; initialize grass grow clocks randomly for brown patches
     ]
   ]
-  create-turtles initial-number-sheep  ;; create the sheep, then initialize their variables
+  set-default-shape sheep "sheep"
+  create-sheep initial-number-sheep  ;; create the sheep, then initialize their variables
   [
-    set kind "sheep"
-    set shape "sheep"
     set color white
     set size 1.5  ;; easier to see
     set label-color blue - 2
     set energy random (2 * sheep-gain-from-food)
     setxy random-xcor random-ycor
   ]
-  create-turtles initial-number-wolves  ;; create the wolves, then initialize their variables
+  set-default-shape wolves "wolf"
+  create-wolves initial-number-wolves  ;; create the wolves, then initialize their variables
   [
-    set kind "wolf"
-    set shape "wolf"
     set color black
     set size 2  ;; easier to see
     set energy random (2 * wolf-gain-from-food)
@@ -133,22 +131,6 @@ to display-labels
     ask wolves [ set label round energy ]
     if grass? [ ask sheep [ set label round energy ] ]
   ]
-end
-
-;;; compensate for lack of breeds in Tortoise
-
-to-report sheep
-  report turtles with [kind = "sheep"]
-end
-to-report sheep-here
-  report turtles-here with [kind = "sheep"]
-end
-
-to-report wolves
-  report turtles with [kind = "wolf"]
-end
-to-report wolves-here
-  report turtles-here with [kind = "wolf"]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
