@@ -1,6 +1,5 @@
 ;; Tortoise issue numbers that required workarounds in this model:
-;; #4 (breeds)
-;; #5 (set-default-shape)
+;; #4 (breeds) -- we don't have breed variables yet
 ;; #7 (vertical cylinder)
 ;; #10 (turtle death)
 
@@ -14,8 +13,14 @@ globals [
   temperature  ;; overall temperature
 ]
 
+breed [rays ray]     ;; packets of sunlight
+breed [IRs IR]       ;; packets of infrared radiation
+breed [heats heat]   ;; packets of heat energy
+breed [CO2s CO2]     ;; packets of carbon dioxide
+
+breed [clouds cloud]
+
 turtles-own [
-  kind            ;; "ray" or "IR" or "heat" or "CO2"
   cloud-speed     ;; N/A unless kind is "cloud"
   cloud-id        ;; ditto
 ]
@@ -26,6 +31,11 @@ turtles-own [
 
 to setup
   clear-all
+  set-default-shape rays "ray"
+  set-default-shape IRs "ray"
+  set-default-shape clouds "cloud"
+  set-default-shape heats "dot"
+  set-default-shape CO2s "CO2-molecule"
   setup-world
   set temperature 12
   reset-ticks
@@ -83,10 +93,8 @@ to add-cloud            ;; erase clouds and then create new ones, plus one
   if any? clouds
   [ set id max [cloud-id] of clouds + 1 ]
 
-  create-turtles 3 + random 20
+  create-clouds 3 + random 20
   [
-    set kind "cloud"
-    set shape "cloud"
     set cloud-speed speed
     set cloud-id id
     ;; all the cloud turtles in each larger cloud should
@@ -128,9 +136,7 @@ to create-sunshine
   ;; don't necessarily create a ray each tick
   ;; as brightness gets higher make more
   if 10 * sun-brightness > random 50 [
-    create-turtles 1 [
-      set kind "ray"
-      set shape "ray"
+    create-rays 1 [
       set heading 160
       set color yellow
       ;; rays only come from a small area
@@ -154,8 +160,7 @@ to encounter-earth
       [ set heading 180 - heading  ] ;; reflect
       [ rt random 45 - random 45 ;; absorb into the earth
         set color red - 2 + random 4
-        set kind "heat"
-        set shape "dot"]
+        set breed heats ]
   ]
 end
 
@@ -174,8 +179,7 @@ to run-heat    ;; advances the heat energy turtles
               ;; this makes the model look nice but it also contributes
               ;; to the rate at which heat can be lost
               and xcor > 0 and xcor < max-pxcor - 8
-        [ set kind "IR"                    ;; let some escape as IR
-          set shape "ray"
+        [ set breed IRs                    ;; let some escape as IR
           set heading 20
           set color magenta ]
         [ set heading 100 + random 160 ] ;; return them to earth
@@ -190,8 +194,7 @@ to run-IR
   ask IRs [
     fd 0.3
     if ycor <= earth-top [   ;; convert to heat if we hit the earth's surface again
-      set kind "heat"
-      set shape "dot"
+      set breed heats
       rt random 45
       lt random 45
       set color red - 2 + random 4
@@ -203,9 +206,7 @@ end
 
 to add-CO2  ;; randomly adds 25 CO2 molecules to atmosphere
   let sky-height sky-top - earth-top
-  create-turtles 25 [
-    set kind "CO2"
-    set shape "CO2-molecule"
+  create-CO2s 25 [
     set color green
     ;; pick a random position in the sky area
     setxy random-xcor
@@ -230,34 +231,6 @@ to run-CO2
       [ set heading 180 - heading ]
     fd dist ;; move forward a bit
   ]
-end
-
-;;; compensate for lack of breeds in Tortoise
-
-to-report CO2s
-  report turtles with [kind = "CO2"]
-end
-to-report CO2s-here
-  report turtles-here with [kind = "CO2"]
-end
-
-to-report clouds
-  report turtles with [kind = "cloud"]
-end
-to-report clouds-here
-  report turtles-here with [kind = "cloud"]
-end
-
-to-report rays
-  report turtles with [kind = "ray"]
-end
-
-to-report heats
-  report turtles with [kind = "heat"]
-end
-
-to-report IRs
-  report turtles with [kind = "IR"]
 end
 
 ;;; compensate for lack of can-move? in Tortoise
