@@ -45,8 +45,8 @@ to setup [initial random?]
   ask patches [
     set neighbors4-nowrap get-neighbors4-nowrap
     ifelse random?
-      [ set n initial ]
       [ set n random initial ]
+      [ set n initial ]
     set n-stack []
     set base-color default-color
   ]
