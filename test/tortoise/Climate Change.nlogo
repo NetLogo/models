@@ -19,11 +19,7 @@ breed [heats heat]   ;; packets of heat energy
 breed [CO2s CO2]     ;; packets of carbon dioxide
 
 breed [clouds cloud]
-
-turtles-own [
-  cloud-speed     ;; N/A unless kind is "cloud"
-  cloud-id        ;; ditto
-]
+clouds-own [ cloud-speed cloud-id ]
 
 ;;
 ;; Setup Procedures
