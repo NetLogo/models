@@ -1,7 +1,5 @@
 ;; Tortoise issue numbers that required workarounds in this model:
-;; #4 (breeds) -- we don't have breed variables yet
 ;; #7 (vertical cylinder)
-;; #10 (turtle death)
 
 ;; other issues:
 ;; #11 (slow turtles-here)
@@ -19,7 +17,7 @@ breed [heats heat]   ;; packets of heat energy
 breed [CO2s CO2]     ;; packets of carbon dioxide
 
 breed [clouds cloud]
-clouds-own [ cloud-speed cloud-id ]
+clouds-own [cloud-speed cloud-id]
 
 ;;
 ;; Setup Procedures
@@ -119,8 +117,6 @@ end
 to run-sunshine
   ask rays [
     if not my-can-move? 0.3 [ die ]  ;; kill them off at the edge
-  ]
-  ask rays [
     fd 0.3                        ;; otherwise keep moving
   ]
   create-sunshine  ;; start new sun rays from top
@@ -186,8 +182,6 @@ end
 to run-IR
   ask IRs [
     if not my-can-move? 0.3 [ die ]
-  ]
-  ask IRs [
     fd 0.3
     if ycor <= earth-top [   ;; convert to heat if we hit the earth's surface again
       set breed heats
