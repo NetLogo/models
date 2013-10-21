@@ -1,6 +1,6 @@
 globals
 [
-  clock tick-length                   ;; clock variables
+  tick-length                         ;; the amount by wich we will advance ticks
   max-tick-length                     ;; the largest a tick length is allowed to be
   box-edge                            ;; distance of box edge from axes
   avg-speed-init avg-energy-init      ;; initial averages
@@ -12,10 +12,8 @@ globals
                   ;; these particles are removed from the simulation
   percent-lost-particles
   ;; these next six variables are needed for continuity in logging in Modeling Across the Curriculum activities
-  total-particle-number
   temperature
   volume
-  max-particles
   pressure
   outside-energy
 ]
@@ -29,7 +27,6 @@ particles-own
 [
   speed mass energy          ;; particle info
   last-collision
-  dark-particle?
 ]
 
 ;;
@@ -39,42 +36,27 @@ to setup
   clear-all
   set particle-mass 2.0
   set gravity-acceleration 9.8
-  set max-particles 400
   set-default-shape particles "circle"
   set-default-shape flashes "square"
-  set clock 0
   set max-tick-length 0.1073
   ;; box has constant size.
   set box-edge (max-pxcor)
   ;; make floor
   ask patches with [ pycor = ( - box-edge) ]
     [ set pcolor yellow ]
-  make-particles  max-particles
-
+  make-particles
   update-variables
   set avg-speed-init avg-speed
   set avg-energy-init avg-energy
   do-recolor
- ;; reset-ticks
+  reset-ticks
 end
 
-;; always create the maximum number of particles
-;; setup all to be dark-particles then make the particles
-;; with the lowest who numbers into the visible particles
-;; so at least when we start we know that turtle 0 is a visible
-;; particle
-to make-particles [number]
-  create-particles number
+to make-particles
+  create-particles number-of-particles
   [
     setup-particle
     random-position
-    set dark-particle? true
-  ]
-  set total-particle-number number-of-particles
-  ask particles with [who < number-of-particles]
-  [
-    set dark-particle? false
-    set shape "circle"
     do-recolor
   ]
   calculate-tick-length
@@ -85,8 +67,6 @@ to setup-particle  ;; particle procedure
   set mass particle-mass
   set energy (0.5 * mass * (speed ^ 2))
   set last-collision nobody
-  set dark-particle? true
-  set shape "nothing"
   set color green
 end
 
@@ -105,25 +85,25 @@ to go
   if not any? particles [stop]  ;; particles can die when they float too high
   if collide? [ ask particles [ check-for-collision ] ]
   ifelse trace?
-  [ if any? particles with [not dark-particle?]
-    [ask min-one-of particles with [not dark-particle?] [who] [ pen-down ] ] ]
+  [ if any? particles
+    [ask min-one-of particles [who] [ pen-down ] ] ]
   [ ask particles [ pen-up ] ]
-  set clock clock + tick-length
-  if floor clock > floor (clock - tick-length)
-  [ update-variables ]
+  tick-advance tick-length
+  if floor ticks > floor (ticks - tick-length)
+    [ update-variables ]
   calculate-tick-length
-  ask flashes with [clock - birthday > 0.4]
+  ask flashes with [ticks - birthday > 0.4]
     [ die ]
   do-recolor
- display
+  ;; we use display because tick-advance does not trigger display updates the way 'tick' does
+  display
 end
 
 to update-variables
   set temperature 0
   set volume 0
   set outside-energy 0
-  set total-particle-number count particles with [not dark-particle?]
-  set lost-particles (number-of-particles - count particles with [not dark-particle?])
+  set lost-particles (number-of-particles - count particles)
   set percent-lost-particles (lost-particles / number-of-particles) * 100
   set avg-speed  mean [speed] of particles
   set avg-energy  mean [energy] of particles
@@ -156,14 +136,12 @@ to bounce  ;; particle procedure
   ;; if hitting the bottom, reflect heading around y axis
   if (new-py = ( - box-edge))
     [ set heading (180 - heading)]
-   if not dark-particle? [
-      ask patch new-px new-py
-      [ sprout-flashes 1 [
-          set color [pcolor] of patch-here - 2
-          set birthday clock
-        ]
-      ]
+  ask patch new-px new-py [
+    sprout-flashes 1 [
+      set color [pcolor] of patch-here - 2
+      set birthday ticks
     ]
+  ]
 end
 
 to move  ;; particle procedure
@@ -184,7 +162,7 @@ setxy (xcor + sin heading * speed * tick-length)
            (0.5 * (tick-length ^ 2)))
   factor-gravity
 
-  if (pycor >= max-pycor) [ set dark-particle? true set shape "nothing" penup]
+  if (pycor >= max-pycor) [ die ]
 end
 
 to factor-gravity  ;; turtle procedure
@@ -233,7 +211,7 @@ to check-for-collision ;; particle procedure
   ;; the wavefront closely, you will see that it is not completely smooth,
   ;; because some collisions eventually do start occurring when it thins out while fanning.)
 
-  let candidates other particles-here with [ dark-particle? = [ dark-particle? ] of myself ]
+  let candidates other particles-here
   if count candidates = 1 [
     ;; the following conditions are imposed on collision candidates:
     ;;  1. they must have a lower who number than my own, because collision
@@ -584,17 +562,6 @@ acceleration from gravity
 1
 11
 
-MONITOR
-270
-202
-328
-247
-NIL
-clock
-2
-1
-11
-
 @#$#@#$#@
 ## WHAT IS IT?
 
@@ -683,10 +650,6 @@ This basic model could be used to explore other situations where freely moving p
 ## NETLOGO FEATURES
 
 Because of the influence of gravity, the particles follow curved paths.  Since NetLogo models time in discrete steps, these curved paths must be approximated with a series of short straight lines.  This is the source of a slight inaccuracy where the particles gradually lose energy if the model runs for a long time.  The effect is as though the collisions with the ground were slightly inelastic.  Increasing the variable "vsplit" can reduce the inaccuracy, but the model will run slower.
-
-The Connected Chemistry models include invisible dark particles (those with `dark-particle? = true`), which only interact with each other and the walls of the yellow box. The inclusion of dark particles ensures that the speed of simulation remains constant, regardless of the number of particles visible in the simulation.
-
-For example, if a model is limited to a maximum of 400 particles, then when there are 10 visible particles, there are 390 dark particles and when there are 400 visible particles, there are 0 dark particles.  The total number of particles in both cases remains 400, and the computational load of calculating what each of these particles does (collides, bounces, etc...) is close to the same.  Without dark particles, it would seem that small numbers of particles are faster than large numbers of particles -- when in reality, it is simply a reflection of the computational load.  Such behavior would encourage student misconceptions related to particle behavior.
 
 ## RELATED MODELS
 
@@ -980,7 +943,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.5
+NetLogo 5.0.5-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
