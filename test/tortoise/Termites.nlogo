@@ -8,7 +8,7 @@ to setup
   create-turtles number [
     set color white
     setxy random-xcor random-ycor
-    set size 3
+    set size 1.5
     set next 1
   ]
   reset-ticks
@@ -68,10 +68,10 @@ end
 GRAPHICS-WINDOW
 236
 10
-624
-419
-10
-10
+696
+491
+12
+12
 18.0
 1
 10
@@ -82,10 +82,10 @@ GRAPHICS-WINDOW
 1
 1
 1
--10
-10
--10
-10
+-12
+12
+-12
+12
 1
 1
 1
@@ -135,7 +135,7 @@ number
 number
 1
 1000
-400
+50
 1
 1
 NIL
@@ -150,7 +150,7 @@ density
 density
 0.0
 100.0
-20
+25
 1.0
 1
 %
