@@ -1,5 +1,4 @@
 ;; workarounds:
-;; - #7 (box topology) - turn wrapping checkboxes on. use custom neighbors-nowrap procedure
 ;; - #17 (tasks) - used ordinary procedural abstraction instead
 ;; - #18 (display) - commented out
 ;; - no mouse support - mouse code removed wholesale
@@ -34,7 +33,6 @@ patches-own [
   n-stack
   ;; Determines what color to scale when coloring the patch.
   base-color
-  neighbors4-nowrap
 ]
 
 to setup [initial random?]
@@ -43,7 +41,6 @@ to setup [initial random?]
   set fired-color red
 
   ask patches [
-    set neighbors4-nowrap get-neighbors4-nowrap
     ifelse random?
       [ set n random initial ]
       [ set n initial ]
@@ -89,7 +86,7 @@ to go
       set lifetimes lput lifetime lifetimes
     ]
     ;; Display the avalanche and guarantee that the border of the avalanche is updated
-    ask avalanche-patches [ recolor ask neighbors4-nowrap [ recolor ] ]
+    ask avalanche-patches [ recolor ask neighbors4 [ recolor ] ]
     ;; TODO display
     ;; Erase the avalanche
     ask avalanche-patches [ set base-color default-color recolor ]
@@ -123,7 +120,7 @@ to-report stabilize [animate?]
       update-n -4
       if animate? [ recolor ]
       ;; edge patches have less than four neighbors, so some sand may fall off the edge
-      ask neighbors4-nowrap [
+      ask neighbors4 [
         update-n 1
         if animate? [ recolor ]
       ]
@@ -134,7 +131,7 @@ to-report stabilize [animate?]
     set avalanche-patches (patch-set avalanche-patches overloaded-patches)
     ;; find the set of patches which *might* be overloaded, so we will check
     ;; them the next time through the loop
-    set active-patches patch-set [ neighbors4-nowrap ] of overloaded-patches
+    set active-patches patch-set [ neighbors4 ] of overloaded-patches
   ]
   report (list avalanche-patches iters)
 end
@@ -162,14 +159,6 @@ to pop-n ;; patch procedure
   update-n ((first n-stack) - n)
   set n-stack but-last n-stack
 end
-
-;;; compensate for lack of box topology in Tortoise
-
-to-report get-neighbors4-nowrap
-  let my-x pxcor
-  let my-y pycor
-  report neighbors4 with [abs (pxcor - my-x) <= 1 and abs (pycor - my-y) <= 1]
-end
 @#$#@#$#@
 GRAPHICS-WINDOW
 330
@@ -185,8 +174,8 @@ GRAPHICS-WINDOW
 1
 1
 0
-1
-1
+0
+0
 1
 -50
 50
