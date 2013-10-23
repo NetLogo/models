@@ -5,10 +5,10 @@
 ;; - no mouse support - mouse code removed wholesale
 
 globals [
-  ;; By always keeping track of how much sand is on the table, we can compute the 
+  ;; By always keeping track of how much sand is on the table, we can compute the
   ;; average number of grains per patch instantly, without having to count.
   total
-  ;; We don't want the average monitor to updating wildly, so we only have it 
+  ;; We don't want the average monitor to updating wildly, so we only have it
   ;; update every tick.
   total-on-tick
   ;; Keep track of avalanche sizes so we can histogram them
@@ -19,7 +19,7 @@ globals [
   lifetimes
   ;; Lifetime of the most recent run
   last-lifetime
-  ;; These colors define how the patches look normally, after being fired, and in 
+  ;; These colors define how the patches look normally, after being fired, and in
   ;; explore mode.
   default-color
   fired-color
@@ -32,7 +32,7 @@ patches-own [
   ;; the NETLOGO FEATURES section of the Info tab for a description of how stacks
   ;; work
   n-stack
-  ;; Determines what color to scale when coloring the patch. 
+  ;; Determines what color to scale when coloring the patch.
   base-color
   neighbors4-nowrap
 ]
@@ -41,7 +41,7 @@ to setup [initial random?]
   clear-all
   set default-color blue
   set fired-color red
-  
+
   ask patches [
     set neighbors4-nowrap get-neighbors4-nowrap
     ifelse random?
@@ -82,7 +82,7 @@ to go
     let results stabilize animate-avalanches?
     let avalanche-patches first results
     let lifetime last results
-    
+
     ;; compute the size of the avalanche and throw it on the end of the sizes list
     if any? avalanche-patches [
       set sizes lput (count avalanche-patches) sizes
@@ -103,7 +103,7 @@ end
 ;; stabilize.
 to-report stabilize [animate?]
   let active-patches patches with [ n > 3 ]
-  
+
   ;; The number iterations the avalanche has gone for. Use to calculate lifetimes.
   let iters 0
 
@@ -111,7 +111,7 @@ to-report stabilize [animate?]
   ;; during the avalanche, and also flash those patches. so as we go, we'll
   ;; keep adding more patches to to this initially empty set.
   let avalanche-patches no-patches
-  
+
   while [ any? active-patches ] [
     let overloaded-patches active-patches with [ n > 3 ]
     if any? overloaded-patches [
