@@ -1,6 +1,6 @@
 ;; workarounds:
 ;; - #? (face): use heading arithmetic instead
-;; - get consistent ordering using `random-seed` instead of `sort` and `foreach`
+;; - get consistent ordering using `while` instead of `sort` and `foreach`
 
 to setup
   clear-all
@@ -14,19 +14,25 @@ to setup
 end
 
 to go-forward
-  random-seed 0
-  ask turtles [
-    fd 1
-    turn
+  let n 0
+  while [n < count turtles] [
+    ask turtle n [
+      fd 1
+      turn
+    ]
+    set n n + 1
   ]
   tick
 end
 
 to go-reverse
-  random-seed 0
-  ask turtles [
-    turn
-    bk 1
+  let n count turtles
+  while [n > 0] [
+    set n n - 1
+    ask turtle n [
+      turn
+      bk 1
+    ]
   ]
   tick
 end
