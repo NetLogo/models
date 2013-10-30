@@ -63,7 +63,6 @@ end
 ;; turtles are found, accelerate towards speed-limit
 
 to drive
-  ;; first determine average speed of the cars
   ask turtles [
     ifelse (any? turtles-at 1 0) [
       set speed ([speed] of (one-of (turtles-at 1 0)))
@@ -85,6 +84,9 @@ to drive
     ]
     if (speed < 0.01) [ set speed 0.01 ]
     if (speed > speed-limit) [ set speed speed-limit ]
+  ]
+  ; Now that all speeds are adjusted, give turtles a chance to change lanes
+  ask turtles [
     ifelse (change? = false) [ signal ] [ change-lanes ]
     ;; Control for making sure no one crashes.
     ifelse (any? turtles-at 1 0) and (xcor != min-pxcor - .5) [
@@ -135,7 +137,6 @@ to change-lanes  ;; turtle procedure
   [
     set patience (patience - 1)
   ]
-
   ifelse (target-lane = lane) [
     ifelse (target-lane = 0) [
       set target-lane 1
