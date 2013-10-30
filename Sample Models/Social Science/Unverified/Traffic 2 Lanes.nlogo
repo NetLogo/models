@@ -18,25 +18,19 @@ to setup
   clear-all
   draw-road
   set-default-shape turtles "car"
-  crt number
-  [ setup-cars ]
+  crt number [ setup-cars ]
   set selected-car one-of turtles
   ;; color the selected car red so that it is easy to watch
-  ask selected-car
-  [ set color red ]
+  ask selected-car [ set color red ]
   reset-ticks
 end
 
 to draw-road
-  ask patches
-  [
+  ask patches [
     set pcolor green
-    if ((pycor > -4) and (pycor < 4))
-    [ set pcolor gray ]
-    if ((pycor = 0) and ((pxcor mod 3) = 0))
-    [ set pcolor yellow ]
-    if ((pycor = 4) or (pycor = -4))
-    [ set pcolor black ]
+    if ((pycor > -4) and (pycor < 4)) [ set pcolor gray ]
+    if ((pycor = 0) and ((pxcor mod 3) = 0)) [ set pcolor yellow ]
+    if ((pycor = 4) or (pycor = -4)) [ set pcolor black ]
   ]
 end
 
@@ -44,9 +38,12 @@ to setup-cars
   set color black
   set lane (random 2)
   set target-lane lane
-  ifelse (lane = 0)
-  [ setxy random-xcor -2 ]
-  [ setxy random-xcor  2 ]
+  ifelse (lane = 0) [
+    setxy random-xcor -2
+  ]
+  [
+    setxy random-xcor  2
+  ]
   set heading 90
   set speed 0.1 + random 9.9
   set speed-limit (((random 11) / 10) + 1)
@@ -55,11 +52,8 @@ to setup-cars
   set patience (max-patience - (random 10))
 
   ;; make sure no two cars are on the same patch
-  loop
-  [
-    ifelse any? other turtles-here
-    [ fd 1 ]
-    [ stop ]
+  loop [
+    ifelse any? other turtles-here [ fd 1 ] [ stop ]
   ]
 end
 
@@ -70,42 +64,40 @@ end
 
 to drive
   ;; first determine average speed of the cars
-  ask turtles
-  [
-    ifelse (any? turtles-at 1 0)
-    [
+  ask turtles [
+    ifelse (any? turtles-at 1 0) [
       set speed ([speed] of (one-of (turtles-at 1 0)))
       decelerate
     ]
     [
-      ifelse (look-ahead = 2)
-      [
-        ifelse (any? turtles-at 2 0)
-        [
+      ifelse (look-ahead = 2) [
+        ifelse (any? turtles-at 2 0) [
           set speed ([speed] of (one-of turtles-at 2 0))
           decelerate
         ]
-        [accelerate]
+        [
+          accelerate
+        ]
       ]
-      [accelerate]
-    ]
-    if (speed < 0.01)
-    [ set speed 0.01 ]
-    if (speed > speed-limit)
-    [ set speed speed-limit ]
-    ifelse (change? = false)
-    [ signal ]
-    [ change-lanes ]
-    ;; Control for making sure no one crashes.
-    ifelse (any? turtles-at 1 0) and (xcor != min-pxcor - .5)
-    [ set speed [speed] of (one-of turtles-at 1 0) ]
-    [
-      ifelse ((any? turtles-at 2 0) and (speed > 1.0))
       [
+        accelerate
+      ]
+    ]
+    if (speed < 0.01) [ set speed 0.01 ]
+    if (speed > speed-limit) [ set speed speed-limit ]
+    ifelse (change? = false) [ signal ] [ change-lanes ]
+    ;; Control for making sure no one crashes.
+    ifelse (any? turtles-at 1 0) and (xcor != min-pxcor - .5) [
+      set speed [speed] of (one-of turtles-at 1 0)
+    ]
+    [
+      ifelse ((any? turtles-at 2 0) and (speed > 1.0)) [
         set speed ([speed] of (one-of turtles-at 2 0))
         fd 1
       ]
-      [jump speed]
+      [
+        jump speed
+      ]
     ]
   ]
   tick
@@ -123,14 +115,15 @@ end
 
 ;; undergoes search algorithms
 to change-lanes  ;; turtle procedure
-  ifelse (patience <= 0)
-  [
-    ifelse (max-patience <= 1)
-    [ set max-patience (random 10) + 1 ]
-    [ set max-patience (max-patience - (random 5)) ]
-    set patience max-patience
-    ifelse (target-lane = 0)
+  ifelse (patience <= 0) [
+    ifelse (max-patience <= 1) [
+      set max-patience (random 10) + 1
+    ]
     [
+      set max-patience (max-patience - (random 5))
+    ]
+    set patience max-patience
+    ifelse (target-lane = 0) [
       set target-lane 1
       set lane 0
     ]
@@ -139,12 +132,12 @@ to change-lanes  ;; turtle procedure
       set lane 1
     ]
   ]
-  [ set patience (patience - 1) ]
-
-  ifelse (target-lane = lane)
   [
-    ifelse (target-lane = 0)
-    [
+    set patience (patience - 1)
+  ]
+
+  ifelse (target-lane = lane) [
+    ifelse (target-lane = 0) [
       set target-lane 1
       set change? false
     ]
@@ -154,43 +147,42 @@ to change-lanes  ;; turtle procedure
     ]
   ]
   [
-    ifelse (target-lane = 1)
-    [
-      ifelse (pycor = 2)
-      [
+    ifelse (target-lane = 1) [
+      ifelse (pycor = 2) [
         set lane 1
         set change? false
       ]
       [
-        ifelse (not any? turtles-at 0 1)
-        [ set ycor (ycor + 1) ]
+        ifelse (not any? turtles-at 0 1) [
+          set ycor (ycor + 1)
+        ]
         [
-          ifelse (not any? turtles-at 1 0)
-          [ set xcor (xcor + 1) ]
+          ifelse (not any? turtles-at 1 0) [
+            set xcor (xcor + 1)
+          ]
           [
             decelerate
-            if (speed <= 0)
-            [ set speed 0.1 ]
+            if (speed <= 0) [ set speed 0.1 ]
           ]
         ]
       ]
     ]
     [
-      ifelse (pycor = -2)
-      [
+      ifelse (pycor = -2) [
         set lane 0
         set change? false
       ]
       [
-        ifelse (not any? turtles-at 0 -1)
-        [ set ycor (ycor - 1) ]
+        ifelse (not any? turtles-at 0 -1) [
+          set ycor (ycor - 1)
+        ]
         [
-          ifelse (not any? turtles-at 1 0)
-          [ set xcor (xcor + 1) ]
+          ifelse (not any? turtles-at 1 0) [
+            set xcor (xcor + 1)
+          ]
           [
             decelerate
-            if (speed <= 0)
-            [ set speed 0.1 ]
+            if (speed <= 0) [ set speed 0.1 ]
           ]
         ]
       ]
@@ -199,21 +191,21 @@ to change-lanes  ;; turtle procedure
 end
 
 to signal
-  ifelse (any? turtles-at 1 0)
-  [
-    if ([speed] of (one-of (turtles-at 1 0))) < (speed)
-    [ set change? true ]
+  ifelse (any? turtles-at 1 0) [
+    if ([speed] of (one-of (turtles-at 1 0))) < (speed) [
+      set change? true
+    ]
   ]
-  [ set change? false ]
+  [
+    set change? false
+  ]
 end
 
 to select-car
-  if mouse-down?
-  [
+  if mouse-down? [
     let mx mouse-xcor
     let my mouse-ycor
-    if any? turtles-on patch mx my
-    [
+    if any? turtles-on patch mx my [
       ask selected-car [ set color black ]
       set selected-car one-of turtles-on patch mx my
       ask selected-car [ set color red ]
@@ -428,10 +420,10 @@ The SELECT-CAR button allows you to pick a car to watch. It turns the car red, s
 
 The AVERAGE-SPEED monitor displays the average speed of all the cars.
 
-The CAR SPEEDS plot displays four quantities over time:  
-- the maximum speed of any car - CYAN  
-- the minimum speed of any car - BLUE  
-- the average speed of all cars - GREEN  
+The CAR SPEEDS plot displays four quantities over time:
+- the maximum speed of any car - CYAN
+- the minimum speed of any car - BLUE
+- the average speed of all cars - GREEN
 - the speed of the selected car - RED
 
 ## THINGS TO NOTICE
@@ -753,7 +745,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.5
+NetLogo 5.0.5-RC1
 @#$#@#$#@
 setup
 repeat 50 [ drive ]
