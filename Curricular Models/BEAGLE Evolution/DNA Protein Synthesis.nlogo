@@ -1427,7 +1427,11 @@ The nitrogen bases for DNA come in four variations: ([A]denine, [G]uanine, [T]hy
 
 The same nitrogen bases are used for mRNA and tRNA, as for DNA, except no [T]hymine is used.  Instead it is replaced with [U]racil. 
 
-Genes start locations in DNA are encoded by a three letter sequence of nucleotides [ATG], when read from a particular direction.  In this model, reading occurs from left to right.   Gene stop locations are encoded either by the first three letter sequence (either [] or [] or []) that is encountered, which is the same reading frame as the ATG sequence at the start of the gene.  Reading frames may be shifted by 0, 1, or 2 nucleotides from the start of the gene.  Stop signals have three possible three nucleotides sequences ([TAG], [TGA], or [TAA])   
+Genes start locations in DNA in this model don't use promoters to initiate transcription of a particular gene, like they do in reality.  Rather, the start codon (encoded by a three letter sequence of nucleotides [ATG], when read from a particular direction),  signals the start of transcription for mRNA.  In reality, ATG start condons are the first codon in mRNA that is translated by ribosome.  Therefore, in reality mRNA often contains additional non-translated nucleotides, before the start codon in mRNA and additional non-translated nucleotides after the stop codons in mRNA.   
+
+In this model, however, that complexity of additional "dangling" non-transcribed mRNA has been eliminated by setting the start codon as the site for transcription of DNA to mRNA and the stop codon as the site for ending transcription of DNA to mRNA as well.  
+
+In this model, transcription reading of DNA occurs from left to right.   Gene stop locations are encoded either by the first three letter sequence (either [] or [] or []) that is encountered, which is the same reading frame as the ATG sequence at the start of the gene.  Reading frames may be shifted by 0, 1, or 2 nucleotides from the start of the gene.  Stop signals have three possible three nucleotides sequences ([TAG], [TGA], or [TAA])   
 
 If the first letter of the three letter sequence for stop has any multiple of 3 nucleotides between it and the last letter of the ATG marking the start, then it is in the same frame of reference and will apply as a stop signal for this gene.  If not, the stop signal is ignored.  If no stop signal is found in the DNA, the gene end will continue until end of the entire DNA strand (the far right side of the DNA in this model).
 
@@ -2187,7 +2191,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.5
+NetLogo 5.0.4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
