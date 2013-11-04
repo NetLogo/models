@@ -480,7 +480,7 @@ to mouse-action
           setxy orig-xcor orig-ycor
         ]
         ask eraser-window-particles [
-          if mouse-interaction = "paint particles purple" [set color-type 115 color-particle-and-link]
+          if mouse-interaction = "paint particles purple"  [set color-type 115 color-particle-and-link]
           if mouse-interaction = "paint particles orange" [set color-type 25 color-particle-and-link]
           if mouse-interaction = "paint particles green" [set  color-type 55 color-particle-and-link]
           apply-speed-visualization
@@ -548,7 +548,7 @@ to color-particle-and-link
   let this-color-type color-type
   set color this-color-type
   ask this-link [set color this-color-type]
-
+  show color
 end
 
 
@@ -581,7 +581,7 @@ end
 to recolornone
   let this-link my-out-links
   ask this-link [set hidden? true]
-  set color 55
+  set color color-type
 end
 
 
@@ -789,7 +789,7 @@ initial-#-particles
 initial-#-particles
 0
 100
-50
+6
 1
 1
 NIL
@@ -838,7 +838,7 @@ CHOOSER
 mouse-interaction
 mouse-interaction
 "none - let the particles interact" "draw basic wall" "draw red removable wall" "draw green removable wall" "big eraser" "slow down particles" "speed up particles" "paint particles purple" "paint particles green" "paint particles orange" "add green particles" "add purple particles" "add orange particles"
-0
+9
 
 BUTTON
 165
@@ -1364,7 +1364,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.5
+NetLogo 5.0.4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

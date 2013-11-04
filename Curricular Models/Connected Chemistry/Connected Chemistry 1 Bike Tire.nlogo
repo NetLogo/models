@@ -1,13 +1,10 @@
 globals
 [
-  tick-delta                 ;; how much we advance the tick counter this time through
-  max-tick-delta             ;; the largest tick-delta is allowed to be
+  tick-length                 ;; how much we advance the tick counter this time through
+  max-tick-length             ;; the largest tick-length is allowed to be
   box-x box-y                ;; patch coords of box's upper right corner
   total-particle-number
-  maxparticles
-  show-dark?                 ;; hides or shows the dark particles in the simulation.
-                             ;; see NetLogo features Info tab for full explanation of
-                             ;; what dark particles are and why they are used.
+  maxparticles  
 ]
 
 breed [ particles particle]
@@ -16,36 +13,25 @@ particles-own
 [
   speed mass                 ;; particle info
   last-collision             ;; keeps track of last particle this particle collided with
-  darkparticle?              ;; is this particle visible and interacting with visible particles?
 ]
 
 to setup
   ca reset-ticks
-  set show-dark? false
   set-default-shape particles "circle"
   set maxparticles 400
-  set tick-delta 0
+  set tick-length 0
   ;; starting this at zero means that no particles will move until we've
   ;; calculated vsplit, which we won't even try to do until there are some
   ;; particles.
   set total-particle-number 0
-  setup-all-particles maxparticles 0 0
 end
 
 to go
   if bounce? [ ask particles [ bounce ] ] ;; all particles bounce
   ask particles [ move ]         ;; all particles move
-  if collide?
-    [
-      ask particles
-      [
-        check-for-particlecollision
-      ]
-    ]
-  tick-advance tick-delta
-  ;; we need to check this down here as well, because if there are no
-  ;; particles left, trying to set the new tick-delta will cause an error...
-  set tick-delta 1 / (ceiling max [speed] of particles)
+  if collide? [ask particles  [check-for-particlecollision] ] ;; all particles collide
+  tick-advance tick-length
+  calculate-tick-length
   display
 end
 
@@ -65,18 +51,17 @@ to bounce  ;; particle procedure
 end
 
 to move  ;; particle procedure
-  let next-patch patch-ahead (speed * tick-delta)
+  let next-patch patch-ahead (speed * tick-length)
   ;; die if we're about to wrap...
-  if ((pxcor != 0 and ([pxcor] of next-patch) = (- pxcor)) or
-      (pycor != 0 and ([pycor] of next-patch) = (- pycor)))
-    [ set darkparticle? true ifelse show-dark? [set shape "dark" set color red][set shape "nothing" set color green]]
+  if [pxcor] of next-patch = max-pxcor or [pxcor] of next-patch = min-pxcor 
+    or [pycor] of next-patch = max-pycor or [pycor] of next-patch = min-pycor [die]
   if next-patch != patch-here
     [ set last-collision nobody ]
-  jump (speed * tick-delta)
+  jump (speed * tick-length)
 end
 
 to check-for-particlecollision ;; particle procedure
-  if count other particles-here with [darkparticle? = [darkparticle?] of myself ] >= 1
+  if count other particles-here  >= 1
   [
     ;; the following conditions are imposed on collision candidates:
     ;;   1. they must have a lower who number than my own, because collision
@@ -86,7 +71,7 @@ to check-for-particlecollision ;; particle procedure
     ;;      this patch, so that we have a chance to leave the patch after we've
     ;;      collided with someone.
     let candidate one-of other particles-here with
-      [who < [who] of myself and myself != last-collision and darkparticle? = [darkparticle?] of myself ]
+      [who < [who] of myself and myself != last-collision]
     ;; we also only collide if one of us has non-zero speed. It's useless
     ;; (and incorrect, actually) for two particles with zero speed to collide.
     if (candidate != nobody) and (speed > 0 or [speed] of candidate > 0)
@@ -230,39 +215,24 @@ to place-particles
     paint-particles number-of-particles-to-add mouse-xcor mouse-ycor
     while [mouse-down?] [wait 0.1]
   ]
-   set total-particle-number (count particles with  [darkparticle? = false])
+   set total-particle-number (count particles)
   display
 end
 
-
-;; places all the n particles in a cluster around point (x,y).
-to setup-all-particles [n x y]
-  create-particles n
-  [
-    set darkparticle? true
-    ifelse show-dark?
-      [set shape "dark" set color red]
-      [set shape "nothing" set color green]  ;; nothing is an actual shape with no components in it
-                                             ;; this empty shape is included to make the computational load
-                                             ;; of dark particles closer to that of visible particles
-    setxy random-float x random-float y
-    set speed 10
-    set mass 2
-    set last-collision nobody
-    ;; if we're only placing one particle, use the exact position
-    if n > 1
-      [ jump random-float 5 ]
-  ]
-  set tick-delta 1 / (ceiling max [speed] of particles)
-  set total-particle-number (count particles with [ darkparticle? = false])
+to calculate-tick-length
+  ;; we need to check this, because if there are no
+  ;; particles left, trying to set the new tick-length will cause an error...
+  ifelse any? particles [set tick-length 1 / (ceiling max [speed] of particles)]
+    [set tick-length 0]
 end
+
 
 ;; places n particles in a cluster around point (x,y).
 to paint-particles [n x y]
-   ifelse ( count particles with [ darkparticle? = true ] >= n )
+   ifelse ( count particles  <=  (maxparticles - n) )
    [
      ;; turn some of the dark particles to visible particles
-     ask n-of n particles with [darkparticle? = true]
+     create-particles n 
      [
         set shape  "circle"
         setxy x y
@@ -271,16 +241,15 @@ to paint-particles [n x y]
         set color green
         set heading random-float 360
         set last-collision nobody
-        set darkparticle? false
         ;; if we're only placing one particle, use the exact position
         if n > 1
         [ jump random-float 5 ]
      ]
   ]
   [user-message (word "The maximum number of particles allowed in this model is "  maxparticles  ".  You can not add "  n
-  " more particles to the "  (count particles with [darkparticle? = false])  " you already have in the model")]
-  set tick-delta 1 / (ceiling max [speed] of particles)
-  set total-particle-number (count particles with  [darkparticle? = false])
+  " more particles to the "  (count particles)  " you already have in the model")]
+  calculate-tick-length
+  set total-particle-number (count particles )
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -366,7 +335,7 @@ SWITCH
 196
 collide?
 collide?
-1
+0
 1
 -1000
 
@@ -387,7 +356,7 @@ MONITOR
 230
 251
 Number
-count particles with [darkparticle? = false]
+count particles
 0
 1
 11
@@ -529,7 +498,7 @@ true
 0
 
 @#$#@#$#@
-NetLogo 5.0.5
+NetLogo 5.0.4
 @#$#@#$#@
 setup
 set box-x 18

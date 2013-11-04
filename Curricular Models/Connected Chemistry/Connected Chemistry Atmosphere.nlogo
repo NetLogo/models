@@ -48,7 +48,7 @@ to setup
   update-variables
   set avg-speed-init avg-speed
   set avg-energy-init avg-energy
-  do-recolor
+  ask particles [do-recolor]
   reset-ticks
 end
 
@@ -57,7 +57,6 @@ to make-particles
   [
     setup-particle
     random-position
-    do-recolor
   ]
   calculate-tick-length
 end
@@ -94,7 +93,7 @@ to go
   calculate-tick-length
   ask flashes with [ticks - birthday > 0.4]
     [ die ]
-  do-recolor
+  ask particles [ do-recolor ]
   ;; we use display because tick-advance does not trigger display updates the way 'tick' does
   display
 end
@@ -323,17 +322,14 @@ to increase-gravity
 end
 
 to do-recolor
-  if speed-as-color? = "red-green-blue"
-    [ ask particles [ recolor ] ]
-  if speed-as-color? = "purple shades"
-    [ ask particles [recolorshade ] ]
-  if speed-as-color? = "one color"
-    [ ask particles [ recolornone ] ]
+  if speed-as-color? = "red-green-blue" [  recolor-rgb  ]
+  if speed-as-color? = "purple shades" [ recolorshade  ]
+  if speed-as-color? = "one color" [  recolornone  ]
   if speed-as-color? = "custom color" [ ]
 
 end
 
-to recolor  ;; particle procedure
+to recolor-rgb  ;; particle procedure
   ifelse speed < (0.5 * 10)
   [
     set color blue
@@ -515,7 +511,7 @@ CHOOSER
 speed-as-color?
 speed-as-color?
 "red-green-blue" "purple shades" "one color" "custom color"
-0
+1
 
 BUTTON
 7
@@ -943,7 +939,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.5-RC1
+NetLogo 5.0.4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

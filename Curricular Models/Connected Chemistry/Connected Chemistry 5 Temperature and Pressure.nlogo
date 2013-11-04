@@ -22,13 +22,9 @@ globals
   volume
   temperature
   collide?
-  show-dark?                 ;; hides or shows the dark particles in the simulation.
-                             ;; see NetLogo features Info tab for full explanation of
-                             ;; what dark-particles are and why they are used.
 ]
 
 breed [ particles particle ]
-breed [ dark-particles dark-particle ]
 breed [ flashes flash ]
 
 flashes-own [birthday]
@@ -42,25 +38,15 @@ particles-own
   momentum-instant
 ]
 
-dark-particles-own
-[
-  speed mass energy          ;; particle info
-  wall-hits                  ;; # of wall hits during this clock cycle ("big tick")
-  momentum-difference        ;; used to calculate pressure from wall hits
-  last-collision
-  momentum-instant
-]
 
 to setup
   ca reset-ticks
-  set show-dark? false
   set collide? true
-   set maxparticles 400
+  set maxparticles 400
   set temp-increment 7.5
   set min-outside-energy 0
   set max-outside-energy 300
   set-default-shape particles "circle"
-  set-default-shape dark-particles "nothing"
   set-default-shape flashes "square"
   set max-tick-delta 0.1073
   ;; box has constant size...
@@ -75,7 +61,7 @@ to setup
   set length-vertical-surface  ( 2 * (box-edge - 1) + 1)
   set outside-energy 100
   make-box
-  make-particles maxparticles
+  make-particles initial-number
   set pressure-history [0 0 0]  ;; plotted pressure will be averaged over the past 3 entries
   set zero-pressure-count 0
   update-variables
@@ -86,10 +72,9 @@ to setup
   set init-avg-energy avg-energy
 
   do-plotting
-  if speed-as-color? = "red-green-blue" [ ask particles [recolor-banded ] ]
-  if speed-as-color? = "purple shades" [ ask particles [recolor-shaded ]]
-  if speed-as-color? = "one color" [ ask particles [recolor-none ]]
-  if speed-as-color? = "custom color" [ ]
+  do-recolor
+  set total-particle-number initial-number
+  calculate-tick-delta
 end
 
 
@@ -98,15 +83,10 @@ to go
     [ set pcolor box-color ]
   ask particles [ bounce ]
   ask particles [ move ]
-  ask dark-particles [ bounce-dark ]
-  ask dark-particles [ move ]
   ask particles [ showlabel ]
   if collide?
   [
     ask particles
-      [ check-for-collision ]
-
-    ask dark-particles
       [ check-for-collision ]
   ]
   tick-advance tick-delta
@@ -130,14 +110,8 @@ to go
 
   ask flashes with [ticks - birthday > 0.4]
     [ die ]
-
-  if speed-as-color? = "red-green-blue"
-    [ ask particles [recolor-banded ] ]
-  if speed-as-color? = "blue shades"
-    [ ask particles [recolor-shaded ] ]
-  if speed-as-color? = "one color"
-    [ ask particles [recolor-none ] ]
   set temperature (avg-energy * 6)
+  do-recolor
   display
 end
 
@@ -204,7 +178,6 @@ to bounce  ;; particle procedure
   if [heated-wall?] of patch new-px new-py   ;; check if the patch ahead of us is heated
     [ set energy ((energy +  outside-energy ) / 2)
       set speed sqrt (2 * energy / mass )
-      recolor-banded
     ]
 
 
@@ -251,7 +224,6 @@ to bounce-dark  ;; particle procedure
   if [heated-wall?] of patch new-px new-py   ;; check if the patch ahead of us is heated
     [ set energy ((energy +  outside-energy ) / 2)
       set speed sqrt (2 * energy / mass )
-      recolor-banded
     ]
 
 
@@ -298,9 +270,8 @@ to check-for-collision  ;; particle procedure
   ;; because some collisions eventually do start occurring when it thins out while fanning.)
   let others-here nobody
 
-  ifelse breed = particles
+  if breed = particles
     [ set others-here other particles-here ]
-    [ set others-here other dark-particles-here ]
 
   if count others-here = 1
     [ ;; the following conditions are imposed on collision candidates:
@@ -419,13 +390,6 @@ to collide-with [ other-particle ] ;; particle procedure
   ]
 
 
-  ;; PHASE 5: final updates
-
-  ;; now recolor, since color is based on quantities that may have changed
-;;;
-;;; visualization procedures
-;;;
-
 end
 
 
@@ -469,14 +433,25 @@ to showlabel
 end
 
 
-to recolor-banded  ;; particle procedure
-  ifelse speed < (0.5 * 10)
-    [ set color blue ]
-    [ ifelse speed > (1.5 * 10)
-        [ set color red ]
-        [ set color green ]
-    ]
+to do-recolor
+  ask particles [
+    if speed-as-color? = "red-green-blue" [ recolor-rgb ]
+    if speed-as-color? = "purple shades" [ recolor-shaded ]
+    if speed-as-color?  = "one color" [ recolor-none ]
+    if speed-as-color? = "custom color" [ ]
+  ]
 end
+
+to recolor-rgb  ;; particle procedure
+  ifelse speed < (0.5 * 10)
+  [set color blue]
+  [
+    ifelse speed > (1.5 * 10)
+      [ set color red ]
+      [ set color green ]
+  ]
+end
+
 
 
 to recolor-shaded
@@ -533,25 +508,15 @@ to make-box
 end
 
 ;; creates initial particles
-to make-particles  [n]
+
+to make-particles [number]
   create-particles number
-    [ setup-particle
-      if speed-as-color? = "red-green-blue" [ recolor-banded ]
-      if speed-as-color? = "blue shades" [ recolor-shaded ]
-      if speed-as-color? = "one color" [ recolor-none ]
-    ]
+  [
+    setup-particle
+    random-position
+  ]
 
-  create-dark-particles ( n - number )
-    [ setup-particle
-      set color red
-      if show-dark? [set shape "default"]
-    ]
-
-  set total-particle-number number
-
-  calculate-tick-delta
 end
-
 
 to setup-particle  ;; particle procedure
   set speed random-float 20
@@ -662,8 +627,8 @@ SLIDER
 10
 123
 43
-number
-number
+initial-number
+initial-number
 1
 400
 100
@@ -800,8 +765,8 @@ CHOOSER
 120
 speed-as-color?
 speed-as-color?
-"red-green-blue" "blue shades" "one color" "custom color"
-1
+"red-green-blue" "purple shades" "one color" "custom color"
+2
 
 OUTPUT
 131
@@ -980,7 +945,7 @@ false
 Rectangle -7500403 true true 0 0 297 299
 
 @#$#@#$#@
-NetLogo 5.0.5
+NetLogo 5.0.4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

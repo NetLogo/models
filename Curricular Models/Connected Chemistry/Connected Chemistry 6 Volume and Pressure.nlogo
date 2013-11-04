@@ -21,13 +21,9 @@ globals
   run-go?                    ;; flag of whether or not its safe for go to run.  Used for resuming after MOVE WALL
   temp-volume
   temp-target-wall           ;; location of where the wall will be moved to
-  show-dark?                 ;; hides or shows the dark particles in the simulation.
-                             ;; see NetLogo features Info tab for full explanation of
-                             ;; what dark particles are and why they are used.
 ]
 
 breed [ particles particle ]
-breed [ dark-particles dark-particle ]
 breed [ flashes flash ]
 breed [ volume-target the-target ]      ;; used for the cursor that appears at the mouse coordinates in the
                              ;; WORLD & VIEW, when using MOVE WALL
@@ -44,22 +40,12 @@ particles-own
   last-collision             ;; keeps track of last particle this particle collided with
 ]
 
-dark-particles-own
-[
-  speed mass                 ;; particle info
-  wall-hits                  ;; # of wall hits during this ticks cycle ("big tick")
-  momentum-difference        ;; used to calculate pressure from wall hits
-  momentum-instant
-  last-collision             ;; keeps track of last particle this particle collided with
-]
 
 to setup
   ca reset-ticks
-  set show-dark? false
   set maxparticles 500
   set run-go? true
   set-default-shape particles "circle"
-  set-default-shape dark-particles "nothing"
   set labels? false
   set particles-to-add 0
   ;; box has constant size...
@@ -89,6 +75,8 @@ to setup
       [ask turtles [ set label ""]]
 
   create-volume-target 1 [set color white ht]  ;; cursor for targeting new location for volume using MOVE WALL
+  do-recolor
+  calculate-tick-delta
 end
 
 to go
@@ -98,14 +86,8 @@ to go
 
     ask particles [ bounce ]
     ask particles [ move ]
-    ask dark-particles[ bounce ]
-    ask dark-particles[ move ]
     if collisions? [
-    ask particles
-      [ check-for-collision ]
-
-    ask dark-particles
-      [ check-for-collision ]
+      ask particles [ check-for-collision ]
     ]
     tick-advance tick-delta
 
@@ -131,7 +113,7 @@ to go
       [ask particles [ set label who set label-color orange + 3 ]]
       [ask particles [ set label ""]]
   ;; now recolor, since color is based on quantities that may have changed
-    ask particles [  recolor ]
+    do-recolor
     display
 end
 
@@ -264,9 +246,8 @@ to check-for-collision  ;; particle procedure
   ;; because some collisions eventually do start occurring when it thins out while fanning.)
   let others-here nobody
 
-  ifelse( breed = particles )
+  if ( breed = particles )
   [ set others-here other particles-here ]
-  [ set others-here other dark-particles-here ]
 
   if count others-here = 1
   [
@@ -387,10 +368,6 @@ to collide-with [ other-particle ] ;; particle procedure
       [ set heading (theta - (atan v2l v2t)) ]
   ]
 
-  ;; PHASE 5: final updates
-
-  ;; now recolor, since color is based on quantities that may have changed
-  recolor
 end
 
 
@@ -398,14 +375,16 @@ end
 ;;; visualization procedures
 ;;;
 
-to recolor
-    if show-speed-as-color? = "red-green-blue" [ recolor-banded ]
+to do-recolor
+  ask particles [
+    if show-speed-as-color? = "red-green-blue" [ recolor-rgb ]
     if show-speed-as-color? = "purple shades" [ recolor-shaded ]
     if show-speed-as-color?  = "one color" [ recolor-none ]
     if show-speed-as-color? = "custom color" [ ]
+  ]
 end
 
-to recolor-banded  ;; particle procedure
+to recolor-rgb  ;; particle procedure
   ifelse speed < (0.5 * 10)
   [
     set color blue
@@ -514,26 +493,15 @@ end
 
 ;; creates initial particles
 to make-particles [n]
-
-  create-particles number
+  create-particles initial-number
   [
     setup-particle
-    set speed random-float 20
     random-position
-    recolor
   ]
 
-  create-dark-particles ( n - number )
-  [
-    setup-particle
-    set speed random-float 20
-    random-position
-    if show-dark? [set shape "default" set color green ]
-  ]
+  set total-particle-number initial-number
 
-  set total-particle-number number
-
-  calculate-tick-delta
+  
 end
 
 to setup-particle  ;; particle procedure
@@ -642,12 +610,12 @@ NIL
 1
 
 SLIDER
-9
+5
 11
 140
 44
-number
-number
+initial-number
+initial-number
 0
 400
 100
@@ -675,10 +643,10 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 MONITOR
-9
-174
-137
-219
+15
+265
+160
+310
 wall hits per particle
 wall-hits-per-particle
 2
@@ -719,10 +687,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-121
-92
-211
-125
+120
+85
+210
+118
 move wall
 move-piston
 T
@@ -736,10 +704,10 @@ NIL
 1
 
 MONITOR
-65
-124
-123
-169
+15
+220
+160
+265
 NIL
 volume
 3
@@ -765,37 +733,37 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 CHOOSER
-6
-44
-140
-89
+15
+175
+160
+220
 show-speed-as-color?
 show-speed-as-color?
 "red-green-blue" "purple shades" "one color" "custom color"
-1
+2
 
 OUTPUT
-125
-143
-211
-173
-12
+124
+140
+210
+170
+18
 
 TEXTBOX
 142
-125
+122
 197
-143
+140
 pressure
 11
 0.0
 0
 
 SWITCH
-9
-91
-112
-124
+8
+84
+111
+117
 labels?
 labels?
 1
@@ -921,7 +889,7 @@ true
 0
 
 @#$#@#$#@
-NetLogo 5.0.5
+NetLogo 5.0.4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -939,5 +907,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@

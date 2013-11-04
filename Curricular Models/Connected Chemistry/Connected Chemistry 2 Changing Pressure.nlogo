@@ -15,9 +15,7 @@ globals
   maxparticles
   particles-to-add           ;; keeps track of particles to add after pressing ADD PARTICLES
   new-particles              ;; agentset of particles added via add-particles-middle
-  show-dark?                 ;; hides or shows the dark particles in the simulation.
-                             ;; see NetLogo features Info tab for full explanation of
-                             ;; what dark particles are and why they are used.
+
 ]
 
 breed [ particles particle ]
@@ -35,13 +33,11 @@ particles-own
   momentum-difference        ;; used to calculate pressure from wall hits
   momentum-instant           ;; used to calculate pressure
   last-collision             ;; keeps track of last particle this particle collided with
-  darkparticle?              ;; is this particle visible and interacting with visible particles?
 ]
 
 
 to setup
   ca reset-ticks
-  set show-dark? false
   set-default-shape particles "circle"
     set-default-shape flashes "square"
   set maxparticles 400
@@ -66,7 +62,7 @@ to setup
   set delta-vertical-surface  ( 2 * (box-edge - 1) + 1)
   draw-box
   set collisions? true
-  make-particles maxparticles
+  make-particles initial-number
   if labels? [turn-labels-on]
 
   reset-ticks
@@ -79,19 +75,17 @@ to go
     ask particles [ bounce ]
     ask particles [ move ]
     if collisions? [
-    ask particles with [darkparticle? = false]
-      [ check-for-collision-regular ]
+    ask particles 
+      [ check-for-collision ]
 
-    ask particles with [darkparticle? = true]
-      [ check-for-collision-dark ]
     ]
     set old-clock ticks
     tick-advance tick-delta
     calculate-instant-pressure
 
     if floor ticks > floor (ticks - tick-delta) [
-       ifelse any? particles with [darkparticle? = false]
-          [ set wall-hits-per-particle mean [wall-hits] of particles with [darkparticle? = false] ]
+       ifelse any? particles 
+          [ set wall-hits-per-particle mean [wall-hits] of particles  ]
           [ set wall-hits-per-particle 0 ]
        ask particles  [ set wall-hits 0 ]
        calculate-pressure
@@ -138,7 +132,7 @@ end
 to calculate-instant-pressure
   ;; by summing the momentum change for each particle,
   ;; the wall's total momentum change is calculated
-  set instant-pressure 15 * sum [momentum-instant] of particles with [darkparticle? = false]
+  set instant-pressure 15 * sum [momentum-instant] of particles 
   output-print precision instant-pressure 1
   ask particles
     [ set momentum-instant 0 ]  ;; once the contribution to momentum has been calculated
@@ -151,7 +145,7 @@ to calculate-pressure
   ;; by summing the momentum change for each particle,
   ;; the wall's total momentum change is calculated
 
-  set pressure 15 * sum [momentum-difference] of particles with [darkparticle? = false]
+  set pressure 15 * sum [momentum-difference] of particles 
   set pressure-history lput pressure but-first pressure-history
 
   ask particles
@@ -192,16 +186,16 @@ to bounce  ;; particle procedure
 
     set momentum-instant  (abs (dy * 2 * mass * speed) / delta-horizontal-surface)
     set momentum-difference momentum-difference + momentum-instant  ]
-
-
-  if (darkparticle? = false) [
+  
   ask patch new-px new-py
     [ sprout 1 [
                  set breed flashes
                  set birthday ticks
                  set color yellow - 3 ] ]
-      ]
+
 end
+
+
 
 to move  ;; particle procedure
   if patch-ahead (speed * tick-delta) != patch-here
@@ -209,7 +203,7 @@ to move  ;; particle procedure
   jump (speed * tick-delta)
 end
 
-to check-for-collision-regular  ;; particle procedure
+to check-for-collision  ;; particle procedure
   let candidate 0
 
 
@@ -244,7 +238,7 @@ to check-for-collision-regular  ;; particle procedure
   ;; the wavefront closely, you will see that it is not completely smooth,
   ;; because some collisions eventually do start occurring when it thins out while fanning.)
 
-  if count other particles-here with [darkparticle? = false] = 1
+  if count other particles-here  = 1
   [
     ;; the following conditions are imposed on collision candidates:
     ;;   1. they must have a lower who number than my own, because collision
@@ -254,7 +248,7 @@ to check-for-collision-regular  ;; particle procedure
     ;;      this patch, so that we have a chance to leave the patch after we've
     ;;      collided with someone.
     set candidate one-of other particles-here with
-      [who < [who] of myself and myself != last-collision and darkparticle? = false]
+      [who < [who] of myself and myself != last-collision ]
     ;; we also only collide if one of us has non-zero speed. It's useless
     ;; (and incorrect, actually) for two particles with zero speed to collide.
     if (candidate != nobody) and (speed > 0 or [speed] of candidate > 0)
@@ -269,62 +263,6 @@ end
 
 
 
-to check-for-collision-dark  ;; particle procedure
-  let candidate 0
-
-
-  ;; Here we impose a rule that collisions only take place when there
-  ;; are exactly two particles per patch.  We do this because when the
-  ;; student introduces new particles from the side, we want them to
-  ;; form a uniform wavefront.
-  ;;
-  ;; Why do we want a uniform wavefront?  Because it is actually more
-  ;; realistic.  (And also because the curriculum uses the uniform
-  ;; wavefront to help teach the relationship between particle collisions,
-  ;; wall hits, and pressure.)
-  ;;
-  ;; Why is it realistic to assume a uniform wavefront?  Because in reality,
-  ;; whether a collision takes place would depend on the actual headings
-  ;; of the particles, not merely on their proximity.  Since the particles
-  ;; in the wavefront have identical speeds and near-identical headings,
-  ;; in reality they would not collide.  So even though the two-particles
-  ;; rule is not itself realistic, it produces a realistic result.  Also,
-  ;; unless the number of particles is extremely large, it is very rare
-  ;; for three or more particles to land on the same patch (for example,
-  ;; with 400 particles it happens less than 1% of the time).  So imposing
-  ;; this additional rule should have only a negligible effect on the
-  ;; aggregate behavior of the system.
-  ;;
-  ;; Why does this rule produce a uniform wavefront?  The particles all
-  ;; start out on the same patch, which means that without the only-two
-  ;; rule, they would all start colliding with each other immediately,
-  ;; resulting in much random variation of speeds and headings.  With
-  ;; the only-two rule, they are prevented from colliding with each other
-  ;; until they have spread out a lot.  (And in fact, if you observe
-  ;; the wavefront closely, you will see that it is not completely smooth,
-  ;; because some collisions eventually do start occurring when it thins out while fanning.)
-
-  if count other particles-here with [darkparticle? = true] = 1
-  [
-    ;; the following conditions are imposed on collision candidates:
-    ;;   1. they must have a lower who number than my own, because collision
-    ;;      code is asymmetrical: it must always happen from the point of view
-    ;;      of just one particle.
-    ;;   2. they must not be the same particle that we last collided with on
-    ;;      this patch, so that we have a chance to leave the patch after we've
-    ;;      collided with someone.
-    set candidate one-of other particles-here with
-      [who < [who] of myself and myself != last-collision and darkparticle? = true]
-    ;; we also only collide if one of us has non-zero speed. It's useless
-    ;; (and incorrect, actually) for two particles with zero speed to collide.
-    if (candidate != nobody) and (speed > 0 or [speed] of candidate > 0)
-    [
-      collide-with candidate
-      set last-collision candidate
-      ask candidate [ set last-collision myself ]
-    ]
-  ]
-end
 
 
 ;; implements a collision with another particle.
@@ -423,9 +361,6 @@ to collide-with [ other-particle ] ;; particle procedure
   ]
 
 
-  ;; PHASE 5: final updates
-
-  ;; now recolor, since color is based on quantities that may have changed
 end
 
 ;;;
@@ -462,12 +397,6 @@ to make-particles [number]
 
   set total-particle-number initial-number
 
-  ask particles with [who < initial-number]
-    [
-      set shape "circle"
-      set darkparticle? false
-
-    ]
 
   calculate-tick-delta
 end
@@ -476,20 +405,20 @@ end
 ;; adds particles from the left (the valve from a pump)
 to add-particles-side
 
-       set particles-to-add number-to-add
+  set particles-to-add number-to-add
   ifelse ((particles-to-add + total-particle-number ) > maxparticles)
     [user-message (word "The maximum number of particles allowed in this model is "  maxparticles  ".  You can not add "  number-to-add
-     " more particles to the "  count particles with [darkparticle? = false]  " you already have in the model")]
+     " more particles to the "  count particles   " you already have in the model")]
     [
       if particles-to-add > 0 [
 
-       ask particles with [who < (total-particle-number + particles-to-add) and who >= total-particle-number]
-        [ set darkparticle? false
+       create-particles particles-to-add
+        [ 
           set shape "circle"
           setxy (- box-edge) 0
           set heading 90 ;; east
           rt 45 - random-float 90
-          set speed 10
+          setup-particle
           recolornone
         ]
       set total-particle-number (total-particle-number + particles-to-add)
@@ -498,7 +427,6 @@ to add-particles-side
       calculate-tick-delta
       ]
      ]
-
 end
 
 
@@ -508,10 +436,6 @@ to setup-particle  ;; particle procedure
   set last-collision nobody
   set wall-hits 0
   set momentum-difference 0
-  set darkparticle? true
-  ifelse show-dark?
-    [set shape "default"]
-    [set shape "nothing" set color green]
 end
 
 
@@ -667,7 +591,7 @@ MONITOR
 126
 169
 Number
-count particles with [darkparticle? = false]
+count particles
 0
 1
 11
@@ -851,7 +775,7 @@ false
 Rectangle -7500403 true true 0 0 300 300
 
 @#$#@#$#@
-NetLogo 5.0.5
+NetLogo 5.0.4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
