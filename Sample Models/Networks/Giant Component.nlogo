@@ -17,7 +17,7 @@ globals
 
 to setup
   clear-all
-  set-default-shape turtles "circle"
+  set-default-shape turtles "person"
   make-turtles
   ;; at this stage, all the components will be of size 1,
   ;; since there are no edges yet
@@ -27,7 +27,7 @@ to setup
 end
 
 to make-turtles
-  crt num-nodes
+  crt num-nodes [ set size 3 ]
   layout-circle turtles max-pxcor - 1
 end
 
@@ -36,7 +36,7 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;
 
 to go
-  ;; if the below condition is true then we have a fully connected network and we need to stop
+  ;; stop if the below condition is true, as then we have a fully connected network (every two nodes are connected)
   if ( (2 * count links ) >= ( (count turtles) * (count turtles - 1) ) ) [
     display
     user-message "Network is fully connected. No more edges can be added."
@@ -46,7 +46,8 @@ to go
   find-all-components
   color-giant-component
   ask links [ set color [color] of end1 ]  ;; recolor all edges
-  layout
+  ;; layout the turtles with a spring layout, but stop laying out when all nodes are in the giant component
+  if not all? turtles [ color = red ] [ layout ]
   tick
 end
 
@@ -111,7 +112,6 @@ to add-edge
     ;; else, go ahead and make it
     [ create-link-with node2 ]
   ]
-
 end
 
 ;;;;;;;;;;;;;;
@@ -285,7 +285,7 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-In a network, a "component" is a group of nodes that are all connected to each other, directly or indirectly.  So if a network has a "giant component", that means almost every node is reachable from almost every other.  This model shows how quickly a giant component arises if you grow a random network.
+In a network, a "component" is a group of nodes (people) that are all connected to each other, directly or indirectly.  So if a network has a "giant component", that means almost every node is reachable from almost every other.  This model shows how quickly a giant component arises if you grow a random network.
 
 ## HOW IT WORKS
 
