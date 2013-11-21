@@ -16,7 +16,7 @@ def hasActualCode(line:String):Boolean =
 
 val hash = collection.mutable.HashMap[String,Int]()
 for{path <- Process(Seq("find", "models/Sample Models", "-name", "*.nlogo", "-o", "-name", "*.nlogo3d")).lines
-    name = path.split("/").last.dropRight(6)
+    name = path.split("/").last.stripSuffix(".nlogo")
     if !path.containsSlice("/System Dynamics/")
     if !path.containsSlice("/GasLab/") || List("GasLab Circular Particles","GasLab Gas in a Box").contains(name)}
   hash += name -> io.Source.fromFile(path).getLines.takeWhile(_ != "@#$#@#$#@").count(hasActualCode)
