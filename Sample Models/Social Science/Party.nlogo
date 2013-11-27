@@ -84,7 +84,7 @@ to spread-out-vertically  ;; turtle procedure
     [ set heading 180 ]  ;; face north
     [ set heading   0 ]  ;; face south
   fd 4                   ;; leave a gap
-  while [any? other turtles-here] [ fd 1 ]
+  while [any? other turtles-here and can-move? 1] [ fd 1 ]
 end
 
 to count-boring-groups
