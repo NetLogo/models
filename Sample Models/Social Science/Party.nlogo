@@ -90,7 +90,7 @@ to spread-out-vertically  ;; turtle procedure
     [ set heading   0 ]  ;; face south
   fd 4                   ;; leave a gap
   while [any? other turtles-here] [
-    if-else can-move? 1 [
+    if-else can-move? 2 [
       fd 1
     ]
     [ ;; else, if we reached the edge of the screen
