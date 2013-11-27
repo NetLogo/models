@@ -5,6 +5,7 @@ globals [
 
 turtles-own [
   happy?         ;; true or false
+  my-group-site
 ]
 
 to setup
@@ -14,7 +15,8 @@ to setup
   create-turtles number [
     choose-sex                   ;; become a man or a woman
     set size 3                   ;; be easier to see
-    move-to one-of group-sites
+    set my-group-site one-of group-sites
+    move-to my-group-site
   ]
   ask turtles [ update-happiness ]
   count-boring-groups
@@ -26,13 +28,16 @@ end
 to go
   if all? turtles [happy?]
     [ stop ]  ;; stop the simulation if everyone is happy
-  ask turtles [ set ycor 0 ]  ;; put all people back on the x-axis
+  ask turtles [ move-to my-group-site ]  ;; put all people back to their group sites
   ask turtles [ update-happiness ]
   ask turtles [ leave-if-unhappy ]
   find-new-groups
   update-labels
   count-boring-groups
-  ask turtles [ spread-out-vertically ]
+  ask turtles [
+    set my-group-site patch-here
+    spread-out-vertically
+  ]
   tick
 end
 
@@ -84,7 +89,16 @@ to spread-out-vertically  ;; turtle procedure
     [ set heading 180 ]  ;; face north
     [ set heading   0 ]  ;; face south
   fd 4                   ;; leave a gap
-  while [any? other turtles-here and can-move? 1] [ fd 1 ]
+  while [any? other turtles-here] [
+    if-else can-move? 1 [
+      fd 1
+    ]
+    [ ;; else, if we reached the edge of the screen
+      set xcor xcor - 1  ;; take a step to the left
+      set ycor 0         ;; and move to the base a new stack
+      fd 4
+    ]
+  ]
 end
 
 to count-boring-groups
