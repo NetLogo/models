@@ -166,13 +166,13 @@ end                                                                     ;; we ge
                                                                         ;; Using this, we have R_0 = beta*N / gamma = N*ln(S(0)/S(t)) / (K-S(t))
 @#$#@#$#@
 GRAPHICS-WINDOW
-656
-10
-1114
-489
+644
+13
+1104
+494
 12
 12
-17.92
+18.0
 1
 10
 1
@@ -746,7 +746,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.5
+NetLogo 5.0.5-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
