@@ -13,7 +13,7 @@ val ignores = List("/3D/", "/Curricular Models/Urban Suite/", "/test/")
 
 for{path <- Process("find models -name *.nlogo -or -name *.nlogo3d").lines
     if ignores.forall(!path.containsSlice(_))
-    lines = (Process(new File(path)) #> "aspell --encoding=UTF-8 -H -p ./dist/modelwords.txt list").lines
+    lines = (Process(new File(path)) #> "aspell --encoding=UTF-8 --lang=en_US -H -p ./dist/modelwords.txt list").lines
     if lines.nonEmpty}
 {
   println(path)
