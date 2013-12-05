@@ -297,7 +297,7 @@ end
 
 
 to reproduce-invaders  ;; bugs procedure
-  let number-offspring (random (max-invaders-offspring + 1)) ;; set number of potential offpsring from 1 to (max-invaders-offspring)
+  let number-offspring (random (max-invaders-offspring + 1)) ;; set number of potential offspring from 1 to (max-invaders-offspring)
   if (energy > ((number-offspring + 1) *  min-reproduce-energy-invaders)  and current-age > invader-reproduce-age)
   [
     if random 2 = 1           ;;only half of the fertile invaders reproduce (gender)
