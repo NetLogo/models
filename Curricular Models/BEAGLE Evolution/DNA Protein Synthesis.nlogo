@@ -1,23 +1,23 @@
-;;;;;;;;;;;;; DNA molecules  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
+;;;;;;;;;;;;; DNA molecules  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 breed [genes gene]                          ;; keeps a list of the dna code for a given gene
 breed [nucleotides nucleotide]              ;; the pieces that are inside the dna chain
 breed [promoters promoter]                  ;; a visualization agent (similar to a promoter protein) that attaches to every start codon location in a DNA chain
 breed [terminators terminator]              ;; a visualization agent that attaches to every stop codon location in a DNA chain
 
-;;;;;;;;;;;;; mRNA molecules  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
+;;;;;;;;;;;;; mRNA molecules  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 breed [mRNA-nucleotides mRNA-nucleotide]    ;; the pieces that are inside the mRNA chain
-breed [mRNAs mRNA]                          ;; the tail ends of the mRNA chain   
+breed [mRNAs mRNA]                          ;; the tail ends of the mRNA chain
 
-;;;;;;;;;;;;; trna molecules  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;      
+;;;;;;;;;;;;; tRNA molecules  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 breed [tRNAs tRNA]                          ;; the center piece of the tRNA complex
 breed [tRNA-nucleotides tRNA-nucleotide]    ;; the pieces that are inside the tRNA complex
 breed [amino-acids amino-acid]              ;; the top part of the tRNA complex
 
-;;;;;;;;;;;;; protein molecules  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;     
+;;;;;;;;;;;;; protein molecules  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 breed [proteins protein]                    ;; holds proteins information
 
 ;;;;;;;;;;;;; tags for supporting a fine tuned placement of labels ;;;;;;;;;;;;;
-breed [tags tag]                 
+breed [tags tag]
 
 ;;;;;;;;;;;;; links ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 undirected-link-breed [taglines tagline]    ;; the link between an agent and where its label agent is.  This allows fine tuned placement of visualizing of labels
@@ -31,10 +31,10 @@ terminators-own      [gene-number strand]
 tRNAs-own            [gene-number strand]
 proteins-own         [gene-number strand value]
 amino-acids-own      [gene-number strand value place]
-nucleotides-own      [gene-number strand value place]                                  
-mRNA-nucleotides-own [gene-number strand value place] 
-tRNA-nucleotides-own [gene-number strand value place] 
-tags-own             [value]                               ; the value for the label of the agent it is linked to when visualized.  
+nucleotides-own      [gene-number strand value place]
+mRNA-nucleotides-own [gene-number strand value place]
+tRNA-nucleotides-own [gene-number strand value place]
+tags-own             [value]                               ; the value for the label of the agent it is linked to when visualized.
 
 
 
@@ -48,27 +48,27 @@ globals [
   duplicate-dna-string              ;; holds a string of the duplicate DNA.  This changes every time the replicate DNA button is pressed
 
   ;; position values for visualization
-  duplicate-ribosome-ycor 
+  duplicate-ribosome-ycor
   original-ribosome-ycor
-  duplicate-dna-ycor 
-  original-dna-ycor 
+  duplicate-dna-ycor
+  original-dna-ycor
   nucleotide-spacing
-  
+
   ;; colors for various agents and states of agents
   nucleo-tag-color
   terminator-color
   gene-color-counter
-  
+
   ;; counters for the number of genes
-  original-strand-gene-counter       
+  original-strand-gene-counter
   duplicate-strand-gene-counter
   original-display-mrna-counter
   duplicate-display-mrna-counter
- 
+
   mRNAs-traveling                    ;; list of mRNAs traveling
   mRNAs-released                     ;; list of mRNAs released
-   
-  ;; for keeping track of user initiated events 
+
+  ;; for keeping track of user initiated events
   replicate-dna-event?
   show-genes-event?
   event-1-triggered?
@@ -97,7 +97,7 @@ to setup
   clear-all
   set replicate-dna-event? false
   set show-genes-event? false
-  
+
   set event-1-triggered? false
   set event-2-triggered? false
   set event-3-triggered? false
@@ -114,30 +114,30 @@ to setup
   set event-7-completed? false
   set event-8-completed? false
   set event-9-completed? false
- 
-  
-  set mRNAs-traveling []                             
-  set mRNAs-released  [] 
+
+
+  set mRNAs-traveling []
+  set mRNAs-released  []
   set codon-to-amino-acid-key []
   set original-dna-string ""
   set duplicate-dna-string ""
-  
+
   set duplicate-ribosome-ycor -7
   set original-ribosome-ycor 4
   set duplicate-dna-ycor -2
   set original-dna-ycor 1
   set gene-color-counter 1
-  set nucleotide-spacing .45 
-  
+  set nucleotide-spacing .45
+
   set original-strand-gene-counter 0
   set duplicate-strand-gene-counter 0
   set original-display-mrna-counter 0
   set duplicate-display-mrna-counter 0
-  
+
   set-default-shape promoters "start"
   set-default-shape terminators "end"
   set-default-shape tags "empty"
-  
+
   set terminator-color      [255 0 0 150]
   set nucleo-tag-color      [255 255 255 120]
 
@@ -158,7 +158,7 @@ to setup-starting-dna
   build-genes-from-dna "original" original-dna-string
   make-a-nucleotide-chain-for-dna-string "original" original-dna-string
   place-dna "original"
-  build-mrna-for-each-gene "original" 
+  build-mrna-for-each-gene "original"
   build-protein-from-mrna  "original"
   place-trnas "original"
   hide-mrna   "original"
@@ -170,8 +170,8 @@ end
 
 ;; original-dna-string
 to setup-dna-string
-  if initial-dna-string = "from user-created-code" [set original-dna-string dna-string-with-non-nucleotide-characters-replaced user-created-code]  
-  if initial-dna-string = "random (short strand)" [ 
+  if initial-dna-string = "from user-created-code" [set original-dna-string dna-string-with-non-nucleotide-characters-replaced user-created-code]
+  if initial-dna-string = "random (short strand)" [
     let initial-length-dna 12
     repeat initial-length-dna [set original-dna-string (word original-dna-string random-base-letter-DNA)]
   ]
@@ -179,13 +179,13 @@ to setup-dna-string
     let initial-length-dna 56
     repeat initial-length-dna [set original-dna-string (word original-dna-string random-base-letter-DNA)]
   ]
-  if initial-dna-string = "no genes (short strand)" [set original-dna-string "ATTATATCGTAG"] 
-  if initial-dna-string = "no genes (long strand)"  [set original-dna-string "GATATTTGGTAGCCCGAGAAGTGGTTTTTCAGATAACAGAGGTGGAGCAGCTTTTAG"]   
-  if initial-dna-string = "1 short gene"            [set original-dna-string "ATTATGTGGTAG"]      
+  if initial-dna-string = "no genes (short strand)" [set original-dna-string "ATTATATCGTAG"]
+  if initial-dna-string = "no genes (long strand)"  [set original-dna-string "GATATTTGGTAGCCCGAGAAGTGGTTTTTCAGATAACAGAGGTGGAGCAGCTTTTAG"]
+  if initial-dna-string = "1 short gene"            [set original-dna-string "ATTATGTGGTAG"]
   if initial-dna-string = "1 long gene"             [set original-dna-string "GGGATGGACACCTTATCATTTGCTACTAGCGACCAGTTTGAGTAGCTTCGTCGGTGA"]
-  if initial-dna-string = "2 sequential genes"      [set original-dna-string "AGTATGAAAACCCACGAGTGGTAGCCCGAGATTGAGATGTGGTTTTTCAGATAACAG"]  
-  if initial-dna-string = "2 nested genes"          [set original-dna-string "GTTATGAGGGGGACCCGAGATGTGGTTTTTGAAATAGACAAGTAGACCCTAATAGAC"] 
-  if initial-dna-string = "3 sequential genes"      [set original-dna-string "GATATGTGGTAGCCCGAGATGTGGTTTTTCAGATAACAGATGTGGAGCAGCTTTTAG"]   
+  if initial-dna-string = "2 sequential genes"      [set original-dna-string "AGTATGAAAACCCACGAGTGGTAGCCCGAGATTGAGATGTGGTTTTTCAGATAACAG"]
+  if initial-dna-string = "2 nested genes"          [set original-dna-string "GTTATGAGGGGGACCCGAGATGTGGTTTTTGAAATAGACAAGTAGACCCTAATAGAC"]
+  if initial-dna-string = "3 sequential genes"      [set original-dna-string "GATATGTGGTAGCCCGAGATGTGGTTTTTCAGATAACAGATGTGGAGCAGCTTTTAG"]
 end
 
 
@@ -199,7 +199,7 @@ end
 
 
 to place-trnas [strand-type]
-  ask trnas with [strand = strand-type] [
+  ask tRNAs with [strand = strand-type] [
     if strand-type = "original"   [set ycor original-ribosome-ycor + 1]
     if strand-type = "duplicate"  [set ycor duplicate-ribosome-ycor + 1]
   ]
@@ -210,20 +210,20 @@ to make-a-nucleotide-chain-for-dna-string [strand-type dna-string]
   let previous-nucleotide nobody
   let place-counter 0
   create-turtles 1 [
-    set heading 90 
-    fd 1 
+    set heading 90
+    fd 1
     repeat (length dna-string) [
         hatch 1 [
-          set breed nucleotides 
+          set breed nucleotides
           set strand strand-type
           set value item place-counter dna-string
-          set shape (word "nucleotide-" value) 
-          set heading 0          
+          set shape (word "nucleotide-" value)
+          set heading 0
           set place place-counter
           attach-tag 5 0.5 value nucleo-tag-color
           set place-counter place-counter + 1
           ]
-       fd nucleotide-spacing   
+       fd nucleotide-spacing
        ]
    die ;; remove the chromosome builder (a temporary construction turtle)
   ]
@@ -248,76 +248,76 @@ to build-genes-from-dna [strand-type dna-string]
     set triplet (word last-last-item last-item this-item)
     if triplet = "ATG" [
       create-genes 1 [
-        set hidden? true   
+        set hidden? true
         set strand strand-type
         if strand = "original"  [
-          set original-strand-gene-counter original-strand-gene-counter + 1 
+          set original-strand-gene-counter original-strand-gene-counter + 1
           set gene-number original-strand-gene-counter
         ]
         if strand = "duplicate" [
-          set duplicate-strand-gene-counter duplicate-strand-gene-counter + 1 
+          set duplicate-strand-gene-counter duplicate-strand-gene-counter + 1
           set gene-number duplicate-strand-gene-counter
         ]
         set start-position item-position
         set end-position ((length original-dna-string))
-        set code (word triplet substring dna-string (item-position + 1) ((length dna-string) ) )        
+        set code (word triplet substring dna-string (item-position + 1) ((length dna-string) ) )
         ]
      ]
      set item-position item-position + 1
-  ]     
-  ask genes [ 
+  ]
+  ask genes [
     let end-of-gene? false
     let triplet-counter 0
     let new-code code
     repeat floor (length code / 3)  [
       let this-triplet (word  (item (0 + (triplet-counter * 3)) code)  (item (1 + (triplet-counter * 3)) code)  (item (2 + (triplet-counter * 3)) code) )
       if (this-triplet =  "TAG" or this-triplet = "TGA"  or this-triplet = "TAA") and not end-of-gene? [
-        set end-position triplet-counter * 3 
+        set end-position triplet-counter * 3
         set new-code substring code 0 end-position
         set end-of-gene? true
-      ]  
-      set triplet-counter triplet-counter + 1  
+      ]
+      set triplet-counter triplet-counter + 1
     ]
     set triplet-counter 0
     set end-of-gene? false
     set code new-code
   ]
-   
+
 end
 
 
-to build-mRNA-for-each-gene [strand-type] 
+to build-mRNA-for-each-gene [strand-type]
   ask genes with [strand = strand-type] [
     let this-code code
     let this-gene self
-    
+
     set heading 90
     fd .1
     repeat start-position [fd .45] ;; move over to correct nucleotide location on dna
-   
+
     let gene-color next-gene-color
     let gene-color-with-transparency (sentence (extract-rgb gene-color) 110)
     let gene-color-label (sentence (extract-rgb gene-color) 250)
     ;; make promoter for start codon
     hatch 1 [
       set breed promoters
-      set color gene-color-with-transparency 
+      set color gene-color-with-transparency
       set size 3
       set hidden? false
       attach-tag 142 1.7 (word "start:" gene-number) gene-color-label
-      create-backbone-from this-gene [set hidden? true set tie-mode "fixed" tie] 
+      create-backbone-from this-gene [set hidden? true set tie-mode "fixed" tie]
       ;; make terminator for end codon
       hatch 1 [
         set breed terminators
         fd ((length this-code) * 0.45)
         attach-tag 142 1.7 (word "end:" gene-number) gene-color-label
-        create-backbone-from this-gene [set hidden? true set tie-mode "fixed" tie] 
+        create-backbone-from this-gene [set hidden? true set tie-mode "fixed" tie]
       ]
-    ] 
+    ]
      ;; make start cap for mRNA molecule
     hatch 1 [
       let this-mRNA self
-      set breed mRNAs 
+      set breed mRNAs
       set traveling? false
       set released? false
       set code mrna-string-from-dna-string code
@@ -325,43 +325,43 @@ to build-mRNA-for-each-gene [strand-type]
       set shape "mrna-start"
       set hidden? false
       ;; associate the mRNA molecule with the parent gene
-      create-backbone-from this-gene [set hidden? true set tie-mode "fixed" tie]   
+      create-backbone-from this-gene [set hidden? true set tie-mode "fixed" tie]
       ;; build a stop cap for the mRNA molecule
       hatch 1 [
-        set cap-type "stop" 
+        set cap-type "stop"
         set shape "mrna-stop"
-        let nucleotide-counter 0 
+        let nucleotide-counter 0
         ;; associate the mRNA stop cap with the start cap
-        create-backbone-from this-mRNA  [set hidden? true set tie-mode "fixed" tie] 
+        create-backbone-from this-mRNA  [set hidden? true set tie-mode "fixed" tie]
         ;; use the stop cap turtle to construct the mRNA nucleotides
         let code-to-transcribe code
         repeat length code [
           hatch 1 [
-            set breed mRNA-nucleotides 
-            set value first code-to-transcribe  
-            set shape (word "mrna-" value) 
-            set heading 180       
-            attach-tag 175 0.9 value nucleo-tag-color  
-            create-backbone-from this-mRNA  [set hidden? true set tie-mode "fixed" tie] 
+            set breed mRNA-nucleotides
+            set value first code-to-transcribe
+            set shape (word "mrna-" value)
+            set heading 180
+            attach-tag 175 0.9 value nucleo-tag-color
+            create-backbone-from this-mRNA  [set hidden? true set tie-mode "fixed" tie]
           ]
           set code-to-transcribe remove-item 0 code-to-transcribe
-          fd nucleotide-spacing           
-        ] 
+          fd nucleotide-spacing
+        ]
       ]
     ]
-  ]   
+  ]
 end
 
 
 to build-protein-from-mrna [strand-type]
-  ask mrnas with [cap-type = "start" and strand = strand-type] [
-    let number-of-triplets-in-list floor ((length code) / 3) 
+  ask mRNAs with [cap-type = "start" and strand = strand-type] [
+    let number-of-triplets-in-list floor ((length code) / 3)
     let this-triplet ""
     let triplet-counter 0
     repeat number-of-triplets-in-list   [
-      set this-triplet (word 
-        complementary-mRNA-base  (item (0 + (triplet-counter * 3)) code) 
-        complementary-mRNA-base  (item (1 + (triplet-counter * 3)) code) 
+      set this-triplet (word
+        complementary-mRNA-base  (item (0 + (triplet-counter * 3)) code)
+        complementary-mRNA-base  (item (1 + (triplet-counter * 3)) code)
         complementary-mRNA-base  (item (2 + (triplet-counter * 3)) code)
         )
       build-tRNA-for-this-triplet  this-triplet triplet-counter
@@ -373,45 +373,45 @@ end
 
 
 to build-tRNA-for-this-triplet [this-triplet triplet-counter]
-  let this-tRNA nobody  
+  let this-tRNA nobody
   hatch 1 [
-    set breed tRNAs 
+    set breed tRNAs
     set this-tRNA self
     set shape "tRNA-core"
     set size 1.2
     set heading 0
     hatch 1 [
-      set breed amino-acids 
+      set breed amino-acids
       set value  (which-protein-for-this-codon this-triplet)
       set shape (word "amino-" value)
       set heading 0
       set size 2
       fd 1
-      create-backbone-from this-tRNA  [set hidden? true set tie-mode "free" tie] 
-      attach-tag 20 .8 value nucleo-tag-color  
+      create-backbone-from this-tRNA  [set hidden? true set tie-mode "free" tie]
+      attach-tag 20 .8 value nucleo-tag-color
     ]
     hatch 1 [
       set breed tRNA-nucleotides
-      set shape (word "trna-" (item 0 this-triplet)) 
+      set shape (word "trna-" (item 0 this-triplet))
       set heading -155
       fd 1.1
-      set heading 0  
-      create-backbone-from this-tRNA  [set hidden? true set tie-mode "fixed" tie]       
+      set heading 0
+      create-backbone-from this-tRNA  [set hidden? true set tie-mode "fixed" tie]
       hatch 1 [
         set breed tRNA-nucleotides
-        set shape (word "trna-" (item 1 this-triplet)) 
+        set shape (word "trna-" (item 1 this-triplet))
         set heading 90
         fd .45
-        set heading 0 
-        create-backbone-from this-tRNA  [set hidden? true set tie-mode "fixed" tie] 
+        set heading 0
+        create-backbone-from this-tRNA  [set hidden? true set tie-mode "fixed" tie]
       ]
       hatch 1 [
         set breed tRNA-nucleotides
-        set shape (word "trna-" (item 2 this-triplet)) 
+        set shape (word "trna-" (item 2 this-triplet))
         set heading 90
         fd .90
-        set heading 0   
-        create-backbone-from this-tRNA  [set hidden? true set tie-mode "fixed" tie]          
+        set heading 0
+        create-backbone-from this-tRNA  [set hidden? true set tie-mode "fixed" tie]
       ]
     ]
     fd 1
@@ -423,7 +423,7 @@ end
 
 
 ;; fine tuned placement of the location of a label for a nucleoside or nucleotide
-to attach-tag [direction displacement label-value color-value]  
+to attach-tag [direction displacement label-value color-value]
   hatch 1 [
     set heading direction
     fd displacement
@@ -452,48 +452,48 @@ end
 
 
 to hide-mrna  [strand-type]
-   ask (turtle-set mrnas mrna-nucleotides) with [strand = strand-type] [ask tagline-neighbors [set hidden? true] set hidden? true]   
+   ask (turtle-set mRNAs mrna-nucleotides) with [strand = strand-type] [ask tagline-neighbors [set hidden? true] set hidden? true]
 end
 
 
 to hide-trna  [strand-type]
-   ask (turtle-set trnas trna-nucleotides amino-acids) with [strand = strand-type] [ask tagline-neighbors [set hidden? true] set hidden? true]   
+   ask (turtle-set tRNAs trna-nucleotides amino-acids) with [strand = strand-type] [ask tagline-neighbors [set hidden? true] set hidden? true]
 end
 
 
 to show-next-mrna  [strand-type]
   let these-genes genes with [strand = strand-type]
   if count these-genes = 0 [display-user-message-no-genes]
-  if strand-type = "original" [   
+  if strand-type = "original" [
     set original-display-mrna-counter original-display-mrna-counter + 1
     if (original-display-mrna-counter > count these-genes) [set original-display-mrna-counter 1]
-    ask mrnas with [strand = strand-type and cap-type = "start"] [
-      ifelse gene-number != original-display-mrna-counter 
-        [ask out-backbone-neighbors [set hidden? true ask tagline-neighbors [set hidden? true] ] set hidden? true] 
+    ask mRNAs with [strand = strand-type and cap-type = "start"] [
+      ifelse gene-number != original-display-mrna-counter
+        [ask out-backbone-neighbors [set hidden? true ask tagline-neighbors [set hidden? true] ] set hidden? true]
         [ask out-backbone-neighbors [set hidden? false ask tagline-neighbors [set hidden? false] ] set hidden? false]
       set traveling? false set released? false set ycor original-dna-ycor
-    ]    
+    ]
   ]
-  if strand-type = "duplicate" [  
+  if strand-type = "duplicate" [
     set duplicate-display-mrna-counter duplicate-display-mrna-counter + 1
     if (duplicate-display-mrna-counter > count these-genes) [set duplicate-display-mrna-counter 1]
-    ask mrnas with [strand = strand-type and cap-type = "start"] [
+    ask mRNAs with [strand = strand-type and cap-type = "start"] [
       ifelse gene-number != duplicate-display-mrna-counter
-        [ask out-backbone-neighbors [set hidden? true ask tagline-neighbors [set hidden? true] ] set hidden? true] 
+        [ask out-backbone-neighbors [set hidden? true ask tagline-neighbors [set hidden? true] ] set hidden? true]
         [ask out-backbone-neighbors [set hidden? false ask tagline-neighbors [set hidden? false]] set hidden? false]
       set traveling? false set released? false set ycor duplicate-dna-ycor
-    ]    
+    ]
   ]
 end
 
 
 to show-next-trna  [strand-type]
   let this-gene-number gene-number-for-this-strand strand-type
-  ask mrnas with [strand = strand-type and cap-type = "start" and released? and gene-number = this-gene-number ] [
-    ask trnas with [strand = strand-type] [ 
-      ifelse gene-number = this-gene-number 
+  ask mRNAs with [strand = strand-type and cap-type = "start" and released? and gene-number = this-gene-number ] [
+    ask tRNAs with [strand = strand-type] [
+      ifelse gene-number = this-gene-number
         [ask out-backbone-neighbors [set hidden? false ask tagline-neighbors [set hidden? false] ] set hidden? false]
-        [ask out-backbone-neighbors [set hidden? true ask tagline-neighbors [set hidden? true] ] set hidden? true] 
+        [ask out-backbone-neighbors [set hidden? true ask tagline-neighbors [set hidden? true] ] set hidden? true]
       ]
   ]
 end
@@ -507,17 +507,17 @@ end
 to release-next-protein  [strand-type]
   let make-protein? false
   let this-gene-number gene-number-for-this-strand strand-type
-  ask mrnas with [strand = strand-type and cap-type = "start" and released?  and gene-number = this-gene-number ] [
-    
-    ask trnas with [strand = strand-type] [
+  ask mRNAs with [strand = strand-type and cap-type = "start" and released?  and gene-number = this-gene-number ] [
+
+    ask tRNAs with [strand = strand-type] [
       ifelse gene-number = this-gene-number
         [ask out-backbone-neighbors [
          set make-protein? true
          set hidden? true
-           ifelse breed = amino-acids 
-             [set hidden? false ask tagline-neighbors [set hidden? false] ] 
-             [set hidden? true ask tagline-neighbors [set hidden? true] ] 
-           ] 
+           ifelse breed = amino-acids
+             [set hidden? false ask tagline-neighbors [set hidden? false] ]
+             [set hidden? true ask tagline-neighbors [set hidden? true] ]
+           ]
          ]
          [ask out-backbone-neighbors [set hidden? true ask tagline-neighbors [set hidden? true] ] set hidden? true]
          set hidden? true
@@ -540,10 +540,10 @@ end
 
 
 to release-next-mRNA-from-nucleus [strand-type]
-  ask mRNAs with [strand = strand-type][set traveling? true set released? false]    
+  ask mRNAs with [strand = strand-type][set traveling? true set released? false]
 end
 
-   
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; runtime procedures ;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -561,19 +561,19 @@ to go
   if event-7-triggered? and event-6-completed? [ release-next-mRNA-from-nucleus "duplicate"  set event-7-triggered? false set event-8-completed? false set event-9-completed? false]
   if event-8-triggered? and event-7-completed? [ show-next-trna "duplicate"                  set event-8-triggered? false set event-8-completed? true  set event-9-completed? false]
   if event-9-triggered? and event-8-completed? [ release-next-protein "duplicate"            set event-9-triggered? false set event-9-completed? true ]
-  move-mRNA-molecules-out-of-nucleus 
+  move-mRNA-molecules-out-of-nucleus
   tick
 end
 
 
-to move-mRNA-molecules-out-of-nucleus 
+to move-mRNA-molecules-out-of-nucleus
   ask mRNAs with [traveling? and cap-type = "start"] [
     if strand = "original" [
-      if ycor < original-ribosome-ycor [ set ycor ycor + .1 ] 
+      if ycor < original-ribosome-ycor [ set ycor ycor + .1 ]
       if ycor >= original-ribosome-ycor [ set traveling? false set released? true set event-2-completed? true]
     ]
     if strand = "duplicate" [
-      if ycor > duplicate-ribosome-ycor [ set ycor ycor - .1] 
+      if ycor > duplicate-ribosome-ycor [ set ycor ycor - .1]
       if ycor <= duplicate-ribosome-ycor [ set traveling? false set released? true set event-7-completed? true]
     ]
   ]
@@ -595,7 +595,7 @@ to show-protein-production
   let duplicate-proteins  proteins with [strand = "duplicate"]
   output-print "Proteins Produced"
   output-print (word "from copy of DNA = " count duplicate-proteins)
-  output-print "::::::::::::::::::"  
+  output-print "::::::::::::::::::"
   ask duplicate-proteins [
     output-print (word "Copy.Gene #" gene-number " > Protein:")
     output-print value
@@ -607,7 +607,7 @@ end
 ;;;;;;;;;;;;;;;;;;;; make duplicate dna procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-to make-duplicate-dna-string 
+to make-duplicate-dna-string
   let position-counter 0
   set duplicate-strand-gene-counter 0
   let clean-duplicate-dna-string original-dna-string
@@ -616,14 +616,14 @@ to make-duplicate-dna-string
     let target-loci random ((length mutating-copy-of-dna-string) - #-nucleotides-affected)
     let dna-at-target item target-loci mutating-copy-of-dna-string
     let dna-before-target substring mutating-copy-of-dna-string 0 target-loci
-    let loci-counter 0 
+    let loci-counter 0
     let dna-at-and-after-target substring mutating-copy-of-dna-string target-loci length mutating-copy-of-dna-string
-    
-    if mutation-type = "deletion"     
+
+    if mutation-type = "deletion"
       [repeat #-nucleotides-affected  [set  mutating-copy-of-dna-string remove-item target-loci mutating-copy-of-dna-string]]
-    if mutation-type  = "substitution" 
+    if mutation-type  = "substitution"
       [repeat #-nucleotides-affected  [set  mutating-copy-of-dna-string (replace-item (target-loci + loci-counter) mutating-copy-of-dna-string random-base-letter-DNA) set loci-counter loci-counter + 1] ]
-    if mutation-type  = "insertion"     
+    if mutation-type  = "insertion"
       [repeat #-nucleotides-affected [set  dna-at-and-after-target (word random-base-letter-DNA  dna-at-and-after-target) ] set mutating-copy-of-dna-string (word dna-before-target dna-at-and-after-target)]
 
  set duplicate-dna-string mutating-copy-of-dna-string
@@ -631,16 +631,16 @@ end
 
 
 to replicate-dna
-  let turtles-to-remove (turtle-set nucleotides mrnas trnas genes promoters terminators amino-acids mrna-nucleotides)
+  let turtles-to-remove (turtle-set nucleotides mRNAs tRNAs genes promoters terminators amino-acids mrna-nucleotides)
   ;; (re)build the everything for the duplicate dna
   ask turtles-to-remove with [strand = "duplicate" ][ask tagline-neighbors [die] die]            ;; wipe out old nucleotides
-  make-duplicate-dna-string  
+  make-duplicate-dna-string
   build-genes-from-dna "duplicate" duplicate-dna-string
   make-a-nucleotide-chain-for-dna-string "duplicate" duplicate-dna-string
   place-dna "duplicate"
-  build-mrna-for-each-gene "duplicate" 
+  build-mrna-for-each-gene "duplicate"
   build-protein-from-mrna "duplicate"
-  place-trnas "duplicate"  
+  place-trnas "duplicate"
   hide-mrna   "duplicate"
   hide-trna   "duplicate"
   hide-genes  "duplicate"
@@ -657,23 +657,23 @@ to initialize-codon-to-amino-acid-key
      ;;all triplets where the 2nd base is U
      ["UUU" "Phe"] ["UUC" "Phe"] ["UUA" "Leu"] ["UUG" "Leu"]
      ["CUU" "Leu"] ["CUC" "Leu"] ["CUA" "Leu"] ["CUG" "Leu"]
-     ["AUU" "Ile"] ["AUC" "Ile"] ["AUA" "Ile"] ["AUG" "Met"] 
-     ["GUU" "Val"] ["GUC" "Val"] ["GUA" "Val"] ["GUG" "Val"] 
+     ["AUU" "Ile"] ["AUC" "Ile"] ["AUA" "Ile"] ["AUG" "Met"]
+     ["GUU" "Val"] ["GUC" "Val"] ["GUA" "Val"] ["GUG" "Val"]
      ;;all triplets where the 2nd base is C
      ["UCU" "Ser"] ["UCC" "Ser"] ["UCA" "Ser"] ["UCG" "Ser"]
      ["CCU" "Pro"] ["CCC" "Pro"] ["CCA" "Pro"] ["CCG" "Pro"]
-     ["ACU" "Thr"] ["ACC" "Thr"] ["ACA" "Thr"] ["ACG" "Thr"] 
-     ["GCU" "Ala"] ["GCC" "Ala"] ["GCA" "Ala"] ["GCG" "Ala"] 
+     ["ACU" "Thr"] ["ACC" "Thr"] ["ACA" "Thr"] ["ACG" "Thr"]
+     ["GCU" "Ala"] ["GCC" "Ala"] ["GCA" "Ala"] ["GCG" "Ala"]
      ;;all triplets where the 3rd base is A
      ["UAU" "Tyr"] ["UAC" "Tyr"] ["UAA" "Stop"] ["UAG" "Stop"]
      ["CAU" "His"] ["CAC" "His"] ["CAA" "Gln"] ["CAG" "Gln"]
-     ["AAU" "Asn"] ["AAC" "Asn"] ["AAA" "Lys"] ["AAG" "Lys"] 
-     ["GAU" "Asp"] ["GAC" "Asp"] ["GAA" "Glu"] ["GAG" "Glu"]    
+     ["AAU" "Asn"] ["AAC" "Asn"] ["AAA" "Lys"] ["AAG" "Lys"]
+     ["GAU" "Asp"] ["GAC" "Asp"] ["GAA" "Glu"] ["GAG" "Glu"]
      ;;all triplets where the 4th base is G
      ["UGU" "Cys"] ["UGC" "Cys"] ["UGA" "Stop"] ["UGG" "Trp"]
      ["CGU" "Arg"] ["CGC" "Arg"] ["CGA" "Arg"] ["CGG" "Arg"]
-     ["AGU" "Ser"] ["AGC" "Ser"] ["AGA" "Arg"] ["AGG" "Arg"] 
-     ["GGU" "Gly"] ["GGC" "Gly"] ["GGA" "Gly"] ["GGG" "Gly"]      
+     ["AGU" "Ser"] ["AGC" "Ser"] ["AGA" "Arg"] ["AGG" "Arg"]
+     ["GGU" "Gly"] ["GGC" "Gly"] ["GGA" "Gly"] ["GGG" "Gly"]
      ]
 end
 
@@ -688,10 +688,10 @@ to-report which-protein-for-this-codon [this-codon]
  report item 1 (item 0 filter [first ? = this-codon] codon-to-amino-acid-key )
 end
 
-;;; reports a random base for a nucleotide in DNA 
+;;; reports a random base for a nucleotide in DNA
 to-report random-base-letter-DNA
   let r random 4
-  let letter-to-report "" 
+  let letter-to-report ""
   if r = 0 [set letter-to-report "A"]
   if r = 1 [set letter-to-report "G"]
   if r = 2 [set letter-to-report "T"]
@@ -707,7 +707,7 @@ to-report complementary-mRNA-base [base]
   if base = "U" [set base-to-report "A"]
   if base = "G" [set base-to-report "C"]
   if base = "C" [set base-to-report "G"]
-  report base-to-report 
+  report base-to-report
 end
 
 
@@ -731,10 +731,10 @@ end
 ;; reports the mrna code that gets transcribed from the dna
 to-report mrna-string-from-dna-string [dna-string]
   let new-string dna-string
-  let next-item 0 
+  let next-item 0
   repeat length dna-string [
     set new-string (replace-item next-item new-string (complementary-mRNA-base (item next-item new-string))  )
-    set next-item next-item + 1  
+    set next-item next-item + 1
   ]
   report new-string
 end
@@ -743,10 +743,10 @@ end
 ;; characters is deprecated
 to-report dna-string-with-non-nucleotide-characters-replaced [dna-string]
   let new-string dna-string
-  let next-item 0 
+  let next-item 0
   repeat length dna-string [
     set new-string (replace-item next-item new-string (replace-non-nucleotide-character (item next-item new-string))  )
-    set next-item next-item + 1  
+    set next-item next-item + 1
   ]
   if length dna-string > 64 [set new-string substring new-string 0 64]
   report new-string
@@ -771,7 +771,7 @@ to-report current-instruction-label
     [ (word current-instruction " of " length instructions) ]
 end
 
-  
+
 to next-instruction
   show-instruction current-instruction + 1
 end
@@ -803,14 +803,14 @@ to-report instructions
     [
      "When you press SETUP, a single"
      "strand of an unwound DNA molecule"
-     "appears. This represents the state" 
+     "appears. This represents the state"
       "of DNA in the cell nucleus during"
      "transcription."
     ]
     [
      "To produce proteins, each gene in"
      "the original DNA strand must be"
-     "transcribed  into an mRNA molecule."  
+     "transcribed  into an mRNA molecule."
      "Do this by pressing GO/STOP and"
      "then the 1-TRANSCRIBE button."
     ]
@@ -818,7 +818,7 @@ to-report instructions
      "For each mRNA molecule that was"
      "transcribed, press the 2-RELEASE"
      "button.  This releases the mRNA"
-     "from the nucleus  into the ribosome" 
+     "from the nucleus  into the ribosome"
      "of the cell."
     ]
     [
@@ -883,7 +883,7 @@ end
 
 
 to reset-completed-events
-  
+
   if event-1-triggered? or  event-2-triggered? or event-3-triggered? or event-4-triggered? [
     set event-4-completed? false
     if event-1-triggered? or  event-2-triggered? or event-3-triggered? [
@@ -903,10 +903,10 @@ to reset-completed-events
         if event-6-triggered?  [ set event-6-completed? false ]
       ]
     ]
-    
+
   ]
 
-  
+
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -1416,7 +1416,7 @@ current-instruction-label
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model allows you to explore the effects of deletion, substitution, and insertion mutations on a single strand of DNA and the subsequent outcomes in related protein synthesis in cells.  The model represents effects from mutations that include 1) the number of genes that are encoded in the DNA, 2) the mRNA molecules that are transcribed, and 3) the tRNA molecules that are used to transcribe the mRNA into an amino acid chain, as wells as 4) the subsequent protein that is synthesized. 
+This model allows you to explore the effects of deletion, substitution, and insertion mutations on a single strand of DNA and the subsequent outcomes in related protein synthesis in cells.  The model represents effects from mutations that include 1) the number of genes that are encoded in the DNA, 2) the mRNA molecules that are transcribed, and 3) the tRNA molecules that are used to transcribe the mRNA into an amino acid chain, as wells as 4) the subsequent protein that is synthesized.
 
 
 ## HOW IT WORKS
@@ -1425,20 +1425,20 @@ In this model nucleotides are molecules, that when joined together, make up the 
 
 The nitrogen bases for DNA come in four variations: ([A]denine, [G]uanine, [T]hymine, [C]ytosine) bound to a ribose or deoxyribose backbone.
 
-The same nitrogen bases are used for mRNA and tRNA, as for DNA, except no [T]hymine is used.  Instead it is replaced with [U]racil. 
+The same nitrogen bases are used for mRNA and tRNA, as for DNA, except no [T]hymine is used.  Instead it is replaced with [U]racil.
 
-Genes start locations in DNA in this model don't use promoters to initiate transcription of a particular gene, like they do in reality.  Rather, the start codon (encoded by a three letter sequence of nucleotides [ATG], when read from a particular direction),  signals the start of transcription for mRNA.  In reality, ATG start condons are the first codon in mRNA that is translated by ribosome.  Therefore, in reality mRNA often contains additional non-translated nucleotides, before the start codon in mRNA and additional non-translated nucleotides after the stop codons in mRNA.   
+Genes start locations in DNA in this model don't use promoters to initiate transcription of a particular gene, like they do in reality.  Rather, the start codon (encoded by a three letter sequence of nucleotides [ATG], when read from a particular direction),  signals the start of transcription for mRNA.  In reality, ATG start condons are the first codon in mRNA that is translated by ribosome.  Therefore, in reality mRNA often contains additional non-translated nucleotides, before the start codon in mRNA and additional non-translated nucleotides after the stop codons in mRNA.
 
-In this model, however, that complexity of additional "dangling" non-transcribed mRNA has been eliminated by setting the start codon as the site for transcription of DNA to mRNA and the stop codon as the site for ending transcription of DNA to mRNA as well.  
+In this model, however, that complexity of additional "dangling" non-transcribed mRNA has been eliminated by setting the start codon as the site for transcription of DNA to mRNA and the stop codon as the site for ending transcription of DNA to mRNA as well.
 
-In this model, transcription reading of DNA occurs from left to right.   Gene stop locations are encoded either by the first three letter sequence (either [] or [] or []) that is encountered, which is the same reading frame as the ATG sequence at the start of the gene.  Reading frames may be shifted by 0, 1, or 2 nucleotides from the start of the gene.  Stop signals have three possible three nucleotides sequences ([TAG], [TGA], or [TAA])   
+In this model, transcription reading of DNA occurs from left to right.   Gene stop locations are encoded either by the first three letter sequence (either [] or [] or []) that is encountered, which is the same reading frame as the ATG sequence at the start of the gene.  Reading frames may be shifted by 0, 1, or 2 nucleotides from the start of the gene.  Stop signals have three possible three nucleotides sequences ([TAG], [TGA], or [TAA])
 
 If the first letter of the three letter sequence for stop has any multiple of 3 nucleotides between it and the last letter of the ATG marking the start, then it is in the same frame of reference and will apply as a stop signal for this gene.  If not, the stop signal is ignored.  If no stop signal is found in the DNA, the gene end will continue until end of the entire DNA strand (the far right side of the DNA in this model).
 
 
-In order for DNA to produce proteins for each gene, the following four steps must be followed by the user, after GO/STOP is pressed to start running the model. 
+In order for DNA to produce proteins for each gene, the following four steps must be followed by the user, after GO/STOP is pressed to start running the model.
 
-1.  For each gene an mRNA molecule must be transcribed.  This is done by pressing the  1-TRANSCRIBE for genes in the original strand of DNA or 6-TRANSCRIBE for the genes in the duplicated strand of dan.  Each time this button is pressed, the next gene in the strand of DNA will be transcribed.  When the last gene is reached, then the next gene chosen to transcribe will be the first gene (reading from left to right).
+1.  For each gene an mRNA molecule must be transcribed.  This is done by pressing the  1-TRANSCRIBE for genes in the original strand of DNA or 6-TRANSCRIBE for the genes in the duplicated strand of DNA.  Each time this button is pressed, the next gene in the strand of DNA will be transcribed.  When the last gene is reached, then the next gene chosen to transcribe will be the first gene (reading from left to right).
 
 2.  For each mRNA molecule that was transcribed in the original DNA, the 2-RELEASE button must be pressed.  For each mRNA molecule that was transcribed in the duplicated DNA, the 7-RELEASE button must be pressed.  This simulates the release of the mRNA from the nucleus into the ribosome of the cell.
 
@@ -1475,8 +1475,8 @@ Instruction 9: The replicated DNA will have a number of random mutations, set by
 
 Instruction 10: Now repeat the same transcription, release, translation, and release process for the DNA in this new cell.  To do that, press 6-, 7-, 8-, 9- buttons.  Again repeat that sequence to cycle through each gene in this mutated DNA.
 
-Instruction 11: If you want to test the outcomes for your own DNA code, type any sequence of A, G, T, C in the USER-CREATED-CODE  box and set the INITIAL-DNA-STRING 
-to “from-user-code”.  The default is set to "AAAAA", but any sequence of letters can be processed.  Strings longer than 64 letters will be trimmed to the first 64 letters and letters that are not A, G, T, or C, will be randomly replaced by one of these letters.  
+Instruction 11: If you want to test the outcomes for your own DNA code, type any sequence of A, G, T, C in the USER-CREATED-CODE  box and set the INITIAL-DNA-STRING
+to “from-user-code”.  The default is set to "AAAAA", but any sequence of letters can be processed.  Strings longer than 64 letters will be trimmed to the first 64 letters and letters that are not A, G, T, or C, will be randomly replaced by one of these letters.
 
 
 Other Setting Information:
@@ -1503,18 +1503,18 @@ Some mutations introduce brand new genes into a strand of DNA.  Some mutations r
 
 ## THINGS TO TRY
 
-Start with a section of DNA with no genes.  How often does a mutation result in the emergence of new gene?   
+Start with a section of DNA with no genes.  How often does a mutation result in the emergence of new gene?
 
 Start with a section of DNA with one or more genes.  How often does a mutation result in the disappearance of an old gene?
 
-Are there certain types of mutations (deletion, insertion, or substitution) that seem to affect the structure of the resulting protein more than others?   
+Are there certain types of mutations (deletion, insertion, or substitution) that seem to affect the structure of the resulting protein more than others?
 
 Why do certain numbers of nucleotides affected (e.g. 3 and 6) seem to affect some aspects of the genes more frequently and not others?
 
 
 ## EXTENDING THE MODEL
 
-A representation of protein folding could be added to the model (where each neighboring amino acid affects the amount of relative change in orientation to the previous amino acid).  
+A representation of protein folding could be added to the model (where each neighboring amino acid affects the amount of relative change in orientation to the previous amino acid).
 
 
 ## NETLOGO FEATURES
@@ -2191,7 +2191,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.4
+NetLogo 5.0.5-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
