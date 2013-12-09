@@ -650,9 +650,13 @@ Links are used extensively in this model.
 
 Lists are used heavily in the procedures that calculates shortest paths.
 
+Though it is not used in this model, there exists a network extension for NetLogo that you can download at: https://github.com/NetLogo/NW-Extension.
+
 ## RELATED MODELS
 
 See other models in the Networks section of the Models Library, such as Giant Component and Preferential Attachment.
+
+There is also a version of this model using the (NW extension)[https://github.com/NetLogo/NW-Extension] in the `demo` folder of the extension.
 
 ## CREDITS AND REFERENCES
 

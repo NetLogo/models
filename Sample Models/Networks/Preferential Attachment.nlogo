@@ -328,6 +328,7 @@ There are many ways to graphically display networks.  This model uses a common "
 
 Nodes are turtle agents and edges are link agents. The `layout-spring` primitive places the nodes, as if the edges are springs and the nodes are repelling each other.
 
+Though it is not used in this model, there exists a network extension for NetLogo that you can download at: https://github.com/NetLogo/NW-Extension.
 
 ## RELATED MODELS
 
