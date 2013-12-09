@@ -336,7 +336,7 @@ end
 ;;      (call it theta).
 ;;   2. Convert the representation of the velocity of each gas-molecules from
 ;;      speed/heading to a theta-based vector whose first component is the
-;;      gas-molecules's speed along theta, and whose second component is the speed
+;;      gas-molecules' speed along theta, and whose second component is the speed
 ;;      perpendicular to theta.
 ;;   3. Modify the velocity vectors to reflect the effects of the collision.
 ;;      This involves:

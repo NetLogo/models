@@ -595,7 +595,7 @@ Pressing TEST will input the values of INPUT-1 and INPUT-2 to the perceptron and
 
 In the view, the larger the size of the link the greater the weight it has.  If the link is red then its a positive weight.  If the link is blue then its a negative weight.
 
-If SHOW-WEIGHTS? is on then the links will be labelled with their weights.
+If SHOW-WEIGHTS? is on then the links will be labeled with their weights.
 
 The TARGET-FUNCTION chooser allows you to decide which function the perceptron is trying to learn.
 
@@ -930,7 +930,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.5
+NetLogo 5.0.5-RC1
 @#$#@#$#@
 setup
 @#$#@#$#@

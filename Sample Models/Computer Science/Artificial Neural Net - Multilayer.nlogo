@@ -7,7 +7,7 @@ breed [hidden-nodes hidden-node]
 
 turtles-own [
   activation     ;; Determines the nodes output
-  err            ;; Used by backpropogation to feed error backwards
+  err            ;; Used by backpropagation to feed error backwards
 ]
 
 globals [
@@ -444,7 +444,7 @@ Press TRAIN to continually train the network.
 
 In the view, the larger the size of the link the greater the weight it has.  If the link is red then it has a positive weight.  If the link is blue then it has a negative weight.
 
-If SHOW-WEIGHTS? is on then the links will be labelled with their weights.
+If SHOW-WEIGHTS? is on then the links will be labeled with their weights.
 
 To test the network, set INPUT-1 and INPUT-2, then press the TEST button.  A dialog box will appear telling you whether or not the network was able to correctly classify the input that you gave it.
 
@@ -790,7 +790,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.5
+NetLogo 5.0.5-RC1
 @#$#@#$#@
 setup repeat 100 [ train ]
 @#$#@#$#@

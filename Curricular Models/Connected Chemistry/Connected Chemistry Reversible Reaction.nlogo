@@ -1,6 +1,6 @@
 globals
 [
-  tick-length                  ;; actual tick length 
+  tick-length                  ;; actual tick length
   max-tick-length              ;; the largest a tick length is allowed to be
   box-edge-y                   ;; location of the end of the box
   box-edge-x                   ;; location of the end of the box
@@ -8,12 +8,12 @@ globals
   number-reverse-reactions     ;; keeps track number of backward reactions that occur
   pressure                     ;; pressure at this point in time
   pressure-history             ;; list of the last 10 pressure values
-  
+
   length-horizontal-surface    ;; the size of the wall surfaces that run horizontally - the top and bottom of the box - used for calculating pressure and volume
   length-vertical-surface      ;; the size of the wall surfaces that run vertically - the left and right of the box - used for calculating pressure and volume
   walls                        ;; agent set containing patches that are the walls of the box
   heatable-walls               ;; the walls that could transfer heat into our out of the box when INSULATED-WALLS? is set to off
-  piston-wall                  ;; the patches of the right wall on the box (it is a moveable wall) 
+  piston-wall                  ;; the patches of the right wall on the box (it is a moveable wall)
   outside-energy               ;; energy level for isothermal walls
   min-outside-energy           ;; minimum energy level for an isothermal wall
   max-outside-energy           ;; minimum energy level for an isothermal wall
@@ -23,9 +23,9 @@ globals
   wall-color                   ;; color of wall
   insulated-wall-color         ;; color of insulated walls
   run-go?                      ;; flag of whether or not its safe for go to run - it is used to stop the simulation when the wall is moved
-  volume                       ;; volume of the box 
+  volume                       ;; volume of the box
   scale-factor-temp-to-energy  ;; scale factor used to convert kinetic energy of particles to temperature
-  scale-factor-energy-to-temp  ;; scale factor used to convert temperature of gas convert to kinetic energy of particles 
+  scale-factor-energy-to-temp  ;; scale factor used to convert temperature of gas convert to kinetic energy of particles
   temperature                  ;; temperature of the gas
   difference-bond-energies     ;; amount of energy released or absorbed in forward or reverse reaction
   activation-energy            ;; amount of energy required to react
@@ -57,20 +57,20 @@ to setup
   set run-go? true
   set number-forward-reactions 0
   set number-reverse-reactions 0
-      
+
   set scale-factor-energy-to-temp 4
   set scale-factor-temp-to-energy (1 / scale-factor-energy-to-temp)
   set outside-energy initial-gas-temp * scale-factor-temp-to-energy
-  
-  set difference-bond-energies 20    ;; describes how much energy is lost or gained in the transition from products to reactants.  
+
+  set difference-bond-energies 20    ;; describes how much energy is lost or gained in the transition from products to reactants.
                                      ;; a negative value states that energy is lost (endothermic) for the forward reaction
                                      ;; a positive value states that energy is gained (exothermic) for the forward reaction
-  set activation-energy 80               
+  set activation-energy 80
   set energy-increment 5
   set min-outside-energy 0
   set max-outside-energy 100
-  
-  set particle-size 1.3  
+
+  set particle-size 1.3
   set-default-shape particles "circle"
   set-default-shape flashes "square"
   set piston-color green
@@ -89,7 +89,7 @@ to setup
   ;;; 19 patches of wall space on the inside of the box
   set piston-position init-wall-position - box-edge-x
   draw-box-piston
-  recalculate-wall-color  
+  recalculate-wall-color
   calculate-volume
   make-particles
   set pressure-history []  ;; plotted pressure will be averaged over the past 3 entries
@@ -107,8 +107,8 @@ end
 
 
 to setup-hydrogen-particle
-  set shape "hydrogen" 
-  set molecule-type "hydrogen" 
+  set shape "hydrogen"
+  set molecule-type "hydrogen"
   set mass 2
   set-other-particle-attributes
 end
@@ -116,16 +116,16 @@ end
 
 to setup-nitrogen-particle
   set size particle-size
-  set shape "nitrogen" 
-  set molecule-type "nitrogen" 
+  set shape "nitrogen"
+  set molecule-type "nitrogen"
   set mass 14
   set-other-particle-attributes
 end
 
 
 to setup-ammonia-particle
-  set shape "nh3" 
-  set molecule-type "nh3" 
+  set shape "nh3"
+  set molecule-type "nh3"
   set mass 10
   set-other-particle-attributes
 end
@@ -155,16 +155,16 @@ end
 
 to go
   if not run-go? [stop]
-  ask particles [ 
-    bounce 
-    move 
+  ask particles [
+    bounce
+    move
     check-for-collision
   ]
-  
+
   if forward-react? [ ask particles with [molecule-type = "nitrogen"]  [check-for-forward-reaction]]
   if reverse-react? [ ask particles with [molecule-type = "nh3"]       [check-for-reverse-reaction]]
 
-  calculate-pressure-and-temperature  
+  calculate-pressure-and-temperature
   calculate-tick-length
   tick-advance tick-length
   recalculate-wall-color
@@ -191,10 +191,10 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-to recalculate-wall-color  
+to recalculate-wall-color
   ;; scale color of walls to dark red to bright red based on their isothermal value....if the wall isn't insulated
   ;; set color of walls to all insulated-wall-color if the wall is insulated
-  ifelse insulated-walls? 
+  ifelse insulated-walls?
      [set wall-color insulated-wall-color ]
      [set wall-color (scale-color red outside-energy -60 (max-outside-energy + 100))]
      ask patches with [not insulated?] [set pcolor wall-color]
@@ -216,7 +216,7 @@ to check-for-forward-reaction
 
     if total-input-energy > activation-energy [
       ;; an exothermic reaction
-      let total-output-energy (total-input-energy + difference-bond-energies )    
+      let total-output-energy (total-input-energy + difference-bond-energies )
       ;; turn this N2 molecule into an NH3 molecule
       set molecule-type "nh3"
       set shape "nh3"
@@ -238,7 +238,7 @@ to check-for-reverse-reaction
 
   if count hit-nh3 >= 1 and random 2 = 0 [  ;;50/50 chance of a reaction
     let reactants n-of 1 hit-nh3
-    let total-input-energy (energy + sum [energy] of reactants )  ;; sum the kinetic energy of both NH3 molecules 
+    let total-input-energy (energy + sum [energy] of reactants )  ;; sum the kinetic energy of both NH3 molecules
 
     if total-input-energy > activation-energy [
       let total-output-energy (total-input-energy - difference-bond-energies )
@@ -249,7 +249,7 @@ to check-for-reverse-reaction
       set mass 14
       set energy (total-output-energy * 14 / (20))   ;; take 14/20 th of the energy (proportional to masses of all the products)
       set speed speed-from-energy
-                 
+
       ;; make three H2 molecules as the rest of the products
       hatch 3 [
         set molecule-type "hydrogen"
@@ -315,14 +315,14 @@ end
 to calculate-pressure-and-temperature
   ;; by summing the momentum change for each particle,
   ;; the wall's total momentum change is calculated
-  set pressure 15 * sum [momentum-difference] of particles 
+  set pressure 15 * sum [momentum-difference] of particles
   ifelse length pressure-history > 10
     [ set pressure-history lput pressure but-first pressure-history]
     [ set pressure-history lput pressure pressure-history]
   ask particles [ set momentum-difference 0]  ;; once the contribution to momentum has been calculated
                                               ;; this value is reset to zero till the next wall hit
-                             
- if any? particles [ set temperature (mean [energy] of particles  * scale-factor-energy-to-temp) ] 
+
+ if any? particles [ set temperature (mean [energy] of particles  * scale-factor-energy-to-temp) ]
 end
 
 
@@ -370,19 +370,19 @@ to bounce  ;; particle procedure
 
   if [isothermal-wall?] of patch new-px new-py  [ ;; check if the patch ahead of us is isothermal
      set energy ((energy +  outside-energy ) / 2)
-     set speed speed-from-energy 
+     set speed speed-from-energy
   ]
-    
-    
+
+
    ask patch new-px new-py [ make-a-flash ]
 end
 
 to make-a-flash
-      sprout 1 [           
-      set breed flashes    
+      sprout 1 [
+      set breed flashes
       set birthday ticks
       set color [0 0 0 100]
-    ]   
+    ]
 end
 
 
@@ -531,7 +531,7 @@ end
 
 to piston-out [dist]
   if (dist > 0) [
-    ifelse ((piston-position + dist) < box-edge-x - 1) 
+    ifelse ((piston-position + dist) < box-edge-x - 1)
     [  undraw-piston
       set piston-position (piston-position + dist)
       draw-box-piston ]
@@ -871,7 +871,7 @@ MONITOR
 375
 135
 420
-% reverse reactons
+% reverse reactions
 100 * number-reverse-reactions / (number-forward-reactions + number-reverse-reactions)
 0
 1
@@ -977,7 +977,7 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This is a model of reversible reactions, Le Chatelier's Principle and the Haber process (used for the manufacture of ammonia).  
+This is a model of reversible reactions, Le Chatelier's Principle and the Haber process (used for the manufacture of ammonia).
 
 The default settings of this model show the following exothermic (heat releasing) reaction:
 
@@ -985,7 +985,7 @@ The default settings of this model show the following exothermic (heat releasing
 
 This is an equilibrium reaction, where specific conditions favor the forward reaction and other conditions favor the reverse reaction.
 
-Increasing the pressure causes the equilibrium position to move to the right resulting in a higher yield of ammonia since there are more gas molecules on the left hand side of the equation (4 in total) than there are on the right hand side of the equation (2). Increasing the pressure means the system adjusts to reduce the effect of the change, that is, to reduce the pressure by having fewer gas molecules.  
+Increasing the pressure causes the equilibrium position to move to the right resulting in a higher yield of ammonia since there are more gas molecules on the left hand side of the equation (4 in total) than there are on the right hand side of the equation (2). Increasing the pressure means the system adjusts to reduce the effect of the change, that is, to reduce the pressure by having fewer gas molecules.
 
 Decreasing the temperature causes the equilibrium position to move to the right resulting in a higher yield of ammonia since the reaction is exothermic (releases heat). Reducing the temperature means the system will adjust to minimize the effect of the change, that is, it will produce more heat since energy is a product of the reaction, and will therefore produce more ammonia gas as well.
 
@@ -1016,11 +1016,11 @@ This excess energy is called the DIFFERENCE-BOND-ENERGY.  When the bond energy i
 
 ## HOW TO USE IT
 
-\#-N2 determines the initial number of nitrogen (N<sub>2</sub>) molecules in the simulation. 
+\#-N2 determines the initial number of nitrogen (N<sub>2</sub>) molecules in the simulation.
 
-\#-H2 determines the initial number of hydrogen (H<sub>2</sub>) molecules in the simulation. 
+\#-H2 determines the initial number of hydrogen (H<sub>2</sub>) molecules in the simulation.
 
-\#-NH3 determines the initial number of ammonia (NH<sub>3</sub>) molecules in the simulation. 
+\#-NH3 determines the initial number of ammonia (NH<sub>3</sub>) molecules in the simulation.
 
 FORWARD-REACT? controls whether the forward reaction can occur.  Similarly, REVERSE-REACT? controls whether the reverse reaction can occur.  With both turned on, an equilibrium reaction is modeled.
 
@@ -1044,10 +1044,10 @@ Le Chatelier's Principle can be understood as competing effects between two diff
 
 Try running the model with FORWARD-REACTIONS set to "on" and REVERSE-REACTIONS set to "off".  Then try REVERSE-REACTIONS set to "on" and FORWARD-REACTIONS set to "off".
 
-Try running the model starting only with ammonia molecules. Try running the model with only hydrogen and nitrogen molecules to start with. 
+Try running the model starting only with ammonia molecules. Try running the model with only hydrogen and nitrogen molecules to start with.
 
 Try to find the settings for the highest yield of ammonia.  What temperature and volume combination is optimal?
- 
+
 
 ## EXTENDING THE MODEL
 

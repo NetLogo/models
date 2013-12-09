@@ -33,7 +33,7 @@ to go
 end
 
 ;; check to make sure that the seeds are not too close together, as this interferes
-;; with the emergent voronoi pattern
+;; with the emergent Voronoi pattern
 to separate-seeds
   ask seeds [
     ask other seeds in-radius 2 [
@@ -643,7 +643,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.5
+NetLogo 5.0.5-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
