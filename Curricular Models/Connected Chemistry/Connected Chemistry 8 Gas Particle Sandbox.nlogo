@@ -548,7 +548,6 @@ to color-particle-and-link
   let this-color-type color-type
   set color this-color-type
   ask this-link [set color this-color-type]
-  show color
 end
 
 
@@ -838,7 +837,7 @@ CHOOSER
 mouse-interaction
 mouse-interaction
 "none - let the particles interact" "draw basic wall" "draw red removable wall" "draw green removable wall" "big eraser" "slow down particles" "speed up particles" "paint particles purple" "paint particles green" "paint particles orange" "add green particles" "add purple particles" "add orange particles"
-9
+7
 
 BUTTON
 165
@@ -893,7 +892,7 @@ CHOOSER
 visualize-speed?
 visualize-speed?
 "none" "different shades" "arrows"
-0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -1364,7 +1363,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.5
+NetLogo 5.0.5-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
