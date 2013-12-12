@@ -643,10 +643,10 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 MONITOR
-15
-265
-160
-310
+5
+270
+150
+315
 wall hits per particle
 wall-hits-per-particle
 2
@@ -704,10 +704,10 @@ NIL
 1
 
 MONITOR
-15
-220
-160
-265
+5
+225
+150
+270
 NIL
 volume
 3
@@ -733,28 +733,28 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 CHOOSER
-15
-175
-160
-220
+5
+180
+150
+225
 show-speed-as-color?
 show-speed-as-color?
 "red-green-blue" "purple shades" "one color" "custom color"
 2
 
 OUTPUT
-124
-140
-210
-176
-18
+5
+150
+90
+179
+11
 
 TEXTBOX
-142
-122
-197
-140
-pressure
+10
+130
+65
+148
+Pressure
 11
 0.0
 0
@@ -889,7 +889,7 @@ true
 0
 
 @#$#@#$#@
-NetLogo 5.0.5
+NetLogo 5.0.5-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
