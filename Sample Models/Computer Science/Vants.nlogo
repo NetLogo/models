@@ -192,6 +192,8 @@ Turing Machine 2D -- similar to Vants, but much more general.  This model can be
 ## CREDITS AND REFERENCES
 
 The rules for Vants were originally invented by the artificial life researcher Chris Langton.
+
+A 1991 video of Langton describing and demoing Vants (via screen capture with voiceover) is online at http://www.youtube.com/watch?v=w6XQQhCgq5c
 @#$#@#$#@
 default
 true
