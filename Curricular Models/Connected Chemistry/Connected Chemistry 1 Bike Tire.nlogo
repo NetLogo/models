@@ -500,7 +500,7 @@ draw-box
 set bounce? true
 paint-particles number-of-particles-to-add 0 0
 paint-particles number-of-particles-to-add 0 0
-set total-particle-number (count particles with  [darkparticle? = false])
+set total-particle-number (count particles)
 repeat 75 [ go ]
 @#$#@#$#@
 @#$#@#$#@
