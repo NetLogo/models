@@ -305,8 +305,8 @@ The purpose of the model is to allow you to see how the number of data points, c
 When the model is set up, two things happen: First, a random 2-d dataset is generated and shown in the model. Second, a pre-defined number of centroids are generated and randomly distributed across the space.
 
 When the model runs, the k-means clustering algorithm works by iterating over two steps:
-	1. The Assignment Step, in which all datapoints assign themselves to their closest centroid, taking on its color. 
-	2. The Update Step, in which all centroids move to the patch that has the least sum squared of distances to the centroid's datapoints.
+1. The Assignment Step, in which all datapoints assign themselves to their closest centroid, taking on its color. 
+2. The Update Step, in which all centroids move to the patch that has the least sum squared of distances to the centroid's datapoints.
 
 By iterating these steps a few times, the model is able to identify clusters in the dataset.
 
@@ -350,7 +350,6 @@ _create-temporary-plot-pen_: The model plots the number of datapoints for each o
 ## REFERENCES
 
 For more information on k-means clustering, see http://en.wikipedia.org/wiki/K-means_clustering. (There are also many other sites on this topic on the web.)
-
 @#$#@#$#@
 default
 true
