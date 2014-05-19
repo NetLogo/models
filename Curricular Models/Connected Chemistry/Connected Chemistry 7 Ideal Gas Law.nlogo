@@ -33,15 +33,13 @@ globals
   maxparticles
   gravity-acceleration       ;; placeholder needed for logging in Modeling Across the Curriculum Activities
 
-  show-dark?                 ;; hides or shows the dark particles in the simulation.
-                             ;; see NetLogo features Info tab for full explanation of
-                             ;; what dark particles are and why they are used.
+
 ]
 
 breed [ particles particle ]
 breed [ flashes flash ]
 breed [ volume-target a-target ]
-breed [ dark-particles dark-particle ]
+
 
 
 flashes-own [birthday]
@@ -52,31 +50,20 @@ particles-own
   wall-hits                  ;; # of wall hits during this ticks cycle ("big tick")
   momentum-difference        ;; used to calculate pressure from wall hits
   last-collision
-  dark-particle?
    momentum-instant
 ]
 
 
-dark-particles-own
-[
-  speed mass energy          ;; particle info
-  wall-hits                  ;; # of wall hits during this ticks cycle ("big tick")
-  momentum-difference        ;; used to calculate pressure from wall hits
-  last-collision
-  momentum-instant
-]
 
 to setup
   ca reset-ticks
   set maxparticles 400
   set run-go? true
-  set show-dark? false
   set temp-increment 7.5
   set min-outside-energy 0
   set max-outside-energy 300
   set-default-shape particles "circle"
   set-default-shape flashes "square"
-  set-default-shape dark-particles "nothing"
   set box-edge (max-pycor - 1)
   set particles-to-add 0
   set max-tick-delta 0.1073
@@ -99,7 +86,7 @@ to setup
 
   set wall-color (scale-color red outside-energy -60 340)
   draw-box-piston
-  make-particles maxparticles
+  make-particles initial-number
   set pressure-history [0 0 0]  ;; plotted pressure will be averaged over the past 3 entries
   set zero-pressure-count 0
   update-variables
@@ -122,16 +109,14 @@ to go
   ask particles [ move ]
    ask particles [showlabel]
   if collide? [
-    ask particles with [dark-particle? = false]
+    ask particles
     [ check-for-collision]
-    ask particles with [dark-particle? = true]
-    [ check-for-collision-dark ]
   ]
   tick-advance tick-delta
   if floor ticks > floor (ticks - tick-delta)
   [
     ifelse any? particles
-          [ set wall-hits-per-particle mean [wall-hits] of particles with [dark-particle? = false] ]
+          [ set wall-hits-per-particle mean [wall-hits] of particles  ]
           [ set wall-hits-per-particle 0 ]
     ask particles
       [ set wall-hits 0 ]
@@ -214,7 +199,7 @@ to calculate-pressure
   ;; by summing the momentum change for each particle,
   ;; the wall's total momentum change is calculated
 
-  set pressure 15 * sum [momentum-difference] of particles with [dark-particle? = false]
+  set pressure 15 * sum [momentum-difference] of particles
   set pressure-history lput pressure but-first pressure-history
 
   ask particles
@@ -257,7 +242,7 @@ to bounce  ;; particle procedure
     set speed sqrt (2 * energy / mass )
     recolor
   ]
-   if (dark-particle? = false) [
+
   ask patch new-px new-py
   [ sprout 1 [
                 ht
@@ -268,7 +253,7 @@ to bounce  ;; particle procedure
                    [set pcolor piston-color - 3]
                    [set pcolor 11]
     ]   ]
-  ]
+
 end
 
 to move  ;; particle procedure
@@ -311,7 +296,7 @@ to check-for-collision  ;; particle procedure
   ;; the wavefront closely, you will see that it is not completely smooth,
   ;; because some collisions eventually do start occurring when it thins out while fanning.)
 
-  if count other particles-here with [dark-particle? = false] = 1
+  if count other particles-here  = 1
   [
     ;; the following conditions are imposed on collision candidates:
     ;;   1. they must have a lower who number than my own, because collision
@@ -370,7 +355,7 @@ to check-for-collision-dark  ;; particle procedure
   ;; the wavefront closely, you will see that it is not completely smooth,
   ;; because some collisions eventually do start occurring when it thins out while fanning.)
 
-  if count other particles-here with [dark-particle? = true] = 1
+  if count other particles-here = 1
   [
     ;; the following conditions are imposed on collision candidates:
     ;;   1. they must have a lower who number than my own, because collision
@@ -380,7 +365,7 @@ to check-for-collision-dark  ;; particle procedure
     ;;      this patch, so that we have a chance to leave the patch after we've
     ;;      collided with someone.
     set candidate one-of other particles-here with
-      [who < [who] of myself and myself != last-collision and dark-particle? = true]
+      [who < [who] of myself and myself != last-collision]
     ;; we also only collide if one of us has non-zero speed. It's useless
     ;; (and incorrect, actually) for two particles with zero speed to collide.
     if (candidate != nobody) and (speed > 0 or [speed] of candidate > 0)
@@ -574,17 +559,11 @@ to make-particles [number]
     set speed random-float 20
     set energy (0.5 * mass * speed * speed)
     random-position
-     set dark-particle? true
+    set shape "circle"
+    recolor
   ]
 
-  set total-particle-number initial-number
 
-  ask particles with [who <= initial-number]
-    [
-      set dark-particle? false
-      set shape "circle"
-      recolor
-  ]
   calculate-tick-delta
 end
 
@@ -599,9 +578,6 @@ to setup-particle  ;; particle procedure
   set last-collision nobody
   set wall-hits 0
   set momentum-difference 0
-  set dark-particle? true
-  ifelse show-dark? [set shape "default"][set shape "nothing" set color green]
-
 end
 
 ;; place particle at random location inside the box.
@@ -614,24 +590,27 @@ end
 
 to add-particles
     set particles-to-add number-to-add
-
+    set avg-speed mean [speed] of particles
  ;;   show particles-to-add
  ;;   show total-particle-number
     ifelse ((particles-to-add + total-particle-number ) > maxparticles)
     [user-message (word "The maximum number of particles allowed in this model is " maxparticles ".  You can not add "  number-to-add
-     " more particles to the " (count particles with [dark-particle? = false]) " you already have in the model")]
+     " more particles to the " (count particles) " you already have in the model")]
     [
     if number-to-add > 0 [
-       ask particles with [who <= (total-particle-number + particles-to-add) and who >= total-particle-number and who <= maxparticles]
-        [ set dark-particle? false
+       create-particles particles-to-add
+        [
+          setup-particle
           set shape "circle"
+          set speed avg-speed
+          set energy (0.5 * mass * speed * speed)
           setxy (- box-edge + 1) 0
           set heading 90 ;; east
           rt 45 - random-float 90
           set speed 10
           recolor
         ]
-      set total-particle-number (count particles with [dark-particle? = false])
+      set total-particle-number (count particles )
       set particles-to-add 0
 
       calculate-tick-delta
@@ -967,7 +946,7 @@ CHOOSER
 speed-as-color?
 speed-as-color?
 "red-green-blue" "purple shades" "one color" "custom color"
-0
+1
 
 SLIDER
 21
