@@ -139,6 +139,10 @@ to-report chemical-scent-at-angle [angle]
   if p = nobody [ report 0 ]
   report [chemical] of p
 end
+
+
+; Copyright 1997 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 257
@@ -229,7 +233,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 31
@@ -307,7 +311,13 @@ The built-in `diffuse` primitive lets us diffuse the chemical easily without com
 
 The primitive `patch-right-and-ahead` is used to make the ants smell in different directions without actually turning.
 
-## CREDITS AND REFERENCES
+
+## HOW TO CITE
+
+If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
+
+* Wilensky, U. (1997).  NetLogo Ants model.  http://ccl.northwestern.edu/netlogo/models/Ants.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 @#$#@#$#@
 default
 true
