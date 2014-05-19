@@ -305,14 +305,14 @@ The purpose of the model is to allow you to see how the number of data points, c
 When the model is set up, two things happen: First, a random 2-d dataset is generated and shown in the model. Second, a pre-defined number of centroids are generated and randomly distributed across the space.
 
 When the model runs, the k-means clustering algorithm works by iterating over two steps:
-1. The Assignment Step, in which all datapoints assign themselves to their closest centroid, taking on its color. 
-2. The Update Step, in which all centroids move to the patch that has the least sum squared of distances to the centroid's datapoints.
+1. The Assignment Step, in which all data points assign themselves to their closest centroid, taking on its color. 
+2. The Update Step, in which all centroids move to the patch that has the least sum squared of distances to the centroid's data points.
 
 By iterating these steps a few times, the model is able to identify clusters in the dataset.
 
 ## HOW TO USE IT
 
-First choose how many clusters you want to create and with how many data points, using respectively the _num-clusters_-slider and the _no-of-datapoints_-slider. Uusing the _k-centroids_-slider, you can decide how many centroids you will create. Finally, click 'Setup' generate your dataset and your centroids.
+First choose how many clusters you want to create and with how many data points, using respectively the _num-clusters_-slider and the _no-of-data points_-slider. Using the _k-centroids_-slider, you can decide how many centroids you will create. Finally, click 'Setup' generate your dataset and your centroids.
 
 At this point you can choose to call each of the two steps manually using the _assign-clusters_, and _update-clusters_ buttons. This will let the model run as fast or slow as you want, so you can see how the algorithm works.
 
@@ -336,7 +336,7 @@ The dataset currently is distributed evenly across a 2-d space. It could be inte
 
 ## NETLOGO FEATURES
 
-_create-temporary-plot-pen_: The model plots the number of datapoints for each of the centroids. However, because this number might change during runtime (i.e. if you let the model run, change the number of clusters, and then run the model again), the model uses temporary pens that are created and die with the centroids. 
+_create-temporary-plot-pen_: The model plots the number of data points for each of the centroids. However, because this number might change during runtime (i.e. if you let the model run, change the number of clusters, and then run the model again), the model uses temporary pens that are created and die with the centroids. 
 
 ## RELATED MODELS
 
