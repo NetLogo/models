@@ -11,7 +11,7 @@ data-points-own [
 ]
 
 to setup
-  ca
+  clear-all
   set-default-shape data-points "circle"
   set-default-shape centroids "x"
   generate-clusters
@@ -20,7 +20,7 @@ end
 
 to generate-clusters
   let cluster-std-dev 20 - num-clusters
-  let cluster-size no-of-data-points / num-clusters
+  let cluster-size num-data-points / num-clusters
   let cluster-num 0
   repeat num-clusters [
     let center-x random-xcor / 1.5
@@ -42,7 +42,7 @@ to reset-centroids
   
   let colors base-colors
   ask centroids [die]
-  create-centroids k-centroids [
+  create-centroids num-centroids [
     move-to one-of data-points
     set size 5
     set color last colors + 1
@@ -90,6 +90,10 @@ end
 to reveal-clusters
   ask data-points [ set color item true-cluster base-colors ]
 end
+
+
+; Copyright 2014 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 285
@@ -123,11 +127,11 @@ SLIDER
 80
 280
 113
-k-centroids
-k-centroids
+num-centroids
+num-centroids
 1
 14
-4
+7
 1
 1
 NIL
@@ -138,9 +142,9 @@ SLIDER
 45
 280
 78
-no-of-data-points
-no-of-data-points
-k-centroids + 1
+num-data-points
+num-data-points
+num-centroids + 1
 1000
 500
 1
@@ -296,27 +300,29 @@ HORIZONTAL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model shows a k-means clustering algorithm for identifying clusters in 2-dimensional datasets. K-means clustering algorithms work by iteratively improving the fitness of centroids (see below).
+Sometimes we need to find patterns in datasets in which the data clusters in particular spaces in the data space. In those cases, there are a number of different ways of finding out where those clusters are located. One of them is the k-means clustering algorithm. 
+
+This model shows the k-means clustering algorithm for identifying clusters in 2-dimensional datasets. K-means clustering algorithms work by iteratively improving the fitness of centroids (see below).
 
 The purpose of the model is to allow you to see how the number of data points, clusters, and centroids interact, and how the same dataset and the same number of centroids can often lead to very different results.
 
 ## HOW IT WORKS
 
-When the model is set up, two things happen: First, a random 2-d dataset is generated and shown in the model. Second, a pre-defined number of centroids are generated and randomly distributed across the space.
+When the model is set up, two things happen: First, a random 2-d dataset is generated and shown in the model. Second, a pre-defined number of centroids are generated and move to a randomly selected data point.
 
 When the model runs, the k-means clustering algorithm works by iterating over two steps:
 1. The Assignment Step, in which all data points assign themselves to their closest centroid, taking on its color. 
-2. The Update Step, in which all centroids move to the patch that has the least sum squared of distances to the centroid's data points.
+2. The Update Step, in which all centroids move to the position in space that has the least sum squared of distances to the centroid's data points.
 
 By iterating these steps a few times, the model is able to identify clusters in the dataset.
 
 ## HOW TO USE IT
 
-First choose how many clusters you want to create and with how many data points, using respectively the _num-clusters_-slider and the _no-of-data points_-slider. Using the _k-centroids_-slider, you can decide how many centroids you will create. Finally, click 'Setup' generate your dataset and your centroids.
+First choose how many clusters you want to create and with how many data points, using respectively the NUM-CLUSTERS slider and the NUM-DATA-POINTS slider. Using the NUM-CENTROIDS slider, you can decide how many centroids you will create. Finally, click SETUP to generate your dataset and your centroids.
 
-At this point you can choose to call each of the two steps manually using the _assign-clusters_, and _update-clusters_ buttons. This will let the model run as fast or slow as you want, so you can see how the algorithm works.
+At this point you can choose to call each of the two steps manually using the ASSIGN POINTS, and UPDATE CENTROIDS buttons. This will let the model run as fast or slow as you want, so you can see how the algorithm works.
 
-Alternatively you can press the _Keep updating_-button, letting the model run as fast as your computer allows.
+Alternatively you can press the FIND CLUSTERS button, letting the model run as fast as your computer allows.
 
 When the algorithm has converged on a set of clusters, the model will stop running.
 
@@ -324,11 +330,13 @@ When the algorithm has converged on a set of clusters, the model will stop runni
 
 You will often get very different results, depending on where the centroids happen to be placed upon creation. Try and explore each data set several times, both by simply resetting the centroids, and by changing the number of centroids you place in the dataset.
 
-Also, the closer clusters are, the more difficult it is to tell them apart. Try to contrast what the K-Means Clustering algorithm finds with the 'true clusters'.
+By using the REVEAL TRUE CLUSTERS button, you can see which clusters each data point actually belongs to. This allows you to contrast the true clusters with the clusters identified by the K-Means Clustering algorithm.
 
 ## THINGS TO TRY
 
-Because the k-means clustering algorithm only optimizes locally (i.e. for each centroid), you may not necessarily find the global optimum (i.e. the lowest sum of the least sum squares across all centroids). In fact, for each dataset, you will probably be able to converge on many different sets of k-means clusters. You can try this by clicking the _Reset Centroids_-button after your model has already converged on one set, and running it again.
+K-means clustering won't necessarily find the best solution. In fact, there are many solutions that it can converge to. Each of these solutions will be locally optimal. In other other words, you can't find a better solution by moving the centroids by a small amount. However, better solutions may still exist.
+
+For each dataset, you will probably be able to converge on many different solutions. You can try this by clicking the RESET CENTROIDS button after your model has already converged on one set, and running it again. This becomes particular obvious if NUM-CLUSTERS and NUM-CENTROIDS are not equal.
 
 ## EXTENDING THE MODEL
 
@@ -350,6 +358,13 @@ _create-temporary-plot-pen_: The model plots the number of data points for each 
 ## REFERENCES
 
 For more information on k-means clustering, see http://en.wikipedia.org/wiki/K-means_clustering. (There are also many other sites on this topic on the web.)
+
+## HOW TO CITE
+
+If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
+
+* Hjorth, A., Head, B., and Wilensky, U. (2014).  NetLogo K-Means Clustering model.  http://ccl.northwestern.edu/netlogo/models/K-MeansClustering.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 @#$#@#$#@
 default
 true
