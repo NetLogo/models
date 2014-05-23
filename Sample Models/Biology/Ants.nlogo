@@ -318,6 +318,8 @@ If you mention this model in a publication, we ask that you include these citati
 
 * Wilensky, U. (1997).  NetLogo Ants model.  http://ccl.northwestern.edu/netlogo/models/Ants.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 * Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 true
