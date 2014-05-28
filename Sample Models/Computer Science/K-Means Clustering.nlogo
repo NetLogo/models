@@ -338,12 +338,7 @@ _CREATE-TEMPORARY-PLOT-PEN_: The model plots the number of data points for each 
 
 For more information on k-means clustering, see http://en.wikipedia.org/wiki/K-means_clustering. (There are also many other sites on this topic on the web.)
 
-## HOW TO CITE
-
-If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
-
-* Hjorth, A., Head, B., and Wilensky, U. (2014).  NetLogo K-Means Clustering model.  http://ccl.northwestern.edu/netlogo/models/K-MeansClustering.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 true
@@ -651,7 +646,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.5
+NetLogo 5.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
