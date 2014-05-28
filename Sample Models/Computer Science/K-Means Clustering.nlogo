@@ -146,7 +146,7 @@ num-data-points
 num-data-points
 num-centroids + 1
 1000
-500
+138
 1
 1
 NIL
@@ -300,51 +300,62 @@ HORIZONTAL
 @#$#@#$#@
 ## WHAT IS IT?
 
-Sometimes we need to find patterns in datasets in which the data clusters in particular spaces in the data space. In those cases, there are a number of different ways of finding out where those clusters are located. One of them is the k-means clustering algorithm. 
+Often, when we have data about a large set of objects, we want to identify groups of similar objects within that set. For example, if we have many news articles, we may want to identify groups of articles that all have the same topic. In statistics, this task is called “cluster analysis”, or “clustering”. 
 
-This model shows the k-means clustering algorithm for identifying clusters in 2-dimensional datasets. K-means clustering algorithms work by iteratively improving the fitness of centroids (see below).
+This model shows the k-means clustering algorithm. a simple, but often effective approach to clustering. In this model, the k-means clustering algorithm is used to identify clusters of points on a plane. In the general case, you can represent your data objects as vectors of numbers, where each number represents a feature of the object. 
 
-The purpose of the model is to allow you to see how the number of data points, clusters, and centroids interact, and how the same dataset and the same number of centroids can often lead to very different results.
+The model is initialized by creating a specific number of clusters (NUM-CLUSTERS). In a real-world application, this number of clusters would be unknown. The algorithm is designed to find the clusters, and the user selects a guess, NUM-CENTROIDS, which tells the algorithm, how many clusters to search for. You can search for different numbers of clusters till you find one that best characterizes your data. 
+
+The result of the algorithm is a set of NUM-CENTROIDS points,  (each point is called a centroid), each of which is located at the average position of a corresponding cluster. The “k” in k-mean clustering refers to the guess at how many centroids to search for.
+
+The purpose of the model is to allow you to see how the number of data points, clusters, and centroids interact, and how the algorithm can often find many different sets of clusters for the same dataset.
+
 
 ## HOW IT WORKS
 
-When the model is set up, two things happen: First, a random 2-d dataset is generated and shown in the model. Second, a pre-defined number of centroids are generated and move to a randomly selected data point.
+The algorithm works by finding the average position of the elements in NUM-CENTROIDS different clusters. It starts by simply guessing an average position for each of the NUM-CENTROIDS clusters, and then improves these guesses as it goes on. 
 
-When the model runs, the k-means clustering algorithm works by iterating over two steps:
-1. The Assignment Step, in which all data points assign themselves to their closest centroid, taking on its color. 
-2. The Update Step, in which all centroids move to the position in space that has the least sum squared of distances to the centroid's data points.
+When the model is set up, two things happen: First, NUM-DATA-POINTS data points are generated and shown in the view.  Second, NUM-CENTROIDS centroids are generated and moved to a randomly selected data point. This randomly selected point is the initial guess for each centroid.
 
-By iterating these steps a few times, the model is able to identify clusters in the dataset.
+Each tick, the model performs two steps:
+1. ASSIGN POINTS: all data points assign themselves to their closest centroid, taking on its color. 
+2. UPDATE CENTROIDS: all centroids move to the average position of the points assigned to it.
+
+By iterating these steps a few times, the model is usually able to identify clusters in the dataset.
 
 ## HOW TO USE IT
 
-First choose how many clusters you want to create and with how many data points, using respectively the NUM-CLUSTERS slider and the NUM-DATA-POINTS slider. Using the NUM-CENTROIDS slider, you can decide how many centroids you will create. Finally, click SETUP to generate your dataset and your centroids.
+First choose how many clusters you want to create and with how many data points, using respectively the NUM-CLUSTERS slider and the NUM-DATA-POINTS slider. Using the NUM-CENTROIDS slider, you can decide how many centroids you will create, which is how many clusters to search for. With real data, you won’t necessarily know how many naturally occurring clusters there are. By making NUM-CLUSTERS and NUM-CENTROIDS different, you can see what the algorithm does when it’s looking for too many or not enough clusters. Finally, click SETUP to generate your dataset and your centroids.
 
-At this point you can choose to call each of the two steps manually using the ASSIGN POINTS, and UPDATE CENTROIDS buttons. This will let the model run as fast or slow as you want, so you can see how the algorithm works.
+At this point you can choose to call each of the two steps manually using the ASSIGN POINTS, and UPDATE CENTROIDS buttons. This lets you see exactly how each of the steps work.
 
-Alternatively you can press the FIND CLUSTERS button, letting the model run as fast as your computer allows.
+Alternatively you can press the FIND CLUSTERS (GO) button.
 
-When the algorithm has converged on a set of clusters, the model will stop running.
+The model stops when the points assigned to the centroids don’t change. When this happens, we say that the centroids have “converged”.
+
+RESET CENTROIDS sets the position of the centroids to random points in your data set, so that you can see if the clustering algorithm finds different sets of clusters depending on its initial guesses.
 
 ## THINGS TO NOTICE
 
-You will often get very different results, depending on where the centroids happen to be placed upon creation. Try and explore each data set several times, both by simply resetting the centroids, and by changing the number of centroids you place in the dataset.
-
-By using the REVEAL TRUE CLUSTERS button, you can see which clusters each data point actually belongs to. This allows you to contrast the true clusters with the clusters identified by the K-Means Clustering algorithm.
+You will often get very different results, depending on the initial guesses for the centroids’ location. Try and explore each data set several times, both by resetting the centroids, and by changing the number of centroids you place in the dataset.
 
 ## THINGS TO TRY
 
-K-means clustering won't necessarily find the best solution. In fact, there are many solutions that it can converge to. Each of these solutions will be locally optimal. In other other words, you can't find a better solution by moving the centroids by a small amount. However, better solutions may still exist.
+K-means clustering won't necessarily find the best solution. In fact, there are many solutions that it can converge to. Each of these solutions will be locally optimal. In other words, you can't find a better solution by moving the centroids by a small amount. However, better solutions may still exist.
 
-For each dataset, you will probably be able to converge on many different solutions. You can try this by clicking the RESET CENTROIDS button after your model has already converged on one set, and running it again. This becomes particular obvious if NUM-CLUSTERS and NUM-CENTROIDS are not equal.
+For each dataset, you will probably be able to converge on many different solutions. You can try this by clicking the RESET CENTROIDS button after your model has already converged on one set, and running it again. This becomes particularly obvious if NUM-CLUSTERS and NUM-CENTROIDS are not equal.
 
 ## EXTENDING THE MODEL
 
-The dataset currently is distributed evenly across a 2-d space. It could be interesting to add the ability to either import datasets and find clusters in them, or somehow allow the user to create their own datasets.
+The dataset currently is distributed in clusters across a 2-d space. It could be interesting to add the ability to either import datasets and find clusters in them, or somehow allow the user to create their own datasets. 
+
+Currently, only the data points that are identified as belonging to a cluster change their color as the algorithm runs. Another interesting way to illustrate clusters might be to change the color of patches that are closest to the centroids. This would create a Voronoi diagram of the clusters.
+
+A clustering algorithm requires a measure to assess bow well it has clustered. This model uses the square deviation of the Euclidean distance. This measure has some good properties, but it assigns better scores to higher numbers of centroids. Can you think of other measures that improve the clustering?
 
 ## NETLOGO FEATURES
 
-_create-temporary-plot-pen_: The model plots the number of data points for each of the centroids. However, because this number might change during runtime (i.e. if you let the model run, change the number of clusters, and then run the model again), the model uses temporary pens that are created and die with the centroids. 
+_CREATE-TEMPORARY-PLOT-PEN_: The model plots the number of data points for each of the centroids. However, because this number might change during runtime (i.e. if you let the model run, change the number of clusters, and then run the model again), the model uses temporary pens that are created and die with the centroids. 
 
 ## RELATED MODELS
 
