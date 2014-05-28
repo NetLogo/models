@@ -3,11 +3,6 @@ breed [centroids centroid]
 
 globals [
   any-centroids-moved?
-  movement-threshold   ;; We stop when the centroids have all moved less than this
-]
-
-data-points-own [
-  true-cluster
 ]
 
 to setup
@@ -21,23 +16,19 @@ end
 to generate-clusters
   let cluster-std-dev 20 - num-clusters
   let cluster-size num-data-points / num-clusters
-  let cluster-num 0
   repeat num-clusters [
     let center-x random-xcor / 1.5
     let center-y random-ycor / 1.5
     create-data-points cluster-size [
-      set true-cluster cluster-num
       setxy center-x center-y
       set heading random 360
       fd abs random-normal 0 (cluster-std-dev / 2) ;; Divide by two because abs doubles the width
     ]
-    set cluster-num cluster-num + 1
   ]
 end
 
 to reset-centroids
   set any-centroids-moved? true
-  set movement-threshold 0.1
   ask data-points [ set color grey ]
   
   let colors base-colors
@@ -65,6 +56,7 @@ to assign-clusters
 end
 
 to update-clusters
+  let movement-threshold 0.1
   ask centroids [
     let my-points data-points with [ shade-of? color [ color ] of myself ]
     if any? my-points [ 
@@ -86,14 +78,6 @@ end
 to-report square-deviation
   report sum [ (distance myself) ^ 2 ] of data-points with [ closest-centroid = myself ]
 end
-
-to reveal-clusters
-  ask data-points [ set color item true-cluster base-colors ]
-end
-
-
-; Copyright 2014 Uri Wilensky.
-; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 285
@@ -241,7 +225,7 @@ PLOT
 5
 255
 280
-465
+495
 Square Deviation of Clusters
 NIL
 NIL
@@ -256,31 +240,14 @@ PENS
 
 MONITOR
 5
-465
+500
 280
-510
+545
 Total Square Deviation
 mean [ square-deviation ] of centroids
 0
 1
 11
-
-BUTTON
-5
-515
-280
-550
-Reveal True Clusters
-reveal-clusters
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
 
 SLIDER
 5
@@ -349,7 +316,7 @@ For each dataset, you will probably be able to converge on many different soluti
 
 The dataset currently is distributed in clusters across a 2-d space. It could be interesting to add the ability to either import datasets and find clusters in them, or somehow allow the user to create their own datasets. 
 
-Currently, only the data points that are identified as belonging to a cluster change their color as the algorithm runs. Another interesting way to illustrate clusters might be to change the color of patches that are closest to the centroids. This would create a Voronoi diagram of the clusters.
+Currently, only the data points that are identified as belonging to a cluster change their color as the algorithm runs. Another interesting way to illustrate clusters might be to change the color of patches that are closest to the centroids. This would create a Voronoi diagram of the clusters (see under 'Related models' if you are curious about Voronoi diagrams).
 
 A clustering algorithm requires a measure to assess bow well it has clustered. This model uses the square deviation of the Euclidean distance. This measure has some good properties, but it assigns better scores to higher numbers of centroids. Can you think of other measures that improve the clustering?
 
@@ -360,13 +327,14 @@ _CREATE-TEMPORARY-PLOT-PEN_: The model plots the number of data points for each 
 ## RELATED MODELS
 
 * Voronoi
+* Emergent Voronoi
 * MaterialSim Grain Growth
 * Fur
 * Honeycomb
 * Scatter
 * Hotelling's Law
 
-## CREDITS AND REFERENCES
+## REFERENCES
 
 For more information on k-means clustering, see http://en.wikipedia.org/wiki/K-means_clustering. (There are also many other sites on this topic on the web.)
 
