@@ -9,6 +9,7 @@ to setup
   clear-all
   crt number
     [ setxy random-xcor random-ycor
+      set shape "butterfly"
       set clock random (round cycle-length)
       set threshold flash-length
       ifelse strategy = "delay"
@@ -33,6 +34,7 @@ to go
   ]
   tick
 end
+
 
 to recolor ; turtle procedure
   ifelse (clock < threshold)
@@ -171,7 +173,7 @@ SWITCH
 259
 show-dark-fireflies?
 show-dark-fireflies?
-0
+1
 1
 -1000
 
@@ -253,7 +255,7 @@ All settings (except SHOW-DARK-FIREFLIES) must be set before pressing the SETUP 
 
 ## THINGS TO NOTICE
 
-Using the default settings (number: 1500, cycle-length: 10, flash-length: 1, number-flashes: 1, strategy: "delay"), notice how local clusters of synchronization begin to form. See if you can figure out where each cluster is represented on the plot. As the simulation proceeds, try to determine which local cluster will eventually "take over" the population. Did this cluster originally have the highest spike on the plot?
+Using the default settings (number: 1500, cycle-length: 10, flash-length: 1, number-flashes: 1, flashes-to-reset: 1, strategy: "delay"), notice how local clusters of synchronization begin to form. See if you can figure out where each cluster is represented on the plot. As the simulation proceeds, try to determine which local cluster will eventually "take over" the population. Did this cluster originally have the highest spike on the plot?
 
 In phase advance simulations, why do the plots generally top off before the peaks reach the entire population?
 
@@ -261,9 +263,9 @@ In this model fireflies cannot reset their cycle when they are in the middle of 
 
 ## THINGS TO TRY
 
-Change the strategy chooser between "delay" and "advance" while keeping the other settings steady (in particular, keep FLASHES-TO-RESTART at 2). Which strategy seems more effective? Why?
+Run the model with the "delay"strategy in the default settings.  Change FLASHES-TO-RESET to 2, and run the model with the "advance" strategy (while keeping the other settings steady). Which strategy seems more effective? Why?
 
-Try adjusting FLASHES-TO-RESTART between 0, 1 and 2 using both phase delay and phase advance settings. Notice that each setting will give a characteristically different plot, and some of them do not allow for synchronization at all (for example, with the delay strategy, contrast FLASHES-TO-RESTART set to 1 as opposed to 2). Why does this control make such a difference in the outcome of the simulation?
+Try adjusting FLASHES-TO-RESET between 0, 1 and 2 using both phase delay and phase advance settings. Notice that each setting will give a characteristically different plot, and some of them do not allow for synchronization at all (for example, with the delay strategy, contrast FLASHES-TO-RESET set to 1 as opposed to 2). Why does this control make such a difference in the outcome of the simulation?
 
 Changing the number of fireflies in a simulation affects the density of the population (as does adjusting the size of the world). What effect does this have on a simulation?
 
@@ -271,15 +273,18 @@ Changing the number of fireflies in a simulation affects the density of the popu
 
 This model explores only two general strategies for attaining synchrony in such cycle-governed fireflies. Can you find any others? Can you improve the existing strategies (i.e., by speeding them up)?
 
-There are many other possible situations in which distributed agents must synchronize their behavior through the the use of simple rules. What if, instead of perceiving only other discrete flashes, an insect could sense where another insect was in its cycle (perhaps by hearing an increasingly loud hum)? What kinds of strategies for synchronization might be useful in such a situation?
+There are many other possible situations in which distributed agents must synchronize their behavior through the use of simple rules. What if, instead of perceiving only other discrete flashes, an insect could sense where another insect was in its cycle (perhaps by hearing an increasingly loud hum)? What kinds of strategies for synchronization might be useful in such a situation?
 
 If all fireflies had adjustable cycle-lengths (initially set to random intervals) would it then be possible to coordinate both their cycle-lengths and their flashing?
+
+Introduce some blind fireflies. How do the strategies fare with this addition?
 
 ## NETLOGO FEATURES
 
 Note the use of agentsets to count the number of nearby fireflies that are flashing:
 
     count turtles in-radius 1 with [color = yellow]
+
 
 ## CREDITS AND REFERENCES
 
