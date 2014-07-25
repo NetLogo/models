@@ -281,7 +281,6 @@ Note the use of agentsets to count the number of nearby fireflies that are flash
 
     count turtles in-radius 1 with [color = yellow]
 
-
 ## CREDITS AND REFERENCES
 
 Buck, John. (1988). Synchronous Rhythmic Flashing of Fireflies. The Quarterly Review of Biology, September 1988, 265 - 286.
@@ -571,7 +570,11 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
+<<<<<<< HEAD
+NetLogo 5.1-RC1
+=======
 NetLogo 5.1
+>>>>>>> FETCH_HEAD
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
