@@ -96,7 +96,6 @@ to move-focus-directrix [ x y ]
     ;; ask patches with [pycor = f1y] [ set pcolor black ]
     [ ask patch f1x f1y [ set pcolor white ] ]
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 242
