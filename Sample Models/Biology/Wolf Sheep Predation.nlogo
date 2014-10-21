@@ -122,10 +122,6 @@ to display-labels
     if grass? [ ask sheep [ set label round energy ] ]
   ]
 end
-
-
-; Copyright 1997 Uri Wilensky.
-; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 350

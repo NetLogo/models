@@ -422,10 +422,10 @@ entropy
 0.0
 1.0
 true
-false
+true
 "" ""
 PENS
-"entropy" 1.0 0 -2674135 true "plot 100 * (1 / calculate-order)" ""
+"entropy" 1.0 0 -2674135 true "plot 100 * (1 / calculate-order)" "plot 100 * 1 / calculate-order"
 
 PLOT
 552
@@ -515,10 +515,6 @@ Is this model valid for fluids in any aspect?  How could it be made to be fluid-
 The GasLab suite of models, especially GasLab Maxwell's Demon, which models a theoretical system that seems to violate the Second Law of Thermodynamics.
 
 ## CREDITS AND REFERENCES
-
-Thanks to Brent Collins and Seth Tisue for their work on this model.
-
-This model was developed as part of the GasLab curriculum (http://ccl.northwestern.edu/curriculum/gaslab/) and has also been incorporated into the Connected Chemistry curriculum (http://ccl.northwestern.edu/curriculum/ConnectedChemistry/)
 @#$#@#$#@
 default
 true
