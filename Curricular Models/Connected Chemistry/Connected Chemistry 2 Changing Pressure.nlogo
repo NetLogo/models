@@ -1,7 +1,7 @@
 globals
 [
-  tick-delta                 ;; how much we advance the tick counter this time through
-  max-tick-delta             ;; the largest tick-delta is allowed to be
+  tick-length                 ;; how much we advance the tick counter this time through
+  max-tick-length             ;; the largest tick-length is allowed to be
   box-edge                   ;; distance of box edge from axes
   delta-horizontal-surface   ;; the size of the wall surfaces that run horizontally - the top and bottom of the box
   delta-vertical-surface     ;; the size of the wall surfaces that run vertically - the left and right of the box
@@ -41,7 +41,7 @@ to setup
   set-default-shape particles "circle"
     set-default-shape flashes "square"
   set maxparticles 400
-  set tick-delta 0
+  set tick-length 0
    ;; starting this at zero means that no particles will move until we've
    ;; calculated vsplit, which we won't even try to do until there are some
    ;; particles.
@@ -80,10 +80,10 @@ to go
 
     ]
     set old-clock ticks
-    tick-advance tick-delta
+    tick-advance tick-length
     calculate-instant-pressure
 
-    if floor ticks > floor (ticks - tick-delta) [
+    if floor ticks > floor (ticks - tick-length) [
        ifelse any? particles 
           [ set wall-hits-per-particle mean [wall-hits] of particles  ]
           [ set wall-hits-per-particle 0 ]
@@ -92,7 +92,7 @@ to go
 
        update-plots
        ]
-    calculate-tick-delta
+    calculate-tick-length
     ask flashes with [ticks - birthday > 0.4] [
       die
     ]
@@ -106,10 +106,10 @@ to go
 end
 
 
-to calculate-tick-delta
+to calculate-tick-length
   ifelse any? particles with [speed > 0]
-    [ set tick-delta 1 / (ceiling max [speed] of particles) ]
-    [ set tick-delta 1 ]
+    [ set tick-length 1 / (ceiling max [speed] of particles) ]
+    [ set tick-length 1 ]
 end
 
 ;;; Pressure is defined as the force per unit area.  In this context,
@@ -198,9 +198,9 @@ end
 
 
 to move  ;; particle procedure
-  if patch-ahead (speed * tick-delta) != patch-here
+  if patch-ahead (speed * tick-length) != patch-here
     [ set last-collision nobody ]
-  jump (speed * tick-delta)
+  jump (speed * tick-length)
 end
 
 to check-for-collision  ;; particle procedure
@@ -398,7 +398,7 @@ to make-particles [number]
   set total-particle-number initial-number
 
 
-  calculate-tick-delta
+  calculate-tick-length
 end
 
 
@@ -424,7 +424,7 @@ to add-particles-side
       set total-particle-number (total-particle-number + particles-to-add)
       set particles-to-add 0
 
-      calculate-tick-delta
+      calculate-tick-length
       ]
      ]
 end

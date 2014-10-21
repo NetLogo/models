@@ -1,7 +1,7 @@
 globals
 [
-  tick-delta                 ;; how much we advance the tick counter this time through
-  max-tick-delta             ;; the largest tick-delta is allowed to be
+  tick-length                 ;; how much we advance the tick counter this time through
+  max-tick-length             ;; the largest tick-length is allowed to be
   box-edge                   ;; distance of box edge from axes
   instant-pressure           ;; the pressure at this tick or instant in time
   pressure-history           ;; a history of the four instant-pressure values
@@ -48,7 +48,7 @@ to setup
   set max-outside-energy 300
   set-default-shape particles "circle"
   set-default-shape flashes "square"
-  set max-tick-delta 0.1073
+  set max-tick-length 0.1073
   ;; box has constant size...
   set box-edge (max-pxcor - 1)
   ;;; the length of the horizontal or vertical surface of
@@ -74,7 +74,7 @@ to setup
   do-plotting
   do-recolor
   set total-particle-number initial-number
-  calculate-tick-delta
+  calculate-tick-length
 end
 
 
@@ -89,11 +89,11 @@ to go
     ask particles
       [ check-for-collision ]
   ]
-  tick-advance tick-delta
+  tick-advance tick-length
 
   calculate-instant-pressure
 
-  if floor ticks > floor (ticks - tick-delta)
+  if floor ticks > floor (ticks - tick-length)
   [
     ifelse any? particles
       [ set wall-hits-per-particle mean [wall-hits] of particles  ]
@@ -104,7 +104,7 @@ to go
     update-variables
     do-plotting
   ]
-  calculate-tick-delta
+  calculate-tick-length
   ask particles with [ who = 0 ]
     [ set particle0-speed speed ]
 
@@ -116,10 +116,10 @@ to go
 end
 
 
-to calculate-tick-delta
+to calculate-tick-length
   ifelse any? particles with [ speed > 0 ]
-    [ set tick-delta min list (1 / (ceiling max [speed] of particles )) max-tick-delta ]
-    [ set tick-delta max-tick-delta ]
+    [ set tick-length min list (1 / (ceiling max [speed] of particles )) max-tick-length ]
+    [ set tick-length max-tick-length ]
 end
 
 ;;; Pressure is defined as the force per unit area.  In this context,
@@ -231,9 +231,9 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to move  ;; particle procedure
-  if patch-ahead (speed * tick-delta) != patch-here
+  if patch-ahead (speed * tick-length) != patch-here
     [ set last-collision nobody ]
-  jump (speed * tick-delta)
+  jump (speed * tick-length)
 end
 
 

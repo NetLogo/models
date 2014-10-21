@@ -1,7 +1,7 @@
 globals
 [
-  tick-delta                  ;; how much we advance the tick counter this time through
-  max-tick-delta              ;; the largest tick-delta is allowed to be
+  tick-length                  ;; how much we advance the tick counter this time through
+  max-tick-length              ;; the largest tick-length is allowed to be
   box-edge-y                  ;; distance of box edge from axes
   box-edge
   instant-pressure           ;; the pressure at this tick or instant in time
@@ -66,7 +66,7 @@ to setup
   set-default-shape flashes "square"
   set box-edge (max-pycor - 1)
   set particles-to-add 0
-  set max-tick-delta 0.1073
+  set max-tick-length 0.1073
   ;; box has constant size...
   set box-edge-y (max-pycor - 1)
   set box-edge (max-pxcor - 1)
@@ -112,8 +112,8 @@ to go
     ask particles
     [ check-for-collision]
   ]
-  tick-advance tick-delta
-  if floor ticks > floor (ticks - tick-delta)
+  tick-advance tick-length
+  if floor ticks > floor (ticks - tick-length)
   [
     ifelse any? particles
           [ set wall-hits-per-particle mean [wall-hits] of particles  ]
@@ -124,7 +124,7 @@ to go
     update-variables
     update-plots
   ]
-  calculate-tick-delta
+  calculate-tick-length
   calculate-wall-color
 
     ask flashes with [ticks - birthday > 0.4]
@@ -173,10 +173,10 @@ end
 
 
 
-to calculate-tick-delta
+to calculate-tick-length
   ifelse any? particles with [speed > 0]
-    [ set tick-delta min list (1 / (ceiling max [speed] of particles )) max-tick-delta ]
-    [ set tick-delta max-tick-delta ]
+    [ set tick-length min list (1 / (ceiling max [speed] of particles )) max-tick-length ]
+    [ set tick-length max-tick-length ]
 end
 
 
@@ -257,9 +257,9 @@ to bounce  ;; particle procedure
 end
 
 to move  ;; particle procedure
-  if patch-ahead (speed * tick-delta) != patch-here
+  if patch-ahead (speed * tick-length) != patch-here
     [ set last-collision nobody ]
-  jump (speed * tick-delta)
+  jump (speed * tick-length)
 end
 
 to check-for-collision  ;; particle procedure
@@ -564,7 +564,7 @@ to make-particles [number]
   ]
 
 
-  calculate-tick-delta
+  calculate-tick-length
 end
 
 
@@ -613,7 +613,7 @@ to add-particles
       set total-particle-number (count particles )
       set particles-to-add 0
 
-      calculate-tick-delta
+      calculate-tick-length
       ]
     ]
 end

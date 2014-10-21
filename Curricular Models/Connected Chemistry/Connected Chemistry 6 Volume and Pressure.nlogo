@@ -1,7 +1,7 @@
 globals
 [
-  tick-delta                 ;; how much we advance the tick counter this time through
-  max-tick-delta             ;; the largest tick-delta is allowed to be
+  tick-length                 ;; how much we advance the tick counter this time through
+  max-tick-length             ;; the largest tick-length is allowed to be
   box-edge                   ;; distance of box edge from axes
   instant-pressure           ;; the pressure at this tick or instant in time
   pressure-history           ;; a history of the four instant-pressure values
@@ -76,7 +76,7 @@ to setup
 
   create-volume-target 1 [set color white ht]  ;; cursor for targeting new location for volume using MOVE WALL
   do-recolor
-  calculate-tick-delta
+  calculate-tick-length
 end
 
 to go
@@ -89,11 +89,11 @@ to go
     if collisions? [
       ask particles [ check-for-collision ]
     ]
-    tick-advance tick-delta
+    tick-advance tick-length
 
     calculate-instant-pressure
 
-    if floor ticks > floor (ticks - tick-delta)
+    if floor ticks > floor (ticks - tick-length)
       [ ifelse any? particles
           [ set wall-hits-per-particle mean [wall-hits] of particles ]
           [ set wall-hits-per-particle 0 ]
@@ -101,7 +101,7 @@ to go
           [ set wall-hits 0 ]
         calculate-pressure
         do-plotting ]
-    calculate-tick-delta
+    calculate-tick-length
 
     ask flashes with [ticks - birthday > 0.4]
       [ ifelse shade-of? pcolor wall-color
@@ -117,10 +117,10 @@ to go
     display
 end
 
-to calculate-tick-delta
+to calculate-tick-length
   ifelse any? particles with [speed > 0]
-    [ set tick-delta 1 / (ceiling max [speed] of particles) ]
-    [ set tick-delta 1 ]
+    [ set tick-length 1 / (ceiling max [speed] of particles) ]
+    [ set tick-length 1 ]
 end
 
 ;;; Pressure is defined as the force per unit area.  In this context,
@@ -208,9 +208,9 @@ to bounce  ;; particle procedure
 end
 
 to move  ;; particle procedure
-  if patch-ahead (speed * tick-delta) != patch-here
+  if patch-ahead (speed * tick-length) != patch-here
     [ set last-collision nobody ]
-  jump (speed * tick-delta)
+  jump (speed * tick-length)
 end
 
 to check-for-collision  ;; particle procedure
