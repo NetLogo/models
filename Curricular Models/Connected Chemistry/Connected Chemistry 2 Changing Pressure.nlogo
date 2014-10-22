@@ -1,7 +1,7 @@
 globals
 [
-  tick-length                 ;; how much we advance the tick counter this time through
-  max-tick-length             ;; the largest tick-length is allowed to be
+  tick-advance-amount                 ;; how much we advance the tick counter this time through
+  max-tick-advance-amount             ;; the largest tick-advance-amount is allowed to be
   box-edge                   ;; distance of box edge from axes
   delta-horizontal-surface   ;; the size of the wall surfaces that run horizontally - the top and bottom of the box
   delta-vertical-surface     ;; the size of the wall surfaces that run vertically - the left and right of the box
@@ -41,7 +41,7 @@ to setup
   set-default-shape particles "circle"
     set-default-shape flashes "square"
   set maxparticles 400
-  set tick-length 0
+  set tick-advance-amount 0
    ;; starting this at zero means that no particles will move until we've
    ;; calculated vsplit, which we won't even try to do until there are some
    ;; particles.
@@ -80,10 +80,10 @@ to go
 
     ]
     set old-clock ticks
-    tick-advance tick-length
+    tick-advance tick-advance-amount
     calculate-instant-pressure
 
-    if floor ticks > floor (ticks - tick-length) [
+    if floor ticks > floor (ticks - tick-advance-amount) [
        ifelse any? particles 
           [ set wall-hits-per-particle mean [wall-hits] of particles  ]
           [ set wall-hits-per-particle 0 ]
@@ -92,7 +92,7 @@ to go
 
        update-plots
        ]
-    calculate-tick-length
+    calculate-tick-advance-amount
     ask flashes with [ticks - birthday > 0.4] [
       die
     ]
@@ -106,10 +106,10 @@ to go
 end
 
 
-to calculate-tick-length
+to calculate-tick-advance-amount
   ifelse any? particles with [speed > 0]
-    [ set tick-length 1 / (ceiling max [speed] of particles) ]
-    [ set tick-length 1 ]
+    [ set tick-advance-amount 1 / (ceiling max [speed] of particles) ]
+    [ set tick-advance-amount 1 ]
 end
 
 ;;; Pressure is defined as the force per unit area.  In this context,
@@ -198,9 +198,9 @@ end
 
 
 to move  ;; particle procedure
-  if patch-ahead (speed * tick-length) != patch-here
+  if patch-ahead (speed * tick-advance-amount) != patch-here
     [ set last-collision nobody ]
-  jump (speed * tick-length)
+  jump (speed * tick-advance-amount)
 end
 
 to check-for-collision  ;; particle procedure
@@ -398,7 +398,7 @@ to make-particles [number]
   set total-particle-number initial-number
 
 
-  calculate-tick-length
+  calculate-tick-advance-amount
 end
 
 
@@ -424,7 +424,7 @@ to add-particles-side
       set total-particle-number (total-particle-number + particles-to-add)
       set particles-to-add 0
 
-      calculate-tick-length
+      calculate-tick-advance-amount
       ]
      ]
 end

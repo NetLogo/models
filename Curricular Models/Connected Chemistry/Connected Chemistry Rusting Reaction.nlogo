@@ -1,7 +1,7 @@
 globals
 [
-  tick-length                                ;; clock variable
-  max-tick-length                            ;; the largest a tick length is allowed to be
+  tick-advance-amount                                ;; clock variable
+  max-tick-advance-amount                            ;; the largest a tick length is allowed to be
   avg-speed avg-energy                       ;; current averages
   show-rust-molecule-boundaries?
   total-iron-atoms
@@ -41,7 +41,7 @@ to setup
   set background-color black
   set water-color blue
   set show-rust-molecule-boundaries? false
-  set max-tick-length 0.02
+  set max-tick-advance-amount 0.02
   set-default-shape iron-atoms       "iron-atom"
   set-default-shape oxygen-molecules "oxygen-molecule"
   set-default-shape rust-molecules   "rust-molecule"
@@ -81,8 +81,8 @@ to go
    check-for-reaction
   ]
   update-variables
-  calculate-tick-length
-  tick-advance tick-length
+  calculate-tick-advance-amount
+  tick-advance tick-advance-amount
   update-plots
   display
 end
@@ -382,9 +382,9 @@ end
 
 
 to move  ;; oxygen-molecules procedure
-  if patch-ahead (speed * tick-length) != patch-here
+  if patch-ahead (speed * tick-advance-amount) != patch-here
     [ set last-collision nobody ]
-  jump (speed * tick-length)
+  jump (speed * tick-advance-amount)
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -392,17 +392,17 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;from GasLab
 
-to calculate-tick-length
-  ;; tick-length is calculated in such way that even the fastest
+to calculate-tick-advance-amount
+  ;; tick-advance-amount is calculated in such way that even the fastest
   ;; oxygen-molecules will jump at most 1 patch length in a clock tick. As
-  ;; oxygen-molecules jump (speed * tick-length) at every clock tick, making
+  ;; oxygen-molecules jump (speed * tick-advance-amount) at every clock tick, making
   ;; tick length the inverse of the speed of the fastest oxygen-molecules
   ;; (1/max speed) assures that. Having each oxygen-molecules advance at most
    ; one patch-length is necessary for it not to "jump over" a wall
    ; or another oxygen-molecules.
   ifelse any? oxygen-molecules with [speed > 0]
-    [ set tick-length min list (1 / (ceiling max [speed] of oxygen-molecules)) max-tick-length ]
-    [ set tick-length max-tick-length ]
+    [ set tick-advance-amount min list (1 / (ceiling max [speed] of oxygen-molecules)) max-tick-advance-amount ]
+    [ set tick-advance-amount max-tick-advance-amount ]
 end
 
 

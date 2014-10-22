@@ -1,7 +1,7 @@
 globals
 [
-  tick-length                        ;; how much we advance the tick counter this time through
-  max-tick-length                    ;; the largest tick-length is allowed to be
+  tick-advance-amount                        ;; how much we advance the tick counter this time through
+  max-tick-advance-amount                    ;; the largest tick-advance-amount is allowed to be
   init-avg-speed init-avg-energy    ;; initial averages
   avg-speed avg-energy              ;; current average
   avg-energy-green
@@ -46,7 +46,7 @@ to setup
   ca
   reset-ticks
   set particle-size 1.0
-  set max-tick-length 0.02
+  set max-tick-advance-amount 0.02
 
   set particles-to-add 2
 
@@ -56,7 +56,7 @@ to setup
   set-default-shape arrowheads "default"
 
   set min-particle-energy 0
-  set max-particle-energy 10000  ;;(.5 ) * ( max-dist-in-tick-length  / max-tick-length ) ^ 2
+  set max-particle-energy 10000  ;;(.5 ) * ( max-dist-in-tick-advance-amount  / max-tick-advance-amount ) ^ 2
 
   create-erasers 1 [set hidden? true set pressure? true set size 3 set color white]
 
@@ -82,8 +82,8 @@ to go
   ask particles with [any? walls-here] [rewind-to-bounce]
   ask particles with [any? walls-here] [remove-from-walls]
 ]
-  tick-advance tick-length
-  calculate-tick-length
+  tick-advance tick-advance-amount
+  calculate-tick-advance-amount
 
   ask flashes [apply-flash-visualization]
   ask particles [apply-speed-visualization]
@@ -173,10 +173,10 @@ end
 to rewind-to-bounce  ;; particles procedure
   ;; attempts to deal with particle penetration by rewinding the particle path back to a point
   ;; where it is about to hit a wall
-  ;; the particle path is reversed 49% of the previous tick-length it made,
+  ;; the particle path is reversed 49% of the previous tick-advance-amount it made,
   ;; then particle collision with the wall is detected again.
-  ;; and the particle bounces off the wall using the remaining 51% of the tick-length.
-  ;; this use of slightly more of the tick-length for forward motion off the wall, helps
+  ;; and the particle bounces off the wall using the remaining 51% of the tick-advance-amount.
+  ;; this use of slightly more of the tick-advance-amount for forward motion off the wall, helps
   ;; insure the particle doesn't get stuck inside the wall on the bounce.
 
   let bounce-patch nobody
@@ -187,7 +187,7 @@ to rewind-to-bounce  ;; particles procedure
   let new-py 0
   let visible-wall nobody
 
-  bk (speed) * tick-length * .49
+  bk (speed) * tick-advance-amount * .49
   set this-patch  patch-here
 
   set bounce-patch  min-one-of walls in-cone ((sqrt (2)) / 2) 180 with [self != this-patch] [distance myself ]
@@ -216,14 +216,14 @@ to rewind-to-bounce  ;; particles procedure
         ]
       ]
     ]]
-    fd (speed) * tick-length * .51
+    fd (speed) * tick-advance-amount * .51
 end
 
 
 to move  ;; particles procedure
-  if patch-ahead (speed * tick-length) != patch-here
+  if patch-ahead (speed * tick-advance-amount) != patch-here
     [ set last-collision nobody ]
-  jump (speed * tick-length)
+  jump (speed * tick-advance-amount)
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -231,17 +231,17 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;from GasLab
 
-to calculate-tick-length
-  ;; tick-length is calculated in such way that even the fastest
+to calculate-tick-advance-amount
+  ;; tick-advance-amount is calculated in such way that even the fastest
   ;; particles will jump at most 1 patch delta in a ticks tick. As
-  ;; particles jump (speed * tick-length) at every ticks tick, making
+  ;; particles jump (speed * tick-advance-amount) at every ticks tick, making
   ;; tick delta the inverse of the speed of the fastest particles
   ;; (1/max speed) assures that. Having each particles advance at most
    ; one patch-delta is necessary for it not to "jump over" a wall
    ; or another particles.
   ifelse any? particles with [speed > 0]
-    [ set tick-length min list (1 / (ceiling max [speed] of particles )) max-tick-length ]
-    [ set tick-length max-tick-length ]
+    [ set tick-advance-amount min list (1 / (ceiling max [speed] of particles )) max-tick-advance-amount ]
+    [ set tick-advance-amount max-tick-advance-amount ]
 end
 
 

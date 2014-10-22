@@ -1,7 +1,7 @@
 globals
 [
-  tick-length                                ;; clock variables
-  max-tick-length                            ;; the largest a tick length is allowed to be
+  tick-advance-amount                                ;; clock variables
+  max-tick-advance-amount                            ;; the largest a tick length is allowed to be
   box-edge                                   ;; distance of box edge from axes
   avg-energy                                 ;; keeps track of average kinetic energy of gas molecules
   fast medium slow                           ;; current counts
@@ -30,7 +30,7 @@ to setup
   clear-all
   set particle-size 1.5
   set activation-energy 1000
-  set max-tick-length 0.01
+  set max-tick-advance-amount 0.01
   set max-energy 10000
   set box-edge (round (max-pxcor ))
   make-box
@@ -126,9 +126,9 @@ to go
   ask gas-molecules with [any? carbons-here] [remove-from-matrix]
   visualize-vibrational-energy
   ask gas-molecules with [shape = "oxygen"] [ check-for-reaction ]
-  calculate-tick-length
+  calculate-tick-advance-amount
   update-variables
-  tick-advance tick-length
+  tick-advance tick-advance-amount
   update-plots
   display
 end
@@ -200,9 +200,9 @@ end
 
 
 to move  ;; gas-molecules procedure
-  if patch-ahead (speed * tick-length) != patch-here
+  if patch-ahead (speed * tick-advance-amount) != patch-here
     [ set last-collision nobody ]
-  jump (speed * tick-length)
+  jump (speed * tick-advance-amount)
 end
 
 
@@ -227,7 +227,7 @@ to speed-up-one-molecule
     set speed speed-from-energy
     pendown
   ]
-  calculate-tick-length
+  calculate-tick-advance-amount
 end
 
 
@@ -237,17 +237,17 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;from GasLab
 
-to calculate-tick-length
-  ;; tick-length is calculated in such way that even the fastest
+to calculate-tick-advance-amount
+  ;; tick-advance-amount is calculated in such way that even the fastest
   ;; gas-molecules will jump at most 1 patch length in a clock tick. As
-  ;; gas-molecules jump (speed * tick-length) at every clock tick, making
+  ;; gas-molecules jump (speed * tick-advance-amount) at every clock tick, making
   ;; tick length the inverse of the speed of the fastest gas-molecules
   ;; (1/max speed) assures that. Having each gas-molecules advance at most
    ; one patch-length is necessary for it not to "jump over" a wall
    ; or another gas-molecules.
   ifelse any? gas-molecules with [speed > 0]
-    [ set tick-length min list (1 / (ceiling max [speed] of gas-molecules)) max-tick-length ]
-    [ set tick-length max-tick-length ]
+    [ set tick-advance-amount min list (1 / (ceiling max [speed] of gas-molecules)) max-tick-advance-amount ]
+    [ set tick-advance-amount max-tick-advance-amount ]
 end
 
 

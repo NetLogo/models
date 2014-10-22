@@ -1,7 +1,7 @@
 globals
 [
-  tick-length                 ;; how much we advance the tick counter this time through
-  max-tick-length             ;; the largest tick-length is allowed to be
+  tick-advance-amount                 ;; how much we advance the tick counter this time through
+  max-tick-advance-amount             ;; the largest tick-advance-amount is allowed to be
   box-x box-y                ;; patch coords of box's upper right corner
   total-particle-number
   maxparticles  
@@ -19,7 +19,7 @@ to setup
   ca reset-ticks
   set-default-shape particles "circle"
   set maxparticles 400
-  set tick-length 0
+  set tick-advance-amount 0
   ;; starting this at zero means that no particles will move until we've
   ;; calculated vsplit, which we won't even try to do until there are some
   ;; particles.
@@ -30,8 +30,8 @@ to go
   if bounce? [ ask particles [ bounce ] ] ;; all particles bounce
   ask particles [ move ]         ;; all particles move
   if collide? [ask particles  [check-for-particlecollision] ] ;; all particles collide
-  tick-advance tick-length
-  calculate-tick-length
+  tick-advance tick-advance-amount
+  calculate-tick-advance-amount
   display
 end
 
@@ -51,13 +51,13 @@ to bounce  ;; particle procedure
 end
 
 to move  ;; particle procedure
-  let next-patch patch-ahead (speed * tick-length)
+  let next-patch patch-ahead (speed * tick-advance-amount)
   ;; die if we're about to wrap...
   if [pxcor] of next-patch = max-pxcor or [pxcor] of next-patch = min-pxcor 
     or [pycor] of next-patch = max-pycor or [pycor] of next-patch = min-pycor [die]
   if next-patch != patch-here
     [ set last-collision nobody ]
-  jump (speed * tick-length)
+  jump (speed * tick-advance-amount)
 end
 
 to check-for-particlecollision ;; particle procedure
@@ -219,11 +219,11 @@ to place-particles
   display
 end
 
-to calculate-tick-length
+to calculate-tick-advance-amount
   ;; we need to check this, because if there are no
-  ;; particles left, trying to set the new tick-length will cause an error...
-  ifelse any? particles [set tick-length 1 / (ceiling max [speed] of particles)]
-    [set tick-length 0]
+  ;; particles left, trying to set the new tick-advance-amount will cause an error...
+  ifelse any? particles [set tick-advance-amount 1 / (ceiling max [speed] of particles)]
+    [set tick-advance-amount 0]
 end
 
 
@@ -247,7 +247,7 @@ to paint-particles [n x y]
   ]
   [user-message (word "The maximum number of particles allowed in this model is "  maxparticles  ".  You can not add "  n
   " more particles to the "  (count particles)  " you already have in the model")]
-  calculate-tick-length
+  calculate-tick-advance-amount
   set total-particle-number (count particles )
 end
 @#$#@#$#@

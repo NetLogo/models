@@ -1,7 +1,7 @@
 globals
 [
-  tick-length                         ;; the amount by wich we will advance ticks
-  max-tick-length                     ;; the largest a tick length is allowed to be
+  tick-advance-amount                         ;; the amount by wich we will advance ticks
+  max-tick-advance-amount                     ;; the largest a tick length is allowed to be
   box-edge                            ;; distance of box edge from axes
   avg-speed-init avg-energy-init      ;; initial averages
   avg-speed avg-energy                ;; current averages
@@ -38,7 +38,7 @@ to setup
   set gravity-acceleration 9.8
   set-default-shape particles "circle"
   set-default-shape flashes "square"
-  set max-tick-length 0.1073
+  set max-tick-advance-amount 0.1073
   ;; box has constant size.
   set box-edge (max-pxcor)
   ;; make floor
@@ -58,7 +58,7 @@ to make-particles
     setup-particle
     random-position
   ]
-  calculate-tick-length
+  calculate-tick-advance-amount
 end
 
 to setup-particle  ;; particle procedure
@@ -87,10 +87,10 @@ to go
   [ if any? particles
     [ask min-one-of particles [who] [ pen-down ] ] ]
   [ ask particles [ pen-up ] ]
-  tick-advance tick-length
-  if floor ticks > floor (ticks - tick-length)
+  tick-advance tick-advance-amount
+  if floor ticks > floor (ticks - tick-advance-amount)
     [ update-variables ]
-  calculate-tick-length
+  calculate-tick-advance-amount
   ask flashes with [ticks - birthday > 0.4]
     [ die ]
   ask particles [ do-recolor ]
@@ -108,17 +108,17 @@ to update-variables
   set avg-energy  mean [energy] of particles
 end
 
-to calculate-tick-length
-  ;; tick-length is calculated in such way that even the fastest
+to calculate-tick-advance-amount
+  ;; tick-advance-amount is calculated in such way that even the fastest
   ;; particle will jump at most 1 patch length in a clock tick. As
-  ;; particles jump (speed * tick-length) at every clock tick, making
+  ;; particles jump (speed * tick-advance-amount) at every clock tick, making
   ;; tick length the inverse of the speed of the fastest particle
   ;; (1/max speed) assures that. Having each particle advance at most
   ;; one patch-length is necessary for it not to "jump over" a wall
   ;; or another particle.
   ifelse any? particles with [speed > 0]
-    [ set tick-length min list (1 / (ceiling max [speed] of particles)) max-tick-length ]
-    [ set tick-length max-tick-length ]
+    [ set tick-advance-amount min list (1 / (ceiling max [speed] of particles)) max-tick-advance-amount ]
+    [ set tick-advance-amount max-tick-advance-amount ]
 end
 
 
@@ -144,21 +144,21 @@ to bounce  ;; particle procedure
 end
 
 to move  ;; particle procedure
-  ;; In other GasLab models, we use "jump speed * tick-length" to move the
+  ;; In other GasLab models, we use "jump speed * tick-advance-amount" to move the
   ;; turtle the right distance along its current heading.  In this
   ;; model, though, the particles are affected by gravity as well, so we
   ;; need to offset the turtle vertically by an additional amount.  The
   ;; easiest way to do this is to use "setxy" instead of "jump".
-  ;; Trigonometry tells us that "jump speed * tick-length" is equivalent to:
-  ;;   setxy (xcor + sin heading * speed * tick-length)
-  ;;         (ycor + cos heading * speed * tick-length)
+  ;; Trigonometry tells us that "jump speed * tick-advance-amount" is equivalent to:
+  ;;   setxy (xcor + sin heading * speed * tick-advance-amount)
+  ;;         (ycor + cos heading * speed * tick-advance-amount)
   ;; so to take gravity into account we just need to alter ycor
   ;; by an additional amount given by the classical physics equation:
   ;;   y(t) = 0.5*a*t^2 + v*t + y(t-1)
-  ;; but taking tick-length into account, since tick-length is a multiplier of t.
-setxy (xcor + sin heading * speed * tick-length)
-           (ycor + cos heading * speed * tick-length - gravity-acceleration *
-           (0.5 * (tick-length ^ 2)))
+  ;; but taking tick-advance-amount into account, since tick-advance-amount is a multiplier of t.
+setxy (xcor + sin heading * speed * tick-advance-amount)
+           (ycor + cos heading * speed * tick-advance-amount - gravity-acceleration *
+           (0.5 * (tick-advance-amount ^ 2)))
   factor-gravity
 
   if (pycor >= max-pycor) [ die ]
@@ -166,7 +166,7 @@ end
 
 to factor-gravity  ;; turtle procedure
   let vx (sin heading * speed)
-  let vy (cos heading * speed) - (gravity-acceleration * tick-length)
+  let vy (cos heading * speed) - (gravity-acceleration * tick-advance-amount)
   set speed sqrt ((vy ^ 2) + (vx ^ 2))
   set heading atan vx vy
 end

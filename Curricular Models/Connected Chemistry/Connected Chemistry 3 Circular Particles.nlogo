@@ -1,14 +1,14 @@
 globals
 [
-  tick-length                ;; how much we advance the tick counter this time through
-  max-tick-length            ;; the largest tick-length is allowed to be
+  tick-advance-amount                ;; how much we advance the tick counter this time through
+  max-tick-advance-amount            ;; the largest tick-advance-amount is allowed to be
   box-edge                  ;; distance of box edge from axes
   colliding-particles
   sorted-colliding-particles
   colliding-particle-1
   colliding-particle-2
   colliding-pair
-  original-tick-length
+  original-tick-advance-amount
   last-view-update
   manage-view-updates?
   view-update-rate          ;; specifies the minimum amount of simulation time that must
@@ -48,9 +48,9 @@ to setup
   make-particles
 
   ;; set variable tick delta based on fastest particle.   If the fastest particle has a speed of 1,
-  ;; then tick-length is 1.  If the fastest particles has a speed of 10, then tick-length is 1/10.
-  set tick-length (1 / (ceiling max [speed] of particles))
-  set original-tick-length tick-length
+  ;; then tick-advance-amount is 1.  If the fastest particles has a speed of 10, then tick-advance-amount is 1/10.
+  set tick-advance-amount (1 / (ceiling max [speed] of particles))
+  set original-tick-advance-amount tick-advance-amount
   set colliding-particles []
   ask particles [check-for-wall-collision]
   ask particles [check-for-particle-collision ]
@@ -90,10 +90,10 @@ to go
   sort-collisions
   calculate-energies
 
-  ask particles [ jump speed * tick-length ]
+  ask particles [ jump speed * tick-advance-amount ]
   if winners != []
       [collide-winners]
-  tick-advance tick-length
+  tick-advance tick-advance-amount
   do-plots
 
     ask particles [
@@ -353,7 +353,7 @@ end
 to sort-collisions
   ;; Sort the list of projected collisions between all the particles into an ordered list.
   ;; Take the smallest time-step from the list (which represents the next collision that will
-  ;; happen in time).  Use this time step as the tick-length for all the particles to move through
+  ;; happen in time).  Use this time step as the tick-advance-amount for all the particles to move through
 
   ifelse colliding-particles != []
    [
@@ -371,16 +371,16 @@ to sort-collisions
       ifelse dt - ticks <= 1
       ;;We have to subtract ticks back out because now we want the relative time until collision,
       ;;not the absolute time the collision will occur.
-      [set tick-length dt - ticks]
+      [set tick-advance-amount dt - ticks]
       ;;Since there are no collisions in the next second, we will set winners to [] to keep from
       ;;mistakenly colliding any particles that shouldn't collide yet.
-      [set tick-length 1 set winners []]
+      [set tick-advance-amount 1 set winners []]
     ]
 
    ]
    ;; When there are no collisions for the next time step,
-   ;; tick-length goes back to the value of original-tick-length
-   [set tick-length original-tick-length]
+   ;; tick-advance-amount goes back to the value of original-tick-advance-amount
+   [set tick-advance-amount original-tick-advance-amount]
 
 end
 

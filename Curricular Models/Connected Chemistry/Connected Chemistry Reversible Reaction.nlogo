@@ -1,7 +1,7 @@
 globals
 [
-  tick-length                  ;; actual tick length
-  max-tick-length              ;; the largest a tick length is allowed to be
+  tick-advance-amount                  ;; actual tick length
+  max-tick-advance-amount              ;; the largest a tick length is allowed to be
   box-edge-y                   ;; location of the end of the box
   box-edge-x                   ;; location of the end of the box
   number-forward-reactions     ;; keeps track number of forward reactions that occur
@@ -77,7 +77,7 @@ to setup
   set insulated-wall-color yellow
 
 
-  set max-tick-length 0.1
+  set max-tick-advance-amount 0.1
   ;; box has constant size...
   set box-edge-y (max-pycor - 1)
   set box-edge-x (max-pxcor - 1)
@@ -102,7 +102,7 @@ to make-particles
   create-particles #-N2  [ setup-hydrogen-particle]
   create-particles #-N2  [ setup-nitrogen-particle]
   create-particles #-NH3 [ setup-ammonia-particle ]
-  calculate-tick-length
+  calculate-tick-advance-amount
 end
 
 
@@ -165,25 +165,25 @@ to go
   if reverse-react? [ ask particles with [molecule-type = "nh3"]       [check-for-reverse-reaction]]
 
   calculate-pressure-and-temperature
-  calculate-tick-length
-  tick-advance tick-length
+  calculate-tick-advance-amount
+  tick-advance tick-advance-amount
   recalculate-wall-color
   update-plots
   display
 end
 
 
-to calculate-tick-length
+to calculate-tick-advance-amount
   ifelse any? particles with [speed > 0]
-    [ set tick-length min list (1 / (ceiling max [speed] of particles)) max-tick-length ]
-    [ set tick-length max-tick-length ]
+    [ set tick-advance-amount min list (1 / (ceiling max [speed] of particles)) max-tick-advance-amount ]
+    [ set tick-advance-amount max-tick-advance-amount ]
 end
 
 
 to move  ;; particle procedure
-  if patch-ahead (speed * tick-length) != patch-here
+  if patch-ahead (speed * tick-advance-amount) != patch-here
     [ set last-collision nobody ]
-  jump (speed * tick-length)
+  jump (speed * tick-advance-amount)
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
