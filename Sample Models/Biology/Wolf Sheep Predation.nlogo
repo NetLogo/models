@@ -122,6 +122,10 @@ to display-labels
     if grass? [ ask sheep [ set label round energy ] ]
   ]
 end
+
+
+; Copyright 1997 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 350
@@ -472,6 +476,10 @@ Note use of the ONE-OF agentset reporter to select a random sheep to be eaten by
 Look at Rabbits Grass Weeds for another model of interacting populations with different rules.
 
 ## CREDITS AND REFERENCES
+
+Wilensky, U. & Reisman, K. (1999). Connected Science: Learning Biology through Constructing and Testing Computational Theories -- an Embodied Modeling Approach. International Journal of Complex Systems, M. 234, pp. 1 - 12. (This model is a slightly extended version of the model described in the paper.)
+
+Wilensky, U. & Reisman, K. (2006). Thinking like a Wolf, a Sheep or a Firefly: Learning Biology through Constructing and Testing Computational Theories -- an Embodied Modeling Approach. Cognition & Instruction, 24(2), pp. 171-209. http://ccl.northwestern.edu/papers/wolfsheep.pdf
 @#$#@#$#@
 default
 true

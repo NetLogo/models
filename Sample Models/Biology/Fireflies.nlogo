@@ -61,6 +61,12 @@ to look ; turtle procedure
   if count turtles in-radius 1 with [color = yellow] >= flashes-to-reset
     [ set clock reset-level ]
 end
+
+
+
+
+; Copyright 1997 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 301

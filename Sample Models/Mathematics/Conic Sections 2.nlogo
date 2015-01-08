@@ -96,6 +96,10 @@ to move-focus-directrix [ x y ]
     ;; ask patches with [pycor = f1y] [ set pcolor black ]
     [ ask patch f1x f1y [ set pcolor white ] ]
 end
+
+
+; Copyright 1998 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 242
@@ -256,8 +260,6 @@ Like more traditional programming languages (e.g. Java), NetLogo can have proced
 ## RELATED MODELS
 
 Conic Sections 1
-
-## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 true
@@ -542,7 +544,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1-RC1
+NetLogo 5.1.0
 @#$#@#$#@
 setup
 set f0x 12
