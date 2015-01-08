@@ -4,7 +4,7 @@ to setup
   clear-all
   crt population
   [ set color red
-    set shape "circle"
+    set size 2  ;; easier to see
     setxy random-xcor random-ycor ]
   ask patches [ set chemical 0 ]
   reset-ticks
@@ -14,7 +14,7 @@ to go
   ask turtles
   [ if chemical > sniff-threshold                  ;; ignore pheromone unless there's enough here
       [ turn-toward-chemical ]
-    rt random-float 40 lt random-float 40          ;; turn a random amount 
+    rt random-float wiggle-angle - random-float wiggle-angle + wiggle-bias
     fd 1
     set chemical chemical + 2 ]                    ;; drop chemical onto patch
   diffuse chemical 1                               ;; diffuse chemical to neighboring patches
@@ -84,10 +84,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-7
-167
-198
-200
+6
+214
+197
+247
 sniff-threshold
 sniff-threshold
 0.0
@@ -99,15 +99,45 @@ NIL
 HORIZONTAL
 
 SLIDER
-7
-204
-198
-237
+6
+251
+197
+284
 sniff-angle
 sniff-angle
 0.0
 180.0
 45
+1.0
+1
+degrees
+HORIZONTAL
+
+SLIDER
+6
+138
+197
+171
+wiggle-angle
+wiggle-angle
+0.0
+45.0
+40
+1.0
+1
+degrees
+HORIZONTAL
+
+SLIDER
+6
+176
+197
+209
+wiggle-bias
+wiggle-bias
+-40.0
+40.0
+0
 1.0
 1
 degrees
@@ -150,8 +180,7 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model is inspired by the aggregation behavior of slime-mold cells.
-
+This model is inspired by the aggregation behavior of slime-mold cells. 
 The slime mold spends much of its life as thousands of distinct single-celled units, each moving separately. Under the right conditions, those many cells will coalesce into a single, larger organism. When the environment is less hospitable, the slime mold acts as a single organism; when the weather turns cooler and the mold enjoys a large food supply, "it" becomes a "they." The slime mold oscillates between being a single creature and a swarm.
 
 This model shows how creatures can aggregate into clusters without the control of a "leader" or "pacemaker" cell. This finding was first described by Evelyn Fox Keller and Lee Siegel in a paper in 1970.
@@ -176,11 +205,14 @@ SNIFF-THRESHHOLD -- The minimum amount of chemical that must be present in a tur
 
 SNIFF-ANGLE -- The amount, in degrees, that a turtle turns to the left and right to check for greater chemical concentrations. The default value is 45.
 
-There are several other critical parameters in the model that are not accessible by sliders. They can be changed by modifying the code in the GO procedures in the Code tab.  They are:
+WIGGLE-ANGLE -- The maximum amount, in degrees, that a turtle will turn left or right in its random movements. When WIGGLE-ANGLE is set to zero, the turtle will remain at the same heading until it finds a chemical gradient to follow. The default value is 40.
+
+WIGGLE-BIAS -- The bias of a turtle's average wiggle. When WIGGLE-BIAS = 0, the turtle's average movement is straight ahead. When WIGGLE-BIAS > 0, the turtle will tend to move more right than left. When BIAS < 0, the turtle will tend to move more left than right. The default value is 0.
+
+There are several other critical parameters in the model that are not accessible by sliders. They can be changed by modifying the code in the procedures window.  They are:
 - the evaporation rate of the chemical -- set to 0.9
 - the diffusion rate of the chemical -- set to 1
 - the amount of chemical deposited at each step -- set to 2
--- the amount of "wiggle" in the slime cells' movement -- set to random-float 40
 
 ## THINGS TO NOTICE
 
@@ -188,13 +220,11 @@ With 100 turtles, not much happens. The turtles wander around dropping chemical,
 
 With 400 turtles, the result is quite different. When a few turtles happen (by chance) to wander near one another, they create a small "puddle" of chemical that can attract any number of other turtles in the vicinity. The puddle then becomes larger and more attractive as more turtles enter it and deposit their own chemicals. This process is a good example of positive feedback: the more turtles, the larger the puddle; and the larger the puddle, the more likely it is to attract more turtles.
 
-How many slime mold aggregates form? If you run the model for many ticks, what happens to the number of aggregates?
-
 ## THINGS TO TRY
 
-Try different values for the SNIFF-THRESHOLD, and SNIFF-ANGLE sliders. How do they affect the turtles' movement and the formation of clumps?
+Try different values for the SNIFF-THRESHOLD, SNIFF-ANGLE, WIGGLE-ANGLE, and WIGGLE-BIAS sliders. How do they affect the turtles' movement and the formation of clumps?
 
-Change the SNIFF-ANGLE slider after some clumps have formed. What happens to the clumps? Try the same with SNIFF-THRESHOLD.
+Change the SNIFF-ANGLE and WIGGLE-ANGLE sliders after some clumps have formed. What happens to the clumps? Try the same with SNIFF-THRESHOLD and WIGGLE-BIAS.
 
 ## EXTENDING THE MODEL
 
@@ -206,8 +236,6 @@ Notice that the turtles only sniff for chemical in three places: forward, SNIFF-
 
 What "critical number" of turtles is needed for the clusters to form? How does the critical number change if you modify the evaporation or diffusion rate?
 
-Note that even after most cells have aggregated some slime mold cells remain ouside any cluster. Why is that? Create a monitor or plot that counts the number of such cells. What happens to the count over time? Change the SNIFF slider values -- hwo does this affect the count? Can you explain?
-
 Can you find an algorithm that will let you plot the number of distinct clusters over time?
 
 ## NETLOGO FEATURES
@@ -218,7 +246,18 @@ Note the use of the `patch-ahead`, `patch-left-and-ahead`, and `patch-right-and-
 
 Ants uses a similar idea of creatures that both drop chemical and follow the gradient of the chemical.
 
-## CREDITS AND REFERENCES
+## CREDITS and REFERENCES
+
+Keller, E & Segal, L. (1970). Initiation of slime mold aggregation viewed as an instability. Journal of Theoretical Biology,
+Volume 26, Issue 3, March 1970, Pages 399–415.
+
+Wilensky, U., & Resnick, M. (1999). Thinking in levels: A dynamic systems approach to making sense of the world. Journal of Science Education and Technology, 8(1), 3-19. 
+
+Johnson, S. (2001). Emergence: The Connected Lives of Ants, Brains, Cities, and Software. New York: Scribner.
+	
+Resnick, M. (1996). Beyond the centralized mindset. Journal of the Learning Sciences, 5(1), 1-22. 
+	
+See also http://www.creepinggarden.com for video of slime mold.
 @#$#@#$#@
 default
 true
