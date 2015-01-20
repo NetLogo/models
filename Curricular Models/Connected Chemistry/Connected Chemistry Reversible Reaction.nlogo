@@ -99,7 +99,7 @@ end
 
 
 to make-particles
-  create-particles #-N2  [ setup-hydrogen-particle]
+  create-particles #-H2  [ setup-hydrogen-particle]
   create-particles #-N2  [ setup-nitrogen-particle]
   create-particles #-NH3 [ setup-ammonia-particle ]
   calculate-tick-advance-amount
