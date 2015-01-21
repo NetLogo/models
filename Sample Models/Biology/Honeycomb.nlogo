@@ -2,7 +2,7 @@ patches-own [chemical]
 
 to setup
   clear-all
-  crt num-bees
+  create-turtles num-bees
     [ setxy random-xcor random-ycor
       set color yellow - 3 + random 7 ]  ;; varying the color makes the bees easier to follow with your eyes
   ask patches [ set chemical 0 ]
@@ -194,6 +194,14 @@ Pratt, Stephen. 1998. Condition-dependent timing of comb construction by honey b
 Theraulaz, G. & Bonabeau, E. (1995) Modelling the collective building of complex architectures in social insects with lattice swarms. Journal of theoretical Biology 177, 381-400.
 
 Theraulaz and Eric Bonabeau. Coordination in distributed building. Science, 269(4):686--688, 1995.
+
+
+## HOW TO CITE
+
+If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
+
+* Wilensky, U. (2003).  NetLogo Honeycomb model.  http://ccl.northwestern.edu/netlogo/models/Honeycomb.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 @#$#@#$#@
 default
 true
