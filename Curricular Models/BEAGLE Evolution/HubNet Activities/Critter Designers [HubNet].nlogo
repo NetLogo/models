@@ -1,4 +1,3 @@
-
 globals
 [
   ;; variables used to assign colors and shape to clients
