@@ -331,7 +331,7 @@ Wilensky, U. (2003). NetLogo El Farol Congestion model.  http://ccl.northwestern
 Arthur's original model has been generalized as the Minority Game and is included in the Social Sciences section of the NetLogo models library.
 
 Wilensky, U. (2004).  NetLogo Minority Game model.  http://ccl.northwestern.edu/netlogo/models/MinorityGame.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-There is also a participatory game version of the Minoroty Game model in the models library.
+There is also a participatory game version of the Minority Game model in the models library.
 
 Stouffer, D. & Wilensky, U. (2007). NetLogo Minority Game HubNet model. http://ccl.northwestern.edu/netlogo/models/MinorityGameHubNet. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
