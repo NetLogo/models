@@ -260,6 +260,8 @@ Like more traditional programming languages (e.g. Java), NetLogo can have proced
 ## RELATED MODELS
 
 Conic Sections 1
+
+## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 true

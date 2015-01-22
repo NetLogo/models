@@ -246,7 +246,7 @@ Note the use of the `patch-ahead`, `patch-left-and-ahead`, and `patch-right-and-
 
 Ants uses a similar idea of creatures that both drop chemical and follow the gradient of the chemical.
 
-## CREDITS and REFERENCES
+## CREDITS AND REFERENCES
 
 Keller, E & Segal, L. (1970). Initiation of slime mold aggregation viewed as an instability. Journal of Theoretical Biology,
 Volume 26, Issue 3, March 1970, Pages 399–415.

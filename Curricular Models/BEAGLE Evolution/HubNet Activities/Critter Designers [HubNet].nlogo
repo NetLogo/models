@@ -959,30 +959,10 @@ If each turtle wants at least 40% same-color neighbors, what percentage (on aver
 
 In the UPDATE-GLOBALS procedure, note the use of SUM, COUNT, VALUES-FROM, and WITH to compute the percentages displayed in the monitors and plots.
 
-## REFERENCES
+## CREDITS AND REFERENCES
 
 Schelling, T. (1978). Micromotives and Macrobehavior. New York: Norton.  
 See also a recent Atlantic article:   Rauch, J. (2002). Seeing Around Corners; The Atlantic Monthly; April 2002;Volume 289, No. 4; 35-48. http://www.theatlantic.com/issues/2002/04/rauch.htm
-
-## HOW TO CITE
-
-This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling 
- Natural, Social and Engineered Complex Systems using NetLogo."
- 
-If you mention this model or the NetLogo software in a publication, we ask that you include the cites.
-
-For the model itself:
-
-* Wilensky, U. & Rand, W. (2006).  NetLogo Segregation Simple model.  http://ccl.northwestern.edu/netlogo/models/IABM Textbook/SegregationSimple.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-
-Please cite the NetLogo software as:
-
-* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-
-Please cite the textbook as:
-
-* Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling 
- Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, Ma. MIT Press.
 @#$#@#$#@
 default
 true

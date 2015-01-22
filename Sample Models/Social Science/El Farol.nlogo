@@ -274,7 +274,6 @@ NIL
 HORIZONTAL
 
 @#$#@#$#@
-
 ## WHAT IS IT?
 
 El Farol is a bar in Santa Fe, New Mexico.  The bar is popular --- especially on Thursday nights when they offer Irish music --- but sometimes becomes overcrowded and unpleasant. In fact, if the patrons of the bar think it will be overcrowded they stay home; otherwise they go enjoy themselves at El Farol.  This model explores what happens to the overall attendance at the bar on these popular Thursday evenings, as the patrons use different strategies for determining how crowded they think the bar will be.
@@ -338,26 +337,11 @@ Stouffer, D. & Wilensky, U. (2007). NetLogo Minority Game HubNet model. http://c
 
 There is also an alternative implementation of this model with more parameters that is part of the NetLogo User Community Models.
 
-
-
 ## CREDITS AND REFERENCES
 
 This model is inspired by a paper by W. Brian Arthur. "Inductive Reasoning and Bounded Rationality", W. Brian Arthur, The American Economic Review, 1994, v84n2, p406-411.
 
 David Fogel et al. also built a version of this model using a genetic algorithm.  "Inductive reasoning and bounded rationality reconsidered", Fogel, D.B.; Chellapilla, K.; Angeline, P.J., IEEE Transactions on Evolutionary Computation, 1999, v3n2, p142-146.
-
-## HOW TO CITE
- 
-If you mention this model or the NetLogo software in a publication, we ask that you include the cites.
-
-For the model itself:
-
-* Rand, W. and Wilensky, U. (2007).  NetLogo El Farol model.  http://ccl.northwestern.edu/netlogo/models/ElFarol.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-
-
-Please cite the NetLogo software as:
-
-* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 @#$#@#$#@
 default
 true
