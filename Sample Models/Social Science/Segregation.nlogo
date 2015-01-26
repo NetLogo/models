@@ -1,3 +1,5 @@
+;; updated 12/20/2014
+
 globals [
   percent-similar  ;; on the average, what percent of a turtle's neighbors
                    ;; are the same color as that turtle?
@@ -9,26 +11,24 @@ turtles-own [
                ;; that turtles' neighbors are the same color as the turtle
   similar-nearby   ;; how many neighboring patches have a turtle with my color?
   other-nearby ;; how many have a turtle of another color?
-  total-nearby  ;; sum of previous two variables
+  total-nearby ;; sum of previous two variables
 ]
+
+
 
 to setup
   clear-all
-  if number > count patches
-    [ user-message (word "This pond only has room for " count patches " turtles.")
-      stop ]
-
   ;; create turtles on random patches.
-  ask n-of number patches
-    [ sprout 1
-      [ set color red ] ]
-  ;; turn half the turtles green
-  ask n-of (number / 2) turtles
-    [ set color green ]
+  ask patches [
+  if random 100 < density   ;; set the occupancy density
+    [ sprout 1 [
+      set color one-of [red green]   ;; changed this to be easier NetLogo, but sacrificed equality 
+       ]]]
   update-variables
   reset-ticks
 end
 
+;; run the model for one tick
 to go
   if all? turtles [happy?] [ stop ]
   move-unhappy-turtles
@@ -36,11 +36,13 @@ to go
   tick
 end
 
+;; unhappy turtles try a new spot
 to move-unhappy-turtles
   ask turtles with [ not happy? ]
     [ find-new-spot ]
 end
 
+;; move until we find an unoccupied spot
 to find-new-spot
   rt random-float 360
   fd random-float 10
@@ -48,6 +50,13 @@ to find-new-spot
     [ find-new-spot ]          ;; keep going until we find an unoccupied patch
   move-to patch-here  ;; move to center of patch
 end
+
+;; an alternative way to code find-new-spot
+;; find an empty spot if there is one and move there 
+;to find-new-spot
+;  let potential-homes patches with [not any? turtles-here]
+; if any? potential-homes [move-to one-of potential-homes]  ;;  move to center of empty patch
+;end
 
 to update-variables
   update-turtles
@@ -64,6 +73,11 @@ to update-turtles
       with [color != [color] of myself]
     set total-nearby similar-nearby + other-nearby
     set happy? similar-nearby >= ( %-similar-wanted * total-nearby / 100 )
+    ;; add visualization here
+    if visualization = "old" [set shape "default"]
+     if visualization = "square-x" [
+    ifelse happy? [set shape "square"] [set shape "square-x"]
+  ]
   ]
 end
 
@@ -75,13 +89,13 @@ to update-globals
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-341
+353
 10
-708
-398
+771
+449
 25
 25
-7.0
+8.0
 1
 10
 1
@@ -102,10 +116,10 @@ ticks
 30.0
 
 MONITOR
-263
-330
-339
-375
+262
+373
+347
+418
 % unhappy
 percent-unhappy
 1
@@ -114,9 +128,9 @@ percent-unhappy
 
 MONITOR
 264
-187
+233
 339
-232
+278
 % similar
 percent-similar
 1
@@ -141,43 +155,10 @@ false
 PENS
 "percent" 1.0 0 -2674135 true "" "plot percent-similar"
 
-PLOT
-12
-286
-261
-429
-Percent Unhappy
-time
-%
-0.0
-5.0
-0.0
-100.0
-true
-false
-"" ""
-PENS
-"percent" 1.0 0 -10899396 true "" "plot percent-unhappy"
-
-SLIDER
-19
-22
-231
-55
-number
-number
-500
-2500
-2000
-10
-1
-NIL
-HORIZONTAL
-
 SLIDER
 19
 95
-231
+279
 128
 %-similar-wanted
 %-similar-wanted
@@ -190,10 +171,10 @@ SLIDER
 HORIZONTAL
 
 BUTTON
-48
-58
-128
-91
+20
+60
+100
+93
 setup
 setup
 NIL
@@ -207,10 +188,10 @@ NIL
 1
 
 BUTTON
-129
-58
-209
-91
+199
+60
+279
+93
 go
 go
 T
@@ -223,52 +204,155 @@ NIL
 NIL
 1
 
+BUTTON
+104
+61
+194
+95
+go once
+go
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+CHOOSER
+780
+222
+929
+267
+visualization
+visualization
+"old" "square-x"
+1
+
+SLIDER
+26
+10
+281
+43
+density
+density
+50
+99
+96
+1
+1
+NIL
+HORIZONTAL
+
+PLOT
+14
+293
+257
+443
+Number-unhappy
+NIL
+NIL
+0.0
+10.0
+0.0
+100.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -14439633 true "" "plot count turtles with [not happy?]"
+
+MONITOR
+261
+325
+349
+370
+num-unhappy
+count turtles with [not happy?]
+1
+1
+11
+
+MONITOR
+266
+139
+332
+184
+# agents
+count turtles
+1
+1
+11
+
 @#$#@#$#@
 ## WHAT IS IT?
 
-This project models the behavior of two types of turtles in a mythical pond. The red turtles and green turtles get along with one another. But each turtle wants to make sure that it lives near some of "its own." That is, each red turtle wants to live near at least some red turtles, and each green turtle wants to live near at least some green turtles. The simulation shows how these individual preferences ripple through the pond, leading to large-scale patterns.
+This project models the behavior of two types of agents in a neighborhood. The red agents and green agents get along with one another. But each agent wants to make sure that it lives near some of "its own." That is, each red agent wants to live near at least some red agents, and each green agent wants to live near at least some green agents. The simulation shows how these individual preferences ripple through the neighborhood, leading to large-scale patterns.
 
 This project was inspired by Thomas Schelling's writings about social systems (such as housing patterns in cities).
 
 ## HOW TO USE IT
 
-Click the SETUP button to set up the turtles. There are equal numbers of red and green turtles. The turtles move around until there is at most one turtle on a patch.  Click GO to start the simulation. If turtles don't have enough same-color neighbors, they jump to a nearby patch.
+Click the SETUP button to set up the agents. There are approximately equal numbers of red and green agents. The agents are set up so no patch has more than one agent.  Click GO to start the simulation. If agents don't have enough same-color neighbors, they move to a nearby patch. (The topology is wrapping, so that patches on the bottom edge are neighbors with patches on the top and similar for left and right).
 
-The NUMBER slider controls the total number of turtles. (It takes effect the next time you click SETUP.)  The %-SIMILAR-WANTED slider controls the percentage of same-color turtles that each turtle wants among its neighbors. For example, if the slider is set at 30, each green turtle wants at least 30% of its neighbors to be green turtles.
+The DENSITY slider controls the occupancy density of the neighborhood (and thus the total number of agents). (It takes effect the next time you click SETUP.)  The %-SIMILAR-WANTED slider controls the percentage of same-color agents that each agent wants among its neighbors. For example, if the slider is set at 30, each green agent wants at least 30% of its neighbors to be green agents.
 
-The % SIMILAR monitor shows the average percentage of same-color neighbors for each turtle. It starts at about 50%, since each turtle starts (on average) with an equal number of red and green turtles as neighbors. The % UNHAPPY monitor shows the percent of turtles that have fewer same-color neighbors than they want (and thus want to move). Both monitors are also plotted.
+The % SIMILAR monitor shows the average percentage of same-color neighbors for each agent. It starts at about 50%, since each agent starts (on average) with an equal number of red and green agents as neighbors. The NUM-UNHAPPY monitor shows the number of unhappy agents, and the % UNHAPPY monitor shows the percent of agents that have fewer same-color neighbors than they want (and thus want to move). The % SIMILAR and the NUM-UNHAPPY monitors are also plotted.
+
+The VISUALIZATION chooser gives two options for visualizing the agents. The OLD option uses the visualization that was used by the segregation model in the past. The SQUARE-X option visualizes the agents as squares. The agents have X's in them if they are unhappy. 
 
 ## THINGS TO NOTICE
 
-When you execute SETUP, the red and green turtles are randomly distributed throughout the pond. But many turtles are "unhappy" since they don't have enough same-color neighbors. The unhappy turtles jump to new locations in the vicinity. But in the new locations, they might tip the balance of the local population, prompting other turtles to leave. If a few red turtles move into an area, the local green turtles might leave. But when the green turtles move to a new area, they might prompt red turtles to leave that area.
+When you execute SETUP, the red and green agents are randomly distributed throughout the neighborhood. But many agents are "unhappy" since they don't have enough same-color neighbors. The unhappy agents move to new locations in the vicinity. But in the new locations, they might tip the balance of the local population, prompting other agents to leave. If a few red agents move into an area, the local green agents might leave. But when the green agents move to a new area, they might prompt red agents to leave that area.
 
-Over time, the number of unhappy turtles decreases. But the pond becomes more segregated, with clusters of red turtles and clusters of green turtles.
+Over time, the number of unhappy agents decreases. But the neighborhood becomes more segregated, with clusters of red agents and clusters of green agents.
 
-In the case where each turtle wants at least 30% same-color neighbors, the turtles end up with (on average) 70% same-color neighbors. So relatively small individual preferences can lead to significant overall segregation.
+In the case where each agent wants at least 30% same-color neighbors, the agents end up with (on average) 70% same-color neighbors. So relatively small individual preferences can lead to significant overall segregation.
 
 ## THINGS TO TRY
 
 Try different values for %-SIMILAR-WANTED. How does the overall degree of segregation change?
 
-If each turtle wants at least 40% same-color neighbors, what percentage (on average) do they end up with?
+If each agent wants at least 40% same-color neighbors, what percentage (on average) do they end up with?
+
+Try different values of DENSITY. How does the initial occupancy density affect the percentage of unhappy agents? How does it affect the time it takes for the model to finish? 
+
+Can you set sliders so that the model never finishes running, and agents keep looking for new locations?
 
 ## EXTENDING THE MODEL
 
-Incorporate social networks into this model.  For instance, have unhappy turtles decide on a new location based on information about what a neighborhood is like from other turtles in their network.
+Incorporate social networks into this model.  For instance, have unhappy agents decide on a new location based on information about what a neighborhood is like from other agents in their network.
 
-Change the rules for turtle happiness.  One idea: suppose that the turtles need some minimum threshold of "good neighbors" to be happy with their location.  Suppose further that they don't always know if someone makes a good neighbor. When they do, they use that information.  When they don't, they use color as a proxy -- i.e., they assume that turtles of the same color make good neighbors.
+Change the rules for agent happiness.  One idea: suppose that the agents need some minimum threshold of "good neighbors" to be happy with their location.  Suppose further that they don't always know if someone makes a good neighbor. When they do, they use that information.  When they don't, they use color as a proxy -- i.e., they assume that agents of the same color make good neighbors.
+
+The two different visualizations emphasize different aspects of the model. The SQUARE-X visualization shows whether an agent is happy or not. Can you design a different visualization that emphasizes different aspects?
 
 ## NETLOGO FEATURES
 
-`n-of` and `sprout` are used to create turtles while ensuring no patch has more than one turtle on it.
+`sprout` is used to create agents while ensuring no patch has more than one agent on it.
 
-When a turtle moves, `move-to` is used to move the turtle to the center of the patch it eventually finds.
+When an agent moves, `move-to` is used to move the agent to the center of the patch it eventually finds.
+
+Note two different methods that can be used for find-new-spot, one of them (the one we use) is recursive.
 
 ## CREDITS AND REFERENCES
 
 Schelling, T. (1978). Micromotives and Macrobehavior. New York: Norton.
  
 See also a recent Atlantic article:   Rauch, J. (2002). Seeing Around Corners; The Atlantic Monthly; April 2002;Volume 289, No. 4; 35-48. http://www.theatlantic.com/issues/2002/04/rauch.htm
+
+
+## HOW TO CITE
+
+If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
+
+For the model:
+* Wilensky, U. (1997).  NetLogo Segregation model.  http://ccl.northwestern.edu/netlogo/models/Segregation.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+For NetLogo:
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 @#$#@#$#@
 default
 true
@@ -378,6 +462,22 @@ Circle -16777216 true false 60 75 60
 Circle -16777216 true false 180 75 60
 Polygon -16777216 true false 150 168 90 184 62 210 47 232 67 244 90 220 109 205 150 198 192 205 210 220 227 242 251 229 236 206 212 183
 
+face-happy
+false
+0
+Circle -7500403 true true 8 8 285
+Circle -16777216 true false 60 75 60
+Circle -16777216 true false 180 75 60
+Polygon -16777216 true false 150 255 90 239 62 213 47 191 67 179 90 203 109 218 150 225 192 218 210 203 227 181 251 194 236 217 212 240
+
+face-sad
+false
+0
+Circle -7500403 true true 8 8 285
+Circle -16777216 true false 60 75 60
+Circle -16777216 true false 180 75 60
+Polygon -16777216 true false 150 168 90 184 62 210 47 232 67 244 90 220 109 205 150 198 192 205 210 220 227 242 251 229 236 206 212 183
+
 fish
 false
 0
@@ -450,6 +550,15 @@ Rectangle -7500403 true true 127 79 172 94
 Polygon -7500403 true true 195 90 240 150 225 180 165 105
 Polygon -7500403 true true 105 90 60 150 75 180 135 105
 
+person2
+false
+0
+Circle -7500403 true true 105 0 90
+Polygon -7500403 true true 105 90 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285 180 195 195 90
+Rectangle -7500403 true true 127 79 172 94
+Polygon -7500403 true true 195 90 285 180 255 210 165 105
+Polygon -7500403 true true 105 90 15 180 60 195 135 105
+
 plant
 false
 0
@@ -467,11 +576,35 @@ false
 0
 Rectangle -7500403 true true 30 30 270 270
 
+square - happy
+false
+0
+Rectangle -7500403 true true 30 30 270 270
+Polygon -16777216 false false 75 195 105 240 180 240 210 195 75 195
+
+square - unhappy
+false
+0
+Rectangle -7500403 true true 30 30 270 270
+Polygon -16777216 false false 60 225 105 180 195 180 240 225 75 225
+
 square 2
 false
 0
 Rectangle -7500403 true true 30 30 270 270
 Rectangle -16777216 true false 60 60 240 240
+
+square-small
+false
+0
+Rectangle -7500403 true true 45 45 255 255
+
+square-x
+false
+0
+Rectangle -7500403 true true 30 30 270 270
+Line -16777216 false 75 90 210 210
+Line -16777216 false 210 90 75 210
 
 star
 false
@@ -507,6 +640,11 @@ false
 0
 Polygon -7500403 true true 150 30 15 255 285 255
 Polygon -16777216 true false 151 99 225 223 75 224
+
+triangle2
+false
+0
+Polygon -7500403 true true 150 0 0 300 300 300
 
 truck
 false
