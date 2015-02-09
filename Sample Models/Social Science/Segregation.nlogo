@@ -240,7 +240,7 @@ density
 density
 50
 99
-96
+95
 1
 1
 NIL
@@ -348,10 +348,7 @@ See also a recent Atlantic article:   Rauch, J. (2002). Seeing Around Corners; T
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
 
-For the model:
 * Wilensky, U. (1997).  NetLogo Segregation model.  http://ccl.northwestern.edu/netlogo/models/Segregation.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-
-For NetLogo:
 * Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 @#$#@#$#@
 default
