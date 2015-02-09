@@ -3,6 +3,11 @@ extensions [gogo]
 ; Public Domain:
 ; To the extent possible under law, Uri Wilensky has waived all
 ; copyright and related or neighboring rights to this model.
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 695
@@ -37,7 +42,7 @@ MONITOR
 636
 70
 sensor 1
-item 0 gogo:read-sensors
+gogo:read-sensor 1
 0
 1
 11
@@ -48,7 +53,7 @@ MONITOR
 716
 70
 sensor 2
-item 1 gogo:read-sensors
+gogo:read-sensor 2
 0
 1
 11
@@ -59,7 +64,7 @@ MONITOR
 637
 122
 sensor 3
-item 2 gogo:read-sensors
+gogo:read-sensor 3
 0
 1
 11
@@ -70,7 +75,7 @@ MONITOR
 716
 123
 sensor 4
-item 3 gogo:read-sensors
+gogo:read-sensor 4
 0
 1
 11
@@ -81,7 +86,7 @@ MONITOR
 637
 177
 sensor 5
-item 4 gogo:read-sensors
+gogo:read-sensor 5
 0
 1
 11
@@ -92,7 +97,7 @@ MONITOR
 718
 176
 sensor 6
-item 5 gogo:read-sensors
+gogo:read-sensor 6
 0
 1
 11
@@ -103,7 +108,7 @@ MONITOR
 637
 232
 sensor 7
-item 6 gogo:read-sensors
+gogo:read-sensor 7
 0
 1
 11
@@ -114,7 +119,7 @@ MONITOR
 718
 233
 sensor 8
-item 7 gogo:read-sensors
+gogo:read-sensor 8
 0
 1
 11
@@ -135,14 +140,14 @@ true
 true
 "" ""
 PENS
-"sensor 1" 1.0 0 -2674135 true "" "plot item 0 gogo:read-sensors"
-"sensor 2" 1.0 0 -16777216 true "" "plot item 1 gogo:read-sensors"
-"sensor 3" 1.0 0 -955883 true "" "plot item 2 gogo:read-sensors"
-"sensor 4" 1.0 0 -6459832 true "" "plot item 3 gogo:read-sensors"
-"sensor 5" 1.0 0 -10899396 true "" "plot item 4 gogo:read-sensors"
-"sensor 6" 1.0 0 -5825686 true "" "plot item 5 gogo:read-sensors"
-"sensor 7" 1.0 0 -8630108 true "" "plot item 6 gogo:read-sensors"
-"sensor 8" 1.0 0 -13791810 true "" "plot item 7 gogo:read-sensors"
+"sensor 1" 1.0 0 -2674135 true "" "if plot-sensor-1 [\n  plot gogo:read-sensor 1\n]"
+"sensor 2" 1.0 0 -16777216 true "" "if plot-sensor-2 [\n  plot gogo:read-sensor 2\n]"
+"sensor 3" 1.0 0 -955883 true "" "if plot-sensor-3 [\n  plot gogo:read-sensor 3\n]"
+"sensor 4" 1.0 0 -6459832 true "" "if plot-sensor-4 [\n  plot gogo:read-sensor 4\n]"
+"sensor 5" 1.0 0 -10899396 true "" "if plot-sensor-5 [\n  plot gogo:read-sensor 5\n]"
+"sensor 6" 1.0 0 -5825686 true "" "if plot-sensor-6 [\n  plot gogo:read-sensor 6\n]"
+"sensor 7" 1.0 0 -8630108 true "" "if plot-sensor-7 [\n  plot gogo:read-sensor 7\n]"
+"sensor 8" 1.0 0 -13791810 true "" "if plot-sensor-8 [\n  plot gogo:read-sensor 8\n]"
 
 BUTTON
 10
@@ -698,7 +703,7 @@ SWITCH
 438
 plot-sensor-7
 plot-sensor-7
-0
+1
 1
 -1000
 
@@ -1119,7 +1124,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.2-RC3
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
