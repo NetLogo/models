@@ -472,7 +472,7 @@ What happens to the arrowhead when it hits the earth? Describe its later path. D
 
 1. Play with the model. Change the albedo and run the model. Add clouds and CO2 to the model and then watch a single sunlight arrowhead. What is the highest earth temperature you can produce?
 
-2. Run the model with a bright sun but no clouds and no CO2. What happens to the temperature? It should rise quickly and then settle down around 50 degrees. Why does it stop rising? Why does the temperature continue to bounce around? Remember, the temperature reflects the number of red dots in the earth. When the temperature is constant, there are about as many incoming yellow arrowheads as outgoing IR ones. Why?
+2. Run the model with a bright sun but no clouds and no CO2. What happens to the temperature? It should rise quickly and then settle down around 37 degrees. Why does it stop rising? Why does the temperature continue to bounce around? Remember, the temperature reflects the number of red dots in the earth. When the temperature is constant, there are about as many incoming yellow arrowheads as outgoing IR ones. Why?
 
 3. Explore the effect of albedo holding everything else constant. Does increasing the albedo increase or decrease the earth temperature? When you experiment, be sure to run the model long enough for the temperature to settle down.
 
