@@ -530,8 +530,6 @@ An alternate Daisyworld model is listed on the [User Community Models](http://cc
 The Daisyworld model was first proposed and implemented by Lovelock and Andrew Watson. The original Gaia hypothesis is due to Lovelock.
 
 Watson, A.J., and J.E. Lovelock, 1983, "Biological homeostasis of the global environment: the parable of Daisyworld", Tellus 35B, 286-289. (The original paper by Watson and Lovelock introducing the Daisyworld model.)
-
-http://www.carleton.edu/departments/geol/DaveSTELLA/Daisyworld/daisyworld_model.htm
 @#$#@#$#@
 default
 true
