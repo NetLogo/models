@@ -5,8 +5,8 @@ globals [
 ]
 
 to go
-  set HSB-as-RGB hsb hue saturation brightness
-  set HSB-color approximate-hsb hue saturation brightness
+  set HSB-as-RGB __hsb-old hue saturation brightness
+  set HSB-color __approximate-hsb-old hue saturation brightness
   ask quadrant -1  1 [ set pcolor HSB-as-RGB ]
   ask quadrant  1  1 [ set pcolor HSB-color ]
   set RGB-color approximate-rgb rgb-red rgb-green rgb-blue
@@ -75,8 +75,8 @@ SLIDER
 hue
 hue
 0
-255
-255
+360
+180
 1
 1
 NIL
@@ -90,8 +90,8 @@ SLIDER
 saturation
 saturation
 0
-255
-255
+100
+100
 1
 1
 NIL
@@ -105,8 +105,8 @@ SLIDER
 brightness
 brightness
 0
-255
-255
+100
+100
 1
 1
 NIL
@@ -121,7 +121,7 @@ rgb-red
 rgb-red
 0
 255
-0
+105
 1
 1
 NIL
@@ -136,7 +136,7 @@ rgb-green
 rgb-green
 0
 255
-235
+105
 1
 1
 NIL
@@ -151,7 +151,7 @@ rgb-blue
 rgb-blue
 0
 255
-0
+255
 1
 1
 NIL
@@ -537,7 +537,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.2-RC3
 @#$#@#$#@
 go
 @#$#@#$#@
