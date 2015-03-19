@@ -756,14 +756,14 @@ The Prisoner's Dilemma presents an interesting problem: if you and your accompli
 
 This model allows for many students within a classroom to challenge each other over a network.  Students will keep switching partners by moving their agents around on the screen and they can switch strategies. Students compete to see who has gained the maximum points over all interactions.
 
-Moreover, this model allows students to gain a grasp of computer programming. An input box on the screen allows students to edit and author strategies. Following are the strategies that students can choose from (see the STRATEGY-CHOICE choice button):
+Moreover, this model allows students to gain a grasp of computer programming. An input box on the screen allows students to edit and author strategies. Following are the strategies that students can choose from (see the STRATEGY-CHOICE choose in the HubNet client):
 
 Strategies:  
 Random - randomly cooperate or defect  
 Cooperate - cooperate always  
 Defect - defect always  
-Go-by-Majority - Totals the number of times that the partner has defected. {against you or regardless of whom the partner had been playing against? Andrei, please choose and phrase}  If the majority of the time, up to that point, the partner has defected, defect.  Otherwise, cooperate.  
-Tit-for-Tat - If the opponent cooperates this round cooperate next round.  If the opponent defects this round, defect next round.  Initially cooperate. {again-- against me or anyone?}  
+Go-by-Majority - Totals the number of times that the partner has defected.   If the majority of the time, up to that point, the partner has defected, defect.  Otherwise, cooperate.  
+Tit-for-Tat - If the opponent cooperates this round cooperate next round.  If the opponent defects this round, defect next round.  Initially cooperate.  
 Suspicious-Tit-for-Tat - The Tit-for-Tat strategy, except initially defects  
 Tit-for-Two-Tats - If the opponent cooperates this round cooperate next round.  If the opponent defects two rounds in a row, defect the next round.  Initially cooperate.  
 Pavlov - If the previous tactic (cooperate or defect) resulted in good {Andrei, what does this mean? Any positive point? The maximum possible?} points, stick with that tactic.  Otherwise, switch strategies.  Currently, "Success" happens when the partner cooperates, so this will keep switching if the opponent is always defecting.  Initially random.  
@@ -773,7 +773,7 @@ Rules for the Iterated Prisoner's Dilemma
 
 1.  This game will consist of matches in which each student competes against one opponent at a time.  Students may search for partners on their own.  Once paired, students will play 10 rounds, and then separate and look for other partners.
 
-2.  Each round the student and his/her partner will earn or lose points by either cooperating (C) or defecting (D) based on the rules set in their individual client. Each students' strategy is either selected (the STRATEGY-CHOICE ) or edited on the HubNet client. {Andrei, can players change their strat while in a given interaction?}
+2.  Each round the student and his/her partner will earn or lose points by either cooperating (C) or defecting (D) based on the rules set in their individual client. Each students' strategy is either selected (the STRATEGY-CHOICE ) or edited on the HubNet client. 
 
 3.  The point system is determined by the administrator, using the 4 sliders under "PAYOFF." That is, the administrator does not change the basic game but the value of the prizes and penalties.
 
@@ -826,7 +826,13 @@ Note the use of the turtle variable `label` to display each turtle's average sco
 
 PD Basic, PD N-Person Iterated, PD Basic Evolutionary, PD 2-Person Iterated
 
-## CREDITS AND REFERENCES
+
+## HOW TO CITE
+
+If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
+
+* Wilensky, U. (2003).  NetLogo HubNet Prisoners Dilemma HubNet [HubNet] model.  http://ccl.northwestern.edu/netlogo/models/HubNetPrisonersDilemmaHubNet[HubNet].  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 @#$#@#$#@
 default
 false
@@ -1470,7 +1476,7 @@ Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
 
 @#$#@#$#@
-NetLogo 5.0beta5
+NetLogo 5.2-RC3
 @#$#@#$#@
 setup
 @#$#@#$#@
