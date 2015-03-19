@@ -4,7 +4,7 @@ turtles-own [
 
 to setup
   clear-all
-  crt 500 [
+  create-turtles 500 [
     set message? false
     setxy random-xcor random-ycor
   ]
@@ -14,6 +14,7 @@ to setup
 end
 
 to go
+  if all? turtles [ message? ] [ stop ]
   ask turtles [ move ]
   ask turtles [ communicate ]
   ask turtles [ recolor ]
@@ -31,7 +32,7 @@ end
 
 ;; the core procedure!
 to communicate  ;; turtle procedure
-  if any? other turtles-here with [message?]
+  if any? other turtles-here with [ message? ]
     [ set message? true ]
 end
 
@@ -43,9 +44,9 @@ to recolor  ;; turtle procedure
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-230
+255
 10
-728
+753
 529
 30
 30
@@ -70,10 +71,10 @@ ticks
 30.0
 
 BUTTON
-46
-41
-101
-74
+60
+40
+115
+73
 NIL
 setup
 NIL
@@ -87,10 +88,10 @@ NIL
 1
 
 BUTTON
-117
-41
-172
-74
+131
+40
+186
+73
 NIL
 go
 T
@@ -104,10 +105,10 @@ NIL
 1
 
 BUTTON
-46
-41
-101
-74
+60
+40
+115
+73
 NIL
 setup
 NIL
@@ -121,10 +122,10 @@ NIL
 1
 
 BUTTON
-117
-41
-172
-74
+131
+40
+186
+73
 NIL
 go
 T
@@ -138,24 +139,44 @@ NIL
 1
 
 MONITOR
-12
-88
+50
+135
 202
-133
-NIL
-count turtles with [color = red]
+180
+turtles with message
+count turtles with [ message? ]
 3
 1
 11
 
+PLOT
+14
+208
+234
+358
+Turtles with message
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -5298144 true "" "plot count turtles with [ message? ]"
+
 @#$#@#$#@
 ## WHAT IS IT?
 
-This code example is a simple demo of turtle-turtle communications. One turtle starts out with a message (the red turtle) and she spreads the message to other turtles.
+This code example is a simple demo of turtle-turtle communications. We create 500 turtles. One turtle starts out with a message (the red turtle) and she spreads the message to other turtles.
 
 The monitor keeps track of how many turtles have the message by reporting:
 
-      count turtles with [color = red]
+    count turtles with [ message? ]
+
+The plot helps you visualize how this value changes through time. Notice the "S" shape of the plotted curve.
 
 Note that if you call a procedure inside `ask turtles [  ]`, then everything in that procedure will be executed by all of the turtles.
 @#$#@#$#@
@@ -442,7 +463,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.2-RC3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -460,5 +481,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
