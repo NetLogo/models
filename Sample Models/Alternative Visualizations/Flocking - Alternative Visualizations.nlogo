@@ -37,7 +37,6 @@ to go
           [ set normal-flag false ] ]
       if not normal-flag
         [ ask turtles [ set color yellow - 2 + random 7 ] ]
-      ;; ask turtles [set color approximate-hsb (heading / 360) 1 1]
       ask turtles [ set color __approximate-hsb-old (255 * (heading / 360)) 255 255 ]
       set cohesion-flag true ]
   ;" Are he boids in separation or aligned mode?"
@@ -57,7 +56,6 @@ to go
       ask turtles [ set color __approximate-hsb-old (255 * (heading / 360)) 255 255 ]  ;; color turtles according to their heading
       set cohesion-flag true ]
     [ ask turtles [ set shape "default" ] ]
-  ;; display
   tick
 end
 
