@@ -39,7 +39,7 @@ to go
         [ ask turtles [ set color yellow - 2 + random 7 ] ]
       ask turtles [ set color __approximate-hsb-old (255 * (heading / 360)) 255 255 ]
       set cohesion-flag true ]
-  ;" Are he boids in separation or aligned mode?"
+  ; "Are the boids in separation or aligned mode?"
   if first question = "2"
     [ ask turtles [ flock-mode ]
       set cohesion-flag true ]
