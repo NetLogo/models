@@ -1,5 +1,3 @@
-;; updated 12/20/2014
-
 globals [
   percent-similar  ;; on the average, what percent of a turtle's neighbors
                    ;; are the same color as that turtle?
@@ -20,7 +18,7 @@ to setup
   ask patches [
     if random 100 < density [   ;; set the occupancy density
       sprout 1 [
-        set color one-of [red green]   ;; changed this to be easier NetLogo, but sacrificed equality 
+        set color one-of [red green]
       ]
     ]
   ]
