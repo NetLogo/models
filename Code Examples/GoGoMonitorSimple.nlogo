@@ -1,13 +1,4 @@
 extensions [gogo]
-
-; Public Domain:
-; To the extent possible under law, Uri Wilensky has waived all
-; copyright and related or neighboring rights to this model.
-
-
-; Public Domain:
-; To the extent possible under law, Uri Wilensky has waived all
-; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 800
@@ -115,7 +106,7 @@ BUTTON
 575
 175
 a-on
-gogo:talk-to-output-ports [\"a\"]\ngogo:motor-on
+gogo:talk-to-output-ports [\"a\"]\ngogo:output-port-on
 NIL
 1
 T
@@ -132,7 +123,7 @@ BUTTON
 710
 175
 a-off
-gogo:talk-to-output-ports [\"a\"]\ngogo:motor-off
+gogo:talk-to-output-ports [\"a\"]\ngogo:output-port-off
 NIL
 1
 T
@@ -149,7 +140,7 @@ BUTTON
 575
 218
 a-clockwise
-gogo:talk-to-output-ports [\"a\"]\ngogo:motor-clockwise
+gogo:talk-to-output-ports [\"a\"]\ngogo:output-port-clockwise
 NIL
 1
 T
@@ -166,7 +157,7 @@ BUTTON
 575
 263
 set-a-power
-gogo:talk-to-output-ports [\"a\"]\ngogo:motor-set-power a-power
+gogo:talk-to-output-ports [\"a\"]\ngogo:set-output-port-power a-power
 NIL
 1
 T
@@ -329,7 +320,7 @@ BUTTON
 710
 218
 a-counterclockwise
-gogo:talk-to-output-ports [\"a\"]\ngogo:motor-counterclockwise
+gogo:talk-to-output-ports [\"a\"]\ngogo:output-port-counterclockwise
 NIL
 1
 T
@@ -679,7 +670,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2-RC3
+NetLogo 5.2.0-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

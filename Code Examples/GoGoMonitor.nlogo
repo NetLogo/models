@@ -1,13 +1,4 @@
 extensions [gogo]
-
-; Public Domain:
-; To the extent possible under law, Uri Wilensky has waived all
-; copyright and related or neighboring rights to this model.
-
-
-; Public Domain:
-; To the extent possible under law, Uri Wilensky has waived all
-; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 695
@@ -216,7 +207,7 @@ BUTTON
 130
 133
 a-on
-gogo:talk-to-output-ports [\"a\"]\ngogo:motor-on
+gogo:talk-to-output-ports [\"a\"]\ngogo:output-port-on
 NIL
 1
 T
@@ -233,7 +224,7 @@ BUTTON
 130
 173
 a-off
-gogo:talk-to-output-ports [\"a\"]\ngogo:motor-off
+gogo:talk-to-output-ports [\"a\"]\ngogo:output-port-off
 NIL
 1
 T
@@ -250,7 +241,7 @@ BUTTON
 130
 213
 a-clockwise
-gogo:talk-to-output-ports [\"a\"]\ngogo:motor-clockwise
+gogo:talk-to-output-ports [\"a\"]\ngogo:output-port-clockwise
 NIL
 1
 T
@@ -267,7 +258,7 @@ BUTTON
 130
 253
 a-counterclockwise
-gogo:talk-to-output-ports [\"a\"]\ngogo:motor-counterclockwise
+gogo:talk-to-output-ports [\"a\"]\ngogo:output-port-counterclockwise
 NIL
 1
 T
@@ -284,7 +275,7 @@ BUTTON
 130
 333
 set-a-power
-gogo:talk-to-output-ports [\"a\"]\ngogo:motor-set-power a-power
+gogo:talk-to-output-ports [\"a\"]\ngogo:set-output-port-power a-power
 NIL
 1
 T
@@ -316,7 +307,7 @@ BUTTON
 260
 133
 b-on
-gogo:talk-to-output-ports [\"b\"]\ngogo:motor-on
+gogo:talk-to-output-ports [\"b\"]\ngogo:output-port-on
 NIL
 1
 T
@@ -333,7 +324,7 @@ BUTTON
 260
 173
 b-off
-gogo:talk-to-output-ports [\"b\"]\ngogo:motor-off
+gogo:talk-to-output-ports [\"b\"]\ngogo:output-port-off
 NIL
 1
 T
@@ -350,7 +341,7 @@ BUTTON
 260
 213
 b-clockwise
-gogo:talk-to-output-ports [\"b\"]\ngogo:motor-clockwise
+gogo:talk-to-output-ports [\"b\"]\ngogo:output-port-clockwise
 NIL
 1
 T
@@ -367,7 +358,7 @@ BUTTON
 260
 253
 b-counterclockwise
-gogo:talk-to-output-ports [\"b\"]\ngogo:motor-counterclockwise
+gogo:talk-to-output-ports [\"b\"]\ngogo:output-port-counterclockwise
 NIL
 1
 T
@@ -384,7 +375,7 @@ BUTTON
 260
 333
 set-b-power
-gogo:talk-to-output-ports [\"b\"]\ngogo:motor-set-power b-power
+gogo:talk-to-output-ports [\"b\"]\ngogo:set-output-port-power b-power
 NIL
 1
 T
@@ -416,7 +407,7 @@ BUTTON
 390
 133
 c-on
-gogo:talk-to-output-ports [\"c\"]\ngogo:motor-on
+gogo:talk-to-output-ports [\"c\"]\ngogo:output-port-on
 NIL
 1
 T
@@ -433,7 +424,7 @@ BUTTON
 390
 173
 c-off
-gogo:talk-to-output-ports [\"c\"]\ngogo:motor-off
+gogo:talk-to-output-ports [\"c\"]\ngogo:output-port-off
 NIL
 1
 T
@@ -450,7 +441,7 @@ BUTTON
 390
 213
 c-clockwise
-gogo:talk-to-output-ports [\"c\"]\ngogo:motor-clockwise
+gogo:talk-to-output-ports [\"c\"]\ngogo:output-port-clockwise
 NIL
 1
 T
@@ -467,7 +458,7 @@ BUTTON
 390
 253
 c-counterclockwise
-gogo:talk-to-output-ports [\"c\"]\ngogo:motor-counterclockwise
+gogo:talk-to-output-ports [\"c\"]\ngogo:output-port-counterclockwise
 NIL
 1
 T
@@ -484,7 +475,7 @@ BUTTON
 390
 333
 set-c-power
-gogo:talk-to-output-ports [\"c\"]\ngogo:motor-set-power c-power
+gogo:talk-to-output-ports [\"c\"]\ngogo:set-output-port-power c-power
 NIL
 1
 T
@@ -516,7 +507,7 @@ BUTTON
 520
 133
 d-on
-gogo:talk-to-output-ports [\"d\"]\ngogo:motor-on\n
+gogo:talk-to-output-ports [\"d\"]\ngogo:output-port-on\n
 NIL
 1
 T
@@ -533,7 +524,7 @@ BUTTON
 520
 173
 d-off
-gogo:talk-to-output-ports [\"d\"]\ngogo:motor-off
+gogo:talk-to-output-ports [\"d\"]\ngogo:output-port-off
 NIL
 1
 T
@@ -550,7 +541,7 @@ BUTTON
 520
 213
 d-clockwise
-gogo:talk-to-output-ports [\"d\"]\ngogo:motor-clockwise
+gogo:talk-to-output-ports [\"d\"]\ngogo:output-port-clockwise
 NIL
 1
 T
@@ -567,7 +558,7 @@ BUTTON
 520
 253
 d-counterclockwise
-gogo:talk-to-output-ports [\"d\"]\ngogo:motor-counterclockwise
+gogo:talk-to-output-ports [\"d\"]\ngogo:output-port-counterclockwise
 NIL
 1
 T
@@ -584,7 +575,7 @@ BUTTON
 520
 333
 set-d-power
-gogo:talk-to-output-ports [\"d\"]\ngogo:motor-set-power d-power
+gogo:talk-to-output-ports [\"d\"]\ngogo:set-output-port-power d-power
 NIL
 1
 T
@@ -1124,7 +1115,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2-RC3
+NetLogo 5.2.0-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
