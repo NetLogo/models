@@ -46,7 +46,7 @@ to go
   ; "Do all of the boids end up following the same leader?"
   if first question = "3"
     [ if (cohesion-flag)
-        [ ask turtles [ set color one-of [5 15 25 35 45 55 65 75 85 95 105 115 125 135 ] ]
+        [ ask turtles [ set color one-of base-colors ]
           set cohesion-flag false ]
       ask turtles
         [ flock
