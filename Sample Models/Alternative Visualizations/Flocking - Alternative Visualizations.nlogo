@@ -6,7 +6,7 @@ turtles-own [
 ]
 
 to setup
-   ca
+  clear-all
   set cohesion-flag true
   set normal-flag true
   crt population
@@ -114,7 +114,7 @@ to flock-shape-mode  ;; turtle procedure
 end
 
 to find-flockmates  ;; turtle procedure
-  set flockmates (turtles in-radius vision) with [self != myself]
+  set flockmates other turtles in-radius vision
 end
 
 to find-nearest-neighbor ;; turtle procedure
@@ -137,11 +137,11 @@ to-report average-flockmate-heading  ;; turtle procedure
   ;; We can't just average the heading variables here.
   ;; For example, the average of 1 and 359 should be 0,
   ;; not 180.  So we have to use trigonometry.
-  ;; Theoretically this could fail if both sums are 0
-  ;; since atan 0 0 is undefined, but in practice that's
-  ;; vanishingly unlikely.
-  report atan sum [sin heading] of flockmates
-              sum [cos heading] of flockmates
+  let x-component sum [dx] of flockmates
+  let y-component sum [dy] of flockmates
+  ifelse x-component = 0 and y-component = 0
+    [ report heading ]
+    [ report atan x-component y-component ]
 end
 
 ;;; COHERE
@@ -154,8 +154,11 @@ to-report average-heading-towards-flockmates  ;; turtle procedure
   ;; "towards myself" gives us the heading from the other turtle
   ;; to me, but we want the heading from me to the other turtle,
   ;; so we add 180
-  report atan mean [sin (towards myself + 180)] of flockmates
-              mean [cos (towards myself + 180)] of flockmates
+  let x-component mean [sin (towards myself + 180)] of flockmates
+  let y-component mean [cos (towards myself + 180)] of flockmates
+  ifelse x-component = 0 and y-component = 0
+    [ report heading ]
+    [ report atan x-component y-component ]
 end
 
 ;;; HELPER PROCEDURES
@@ -437,7 +440,7 @@ Will running the model for a long time produce a static flock?  Or will the bird
 
 ## EXTENDING THE MODEL
 
-Currently the birds can "see" all around them.  What happens if birds can only see in front of them?  The IN-CONE primitive can be used for this.
+Currently the birds can "see" all around them.  What happens if birds can only see in front of them?  The `in-cone` primitive can be used for this.
 
 Is there some way to get V-shaped flocks, like migrating geese?
 
@@ -453,7 +456,12 @@ Can you add a value to the QUESTION chooser and develop a corresponding visualiz
 
 ## NETLOGO FEATURES
 
-Notice the need for the SUBTRACT-HEADINGS primitive and special procedure for averaging groups of headings.  Just subtracting the numbers, or averaging the numbers, doesn't give you the results you'd expect, because of the discontinuity where headings wrap back to 0 once they reach 360.
+Notice the need for the `subtract-headings` primitive and special procedure for averaging groups of headings.  Just subtracting the numbers, or averaging the numbers, doesn't give you the results you'd expect, because of the discontinuity where headings wrap back to 0 once they reach 360.
+
+## RELATED MODELS
+
+* Moths
+* Flocking Vee Formation
 
 ## CREDITS AND REFERENCES
 
