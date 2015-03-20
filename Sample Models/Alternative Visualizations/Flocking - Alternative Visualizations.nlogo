@@ -37,7 +37,7 @@ to go
           [ set normal-flag false ] ]
       if not normal-flag
         [ ask turtles [ set color yellow - 2 + random 7 ] ]
-      ask turtles [ set color __approximate-hsb-old (255 * (heading / 360)) 255 255 ]
+      ask turtles [ set color approximate-hsb (255 * (heading / 360)) 100 100 ]
       set cohesion-flag true ]
   ; "Are the boids in separation or aligned mode?"
   if first question = "2"
@@ -53,7 +53,7 @@ to go
           if any? flockmates [ set color [ color ] of nearest-neighbor ] ] ]
   ifelse first question = "4"
     [ ask turtles [ flock-shape-mode ] ;; turtles cohering have line shape, separating have default shape
-      ask turtles [ set color __approximate-hsb-old (255 * (heading / 360)) 255 255 ]  ;; color turtles according to their heading
+      ask turtles [ set color approximate-hsb (255 * (heading / 360)) 100 100 ]  ;; color turtles according to their heading
       set cohesion-flag true ]
     [ ask turtles [ set shape "default" ] ]
   tick
