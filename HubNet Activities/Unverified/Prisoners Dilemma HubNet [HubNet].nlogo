@@ -825,14 +825,6 @@ Note the use of the turtle variable `label` to display each turtle's average sco
 ## RELATED MODELS
 
 PD Basic, PD N-Person Iterated, PD Basic Evolutionary, PD 2-Person Iterated
-
-
-## HOW TO CITE
-
-If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
-
-* Wilensky, U. (2003).  NetLogo HubNet Prisoners Dilemma HubNet [HubNet] model.  http://ccl.northwestern.edu/netlogo/models/HubNetPrisonersDilemmaHubNet[HubNet].  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 @#$#@#$#@
 default
 false
