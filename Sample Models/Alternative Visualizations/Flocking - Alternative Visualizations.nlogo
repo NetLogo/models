@@ -10,73 +10,54 @@ to setup
   set cohesion-flag true
   set normal-flag true
   crt population
-    [ set size 1.5 
+    [ set size 1.5
       if first question != "D"
-          [set color yellow - 2 + random 7]  ;; random shades look nice
+        [ set color yellow - 2 + random 7 ]  ;; random shades look nice
       setxy random-xcor random-ycor
       rt random-float 360 ]
-    reset-ticks
+  reset-ticks
 end
 
 to go
-;;  no-display
   ; "None"
-  if (first question = "0") 
-    [
-     ask turtles [ flock ]
-     set cohesion-flag true
-     ask one-of turtles 
-       [
-         if not shade-of? color yellow
-            [set normal-flag false]
-       ]
-     if not normal-flag
-       [ask turtles [set color yellow - 2 + random 7]]    
-    ]
-  ; "Are the boids aligned?" 
-  if first question = "1" 
-    [ 
-      ask turtles [ flock ]
+  if (first question = "0")
+    [ ask turtles [ flock ]
       set cohesion-flag true
-      ask one-of turtles 
-       [
-         if not shade-of? color yellow
-            [set normal-flag false]
-       ]
+      ask one-of turtles
+        [ if not shade-of? color yellow
+          [ set normal-flag false ] ]
       if not normal-flag
-       [ask turtles [set color yellow - 2 + random 7]]    
-     ;; ask turtles [set color approximate-hsb (heading / 360) 1 1]
-     ask turtles [set color __approximate-hsb-old (255 * (heading / 360)) 255 255]
+        [ ask turtles [ set color yellow - 2 + random 7 ] ] ]
+  ; "Are the boids aligned?"
+  if first question = "1"
+    [ ask turtles [ flock ]
       set cohesion-flag true
-    ]
-  ;" Are he boids in separation or aligned mode?"  
+      ask one-of turtles
+        [ if not shade-of? color yellow
+          [ set normal-flag false ] ]
+      if not normal-flag
+        [ ask turtles [ set color yellow - 2 + random 7 ] ]
+      ;; ask turtles [set color approximate-hsb (heading / 360) 1 1]
+      ask turtles [ set color __approximate-hsb-old (255 * (heading / 360)) 255 255 ]
+      set cohesion-flag true ]
+  ;" Are he boids in separation or aligned mode?"
   if first question = "2"
-    [
-      ask turtles [ flock-mode ]
-       set cohesion-flag true
-    ]
+    [ ask turtles [ flock-mode ]
+      set cohesion-flag true ]
   ; "Do all of the boids end up following the same leader?"
   if first question = "3"
-    [ 
-      if (cohesion-flag) 
-       [
-        ask turtles [set color one-of [5 15 25 35 45 55 65 75 85 95 105 115 125 135 ]]
-        set cohesion-flag false
-       ]    
-      ask turtles 
-      [ 
-        flock 
-        if any? flockmates [set color [color] of nearest-neighbor]
-      ]
-    ]
+    [ if (cohesion-flag)
+        [ ask turtles [ set color one-of [5 15 25 35 45 55 65 75 85 95 105 115 125 135 ] ]
+          set cohesion-flag false ]
+      ask turtles
+        [ flock
+          if any? flockmates [ set color [ color ] of nearest-neighbor ] ] ]
   ifelse first question = "4"
-    [ 
-      ask turtles [ flock-shape-mode ] ;; turtles cohering have line shape, separating have default shape
-      ask turtles [set color __approximate-hsb-old (255 * (heading / 360)) 255 255]  ;; color turtles according to their heading
-      set cohesion-flag true
-    ]
-    [ ask turtles [set shape "default"]]
- ;; display
+    [ ask turtles [ flock-shape-mode ] ;; turtles cohering have line shape, separating have default shape
+      ask turtles [ set color __approximate-hsb-old (255 * (heading / 360)) 255 255 ]  ;; color turtles according to their heading
+      set cohesion-flag true ]
+    [ ask turtles [ set shape "default" ] ]
+  ;; display
   tick
 end
 
@@ -96,9 +77,9 @@ to flock-mode  ;; turtle procedure
   if any? flockmates
     [ find-nearest-neighbor
       ifelse distance nearest-neighbor < minimum-separation
-        [ separate set color red]
+        [ separate set color red ]
         [ align
-          cohere set color green] ]
+          cohere set color green ] ]
   fd step
 end
 
@@ -107,9 +88,9 @@ to flock-shape-mode  ;; turtle procedure
   if any? flockmates
     [ find-nearest-neighbor
       ifelse distance nearest-neighbor < minimum-separation
-        [ separate set shape "default"]
+        [ separate set shape "default" ]
         [ align
-          cohere set shape "line"] ]
+          cohere set shape "line" ] ]
   fd step
 end
 
@@ -380,14 +361,14 @@ reduce the step to better observe the interactions
 @#$#@#$#@
 ##ACKNOWLEDGEMENT
 
-Ths model is an alternate visualization of the Flocking model from the Biology section of the NetLogo Models Library. It uses visualization techniques as recommended in the paper: 
+Ths model is an alternate visualization of the Flocking model from the Biology section of the NetLogo Models Library. It uses visualization techniques as recommended in the paper:
 
 Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation, JASSS, 12(2), 1.
 
 
 ## WHAT IS IT?
 
-This model is a version of the NetLogo Flocking model that adds visualizations. 
+This model is a version of the NetLogo Flocking model that adds visualizations.
 The Flocking model is an attempt to mimic the flocking of birds.  (The resulting motion also resembles schools of fish.)  The flocks that appear in this model are not created or led in any way by special leader birds.  Rather, each bird (aka boid) is following exactly the same set of rules, from which flocks emerge.
 
 The birds follow three rules: "alignment", "separation", and "cohesion".  "Alignment" means that a bird tends to turn so that it is moving in the same direction that nearby birds are moving.  "Separation" means that a bird will turn to avoid another bird which gets too close.  "Cohesion" means that a bird will move towards other nearby birds (unless another bird is too close).  When two birds are too close, the "separation" rule overrides the other two, which are deactivated until the minimum separation is achieved.
@@ -415,7 +396,7 @@ Value of 0 = "NONE". This gives the same behavior as the standard flocking model
 Value of 1 = "Are the boids aligned". Boids with the same direction have the same color. Clusters with the same heading can be easily distinguished.
 Value of 2 = "Are the boids in separation or cohesion mode?". This colors the boids red when they are separating and green when they are cohering.
 Value of 3 = "Do all of the boids end up following the same leader?". Each flock gets a different color.
-Value of 4 = "Are the boids aligned ? Are the boids in separation or cohesion mode?". Boids with the same direction have the same color. Boids in separation mode have the default shape, Boids in cohesion mode have a "line" shape. 
+Value of 4 = "Are the boids aligned ? Are the boids in separation or cohesion mode?". Boids with the same direction have the same color. Boids in separation mode have the default shape, Boids in cohesion mode have a "line" shape.
 
 
 ## THINGS TO NOTICE
