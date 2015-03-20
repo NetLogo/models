@@ -352,14 +352,6 @@ The layout algorithm is based on the Fruchterman-Reingold layout algorithm.  Mor
 
 For a model similar to the one described in the first suggested extension, please consult:  
 W. Brian Arthur, "Urban Systems and Historical Path-Dependence", Chapt. 4 in Urban systems and Infrastructure, J. Ausubel and R. Herman (eds.), National Academy of Sciences, Washington, D.C., 1988.
-
-
-## HOW TO CITE
-
-If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
-
-* Wilensky, U. (2005).  NetLogo Preferential Attachment model.  http://ccl.northwestern.edu/netlogo/models/PreferentialAttachment.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 @#$#@#$#@
 default
 true
@@ -644,7 +636,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.2-RC3
 @#$#@#$#@
 set layout? false
 set plot? false
