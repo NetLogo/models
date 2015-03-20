@@ -48,13 +48,6 @@ to find-new-spot
   move-to patch-here  ;; move to center of patch
 end
 
-;; an alternative way to code find-new-spot
-;; find an empty spot if there is one and move there 
-;to find-new-spot
-;  let potential-homes patches with [not any? turtles-here]
-; if any? potential-homes [move-to one-of potential-homes]  ;;  move to center of empty patch
-;end
-
 to update-variables
   update-turtles
   update-globals
