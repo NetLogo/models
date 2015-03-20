@@ -7,30 +7,30 @@ globals [
 ]
 
 turtles-own [
-  happy?       ;; for each turtle, indicates whether at least %-similar-wanted percent of
-               ;; that turtles' neighbors are the same color as the turtle
+  happy?           ;; for each turtle, indicates whether at least %-similar-wanted percent of
+                   ;;   that turtles' neighbors are the same color as the turtle
   similar-nearby   ;; how many neighboring patches have a turtle with my color?
-  other-nearby ;; how many have a turtle of another color?
-  total-nearby ;; sum of previous two variables
+  other-nearby     ;; how many have a turtle of another color?
+  total-nearby     ;; sum of previous two variables
 ]
-
-
 
 to setup
   clear-all
   ;; create turtles on random patches.
   ask patches [
-  if random 100 < density   ;; set the occupancy density
-    [ sprout 1 [
-      set color one-of [red green]   ;; changed this to be easier NetLogo, but sacrificed equality 
-       ]]]
+    if random 100 < density [   ;; set the occupancy density
+      sprout 1 [
+        set color one-of [red green]   ;; changed this to be easier NetLogo, but sacrificed equality 
+      ]
+    ]
+  ]
   update-variables
   reset-ticks
 end
 
 ;; run the model for one tick
 to go
-  if all? turtles [happy?] [ stop ]
+  if all? turtles [ happy? ] [ stop ]
   move-unhappy-turtles
   update-variables
   tick
@@ -46,8 +46,7 @@ end
 to find-new-spot
   rt random-float 360
   fd random-float 10
-  if any? other turtles-here
-    [ find-new-spot ]          ;; keep going until we find an unoccupied patch
+  if any? other turtles-here [ find-new-spot ] ;; keep going until we find an unoccupied patch
   move-to patch-here  ;; move to center of patch
 end
 
@@ -67,25 +66,23 @@ to update-turtles
   ask turtles [
     ;; in next two lines, we use "neighbors" to test the eight patches
     ;; surrounding the current patch
-    set similar-nearby count (turtles-on neighbors)
-      with [color = [color] of myself]
-    set other-nearby count (turtles-on neighbors)
-      with [color != [color] of myself]
+    set similar-nearby count (turtles-on neighbors)  with [ color = [ color ] of myself ]
+    set other-nearby count (turtles-on neighbors) with [ color != [ color ] of myself ]
     set total-nearby similar-nearby + other-nearby
-    set happy? similar-nearby >= ( %-similar-wanted * total-nearby / 100 )
+    set happy? similar-nearby >= (%-similar-wanted * total-nearby / 100)
     ;; add visualization here
-    if visualization = "old" [set shape "default"]
-     if visualization = "square-x" [
-    ifelse happy? [set shape "square"] [set shape "square-x"]
-  ]
+    if visualization = "old" [ set shape "default" ]
+    if visualization = "square-x" [
+      ifelse happy? [ set shape "square" ] [ set shape "square-x" ]
+    ]
   ]
 end
 
 to update-globals
-  let similar-neighbors sum [similar-nearby] of turtles
-  let total-neighbors sum [total-nearby] of turtles
+  let similar-neighbors sum [ similar-nearby ] of turtles
+  let total-neighbors sum [ total-nearby ] of turtles
   set percent-similar (similar-neighbors / total-neighbors) * 100
-  set percent-unhappy (count turtles with [not happy?]) / (count turtles) * 100
+  set percent-unhappy (count turtles with [ not happy? ]) / (count turtles) * 100
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
