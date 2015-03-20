@@ -138,7 +138,6 @@ to reproduce
              lt 45 fd 1
              get-healthy ] ] ]
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 262
@@ -407,14 +406,6 @@ Add a slider controlling how long immunity lasts so that immunity is not perfect
 
 * AIDS
 * Virus on a Network
-
-
-## HOW TO CITE
-
-If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
-
-* Wilensky, U. (1998).  NetLogo Virus model.  http://ccl.northwestern.edu/netlogo/models/Virus.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 @#$#@#$#@
 default
 true
