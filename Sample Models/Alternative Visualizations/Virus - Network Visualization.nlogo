@@ -15,16 +15,12 @@ globals
 
 ;; The setup is divided into three subroutines
 to setup
-  ;; (for this model to work with NetLogo's new plotting features,
-  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
-  ;; the beginning of your setup procedure and reset-ticks at the end
-  ;; of the procedure.)
-  __clear-all-and-reset-ticks
+  clear-all
   set weeks 0
   setup-constants
   setup-turtles
-  update-plot
   update-global-variables
+  reset-ticks
 end
 
 ;; We create a variable number of turtles of which 10 are infectious,
@@ -109,7 +105,7 @@ to go
   recover
   reproduce
   update-global-variables
-  update-plot
+  tick
 end
 
 to update-global-variables
@@ -135,7 +131,8 @@ end
 ;;Turtles move about at random.
 to move
   ask turtles
-  [ rt random-float 100 - random-float 100
+  [ rt random 100
+    lt random 100
     fd 1 ]
 end
 
@@ -180,18 +177,6 @@ to reproduce
            [ set age 1
              lt 45 fd 1
              get-healthy ] ] ]
-end
-
-to update-plot
-  set-current-plot "Populations"
-  set-current-plot-pen "sick"
-  plot count turtles with [sick?]
-  set-current-plot-pen "immune"
-  plot count turtles with [immune?]
-  set-current-plot-pen "healthy"
-  plot count turtles with [not sick? and not immune?]
-  set-current-plot-pen "total"
-  plot count turtles
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -316,10 +301,10 @@ true
 true
 "" ""
 PENS
-"sick" 1.0 0 -2674135 true "" ""
-"immune" 1.0 0 -5204280 true "" ""
-"healthy" 1.0 0 -10899396 true "" ""
-"total" 1.0 0 -13345367 true "" ""
+"sick" 1.0 0 -2674135 true "" "plot count turtles with [sick?]"
+"immune" 1.0 0 -7500403 true "" "plot count turtles with [immune?]"
+"healthy" 1.0 0 -10899396 true "" "plot count turtles with [not sick? and not immune?]"
+"total" 1.0 0 -13345367 true "" "plot count turtles"
 
 SLIDER
 33
@@ -467,23 +452,23 @@ The model is initialized with 150 people, of which 10 are infected.  People move
 
 Some of these factors are summarized below with an explanation of how each one is treated in this model.
 
-The density of the population
+### The density of the population
 
 Population density affects how often infected, immune and susceptible individuals come into contact with each other. You can change the size of the initial population through the PEOPLE slider.
 
-Population turnover
+### Population turnover
 
 As individuals die, some who die will be infected, some will be susceptible and some will be immune.  All the new individuals who are born, replacing those who die, will be susceptible.  People may die from the virus, the chances of which are determined by the slider CHANCE-RECOVER, or they may die of old age.  In this model, people die of old age at the age of approximately 27 years.  Reproduction rate is constant in this model.  Each turn, every healthy individual has a chance to reproduce.  That chance is set so that each person will on average reproduce four times if they live 27 years.
 
-Degree of immunity
+### Degree of immunity
 
 If a person has been infected and recovered, how immune are they to the virus?  We often assume that immunity lasts a lifetime and is assured, but in some cases immunity wears off in time and immunity might not be absolutely secure.  Nonetheless, in this model, immunity does last forever and is secure.
 
-Infectiousness (or transmissibility)
+### Infectiousness (or transmissibility)
 
 How easily does the virus spread?  Some viruses with which we are familiar spread very easily.  Some viruses spread from the smallest contact every time.  Others (the HIV virus, which is responsible for AIDS, for example) require significant contact, perhaps many times, before the virus is transmitted.  In this model, infectiousness is determined by a slider.
 
-Duration of infectiousness
+### Duration of infectiousness
 
 How long is a person infected before they either recover or die?  This length of time is essentially the virus's window of opportunity for transmission to new hosts. In this model, duration of infectiousness is determined by a slider.
 
@@ -522,6 +507,11 @@ Add additional sliders controlling the carrying capacity of the world (how many 
 Build a similar model simulating viral infection of a non-human host with very different reproductive rates, lifespans, and population densities.
 
 Add a slider controlling how long immunity lasts so that immunity is not perfect or eternal.
+
+## RELATED MODELS
+
+* AIDS
+* Virus on a Network
 
 ## CREDITS AND REFERENCES
 
