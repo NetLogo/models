@@ -617,6 +617,7 @@ To ensure fairness, the agents should run in random order.  Agentsets in NetLogo
 
  * Segregation
  * PD Basic
+ * Ethnocentrism - Alternative Visualization
 
 ## CREDITS AND REFERENCES
 

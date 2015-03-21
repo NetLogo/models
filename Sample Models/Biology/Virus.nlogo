@@ -387,6 +387,7 @@ Add a slider controlling how long immunity lasts so that immunity is not perfect
 
 * AIDS
 * Virus on a Network
+* Virus - Network Visualization
 
 ## CREDITS AND REFERENCES
 @#$#@#$#@

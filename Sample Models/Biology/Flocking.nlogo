@@ -323,6 +323,7 @@ Notice the need for the `subtract-headings` primitive and special procedure for 
 
 * Moths
 * Flocking Vee Formation
+* Flocking - Alternative Visualizations
 
 ## CREDITS AND REFERENCES
 

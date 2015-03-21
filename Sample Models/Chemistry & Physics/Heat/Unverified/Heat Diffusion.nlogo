@@ -451,7 +451,9 @@ Add a slider to alter this thickness.
 
 Try modeling derivative or combined boundary conditions.
 
-## CREDITS AND REFERENCES
+## RELATED MODELS
+
+Heat Diffusion - Alternative Gradient
 @#$#@#$#@
 default
 true
