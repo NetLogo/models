@@ -435,9 +435,9 @@ HORIZONTAL
 
 BUTTON
 20
-37
+29
 128
-70
+62
 setup empty
 setup-empty
 NIL
@@ -451,10 +451,10 @@ NIL
 1
 
 BUTTON
-221
-37
-294
-70
+222
+29
+295
+62
 NIL
 go
 T
@@ -490,9 +490,9 @@ PENS
 
 BUTTON
 130
-37
+29
 219
-70
+62
 setup full
 setup-full
 NIL
@@ -536,10 +536,10 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-35
-82
-294
-144
+30
+77
+304
+142
 Circles cooperate with same color\nSquares defect with same color\nFilled-in shapes cooperate with different color\nEmpty shapes defect with different color\n
 11
 0.0
