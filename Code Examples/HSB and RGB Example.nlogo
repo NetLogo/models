@@ -5,8 +5,8 @@ globals [
 ]
 
 to go
-  set HSB-as-RGB __hsb-old hue saturation brightness
-  set HSB-color __approximate-hsb-old hue saturation brightness
+  set HSB-as-RGB hsb hue saturation brightness
+  set HSB-color approximate-hsb hue saturation brightness
   ask quadrant -1  1 [ set pcolor HSB-as-RGB ]
   ask quadrant  1  1 [ set pcolor HSB-color ]
   set RGB-color approximate-rgb rgb-red rgb-green rgb-blue
@@ -244,7 +244,7 @@ pcolor
 @#$#@#$#@
 ## WHAT IS IT?
 
-This is a simple example of NetLogo colors versus RGB colors using `approximate-rgb` and `approximate-hsb`, and `extract-rgb`.
+This is a simple example of NetLogo colors versus RGB colors using `approximate-rgb` and `approximate-hsb`, and `hsb`.
 
 To use it, simply press GO.  The top three sliders specify a color in the HSB spectrum which is displayed in the top half of the world, while the bottom three sliders specify a color in the RGB spectrum which is displayed in the bottom half of the world.
 
