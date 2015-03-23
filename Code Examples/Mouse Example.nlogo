@@ -157,6 +157,10 @@ NIL
 ## WHAT IS IT?
 
 This demo shows how to use the `mouse-down?`, `mouse-xcor`, and `mouse-ycor` reporters to make a model that the user can interact with using the mouse.  It also demonstrates the difference between using patches and turtles to achieve a desired effect.
+
+## NETLOGO FEATURES
+
+If you look at this model's settings (by clicking the SETTINGS button in the main toolbar), you will notice that it uses a "Frame Rate" of 1000, which is much higher than the default value of 30. This ensures that drawing happens as fast as possible. See the [NetLogo Programming Guide](http://ccl.northwestern.edu/netlogo/docs/programming.html#updates) for more information on frame rate and view updates in general.
 @#$#@#$#@
 default
 true
