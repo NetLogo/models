@@ -218,7 +218,7 @@ to update-shape
       ; if the agent cooperates with same but not with different, it is ethnocentric, and gets the "c" shape
       [ set shape "vline" ]  ;; ethnocentric
   ]
-      
+
   [
     ifelse cooperate-with-different?
     ;; if the agent doesn't cooperate with same but does cooperate with different, it is cosmopolitan and gets the "v" shape
@@ -322,19 +322,15 @@ end
 to-report last100coop-percent
   report sum last100coop / max list 1 sum last100meet
 end
-
-
-; Copyright 2003 Uri Wilensky.
-; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-342
-22
-811
-512
+350
+20
+870
+561
 -1
 -1
-9.0
+10.0
 1
 10
 1
@@ -355,10 +351,10 @@ ticks
 30.0
 
 SLIDER
-5
-150
-171
-183
+10
+185
+176
+218
 mutation-rate
 mutation-rate
 0.0
@@ -370,10 +366,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-5
-184
-171
-217
+10
+220
+176
+253
 death-rate
 death-rate
 0.0
@@ -385,10 +381,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-5
-218
-171
-251
+10
+255
+176
+288
 immigrants-per-day
 immigrants-per-day
 0.0
@@ -400,10 +396,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-172
-150
-318
-183
+180
+185
+335
+218
 initial-PTR
 initial-PTR
 0.0
@@ -415,10 +411,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-172
-184
-318
-217
+180
+220
+335
+253
 cost-of-giving
 cost-of-giving
 0.0
@@ -430,10 +426,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-172
-218
-318
-251
+180
+255
+335
+288
 gain-of-receiving
 gain-of-receiving
 0.0
@@ -479,10 +475,10 @@ NIL
 1
 
 PLOT
-6
-323
-318
-525
+10
+360
+335
+562
 Strategy Counts
 time
 count
@@ -517,10 +513,10 @@ NIL
 1
 
 SLIDER
-5
-252
-318
-285
+10
+290
+335
+323
 immigrant-chance-cooperate-with-same
 immigrant-chance-cooperate-with-same
 0.0
@@ -532,10 +528,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-5
-286
-318
-319
+10
+324
+335
+357
 immigrant-chance-cooperate-with-different
 immigrant-chance-cooperate-with-different
 0.0
@@ -559,7 +555,7 @@ Horizontal lines are altruists - cooperate with everyone\nVertical lines are eth
 @#$#@#$#@
 ## ACKNOWLEDGEMENT
 
-This model is an alternate visualization of the Ethnocentrism model in the Social Sciences section of the NetLogo models library. It uses visualization techniques as recommended in the paper: 
+This model is an alternate visualization of the Ethnocentrism model in the Social Sciences section of the NetLogo models library. It uses visualization techniques as recommended in the paper:
 
 Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation, JASSS, 12(2), 1.
 http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuidelinesABMViz.pdf
@@ -568,10 +564,10 @@ http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuideline
 
 This model, due to Robert Axelrod and Ross A. Hammond, suggests that "ethnocentric" behavior can evolve under a wide variety of conditions, even when there are no native "ethnocentrics" and no way to differentiate between agent types.  Agents compete for limited space via Prisoner Dilemma's type interactions. "Ethnocentric" agents treat agents within their group more beneficially than those outside their group.  The model includes a mechanism for inheritance (genetic or cultural) of strategies.
 
-In this alternate visualization of the model, different shapes are used to con=mbat visual interference, such as color-over-shape, hue- on-form and hue-on-texture interferences. 
+In this alternate visualization of the model, different shapes are used to combat visual interference, such as color-over-shape, hue- on-form and hue-on-texture interferences.
 There are several key features to distinguish in this visualization, mainly shape and color. The original model contains four shapes: squares, hollow squares, circles, and hollow circles. In this model, they were replaced by crosses, dots, horizontal lines, and vertical lines. It was originally unfeasible to group the squares (filled square and hollow squares) due to the difference of luminosity between the hollow and filled shapes. The creation of textures allows the viewer to distinguish color and shape independently. However, This redesign does not solve all the issues of this model, it still suffers from other interferences such as hue on texture.
 
-In the original model it is very hard to group the agents by shape or color due to color-over-shape and hue-on-form interference. In this alternate visualization, very distinct shapes with  relatively equal “ink area” were chosen to make it easier to discriminate by shape or color.
+In the original model it is very hard to group the agents by shape or color due to color-over-shape and hue-on-form interference. In this alternate visualization, very distinct shapes with relatively equal “ink area” were chosen to make it easier to discriminate by shape or color.
 
 ## HOW IT WORKS
 
@@ -610,7 +606,7 @@ DC --- People who only cooperate with people of different types
 
 ## THINGS TO NOTICE
 
-Agents appear as horizontal lines if they are altruists (CC). They appear as vertical lines if they are ethnocentric (CD). They appear as crosses if they are cosmopolitan (DC). They appear as dots if they are egoists (DD). 
+Agents appear as horizontal lines if they are altruists (CC). They appear as vertical lines if they are ethnocentric (CD). They appear as crosses if they are cosmopolitan (DC). They appear as dots if they are egoists (DD).
 
 Observe the interaction along the edge of a group of ethnocentric agents, and non-ethnocentric agents.  What behaviors do you see?  Is one more stable?  Does one expand into the other group?
 
@@ -652,30 +648,9 @@ The alternate visualization is based on:
  Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation, JASSS, 12(2), 1.
 http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuidelinesABMViz.pdf .
 
-This work is based on the visualization guidlines found in:
+This work is based on the visualization guidelines found in:
 Healy, C. (2006). Perception in Visualization.
 http://www.csc.ncsu.edu/faculty/healey/PP/index.html
-
-
-## HOW TO CITE
-
-If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
-
-* Wilensky, U. (2003).  NetLogo Ethnocentrism Alternate Visualization model.  http://ccl.northwestern.edu/netlogo/models/EthnocentrismAlternateVisualization.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-
-* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-
-## COPYRIGHT AND LICENSE
-
-Copyright 2003 Uri Wilensky.
-
-![CC BY-NC-SA 3.0](http://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png)
-
-This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
-
-Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
-This model was created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
 @#$#@#$#@
 default
 true
@@ -1470,5 +1445,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
