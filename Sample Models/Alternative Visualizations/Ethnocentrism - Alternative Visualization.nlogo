@@ -18,18 +18,31 @@ globals [
   coopother             ;; how many interactions this turn were cooperating with a different color
   coopother-agg         ;; how many interactions throughout the run were cooperating with a different color
   defother              ;; how many interactions this turn were defecting with a different color
-  defother-agg          ;; how many interactions throughout the run were defecting with a different color 
+  defother-agg          ;; how many interactions throughout the run were defecting with a different color
   last100defother       ;; defother for the last 100 ticks
-  last100cc             ;; how many cooperate-cooperate genotypes have their been in the last 100 ticks
-  last100cd             ;; how many cooperate-defect genotypes have their been in the last 100 ticks
-  last100dc             ;; how many defect-cooperate genotypes have their been in the last 100 ticks
-  last100dd             ;; how many defect-defect genotypes have their been in the last 100 ticks
-  last100consist-ethno  ;; how many interactions consistent with ethnocentrism in the last 100 ticks 
+  last100cc             ;; how many cooperate-cooperate genotypes have there been in the last 100 ticks
+  last100cd             ;; how many cooperate-defect genotypes have there been in the last 100 ticks
+  last100dc             ;; how many defect-cooperate genotypes have there been in the last 100 ticks
+  last100dd             ;; how many defect-defect genotypes have there been in the last 100 ticks
+  last100consist-ethno  ;; how many interactions consistent with ethnocentrism in the last 100 ticks
   last100coop           ;; how many interactions have been cooperation in the last 100 ticks
 ]
 
 to setup-empty
   clear-all
+  initialize-variables
+  reset-ticks
+end
+
+;; creates a world with an agent on each patch
+to setup-full
+  clear-all
+  initialize-variables
+  ask patches [ create-turtle ]
+  reset-ticks
+end
+
+to initialize-variables
   ;; initialize all the variables
   set meetown 0
   set meetown-agg 0
@@ -54,13 +67,6 @@ to setup-empty
   set last100meetother []
   set last100meet []
   set last100coop []
-  reset-ticks
-end
-
-;; creates a world with an agent on each patch
-to setup-full
-  setup-empty
-  ask patches [ create-turtle ]
 end
 
 ;; creates a new agent in the world
@@ -96,28 +102,15 @@ to go
   immigrate       ;; new agents immigrate into the world
 
   ;; reset the probability to reproduce
-  without-interruption [ ask turtles [ set PTR initial-PTR ] ]
+  ask turtles [ set PTR initial-PTR ]
+
   ;; have all of the agents interact with other agents if they can
-  without-interruption [ ask turtles [ interact ] ]
-  ;; now they reproduce; without-interruption is used so agents
-  ;; go one at a time
-  without-interruption [ ask turtles [ reproduce ] ]
+  ask turtles [ interact ]
+  ;; now they reproduce
+  ask turtles [ reproduce ]
   death           ;; kill some of the agents
   update-stats    ;; update the states for the aggregate and last 100 ticks
-  my-update-plots
   tick
-end
-
-;; draws the appropriate results on the plots
-to my-update-plots
-  set-current-plot-pen "CC"  ;; altruists
-  plotxy ticks count turtles with [shape = "a"]
-  set-current-plot-pen "CD"  ;; ethnocentric
-  plotxy ticks count turtles with [shape = "c"] 
-  set-current-plot-pen "DC"  ;; cosmopolitans
-  plotxy ticks count turtles with [shape = "v"]  
-  set-current-plot-pen "DD"  ;; selfish
-  plotxy ticks count turtles with [shape = "t"] 
 end
 
 ;; random individuals enter the world on empty cells
@@ -146,7 +139,7 @@ to interact  ;; turtle procedure
       if [cooperate-with-same?] of myself [
         set coopown coopown + 1
         set coopown-agg coopown-agg + 1
-        ask myself [set PTR PTR - cost-of-giving]
+        ask myself [ set PTR PTR - cost-of-giving ]
         set PTR PTR + gain-of-receiving
       ]
     ]
@@ -159,14 +152,14 @@ to interact  ;; turtle procedure
       ifelse [cooperate-with-different?] of myself [
         set coopother coopother + 1
         set coopother-agg coopother-agg + 1
-        ask myself [set PTR PTR - cost-of-giving]
+        ask myself [ set PTR PTR - cost-of-giving ]
         set PTR PTR + gain-of-receiving
       ]
       [
         set defother defother + 1
         set defother-agg defother-agg + 1
       ]
-    ]     
+    ]
   ]
 end
 
@@ -180,8 +173,7 @@ to reproduce  ;; turtle procedure
       ;; if the location exists hatch a copy of the current turtle in the new location
       ;;  but mutate the child
       hatch 1 [
-        setxy [pxcor] of destination
-              [pycor] of destination
+        move-to destination
         mutate
       ]
     ]
@@ -215,28 +207,35 @@ to death
   ]
 end
 
+
 ;; make sure the shape matches the strategy
 to update-shape
-  ;; if the agent cooperates with same they are a circle
+
   ifelse cooperate-with-same? [
     ifelse cooperate-with-different?
-      [ set shape "a" ]    ;; filled in circle (altruist)
-      [ set shape "c" ]  ;; empty circle (ethnocentric)
+      ;; if the agent cooperates with same and difeerent, it is an altruist, and gets the "a" shape
+      [ set shape "hline" ]    ;; altruist
+      ; if the agent cooperates with same but not with different, it is ethnocentric, and gets the "c" shape
+      [ set shape "vline" ]  ;; ethnocentric
   ]
-  ;; if the agent doesn't cooperate with same they are a square    
+      
   [
     ifelse cooperate-with-different?
-      [ set shape "v" ]    ;; filled in square (cosmopolitan)
-      [ set shape "t" ]  ;; empty square (egoist)
+    ;; if the agent doesn't cooperate with same but does cooperate with different, it is cosmopolitan and gets the "v" shape
+      [ set shape "cross 2" ]    ;; cosmopolitan
+      ; if the agent doesn't cooperate with same or different, it is an egoist and gets the "t" shape
+      [ set shape "dot" ]  ;; egoist
   ]
 end
 
+
+
 ;; this routine calculates a moving average of some stats over the last 100 ticks
 to update-stats
-  set last100dd        shorten lput (count turtles with [shape = "t"]) last100dd
-  set last100cc        shorten lput (count turtles with [shape = "a"]) last100cc 
-  set last100cd        shorten lput (count turtles with [shape = "c"]) last100cd 
-  set last100dc        shorten lput (count turtles with [shape = "v"]) last100dc
+  set last100dd        shorten lput (count turtles with [shape = "square 2"]) last100dd
+  set last100cc        shorten lput (count turtles with [shape = "circle"]) last100cc
+  set last100cd        shorten lput (count turtles with [shape = "circle 2"]) last100cd
+  set last100dc        shorten lput (count turtles with [shape = "square"]) last100dc
   set last100coopown   shorten lput coopown last100coopown
   set last100defother  shorten lput defother last100defother
   set last100meetown   shorten lput meetown last100meetown
@@ -323,15 +322,19 @@ end
 to-report last100coop-percent
   report sum last100coop / max list 1 sum last100meet
 end
+
+
+; Copyright 2003 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-323
-10
-741
-449
+342
+22
+811
+512
 -1
 -1
-8.0
+9.0
 1
 10
 1
@@ -358,7 +361,7 @@ SLIDER
 183
 mutation-rate
 mutation-rate
-0
+0.0
 1.0
 0.0050
 0.0010
@@ -373,8 +376,8 @@ SLIDER
 217
 death-rate
 death-rate
-0
-1
+0.0
+1.0
 0.1
 0.05
 1
@@ -388,10 +391,10 @@ SLIDER
 251
 immigrants-per-day
 immigrants-per-day
-0
-100
+0.0
+100.0
 1
-1
+1.0
 1
 NIL
 HORIZONTAL
@@ -403,8 +406,8 @@ SLIDER
 183
 initial-PTR
 initial-PTR
-0
-1
+0.0
+1.0
 0.12
 0.01
 1
@@ -418,8 +421,8 @@ SLIDER
 217
 cost-of-giving
 cost-of-giving
-0
-1
+0.0
+1.0
 0.01
 0.01
 1
@@ -433,8 +436,8 @@ SLIDER
 251
 gain-of-receiving
 gain-of-receiving
-0
-1
+0.0
+1.0
 0.03
 0.01
 1
@@ -442,10 +445,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-20
-37
-128
-70
+19
+24
+127
+57
 setup empty
 setup-empty
 NIL
@@ -459,10 +462,10 @@ NIL
 1
 
 BUTTON
-221
-37
-294
-70
+220
+24
+293
+57
 NIL
 go
 T
@@ -491,16 +494,16 @@ true
 true
 "" ""
 PENS
-"CC" 1.0 0 -10899396 true "" ""
-"CD" 1.0 0 -2674135 true "" ""
-"DC" 1.0 0 -4079321 true "" ""
-"DD" 1.0 0 -16777216 true "" ""
+"CC" 1.0 0 -10899396 true "" "plotxy ticks count turtles with [shape = \"circle\"]"
+"CD" 1.0 0 -2674135 true "" "plotxy ticks count turtles with [shape = \"circle 2\"]"
+"DC" 1.0 0 -4079321 true "" "plotxy ticks count turtles with [shape = \"square\"]"
+"DD" 1.0 0 -16777216 true "" "plotxy ticks count turtles with [shape = \"square 2\"]"
 
 BUTTON
-130
-37
-219
-70
+129
+24
+218
+57
 setup full
 setup-full
 NIL
@@ -520,8 +523,8 @@ SLIDER
 285
 immigrant-chance-cooperate-with-same
 immigrant-chance-cooperate-with-same
-0
-1
+0.0
+1.0
 0.5
 0.01
 1
@@ -535,7 +538,7 @@ SLIDER
 319
 immigrant-chance-cooperate-with-different
 immigrant-chance-cooperate-with-different
-0
+0.0
 1.0
 0.5
 0.01
@@ -543,23 +546,36 @@ immigrant-chance-cooperate-with-different
 NIL
 HORIZONTAL
 
+TEXTBOX
+4
+80
+334
+182
+Horizontal lines are altruists - cooperate with everyone\nVertical lines are ethnocentric - cooperate with same, \nnot with different\nCrosses are cosmopolitan - cooperate with different,\n not with same\nDots are egoists - cooperate with noone\n
+11
+0.0
+0
+
 @#$#@#$#@
 ## ACKNOWLEDGEMENT
 
 This model is an alternate visualization of the Ethnocentrism model in the Social Sciences section of the NetLogo models library. It uses visualization techniques as recommended in the paper: 
 
 Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation, JASSS, 12(2), 1.
-
+http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuidelinesABMViz.pdf
 
 ## WHAT IS IT?
 
 This model, due to Robert Axelrod and Ross A. Hammond, suggests that "ethnocentric" behavior can evolve under a wide variety of conditions, even when there are no native "ethnocentrics" and no way to differentiate between agent types.  Agents compete for limited space via Prisoner Dilemma's type interactions. "Ethnocentric" agents treat agents within their group more beneficially than those outside their group.  The model includes a mechanism for inheritance (genetic or cultural) of strategies.
 
-The visualuzation aims to better show how groups form based on both color and on cooperative strategy.
+In this alternate visualization of the model, different shapes are used to con=mbat visual interference, such as color-over-shape, hue- on-form and hue-on-texture interferences. 
+There are several key features to distinguish in this visualization, mainly shape and color. The original model contains four shapes: squares, hollow squares, circles, and hollow circles. In this model, they were replaced by crosses, dots, horizontal lines, and vertical lines. It was originally unfeasible to group the squares (filled square and hollow squares) due to the difference of luminosity between the hollow and filled shapes. The creation of textures allows the viewer to distinguish color and shape independently. However, This redesign does not solve all the issues of this model, it still suffers from other interferences such as hue on texture.
+
+In the original model it is very hard to group the agents by shape or color due to color-over-shape and hue-on-form interference. In this alternate visualization, very distinct shapes with  relatively equal “ink area” were chosen to make it easier to discriminate by shape or color.
 
 ## HOW IT WORKS
 
-Each agent has three traits: a) color, b) whether they cooperate with same colored agents, and c) whether they cooperate with different colored agents.  An "ethnocentric" agent is one which cooperates with same colored agents, but does not cooperate with different colored agents. Ethnocentric agents are represented as triangles. An "altruist" cooperates with all agents, while an "egoist" cooperates with no one.  A "cosmopolitan" cooperates with agents of a different color but not of their own color.
+Each agent has three traits: a) color, b) whether they cooperate with same colored agents, and c) whether they cooperate with different colored agents.  An "ethnocentric" agent is one which cooperates with same colored agents, but does not cooperate with different colored agents. An "altruist" cooperates with all agents, while an "egoist" cooperates with no one.  A "cosmopolitan" cooperates with agents of a different color but not of their own color.
 
 At each time step, the following events occur:
 
@@ -567,7 +583,7 @@ At each time step, the following events occur:
 
 2. Agents start with an INITIAL-PTR (Potential-To-Reproduce) chance of reproducing.  Each pair of adjacent agents interact in a one-move Prisoner's Dilemma in which each chooses whether or not to help the other.  They either gain, or lose some of their potential to reproduce.
 
-3. In random order, each agent is given a chance to reproduce.  Offspring have the same traits as their parents, with a MUTATION-RATE chance of each trait mutating.  Agents are only allowed to reproduce if their is an empty space next to them.  Each agent's birth-rate is reset to the INITIAL-PTR.
+3. In random order, each agent is given a chance to reproduce.  Offspring have the same traits as their parents, with a MUTATION-RATE chance of each trait mutating.  Agents are only allowed to reproduce if there is an empty space next to them.  Each agent's birth-rate is reset to the INITIAL-PTR.
 
 4. The agent has a DEATH-RATE chance of dying, making room for future offspring and immigrants.
 
@@ -585,13 +601,20 @@ IMMIGRANT-CHANCE-COOPERATE-WITH-SAME indicates the probability that an immigrati
 
 IMMIGRANT-CHANCE-COOPERATE-WITH-DIFFERENT indicates the probability that an immigrating agent will have the COOPERATE-WITH-DIFFERENT? variable set to true.
 
+The STRATEGY COUNTS plot tracks the number of agents that utilize a given cooperation strategy:
+
+CC --- People who cooperate with everyone
+CD --- People who cooperate only with people of the same type
+DD --- People who do not cooperate with anyone
+DC --- People who only cooperate with people of different types
+
 ## THINGS TO NOTICE
 
-Agents appear as circles if they cooperate with the same color.  They are filled in if they also cooperate with a different color (altruists) or empty if they do not (ethnocentrics).  Agents are squares if they do not cooperate with the same color.  The agents are filled in if they cooperate with a different color (cosmopolitans) or empty if they do not (egoists).
+Agents appear as horizontal lines if they are altruists (CC). They appear as vertical lines if they are ethnocentric (CD). They appear as crosses if they are cosmopolitan (DC). They appear as dots if they are egoists (DD). 
 
 Observe the interaction along the edge of a group of ethnocentric agents, and non-ethnocentric agents.  What behaviors do you see?  Is one more stable?  Does one expand into the other group?
 
-Observer the STRATEGY COUNTS plot.  Does one strategy occur more than others?  What happens when we change the model?
+Observe the STRATEGY COUNTS plot.  Does one strategy occur more than others?  What happens when we change the model?
 
 ## THINGS TO TRY
 
@@ -615,18 +638,44 @@ To ensure fairness, the agents should run in random order.  Agentsets in NetLogo
 
 ## RELATED MODELS
 
-Segregation  
-Prisoner's Dilemma
+ * Ethnocentrism
+ * Segregation
+ * PD Basic
 
 ## CREDITS AND REFERENCES
 
 This model is a NetLogo version of the ethnocentrism model presented by Robert Axelrod at Northwestern University at the NICO (Northwestern Institute on Complex Systems) conference on October 25th, 2003.
 
-See also Ross A. Hammond and Robert Axelrod, The Evolution of Ethnocentrism, http://www-personal.umich.edu/~axe/research/Hammond-Ax_Ethno.pdf
+See also Ross A. Hammond and Robert Axelrod, The Evolution of Ethnocentrism, http://www-personal.umich.edu/~axe/research/AxHamm_Ethno.pdf
 
-To refer to this model in academic publications, please use:  Wilensky, U. (2006).  NetLogo Ethnocentrism model.  http://ccl.northwestern.edu/netlogo/models/Ethnocentrism.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+The alternate visualization is based on:
+ Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation, JASSS, 12(2), 1.
+http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuidelinesABMViz.pdf .
 
-In other publications, please use:  Copyright 2006 Uri Wilensky.  All rights reserved.  See http://ccl.northwestern.edu/netlogo/models/Ethnocentrism for terms of use.
+This work is based on the visualization guidlines found in:
+Healy, C. (2006). Perception in Visualization.
+http://www.csc.ncsu.edu/faculty/healey/PP/index.html
+
+
+## HOW TO CITE
+
+If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
+
+* Wilensky, U. (2003).  NetLogo Ethnocentrism Alternate Visualization model.  http://ccl.northwestern.edu/netlogo/models/EthnocentrismAlternateVisualization.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2003 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This model was created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
 @#$#@#$#@
 default
 true
@@ -716,12 +765,23 @@ Polygon -7500403 true true 200 193 197 249 179 249 177 196 166 187 140 189 93 19
 Polygon -7500403 true true 73 210 86 251 62 249 48 208
 Polygon -7500403 true true 25 114 16 195 9 204 23 213 25 200 39 123
 
+cross 2
+false
+14
+Polygon -16777216 true true 315 285 270 330 -30 15 15 -30
+Polygon -16777216 true true -15 285 30 330 330 15 285 -30
+
 cylinder
 false
 0
 Circle -7500403 true true 0 0 300
 
 dot
+false
+0
+Circle -7500403 true true 90 90 120
+
+dot2
 false
 0
 Circle -7500403 true true 90 90 120
@@ -784,6 +844,12 @@ Circle -16777216 true false 113 68 74
 Polygon -10899396 true false 189 233 219 188 249 173 279 188 234 218
 Polygon -10899396 true false 180 255 150 210 105 210 75 240 135 240
 
+hline
+false
+0
+Rectangle -7500403 true true 0 135 45 135
+Rectangle -7500403 true true 0 120 300 180
+
 house
 false
 0
@@ -807,17 +873,6 @@ line half
 true
 0
 Line -7500403 true 150 0 150 150
-
-link
-true
-0
-Line -7500403 true 150 0 150 300
-
-link direction
-true
-0
-Line -7500403 true 150 150 30 225
-Line -7500403 true 150 150 270 225
 
 pentagon
 false
@@ -927,6 +982,11 @@ false
 0
 Line -7500403 true 45 45 240 240
 Line -7500403 true 240 240 240 45
+
+vline
+false
+0
+Rectangle -7500403 true true 120 0 180 315
 
 wheel
 false
