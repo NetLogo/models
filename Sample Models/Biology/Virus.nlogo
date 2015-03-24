@@ -1,17 +1,15 @@
 turtles-own
   [ sick?        ;; if true, the turtle is infectious
     immune?      ;; if true, the turtle can't be infected
-    sick-time   ;; how long the turtle has been infectious
+    sick-time    ;; how long the turtle has been infectious
     age ]        ;; how many weeks old the turtle is
 
 globals
-[
-  %infected            ;; what % of the population is infectious
-  %immune              ;; what % of the population is immune
-  lifespan             ;; the average lifespan of a turtle
-  average-offspring    ;; the average number of offspring a turtle could have
-  carrying-capacity    ;; the number of turtles that can be in the world at one time
-]
+  [ %infected            ;; what % of the population is infectious
+    %immune              ;; what % of the population is immune
+    lifespan             ;; the average lifespan of a turtle
+    average-offspring    ;; the average number of offspring a turtle could have
+    carrying-capacity ]  ;; the number of turtles that can be in the world at one time
 
 ;; The setup is divided into three subroutines
 to setup
@@ -25,7 +23,9 @@ end
 ;; We create a variable number of turtles of which 10 are infectious,
 ;; and distribute them randomly
 to setup-turtles
-  ifelse person-shape? [set-default-shape turtles "person"] [set-default-shape turtles "circle"]
+  ifelse person-shape?
+    [ set-default-shape turtles "person" ]
+    [ set-default-shape turtles "circle" ]
   crt number-people
     [ setxy random-xcor random-ycor
       set age random lifespan
@@ -76,38 +76,34 @@ end
 
 to update-global-variables
   if count turtles > 0
-  [
-    set %infected (count turtles with [sick?]) / (count turtles) * 100
-    set %immune (count turtles with [immune?]) / (count turtles) * 100
-  ]
+    [ set %infected (count turtles with [ sick? ]) / (count turtles) * 100
+      set %immune (count turtles with [ immune? ]) / (count turtles) * 100 ]
 end
 
 ;;Turtle counting variables are advanced.
 to get-older
   ask turtles
-  [
-    set age age + 1
-    if sick?
-      [ set sick-time (sick-time + 1) ]
-    ;; Turtles die of old age once their age equals the
-    ;; lifespan (set at 100 in this model).
-    if age > lifespan
-      [ die ]
-  ]
+    [ set age age + 1
+      if sick?
+        [ set sick-time (sick-time + 1) ]
+      ;; Turtles die of old age once their age equals the
+      ;; lifespan (set at 100 in this model).
+      if age > lifespan
+        [ die ] ]
 end
 
 ;;Turtles move about at random.
 to move
   ask turtles
-  [ rt random 100
-    lt random 100
-    fd 1 ]
+    [ rt random 100
+      lt random 100
+      fd 1 ]
 end
 
 ;; If a turtle is sick, it infects other turtles on the same patch.
 ;; Immune turtles don't get sick.
 to infect
-  ask turtles with [sick?]
+  ask turtles with [ sick? ]
     [ ask other turtles-here with [ not immune? ]
         [ if (random-float 100) < infectiousness
             [ get-sick ] ] ]
@@ -116,11 +112,11 @@ end
 ;; Once the turtle has been sick long enough, it
 ;; either recovers (and becomes immune) or it dies.
 to recover
-   ask turtles with [sick?]
-     [ if (random sick-time) > (lifespan * (duration / 100))  ;; If the turtle has survived past the virus' duration, then
-         [ ifelse ((random-float 100) < chance-recover)        ;; either recover or die
-             [ become-immune ]
-             [ die ] ] ]
+  ask turtles with [ sick? ]
+    [ if (random sick-time) > (lifespan * (duration / 100))  ;; If the turtle has survived past the virus' duration, then
+       [ ifelse ((random-float 100) < chance-recover)        ;; either recover or die
+          [ become-immune ]
+          [ die ] ] ]
 end
 
 ;; If there are less turtles than the carrying-capacity
