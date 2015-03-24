@@ -347,7 +347,7 @@ Population density affects how often infected, immune and susceptible individual
 
 ### Population turnover
 
-As individuals die, some who die will be infected, some will be susceptible and some will be immune.  All the new individuals who are born, replacing those who die, will be susceptible.  People may die from the virus, the chances of which are determined by the slider CHANCE-RECOVER, or they may die of old age.  
+As individuals die, some who die will be infected, some will be susceptible and some will be immune.  All the new individuals who are born, replacing those who die, will be susceptible.  People may die from the virus, the chances of which are determined by the slider CHANCE-RECOVER, or they may die of old age.
 
 In this model, people die of old age at the age of approximately 100 years.  Reproduction rate is constant in this model.  Each turn, if the carrying capacity hasn't been reqched, every healthy individual has a chance to reproduce.  That chance is set so that each person will on average reproduce four times if they live 100 years.
 
@@ -405,7 +405,7 @@ Build a similar model simulating viral infection of a non-human host with very d
 Add a slider controlling how long immunity lasts so that immunity is not perfect or eternal.
 
 ## VISUALIZATION
-The circle visualization of the model comes from guidleines presneted in 
+The circle visualization of the model comes from guidleines presneted in
 Kornhauser, D., Wilensky, U., & Rand, W. (2009). http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuidelinesABMViz.pdf .
 At the lowest level, perceptual impediments arise when we exceed the limitations of our low-level visual system. Visual features that are difficult to distinguish can disable our pre-attentive processing capabilities. Pre-attentive processing can be hindered by other cognitive phenomena such as interference between visual features (Healey 2006).
 
@@ -418,7 +418,7 @@ Does the circle visualization make it easier for you to see what is happening?
 * Virus on a Network
 
 ## CREDITS and REFERENCES
-This model can show an alternate visualization of the Virus model using circles to represent the people. It uses visualization techniques as recommended in the paper: 
+This model can show an alternate visualization of the Virus model using circles to represent the people. It uses visualization techniques as recommended in the paper:
 
 Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation, JASSS, 12(2), 1.
 @#$#@#$#@
