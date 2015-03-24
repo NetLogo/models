@@ -47,7 +47,7 @@ to set-initial-temperatures  ;; Patch Procedure
 end
 
 ;; Draws the Color Scale Legend
-to draw-legend  
+to draw-legend
   let x (1 + min-pxcor)
   repeat 3
   [
@@ -226,7 +226,7 @@ alpha
 alpha
 0.0010
 10.0
-0.2034
+0.00128
 1.0E-4
 1
 NIL
@@ -383,7 +383,7 @@ CHOOSER
 material-type
 material-type
 "wood" "stone" "iron" "aluminum" "silver" "other"
-2
+0
 
 CHOOSER
 6
@@ -396,11 +396,11 @@ color-scheme
 3
 
 TEXTBOX
-156
-72
-306
-128
-Choose a material and then update alpha based on that material, or set alpha directly from the slider.
+151
+62
+310
+136
+Choose a material and then press UPDATE ALPHA based on that material, or set ALPHA directly from the slider.
 11
 0.0
 1
@@ -408,7 +408,7 @@ Choose a material and then update alpha based on that material, or set alpha dir
 @#$#@#$#@
 ##ACKNOWLEDGEMENT
 
-Ths model is an adaptation of the Heat Diffusion model from the Chemistry and Physics section of the NetLogo Models Library. It uses visualization techniques as recommended in the paper: 
+Ths model is an adaptation of the Heat Diffusion model from the Chemistry and Physics section of the NetLogo Models Library. It uses visualization techniques as recommended in the paper:
 
 Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation, JASSS, 12(2), 1.
 
@@ -416,7 +416,7 @@ Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent bas
 
 This model simulates transient and steady-state temperature distribution of a thin plate.
 
-This visualization is based on a more intuitive gradient of heat than the original model.
+This version of the model uses a more intuitive visualization of the gradient of heat than the original model.
 
 The View shows a square thin plate as viewed from above.  The plate is thermally isolated on the two faces parallel to the view such that heat can flow only in and out from the perimeter of the plate and not into or out of the world.  Heat is kept constant at the edges.  As the simulation runs, heat is transmitted from warmer parts of the plate to cooler parts of the plate as shown by the varying color of the plate.  Therefore, the temperature of the plate begins to change immediately and possibly differently at different locations, gradually converging to a stable state.  Overall, the temperature distribution over the plate is a function of time and location.  In addition to this simple use of the model, you are encouraged to control various paramaters, such as the temperature of each edge edge of the plate and of the center of the plate before--and even while--the model is running.
 
@@ -439,22 +439,22 @@ Initialize the plate and edges to have temperatures that equal their respective 
 
 ## HOW TO USE IT
 
-There are five temperature sliders which enable users to set four fixed edge temperatures and one initial plate temperature:  
--- TOP-TEMP - Top edge temperature  
--- BOTTOM-TEMP - Bottom edge temperature  
--- INITIAL-PLATE-TEMP - Initial plate temperature  
--- LEFT-TEMP - Left edge temperature  
+There are five temperature sliders which enable users to set four fixed edge temperatures and one initial plate temperature:
+-- TOP-TEMP - Top edge temperature
+-- BOTTOM-TEMP - Bottom edge temperature
+-- INITIAL-PLATE-TEMP - Initial plate temperature
+-- LEFT-TEMP - Left edge temperature
 -- RIGHT-TEMP - Right edge temperature
 
-There is a slider and a chooser that govern the thermal diffusivity of the plate. Selecting a material in the chooser, then pressing the UPDATE ALPHA button will set the value of ALPHA based on the material selected: 
--- ALPHA - The alpha constant of thermal diffusivity 
--- MATERIAL-TYPE - The value of the chooser is a material from the above chart.  You must press UPDATE ALPHA for this to change the value of ALPHA.  
+There is a slider and a chooser that govern the thermal diffusivity of the plate. Selecting a material in the chooser, then pressing the UPDATE ALPHA button will set the value of ALPHA based on the material selected:
+-- ALPHA - The alpha constant of thermal diffusivity
+-- MATERIAL-TYPE - The value of the chooser is a material from the above chart.  You must press UPDATE ALPHA for this to change the value of ALPHA.
 
 
-There are four buttons with the following functions:  
--- SETUP - Initializes the model  
--- GO - Runs the simulation indefinitely  
--- GO ONCE - Runs the simulation for 1 time step  
+There are four buttons with the following functions:
+-- SETUP - Initializes the model
+-- GO - Runs the simulation indefinitely
+-- GO ONCE - Runs the simulation for 1 time step
 -- UPDATE ALPHA - press this if you want to set ALPHA to a preset value based on the material selected by the MATERIAL-TYPE chooser
 
 VISUALIZATION
@@ -484,6 +484,10 @@ Keep track of the units:
 <tr><td>diffusivity<td>square centimeters per second
 </table>
 
+How do the different color schemes map to the gradient of heat?
+The palette extension enables us to use divergent color schemes.
+
+
 ## THINGS TO TRY
 
 Try different materials to observe the heat transfer speed.  How does this compare to physical experiments?
@@ -502,12 +506,21 @@ Add a slider to alter this thickness.
 
 Try modeling derivative or combined boundary conditions.
 
+## NETLOGO  FEATURES
+
+The bundled palette extension is used to create color schemes from the widely-used ColorBrewer standard (http://colorbrewer.org). Here we use a divergent spectral color scheme.
+
+
 ## CREDITS AND REFERENCES
 
 Thanks to Weiguo Yang for his work on this model.
 
 The visualizations of the plate are described in:
-Kornhauser, D,  Wilensky, U. & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation, JASSS, 12(2), 1.
+Kornhauser, D.,  Wilensky, U. & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation, JASSS, 12(2), 1.
+http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuidelinesABMViz.pdf .
+
+The palette extension uses the ColorBrewer color schemes (Harrower & Brewer 2003). It enables  convenient selection and mapping of ColorBrewer Schemes in NetLogo.
+The ColorBrewer webpage (http://colorbrewer.org) shows the different color schemes.
 @#$#@#$#@
 default
 true
@@ -792,7 +805,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2-RC3
+NetLogo 5.1.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
