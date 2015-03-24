@@ -174,10 +174,10 @@ to update-alpha
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-290
-120
-555
-406
+307
+145
+572
+431
 25
 25
 5.0
@@ -201,10 +201,10 @@ ticks
 30.0
 
 SLIDER
-5
-90
-140
-123
+0
+171
+135
+204
 alpha
 alpha
 0.0010
@@ -216,25 +216,25 @@ NIL
 HORIZONTAL
 
 SLIDER
-345
-80
-500
-113
+349
+103
+504
+136
 top-temp
 top-temp
 1.0
 100.0
-84
+81
 1.0
 1
 NIL
 HORIZONTAL
 
 SLIDER
-560
-185
-593
-340
+577
+210
+610
+365
 right-temp
 right-temp
 1.0
@@ -246,10 +246,10 @@ NIL
 VERTICAL
 
 SLIDER
-345
-410
-505
-443
+349
+433
+509
+466
 bottom-temp
 bottom-temp
 1.0
@@ -293,15 +293,15 @@ NIL
 1
 
 SLIDER
-250
-190
-283
-345
+267
+215
+300
+370
 left-temp
 left-temp
 1.0
 100.0
-1
+3
 1.0
 1
 NIL
@@ -342,10 +342,10 @@ NIL
 1
 
 BUTTON
-145
-90
-243
-123
+160
+173
+258
+206
 Update Alpha
 update-alpha
 NIL
@@ -359,14 +359,24 @@ NIL
 1
 
 CHOOSER
-5
-130
-140
-175
+3
+119
+138
+164
 material-type
 material-type
 "wood" "stone" "iron" "aluminum" "silver" "other"
 3
+
+TEXTBOX
+155
+90
+292
+163
+Choose a material and then press UPDATE ALPHA based on that material, or set ALPHA directly from the slider.
+11
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -738,7 +748,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.2-RC3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
