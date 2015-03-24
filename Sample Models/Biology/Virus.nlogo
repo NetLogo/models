@@ -1,7 +1,7 @@
 turtles-own
   [ sick?        ;; if true, the turtle is infectious
     immune?      ;; if true, the turtle can't be infected
-    sick-count   ;; how long the turtle has been infectious
+    sick-time   ;; how long the turtle has been infectious
     age ]        ;; how many weeks old the turtle is
 
 globals
@@ -25,11 +25,11 @@ end
 ;; We create a variable number of turtles of which 10 are infectious,
 ;; and distribute them randomly
 to setup-turtles
-  set-default-shape turtles "person"
-  crt people
+  ifelse person-shape? [set-default-shape turtles "person"] [set-default-shape turtles "circle"]
+  crt number-people
     [ setxy random-xcor random-ycor
       set age random lifespan
-      set sick-count 0
+      set sick-time 0
       set immune? false
       set size 1.5  ;; easier to see
       get-healthy ]
@@ -46,20 +46,21 @@ end
 to get-healthy ;; turtle procedure
   set sick? false
   set immune? false
-  set sick-count 0
+  set sick-time 0
   set color green
 end
 
 to become-immune ;; turtle procedure
   set sick? false
-  set sick-count 0
+  set sick-time 0
   set immune? true
   set color gray
 end
 
+;; This sets up basic constants of the model. These can be foregrounded as sliders
 to setup-constants
   set lifespan 100
-  set carrying-capacity 750
+  set carrying-capacity 500
   set average-offspring 4
 end
 
@@ -87,7 +88,7 @@ to get-older
   [
     set age age + 1
     if sick?
-      [ set sick-count (sick-count + 1) ]
+      [ set sick-time (sick-time + 1) ]
     ;; Turtles die of old age once their age equals the
     ;; lifespan (set at 100 in this model).
     if age > lifespan
@@ -116,7 +117,7 @@ end
 ;; either recovers (and becomes immune) or it dies.
 to recover
    ask turtles with [sick?]
-     [ if (random sick-count) > (lifespan * (duration / 100))  ;; If the turtle has survived past the virus' duration, then
+     [ if (random sick-time) > (lifespan * (duration / 100))  ;; If the turtle has survived past the virus' duration, then
          [ ifelse ((random-float 100) < chance-recover)        ;; either recover or die
              [ become-immune ]
              [ die ] ] ]
@@ -127,7 +128,7 @@ end
 ;; The probability of reproduction depends on average number
 ;;  of offspring per life.  In this model it is 4 per life (e.g.
 ;;  4 per 100 weeks.  The chance, therefore, for a turtle to
-;;  reproduce at any given turn is 0.04 (if the population
+;;  reproduce at any given tick is 0.04 (if the population
 ;;  is below carrying-capacity).
 to reproduce
   ask turtles with [not sick?]
@@ -246,10 +247,10 @@ NIL
 1
 
 PLOT
-6
-255
-258
-419
+5
+308
+257
+472
 Populations
 weeks
 people
@@ -271,10 +272,10 @@ SLIDER
 27
 225
 60
-people
-people
+number-people
+number-people
 10
-300
+carrying-capacity
 150
 1
 1
@@ -282,10 +283,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-20
-208
-95
-253
+18
+261
+93
+306
 NIL
 %infected
 1
@@ -293,10 +294,10 @@ NIL
 11
 
 MONITOR
-96
-208
-170
-253
+95
+261
+169
+306
 NIL
 %immune
 1
@@ -305,21 +306,34 @@ NIL
 
 MONITOR
 171
-208
+262
 245
-253
+307
 years
 ticks / 52
 1
 1
 11
 
+SWITCH
+65
+217
+220
+250
+person-shape?
+person-shape?
+0
+1
+-1000
+
 @#$#@#$#@
+
 ## WHAT IS IT?
 
 This model simulates the transmission and perpetuation of a virus in a human population.
 
 Ecological biologists have suggested a number of factors which may influence the survival of a directly transmitted virus within a population. (Yorke, et al. "Seasonality and the requirements for perpetuation and eradication of viruses in populations." Journal of Epidemiology, volume 109, pages 103-123)
+
 
 ## HOW IT WORKS
 
@@ -333,7 +347,9 @@ Population density affects how often infected, immune and susceptible individual
 
 ### Population turnover
 
-As individuals die, some who die will be infected, some will be susceptible and some will be immune.  All the new individuals who are born, replacing those who die, will be susceptible.  People may die from the virus, the chances of which are determined by the slider CHANCE-RECOVER, or they may die of old age.  In this model, people die of old age at the age of approximately 27 years.  Reproduction rate is constant in this model.  Each turn, every healthy individual has a chance to reproduce.  That chance is set so that each person will on average reproduce four times if they live 27 years.
+As individuals die, some who die will be infected, some will be susceptible and some will be immune.  All the new individuals who are born, replacing those who die, will be susceptible.  People may die from the virus, the chances of which are determined by the slider CHANCE-RECOVER, or they may die of old age.  
+
+In this model, people die of old age at the age of approximately 100 years.  Reproduction rate is constant in this model.  Each turn, if the carrying capacity hasn't been reqched, every healthy individual has a chance to reproduce.  That chance is set so that each person will on average reproduce four times if they live 100 years.
 
 ### Degree of immunity
 
@@ -341,11 +357,14 @@ If a person has been infected and recovered, how immune are they to the virus?  
 
 ### Infectiousness (or transmissibility)
 
-How easily does the virus spread?  Some viruses with which we are familiar spread very easily.  Some viruses spread from the smallest contact every time.  Others (the HIV virus, which is responsible for AIDS, for example) require significant contact, perhaps many times, before the virus is transmitted.  In this model, infectiousness is determined by a slider.
+How easily does the virus spread?  Some viruses with which we are familiar spread very easily.  Some viruses spread from the smallest contact every time.  Others (the HIV virus, which is responsible for AIDS, for example) require significant contact, perhaps many times, before the virus is transmitted.  In this model, infectiousness is determined by the INFECTIOUSNESS slider.
+
+Several of the core parameters of this model are set as constants in the code. They can be exposed as sliders if desired.  The turtles' lifespan is set to 100, the carrying capacity of the world is set to 500 and the average-offspring is set to 4.
+
 
 ### Duration of infectiousness
 
-How long is a person infected before they either recover or die?  This length of time is essentially the virus's window of opportunity for transmission to new hosts. In this model, duration of infectiousness is determined by a slider.
+How long is a person infected before they either recover or die?  This length of time is essentially the virus's window of opportunity for transmission to new hosts. In this model, duration of infectiousness is determined by the DURATION slider.
 
 ## HOW TO USE IT
 
@@ -355,9 +374,11 @@ The INFECTIOUSNESS slider determines how great the chance is that virus transmis
 
 The DURATION slider determines the percent of the average life-span (which is 1500 weeks, or approximately 27 years, in this model) that an infected person goes through before the infection ends in either death or recovery.  Note that although zero is a slider possibility, it produces an infection of very short duration (approximately 2 weeks) not an infection with no duration at all.
 
-The CHANCE-RECOVERY slider controls the likelihood that an infection will end in recovery/immunity.  When this slider is set at zero, for instance, the infection is always deadly.
+The CHANCE-RECOVER slider controls the likelihood that an infection will end in recovery/immunity.  When this slider is set at zero, for instance, the infection is always deadly.
 
-The SETUP button resets the graphics and plots and randomly distributes 140 green susceptible people and 10 red infected people (of randomly distributed ages).  The GO button starts the simulation and the plotting function.
+The SETUP button resets the graphics and plots and randomly distributes NUMBER people in the view. All but 10 of the people are set to be green susceptible people and 10 red infected people (of randomly distributed ages).  The GO button starts the simulation and the plotting function.
+
+The PERSON-SHAPE? switch controls whether the people are visualized as person shaopes or as circles.
 
 Three output monitors show the percent of the population that is infected, the percent that is immune, and the number of years that have passed.  The plot shows (in their respective colors) the number of susceptible, infected, and immune people.  It also shows the number of individuals in the total population in blue.
 
@@ -377,19 +398,29 @@ The HIV virus which causes AIDS, has an extremely long duration, an extremely lo
 
 ## EXTENDING THE MODEL
 
-Add additional sliders controlling the carrying capacity of the world (how many people can be in the world at one time) and the average lifespan of the people.
+Add additional sliders controlling the carrying capacity of the world (how many people can be in the world at one time),  the average lifespan of the people and their birth-rate.
 
 Build a similar model simulating viral infection of a non-human host with very different reproductive rates, lifespans, and population densities.
 
 Add a slider controlling how long immunity lasts so that immunity is not perfect or eternal.
 
+## VISUALIZATION
+The circle visualization of the model comes from guidleines presneted in 
+Kornhauser, D., Wilensky, U., & Rand, W. (2009). http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuidelinesABMViz.pdf .
+At the lowest level, perceptual impediments arise when we exceed the limitations of our low-level visual system. Visual features that are difficult to distinguish can disable our pre-attentive processing capabilities. Pre-attentive processing can be hindered by other cognitive phenomena such as interference between visual features (Healey 2006).
+
+The circle visualization in this model is supposed to make it easier to see when agents interact because overlap is easier to see between circles than between the "people" shapes. In the circle visualization, the circles merge to create new compound shapes. Thus, it is easier to perceive new compound shapes in the circle visualization.
+Does the circle visualization make it easier for you to see what is happening?
+
 ## RELATED MODELS
 
 * AIDS
 * Virus on a Network
-* Virus - Network Visualization
 
-## CREDITS AND REFERENCES
+## CREDITS and REFERENCES
+This model can show an alternate visualization of the Virus model using circles to represent the people. It uses visualization techniques as recommended in the paper: 
+
+Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation, JASSS, 12(2), 1.
 @#$#@#$#@
 default
 true
@@ -674,7 +705,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.2-RC3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
