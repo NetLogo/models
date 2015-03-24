@@ -76,20 +76,18 @@ end
 
 to update-global-variables
   if count turtles > 0
-    [ set %infected (count turtles with [ sick? ]) / (count turtles) * 100
-      set %immune (count turtles with [ immune? ]) / (count turtles) * 100 ]
+    [ set %infected (count turtles with [ sick? ] / count turtles) * 100
+      set %immune (count turtles with [ immune? ] / count turtles) * 100 ]
 end
 
 ;;Turtle counting variables are advanced.
 to get-older
   ask turtles
-    [ set age age + 1
-      if sick?
-        [ set sick-time (sick-time + 1) ]
-      ;; Turtles die of old age once their age equals the
-      ;; lifespan (set at 100 in this model).
-      if age > lifespan
-        [ die ] ]
+    [ ;; Turtles die of old age once their age exceeds the
+      ;; lifespan (set at 50 years in this model).
+      set age age + 1
+      if age > lifespan [ die ]
+      if sick? [ set sick-time (sick-time + 1) ] ]
 end
 
 ;;Turtles move about at random.
@@ -105,7 +103,7 @@ end
 to infect
   ask turtles with [ sick? ]
     [ ask other turtles-here with [ not immune? ]
-        [ if (random-float 100) < infectiousness
+        [ if random-float 100 < infectiousness
             [ get-sick ] ] ]
 end
 
