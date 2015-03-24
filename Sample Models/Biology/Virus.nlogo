@@ -327,7 +327,6 @@ person-shape?
 -1000
 
 @#$#@#$#@
-
 ## WHAT IS IT?
 
 This model simulates the transmission and perpetuation of a virus in a human population.
@@ -361,10 +360,10 @@ How easily does the virus spread?  Some viruses with which we are familiar sprea
 
 Several of the core parameters of this model are set as constants in the code. They can be exposed as sliders if desired.  The turtles' lifespan is set to 100, the carrying capacity of the world is set to 500 and the average-offspring is set to 4.
 
-
 ### Duration of infectiousness
 
 How long is a person infected before they either recover or die?  This length of time is essentially the virus's window of opportunity for transmission to new hosts. In this model, duration of infectiousness is determined by the DURATION slider.
+
 
 ## HOW TO USE IT
 
@@ -382,6 +381,7 @@ The PERSON-SHAPE? switch controls whether the people are visualized as person sh
 
 Three output monitors show the percent of the population that is infected, the percent that is immune, and the number of years that have passed.  The plot shows (in their respective colors) the number of susceptible, infected, and immune people.  It also shows the number of individuals in the total population in blue.
 
+
 ## THINGS TO NOTICE
 
 The factors controlled by the three sliders interact to influence how likely the virus is to thrive in this population.  Notice that in all cases, these factors must create a balance in which an adequate number of potential hosts remain available to the virus and in which the virus can adequately access those hosts.
@@ -390,11 +390,13 @@ Often there will initially be an explosion of infection since no one in the popu
 
 Notice that viruses that are too successful at first (infecting almost everyone) may not survive in the long term.  Since everyone infected generally dies or becomes immune as a result, the potential number of hosts is often limited.  The exception to the above is when the DURATION slider is set so high that population turnover (reproduction) can keep up and provide new hosts.
 
+
 ## THINGS TO TRY
 
 Think about how different slider values might approximate the dynamics of real-life viruses.  The famous Ebola virus in central Africa has a very short duration, a very high infectiousness value, and an extremely low recovery rate. For all the fear this virus has raised, how successful is it?  Set the sliders appropriately and watch what happens.
 
 The HIV virus which causes AIDS, has an extremely long duration, an extremely low recovery rate, but an extremely low infectiousness value.  How does a virus with these slider values fare in this model?
+
 
 ## EXTENDING THE MODEL
 
@@ -404,20 +406,26 @@ Build a similar model simulating viral infection of a non-human host with very d
 
 Add a slider controlling how long immunity lasts so that immunity is not perfect or eternal.
 
+
 ## VISUALIZATION
-The circle visualization of the model comes from guidleines presneted in
-Kornhauser, D., Wilensky, U., & Rand, W. (2009). http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuidelinesABMViz.pdf .
+
+The circle visualization of the model comes from guidelines presented in
+Kornhauser, D., Wilensky, U., & Rand, W. (2009). http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuidelinesABMViz.pdf.
+
 At the lowest level, perceptual impediments arise when we exceed the limitations of our low-level visual system. Visual features that are difficult to distinguish can disable our pre-attentive processing capabilities. Pre-attentive processing can be hindered by other cognitive phenomena such as interference between visual features (Healey 2006).
 
 The circle visualization in this model is supposed to make it easier to see when agents interact because overlap is easier to see between circles than between the "people" shapes. In the circle visualization, the circles merge to create new compound shapes. Thus, it is easier to perceive new compound shapes in the circle visualization.
 Does the circle visualization make it easier for you to see what is happening?
+
 
 ## RELATED MODELS
 
 * AIDS
 * Virus on a Network
 
+
 ## CREDITS and REFERENCES
+
 This model can show an alternate visualization of the Virus model using circles to represent the people. It uses visualization techniques as recommended in the paper:
 
 Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation, JASSS, 12(2), 1.
