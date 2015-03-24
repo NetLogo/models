@@ -356,6 +356,10 @@ Several of the core parameters of this model are set as constants in the code. T
 
 How long is a person infected before they either recover or die?  This length of time is essentially the virus's window of opportunity for transmission to new hosts. In this model, duration of infectiousness is determined by the DURATION slider.
 
+### Hard-coded parameters
+
+Three important parameters of this model are set as constants in the code (See setup-constants procedure). They can be exposed as sliders if desired. The turtles’ lifespan is set to 50 years, the carrying capacity of the world is set to 700 and the birth-rate is set to 0.1, a 1 in 100 chance of reproducing per tick when the number of people is less than the carrying capacity.
+
 
 ## HOW TO USE IT
 
@@ -705,7 +709,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2-RC3
+NetLogo 5.1.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
