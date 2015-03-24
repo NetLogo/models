@@ -17,15 +17,13 @@ to setup
   setup-constants
   setup-turtles
   update-global-variables
+  update-shapes
   reset-ticks
 end
 
 ;; We create a variable number of turtles of which 10 are infectious,
 ;; and distribute them randomly
 to setup-turtles
-  ifelse person-shape?
-    [ set-default-shape turtles "person" ]
-    [ set-default-shape turtles "circle" ]
   create-turtles number-people
     [ setxy random-xcor random-ycor
       set age random lifespan
@@ -71,6 +69,7 @@ to go
   recover
   reproduce
   update-global-variables
+  update-shapes
   tick
 end
 
@@ -78,6 +77,12 @@ to update-global-variables
   if count turtles > 0
     [ set %infected (count turtles with [ sick? ] / count turtles) * 100
       set %immune (count turtles with [ immune? ] / count turtles) * 100 ]
+end
+
+to update-shapes
+  let turtle-shape ifelse-value person-shape? [ "person" ] [ "circle" ]
+  if any? turtles with [ shape != turtle-shape ]
+    [ ask turtles [ set shape turtle-shape ] ]
 end
 
 ;;Turtle counting variables are advanced.
