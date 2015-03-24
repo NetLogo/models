@@ -26,7 +26,7 @@ to setup-turtles
   ifelse person-shape?
     [ set-default-shape turtles "person" ]
     [ set-default-shape turtles "circle" ]
-  crt number-people
+  create-turtles number-people
     [ setxy random-xcor random-ycor
       set age random lifespan
       set sick-time 0
