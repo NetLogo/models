@@ -80,7 +80,6 @@ to update-global-variables
 end
 
 to update-shapes
-  let turtle-shape ifelse-value person-shape? [ "person" ] [ "circle" ]
   if any? turtles with [ shape != turtle-shape ]
     [ ask turtles [ set shape turtle-shape ] ]
 end
@@ -309,16 +308,15 @@ ticks / 52
 1
 11
 
-SWITCH
-52
-214
-207
-247
-person-shape?
-person-shape?
+CHOOSER
+61
+211
+200
+256
+turtle-shape
+turtle-shape
+"person" "circle"
 0
-1
--1000
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -371,7 +369,7 @@ The CHANCE-RECOVER slider controls the likelihood that an infection will end in 
 
 The SETUP button resets the graphics and plots and randomly distributes NUMBER-PEOPLE in the view. All but 10 of the people are set to be green susceptible people and 10 red infected people (of randomly distributed ages).  The GO button starts the simulation and the plotting function.
 
-The PERSON-SHAPE? switch controls whether the people are visualized as person shapes or as circles.
+The TURTLE-SHAPE chooser controls whether the people are visualized as person shapes or as circles.
 
 Three output monitors show the percent of the population that is infected, the percent that is immune, and the number of years that have passed.  The plot shows (in their respective colors) the number of susceptible, infected, and immune people.  It also shows the number of individuals in the total population in blue.
 
