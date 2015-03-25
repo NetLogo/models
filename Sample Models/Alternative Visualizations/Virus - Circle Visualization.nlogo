@@ -11,7 +11,7 @@ globals
     chance-reproduce     ;; the probability of a turtle generating an offspring each tick
     carrying-capacity ]  ;; the number of turtles that can be in the world at one time
 
-;; The setup is divided into three subroutines
+;; The setup is divided into four procedures
 to setup
   clear-all
   setup-constants
@@ -27,6 +27,7 @@ to setup-turtles
   create-turtles number-people
     [ setxy random-xcor random-ycor
       set age random lifespan
+      if show-age? [set label floor (age / 52) ]
       set sick-time 0
       set immune? false
       set size 1.5  ;; easier to see
@@ -57,17 +58,25 @@ end
 
 ;; This sets up basic constants of the model.
 to setup-constants
-  set lifespan 50 * 52      ;; 50 times 52 weeks = 50 years
+  set lifespan 50 * 52      ;; 50 times 52 weeks = 50 years = 2600 weeks old
   set carrying-capacity 700
   set chance-reproduce 1
 end
 
 to go
+  ask turtles [
   get-older
-  move
+  move 
+  if sick? [
   infect
-  recover
-  reproduce
+  ]
+  if sick? [
+     recover-or-die
+  ]
+  if not sick? [
+    reproduce
+  ]
+]
   update-global-variables
   update-shapes
   tick
@@ -84,53 +93,54 @@ to update-shapes
     [ ask turtles [ set shape turtle-shape ] ]
 end
 
+;; turtle procedure
 ;;Turtle counting variables are advanced.
 to get-older
-  ask turtles
-    [ ;; Turtles die of old age once their age exceeds the
-      ;; lifespan (set at 50 years in this model).
+ ;; Turtles die of old age once their age exceeds the
+ ;; lifespan (set at 50 years in this model).
       set age age + 1
       if age > lifespan [ die ]
-      if sick? [ set sick-time (sick-time + 1) ] ]
+      if sick? [ set sick-time (sick-time + 1) ] 
 end
 
-;;Turtles move about at random.
+;; turtle procedure
+;; Turtles move about at random.
 to move
-  ask turtles
-    [ rt random 100
-      lt random 100
-      fd 1 ]
+    rt random 100
+    lt random 100
+    fd 1 
 end
 
+;; turtle procedure
 ;; If a turtle is sick, it infects other turtles on the same patch.
 ;; Immune turtles don't get sick.
 to infect
-  ask turtles with [ sick? ]
-    [ ask other turtles-here with [ not immune? ]
-        [ if random-float 100 < infectiousness
-            [ get-sick ] ] ]
+    ask other turtles-here with [ not immune? ]  [
+         if random-float 100 < infectiousness [
+            get-sick 
+            if self = subject [create-link-with myself [set color red] ] ] ] 
 end
 
+;; turtle procedure
 ;; Once the turtle has been sick long enough, it
 ;; either recovers (and becomes immune) or it dies.
-to recover
-  ask turtles with [ sick? ]
-    [ if sick-time > duration                        ;; If the turtle has survived past the virus' duration, then
+to recover-or-die
+     if sick-time > duration                        ;; If the turtle has survived past the virus' duration, then
        [ ifelse random-float 100 < chance-recover    ;; either recover or die
           [ become-immune ]
-          [ die ] ] ]
+          [ die ] ] 
 end
 
 ;; If there are less turtles than the carrying-capacity
 ;;  then turtles can reproduce.
 to reproduce
-  ask turtles with [ not sick? ]
-    [ if count turtles < carrying-capacity
+     if count turtles < carrying-capacity
          and random-float 100 < chance-reproduce
        [ hatch 1
            [ set age 1
+             if show-age? [set label age]
              lt 45 fd 1
-             get-healthy ] ] ]
+             get-healthy ] ] 
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -240,10 +250,10 @@ NIL
 0
 
 PLOT
-5
-308
-257
-472
+9
+414
+261
+578
 Populations
 weeks
 people
@@ -276,10 +286,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-18
-261
-93
-306
+22
+367
+97
+412
 NIL
 %infected
 1
@@ -287,10 +297,10 @@ NIL
 11
 
 MONITOR
-95
-261
-169
-306
+99
+367
+173
+412
 NIL
 %immune
 1
@@ -298,10 +308,10 @@ NIL
 11
 
 MONITOR
-171
-262
-245
-307
+175
+368
+249
+413
 years
 ticks / 52
 1
@@ -309,14 +319,42 @@ ticks / 52
 11
 
 CHOOSER
-61
-211
-200
-256
+57
+214
+196
+259
 turtle-shape
 turtle-shape
 "person" "circle"
+0
+
+BUTTON
+58
+325
+183
+358
+watch a person
+if subject = nobody [\nwatch one-of turtles with [color = green] \n;; close-all-dead-inspectors\nclear-drawing\nask subject [pd]\ninspect subject\n]
+T
 1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SWITCH
+59
+274
+183
+307
+show-age?
+show-age?
+1
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -358,7 +396,7 @@ How long is a person infected before they either recover or die?  This length of
 
 ### Hard-coded parameters
 
-Three important parameters of this model are set as constants in the code (See `setup-constants` procedure). They can be exposed as sliders if desired. The turtles’ lifespan is set to 50 years, the carrying capacity of the world is set to 700 and the birth-rate is set to a 1 in 100 chance of reproducing per tick when the number of people is less than the carrying capacity.
+Three important parameters of this model are set as constants in the code (See setup-constants procedure). They can be exposed as sliders if desired. The turtles’ lifespan is set to 50 years, the carrying capacity of the world is set to 700 and the birth-rate is set to 0.1, a 1 in 100 chance of reproducing per tick when the number of people is less than the carrying capacity.
 
 
 ## HOW TO USE IT
@@ -709,7 +747,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2-RC3
+NetLogo 5.1.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
