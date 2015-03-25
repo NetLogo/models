@@ -30,9 +30,9 @@ sellers-own [
   p1-quantity-offered             ;; amount of oil offered per time period at price-1
   p2-quantity-offered             ;; amount of oil offered per time period at price-2
   p1-quantity-available           ;; amount of oil at price-1 available within a time period as buyers start buying
-  p2-quantity-available           ;; amount of oil at price-2available within a time period as buyers start buying
+  p2-quantity-available           ;; amount of oil at price-2 available within a time period as buyers start buying
   p1-quantity-sold                ;; amount of oil actually sold at the end of the time period at price-1
-  p2-quantity-sold                ;; amount of oil actually sold at the end of the time period at price-1
+  p2-quantity-sold                ;; amount of oil actually sold at the end of the time period at price-2
   prev-p2-quantity-sold           ;; amount of oil sold at price-2 during the previous time period
   profit-needed                   ;; profit needed by each cartel member. varies by seller
   strategy                        ;; set by client.  explained in "Make Offer" procedure
@@ -977,7 +977,7 @@ Each HubNet Client is a member of the cartel.  The cartel currently has an agree
 
 1. "Agreement" Strategy:  Always produce and price exactly in accordance with the cartel agreement
 
-2. "Quota-Plus" Strategy: Produce a little bit more than the quota and offer it to the excess amount to the market for a price a little less than the agreement price.  (The additional amount produced is set by the "extra-output" slider. )
+2. "Quota-Plus" Strategy: Produce a little bit more than the quota and offer the excess amount to the market for a price a little less than the agreement price.  (The additional amount produced is set by the "extra-output" slider. )
 
 3. "Quota-Minus" Strategy:  Produce a little bit less than the quota and offer it to the market at the agreement price. (The amount less is set by the "reduced-output" slider.) A member might do this in an effort to keep prices up and the cartel together.
 4. "Price > MC" Strategy: Keep producing and offering additional output as long
@@ -987,7 +987,7 @@ as the price you have to offer to the buyers in order to sell that unit is still
 
 ## HOW TO USE IT
 
-Set the number of buyers  (NUM-BUYERS) and amount of oil each buyer demands (IDEAL-QUANTITY).  Press the INITIAL-LOGIN forever button and leave pressed until all HubNet Client log in. Ask clients to set their initial strategies, paying attention to the the current agreement, current profit, as well as their own profit needed.  Once all clients have selected their initial strategies, press the RUN-MARKET button.  The overall behavior of the market can be witness on the View and Plots on the server, which are described below.  Each individual client's information is displayed on their own monitors, including a plot of their current profit.
+Set the number of buyers  (NUM-BUYERS) and amount of oil each buyer demands (IDEAL-QUANTITY).  Press the INITIAL-LOGIN forever button and leave pressed until all HubNet Client log in. Ask clients to set their initial strategies, paying attention to the current agreement, current profit, as well as their own profit needed.  Once all clients have selected their initial strategies, press the RUN-MARKET button.  The overall behavior of the market can be witnessed on the View and Plots on the server, which are described below.  Each individual client's information is displayed on their own monitors, including a plot of their current profit.
 
 Buttons:
 
@@ -1009,19 +1009,19 @@ Monitors:
 
 "# Sellers" - The number of sellers participating in the activity.
 
-"Target Total Barrels" - This is the amount of total production agreed upon by the cartel. It is the total of all oil produced by suppliers that would maximize profits if the cartel behaved as a unitary monopolist, given the current buyer demand and supplier marginal cost. This quantity divided by the number of sellers is each sellers quota.
+"Target Total Barrels" - This is the amount of total production agreed upon by the cartel. It is the total of all oil produced by suppliers that would maximize profits if the cartel behaved as a unitary monopolist, given the current buyer demand and supplier marginal cost. This quantity divided by the number of sellers is each seller's quota.
 
 "Official Price" - This is the price of the current cartel agreement. It is the price of oil that corresponds with supplying "Target Total Barrels" given the current buyer demand and supplier marginal cost.
 
 Plots:
 
-"Oil Sold at Market" - Plots the quantities of oil sold at market over time. Also on the graph are the amounts that would be supplied under perfect competition and under a monopoly. Anything less than the amount of perfect competiton and above or equal to the monopoly line is an improvement is better for the cartel than a situation with no collusion.
+"Oil Sold at Market" - Plots the quantities of oil sold at market over time (Actual). Also on the graph are the amounts that would be supplied under perfect competition (Competitive) and under a monopoly (Agreement). Anything less than the amount of perfect competition and above or equal to the monopoly line is an improvement, and is better for the cartel than a situation with no collusion.
 
-"Average Price of Oil" - Plots the average price of oil across all transactions in the current time period.  Also on the graph are plots of Official Price of the cartel agreement and the marginal cost of suppliers.  Anything above marginal cost and equal to or below the agreement line is better for the cartel than a situation with no collusion.
+"Average Price of Oil" - Plots the average price of oil across all transactions in the current time period (Average).  Also on the graph are plots of Official Price of the cartel agreement (Agreement) and the marginal cost of suppliers (MC). Anything above marginal cost and equal to or below the agreement line is better for the cartel than a situation with no collusion.
 
 View:
 
-The view shows all the sellers and buyers.  The sellers are represented by by a colored circle or square. The buyers are the multitude of green, yellow, and red  agents in the window.  Green agents are those buyers who were able to make a purchase n the time period.  They move to the seller from which they last purchased oil. Yellow agents are buyers who did not make a purchase, but they would have if it were priced at the level of a perfectly competitive market.  They represent the inefficiency caused by the cartel behavior.  Red agents are buyers who did not purchase oil, nor would they even in a perfectly competitive market.  Price would have to be even more favorable than the perfectly competitive price for these buyers to purchase.
+The view shows all the sellers and buyers.  The sellers are represented by a colored circle or square. The buyers are the multitude of green, yellow, and red  agents in the window.  Green agents are those buyers who were able to make a purchase at the time period.  They move to the seller from which they last purchased oil. Yellow agents are buyers who did not make a purchase, but they would have if it were priced at the level of a perfectly competitive market.  They represent the inefficiency caused by the cartel behavior.  Red agents are buyers who did not purchase oil, nor would they even in a perfectly competitive market.  Price would have to be even more favorable than the perfectly competitive price for these buyers to purchase.
 
 Client Information:
 
@@ -1049,23 +1049,23 @@ Client Information:
 
 "Profit-Needed" - The profit expected from you by your home country.
 
-"Current Profit Plot" - A plot over time of the cartel members profit.
+"Current Profit Plot" - A plot over time of the cartel members' profit.
 
 "Strategy" - Drop box used to select one of the strategies mentioned above.
 
 "extra-output" -  Slider used to set the extra amount produced if using the "Quota-Plus" strategy.
 
-"reduced-output - Slider used to set the amount production is reduced from quota if using the "Quota-Minus" strategy.
+"reduced-output - Slider used to set the amount reduced from quota if using the "Quota-Minus" strategy.
 
 ## THINGS TO NOTICE
 
-The cartel can usually withstand a little bit of cheating, even if all the members indulge. If all members pursue the "P > MC" strategy, the market quickly reaches the perfect competition equilibrium price and quantity.  Even if only one member becomes too aggressive, the market price of oil will drop, and the cartel will most likely crumble.
+The cartel can usually withstand a little bit of cheating, even if all the members indulge. If all members pursue the "Price >= MC" strategy, the market quickly reaches the perfect competition equilibrium price and quantity.  Even if only one member becomes too aggressive, the market price of oil will drop, and the cartel will most likely crumble.
 
 ## THINGS TO TRY
 
-Try changing the values of NUM-BUYERS and IDEAL-QUANTITY? Does cheating by cartel members become more or less noticable?
+Try changing the values of NUM-BUYERS and IDEAL-QUANTITY? Does cheating by cartel members become more or less noticeable?
 
-Can you reach an equilibrium point where everyone is exceeded their Profit Needed?
+Can you reach an equilibrium point where everyone exceeds their Profit Needed?
 
 The "Quota-Minus" strategy seems like an unattractive one.  Can you find a situation where it is a strategy ever actually worth pursuing?
 
@@ -1075,7 +1075,7 @@ Here are some suggestions for ways to extend the model:
 
 - Create new strategies!  Current strategies are only a fraction of the possible ways a cartel member might behave over time.
 
-- Give cartel members the capacity to build up reserves which they can then use strategically. Reserves could be a function of a producers maximum capacity, and would limit a sellers ability to "flood the market."
+- Give cartel members the capacity to build up reserves, which they can then use strategically. Reserves could be a function of a producer's maximum capacity, and would limit a seller's ability to "flood the market."
 
 ## NETLOGO FEATURES
 
@@ -1092,6 +1092,14 @@ Nicholson, Walter. Intermediate Microeconomics and Its Application.  Thomson Lea
 
 For an in-depth discussion of models of oil cartel behavior see:
 Scherer, F.M. Industry Structure, Strategy, and Public Policy. Chapter 3. Addison-Wesley, 1996.
+
+
+## HOW TO CITE
+
+If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
+
+* Maroulis, S. and Wilensky, U. (2004).  NetLogo HubNet Oil Cartel model.  http://ccl.northwestern.edu/netlogo/models/HubNetOilCartel.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 @#$#@#$#@
 default
 true
@@ -1353,7 +1361,7 @@ Polygon -6459832 true true 46 128 33 120 21 118 11 123 3 138 5 160 13 178 9 192 
 Polygon -6459832 true true 67 122 96 126 63 144
 
 @#$#@#$#@
-NetLogo 5.0.2
+NetLogo 5.2-RC3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1559,9 +1567,9 @@ NIL
 @#$#@#$#@
 default
 0.0
--0.2 0 1.0 0.0
+-0.2 0 0.0 1.0
 0.0 1 1.0 0.0
-0.2 0 1.0 0.0
+0.2 0 0.0 1.0
 link direction
 true
 0
