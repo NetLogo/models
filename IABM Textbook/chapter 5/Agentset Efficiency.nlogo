@@ -17,7 +17,7 @@ to go-1
   ]
   if count patches with [ pcolor = green ] >= 1 [
     ask patches with [ pcolor = green ] [
-      set plabel 5 + random 5 ;; green patches are labelled 5-9
+      set plabel 5 + random 5 ;; green patches are labeled 5-9
     ]
   ]
   tick
@@ -275,7 +275,7 @@ Try to replace the `test-1-2` procedure with one that is adapted from the exampl
 
 ## NETLOGO FEATURES
 
-In order to make this model an illustrative example, we had to _avoid_ some NetLogo features! The efficiency problem that we mentionned here are real, but NetLogo tries very hard to insulate you from them.
+In order to make this model an illustrative example, we had to _avoid_ some NetLogo features! The efficiency problem that we mentioned here are real, but NetLogo tries very hard to insulate you from them.
 
 So, what would our model look like if it was a "real world" model?
 
@@ -283,7 +283,7 @@ If you're an experienced NetLogo programmer, you probably thought that lines lik
 
     if count patches with [ pcolor = red ] >= 1
 
-First, the line is not really necessary: if you call [`ask`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#ask) on an empty agenset, nothing bad will happen: NetLogo will just skip over it. We could have left out the "`if`" condition and the program behavior would have been the same.
+First, the line is not really necessary: if you call [`ask`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#ask) on an empty agentset, nothing bad will happen: NetLogo will just skip over it. We could have left out the "`if`" condition and the program behavior would have been the same.
 
 Second, why didn't we use "`if count ... > 0`" or, even better, the [`any?`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#any) primitive? This is because NetLogo is smart enough to apply a special optimization to those when it compiles your model. If we write:
 
