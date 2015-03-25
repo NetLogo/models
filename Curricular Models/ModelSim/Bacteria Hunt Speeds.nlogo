@@ -103,7 +103,7 @@ to go
 end
 
 to death
-  ;; mark where a bacterium was caught and then remove the bacterium and its attached flaggela
+  ;; mark where a bacterium was caught and then remove the bacterium and its attached flagella
   set bacteria-caught bacteria-caught + 1
   make-a-removal-spot
   ask out-link-neighbors [die]
