@@ -38,7 +38,7 @@ to go
     wiggle  ;; first turn a little bit
     move  ;; then step forward
     check-if-dead  ;; check to see if agent should die
-    eat            ;; sheep eat grasss, wolves eat sheep
+    eat            ;; sheep eat grass, wolves eat sheep
     reproduce
   ]
   regrow-grass ;; regrow the grass
@@ -58,7 +58,7 @@ to eat-sheep
   ]
 end
 
-;; turtle procedure (both olves ahd sheep); check to see if this turtle has enough energy to reproduce
+;; turtle procedure (both wolves and sheep); check to see if this turtle has enough energy to reproduce
 to reproduce
   if energy > 200 [
     set energy energy - 100  ;; reproduction transfers energy
