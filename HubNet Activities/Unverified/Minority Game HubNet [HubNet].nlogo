@@ -20,12 +20,12 @@ globals
   used-shape-colors  ;; shape-color combinations used
 
   ;; quick start instructions and variables
-  quick-start  ;; current quickstart instruction displayed in the quickstart monitor
-  qs-item      ;; index of the current quickstart instruction
-  qs-items     ;; list of quickstart instructions
+  quick-start        ;; current quickstart instruction displayed in the quickstart monitor
+  qs-item            ;; index of the current quickstart instruction
+  qs-items           ;; list of quickstart instructions
 
-  score-list ;; for plotting
-  success-list ;; for plotting
+  score-list         ;; for plotting
+  success-list       ;; for plotting
 ]
 
 turtles-own
@@ -104,8 +104,12 @@ to initialize-system
     set android-history temp-history
     set player-history (reduce-memory (full-history temp-history android-memory) player-memory)
   ]
-
+  
+  set success-list []
+  set score-list []
+  
   reset-ticks
+  
   set avg-score 0
   set stdev-score 0
 
@@ -461,27 +465,28 @@ to setup-quick-start
   set qs-item 0
   set qs-items
   [
+    
     "Teacher: Follow these directions to run the HubNet activity."
-    "Optional: Zoom In (see Tools in the Menu Bar)"
-    "Optional: Change any of the settings...."
+    "Optional: Zoom In (see Zoom in the Menu Bar)"
+    "Optional: Change any of the settings by dragging the sliders..."
       "If you did change settings, press the SETUP button."
-    "Teacher: Press the LOG-IN button."
+    "Teacher: Press the LOGIN button."
     "Everyone: Open up a HubNet Client on your machine and..."
-      "choose a user-name and..."
-        "connect to this activity."
-    "Teacher: Once everyone has started their client..."
-      "press the LOG-IN button, then press GO."
-    "Everyone: Watch your clock and choose 0 or 1."
-
-    "Teacher: To rerun the activity with the same group,..."
-      "stop the model by pressing the GO button, if it is on."
-        "Change any of the settings that you would like."
-          "Press the RE-RUN button."
-    "Teacher: Restart the simulation by pressing the GO button again."
-
-    "Teacher: To start the simulation over with a new group,..."
-      "stop the model by pressing the GO button, if it is on..."
-        "and follow these instructions again from the beginning."
+      "fill the User name and ask your teacher for the Server IP..."
+        "fill the Server field and press Enter to connect."
+    "Teacher: Once everyone has connected..."
+      "unclick the LOGIN button, and then press GO."
+    "Everyone: Choose 0 or 1."
+    "Teacher: To run the activity again with the same group..."
+      "stop the model by unclick the GO button..." 
+        "Change any of the settings that you would like..." 
+            "Then press the SETUP button..."  
+               "Restart the simulation by pressing the GO button again."
+      "Teacher: To start the simulation over with a new group..."
+        "have all the clients log out"
+          "or boot them using the KICK button in the Control Center"
+              "press SETUP and follow these instructions again from the beginning."
+   
   ]
   set quick-start (item qs-item qs-items)
 end
@@ -501,6 +506,10 @@ to view-previous
   [ set qs-item 0 ]
   set quick-start (item qs-item qs-items)
 end
+
+
+; Copyright 2004 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 429
@@ -530,12 +539,12 @@ ticks
 30.0
 
 BUTTON
-117
+104
 118
-187
+174
 151
-setup
-setup
+SETUP
+SETUP
 NIL
 1
 T
@@ -547,12 +556,12 @@ NIL
 1
 
 BUTTON
-263
+258
 118
-333
+328
 151
-go
-go
+GO
+GO
 T
 1
 T
@@ -572,7 +581,7 @@ number-of-participants
 number-of-participants
 3
 501
-55
+229
 2
 1
 NIL
@@ -587,7 +596,7 @@ player-memory
 player-memory
 1
 12
-7
+5
 1
 1
 NIL
@@ -647,9 +656,9 @@ PENS
 "number" 1.0 0 -10899396 true "" ""
 
 MONITOR
-143
+130
 157
-316
+303
 202
 history
 full-history player-history player-memory
@@ -696,9 +705,9 @@ PENS
 "default" 0.02 1 -16777216 false "" "if length success-list > 0 [ histogram success-list ]"
 
 SLIDER
-35
+36
 78
-213
+214
 111
 strategies-per-android
 strategies-per-android
@@ -795,11 +804,11 @@ min [score] of turtles
 11
 
 BUTTON
-190
+177
 118
-260
+255
 151
-login
+LOGIN
 listen-clients
 T
 1
@@ -835,21 +844,22 @@ This means that if there are only computer agents and no human participants, onc
 Quickstart Instructions:
 
 Teacher: Follow these directions to run the HubNet activity.  
-Optional: Zoom In (see Tools in the Menu Bar)  
-Optional: Change any of the settings.  If you did change settings, press the SETUP button.  
-Teacher: Press the LOGIN button
 
-Everyone: Open up a HubNet Client on your machine and choose a username and connect to this activity.
+Optional: Zoom In (see Zoom in the Menu Bar)  
+Optional: Change any of the settings by dragging the sliders. If you did change settings, press the SETUP button.  
 
-Teacher: When everyone is logged in press the LOGIN button again and press the GO button when you are ready to start.
+Teacher: Press the LOGIN button.
 
-Everyone: Choose 0 or 1, when everyone has chosen the view will update to show the relative scores of all the players and androids
+Everyone: Open up a HubNet Client on your machine, enter a username, fill the server field with the server address on your teacher's HubNet Control Center, and then connect to this activity by pressing the Enter button.
 
-Teacher: To run the activity again with the same group, stop the model by pressing the GO button, if it is on. Change any of the settings that you would like.  
-Press the SETUP button.  
-Teacher: Restart the simulation by pressing the GO button again.
+Teacher: When everyone is logged in, unclick the LOGIN button and press the GO button when you are ready to start.
 
-Teacher: To start the simulation over with a new group, have all the clients log out (or boot them using the KICK button in the Control Center) and press SETUP
+Everyone: Choose 0 or 1, when everyone has chosen the view will update to show the relative scores of all the players and androids.
+
+Teacher: To run the activity again with the same group, stop the model by unclick the GO button. Change any of the settings that you would like.  
+Press the SETUP button. Then restart the simulation by pressing the GO button again.
+
+Teacher: To start the simulation over with a new group, have all the clients log out (or boot them using the KICK button in the Control Center) and press SETUP.
 
 Buttons:
 
@@ -945,6 +955,27 @@ This model was based upon studies by Dr. Damien Challet et al.  Information can 
 Challet, D. and Zhang, Y.-C. Emergence of Cooperation and Organization in an Evolutionary Game. Physica A 246, 407 (1997).
 
 Zhang, Y.-C. Modeling Market Mechanism with Evolutionary Games. Europhys. News 29, 51 (1998).
+
+
+## HOW TO CITE
+
+If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
+
+* Stouffer, D. & Wilensky, U. (2004).  NetLogo Minority Game HubNet model.  http://ccl.northwestern.edu/netlogo/models/MinorityGameHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2004 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This activity and associated models and materials were created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
 @#$#@#$#@
 default
 true
@@ -1334,7 +1365,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta5
+NetLogo 5.2-RC3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
