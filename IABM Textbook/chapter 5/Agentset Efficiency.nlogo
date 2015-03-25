@@ -8,16 +8,18 @@ to setup
 end
 
 ;; GO-1 sets the labels of red patches to a small random number (0-4)
-;; and the labels of green patches to a larger random number (5-9).
+;; and the labels of green patches to a larger random number (5-9)
+;; as long as there are at least a certain number of patches of the
+;; other color.
 to go-1
-  if count patches with [ pcolor = red ] >= 1 [
-    ask patches with [ pcolor = red ] [
-      set plabel random 5 ;; red patches are labeled 0-4
+  ask patches with [ pcolor = red ] [
+    if count patches with [ pcolor = green ] > 5 [
+      set plabel random 5
     ]
   ]
-  if count patches with [ pcolor = green ] >= 1 [
-    ask patches with [ pcolor = green ] [
-      set plabel 5 + random 5 ;; green patches are labeled 5-9
+  ask patches with [ pcolor = green ] [
+    if count patches with [ pcolor = red ] > 5 [
+      set plabel 5 + random 5
     ]
   ]
   tick
@@ -28,27 +30,31 @@ end
 to go-2
   let red-patches patches with [ pcolor = red ]
   let green-patches patches with [ pcolor = green ]
-  if count red-patches >= 1 [
-    ask red-patches [
-      set plabel random 5  ;; red patches are labeled 0-4
+  ask red-patches [
+    if count green-patches > 5 [
+      set plabel random 5
     ]
   ]
-  if count green-patches >= 1 [
-    ask green-patches [
-      set plabel 5 + random 5  ;; green patches are labeled 5-9
+  ask green-patches [
+    if count red-patches > 5 [
+      set plabel random 5
     ]
   ]
   tick
 end
 
 ;; GO-3 explores what happens if patch colors are changed on the fly.
-;; GO-3 results in the entire world becoming red.
+;; GO-3 results in the entire world becoming green.
 to go-3
   ask patches with [ pcolor = red ] [
-    set pcolor green
+    if count patches with [ pcolor = green ] > 5 [
+      set pcolor green
+    ]
   ]
   ask patches with [ pcolor = green ] [
-    set pcolor red
+    if count patches with [ pcolor = red ] > 5 [
+      set pcolor red
+    ]
   ]
   tick
 end
@@ -60,19 +66,23 @@ to go-4
   let red-patches patches with [ pcolor = red ]
   let green-patches patches with [ pcolor = green ]
   ask red-patches [
-    set pcolor green
+    if count green-patches > 5 [
+      set pcolor green
+    ]
   ]
   ask green-patches [
-    set pcolor red
+    if count red-patches > 5 [
+      set pcolor red
+    ]
   ]
   tick
 end
 
 ;; This procedure measures the time it takes to
-;; run GO-1 and GO-2, 1000 times each.
+;; run GO-1 and GO-2, 100 times each.
 to-report test-1-2
   setup
-  let n 1000 ;; the number of times to run each procedure
+  let n 100 ;; the number of times to run each procedure
   reset-timer
   repeat n [ go-1 ]
   let result1 timer ;; the number of seconds it took to run GO-1 n times
@@ -205,7 +215,7 @@ This model is in the IABM Textbook folder of the NetLogo models library. The mod
 
 ## UPDATES TO THE MODEL SINCE TEXTBOOK PUBLICATION
 
-The code for this model differs somewhat from the code in the textbook. The code here is the most up to date version of the code.
+The code for this model differs from the code in the textbook. The code here is the most up to date version. The code in the book should be ignored.
 
 ## WHAT IS IT?
 
@@ -215,11 +225,11 @@ This model addresses a couple of concerns that can arise when using agentsets, i
 
 SETUP creates a world where roughly half the patches are red and half the patches are green.
 
-GO-1 sets the labels of red patches to a small random number (0-4) and the labels of green patches to a larger random number (5-9).
+GO-1 sets the labels of red patches to a small random number (0-4) and the labels of green patches to a larger random number (5-9). It only sets the label of each patch if there are at least 5 patches of the other color.
 
 GO-2 is a more efficient implementation of GO-1, as it only computes the `red-patches` and `green-patches` agentsets once instead of twice.
 
-GO-3 first changes all the red patches to green patches, and then all the green patches to red patches. GO-3 has unexpected behavior and is an example of the potential pitfalls of changing agentsets on the fly.
+GO-3 is written as if the intention is to swap green patches with red patches. However, because of a bug in the code, it first changes all the red patches to green patches, and then doesn't change any patches to red. GO-3 has unexpected behavior and is given here as an example of the potential pitfalls of changing agentsets on the fly.
 
 GO-4 is similar to GO-3, but it computes the `red-patches` and `green-patches` agentsets _before_ changing them, which avoids the problem we had with GO-3.
 
@@ -231,33 +241,39 @@ After that press GO-3 to see what effect it has on the colors of the patches. Is
 
 ## THINGS TO NOTICE
 
-While playing around with the model, you should have seen that GO-3 gives very different results than GO-4: instead of swapping red and green patches like we intended, it turns all the patches red! Why is that?
+While playing around with the model, you should have seen that GO-3 gives very different results than GO-4: instead of swapping red and green patches like we intended, it turns all the patches green! Why is that?
 
-This has to do with the timing of "side effects". In GO-3, we start by using the following code to ask all the red patches to turn green:
+This has to do with the timing of "side effects". In GO-3, we start by using the following code to ask all the red patches to turn green if there are at least 5 green patches:
 
     ask patches with [ pcolor = red ] [
-      set pcolor green
+      if count patches with [ pcolor = green ] > 5 [
+        set pcolor green
+      ]
     ]
 
-Then, we ask all the green patches to turn red using similar code:
+Then, we ask all the green patches to turn red if there are at least 5 red patches:
 
     ask patches with [ pcolor = green ] [
-      set pcolor red
+      if count patches with [ pcolor = red ] > 5 [
+        set pcolor red
+      ]
     ]
 
-But since we previously turned all red patches green, "`patches with [ pcolor = green ]`" now report _all_ the patches in the world, and so they _all_ turn red!
+But since we previously turned all red patches green, "`count patches with [ pcolor = red ]`" is now 0, so they all stay green!
 
-What is it about GO-4 that prevents this from happening? It is the fact that we constructed our agentsets (`red-patches` and `green-patches`) _before_ performing any changes on our patches. The `green-patches` agentset is insulated from the side effects of turning red patches to green, so when we run this code:
+What is it about GO-4 that prevents this from happening? It is the fact that we constructed our agentsets (`red-patches` and `green-patches`) _before_ performing any changes on our patches. The `red-patches` agentset is insulated from the side effects of turning red patches to green, so when we run this code:
 
     ask green-patches [
-      set pcolor red
+      if count red-patches > 5 [
+        set pcolor red
+      ]
     ]
 
-...it only affects the patches that were _originally_ green.
+...the original set of green patches turn red as expected.
 
 ## THINGS TO TRY
 
-Try running GO-1 and GO-2 a number of times. Which is faster? Sometimes, it can be hard to tell when you're just playing with a model "by hand". This why we wrote a reporter procedure called `test-1-2`. There is no button for this procedure on the interface, but you can invoke it from the command center. If you try it, you will see the patch labels flickering in the view for a while, and then, printed in the command center, the time it took to run GO-1 and GO-2 a thousand times each. The difference between the two, however, is likely to be negligible. Why is that?
+Try running GO-1 and GO-2 a number of times. Which is faster? Sometimes, it can be hard to tell when you're just playing with a model "by hand". This why we wrote a reporter procedure called `test-1-2`. There is no button for this procedure on the interface, but you can invoke it from the command center. If you try it, you will see the patch labels flickering in the view for a while, and then, printed in the command center, the time it took to run GO-1 and GO-2 a hundred times each. Although GO-2 is somewhat faster than GO-1, the difference isn't extreme. Why is that?
 
 As is common with a lot of NetLogo models, the bulk of the processing time is taken up by view updates: in this case, displaying all the patch labels on the screen. If you really want to measure the speed difference between two procedures, it is a good idea to turn off view updates by unchecking the corresponding checkbox in the NetLogo toolbar.
 
@@ -267,33 +283,11 @@ Another thing that you can try is to increase the size of the world. Is the diff
 
 ## EXTENDING THE MODEL
 
-We have used the `reset-timer` and `timer` primitives to write a test function that compares the running times of G0-1 and GO-2, but NetLogo also has a built in `profiler` extension that serves the same purpose and gives you a lot more information about the the performance of your model.
+We have used the `reset-timer` and `timer` primitives to write a test function that compares the running times of G0-1 and GO-2, but NetLogo also has a built in `profiler` extension that serves the same purpose and gives you a lot more information about the  performance of your model.
 
 You can read the documentation for the `profiler` extension online at [http://ccl.northwestern.edu/netlogo/docs/profiler.html](http://ccl.northwestern.edu/netlogo/docs/profiler.html).
 
 Try to replace the `test-1-2` procedure with one that is adapted from the example in the documentation of the `profiler` extension. Can you replicate the results that you had with `test-1-2`?
-
-## NETLOGO FEATURES
-
-In order to make this model an illustrative example, we had to _avoid_ some NetLogo features! The efficiency problem that we mentioned here are real, but NetLogo tries very hard to insulate you from them.
-
-So, what would our model look like if it was a "real world" model?
-
-If you're an experienced NetLogo programmer, you probably thought that lines like the following one looked a bit strange:
-
-    if count patches with [ pcolor = red ] >= 1
-
-First, the line is not really necessary: if you call [`ask`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#ask) on an empty agentset, nothing bad will happen: NetLogo will just skip over it. We could have left out the "`if`" condition and the program behavior would have been the same.
-
-Second, why didn't we use "`if count ... > 0`" or, even better, the [`any?`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#any) primitive? This is because NetLogo is smart enough to apply a special optimization to those when it compiles your model. If we write:
-
-    if any? patches with [ pcolor = red ]
-
-...NetLogo does not build the whole agentset: it stops as soon as it encounters a red patch! If we had done it like that, there would have been almost no difference in performance between GO-1 and GO-2.
-
-It is wise to keep in mind, however, that NetLogo is not always able to optimize your code for you (especially as your code gets more complex), so the concerns that we address with this model are important to pay attention to.
-
-In the end, if you have any doubt about the performance of a procedure, there is no substitute for experimentation: writing a procedure like `test-1-2` or using the `profiler` extension is the best way to find out if something makes a difference or not. You should also remember that, in most real world contexts, the readability of your code is more important than it's performance.
 
 ## CREDITS AND REFERENCES
 @#$#@#$#@
