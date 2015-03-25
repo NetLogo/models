@@ -120,6 +120,8 @@ Change the list of inputs and operators and see how that affects the results of 
 ## RELATED MODELS
 
 The Simple Machine Learning model builds on the present one to demonstrate how you can optimize the agents' strategies by letting them evolve over time.
+
+## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 true

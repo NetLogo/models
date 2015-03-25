@@ -205,11 +205,11 @@ The network is generated randomly, using the [`n-of`](http://ccl.northwestern.ed
 
 This is not the only way to generate random networks. The Random Network model, from the same IABM chapter, shows you three other ways to do it. You can also use [the network extension](http://ccl.northwestern.edu/netlogo/docs/nw.html) to generate networks.
 
-
-
 ## RELATED MODELS
 
 Communication T-T Example
+
+## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 true

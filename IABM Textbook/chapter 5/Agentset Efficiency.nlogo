@@ -294,6 +294,8 @@ Second, why didn't we use "`if count ... > 0`" or, even better, the [`any?`](htt
 It is wise to keep in mind, however, that NetLogo is not always able to optimize your code for you (especially as your code gets more complex), so the concerns that we address with this model are important to pay attention to.
 
 In the end, if you have any doubt about the performance of a procedure, there is no substitute for experimentation: writing a procedure like `test-1-2` or using the `profiler` extension is the best way to find out if something makes a difference or not. You should also remember that, in most real world contexts, the readability of your code is more important than it's performance.
+
+## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 true

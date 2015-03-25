@@ -228,6 +228,8 @@ This model uses the NetLogo's [`runresult`](http://ccl.northwestern.edu/netlogo/
 Our strategies are not directly stored as strings, however: they are stored as _lists_ of strings. To turn a strategy into a single string that can be handled by `runresult`, we use the [`reduce`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#reduce) primitive, which can turn a list of values into a single value by repeatedly applying a reporter to combine elements of the list. In this case, the reporter used is [`word`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#word), which simply concatenates the strings.
 
 The `runresult` primitive can also be used with [tasks](http://ccl.northwestern.edu/netlogo/docs/programming.html#tasks) instead of strings. See the Sandpile model in the library for an example.
+
+## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 true

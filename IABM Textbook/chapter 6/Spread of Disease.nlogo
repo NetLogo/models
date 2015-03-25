@@ -425,6 +425,8 @@ if variant = "environmental" [
 ```
 
 One nice thing about this NetLogo feature is that the temporary plot pen that we create is automatically added to the plot's legend (and removed from the legend when the plot is cleared, when calling [`clear-all`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#clear-all)).
+
+## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 true

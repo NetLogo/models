@@ -322,6 +322,8 @@ Finally, in the WIRE4 procedure, we use the following code to loop through each 
     ]
 
 This is of the few situations where using the WHO number (which uniquely identifies a turtle) can be handy: by having each turtle from the outer loop asking only turtles with a greater WHO number than itself in the inner loop, we make sure that each possible pair of turtles if considered only once.
+
+## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 true

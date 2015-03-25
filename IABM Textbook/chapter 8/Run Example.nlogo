@@ -115,6 +115,8 @@ Change the list of commands and see how that affects the results of the model.
 ## RELATED MODELS
 
 Sandpile Simple demonstrates the use of the [`run`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#run) primitive with [tasks](http://ccl.northwestern.edu/netlogo/docs/programming.html#tasks) instead of strings.
+
+## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 true

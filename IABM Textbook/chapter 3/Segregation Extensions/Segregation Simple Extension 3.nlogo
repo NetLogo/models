@@ -316,15 +316,6 @@ For what slider settings does the model run forever without all agents being sat
 
 In the UPDATE-GLOBALS procedure, note the use of SUM, COUNT, VALUES-FROM, and WITH to compute the percentages displayed in the monitors and plots.
 
-## REFERENCES
-
-This model is adapted from:
-
-Wilensky, U. (1997). NetLogo Segregation model. http://ccl.northwestern.edu/netlogo/models/Segregation. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-
-Schelling, T. (1978). Micromotives and Macrobehavior. New York: Norton.  
-See also a recent Atlantic article:   Rauch, J. (2002). Seeing Around Corners; The Atlantic Monthly; April 2002;Volume 289, No. 4; 35-48. http://www.theatlantic.com/issues/2002/04/rauch.htm
-
 ## HOW TO CITE
 
 This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling 
@@ -348,6 +339,15 @@ Please cite the textbook as:
 
 * Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling 
  Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, Ma. MIT Press.
+
+## CREDITS AND REFERENCES
+
+This model is adapted from:
+
+Wilensky, U. (1997). NetLogo Segregation model. http://ccl.northwestern.edu/netlogo/models/Segregation. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Schelling, T. (1978). Micromotives and Macrobehavior. New York: Norton.  
+See also a recent Atlantic article:   Rauch, J. (2002). Seeing Around Corners; The Atlantic Monthly; April 2002;Volume 289, No. 4; 35-48. http://www.theatlantic.com/issues/2002/04/rauch.htm
 @#$#@#$#@
 default
 true

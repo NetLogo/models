@@ -177,25 +177,6 @@ CA 1D Rule 90 --- the basic rule 90 model
 CA 1D Rule 110 --- the basic rule 110 model  
 CA 1D Rule 250 --- the basic rule 250 model
 
-## CREDITS AND REFERENCE
-
-The Game of Life was invented by John Horton Conway.
-
-See also:
-
-Von Neumann, J. and Burks, A. W., Eds, 1966. Theory of Self-Reproducing Automata. University of Illinois Press, Champaign, IL.
-
-"LifeLine: A Quarterly Newsletter for Enthusiasts of John Conway's Game of Life", nos. 1-11, 1971-1973.
-
-Martin Gardner, "Mathematical Games: The fantastic combinations of John Conway's new solitaire game `life',", Scientific American, October, 1970, pp. 120-123.
-
-Martin Gardner, "Mathematical Games: On cellular automata, self-reproduction, the Garden of Eden, and the game `life',", Scientific American, February, 1971, pp. 112-117.
-
-Berlekamp, Conway, and Guy, Winning Ways for your Mathematical Plays, Academic Press: New York, 1982.
-
-William Poundstone, The Recursive Universe, William Morrow: New York, 1985.
-
-
 ## HOW TO CITE
 
 This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems using NetLogo.”
@@ -217,6 +198,24 @@ Please cite the NetLogo software as:
 Please cite the textbook as:
 
 * Wilensky, U & Rand, W. (2013). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, Ma. MIT Press.
+
+## CREDITS AND REFERENCES
+
+The Game of Life was invented by John Horton Conway.
+
+See also:
+
+Von Neumann, J. and Burks, A. W., Eds, 1966. Theory of Self-Reproducing Automata. University of Illinois Press, Champaign, IL.
+
+"LifeLine: A Quarterly Newsletter for Enthusiasts of John Conway's Game of Life", nos. 1-11, 1971-1973.
+
+Martin Gardner, "Mathematical Games: The fantastic combinations of John Conway's new solitaire game `life',", Scientific American, October, 1970, pp. 120-123.
+
+Martin Gardner, "Mathematical Games: On cellular automata, self-reproduction, the Garden of Eden, and the game `life',", Scientific American, February, 1971, pp. 112-117.
+
+Berlekamp, Conway, and Guy, Winning Ways for your Mathematical Plays, Academic Press: New York, 1982.
+
+William Poundstone, The Recursive Universe, William Morrow: New York, 1985.
 @#$#@#$#@
 default
 true

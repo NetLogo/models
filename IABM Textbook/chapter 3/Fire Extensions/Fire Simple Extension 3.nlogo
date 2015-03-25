@@ -262,12 +262,6 @@ Try running the same settings with BIG-JUMPS? turned off and on, how does this a
 
 Fire Simple, Fire, Percolation, Rumor Mill
 
-## CREDITS AND REFERENCES
-
-This model is a simplified version of:
-
-Wilensky, U. (1997). NetLogo Fire model. http://ccl.northwestern.edu/netlogo/models/Fire. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-
 ## HOW TO CITE
 
 This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling 
@@ -287,6 +281,12 @@ Please cite the textbook as:
 
 Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling 
  Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, Ma. MIT Press.
+
+## CREDITS AND REFERENCES
+
+This model is a simplified version of:
+
+Wilensky, U. (1997). NetLogo Fire model. http://ccl.northwestern.edu/netlogo/models/Fire. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 @#$#@#$#@
 default
 true

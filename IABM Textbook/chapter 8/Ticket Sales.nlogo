@@ -410,7 +410,7 @@ This model demonstrates the use of the NetLogo GIS extension. It uses the extens
 GIS General Examples
 
 
-## REFERENCES
+## CREDITS AND REFERENCES
 
 This model was inspired by the work of Peggy Tseng and Wendy Moe. Especially, Peggy's dissertation:
 

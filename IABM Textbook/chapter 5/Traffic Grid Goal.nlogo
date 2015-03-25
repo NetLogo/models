@@ -813,6 +813,8 @@ At the moment, only two of the four arms of each intersection have traffic light
 This model is an adaptation of the TRAFFIC GRID model from the Social Sciences section of the NetLogo models library.
 
 It is also related to the TRAFFIC-BASIC-UTILITY and TRAFFIC-BASIC-ADAPTIVE models in the chapter 5 folder of the IABM TEXTBOOK folder. Each of the three traffic models from chapter five of the textbook demonstrates a different kind of agent cognition.
+
+## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 true

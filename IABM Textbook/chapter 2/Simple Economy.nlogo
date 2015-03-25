@@ -201,12 +201,6 @@ This model makes extensive use of the "widget" based graph methods.
 
 This model is related to the WEALTH DISTRIBUTION model.
 
-## CREDITS AND REFERENCES
-
-Models of this kind are described in: 
-Dragulescu, A. & V.M. Yakovenko, V.M. (2000).  Statistical Mechanics of Money. European Physics Journal B. 
-
-
 ## HOW TO CITE
 
 This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo.”
@@ -224,6 +218,11 @@ Please cite the NetLogo software as:
 Please cite the textbook as:
 
 * Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, Ma. MIT Press.
+
+## CREDITS AND REFERENCES
+
+Models of this kind are described in: 
+Dragulescu, A. & V.M. Yakovenko, V.M. (2000).  Statistical Mechanics of Money. European Physics Journal B.
 @#$#@#$#@
 default
 true

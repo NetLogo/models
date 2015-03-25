@@ -199,6 +199,8 @@ Please cite the NetLogo software as:
 Please cite the textbook as:
 
 * Wilensky, U & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, Ma. MIT Press.
+
+## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 true

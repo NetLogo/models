@@ -240,7 +240,7 @@ Further, the model currently allows for only two different network types and fou
 
 Finally, the model only allows users to choose one centrality measure by which to initially infect turtles. Ideally it would be possible to set a number of infected turtles, and choose proportions of centrality measures to infect these turtles.
 
-## REFERENCES
+## CREDITS AND REFERENCES
 
 Stonedahl, Forrest, William Rand, and Uri Wilensky (2010), "Evolving Viral Marketing Strategies," Genetic and Evolutionary Computation Conference (GECCO), July 7-11, Portland, OR, USA
 

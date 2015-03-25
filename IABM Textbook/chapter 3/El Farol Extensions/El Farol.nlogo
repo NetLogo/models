@@ -341,17 +341,6 @@ Stouffer, D. & Wilensky, U. (2004). NetLogo Minority Game HubNet model. http://c
   
 There is also an alternative implementation of this model with more parameters that is part of the NetLogo User Community Models.
 
-
-## CREDITS AND REFERENCES
-
-This model is adapted from:
-
-Rand, W. and Wilensky, U. (1997). NetLogo El Farol model. http://ccl.northwestern.edu/netlogo/models/ElFarol. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-
-This model is inspired by a paper by W. Brian Arthur. "Inductive Reasoning and Bounded Rationality", W. Brian Arthur, The American Economic Review, 1994, v84n2, p406-411.
-
-David Fogel et al. also built a version of this model using a genetic algorithm.  "Inductive reasoning and bounded rationality reconsidered", Fogel, D.B.; Chellapilla, K.; Angeline, P.J., IEEE Transactions on Evolutionary Computation, 1999, v3n2, p142-146.
-
 ## HOW TO CITE
 
 This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling 
@@ -371,6 +360,16 @@ Please cite the textbook as:
 
 * Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling 
  Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, Ma. MIT Press.
+
+## CREDITS AND REFERENCES
+
+This model is adapted from:
+
+Rand, W. and Wilensky, U. (1997). NetLogo El Farol model. http://ccl.northwestern.edu/netlogo/models/ElFarol. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+This model is inspired by a paper by W. Brian Arthur. "Inductive Reasoning and Bounded Rationality", W. Brian Arthur, The American Economic Review, 1994, v84n2, p406-411.
+
+David Fogel et al. also built a version of this model using a genetic algorithm.  "Inductive reasoning and bounded rationality reconsidered", Fogel, D.B.; Chellapilla, K.; Angeline, P.J., IEEE Transactions on Evolutionary Computation, 1999, v3n2, p142-146.
 @#$#@#$#@
 default
 true

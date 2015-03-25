@@ -190,16 +190,6 @@ The various models in the "Fractals" subsection of the "Mathematics" section of 
 
 The "Percolation" model in the "Earth Science" section produces patterns resembling the patterns in this model.
 
-## CREDITS AND REFERENCES
-
-This model is a simplified version of:
-
-Wilensky, U. (1997). NetLogo DLA model. http://ccl.northwestern.edu/netlogo/models/DLA. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-
-The concept of diffusion limited aggregation was invented by T.A. Witten and L.M. Sander in 1981.  Witten, T. & Sanders, L. (1981).  Diffusion-limited aggregation, a kinetic critical phenomena. Phys. Rev. Lett. 47(19), 1400–1403 (1981).
-
-Tamas Viczek's book "Fractal Growth Phenomena" contains a discussion, as do many other books about fractals.
-
 ## HOW TO CITE
 
 This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling 
@@ -219,6 +209,16 @@ Please cite the textbook as:
 
 * Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling 
  Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, Ma. MIT Press.
+
+## CREDITS AND REFERENCES
+
+This model is a simplified version of:
+
+Wilensky, U. (1997). NetLogo DLA model. http://ccl.northwestern.edu/netlogo/models/DLA. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+The concept of diffusion limited aggregation was invented by T.A. Witten and L.M. Sander in 1981.  Witten, T. & Sanders, L. (1981).  Diffusion-limited aggregation, a kinetic critical phenomena. Phys. Rev. Lett. 47(19), 1400–1403 (1981).
+
+Tamas Viczek's book "Fractal Growth Phenomena" contains a discussion, as do many other books about fractals.
 @#$#@#$#@
 default
 true

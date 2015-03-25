@@ -209,24 +209,6 @@ See other models in the Networks section of the Models Library, such as Giant Co
 
 See also Network Example, in the Code Examples section.
 
-## CREDITS AND REFERENCES
-This model is a simplified version of the PREFERENTIAL ATTACHMENT model from the networks section of the NetLogo models library.
-Wilensky, U. (2005).  NetLogo Preferential Attachment model.  http://ccl.northwestern.edu/netlogo/models/PreferentialAttachment.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-
-Both the original and this model are based on:  
-Albert-László Barabási. Linked: The New Science of Networks, Perseus Publishing, Cambridge, Massachusetts, pages 79-92.
-
-For a more technical treatment, see:  
-Albert-László Barabási & Reka Albert. Emergence of Scaling in Random Networks, Science, Vol 286, Issue 5439, 15 October 1999, pages 509-512.
-
-Barabási's webpage has additional information at: http://www.nd.edu/~alb/
-
-The layout algorithm is based on the Fruchterman-Reingold layout algorithm.  More information about this algorithm can be obtained at: http://citeseer.ist.psu.edu/fruchterman91graph.html.
-
-For a model similar to the one described in the suggested extension, please consult:  
-W. Brian Arthur, "Urban Systems and Historical Path-Dependence", Chapt. 4 in Urban systems and Infrastructure, J. Ausubel and R. Herman (eds.), National Academy of Sciences, Washington, D.C., 1988.
-
-
 ## HOW TO CITE
 
 This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo.”
@@ -244,6 +226,23 @@ Please cite the NetLogo software as:
 Please cite the textbook as:
 
 * Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, Ma. MIT Press.
+
+## CREDITS AND REFERENCES
+This model is a simplified version of the PREFERENTIAL ATTACHMENT model from the networks section of the NetLogo models library.
+Wilensky, U. (2005).  NetLogo Preferential Attachment model.  http://ccl.northwestern.edu/netlogo/models/PreferentialAttachment.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Both the original and this model are based on:  
+Albert-László Barabási. Linked: The New Science of Networks, Perseus Publishing, Cambridge, Massachusetts, pages 79-92.
+
+For a more technical treatment, see:  
+Albert-László Barabási & Reka Albert. Emergence of Scaling in Random Networks, Science, Vol 286, Issue 5439, 15 October 1999, pages 509-512.
+
+Barabási's webpage has additional information at: http://www.nd.edu/~alb/
+
+The layout algorithm is based on the Fruchterman-Reingold layout algorithm.  More information about this algorithm can be obtained at: http://citeseer.ist.psu.edu/fruchterman91graph.html.
+
+For a model similar to the one described in the suggested extension, please consult:  
+W. Brian Arthur, "Urban Systems and Historical Path-Dependence", Chapt. 4 in Urban systems and Infrastructure, J. Ausubel and R. Herman (eds.), National Academy of Sciences, Washington, D.C., 1988.
 @#$#@#$#@
 default
 true
