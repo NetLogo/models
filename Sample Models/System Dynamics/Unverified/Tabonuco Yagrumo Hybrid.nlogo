@@ -169,10 +169,6 @@ to test-pulse [ volume initial interval ]
     plotxy ticks y
     tick-advance dt ]
 end
-
-
-; Copyright 2006 Uri Wilensky.
-; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 521

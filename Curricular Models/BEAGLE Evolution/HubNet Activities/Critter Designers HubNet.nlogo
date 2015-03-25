@@ -665,10 +665,6 @@ end
 to-report species-count
   report length species-list
 end
-
-
-; Copyright 2011 Uri Wilensky.
-; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 505
@@ -1172,7 +1168,7 @@ Line -7500403 true 84 40 210 255
 Circle -7500403 true true 120 0 60
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.2-RC3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

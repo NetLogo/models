@@ -49,10 +49,6 @@ to-report pulse [volume initial interval]
      [ report slope * min (list ( dt / 2 ) ( abs ( interval - offset ) ) ) ]
   report 0
 end
-
-
-; Copyright 2006 Uri Wilensky.
-; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 594

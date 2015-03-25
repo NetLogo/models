@@ -529,7 +529,6 @@ to keep-in-region [ which-region ] ; turtle procedure
     ]
   ]
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 364
@@ -1053,14 +1052,6 @@ Refer to Bug Hunt Disruptions and Bug Hunt Environmental Changes for extensions 
 ## CREDITS AND REFERENCES
 
 This model is a part of the ModelSim curriculum (http://modelsim.tech.northwestern.edu/info/)
-
-
-## HOW TO CITE
-
-If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
-
-* Novak, M. and Wilensky, U. (2013).  NetLogo Bug Hunt Predators and Invasive Species model.  http://ccl.northwestern.edu/netlogo/models/BugHuntPredatorsAndInvasiveSpecies.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
-* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
 @#$#@#$#@
 default
 true
@@ -1471,7 +1462,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.2-RC3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

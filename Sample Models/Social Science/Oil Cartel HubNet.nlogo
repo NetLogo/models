@@ -1084,22 +1084,6 @@ Client specific plotting (experimental).
 ## RELATED MODELS
 
 Tragedy of the Commons, Gridlock, Prisoner's Dilemma HubNet
-
-## CREDITS AND REFERENCES
-
-For an introduction to firm behavior in imperfectly competitive markets see:
-Nicholson, Walter. Intermediate Microeconomics and Its Application.  Thomson Learning, 2004.
-
-For an in-depth discussion of models of oil cartel behavior see:
-Scherer, F.M. Industry Structure, Strategy, and Public Policy. Chapter 3. Addison-Wesley, 1996.
-
-
-## HOW TO CITE
-
-If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
-
-* Maroulis, S. and Wilensky, U. (2004).  NetLogo HubNet Oil Cartel model.  http://ccl.northwestern.edu/netlogo/models/HubNetOilCartel.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 @#$#@#$#@
 default
 true

@@ -143,10 +143,6 @@ to move-to-empty-one-of [locations]  ;; turtle procedure
     move-to one-of locations
   ]
 end
-
-
-; Copyright 2007 Uri Wilensky.
-; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 298
@@ -626,7 +622,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.2-RC3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

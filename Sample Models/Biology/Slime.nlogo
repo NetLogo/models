@@ -36,10 +36,6 @@ to turn-toward-chemical  ;; turtle procedure
     [ lt sniff-angle ] ]
     ;; default: don't turn
 end
-
-
-; Copyright 1997 Uri Wilensky.
-; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
