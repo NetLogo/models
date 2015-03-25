@@ -1,6 +1,6 @@
 globals
 [
-  tick-advance-amount                         ;; the amount by wich we will advance ticks
+  tick-advance-amount                         ;; the amount by which we will advance ticks
   max-tick-advance-amount                     ;; the largest a tick length is allowed to be
   box-edge                            ;; distance of box edge from axes
   avg-speed-init avg-energy-init      ;; initial averages
