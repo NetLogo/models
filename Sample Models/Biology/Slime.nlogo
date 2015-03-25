@@ -187,7 +187,7 @@ This model shows how creatures can aggregate into clusters without the control o
 
 Before Keller began her investigations, the conventional belief had been that slime mold swarms formed at the command of "pacemaker" cells that ordered the other cells to begin aggregating. In 1962, Shafer showed how the pacemakers could use cyclic AMP as a signal of sorts to rally the troops; the slime mold generals would release the compounds at the appropriate moments, triggering waves of cyclic AMP that washed through the entire community, as each isolated cell relayed the signal to its neighbors. Slime mold aggregation, in effect, was a giant game of Telephone — but only a few elite cells placed the original call.
 
-For the twenty years that followed the publication of Shafer's original essay, mycologists assumed that the missing pacemaker cells were a sign of insufficient data, or poorly designed experiments. But Keller and Segel took another, more radical approach. They shows that Shafer had it wrong --  that the community of slime mold cells were organizing themselves without any need for pacemalers. This was one of the first examples of emergence and self-organization in biology.
+For the twenty years that followed the publication of Shafer's original essay, mycologists assumed that the missing pacemaker cells were a sign of insufficient data, or poorly designed experiments. But Keller and Segel took another, more radical approach. They shows that Shafer had it wrong --  that the community of slime mold cells were organizing themselves without any need for pacemakers. This was one of the first examples of emergence and self-organization in biology.
 
 Initially, biologists did not accept this explanation. Indeed, the pacemaker hypothesis would continue as the reigning model for another decade. Now, slime mold aggregation is  recognized as a classic case study in bottom-up self-organizing behavior.
 
@@ -542,7 +542,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.2-RC3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
