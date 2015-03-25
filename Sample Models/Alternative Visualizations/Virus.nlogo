@@ -316,7 +316,7 @@ CHOOSER
 turtle-shape
 turtle-shape
 "person" "circle"
-0
+1
 
 BUTTON
 65
@@ -324,7 +324,7 @@ BUTTON
 210
 318
 watch a person
-if subject = nobody [\n  watch one-of turtles with [ color = green ]\n  ;; close-all-dead-inspectors\n  clear-drawing\n  ask subject [ pen-down ]\n  inspect subject\n]
+if subject = nobody [\n  watch one-of turtles with [ color = green ]\n  stop-inspecting-dead-agents\n  clear-drawing\n  ask subject [ pen-down ]\n  inspect subject\n]
 T
 1
 T
@@ -737,7 +737,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2-RC3
+NetLogo 5.2.0-RC3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
