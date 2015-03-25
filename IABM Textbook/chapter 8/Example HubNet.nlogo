@@ -173,7 +173,7 @@ You can also click directly on the view: this will cause your turtle to face the
 
 When the turtles move over a black background, it is hard for a participant to tell that their turtle _is_ indeed moving, unless there is another turtle in its immediate neighborhood. This is what the COLOR PATCHES button is for: the colorful background makes the movement of the turtle apparent.
 
-The lesson here is that designing an HubNet activity requires you to take the individual agent's point of view into account in addition to the "outside observer" point of view that is commonly used in NetLogo models. In this sense, HubNet activities are very much in the spirit of _agent-based_ modelling.
+The lesson here is that designing an HubNet activity requires you to take the individual agent's point of view into account in addition to the "outside observer" point of view that is commonly used in NetLogo models. In this sense, HubNet activities are very much in the spirit of _agent-based_ modeling.
 
 Note that HubNet messages are always sent between clients and the HubNet server, even if the model doesn't do anything with the messages. If HubNet messages are not fetched, they will queue up for the user to deal with later, using `hubnet-fetch-message`.
 
