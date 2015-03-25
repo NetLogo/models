@@ -81,11 +81,11 @@ end
 GRAPHICS-WINDOW
 273
 10
-656
-414
+640
+398
 25
 25
-7.314
+7.0
 1
 10
 1
@@ -106,10 +106,10 @@ ticks
 30.0
 
 MONITOR
-480
-425
-593
 470
+410
+583
+455
 Percent Unhappy
 percent-unhappy
 1
@@ -117,10 +117,10 @@ percent-unhappy
 11
 
 MONITOR
-356
-425
-464
-470
+346
+410
+454
+455
 Percent Similar
 percent-similar
 1
@@ -591,7 +591,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.2-RC3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

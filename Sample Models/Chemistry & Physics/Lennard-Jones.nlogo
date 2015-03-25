@@ -148,11 +148,11 @@ end
 GRAPHICS-WINDOW
 240
 10
-724
-515
+745
+536
 16
 16
-14.364
+15.0
 1
 10
 1
@@ -174,9 +174,9 @@ ticks
 
 BUTTON
 30
-195
+217
 204
-228
+250
 NIL
 setup\n
 NIL
@@ -191,9 +191,9 @@ NIL
 
 BUTTON
 120
-331
+353
 204
-364
+386
 NIL
 go
 T
@@ -208,9 +208,9 @@ NIL
 
 SLIDER
 30
-72
+94
 202
-105
+127
 num-atoms
 num-atoms
 1
@@ -223,9 +223,9 @@ HORIZONTAL
 
 SLIDER
 31
-294
+316
 205
-327
+349
 temperature
 temperature
 .01
@@ -238,9 +238,9 @@ HORIZONTAL
 
 SLIDER
 30
-109
+131
 202
-142
+164
 density
 density
 0.01
@@ -253,9 +253,9 @@ HORIZONTAL
 
 CHOOSER
 30
-146
+168
 203
-191
+213
 Initial-Config
 Initial-Config
 "HCP" "random"
@@ -263,9 +263,9 @@ Initial-Config
 
 PLOT
 33
-368
+390
 215
-513
+535
 energy per particle
 NIL
 NIL
@@ -293,17 +293,17 @@ TEXTBOX
 31
 10
 238
-73
-Model starting point. You can choose the number of atoms, the density and the intial configuration (random or hexagonally-close-packed)
+81
+Model starting point. You can choose the number of atoms, the density and the initial configuration (random or hexagonally-close-packed)
 11
 0.0
 1
 
 TEXTBOX
 31
-229
+251
 208
-257
+279
 _____________________________
 11
 0.0
@@ -311,9 +311,9 @@ _____________________________
 
 BUTTON
 32
-331
+353
 117
-364
+386
 go-once
 go\n
 NIL
@@ -327,10 +327,10 @@ NIL
 1
 
 TEXTBOX
-2
-251
-20
-287
+3
+263
+21
+299
 2
 30
 15.0
@@ -338,9 +338,9 @@ TEXTBOX
 
 TEXTBOX
 30
-248
+270
 225
-290
+312
 Adjust the temparture and run the model. The temperature can be adjusted while the model runs\n
 11
 0.0
@@ -761,7 +761,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.2-RC3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
