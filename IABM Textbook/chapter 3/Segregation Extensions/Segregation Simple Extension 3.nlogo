@@ -278,7 +278,7 @@ Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling N
 
 This project models the behavior of two types of turtles in a mythical pond. The red turtles and green turtles get along with one another. But each turtle wants to make sure that it lives near some of "its own." That is, each red turtle wants to live near at least some red turtles, and each green turtle wants to live near at least some green turtles. The simulation shows how these individual preferences ripple through the pond, leading to large-scale patterns.
 
-This project was inspired by Thomas Schelling's writings about social systems (particulalry with regards to housing segregation in cities).
+This project was inspired by Thomas Schelling's writings about social systems (particularly with regards to housing segregation in cities).
 
 This model is an extension of the Segregation Simple Extension 2 model. It adds a constraint that agents also want to have a minimum number of different agents around them.
 
