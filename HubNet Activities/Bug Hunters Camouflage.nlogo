@@ -6,12 +6,12 @@ globals
   mate-leader                   ;; a string expressing the player who has found the most bug (or a tie if appropriate)
   mate-leader-found             ;; the number of bug the leader has found
   predator-total-found          ;; running total of the total number of bug found
-  mate-total-found              ;; running total of the total number of bug foundf
+  mate-total-found              ;; running total of the total number of bug found
   leader                        ;; a string expressing the player who has found the most bugs (or a tie if appropriate)
   leader-found                  ;; the number of bugs the leader has found
   total-found                   ;; running total of the total number of bugs found by everyone
   adult-age                     ;; the number of ticks before bugs are full grown
-  image1                        ;; the first image uploded by the user for the environment
+  image1                        ;; the first image uploaded by the user for the environment
   image2                        ;; the second image uploaded by the user for the environment
   image3                        ;; default image
   image4                        ;; default image
@@ -20,7 +20,7 @@ globals
   number-of-predators           ;; keeps track of the number of predators (clients that are assigned this role) in the competition
   number-of-mates               ;; keeps track of the number of mates     (clients that are assigned this role) in the competition
   host-mouse-down-released?     ;; keeps track of mouse-button release event to prevent host from holding down button and moving mouse to vacuum up bugs
-  host-role                     ;; keeps track of the role the host is asssigned (mate or predator)
+  host-role                     ;; keeps track of the role the host is assigned (mate or predator)
 ]
 
 ;; each client controls one player turtle
@@ -543,8 +543,8 @@ to change-environment
     set-environment (match-image-input environment-right) 2
   ]
   ask bugs [ set hidden? true ]
-  bitmap:export bitmap:from-view (word temp-folder "stiched-image")
-  import-drawing (word temp-folder "stiched-image")
+  bitmap:export bitmap:from-view (word temp-folder "stitched-image")
+  import-drawing (word temp-folder "stitched-image")
   ask bugs [ set hidden? false ]
 end
 
@@ -896,7 +896,7 @@ item 0 [attempts] of players with [host?]
 @#$#@#$#@
 ## WHAT IS IT?
 
-This is a HubNet activity of natural selection that shows how a population hunted by a predator can develop camouflaging. It can shows how a population can become progressively more garish in appearance, when sexual selection is the prevelant selective pressure on the population.
+This is a HubNet activity of natural selection that shows how a population hunted by a predator can develop camouflaging. It can shows how a population can become progressively more garish in appearance, when sexual selection is the prevalent selective pressure on the population.
 
 For example, in a forest with green leaves, green bugs may emerge as the predominant bug color, when predators are hunting them, while red or yellow bugs may emerge as the predominant bug color in the same green leaved forest, when only mates are seeking them.
 
