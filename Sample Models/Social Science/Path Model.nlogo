@@ -21,7 +21,7 @@ to setup
   ]
 end
 
-;; Click to place buildingsw
+;; Click to place buildings
 ;; Have stuff unbecome path once it decays below a certain popularity threshold
 to go
   check-building-placement
