@@ -169,6 +169,10 @@ to test-pulse [ volume initial interval ]
     plotxy ticks y
     tick-advance dt ]
 end
+
+
+; Copyright 2006 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 521
@@ -256,8 +260,8 @@ SLIDER
 120
 818
 153
-user-hurricane-frequency
-user-hurricane-frequency
+user-hurricane-interval
+user-hurricane-interval
 0
 100
 20
@@ -384,7 +388,7 @@ The TABONUCO and YAGRUMO stocks represent the population of the two tree species
 
 Tabonuco trees grow slower than yagrumo trees, these rates are represented by the TABONUCO-GROWTH-RATE and YAGRUMO-GROWTH-RATE variables.  In each tick of the model, the two tree species attempt to grow into the available spaces.  However, tabonuco trees outlive yagrumo trees.  This relationship is represented by the TABONUCO-OUTGROWS-YAGRUMO flow from the YAGRUMO stock to the TABONUCO stock.  To represent this in the agent-based portion of the model, yagrumo trees are turned into tabonuco trees in the forest.
 
-The YAGRUMO-DIES and TABONUCO-DIES flows are connected to the DISTURBANCE variable.  This variable represents the destruction of trees by hurricanes.  The HURRICANE-STRENGTH and HURRICANE-FREQUENCY variables determine the timing and amount of disturbance, which can be controlled by sliders.
+The YAGRUMO-GROWS and TABONUCO-GROWS flows are also connected to the DISTURBANCE variable.  DISTURBANCE represents the destruction of trees by hurricanes.  The HURRICANE-STRENGTH and HURRICANE-INTERVAL variables determine amount of disturbance and the number of ticks between disturbances, which can be controlled by sliders..
 
 The model also tracks the amount of carbon and nitrogen produced by the trees.  The trees produce resources via photosynthesis.  The rest of the living things in the forest use these resources.  The CARBON and NITROGEN variables calculate how much of those chemicals are produced by the trees.
 
@@ -399,7 +403,7 @@ To run the model for one time step, press STEP.
 Alternatively, you can run only 250 steps by pressing the
 SETUP REPEAT 250 [ GO ] button.
 
-Adjust the USER-HURRICANE-FREQUENCY slider to determine how many time units occur between hurricanes.
+Adjust the USER-HURRICANE-INTERVAL slider to determine how many time units occur between hurricanes.
 
 Adjust the USER-HURRICANE-STRENGTH slider to determine how many trees are destroyed by the hurricanes
 
@@ -411,9 +415,9 @@ The results of the model is different from Tabonuco Yagrumo in several ways.  Fi
 
 ## THINGS TO TRY
 
-Change the USER-HURRICANE-FREQUENCY slider, observe what happens to the YAGRUMO population, and the productivity.  Do the same with USER-HURRICANE-STRENGTH.
+Change the USER-HURRICANE-INTERVAL slider, observe what happens to the YAGRUMO population, and the productivity.  Do the same with USER-HURRICANE-STRENGTH.
 
-Use the BehaviorSpace Tool to sweep the parameter space for the USER-HURRICANE-FREQUENCY and USER-HURRICANE-STRENGTH.
+Use the BehaviorSpace Tool to sweep the parameter space for the USER-HURRICANE-INTERVAL and USER-HURRICANE-STRENGTH.
 
 Use the GLOBALS monitor to observe the value of stocks, constants, model time, and model dt.
 
@@ -718,7 +722,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.2-RC3
 @#$#@#$#@
 @#$#@#$#@
 1.0
@@ -728,9 +732,9 @@ NetLogo 5.1.0
         org.nlogo.sdm.gui.StockFigure "attributes" "attributes" 1 "FillColor" "Color" 225 225 182 545 272 60 40
             org.nlogo.sdm.gui.WrappedStock "yagrumo-stock" ";; if you change this, be sure to update\n;; gaps initial value\ncount patches * 0.2" 1
         org.nlogo.sdm.gui.ConverterFigure "attributes" "attributes" 1 "FillColor" "Color" 130 188 183 441 503 50 50
-            org.nlogo.sdm.gui.WrappedConverter "user-hurricane-frequency" "hurricane-frequency"
+            org.nlogo.sdm.gui.WrappedConverter "user-hurricane-interval" "hurricane-interval"
         org.nlogo.sdm.gui.ConverterFigure "attributes" "attributes" 1 "FillColor" "Color" 130 188 183 357 418 50 50
-            org.nlogo.sdm.gui.WrappedConverter ";; We always have at least 0.001 disturbance,\n;; If hurricane frequency is above 0, then\n;; we have a hurricane strike at a regular\n;; otherwise we have a single hurricane strike\n;; at time 0\n0.001 + ifelse-value ( hurricane-frequency = 0 )\n  [ pulse hurricane-strength 0 0]\n  [ pulse hurricane-strength hurricane-frequency hurricane-frequency ]\n" "disturbance"
+            org.nlogo.sdm.gui.WrappedConverter ";; We always have at least 0.001 disturbance,\n;; If hurricane frequency is above 0, then\n;; we have a hurricane strike at a regular\n;; otherwise we have a single hurricane strike\n;; at time 0\n0.001 + ifelse-value ( hurricane-interval = 0 )\n  [ pulse hurricane-strength 0 0]\n  [ pulse hurricane-strength hurricane-interval hurricane-interval ]\n" "disturbance"
         org.nlogo.sdm.gui.BindingConnection 2 453 515 394 455 NULL NULL 0 0 0
             org.jhotdraw.contrib.ChopDiamondConnector REF 5
             org.jhotdraw.contrib.ChopDiamondConnector REF 7

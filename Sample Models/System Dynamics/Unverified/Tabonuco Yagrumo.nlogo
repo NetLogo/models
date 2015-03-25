@@ -49,6 +49,10 @@ to-report pulse [volume initial interval]
      [ report slope * min (list ( dt / 2 ) ( abs ( interval - offset ) ) ) ]
   report 0
 end
+
+
+; Copyright 2006 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 594
@@ -153,8 +157,8 @@ SLIDER
 99
 869
 132
-user-hurricane-frequency
-user-hurricane-frequency
+user-hurricane-interval
+user-hurricane-interval
 0
 100
 20
@@ -275,7 +279,7 @@ The relations between the tree species and the amount of space into which they c
 
 Tabonuco trees grow slower than yagrumo trees, these rates are represented by the TABONUCO-GROWTH-RATE and YAGRUMO-GROWTH-RATE variables.  However, tabonuco trees outlive yagrumo trees.  This relationship is represented by the TABONUCO-OUTGROWS-YAGRUMO flow from the YAGRUMO stock to the TABONUCO stock.
 
-The YAGRUMO-GROWS and TABONUCO-GROWS flows are also connected to the DISTURBANCE variable.  DISTURBANCE represents the destruction of trees by hurricanes.  The HURRICANE-STRENGTH and HURRICANE-FREQUENCY variables determine the timing and amount of disturbance, which can be controlled by sliders.
+The YAGRUMO-GROWS and TABONUCO-GROWS flows are also connected to the DISTURBANCE variable.  DISTURBANCE represents the destruction of trees by hurricanes.  The HURRICANE-STRENGTH and HURRICANE-INTERVAL variables determine amount of disturbance and the number of ticks between disturbances, which can be controlled by sliders.
 
 The model also tracks the amount of carbon and nitrogen produced by the trees.  The trees produce resources via photosynthesis.  The rest of the living things in the forest use these resources.  The CARBON and NITROGEN variables calculate how much of those chemicals are produced by the trees.
 
@@ -290,7 +294,7 @@ To run the model for one time step, press STEP.
 Alternatively, you can run only 250 steps by pressing the
 SETUP REPEAT 250 [ GO ] button.
 
-Adjust the USER-HURRICANE-FREQUENCY slider to determine how many time units occur between hurricanes.
+Adjust the USER-HURRICANE-INTERVAL slider to determine how many time units occur between hurricanes.
 
 Adjust the USER-HURRICANE-STRENGTH slider to determine how many trees are destroyed by the hurricanes
 
@@ -300,9 +304,9 @@ Hurricanes play an important role in the ecosystem.  The relative amount of each
 
 ## THINGS TO TRY
 
-Change the USER-HURRICANE-FREQUENCY slider, observe what happens to the YAGRUMO population, and the productivity.  Do the same with USER-HURRICANE-STRENGTH.
+Change the USER-HURRICANE-INTERVAL slider, observe what happens to the YAGRUMO population, and the productivity.  Do the same with USER-HURRICANE-STRENGTH.
 
-Use BehaviorSpace (on the Tools menu) to sweep the parameter space for the USER-HURRICANE-FREQUENCY and USER-HURRICANE-STRENGTH.  An experiment that does this is included.
+Use BehaviorSpace (on the Tools menu) to sweep the parameter space for the USER-HURRICANE-INTERVAL and USER-HURRICANE-STRENGTH.  An experiment that does this is included.
 
 Use the GLOBALS monitor to observe the value off stocks, constants, model time, and model dt.
 
@@ -316,7 +320,7 @@ Vary the strength of the hurricanes, randomly, across an interval.
 
 ## NETLOGO FEATURES
 
-This model uses the System Dynamics Modeler.
+This model uses the System Dynamics Modeler. This model also shows how to simulate discrete events (like hurricanes) in system dynamics.
 
 It includes a built-in BehaviorSpace experiment.
 
@@ -611,7 +615,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.2-RC3
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
@@ -628,11 +632,11 @@ need-to-manually-make-preview-for-this-model
             org.jhotdraw.standard.ChopBoxConnector REF 3
             org.nlogo.sdm.gui.WrappedRate "tabonuco-growth-rate *  yagrumo   * tabonuco" "tabonuco-outgrows-yagrumo" REF 6 REF 4 0
         org.nlogo.sdm.gui.ConverterFigure "attributes" "attributes" 1 "FillColor" "Color" 130 188 183 489 268 50 50
-            org.nlogo.sdm.gui.WrappedConverter "user-hurricane-frequency" "hurricane-frequency"
+            org.nlogo.sdm.gui.WrappedConverter "user-hurricane-interval" "hurricane-interval"
         org.nlogo.sdm.gui.ConverterFigure "attributes" "attributes" 1 "FillColor" "Color" 130 188 183 748 148 50 50
             org.nlogo.sdm.gui.WrappedConverter "0.20" "yagrumo-growth-rate"
         org.nlogo.sdm.gui.ConverterFigure "attributes" "attributes" 1 "FillColor" "Color" 130 188 183 435 209 50 50
-            org.nlogo.sdm.gui.WrappedConverter ";; We always have at least 0.001 disturbance,\n;; If hurricane frequency is above 0, then\n;; we have a hurricane strike at a regular\n;; otherwise we have a single hurricane strike\n;; at time 0\n0.001 + ifelse-value ( hurricane-frequency = 0 )\n  [ pulse hurricane-strength 0 0]\n  [ pulse hurricane-strength hurricane-frequency hurricane-frequency ]\n" "disturbance"
+            org.nlogo.sdm.gui.WrappedConverter ";; We always have at least 0.001 disturbance,\n;; If hurricane interval is above 0, then\n;; we have a hurricane strike at a regular\n;; otherwise we have a single hurricane strike\n;; at time 0\n0.001 + ifelse-value ( hurricane-interval = 0 )\n  [ pulse hurricane-strength 0 0]\n  [ pulse hurricane-strength hurricane-interval hurricane-interval ]\n" "disturbance"
         org.nlogo.sdm.gui.ConverterFigure "attributes" "attributes" 1 "FillColor" "Color" 130 188 183 291 271 50 50
             org.nlogo.sdm.gui.WrappedConverter "0.065" "tabonuco-growth-rate"
         org.nlogo.sdm.gui.BindingConnection 2 502 279 471 247 NULL NULL 0 0 0
@@ -733,7 +737,7 @@ need-to-manually-make-preview-for-this-model
     <metric>gaps</metric>
     <metric>ticks</metric>
     <steppedValueSet variable="user-hurricane-strength" first="0" step="0.1" last="1"/>
-    <steppedValueSet variable="user-hurricane-frequency" first="0" step="5" last="80"/>
+    <steppedValueSet variable="user-hurricane-interval" first="0" step="5" last="80"/>
   </experiment>
 </experiments>
 @#$#@#$#@
