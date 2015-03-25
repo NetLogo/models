@@ -180,14 +180,14 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model is inspired by the aggregation behavior of slime-mold cells. 
+This model is inspired by the aggregation behavior of slime-mold cells.
 The slime mold spends much of its life as thousands of distinct single-celled units, each moving separately. Under the right conditions, those many cells will coalesce into a single, larger organism. When the environment is less hospitable, the slime mold acts as a single organism; when the weather turns cooler and the mold enjoys a large food supply, "it" becomes a "they." The slime mold oscillates between being a single creature and a swarm.
 
 This model shows how creatures can aggregate into clusters without the control of a "leader" or "pacemaker" cell. This finding was first described by Evelyn Fox Keller and Lee Siegel in a paper in 1970.
 
 Before Keller began her investigations, the conventional belief had been that slime mold swarms formed at the command of "pacemaker" cells that ordered the other cells to begin aggregating. In 1962, Shafer showed how the pacemakers could use cyclic AMP as a signal of sorts to rally the troops; the slime mold generals would release the compounds at the appropriate moments, triggering waves of cyclic AMP that washed through the entire community, as each isolated cell relayed the signal to its neighbors. Slime mold aggregation, in effect, was a giant game of Telephone — but only a few elite cells placed the original call.
 
-For the twenty years that followed the publication of Shafer's original essay, mycologists assumed that the missing pacemaker cells were a sign of insufficient data, or poorly designed experiments. But Keller and Segel took another, more radical approach. They shows that Shafer had it wrong --  that the community of slime mold cells were organizing themselves without any need for pacemalers. This was one of the first examples of emergence and self-organization in biology. 
+For the twenty years that followed the publication of Shafer's original essay, mycologists assumed that the missing pacemaker cells were a sign of insufficient data, or poorly designed experiments. But Keller and Segel took another, more radical approach. They shows that Shafer had it wrong --  that the community of slime mold cells were organizing themselves without any need for pacemalers. This was one of the first examples of emergence and self-organization in biology.
 
 Initially, biologists did not accept this explanation. Indeed, the pacemaker hypothesis would continue as the reigning model for another decade. Now, slime mold aggregation is  recognized as a classic case study in bottom-up self-organizing behavior.
 
@@ -251,12 +251,12 @@ Ants uses a similar idea of creatures that both drop chemical and follow the gra
 Keller, E & Segal, L. (1970). Initiation of slime mold aggregation viewed as an instability. Journal of Theoretical Biology,
 Volume 26, Issue 3, March 1970, Pages 399–415.
 
-Wilensky, U., & Resnick, M. (1999). Thinking in levels: A dynamic systems approach to making sense of the world. Journal of Science Education and Technology, 8(1), 3-19. 
+Wilensky, U., & Resnick, M. (1999). Thinking in levels: A dynamic systems approach to making sense of the world. Journal of Science Education and Technology, 8(1), 3-19.
 
 Johnson, S. (2001). Emergence: The Connected Lives of Ants, Brains, Cities, and Software. New York: Scribner.
-	
-Resnick, M. (1996). Beyond the centralized mindset. Journal of the Learning Sciences, 5(1), 1-22. 
-	
+
+Resnick, M. (1996). Beyond the centralized mindset. Journal of the Learning Sciences, 5(1), 1-22.
+
 See also http://www.creepinggarden.com for video of slime mold.
 @#$#@#$#@
 default

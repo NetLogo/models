@@ -191,10 +191,10 @@ to init-household
   set farmplot self
   set age household-min-initial-age + random (household-max-initial-age - household-min-initial-age)
   set nutrition-need household-min-nutrition-need + random (household-max-nutrition-need - household-min-nutrition-need)
-  set	fertility-age min-fertility-age + random (max-fertility-age - min-fertility-age)
-  set	death-age min-death-age + random (max-death-age - min-death-age)
+  set fertility-age min-fertility-age + random (max-fertility-age - min-fertility-age)
+  set death-age min-death-age + random (max-death-age - min-death-age)
   set fertility-ends-age min-fertility-ends-age + random (max-fertility-ends-age - min-fertility-ends-age)
-  set	fertility min-fertility + random-float (max-fertility - min-fertility)
+  set fertility min-fertility + random-float (max-fertility - min-fertility)
   set last-harvest 0
   find-farm-and-settlement
 end
@@ -529,24 +529,24 @@ to calculate-yield
       if apdsi >=  3.0 [ set yield 961 ]
       if apdsi >=  1.0 and apdsi < 3.0 [ set yield 824 ]
       if apdsi >  -1.0 and apdsi < 1.0 [ set yield 684 ]
-	    if apdsi >  -3.0 and apdsi <= -1.0 [ set yield 599 ]
-	    if apdsi <= -3.0 [ set yield 514 ]
+      if apdsi >  -3.0 and apdsi <= -1.0 [ set yield 599 ]
+      if apdsi <= -3.0 [ set yield 514 ]
     ]
 
     if maize-zone = "Yield_3" [
       if apdsi >=  3.0 [ set yield 769 ]
-	    if apdsi >=  1.0 and apdsi < 3.0 [ set yield 659 ]
-	    if apdsi >  -1.0 and apdsi < 1.0 [ set yield 547 ]
-	    if apdsi > -3.0 and apdsi <= -1.0 [ set yield 479 ]
-	    if apdsi <= -3.0 [ set yield 411 ]
+      if apdsi >=  1.0 and apdsi < 3.0 [ set yield 659 ]
+      if apdsi >  -1.0 and apdsi < 1.0 [ set yield 547 ]
+      if apdsi > -3.0 and apdsi <= -1.0 [ set yield 479 ]
+      if apdsi <= -3.0 [ set yield 411 ]
     ]
 
     if maize-zone = "Sand_dune" [
       if apdsi >=  3.0 [ set yield 1201 ]
-	    if apdsi >=  1.0 and apdsi < 3.0 [ set yield 1030 ]
-	    if apdsi >  -1.0 and apdsi < 1.0 [ set yield 855 ]
-	    if apdsi >  -3.0 and apdsi <= -1.0 [ set yield 749 ]
-	    if apdsi <= -3.0 [ set yield 642 ]
+      if apdsi >=  1.0 and apdsi < 3.0 [ set yield 1030 ]
+      if apdsi >  -1.0 and apdsi < 1.0 [ set yield 855 ]
+      if apdsi >  -3.0 and apdsi <= -1.0 [ set yield 749 ]
+      if apdsi <= -3.0 [ set yield 642 ]
     ]
 
     if map-view = "yield" [ set pcolor (40 + base-yield / 140) ]
