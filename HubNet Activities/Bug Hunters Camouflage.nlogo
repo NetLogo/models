@@ -16,7 +16,6 @@ globals
   image3                        ;; default image
   image4                        ;; default image
   image5                        ;; default image
-  temp-folder                   ;; location of the temp folder to download the default images
   number-of-predators           ;; keeps track of the number of predators (clients that are assigned this role) in the competition
   number-of-mates               ;; keeps track of the number of mates     (clients that are assigned this role) in the competition
   host-mouse-down-released?     ;; keeps track of mouse-button release event to prevent host from holding down button and moving mouse to vacuum up bugs
@@ -543,8 +542,10 @@ to change-environment
     set-environment (match-image-input environment-right) 2
   ]
   ask bugs [ set hidden? true ]
-  bitmap:export bitmap:from-view (word temp-folder "stitched-image")
-  import-drawing (word temp-folder "stitched-image")
+  let image-file-name "stitched-image.png"
+  bitmap:export bitmap:from-view image-file-name
+  import-drawing image-file-name
+  carefully [ file-delete image-file-name ] []
   ask bugs [ set hidden? false ]
 end
 
