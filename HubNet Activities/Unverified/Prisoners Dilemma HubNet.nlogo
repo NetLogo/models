@@ -825,6 +825,8 @@ Note the use of the turtle variable `label` to display each turtle's average sco
 ## RELATED MODELS
 
 PD Basic, PD N-Person Iterated, PD Basic Evolutionary, PD 2-Person Iterated
+
+## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 false
