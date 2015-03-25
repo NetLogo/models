@@ -1,0 +1,1020 @@
+patches-own [
+  patch-type ;; inner, surface, or air
+  hCount
+]
+
+globals[
+  ;;visualization constants
+  h4-color h3-color h2-color h1-color
+  anchor-transparency ;;color transparency for anchors
+  hydrogen-transparency ;;color transparency for hydrogen
+  boxSize hSize
+
+  hTotal ;; total hydrogen available in patches and free-roaming
+  hRemain ;; remaining hydrogen
+  ]
+
+breed [hydrogens hydrogen]  ;;hydrogen
+breed [anchors anchor] ;;patch visualization
+
+to setup
+  ca
+  set anchor-transparency 161
+
+  ;;Colors for Hydrogen Counts
+  ifelse h4On
+  [set h4-color white]   
+  [set h4-color 0]
+
+  ifelse h3On
+  [set h3-color green]  
+  [set h3-color 0]
+
+  ifelse h2On
+  [set h2-color blue]  
+  [set h2-color 0]
+
+  ifelse h1On
+  [set h1-color red]  
+  [set h1-color 0]
+
+  set hydrogen-transparency 200 
+  set boxSize 0.30 
+  set hSize 0.35 
+
+  ;;SETUP PATCHES
+
+  ;; all patches start as air
+  ask patches
+  [ set patch-type "air" ]
+
+  ;;Quick diffuse surface patches
+  ask patches with [(pxcor > min-pxcor and pxcor < max-pxcor) and
+                    (pycor > min-pycor and pycor < max-pycor) and
+                    (pzcor > min-pzcor and pzcor < max-pzcor)] [
+    set patch-type "surface" 
+  ]
+                    
+  ;;Inner lattice patches
+  ask patches with [(pxcor > min-pxcor + 1 and pxcor < max-pxcor - 1) and
+                    (pycor > min-pycor + 1 and pycor < max-pycor - 1) and
+                    (pzcor > min-pzcor + 1 and pzcor < max-pzcor - 1)] [
+    set patch-type "inner" 
+  ]
+
+  ;;Populate anchors
+  ask patches with [patch-type != "air" ] [
+    sprout-anchors 1 [ 
+      set shape "square" 
+      set color lput anchor-transparency extract-rgb h4-color
+      set size boxSize 
+      set heading 0 
+      set pitch 0
+    ]
+    set hCount 4 
+  ]
+
+  ;;Total Hydrogens
+  set hTotal ((count patches with [patch-type != "air"]) * 3)
+  set hRemain hTotal
+
+
+  ;;Grid Draw
+  if (gridDraw) [
+    ask patch min-pxcor min-pycor min-pzcor [ 
+      sprout 1 [ 
+        set color gray - 2 
+
+        ;;Y
+        set heading 0
+        ;;loop setup
+        set xcor xcor - 1.5 set ycor ycor - 0.5 set zcor zcor - 1.5
+        repeat (max-pxcor * 2 + 1) [ 
+          set zcor zcor + 1
+          repeat (max-pxcor * 2 + 1) [ 
+            set ycor min-pxcor - 0.5
+            set xcor xcor + 1
+            pd fd .25 repeat (max-pxcor * 2) [ pu fd .5 pd fd .5 ] pu fd .5 pd fd .25 pu ]
+          set xcor xcor + 1 
+        ]
+        set xcor xcor + 1
+
+        ;;X
+        set heading 90
+        ;;loop setup
+        set ycor ycor - 1 set zcor min-pzcor - 0.5 - 1
+        repeat (max-pxcor * 2 + 1) [ 
+          set zcor zcor + 1
+          repeat (max-pxcor * 2 + 1) [ 
+            set ycor ycor + 1
+            pd fd .25 repeat (max-pxcor * 2) [ pu fd .5 pd fd .5 ] pu fd .5 pd fd .25 pu ]
+          set ycor ycor + 1 
+        ]
+
+        ;;Z
+        set pitch 90
+        ;;loop setup
+        set zcor zcor + 1 set xcor xcor - 1
+        repeat (max-pxcor * 2 + 1) [ 
+          set ycor ycor + 1
+          repeat (max-pxcor * 2 + 1) [ 
+            set xcor xcor + 1
+            pd fd .25 repeat (max-pxcor * 2) [ pu fd .5 pd fd .5 ] pu fd .5 pd fd .25 pu ]
+          set xcor xcor + 1 
+        ]
+        
+        ;;kill pen turtle
+        die 
+      ]
+    ]
+  ]
+  reset-ticks
+end
+
+to go
+
+  ;;Termination %
+  if (hRemain < (hTotal * endPercent / 100)) [ 
+    ask patch 0 0 0 [set pcolor red]
+    stop 
+  ]
+
+  ;; removing H2 from model
+  ask hydrogens with [color = yellow] [die]
+
+  ;;Freedom! - Hydrogen desorbs
+  ask patches with [hCount = 2] [ 
+    if random-float 1.0 < p2to1 [ 
+      set hCount hCount - 1
+      sprout-hydrogens 1 [ 
+        set shape "circle"
+        set color lput hydrogen-transparency extract-rgb h1-color 
+        set size hSize 
+        fd random-float .4 - .8
+      ]
+      ask anchors-here [ 
+        set color lput anchor-transparency extract-rgb h1-color 
+      ]
+    ]
+  ]
+
+  ask patches with [hCount = 3] [ 
+    if random-float 1.0 < p3to2 [ 
+      set hCount hCount - 1
+      sprout-hydrogens 1 [ 
+        set shape "circle"
+        set color lput hydrogen-transparency extract-rgb h2-color
+        set size hSize 
+        fd random-float .4 - .8
+      ]
+      ask anchors-here [ 
+        set color lput anchor-transparency extract-rgb h2-color 
+      ]
+    ]
+  ]
+
+  ask patches with [hCount = 4] [ 
+    if random-float 1.0 < p4to3 [ 
+      set hCount hCount - 1
+      sprout-hydrogens 1 [ 
+        set shape "circle"
+        set color lput hydrogen-transparency extract-rgb h3-color
+        set size hSize 
+        fd random-float .4 - .8
+      ]
+      ask anchors-here [ 
+        set color lput anchor-transparency extract-rgb h3-color 
+      ]
+    ]
+  ]
+
+  ;;Absorption
+  ask hydrogens [
+  
+    ;;2 to 3 absorption
+    ifelse ((hCount = 2) and (random-float 1.0 < p2to3)) [ 
+      set hCount hCount + 1 ;; patch variable
+      ask anchors-here [
+        set color lput anchor-transparency extract-rgb h3-color
+      ]
+      die
+    ] [
+
+    ;;3 to 4 absorption
+      if ((hCount = 3) and (random-float 1.0 < p3to4)) [ 
+        set hCount hCount + 1 ;; patch variable
+        ask anchors-here [
+          set color lput anchor-transparency extract-rgb h4-color
+        ]
+        die
+      ]
+    ]
+  ]
+
+  ;; HYDROGEN MOVEMENT
+
+  ask hydrogens-on patches with [patch-type = "inner"] [
+    let norm (count neighbors6 with [hCount = 1]) * red-diffuse + (count neighbors6 with [hCount > 1]) + 0.00000000001
+    let pRed (count neighbors6 with [hCount = 1]) * red-diffuse / norm ;;percent chance to move to red(depleted regions)
+
+    ifelse (random-float 1.0 < pRed) [
+      face one-of neighbors6 with [hCount = 1]
+    ] [ 
+      ifelse count (neighbors6 with [hCount > 1]) > 0 [ 
+        face one-of neighbors6 with [hCount > 1 ]
+      ]
+      [ 
+        face one-of neighbors6
+      ]
+    ]
+    
+    ;; move to neighboring patch, then slightly off-center
+    fd random-float 1.4 - .8 
+  ]
+
+  ;; quick-diffuse surface hydrogens
+  ask hydrogens-on patches with [patch-type != "inner"] [ 
+    face one-of neighbors with [patch-type = "surface"]
+    fd 1 
+  ]
+
+  ;; PAIRING-UP AND LEAVING
+  ;;==============================================================================
+  ask patches with [patch-type = "surface"] [
+
+    ;; When there are two hydrogens on one surface lattice patch, combine and leave system
+    if ((count hydrogens-here) > 1) [
+      ask n-of 2 hydrogens-here [
+        set color yellow
+        set size .5  
+      ]
+      set hRemain hRemain - 2 
+    ]
+  ]
+
+  update-histogram
+
+  tick
+end
+
+;; Create histogram where bars match colors in the model
+to update-histogram
+  set-current-plot "Patch Distribution"
+  plot-pen-reset
+  set-plot-pen-mode 1     ;; bar mode
+  set-plot-pen-color h1-color
+  plot ifelse-value (h1On) [count anchors with [color = lput anchor-transparency extract-rgb h1-color]][0]
+  set-plot-pen-color h2-color
+  plot ifelse-value (h2On) [count anchors with [color = lput anchor-transparency extract-rgb h2-color]][0]
+  set-plot-pen-color h3-color
+  plot ifelse-value (h3On) [count anchors with [color = lput anchor-transparency extract-rgb h3-color]][0]
+  set-plot-pen-color black
+  plot ifelse-value (h4On) [count anchors with [color = lput anchor-transparency extract-rgb h4-color]][0]
+end
+@#$#@#$#@
+GRAPHICS-WINDOW
+0
+0
+245
+252
+8
+8
+13.0
+1
+10
+1
+1
+1
+0
+1
+1
+1
+-8
+8
+-8
+8
+-8
+8
+1
+1
+1
+ticks
+30.0
+
+BUTTON
+125
+15
+210
+48
+NIL
+go
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+15
+15
+105
+48
+NIL
+setup
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+235
+25
+430
+58
+p4to3
+p4to3
+0
+1
+0.05
+.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+235
+60
+430
+93
+p3to2
+p3to2
+0
+1
+0.05
+.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+235
+95
+430
+128
+p2to1
+p2to1
+0
+1
+0.05
+0.01
+1
+NIL
+HORIZONTAL
+
+PLOT
+450
+140
+655
+285
+Total  Hydrogen Count
+time
+h
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"hydrogens" 1.0 0 -13345367 true "" "plot hRemain"
+
+SLIDER
+15
+95
+210
+128
+endPercent
+endPercent
+0
+100
+23
+1
+1
+%
+HORIZONTAL
+
+SLIDER
+235
+160
+430
+193
+p3to4
+p3to4
+0
+1
+0.05
+.01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+235
+195
+430
+228
+p2to3
+p2to3
+0
+1
+0.05
+0.01
+1
+NIL
+HORIZONTAL
+
+SWITCH
+15
+280
+110
+313
+h3On
+h3On
+0
+1
+-1000
+
+SWITCH
+15
+245
+110
+278
+h4On
+h4On
+0
+1
+-1000
+
+SWITCH
+115
+245
+210
+278
+h2On
+h2On
+0
+1
+-1000
+
+SWITCH
+115
+280
+210
+313
+h1On
+h1On
+0
+1
+-1000
+
+SLIDER
+235
+280
+430
+313
+red-diffuse
+red-diffuse
+0
+2
+0.1
+0.01
+1
+NIL
+HORIZONTAL
+
+TEXTBOX
+15
+215
+225
+245
+Turns on/off the color visualizations for the nth free hydrogen
+11
+0.0
+1
+
+SWITCH
+15
+160
+117
+193
+gridDraw
+gridDraw
+0
+1
+-1000
+
+MONITOR
+450
+80
+655
+125
+Fraction of Surface H Remaining
+(sum [hCount - 1] of patches with [patch-type = \"surface\"]) / (3 * count patches with [patch-type = \"surface\"])
+3
+1
+11
+
+MONITOR
+450
+25
+655
+70
+Percent of Hydrogen Remaining
+(hRemain / hTotal) * 100
+3
+1
+11
+
+TEXTBOX
+15
+145
+220
+163
+Enables or disables the grid markings
+11
+0.0
+1
+
+TEXTBOX
+235
+10
+430
+36
+Hydrogen Desorption Probabilities
+11
+0.0
+1
+
+TEXTBOX
+235
+145
+430
+171
+Hydrogen Absorption Probabilities
+11
+0.0
+1
+
+TEXTBOX
+235
+250
+430
+290
+Probability to move to depleted red patch vs different colored patch
+11
+0.0
+1
+
+TEXTBOX
+15
+60
+160
+90
+Simulation termination % (of initial hydrogen)
+11
+0.0
+1
+
+PLOT
+450
+310
+655
+460
+Patch Distribution
+NIL
+NIL
+0.0
+4.0
+0.0
+10.0
+true
+false
+";set-histogram-num-bars 4\n;histogram [hcount] of patches" ""
+PENS
+"pen-0" 1.0 1 -7500403 true "" ""
+
+@#$#@#$#@
+## WHAT IS IT?
+
+This model simulates hydrogen diffusion through a lattice, in particular, hydrogen desorption from solid state hydrides. These hydrides are hydrogen storage materials that absorb hydrogen at high pressures, and release hydrogen at high temperatures. This research tool allows us to better understand the kinetics of hydrogen desorption from a lattice, which can aid in the development of candidate hydrogen storage materials for hydrogen fuel cell powered vehicles. These vehicles have the potential to be extremely efficient, zero-emission vehicles and may serve to be a central component in the battle against global warming. 
+
+Diffusion and desorption are complex material behaviors, and these kinetics are not well understood. There are several fundamental parameters involved in these processes:
+
+####Bond breaking  
+Hydrogen atoms are stored on molecular units like BH<sub>4</sub> and AlH<sub>4</sub>, where they are bonded to some central atom like boron or aluminum. In order for hydrogen to diffuse, it must break the bond formed with this central atom. An important factor affecting this process is the strength of the bond, controlled in the model by the hydrogen desporption probabilities sliders.
+
+####Diffusion through different phases  
+As hydrogen desorbs, the underlying crystal structure of the material will change. This in turn affects the movement speed of hydrogen atoms through the material. It is important to model the relative probability of a hydrogen atom moving into a cell depleted of hydrogen, versus a completely full cell.
+
+####Reabsorption  
+There is a probability that if a hydrogen atom travels to a non-full cell, it will form bonds with the central atom in that cell. This reabsorption property is probabilistic and can dramatically affect the desorption rate from the materials.
+
+This model explores the contribution of each of these properties on the desorption and diffusion behavior of candidate hydrogen storage materials. Different materials can be modeled through setting the absorbtion and desoprtion probabilities to match the behavior of the material under investigation. 
+
+## HOW IT WORKS
+The model begins with a fully saturated lattice with all available hydrogen in compound form.  Hydrogen will diffuse freely through the lattice until they reach the surface of the material, where they must pair off in order to leave the lattice as a H<sub>2</sub> gas molecule. The simulation terminates when the available hydrogen in the model reaches the user-set termination percent.
+
+The SETUP button initializes the model with a fully satured latice of hydrogen atoms.
+
+The GO button begins the diffusion process.  
+The lattice is represented by a series of small cubes marking the center of each lattice molecule. At each tick, hydrogen atoms have the opportunity to break their bonds to the lattice molecule. This behavior is contolled by the HYDROGEN DESORPTION PROBABILITIES sliders which define the probability of a hyrogen atom desorbing based on the number of hydrogen atoms currently bonded with the central atom.  Free hydrogen within the lattice will move to one of its six neighboring patches with equal probability, unless one of them is a depleted (red) patch, where the probability is altered by a factor of RED-DIFFUSE. The hydrogen will continue to desporb/absorb over the course of the model run until it pairs up and leaves the system.
+
+When a free hydrogen atom reach the surface of the lattice, it will still move once per tick, but can only move to other patches on the surface of the material. When it pairs up with another hydrogen, it flashes yellow then is removed from the model.
+
+The color of the cube indicates the amount of available desorbable hydrogen.  
+White:&nbsp;&nbsp;XH<sub>4</sub>: fully saturated with 3 potential available hydrogen atoms
+Blue:&nbsp;&nbsp;&nbsp;&nbsp;XH<sub>3</sub>: 2 potential hydrogen to be desporbed
+Green:&nbsp;&nbsp;XH<sub>2</sub>: 1 potential hydroen to be desporbed
+Red:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XH&nbsp;&nbsp;: fully depleated with no available hydrogen to lose
+
+*This is modeled after LiBH<sub>4</sub>, which follows the reaction LiBH<sub>4</sub> -> LiH+B+3/2H<sub>2</sub>. LiH is a stable compound and does not desorb more hydrogen.
+
+When an atom has desorbed all available hydrogen, it becomes red and "stable". At this stage, it undergoes a "phase change". It is unknown if hydrogen will diffuse through these phases at different speeds, but it is very likely to have a different diffusing speed. Because the XH compound has less hydrogen, it ought to be less dense, and we anticipate the diffusion rate to be slower. In the model, this rate can be controlled by the RED-DIFUSE slider.
+
+The desorbed hydrogen follow a similar color scheme:  
+Blue - first free hydrogen  
+Green - second free hydrogen  
+Red - third free hydrogen
+
+## HOW TO USE IT
+
+The probability for desorption, diffusion, and absorption of free hydrogen can be changed using corresponding sliders. By varying the desorption sliders, one can control the probability for hydrogen atoms to free themselves from the compound at each of the three stages (4->3, 3->2, 2-1). Similarly, the absorption sliders control the probability for hydrogen atoms to be re-absorbed back into molecular form (causing the lattice cube to change color accordingly).
+
+### Visualization Options
+
+The GridDraw switch enables the user to turn on or off the grid markings for each patch.  By default this is set to off and is generally not recommended for world sizes of larger than 5x5x5.
+
+The four H-On switches enable the user to change the color of the desired hydrogen to dark gray.  This allows the user to focus their attention on one particular stage of diffusion.  For example, turning off the H4,H3,H2 switches will color everything dark gray except for the red depleted lattice patches as well as the final desorbed hydrogen.
+
+### Monitors
+
+Fraction of Surface H Remaining:
+Displays the fraction of desorbable hydrogen (vs. initial) remaining in the surface layer of the lattice.  
+
+Percent of Hydrogen Remaining:  
+Displays fraction of desorbable hydrogen (vs. initial) remaining in the entire lattice.  
+
+Total Hydrogen Count:
+Displays total of both attached and free hydrogens remaining in the system over time.
+
+Patch Distribution:
+Shows the distribution of patches based on how many desorable hydrogen it are present
+
+## THINGS TO NOTICE
+
+One interesting thing to notice about the model is that the Total Hydrogen Count plot will have two distinct slopes. First, there will be a steep decrease near the beginning of the simulation, due to the fact that the desorbed hydrogen atoms near the surface will quickly pair up and leave the system. This will be followed by a linear region of diffusion as the particles regularly leave the system.  Given that the user has allowed for absorption and reabsorption at all stages, as the particles leave the system and desorption and reabsorption continues, the outer region of the lattice may decay to XH1(red) more quickly than the inner region. This is due to the fact that free desorbed hydrogen atoms exit through the surface of the material, while the hydrogen atoms in the central part of the lattice must diffuse more before being able to exit the system. Effectively, the inner lattice patches have greater opportunity to absorb free hydrogen. Changing the sliders can modify the degree to which this effect occurs.
+
+## THINGS TO TRY
+
+Setting all hydrogen control parameters to 0.10 will induce a "shell effect," where outer hydrogen atoms leave quickly, and free hydrogen atoms will become trapped in the central region of the lattice.  This is due to a re-absorption probability in combination with a slower relative diffusion rate through depleted cells.
+
+When the redDiffuse is increased, the desorption rate decreases dramatically, with nearly linear dependence on this slider. With zero redDiffuse (0% chance to move to a red patch when there are other patches to move to), we observe many desorbed hydrogen atoms tightly grouped around a small area of non-depleted patches sustained by abnormally high re-absorption rates. Eventually these patches will become depleted, causing an 'explosion' of each of these clusters of free hydrogen atoms.  While this phenomenon is rather unrealistic, 0% redDiffuse is unrealistic as well.
+
+Absorption also plays a huge role on the rate of hydrogen leaving the system.  
+With the absorption sliders set to 0, the simulation runs extremely quickly.  
+But with a slight increase of p3to4 and p2to3 to 0.02, the simulation time nearly doubles.
+
+## EXTENDING THE MODEL
+
+There are many interesting techniques that are used to accelerate kinetics of desorption that could eventually be modeled by this simulation.
+
+The properties that are being investigated (bond breaking, diffusion speed, etc.) are calculable using first-principles Density Functional Theory methods. Having a built in converter that changed binding energy directly to a bond-breaking probability would allow the model to be greatly extended to model a great number of realistic systems.
+
+Additionally, there are several catalytic means that could be implemented into this model. There is a 'magic dust' concept, where the inclusion of a very small amount of catalyst can dramatically reduce desorption time. There is alloy seeding, where the existence of depleted patches nearby promote the formation of similar patches nearby, depleting hydrogen. There is finally a size-effect - it is known that nanoparticles desorb hydrogen at much lower temperatures than bulk materials, but it is not known why - sophisticated size effect models could also be examined.
+
+## CREDITS AND REFERENCES
+
+This project was programmed by Daniel Kim, a graduating senior from the computer science department at Northwestern University as part of Professor Wilensky's Agent-Based Modeling class. It was advised by Wenhao Sun, a graduating senior in the Department of Materials Science and Engineering at Northwestern University.
+@#$#@#$#@
+default
+true
+0
+Polygon -7500403 true true 150 5 40 250 150 205 260 250
+
+airplane
+true
+0
+Polygon -7500403 true true 150 0 135 15 120 60 120 105 15 165 15 195 120 180 135 240 105 270 120 285 150 270 180 285 210 270 165 240 180 180 285 195 285 165 180 105 180 60 165 15
+
+arrow
+true
+0
+Polygon -7500403 true true 150 0 0 150 105 150 105 293 195 293 195 150 300 150
+
+box
+false
+0
+Polygon -7500403 true true 150 285 285 225 285 75 150 135
+Polygon -7500403 true true 150 135 15 75 150 15 285 75
+Polygon -7500403 true true 15 75 15 225 150 285 150 135
+Line -16777216 false 150 285 150 135
+Line -16777216 false 150 135 15 75
+Line -16777216 false 150 135 285 75
+
+bug
+true
+0
+Circle -7500403 true true 96 182 108
+Circle -7500403 true true 110 127 80
+Circle -7500403 true true 110 75 80
+Line -7500403 true 150 100 80 30
+Line -7500403 true 150 100 220 30
+
+butterfly
+true
+0
+Polygon -7500403 true true 150 165 209 199 225 225 225 255 195 270 165 255 150 240
+Polygon -7500403 true true 150 165 89 198 75 225 75 255 105 270 135 255 150 240
+Polygon -7500403 true true 139 148 100 105 55 90 25 90 10 105 10 135 25 180 40 195 85 194 139 163
+Polygon -7500403 true true 162 150 200 105 245 90 275 90 290 105 290 135 275 180 260 195 215 195 162 165
+Polygon -16777216 true false 150 255 135 225 120 150 135 120 150 105 165 120 180 150 165 225
+Circle -16777216 true false 135 90 30
+Line -16777216 false 150 105 195 60
+Line -16777216 false 150 105 105 60
+
+car
+false
+0
+Polygon -7500403 true true 300 180 279 164 261 144 240 135 226 132 213 106 203 84 185 63 159 50 135 50 75 60 0 150 0 165 0 225 300 225 300 180
+Circle -16777216 true false 180 180 90
+Circle -16777216 true false 30 180 90
+Polygon -16777216 true false 162 80 132 78 134 135 209 135 194 105 189 96 180 89
+Circle -7500403 true true 47 195 58
+Circle -7500403 true true 195 195 58
+
+circle
+false
+0
+Circle -7500403 true true 0 0 300
+
+circle 2
+false
+0
+Circle -7500403 true true 0 0 300
+Circle -16777216 true false 30 30 240
+
+cow
+false
+0
+Polygon -7500403 true true 200 193 197 249 179 249 177 196 166 187 140 189 93 191 78 179 72 211 49 209 48 181 37 149 25 120 25 89 45 72 103 84 179 75 198 76 252 64 272 81 293 103 285 121 255 121 242 118 224 167
+Polygon -7500403 true true 73 210 86 251 62 249 48 208
+Polygon -7500403 true true 25 114 16 195 9 204 23 213 25 200 39 123
+
+cylinder
+false
+0
+Circle -7500403 true true 0 0 300
+
+dot
+false
+0
+Circle -7500403 true true 90 90 120
+
+face happy
+false
+0
+Circle -7500403 true true 8 8 285
+Circle -16777216 true false 60 75 60
+Circle -16777216 true false 180 75 60
+Polygon -16777216 true false 150 255 90 239 62 213 47 191 67 179 90 203 109 218 150 225 192 218 210 203 227 181 251 194 236 217 212 240
+
+face neutral
+false
+0
+Circle -7500403 true true 8 7 285
+Circle -16777216 true false 60 75 60
+Circle -16777216 true false 180 75 60
+Rectangle -16777216 true false 60 195 240 225
+
+face sad
+false
+0
+Circle -7500403 true true 8 8 285
+Circle -16777216 true false 60 75 60
+Circle -16777216 true false 180 75 60
+Polygon -16777216 true false 150 168 90 184 62 210 47 232 67 244 90 220 109 205 150 198 192 205 210 220 227 242 251 229 236 206 212 183
+
+fish
+false
+0
+Polygon -1 true false 44 131 21 87 15 86 0 120 15 150 0 180 13 214 20 212 45 166
+Polygon -1 true false 135 195 119 235 95 218 76 210 46 204 60 165
+Polygon -1 true false 75 45 83 77 71 103 86 114 166 78 135 60
+Polygon -7500403 true true 30 136 151 77 226 81 280 119 292 146 292 160 287 170 270 195 195 210 151 212 30 166
+Circle -16777216 true false 215 106 30
+
+flag
+false
+0
+Rectangle -7500403 true true 60 15 75 300
+Polygon -7500403 true true 90 150 270 90 90 30
+Line -7500403 true 75 135 90 135
+Line -7500403 true 75 45 90 45
+
+flower
+false
+0
+Polygon -10899396 true false 135 120 165 165 180 210 180 240 150 300 165 300 195 240 195 195 165 135
+Circle -7500403 true true 85 132 38
+Circle -7500403 true true 130 147 38
+Circle -7500403 true true 192 85 38
+Circle -7500403 true true 85 40 38
+Circle -7500403 true true 177 40 38
+Circle -7500403 true true 177 132 38
+Circle -7500403 true true 70 85 38
+Circle -7500403 true true 130 25 38
+Circle -7500403 true true 96 51 108
+Circle -16777216 true false 113 68 74
+Polygon -10899396 true false 189 233 219 188 249 173 279 188 234 218
+Polygon -10899396 true false 180 255 150 210 105 210 75 240 135 240
+
+house
+false
+0
+Rectangle -7500403 true true 45 120 255 285
+Rectangle -16777216 true false 120 210 180 285
+Polygon -7500403 true true 15 120 150 15 285 120
+Line -16777216 false 30 120 270 120
+
+leaf
+false
+0
+Polygon -7500403 true true 150 210 135 195 120 210 60 210 30 195 60 180 60 165 15 135 30 120 15 105 40 104 45 90 60 90 90 105 105 120 120 120 105 60 120 60 135 30 150 15 165 30 180 60 195 60 180 120 195 120 210 105 240 90 255 90 263 104 285 105 270 120 285 135 240 165 240 180 270 195 240 210 180 210 165 195
+Polygon -7500403 true true 135 195 135 240 120 255 105 255 105 285 135 285 165 240 165 195
+
+line
+true
+0
+Line -7500403 true 150 0 150 300
+
+line half
+true
+0
+Line -7500403 true 150 0 150 150
+
+pentagon
+false
+0
+Polygon -7500403 true true 150 15 15 120 60 285 240 285 285 120
+
+person
+false
+0
+Circle -7500403 true true 110 5 80
+Polygon -7500403 true true 105 90 120 195 90 285 105 300 135 300 150 225 165 300 195 300 210 285 180 195 195 90
+Rectangle -7500403 true true 127 79 172 94
+Polygon -7500403 true true 195 90 240 150 225 180 165 105
+Polygon -7500403 true true 105 90 60 150 75 180 135 105
+
+plant
+false
+0
+Rectangle -7500403 true true 135 90 165 300
+Polygon -7500403 true true 135 255 90 210 45 195 75 255 135 285
+Polygon -7500403 true true 165 255 210 210 255 195 225 255 165 285
+Polygon -7500403 true true 135 180 90 135 45 120 75 180 135 210
+Polygon -7500403 true true 165 180 165 210 225 180 255 120 210 135
+Polygon -7500403 true true 135 105 90 60 45 45 75 105 135 135
+Polygon -7500403 true true 165 105 165 135 225 105 255 45 210 60
+Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
+
+sheep
+false
+0
+Rectangle -7500403 true true 151 225 180 285
+Rectangle -7500403 true true 47 225 75 285
+Rectangle -7500403 true true 15 75 210 225
+Circle -7500403 true true 135 75 150
+Circle -16777216 true false 165 76 116
+
+square
+false
+0
+Rectangle -7500403 true true 30 30 270 270
+
+square 2
+false
+0
+Rectangle -7500403 true true 30 30 270 270
+Rectangle -16777216 true false 60 60 240 240
+
+star
+false
+0
+Polygon -7500403 true true 151 1 185 108 298 108 207 175 242 282 151 216 59 282 94 175 3 108 116 108
+
+target
+false
+0
+Circle -7500403 true true 0 0 300
+Circle -16777216 true false 30 30 240
+Circle -7500403 true true 60 60 180
+Circle -16777216 true false 90 90 120
+Circle -7500403 true true 120 120 60
+
+tree
+false
+0
+Circle -7500403 true true 118 3 94
+Rectangle -6459832 true false 120 195 180 300
+Circle -7500403 true true 65 21 108
+Circle -7500403 true true 116 41 127
+Circle -7500403 true true 45 90 120
+Circle -7500403 true true 104 74 152
+
+triangle
+false
+0
+Polygon -7500403 true true 150 30 15 255 285 255
+
+triangle 2
+false
+0
+Polygon -7500403 true true 150 30 15 255 285 255
+Polygon -16777216 true false 151 99 225 223 75 224
+
+truck
+false
+0
+Rectangle -7500403 true true 4 45 195 187
+Polygon -7500403 true true 296 193 296 150 259 134 244 104 208 104 207 194
+Rectangle -1 true false 195 60 195 105
+Polygon -16777216 true false 238 112 252 141 219 141 218 112
+Circle -16777216 true false 234 174 42
+Rectangle -7500403 true true 181 185 214 194
+Circle -16777216 true false 144 174 42
+Circle -16777216 true false 24 174 42
+Circle -7500403 false true 24 174 42
+Circle -7500403 false true 144 174 42
+Circle -7500403 false true 234 174 42
+
+turtle
+true
+0
+Polygon -10899396 true false 215 204 240 233 246 254 228 266 215 252 193 210
+Polygon -10899396 true false 195 90 225 75 245 75 260 89 269 108 261 124 240 105 225 105 210 105
+Polygon -10899396 true false 105 90 75 75 55 75 40 89 31 108 39 124 60 105 75 105 90 105
+Polygon -10899396 true false 132 85 134 64 107 51 108 17 150 2 192 18 192 52 169 65 172 87
+Polygon -10899396 true false 85 204 60 233 54 254 72 266 85 252 107 210
+Polygon -7500403 true true 119 75 179 75 209 101 224 135 220 225 175 261 128 261 81 224 74 135 88 99
+
+wheel
+false
+0
+Circle -7500403 true true 3 3 294
+Circle -16777216 true false 30 30 240
+Line -7500403 true 150 285 150 15
+Line -7500403 true 15 150 285 150
+Circle -7500403 true true 120 120 60
+Line -7500403 true 216 40 79 269
+Line -7500403 true 40 84 269 221
+Line -7500403 true 40 216 269 79
+Line -7500403 true 84 40 221 269
+
+x
+false
+0
+Polygon -7500403 true true 270 75 225 30 30 225 75 270
+Polygon -7500403 true true 30 75 75 30 270 225 225 270
+
+@#$#@#$#@
+NetLogo 3D 5.1.0
+@#$#@#$#@
+@#$#@#$#@
+@#$#@#$#@
+@#$#@#$#@
+@#$#@#$#@
+default
+0.0
+-0.2 0 0.0 1.0
+0.0 1 1.0 0.0
+0.2 0 0.0 1.0
+link direction
+true
+0
+Line -7500403 true 150 150 90 180
+Line -7500403 true 150 150 210 180
+
+@#$#@#$#@
+1
+@#$#@#$#@
