@@ -21,7 +21,7 @@ globals [
   rotating-cursor-color           ;; color of the mouse cursor when getting ready to rotate a bacterium
   fixed-cursor-shape              ;; shape of cursor when picking up and dragging bacterium
   rotating-cursor-shape           ;; shape of cursor when rotating a bacterium
-  region-divider-shape            ;; shape od divider between left and right region
+  region-divider-shape            ;; shape of divider between left and right region
   bacteria-size                   ;; size  of bacterium (and flagellum)
 
   sprout-delay-time               ;; time delay before resprouting algae in a water spot after it has been completely consumed
