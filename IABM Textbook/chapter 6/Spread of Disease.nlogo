@@ -398,8 +398,8 @@ NetLogo is very good at simulating the spread of epidemics, so there are a few d
 
 - AIDS
 - Disease Solo
-- Disease [HubNet]
-- Disease Doctors [HubNet]
+- Disease HubNet
+- Disease Doctors HubNet
 - epiDEM Basic
 - epiDEM Travel and Control
 - Virus on a Network

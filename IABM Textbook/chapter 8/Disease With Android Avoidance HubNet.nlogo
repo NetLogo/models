@@ -872,7 +872,7 @@ Currently, the turtles remain sick once they're infected.  How would the shape o
 
 ##  RELATED MODELS
 
-Disease [HubNet]
+Disease HubNet
 Virus
 @#$#@#$#@
 default

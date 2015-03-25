@@ -207,7 +207,7 @@ Notice, also, that the COLOR PATCHES button is a bit different from the others: 
 
 ## RELATED MODELS
 
-This model originaly based upon the Template [HubNet] model from the library. All the models in the HubNet Activities folder of the library more or less share the same basic structure.
+This model originaly based upon the Template HubNet model from the library. All the models in the HubNet Activities folder of the library more or less share the same basic structure.
 @#$#@#$#@
 default
 true
