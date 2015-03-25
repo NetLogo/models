@@ -374,7 +374,7 @@ to send-this-players-info ;; player procedure
   if num-ties > 1 [set any-ties (word " [" num-ties "-way tie]") ]
   ifelse include-clients-as-bugs?
     [set message-to-send (word  place  out-of any-ties)]
-    [set message-to-send "not currently in this competion"]
+    [set message-to-send "not currently in this competition”]
   hubnet-send user-id "Your Place in the Competition" message-to-send
   
 end
