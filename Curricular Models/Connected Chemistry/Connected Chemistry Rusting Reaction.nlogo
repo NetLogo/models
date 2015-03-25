@@ -441,7 +441,7 @@ end
 ;;      (call it theta).
 ;;   2. Convert the representation of the velocity of each oxygen-molecules from
 ;;      speed/heading to a theta-based vector whose first component is the
-;;      oxygen-molecules's speed along theta, and whose second component is the speed
+;;      oxygen-molecules' speed along theta, and whose second component is the speed
 ;;      perpendicular to theta.
 ;;   3. Modify the velocity vectors to reflect the effects of the collision.
 ;;      This involves:
