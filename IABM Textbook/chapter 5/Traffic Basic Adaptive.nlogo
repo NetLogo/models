@@ -72,7 +72,7 @@ end
 
 to adaptive-go
 
-  ;; check to see if we should test a new value for accelaration this tick
+  ;; check to see if we should test a new value for acceleration this tick
   let testing? false
   if ticks mod ticks-between-exploration = 0 [
     set testing? true
@@ -82,7 +82,7 @@ to adaptive-go
   ;; invoke the non-adaptive go code
   go
   
-  ;; check to see if our new spead of turtles is better than the previous speeds if so
+  ;; check to see if our new speed of turtles is better than the previous speeds if so
   ;;   then adopt the new acceleration
   ;; you don't want to take one data point as a measure of the speed. Instead you
   ;; calculate a weighted average of the past observed speed and the current speed.
