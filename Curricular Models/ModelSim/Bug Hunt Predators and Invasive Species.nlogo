@@ -27,7 +27,7 @@ globals
   birds-energy-gain-from-bugs     ;; how much energy birds gain from eating bugs
   birds-energy-gain-from-invaders ;; how much energy birds gain from eating invaders
   min-reproduce-energy-invaders   ;; energy required for reproduction by invaders
-  min-reproduce-energy-birds      ;; energy required for reproduction by brids
+  min-reproduce-energy-birds      ;; energy required for reproduction by birds
   max-birds-offspring             ;; maximum number of offspring per reproductive event for a bird
   max-invaders-offspring          ;; maximum number of offspring per reproductive event for an invader
      
@@ -352,7 +352,7 @@ end
 
 
 to reproduce-bugs  ;; bugs procedure
-  let number-new-offspring (random (max-bugs-offspring + 1)) ;; set number of potential offpsring from 1 to (max-bugs-offspring)
+  let number-new-offspring (random (max-bugs-offspring + 1)) ;; set number of potential offspring from 1 to (max-bugs-offspring)
   if (energy > ((number-new-offspring + 1) * min-reproduce-energy-bugs)  and current-age > bug-reproduce-age)
   [
       set energy (energy - (number-new-offspring  * min-reproduce-energy-bugs))      ;;lose energy when reproducing --- given to children
@@ -1014,7 +1014,7 @@ LEFT-INITIAL-BIRDS and RIGHT-INITIAL-BIRDS:  Determines the initial size of the 
 
 FOOD-LEFT-BUGS-EAT and FOOD-RIGHT-BUGS-EAT:  Sets the amount of energy that bugs in that region gain from eating grass at a patch as well as the amount of energy deducted from that grass patch.
 
-LEFT-INITIAL-BUGS and RIGHT-INITIAL-BIUGS:  Determines the initial size of the bug population in that region.
+LEFT-INITIAL-BUGS and RIGHT-INITIAL-BUGS:  Determines the initial size of the bug population in that region.
 
 LEFT-REGION-%-OF-GRASSLAND and RIGHT-REGION-%-OF-GRASSLAND: The percentage of patches in the world & view that produce grass in that region.  The grass patches that don't produce grass will show "gray" rocks/gravel.
 
@@ -1030,7 +1030,7 @@ Watch as the grass, bug, bird, and invader populations fluctuate.  How are incre
 
 Different % of grassland values affect the carrying capacity (average values) for both the bugs, grass, birds, and invasive. Why?
 
-Different food consumption values (FODD-LEFT-BUGS-EAT and FOOD-RIGHT-BUGS-EAT and 
+Different food consumption values (FOOD-LEFT-BUGS-EAT and FOOD-RIGHT-BUGS-EAT and 
 FOOD-LEFT-INVADERS-EAT and FOOD-RIGHT-INVADERS-EAT) may lead to different levels of stability as well as whether one population (bugs vs. invaders) outcompetes the other.
 
 
