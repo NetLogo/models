@@ -864,6 +864,9 @@ A sandbox version of the model could be used to give the player of the model the
 ## RELATED MODELS
 
 Bacteria Hunt Speeds
+
+
+## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 true
