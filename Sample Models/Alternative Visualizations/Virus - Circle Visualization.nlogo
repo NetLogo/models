@@ -67,9 +67,8 @@ to go
   ask turtles [
     get-older
     move
-    if sick? [ infect ]
     if sick? [ recover-or-die ]
-    if not sick? [ reproduce ]
+    ifelse sick? [ infect ] [ reproduce ]
   ]
   update-global-variables
   update-shapes
