@@ -923,9 +923,9 @@ Bugs wander randomly around one of two regions (left or right). Each region is a
 
 Each time step, each bug loses one unit of energy and they must consume a food source (grass) to replenish their energy. When they run out of energy, they die. To allow the population to continue, each bug must have enough energy to have an offspring. When that threshold is reached, the offspring and parent split the energy amongst themselves.
 
-Different amounts of grassland can be assigned to each region. Within each region, those grassland spots will regrow grass at a fixed rate, when it is eaten. Grass is eated when a bug moves over that patch. When this happens, a fixed amount of grass energy is deducted from the patch (square) where the grass was eaten.
+Different amounts of grassland can be assigned to each region. Within each region, those grassland spots will regrow grass at a fixed rate, when it is eaten. Grass is eaten when a bug moves over that patch. When this happens, a fixed amount of grass energy is deducted from the patch (square) where the grass was eaten.
 
-Different disturbances can be tested in this system, including temporary removal of grass (simulating a fire) and infection of some percentage of the bugs (simulating transmitable disease).
+Different disturbances can be tested in this system, including temporary removal of grass (simulating a fire) and infection of some percentage of the bugs (simulating transmittable disease).
 
 
 ## HOW TO USE IT
