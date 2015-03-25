@@ -234,8 +234,6 @@ NIL
 HORIZONTAL
 
 @#$#@#$#@
-# Collaborative Pathfinding
-
 ## WHAT IS IT?
 
 This is a model about how paths emerge along commonly traveled routes. People tend to take routes that other travelers before them have taken, making them more popular and causing other travelers to follow those same routes. This can be used to determine an ideal set of routes between a set of points of interest without needing a central planner. Paths emerge from routes that travelers share.
@@ -590,7 +588,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.2-RC3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
