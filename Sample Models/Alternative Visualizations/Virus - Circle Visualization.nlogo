@@ -65,18 +65,12 @@ end
 
 to go
   ask turtles [
-  get-older
-  move 
-  if sick? [
-  infect
+    get-older
+    move
+    if sick? [ infect ]
+    if sick? [ recover-or-die ]
+    if not sick? [ reproduce ]
   ]
-  if sick? [
-     recover-or-die
-  ]
-  if not sick? [
-    reproduce
-  ]
-]
   update-global-variables
   update-shapes
   tick
@@ -93,64 +87,61 @@ to update-shapes
     [ ask turtles [ set shape turtle-shape ] ]
 end
 
-;; turtle procedure
 ;;Turtle counting variables are advanced.
-to get-older
- ;; Turtles die of old age once their age exceeds the
- ;; lifespan (set at 50 years in this model).
-      set age age + 1
-      if age > lifespan [ die ]
-      if sick? [ set sick-time (sick-time + 1) ] 
+to get-older ;; turtle procedure
+  ;; Turtles die of old age once their age exceeds the
+  ;; lifespan (set at 50 years in this model).
+  set age age + 1
+  if age > lifespan [ die ]
+  if sick? [ set sick-time (sick-time + 1) ]
 end
 
-;; turtle procedure
 ;; Turtles move about at random.
-to move
-    rt random 100
-    lt random 100
-    fd 1 
+to move ;; turtle procedure
+  rt random 100
+  lt random 100
+  fd 1
 end
 
-;; turtle procedure
 ;; If a turtle is sick, it infects other turtles on the same patch.
 ;; Immune turtles don't get sick.
-to infect
-    ask other turtles-here with [ not immune? ]  [
-         if random-float 100 < infectiousness [
-            get-sick 
-            if self = subject [create-link-with myself [set color red] ] ] ] 
+to infect ;; turtle procedure
+  ask other turtles-here with [ not immune? ]
+    [ if random-float 100 < infectiousness
+      [ get-sick
+        if self = subject             ;; if its the watched turtle getting sick
+          [ create-link-with myself   ;; create a link with the one that infected it
+            [ set color red ] ] ] ]
 end
 
-;; turtle procedure
 ;; Once the turtle has been sick long enough, it
 ;; either recovers (and becomes immune) or it dies.
-to recover-or-die
-     if sick-time > duration                        ;; If the turtle has survived past the virus' duration, then
-       [ ifelse random-float 100 < chance-recover    ;; either recover or die
-          [ become-immune ]
-          [ die ] ] 
+to recover-or-die ;; turtle procedure
+  if sick-time > duration                        ;; If the turtle has survived past the virus' duration, then
+    [ ifelse random-float 100 < chance-recover   ;; either recover or die
+      [ become-immune ]
+      [ die ] ]
 end
 
 ;; If there are less turtles than the carrying-capacity
-;;  then turtles can reproduce.
+;; then turtles can reproduce.
 to reproduce
-     if count turtles < carrying-capacity
-         and random-float 100 < chance-reproduce
-       [ hatch 1
-           [ set age 1
-             if show-age? [set label age]
-             lt 45 fd 1
-             get-healthy ] ] 
+  if count turtles < carrying-capacity and random-float 100 < chance-reproduce
+    [ hatch 1
+      [ set age 1
+        if show-age? [ set label age ]
+        lt 45 fd 1
+        get-healthy ] ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-262
+280
 10
-727
-496
+780
+531
 17
 17
-13.0
+14.0
 1
 10
 1
@@ -171,10 +162,10 @@ ticks
 30.0
 
 SLIDER
-31
-172
-225
-205
+40
+155
+234
+188
 duration
 duration
 0.0
@@ -186,10 +177,10 @@ weeks
 HORIZONTAL
 
 SLIDER
-31
-138
-225
-171
+40
+121
+234
+154
 chance-recover
 chance-recover
 0.0
@@ -201,10 +192,10 @@ chance-recover
 HORIZONTAL
 
 SLIDER
-31
-104
-225
-137
+40
+87
+234
+120
 infectiousness
 infectiousness
 0.0
@@ -216,10 +207,10 @@ infectiousness
 HORIZONTAL
 
 BUTTON
-53
-65
-123
-100
+62
+48
+132
+83
 NIL
 setup
 NIL
@@ -233,10 +224,10 @@ NIL
 1
 
 BUTTON
-129
-65
-200
-101
+138
+48
+209
+84
 NIL
 go
 T
@@ -250,10 +241,10 @@ NIL
 0
 
 PLOT
-9
-414
-261
-578
+15
+375
+267
+539
 Populations
 weeks
 people
@@ -271,10 +262,10 @@ PENS
 "total" 1.0 0 -13345367 true "" "plot count turtles"
 
 SLIDER
-31
-27
-225
-60
+40
+10
+234
+43
 number-people
 number-people
 10
@@ -286,10 +277,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-22
-367
-97
-412
+28
+328
+103
+373
 NIL
 %infected
 1
@@ -297,10 +288,10 @@ NIL
 11
 
 MONITOR
-99
-367
-173
-412
+105
+328
+179
+373
 NIL
 %immune
 1
@@ -308,10 +299,10 @@ NIL
 11
 
 MONITOR
-175
-368
-249
-413
+181
+329
+255
+374
 years
 ticks / 52
 1
@@ -319,22 +310,22 @@ ticks / 52
 11
 
 CHOOSER
-57
-214
-196
-259
+65
+195
+210
+240
 turtle-shape
 turtle-shape
 "person" "circle"
 0
 
 BUTTON
-58
-325
-183
-358
+65
+285
+210
+318
 watch a person
-if subject = nobody [\nwatch one-of turtles with [color = green] \n;; close-all-dead-inspectors\nclear-drawing\nask subject [pd]\ninspect subject\n]
+if subject = nobody [\n  watch one-of turtles with [ color = green ]\n  ;; close-all-dead-inspectors\n  clear-drawing\n  ask subject [ pen-down ]\n  inspect subject\n]
 T
 1
 T
@@ -343,13 +334,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SWITCH
-59
-274
-183
-307
+65
+245
+210
+278
 show-age?
 show-age?
 1
@@ -747,7 +738,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.2-RC3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -765,5 +756,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
