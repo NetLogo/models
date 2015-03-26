@@ -1,192 +1,165 @@
 turtles-own
-  [ sick?        ;; if true, the turtle is infectious
-    immune?      ;; if true, the turtle can't be infected
-    sick-count   ;; how long the turtle has been infectious
-    age ]        ;; how many weeks old the turtle is
+  [ sick?                ;; if true, the turtle is infectious
+    remaining-immunity   ;; how many weeks of immunity the turtle has left
+    sick-time            ;; how long, in weeks, the turtle has been infectious
+    age ]                ;; how many weeks old the turtle is
 
 globals
-  [ weeks                ;; each tick is called a week
-    %infected            ;; what % of the population is infectious
+  [ %infected            ;; what % of the population is infectious
     %immune              ;; what % of the population is immune
-    lifespan             ;; the average lifespan of a turtle
-    average-offspring    ;; the average number of offspring a turtle could have
-    carrying-capacity ]  ;; the number of turtles that can be in the world at one time
+    lifespan             ;; the lifespan of a turtle
+    chance-reproduce     ;; the probability of a turtle generating an offspring each tick
+    carrying-capacity    ;; the number of turtles that can be in the world at one time
+    immunity-duration ]  ;; how many weeks immunity lasts
 
-
-;; The setup is divided into three subroutines
+;; The setup is divided into four procedures
 to setup
   clear-all
-  set weeks 0
   setup-constants
   setup-turtles
   update-global-variables
+  update-display
   reset-ticks
 end
 
 ;; We create a variable number of turtles of which 10 are infectious,
 ;; and distribute them randomly
 to setup-turtles
-  set-default-shape turtles "person"
-  crt people
-  [ 
-    setxy random-xcor random-ycor
-    set age random lifespan
-    set sick-count 0
-    set immune? false
-    set size 1.5  ;; easier to see
-    get-healthy
-  ]
-  ask n-of (count turtles * initial-sick-people / 100) turtles
+  create-turtles number-people
+    [ setxy random-xcor random-ycor
+      set age random lifespan
+      set sick-time 0
+      set remaining-immunity 0
+      set size 1.5  ;; easier to see
+      get-healthy ]
+  ask n-of 10 turtles
     [ get-sick ]
-  if watch-turtle?
-  [
-    watch one-of turtles
-    ask subject 
-    [ 
-      pd 
-      ask other turtles [ ht ]
-    ]
-  ]
 end
 
 to get-sick ;; turtle procedure
   set sick? true
-  set immune? false
+  set remaining-immunity 0
   set color red
 end
 
 to get-healthy ;; turtle procedure
   set sick? false
-  set immune? false
-  set sick-count 0
+  set remaining-immunity 0
+  set sick-time 0
   set color green
 end
 
 to become-immune ;; turtle procedure
   set sick? false
-  set sick-count 0
-  set immune? true
-  set color violet + 2 
+  set sick-time 0
+  set remaining-immunity immunity-duration
+  set color gray
 end
 
+;; This sets up basic constants of the model.
 to setup-constants
-  set lifespan 100
-  set carrying-capacity 750
-  set average-offspring 4
+  set lifespan 50 * 52      ;; 50 times 52 weeks = 50 years = 2600 weeks old
+  set carrying-capacity 700
+  set chance-reproduce 1
+  set immunity-duration 52
 end
 
 to go
-  if hide-children?
-  [
-    ask turtles with [ self != subject ] [ ht ] 
+  ask turtles [
+    get-older
+    move
+    if sick? [ recover-or-die ]
+    ifelse sick? [ infect ] [ reproduce ]
   ]
-  if watch-turtle?
-  [
-    if subject = nobody
-    [ 
-      ifelse hide-children?
-      [ stop ]
-      [ if any? turtles with [ not hidden? ] [ watch one-of turtles with [ not hidden? ] ] ]
-    ]
-  ]
-  ifelse hide-green?
-    [ ask turtles with [ color = green ] [ ht ] ]
-    [ ask turtles with [ color = green ] [ st ] ]
-  ifelse hide-violet?
-    [ ask turtles with [ color = violet + 2 ] [ ht ] ]
-    [ ask turtles with [ color = violet + 2 ] [ st ] ]
-  ifelse hide-red?
-    [ ask turtles with [ color = red ] [ ht ] ]
-    [ ask turtles with [ color = red ] [ st ] ]
-  set weeks (weeks + 1)
-  get-older
-  move
-  infect
-  recover
-  reproduce
   update-global-variables
+  update-display
   tick
 end
 
 to update-global-variables
   if count turtles > 0
-  [
-    set %infected (count turtles with [sick?]) / (count turtles) * 100
-    set %immune (count turtles with [immune?]) / (count turtles) * 100
-  ]
+    [ set %infected (count turtles with [ sick? ] / count turtles) * 100
+      set %immune (count turtles with [ immune? ] / count turtles) * 100 ]
+end
+
+to update-display
+  ask turtles
+    [ if shape != turtle-shape [ set shape turtle-shape ]
+      set label ifelse-value show-age? [ floor (age / 52) ] [ "" ] ]
+  stop-inspecting-dead-agents
+  if watch-a-person? and subject = nobody
+    [ watch one-of turtles with [ not hidden? ]
+      clear-drawing
+      ask subject [ pen-down ]
+      inspect subject ]
+  if not watch-a-person? and subject != nobody
+    [ stop-inspecting subject
+      ask subject
+        [ pen-up
+          ask my-links [ die ] ]
+      clear-drawing
+      reset-perspective ]
 end
 
 ;;Turtle counting variables are advanced.
-to get-older
-  ask turtles
-    [ set age (age + 1)
-      if sick?
-        [ set sick-count (sick-count + 1) ]
-      ;; Turtles die of old age once their age equals the
-      ;; lifespan (set at 1500 in this model).
-      if age > lifespan
-        [ die ] ]
+to get-older ;; turtle procedure
+  ;; Turtles die of old age once their age exceeds the
+  ;; lifespan (set at 50 years in this model).
+  set age age + 1
+  if age > lifespan [ die ]
+  if immune? [ set remaining-immunity remaining-immunity - 1 ]
+  if sick? [ set sick-time sick-time + 1 ]
 end
 
-;;Turtles move about at random.
-to move
-  ask turtles
-  [ rt random 100
-    lt random 100
-    fd 1 ]
+;; Turtles move about at random.
+to move ;; turtle procedure
+  rt random 100
+  lt random 100
+  fd 1
 end
 
 ;; If a turtle is sick, it infects other turtles on the same patch.
 ;; Immune turtles don't get sick.
-to infect
-  ask turtles with [sick?]
-  [ ask other turtles-here with [ not immune? and not sick? ]
-    [ 
-      if (random-float 100) < infectiousness
-      [ 
-        get-sick
-        if connect?
-          [ create-link-from myself ]
-      ] 
-    ] 
-  ]
+to infect ;; turtle procedure
+  ask other turtles-here with [ not sick? and not immune? ]
+    [ if random-float 100 < infectiousness
+      [ get-sick
+        if self = subject             ;; if its the watched turtle getting sick
+          [ create-link-with myself   ;; create a link with the one that infected it
+            [ set color red ] ] ] ]
 end
 
 ;; Once the turtle has been sick long enough, it
 ;; either recovers (and becomes immune) or it dies.
-to recover
-   ask turtles with [sick?]
-     [ if (random sick-count) > (lifespan * (duration / 100))  ;; If the turtle has survived past the virus' duration, then
-         [ ifelse ((random-float 100) < chance-recover)        ;; either recover or die
-             [ become-immune ]
-             [ die ] ] ]
+to recover-or-die ;; turtle procedure
+  if sick-time > duration                        ;; If the turtle has survived past the virus' duration, then
+    [ ifelse random-float 100 < chance-recover   ;; either recover or die
+      [ become-immune ]
+      [ die ] ]
 end
 
 ;; If there are less turtles than the carrying-capacity
-;;  then turtles can reproduce.
-;; The probability of reproduction depends on average number
-;;  of offspring per life.  In this model it is 4 per life (e.g.
-;;  4 per 100 weeks.  The chance, therefore, for a turtle to
-;;  reproduce at any given turn is 0.04 (if the population
-;;  is below carrying-capacity).
+;; then turtles can reproduce.
 to reproduce
-  ask turtles with [not sick?]
-    [ if (count turtles) < carrying-capacity
-         and (random lifespan) < average-offspring
-       [ hatch 1
-           [ set age 1
-             lt 45 fd 1
-             get-healthy ] ] ]
+  if count turtles < carrying-capacity and random-float 100 < chance-reproduce
+    [ hatch 1
+      [ set age 1
+        lt 45 fd 1
+        get-healthy ] ]
+end
+
+to-report immune?
+  report remaining-immunity > 0
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-262
+300
 10
-777
-546
-50
-50
-5.0
+800
+531
+17
+17
+14.0
 1
 10
 1
@@ -196,51 +169,51 @@ GRAPHICS-WINDOW
 1
 1
 1
--50
-50
--50
-50
-0
-0
+-17
+17
+-17
+17
+1
+1
 1
 ticks
 30.0
 
 SLIDER
-33
-210
-227
-243
+45
+155
+239
+188
 duration
 duration
 0.0
 99.0
-56
+20
 1.0
 1
 weeks
 HORIZONTAL
 
 SLIDER
-33
-176
-227
-209
+45
+121
+239
+154
 chance-recover
 chance-recover
 0.0
 99.0
-49
+75
 1.0
 1
 %
 HORIZONTAL
 
 SLIDER
-33
-142
-227
-175
+45
+87
+239
+120
 infectiousness
 infectiousness
 0.0
@@ -252,10 +225,10 @@ infectiousness
 HORIZONTAL
 
 BUTTON
-53
-25
-123
-60
+67
+48
+137
+83
 NIL
 setup
 NIL
@@ -269,10 +242,10 @@ NIL
 1
 
 BUTTON
-129
-25
-200
-61
+143
+48
+214
+84
 NIL
 go
 T
@@ -283,13 +256,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 PLOT
-8
-333
-260
-497
+25
+370
+277
+534
 Populations
 weeks
 people
@@ -301,20 +274,20 @@ true
 true
 "" ""
 PENS
-"sick" 1.0 0 -2674135 true "" "plot count turtles with [sick?]"
-"immune" 1.0 0 -7500403 true "" "plot count turtles with [immune?]"
-"healthy" 1.0 0 -10899396 true "" "plot count turtles with [not sick? and not immune?]"
+"sick" 1.0 0 -2674135 true "" "plot count turtles with [ sick? ]"
+"immune" 1.0 0 -7500403 true "" "plot count turtles with [ immune? ]"
+"healthy" 1.0 0 -10899396 true "" "plot count turtles with [ not sick? and not immune? ]"
 "total" 1.0 0 -13345367 true "" "plot count turtles"
 
 SLIDER
-33
-244
-227
-277
-people
-people
-0
-300
+45
+10
+239
+43
+number-people
+number-people
+10
+carrying-capacity
 150
 1
 1
@@ -322,10 +295,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-31
-281
-106
-326
+38
+323
+113
+368
 NIL
 %infected
 1
@@ -333,10 +306,10 @@ NIL
 11
 
 MONITOR
-108
-281
-178
-326
+115
+323
+189
+368
 NIL
 %immune
 1
@@ -344,133 +317,90 @@ NIL
 11
 
 MONITOR
-180
-281
-230
-326
+191
+324
+265
+369
 years
-weeks / 52
+ticks / 52
 1
 1
 11
 
-SWITCH
-150
-584
-289
-617
-watch-turtle?
-watch-turtle?
-1
-1
--1000
-
-SWITCH
-149
-619
-289
-652
-hide-children?
-hide-children?
-1
-1
--1000
-
-SLIDER
-36
-90
-208
-123
-initial-sick-people
-initial-sick-people
+CHOOSER
+70
+195
+220
+240
+turtle-shape
+turtle-shape
+"person" "circle"
 0
-100
-43
-1
-1
-NIL
-HORIZONTAL
 
 SWITCH
-149
-654
-289
-687
-connect?
-connect?
-0
-1
--1000
-
-SWITCH
-293
-585
-425
-618
-hide-green?
-hide-green?
+70
+245
+220
+278
+show-age?
+show-age?
 1
 1
 -1000
 
 SWITCH
-293
-619
-425
-652
-hide-red?
-hide-red?
-1
-1
--1000
-
-SWITCH
-292
-653
-425
-686
-hide-violet?
-hide-violet?
+70
+280
+220
+313
+watch-a-person?
+watch-a-person?
 1
 1
 -1000
 
 @#$#@#$#@
-## ACKNOWLEDGEMENT
-
-This model is an alternate visualization of the Virus model in the Biology section of the NetLogo models library. It uses visualization techniques as recommended in the paper: 
-
-Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation, JASSS, 12(2), 1.
-
 ## WHAT IS IT?
 
-This model simulates the transmission and perpetuation of a virus in a human population.  Ecological biologists have suggested a number of factors which may influence the survival of a directly transmitted virus within a population. (Yorke, et al. "Seasonality and the requirements for perpetuation and eradication of viruses in populations." Journal of Epidemiology, volume 109, pages 103-123)
+This model simulates the transmission and perpetuation of a virus in a human population.
 
-The model creates a link between people whenever someone transmits the virus to someone else. The result is a collection of network components in which all nodes were infected by the same person.
+Ecological biologists have suggested a number of factors which may influence the survival of a directly transmitted virus within a population. (Yorke, et al. "Seasonality and the requirements for perpetuation and eradication of viruses in populations." Journal of Epidemiology, volume 109, pages 103-123)
 
-The model is initialized with 150 people, of which 10 are infected.  People move randomly about the world in one of three states: healthy but susceptible to infection (green), sick and infectious (red), and healthy and immune (gray). People may die of infection or old age.  When the population dips below the environment's "carrying capacity" (set at 700 in this model) healthy people may reproduce healthy and susceptible offspring.
+
+## HOW IT WORKS
+
+The model is initialized with 150 people, of which 10 are infected.  People move randomly about the world in one of three states: healthy but susceptible to infection (green), sick and infectious (red), and healthy and immune (gray). People may die of infection or old age.  When the population dips below the environment's "carrying capacity" (set at 700 in this model) healthy people may produce healthy (but susceptible) offspring.
 
 Some of these factors are summarized below with an explanation of how each one is treated in this model.
 
 ### The density of the population
 
-Population density affects how often infected, immune and susceptible individuals come into contact with each other. You can change the size of the initial population through the PEOPLE slider.
+Population density affects how often infected, immune and susceptible individuals come into contact with each other. You can change the size of the initial population through the NUMBER-PEOPLE slider.
 
 ### Population turnover
 
-As individuals die, some who die will be infected, some will be susceptible and some will be immune.  All the new individuals who are born, replacing those who die, will be susceptible.  People may die from the virus, the chances of which are determined by the slider CHANCE-RECOVER, or they may die of old age.  In this model, people die of old age at the age of approximately 27 years.  Reproduction rate is constant in this model.  Each turn, every healthy individual has a chance to reproduce.  That chance is set so that each person will on average reproduce four times if they live 27 years.
+As individuals die, some who die will be infected, some will be susceptible and some will be immune.  All the new individuals who are born, replacing those who die, will be susceptible.  People may die from the virus, the chances of which are determined by the slider CHANCE-RECOVER, or they may die of old age.
+
+In this model, people die of old age at the age of 50 years.  Reproduction rate is constant in this model.  Each turn, if the carrying capacity hasn't been reached, every healthy individual has a 1% chance to reproduce.
 
 ### Degree of immunity
 
-If a person has been infected and recovered, how immune are they to the virus?  We often assume that immunity lasts a lifetime and is assured, but in some cases immunity wears off in time and immunity might not be absolutely secure.  Nonetheless, in this model, immunity does last forever and is secure.
+If a person has been infected and recovered, how immune are they to the virus?  We often assume that immunity lasts a lifetime and is assured, but in some cases immunity wears off in time and immunity might not be absolutely secure.  In this model, immunity is secure, but it only lasts for a year.
 
 ### Infectiousness (or transmissibility)
 
-How easily does the virus spread?  Some viruses with which we are familiar spread very easily.  Some viruses spread from the smallest contact every time.  Others (the HIV virus, which is responsible for AIDS, for example) require significant contact, perhaps many times, before the virus is transmitted.  In this model, infectiousness is determined by a slider.
+How easily does the virus spread?  Some viruses with which we are familiar spread very easily.  Some viruses spread from the smallest contact every time.  Others (the HIV virus, which is responsible for AIDS, for example) require significant contact, perhaps many times, before the virus is transmitted.  In this model, infectiousness is determined by the INFECTIOUSNESS slider.
+
+Several of the core parameters of this model are set as constants in the code. They could be exposed as sliders if desired.  The turtles' lifespan is set to 50 years, the carrying capacity of the world is set to 700 and the chance to reproduce is set to 1%.
 
 ### Duration of infectiousness
 
-How long is a person infected before they either recover or die?  This length of time is essentially the virus's window of opportunity for transmission to new hosts. In this model, duration of infectiousness is determined by a slider.
+How long is a person infected before they either recover or die?  This length of time is essentially the virus's window of opportunity for transmission to new hosts. In this model, duration of infectiousness is determined by the DURATION slider.
+
+### Hard-coded parameters
+
+Three important parameters of this model are set as constants in the code (See setup-constants procedure). They can be exposed as sliders if desired. The turtles’ lifespan is set to 50 years, the carrying capacity of the world is set to 700, the duration of immunity is set to 52 weeks, and the birth-rate is set to a 1 in 100 chance of reproducing per tick when the number of people is less than the carrying capacity.
+
 
 ## HOW TO USE IT
 
@@ -478,46 +408,60 @@ Each "tick" represents a week in the time scale of this model.
 
 The INFECTIOUSNESS slider determines how great the chance is that virus transmission will occur when an infected person and susceptible person occupy the same patch.  For instance, when the slider is set to 50, the virus will spread roughly once every two chance encounters.
 
-The DURATION slider determines the percent of the average life-span (which is 1500 weeks, or approximately 27 years, in this model) that an infected person goes through before the infection ends in either death or recovery.  Note that although zero is a slider possibility, it produces an infection of very short duration (approximately 2 weeks) not an infection with no duration at all.
+The DURATION slider determines the number of weeks before an infected person either dies or recovers.
 
-The CHANCE-RECOVERY slider controls the likelihood that an infection will end in recovery/immunity.  When this slider is set at zero, for instance, the infection is always deadly.
+The CHANCE-RECOVER slider controls the likelihood that an infection will end in recovery/immunity.  When this slider is set at zero, for instance, the infection is always deadly.
 
-The SETUP button resets the graphics and plots and randomly distributes 140 green susceptible people and 10 red infected people (of randomly distributed ages).  The GO button starts the simulation and the plotting function.
+The SETUP button resets the graphics and plots and randomly distributes NUMBER-PEOPLE in the view. All but 10 of the people are set to be green susceptible people and 10 red infected people (of randomly distributed ages).  The GO button starts the simulation and the plotting function.
+
+The TURTLE-SHAPE chooser controls whether the people are visualized as person shapes or as circles.
 
 Three output monitors show the percent of the population that is infected, the percent that is immune, and the number of years that have passed.  The plot shows (in their respective colors) the number of susceptible, infected, and immune people.  It also shows the number of individuals in the total population in blue.
+
 
 ## THINGS TO NOTICE
 
 The factors controlled by the three sliders interact to influence how likely the virus is to thrive in this population.  Notice that in all cases, these factors must create a balance in which an adequate number of potential hosts remain available to the virus and in which the virus can adequately access those hosts.
 
-Often there will initially be an explosion of infection since no one in the population is immune and the population density is at its maximum.  This approximates the initial "outbreak" of a viral infection in a population, one that often has devastating consequences for the humans concerned. Soon, however, the virus becomes less common as the population dynamics change.  What ultimately happens to the virus is determined by the factors controlled the sliders.
+Often there will initially be an explosion of infection since no one in the population is immune.  This approximates the initial "outbreak" of a viral infection in a population, one that often has devastating consequences for the humans concerned. Soon, however, the virus becomes less common as the population dynamics change.  What ultimately happens to the virus is determined by the factors controlled by the sliders.
 
 Notice that viruses that are too successful at first (infecting almost everyone) may not survive in the long term.  Since everyone infected generally dies or becomes immune as a result, the potential number of hosts is often limited.  The exception to the above is when the DURATION slider is set so high that population turnover (reproduction) can keep up and provide new hosts.
+
 
 ## THINGS TO TRY
 
 Think about how different slider values might approximate the dynamics of real-life viruses.  The famous Ebola virus in central Africa has a very short duration, a very high infectiousness value, and an extremely low recovery rate. For all the fear this virus has raised, how successful is it?  Set the sliders appropriately and watch what happens.
 
-The HIV virus which causes AIDS, has an extremely long duration, an extremely low recovery rate, but an extremely low infectiousness value.  How does a virus with these slider values fare in this model?
+The HIV virus, which causes AIDS, has an extremely long duration, an extremely low recovery rate, but an extremely low infectiousness value.  How does a virus with these slider values fare in this model?
+
 
 ## EXTENDING THE MODEL
 
-Add additional sliders controlling the carrying capacity of the world (how many people can be in the world at one time) and the average lifespan of the people.
+Add additional sliders controlling the carrying capacity of the world (how many people can be in the world at one time), the average lifespan of the people and their birth-rate.
 
 Build a similar model simulating viral infection of a non-human host with very different reproductive rates, lifespans, and population densities.
 
-Add a slider controlling how long immunity lasts so that immunity is not perfect or eternal.
+Add a slider controlling how long immunity lasts. You could also make immunity imperfect, so that immune turtles still have a small chance of getting infected. This chance could get higher over time.
+
+
+## VISUALIZATION
+
+The circle visualization of the model comes from guidelines presented in
+Kornhauser, D., Wilensky, U., & Rand, W. (2009). http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuidelinesABMViz.pdf.
+
 
 ## RELATED MODELS
 
 * AIDS
+* Virus
 * Virus on a Network
 
-## CREDITS AND REFERENCES
 
-To refer to this model in academic publications, please use:  Wilensky, U. (1998).  NetLogo Virus model.  http://ccl.northwestern.edu/netlogo/models/Virus.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+## CREDITS and REFERENCES
 
-In other publications, please use:  Copyright 1998 Uri Wilensky.  All rights reserved.  See http://ccl.northwestern.edu/netlogo/models/Virus for terms of use.
+This model can show an alternate visualization of the Virus model using circles to represent the people. It uses visualization techniques as recommended in the paper:
+
+Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation, JASSS, 12(2), 1.
 @#$#@#$#@
 default
 true
@@ -685,17 +629,6 @@ true
 0
 Line -7500403 true 150 0 150 150
 
-link
-true
-0
-Line -7500403 true 150 0 150 300
-
-link direction
-true
-0
-Line -7500403 true 150 150 30 225
-Line -7500403 true 150 150 270 225
-
 pentagon
 false
 0
@@ -813,7 +746,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2-RC3
+NetLogo 5.2.0-RC3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -831,5 +764,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
