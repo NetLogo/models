@@ -424,7 +424,7 @@ Does the circle visualization make it easier for you to see what is happening?
 * Virus on a Network
 
 
-## CREDITS and REFERENCES
+## CREDITS AND REFERENCES
 
 This model can show an alternate visualization of the Virus model using circles to represent the people. It uses visualization techniques as recommended in the paper:
 

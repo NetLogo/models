@@ -464,6 +464,8 @@ Try modeling derivative or combined boundary conditions.
 ## RELATED MODELS
 
 Heat Diffusion - Alternative Gradient
+
+## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 true

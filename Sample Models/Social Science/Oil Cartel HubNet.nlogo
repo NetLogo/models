@@ -1084,6 +1084,8 @@ Client specific plotting (experimental).
 ## RELATED MODELS
 
 Tragedy of the Commons, Gridlock, Prisoner's Dilemma HubNet
+
+## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 true

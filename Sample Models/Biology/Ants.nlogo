@@ -306,6 +306,8 @@ In the `uphill-chemical` procedure, the ant "follows the gradient" of the chemic
 The built-in `diffuse` primitive lets us diffuse the chemical easily without complicated code.
 
 The primitive `patch-right-and-ahead` is used to make the ants smell in different directions without actually turning.
+
+## CREDITS AND REFERENCES
 @#$#@#$#@
 default
 true
