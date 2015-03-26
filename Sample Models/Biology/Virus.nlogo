@@ -110,10 +110,7 @@ end
 to infect ;; turtle procedure
   ask other turtles-here with [ not immune? ]
     [ if random-float 100 < infectiousness
-      [ get-sick
-        if self = subject             ;; if its the watched turtle getting sick
-          [ create-link-with myself   ;; create a link with the one that infected it
-            [ set color red ] ] ] ]
+      [ get-sick ] ]
 end
 
 ;; Once the turtle has been sick long enough, it
@@ -323,23 +320,6 @@ CHOOSER
 turtle-shape
 turtle-shape
 "person" "circle"
-0
-
-BUTTON
-65
-285
-210
-318
-watch a person
-if subject = nobody [\n  watch one-of turtles with [ color = green ]\n  stop-inspecting-dead-agents\n  clear-drawing\n  ask subject [ pen-down ]\n  inspect subject\n]
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
 0
 
 SWITCH
