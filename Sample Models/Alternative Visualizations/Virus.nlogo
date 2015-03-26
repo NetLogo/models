@@ -107,7 +107,7 @@ end
 ;; If a turtle is sick, it infects other turtles on the same patch.
 ;; Immune turtles don't get sick.
 to infect ;; turtle procedure
-  ask other turtles-here with [ not immune? ]
+  ask other turtles-here with [ not sick? and not immune? ]
     [ if random-float 100 < infectiousness
       [ get-sick ] ]
 end
