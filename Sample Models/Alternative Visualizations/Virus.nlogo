@@ -1,15 +1,16 @@
 turtles-own
-  [ sick?        ;; if true, the turtle is infectious
-    immune?      ;; if true, the turtle can't be infected
-    sick-time    ;; how long the turtle has been infectious
-    age ]        ;; how many weeks old the turtle is
+  [ sick?                ;; if true, the turtle is infectious
+    remaining-immunity   ;; how many weeks of immunity the turtle has left
+    sick-time            ;; how long, in weeks, the turtle has been infectious
+    age ]                ;; how many weeks old the turtle is
 
 globals
   [ %infected            ;; what % of the population is infectious
     %immune              ;; what % of the population is immune
     lifespan             ;; the lifespan of a turtle
     chance-reproduce     ;; the probability of a turtle generating an offspring each tick
-    carrying-capacity ]  ;; the number of turtles that can be in the world at one time
+    carrying-capacity    ;; the number of turtles that can be in the world at one time
+    immunity-duration ]  ;; how many weeks immunity lasts
 
 ;; The setup is divided into four procedures
 to setup
@@ -29,7 +30,7 @@ to setup-turtles
       set age random lifespan
       if show-age? [set label floor (age / 52) ]
       set sick-time 0
-      set immune? false
+      set remaining-immunity 0
       set size 1.5  ;; easier to see
       get-healthy ]
   ask n-of 10 turtles
@@ -38,13 +39,13 @@ end
 
 to get-sick ;; turtle procedure
   set sick? true
-  set immune? false
+  set remaining-immunity 0
   set color red
 end
 
 to get-healthy ;; turtle procedure
   set sick? false
-  set immune? false
+  set remaining-immunity 0
   set sick-time 0
   set color green
 end
@@ -52,7 +53,7 @@ end
 to become-immune ;; turtle procedure
   set sick? false
   set sick-time 0
-  set immune? true
+  set remaining-immunity immunity-duration
   set color gray
 end
 
@@ -61,6 +62,7 @@ to setup-constants
   set lifespan 50 * 52      ;; 50 times 52 weeks = 50 years = 2600 weeks old
   set carrying-capacity 700
   set chance-reproduce 1
+  set immunity-duration 52
 end
 
 to go
@@ -92,7 +94,8 @@ to get-older ;; turtle procedure
   ;; lifespan (set at 50 years in this model).
   set age age + 1
   if age > lifespan [ die ]
-  if sick? [ set sick-time (sick-time + 1) ]
+  if immune? [ set remaining-immunity remaining-immunity - 1 ]
+  if sick? [ set sick-time sick-time + 1 ]
 end
 
 ;; Turtles move about at random.
@@ -131,6 +134,10 @@ to reproduce
         if show-age? [ set label age ]
         lt 45 fd 1
         get-healthy ] ]
+end
+
+to-report immune?
+  report remaining-immunity > 0
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -184,7 +191,7 @@ chance-recover
 chance-recover
 0.0
 99.0
-20
+75
 1.0
 1
 %
@@ -255,9 +262,9 @@ true
 true
 "" ""
 PENS
-"sick" 1.0 0 -2674135 true "" "plot count turtles with [sick?]"
-"immune" 1.0 0 -7500403 true "" "plot count turtles with [immune?]"
-"healthy" 1.0 0 -10899396 true "" "plot count turtles with [not sick? and not immune?]"
+"sick" 1.0 0 -2674135 true "" "plot count turtles with [ sick? ]"
+"immune" 1.0 0 -7500403 true "" "plot count turtles with [ immune? ]"
+"healthy" 1.0 0 -10899396 true "" "plot count turtles with [ not sick? and not immune? ]"
 "total" 1.0 0 -13345367 true "" "plot count turtles"
 
 SLIDER
@@ -372,7 +379,7 @@ In this model, people die of old age at the age of 50 years.  Reproduction rate 
 
 ### Degree of immunity
 
-If a person has been infected and recovered, how immune are they to the virus?  We often assume that immunity lasts a lifetime and is assured, but in some cases immunity wears off in time and immunity might not be absolutely secure.  Nonetheless, in this model, immunity does last forever and is secure.
+If a person has been infected and recovered, how immune are they to the virus?  We often assume that immunity lasts a lifetime and is assured, but in some cases immunity wears off in time and immunity might not be absolutely secure.  In this model, immunity is secure, but it only lasts for a year.
 
 ### Infectiousness (or transmissibility)
 
@@ -386,7 +393,7 @@ How long is a person infected before they either recover or die?  This length of
 
 ### Hard-coded parameters
 
-Three important parameters of this model are set as constants in the code (See setup-constants procedure). They can be exposed as sliders if desired. The turtles’ lifespan is set to 50 years, the carrying capacity of the world is set to 700 and the birth-rate is set to 0.1, a 1 in 100 chance of reproducing per tick when the number of people is less than the carrying capacity.
+Three important parameters of this model are set as constants in the code (See setup-constants procedure). They can be exposed as sliders if desired. The turtles’ lifespan is set to 50 years, the carrying capacity of the world is set to 700 and the birth-rate is set to a 1 in 100 chance of reproducing per tick when the number of people is less than the carrying capacity.
 
 
 ## HOW TO USE IT
@@ -428,7 +435,7 @@ Add additional sliders controlling the carrying capacity of the world (how many 
 
 Build a similar model simulating viral infection of a non-human host with very different reproductive rates, lifespans, and population densities.
 
-Add a slider controlling how long immunity lasts so that immunity is not perfect or eternal.
+Add a slider controlling how long immunity lasts. You could also make immunity imperfect, so that immune turtles still have a small chance of getting infected. This chance could get higher over time.
 
 
 ## VISUALIZATION
