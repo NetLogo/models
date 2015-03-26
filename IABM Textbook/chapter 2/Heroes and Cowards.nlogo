@@ -303,10 +303,7 @@ NIL
 
 This model is from Chapter Two of the book "Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo", by Uri Wilensky & William Rand.
 
-<<<<<<< Updated upstream
 Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, Ma. MIT Press.
-=======
-Wilensky, U & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, Ma. MIT Press.
 
 This model is in the IABM Textbook folder of the NetLogo models library. The model, as well as any updates to the model, can also be found on the textbook website: http://intro-to-abm.com.
 
@@ -315,8 +312,6 @@ This model is in the IABM Textbook folder of the NetLogo models library. The mod
 In the textbook version of the code, there is a slight chance that a turtle's friend is also its enemy. Here, we prevent this from happening by choosing the enemy of a turtle amongst the set of other turtles not including its friend.
 
 Also, we could not resist adding a few interesting preset configurations. Have fun playing with them!
-
->>>>>>> Stashed changes
 
 ## WHAT IS IT?
 
