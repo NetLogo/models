@@ -215,7 +215,7 @@ This model is in the IABM Textbook folder of the NetLogo models library. The mod
 
 ## UPDATES TO THE MODEL SINCE TEXTBOOK PUBLICATION
 
-The code for this model differs from the code in the textbook. The code here is the most up to date version. The code in the book should be ignored.
+The code for this model differs from the code in the textbook. The code here is the most up to date version. The code for the agentset efficiency model in the book (pages 219-222) should be replaced with the code in this model.
 
 ## WHAT IS IT?
 
