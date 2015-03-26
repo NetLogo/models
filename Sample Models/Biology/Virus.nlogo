@@ -28,7 +28,6 @@ to setup-turtles
   create-turtles number-people
     [ setxy random-xcor random-ycor
       set age random lifespan
-      if show-age? [set label floor (age / 52) ]
       set sick-time 0
       set remaining-immunity 0
       set size 1.5  ;; easier to see
@@ -128,7 +127,6 @@ to reproduce
   if count turtles < carrying-capacity and random-float 100 < chance-reproduce
     [ hatch 1
       [ set age 1
-        if show-age? [ set label age ]
         lt 45 fd 1
         get-healthy ] ]
 end
@@ -321,17 +319,6 @@ turtle-shape
 turtle-shape
 "person" "circle"
 0
-
-SWITCH
-65
-245
-210
-278
-show-age?
-show-age?
-1
-1
--1000
 
 @#$#@#$#@
 ## WHAT IS IT?

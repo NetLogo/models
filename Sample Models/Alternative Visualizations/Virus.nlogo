@@ -28,7 +28,6 @@ to setup-turtles
   create-turtles number-people
     [ setxy random-xcor random-ycor
       set age random lifespan
-      if show-age? [set label floor (age / 52) ]
       set sick-time 0
       set remaining-immunity 0
       set size 1.5  ;; easier to see
@@ -110,10 +109,7 @@ end
 to infect ;; turtle procedure
   ask other turtles-here with [ not immune? ]
     [ if random-float 100 < infectiousness
-      [ get-sick
-        if self = subject             ;; if its the watched turtle getting sick
-          [ create-link-with myself   ;; create a link with the one that infected it
-            [ set color red ] ] ] ]
+      [ get-sick ] ]
 end
 
 ;; Once the turtle has been sick long enough, it
@@ -131,7 +127,6 @@ to reproduce
   if count turtles < carrying-capacity and random-float 100 < chance-reproduce
     [ hatch 1
       [ set age 1
-        if show-age? [ set label age ]
         lt 45 fd 1
         get-healthy ] ]
 end
@@ -324,34 +319,6 @@ turtle-shape
 turtle-shape
 "person" "circle"
 1
-
-BUTTON
-65
-285
-210
-318
-watch a person
-if subject = nobody [\n  watch one-of turtles with [ color = green ]\n  stop-inspecting-dead-agents\n  clear-drawing\n  ask subject [ pen-down ]\n  inspect subject\n]
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-0
-
-SWITCH
-65
-245
-210
-278
-show-age?
-show-age?
-1
-1
--1000
 
 @#$#@#$#@
 ## WHAT IS IT?
