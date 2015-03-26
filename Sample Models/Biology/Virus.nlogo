@@ -1,6 +1,6 @@
 turtles-own
   [ sick?        ;; if true, the turtle is infectious
-    immune?      ;; if true, the turtle can't be infected
+    remaining-immunity      ;; if true, the turtle can't be infected
     sick-time    ;; how long the turtle has been infectious
     age ]        ;; how many weeks old the turtle is
 
@@ -29,7 +29,7 @@ to setup-turtles
       set age random lifespan
       if show-age? [set label floor (age / 52) ]
       set sick-time 0
-      set immune? false
+      set remaining-immunity 0
       set size 1.5  ;; easier to see
       get-healthy ]
   ask n-of 10 turtles
@@ -38,13 +38,13 @@ end
 
 to get-sick ;; turtle procedure
   set sick? true
-  set immune? false
+  set remaining-immunity 0
   set color red
 end
 
 to get-healthy ;; turtle procedure
   set sick? false
-  set immune? false
+  set remaining-immunity 0
   set sick-time 0
   set color green
 end
@@ -52,7 +52,7 @@ end
 to become-immune ;; turtle procedure
   set sick? false
   set sick-time 0
-  set immune? true
+  set remaining-immunity 52
   set color gray
 end
 
@@ -78,7 +78,7 @@ end
 to update-global-variables
   if count turtles > 0
     [ set %infected (count turtles with [ sick? ] / count turtles) * 100
-      set %immune (count turtles with [ immune? ] / count turtles) * 100 ]
+      set %immune (count turtles with [ remaining-immunity > 0 ] / count turtles) * 100 ]
 end
 
 to update-shapes
@@ -92,6 +92,7 @@ to get-older ;; turtle procedure
   ;; lifespan (set at 50 years in this model).
   set age age + 1
   if age > lifespan [ die ]
+  if remaining-immunity > 0 [ set remaining-immunity remaining-immunity - 1 ]
   if sick? [ set sick-time (sick-time + 1) ]
 end
 
@@ -105,7 +106,7 @@ end
 ;; If a turtle is sick, it infects other turtles on the same patch.
 ;; Immune turtles don't get sick.
 to infect ;; turtle procedure
-  ask other turtles-here with [ not immune? ]
+  ask other turtles-here with [ remaining-immunity = 0]
     [ if random-float 100 < infectiousness
       [ get-sick
         if self = subject             ;; if its the watched turtle getting sick
@@ -184,7 +185,7 @@ chance-recover
 chance-recover
 0.0
 99.0
-20
+75
 1.0
 1
 %
@@ -256,8 +257,8 @@ true
 "" ""
 PENS
 "sick" 1.0 0 -2674135 true "" "plot count turtles with [sick?]"
-"immune" 1.0 0 -7500403 true "" "plot count turtles with [immune?]"
-"healthy" 1.0 0 -10899396 true "" "plot count turtles with [not sick? and not immune?]"
+"immune" 1.0 0 -7500403 true "" "plot count turtles with [remaining-immunity > 0]"
+"healthy" 1.0 0 -10899396 true "" "plot count turtles with [not sick? and remaining-immunity = 0]"
 "total" 1.0 0 -13345367 true "" "plot count turtles"
 
 SLIDER
