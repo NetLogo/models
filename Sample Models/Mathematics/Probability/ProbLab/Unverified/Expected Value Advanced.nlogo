@@ -1382,7 +1382,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.2.0-RC4
 @#$#@#$#@
 ;; this model was tickling some weird Oracle renderer bug that was making
 ;; a few pixels in the preview a little different between Mac and Linux
