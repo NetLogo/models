@@ -18,7 +18,7 @@ to setup
   setup-constants
   setup-turtles
   update-global-variables
-  update-shapes
+  update-display
   reset-ticks
 end
 
@@ -72,7 +72,7 @@ to go
     ifelse sick? [ infect ] [ reproduce ]
   ]
   update-global-variables
-  update-shapes
+  update-display
   tick
 end
 
@@ -82,9 +82,9 @@ to update-global-variables
       set %immune (count turtles with [ immune? ] / count turtles) * 100 ]
 end
 
-to update-shapes
-  if any? turtles with [ shape != turtle-shape ]
-    [ ask turtles [ set shape turtle-shape ] ]
+to update-display
+  ask turtles
+    [ if shape != turtle-shape [ set shape turtle-shape ] ]
 end
 
 ;;Turtle counting variables are advanced.
