@@ -60,7 +60,7 @@ BUTTON
 85
 152
 118
-GO
+go
 go
 T
 1
@@ -77,7 +77,7 @@ BUTTON
 45
 153
 78
-SETUP
+setup
 setup
 NIL
 1
@@ -485,7 +485,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.2-RC3
 @#$#@#$#@
 setup
 repeat 400 [ all-circle ]
