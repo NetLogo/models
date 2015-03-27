@@ -20,9 +20,9 @@ to setup
 end
 
 to go
+  if all? turtles [ message? ] [ stop ]
   ask turtles [ communicate ]
   ask turtles [ recolor ]
-  if not all? turtles [ message? ] [ stop ]
   tick
 end
 
