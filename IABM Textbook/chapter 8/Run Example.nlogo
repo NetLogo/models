@@ -92,11 +92,11 @@ This model is in the IABM Textbook folder of the NetLogo models library. The mod
 
 ## WHAT IS IT?
 
-This model illustrates how to use the RUN command in NetLogo, which enables the runtime execution of different commands that are encoded as text. This is often useful if you want to construct turtle commands on the fly.
+This model illustrates how to use the `run` command in NetLogo, which enables the runtime execution of different commands that are encoded as text. This is often useful if you want to construct turtle commands on the fly.
 
 ## HOW IT WORKS
 
-The model initially creates 100 agents and a list of commands, such as BK 1, LT 90, etc. It then sets the strategy for each of the agents to a random set of five of those commands. When the model runs, the agents simply executes their strategy.
+The model initially creates 100 agents and a list of commands, such as `bk 1`, `lt 90`, etc. It then sets the strategy for each of the agents to a random set of five of those commands. When the model runs, the agents simply executes their strategy.
 
 ## HOW TO USE IT
 
