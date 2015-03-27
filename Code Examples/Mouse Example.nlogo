@@ -6,7 +6,8 @@ to patch-draw
       ;; so you might get a decimal number like 12.3, but "patch"
       ;; automatically rounds to the nearest patch
       ask patch mouse-xcor mouse-ycor
-        [ set pcolor red ]
+        [ set pcolor red
+          display ]
     ]
 end
 
@@ -24,7 +25,8 @@ to turtle-draw
       ask turtles
         [ if distancexy mouse-xcor mouse-ycor > 0
             [ facexy mouse-xcor mouse-ycor
-              fd 0.4 ] ] ]  ;; 0.4 gives nice smooth lines
+              fd 0.4  ;; 0.4 gives nice smooth lines
+              display ] ] ]
     ;; once the user releases the mouse button, we don't need the
     ;; turtle anymore
     [ clear-turtles ]
@@ -51,11 +53,11 @@ GRAPHICS-WINDOW
 40
 -40
 40
-0
-0
+1
+1
 1
 ticks
-30.0
+1000.0
 
 MONITOR
 119
@@ -155,6 +157,10 @@ NIL
 ## WHAT IS IT?
 
 This demo shows how to use the `mouse-down?`, `mouse-xcor`, and `mouse-ycor` reporters to make a model that the user can interact with using the mouse.  It also demonstrates the difference between using patches and turtles to achieve a desired effect.
+
+## NETLOGO FEATURES
+
+If you look at this model's settings (by clicking the SETTINGS button in the main toolbar), you will notice that it uses a "Frame Rate" of 1000, which is much higher than the default value of 30. This ensures that drawing happens as fast as possible. See the [NetLogo Programming Guide](http://ccl.northwestern.edu/netlogo/docs/programming.html#updates) for more information on frame rate and view updates in general.
 @#$#@#$#@
 default
 true
@@ -439,7 +445,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.2-RC3
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
