@@ -51,6 +51,7 @@ to become-immune ;; turtle procedure
   set sick? false
   set sick-time 0
   set remaining-immunity immunity-duration
+  ask my-links [ die ] ;; remove link to turtle who infected us, if there was one
 end
 
 ;; This sets up basic constants of the model.
