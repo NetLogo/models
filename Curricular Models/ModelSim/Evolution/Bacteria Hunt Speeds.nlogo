@@ -421,6 +421,10 @@ Previous versions of this model were referred to as Bug Hunt Speeds
 
 ## CREDITS AND REFERENCES
 
+This model is part of the Evolution unit of the ModelSim curriculum, sponsored by NSF grant DRL-1020101.
+
+For more information about the project and the curriculum, see the ModelSim project website: http://ccl.northwestern.edu/modelsim/.
+
 Inspired by EvoDots software:
 http://faculty.washington.edu/~herronjc/SoftwareFolder/EvoDots.html
 @#$#@#$#@
@@ -772,7 +776,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2-RC3
+NetLogo 5.2.0-RC4
 @#$#@#$#@
 setup
 repeat 17

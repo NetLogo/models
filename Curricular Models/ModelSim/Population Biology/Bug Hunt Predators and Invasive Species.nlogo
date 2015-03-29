@@ -1051,7 +1051,9 @@ Refer to Bug Hunt Disruptions and Bug Hunt Environmental Changes for extensions 
 
 ## CREDITS AND REFERENCES
 
-This model is a part of the ModelSim curriculum (http://modelsim.tech.northwestern.edu/info/)
+This model is part of the Ecology & Population Biology unit of the ModelSim curriculum, sponsored by NSF grant DRL-1020101.
+
+For more information about the project and the curriculum, see the ModelSim project website: http://ccl.northwestern.edu/modelsim/.
 @#$#@#$#@
 default
 true
@@ -1462,7 +1464,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2-RC3
+NetLogo 5.2.0-RC4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
