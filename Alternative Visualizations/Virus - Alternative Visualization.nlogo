@@ -126,7 +126,8 @@ to infect ;; turtle procedure
       [ get-sick
         if self = subject             ;; if its the watched turtle getting sick
           [ create-link-with myself   ;; create a link with the one that infected it
-            [ set color red ] ] ] ]
+            [ set color red
+              set thickness .3 ] ] ] ]
 end
 
 ;; Once the turtle has been sick long enough, it
@@ -399,7 +400,7 @@ How long is a person infected before they either recover or die?  This length of
 
 ### Hard-coded parameters
 
-Three important parameters of this model are set as constants in the code (See setup-constants procedure). They can be exposed as sliders if desired. The turtles’ lifespan is set to 50 years, the carrying capacity of the world is set to 700, the duration of immunity is set to 52 weeks, and the birth-rate is set to a 1 in 100 chance of reproducing per tick when the number of people is less than the carrying capacity.
+Four important parameters of this model are set as constants in the code (See `setup-constants` procedure). They can be exposed as sliders if desired. The turtles’ lifespan is set to 50 years, the carrying capacity of the world is set to 700, the duration of immunity is set to 52 weeks, and the birth-rate is set to a 1 in 100 chance of reproducing per tick when the number of people is less than the carrying capacity.
 
 
 ## HOW TO USE IT
@@ -415,6 +416,10 @@ The CHANCE-RECOVER slider controls the likelihood that an infection will end in 
 The SETUP button resets the graphics and plots and randomly distributes NUMBER-PEOPLE in the view. All but 10 of the people are set to be green susceptible people and 10 red infected people (of randomly distributed ages).  The GO button starts the simulation and the plotting function.
 
 The TURTLE-SHAPE chooser controls whether the people are visualized as person shapes or as circles.
+
+When the SHOW-AGE? switch is on, each agent's age in years is displayed as its label.
+
+When the WATCH-A-PERSON? switch is on, a single person at random, the subject, is selected for watching. The subject leaves a trail when it moves, green when the subject is healthy and red when it is sick. An inspector window is opened for that person. When the subject becomes infected, a link is created between the subject and the person who infected him. If one of those people dies, the link disappears. If the subject dies, a new subject is selected.
 
 Three output monitors show the percent of the population that is infected, the percent that is immune, and the number of years that have passed.  The plot shows (in their respective colors) the number of susceptible, infected, and immune people.  It also shows the number of individuals in the total population in blue.
 
@@ -449,6 +454,12 @@ Add a slider controlling how long immunity lasts. You could also make immunity i
 The circle visualization of the model comes from guidelines presented in
 Kornhauser, D., Wilensky, U., & Rand, W. (2009). http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuidelinesABMViz.pdf.
 
+* The SHOW-AGE? visualization enables the user to track individual agents' lifespans.
+
+* The WATCH-A-PERSON visualization enables the user to focus on one subject and to see the "micro-level" interactions, to view which agent infects the subject. You can observe the green trail of a healthy individual, which becomes red when the person gets infected. Additionally, you can see the individual who transmitted the virus linked to the subject by a line.
+
+* The circle visualization of the agents is designed to make it easier to see agents interacting. At the lowest level, perceptual impediments arise when we exceed the limitations of our low-level visual system. Visual features that are difficult to distinguish can disable our pre-attentive processing capabilities. Pre-attentive processing can be hindered by other cognitive phenomena such as interference between visual features (Healey 2006). The circle visualization of the agents is supposed to make it easier to see when agents interact because overlap is easier to see between circles than between the “people” shapes. In the circle visualization, the circles merge to create new compound shapes. Thus, it is easier to perceive new compound shapes in the circle visualization. Does the circle visualization make it easier for you to see what is happening?
+
 
 ## RELATED MODELS
 
@@ -459,7 +470,7 @@ Kornhauser, D., Wilensky, U., & Rand, W. (2009). http://ccl.northwestern.edu/pap
 
 ## CREDITS and REFERENCES
 
-This model can show an alternate visualization of the Virus model using circles to represent the people. It uses visualization techniques as recommended in the paper:
+This model shows alternate visualizations of the Virus model. It uses visualization techniques as recommended in the paper:
 
 Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation, JASSS, 12(2), 1.
 @#$#@#$#@
@@ -746,7 +757,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0-RC3
+NetLogo 5.2.0-RC4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
