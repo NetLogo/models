@@ -360,7 +360,7 @@ How long is a person infected before they either recover or die?  This length of
 
 ### Hard-coded parameters
 
-Three important parameters of this model are set as constants in the code (See setup-constants procedure). They can be exposed as sliders if desired. The turtles’ lifespan is set to 50 years, the carrying capacity of the world is set to 700, the duration of immunity is set to 52 weeks, and the birth-rate is set to a 1 in 100 chance of reproducing per tick when the number of people is less than the carrying capacity.
+Four important parameters of this model are set as constants in the code (See setup-constants procedure). They can be exposed as sliders if desired. The turtles’ lifespan is set to 50 years, the carrying capacity of the world is set to 700, the duration of immunity is set to 52 weeks, and the birth-rate is set to a 1 in 100 chance of reproducing per tick when the number of people is less than the carrying capacity.
 
 
 ## HOW TO USE IT
