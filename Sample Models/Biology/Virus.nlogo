@@ -39,21 +39,18 @@ end
 to get-sick ;; turtle procedure
   set sick? true
   set remaining-immunity 0
-  set color red
 end
 
 to get-healthy ;; turtle procedure
   set sick? false
   set remaining-immunity 0
   set sick-time 0
-  set color green
 end
 
 to become-immune ;; turtle procedure
   set sick? false
   set sick-time 0
   set remaining-immunity immunity-duration
-  set color gray
 end
 
 ;; This sets up basic constants of the model.
@@ -84,7 +81,8 @@ end
 
 to update-display
   ask turtles
-    [ if shape != turtle-shape [ set shape turtle-shape ] ]
+    [ if shape != turtle-shape [ set shape turtle-shape ]
+      set color ifelse-value sick? [ red ] [ ifelse-value immune? [ grey ] [ green ] ] ]
 end
 
 ;;Turtle counting variables are advanced.
@@ -711,7 +709,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0-RC3
+NetLogo 5.2.0-RC4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

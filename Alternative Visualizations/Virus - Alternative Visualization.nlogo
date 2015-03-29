@@ -39,21 +39,18 @@ end
 to get-sick ;; turtle procedure
   set sick? true
   set remaining-immunity 0
-  set color red
 end
 
 to get-healthy ;; turtle procedure
   set sick? false
   set remaining-immunity 0
   set sick-time 0
-  set color green
 end
 
 to become-immune ;; turtle procedure
   set sick? false
   set sick-time 0
   set remaining-immunity immunity-duration
-  set color gray
 end
 
 ;; This sets up basic constants of the model.
@@ -85,7 +82,8 @@ end
 to update-display
   ask turtles
     [ if shape != turtle-shape [ set shape turtle-shape ]
-      set label ifelse-value show-age? [ floor (age / 52) ] [ "" ] ]
+      set label ifelse-value show-age? [ floor (age / 52) ] [ "" ]
+      set color ifelse-value sick? [ red ] [ ifelse-value immune? [ grey ] [ green ] ] ]
   stop-inspecting-dead-agents
   if watch-a-person? and subject = nobody
     [ watch one-of turtles with [ not hidden? ]
