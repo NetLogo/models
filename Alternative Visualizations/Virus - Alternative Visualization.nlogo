@@ -145,6 +145,7 @@ to reproduce
     [ hatch 1
       [ set age 1
         lt 45 fd 1
+        pen-up ;; in case we're hatched from the watched turtle
         get-healthy ] ]
 end
 
