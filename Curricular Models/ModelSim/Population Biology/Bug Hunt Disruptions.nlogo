@@ -876,7 +876,7 @@ The visualization of fire embers uses the transparency value for the color to gr
 
 Wolf Sheep Predation and Rabbits Weeds Grass are other examples of interacting predator/prey populations with different rules.
 
-Refer to Bug Hunt Environmental Changes and Bug Hunt Predators and Invasive Species for extensions of this model that include predators (birds that eat bugs) and an invasive species (another population of consumers).
+Refer to Bug Hunt Environmental Changes and Bug Hunt Predators and Invasive Species - Two Regions for extensions of this model that include predators (birds that eat bugs) and an invasive species (another population of consumers).
 
 
 ## CREDITS AND REFERENCES
