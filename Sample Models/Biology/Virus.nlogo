@@ -56,7 +56,7 @@ end
 ;; This sets up basic constants of the model.
 to setup-constants
   set lifespan 50 * 52      ;; 50 times 52 weeks = 50 years = 2600 weeks old
-  set carrying-capacity 700
+  set carrying-capacity 300
   set chance-reproduce 1
   set immunity-duration 52
 end
@@ -328,7 +328,7 @@ Ecological biologists have suggested a number of factors which may influence the
 
 ## HOW IT WORKS
 
-The model is initialized with 150 people, of which 10 are infected.  People move randomly about the world in one of three states: healthy but susceptible to infection (green), sick and infectious (red), and healthy and immune (gray). People may die of infection or old age.  When the population dips below the environment's "carrying capacity" (set at 700 in this model) healthy people may produce healthy (but susceptible) offspring.
+The model is initialized with 150 people, of which 10 are infected.  People move randomly about the world in one of three states: healthy but susceptible to infection (green), sick and infectious (red), and healthy and immune (gray). People may die of infection or old age.  When the population dips below the environment's "carrying capacity" (set at 300 in this model) healthy people may produce healthy (but susceptible) offspring.
 
 Some of these factors are summarized below with an explanation of how each one is treated in this model.
 
@@ -350,7 +350,7 @@ If a person has been infected and recovered, how immune are they to the virus?  
 
 How easily does the virus spread?  Some viruses with which we are familiar spread very easily.  Some viruses spread from the smallest contact every time.  Others (the HIV virus, which is responsible for AIDS, for example) require significant contact, perhaps many times, before the virus is transmitted.  In this model, infectiousness is determined by the INFECTIOUSNESS slider.
 
-Several of the core parameters of this model are set as constants in the code. They could be exposed as sliders if desired.  The turtles' lifespan is set to 50 years, the carrying capacity of the world is set to 700 and the chance to reproduce is set to 1%.
+Several of the core parameters of this model are set as constants in the code. They could be exposed as sliders if desired.  The turtles' lifespan is set to 50 years, the carrying capacity of the world is set to 300 and the chance to reproduce is set to 1%.
 
 ### Duration of infectiousness
 
@@ -358,7 +358,7 @@ How long is a person infected before they either recover or die?  This length of
 
 ### Hard-coded parameters
 
-Three important parameters of this model are set as constants in the code (See setup-constants procedure). They can be exposed as sliders if desired. The turtles’ lifespan is set to 50 years, the carrying capacity of the world is set to 700, the duration of immunity is set to 52 weeks, and the birth-rate is set to a 1 in 100 chance of reproducing per tick when the number of people is less than the carrying capacity.
+Three important parameters of this model are set as constants in the code (See setup-constants procedure). They can be exposed as sliders if desired. The turtles’ lifespan is set to 50 years, the carrying capacity of the world is set to 300, the duration of immunity is set to 52 weeks, and the birth-rate is set to a 1 in 100 chance of reproducing per tick when the number of people is less than the carrying capacity.
 
 
 ## HOW TO USE IT
