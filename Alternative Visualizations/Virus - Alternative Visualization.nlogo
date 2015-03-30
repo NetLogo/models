@@ -152,6 +152,10 @@ end
 to-report immune?
   report remaining-immunity > 0
 end
+
+to startup
+  setup-constants ;; so that carrying-capacity can be used as upper bound of number-people slider
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 300
