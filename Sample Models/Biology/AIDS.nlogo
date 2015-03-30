@@ -207,8 +207,8 @@ end
 
 to infect  ;; turtle procedure
   if coupled? and infected? and not known?
-    [ if random-float 11 > condom-use or
-         random-float 11 > ([condom-use] of partner)
+    [ if random-float 10 > condom-use or
+         random-float 10 > ([condom-use] of partner)
         [ if random-float 100 < infection-chance
             [ ask partner [ set infected? true ] ] ] ]
 end
@@ -796,7 +796,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.2.0-RC4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
