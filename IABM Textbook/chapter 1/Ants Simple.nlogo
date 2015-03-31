@@ -271,7 +271,7 @@ This model is in the IABM Textbook folder of the NetLogo models library. The mod
 
 ## WHAT IS IT?
 
-In this project, a colony of ants forages for food. Though each ant follows a set of simple rules, the colony as a whole acts in a sophisticated way.
+In this model, a colony of ants forages for food. Though each ant follows a set of simple rules, the colony as a whole acts in a sophisticated way.
 
 ## HOW IT WORKS
 
