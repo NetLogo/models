@@ -915,12 +915,6 @@ OUTPUT
 10
 
 @#$#@#$#@
-## ACKNOWLEDGEMENT
-
-This model is from Chapter Three of the book "Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo", by Uri Wilensky & William Rand.
-
-Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
-
 ## WHAT IS IT?
 
 This project models the behavior of two types of turtles in a mythical pond. The red turtles and green turtles get along with one another. But each turtle wants to make sure that it lives near some of "its own." That is, each red turtle wants to live near at least some red turtles, and each green turtle wants to live near at least some green turtles. The simulation shows how these individual preferences ripple through the pond, leading to large-scale patterns.
@@ -1168,7 +1162,7 @@ Line -7500403 true 84 40 210 255
 Circle -7500403 true true 120 0 60
 
 @#$#@#$#@
-NetLogo 5.2-RC3
+NetLogo 5.2.0-RC4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
