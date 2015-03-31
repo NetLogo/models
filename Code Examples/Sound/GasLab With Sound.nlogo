@@ -65,14 +65,14 @@ to setup
 end
 
 to go
-  if not single-particle-speed? and three-speed > 0  ;; making sure that particle speed is sung only when switch is on
+  if not single-particle-speed? and three-speed > 0  ;; making sure that particle speed is sonified only when switch is on
         [ sound:stop-note "oboe" (80 - 120 / ( three-speed ))
           sound:stop-note "oboe" 50 ]
-  if not pressure? and pressure > 0  ; making sure that pressure is sung only when switch is on
+  if not pressure? and pressure > 0  ; making sure that pressure is sonified only when switch is on
         [ sound:stop-note "recorder" ( 100 - 2000 / pressure )
           sound:stop-note "recorder" 20 ]
   if single-particle-speed?
-     [ ask particle 3  ;; asking particle 3 to sing, changes note when speed changes, taking care of clock = 0
+     [ ask particle 3  ;; asking particle 3 to make sound, changes note when speed changes, taking care of clock = 0
          [
            ifelse  ((abs (speed - three-speed) > 0 ) )
                      or (abs (speed - three-speed ) = speed )
@@ -83,7 +83,7 @@ to go
                ]
           ]
       ]
-  if real-time? [ sing-real-time ]  ;; sing the real time ticker
+  if real-time? [ sing-real-time ]  ;; sonify the real time ticker
   ask particles
       [ set new? false ]
   ask particles [ bounce ]
@@ -417,7 +417,7 @@ to add-particles-side
     ]
 end
 
-;; called by student from command center;
+;; called by user from command center;
 ;; adds particles in middle
 to add-particles-middle [n]
   create-particles n
@@ -425,7 +425,7 @@ to add-particles-middle [n]
       set new? true
       recolor ]
   ;; add the new particles to an agentset, so they
-  ;; are accessible to the student from the command
+  ;; are accessible to the user from the command
   ;; center, e.g. "ask new-particles [ ... ]"
   set new-particles particles with [new?]
   calculate-tick-length
@@ -486,7 +486,7 @@ to sing-real-time ;; real time is drummed at a regular interval
        every real-time-pacer [ sound:play-note "sci-fi" 30 60 0.3 ]
 end
 
-to sing-pressure  ;;  pressure is sung by a recorder with the tone a function of pressure
+to sing-pressure  ;;  pressure is sonified by a recorder with the tone a function of pressure
   if ( abs ( pressure-now - pressure ) > 0 and pressure-now != 0)
           [ sound:stop-note "recorder" ( 100 - 2000 / pressure-now )
             sound:stop-note "recorder" ( 30 ) ]
@@ -495,6 +495,7 @@ to sing-pressure  ;;  pressure is sung by a recorder with the tone a function of
         [ sound:start-note "recorder" ( 100 - 2000 / pressure ) pressure-loudness ]
         [ sound:start-note "recorder" ( 30 ) pressure-loudness + 10 ]
 end
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 212
@@ -993,7 +994,17 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model is included here in "Code Examples" as an example of taking an existing model and adding sound to it.  It is based on the GasLab models, in the Chemistry & Physics section of the Models Library.
+This model is included here in "Code Examples" as an example of taking an existing model and adding sound to it.  
+
+The original model comes from the GasLab model suite, in the Chemistry & Physics section of the Models Library. Those models were incorporated into a curriculum, Connected Chemistry. The Connected Chemistry models are in the models library in the curricular models section.
+
+For more information on Connected Chemistry, see:
+Wilensky, U., Levy, S. T., & Novak, M. (2004). Connected Chemistry curriculum. http://ccl.northwestern.edu/curriculum/chemistry. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL
+
+The code for this model comes form the Connected Chemistry models, with an important addition. The model is "sonified", that is events in the model, such as a particle hitting a wall, or colliding with another particle,  make sounds. This is another form of feedback for the user, and has been used by blind students to make sense of the model without visuals.
+
+The idea for sonifying the GasLab models for use with blind students is due to **Sharona Levy**. This version of the model is her sonification of a Connected Chemistry model.
+
 @#$#@#$#@
 default
 true
@@ -1285,7 +1296,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.1.0
+NetLogo 5.2.0-RC4
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
