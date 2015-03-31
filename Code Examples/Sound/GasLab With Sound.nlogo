@@ -495,7 +495,6 @@ to sing-pressure  ;;  pressure is sonified by a recorder with the tone a functio
         [ sound:start-note "recorder" ( 100 - 2000 / pressure ) pressure-loudness ]
         [ sound:start-note "recorder" ( 30 ) pressure-loudness + 10 ]
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 212
@@ -1001,10 +1000,9 @@ The original model comes from the GasLab model suite, in the Chemistry & Physics
 For more information on Connected Chemistry, see:
 Wilensky, U., Levy, S. T., & Novak, M. (2004). Connected Chemistry curriculum. http://ccl.northwestern.edu/curriculum/chemistry. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL
 
-The code for this model comes form the Connected Chemistry models, with an important addition. The model is "sonified", that is events in the model, such as a particle hitting a wall, or colliding with another particle,  make sounds. This is another form of feedback for the user, and has been used by blind students to make sense of the model without visuals.
+The code for this model comes form the Connected Chemistry models, with an important addition. The model is "sonified", that is events in the model, such as a particle hitting a wall, or colliding with another particle,  make sounds. Changes in the plots also make sounds. This is another form of feedback for the user, and has been used by blind students to make sense of the model without visuals.
 
 The idea for sonifying the GasLab models for use with blind students is due to **Sharona Levy**. This version of the model is her sonification of a Connected Chemistry model.
-
 @#$#@#$#@
 default
 true
