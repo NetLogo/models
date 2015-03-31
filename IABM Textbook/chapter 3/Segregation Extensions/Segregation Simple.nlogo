@@ -268,7 +268,10 @@ If each turtle wants at least 40% same-color neighbors, what percentage (on aver
 
 ## NETLOGO FEATURES
 
-In the UPDATE-GLOBALS procedure, note the use of SUM, COUNT, VALUES-FROM, and WITH to compute the percentages displayed in the monitors and plots.
+In the UPDATE-GLOBALS procedure, note the use of SUM, COUNT and WITH to compute the percentages displayed in the monitors and plots.
+
+## RELATED MODELS
+Segregation
 
 ## HOW TO CITE
 
@@ -292,10 +295,11 @@ Please cite the textbook as:
 
 ## CREDITS AND REFERENCES
 
-This model is adapted from:
+This model is a simplified version of:
 
 Wilensky, U. (1997). NetLogo Segregation model. http://ccl.northwestern.edu/netlogo/models/Segregation. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
+The original work by Thomas Schelling was published in:
 Schelling, T. (1978). Micromotives and Macrobehavior. New York: Norton.  
 See also a recent Atlantic article:   Rauch, J. (2002). Seeing Around Corners; The Atlantic Monthly; April 2002;Volume 289, No. 4; 35-48. http://www.theatlantic.com/issues/2002/04/rauch.htm
 @#$#@#$#@
