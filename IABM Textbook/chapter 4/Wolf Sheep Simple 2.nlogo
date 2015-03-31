@@ -135,10 +135,10 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 SLIDER
-34
-8
-239
-41
+35
+45
+240
+78
 number-of-sheep
 number-of-sheep
 0
