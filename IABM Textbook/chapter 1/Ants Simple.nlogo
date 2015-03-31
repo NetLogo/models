@@ -15,26 +15,23 @@ turtles-own [
 to setup
   clear-all
   set-default-shape turtles "bug"
-  create-turtles population
-  [ set size 2         ;; easier to see
-    set carrying-food? false ]
   setup-patches
   reset-ticks
 end
 
 to setup-patches
-  ask patches
-  [ setup-nest
-    setup-food
-    recolor-patch ]
+ setup-nest
+ setup-food
+ recolor-patches
 end
 
-to setup-nest  ;; patch procedure
+to setup-nest
   ;; set nest? variable to true inside the nest, false elsewhere
-  set nest? (distancexy 0 0) < 5
+  ask patches [set nest? (distancexy 0 0) < 5]
 end
 
-to setup-food  ;; patch procedure
+to setup-food
+  ask patches [
   ;; setup food source one on the right
   if (distancexy (0.6 * max-pxcor) 0) < 5
   [ set food 2 ]
@@ -44,14 +41,17 @@ to setup-food  ;; patch procedure
   ;; setup food source three on the upper-left
   if (distancexy (-0.8 * max-pxcor) (0.8 * max-pycor)) < 5
   [ set food 2 ]
+  ]
 end
 
-to recolor-patch  ;; patch procedure
+to recolor-patches
+  ask patches [
   ;; scale color to show pheromone concentration
   set pcolor scale-color green pheromone 0.1 5
   ;; give color to nest and food sources
   if nest? [ set pcolor violet ]
   if food > 0 [ set pcolor cyan ]
+  ]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;
@@ -59,12 +59,16 @@ end
 ;;;;;;;;;;;;;;;;;;;;;
 
 to go  ;; forever button
+  ;; add ants one at a time
+  if count turtles < population [ create-ant ]
+      
   ask turtles [ move recolor ]
   diffuse pheromone (diffusion-rate / 100)
   ask patches
   [ set pheromone pheromone * (100 - evaporation-rate) / 100  ;; slowly evaporate pheromone
     if pheromone < 0.05 [ set pheromone 0 ]
-    recolor-patch ]
+  ]
+  recolor-patches
   tick
 end
 
@@ -74,6 +78,11 @@ to move  ;; turtle procedure
   wander          ;; turn a small random amount and move forward
 end
 
+to create-ant
+  create-turtles 1
+  [ set size 2  ;; easier to see
+    set carrying-food? false ]
+end
 
 to move-towards-nest  ;; turtle procedure
   ifelse nest?
@@ -262,7 +271,7 @@ This model is in the IABM Textbook folder of the NetLogo models library. The mod
 
 ## WHAT IS IT?
 
-In this model, a colony of ants forages for food. Though each ant follows a set of simple rules, the colony as a whole acts in a sophisticated way.
+In this project, a colony of ants forages for food. Though each ant follows a set of simple rules, the colony as a whole acts in a sophisticated way.
 
 ## HOW IT WORKS
 
@@ -282,7 +291,7 @@ The ant colony generally exploits the food source in order, starting with the fo
 
 Once the colony finishes collecting the closest food, the chemical trail to that food naturally disappears, freeing up ants to help collect the other food sources. The more distant food sources require a larger "critical number" of ants to form a stable trail.
 
-The consumption of the food is shown in a plot.  The line-colors in the plot match the colors of the food piles.
+The consumption of the food is shown in a plot.  The line colors in the plot match the colors of the food piles.
 
 ## EXTENDING THE MODEL
 
