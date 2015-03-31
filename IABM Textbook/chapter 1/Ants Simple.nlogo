@@ -1,5 +1,5 @@
 patches-own [
-  pheromone             ;; amount of pheromone on this patch
+  pheromone            ;; amount of pheromone on this patch
   food                 ;; amount of food on this patch (0, 1, or 2)
   nest?                ;; true on nest patches, false elsewhere
 ]
@@ -20,9 +20,9 @@ to setup
 end
 
 to setup-patches
- setup-nest
- setup-food
- recolor-patches
+  setup-nest
+  setup-food
+  recolor-patches
 end
 
 to setup-nest
@@ -61,7 +61,7 @@ end
 to go  ;; forever button
   ;; add ants one at a time
   if count turtles < population [ create-ant ]
-      
+
   ask turtles [ move recolor ]
   diffuse pheromone (diffusion-rate / 100)
   ask patches
