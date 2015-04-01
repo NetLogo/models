@@ -40,6 +40,14 @@ bugs-own [
   #-offspring
 ]
 
+embers-own [
+  current-age
+]
+
+disease-markers-own [
+ current-age 
+]
+
 patches-own [
   fertile?
   plant-energy

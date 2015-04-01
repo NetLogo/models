@@ -49,6 +49,10 @@ patches-own [
   region
 ]
 
+embers-own [
+ current-age 
+]
+
 disruptions-own [
   disruption-region         ;; the region in which the disruption happened
   disruption-tick           ;; the tick at which the disruption happened
