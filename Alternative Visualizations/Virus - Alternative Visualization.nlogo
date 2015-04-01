@@ -472,7 +472,7 @@ Kornhauser, D., Wilensky, U., & Rand, W. (2009). http://ccl.northwestern.edu/pap
 * Virus on a Network
 
 
-## CREDITS and REFERENCES
+## CREDITS AND REFERENCES
 
 This model shows alternate visualizations of the Virus model. It uses visualization techniques as recommended in the paper:
 

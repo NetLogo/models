@@ -143,7 +143,7 @@ def munge(path: String): String = {
             .forall(line => !line.startsWith("#")),
             "CREDITS AND REFERENCES must be the last header (line starting with #) in the info tab")
     (removeBlankCredits(lines.mkString("", "\n", "\n")) + "\n\n" +
-      howToCiteSection + "\n" +
+      (if(path.startsWith("IABM Textbook")) "" else (howToCiteSection + "\n")) +
       copyrightSection)
   }
   def removeBlankCredits(info: String): String = {
@@ -166,7 +166,7 @@ def munge(path: String): String = {
       builder.append("Wilensky, U. (" + year + ").  " + netlogohubnet + " " + name + " model.  ")
     builder.append("http://ccl.northwestern.edu/netlogo/models/" + compressedname + ".  ")
     builder.append("Center for Connected Learning and Computer-Based Modeling, ")
-    builder.append("Northwestern University, Evanston, IL.\n")
+    builder.append("Northwestern University, Evanston, IL.\n\n")
     builder.append("* Wilensky, U. (1999). NetLogo. ")
     builder.append("http://ccl.northwestern.edu/netlogo/. ")
     builder.append("Center for Connected Learning and ")
@@ -201,7 +201,7 @@ def munge(path: String): String = {
       builder.append("Stanford, California 94305, USA.\n")
     }
     else if(keywords.contains("CC0")) {
-      builder.append("[![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)](http://creativecommons.org/publicdomain/zero/1.0/)\n")
+      builder.append("[![CC0](http://ccl.northwestern.edu/images/zero.png)](http://creativecommons.org/publicdomain/zero/1.0/)\n")
       builder.append("\n")
       builder.append(copyright + ": ")
       builder.append("To the extent possible under law, Uri Wilensky has waived all ")
@@ -211,7 +211,7 @@ def munge(path: String): String = {
     else if(keywords.contains("BYSA")) {
       builder.append(copyright + "\n")
       builder.append("\n")
-      builder.append("![CC BY-SA 3.0](http://i.creativecommons.org/l/by-sa/3.0/88x31.png)\n")
+      builder.append("![CC BY-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/bysa.png)\n")
       builder.append("\n")
       builder.append("This work is licensed under the Creative Commons ")
       builder.append("Attribution-ShareAlike 3.0 License.  To view a copy of ")
@@ -225,7 +225,7 @@ def munge(path: String): String = {
     else {  // default license is CC BY-NC-SA
       builder.append(copyright + "\n")
       builder.append("\n")
-      builder.append("![CC BY-NC-SA 3.0](http://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png)\n")
+      builder.append("![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)\n")
       builder.append("\n")
       builder.append("This work is licensed under the Creative Commons ")
       builder.append("Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of ")
