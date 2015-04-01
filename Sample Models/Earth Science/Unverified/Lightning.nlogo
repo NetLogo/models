@@ -1011,7 +1011,7 @@ Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
 
 @#$#@#$#@
-NetLogo 5.2.0-RC4
+NetLogo 5.2.0-RC5
 @#$#@#$#@
 setup
 repeat 50 [ go ]
