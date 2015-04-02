@@ -145,9 +145,9 @@ to keep-in-region [ which-region ] ; turtle procedure
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-237
+245
 10
-1092
+1100
 470
 32
 16
@@ -174,7 +174,7 @@ ticks
 SLIDER
 10
 10
-225
+235
 43
 number-of-regions
 number-of-regions
@@ -206,7 +206,7 @@ NIL
 SLIDER
 10
 46
-225
+235
 79
 number-of-turtles-per-region
 number-of-turtles-per-region
@@ -219,9 +219,9 @@ NIL
 HORIZONTAL
 
 BUTTON
-95
+105
 90
-158
+168
 123
 NIL
 go
@@ -236,9 +236,9 @@ NIL
 1
 
 BUTTON
-160
+170
 90
-223
+233
 123
 NIL
 go
@@ -603,7 +603,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0-RC1
+NetLogo 5.2.0-RC5
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
