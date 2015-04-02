@@ -667,32 +667,6 @@ NetLogo 5.2.0-RC5
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
-<experiments>
-  <experiment name="experiment" repetitions="10" runMetricsEveryStep="false">
-    <setup>setup</setup>
-    <go>go</go>
-    <timeLimit steps="1000"/>
-    <metric>count wolves</metric>
-    <metric>count sheep</metric>
-    <metric>sum [grass] of patches</metric>
-    <enumeratedValueSet variable="energy-gain-from-grass">
-      <value value="2"/>
-    </enumeratedValueSet>
-    <steppedValueSet variable="number-of-wolves" first="5" step="1" last="15"/>
-    <enumeratedValueSet variable="movement-cost">
-      <value value="0.5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="energy-gain-from-sheep">
-      <value value="5"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="number-of-sheep">
-      <value value="500"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="grass-regrowth-rate">
-      <value value="0.3"/>
-    </enumeratedValueSet>
-  </experiment>
-</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default
