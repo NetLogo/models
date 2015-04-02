@@ -40,8 +40,10 @@ to setup-turtles
   ; The `foreach` pattern shown can be used whenever you
   ; need to do something for each different region.
   foreach n-values length regions [ ? + 1 ] [
-    ask n-of number-of-turtles-per-region patches with [ region = ? ] [
-      sprout 1 [ set color pcolor + 3 ]
+    let region-patches patches with [ region = ? ]
+    create-turtles number-of-turtles-per-region [
+      move-to one-of region-patches
+      set color pcolor + 3
     ]
   ]
 end
