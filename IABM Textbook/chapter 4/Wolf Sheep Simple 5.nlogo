@@ -93,7 +93,7 @@ end
 to eat-grass
   ;; check to make sure there is grass here
   if ( grass >= energy-gain-from-grass ) [    
-    ;; increment the moose's energy
+    ;; increment the sheep's energy
     set energy energy + energy-gain-from-grass
     ;; decrement the grass
     set grass grass - energy-gain-from-grass
@@ -732,7 +732,7 @@ NetLogo 5.2.0-RC5
     <go>go</go>
     <timeLimit steps="1000"/>
     <metric>count wolves</metric>
-    <metric>count moose</metric>
+    <metric>count sheep</metric>
     <metric>sum [grass] of patches</metric>
     <enumeratedValueSet variable="energy-gain-from-grass">
       <value value="2"/>
@@ -741,10 +741,10 @@ NetLogo 5.2.0-RC5
     <enumeratedValueSet variable="movement-cost">
       <value value="0.5"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="energy-gain-from-moose">
+    <enumeratedValueSet variable="energy-gain-from-sheep">
       <value value="5"/>
     </enumeratedValueSet>
-    <enumeratedValueSet variable="number-of-moose">
+    <enumeratedValueSet variable="number-of-sheep">
       <value value="500"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="grass-regrowth-rate">
