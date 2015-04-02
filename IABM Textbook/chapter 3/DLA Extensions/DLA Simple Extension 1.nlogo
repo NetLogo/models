@@ -9,23 +9,16 @@ to setup
   reset-ticks
 end
 
-to go    
+to go
   ask turtles
-  [ right random wiggle-angle
-    left random wiggle-angle
-    forward 1
-    let local-prob probability-of-sticking 
- 
-    ;; if neighbor-influence is TRUE then make the probability proportionate to the number of green neighbors, otherwise use the slider as before
-    if neighbor-influence? [
-      ;; increase the probability of sticking the more green neighbors there are
-      set local-prob probability-of-sticking * (count neighbors with [ pcolor = green ] / 8)
-    ]
-      
-    if (pcolor = black) and ( any? neighbors with [pcolor = green] ) 
-          and ( random-float 1.0 < local-prob )
-      [ set pcolor green
-        die ] ]
+    ;; turn a random amount right and left
+    [ right random wiggle-angle
+      left random wiggle-angle
+      forward 1
+      if ( pcolor = black ) and ( any? neighbors with [pcolor = green] ) 
+            and ( random-float 1.0 < probability-of-sticking )
+        [ set pcolor green
+          die ] ]
   tick
 end
 @#$#@#$#@
@@ -57,9 +50,9 @@ ticks
 30.0
 
 BUTTON
-35
 40
-98
+40
+103
 73
 NIL
 setup
@@ -135,17 +128,6 @@ probability-of-sticking
 NIL
 HORIZONTAL
 
-SWITCH
-10
-215
-180
-248
-neighbor-influence?
-neighbor-influence?
-0
-1
--1000
-
 @#$#@#$#@
 ## ACKNOWLEDGEMENT
 
@@ -159,20 +141,21 @@ This model is in the IABM Textbook folder of the NetLogo models library. The mod
 
 Like the main DLA model, this model demonstrates diffusion-limited aggregation, in which particles moving (diffusing) in random trajectories stick together (aggregate) to form beautiful treelike branching fractal structures. There are many patterns found in nature that resemble the patterns produced by this model: crystals, coral, fungi, lightning, and so on.
 
-This model is a simplified version of the main DLA model. In the main model, new particles are created as existing particles aggregate. In this model, particles are only created at the beginning. The main model is more computationally efficient, but the rules that drive the phenomenon are more digestible in this model.
+This model is based on the DLA Simple model because it is a simplified version of the main DLA model in the Chemistry and Physics section of the NetLogo models library. In the main model, new particles are created as existing particles aggregate. In this model, particles are only created at the beginning. The main model is more computationally efficient, but the rules that drive the phenomenon are more digestible in this model.
 
-This model extends the DLA Simple Extension 1 model because particles are more likely to stick if there are more neighbors to the empty square.
+This model extends the DLA Simple model because particles are not guaranteed to stick to each other, but are instead affected by a probability.
 
 ## HOW TO USE IT
 
 Press SETUP to make the initial seed, and NUM-PARTICLES particles, then press GO to run the model.
 The WIGGLE-ANGLE slider controls how wiggly the paths the particles follow are. If WIGGLE-ANGLE is 0, they move in straight lines. If WIGGLE-ANGLE is 360, they move in a totally random direction at each time step.
 The PROB-OF-STICKING slider controls the probability that a particle colliding with the aggregate will die there and add to the aggregate (by turning its patch green).
-If NEIGHBOR-INFLUENCE is True, the probability of a particle sticking is proportional to the number of green pacthes around it.
 
 ## THINGS TO NOTICE
 
 Note that the resulting structure has a branching structure, like a tree.  Why does this happen?
+
+The resulting structure changes depending on the probability of particles sticking. Why do you think this happens?
 
 What other phenomena in the world do the shapes remind you of?  Is this aggregation process a plausible model of how those phenomena occur?
 
@@ -182,9 +165,7 @@ Try different settings for how much the turtles turn as they do their random wal
 
 Does it make any difference whether there are more or fewer particles?  Why or why not?
 
-How does the PROBABILITY-OF-STICKING affect the model results?
-
-How does NEIGHBOR-INFLUENCE? affect the model results?
+Try different values for PROBABILITY-OF-STICKING. How does this affect the model results?
 
 ## EXTENDING THE MODEL
 
@@ -219,7 +200,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Wilensky, U. & Rand, W. (2006).  NetLogo DLA Simple Extension 2 model.  http://ccl.northwestern.edu/netlogo/models/IABMTextbook/DLASimpleExtension2.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. & Rand, W. (2006).  NetLogo DLA Simple Extension 1 model.  http://ccl.northwestern.edu/netlogo/models/IABMTextbook/DLASimpleExtension1.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
@@ -227,7 +208,7 @@ Please cite the NetLogo software as:
 
 Please cite the textbook as:
 
-* Wilensky, U  & Rand, W. (2013). Introduction to Agent-Based Modeling: Modeling 
+* Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling 
  Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
 ## CREDITS AND REFERENCES
@@ -508,7 +489,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0-RC4
+NetLogo 5.2.0-RC5
 @#$#@#$#@
 setup
 repeat 450 [ go ]

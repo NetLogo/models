@@ -423,8 +423,7 @@ Does the circle visualization make it easier for you to see what is happening?
 * AIDS
 * Virus on a Network
 
-
-## CREDITS and REFERENCES
+## CREDITS AND REFERENCES
 
 This model can show an alternate visualization of the Virus model using circles to represent the people. It uses visualization techniques as recommended in the paper:
 
@@ -713,7 +712,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0-RC4
+NetLogo 5.2.0-RC5
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

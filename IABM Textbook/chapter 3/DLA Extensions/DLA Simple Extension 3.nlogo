@@ -1,24 +1,31 @@
 to setup
   clear-all
-  ask patch 0 0
+  ;; start with NUM-SEEDS green patches as “seeds”
+  ask n-of num-seeds patches 
     [ set pcolor green ]
   create-turtles num-particles
     [ set color red
-      set size 1.5  ;; easier to see
+      set size 1.5 ;; easier to see
       setxy random-xcor random-ycor ]
   reset-ticks
 end
 
-to go
+to go    
   ask turtles
-    ;; turn a random amount right and left
-    [ right random wiggle-angle
-      left random wiggle-angle
-      forward 1
-      ;; if you are touching a green patch, turn your own patch green and then die
-      if any? neighbors with [pcolor = green]
-        [ set pcolor green
-          die ] ]
+  [ right random wiggle-angle
+    left random wiggle-angle
+    forward 1
+    let local-prob probability-of-sticking 
+ 
+    ;; if neighbor-influence is TRUE then make the probability proportionate to the number of green neighbors, otherwise use the slider as before
+    if neighbor-influence? [
+      ;; increase the probability of sticking the more green neighbors there are
+      set local-prob probability-of-sticking * (count neighbors with [ pcolor = green ] / 8)
+    ] 
+    if (pcolor = black) and ( any? neighbors with [pcolor = green] ) 
+          and ( random-float 1.0 < local-prob )
+      [ set pcolor green
+        die ] ]
   tick
 end
 @#$#@#$#@
@@ -50,10 +57,10 @@ ticks
 30.0
 
 BUTTON
-39
-43
-102
-76
+35
+40
+98
+73
 NIL
 setup
 NIL
@@ -68,9 +75,9 @@ NIL
 
 BUTTON
 110
-43
+40
 173
-76
+73
 NIL
 go
 T
@@ -84,10 +91,10 @@ NIL
 0
 
 SLIDER
-8
-89
-197
-122
+5
+90
+194
+123
 wiggle-angle
 wiggle-angle
 0
@@ -99,15 +106,56 @@ degrees
 HORIZONTAL
 
 SLIDER
-8
+5
 130
-197
+194
 163
 num-particles
 num-particles
 0
 5000
 2500
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+5
+170
+195
+203
+probability-of-sticking
+probability-of-sticking
+0
+1
+1
+.01
+1
+NIL
+HORIZONTAL
+
+SWITCH
+5
+215
+187
+248
+neighbor-influence?
+neighbor-influence?
+1
+1
+-1000
+
+SLIDER
+5
+260
+177
+293
+num-seeds
+num-seeds
+1
+10
+10
 1
 1
 NIL
@@ -126,12 +174,15 @@ This model is in the IABM Textbook folder of the NetLogo models library. The mod
 
 Like the main DLA model, this model demonstrates diffusion-limited aggregation, in which particles moving (diffusing) in random trajectories stick together (aggregate) to form beautiful treelike branching fractal structures. There are many patterns found in nature that resemble the patterns produced by this model: crystals, coral, fungi, lightning, and so on.
 
-This model is called DLA Simple because it is it is a simplified version of the main DLA model from the NetLogo models library. In the main model, new particles are created as existing particles aggregate. In this model, particles are only created at the beginning. The main model is more computationally efficient, but the rules that drive the phenomenon are more digestible in this model.
+This model is called DLA Simple because it is it is a simplified version of the main DLA model in the Chemistry and Physics section of the NetLogo models library. In the main model, new particles are created as existing particles aggregate. In this model, particles are only created at the beginning. The main model is more computationally efficient, but the rules that drive the phenomenon are more digestible in this model.
+
+This model extends the DLA Simple Extension 2 model because it allows for multiple seeds rather than the original model which only had one seed.
 
 ## HOW TO USE IT
 
-Press SETUP to make the initial seed and NUM-PARTICLES particles, then press GO to run the model.
+Press SETUP to make the initial NUM-SEEDS seeds, and NUM-PARTICLES particles, then press GO to run the model.
 The WIGGLE-ANGLE slider controls how wiggly the paths the particles follow are. If WIGGLE-ANGLE is 0, they move in straight lines. If WIGGLE-ANGLE is 360, they move in a totally random direction at each time step.
+The PROB-OF-STICKING slider controls the probability that a particle colliding with the aggregate will die there and add to the aggregate (by turning its patch green).
 
 ## THINGS TO NOTICE
 
@@ -145,13 +196,21 @@ Try different settings for how much the turtles turn as they do their random wal
 
 Does it make any difference whether there are more or fewer particles?  Why or why not?
 
+How does the PROBABILITY-OF-STICKING affect the model results?
+
+How does NEIGHBOR-INFLUENCE? affect the model results?
+
+Explore how the pattern changes when different numbers of seeds are used.
+
+How do PROBABILITY-OF-STICKING, NEIGHBOR-INFLUENCE?, and the number of seeds interact to create different structures?
+
 ## EXTENDING THE MODEL
 
 What happens if you start with more than one "seed" patch?  What happens if the seed is a line instead of a point?
 
 Can you find a way to modify the code so the resulting pattern spirals out instead of radiating straight out?
 
-The rule used in this model is that a particle "sticks" if any of the eight patches surrounding it are green.  What do the resulting structures look like if you use a different rule (for example, only testing the single patch ahead, or using `neighbors4` instead of `neighbors`)?
+The rule used in this model is that a particle "sticks" if any of the eight patches surrounding it are green.  What do the resulting structures look like if you use a different rule (for example, only testing the single patch ahead, or using NEIGHBORS4 instead of NEIGHBORS)?
 
 Can you compute the fractal dimension of the aggregate?
 
@@ -161,7 +220,7 @@ The model will run faster if the turtles are invisible, so you may want to add a
 
 ## NETLOGO FEATURES
 
-Note the use of the `neighbors` primitive.
+Note the use of the NEIGHBORS primitive.
 
 ## RELATED MODELS
 
@@ -172,12 +231,13 @@ The "Percolation" model in the "Earth Science" section produces patterns resembl
 ## HOW TO CITE
 
 This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling 
- Natural, Social and Engineered Complex Systems using NetLogo."
+ Natural, Social and Engineered Complex Systems with NetLogo."
  
 If you mention this model or the NetLogo software in a publication, we ask that you include the cites.
 
 For the model itself:
-Wilensky, U. (1997). NetLogo DLA Simple model. http://ccl.northwestern.edu/netlogo/models/IABMTextbook/DLASimple. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+* Wilensky, U. & Rand, W. (2006).  NetLogo DLA Simple Extension 3 model.  http://ccl.northwestern.edu/netlogo/models/IABMTextbook/DLASimpleExtension3.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
@@ -185,15 +245,14 @@ Please cite the NetLogo software as:
 
 Please cite the textbook as:
 
-* Wilensky, U.  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling 
+* Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling 
  Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
 ## CREDITS AND REFERENCES
 
-This is a simplified version of:
+This model is a simplified version of:
 
 Wilensky, U. (1997). NetLogo DLA model. http://ccl.northwestern.edu/netlogo/models/DLA. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-
 
 The concept of diffusion limited aggregation was invented by T.A. Witten and L.M. Sander in 1981.  Witten, T. & Sanders, L. (1981).  Diffusion-limited aggregation, a kinetic critical phenomena. Phys. Rev. Lett. 47(19), 1400–1403 (1981).
 
@@ -467,7 +526,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0-RC4
+NetLogo 5.2.0-RC5
 @#$#@#$#@
 setup
 repeat 450 [ go ]
@@ -487,5 +546,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
