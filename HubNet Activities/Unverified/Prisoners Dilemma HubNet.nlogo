@@ -756,18 +756,27 @@ The Prisoner's Dilemma presents an interesting problem: if you and your accompli
 
 This model allows for many students within a classroom to challenge each other over a network.  Students will keep switching partners by moving their agents around on the screen and they can switch strategies. Students compete to see who has gained the maximum points over all interactions.
 
-Moreover, this model allows students to gain a grasp of computer programming. An input box on the screen allows students to edit and author strategies. Following are the strategies that students can choose from (see the STRATEGY-CHOICE choose in the HubNet client):
+Moreover, this model allows students to gain a grasp of computer programming. An input box on the screen allows students to edit and author strategies. Following are the strategies that students can choose from (see the STRATEGY-CHOICE chooser in the HubNet client):
 
-Strategies:  
-Random - randomly cooperate or defect  
-Cooperate - cooperate always  
-Defect - defect always  
-Go-by-Majority - Totals the number of times that the partner has defected.   If the majority of the time, up to that point, the partner has defected, defect.  Otherwise, cooperate.  
-Tit-for-Tat - If the opponent cooperates this round cooperate next round.  If the opponent defects this round, defect next round.  Initially cooperate.  
-Suspicious-Tit-for-Tat - The Tit-for-Tat strategy, except initially defects  
-Tit-for-Two-Tats - If the opponent cooperates this round cooperate next round.  If the opponent defects two rounds in a row, defect the next round.  Initially cooperate.  
-Pavlov - If the previous tactic (cooperate or defect) resulted in good {Andrei, what does this mean? Any positive point? The maximum possible?} points, stick with that tactic.  Otherwise, switch strategies.  Currently, "Success" happens when the partner cooperates, so this will keep switching if the opponent is always defecting.  Initially random.  
-Unforgiving - Cooperate always unless the opponent defects once.  Upon opponent defection retaliate by defecting always.
+Strategies:
+
+- **Random** -- Randomly cooperate or defect.
+
+- **Cooperate** -- Always cooperate.
+
+- **Defect** -- Always defect.
+
+- **Go-by-Majority** -- Totals the number of times that partners defected against me. If the majority of the time, up to that point, the partner has defected, defect.  Otherwise, cooperate.
+
+- **Tit-for-Tat** -- If my opponent from the previous round cooperated with me, cooperate this round. If my opponent from the previous round defected against me, defect this round. Initially cooperate.
+
+- **Suspicious-Tit-for-Tat** - Same as the Tit-for-Tat strategy, except I initially defect.
+
+- **Tit-for-Two-Tats** -- If my opponents from the two previous rounds defected against me, defect this round. Otherwise, cooperate. Initially cooperate.
+
+- **Pavlov** -- If my partner from last round cooperated with me, repeat my action from last round. If my partner from last round defected against me, choose the opposite action from the one I used last round. Initially random.
+
+- **Unforgiving** -- Always cooperate, until an opponent defects against me. Once an opponent defected against me, always defect, against everyone.
 
 Rules for the Iterated Prisoner's Dilemma
 
@@ -1470,7 +1479,7 @@ Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
 
 @#$#@#$#@
-NetLogo 5.2.0-RC3
+NetLogo 5.2.0-RC5
 @#$#@#$#@
 setup
 @#$#@#$#@
