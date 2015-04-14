@@ -201,7 +201,7 @@ def munge(path: String): String = {
       builder.append("Stanford, California 94305, USA.\n")
     }
     else if(keywords.contains("CC0")) {
-      builder.append("[![CC0](http://ccl.northwestern.edu/images/zero.png)](http://creativecommons.org/publicdomain/zero/1.0/)\n")
+      builder.append("[![CC0](http://ccl.northwestern.edu/images/creativecommons/zero.png)](http://creativecommons.org/publicdomain/zero/1.0/)\n")
       builder.append("\n")
       builder.append(copyright + ": ")
       builder.append("To the extent possible under law, Uri Wilensky has waived all ")
