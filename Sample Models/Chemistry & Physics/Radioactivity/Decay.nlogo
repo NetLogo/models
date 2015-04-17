@@ -258,7 +258,7 @@ In this model, the nuclei don't affect their neighbors when they decay --- they 
 
 ## RELATED MODELS
 
-* Reactor Top-Down  
+* Reactor Top-Down
 * Reactor X-Section
 
 ## CREDITS AND REFERENCES

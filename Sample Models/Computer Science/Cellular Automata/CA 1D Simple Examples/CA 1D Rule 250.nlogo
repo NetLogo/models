@@ -169,9 +169,9 @@ For example, if we have a Rule 250 CA, and the current cell is yellow and its le
 
 ## HOW TO USE IT
 
-Initialization & Running:  
-- SETUP initializes the model with a single cell on in the center.  
-- SETUP-CONTINUE copies the last row of the previous run to the top so that you can continue running the model in "wrapped" mode when you click GO.  
+Initialization & Running:
+- SETUP initializes the model with a single cell on in the center.
+- SETUP-CONTINUE copies the last row of the previous run to the top so that you can continue running the model in "wrapped" mode when you click GO.
 - GO begins running the model with the currently set rule. It continues until the end of the view.
 
 ## THINGS TO NOTICE
@@ -208,12 +208,12 @@ Try making a two-dimensional cellular automaton.  The neighborhood could be the 
 
 ## RELATED MODELS
 
-Life - an example of a two-dimensional cellular automaton  
-CA 1D Rule 30 - the basic rule 30 model  
-CA 1D Rule 30 Turtle - the basic rule 30 model implemented using turtles  
-CA 1D Rule 90 - the basic rule 90 model  
-CA 1D Rule 110 - the basic rule 110 model  
-CA 1D Elementary - a model that shows all 256 possible simple 1D cellular automata  
+Life - an example of a two-dimensional cellular automaton
+CA 1D Rule 30 - the basic rule 30 model
+CA 1D Rule 30 Turtle - the basic rule 30 model implemented using turtles
+CA 1D Rule 90 - the basic rule 90 model
+CA 1D Rule 110 - the basic rule 110 model
+CA 1D Elementary - a model that shows all 256 possible simple 1D cellular automata
 CA 1D Totalistic - a model that shows all 2,187 possible 1D 3-color totalistic cellular automata.
 
 ## CREDITS AND REFERENCES
@@ -234,8 +234,8 @@ Wolfram, S. 1986. Theory and Applications of Cellular Automata: Including Select
 
 Bar-Yam, Y. 1997. Dynamics of Complex Systems. Perseus Press. Reading, Ma.
 
-Wolfram, S. 2002. A New Kind of Science.  Wolfram Media Inc.  Champaign, IL.  
-See chapters 2 and 3 for more information on 1 Dimensional CA  
+Wolfram, S. 2002. A New Kind of Science.  Wolfram Media Inc.  Champaign, IL.
+See chapters 2 and 3 for more information on 1 Dimensional CA
 See pages 25, 224, 694, 869-870, 952,1089 for information specifically on Rule 250.
 @#$#@#$#@
 default

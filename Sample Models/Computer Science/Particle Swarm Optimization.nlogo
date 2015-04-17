@@ -371,7 +371,7 @@ This model is closely based on the algorithm described by Kennedy and Eberhart's
 
 ## HOW IT WORKS
 
-Each particle has a position (xcor, ycor) in the search space and a velocity (vx, vy) at which it is moving through that space.  Particles have a certain amount of inertia, which keeps them moving in the same direction they were moving previously.  
+Each particle has a position (xcor, ycor) in the search space and a velocity (vx, vy) at which it is moving through that space.  Particles have a certain amount of inertia, which keeps them moving in the same direction they were moving previously.
 They also have acceleration (change in velocity), which depends on two main things.
 
 1) Each particle is attracted toward the best location that it has personally found (personal best) previously in its history.

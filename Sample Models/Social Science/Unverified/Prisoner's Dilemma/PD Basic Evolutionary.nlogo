@@ -217,7 +217,7 @@ In a non-iterated prisoner's dilemma, the two partners will never have to work t
            Cooperate |   (0.5, 0.5)           (0, 10)
       YOU            |
            Defect    |(10, 0)              (5, 5)
-    
+
             (x, y) = x: your score, y: your partner's score
             Note: lower the score (number of years in prison), the better.
 
@@ -232,7 +232,7 @@ In an Iterated Prisoner's Dilemma where you have more than two players and multi
            Cooperate |(1, 1)            (0, alpha)
       YOU            |
            Defect    |(alpha, 0)        (0, 0)
-    
+
             (x, y) = x: your score, y: your partner's score
             Note: higher the score (amount of the benefit), the better.
 
@@ -248,9 +248,9 @@ Each patch will either cooperate (blue) or defect (red) in the initial start of 
 
 In the subsequent round, the patch will set its old-cooperate? to be the strategy it used in the previous round.  For the upcoming round, the patch will adopt the strategy of one of its neighbors that scored the highest in the previous round.
 
-If a patch is blue, then the patch cooperated in the previous and current round.  
-If a patch is red, then the patch defected in the previous iteration as well as the current round.  
-If a patch is green, then the patch cooperated in the previous round but defected in the current round.  
+If a patch is blue, then the patch cooperated in the previous and current round.
+If a patch is red, then the patch defected in the previous iteration as well as the current round.
+If a patch is green, then the patch cooperated in the previous round but defected in the current round.
 If a patch is yellow, then the patch defected in the previous round but cooperated in the current round.
 
 
@@ -273,9 +273,9 @@ Alter the code so that the patches have a strategy to implement.  For example, i
 
 Implement these four strategies:
 
-1. Cooperate-all-the-time: regardless of neighboring patches' history, cooperate.  
-2. Tit-for-Tat:  only cooperate with neighboring patches, if they have never defected.  Otherwise, defect.  
-3. Tit-for-Tat-with-forgiveness: cooperate if on the previous round, the patch cooperated.  Otherwise, defect.  
+1. Cooperate-all-the-time: regardless of neighboring patches' history, cooperate.
+2. Tit-for-Tat:  only cooperate with neighboring patches, if they have never defected.  Otherwise, defect.
+3. Tit-for-Tat-with-forgiveness: cooperate if on the previous round, the patch cooperated.  Otherwise, defect.
 4. Defect-all-the-time: regardless of neighboring patches' history, defect.
 
 How are the cooperating and defecting patches distributed?  Which strategy results with the highest score on average?  On what conditions will this strategy be a poor strategy to use?

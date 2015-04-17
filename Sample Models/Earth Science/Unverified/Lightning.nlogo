@@ -38,7 +38,7 @@ end
 ;; set up the world background
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 to setup-world
-  
+
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; set global variable values
   set cloud-line 100
   set surface -50; set the height of the earth
@@ -48,70 +48,70 @@ to setup-world
   set fade-probability 1 ;; the probability a path of ionized air will end or fade
   set lightning-struck? false
   set hit-tree? false
-  
+
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; set colors for the patches in the background
   ask patches [
     if pycor = surface ;; set color of the earth surface with input number of positive streamers
-      [set pcolor green - 1] 
+      [set pcolor green - 1]
     if pycor > (cloud-line - 1)
       [set pcolor gray]    ;;set color of the cloud
     if pycor > surface and pycor < cloud-line
-      [set pcolor black]  ;; set color of the sky 
-    if pycor < surface 
+      [set pcolor black]  ;; set color of the sky
+    if pycor < surface
       [set pcolor green] ;; set color of the earth
   ]
-  
+
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; create the trees in the meadow based on the slider value for the number of trees
   create-trees number-of-trees [
     ;; half the trees are trees and half are pines
-    ifelse ((random 2) = 0) 
+    ifelse ((random 2) = 0)
     [set shape "myTree"]
     [set shape "myPineTree"]
-    set size ((random 20) + 15)  
-    setxy random-pxcor (surface + size / 2) 
+    set size ((random 20) + 15)
+    setxy random-pxcor (surface + size / 2)
   ]
-  
+
   ;;create cloud
   create-clouds 1 [
     set shape "cloud"
     set size (size-of-cloud * 20)
     setxy 0 75
   ]
-  
+
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;create Ions in the world and cloud
   create-positive-cloud-ions strength-of-field
   create-negative-cloud-ions strength-of-field
   create-positive-ground-ions strength-of-field
-  
+
   ask positive-cloud-ions [
     set shape "+"
     set size 7
     setxy random-x-in-cloud (top-of-cloud - random-y-in-cloud)
   ]
-  
+
   ask negative-cloud-ions [
     set shape "-"
     set size 7
-    setxy random-x-in-cloud (bottom-of-cloud - random-y-in-cloud) 
-  ]  
-  
+    setxy random-x-in-cloud (bottom-of-cloud - random-y-in-cloud)
+  ]
+
   ask positive-ground-ions [
     set shape "+"
     set size 7
     setxy random-x-in-cloud (surface - random 15) ;; distribute randomly along the surface, beneath the cloud area
   ]
-  
+
   setup-streamers-leaders
-  add-dust 
+  add-dust
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;create and place the streamers and leaders
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 to setup-streamers-leaders
-  
+
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;create lightning makers
-  create-step-leaders strength-of-field  
+  create-step-leaders strength-of-field
   ask step-leaders [
     set shape "negativeStrm"
     set size 5
@@ -119,7 +119,7 @@ to setup-streamers-leaders
     setxy xcoor (bottom-of-cloud - (size-of-cloud * 2))
     facexy xcoor surface
   ]
-  
+
   create-positive-streamers strength-of-field
   ask positive-streamers [
     set shape "positiveStrm"
@@ -127,7 +127,7 @@ to setup-streamers-leaders
     let xcoor random-x-in-cloud
     setxy xcoor surface
     while [(pcolor = lime) or (pcolor = turquoise) or (pcolor = brown)] [
-      set ycor (ycor + 1) 
+      set ycor (ycor + 1)
     ]
     facexy xcoor bottom-of-cloud
   ]
@@ -144,7 +144,7 @@ to make-ions-move
     setxy random-x-in-cloud (top-of-cloud - random-y-in-cloud)
   ]
   ask negative-cloud-ions [;; set the position to a random X, and change the Y by a random amount to stay in lower area of cloud
-    setxy random-x-in-cloud (bottom-of-cloud - random-y-in-cloud) 
+    setxy random-x-in-cloud (bottom-of-cloud - random-y-in-cloud)
   ]
 end
 
@@ -156,9 +156,9 @@ end
 ;; get a random X coordinate within the cloud's area
 to-report random-x-in-cloud
   ;; the width is determined by multiplying the size-of-cloud variable by 15
-  ;; however, we subtract a multiple of the size to make the distribution cover the positive and negative regions of the axis 
+  ;; however, we subtract a multiple of the size to make the distribution cover the positive and negative regions of the axis
   report random (size-of-cloud * 15) - (size-of-cloud * 7)
-end  
+end
 
 ;; get a random Y coordinate within the cloud's area
 to-report random-y-in-cloud
@@ -179,32 +179,32 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Runtime Procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-to go 
-  ;; if lightning has struck, clear the faded paths as the charge has now been neutralized 
+to go
+  ;; if lightning has struck, clear the faded paths as the charge has now been neutralized
   if lightning-struck? [
     clear-fades ;; if there's been a lightning strike, clear all the faded paths
-    stop  
+    stop
   ]
-  
+
   ;; if the leaders and streamers have all died or faded, stop the model
   if (not any? step-leaders) and (not any? positive-streamers) [
     stop
   ]
-  
+
   ;; since the positive streamers grow at a slower rate than the step leaders,
   ;; we keep track of the time so make them move at appropriate times compared to each other
-  
+
   ;; the step leaders leave the cloud and move towards the earth at one patch per tick
   move-step-leaders-down
-  
+
   ;; meanwhile, the positive streamers extend from the earth towards the cloud, but at a slower rate
   if ticks > 50
     [grow-positive-streamers-up]
-  
+
   ;; as time moves on the ions move around the cloud
   make-ions-move
-  
-  tick 
+
+  tick
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -213,58 +213,58 @@ end
 to move-step-leaders-down
   let movex 0
   let movey 0
-  
+
   ask step-leaders[
     set moveX 1000 ;; default values to indicate that the move coordinates have not been set
     set moveY 1000
-    
-    ask neighbors with [pcolor = gray - 2] [ ;; if the patch is gray then the leader 
-                                             ;; has reached a dust particle and is more likely 
+
+    ask neighbors with [pcolor = gray - 2] [ ;; if the patch is gray then the leader
+                                             ;; has reached a dust particle and is more likely
                                              ;; move that direction and ionize it
       if random 100 < dust-probability [
         set movex pxcor
         set movey pycor
       ]
     ]
-    
+
     ;; if the stepleaders sense a positive streamer they move towards it
     let xcoor xcor
     let ycoor ycor
-    
+
     ;; so we check for positive streamers between the leader and the ground
     ask patches in-cone 10 60 [
-      
+
       ifelse any? trees-here ;; if any tree exists in the local area
       [
         ifelse ((xcoor - pxcor) > 0)   ;; check if it is to the left
           [set movex (xcoor - 1)] ;; then move one step to the left
           [set movex (xcoor + 1)] ;; otherwise, it is to the right, so move one step to the right
-        
+
         set movey (ycoor - 1) ;; move down one step closer to the surface
-      ]         
+      ]
       [
         if any? positive-streamers-here ;; if one exists then the leader moves in the direction towards it
           [ ifelse ((xcoor - pxcor) > 0)   ;; if the positive streamer is to the left
             [set movex (xcoor - 1)] ;; then move one step to the left
             [set movex (xcoor + 1)] ;; otherwise, it is to the right, so move one step to the right
-          
+
           set movey (ycoor - 1) ] ;; move down one step closer to the surface
       ]]
-    
+
     ;; if no charges or dust particles are encouraging direction, pick at random but most likely toward earth
-    ;; the random numbers are used to show the probabilities of ionized air moving in specific directions. 
+    ;; the random numbers are used to show the probabilities of ionized air moving in specific directions.
     ;; the path will move based on some probability of ten by selecting a random number below 10.
     ;; these probabilities are not scientific and are used only to help guide the path
-    
+
     if movex = 1000 [
-      
+
       ;;set y movement
       let rand-no random 10
-      
-      ;; if that number is greater than 2, the path will move directly down one towards earth (80%). 
+
+      ;; if that number is greater than 2, the path will move directly down one towards earth (80%).
       ;; if it is less than 2 the path won't move (10%)
       ;; if it is 2 the path will move up one towards the cloud (10%)
-      
+
       ifelse (rand-no > 2)[
         set movey ycor - 1
       ][
@@ -274,14 +274,14 @@ to move-step-leaders-down
       set movey ycor + 1
       ]
       ]
-      
-      ;; if that number is greater than 6, the path will move to the left (40%). 
+
+      ;; if that number is greater than 6, the path will move to the left (40%).
       ;; if it is less than 2 the path won't move (20%)
       ;; if it is between 2 and 5 the path will move to the right (40%)
-      
+
       ;;set x movement
       set rand-no random 10
-      
+
       ifelse (rand-no > 6)[
         set movex xcor - 1
       ][
@@ -290,31 +290,31 @@ to move-step-leaders-down
       ][
       set movex xcor + 1
       ]
-      ]     
+      ]
     ]
-    
+
     ;; make sure its still in the bounds of the world; otherwise, the path fades
     ifelse (movex < min-pxcor) or (movex > max-pxcor) or (movey > max-pycor)
       [die]
       [If (random 100 < fade-probability) ;; these is some chance (the fade-probability) that the path will fade on its own
-        [die]   
+        [die]
       setxy movex movey
       ]
-    
+
     ;; check if the path hit a tree
     did-hit-tree
-    
+
     ;; and change whatever patch the leader has moved to plasma, or a blue patch
     ask patch-here [
       ifelse (any? positive-streamers-here or  ;; if that patch is a positive streamer, or
         (pcolor = (violet + 3)) or               ;; the path of a streamer, or
         (hit-tree?) or                         ;; a tree, or
-        (pycor = surface))                       ;; the earth's surface  
+        (pycor = surface))                       ;; the earth's surface
       [ make-lightning movex movey                     ;; then lightning strikes and we turn the patch yellow
         set pcolor yellow ]
       [ set pcolor (blue + 3)]                     ;; otherwise, turn that patch of air to plasma (ie, a blue patch)
     ]
-  ] 
+  ]
 end
 
 
@@ -324,7 +324,7 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 to did-hit-tree
   ask patches in-radius 12 [
-    if any? trees-here 
+    if any? trees-here
       [ set hit-tree? true ]
   ]
 end
@@ -333,26 +333,26 @@ end
 ;; grow the positive streamers toward the cloud
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 to grow-positive-streamers-up
-  
+
   ask positive-streamers [
     let movex 0
     let movey 0
-    
+
     ;;;;;;;;;;;;;;;;;;; if the patch is gray then the leader has reached a dust particle and is more likely to ionize it
     ask neighbors [
-      if pcolor = gray - 2 [ 
+      if pcolor = gray - 2 [
         if random 100 < dust-probability [
           set movex pxcor
           set movey pycor
         ]
       ]
     ]
-    
+
     ;;;;;;;;;;;;;;;;; generate random direction moves for the path to grow
-    if (movex = 0)[    
+    if (movex = 0)[
       ;;set y movement
       let rand-no random 10
-      
+
       ifelse (rand-no < 8)[
         set movey ycor + 1
       ][
@@ -362,9 +362,9 @@ to grow-positive-streamers-up
       set movey ycor - 1
       ]
       ]
-      
+
       ;;set x movement
-      set rand-no random 11       
+      set rand-no random 11
       ifelse (rand-no < 5)[
         set movex xcor - 1
       ][
@@ -373,21 +373,21 @@ to grow-positive-streamers-up
       ][
       set movex xcor + 1
       ]
-      ]     
+      ]
     ]
-    
-    ;;;;;;;;;;;;;;;;; if the movement is off the screen, kill the stream    
+
+    ;;;;;;;;;;;;;;;;; if the movement is off the screen, kill the stream
     let random-growth-height (surface + random 20 + 20)
-    
-    ifelse (moveX < min-pxcor) or (movex > max-pxcor) or 
+
+    ifelse (moveX < min-pxcor) or (movex > max-pxcor) or
       (moveY < surface) or (movey > max-pycor) or
       (moveY > random-growth-height)
       [die]
-      [if (random 100 < fade-probability)  ;;there is some probability that the stream will just end 
-        [die]   
+      [if (random 100 < fade-probability)  ;;there is some probability that the stream will just end
+        [die]
       setxy movex movey
       ]
-    
+
     ;;;;;;;;;;;;;;;;; if the patch is empty then change the color to show the path is now positive
     ;;;;;;;;;;;;;;;;; if the patch has both a stepleader and a positive streamer the paths connect and lightning strikes!
     ask patch-here [
@@ -396,7 +396,7 @@ to grow-positive-streamers-up
           set pcolor yellow ]
         [set pcolor (violet + 3)]
     ]
-    
+
   ] ;; end ask +streamers
 end
 
@@ -412,7 +412,7 @@ end
 to create-strike [x y]
   if (y < bottom-of-cloud) and (y > (surface - 1)) [
     ask neighbors [
-      if (pcolor = (violet + 3)) or (pcolor = (blue + 3)) [  
+      if (pcolor = (violet + 3)) or (pcolor = (blue + 3)) [
         set pcolor yellow
         make-lightning pxcor pycor
       ]
@@ -427,7 +427,7 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;clear the remaining positive streamers from the sky
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-to clear-fades  
+to clear-fades
   ask patches [
     if (pcolor = (violet + 3)) or (pcolor = (blue + 3)) [
       set pcolor black
@@ -561,7 +561,7 @@ HORIZONTAL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model shows how lightning is generated. The process consists of two phases: the production of the electric field, and the air ionization to create the bolt. This model represents the latter phase. 
+This model shows how lightning is generated. The process consists of two phases: the production of the electric field, and the air ionization to create the bolt. This model represents the latter phase.
 
 Lightning is one of the most visually impressive and frequently occurring natural phenomena on Earth. However, very few people actually have a solid understanding of what causes lightning, how it works, and why it occurs. This model attempts to illustrate lightning strikes from beginning to end at the level of individual charges. The user will observe how the behavior and interaction of extremely small charges can lead to very powerful and visually impressive action of a lightning strike.
 
@@ -571,40 +571,40 @@ In order to thoroughly understand the phenomenon of lightning one must have a st
 
 ### How does lightning work?
 
-The Earth (green squares) and sky (black squares) serve as the layout for the world. The cloud appears as a gray cloud-shape at the top of the skyline. Among these are three main attributes that influence the production of lightning: step leaders at the bottom of the clouds (blue negative circles), dust particles in the air (dark gray squares), and positive streamers on the surface of the Earth (red positive circles). 
+The Earth (green squares) and sky (black squares) serve as the layout for the world. The cloud appears as a gray cloud-shape at the top of the skyline. Among these are three main attributes that influence the production of lightning: step leaders at the bottom of the clouds (blue negative circles), dust particles in the air (dark gray squares), and positive streamers on the surface of the Earth (red positive circles).
 
-The initial cause of a lightning strike is a separation of charge within a cloud.  Positively charged particles accumulate at the top of the cloud while negatively charged particles concentrate themselves at the bottom of the cloud.  Within the cloud the charges move in a random manner; however, they are constrained to their charge regions. The negative charges in the bottom of the cloud have such a high concentration that they force the electrons on the Earth's surface deep into the ground.  This also has the effect of pulling the positive charges in the Earth's surface. 
+The initial cause of a lightning strike is a separation of charge within a cloud.  Positively charged particles accumulate at the top of the cloud while negatively charged particles concentrate themselves at the bottom of the cloud.  Within the cloud the charges move in a random manner; however, they are constrained to their charge regions. The negative charges in the bottom of the cloud have such a high concentration that they force the electrons on the Earth's surface deep into the ground.  This also has the effect of pulling the positive charges in the Earth's surface.
 
-As the strength of the electric field increases the air around the cloud breaks down and converts into plasma, or ionized air.  The positive and negative components of the air itself are pulled apart and separated from each other.  This separation allows the electrons to flow through the plasma much more easily than they could through normal air.  As electrons flow through the plasma they force the air around them to become plasma in turn.  In this way electrons in the cloud "burn out" paths towards the Earth.  The paths are known as step leaders, and grow from cloud to ground in a tentacle-like manner. 
+As the strength of the electric field increases the air around the cloud breaks down and converts into plasma, or ionized air.  The positive and negative components of the air itself are pulled apart and separated from each other.  This separation allows the electrons to flow through the plasma much more easily than they could through normal air.  As electrons flow through the plasma they force the air around them to become plasma in turn.  In this way electrons in the cloud "burn out" paths towards the Earth.  The paths are known as step leaders, and grow from cloud to ground in a tentacle-like manner.
 
-Impurities in the air may cause some patches of air to turn into plasma more easily than others.  Rather than direct lines from cloud to ground, lightning takes the path of least resistance.  In this model this is illustrated by distribution of dust particles throughout the sky. 
+Impurities in the air may cause some patches of air to turn into plasma more easily than others.  Rather than direct lines from cloud to ground, lightning takes the path of least resistance.  In this model this is illustrated by distribution of dust particles throughout the sky.
 
 Streamers are the positive equivalent of the negative step leaders created by clouds.  However, streamers are not self-sufficient and thus do not grow indefinitely towards the cloud.  All objects on the Earth's surface will emit a streamer, though depending on the size and material of the object the streamer's length may vary. Streamers are released much more quickly than a step leader since they are much smaller and only extend a very limited distance.
 
-Step leaders progress towards the ground until they encounter either the ground or a streamer.  In both cases the "circuit" is completed and charge may flow freely between cloud and ground. The large concentration of positive charges on the Earth's surface flow very quickly through the plasma stream towards the sky and neutralize the electrons in the cloud.  The flash of light that is seen is the rapid movement of charge through the air, exactly the same as the light you see during a spark of static electricity.  
+Step leaders progress towards the ground until they encounter either the ground or a streamer.  In both cases the "circuit" is completed and charge may flow freely between cloud and ground. The large concentration of positive charges on the Earth's surface flow very quickly through the plasma stream towards the sky and neutralize the electrons in the cloud.  The flash of light that is seen is the rapid movement of charge through the air, exactly the same as the light you see during a spark of static electricity.
 
 Once the massive negative charge in the cloud has been neutralized the flow of charge through the air comes to a stop.  The plasma becomes de-ionized and once again becomes air as the step leaders are destroyed. The environment is now ready to begin the process anew.
 
 ### How does the model work?
 
-There are a series of breeds that live in the world that simulate lightning. 
+There are a series of breeds that live in the world that simulate lightning.
 
 Trees -  These are the trees on the Earth's surface. They stand above the Earth's surface and release positive streamers.
 
-Positive Cloud Ions -  These are the positive ions that bounce around the top of the cloud. As molecules of water evaporate, they collide into one another and exchange charges. Those with positive charges move to the top of the cloud. 
+Positive Cloud Ions -  These are the positive ions that bounce around the top of the cloud. As molecules of water evaporate, they collide into one another and exchange charges. Those with positive charges move to the top of the cloud.
 
 Negative Cloud Ions - These are negatively charged ions at the bottom part of the cloud. They move around the cloud and become step leaders.
 
-Positive Ground Ions - These are the positive ions on the Earth's surface. As the electric field forms around the cloud it pulls the positive charges to the top of the Earth's surface. 
+Positive Ground Ions - These are the positive ions on the Earth's surface. As the electric field forms around the cloud it pulls the positive charges to the top of the Earth's surface.
 
-Step Leaders - These are the negative ions that branch out from the bottom of the cloud. The ions are drawn to the positive charge on the Earth's surface, particularly the positive streamers. These particles leave a path of ionized air as they travel; they tend to move towards the Earth's surface or impurities, such as dust, in the air. When the step leaders reach the Earth's surface, a positive streamer, or a tree, the path is closed and lightning strikes. There is a chance that the step leader will die and the path will fade. 
+Step Leaders - These are the negative ions that branch out from the bottom of the cloud. The ions are drawn to the positive charge on the Earth's surface, particularly the positive streamers. These particles leave a path of ionized air as they travel; they tend to move towards the Earth's surface or impurities, such as dust, in the air. When the step leaders reach the Earth's surface, a positive streamer, or a tree, the path is closed and lightning strikes. There is a chance that the step leader will die and the path will fade.
 
 Positive Streamers - These are the positive ions that branch upwards from the Earth's surface. They tend to move towards the electric field formed by the cloud or step leaders. If the positive streamer reaches the path of ionized air or connects with a step leader then lightning strikes.
 
-These breeds live together following specific rules elaborated below:    
-At every time step, each step leader moves towards the Earth ionizing a blue path of air along the way. This path is found using the following criteria:    
-- if one of the immediate neighbors is a dust particle, there is a chance that it will move to that patch     
-- if there is no dust, then if one of the patches in front of it is a positiveStreamer, it moves one step towards it    
+These breeds live together following specific rules elaborated below:
+At every time step, each step leader moves towards the Earth ionizing a blue path of air along the way. This path is found using the following criteria:
+- if one of the immediate neighbors is a dust particle, there is a chance that it will move to that patch
+- if there is no dust, then if one of the patches in front of it is a positiveStreamer, it moves one step towards it
 - otherwise, the leader will move in a random direction towards the Earth's surface with the highest probably being directly downwards
 
 After the step leaders have made one move we check their new position. If they have moved of the edge of the world, then their path fades. Some paths also fade by chance.
@@ -615,7 +615,7 @@ When lightning strikes, the patch at which the connection took place will turn y
 
 Since the positive streamers (from the ground) grow at a slower rate than the step leaders, after 40 ticks have passed the streamers begin to grow up by one step for every tick. The direction of their growth is random, but most likely in the upward direction.
 
-The ions in the clouds shift their location to indicate the motion of the particles in the cloud. 
+The ions in the clouds shift their location to indicate the motion of the particles in the cloud.
 
 ## HOW TO USE IT
 
@@ -631,11 +631,11 @@ NUMBER-OF-TREES slider - changes the number of trees on the Earth's surface
 
 DUST slider - changes the number of dust particles in the sky between the cloud and the Earth's surface
 
-The model runs until all paths have died or a bolt of lightning has been produced. 
+The model runs until all paths have died or a bolt of lightning has been produced.
 
 ## THINGS TO NOTICE
 
-Notice the charges on the earth's surface and how they relate to the cloud's field and position. 
+Notice the charges on the earth's surface and how they relate to the cloud's field and position.
 
 Notice how the trees and dust particles change the path taken from the cloud. The location and size of the trees influence the pull on the ionized air.
 
@@ -643,9 +643,9 @@ The positive streamers and the step-leaders have similar behavior as they grow; 
 
 ## THINGS TO TRY
 
-Try different settings for the strength of field.  What do you notice about the amount of lightning that is formed? 
+Try different settings for the strength of field.  What do you notice about the amount of lightning that is formed?
 
-How are the strength of field and size of the cloud related? 
+How are the strength of field and size of the cloud related?
 
 Does the cloud size have any effect on the lightning formed?
 
@@ -655,7 +655,7 @@ Does varying the amount of dust or impurities in the air have influence on the p
 
 Consider other features that influence lightning paths, such as lightning rods. How do these influence the path or amount of lightning produced?
 
-The positive streamers have potential to grow towards the electric field of the cloud. How does their growth influence the paths? 
+The positive streamers have potential to grow towards the electric field of the cloud. How does their growth influence the paths?
 
 Currently, the shape of the cloud does not affect the direction that
 a step leader starts out traveling. Modify the code to allow a user
@@ -670,13 +670,13 @@ perpendicularly from its surface.
 
 ## CREDITS AND REFERENCES
 
-Wikipedia on Lightning:    
+Wikipedia on Lightning:
 http://en.wikipedia.org/wiki/Lightning
 
-How Stuff Works on Lightning:    
+How Stuff Works on Lightning:
 http://science.howstuffworks.com/nature/natural-disasters/lightning.htm
 
-National Geographic on Lightning:    
+National Geographic on Lightning:
 http://environment.nationalgeographic.com/environment/natural-disasters/lightning-profile.html
 @#$#@#$#@
 default

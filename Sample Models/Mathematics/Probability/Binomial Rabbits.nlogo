@@ -488,7 +488,7 @@ Is the distribution always symmetric? What would you expect?
 
 ## EXTENDING THE MODEL
 
-Create a plot for 'hopping'. First decide what to plot, and then implement the proper NetLogo plot functions.  
+Create a plot for 'hopping'. First decide what to plot, and then implement the proper NetLogo plot functions.
 Rewrite the model so rabbits take list variables. Are there now new capabilities you can give the rabbits?
 
 ## NETLOGO FEATURES

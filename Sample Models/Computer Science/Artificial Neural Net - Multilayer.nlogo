@@ -145,7 +145,7 @@ to back-propagate
     set example-error example-error + ( (answer - activation) ^ 2 )
   ]
   set epoch-error epoch-error + example-error
-  
+
   ;; The hidden layer nodes are given error values adjusted appropriately for their
   ;; link weights
   ask hidden-nodes [
@@ -424,13 +424,13 @@ The goal of a network is to take input from its input nodes on the far left and 
 
 ## HOW IT WORKS
 
-Initially the weights on the links of the networks are random.  
+Initially the weights on the links of the networks are random.
 
 The nodes on the left are the called the input nodes, the nodes in the middle are called the hidden nodes, and the node on the right is called the output node.
 
 The activation values of the input nodes are the inputs to the network. The activation values of the hidden nodes are equal to the activation values of inputs nodes, multiplied by their link weights, summed together, and passed through the [sigmoid function](http://en.wikipedia.org/wiki/Sigmoid_function). Similarly, the activation value of the output node is equal to the activation values of hidden nodes, multiplied by the link weights, summed together, and passed through the sigmoid function. The output of the network is 1 if the activation of the output node is greater than 0.5 and 0 if it is less than 0.5.
 
-The sigmoid function maps negative values to values between 0 and 0.5, and maps positive values to values between 0.5 and 1.  The values increase nonlinearly between 0 and 1 with a sharp transition at 0.5. 
+The sigmoid function maps negative values to values between 0 and 0.5, and maps positive values to values between 0.5 and 1.  The values increase nonlinearly between 0 and 1 with a sharp transition at 0.5.
 
 To train the network a lot of inputs are presented to the network along with how the network should correctly classify the inputs.  The network uses a back-propagation algorithm to pass error back from the output node and uses this error to update the weights along each link.
 

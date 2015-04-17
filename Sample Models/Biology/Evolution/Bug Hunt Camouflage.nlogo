@@ -762,7 +762,7 @@ Because this model depends on interaction with the user, we measure the passage 
 In the code for flashing the bugs, we use `ask-concurrent`.  We could have avoided it as follows, but the downside is that an extra turtle variable would have been required.
 
       turtles-own [old-color]
-    
+
       ask bugs [ set old-color color ]
       repeat 3 [
         ask bugs [ set color black ]
@@ -778,7 +778,7 @@ In the code for flashing the bugs, we use `ask-concurrent`.  We could have avoid
 
 ## RELATED MODELS
 
-Bug Hunt Speeds  
+Bug Hunt Speeds
 Peppered Moths
 
 ## CREDITS AND REFERENCES

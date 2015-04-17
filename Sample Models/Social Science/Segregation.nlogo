@@ -289,7 +289,7 @@ The DENSITY slider controls the occupancy density of the neighborhood (and thus 
 
 The % SIMILAR monitor shows the average percentage of same-color neighbors for each agent. It starts at about 50%, since each agent starts (on average) with an equal number of red and green agents as neighbors. The NUM-UNHAPPY monitor shows the number of unhappy agents, and the % UNHAPPY monitor shows the percent of agents that have fewer same-color neighbors than they want (and thus want to move). The % SIMILAR and the NUM-UNHAPPY monitors are also plotted.
 
-The VISUALIZATION chooser gives two options for visualizing the agents. The OLD option uses the visualization that was used by the segregation model in the past. The SQUARE-X option visualizes the agents as squares. The agents have X's in them if they are unhappy. 
+The VISUALIZATION chooser gives two options for visualizing the agents. The OLD option uses the visualization that was used by the segregation model in the past. The SQUARE-X option visualizes the agents as squares. The agents have X's in them if they are unhappy.
 
 ## THINGS TO NOTICE
 
@@ -305,7 +305,7 @@ Try different values for %-SIMILAR-WANTED. How does the overall degree of segreg
 
 If each agent wants at least 40% same-color neighbors, what percentage (on average) do they end up with?
 
-Try different values of DENSITY. How does the initial occupancy density affect the percentage of unhappy agents? How does it affect the time it takes for the model to finish? 
+Try different values of DENSITY. How does the initial occupancy density affect the percentage of unhappy agents? How does it affect the time it takes for the model to finish?
 
 Can you set sliders so that the model never finishes running, and agents keep looking for new locations?
 
@@ -330,7 +330,7 @@ Note two different methods that can be used for find-new-spot, one of them (the 
 ## CREDITS AND REFERENCES
 
 Schelling, T. (1978). Micromotives and Macrobehavior. New York: Norton.
- 
+
 See also a recent Atlantic article:   Rauch, J. (2002). Seeing Around Corners; The Atlantic Monthly; April 2002;Volume 289, No. 4; 35-48. http://www.theatlantic.com/issues/2002/04/rauch.htm
 @#$#@#$#@
 default

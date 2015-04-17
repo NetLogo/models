@@ -350,8 +350,8 @@ The code uses lists in order to make the model run faster.  The code would be co
 
 ## RELATED MODELS
 
-Diffusion Limited Aggregation  
-Life  
+Diffusion Limited Aggregation
+Life
 Hex Cells Example
 
 ## CREDITS AND REFERENCES

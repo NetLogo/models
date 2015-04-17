@@ -1,8 +1,8 @@
 globals [
   instructions                          ; the user instructions that appear in the monitor on the top left
-  
+
   abort-pick-dice?                      ; Boolean to preempt run-time error
-  
+
   count-steps                           ; counts the number of outcomes in the current sample
   #combi-successes-per-sample-list      ; list of outcomes per sample that were exactly like
                                         ; the original combination
@@ -12,7 +12,7 @@ globals [
   count-combi-successes                 ; counts up hits under the combi condition
   count-permis-successes                ; counts up hits under the permutation condition
   mean-combi-per-sample                 ; mean number of same-order outcomes per sample
-  mean-permis-per-sample                ; mean number of either-order outcomes per sample  
+  mean-permis-per-sample                ; mean number of either-order outcomes per sample
 ]
 
 breed [ user-dice user-die ]            ; dice that the user chooses
@@ -35,7 +35,7 @@ to setup
   initialize
   set-default-shape turtles "1"
 
-  ; distribute the dice evenly along the x axis  
+  ; distribute the dice evenly along the x axis
   let spacing ((max-pxcor - min-pxcor) / 3)
   foreach n-values 2 [ min-pxcor + (? + 1) * spacing ] [
     create-user-dice 1 [
@@ -51,14 +51,14 @@ to setup
       ]
     ]
   ]
-  
+
   set instructions "OK. Now press [Pick Values] to set the combination of dice faces."
   reset-ticks
 end
 
 to pick-values
   if abort-pick-dice? [ stop ]
-  set instructions (word 
+  set instructions (word
     "Click on the dice to create your combination. "
     "It goes from 1 to 6 and over again. "
     "Next, unpress [Pick Values].")
@@ -88,36 +88,36 @@ end
 ; procedure for generating random dice and searching for matches with the dice you picked
 to search
   if samples-counter = total-samples [ stop ]
-  
+
   ; managing the user-code interface
   set abort-pick-dice? true
-  set instructions (word 
+  set instructions (word
     "The program guesses combinations randomly and tracks "
     "the number of times it discovers the dice you picked.")
-  
+
   ask model-dice [
     set shape shape-for (random 6 + 1)
     show-turtle
   ]
-  
+
   if single-success? [ display ] ; this would slow down the model too much in the global search
-  
+
   ; Make lists of user dice shapes and model dice shapes, ordered from left to right
   let user-dice-shapes  map [ [ shape ] of ? ] sort-on [ xcor ] user-dice
   let model-dice-shapes map [ [ shape ] of ? ] sort-on [ xcor ] model-dice
-  
+
   let combination-found? (model-dice-shapes = user-dice-shapes)
   let permutation-found? (sort model-dice-shapes = sort user-dice-shapes)
-  
+
   set count-steps count-steps + 1
-  
-  if combination-found? [ set count-combi-successes count-combi-successes + 1 ]  
+
+  if combination-found? [ set count-combi-successes count-combi-successes + 1 ]
   if permutation-found? [ set count-permis-successes count-permis-successes + 1 ]
-  
+
   ; for 'single-success?' true, we want the program to stop after matching dice were found
   if single-success? [
     let message ""
-    
+
     if permutation-found? and member? analysis-type ["Permutations" "Both"] [
       set message congratulate-permi
     ]
@@ -130,8 +130,8 @@ to search
       stop
     ]
   ]
-  
-  if count-steps = sample-size [ 
+
+  if count-steps = sample-size [
     set samples-counter samples-counter + 1
     set #combi-successes-per-sample-list fput count-combi-successes #combi-successes-per-sample-list
     set #permis-successes-per-sample-list fput count-permis-successes #permis-successes-per-sample-list
@@ -141,14 +141,14 @@ end
 
 to-report congratulate-combi
   let steps (length #combi-successes-per-sample-list  * sample-size) + count-steps
-  report (word 
+  report (word
     "Congratulations! You discovered the hidden combination in " steps " steps. "
     "You can press [Roll Dice] again.")
 end
 
 to-report congratulate-permi
   let steps (length #permis-successes-per-sample-list  * sample-size) + count-steps
-  report (word 
+  report (word
     "Congratulations!  You discovered a permutation of the hidden combination in "
     steps " steps. You can press [Roll Dice] again.")
 end
@@ -458,7 +458,7 @@ The user selects a face value for each dice. After pressing **Roll Dice**, the m
 
 This model introduces tools, concepts, representations, and vocabulary for describing random events.  Among the concepts introduced are "sampling" and "distribution".
 
-The various ProbLab models use virtual computer-based "objects" to teach probability.  In this model, these objects are virtual dice, similar to the familiar, physical ones. By using familiar objects, we hope to help learners form a conceptual bridge from their everyday experience to more abstract concepts. Using the Dice model helps prepare students for experiences with other ProbLab models that use virtual objects that are less familiar. 
+The various ProbLab models use virtual computer-based "objects" to teach probability.  In this model, these objects are virtual dice, similar to the familiar, physical ones. By using familiar objects, we hope to help learners form a conceptual bridge from their everyday experience to more abstract concepts. Using the Dice model helps prepare students for experiences with other ProbLab models that use virtual objects that are less familiar.
 
 Facilitators are encouraged to introduce this model as an enhancement of experiments with real dice. The model has several advantages over real dice. Virtual dice roll faster, and the computer can record the results instantly and accurately from multiple perspectives simultaneously.
 
@@ -466,7 +466,7 @@ The model attempts to involve the learner by allowing them to choose a combinati
 
 ## HOW TO USE IT
 
-Press **setup**, then press **Pick Values**.  By clicking on the dice at the top of the view, you cycle through each possible face of the dice to eventually set a combination, for instance [3; 4].  When you’re finished, unpress **Pick Values**. Press **Roll Dice** to begin the experiment. If you set the **single-success?** switch to 'On,' the experiment will stop the moment the combination or a permutation of the combination you chose is rolled (depending on the **analysis-type** chosen). If **single-success?** Is 'Off,' the experiment will keep running as many times as you have set the values of the **sample-size** and **total-samples** sliders. In the plot window, you can see histograms start stacking up, showing how many times the model has rolled your pair in its original order (**Combinations**) and how many times it has discovered you pair in any order (**Permutation**). 
+Press **setup**, then press **Pick Values**.  By clicking on the dice at the top of the view, you cycle through each possible face of the dice to eventually set a combination, for instance [3; 4].  When you’re finished, unpress **Pick Values**. Press **Roll Dice** to begin the experiment. If you set the **single-success?** switch to 'On,' the experiment will stop the moment the combination or a permutation of the combination you chose is rolled (depending on the **analysis-type** chosen). If **single-success?** Is 'Off,' the experiment will keep running as many times as you have set the values of the **sample-size** and **total-samples** sliders. In the plot window, you can see histograms start stacking up, showing how many times the model has rolled your pair in its original order (**Combinations**) and how many times it has discovered you pair in any order (**Permutation**).
 
 
 ### Buttons:
@@ -505,9 +505,9 @@ Press **setup**, then press **Pick Values**.  By clicking on the dice at the top
 
 **+ # Rolls**: Shows how many single rolls have occurred within the current sample.
 
-**Combinations**: Shows the number of successes (where order matters) in the current sample 
+**Combinations**: Shows the number of successes (where order matters) in the current sample
 
-**Permutations**: Shows the number of successes (where order does not matter) in the current sample 
+**Permutations**: Shows the number of successes (where order does not matter) in the current sample
 
 **Mean-Combinations**: The sample mean of successes (order matters). This is calculated only on full, completed samples.
 

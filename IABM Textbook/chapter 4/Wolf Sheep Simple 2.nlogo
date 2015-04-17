@@ -8,13 +8,13 @@ to setup
   ask patches [  ;; color the whole world green
     set pcolor green
   ]
-  
+
   ;; create the initial sheep and set their initial properties
   create-sheep number-of-sheep [
     setxy random-xcor random-ycor
     set color white
     set shape "sheep"
-    set energy 100  
+    set energy 100
   ]
   reset-ticks
 end
@@ -51,7 +51,7 @@ end
 
 ;; sheep procedure, the sheep moves which costs it energy
 to move
-  forward 1  
+  forward 1
   set energy energy - movement-cost ;; reduce the energy by the cost of movement
 end
 @#$#@#$#@
@@ -181,7 +181,7 @@ It extends the model Wolf Sheep Simple 1.
 
 ## HOW IT WORKS
 
-The model creates a population of sheep that wander around the landscape.  Moving around costs some energy, and when their energy gets too low, sheep die.  
+The model creates a population of sheep that wander around the landscape.  Moving around costs some energy, and when their energy gets too low, sheep die.
 ## HOW TO USE IT
 
 Set the NUMBER-OF-SHEEP slider and press SETUP to create the initial population.  You can also change the MOVEMENT-COST slider to affect the energy cost of movement for the sheep.  After this, press the GO button to make the sheep move around the landscape.
@@ -202,9 +202,9 @@ The Wolf Sheep Predation Model in the Biology section of the NetLogo models libr
 
 ## HOW TO CITE
 
-This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling 
+This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling
  Natural, Social and Engineered Complex Systems with NetLogo."
- 
+
 If you mention this model or the NetLogo software in a publication, we ask that you include the cites.
 
 For the model itself:
@@ -217,7 +217,7 @@ Please cite the NetLogo software as:
 
 Please cite the textbook as:
 
-* Wilensky, U.  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling 
+* Wilensky, U.  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling
  Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
 ## CREDITS AND REFERENCES

@@ -6,11 +6,11 @@ to setup
   clear-all
   ;; make some green trees
   ask patches [
-    if (random 100) < density 
-    [ set pcolor green ] 
+    if (random 100) < density
+    [ set pcolor green ]
     ;; make a column of burning trees at the left-edge
-    if pxcor = min-pxcor 
-    [ set pcolor red ] 
+    if pxcor = min-pxcor
+    [ set pcolor red ]
   ]
   ;; keep track of how many trees there are
   set initial-trees count patches with [pcolor = green]
@@ -63,11 +63,11 @@ to go
 
         ;; if big jumps is on, then sparks can fly farther
         if  big-jumps? [
-          let target patch-at ( west-wind-speed / 5 ) ( south-wind-speed / 5 ) 
+          let target patch-at ( west-wind-speed / 5 ) ( south-wind-speed / 5 )
           if target != nobody and [pcolor] of target = green [
             ask target [
               set pcolor red ;; to ignite the target patch
-            ] 
+            ]
           ]
         ]
       ]
@@ -274,9 +274,9 @@ Fire Simple, Fire, Percolation, Rumor Mill
 
 ## HOW TO CITE
 
-This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling 
+This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling
  Natural, Social and Engineered Complex Systems using NetLogo."
- 
+
 If you mention this model or the NetLogo software in a publication, we ask that you include the cites.
 
 For the model itself:
@@ -289,7 +289,7 @@ Please cite the NetLogo software as:
 
 Please cite the textbook as:
 
-Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling 
+Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling
  Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
 ## CREDITS AND REFERENCES

@@ -343,13 +343,13 @@ This model simulates the process of a nuclear fission reaction inside such a pla
 
 ## HOW TO USE IT
 
-The POWER-RATED slider sets the rated power (the amount of power production that you want to hold the reactor to), which is used for automatic control.  
+The POWER-RATED slider sets the rated power (the amount of power production that you want to hold the reactor to), which is used for automatic control.
 
-The PERCENT-FUEL slider control the percent of the reactor that is filled with fuel (red patches).  
+The PERCENT-FUEL slider control the percent of the reactor that is filled with fuel (red patches).
 
-The SPEND-FUEL switch controls whether or not the fuel is used up when a neutron hits it. (turns brown)  
+The SPEND-FUEL switch controls whether or not the fuel is used up when a neutron hits it. (turns brown)
 
-The ADD-RODS and REMOVE-RODS buttons work with the NUMBER slider to add or remove that number of rods (cyan turtles) from the reactor.  
+The ADD-RODS and REMOVE-RODS buttons work with the NUMBER slider to add or remove that number of rods (cyan turtles) from the reactor.
 
 The RELEASE NEUTRON button introduces a neutron (yellow turtle) into the reactor. It can be used at anytime before or during the reaction.
 
@@ -380,7 +380,7 @@ The automatic controller is basically an ON and OFF controller. It is based on 1
                          Power > Power Rated   Power < Power Rated
                          -------------------   -------------------
       Power Change > 0:       Add Rods            Do Nothing
-    
+
       Power Change < 0:      Do nothing           Remove Rods
 
 The controller should be fine-tuned.
@@ -399,8 +399,8 @@ Absorbing free neutrons to control the reaction process is only one of the contr
 
 Neither setting of SPEND-FUEL? is completely realistic, with it on the fuel is used up too fast and there's hardly a reaction, with it off there is too much reacting and too many rods are needed to control the reaction.
 
-Two additional ways to deal with fuel are listed below, can you think of more?  
-* have there be a certain ammount of fuel at each red patch, then it won't get used up right away, but won't go on forever either.  
+Two additional ways to deal with fuel are listed below, can you think of more?
+* have there be a certain ammount of fuel at each red patch, then it won't get used up right away, but won't go on forever either.
 * limit how often a patch can react, that way, with spend-fuel? off the neutrons won't react out of control in small areas.
 
 ## RELATED MODELS

@@ -75,7 +75,7 @@ to go
     ask particles [ bounce ]
     ask particles [ move ]
     if collisions? [
-    ask particles 
+    ask particles
       [ check-for-collision ]
 
     ]
@@ -84,7 +84,7 @@ to go
     calculate-instant-pressure
 
     if floor ticks > floor (ticks - tick-advance-amount) [
-       ifelse any? particles 
+       ifelse any? particles
           [ set wall-hits-per-particle mean [wall-hits] of particles  ]
           [ set wall-hits-per-particle 0 ]
        ask particles  [ set wall-hits 0 ]
@@ -132,7 +132,7 @@ end
 to calculate-instant-pressure
   ;; by summing the momentum change for each particle,
   ;; the wall's total momentum change is calculated
-  set instant-pressure 15 * sum [momentum-instant] of particles 
+  set instant-pressure 15 * sum [momentum-instant] of particles
   output-print precision instant-pressure 1
   ask particles
     [ set momentum-instant 0 ]  ;; once the contribution to momentum has been calculated
@@ -145,7 +145,7 @@ to calculate-pressure
   ;; by summing the momentum change for each particle,
   ;; the wall's total momentum change is calculated
 
-  set pressure 15 * sum [momentum-difference] of particles 
+  set pressure 15 * sum [momentum-difference] of particles
   set pressure-history lput pressure but-first pressure-history
 
   ask particles
@@ -186,7 +186,7 @@ to bounce  ;; particle procedure
 
     set momentum-instant  (abs (dy * 2 * mass * speed) / delta-horizontal-surface)
     set momentum-difference momentum-difference + momentum-instant  ]
-  
+
   ask patch new-px new-py
     [ sprout 1 [
                  set breed flashes
@@ -413,7 +413,7 @@ to add-particles-side
       if particles-to-add > 0 [
 
        create-particles particles-to-add
-        [ 
+        [
           set shape "circle"
           setxy (- box-edge) 0
           set heading 90 ;; east

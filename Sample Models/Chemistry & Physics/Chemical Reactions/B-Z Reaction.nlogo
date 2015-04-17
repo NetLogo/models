@@ -164,8 +164,8 @@ This model is a cellular automaton (or CA) that produces spiral waves that resem
 
 The B-Z reaction is a redox reaction that periodically moves between an oxidized and a reduced state, and has been demonstrated for various chemicals.  This model does not attempt to replicate the actual mechanism of the chemical reaction, which is quite complex (including 18 reactions and 21 species, according to the Fields-Koros-Noyes model).  The abstract features shared by the real reaction and this model include:
 
-1. Two end states.  
-2. A positive feedback mechanism.  
+1. Two end states.
+2. A positive feedback mechanism.
 3. A negative feedback mechanism.
 
 The positive feedback mechanism acts to push the system further in the direction that it is already going, reinforcing and amplifying the initial change.  (In the chemical reaction, positive feedback comes from auto-catalysis.)  The negative feedback mechanism pushes the system back in the opposite direction once a threshold is reached, suppressing or counteracting the effected change.

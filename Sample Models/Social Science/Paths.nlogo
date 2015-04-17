@@ -55,10 +55,10 @@ to decay-popularity
     if popularity > 1 and not any? turtles-here [ set popularity popularity * (100 - popularity-decay-rate) / 100 ]
     ifelse pcolor = green
     [ if popularity < 1 [ set popularity 1 ] ]
-    [ if popularity < 1 [ 
-        set popularity 1 
-        set pcolor green 
-        ] ]    
+    [ if popularity < 1 [
+        set popularity 1
+        set pcolor green
+        ] ]
   ]
 end
 
@@ -70,7 +70,7 @@ end
 to move-walkers
   ask turtles [
     ifelse patch-here = goal
-      [ ifelse length buildings >= 2 
+      [ ifelse length buildings >= 2
         [set goal one-of buildings]
         [set goal one-of patches] ]
       [ walk-towards-goal ] ]
@@ -94,7 +94,7 @@ to-report route-on-the-way-to [l current-distance]
   let routes-on-the-way-to-goal (patches in-radius walker-vision-dist with [
       pcolor = gray and distance l < current-distance - 1
     ])
-  report min-one-of routes-on-the-way-to-goal [distance self] 
+  report min-one-of routes-on-the-way-to-goal [distance self]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -249,10 +249,10 @@ You can interact with this model by placing points of interest for the turtles t
 ## HOW TO USE IT
 
 - `popularity-decay-rate` controls the rate at which grass loses popularity in the absence of a turtle visiting it.
-- `popularity-per-step` controls the amount of popularity a turtle contributes to a patch of grass by visiting it. 
+- `popularity-per-step` controls the amount of popularity a turtle contributes to a patch of grass by visiting it.
 - `minimum-route-popularity` controls how popular a given patch must become to turn into an established route.
 - `walker-count` controls the number of turtles in the world.
-- `walker-vision-dist` controls how far from itself each turtle will look to find a patch with an established route to move it closer to its goal. 
+- `walker-vision-dist` controls how far from itself each turtle will look to find a patch with an established route to move it closer to its goal.
 
 ## THINGS TO TRY
 
@@ -266,7 +266,7 @@ How does changing the world-wrap effect the shape of the paths that the turtles 
 
 ## EXTENDING THE MODEL
 
-See what happens if you set up specific destinations for the turtles instead of having them move at random. You might have start off by moving to a particular patch, or have each turtle move in a unique loop. 
+See what happens if you set up specific destinations for the turtles instead of having them move at random. You might have start off by moving to a particular patch, or have each turtle move in a unique loop.
 
 Come up with a way of plotting how much of each journey a turtle spends on an established route. Try plotting that value against the distance a turtle goes out of its way on a given journey to stay on an established route. How do the two quantities relate to one another?
 

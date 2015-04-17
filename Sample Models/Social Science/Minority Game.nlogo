@@ -423,15 +423,15 @@ The primitives `map` and `reduce` were also used to simplify code.
 
 ## RELATED MODELS
 
-* any of the Prisoner's Dilemma models  
-* Altruism  
+* any of the Prisoner's Dilemma models
+* Altruism
 * Cooperation
 
 ## CREDITS AND REFERENCES
 
 Original implementation: Daniel B. Stouffer, for the Center for Connected Learning and Computer-Based Modeling.
 
-This model was based upon studies by Dr. Damien Challet, et al.  
+This model was based upon studies by Dr. Damien Challet, et al.
 Information can be found on the web at http://www.unifr.ch/econophysics/minority/
 
 Challet, D. and Zhang, Y.-C. Emergence of Cooperation and Organization in an Evolutionary Game. Physica A 246, 407 (1997).

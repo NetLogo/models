@@ -220,7 +220,7 @@ This model uses a non-wrapping world.
 
 ## RELATED MODELS
 
-MaterialSim Grain Growth  
+MaterialSim Grain Growth
 GasLab Two Gas
 
 ## CREDITS AND REFERENCES

@@ -241,7 +241,7 @@ Press SETUP to initialize the model.  The image will be half black and half whit
 
 Press GO to run simulated annealing on the image.
 
-Adjust the COOLING-RATE slider to change how quickly the temperature drops.  
+Adjust the COOLING-RATE slider to change how quickly the temperature drops.
 The current temperature is shown in the TEMPERATURE monitor.
 
 The SWAP-RADIUS slider controls how far apart a pixel can be from another pixel to consider a swap with it.
@@ -276,8 +276,8 @@ Particle Swarm Optimization, Simple Genetic Algorithm, Crystallization Basic, Is
 
 ## CREDITS AND REFERENCES
 
-Original papers describing a simulated annealing  
-S. Kirkpatrick and C. D. Gelatt and M. P. Vecchi, Optimization by Simulated Annealing, Science, Vol 220, Number 4598, pages 671-680, 1983.  
+Original papers describing a simulated annealing
+S. Kirkpatrick and C. D. Gelatt and M. P. Vecchi, Optimization by Simulated Annealing, Science, Vol 220, Number 4598, pages 671-680, 1983.
 V. Cerny, A thermodynamical approach to the traveling salesman problem: an efficient simulation algorithm. Journal of Optimization Theory and Applications, 45:41-51, 1985
 @#$#@#$#@
 default

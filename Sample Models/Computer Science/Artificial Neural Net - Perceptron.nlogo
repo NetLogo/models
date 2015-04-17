@@ -57,8 +57,8 @@ to setup
     set activation 1
     setxy 3 7
     set size 1.5
-    my-create-link-to perceptron 
-    
+    my-create-link-to perceptron
+
   ]
 
   create-input-nodes 1 [
@@ -90,7 +90,7 @@ to my-create-link-to [ anode ] ;; input or bias node procedure
     ;; links start with a random weight
     set weight random-float 0.1 - 0.05
     set shape "small-arrow-shape"
-    
+
   ]
 end
 

@@ -308,7 +308,7 @@ In this model, a plane flies above an observer. Yellow circles represent the pea
 
 ## HOW TO USE IT
 
-Press the SETUP button to create a plane and a person. Press GO to start the plane moving. Adjust the PLANE-SPEED slider to control the speed of the plane.  
+Press the SETUP button to create a plane and a person. Press GO to start the plane moving. Adjust the PLANE-SPEED slider to control the speed of the plane.
 There is also a convenient button that sets the plane speed to exactly the speed of sound.  The SHOW-AMPLITUDES? switch lets you see the strength of the sound wave on each patch of air.
 
 ## THINGS TO NOTICE

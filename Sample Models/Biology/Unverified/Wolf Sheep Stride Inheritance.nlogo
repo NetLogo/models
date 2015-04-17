@@ -474,7 +474,7 @@ mean [stride-length] of sheep
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model is a variation on the predator-prey ecosystems model wolf-sheep predation.  
+This model is a variation on the predator-prey ecosystems model wolf-sheep predation.
 In this model, predator and prey can inherit a stride length, which describes how far forward they move in each model time step.  When wolves and sheep reproduce, the children inherit the parent's stride length -- though it may be mutated.
 
 ## HOW IT WORKS
@@ -483,7 +483,7 @@ At initialization wolves have a stride of INITIAL-WOLF-STRIDE and sheep have a s
 
 ## HOW TO USE IT
 
-INITIAL-NUMBER-SHEEP: The initial size of sheep population  
+INITIAL-NUMBER-SHEEP: The initial size of sheep population
 INITIAL-NUMBER-WOLVES: The initial size of wolf population
 
 Half a unit of energy is deducted from each wolf and sheep at every time step. If STRIDE-LENGTH-PENALTY? is on, additional energy is deducted, scaled to the length of stride the animal takes (e.g., 0.5 stride deducts an additional 0.5 energy units each step).

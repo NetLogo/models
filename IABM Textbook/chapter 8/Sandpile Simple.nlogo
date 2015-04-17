@@ -1,5 +1,5 @@
 globals [
-  ;; By always keeping track of how much sand is on the table, we can compute the 
+  ;; By always keeping track of how much sand is on the table, we can compute the
   ;; average number of grains per patch instantly, without having to count.
   total
   ;; Keep track of avalanche sizes so we can histogram them
@@ -364,7 +364,7 @@ http://en.wikipedia.org/wiki/Bak–Tang–Wiesenfeld_sandpile
 
 http://en.wikipedia.org/wiki/Self-organized_criticality
 
-Bak, P. 1996. How nature works: the science of self-organized criticality. Copernicus, (Springer). 
+Bak, P. 1996. How nature works: the science of self-organized criticality. Copernicus, (Springer).
 
 Bak, P., Tang, C., & Wiesenfeld, K. 1987. Self-organized criticality: An explanation of the 1/f noise. Physical Review Letters, 59(4), 381.
 

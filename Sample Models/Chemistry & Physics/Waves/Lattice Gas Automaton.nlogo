@@ -199,7 +199,7 @@ The CA can be summarized with the following core rules:
 
       W W  ->  W W                B W  ->  W W            B W  ->  W B
       W W      W W                W W      W B            W B      B W
-    
+
       B W  ->  W B                W B  ->  B B            B B  ->  B B
       B W      W B                B B      B W            B B      B B
 
@@ -207,14 +207,14 @@ It applies these rules to the even lattice of 2x2 squares followed by the odd la
 
 ## HOW TO USE IT
 
-The basic controls for the model are:  
-SETUP - Sets up patches with a given percentage of particles  
-DENSITY - Percentage of particles in gas  
-GO - Run the model  
+The basic controls for the model are:
+SETUP - Sets up patches with a given percentage of particles
+DENSITY - Percentage of particles in gas
+GO - Run the model
 REVERSE - Run the model in reverse
 
-These controls let you "paint" an initial setup in the view using the mouse:  
-DRAW-CIRCLE - Clicking any location in the view creates a solid circle of particles  
+These controls let you "paint" an initial setup in the view using the mouse:
+DRAW-CIRCLE - Clicking any location in the view creates a solid circle of particles
 RADIUS - Controls the radius of the circles
 
 ## THINGS TO NOTICE

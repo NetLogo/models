@@ -222,7 +222,7 @@ are zero.  Hence one can replace the system of ODE above with the system of alge
 
                         2
             0 = -2Kb * A*   + 2Ku * B*              (1')
-    
+
                       2
             0 = Kb * A*  - Ku * B*                  (2')
 
@@ -258,8 +258,8 @@ One can now find the stationary concentration of B using equation (4).
 
 ## HOW TO USE IT
 
-Choose the values of Ku and Kb with appropriate sliders:  
-- Kb controls the rate of the forward reaction by which two green turtles turn bimolecularly into a single red turtle.  
+Choose the values of Ku and Kb with appropriate sliders:
+- Kb controls the rate of the forward reaction by which two green turtles turn bimolecularly into a single red turtle.
 - Ku controls the rate of the reverse reaction, by which a red turtle turns unimolecularly into two green turtles.
 
 Having chosen appropriate values of the constants, press SETUP to clear the world and create an initial number of green turtles.  Note: we do not create red turtles initially, although this could be done in principle.

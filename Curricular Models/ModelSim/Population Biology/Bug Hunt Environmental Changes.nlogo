@@ -12,7 +12,7 @@ globals [
   sprout-delay-time         ;; number of ticks before grass starts regrowing
   grass-level               ;; a measure of the amount of grass currently in the ecosystem
   grass-growth-rate         ;; the amount of energy units a plant gains every tick from regrowth
-  
+
   rock-color
   bug-color-region-1
   bug-color-region-2
@@ -20,7 +20,7 @@ globals [
   dirt-color
   disease-age
   disease-color
-  
+
   regions
 ]
 
@@ -45,7 +45,7 @@ embers-own [
 ]
 
 disease-markers-own [
- current-age 
+ current-age
 ]
 
 patches-own [
@@ -99,7 +99,7 @@ to setup
   set-default-shape disease-markers "circle"
   set-default-shape embers "fire"
   set-default-shape disruptions "empty"
-  
+
   setup-regions 2
   add-starting-grass
   add-bugs 1
@@ -128,13 +128,13 @@ to add-grass-in-region [ which-region %-grassland ]
     set plant-energy max-plant-energy / 2
     color-grass
   ]
-  
+
 end
 
 
 
 to add-more-bugs [which-region]
-  ifelse any? disruptions with [ disruption-region = which-region ] 
+  ifelse any? disruptions with [ disruption-region = which-region ]
     [inform-user-about-max-disruptions which-region]
   [
     add-bugs which-region

@@ -584,39 +584,39 @@ The particles are modeled as hard balls with no internal energy except that whic
 
 Coloring of the particles is with respect to one speed (10).  Particles with a speed less than 5 are blue, ones that are more than 15 are red, while all in those in-between are green.
 
-Particles behave according to the following rules:  
-1. A particle moves in a straight line without changing its speed, unless it collides with another particle or bounces off the wall.  
-2. Two particles "collide" if they find themselves on the same patch (NetLogo's View is composed of a grid of small squares called patches).  
-3. A random axis is chosen, as if they are two balls that hit each other and this axis is the line connecting their centers.  
-4. They exchange momentum and energy along that axis, according to the conservation of momentum and energy.  This calculation is done in the center of mass system.  
-5. Each turtle is assigned its new velocity, energy, and heading.  
+Particles behave according to the following rules:
+1. A particle moves in a straight line without changing its speed, unless it collides with another particle or bounces off the wall.
+2. Two particles "collide" if they find themselves on the same patch (NetLogo's View is composed of a grid of small squares called patches).
+3. A random axis is chosen, as if they are two balls that hit each other and this axis is the line connecting their centers.
+4. They exchange momentum and energy along that axis, according to the conservation of momentum and energy.  This calculation is done in the center of mass system.
+5. Each turtle is assigned its new velocity, energy, and heading.
 6. If a turtle finds itself on or very close to a wall of the container, it "bounces" -- that is, reflects its direction and keeps its same speed.
 
 The setup is the same as that for the "Two-Gas" model.  What is added is a "valve".  It transports fast particles from the left to the right chamber when they arrive at the turquoise strip, and slow particles from the right to the left chamber when they arrive at the violet strip.  When a particle passes through, it becomes larger for a short time and displays its speed.
 
 ## HOW TO USE IT
 
-Settings:  
-NUMBER-OF-PARTICLES: total number of particles in the two chambers  
-INIT-PARTICLE-SPEED: initial speed of all the particles  
+Settings:
+NUMBER-OF-PARTICLES: total number of particles in the two chambers
+INIT-PARTICLE-SPEED: initial speed of all the particles
 PARTICLE-MASS: particles' mass
 
-Other settings:  
-COLLIDE? If this is On, the particles collide.  If it is Off, they do not collide.  
-THRESHOLD: The threshold is how much faster or slower than the average speed a particle must be going to be transferred to the other chamber by the "valve".  
-DEMON?: If this is On, the valve is operating.  If it is Off, the valve does nothing.  
+Other settings:
+COLLIDE? If this is On, the particles collide.  If it is Off, they do not collide.
+THRESHOLD: The threshold is how much faster or slower than the average speed a particle must be going to be transferred to the other chamber by the "valve".
+DEMON?: If this is On, the valve is operating.  If it is Off, the valve does nothing.
 TIME-DISPLAY-PARTICLES: determines for how long the particles are visually enlarged and their speeds are labeled, before the go back to their original size.
 
 Initialize the model by pressing SETUP, and press GO to run it.
 
-Monitors:  
-AVERAGE SPEED:  average speed of all the particles.  
-AVERAGE SPEED LEFT: average particle speed in the left chamber.  
+Monitors:
+AVERAGE SPEED:  average speed of all the particles.
+AVERAGE SPEED LEFT: average particle speed in the left chamber.
 AVERAGE SPEED RIGHT: average particle speed in the right chamber.
 
-Plots:  
-PARTICLES COUNT: the number of particles in the left (turquoise) and right (violet) chambers.  
-AVERAGE ENERGIES: the average energy of the particles in the left and right chambers.  This is calculated as the average of 1/2 mv^2 for the particles.  
+Plots:
+PARTICLES COUNT: the number of particles in the left (turquoise) and right (violet) chambers.
+AVERAGE ENERGIES: the average energy of the particles in the left and right chambers.  This is calculated as the average of 1/2 mv^2 for the particles.
 AVERAGE SPEEDS:  the average speeds of the particles in both the left and the right chambers.
 
 ## THINGS TO NOTICE

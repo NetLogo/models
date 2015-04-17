@@ -317,8 +317,8 @@ Think of other rules for turtle interactions, random or otherwise, by which a tu
 
 ## RELATED MODELS
 
-* GenDrift (P Global)  
-* GenDrift (P local)  
+* GenDrift (P Global)
+* GenDrift (P local)
 * GenDrift (T reproduce)
 
 ## CREDITS AND REFERENCES

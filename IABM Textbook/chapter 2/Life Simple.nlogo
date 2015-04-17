@@ -5,9 +5,9 @@ to setup
   clear-all
   ask patches
   ;; create approximately 10% alive patches
-    [ 
+    [
       set pcolor blue - 3 ;; dark blue cells are dead
-      if random 100 < 10 
+      if random 100 < 10
       [ set pcolor green ] ;; green cells are alive
     ]
     reset-ticks
@@ -18,17 +18,17 @@ to go
   ask patches [
       ;; each patch counts its number of green neighboring patches
       ;; and stores the value in its live-neighbors variable
-    set live-neighbors count neighbors with [pcolor = green] 
+    set live-neighbors count neighbors with [pcolor = green]
     ]
   ask patches [
       ;; patches with 3 green neighbors, turn (or stay) green
     if live-neighbors = 3 [ set pcolor green ]
       ;; patches with 0 or 1 green neighbors turn (or stay) dark blue
       ;; from isolation
-    if (live-neighbors = 0) or (live-neighbors = 1)  [ set pcolor blue - 3 ]  
+    if (live-neighbors = 0) or (live-neighbors = 1)  [ set pcolor blue - 3 ]
       ;; patches with 4 or more green neighbors turn (or stay) dark blue
       ;; from overcrowding
-    if live-neighbors >= 4 [set pcolor blue - 3]  
+    if live-neighbors >= 4 [set pcolor blue - 3]
       ;; patches with exactly 2 green neighbors keep their color
   ]
   tick
@@ -168,13 +168,13 @@ The neighbors primitive returns the agentset of the patches to the north, south,
 This model is a simplified version of the NetLogo Life model in the Computer Science section of the NetLogo models library.
 
 Life --- similar to this but with more controls
-Life Turtle-Based --- same as this, but implemented using turtles instead of patches, for a more attractive display  
-CA 1D Elementary --- a model that shows all 256 possible simple 1D cellular automata  
-CA 1D Totalistic --- a model that shows all 2,187 possible 1D 3-color totalistic cellular automata  
-CA 1D Rule 30 --- the basic rule 30 model  
-CA 1D Rule 30 Turtle --- the basic rule 30 model implemented using turtles  
-CA 1D Rule 90 --- the basic rule 90 model  
-CA 1D Rule 110 --- the basic rule 110 model  
+Life Turtle-Based --- same as this, but implemented using turtles instead of patches, for a more attractive display
+CA 1D Elementary --- a model that shows all 256 possible simple 1D cellular automata
+CA 1D Totalistic --- a model that shows all 2,187 possible 1D 3-color totalistic cellular automata
+CA 1D Rule 30 --- the basic rule 30 model
+CA 1D Rule 30 Turtle --- the basic rule 30 model implemented using turtles
+CA 1D Rule 90 --- the basic rule 90 model
+CA 1D Rule 110 --- the basic rule 110 model
 CA 1D Rule 250 --- the basic rule 250 model
 
 ## HOW TO CITE

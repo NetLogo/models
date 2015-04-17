@@ -404,21 +404,21 @@ Initialize the plate and edges to have temperatures that equal their respective 
 
 ## HOW TO USE IT
 
-There are five temperature sliders which enable users to set four fixed edge temperatures and one initial plate temperature:  
--- TOP-TEMP - Top edge temperature  
--- BOTTOM-TEMP - Bottom edge temperature  
--- IN-PLATE-TEMP - Initial plate temperature  
--- LEFT-TEMP - Left edge temperature  
+There are five temperature sliders which enable users to set four fixed edge temperatures and one initial plate temperature:
+-- TOP-TEMP - Top edge temperature
+-- BOTTOM-TEMP - Bottom edge temperature
+-- IN-PLATE-TEMP - Initial plate temperature
+-- LEFT-TEMP - Left edge temperature
 -- RIGHT-TEMP - Right edge temperature
 
-There are two sliders that govern the thermal diffusivity of the plate:  
--- MATERIAL-TYPE - The value of the chooser is that of the above chart.  You must press UPDATE ALPHA for this to change the value of ALPHA.  
+There are two sliders that govern the thermal diffusivity of the plate:
+-- MATERIAL-TYPE - The value of the chooser is that of the above chart.  You must press UPDATE ALPHA for this to change the value of ALPHA.
 -- ALPHA - The alpha constant of thermal diffusivity
 
-There are four buttons with the following functions:  
--- SETUP - Initializes the model  
--- GO - Runs the simulation indefinitely  
--- GO ONCE - Runs the simulation for 1 time step  
+There are four buttons with the following functions:
+-- SETUP - Initializes the model
+-- GO - Runs the simulation indefinitely
+-- GO ONCE - Runs the simulation for 1 time step
 -- UPDATE ALPHA - press this if you want to set ALPHA to a preset value based on a material selected by the MATERIAL-TYPE chooser
 
 The TIME monitor shows how many time steps the model has gone through.

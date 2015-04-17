@@ -1,11 +1,11 @@
 turtles-own [speed]
 
 to setup
-  setup-circle 
+  setup-circle
   reset-ticks
 end
 
-to setup-circle 
+to setup-circle
   clear-all
   set-default-shape turtles "arrow"
   ;; turtles should be evenly spaced around the circle
@@ -139,7 +139,7 @@ This is a kind of mathematical investigation — we are investigating the emerge
 
 ## HOW IT WORKS
 We start with 40 turtles on a circle of radius 20 facing clockwise around the circle.
-The turtles move forward .35 units and turn right 1 degree to stay on the circle. 
+The turtles move forward .35 units and turn right 1 degree to stay on the circle.
 
 ## HOW TO USE IT
 

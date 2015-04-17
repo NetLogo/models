@@ -9,34 +9,34 @@ globals [
 
 to setup
   clear-all
-  
+
   ;; Set globals -- these values produce good visual results
   set lipid-length 2.0
   set interaction-distance 4.0
   set too-close-distance 1.3
-  
+
   set-default-shape turtles "circle"
   create-waters (num-water + num-lipids) [
     setxy random-xcor random-ycor
     set color blue
   ]
-  
-  ; To create the lipids, NUM-LIPIDS oil molecules are created. Each oil molecule then picks 
-  ; one water molecule that hasn’t been linked to an oil yet. That water molecule is stored 
-  ; in a variable so that the oil molecule can perform a sequence of actions on it. The oil 
+
+  ; To create the lipids, NUM-LIPIDS oil molecules are created. Each oil molecule then picks
+  ; one water molecule that hasn’t been linked to an oil yet. That water molecule is stored
+  ; in a variable so that the oil molecule can perform a sequence of actions on it. The oil
   ; molecule first creates a link with its partner and then moves to position LIPID-LENGTH ;
   ; away from the water molecule.
   create-oils (num-lipids) [
     let partner one-of waters with [not any? my-links]
-    
+
     ; Put lipid-length away from its partner in a random direction
     move-to partner
     fd lipid-length
-    
+
     create-link-with partner
     set color orange
     ask partner [ set color violet ]
-  ] 
+  ]
   reset-ticks
 end
 

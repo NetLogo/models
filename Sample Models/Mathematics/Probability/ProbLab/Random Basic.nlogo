@@ -339,14 +339,14 @@ At every tick, the computer selects a random number between 1 and "sample-space"
 
 Choose a sample-space (you can leave it at the default value of '100') and press Setup. Now press Go. The messenger (the dart) will obtain a random number and carry it to the correct column. The red-green slider changes which columns are red and which are green. If it's set at 50% and if the sample space is 100 then patches up to 50 will be red and the rest will be green. If it's set at 50% and the sample space is 30 then patches up to 15 will be red. There are cases where this might be confusing: for instance, if it's set at 50% and if the sample space is 5 then patches up to 2 will be red. The '3'-column will be green because it goes further than 50% of 5.  That is, all columns up to and including the 3-column are more than 50% of the columns in the sample-space of 5 -- they are actually 60% because each of the 5 columns makes up 20% (and 5 * 20% is 100%). (See the section EXTENDING THE MODEL, below.)
 
-These are the widgets in order of appearance from top to bottom:  
-SAMPLE-SPACE is a slider for setting how many columns you want to be filling up. Also, it sets the range of numbers that will be randomly selected. If you set the slider to 3 then you will have 3 columns and the values will always be either 1, 2, or 3.  
-SETUP - prepares the model for running with your sample-space parameter setting.  
-GO - runs the model with the current settings.  
-BIGGEST GAP - shows the biggest vertical difference between all columns. For instance, if the highest column is 10 squares high and the lowest is at 3 squares high then this monitor will show '7'.  
-%-RED - shows what percentage of the squares are red out of all the squares.  
-COLORS? - when this switch is on the patches get painted either red or green depending on the red-green slider value and their position.  
-RED-GREEN - sets the cut-off line for which patches are painted red and which green. When your sample-space is 100 then the position of the little handle on the slider (what you grab and move) is exactly at the cut-off line. For sample spaces other than 100 it will be under the cut-off line only when it is set at 50. This is because currently this slider works according to percentage of events and not column value.  
+These are the widgets in order of appearance from top to bottom:
+SAMPLE-SPACE is a slider for setting how many columns you want to be filling up. Also, it sets the range of numbers that will be randomly selected. If you set the slider to 3 then you will have 3 columns and the values will always be either 1, 2, or 3.
+SETUP - prepares the model for running with your sample-space parameter setting.
+GO - runs the model with the current settings.
+BIGGEST GAP - shows the biggest vertical difference between all columns. For instance, if the highest column is 10 squares high and the lowest is at 3 squares high then this monitor will show '7'.
+%-RED - shows what percentage of the squares are red out of all the squares.
+COLORS? - when this switch is on the patches get painted either red or green depending on the red-green slider value and their position.
+RED-GREEN - sets the cut-off line for which patches are painted red and which green. When your sample-space is 100 then the position of the little handle on the slider (what you grab and move) is exactly at the cut-off line. For sample spaces other than 100 it will be under the cut-off line only when it is set at 50. This is because currently this slider works according to percentage of events and not column value.
 %-FULL - the proportion of the yellow area that has been filled up by squares.
 
 ## THINGS TO NOTICE

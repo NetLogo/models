@@ -332,7 +332,7 @@ circle?
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model shows how grains are formed as a metal crystallizes.  
+This model shows how grains are formed as a metal crystallizes.
 
 As a metal cools, it solidifies.  The first atoms to solidify have a random orientation. But when an atom solidifies next to an already solidified atom, the first atom orients itself with the solid atom, thus creating a crystal "grain".  As more atoms solidify, the grains grow.  Within each grain, all the atoms are oriented the same, but different grains have different orientations.
 
@@ -348,32 +348,32 @@ Note that the actual number of atoms is small compared to a real metal sample an
 
 ### Buttons
 
-SETUP: Resets the simulation, and sets the metal to the correct size.  
-GO-ONCE: Runs the simulation for one time step.  
+SETUP: Resets the simulation, and sets the metal to the correct size.
+GO-ONCE: Runs the simulation for one time step.
 GO: Runs the simulation continuously until either the GO button is pressed again, or all of the atoms are frozen.
 
 ### Sliders
 
-WIDTH: How many atoms wide the metal is.  
-HEIGHT: How many atoms high the metal is.  (Ignored if CIRCLE? switch is on.)  
-ROOM-TEMP: Varies the temperature of the room.  
-INIT-METAL-TEMP: Varies the initial temperature of the metal.  
+WIDTH: How many atoms wide the metal is.
+HEIGHT: How many atoms high the metal is.  (Ignored if CIRCLE? switch is on.)
+ROOM-TEMP: Varies the temperature of the room.
+INIT-METAL-TEMP: Varies the initial temperature of the metal.
 MELTING-TEMP: Varies the temperature at which the metal solidifies.
 
 ### Monitors
 
-AVE-METAL-TEMP: Monitors the average temperature of all the atoms.  
+AVE-METAL-TEMP: Monitors the average temperature of all the atoms.
 TIME: Keeps track of the time that has elapsed during each run.
 
 ### Switches
 
-CIRCLE?: If on, pressing SETUP produces a circular piece of metal.  Otherwise, you get a square or rectangular piece of metal. (If CIRCLE? is on, the size of the circle is determined by the WIDTH slider, and the HEIGHT slider is ignored.)  
+CIRCLE?: If on, pressing SETUP produces a circular piece of metal.  Otherwise, you get a square or rectangular piece of metal. (If CIRCLE? is on, the size of the circle is determined by the WIDTH slider, and the HEIGHT slider is ignored.)
 HISTOGRAM?: Turns the histogram plotting on and off.  Turning off the histogram speeds up the model.
 
 ### Graphs
 
-AVERAGE METAL TEMPERATURE: Plots the average temperature of all the metal over time.  
-NUMBER SOLIDIFIED: Plots how many metal atoms are below the melting temperature over time.  
+AVERAGE METAL TEMPERATURE: Plots the average temperature of all the metal over time.
+NUMBER SOLIDIFIED: Plots how many metal atoms are below the melting temperature over time.
 TEMPERATURES:  Histograms how many atoms are in each temperature range.  (Note that the colors of the histogram match the actual colors of the atoms.)
 
 ## THINGS TO TRY
@@ -402,7 +402,7 @@ With every time step, each atom's temperature changes to the average of everythi
 
 ## RELATED MODELS
 
-Crystallization Directed  
+Crystallization Directed
 Crystallization Moving
 
 ## CREDITS AND REFERENCES

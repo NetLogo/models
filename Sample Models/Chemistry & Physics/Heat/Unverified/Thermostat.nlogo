@@ -259,12 +259,12 @@ It should be noted that use of turtles in this model to represent heat is not in
 
 ## HOW TO USE IT
 
-GO: Starts and stops the simulation.  
-SETUP: Resets the simulation, and sets the initial temperature according to init-temp.  
-TEMPERATURE: Monitors the temperature in the room, as detected by the green box near the top.  
-GOAL-TEMP: The thermostat aims to maintain the room at this temperature. It may be adjusted in the middle of a simulation.  
-HEATER-STRENGTH: The number of red turtles created by the heater in a tick (if the heater is 'on').  
-INSULATION: The efficiency of the room's insulation, or the rate at which heat escapes from the room. Higher numbers allow less heat to escape; lower number numbers allow more. This may be adjusted during a simulation.  
+GO: Starts and stops the simulation.
+SETUP: Resets the simulation, and sets the initial temperature according to init-temp.
+TEMPERATURE: Monitors the temperature in the room, as detected by the green box near the top.
+GOAL-TEMP: The thermostat aims to maintain the room at this temperature. It may be adjusted in the middle of a simulation.
+HEATER-STRENGTH: The number of red turtles created by the heater in a tick (if the heater is 'on').
+INSULATION: The efficiency of the room's insulation, or the rate at which heat escapes from the room. Higher numbers allow less heat to escape; lower number numbers allow more. This may be adjusted during a simulation.
 INITIAL-TEMP: The initial temperature of the room. This takes effect only when the SETUP button is pressed.
 
 There is also a plot, which tracks the temperature over time (in red) and the desired temperature (in green).

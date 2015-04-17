@@ -381,12 +381,12 @@ COMPUTER STRATEGY - Select the computer's strategy from the list below.
 
 Strategies:
 
-Random - randomly cooperate or defect  
-Cooperate - cooperate always  
-Defect - defect always  
-Tit-for-Tat - If the opponent cooperates this round cooperate next round.  If the opponent defects this round, defect next round.  Initially cooperate.  
-Tit-for-Two-Tats - If the opponent cooperates this round cooperate next round.  If the opponent defects two rounds in a row, defect the next round.  Initially cooperate.  
-Unforgiving - Cooperate always unless the opponent defects once.  Upon opponent defection retaliate by defecting always.  
+Random - randomly cooperate or defect
+Cooperate - cooperate always
+Defect - defect always
+Tit-for-Tat - If the opponent cooperates this round cooperate next round.  If the opponent defects this round, defect next round.  Initially cooperate.
+Tit-for-Two-Tats - If the opponent cooperates this round cooperate next round.  If the opponent defects two rounds in a row, defect the next round.  Initially cooperate.
+Unforgiving - Cooperate always unless the opponent defects once.  Upon opponent defection retaliate by defecting always.
 Custom-Strategy - This strategy is intended to be written by you.  It currently defaults to Tit-for-Tat.
 
 Monitors:

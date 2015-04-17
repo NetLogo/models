@@ -153,7 +153,7 @@ Notice the use of `scale-color` to change a turtle's color based on its y-coordi
 
 ## RELATED MODELS
 
-3D Solids  
+3D Solids
 Wave Machine
 
 ## CREDITS AND REFERENCES

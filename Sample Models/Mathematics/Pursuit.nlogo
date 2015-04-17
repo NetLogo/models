@@ -542,13 +542,13 @@ Use the STEP-SIZE slider to decide how far from its current location a follower 
 
 When you press SETUP, the light gray lines that appear are the x-axis and the y-axis.
 
-Leader Switches:  
-SHOW-LEADER? makes the leader shown or hidden.  This switch must be set before SETUP is pressed.  
-When the switch is set to on, the leader will be visible.  
+Leader Switches:
+SHOW-LEADER? makes the leader shown or hidden.  This switch must be set before SETUP is pressed.
+When the switch is set to on, the leader will be visible.
 When the switch is set to off, the leader will be hidden.
 
-SHOW-TRAIL?, when turned on, causes the leader to leave a mark at each location determined by its formula.  This switch may be turned on and off at any time during the pursuit.  
-When the switch is set to on, the trail will be visible.  
+SHOW-TRAIL?, when turned on, causes the leader to leave a mark at each location determined by its formula.  This switch may be turned on and off at any time during the pursuit.
+When the switch is set to on, the trail will be visible.
 When the switch is set to off, the trail will be hidden.
 
 Press RANDOM or any of the function buttons when all of the above selections have been made.  This will create the leader and the selected number of followers.
@@ -559,7 +559,7 @@ The other buttons choose a specific function for the leader to follow.
 
 Press GO-ONCE to make the leader increment its xcor value by one and to make the followers take one step toward the leader.
 
-Press GO to make the leader and followers move continuously.  
+Press GO to make the leader and followers move continuously.
 To stop them, press the GO button again.
 
 The SLOWDOWN slider controls how fast all of the turtles move.
@@ -588,7 +588,7 @@ What can you tell about the leader's formula based on the path of each follower?
 
 What traits of each follower's path give you information about the leader's formula?  Which of these traits do you find most helpful?  Why?
 
-To change the formula for the leader:  
+To change the formula for the leader:
 A number of formulas have been stored in the procedures for this model.  To explicitly make a given formula active, choose the button for the formula you want instead of RANDOM.
 
 See the EXTENDING THE MODEL section for instructions on how to add your own formulas to the model.
@@ -597,27 +597,27 @@ See the EXTENDING THE MODEL section for instructions on how to add your own form
 
 There are several characteristics of each follower's path and the leader's trail that are worth noting.
 
-Follower Path Slope:  
-What does it mean if the slope of the path is increasing?  
-What does it mean if the slope of the path is decreasing?  
-What does it mean if one section of the path has a steeper slope than another part?  
+Follower Path Slope:
+What does it mean if the slope of the path is increasing?
+What does it mean if the slope of the path is decreasing?
+What does it mean if one section of the path has a steeper slope than another part?
 What does it mean if the slope of the path is constant?
 
 To think about the slope of a path, consider whether the path appears to be going 'uphill' or 'downhill' and consider whether the 'hill' is steep or flat.
 
-Follower Path Concavity:  
-What does it mean if the path has a section that is concave up?  
-What does it mean if the path has a section that is concave down?  
-What does it mean if the path has sections of both of these types?  
+Follower Path Concavity:
+What does it mean if the path has a section that is concave up?
+What does it mean if the path has a section that is concave down?
+What does it mean if the path has sections of both of these types?
 What does it mean if the path has neither concave up nor concave down sections?
 
-A path that is concave up will be shaped like part of an upright coffee cup.  
+A path that is concave up will be shaped like part of an upright coffee cup.
 A path that is concave down will be shaped like part of an upside down coffee cup.
 
-Relationships Between Paths:  
+Relationships Between Paths:
 Do the paths have any symmetry?  Would you expect them to?  Why or why not?
 
-Distances Between the Leader and a Follower:  
+Distances Between the Leader and a Follower:
 Once you have determined the formula for the leader, run a simulation with the leader's trail turned on.  (Note that there are other suggestions to verify your answer in the THINGS TO TRY section.  Make sure you have tried at least some of these before you show the trail.  If you show the trail before you are really sure you are right, you might end up spoiling all your fun- there's no going back once you have seen the trail of the leader!)
 
 Find a path where a follower seems to get close to the leader only to have the leader appear to speed up and escape from the follower.
@@ -626,25 +626,25 @@ Why does this happen?  What kinds of generalizations can you make about the form
 
 How do the distances between the leader's trail marks relate to the perceived speed of the leader?
 
-Leader Mark Proximity:  
+Leader Mark Proximity:
 Depending on the path that the leader is following, the leader's trail marks may not be evenly spaced.
 
-What does it mean when the steps are evenly spaced?  
-What does it mean when the steps are not evenly spaced?  
-What does it mean when the marks are closer together?  
+What does it mean when the steps are evenly spaced?
+What does it mean when the steps are not evenly spaced?
+What does it mean when the marks are closer together?
 What does it mean when the marks are further apart?
 
 ## THINGS TO TRY
 
 Try moving followers to specific locations after SETUP has been pressed but before GO has been pressed. Make predictions about how different locations would be helpful.
 
-What can you learn if a follower starts in any of the following locations?  
-- along the right edge of the world  
-- along the left edge of the world  
-- along the top edge of the world  
-- along the bottom edge of the world  
-- along the x-axis  
-- along the y-axis  
+What can you learn if a follower starts in any of the following locations?
+- along the right edge of the world
+- along the left edge of the world
+- along the top edge of the world
+- along the bottom edge of the world
+- along the x-axis
+- along the y-axis
 - at the origin
 
 What is the most helpful first location for a follower?  (The location on top of the leader is, of course, out of the question!)
@@ -655,28 +655,28 @@ Come up with a strategy for placing followers so that you can determine the path
 
 You may use the command center, or the turtle window to move a follower.  The leader is turtle 0, the followers are all turtles with who > 0.
 
-Try increasing the number of followers.  
-(Even if you think you have the formula figured out, try using larger NUM-FOLLOWERS values before you show the leader or the leader's trail. )  
+Try increasing the number of followers.
+(Even if you think you have the formula figured out, try using larger NUM-FOLLOWERS values before you show the leader or the leader's trail. )
 Why does using a larger NUM-FOLLOWERS value make it easier to guess the leader's formula?
 
-Try increasing the STEP-SIZE of the followers.  
-(Even if you think you have the formula figured out, try using larger STEP-SIZE values before you show the leader or the leader's trail. )  
+Try increasing the STEP-SIZE of the followers.
+(Even if you think you have the formula figured out, try using larger STEP-SIZE values before you show the leader or the leader's trail. )
 Why does using a larger STEP-SIZE value make it easier to guess the leader's formula?
 
 The above discussions all involve trying to guess the path of the leader.  Alternately, you can know the formula of the leader and try to guess the paths of the followers.
 
-If you know a leader's formula and are trying to guess the pattern of the followers' paths, make sure to record you guess before you run the simulation.  Compare your predicted results with the actual results.  
-- What reasoning led you to correct predictions?  
+If you know a leader's formula and are trying to guess the pattern of the followers' paths, make sure to record you guess before you run the simulation.  Compare your predicted results with the actual results.
+- What reasoning led you to correct predictions?
 - What assumptions that you made need to be revised?
 
 ## EXTENDING THE MODEL
 
 To add your own formulas, you need to add a new Leader Procedure to the model (the others are declared at the bottom of the Code tab.
 
-Add your formula to the current list.  
-- Within the set of commands you may need to scale the y-axis to keep the leader from wrapping.  (See for example, the cubic function.)  
-- You must restrict the domain of the leader if your formula has values for which it would be undefined.  (See, for example, the logarithm function.)  
-- Add formula-name to the MOVE-LEADER procedure and add a button for the choice.  
+Add your formula to the current list.
+- Within the set of commands you may need to scale the y-axis to keep the leader from wrapping.  (See for example, the cubic function.)
+- You must restrict the domain of the leader if your formula has values for which it would be undefined.  (See, for example, the logarithm function.)
+- Add formula-name to the MOVE-LEADER procedure and add a button for the choice.
 - Increment the number after `random` in the RANDOM button code to add your function to the list of possible functions that RANDOM will choose.
 
 In this simulation, the leader uses only integer x coordinates.  For which formulas might the results be different if the leader moved along smaller intervals?
@@ -687,15 +687,15 @@ Adjust the procedures so that rectangular worlds do not cause unexpected wrappin
 
 Do any of these changes impact answers to any of the questions asked above?
 
-Create leader functions and pick a follower location to get the following shapes in the follower's path:  
-- a straight line with positive slope  
-- a straight line with negative slope  
-- a horizontal line  
-- a loop  
-- a circle  
-- a curve with one "hump"  
-- a curve with two "humps"  
-- a curve with three "humps"  
+Create leader functions and pick a follower location to get the following shapes in the follower's path:
+- a straight line with positive slope
+- a straight line with negative slope
+- a horizontal line
+- a loop
+- a circle
+- a curve with one "hump"
+- a curve with two "humps"
+- a curve with three "humps"
 - a curve with n "humps"
 
 ## NETLOGO FEATURES

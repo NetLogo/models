@@ -538,37 +538,37 @@ The particles are modeled as hard balls with no internal energy except that whic
 
 Coloring of the particles is with respect to one speed (10).  Particles with a speed less than 5 are blue, ones that are more than 15 are red, while all in those in-between are green.
 
-Particles behave according to the following rules:  
-1. A particle moves in a straight line without changing its speed, unless it collides with another particle or bounces off the wall.  The particles are aimed to hit each other at the origin.  
-2. Two particles "collide" if they find themselves on the same patch (the world is composed of a grid of small squares called patches).  
-3. A random axis is chosen, as if they are two balls that hit each other and this axis is the line connecting their centers.  
-4. They exchange momentum and energy along that axis, according to the conservation of momentum and energy.  This calculation is done in the center of mass system.  
-5. Each turtle is assigned its new velocity, energy, and heading.  
+Particles behave according to the following rules:
+1. A particle moves in a straight line without changing its speed, unless it collides with another particle or bounces off the wall.  The particles are aimed to hit each other at the origin.
+2. Two particles "collide" if they find themselves on the same patch (the world is composed of a grid of small squares called patches).
+3. A random axis is chosen, as if they are two balls that hit each other and this axis is the line connecting their centers.
+4. They exchange momentum and energy along that axis, according to the conservation of momentum and energy.  This calculation is done in the center of mass system.
+5. Each turtle is assigned its new velocity, energy, and heading.
 6. If a turtle finds itself on or very close to a wall of the container, it "bounces" -- that is, reflects its direction and keeps its same speed.
 
 ## HOW TO USE IT
 
-Initial settings:  
-- COLLISION-ANGLE: Sets the angle that separates the pink and blue particles before the collision.  
-- REFLECTION-ANGLE: Sets the angle of the axis connecting the particles' centers when they collide with respect to the vertical axis. To calculate the outcome of the collision, the speeds of the two particles are projected onto this new axis and the new speeds and headings are computed. Other GasLab models use random values for "REFLECTION-ANGLE", but this model allows you to experiment with them one by one. This angle is called THETA in the code of the model.  
-- INIT-PINK-SPEED (or BLUE): Sets the initial speed of the pink (or blue) particle.  
+Initial settings:
+- COLLISION-ANGLE: Sets the angle that separates the pink and blue particles before the collision.
+- REFLECTION-ANGLE: Sets the angle of the axis connecting the particles' centers when they collide with respect to the vertical axis. To calculate the outcome of the collision, the speeds of the two particles are projected onto this new axis and the new speeds and headings are computed. Other GasLab models use random values for "REFLECTION-ANGLE", but this model allows you to experiment with them one by one. This angle is called THETA in the code of the model.
+- INIT-PINK-SPEED (or BLUE): Sets the initial speed of the pink (or blue) particle.
 - PINK-MASS (or BLUE): Sets the mass of the pink (or blue) particle.
 
-Other settings:  
+Other settings:
 - SHOW-CENTER-OF-MASS?: If ON, the center of mass of the system will be shown in gray.
 
-Buttons for running the model:  
-- SETUP  
-- RUN-MODE: Chooses between ONE COLLISION (just one run), ALL-COLLISION-ANGLES (loops through all the collision angles with 15-degrees steps) and ALL-REFLECTION-ANGLES(loops through all the reflection angles with 15-degrees steps).  
+Buttons for running the model:
+- SETUP
+- RUN-MODE: Chooses between ONE COLLISION (just one run), ALL-COLLISION-ANGLES (loops through all the collision angles with 15-degrees steps) and ALL-REFLECTION-ANGLES(loops through all the reflection angles with 15-degrees steps).
 - GO
 
-Monitors:  
-- ENERGY OF PINK (or -BLUE): Shows the current energy of the pink (or blue) particle.  
-- SPEED OF PINK (or -BLUE): Shows the current speed of the pink (or blue) particle.  
-- AVERAGE SPEED: Shows the average of the speeds of the two particles.  
+Monitors:
+- ENERGY OF PINK (or -BLUE): Shows the current energy of the pink (or blue) particle.
+- SPEED OF PINK (or -BLUE): Shows the current speed of the pink (or blue) particle.
+- AVERAGE SPEED: Shows the average of the speeds of the two particles.
 - TOTAL ENERGY: Shows the sum of the energies of the two particles.
 
-Plots:  
+Plots:
 - SPEEDS: speed of each of the particles over time.
 
 ## THINGS TO TRY

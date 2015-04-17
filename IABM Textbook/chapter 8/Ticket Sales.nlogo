@@ -119,7 +119,7 @@ to setup-maps
   gis:set-world-envelope (gis:envelope-union-of (gis:envelope-of nyc-roads-dataset) (gis:envelope-of nyc-tracts-dataset))
   set roads-displayed? false
 
-  display-roads  ;; display the roads  
+  display-roads  ;; display the roads
   display-tracts ;; display the tract borders
 
   ;; locate whether a patch intersects a tract, if it does assign it that tract

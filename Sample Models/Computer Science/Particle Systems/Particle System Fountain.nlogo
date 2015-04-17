@@ -313,9 +313,9 @@ count turtles
 
 This particle system models a particle fountain emitting particles from the bottom of the world.
 
-In this model each particle has two main behaviors:  
-- If there is room ahead it continues its trajectory.  
-- If it's about to touch the edge of the world, it dies.  
+In this model each particle has two main behaviors:
+- If there is room ahead it continues its trajectory.
+- If it's about to touch the edge of the world, it dies.
 Forces such as gravity, wind, and viscosity act on the particles as well.
 
 ## HOW IT WORKS
@@ -366,8 +366,8 @@ A difficulty in this example is to detect when a particle has reached the edge o
 
 ## RELATED MODELS
 
-Particle System Basic  
-Particle System Waterfall  
+Particle System Basic
+Particle System Waterfall
 Particle System Flame
 
 ## CREDITS AND REFERENCES

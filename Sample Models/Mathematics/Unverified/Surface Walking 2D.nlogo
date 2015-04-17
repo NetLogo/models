@@ -237,13 +237,13 @@ Finally, Rule 3 reduces the 'weaving' effects produced by turtles moving toward 
 
 ## HOW TO USE IT
 
-NUMBER-OF-TURTLES: Allows the user to adjust the number of turtles that will appear along the shape surface when SETUP is pressed.  
-STEP-SIZE: Allows the user to adjust how far each turtle moves forward during each step.  
-SURFACE-SHAPE: Allows the user to select the surface shape to appear when SETUP is pressed.  
-COLORED-SURFACE?: Allows user to toggle whether the surface on which turtles will walk is colored red, or is invisible.  
-DRAW-SURFACE: Allows the user to add mouse-drawn components to an existing surface by pressing the button and then clicking and dragging anywhere in the view. The area surrounding patches identified by the mouse will be set to behave as a surface, and if the COLORED-SURFACE? switch is on, the area will also turn red.  
-TRACE: Asks one of the turtles to draw a trail as it moves.  
-SETUP: Sets up the environment by creating a surface and placing turtles along the surface.  
+NUMBER-OF-TURTLES: Allows the user to adjust the number of turtles that will appear along the shape surface when SETUP is pressed.
+STEP-SIZE: Allows the user to adjust how far each turtle moves forward during each step.
+SURFACE-SHAPE: Allows the user to select the surface shape to appear when SETUP is pressed.
+COLORED-SURFACE?: Allows user to toggle whether the surface on which turtles will walk is colored red, or is invisible.
+DRAW-SURFACE: Allows the user to add mouse-drawn components to an existing surface by pressing the button and then clicking and dragging anywhere in the view. The area surrounding patches identified by the mouse will be set to behave as a surface, and if the COLORED-SURFACE? switch is on, the area will also turn red.
+TRACE: Asks one of the turtles to draw a trail as it moves.
+SETUP: Sets up the environment by creating a surface and placing turtles along the surface.
 GO: Runs the model by asking turtles to walk along the surface.
 
 ## THINGS TO NOTICE

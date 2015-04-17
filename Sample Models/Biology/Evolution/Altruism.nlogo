@@ -340,9 +340,9 @@ Under normal (non-interfering) environmental conditions, the selfish agents win,
 
 2. Each patch is an agent that has a fitness.  Each patch is also the location of a lottery for its space.  The patch and the four surrounding patches put in "seeds" to try to get the patch turned to their type of patch, altruist or selfish. Being successful in the lottery is getting patches to turn to your type.  We're assuming here that the type (altruistic or selfish) is the important genetic trait.
 
-3.  Each patch calculates its own fitness using equation:  
-if it is A (altruist): 1 - cost + (Number Altruists in Neighborhood / 5 * benefit from Altruists)  
-if it is S (selfish):  1 + (Number Altruists in Neighborhood / 5 * benefit from Altruists)  
+3.  Each patch calculates its own fitness using equation:
+if it is A (altruist): 1 - cost + (Number Altruists in Neighborhood / 5 * benefit from Altruists)
+if it is S (selfish):  1 + (Number Altruists in Neighborhood / 5 * benefit from Altruists)
 Thus, the fitness of the S patch will be higher than the fitness of the A's.  If the cost is 0.2 and benefit is 0.5, for an A surrounded by two S's and two A's, then the fitness of this spot is 1 - 0.2 + (3/5 * 0.5) = 1.1.
 
 4.  After each patch has calculated its fitness, it looks to its four neighbors.  Each of the five patches, including itself, puts a weighted seed into a genetic lottery for this center spot.  So, for example, if the neighborhood is ASASA, each of the three A's register their fitness value, and each of the two S's put in their fitness.  The A's are added, and the S's are added.  Let us assume that the A's add up to 3.2 (this includes the A in the center spot), and the S's add up to 2.6.  These two numbers are the altruist weight and selfish weight respectively, in the lottery for the center spot.  Now, the larger number, whichever it is, is called the Major seed; it is divided by the sum of all the fitnesses.

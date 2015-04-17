@@ -30,7 +30,7 @@ end
 to reset-centroids
   set any-centroids-moved? true
   ask data-points [ set color grey ]
-  
+
   let colors base-colors
   ask centroids [die]
   create-centroids num-centroids [
@@ -52,14 +52,14 @@ to go
 end
 
 to assign-clusters
-  ask data-points [set color [color] of closest-centroid - 2]  
+  ask data-points [set color [color] of closest-centroid - 2]
 end
 
 to update-clusters
   let movement-threshold 0.1
   ask centroids [
     let my-points data-points with [ shade-of? color [ color ] of myself ]
-    if any? my-points [ 
+    if any? my-points [
       let new-xcor mean [ xcor ] of my-points
       let new-ycor mean [ ycor ] of my-points
       if distancexy new-xcor new-ycor > movement-threshold [
@@ -267,11 +267,11 @@ HORIZONTAL
 @#$#@#$#@
 ## WHAT IS IT?
 
-Often, when we have data about a large set of objects, we want to identify groups of similar objects within that set. For example, if we have many news articles, we may want to identify groups of articles that all have the same topic. In statistics, this task is called “cluster analysis”, or “clustering”. 
+Often, when we have data about a large set of objects, we want to identify groups of similar objects within that set. For example, if we have many news articles, we may want to identify groups of articles that all have the same topic. In statistics, this task is called “cluster analysis”, or “clustering”.
 
-This model shows the k-means clustering algorithm. a simple, but often effective approach to clustering. In this model, the k-means clustering algorithm is used to identify clusters of points on a plane. In the general case, you can represent your data objects as vectors of numbers, where each number represents a feature of the object. 
+This model shows the k-means clustering algorithm. a simple, but often effective approach to clustering. In this model, the k-means clustering algorithm is used to identify clusters of points on a plane. In the general case, you can represent your data objects as vectors of numbers, where each number represents a feature of the object.
 
-The model is initialized by creating a specific number of clusters (NUM-CLUSTERS). In a real-world application, this number of clusters would be unknown. The algorithm is designed to find the clusters, and the user selects a guess, NUM-CENTROIDS, which tells the algorithm, how many clusters to search for. You can search for different numbers of clusters till you find one that best characterizes your data. 
+The model is initialized by creating a specific number of clusters (NUM-CLUSTERS). In a real-world application, this number of clusters would be unknown. The algorithm is designed to find the clusters, and the user selects a guess, NUM-CENTROIDS, which tells the algorithm, how many clusters to search for. You can search for different numbers of clusters till you find one that best characterizes your data.
 
 The result of the algorithm is a set of NUM-CENTROIDS points,  (each point is called a centroid), each of which is located at the average position of a corresponding cluster. The “k” in k-mean clustering refers to the guess at how many centroids to search for.
 
@@ -280,12 +280,12 @@ The purpose of the model is to allow you to see how the number of data points, c
 
 ## HOW IT WORKS
 
-The algorithm works by finding the average position of the elements in NUM-CENTROIDS different clusters. It starts by simply guessing an average position for each of the NUM-CENTROIDS clusters, and then improves these guesses as it goes on. 
+The algorithm works by finding the average position of the elements in NUM-CENTROIDS different clusters. It starts by simply guessing an average position for each of the NUM-CENTROIDS clusters, and then improves these guesses as it goes on.
 
 When the model is set up, two things happen: First, NUM-DATA-POINTS data points are generated and shown in the view.  Second, NUM-CENTROIDS centroids are generated and moved to a randomly selected data point. This randomly selected point is the initial guess for each centroid.
 
 Each tick, the model performs two steps:
-1. ASSIGN POINTS: all data points assign themselves to their closest centroid, taking on its color. 
+1. ASSIGN POINTS: all data points assign themselves to their closest centroid, taking on its color.
 2. UPDATE CENTROIDS: all centroids move to the average position of the points assigned to it.
 
 By iterating these steps a few times, the model is usually able to identify clusters in the dataset.
@@ -314,7 +314,7 @@ For each dataset, you will probably be able to converge on many different soluti
 
 ## EXTENDING THE MODEL
 
-The dataset currently is distributed in clusters across a 2-d space. It could be interesting to add the ability to either import datasets and find clusters in them, or somehow allow the user to create their own datasets. 
+The dataset currently is distributed in clusters across a 2-d space. It could be interesting to add the ability to either import datasets and find clusters in them, or somehow allow the user to create their own datasets.
 
 Currently, only the data points that are identified as belonging to a cluster change their color as the algorithm runs. Another interesting way to illustrate clusters might be to change the color of patches that are closest to the centroids. This would create a Voronoi diagram of the clusters (see under 'Related models' if you are curious about Voronoi diagrams).
 
@@ -322,7 +322,7 @@ A clustering algorithm requires a measure to assess bow well it has clustered. T
 
 ## NETLOGO FEATURES
 
-_CREATE-TEMPORARY-PLOT-PEN_: The model plots the number of data points for each of the centroids. However, because this number might change during runtime (i.e. if you let the model run, change the number of clusters, and then run the model again), the model uses temporary pens that are created and die with the centroids. 
+_CREATE-TEMPORARY-PLOT-PEN_: The model plots the number of data points for each of the centroids. However, because this number might change during runtime (i.e. if you let the model run, change the number of clusters, and then run the model again), the model uses temporary pens that are created and die with the centroids.
 
 ## RELATED MODELS
 

@@ -347,7 +347,7 @@ http://io9.com/5886406/scientists-confirm-alan-turings-50+year+old-theory-for-wh
 
 Here is a quote from the Wilkins article:
 
->Turing's idea was that biological patterns --- such as a tiger's stripes or a 
+>Turing's idea was that biological patterns --- such as a tiger's stripes or a
 >leopard's spots - are formed by the interactions of a pair of morphogens, which
 >are the signaling molecules that govern tissue development. The particular pair
 >that Turing proposed was an activator and an inhibitor. Turing proposed that the
@@ -358,7 +358,7 @@ Here is a quote from the Wilkins article:
 >
 >This hypothesis has remained mostly just speculation until now, as researchers
 >at King's College London have now tested the idea in the mouths of mice. The
->roofs of mice's mouths contain regularly spaced ridges, and the researchers 
+>roofs of mice's mouths contain regularly spaced ridges, and the researchers
 >discovered the precise two morphogens that were working as activator and
 >inhibitor to create the pattern, just as Turing suggested. What's more, when the
 >researchers tampered with one morphogen or the other to increase or decrease

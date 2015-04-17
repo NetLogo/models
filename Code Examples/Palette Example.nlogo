@@ -14,14 +14,14 @@ to normal-scale-scheme
     set pcolor palette:scale-scheme "Sequential" "Reds" 9 patch-value 0 10
   ]
 end
- 
+
 to rgb-color-scale-gradient
   ask patches [
     set plabel round patch-value
     set pcolor palette:scale-gradient [[255 0 0] [255 255 255] [0 0 255]] patch-value 0 10
   ]
 end
- 
+
 to netlogo-color-scale-gradient
   ask patches [
     set plabel round patch-value
@@ -32,7 +32,7 @@ to netlogo-color-scale-gradient
     set pcolor palette:scale-gradient (list red-netlogo [255 255 255] blue-netlogo) patch-value 0 10
   ]
 end
- 
+
 to scheme-color-scale-gradient
   ask patches [
     set plabel round patch-value

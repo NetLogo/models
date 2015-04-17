@@ -499,8 +499,8 @@ This model is a part of the ProbLab curriculum. The ProbLab curriculum is curren
 
 ## HOW IT WORKS
 
-The basic analogy underlying Shuffle Board is that there are a lot of candy boxes, but only some of them have prizes in them (like a blue teddy bear). You know how long it should take you, on average, to get a prize, because this information is announced by the candy manufacturer. You are buying one candy box after another and keeping track of two things:  
-- How many boxes did you need to buy since last prize until you got the next prize?  
+The basic analogy underlying Shuffle Board is that there are a lot of candy boxes, but only some of them have prizes in them (like a blue teddy bear). You know how long it should take you, on average, to get a prize, because this information is announced by the candy manufacturer. You are buying one candy box after another and keeping track of two things:
+- How many boxes did you need to buy since last prize until you got the next prize?
 - When you had lucky streaks, how long were they?
 
 Both are plotted automatically in the "Frequency of Distances to Prizes" and "Frequency of Streaks by Length" graphs.
@@ -515,25 +515,25 @@ Note that the string of outcomes is forms a loop. So if at the tail end of the s
 
 ## HOW TO USE IT
 
-Sliders:  
-AVERAGE-DISTANCE -- If set at, say, 5, then every 5th square will bear a prize, when you press Setup.  
+Sliders:
+AVERAGE-DISTANCE -- If set at, say, 5, then every 5th square will bear a prize, when you press Setup.
 TRUNCATE-AFTER-COLUMN -- determines how many of the "Distances to Prizes" histogram columns, beginning from left, will be included in the calculation of the mean ratio between consecutive columns. For instance, if this slider is set at "4", then the program will calculate the quotients of Column 2 divided by Column 1, Column 3 divided by Column 2, and Column 4 divided by Column 3. Next, the program will determine the mean of these three quotients and report them in the "Columns-Factor" monitor.
 
-Switches:  
-PRIZE-SHAPES? -- if set to 'On', you will see what prize is waiting for you in each candy box. When set to 'Off', you will know that there is a prize in the box, but you will not know what it is.  
+Switches:
+PRIZE-SHAPES? -- if set to 'On', you will see what prize is waiting for you in each candy box. When set to 'Off', you will know that there is a prize in the box, but you will not know what it is.
 LABELS? -- if set to 'On', each prize box will show how many boxes had to be bought since the previous box so as to get this prize.
 
-Buttons:  
-SETUP -- initializes variables, creates a collection of prizes in accordance with the value of 'average-distance', and represents the distances to prizes and the lucky streaks in their respective plots.  
-GO ONCE -- Runs the program through a single 'Go' procedure, in which prizes are shuffled and their distances and streaks are calculated and plotted.  
+Buttons:
+SETUP -- initializes variables, creates a collection of prizes in accordance with the value of 'average-distance', and represents the distances to prizes and the lucky streaks in their respective plots.
+GO ONCE -- Runs the program through a single 'Go' procedure, in which prizes are shuffled and their distances and streaks are calculated and plotted.
 GO -- Runs the program over and over.
 
-Monitors:  
+Monitors:
 Columns Factor -- the height of each column in the histogram is divided by the height of the column immediately to its left. The monitor shows the mean of all these quotients. The total number of columns included in this calculation is determined by the slider 'truncate-after-column'.
 
-Plots:  
-FREQUENCY OF DISTANCES TO PRIZES -- shows the accumulating distribution of distances between prizes in repeated samples.  
-FREQUENCY OF STREAKS BY LENGTH -- shows the accumulating distribution of streaks of consecutive successes  
+Plots:
+FREQUENCY OF DISTANCES TO PRIZES -- shows the accumulating distribution of distances between prizes in repeated samples.
+FREQUENCY OF STREAKS BY LENGTH -- shows the accumulating distribution of streaks of consecutive successes
 Note that after you press Setup, when you first click on 'Go' or 'Go Once', the plots initialize, but later they accumulate information from previous runs.
 
 Set the 'average-distance' slider and press 'Setup'. Now press 'Go Once' and watch the histograms appear in the plots. If you press 'Go', the program will run indefinitely, until you press 'Go' again.
@@ -561,7 +561,7 @@ Play with the 'truncate-columns' slider. What does including more columns do as 
 
 What is the relation between the value of average-distance and the curves you get in the plot 'Frequency of Streaks by Length'? Does this make sense to you?
 
-Here is an experiment you can try without NetLogo that might shed more light on the model:  
+Here is an experiment you can try without NetLogo that might shed more light on the model:
 Set up a deck of cards that has 13 face cards and 39 number cards. That is a 1:3 ratio of faces to numbers. One fourth of the cards are faces. Thus, the probability that any random card drawn from this deck is a face is 1 out of 4 -- that is, a 25% chance. Now distribute the face cards uniformly in the deck so that literally every fourth card is a face. Next, shuffle the cards thoroughly. Still, every fourth card on average will be a face. But what is hiding behind this sense of "average" in "every fourth card on average is a face"? Count up to each face card and create a histogram of the frequencies of each number of attempts until success. What have you learned? Can you explain this? Note that two decks put together with the same "number:face" ratio (for a total of 26:78) will bring quicker results.
 
 Shuffle Board is a NetLogo analogy to shuffling a deck of cards and then going through the cards one by one and counting how long it takes to find each face.  To be precise, the shuffling procedure in this model is less rule governed than standard shuffling of cards (see for example http://www.sciencenews.org/articles/20001014/mathtrek.asp).

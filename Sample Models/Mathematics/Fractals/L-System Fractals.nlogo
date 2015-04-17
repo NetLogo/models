@@ -452,12 +452,12 @@ Perhaps the best way to start with this program is by looking at examples of som
 
 You can also press GO and leave it pressed instead of pressing GO ONCE repeatedly.  Watch the number of turtles though (in the COUNT TURTLES monitor).  If it becomes very large the model may become very slow.
 
-If you don't like the location of the fractal in the world you can change it by modifying the value of the following sliders:  
-- INIT-X sets the initial x coordinate of the first turtle.  It changes the horizontal starting location of  the original turtle.  
+If you don't like the location of the fractal in the world you can change it by modifying the value of the following sliders:
+- INIT-X sets the initial x coordinate of the first turtle.  It changes the horizontal starting location of  the original turtle.
 - INIT-Y sets the initial y coordinate of the first turtle.  It changes the vertical starting location of  the original turtle.
 
-If you don't like the color scheme of the fractal you can change it by modifying the value of the following sliders:  
-- INIT-COLOR controls the initial color of the first turtle.  
+If you don't like the color scheme of the fractal you can change it by modifying the value of the following sliders:
+- INIT-COLOR controls the initial color of the first turtle.
 - The value of COLOR-INC is added to the turtles color anytime a new turtle hatches.
 
 The example buttons and the SETUP button choose the rules for a fractal.  Each of the example buttons sets up the world to draw the fractal of the same name.  The SETUP button sets up the world for drawing the rules found in the applyRules procedure in the Code tab.
@@ -494,10 +494,10 @@ all of the other models in the Fractals section of the Models Library (under Mat
 
 You may find more information on L-System fractals in the following locations:
 
-This site offers a nice history and explanation of L-system fractals as well as quit a few classic examples of L-systems.  
+This site offers a nice history and explanation of L-system fractals as well as quit a few classic examples of L-systems.
 http://spanky.triumf.ca/www/fractint/LSYS/tutor.html
 
-This site offers an introduction to fractals, including L-system fractals as well as others.  
+This site offers an introduction to fractals, including L-system fractals as well as others.
 http://www.cs.wpi.edu/~matt/courses/cs563/talks/cbyrd/pres1.html
 
 _The Fractal Geometry of Nature_ by Benoit Mandelbrot

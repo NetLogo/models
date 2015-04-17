@@ -23,11 +23,11 @@ to setup
   ; note that slider's maximum value is 2500 which is a little less than the total number of patches
   ask n-of number patches
     [ sprout 1 ]
-    
+
   ;; assign a color to each turtle from the list of our colors
   ask turtles
-    [ set color (item (random number-of-ethnicities) colors) 
-      set my-%-similar-wanted random %-similar-wanted] 
+    [ set color (item (random number-of-ethnicities) colors)
+      set my-%-similar-wanted random %-similar-wanted]
 
   update-variables
   reset-ticks
@@ -62,14 +62,14 @@ to update-turtles
   ask turtles [
     ;; in next two lines, we use "neighbors" to test the eight patches
     ;; surrounding the current patch
-    
+
     ;; count the number of my neighbors that are the same color as me
     set similar-nearby count (turtles-on neighbors)
       with [color = [color] of myself]
-      
-    ;; count the total number of neighbors 
+
+    ;; count the total number of neighbors
     set total-nearby count (turtles-on neighbors)
-    
+
     ;; I’m happy if there are at least the minimal number of same-colored neighbors
     set happy? similar-nearby >= ( my-%-similar-wanted * total-nearby / 100 )
   ]
@@ -295,9 +295,9 @@ In the UPDATE-GLOBALS procedure, note the use of SUM, COUNT and WITH to compute 
 
 ## HOW TO CITE
 
-This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling 
+This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling
  Natural, Social and Engineered Complex Systems with NetLogo."
- 
+
 If you mention this model or the NetLogo software in a publication, we ask that you include the cites.
 
 For the model itself:
@@ -314,7 +314,7 @@ Please cite the NetLogo software as:
 
 Please cite the textbook as:
 
-* Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling 
+* Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling
  Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
 ## CREDITS AND REFERENCES
@@ -323,7 +323,7 @@ This model is adapted from:
 
 Wilensky, U. (1997). NetLogo Segregation model. http://ccl.northwestern.edu/netlogo/models/Segregation. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
-Schelling, T. (1978). Micromotives and Macrobehavior. New York: Norton.  
+Schelling, T. (1978). Micromotives and Macrobehavior. New York: Norton.
 See also a recent Atlantic article:   Rauch, J. (2002). Seeing Around Corners; The Atlantic Monthly; April 2002;Volume 289, No. 4; 35-48. http://www.theatlantic.com/issues/2002/04/rauch.htm
 @#$#@#$#@
 default

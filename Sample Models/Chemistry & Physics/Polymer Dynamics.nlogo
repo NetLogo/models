@@ -189,8 +189,8 @@ In order for the model to operate correctly on a torus, the dimensions of the wo
 
 ## RELATED MODELS
 
-CA 1D Elementary - an introduction to cellular automata  
-Life Turtle-Based - a cellular automaton implemented, like this one, using turtles  
+CA 1D Elementary - an introduction to cellular automata
+Life Turtle-Based - a cellular automaton implemented, like this one, using turtles
 Radical Polymerization - another model about polymers
 
 ## CREDITS AND REFERENCES

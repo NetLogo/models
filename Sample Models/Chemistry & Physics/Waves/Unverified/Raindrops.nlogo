@@ -233,7 +233,7 @@ The greater the surface tension, the slower waves travel through the water.  Thi
 
 SETUP initializes the model.  GO continuously propagates waves in the water while listening for drops caused by the user.  To release a drop, hold your mouse button down briefly on any point within the pond (the blue region).  That point is where the drop will land.
 
-The FRICTION slider controls the amount of force that pulls the water particles back towards ground level, dampening waves.  SURFACE-TENSION controls how much effect the neighbors of a water particle exert on it vertically. 
+The FRICTION slider controls the amount of force that pulls the water particles back towards ground level, dampening waves.  SURFACE-TENSION controls how much effect the neighbors of a water particle exert on it vertically.
 
 The IMPACT slider determines how much force a drop carries.  Drops with greater impact cause larger waves.
 

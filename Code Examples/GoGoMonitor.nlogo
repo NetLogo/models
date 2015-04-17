@@ -714,7 +714,7 @@ TEXTBOX
 280
 780
 481
-Check if the USB cable is connected to the computer and to the GoGo Board, and that the GoGo board is on. Most connection problems are solved by:\n(1) Closing NetLogo.\n(2) Turning the GoGo Board off.\n(3) Waiting 5 seconds.\n(4) Turning the board back on.\n(5) Waiting 5 seconds.\n(6) Opening NetLogo again.\n\nRefer to the NetLogo documentation for more information.  
+Check if the USB cable is connected to the computer and to the GoGo Board, and that the GoGo board is on. Most connection problems are solved by:\n(1) Closing NetLogo.\n(2) Turning the GoGo Board off.\n(3) Waiting 5 seconds.\n(4) Turning the board back on.\n(5) Waiting 5 seconds.\n(6) Opening NetLogo again.\n\nRefer to the NetLogo documentation for more information.
 11
 0.0
 1

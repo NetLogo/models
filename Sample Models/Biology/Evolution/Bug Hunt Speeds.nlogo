@@ -114,7 +114,7 @@ to check-caught
 end
 
 to set-color  ;; turtle procedure
-  ifelse show-colors? 
+  ifelse show-colors?
     [ set color item (speed - 1) [violet blue green brown orange red] ]
     [ set color gray]
 end
@@ -373,7 +373,7 @@ Bug Hunt Camouflage
 
 ## CREDITS AND REFERENCES
 
-Inspired by EvoDots software:  
+Inspired by EvoDots software:
 http://faculty.washington.edu/~herronjc/SoftwareFolder/EvoDots.html
 @#$#@#$#@
 default

@@ -297,17 +297,17 @@ When the model is run, the right chart never reaches the top before the left cha
 
 ## HOW TO USE IT
 
-Switches:  
+Switches:
 STOP-AT-TOP? -- if 'On', stops the model when the right side of the display bar chart (the dice totals) has reached the top.  If 'Off', then both stacks "bump" down one row when a column hits the top.  (The plots on either side of the view are always scaled to show all of the data, even if the view is only showing the top portion.)
 
-Buttons:  
+Buttons:
 SETUP -- prepares the model for running.
 
 GO -- runs the model.  In a single run of GO, a random pair of dice appears, is copied, and then the copies fall into their stacks.  Also, the plots are updated.
 
-Plots:  
-SINGLE DICE -- plots the number of occurrences of each die-number (1-6).  
-PAIR SUMS -- plots the number of occurrences of each die-total (2-12).  
+Plots:
+SINGLE DICE -- plots the number of occurrences of each die-number (1-6).
+PAIR SUMS -- plots the number of occurrences of each die-total (2-12).
 The plots show the same information as the view, except that the plots always show all of the data, while if the STOP-AT-TOP? switch is off, the view only shows the tops of the stacks.
 
 ## PEDAGOGICAL NOTE

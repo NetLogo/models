@@ -355,27 +355,27 @@ When a metal is stressed, such as when it is pulled from both ends, deformations
 
 ## HOW TO USE IT
 
-Buttons:  
-SETUP: Resets the simulation, and sets the metal to the correct size.  
-GO-ONCE: Runs the simulation for one time step.  
+Buttons:
+SETUP: Resets the simulation, and sets the metal to the correct size.
+GO-ONCE: Runs the simulation for one time step.
 GO: Runs the simulation continuously until either the GO button is pressed again, or all of the atoms are frozen.
 
-Sliders:  
-BOX-WIDTH: How many atoms wide the metal is.  
-FILL-PERCENTAGE: What percentage of the box contains atoms.  Smaller values allow for more movement.  
-ROOM-TEMP: Varies the temperature of the room.  
-INIT-METAL-TEMP: Varies the initial temperature of the metal.  
+Sliders:
+BOX-WIDTH: How many atoms wide the metal is.
+FILL-PERCENTAGE: What percentage of the box contains atoms.  Smaller values allow for more movement.
+ROOM-TEMP: Varies the temperature of the room.
+INIT-METAL-TEMP: Varies the initial temperature of the metal.
 MELTING-TEMP: Varies the temperature at which the metal solidifies.
 
-Monitors:  
+Monitors:
 AVE-METAL-TEMP: Monitors the average temperature of all the atoms.
 
-Switches:  
+Switches:
 HISTOGRAM?: Turns the histogram plotting on and off.  Turning off the histogram speeds up the model.
 
-Graphs:  
-AVERAGE METAL TEMPERATURE: Plots the average temperature of all the metal over time.  
-NUMBER SOLIDIFIED: Plots how many metal atoms are below the melting temperature over time.  
+Graphs:
+AVERAGE METAL TEMPERATURE: Plots the average temperature of all the metal over time.
+NUMBER SOLIDIFIED: Plots how many metal atoms are below the melting temperature over time.
 TEMPERATURES:  Histograms how many atoms are in each temperature range.  (Note that the colors of the histogram match the actual colors of the atoms.)
 
 ## THINGS TO TRY
@@ -402,7 +402,7 @@ With every time step, each atom's temperature changes to the average of everythi
 
 ## RELATED MODELS
 
-Crystallization Basic  
+Crystallization Basic
 Crystallization Directed
 
 ## CREDITS AND REFERENCES

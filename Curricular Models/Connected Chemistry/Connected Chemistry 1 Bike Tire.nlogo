@@ -4,7 +4,7 @@ globals
   max-tick-advance-amount             ;; the largest tick-advance-amount is allowed to be
   box-x box-y                ;; patch coords of box's upper right corner
   total-particle-number
-  maxparticles  
+  maxparticles
 ]
 
 breed [ particles particle]
@@ -53,7 +53,7 @@ end
 to move  ;; particle procedure
   let next-patch patch-ahead (speed * tick-advance-amount)
   ;; die if we're about to wrap...
-  if [pxcor] of next-patch = max-pxcor or [pxcor] of next-patch = min-pxcor 
+  if [pxcor] of next-patch = max-pxcor or [pxcor] of next-patch = min-pxcor
     or [pycor] of next-patch = max-pycor or [pycor] of next-patch = min-pycor [die]
   if next-patch != patch-here
     [ set last-collision nobody ]
@@ -231,7 +231,7 @@ end
 to paint-particles [n x y]
    ifelse ( count particles  <=  (maxparticles - n) )
    [
-     create-particles n 
+     create-particles n
      [
         set shape  "circle"
         setxy x y

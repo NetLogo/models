@@ -185,16 +185,16 @@ Over many runs, the histogram begins to look bell-shaped, just like the Combinat
 
 ## HOW TO USE IT
 
-Buttons:  
-'Setup; - initializes the variables and erases the plot.  
-'Go' - activates the procedures just once.  So you will get a single 9-block and a short column in the histogram.  
+Buttons:
+'Setup; - initializes the variables and erases the plot.
+'Go' - activates the procedures just once.  So you will get a single 9-block and a short column in the histogram.
 'Go'  - activates the procedures.  It is set to work "forever," that is, it will repeat until you press it again.
 
-Switches:  
+Switches:
 'one-by-one-choices?' - when On, each square will settle on its color at a different moment. Also, there will be a pause between 9-blocks, as though the lights were switched off for a moment. This is meant to remind us that even though we are looking at 9-blocks, actually each square chooses its color independently of other squares. Notice how the monitor '# target color' updates per each target color that is added.
 
-Monitors:  
-'# target color' - shows how many patches are green.  
+Monitors:
+'# target color' - shows how many patches are green.
 'how many trials' - shows how many times the model has chosen random 9-blocks in this experiment (so it's also showing how many items we have in the list that is being plotted every run).
 
 ## THINGS TO NOTICE
@@ -213,8 +213,8 @@ Look at the histogram as it grows.  What happens when it reaches the top?  More 
 
 ## EXTENDING THE MODEL
 
-In many ways, the Stochastic Patchwork model extends this model.  However, there are other ways of extending this model.  For instance, you may want to plot different aspects of the probabilistic experiment, to answer such questions as:  
-- how often do we get the same combinations twice one after the other?  
+In many ways, the Stochastic Patchwork model extends this model.  However, there are other ways of extending this model.  For instance, you may want to plot different aspects of the probabilistic experiment, to answer such questions as:
+- how often do we get the same combinations twice one after the other?
 - are there particular combinations you like?  You could add code to see how long it takes the model to find these combinations (as in the Random Combinations and Permutations model).
 
 ## CREDITS AND REFERENCES
