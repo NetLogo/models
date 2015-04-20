@@ -1303,6 +1303,7 @@ Circle -2674135 true false 156 156 108
 @#$#@#$#@
 NetLogo 5.2.0-RC4
 @#$#@#$#@
+need-to-manually-make-preview-for-this-model
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
