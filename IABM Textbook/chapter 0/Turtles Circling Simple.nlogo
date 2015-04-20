@@ -487,11 +487,6 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
 NetLogo 5.2.0
 @#$#@#$#@
-setup
-repeat 400 [ all-circle ]
-ask turtles [ pen-down ]
-set radius 20
-repeat 200 [ all-circle ]
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
