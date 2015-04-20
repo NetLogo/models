@@ -10,6 +10,7 @@ to setup
     ; create a list with five random commands from the list
     set strategy n-values 5 [ one-of commands ]
   ]
+  reset-ticks
 end
 
 to go
@@ -18,6 +19,7 @@ to go
     ; commands and 'run' each of them
     foreach strategy [ run ? ]
   ]
+  tick
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -41,8 +43,8 @@ GRAPHICS-WINDOW
 16
 -16
 16
-0
-0
+1
+1
 1
 ticks
 30.0
