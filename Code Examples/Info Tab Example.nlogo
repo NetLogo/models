@@ -78,7 +78,7 @@ A heading begins with one or more hash marks (`#`). First level headings get one
 #### Example
 
     This is a paragraph. There are no spaces before the word 'This'.
-    
+
     This is another paragraph. The first line has two sentences.
     The entire paragraph has two lines and three sentences.
 
@@ -192,7 +192,7 @@ If you want to use your own text for the link, here's how:
 
 ### Local links
 
-It is also possible to link to a page on your computer, instead of a page somewhere on the Internet. 
+It is also possible to link to a page on your computer, instead of a page somewhere on the Internet.
 
 Local links have this form:
 

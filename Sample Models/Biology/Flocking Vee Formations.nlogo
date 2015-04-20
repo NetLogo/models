@@ -358,20 +358,20 @@ Each bird starts out with a random position and heading in the world. If the bir
 
 ## HOW TO USE IT
 
-NUMBER-OF-BIRDS sets the number of birds in the world.  
+NUMBER-OF-BIRDS sets the number of birds in the world.
 Use SETUP to populate the world with birds, and GO to run the model.
 
-Vision Parameters:  
+Vision Parameters:
 VISION-DISTANCE and VISION-CONE defines the radius and angle span, respectively, of the area within which a bird can see another bird. A VISION-CONE of 120 means that the bird can see up to 60 degrees to its right and 60 degrees to its left. OBSTRUCTION-CONE defines the angle span for which a bird considers its vision to be obstructed by another bird.
 
-Motion Parameters:  
-BASE-SPEED defines the speed that birds will fly if they are not speeding up to catch another bird that they see, or slowing down to avoid colliding with a bird.  
-SPEED-CHANGE-FACTOR is the factor by which birds increase or decrease their speed, given as a fraction of their base speed.  A BASE-SPEED of 1 with a SPEED-CHANGE-FACTOR of 0.25 means that birds will travel at speeds of 0.75 (slow speed), 1.0 (normal speed), or 1.25 (fast speed).  
-UPDRAFT-DISTANCE defines how near to another bird one must be to take advantage of its upwash.  
-TOO-CLOSE defines how close one bird can be to another bird before slowing down to avoid collision.  
+Motion Parameters:
+BASE-SPEED defines the speed that birds will fly if they are not speeding up to catch another bird that they see, or slowing down to avoid colliding with a bird.
+SPEED-CHANGE-FACTOR is the factor by which birds increase or decrease their speed, given as a fraction of their base speed.  A BASE-SPEED of 1 with a SPEED-CHANGE-FACTOR of 0.25 means that birds will travel at speeds of 0.75 (slow speed), 1.0 (normal speed), or 1.25 (fast speed).
+UPDRAFT-DISTANCE defines how near to another bird one must be to take advantage of its upwash.
+TOO-CLOSE defines how close one bird can be to another bird before slowing down to avoid collision.
 MAX-TURN sets the maximum number of degrees that a bird can turn during a single tick.
 
-Visualization Parameters:  
+Visualization Parameters:
 If SHOW-UNHAPPY? is switched ON, birds that have not satisfied the conditions outlined in the HOW IT WORKS section are colored red, and all the birds that have are colored white. If SHOW-UNHAPPY? is OFF, birds are colored varying shades of yellow.
 
 ## THINGS TO NOTICE
@@ -408,7 +408,7 @@ Flocking
 
 ## CREDITS AND REFERENCES
 
-This model is loosely based on rules introduced in the paper:  
+This model is loosely based on rules introduced in the paper:
 Nathan, A. & Barbosa, V. C. (2008). V-like formations in flocks of artificial birds. Artificial Life, 14(2), pp. 179-188. (available at http://arxiv.org/pdf/cs/0611032)
 @#$#@#$#@
 default

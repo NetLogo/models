@@ -3,14 +3,14 @@ breed [movers mover]       ;; these are the turtles that move around, forming th
 
 to setup
   clear-all
-  
+
   ;; create the seeds and randomly distribute them
   create-seeds num-seeds [
     set shape "circle"
     set size 2
     setxy random-xcor random-ycor
   ]
-  
+
   ;; create the turtles and randomly distribute them
   create-movers num-turtles [
     set size .75
@@ -26,9 +26,9 @@ end
 
 to go
   separate-seeds
-  run (word "go-" go-mode)    
+  run (word "go-" go-mode)
   ;; the following line is used in place of tick to make the turtles
-  ;; move further in each tick, resulting in them appearing to move faster  
+  ;; move further in each tick, resulting in them appearing to move faster
   tick-advance .2
 end
 
@@ -50,11 +50,11 @@ to-report nearby-seeds ;; turtle reporter
   report seeds with-min [ precision (distance myself) 1 ]
 end
 
-;; have the turtles move, but not change their heading based on the nearest seed 
+;; have the turtles move, but not change their heading based on the nearest seed
 to go-random
   ask movers [
-    ;; the turtle first finds the seeds that are the closest to it 
-    ;; (rounding the distance to the nearest tenth), next, it checks to see how many 
+    ;; the turtle first finds the seeds that are the closest to it
+    ;; (rounding the distance to the nearest tenth), next, it checks to see how many
     ;; seeds are closest. If there is only one, the turtle then moves forward.
     ;; If there is more than one, it stops as it has found a midpoint between seeds.
     if count nearby-seeds = 1 [ fd .04 ]
@@ -65,7 +65,7 @@ end
 ;; have the turtles move, changing their heading based on the nearest seed
 to go-organized
   ask movers [
-    ;; the turtle first finds the seeds that are the closest to it 
+    ;; the turtle first finds the seeds that are the closest to it
     ;; (rounding the distance to the nearest tenth)
     let nearby nearby-seeds
 
@@ -74,7 +74,7 @@ to go-organized
       face one-of nearby
       bk .04
       ;; Here we ask the turtle to slightly change its direction to introduce some
-      ;;   noise into the turtle's movement    
+      ;;   noise into the turtle's movement
       rt .5 - random-float 1
     ]
   ]
@@ -128,7 +128,7 @@ end
 to add-turtles
   if mouse-down? [
     create-movers 1 [
-      set size .75  
+      set size .75
       setxy mouse-xcor mouse-ycor
     ]
     go
@@ -270,19 +270,19 @@ This model draws a Voronoi diagram by using turtles to define the boundaries bet
 
 ## HOW IT WORKS
 
-At setup, a small number of seeds (circles) and a large number of turtles are randomly placed in the view. When the go button is clicked, the turtles begin to move. While they move they keep track of the seeds around them, and when they have two or more seeds that are equidistant to them, and are the closest seeds to them, they stop moving. As a result of this behavior, the turtles stop moving along the borders between seed regions, resulting in a Voronoi diagram. 
+At setup, a small number of seeds (circles) and a large number of turtles are randomly placed in the view. When the go button is clicked, the turtles begin to move. While they move they keep track of the seeds around them, and when they have two or more seeds that are equidistant to them, and are the closest seeds to them, they stop moving. As a result of this behavior, the turtles stop moving along the borders between seed regions, resulting in a Voronoi diagram.
 
-This is one of two voronoi diagram models in the models library, but the two are quite different. In the other model, the voronoi diagram is created by having each patch look to its nearest seed to decide what color to be, which produces the colored polygons. In this model on the other hand, the agents move around trying to locate positions where they do not have a single nearest seed. In other words, they are trying to locate a point that is not part of a polygon at all. In trying to find these locations, the turtles collectively end up defining the boundaries of the polygons in the diagram. The polygons emerge from the lines created by the turtles when they stop moving. 
+This is one of two voronoi diagram models in the models library, but the two are quite different. In the other model, the voronoi diagram is created by having each patch look to its nearest seed to decide what color to be, which produces the colored polygons. In this model on the other hand, the agents move around trying to locate positions where they do not have a single nearest seed. In other words, they are trying to locate a point that is not part of a polygon at all. In trying to find these locations, the turtles collectively end up defining the boundaries of the polygons in the diagram. The polygons emerge from the lines created by the turtles when they stop moving.
 
 ## HOW TO USE IT
 
 Use the NUM-SEEDS slider to choose how many points you want and the NUM-TURTLES slider to determine how many turtles to add to the model, then press SETUP.  The model will place seeds and turtles randomly in the view. When you press the GO button, you will see the turtles start to move around the screen, stopping when they are equidistant from their closest seeds. As more turtles come to rest, a Voronoi diagram emerges.
 
-The GO-MODES chooser lets you define how the turtles will move. The RANDOM mode will have the turtles move based on the random direction they were facing at setup time. The ORGANIZED mode will have each turtle face the seed that it is closest to, then move away from it. In both modes, the turtles follow the same rules for deciding when to stop moving as discussed above in the How It Works section. 
+The GO-MODES chooser lets you define how the turtles will move. The RANDOM mode will have the turtles move based on the random direction they were facing at setup time. The ORGANIZED mode will have each turtle face the seed that it is closest to, then move away from it. In both modes, the turtles follow the same rules for deciding when to stop moving as discussed above in the How It Works section.
 
 Keeping the GO button pressed, you can interact with the model by selecting an option from the MOUSE-ACTIONS chooser, and clicking the DO MOUSE ACTION button. There are four mouse actions defined for the model. The ADD-NEW-SEEDs option allows you to add new seeds to the model. The REMOVE-SEEDS option lets you click on existing seeds to remove them. The MOVE-SEEDS option lets you click and drag seeds around the screen. Finally, the ADD-TURTLES option allows you to add more turtles to the model. As you interact with the model, you will see the polygons redraw based on the changing seed arrangement.
 
-If you unclick the GO button, you can still make changes to the seeds. When you press the GO button again, you will see the turtles begin to move again, creating a new Voronoi diagram based around the changes you have made.  
+If you unclick the GO button, you can still make changes to the seeds. When you press the GO button again, you will see the turtles begin to move again, creating a new Voronoi diagram based around the changes you have made.
 
 ## THINGS TO NOTICE
 
@@ -290,25 +290,25 @@ The lines that are formed by the turtles between the seeds are exactly midway be
 
 How many sides do the polygons formed by the turtles typically have?  (You may want to ignore the polygons around the edges.)
 
-What is the difference between the RANDOM and ORGANIZED turtle behaviors? Do the different behaviors result in different diagrams? 
+What is the difference between the RANDOM and ORGANIZED turtle behaviors? Do the different behaviors result in different diagrams?
 
 Looking at the code tab, the go-random and go-organized procedures control the turtle behavior. Both of these methods are very short, the RANDOM go-mode only has 3 lines! Can you figure out what these 3 lines are doing? Are you surprised that so few lines can produce such a complicated diagram?
 
 ## THINGS TO TRY
 
-Experiment with the effect of moving the points around, adding points, and removing points.  
+Experiment with the effect of moving the points around, adding points, and removing points.
 
 The turtles form polygons around the seeds - can you arrange the seeds to make the turtles form a triangle? How about a square? Or an octagon?
 
 What happens if you arrange the seeds in a grid? Or a single straight line?
 
-Does it always take the same amount of time for the turtles to find the boundary between points? Can you arrange the seeds in such a way that it takes the turtles a long time to find a place where they are equidistant from two points? 
+Does it always take the same amount of time for the turtles to find the boundary between points? Can you arrange the seeds in such a way that it takes the turtles a long time to find a place where they are equidistant from two points?
 
 ## EXTENDING THE MODEL
 
 Currently, the seeds and turtles are randomly distributed. By systematically placing the seeds, you can create pattern with the turtles. Add buttons that arrange the seeds in patterns that create specific shapes in the model.
 
-You could imagine systems where there could be different size seeds, and turtles would have a strong or weaker attraction to the seeds based on the seeds size. Implement a model that has variable size seeds and replaces the distance calculation with an attraction calculation based on the seeds size. How does this change the resulting Voronoi diagrams? 
+You could imagine systems where there could be different size seeds, and turtles would have a strong or weaker attraction to the seeds based on the seeds size. Implement a model that has variable size seeds and replaces the distance calculation with an attraction calculation based on the seeds size. How does this change the resulting Voronoi diagrams?
 
 ## NETLOGO FEATURES
 
@@ -318,7 +318,7 @@ The `mouse-down?`, `mouse-xcor`, and `mouse-ycor` primitives are used so the use
 
 The go method uses the `run` command to decide which behavior the turtles should follow by reading the go-mode chooser. Similarly, we use the `run` command to decide which mouse action to execute. This command allows one button (the DO MOUSE ACTION button) to produce different behaviors based on the value of the MOUSE-ACTION chooser.
 
-`tick-advance` is used in place of tick to allow the go-mode methods to be executed multiple times per whole tick. This results in the view updating less frequently giving the turtles the appearance of moving faster. 
+`tick-advance` is used in place of tick to allow the go-mode methods to be executed multiple times per whole tick. This results in the view updating less frequently giving the turtles the appearance of moving faster.
 
 We use the `in-radius` command to figure out if any of the seeds are too close together.
 

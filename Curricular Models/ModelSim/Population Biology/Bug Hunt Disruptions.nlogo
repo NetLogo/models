@@ -24,7 +24,7 @@ globals [
   dirt-color
   disease-age
   disease-color
-  
+
   regions
 ]
 
@@ -50,7 +50,7 @@ patches-own [
 ]
 
 embers-own [
- current-age 
+ current-age
 ]
 
 disruptions-own [

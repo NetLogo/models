@@ -83,7 +83,7 @@ to go
     calculate-instant-pressure
 
     if floor ticks > floor (ticks - tick-advance-amount) [
-       ifelse any? particles 
+       ifelse any? particles
           [ set wall-hits-per-particle mean [wall-hits] of particles  ]
           [ set wall-hits-per-particle 0 ]
        ask particles  [ set wall-hits 0 ]
@@ -95,7 +95,7 @@ to go
     ask flashes with [ticks - birthday > 0.4] [
       die
     ]
-    
+
 
     ifelse labels?
       [turn-labels-on]
@@ -134,7 +134,7 @@ end
 to calculate-instant-pressure
   ;; by summing the momentum change for each particle,
   ;; the wall's total momentum change is calculated
-  set instant-pressure 15 * sum [momentum-instant] of particles 
+  set instant-pressure 15 * sum [momentum-instant] of particles
   output-print precision instant-pressure 1
   ask particles
     [ set momentum-instant 0 ]  ;; once the contribution to momentum has been calculated
@@ -147,7 +147,7 @@ to calculate-pressure
   ;; by summing the momentum change for each particle,
   ;; the wall's total momentum change is calculated
 
-  set pressure 15 * sum [momentum-difference] of particles 
+  set pressure 15 * sum [momentum-difference] of particles
   set pressure-history lput pressure but-first pressure-history
 
   ask particles
@@ -191,11 +191,11 @@ to bounce  ;; particle procedure
 
 
   ask patch new-px new-py
-    [ sprout 1 [ 
+    [ sprout 1 [
                  set breed flashes
                  set birthday ticks
                  set color yellow - 3 ] ]
-      
+
 end
 
 
@@ -416,7 +416,7 @@ to add-particles-side
       if particles-to-add > 0 [
 
        create-particles particles-to-add
-        [ 
+        [
           set shape "circle"
           setxy (- box-edge) 0
           set heading 90 ;; east

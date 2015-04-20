@@ -302,9 +302,9 @@ Use the NUMBER-OF-TURTLES slider to select how many turtles will participate in 
 
 Use the NUMBER-OF-STEPS slider to decide how many steps a turtle will take on each turn.
 
-How steps are implemented:  
-- If NUMBER-OF-STEPS is set to 1 and a turtle is going left, it will go left one step and then go forward one step. (Imagine a turtle walking along the bottom and left edge of a 1 x 1 square.)  
-- If NUMBER-OF-STEPS is set to 4 and a turtle is going left, it will go left four steps and then go forward four steps. (Imagine a turtle walking along the bottom and left edge of a 4 x 4 square.)  
+How steps are implemented:
+- If NUMBER-OF-STEPS is set to 1 and a turtle is going left, it will go left one step and then go forward one step. (Imagine a turtle walking along the bottom and left edge of a 1 x 1 square.)
+- If NUMBER-OF-STEPS is set to 4 and a turtle is going left, it will go left four steps and then go forward four steps. (Imagine a turtle walking along the bottom and left edge of a 4 x 4 square.)
 - Each of the above movements would be considered a single "pace."
 
 Use the TURTLE-TRAILS? switch to have the turtles put their pens down to trace their paths and show the part of the lattice they are covering.  This switch must be set before the SETUP button is pressed.
@@ -325,8 +325,8 @@ The gray bar in the middle of the world is at xcor = 0.  This is where all the t
 
 Try to answer the questions below before running the simulations.
 
-Record your predictions.  Compare your predicted results with the actual results.  
-- What reasoning led you to correct predictions?  
+Record your predictions.  Compare your predicted results with the actual results.
+- What reasoning led you to correct predictions?
 - What assumptions that you made need to be revised?
 
 Try different numbers of turtles while keeping all other slider values the same.

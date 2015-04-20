@@ -653,12 +653,12 @@ The particles are modeled as hard balls with no internal energy except that whic
 
 Coloring of the particles is with respect to one speed (10).  Particles with a speed less than 5 are blue, ones that are more than 15 are red, while all in those in-between are green.
 
-Particles behave according to the following rules:  
-1. A particle moves in a straight line without changing its speed, unless it collides with another particle or bounces off the wall.  
-2. Two particles "collide" if they find themselves on the same patch (the world is composed of a grid of small squares called patches).  
-3. A random axis is chosen, as if they are two balls that hit each other and this axis is the line connecting their centers.  
-4. They exchange momentum and energy along that axis, according to the conservation of momentum and energy.  This calculation is done in the center of mass system.  
-5. Each turtle is assigned its new velocity, energy, and heading.  
+Particles behave according to the following rules:
+1. A particle moves in a straight line without changing its speed, unless it collides with another particle or bounces off the wall.
+2. Two particles "collide" if they find themselves on the same patch (the world is composed of a grid of small squares called patches).
+3. A random axis is chosen, as if they are two balls that hit each other and this axis is the line connecting their centers.
+4. They exchange momentum and energy along that axis, according to the conservation of momentum and energy.  This calculation is done in the center of mass system.
+5. Each turtle is assigned its new velocity, energy, and heading.
 6. If a turtle finds itself on or very close to a wall of the container, it "bounces" -- that is, reflects its direction and keeps its same speed.
 
 Pressure is defined as the force per unit area (or length in this two-dimensional model).  Pressure is calculated by adding up the momentum transferred to the walls of the box by the particles when they bounce off and divided by the length of the wall, which they hit.
@@ -669,7 +669,7 @@ Initially, the particles are not moving, and cannot hit the wall. Therefore the 
 
 ### Initial settings
 
-- BOX-SIZE: The size of the box as a percentage of the world-width  
+- BOX-SIZE: The size of the box as a percentage of the world-width
 - INITIAL-NUMBER-PARTICLES: the number of gas particles in the box when the simulation starts
 
 The SETUP button puts in the initial conditions you have set with the sliders.  Be sure to wait until the SETUP button stops before pushing GO.
@@ -678,22 +678,22 @@ The GO button runs the code again and again.  This is a "forever" button.
 
 ### Additional settings
 
-COLLIDE?: determines whether or not the particles collide among themselves  
-ADD PARTICLES: pressing this button adds particles to the container through a valve, before and while the model is running  
+COLLIDE?: determines whether or not the particles collide among themselves
+ADD PARTICLES: pressing this button adds particles to the container through a valve, before and while the model is running
 NUMBER-TO-ADD: number of particles that are added to the box with each press of the "ADD PARTICLES" button
 
 ### Monitors
 
-- NUMBER OF PARTICLES: the number of particles in the box  
-- PRESSURE: the pressure of the gas particles in the box  
-- WALL HITS PER PARTICLE:  
-- AVERAGE SPEED: average speed of the particles.  
+- NUMBER OF PARTICLES: the number of particles in the box
+- PRESSURE: the pressure of the gas particles in the box
+- WALL HITS PER PARTICLE:
+- AVERAGE SPEED: average speed of the particles.
 - AVERAGE ENERGY: average kinetic energy of the particles.
 
 ### Plots
 
-- PRESSURE: plots the pressure in the box  
-- PARTICLE COUNT: plots the number of particles in the box  
+- PRESSURE: plots the pressure in the box
+- PARTICLE COUNT: plots the number of particles in the box
 - WALL HITS PER PARTICLE: plots the number of times a particle hits a wall every big tick
 
 ## THINGS TO NOTICE

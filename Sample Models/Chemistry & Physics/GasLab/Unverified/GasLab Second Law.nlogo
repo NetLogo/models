@@ -458,30 +458,30 @@ This model simulates the Second Law of Thermodynamics via the behavior of gas pa
 
 Particles are modeled as perfectly elastic particles with no energy except their kinetic energy --- that which is due to their motion.  Collisions between particles are elastic.  Particles are colored according to speed -- blue for slow, green for medium, and red for high speeds.
 
-The exact way two particles collide is as follows:  
-1. Two turtles "collide" if they find themselves on the same patch.  
-2. A random axis is chosen, as if they are two balls that hit each other and this axis is the line connecting their centers.  
-3. They exchange momentum and energy along that axis, according to the conservation of momentum and energy.  This calculation is done in the center of mass system.  
-4. Each turtle is assigned its new velocity, energy, and heading.  
+The exact way two particles collide is as follows:
+1. Two turtles "collide" if they find themselves on the same patch.
+2. A random axis is chosen, as if they are two balls that hit each other and this axis is the line connecting their centers.
+3. They exchange momentum and energy along that axis, according to the conservation of momentum and energy.  This calculation is done in the center of mass system.
+4. Each turtle is assigned its new velocity, energy, and heading.
 5. If a turtle finds itself on or very close to a wall of the container, it "bounces" -- that is, reflects its direction and keeps its same speed.
 
 The propeller is modeled such that it shows the effect of the flux of the particles between the two sides of the box, but does not effect or interact with the particles as they pass through.  When particles move from the left side to the right side they accelerate the propeller clockwise, and likewise, when particles move from the right side to the left side they accelerate the propeller counter-clockwise.
 
 ## HOW TO USE IT
 
-SETUP: sets up the initial conditions and distributes the particles in one of three different modes.  Be sure to wait till the Setup button stops before pushing go.  
-CORNER: all the particles are created in the lower left corner of the box and diffuse outwards from there.  
-ONE SIDE: all the particles are created in the left side of the box evenly distributed.  
-BOTH SIDES: all the particles are created evenly distributed throughout the entire box.  
-GO: runs the code again and again.  This is a "forever" button.  
-NUMBER: the number of gas particles  
+SETUP: sets up the initial conditions and distributes the particles in one of three different modes.  Be sure to wait till the Setup button stops before pushing go.
+CORNER: all the particles are created in the lower left corner of the box and diffuse outwards from there.
+ONE SIDE: all the particles are created in the left side of the box evenly distributed.
+BOTH SIDES: all the particles are created evenly distributed throughout the entire box.
+GO: runs the code again and again.  This is a "forever" button.
+NUMBER: the number of gas particles
 PROPELLER-RADIUS: the radius of the propeller in the opening between the sides of the box.  The size of the opening is based on the size of the propeller.
 
 ### About the plots
 
-PARTICLE COUNTS: plots the number of particles on each side of the box.  
-PROPELLER VELOCITY: plots the velocity of the propeller: positive is clockwise, negative is counter-clockwise.  
-PRESSURES: plots the pressure of the gas on each side of the box.  
+PARTICLE COUNTS: plots the number of particles on each side of the box.
+PROPELLER VELOCITY: plots the velocity of the propeller: positive is clockwise, negative is counter-clockwise.
+PRESSURES: plots the pressure of the gas on each side of the box.
 ENTROPY: plots a measure of the entropy of the system.  As the particles become more evenly and randomly distributed the entropy will increase.
 
 ## THINGS TO NOTICE

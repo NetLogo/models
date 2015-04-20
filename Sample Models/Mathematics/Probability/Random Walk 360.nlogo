@@ -269,13 +269,13 @@ Use the RING-RADIUS slider to set the incremental distance between the distance 
 
 ### Plots
 
-"Average Distance"  
+"Average Distance"
 - measures the average distance over all turtles, from home (the origin at 0,0) to their current coordinates.
 
-"Average X-Distance"  
+"Average X-Distance"
 - measures the average distance over all turtles along the x-axis away from the origin (x = 0).
 
-"Std.Dev. of Distance"  
+"Std.Dev. of Distance"
 - measures the standard deviation of all turtles' true distance from home to their current position.  NetLogo's standard deviation primitive is used.
 
 Note that xcor and ycor values are stored in such a way that turtles are tracked even if they move outside the boundaries of the world.  These 'out of bounds' values are used to measure distances.  They are stored at turtle variable xc (for xcor) and yc (for ycor).
@@ -312,9 +312,9 @@ To think about smoothness of the plots, notice how much the lines move up and do
 
 To think about slope of the plots, consider whether the plot appears to be going 'uphill' or 'downhill' and consider whether the 'hill' is steep or flat.
 
-What do you notice about the smoothness and slope of the plots?  
-- Are they smooth?  Why or why not?  
-- Are they steep?  Why or why not?  
+What do you notice about the smoothness and slope of the plots?
+- Are they smooth?  Why or why not?
+- Are they steep?  Why or why not?
 - For a given plot, is its steepness the same at the far edges and at the center?  Why or why not?
 
 Does the plot have any symmetry?  Would you expect it to?  Why?
@@ -323,18 +323,18 @@ Does a single line plot ever change between positive and negative slopes?  Why o
 
 ## THINGS TO TRY
 
-Try to answer the following questions before running the simulations.  Record your predictions.  Compare your predicted results with the actual results.  
-- What reasoning led you to correct predictions?  
+Try to answer the following questions before running the simulations.  Record your predictions.  Compare your predicted results with the actual results.
+- What reasoning led you to correct predictions?
 - What assumptions that you made need to be revised?
 
-Try different numbers of turtles while keeping all other slider values the same.  
-- What happens to the plot's smoothness and slope when the number of turtles is increased?  
-- What happens to the plot's smoothness and slope when the number of turtles is decreased?  
+Try different numbers of turtles while keeping all other slider values the same.
+- What happens to the plot's smoothness and slope when the number of turtles is increased?
+- What happens to the plot's smoothness and slope when the number of turtles is decreased?
 - Does the simulation finish faster or slower than the first model?
 
-Try different numbers of steps while keeping all other slider values the same.  
-- What happens to the plot's smoothness and slope when the number of steps is increased?  
-- What happens to the plot's smoothness and slope when the number of turtles is decreased?  
+Try different numbers of steps while keeping all other slider values the same.
+- What happens to the plot's smoothness and slope when the number of steps is increased?
+- What happens to the plot's smoothness and slope when the number of turtles is decreased?
 - Does the simulation finish faster or slower than the first model?
 
 How do your answers to the above questions compare to the average values calculated for all turtles in a given simulation?

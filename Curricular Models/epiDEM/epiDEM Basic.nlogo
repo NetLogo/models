@@ -365,11 +365,11 @@ Because this model is so simplistic in nature, it facilitates mathematical analy
 
 This model incorporates all of the above assumptions, but each individual has a 5% chance of being initialized as infected. This model shows the disease spread as a phenomenon with an element of stochasticity. Small perturbations in the parameters included here can in fact lead to different final outcomes.
 
-Overall, this model helps users  
-1) engage in a new way of viewing/modeling epidemics that is more personable and relatable 
+Overall, this model helps users
+1) engage in a new way of viewing/modeling epidemics that is more personable and relatable
 2) understand how the reproduction number, R_0, represents the threshold for an epidemic
-3) think about different ways to calculate R_0, and the strengths and weaknesses in each approach  
-4) understand the relationship between derivatives and integrals, represented simply as rates and cumulative number of cases, and  
+3) think about different ways to calculate R_0, and the strengths and weaknesses in each approach
+4) understand the relationship between derivatives and integrals, represented simply as rates and cumulative number of cases, and
 5) provide opportunities to extend or change the model to include some properties of a disease that interest users the most.
 
 
@@ -395,15 +395,15 @@ Note that in this model each time-step can be considered to be in hours, althoug
 What follows is a summary of the sliders in the model.
 
 INITIAL-PEOPLE (initialized to vary between 50 - 400): The total number of individuals in the simulation, determined by the user.
-INFECTION-CHANCE (10 - 100): Probability of disease transmission from one individual to another.  
-RECOVERY-CHANCE (10 - 100): Probability of an infected individual to recover.  
+INFECTION-CHANCE (10 - 100): Probability of disease transmission from one individual to another.
+RECOVERY-CHANCE (10 - 100): Probability of an infected individual to recover.
 AVERAGE-RECOVERY-TIME (50 - 300): The time it takes for an individual to recover on average. The actual individual's recovery time is pulled from a normal distribution centered around the AVERAGE-RECOVERY-TIME at its mean, with a standard deviation of a quarter of the AVERAGE-RECOVERY-TIME. Each time-step can be considered to be in hours, although any suitable time unit will do.
 
 A number of graphs are also plotted in this model.
 
-CUMULATIVE INFECTED AND RECOVERED: This plots the total percentage of infected and recovered individuals over the course of the disease spread.  
-POPULATIONS: This plots the total number of people with or without the flu over time. 
-INFECTION AND RECOVERY RATES: This plots the estimated rates at which the disease is spreading. BetaN is the rate at which the cumulative infected changes, and Gamma rate at which the cumulative recovered changes.  
+CUMULATIVE INFECTED AND RECOVERED: This plots the total percentage of infected and recovered individuals over the course of the disease spread.
+POPULATIONS: This plots the total number of people with or without the flu over time.
+INFECTION AND RECOVERY RATES: This plots the estimated rates at which the disease is spreading. BetaN is the rate at which the cumulative infected changes, and Gamma rate at which the cumulative recovered changes.
 R_0: This is an estimate of the reproduction number, only comparable to the Kermack McKendrick's definition if the initial number of infected were 1.
 
 
@@ -417,7 +417,7 @@ Whenever there's a spread of the disease that reaches most of the population, we
 ## THINGS TO TRY
 
 Try running the model by varying one slider at a time. For example:
-How does increasing the number of initial people affect the disease spread?  
+How does increasing the number of initial people affect the disease spread?
 How does increasing the recovery chance the shape of the graphs? What about changes to average recovery time? Or the infection rate?
 
 What happens to the shape of the graphs as you increase the recovery chance and decrease the recovery time? Vice versa?
@@ -440,7 +440,7 @@ Notice that R_0 calculated in this model is a numerical estimate to the analytic
 
 ## RELATED MODELS
 
-AIDS, Virus and Virus on a Network are related models. 
+AIDS, Virus and Virus on a Network are related models.
 
 
 ## CREDITS AND REFERENCES

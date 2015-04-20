@@ -714,46 +714,46 @@ This model is part of the Connected Mathematics "Making Sense of Complex Phenome
 
 The particles are modeled as hard balls with no internal energy except that which is due to their motion.  Collisions between particles are elastic.  Particles are colored according to speed --- blue for slow, green for medium, and red for high speeds.
 
-Coloring of the particles is with respect to one speed (10).  
-Particles with a speed less than 5 are blue, ones that are more than  
+Coloring of the particles is with respect to one speed (10).
+Particles with a speed less than 5 are blue, ones that are more than
 15 are red, while all in those in-between are green.
 
-The exact way two particles collide is as follows:  
-1. A particle moves in a straight line without changing its speed, unless it collides with another particle or bounces off the wall.  
-2. Two particles "collide" if they find themselves on the same patch.  
-3. A random axis is chosen, as if they are two balls that hit each other and this axis is the line connecting their centers.  
-4. They exchange momentum and energy along that axis, according to the conservation of momentum and energy.  This calculation is done in the center of mass system.  
-5. Each particle is assigned its new velocity, energy, and heading.  
+The exact way two particles collide is as follows:
+1. A particle moves in a straight line without changing its speed, unless it collides with another particle or bounces off the wall.
+2. Two particles "collide" if they find themselves on the same patch.
+3. A random axis is chosen, as if they are two balls that hit each other and this axis is the line connecting their centers.
+4. They exchange momentum and energy along that axis, according to the conservation of momentum and energy.  This calculation is done in the center of mass system.
+5. Each particle is assigned its new velocity, energy, and heading.
 6. If a particle finds itself on or very close to a wall of the container, it "bounces" --- that is, reflects its direction and keeps its same speed.
 
 In this model the particles behave exactly as in the basic Gas in a Box model except for now gravity acts on the particles.  Every particle is given additional velocity downward during each tick, as it would get in a gravitational field.  The particles bounce off the "ground" as well as the ceiling.
 
 ## HOW TO USE IT
 
-Initial settings:  
-- GRAVITY: strength of the gravitational acceleration  
-- NUMBER-OF-PARTICLES: number of gas particles  
-- INIT-PARTICLE-SPEED: initial speed of each particle  
+Initial settings:
+- GRAVITY: strength of the gravitational acceleration
+- NUMBER-OF-PARTICLES: number of gas particles
+- INIT-PARTICLE-SPEED: initial speed of each particle
 - PARTICLE-MASS: mass of each particle
 
-Other settings:  
-- TRACE?: Traces the path of one of the particles.  
+Other settings:
+- TRACE?: Traces the path of one of the particles.
 - COLLIDE?: Turns collisions between particles on and off.
 
-The SETUP button will set the initial conditions.  
+The SETUP button will set the initial conditions.
 The GO button will run the simulation.
 
-Monitors:  
-- FAST, MEDIUM, SLOW: numbers of particles with different speeds: fast (red), medium (green), and slow (blue).  
-- AVERAGE SPEED: average speed of the particles.  
+Monitors:
+- FAST, MEDIUM, SLOW: numbers of particles with different speeds: fast (red), medium (green), and slow (blue).
+- AVERAGE SPEED: average speed of the particles.
 - AVERAGE ENERGY: average energy of the particles.
 
-Plots:  
-- SPEED COUNTS: plots the number of particles in each range of speed.  
-- SPEED HISTOGRAM: speed distribution of all the particles.  The gray line is the average value, and the black line is the initial average.  
-- ENERGY HISTOGRAM: distribution of energies of all the particles, calculated as m*(v^2)/2.  
-- HEIGHT VS. TEMPERATURE: shows the temperature of the particles at each 'layer' of the box.  
-- DENSITY HISTOGRAM: shows the number of particles at each 'layer' of the box, i.e. its local density.  
+Plots:
+- SPEED COUNTS: plots the number of particles in each range of speed.
+- SPEED HISTOGRAM: speed distribution of all the particles.  The gray line is the average value, and the black line is the initial average.
+- ENERGY HISTOGRAM: distribution of energies of all the particles, calculated as m*(v^2)/2.
+- HEIGHT VS. TEMPERATURE: shows the temperature of the particles at each 'layer' of the box.
+- DENSITY HISTOGRAM: shows the number of particles at each 'layer' of the box, i.e. its local density.
 - AGGREGATE TEMPERATURE: shows the aggregate sum of the HEIGHT VS. TEMPERATURE plot for the entire model run.
 
 ## THINGS TO NOTICE

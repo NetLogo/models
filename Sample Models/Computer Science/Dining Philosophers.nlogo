@@ -379,8 +379,8 @@ There are many ways that this can go wrong.  A given philosopher can pick up bot
 
 What would happen if every philosopher immediately picked up the fork to her right, then waited for the fork to her left to become available?  This situation is called "deadlock," and it is the bane of designers of concurrent systems.
 
-The goal of the problem is to come up with a strategy that the philosophers can use to guarantee that:  
-1. At least one hungry philosopher can always eat.  
+The goal of the problem is to come up with a strategy that the philosophers can use to guarantee that:
+1. At least one hungry philosopher can always eat.
 2. On average, all the philosophers get the same amount to eat.
 
 There is one other feature of the system that aids in finding a solution: while a philosopher is holding a fork, she has the ability to place a mark on it or to remove an existing mark.  These marks are visible to any philosopher who inspects the fork.  One random fork will always start out marked, but in order to avoid confusion, marked forks are not visually distinguished unless cooperation is enabled (in which case they are a different color).
@@ -399,41 +399,41 @@ To release a fork, a philosopher simply sets the fork's owner to nobody.
 
 All the philosophers are initially thinking (blue).  At each time step, a thinking philosopher may become hungry (red) with probability hungry-chance.  A hungry philosopher will try to acquire both forks, and until she has done so will remain hungry.  A hungry philosopher with both forks immediately begins eating (green).  An eating philosopher may become full with probability full-chance, at which point she will release both forks and resume thinking (blue).
 
-The value of the cooperation? switch determines which strategy is used to acquire and release the forks. With cooperation off, the following naive strategy is used to pick up the forks:  
+The value of the cooperation? switch determines which strategy is used to acquire and release the forks. With cooperation off, the following naive strategy is used to pick up the forks:
 
-1. If the left fork is available, take it.  
-2. If the right fork is available, take it.  
-3. If you have both forks, begin eating. Otherwise, try again.  
+1. If the left fork is available, take it.
+2. If the right fork is available, take it.
+3. If you have both forks, begin eating. Otherwise, try again.
 
 When full, the forks are simply released. Marks are completely ignored.
 
 With cooperation on, a more sophisticated strategy using marks is used. To acquire the forks:
 
-1. If the left fork is available, take it.  
-2. If you have the left fork and it is marked and you're not already holding the right fork, release the left fork.  
-3. If the right fork is available, take it.  
-4. If you have the right fork and it is marked and you're not already holding the left fork, release the right fork.  
+1. If the left fork is available, take it.
+2. If you have the left fork and it is marked and you're not already holding the right fork, release the left fork.
+3. If the right fork is available, take it.
+4. If you have the right fork and it is marked and you're not already holding the left fork, release the right fork.
 5. If you have both forks, begin eating. Otherwise, try again.
-  
-Once you are done eating, to release the forks:  
 
-1. If either fork is marked, unmark it and mark the other fork.  
+Once you are done eating, to release the forks:
+
+1. If either fork is marked, unmark it and mark the other fork.
 2. Release the forks.
 
 ## HOW TO USE IT
 
-Initial settings:  
+Initial settings:
 - num-philosophers: how many philosophers you'd like to feed.
 
 The setup button will set the initial conditions. The go button will run the simulation, and the "go once" button will run the simulation for just one step, allowing you to watch what happens in more detail.
 
-Other settings:  
-- hungry-chance: The probability of any thinking philosopher becoming hungry at any step.  
-- full-chance: The probability of any eating philosopher becoming full at any step.  
+Other settings:
+- hungry-chance: The probability of any thinking philosopher becoming hungry at any step.
+- full-chance: The probability of any eating philosopher becoming full at any step.
 - cooperation?: If off, the philosophers will use a naive strategy to acquire their forks; if on, they'll use a more sophisticated strategy. See HOW IT WORKS above.
 
-Plots:  
-- Spaghetti consumed: plots the amount of spaghetti each philosopher has consumed (based on how many time steps she has spent in the eating state).  
+Plots:
+- Spaghetti consumed: plots the amount of spaghetti each philosopher has consumed (based on how many time steps she has spent in the eating state).
 - Resource allocation: plots the number of philosophers in each state over time.
 
 ## THINGS TO NOTICE

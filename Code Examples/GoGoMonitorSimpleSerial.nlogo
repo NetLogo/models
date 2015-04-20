@@ -22,9 +22,9 @@ to test-connection
   [ ifelse not gogo-serial:ping
     [ user-message "There is a problem with the connection. Check if the board is on, and if the cable is connected. Otherwise, try to quit NetLogo, power cycle the GoGo Board, and open NetLogo again. For more information on how to fix connection issues, refer to the NetLogo documentation or the info tab of this model" ]
     [ user-message "GoGo Board connected and working!" ] ]
-  [ user-message error-message 
+  [ user-message error-message
     stop ]
-  
+
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -368,7 +368,7 @@ Try connecting different sensors to the GoGo Board: temperature sensors, light s
 Connect various motors, lights, and other circuits to the GoGo Board's output ports.
 
 Change the refresh rates by editing the code in the plot, and modifying the wait time (default value is 0.01 or 0.1, higher values would cause the sampling rate to decrease).
-  
+
 To find out where to buy sensors and motors, go to the GoGo Board website (www.gogoboard.org)
 
 ## EXTENDING THE MODEL

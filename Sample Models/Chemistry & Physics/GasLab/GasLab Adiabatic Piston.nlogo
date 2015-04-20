@@ -796,11 +796,11 @@ This particular model simulates the behavior of gas particles in a box with a mo
 
 The basic principle of all GasLab models is the following algorithm (for more details, see the model "GasLab Gas in a Box":
 
-1) A particle moves in a straight line without changing its speed, unless it collides with another particle or bounces off the wall.  
-2) Two particles "collide" if they find themselves on the same patch (NetLogo's View is composed of a grid of small squares called patches). In this model, two particles are aimed so that they will collide at the origin.  
-3) An angle of collision for the particles is chosen, as if they were two solid balls that hit, and this angle describes the direction of the line connecting their centers.  
-4) The particles exchange momentum and energy only along this line, conforming to the conservation of momentum and energy for elastic collisions.  
-5) Each particle is assigned its new speed, heading and energy.  
+1) A particle moves in a straight line without changing its speed, unless it collides with another particle or bounces off the wall.
+2) Two particles "collide" if they find themselves on the same patch (NetLogo's View is composed of a grid of small squares called patches). In this model, two particles are aimed so that they will collide at the origin.
+3) An angle of collision for the particles is chosen, as if they were two solid balls that hit, and this angle describes the direction of the line connecting their centers.
+4) The particles exchange momentum and energy only along this line, conforming to the conservation of momentum and energy for elastic collisions.
+5) Each particle is assigned its new speed, heading and energy.
 6) If a particle finds itself on or very close to a wall of the container or the piston, it "bounces" --- that is, reflects its direction and keeps its same speed.
 
 The piston has both potential energy (due to gravity) and kinetic energy (from its motion).
@@ -815,34 +815,34 @@ Pressure is calculated by adding up the momentum transferred to the walls of the
 
 ## HOW TO USE IT
 
-Initial settings:  
-- NUMBER-OF-PARTICLES: number of gas particles.  
-- INIT-PARTICLE-SPEED: initial speed of the particles.  
-- PARTICLE-MASS: mass of each particle.  
-- BOX-HEIGHT: height of the container (percentage of the world-height).  
-- BOX-WIDTH: width of the container  (percentage of the world-width).  
+Initial settings:
+- NUMBER-OF-PARTICLES: number of gas particles.
+- INIT-PARTICLE-SPEED: initial speed of the particles.
+- PARTICLE-MASS: mass of each particle.
+- BOX-HEIGHT: height of the container (percentage of the world-height).
+- BOX-WIDTH: width of the container  (percentage of the world-width).
 - PISTON-MASS: mass of the piston, in the same "units" as the particle's mass.
 
-The SETUP button will set the initial conditions.  
+The SETUP button will set the initial conditions.
 The GO button will run the simulation.
 
-Other settings:  
+Other settings:
 - COLLIDE?: Turns collisions between particles on and off.
 
-Monitors:  
-- AVERAGE SPEED: average speed of the particles.  
-- AVERAGE ENERGY: average kinetic energy per particle of the gas.  
-- TOTAL ENERGY: total energy of the particles.  
-- PISTON HEIGHT: piston's height above the bottom of the box.  
-- PISTON VELOCITY: speed of the piston (up is positive).  
-- PISTON POTENTIAL ENERGY: potential energy of the piston, due to gravity.  
-- PISTON KINETIC ENERGY: kinetic energy of the piston, due to its motion.  
-- PISTON TOTAL ENERGY: sum of potential and kinetic energy of the piston.  
+Monitors:
+- AVERAGE SPEED: average speed of the particles.
+- AVERAGE ENERGY: average kinetic energy per particle of the gas.
+- TOTAL ENERGY: total energy of the particles.
+- PISTON HEIGHT: piston's height above the bottom of the box.
+- PISTON VELOCITY: speed of the piston (up is positive).
+- PISTON POTENTIAL ENERGY: potential energy of the piston, due to gravity.
+- PISTON KINETIC ENERGY: kinetic energy of the piston, due to its motion.
+- PISTON TOTAL ENERGY: sum of potential and kinetic energy of the piston.
 - SYSTEM ENERGY: sum of particles' and the piston's total energy.
 
-Plots:  
-- PISTON HEIGHT VS. TIME: measured up from the bottom of the box.  
-- PRESSURE VS. TIME: average pressure of the particles.  
+Plots:
+- PISTON HEIGHT VS. TIME: measured up from the bottom of the box.
+- PRESSURE VS. TIME: average pressure of the particles.
 - ENERGY OF PARTICLES, PISTON, AND TOTAL ENERGY: in terms of energy per particle.  The piston's energy is both kinetic (motion) and potential (height).
 
 ## THINGS TO NOTICE

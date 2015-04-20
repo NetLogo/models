@@ -395,28 +395,28 @@ Decide how many acid molecules should be present at the start of the simulation 
 
 Press SETUP.  The turtles will distribute randomly across the world.
 
-YELLOW turtles are acid molecules (HA)  
-ORANGE turtles are conjugate base molecules (A-)  
-GREEN turtles represent hydronium ions (H30+)  
-RED turtles are hydroxide molecules (OH-)  
+YELLOW turtles are acid molecules (HA)
+ORANGE turtles are conjugate base molecules (A-)
+GREEN turtles represent hydronium ions (H30+)
+RED turtles are hydroxide molecules (OH-)
 BLUE turtles represent water molecules (H20)
 
 In this model we are assuming that 2% of the original acid molecules are dissociated into 2 conjugate base molecules and 2 hydronium molecules.  This is true only before the molecules start interacting between themselves.
 
 Press GO. The molecules will move randomly across the world.
 
-When two turtles occupy the same patch, the following rules apply:  
-1.  When a weak acid and a water molecule collide, the acid molecule dissociates into its conjugate base and the water molecule transforms to a hydronium ion.  
-2.  When hydroxide and hydronium ions collide, they always form two water molecules.  
-3.  When a weak acid and hydroxide collide, they have a high probability of transforming into a conjugate base and a water molecule.  
+When two turtles occupy the same patch, the following rules apply:
+1.  When a weak acid and a water molecule collide, the acid molecule dissociates into its conjugate base and the water molecule transforms to a hydronium ion.
+2.  When hydroxide and hydronium ions collide, they always form two water molecules.
+3.  When a weak acid and hydroxide collide, they have a high probability of transforming into a conjugate base and a water molecule.
 4.  When hydronium and conjugate base collide, they have a high probability of transforming into a weak acid molecule and a water molecule.
 
-To observe the effect of adding base or acid to the solution, set the number of acid molecules you want to add with the ADDED-ACID slider and press ADD-ACID (H30+)  
+To observe the effect of adding base or acid to the solution, set the number of acid molecules you want to add with the ADDED-ACID slider and press ADD-ACID (H30+)
 Do the same for adding base with the ADDED-BASE slider and ADD-BASE button.
 
-A number of plots and monitors can be observed:  
-The pH of the solution is plotted over time on the PH plot, and at each time tick on the PH monitor.  pH is calculated using the ratio of the number of hydronium and hydroxide molecules to the total number of turtles.  This is different from the chemistry calculation that relates this number to solution volume.  
-You can see the number of hydroniums and hydroxides in the solution in their monitors  (# HYDRONIUMS, # HYDROXIDES).  
+A number of plots and monitors can be observed:
+The pH of the solution is plotted over time on the PH plot, and at each time tick on the PH monitor.  pH is calculated using the ratio of the number of hydronium and hydroxide molecules to the total number of turtles.  This is different from the chemistry calculation that relates this number to solution volume.
+You can see the number of hydroniums and hydroxides in the solution in their monitors  (# HYDRONIUMS, # HYDROXIDES).
 You may follow the number of molecules of each species over time in the MOLECULE COUNTS plot.
 
 You may choose to see the initial water molecules or not with the SEE-STARTING-WATER? switch.

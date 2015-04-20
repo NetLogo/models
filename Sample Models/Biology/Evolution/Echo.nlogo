@@ -592,8 +592,8 @@ Tags are represented by lists of strings, so the code is heavily dependent on li
 
 ## RELATED MODELS
 
-Sample Models > Biology > Evolution > (entire section)  
-Sample Models > Biology > Rabbits Grass Weeds  
+Sample Models > Biology > Evolution > (entire section)
+Sample Models > Biology > Rabbits Grass Weeds
 Sample Models > Biology > Wolf Sheep Predation
 
 ## CREDITS AND REFERENCES

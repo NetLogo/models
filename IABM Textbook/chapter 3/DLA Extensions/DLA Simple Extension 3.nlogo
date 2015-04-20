@@ -1,7 +1,7 @@
 to setup
   clear-all
   ;; start with NUM-SEEDS green patches as “seeds”
-  ask n-of num-seeds patches 
+  ask n-of num-seeds patches
     [ set pcolor green ]
   create-turtles num-particles
     [ set color red
@@ -10,19 +10,19 @@ to setup
   reset-ticks
 end
 
-to go    
+to go
   ask turtles
   [ right random wiggle-angle
     left random wiggle-angle
     forward 1
-    let local-prob probability-of-sticking 
- 
+    let local-prob probability-of-sticking
+
     ;; if neighbor-influence is TRUE then make the probability proportionate to the number of green neighbors, otherwise use the slider as before
     if neighbor-influence? [
       ;; increase the probability of sticking the more green neighbors there are
       set local-prob probability-of-sticking * (count neighbors with [ pcolor = green ] / 8)
-    ] 
-    if (pcolor = black) and ( any? neighbors with [pcolor = green] ) 
+    ]
+    if (pcolor = black) and ( any? neighbors with [pcolor = green] )
           and ( random-float 1.0 < local-prob )
       [ set pcolor green
         die ] ]
@@ -230,9 +230,9 @@ The "Percolation" model in the "Earth Science" section produces patterns resembl
 
 ## HOW TO CITE
 
-This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling 
+This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling
  Natural, Social and Engineered Complex Systems with NetLogo."
- 
+
 If you mention this model or the NetLogo software in a publication, we ask that you include the cites.
 
 For the model itself:
@@ -245,7 +245,7 @@ Please cite the NetLogo software as:
 
 Please cite the textbook as:
 
-* Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling 
+* Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling
  Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
 ## CREDITS AND REFERENCES

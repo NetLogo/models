@@ -236,15 +236,15 @@ Note also the ambiguity of the statistic 'greenness.' If 21/25 squares in a bloc
 
 ## HOW TO USE IT
 
-Buttons:  
-'Setup' - prepares the size of population according to the block-side slider value.  
+Buttons:
+'Setup' - prepares the size of population according to the block-side slider value.
 'Go'  - activates the procedures. It is set to work "forever," that is, repeatedly until you press it again.
 
-Sliders:  
-'block-side' - the larger the value you set here, the larger the size of your square sample. If the block-side is X, then the block will be of dimensions X^2. For example, a block-side of 3 will give a sample of 9 square squares.  
+Sliders:
+'block-side' - the larger the value you set here, the larger the size of your square sample. If the block-side is X, then the block will be of dimensions X^2. For example, a block-side of 3 will give a sample of 9 square squares.
 '%-target-color' - Use this slider to control the average probability that each square will be green in each iteration through Go.
 
-Monitors:  
+Monitors:
 '# target color' - shows how many squares in the block are green. (Note that the plot window shows a histogram of the percent of green squares, and not of the number of green squares.)
 
 Set the sliders to the values of your choice, press Setup, and then press Go.

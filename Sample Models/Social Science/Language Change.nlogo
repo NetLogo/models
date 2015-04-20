@@ -2,12 +2,12 @@ breed [nodes node]
 
 nodes-own [
   state            ;; current grammar state (ranges from 0 to 1)
-  orig-state       ;; each person's initially assigned grammar state 
+  orig-state       ;; each person's initially assigned grammar state
   spoken-state     ;; output of person's speech (0 or 1)
 ]
 
 ;;;
-;;; SETUP PROCEDURES  
+;;; SETUP PROCEDURES
 ;;;
 
 to setup
@@ -99,15 +99,15 @@ end
 
 to communicate-via [ algorithm ] ;; node procedure
   ;; Discrete Grammar ;;
-  ifelse (algorithm = "threshold") 
-  [ listen-threshold ] 
-  [ ifelse (algorithm = "individual") 
-    [ listen-individual ] 
+  ifelse (algorithm = "threshold")
+  [ listen-threshold ]
+  [ ifelse (algorithm = "individual")
+    [ listen-individual ]
     [ ;; Probabilistic Grammar ;;
       ;; speak and ask all neighbors to listen
-      if (algorithm = "reward") 
+      if (algorithm = "reward")
       [ speak
-        ask link-neighbors 
+        ask link-neighbors
         [ listen [spoken-state] of myself ]
    ]]]
 end
@@ -115,38 +115,38 @@ end
 ;; Speaking & Listening
 to listen-threshold ;; node procedure
   let grammar-one-sum sum [state] of link-neighbors
-  ifelse grammar-one-sum >= (count link-neighbors * threshold-val) 
+  ifelse grammar-one-sum >= (count link-neighbors * threshold-val)
   [ set state 1 ]
-  [ ;; if there are not enough neighbors with grammar 1, 
+  [ ;; if there are not enough neighbors with grammar 1,
     ;; and 1 is not a sink state, then change to 0
     if not sink-state-1? [ set state 0 ]
   ]
 end
 
-to listen-individual 
+to listen-individual
   set state [state] of one-of link-neighbors
 end
 
 to speak ;; node procedure
   ;; alpha is the level of bias in favor of grammar 1
-  ;; alpha is constant for all nodes. 
+  ;; alpha is constant for all nodes.
   ;; the alpha value of 0.025 works best with the logistic function
   ;; adjusted so that it takes input values [0,1] and output to [0,1]
-  if logistic? 
+  if logistic?
   [ let gain (alpha + 0.1) * 20
     let filter-val 1 / (1 + exp (- (gain * state - 1) * 5))
-    ifelse random-float 1.0 <= filter-val 
+    ifelse random-float 1.0 <= filter-val
     [ set spoken-state 1 ]
     [ set spoken-state 0 ]
   ]
   ;; for probabilistic learners who only have bias for grammar 1
   ;; no preference for discrete grammars (i.e., no logistic)
-  if not logistic? 
+  if not logistic?
   [ ;; the slope needs to be greater than 1, so we arbitrarily set to 1.5
     ;; when state is >= 2/3, the biased-val would be greater than or equal to 1
     let biased-val 1.5 * state
     if biased-val >= 1 [ set biased-val 1 ]
-    ifelse random-float 1.0 <= biased-val 
+    ifelse random-float 1.0 <= biased-val
     [ set spoken-state 1 ]
     [ set spoken-state 0 ]
   ]
@@ -156,15 +156,15 @@ end
 to listen [heard-state] ;; node procedure
   let gamma 0.01 ;; for now, gamma is the same for all nodes
   ;; choose a grammar state to be in
-  ifelse random-float 1.0 <= state 
+  ifelse random-float 1.0 <= state
   [
     ;; if grammar 1 was heard
-    ifelse heard-state = 1 
+    ifelse heard-state = 1
     [ set state state + (gamma * (1 - state)) ]
     [ set state (1 - gamma) * state ]
   ][
     ;; if grammar 0 was heard
-    ifelse heard-state = 0 
+    ifelse heard-state = 0
     [ set state state * (1 - gamma) ]
     [ set state gamma + state * (1 - gamma) ]
   ]
@@ -181,10 +181,10 @@ end
 to-report find-partner
   let pick random-float sum [count link-neighbors] of (nodes with [any? link-neighbors])
   let partner nobody
-  ask nodes 
+  ask nodes
   [ ;; if there's no winner yet
-    if partner = nobody 
-    [ ifelse count link-neighbors > pick 
+    if partner = nobody
+    [ ifelse count link-neighbors > pick
       [ set partner self]
       [ set pick pick - (count link-neighbors)]
     ]
@@ -214,13 +214,13 @@ to do-highlight
   let highlight-color blue
   let min-d min [distancexy mouse-xcor mouse-ycor] of nodes
   ;; get the node closest to the mouse
-  let the-node one-of nodes with 
+  let the-node one-of nodes with
   [any? link-neighbors and distancexy mouse-xcor mouse-ycor = min-d]
   ;; get the node that was previously the highlight-color
   let highlighted-node one-of nodes with [color = highlight-color]
-  if the-node != nobody and the-node != highlighted-node 
+  if the-node != nobody and the-node != highlighted-node
   [ ;; highlight the chosen node
-    ask the-node 
+    ask the-node
     [ undo-highlight
       output-print word "original grammar state: "  orig-grammar-string
       output-print word "current grammar state: " precision state 5

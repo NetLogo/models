@@ -5,7 +5,7 @@ turtles-own [
 ;; Setup Procedures
 to setup
   clear-all
-  set-default-shape turtles "circle"  
+  set-default-shape turtles "circle"
   create-turtles blue-molecules [
     setup-molecules blue
   ]
@@ -15,7 +15,7 @@ to setup
   reset-ticks
 end
 
-;;  Sets a timer to indicate whether or not the molecule is ready 
+;;  Sets a timer to indicate whether or not the molecule is ready
 ;;  to react to zero, the color of the molecule, and the position of
 ;;  the molecule to random x & y coordinates.
 to setup-molecules [c] ;; turtle procedure
@@ -23,7 +23,7 @@ to setup-molecules [c] ;; turtle procedure
   set color c
   setxy random-xcor random-ycor
 end
-  
+
 
 ;;  Runtime Procedures
 
@@ -35,11 +35,11 @@ to go
     ]
     wiggle
 
-    ;; If a blue molecule meets a yellow molecule, they 
+    ;; If a blue molecule meets a yellow molecule, they
     ;; respectively become green and brown molecules
     check-for-reaction blue yellow green brown
 
-    ;; If a green molecule meets a brown molecule, they 
+    ;; If a green molecule meets a brown molecule, they
     ;; respectively become blue and yellow molecules
     check-for-reaction green brown blue yellow
 
@@ -54,16 +54,16 @@ to wiggle ;; turtle procedure
   lt random-float 2
 end
 
-;; A reaction is defined by four colors: the colors of the two molecules that can potentially 
+;; A reaction is defined by four colors: the colors of the two molecules that can potentially
 ;; react together (reactant-1-color and reactant-2-color) and the colors of the two molecules
 ;; that will be produced if such a reaction occurs (product-1-color and product-2-color.)
 to check-for-reaction [ reactant-1-color reactant-2-color product-1-color product-2-color ] ;; turtle procedure
-  ;; start by checking if we are ready to react and 
+  ;; start by checking if we are ready to react and
   ;; if we are the right color for this reaction
   if ready-timer = 0 and color = reactant-1-color [
     ;; try to find a partner of the appropriate color with whom to react
-    
-    if any? turtles-here with [ color = reactant-2-color ] [ 
+
+    if any? turtles-here with [ color = reactant-2-color ] [
       ;; there is a reactant here, so do the reaction
       react product-1-color
       ask one-of turtles-here with [ color = reactant-2-color ] [ react product-2-color ]

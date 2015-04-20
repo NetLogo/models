@@ -381,10 +381,10 @@ Segregation
 
 ## CREDITS AND REFERENCES
 
-This model is based on the work of the pioneering economist Thomas Schelling:  
+This model is based on the work of the pioneering economist Thomas Schelling:
 Schelling, T. (1978). Micro-motives and Macro-Behavior. New York: Norton.
 
-See also:  
+See also:
 Resnick, M. & Wilensky, U. (1998). Diving into Complexity: Developing Probabilistic Decentralized Thinking through Role-Playing Activities. Journal of Learning Sciences, Vol. 7, No. 2.  http://ccl.northwestern.edu/papers/starpeople/
 @#$#@#$#@
 default

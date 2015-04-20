@@ -6,10 +6,10 @@ to setup
     set wealth 100
     set shape "circle"
     set color green
-    set size 2 
+    set size 2
 
-  ;;  visualize the turtles from left to right in ascending order of wealth 
-    setxy wealth random-ycor 
+  ;;  visualize the turtles from left to right in ascending order of wealth
+    setxy wealth random-ycor
   ]
   reset-ticks
 end
@@ -221,7 +221,7 @@ Please cite the textbook as:
 
 ## CREDITS AND REFERENCES
 
-Models of this kind are described in: 
+Models of this kind are described in:
 Dragulescu, A. & V.M. Yakovenko, V.M. (2000).  Statistical Mechanics of Money. European Physics Journal B.
 @#$#@#$#@
 default

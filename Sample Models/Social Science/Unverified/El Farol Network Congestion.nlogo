@@ -383,22 +383,22 @@ When the model starts running, patrons have different times until their next vis
 
 ## HOW TO USE IT
 
-Sliders:  
-POPULATION: the number of patrons that will be created in this experiment  
-EQUILIBRIUM: the number of patrons beyond which the bar becomes overcrowded  
-DEAD-ZONE: determines the range below the equilibrium at which the bar is perceived neither as crowded nor as not crowded  
+Sliders:
+POPULATION: the number of patrons that will be created in this experiment
+EQUILIBRIUM: the number of patrons beyond which the bar becomes overcrowded
+DEAD-ZONE: determines the range below the equilibrium at which the bar is perceived neither as crowded nor as not crowded
 FREQUENCY-UPDATE: value to update the ATTENDANCE-FREQUENCY by in response to a positive or negative experience at the bar
 
-Buttons:  
-SETUP - initiates variables towards a new run  
-GO ONCE - runs the model for one time tick, so we get the behavior over a single 'day'  
+Buttons:
+SETUP - initiates variables towards a new run
+GO ONCE - runs the model for one time tick, so we get the behavior over a single 'day'
 GO - runs the model repeatedly, until it is stopped by pressing again
 
-Switches:  
+Switches:
 PERFECT-INFORMATION?: if turned on, agents will have access to attendance information whether they are attending or not and will adjust their preferences accordingly
 
-Plots:  
-ATTENDANCE HISTORY: shows how many patrons are currently in the bar and the cumulative ratio of total patrons to total days  
+Plots:
+ATTENDANCE HISTORY: shows how many patrons are currently in the bar and the cumulative ratio of total patrons to total days
 ATTENDANCE TYPE: shows the current totals of two types of patrons -- casuals and regulars (including those in and out of the bar)
 
 After choosing the variables, click the SETUP button to setup the model. All patrons start on the left side of the world. This means that none of them are attending the bar at this moment. If they choose to attend, they will move to the right side of the world. Patrons are colored sky by default. This means that they are 'casual' patrons (less than every other day). If they attend more than every other day, they will turn red to show that they are now 'regular' patrons.

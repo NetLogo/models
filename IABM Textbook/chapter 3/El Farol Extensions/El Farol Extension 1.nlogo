@@ -330,15 +330,15 @@ Wilensky, U. (2004).  NetLogo Minority Game model.  http://ccl.northwestern.edu/
 There is a participatory game version of the Minority Game model in the models library.
 
 Stouffer, D. & Wilensky, U. (2004). NetLogo Minority Game HubNet model. http://ccl.northwestern.edu/netlogo/models/MinorityGameHubNet. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-  
+
 There is also an alternative implementation of this model with more parameters that is part of the NetLogo User Community Models.
 
 
 ## HOW TO CITE
 
-This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling 
+This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling
  Natural, Social and Engineered Complex Systems using NetLogo."
- 
+
 If you mention this model or the NetLogo software in a publication, we ask that you include the cites.
 
 For the model itself:
@@ -351,7 +351,7 @@ Please cite the NetLogo software as:
 
 Please cite the textbook as:
 
-* Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling 
+* Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling
  Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
 ## CREDITS AND REFERENCES

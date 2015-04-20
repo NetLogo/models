@@ -534,32 +534,32 @@ This model is the simplest gas model in the suite of GasLab models.  The particl
 
 The basic principle of all GasLab models is the following algorithm (for more details, see the model "GasLab Gas in a Box"):
 
-1) A particle moves in a straight line without changing its speed, unless it collides with another particle or bounces off the wall.  
-2) Two particles "collide" if they find themselves on the same patch (NetLogo's View is composed of a grid of small squares called patches). In this model, two particles are aimed so that they will collide at the origin.  
-3) An angle of collision for the particles is chosen, as if they were two solid balls that hit, and this angle describes the direction of the line connecting their centers.  
-4) The particles exchange momentum and energy only along this line, conforming to the conservation of momentum and energy for elastic collisions.  
+1) A particle moves in a straight line without changing its speed, unless it collides with another particle or bounces off the wall.
+2) Two particles "collide" if they find themselves on the same patch (NetLogo's View is composed of a grid of small squares called patches). In this model, two particles are aimed so that they will collide at the origin.
+3) An angle of collision for the particles is chosen, as if they were two solid balls that hit, and this angle describes the direction of the line connecting their centers.
+4) The particles exchange momentum and energy only along this line, conforming to the conservation of momentum and energy for elastic collisions.
 5) Each particle is assigned its new speed, heading and energy.
 
 ## HOW TO USE IT
 
-Initial settings:  
-- NUMBER-OF-PARTICLES: the number of gas particles.  
-- TRACE?: Draws the path of one individual particle.  
-- COLLIDE?: Turns collisions between particles on and off.  
-- INIT-PARTICLE-SPEED: the initial speed of each particle -- they all start with the same speed.  
+Initial settings:
+- NUMBER-OF-PARTICLES: the number of gas particles.
+- TRACE?: Draws the path of one individual particle.
+- COLLIDE?: Turns collisions between particles on and off.
+- INIT-PARTICLE-SPEED: the initial speed of each particle -- they all start with the same speed.
 - PARTICLE-MASS: the mass of each particle -- they all have the same mass.
 
-As in most NetLogo models, the first step is to press SETUP. It puts in the initial conditions you have set with the sliders.  Be sure to wait till the SETUP button stops before pushing GO.  
+As in most NetLogo models, the first step is to press SETUP. It puts in the initial conditions you have set with the sliders.  Be sure to wait till the SETUP button stops before pushing GO.
 The GO button runs the models again and again.  This is a "forever" button.
 
-Monitors:  
-- PERCENT FAST, PERCENT MEDIUM, PERCENT SLOW monitors: percent of particles with different speeds: fast (red), medium (green), and slow (blue).  
-- AVERAGE SPEED: average speed of the particles.  
+Monitors:
+- PERCENT FAST, PERCENT MEDIUM, PERCENT SLOW monitors: percent of particles with different speeds: fast (red), medium (green), and slow (blue).
+- AVERAGE SPEED: average speed of the particles.
 - AVERAGE ENERGY: average kinetic energy of the particles.
 
-Plots:  
-- SPEED COUNTS: plots the number of particles in each range of speed (fast, medium or slow).  
-- SPEED HISTOGRAM: speed distribution of all the particles.  The gray line is the average value, and the black line is the initial average.  The displayed values for speed are ten times the actual values.  
+Plots:
+- SPEED COUNTS: plots the number of particles in each range of speed (fast, medium or slow).
+- SPEED HISTOGRAM: speed distribution of all the particles.  The gray line is the average value, and the black line is the initial average.  The displayed values for speed are ten times the actual values.
 - ENERGY HISTOGRAM: the distribution of energies of all the particles, calculated as (m*v^2)/2.  The gray line is the average value, and the black line is the initial average.
 
 Initially, all the particles have the same speed but random directions. Therefore the first histogram plots of speed and energy should show only one column each.  As the particles repeatedly collide, they exchange energy and head off in new directions, and the speeds are dispersed --- some particles get faster, some get slower, and the plot will show that change.

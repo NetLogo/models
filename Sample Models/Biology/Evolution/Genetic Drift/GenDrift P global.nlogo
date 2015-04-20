@@ -144,8 +144,8 @@ Explore other rules by which patches might randomly influence each other.  What 
 
 ## RELATED MODELS
 
-* GenDrift (P local)  
-* GenDrift (T interact)  
+* GenDrift (P local)
+* GenDrift (T interact)
 * GenDrift (T reproduce)
 
 ## CREDITS AND REFERENCES

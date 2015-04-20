@@ -754,29 +754,29 @@ The particles are modeled as hard balls with no internal energy except that whic
 
 Coloring of the particles is with respect to one speed (10).  Particles with a speed less than 5 are blue, ones that are more than 15 are red, while all in those in-between are green.
 
-Particles behave according to the following rules:  
-1. A particle moves in a straight line without changing its speed, unless it collides with another particle or bounces off the wall.  
-2. Two particles "collide" if they find themselves on the same patch (NetLogo's View is composed of a grid of small squares called patches).  
-3. A random axis is chosen, as if they are two balls that hit each other and this axis is the line connecting their centers.  
-4. They exchange momentum and energy along that axis, according to the conservation of momentum and energy.  This calculation is done in the center of mass system.  
-5. Each turtle is assigned its new velocity, energy, and heading.  
+Particles behave according to the following rules:
+1. A particle moves in a straight line without changing its speed, unless it collides with another particle or bounces off the wall.
+2. Two particles "collide" if they find themselves on the same patch (NetLogo's View is composed of a grid of small squares called patches).
+3. A random axis is chosen, as if they are two balls that hit each other and this axis is the line connecting their centers.
+4. They exchange momentum and energy along that axis, according to the conservation of momentum and energy.  This calculation is done in the center of mass system.
+5. Each turtle is assigned its new velocity, energy, and heading.
 6. If a turtle finds itself on or very close to a wall of the container, it "bounces" -- that is, reflects its direction and keeps its same speed.
 
 Pressure is calculated as the force per unit area (or length in this two-dimensional model).  Pressure is calculated by adding up the momentum transferred to the walls of the box by the particles when they bounce off and divided by the length of the wall, which they hit.
 
 ## HOW TO USE IT
 
-Initial settings:  
-- NUMBER-OF-PARTICLES: number of particles  
-- INIT-PARTICLE-SPEED: initial speed of the particles  
-- PARTICLE-MASS: initial mass of the molecules  
-- BOX-WIDTH: width of the container  
+Initial settings:
+- NUMBER-OF-PARTICLES: number of particles
+- INIT-PARTICLE-SPEED: initial speed of the particles
+- PARTICLE-MASS: initial mass of the molecules
+- BOX-WIDTH: width of the container
 - BOX-HEIGHT: height of the container
 
-Other settings:  
+Other settings:
 - COLLIDE?: Turns collisions between particles on and off.  It can be changed in the middle of the run.
 
-The SETUP button will set the initial conditions.  
+The SETUP button will set the initial conditions.
 The GO button will run the simulation.
 
 Pushing the MOVE-PISTON button allows you to reposition the piston by clicking on the view with the mouse, hence changing the volume. When this button is pressed, the model stops.  Once the reposition is done, push the GO button to continue.
@@ -785,18 +785,18 @@ The intention in this model is for the user to quickly pull the piston back thus
 
 The physically accurate version of piston compression is shown in the "Adiabatic Piston" model.
 
-Monitors:  
-- PISTON POSITION: position of the piston with respect to the x-axis  
-- VOLUME: volume (or area) of the piston  
-- PRESSURE  
-- AVERAGE SPEED: average speed of the particles  
+Monitors:
+- PISTON POSITION: position of the piston with respect to the x-axis
+- VOLUME: volume (or area) of the piston
+- PRESSURE
+- AVERAGE SPEED: average speed of the particles
 - AVERAGE ENERGY: average energy of the particles, calculated as m*(v^2)/2.
 
-Plots:  
-- PRESSURE: pressure in the piston over time.  
-- VOLUME: volume of the piston vs time.  
-- WALL HITS PER PARTICLE: the number of wall hits averaged for the particles during each time unit  
-- SPEED HISTOGRAM: particles' speed distribution  
+Plots:
+- PRESSURE: pressure in the piston over time.
+- VOLUME: volume of the piston vs time.
+- WALL HITS PER PARTICLE: the number of wall hits averaged for the particles during each time unit
+- SPEED HISTOGRAM: particles' speed distribution
 - ENERGY HISTOGRAM: distribution of energies of all the particles, calculated as m*(v^2)/2.
 
 ## THINGS TO NOTICE

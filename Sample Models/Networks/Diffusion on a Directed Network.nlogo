@@ -294,7 +294,7 @@ The size of each node shows how much "value" that node has, where the area of th
 
 ## HOW TO USE IT
 
-Choose the size of network that you want to model using the GRID-SIZE slider.  
+Choose the size of network that you want to model using the GRID-SIZE slider.
 Choose the expected density of links in the network using the LINK-CHANCE slider.
 
 To create the network with these properties, press SETUP.
@@ -327,7 +327,7 @@ How would you change this model to more accurately represent water flowing (or b
 
 ## NETLOGO FEATURES
 
-This model works in a manner analogous to NetLogo's `diffuse` command, which causes patches to all share with their neighbors portions of the value of some variable.  
+This model works in a manner analogous to NetLogo's `diffuse` command, which causes patches to all share with their neighbors portions of the value of some variable.
 However, whereas the neighbor relationship in patches is symmetric, this model uses directed links, which can be used to create asymmetric relationships between agents.  If you used undirected links, the behavior of this model would more closely resemble the `diffuse` command, where the value of all the nodes would eventually become the same.
 
 In this model, there are two link-breeds: one for active links (which are shown in the view) and another for inactive links (which are invisible).  This makes "rewiring" of links easier, because rather than killing a link and creating a new link, we can just change the breed of a link and hide or show it.

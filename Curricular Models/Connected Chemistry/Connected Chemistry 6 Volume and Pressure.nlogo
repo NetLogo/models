@@ -501,7 +501,7 @@ to make-particles [n]
 
   set total-particle-number initial-number
 
-  
+
 end
 
 to setup-particle  ;; particle procedure

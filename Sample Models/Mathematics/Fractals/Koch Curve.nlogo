@@ -201,13 +201,13 @@ Here is a simple geometric construction of the Koch curve.  Begin with a straigh
 
 
       ________________________     Step 0: "Initiator"
-    
+
                  /\
                 /  \
                /    \
               /      \
       _______/        \_______     Step 1: "Generator"
-    
+
                  /\
               __/  \__
               \      /

@@ -376,16 +376,16 @@ EIGHT-MODE? is a switch that determines whether at each time step the rumor spre
 
 As with any rumor, it has to start somewhere, with one or more individuals.  There are three ways to control the start of the rumor:
 
-1) Single source: Press the SETUP-ONE button. This starts the rumor at one point in the center of the world.  
-2) Random source: Press the SETUP-RANDOM button with the INIT-CLIQUE slider set greater than 0. This "seeds" the rumor randomly by choosing a percentage of the population that knows the rumor initially.  This percentage is set using the INIT-CLIQUE slider.  
+1) Single source: Press the SETUP-ONE button. This starts the rumor at one point in the center of the world.
+2) Random source: Press the SETUP-RANDOM button with the INIT-CLIQUE slider set greater than 0. This "seeds" the rumor randomly by choosing a percentage of the population that knows the rumor initially.  This percentage is set using the INIT-CLIQUE slider.
 3) Choose source with mouse: Press either SETUP-ONE or SETUP-RANDOM, then press the SPREAD-RUMOR-WITH-MOUSE button.  While this button is down, clicking the mouse button on a patch in the view will tell the rumor to that patch.
 
 To run the model, you can either "step" through each time step using the STEP button or allow the model to simply run continuously using the GO button.  The model will stop when everyone in the population knows the rumor.
 
 There are three plots:
 
-RUMOR SPREAD - plots the percentage of people who know the rumor at each time step.  
-SUCCESSIVE DIFFERENCES - plots the number of new people who are hearing the rumor at each time step.  
+RUMOR SPREAD - plots the percentage of people who know the rumor at each time step.
+SUCCESSIVE DIFFERENCES - plots the number of new people who are hearing the rumor at each time step.
 SUCCESSIVE RATIOS - plots the percentage of new people who are hearing the rumor at each time step.
 
 The monitor CLIQUE% is the percentage of the patches that have heard the rumor.

@@ -391,15 +391,15 @@ This model simulates the process of a nuclear fission reaction inside such a pla
 
 ## HOW TO USE IT
 
-The REACTOR-SIZE slider controls the size of the reactor.  
+The REACTOR-SIZE slider controls the size of the reactor.
 
-The ROD-SPACING slider controls the distance between the control rods.  
+The ROD-SPACING slider controls the distance between the control rods.
 
-The SPEND-FUEL switch controls whether or not the fuel is used up when a neutron hits it.  
+The SPEND-FUEL switch controls whether or not the fuel is used up when a neutron hits it.
 
-The POWER-RATED slider controls the rated power, which is used for automatic control.  
+The POWER-RATED slider controls the rated power, which is used for automatic control.
 
-The ROD-DEPTH slider controls the rod depth when under manual control.  
+The ROD-DEPTH slider controls the rod depth when under manual control.
 
 The RELEASE NEUTRON button introduces a neutron into the reactor. It can be used at anytime before or during the reaction.
 
@@ -409,7 +409,7 @@ When MANUAL is on, use the ROD-DEPTH slider to control the rod depth. If they ar
 
 When AUTO-REACT is on, the reactor will adjust itself as needed to keep power production under control.
 
-The POWER monitor shows the current power output.  
+The POWER monitor shows the current power output.
 The POWER-CHANGE monitor shows the change in power over the last clock tick.
 
 Look at the POWER-PLOT plot to see the power curve.
@@ -429,15 +429,15 @@ The automatic controller is basically an ON and OFF controller. It is based on 1
                          Power > Power Rated   Power < Power Rated
                          -------------------   -------------------
       Power Change > 0:    Increase Length         Do Nothing
-    
+
       Power Change < 0:      Do nothing          Decrease Length
 
 The controller should be fine-tuned, and the length to increase and decrease varies.
 
-* In Manual Mode:  
+* In Manual Mode:
 Use the slider to adjust the control rod length according to the information given through the two monitors and the plot. You want the power curve to be as flat as possible. The height of the curve should be close to the horizontal line representing the power-rate.
 
-* In Automatic Mode:  
+* In Automatic Mode:
 Fine tune the controller by changing the mechanisms to get a flat power curve with the least fluctuation.
 
 ## EXTENDING THE MODEL

@@ -449,12 +449,12 @@ To create the 3D shapes the program randomly generates turtles about the shell o
 
 Converting from cartesian to spherical coordinates:
 
->x = r * cos(theta) = p * sin(phi) * cos(theta)  
->y = r * sin(theta) = p * sin(phi) * sin(theta)  
+>x = r * cos(theta) = p * sin(phi) * cos(theta)
+>y = r * sin(theta) = p * sin(phi) * sin(theta)
 >z = p * cos(theta)
 
-theta:  angle of the turtle's projection on the x-y plane.  
-phi:  turtles angle of incidence to the z axis.  
+theta:  angle of the turtle's projection on the x-y plane.
+phi:  turtles angle of incidence to the z axis.
 p: distance of the turtle from the origin.
 
 ## HOW TO USE IT

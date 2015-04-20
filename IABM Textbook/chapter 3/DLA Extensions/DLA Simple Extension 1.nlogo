@@ -15,7 +15,7 @@ to go
     [ right random wiggle-angle
       left random wiggle-angle
       forward 1
-      if ( pcolor = black ) and ( any? neighbors with [pcolor = green] ) 
+      if ( pcolor = black ) and ( any? neighbors with [pcolor = green] )
             and ( random-float 1.0 < probability-of-sticking )
         [ set pcolor green
           die ] ]
@@ -193,9 +193,9 @@ The "Percolation" model in the "Earth Science" section produces patterns resembl
 
 ## HOW TO CITE
 
-This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling 
+This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling
  Natural, Social and Engineered Complex Systems with NetLogo."
- 
+
 If you mention this model or the NetLogo software in a publication, we ask that you include the cites.
 
 For the model itself:
@@ -208,7 +208,7 @@ Please cite the NetLogo software as:
 
 Please cite the textbook as:
 
-* Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling 
+* Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling
  Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
 ## CREDITS AND REFERENCES

@@ -6,11 +6,11 @@ to setup
   clear-all
   ;; make some green trees
   ask patches [
-    if (random 100) < density 
-    [ set pcolor green ] 
+    if (random 100) < density
+    [ set pcolor green ]
     ;; make a column of burning trees at the left-edge
-    if pxcor = min-pxcor 
-    [ set pcolor red ] 
+    if pxcor = min-pxcor
+    [ set pcolor red ]
   ]
   ;; keep track of how many trees there are
   set initial-trees count patches with [pcolor = green]
@@ -27,10 +27,10 @@ to go
     ask neighbors4 with [pcolor = green] [  ;; ask their non-burning neighbor trees
 
       ;; only burn if a random draw is greater than the probability of spread
-      if random 100 < probability-of-spread [ 
+      if random 100 < probability-of-spread [
         set pcolor red ;; to catch on fire
-      ] 
-    ]     
+      ]
+    ]
     set pcolor red - 3.5    ;; once the tree is burned, darken its color
   ]
   tick   ;; advance the clock by one “tick”
@@ -185,9 +185,9 @@ Fire Simple, Fire, Percolation, Rumor Mill
 
 ## HOW TO CITE
 
-This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling 
+This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling
  Natural, Social and Engineered Complex Systems with NetLogo."
- 
+
 If you mention this model or the NetLogo software in a publication, we ask that you include the cites.
 
 For the model itself:
@@ -200,7 +200,7 @@ Please cite the NetLogo software as:
 
 Please cite the textbook as:
 
-Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling 
+Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling
  Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
 ## CREDITS AND REFERENCES

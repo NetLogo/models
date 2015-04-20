@@ -40,7 +40,7 @@ to setup-hex-grid
   ;; setup the hexagonal grid in which atoms will be placed
   ;; and creates turtles
   set-default-shape element2s "square 2"
-  
+
   ask patches [
     sprout 1 [
       ;; if there is a second element, create the corresponding atoms
@@ -59,22 +59,22 @@ to setup-hex-grid
         ;; colors deviate from base color by plus or minus 3
         set color one-of base-colors - 3 + random 6
         set heading color
-      ]      
+      ]
       ;; shift even columns down
-      if pxcor mod 2 = 0  [ set ycor ycor - 0.5 ] 
-    ] 
+      if pxcor mod 2 = 0  [ set ycor ycor - 0.5 ]
+    ]
   ]
-  
+
   ; the two lines below are for NetLogo 3D. Uncomment them, if you are using NetLogo 3D.
   ; ask element1s [ set shape3d "sphere" ]
   ; ask element2s [ set shape3d "cube" ]
-  
+
   ;; now set up the neighbors6 agentsets
   ask element1s [
     ;; define neighborhood of atoms
     ifelse pxcor mod 2 = 0
       [ set neighbors-6 element1s-on patches at-points [[0 1] [1 0] [1 -1] [0 -1] [-1 -1] [-1 0]] ]
-      [ set neighbors-6 element1s-on patches at-points [[0 1] [1 1] [1  0] [0 -1] [-1  0] [-1 1]] ] 
+      [ set neighbors-6 element1s-on patches at-points [[0 1] [1 1] [1  0] [0 -1] [-1  0] [-1 1]] ]
   ]
 end
 
@@ -98,13 +98,13 @@ to import-image
   import-pcolors file
   ;; converts the square grid to an hex grid
   makes-initial-box
-  
+
   ;; transfers the image to the turtles. Rounds the color values to be integers.
   ask turtles [
     set color round pcolor
     set heading color
   ]
-  
+
   ;; erases the patches (sets their color back to black),
   ask patches [ set pcolor black ]
   reset-ticks
@@ -119,30 +119,30 @@ to define-neighboring-turtles
       [-1  0] [ 0  0] [1  0]
       [-1 -1] [ 0 -1] [1 -1]
     ])
-  ]  
+  ]
 end
 
 
-to go  
+to go
   ;;initiates grain growth
   let total-atoms count turtles
-  
+
   ;; stops when there is just one grain
   if average-grain-size >= total-atoms [ stop ]
-  
+
   ;;limits grain growth to element1, element2 represent the stationary second-phase particles
   ask element1s [grain-growth]
-  
+
 ;  ;; calculates grain variables at a given frequency to save CPU processing
 ;  ;; we + 1 to ticks to put it in sync with plots (that are updated in 'tick')
 ;  if remainder (ticks + 1) ticks-per-measurement = 0 [
 ;    count-grains-and-measure-grain-size
 ;  ]
-  
+
   ;; advance Monte Carlo Steps (simulation time)
   ;; one Monte Carlo Step represents 'n' reorientation attemps,
   ;; where 'n' is the total number of atoms
-  tick 
+  tick
 end
 
 to count-grains-and-measure-grain-size
@@ -172,11 +172,11 @@ end
 
 to grain-count
   ;; count number of grains based on the number of linear intercepts
-  
+
   let orientation-for-intercept-count 90 ;; direction of intercepts count
   let intercepts 0
   let total-atoms count turtles
-  
+
   ;; asking only elements1 with xcor less than 24
   ;; those at 24 are on the 'edge of the world' which means
   ;; that they will never have neighbors to their right.
@@ -208,23 +208,23 @@ end
 to grain-growth
   ;; if atom has no neighbors, it is surrounded by element2s, and will not change its orientation
   if not any? neighbors-6 [ stop ]
-  
+
   ;; calculates the PRESENT free energy
   let present-heading (heading)
   let present-free-energy count neighbors-6 with [ heading != present-heading ]
-  
+
   ;; chooses a random orientation
   let future-heading ([heading] of (one-of neighbors-6))
-  
+
   ;; calculates the FUTURE free energy, with the random orientation just chosen
   let future-free-energy count neighbors-6 with [ heading != future-heading ]
-  
+
   ;; compares PRESENT and FUTURE free-energies; the lower value "wins"
   ifelse future-free-energy <= present-free-energy
     [ set heading future-heading ]
     [ if (annealing-temperature > random-float 100) [ set heading (future-heading) ] ]
   ;; this last line simulates thermal agitation (adds more randomness to the simulation)
-  
+
   ;;update the color of the atoms
   set color heading
 end
@@ -245,7 +245,7 @@ end
 ;; in the drawing mode, erases the whole "canvas" with red
 to erase-all
   ask element1s [
-    set color red 
+    set color red
     set heading color
   ]
 end
@@ -713,7 +713,7 @@ PENS
 
 Most materials are not continuous arrangements of atoms. Rather, they are composed of thousands or millions of microscopic crystals, known as grains.  This model shows how the configuration and sizes of these grains change over time.  Grain size is a very important characteristic for evaluating the mechanical properties of materials; it is exhaustively studied in metallurgy and materials science.
 
-Usually this kind of study is made by careful analysis and comparison of pictures taken in microscopes, sometimes with the help of image analysis software.  Recently, as the processing power of computers has increased, a new and promising approach has been made possible: computer simulation of grain growth.  
+Usually this kind of study is made by careful analysis and comparison of pictures taken in microscopes, sometimes with the help of image analysis software.  Recently, as the processing power of computers has increased, a new and promising approach has been made possible: computer simulation of grain growth.
 
 Anderson, Srolovitz et al. proposed the most widely known and employed theory for computer modeling and simulation of grain growth, using the Monte Carlo method. Instead of considering the grains as spheres, and being obliged to make numerous geometrical approximations, Anderson proposed that the computer would simulate the behavior of each individual atom in the system. Each atom would follow a very simple rule: it will always try to have, in its immediate neighborhood, as many atoms as possible with the same orientation as it. It will do so by randomly (hence Monte Carlo) re-orienting itself and seeing if it is more stable than it was before. If it is, it will stay in its new orientation, and if not, it will revert back to its previous orientation.
 
@@ -726,7 +726,7 @@ The basic algorithm of the simulation is simple: each atom continuously tries to
 1. Choose a random atom.
 2. Ask that atom to calculate its present energy (based on its stability).  The atom does this by counting how many similar neighbors it has.
 3. The atom then chooses at random one of its neighbors, and orients itself in the same direction as that neighbor.
-4. The same atom then calculates its energy, based on this new, tentative orientation. 
+4. The same atom then calculates its energy, based on this new, tentative orientation.
 5. Finally the atom compares the energy levels in each of the two states: the lowest value "wins", i.e., the more similar neighbors, the more stable the atom is.
 6. Repeat steps 1-6.
 
@@ -739,7 +739,7 @@ Note that the actual number of atoms is small compared to a real metal sample.  
 ### (1) Simulation starting point.
 **starting-point**: You can start from a random arrangement or a picture from a microscope.  File formats accepted are: `.jpg`, `.png`, `.bmp`, and `.gif`. The image will be automatically resized to fit into the world, but maintaining its original aspect ratio. Note that the image MUST HAVE THE SAME ASPECT RATIO AS THE WORLD. In other words, if the world is square, the image should be square as well. Prior to importing the image, it is recommended to clean it up using an image editing software (increase contrast, remove noise).  Try to experiment various combinations of values for the view's size and the patch size to get the best results
 
-**percent-element2**: You can also determine if you want a certain percentage of a second element, sometimes called grain refiner. 
+**percent-element2**: You can also determine if you want a certain percentage of a second element, sometimes called grain refiner.
 
 **setup**: Sets up the model as indicated.
 
@@ -759,7 +759,7 @@ You can use this to "draw" new grain structures, or edit the grains at any point
 
 **brush-size**: This determines how many atoms’ orientation you change at a time.
 
-**erase-all**:  This changes the orientation of all atoms. 
+**erase-all**:  This changes the orientation of all atoms.
 
 **draw-color**: Here you can change the color (and orientation) that that you change atoms to, when you draw on them.
 
@@ -779,7 +779,7 @@ You can choose to have the model keep repeating the steps (as described above) o
 
 **Grain Size (log-log)**: Grain size vs. time, in a log-log scale.  Under normal conditions (**annealing-temperature** = 0 and **percent-element2** = 0), this plot should be a straight line with an angular coefficient of approximately 0.5.
 
-**Grain Size**: grain size 
+**Grain Size**: grain size
 
 **Log Time**: log of ticks in the simulation so far
 

@@ -295,13 +295,13 @@ The neighbors primitive returns the agentset of the patches to the north, south,
 
 ## RELATED MODELS
 
-Life Turtle-Based --- same as this, but implemented using turtles instead of patches, for a more attractive display  
-CA 1D Elementary --- a model that shows all 256 possible simple 1D cellular automata  
-CA 1D Totalistic --- a model that shows all 2,187 possible 1D 3-color totalistic cellular automata  
-CA 1D Rule 30 --- the basic rule 30 model  
-CA 1D Rule 30 Turtle --- the basic rule 30 model implemented using turtles  
-CA 1D Rule 90 --- the basic rule 90 model  
-CA 1D Rule 110 --- the basic rule 110 model  
+Life Turtle-Based --- same as this, but implemented using turtles instead of patches, for a more attractive display
+CA 1D Elementary --- a model that shows all 256 possible simple 1D cellular automata
+CA 1D Totalistic --- a model that shows all 2,187 possible 1D 3-color totalistic cellular automata
+CA 1D Rule 30 --- the basic rule 30 model
+CA 1D Rule 30 Turtle --- the basic rule 30 model implemented using turtles
+CA 1D Rule 90 --- the basic rule 90 model
+CA 1D Rule 110 --- the basic rule 110 model
 CA 1D Rule 250 --- the basic rule 250 model
 
 ## CREDITS AND REFERENCES

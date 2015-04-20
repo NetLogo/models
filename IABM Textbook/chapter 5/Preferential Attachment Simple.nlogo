@@ -195,13 +195,13 @@ Assign an additional attribute to each node.  Make the probability of attachment
 
 ## NETLOGO FEATURES
 
-Nodes are turtle agents and edges are link agents. 
+Nodes are turtle agents and edges are link agents.
 
-The model uses the ONE-OF primitive to chose a random link and the BOTH-ENDS primitive to select the two nodes attached to that link. 
+The model uses the ONE-OF primitive to chose a random link and the BOTH-ENDS primitive to select the two nodes attached to that link.
 
 There are many ways to graphically display networks. This model uses the layout-spring primitive to implement a common method in which the movement of a node at each time step is the net result of "spring" forces that pulls connected nodes together, and repulsion forces that push all the nodes away from each other.
 
-Though it is not used in this model, there exists a network extension for NetLogo (bundled with NetLogo) that has many more network primitives. 
+Though it is not used in this model, there exists a network extension for NetLogo (bundled with NetLogo) that has many more network primitives.
 
 ## RELATED MODELS
 
@@ -231,17 +231,17 @@ Please cite the textbook as:
 This model is a simplified version of the PREFERENTIAL ATTACHMENT model from the networks section of the NetLogo models library.
 Wilensky, U. (2005).  NetLogo Preferential Attachment model.  http://ccl.northwestern.edu/netlogo/models/PreferentialAttachment.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
-Both the original and this model are based on:  
+Both the original and this model are based on:
 Albert-László Barabási. Linked: The New Science of Networks, Perseus Publishing, Cambridge, Massachusetts, pages 79-92.
 
-For a more technical treatment, see:  
+For a more technical treatment, see:
 Albert-László Barabási & Reka Albert. Emergence of Scaling in Random Networks, Science, Vol 286, Issue 5439, 15 October 1999, pages 509-512.
 
 Barabási's webpage has additional information at: http://www.nd.edu/~alb/
 
 The layout algorithm is based on the Fruchterman-Reingold layout algorithm.  More information about this algorithm can be obtained at: http://citeseer.ist.psu.edu/fruchterman91graph.html.
 
-For a model similar to the one described in the suggested extension, please consult:  
+For a model similar to the one described in the suggested extension, please consult:
 W. Brian Arthur, "Urban Systems and Historical Path-Dependence", Chapt. 4 in Urban systems and Infrastructure, J. Ausubel and R. Herman (eds.), National Academy of Sciences, Washington, D.C., 1988.
 @#$#@#$#@
 default

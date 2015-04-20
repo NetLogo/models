@@ -19,8 +19,8 @@ breed [cans can]
 
 globals [
   can-density
-  can-reward 
-  wall-penalty 
+  can-reward
+  wall-penalty
   pick-up-penalty
   best-chromosome
   best-fitness
@@ -30,7 +30,7 @@ globals [
   min-fit
   max-fit
   x-offset       ; For placing individuals in world
-  tournament-size ; Size of "tournament" used to choose each parent. 
+  tournament-size ; Size of "tournament" used to choose each parent.
   num-environments-for-fitness ; Number of environments for Robby to run in to calculate fitness
   num-actions-per-environment; Number of actions Robby takes in each environment for calculating fitness
 ]
@@ -50,12 +50,12 @@ to setup
   create-individuals population-size [
     set color 19
     set size .5
-    
+
     ;; A situation consists of 5 sites, each of which can contain 3 possibilities (empty, can, wall).
     ;; So 243 (3^5) is the chromosome length allowing any possible situation to be represented.
     set chromosome n-values 243 [random-action]
-    ;; calculate the frequency of the 7 basic actions (or "alleles") in each chromosome 
-    set allele-distribution map [occurrences ? chromosome] ["move-north" "move-east" "move-south" "move-west" "move-random" "stay-put" "pick-up-can"] 
+    ;; calculate the frequency of the 7 basic actions (or "alleles") in each chromosome
+    set allele-distribution map [occurrences ? chromosome] ["move-north" "move-east" "move-south" "move-west" "move-random" "stay-put" "pick-up-can"]
   ]
   calculate-population-fitnesses
   let best-individual max-one-of individuals [fitness]
@@ -80,8 +80,8 @@ to initialize-globals
   set wall-penalty 5
   set can-reward 10
   set pick-up-penalty 1
-  set min-fit  -100; For display.  Any fitness less than min-fit is displayed at the same location as min-fit.  
-  set max-fit 500 ; (approximate) maximum possible fitness that an individual could obtain assuming approx. 50 cans per environment.  
+  set min-fit  -100; For display.  Any fitness less than min-fit is displayed at the same location as min-fit.
+  set max-fit 500 ; (approximate) maximum possible fitness that an individual could obtain assuming approx. 50 cans per environment.
   set x-offset 0
   set tournament-size 15
   set num-environments-for-fitness 20
@@ -92,8 +92,8 @@ end
 to distribute-cans
   ask cans [ die ]
   ask patches with [random-float 1 < can-density] [
-    sprout-cans 1 [ 
-      set color orange 
+    sprout-cans 1 [
+      set color orange
       if not visuals? [ht]
     ]
   ]
@@ -165,13 +165,13 @@ to display-fitness [best-individual]
   let mid-x max-pxcor / 2
   let mid-y max-pycor / 2
   ask best-individual [
-    setxy ((precision scaled-fitness 2) * max-pxcor + x-offset) mid-y 
-    setxy ( scaled-fitness * max-pxcor + x-offset) mid-y 
+    setxy ((precision scaled-fitness 2) * max-pxcor + x-offset) mid-y
+    setxy ( scaled-fitness * max-pxcor + x-offset) mid-y
     ;; place the individuals at a distance from the center based on the similarity of their chromosome to the best chromosome
     ask other individuals [
-      setxy ((precision scaled-fitness 2) * max-pxcor + x-offset) mid-y 
-      setxy ( scaled-fitness * max-pxcor + x-offset) mid-y 
-      set heading one-of [0 180] 
+      setxy ((precision scaled-fitness 2) * max-pxcor + x-offset) mid-y
+      setxy ( scaled-fitness * max-pxcor + x-offset) mid-y
+      set heading one-of [0 180]
       fd chromosome-distance self myself
       ]
   ]
@@ -183,12 +183,12 @@ to initialize-robot [s]
   ask robots [ die ]
   create-robots 1 [
     set label 0
-    ifelse visuals? [ ; Show robot if this is during a trial of Robby that will be displayed in the view. 
-      set color blue 
-      pen-down 
+    ifelse visuals? [ ; Show robot if this is during a trial of Robby that will be displayed in the view.
+      set color blue
+      pen-down
       set label-color black
       ]
-      [set hidden? true]  ; Hide robot if this is during the GA run. 
+      [set hidden? true]  ; Hide robot if this is during the GA run.
     set strategy s
   ]
 end
@@ -227,7 +227,7 @@ to create-next-generation ;[best-individual]
         rt random 360 fd random-float 3.0
         set chromosome item 0 child-chromosomes
         ;; record the distribution of basic actions (or "alleles") for each individual
-        set allele-distribution map [occurrences ? chromosome] ["move-north" "move-east" "move-south" "move-west" "move-random" "stay-put" "pick-up-can"] 
+        set allele-distribution map [occurrences ? chromosome] ["move-north" "move-east" "move-south" "move-west" "move-random" "stay-put" "pick-up-can"]
       ]
     ]
     ask parent2 [
@@ -235,7 +235,7 @@ to create-next-generation ;[best-individual]
         rt random 360 fd random-float 3.0
         set chromosome item 1 child-chromosomes
         ;; record the distribution of basic actions (or "alleles") for each individual
-        set allele-distribution map [occurrences ? chromosome] ["move-north" "move-east" "move-south" "move-west" "move-random" "stay-put" "pick-up-can"] 
+        set allele-distribution map [occurrences ? chromosome] ["move-north" "move-east" "move-south" "move-west" "move-random" "stay-put" "pick-up-can"]
        ]
     ]
   ]
@@ -259,8 +259,8 @@ to calculate-population-fitnesses
     ]
     ask current-individual [
       set fitness score-sum / num-environments-for-fitness
-      ifelse fitness < min-fit 
-        [set scaled-fitness 0] 
+      ifelse fitness < min-fit
+        [set scaled-fitness 0]
         [set scaled-fitness (fitness + (abs min-fit)) / (max-fit + (abs min-fit))]
     ]
   ]
@@ -307,10 +307,10 @@ end
 ;; are five patches Robby can sense.  Each patch can be in one of three states, which
 ;; we encode as 0 (empty), 1 (can), and 2 (wall).  Putting the five states in an arbitrary
 ;; order (N, E, S, W, patch-here), we get a five digit number, for example 10220 (can
-;; to the north, walls to the south and west, nothing to the east and here).  Then we 
-;; interpret this number in base 3, where the first digit is the 81s place, 
-;; the second digit is the 27s place, the third is the 9s place, the fourth is the 3s place, 
-;; and the fifth is the 1s place.  For speed, we do this math using a compact series of 
+;; to the north, walls to the south and west, nothing to the east and here).  Then we
+;; interpret this number in base 3, where the first digit is the 81s place,
+;; the second digit is the 27s place, the third is the 9s place, the fourth is the 3s place,
+;; and the fifth is the 1s place.  For speed, we do this math using a compact series of
 ;; nested IFELSE-VALUE expressions.
 to-report state
   let north patch-at 0 1
@@ -389,7 +389,7 @@ to run-trial-step
   ask robots [
       let current-action item state strategy
       run current-action
-      ifelse step-counter != num-actions-per-environment 
+      ifelse step-counter != num-actions-per-environment
       [output-print (word step-counter ")  " current-action " (" action-symbol current-action "), score = " label)]
       [output-print (word step-counter ")  " current-action " (" action-symbol current-action "), final-score = " label)]
       ;; we're not using the tick counter here, so force a view update
@@ -636,7 +636,7 @@ TEXTBOX
 487
 658
 518
-Watch Robby move one step at a time.  
+Watch Robby move one step at a time.
 10
 0.0
 1
@@ -646,7 +646,7 @@ TEXTBOX
 424
 676
 476
-Setup and view Robby's environment by randomly distributing cans throughout the world. 
+Setup and view Robby's environment by randomly distributing cans throughout the world.
 10
 0.0
 1
@@ -780,9 +780,9 @@ When Robby picks up a can, he gets a reward. If he tries to pick up a can where 
 
 To decide which action to perform, Robby senses his surroundings. He can see the contents of the square he is in and the four neighboring squares.  Each square can contain a wall, a can, or neither.  That means his sensors can be in one of 3<sup>5</sup> = 243 possible combinations.
 
-A "strategy" for Robby specifies one of his seven possible actions for each of those 243 possible situations he can find himself in.  
+A "strategy" for Robby specifies one of his seven possible actions for each of those 243 possible situations he can find himself in.
 
-(Advanced note: If you actually do the math, you'll realize that some of those 243 situations turn out to be "impossible", e.g., Robby will never actually find himself in a situation in which all cardinal directions contain walls.  This is no problem; the genetic algorithm essentially ignores the "impossible" situations since Robby never encounters them.) 
+(Advanced note: If you actually do the math, you'll realize that some of those 243 situations turn out to be "impossible", e.g., Robby will never actually find himself in a situation in which all cardinal directions contain walls.  This is no problem; the genetic algorithm essentially ignores the "impossible" situations since Robby never encounters them.)
 
 ### How the genetic algorithm works
 
@@ -790,7 +790,7 @@ There are many possible variations on the basic concept of a genetic algorithm. 
 
 We begin with a pool of randomly generated strategies.  We load each strategy into Robby in turn, and then run that strategy in a series of randomly generated arrangements of cans ("environments").  We score Robby on how well he does in each environment. If Robby hits a wall, he loses 5 points. If he successfully picks up a can, he gains 10 points. If he tries to pick up a can, but there isn't one there, he loses 1 point.  Robby's average score across all these environments is taken as the "fitness" of that strategy.
 
-Once we have measured the fitness of the current pool of strategies, we construct the next generation of strategies.  Each new strategy has two parents.  We pick the first parent by picking 15 random candidate parents, then choose the one with the highest fitness.  We repeat this to pick the second parent. Each pair of parents creates two new children via crossover and mutation (see below).  We keep repeating this process until we have enough new children to fill up the population (settable by the POPULATION-SIZE slider).   This "generation" of new children replaces the previous generation.  We then similarly calculate the fitness of the current generation, choose parents, and create a new generation.  This process continues as long as the GO button is pressed, or is controlled by the NUMBER-OF-GENERATIONS slider when the GO-N-GENERATIONS button is pressed. 
+Once we have measured the fitness of the current pool of strategies, we construct the next generation of strategies.  Each new strategy has two parents.  We pick the first parent by picking 15 random candidate parents, then choose the one with the highest fitness.  We repeat this to pick the second parent. Each pair of parents creates two new children via crossover and mutation (see below).  We keep repeating this process until we have enough new children to fill up the population (settable by the POPULATION-SIZE slider).   This "generation" of new children replaces the previous generation.  We then similarly calculate the fitness of the current generation, choose parents, and create a new generation.  This process continues as long as the GO button is pressed, or is controlled by the NUMBER-OF-GENERATIONS slider when the GO-N-GENERATIONS button is pressed.
 
 To combine the strategies of two parents, we use "crossover".  We pick a random crossover point and combine the first part of the first parent's strategy with the second part of the other's parent's strategy.  For example, if the crossover point selected is 50, we use the first 50 entries of the first parent's strategy and the last 193 entries of the second parent's strategy.  (Each strategy is in a fixed order.)
 
@@ -798,11 +798,11 @@ In addition to crossover, the children's strategies are subject to occasional ra
 
 ## HOW TO USE IT
 
-Press SETUP to create the initial pool of random strategies.  Press GO-FOREVER to start the genetic algorithm running, or GO-N-GENERATIONS to run the genetic algorithm for a fixed number of generations (settable by the NUMBER-OF-GENERATIONS slider).  
+Press SETUP to create the initial pool of random strategies.  Press GO-FOREVER to start the genetic algorithm running, or GO-N-GENERATIONS to run the genetic algorithm for a fixed number of generations (settable by the NUMBER-OF-GENERATIONS slider).
 
-In the view, you'll see the pool of strategies (represented by "person" icons). The strategies are heterogeneous. The diversity in their fitness is visualized by color and position on the x-axis.  Their color is a shade of red, scaled by their fitness. It's  lightest when the fitness is low and darkest when it's high. In addition, the fitness of a strategy determines where it is along the x-axis, with the least fit strategies on the left, and the fittest strategies on the right.    
+In the view, you'll see the pool of strategies (represented by "person" icons). The strategies are heterogeneous. The diversity in their fitness is visualized by color and position on the x-axis.  Their color is a shade of red, scaled by their fitness. It's  lightest when the fitness is low and darkest when it's high. In addition, the fitness of a strategy determines where it is along the x-axis, with the least fit strategies on the left, and the fittest strategies on the right.
 
-Another aspect of diversity is the difference between the strategies. This difference is measured by counting the frequency of each of the 7 basic actions in the strategy (the "allele-diversity"), forming a 7 dimensional vector and then calculating the Euclidean distance between two such vectors.  One of the strategies with the highest fitness is placed in the center of the y-axis. The other strategies are placed at locations whose distance from the center along the y-axis is proportional to the difference between their strategy and the winning strategy.  
+Another aspect of diversity is the difference between the strategies. This difference is measured by counting the frequency of each of the 7 basic actions in the strategy (the "allele-diversity"), forming a 7 dimensional vector and then calculating the Euclidean distance between two such vectors.  One of the strategies with the highest fitness is placed in the center of the y-axis. The other strategies are placed at locations whose distance from the center along the y-axis is proportional to the difference between their strategy and the winning strategy.
 
 All of this takes a fair amount of time to show, so for long runs of the GA you'll want to move the speed slider to the right or uncheck the "view updates" checkbox to get results faster.
 
@@ -821,7 +821,7 @@ On the way to the final plateau, were there ever any temporary plateaus?
 
 ## THINGS TO TRY
 
-Vary the settings on the POPULATION-SIZE and MUTATION-RATE sliders.  How do these affect the best fitness in the population as well as the speed of evolution? 
+Vary the settings on the POPULATION-SIZE and MUTATION-RATE sliders.  How do these affect the best fitness in the population as well as the speed of evolution?
 
 ## EXTENDING THE MODEL
 
@@ -849,7 +849,7 @@ Simple Genetic Algorithm
 
 ## CREDITS AND REFERENCES
 
-Robby was invented by Melanie Mitchell and described in her book _Complexity: A Guided Tour_ (Oxford University Press, 2009), pages 130-142.   Robby was inspired by The "Herbert" robot developed at the MIT Artificial Intelligence Lab in the 1980s.  
+Robby was invented by Melanie Mitchell and described in her book _Complexity: A Guided Tour_ (Oxford University Press, 2009), pages 130-142.   Robby was inspired by The "Herbert" robot developed at the MIT Artificial Intelligence Lab in the 1980s.
 
 This NetLogo version of Robby is based on Mitchell's earlier versions in NetLogo and C.
 It uses code from the Simple Genetic Algorithms model (Stonedahl & Wilensky, 2008) in the NetLogo Sample Models Library.

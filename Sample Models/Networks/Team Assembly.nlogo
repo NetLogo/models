@@ -482,24 +482,24 @@ Agents in a newly assembled team are colored blue if they are newcomers and yell
 Click the SETUP button to start with a single team.  Click GO ONCE to assemble an additional team.  Click GO to indefinitely assemble new teams.  You may wish to use the GO ONCE button for the first few steps to get a better sense of how the parameters affect the assembly of teams.
 
 ### Visualization Controls
-- LAYOUT?: controls whether or not the spring layout algorithm runs at each tick.  This procedure attempts to move the nodes around to make the structure of the network easier to see.  Switching off LAYOUT? will significantly increase the speed of the model.  
+- LAYOUT?: controls whether or not the spring layout algorithm runs at each tick.  This procedure attempts to move the nodes around to make the structure of the network easier to see.  Switching off LAYOUT? will significantly increase the speed of the model.
 - PLOT?: switches on and off the plots. Again, off speeds up the model.
 
 The REDO LAYOUT button lets you run the layout algorithm without assembling new teams.
 
 ### Parameters
-- TEAM-SIZE: the number of agents in a newly assembled team.  
-- MAX-DOWNTIME: the number of steps an agent will remain in the world without collaborating before it retires.  
-- P: the probability an incumbent is chosen to become a member of a new team  
+- TEAM-SIZE: the number of agents in a newly assembled team.
+- MAX-DOWNTIME: the number of steps an agent will remain in the world without collaborating before it retires.
+- P: the probability an incumbent is chosen to become a member of a new team
 - Q: the probability that the team being assembled will include a previous collaborator of an incumbent on the team, given that the team has at least one incumbent.
 
 ### Plots
-- LINK COUNTS: plots a stacked histogram of the number of links in the collaboration network over time.  The colors correspond to collaboration ties as follows:  
--- Blue: two newcomers  
--- Green: a newcomer and an incumbent  
--- Yellow: two incumbents that have not previously collaborated with one another  
--- Red: Repeat collaborators  
--  % OF AGENTS IN THE GIANT COMPONENT: plots the percentage of agents belonging to the largest connected component network over time.  
+- LINK COUNTS: plots a stacked histogram of the number of links in the collaboration network over time.  The colors correspond to collaboration ties as follows:
+-- Blue: two newcomers
+-- Green: a newcomer and an incumbent
+-- Yellow: two incumbents that have not previously collaborated with one another
+-- Red: Repeat collaborators
+-  % OF AGENTS IN THE GIANT COMPONENT: plots the percentage of agents belonging to the largest connected component network over time.
 - AVERAGE COMPONENT SIZE: plots the average size of isolated collaboration networks as a fraction of the total number of agents
 
 Using the plots, one can observe important features of the network, like the distribution of link types or the connectivity of the network vary over time.
@@ -544,8 +544,8 @@ Giant Component - shows how critical points exist in which a network can transit
 
 ## CREDITS AND REFERENCES
 
-This model is based on:  
-R Guimera, B Uzzi, J Spiro, L Amaral; Team Assembly Mechanisms Determine Collaboration Network Structure and Team Performance. Science 2005, V308, N5722, p697-702  
+This model is based on:
+R Guimera, B Uzzi, J Spiro, L Amaral; Team Assembly Mechanisms Determine Collaboration Network Structure and Team Performance. Science 2005, V308, N5722, p697-702
 http://amaral.northwestern.edu/Publications/Papers/Guimera-2005-Science-308-697.pdf
 @#$#@#$#@
 default

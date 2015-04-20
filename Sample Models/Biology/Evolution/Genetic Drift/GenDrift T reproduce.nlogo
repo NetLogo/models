@@ -178,9 +178,9 @@ The model starts with a random distribution of colored turtles.  They move by wi
 
 ## HOW TO USE IT
 
-The "setup" button initializes the model.  
-The "go" button runs the model.  
-Use the "colors" slider to select the number of competing colors.  
+The "setup" button initializes the model.
+The "go" button runs the model.
+Use the "colors" slider to select the number of competing colors.
 The "number" slider sets the initial number of turtles.
 
 ## THINGS TO NOTICE
@@ -193,8 +193,8 @@ The grim reaper in the procedure `death` does a random harvesting of the populat
 
 ## RELATED MODELS
 
-* GenDrift P global  
-* GenDrift P local  
+* GenDrift P global
+* GenDrift P local
 * GenDrift T interact
 
 ## CREDITS AND REFERENCES

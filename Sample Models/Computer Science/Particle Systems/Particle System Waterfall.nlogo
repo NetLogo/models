@@ -347,9 +347,9 @@ For basics on particle systems, start with Particle System Basic and Particle Sy
 
 ## HOW IT WORKS
 
-In this model each particle has three main behaviors:  
-- If there is room ahead, it continues its trajectory.  
-- If it's about to touch the floor, its velocity-y is reversed and scaled by a restitution coefficient.  
+In this model each particle has three main behaviors:
+- If there is room ahead, it continues its trajectory.
+- If it's about to touch the floor, its velocity-y is reversed and scaled by a restitution coefficient.
 - If it's about to touch the left side, right side or ceiling, it disappears.
 
 A particle with an initial velocity emerges from the top left of the world. It is subjected to the force of gravity, which slows it down and pulls it to the bottom of the world. In addition, forces of wind and viscosity are present. The maximum number of particles and the particle rate can be changed with the appropriate sliders. Finally, the step of the systems, which controls the precision of the system calculations can be increased or decreased, but it will change the speed of the systems since more calculations have to be done for a more precise simulation. Below, the use of each slider, button and switch is explained.
@@ -420,8 +420,8 @@ In order to avoid getting this error message, check if the patch in the followin
 
 ## RELATED MODELS
 
-Particle System Basic  
-Particle System Fountain  
+Particle System Basic
+Particle System Fountain
 Particle System Flame
 
 ## CREDITS AND REFERENCES

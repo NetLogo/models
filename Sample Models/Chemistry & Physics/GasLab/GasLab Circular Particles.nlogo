@@ -15,7 +15,7 @@ breed [particles particle]
 particles-own [
   speed
   mass
-  energy        
+  energy
 ]
 
 
@@ -466,7 +466,7 @@ end
 
 to-report kinetic-energy
    report (0.5 * mass * speed * speed)
-end   
+end
 
 to draw-vert-line [ xval ]
   plotxy xval plot-y-min
@@ -701,7 +701,7 @@ percent-slow
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model is one in a series of GasLab models. They use the same basic rules for simulating the behavior of gases.  Each model integrates different features in order to highlight different aspects of gas behavior.  
+This model is one in a series of GasLab models. They use the same basic rules for simulating the behavior of gases.  Each model integrates different features in order to highlight different aspects of gas behavior.
 
 This model is different from the other GasLab models in that the collision calculations take the circular shape and size of the particles into account, instead of modeling the particles as dimensionless points.
 
@@ -719,17 +719,17 @@ INITIAL-NUMBER-PARTICLES determines the number of gas particles used with SETUP.
 
 SMALLEST-PARTICLE-SIZE and LARGEST-PARTICLE-SIZE determines the range of particle sizes that will be created when SETUP is pressed.  (Particles are also assigned a mass proportional to the area of the particle that is created.)
 
-The SETUP button will set the initial conditions.  
+The SETUP button will set the initial conditions.
 The GO button will run the simulation.
 
-Monitors:  
-- % FAST, % MEDIUM, % SLOW: the percentage of particles with different speeds: fast (red), medium (green), and slow (blue).  
-- AVERAGE SPEED: average speed of the particles.  
+Monitors:
+- % FAST, % MEDIUM, % SLOW: the percentage of particles with different speeds: fast (red), medium (green), and slow (blue).
+- AVERAGE SPEED: average speed of the particles.
 - AVERAGE ENERGY: average kinetic energy of the particles.
 
-Plots:  
-- SPEED COUNTS: plots the number of particles in each range of speed.  
-- SPEED HISTOGRAM: speed distribution of all the particles.  The gray line is the average value, and the black line is the initial average.  
+Plots:
+- SPEED COUNTS: plots the number of particles in each range of speed.
+- SPEED HISTOGRAM: speed distribution of all the particles.  The gray line is the average value, and the black line is the initial average.
 - ENERGY HISTOGRAM: distribution of energies of all the particles, calculated as  m*(v^2)/2.  The gray line is the average value, and the black line is the initial average.
 
 Initially, all the particles have the same speed but random directions. Therefore the first histogram plots of speed will show only one column.  If all the particles have the same size (and therefore the same mass), then the first histogram plot of energy will also show one column.  As the particles repeatedly collide, they exchange energy and head off in new directions, and the speeds are dispersed -- some particles get faster, some get slower.  The histogram distribution changes accordingly.

@@ -310,10 +310,10 @@ Try running the model with different settings for MEMORY-SIZE and NUMBER-STRATEG
 
 ## EXTENDING THE MODEL
 
-Currently the weights that determine each strategy are randomly generated during the model setup.  Try altering the weights that are possible during setup so that they only reflect a mix of the following agent strategies:  
-- always predict the same as last week's attendance  
-- an average of the last several week's attendance  
-- the same as 2 weeks ago  
+Currently the weights that determine each strategy are randomly generated during the model setup.  Try altering the weights that are possible during setup so that they only reflect a mix of the following agent strategies:
+- always predict the same as last week's attendance
+- an average of the last several week's attendance
+- the same as 2 weeks ago
 Can you think of other simple rules one might follow?
 
 At the end of Arthur's original paper, he mentions that though he uses a simple learning technique (the "bag of strategies" method that we use here) almost any other kind of machine learning technique would achieve the same results.  This method is particularly limiting in that the strategies an agent is given during the setup are all the strategies they have for the entire run of the model.  Most other machine learning methods would enable the agents to change their strategies over time.  In fact Fogel et al. (1999) implemented a genetic algorithm and got somewhat different results.  Try implementing another machine learning technique and see what the results are.
@@ -340,14 +340,14 @@ Wilensky, U. (2004).  NetLogo Minority Game model.  http://ccl.northwestern.edu/
 There is also a participatory game version of the Minority Game model in the models library.
 
 Stouffer, D. & Wilensky, U. (2004). NetLogo Minority Game HubNet model. http://ccl.northwestern.edu/netlogo/models/MinorityGameHubNet. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-  
+
 There is also an alternative implementation of this model with more parameters that is part of the NetLogo User Community Models.
 
 ## HOW TO CITE
 
-This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling 
+This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling
  Natural, Social and Engineered Complex Systems with NetLogo."
- 
+
 If you mention this model or the NetLogo software in a publication, we ask that you include the cites.
 
 For the model itself:
@@ -360,7 +360,7 @@ Please cite the NetLogo software as:
 
 Please cite the textbook as:
 
-* Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling 
+* Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling
  Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
 ## CREDITS AND REFERENCES

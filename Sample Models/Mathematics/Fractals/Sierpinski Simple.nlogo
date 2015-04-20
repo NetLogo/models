@@ -174,7 +174,7 @@ Try to write a program that draws other self-similar shapes.  For instance try t
                     .               Step 0
 
 
-    
+
                     |
                     |
                     |

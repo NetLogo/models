@@ -10,12 +10,12 @@ patches-own [
 globals [
   consumers           ; The patches that will act as consumers, either a vertical line or all patches
 ]
-  
+
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; setup procedures ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
-to setup        
+to setup
   clear-all
   setup-consumers
   setup-stores
@@ -31,15 +31,15 @@ to setup-consumers
     [ patches ]
 end
 
-to setup-stores 
+to setup-stores
   ; We choose as many random colors as the number of stores we want to create
-  foreach n-of number-of-stores base-colors [ 
+  foreach n-of number-of-stores base-colors [
     ; ...and we create a store of each of these colors on random consumer patches
     ask one-of consumers [
       sprout 1 [
         set color ? ; use the color from the list that we are looping through
-        set shape "Circle (2)" 
-        set size 2 
+        set shape "Circle (2)"
+        set size 2
         set price 10
         set pen-size 5
       ]
@@ -50,11 +50,11 @@ end
 to go
   ; We accumulate location and price changes as list of tasks to be run later
   ; in order to simulate simultaneous decision making on the part of the stores
-     
+
   let location-changes ifelse-value (rules = "pricing-only")
     [ (list) ] ; if we are doing "pricing-only", the list of moves is empty
     [ [ new-location-task ] of turtles ]
-  
+
   let price-changes ifelse-value (rules = "moving-only")
     [ (list) ] ; if we are doing "moving-only", the list of price changes is empty
     [ [ new-price-task ] of turtles ]
@@ -62,13 +62,13 @@ to go
   foreach location-changes run
   foreach price-changes run
   recalculate-area
-  tick  
+  tick
 end
 
 to recalculate-area
-  ; Have each consumer (patch) indicate its preference by 
+  ; Have each consumer (patch) indicate its preference by
   ; taking on the color of the store it chooses
-  ask consumers [ 
+  ask consumers [
     set preferred-store choose-store
     set pcolor ([ color ] of preferred-store + 2)
   ]
@@ -88,7 +88,7 @@ to-report new-location-task
   ; we want the neighbors4 in random order, but we want to turn them from an agentset to a list
   ; and `sort` is the way to do that, hence the weird `shuffle sort` expression
   let possible-moves shuffle sort (neighbors4 with [ member? self consumers ])
-  
+
   if area-count > 0 [
     ; Only consider the status quo if we already have a market share, but if we consider it,
     ; put it at the front of the list so it is favored in case of ties in sort-by
@@ -106,7 +106,7 @@ to-report new-location-task
   let store self ; put self in a local variable so that it can be "captured" by the task
   report task [
     ask store [
-      pen-down 
+      pen-down
       move-to chosen-location
       pen-up
     ]
@@ -130,7 +130,7 @@ end
 ; and report a task that will allow the chosen price change to be enacted later
 to-report new-price-task
 
-  ; We build a list of candidate prices, keeping the status quo in first, but having -1 and +1 in random 
+  ; We build a list of candidate prices, keeping the status quo in first, but having -1 and +1 in random
   ; order after that. This order is going to be preserved by the `sort-by` primitive in case of ties,
   ; and we always want the status quo to win in this case, but -1 and +1 to have equal chances
   let possible-prices fput price shuffle list (price - 1) (price + 1)
@@ -339,7 +339,7 @@ layout
 ## WHAT IS IT?
 
 This model is a representation of Hotelling's law (1929), which examines the optimal placement of stores and pricing of their goods in order to maximize profit. In Hotelling's original paper, the stores were confined to a single dimension.  This model replicates and extends Hotelling's law, by allowing the stores to move freely on a plane.
-   
+
 In this model, several stores attempt to maximize their profits by moving and changing their prices.  Each consumer chooses their store of preference based on the distance to the store and the price of the goods it offers.
 
 
@@ -350,7 +350,7 @@ Each consumer adds up the price and distance from each store, and then chooses t
 
 ## HOW TO USE IT
 
-Press SETUP to create the stores and a visualization of their starting market share areas.    
+Press SETUP to create the stores and a visualization of their starting market share areas.
 Press GO to have the model run continuously.
 Press GO-ONCE to have the model run once.
 The NUMBER-OF-STORES slider decides how many stores are in the world.

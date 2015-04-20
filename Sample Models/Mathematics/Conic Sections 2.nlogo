@@ -216,23 +216,23 @@ The turtles use feedback to make decisions about how they behave. They set out i
 
 ### Hyperbolas
 
--Select the number of turtles with the NUM-TURTLES slider.  
--Press SETUP.  
--Make sure the DIRECTRIX? switch is set to OFF.  
--Press GO  
+-Select the number of turtles with the NUM-TURTLES slider.
+-Press SETUP.
+-Make sure the DIRECTRIX? switch is set to OFF.
+-Press GO
 -click at two points in the view to set the foci
- 
+
 ### Parabolas
 
--Select the number of turtles with the NUM-TURTLES slider.  
--Press SETUP.  
--Make sure the DIRECTRIX? switch is set to TRUE.  
--Press GO  
+-Select the number of turtles with the NUM-TURTLES slider.
+-Press SETUP.
+-Make sure the DIRECTRIX? switch is set to TRUE.
+-Press GO
 -click at two different locations in the view to set the directrix and the focus.
 
 ## THINGS TO NOTICE
 
-When forming a hyperbola, turtles adjust their positions from two user-defined foci so that the difference between their distances from the foci attains a  
+When forming a hyperbola, turtles adjust their positions from two user-defined foci so that the difference between their distances from the foci attains a
 value of CONSTANT.
 
 When forming a parabola, turtles move to an equal distance from the directrix to the focus.

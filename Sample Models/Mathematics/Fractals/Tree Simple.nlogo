@@ -204,12 +204,12 @@ Perhaps the best way to start with this program is by looking at an example of a
 
 You can also have the fractal drawn one step a time.  Once you click the SETUP button, instead of clicking the GO button, click on the GO ONCE button.  This draws the fractal by drawing one iteration of the fractal per click as opposed to continuously, like the GO button.
 
-If you don't like the location of the fractal you can change it by modifying the value of the following sliders:  
-The INIT-X slider sets the initial x coordinate of the first turtle.  It changes the horizontal starting location of the original turtle.  
+If you don't like the location of the fractal you can change it by modifying the value of the following sliders:
+The INIT-X slider sets the initial x coordinate of the first turtle.  It changes the horizontal starting location of the original turtle.
 The INIT-Y slider sets the initial y coordinate of the first turtle.  It changes the vertical starting location of the original turtle.
 
-If you don't like the color scheme of the fractal you can change it by modifying the value of the following sliders:  
-The INIT-COLOR slider sets the initial color of the first turtle.  
+If you don't like the color scheme of the fractal you can change it by modifying the value of the following sliders:
+The INIT-COLOR slider sets the initial color of the first turtle.
 The value of the COLOR-INC slider is added to the turtles color anytime a new turtle hatches.
 
 The NUM TURTLES monitor indicates how many turtles are currently alive.

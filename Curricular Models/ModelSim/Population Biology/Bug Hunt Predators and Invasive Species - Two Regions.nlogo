@@ -14,7 +14,7 @@ globals
   sprout-delay-time ;; number of ticks before grass starts regrowing
   grass-level ;; a measure of the amount of grass currently in the ecosystem
   grass-growth-rate ;; the amount of energy units a plant gains every tick from regrowth
-  
+
   invaders-stride ;; how much an invader moves in each simulation step
   birds-stride    ;;  how much a bird moves in each simulation step
 
@@ -30,8 +30,8 @@ globals
   min-reproduce-energy-birds      ;; energy required for reproduction by birds
   max-birds-offspring             ;; maximum number of offspring per reproductive event for a bird
   max-invaders-offspring          ;; maximum number of offspring per reproductive event for an invader
-     
-  
+
+
   bug-color-region-1
   bug-color-region-2
   bird-color-region-1
@@ -68,7 +68,7 @@ end
 
 to setup
   clear-all
-  
+
   set max-plant-energy 100
   set grass-growth-rate 10
   set sprout-delay-time 25
@@ -94,7 +94,7 @@ to setup
   set bird-size 2.5
   set bug-size 1.2
   set invader-size 1.5
-  
+
 
   set bird-color-region-1 (orange  )
   set bird-color-region-2 (orange - 1)
@@ -108,8 +108,8 @@ to setup
   set-default-shape bugs "bug"
   set-default-shape birds "bird"
   set-default-shape invaders "mouse"
-  
-  
+
+
   setup-regions 2
   add-starting-grass
   add-bugs 1
@@ -117,10 +117,10 @@ to setup
   add-birds 1
   add-birds 2
   set graph-values-for "energy of bugs"
- 
+
 
   reset-ticks
-  
+
 end
 
 
@@ -145,7 +145,7 @@ to add-grass-in-region [ which-region %-grassland ]
     set plant-energy max-plant-energy / 2
     color-grass
   ]
-  
+
 end
 
 
@@ -459,7 +459,7 @@ to add-rocks
        set color gray + 2 + random-float 0.5
        stamp
        die
-       
+
     ]
     set pcolor rock-color
    ;; sprout 1 [set breed rocks set shape "rock-1" set color gray set heading random 360 set color (gray - random-float 1 + random-float 1)]
@@ -983,10 +983,10 @@ This model explores the stability of consumer producer ecosystems when different
 
 ## HOW IT WORKS
 
-Bugs wander randomly around one of two regions (left or right).  Each region is a self contained ecosystem  in the world.  Bugs in one region never go into the other region.    As bugs reach the edge of their region, they wrap around to other side of their own region.  
+Bugs wander randomly around one of two regions (left or right).  Each region is a self contained ecosystem  in the world.  Bugs in one region never go into the other region.    As bugs reach the edge of their region, they wrap around to other side of their own region.
 
-Each step (tick), each bug loses one unit of energy and they must consume a food source (grass) to replenish their energy. When they run out of energy, they die. To allow the population to continue, each bug must have enough energy to have an offspring.  When that threshold is reached for an individual bug, it has an offspring. The offspring and parent split the energy amongst themselves.  
-Different amounts of grassland can be assigned to each region using the sliders. Grass is eaten when a bug moves over that patch. When this happens a fixed amount of grass energy is deducted from the patch (square) where the grass was eaten. Within each region, grass regrows at a fixed rate. 
+Each step (tick), each bug loses one unit of energy and they must consume a food source (grass) to replenish their energy. When they run out of energy, they die. To allow the population to continue, each bug must have enough energy to have an offspring.  When that threshold is reached for an individual bug, it has an offspring. The offspring and parent split the energy amongst themselves.
+Different amounts of grassland can be assigned to each region using the sliders. Grass is eaten when a bug moves over that patch. When this happens a fixed amount of grass energy is deducted from the patch (square) where the grass was eaten. Within each region, grass regrows at a fixed rate.
 
 Birds wander randomly around one of two regions (left or right), following similar movement, energy loss, and reproduction rules as the bugs. Birds eat bugs, and not grass.
 
@@ -1029,7 +1029,7 @@ Watch as the grass, bug, bird, and invader populations fluctuate.  How are incre
 
 Different % of grassland values affect the carrying capacity (average values) for both the bugs, grass, birds, and invasive. Why?
 
-Different food consumption values (FOOD-LEFT-BUGS-EAT and FOOD-RIGHT-BUGS-EAT and 
+Different food consumption values (FOOD-LEFT-BUGS-EAT and FOOD-RIGHT-BUGS-EAT and
 FOOD-LEFT-INVADERS-EAT and FOOD-RIGHT-INVADERS-EAT) may lead to different levels of stability as well as whether one population (bugs vs. invaders) outcompetes the other.
 
 
@@ -1041,7 +1041,7 @@ Try adjusting the parameters under various settings. How sensitive is the stabil
 
 ## NETLOGO FEATURES
 
-The two regions in this model are represented by shapes that add another "wall" that surround the region.  
+The two regions in this model are represented by shapes that add another "wall" that surround the region.
 
 
 ## RELATED MODELS

@@ -8,7 +8,7 @@ patches-own [ grass ]  ;; patches have grass
 ;; this procedures sets up the model
 to setup
   clear-all
-  ask patches [  
+  ask patches [
     ;; give grass to the patches, color it shades of green
     set grass random-float 10.0
     recolor-grass ;; change the world green
@@ -42,7 +42,7 @@ to go
     reproduce
   ]
   regrow-grass ;; regrow the grass
-  tick         
+  tick
   my-update-plots  ;; plot the population counts
 end
 
@@ -68,8 +68,8 @@ end
 
 ;; recolor the grass to indicate how much has been eaten
 to recolor-grass
-;;  set pcolor scale-color green grass 0 20 
-set pcolor scale-color green (10 - grass) -10 20 
+;;  set pcolor scale-color green grass 0 20
+set pcolor scale-color green (10 - grass) -10 20
 end
 
 ;; regrow the grass
@@ -84,7 +84,7 @@ to regrow-grass
 end
 
 to eat
-  ifelse breed = sheep 
+  ifelse breed = sheep
   [eat-grass]
   [eat-sheep]
 end
@@ -92,7 +92,7 @@ end
 ;; sheep procedure, sheep eat grass
 to eat-grass
   ;; check to make sure there is grass here
-  if ( grass >= energy-gain-from-grass ) [    
+  if ( grass >= energy-gain-from-grass ) [
     ;; increment the sheep's energy
     set energy energy + energy-gain-from-grass
     ;; decrement the grass
@@ -112,10 +112,10 @@ end
 to my-update-plots
   set-current-plot-pen "sheep"
   plot count sheep
-  
+
   set-current-plot-pen "wolves"
   plot count wolves * 10 ;; scaling factor so plot looks nice
-  
+
   set-current-plot-pen "grass"
   plot sum [grass] of patches / 50 ;; scaling factor so plot looks nice
 end
@@ -129,7 +129,7 @@ end
 
 ;; turtle procedure, the agent moves which costs it energy
 to move
-  forward 1  
+  forward 1
   set energy energy - movement-cost ;; reduce the energy by the cost of movement
 end
 @#$#@#$#@
@@ -324,7 +324,7 @@ It extends the model Wolf Sheep Simple 4.
 The model creates a population of sheep that wander around the landscape.  For each step the sheep take it costs them some energy and if there energy gets too low they die.  However, the sheep can eat grass in the environment to regain energy and the grass regrows over time.  If the energy of the sheep gets above a certain level then they can reproduce.
 
 In this fifth model, there are also wolves.  Wolves have the same behaviors as sheep except for eating; rather than grass, they eat sheep.
- 
+
 ## HOW TO USE IT
 
 Set the NUMBER-OF-SHEEP slider and press SETUP to create the initial population. You can also change the MOVEMENT-COST slider to affect the energy cost of movement for the sheep.  The GRASS-REGROWTH-RATE slider affects how fast the grass grows back, while the ENERGY-GAIN-FROM-GRASS slider affects how much energy the sheep can gain from eating the grass, and the ENERGY-GAIN-FROM-SHEEP slider affects how much energy the wolves gain from eating sheep.
@@ -353,9 +353,9 @@ The Wolf Sheep Predation Model in the Biology section of the NetLogo models libr
 
 ## HOW TO CITE
 
-This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling 
+This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling
  Natural, Social and Engineered Complex Systems with NetLogo."
- 
+
 If you mention this model or the NetLogo software in a publication, we ask that you include the cites.
 
 For the model itself:
@@ -368,7 +368,7 @@ Please cite the NetLogo software as:
 
 Please cite the textbook as:
 
-* Wilensky, U.  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling 
+* Wilensky, U.  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling
  Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
 ## CREDITS AND REFERENCES

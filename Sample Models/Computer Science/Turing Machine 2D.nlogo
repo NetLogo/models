@@ -451,7 +451,7 @@ on-1-turn
 @#$#@#$#@
 ## WHAT IS IT?
 
-This is a model of a multi-headed Turing machine on a 2 dimensional tape (2D MTM), which is an extension of the original machine proposed by Turing in 1936. 
+This is a model of a multi-headed Turing machine on a 2 dimensional tape (2D MTM), which is an extension of the original machine proposed by Turing in 1936.
 
 A Turing machine is a simple computing machine capable of doing anything a modern computer can do.  A traditional Turing machine has a single processor, or "head," with a limited number of internal states that change depending on the data that is read by the head.  As the Turing machine computes, the head moves back and forth across the tape, changing its internal state and the value of the current cell.
 
@@ -471,18 +471,18 @@ COLOR-PATHS?: Tells the heads to write color information onto the cell. This fea
 
 HEAD-SIZE: How large the head, or turtle appears.
 
-The rules of all heads are given by three parameters:  
+The rules of all heads are given by three parameters:
 [cell state]-[head state]-state [cell state]-[head state]-position [cell state]-[head state]-on?
 
 The prefix of each slider/toggle refers to the current state of the machine and the cell it is on.
 
-First prefix  - current cell state: on/off  
+First prefix  - current cell state: on/off
 Second prefix - current state of head, which may be either 0 or 1
 
 These prefixes specify the initial state which the following rules are applied to:
 
-Turn- specifies what direction the head will turn before moving forward 1 cell  
-New Head State- specifies the new head state  
+Turn- specifies what direction the head will turn before moving forward 1 cell
+New Head State- specifies the new head state
 New Cell State- specifies the state to apply to the current cell
 
 ## THINGS TO NOTICE
@@ -519,10 +519,10 @@ Try adding more states to the cells and/or heads to the model.  Do different typ
 
 ## CREDITS AND REFERENCES
 
-Langton, C. 1984. Self-reproduction in cellular automata. Physica D 10, 134-144  
+Langton, C. 1984. Self-reproduction in cellular automata. Physica D 10, 134-144
 Langton, C. 1986. Studying artificial life with cellular automata. Physica D 22, 120-149
-Sipser, M. 1997. Introduction to the Theory of Computation. PWS Publishing 125-147.  
-Wolfram, S. 2002. A New Kind of Science. Wolfram Media Inc.  Champaign, IL.  
+Sipser, M. 1997. Introduction to the Theory of Computation. PWS Publishing 125-147.
+Wolfram, S. 2002. A New Kind of Science. Wolfram Media Inc.  Champaign, IL.
 Pegg, E. 2002. Turmite. http://mathworld.wolfram.com/Turmite.html.
 
 Thanks to Ethan Bakshy for his work on this model.

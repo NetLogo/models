@@ -6,24 +6,24 @@ patches-own [ grass ]  ;; patches have grass
 
 ;; this procedures sets up the model
 to setup
-  clear-all 
-  ask patches [  
+  clear-all
+  ask patches [
     ;; give grass to the patches, color it shades of green
-    set grass random-float 10.0     
-    set pcolor scale-color green grass 0 20 
+    set grass random-float 10.0
+    set pcolor scale-color green grass 0 20
   ]
-  create-sheep number-of-sheep [  
+  create-sheep number-of-sheep [
     setxy random-xcor random-ycor
     set color white
     set shape "sheep"
-    set energy 100  
+    set energy 100
   ]
   reset-ticks
 end
 
 
 to go
-  if not any? sheep [  
+  if not any? sheep [
     stop
   ]
   ask sheep [
@@ -39,7 +39,7 @@ end
 
 ;; recolor the grass to indicate how much has been eaten
 to recolor-grass
-  set pcolor scale-color green grass 0 20 
+  set pcolor scale-color green grass 0 20
 end
 
 ;; regrow the grass
@@ -56,7 +56,7 @@ end
 ;; sheep procedure, sheep eat grass
 to eat
   ;; check to make sure there is grass here
-  if ( grass >= energy-gain-from-grass ) [    
+  if ( grass >= energy-gain-from-grass ) [
     ;; increment the sheep's energy
     set energy energy + energy-gain-from-grass
     ;; decrement the grass
@@ -86,7 +86,7 @@ end
 
 ;; sheep procedure, the sheep moves which costs it energy
 to move
-  forward 1  
+  forward 1
   set energy energy - movement-cost ;; reduce the energy by the cost of movement
 end
 @#$#@#$#@
@@ -247,7 +247,7 @@ It extends the model Wolf Sheep Simple 2.
 ## HOW IT WORKS
 
 The model creates a population of sheep that wander around the landscape. Moving around costs some energy, and when their energy gets too low, sheep die. However, sheep can eat grass in the environment to regain energy and the grass regrows over time.
- 
+
 ## HOW TO USE IT
 
 Set the NUMBER-OF-SHEEP slider and press SETUP to create the initial population. You can also change the MOVEMENT-COST slider to affect the cost of movement for the sheep.  The GRASS-REGROWTH-RATE slider affects how fast the grass grows back, while the ENERGY-GAIN-FROM-GRASS slider affects how much energy the sheep gain from eating the grass.
@@ -270,9 +270,9 @@ The Wolf Sheep Predation Model in the Biology section of the NetLogo models libr
 
 ## HOW TO CITE
 
-This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling 
+This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling
  Natural, Social and Engineered Complex Systems with NetLogo."
- 
+
 If you mention this model or the NetLogo software in a publication, we ask that you include the cites.
 
 For the model itself:
@@ -285,7 +285,7 @@ Please cite the NetLogo software as:
 
 Please cite the textbook as:
 
-* Wilensky, U.  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling 
+* Wilensky, U.  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling
  Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
 ## CREDITS AND REFERENCES

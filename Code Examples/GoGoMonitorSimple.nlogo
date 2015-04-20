@@ -275,7 +275,7 @@ TEXTBOX
 110
 400
 140
-GoGo board have two built in ways to verify if your board is connected: an on-board LED and the ability to beep. 
+GoGo board have two built in ways to verify if your board is connected: an on-board LED and the ability to beep.
 11
 0.0
 1
@@ -334,7 +334,7 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This simple model communicates with the sensors and output ports of a GoGo Board, an open source, easy-to-build, low cost, general purpose circuit board designed for educational projects. 
+This simple model communicates with the sensors and output ports of a GoGo Board, an open source, easy-to-build, low cost, general purpose circuit board designed for educational projects.
 
 This model helps you test your connection to your GoGo Board, and serves as a starting point for building NetLogo activities that interact with the physical world. For a more complete version of this model, try the GoGoMonitor.
 
@@ -368,7 +368,7 @@ To plot sensor 1 values, start the PLOT SENSOR forever button.  At any time, you
 Try connecting different sensors to the GoGo Board: temperature sensors, light sensors, pressure sensors, etc.
 
 Connect various motors, lights, and other circuits to the GoGo Board's output ports.
-  
+
 To find out where to buy sensors and motors, go to the GoGo Board website (www.gogoboard.org)
 
 ## EXTENDING THE MODEL

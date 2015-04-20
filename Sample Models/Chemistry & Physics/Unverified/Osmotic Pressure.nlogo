@@ -77,7 +77,7 @@ end
 ;; sodium and chloride ions -- so for every one particle of sodium chloride, we get 2 particles of ions (in the model, these still retain the "solute"
 ;; breed).  Magnesium chloride breaks up into one magnesium ion, and two chloride ions (so 1 magnesium chloride gets you 3 ion particles),
 ;; and aluminum chloride breaks up into one aluminum ion, and three chloride ions (so 1 aluminum chloride gets you 4 ion particles).
-;; 
+;;
 ;; In the code below, this is accomplished by creating solute particles based on the slider value, and then "hatching" new solute particles based on
 ;; the number of ions the compound forms.  So for sodium chloride, we create the number of particles indicated by the slider, and then each solute
 ;; spawns an extra solute particle to make a total of two ion particles for each solute particle added.
@@ -120,7 +120,7 @@ to create-solutes-and-ions [ions]
       move-to one-of left-side with [pcolor = black]        ;; move to an open space on the left side
       while [any? other turtles-here] [
         move-to one-of left-side with [pcolor = black] ]
-      hatch-solutes (ions - 1) [                            ;; since one particle was already created above, 
+      hatch-solutes (ions - 1) [                            ;; since one particle was already created above,
         set color white                                     ;; we hatch 1 less than the total number of ions the substance has
         setup-particles
         fd 0.2                                              ;; move forward a bit so we can see the particles better
@@ -262,7 +262,7 @@ to check-for-collision  ;; particle procedure
   ;; form a uniform wavefront.
   ;;
   ;; Why do we want a uniform wavefront?  Because it is actually more
-  ;; realistic.  
+  ;; realistic.
   ;;
   ;; Why is it realistic to assume a uniform wavefront?  Because in reality,
   ;; whether a collision takes place would depend on the actual headings
@@ -655,23 +655,23 @@ At each tick, the membrane moves according to the difference in the number of so
 
 ###Initial settings
 
-**SOLUTE:** Choose the solute to add to the solution.  The chemical formula of the solute will be printed in the output box to the right.  Each solute will act differently in solution depending on its bonding behavior.  
-**SOLUTE-LEFT:** This number will determine the number of solute particles added to the solution on the left side of the membrane.  Keep in mind, due to various bonding behaviors, the total number of dissolved particles may be different from this value.  
+**SOLUTE:** Choose the solute to add to the solution.  The chemical formula of the solute will be printed in the output box to the right.  Each solute will act differently in solution depending on its bonding behavior.
+**SOLUTE-LEFT:** This number will determine the number of solute particles added to the solution on the left side of the membrane.  Keep in mind, due to various bonding behaviors, the total number of dissolved particles may be different from this value.
 **SOLUTE-RIGHT:** This number will determine the number of solute particles added to the solution on the right side of the membrane.  Keep in mind, due to various bonding behaviors, the total number of dissolved particles may be different from this value.
 
 ###Buttons
 
-**SETUP:** Sets up the model  
+**SETUP:** Sets up the model
 **GO:** Runs the model
 
 ###Monitors
 
-**WATER # LEFT:** Shows the number of solvent particles on the left side of the membrane.  
+**WATER # LEFT:** Shows the number of solvent particles on the left side of the membrane.
 **WATER # RIGHT:** Shows the number of solvent particles on the right side of the membrane.
 **SOLUTE LEFT:** Shows the number of solute particles on the left side of the membrane.
-**SOLUTE RIGHT:** Shows the number of solute particles on the right side of the membrane.  
-**STUCK LEFT:** Shows the number of solvent particles currently stuck to solute particles on the left side of the membrane  
-**STUCK RIGHT:** Shows the number of solvent particles currently stuck to solute particles on the right side of the membrane  
+**SOLUTE RIGHT:** Shows the number of solute particles on the right side of the membrane.
+**STUCK LEFT:** Shows the number of solvent particles currently stuck to solute particles on the left side of the membrane
+**STUCK RIGHT:** Shows the number of solvent particles currently stuck to solute particles on the right side of the membrane
 **MEMBRANE:** Shows the x-cor of the membrane. Note: The membrane moves based on the difference between the amount of particles moving across the membrane in a given direction each step.
 **AVERAGE:** Shows mean of the membrane location over the entire model run.
 
@@ -684,13 +684,13 @@ At each tick, the membrane moves according to the difference in the number of so
 
 As the model runs, more solvent particles should end up on the side of the membrane with more solute particles. Because more solvent particles are free to move on the side with fewer solute particles, they are more likely to cross the membrane.
 
-How does the membrane movement change when adding different solutes? Is there a pattern?  
+How does the membrane movement change when adding different solutes? Is there a pattern?
 What happens when adding Sodium Chloride?  How is this different from adding Sugar?
 
 
 ## THINGS TO TRY
 
-Try adding different solutes.  Can you get a change in the number of solute particles so that Sodium Chloride acts like Sugar?  
+Try adding different solutes.  Can you get a change in the number of solute particles so that Sodium Chloride acts like Sugar?
 Is there a mathematical relationship between membrane movement and the number of solute particles. Will this relationship depend on the type of solute added?  Why or why not?
 
 
@@ -700,14 +700,14 @@ Try making new solutes.
 
 There are at least two other common proposals for an agent-based explanations for the process of osmosis.
 
- 1. Solute particles "block" solvent particles from moving across the membrane. Solvent particles will then show a net movement from a side of fewer solute particles (because there are less solute particles blocking their path) to a side with more solvent particles.  
+ 1. Solute particles "block" solvent particles from moving across the membrane. Solvent particles will then show a net movement from a side of fewer solute particles (because there are less solute particles blocking their path) to a side with more solvent particles.
  2. Solute particles are generally larger than solvent particles (usually water). The size of the solute particles leads to frequent collisions of solvent-solute particles. On the side with more solute particles, the mean free path of solvent particles will be lower, leading to a net movement of particles from the low solute side.
 
 Can you model these alternate explanations?
 
 
 ## NETLOGO FEATURES
- 
+
 Fixed length links are simulated by first tying particles together, then applying motion rules to only the solute particles.
 
 

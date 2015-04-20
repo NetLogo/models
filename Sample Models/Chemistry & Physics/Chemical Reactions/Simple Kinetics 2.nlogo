@@ -424,8 +424,8 @@ The rate at which a reaction reaches equilibrium as well as the state of the equ
 
 To start off:
 
-Choose the values of Kb and Ku with appropriate sliders:  
-- Kb controls the rate of the forward reaction by which two green molecules turn bimolecularly into a single red molecule.  
+Choose the values of Kb and Ku with appropriate sliders:
+- Kb controls the rate of the forward reaction by which two green molecules turn bimolecularly into a single red molecule.
 - Ku controls the rate of the reverse reaction, by which a red molecule turns unimolecularly into two green molecules.
 
 Having chosen appropriate values of the constants, press SETUP to clear the world and create an initial number of green molecules.  Note: we do not create red molecules initially, although this can be done in principal.

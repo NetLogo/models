@@ -1,5 +1,5 @@
 globals [ sample-car best-speed-so-far acceleration best-acceleration-so-far ]
-turtles-own [ speed speed-limit speed-min trip-time-start trip-time] 
+turtles-own [ speed speed-limit speed-min trip-time-start trip-time]
 
 to setup
   clear-all
@@ -78,10 +78,10 @@ to adaptive-go
     set testing? true
     set acceleration acceleration + random-float 0.001 - 0.0005
   ]
-  
+
   ;; invoke the non-adaptive go code
   go
-  
+
   ;; check to see if our new speed of turtles is better than the previous speeds if so
   ;;   then adopt the new acceleration
   ;; you don't want to take one data point as a measure of the speed. Instead you
@@ -96,7 +96,7 @@ to adaptive-go
   ]
   if not testing? [
     set best-speed-so-far (0.1 * mean [speed] of turtles) + (0.9 * best-speed-so-far)
-  ]  
+  ]
 end
 
 

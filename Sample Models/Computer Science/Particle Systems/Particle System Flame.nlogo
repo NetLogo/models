@@ -323,8 +323,8 @@ Change the model to emit particles with different shapes, sizes, and colors in o
 
 ## RELATED MODELS
 
-Particle System Basic  
-Particle System Fountain  
+Particle System Basic
+Particle System Fountain
 Particle System Waterfall
 
 ## CREDITS AND REFERENCES

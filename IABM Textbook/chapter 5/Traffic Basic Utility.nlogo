@@ -61,12 +61,12 @@ end
 
 ;; turtle (car) procedure
 ;; slow down so your speed is lower than the speed of the car ahead
-to slow-down-car [car-ahead] 
+to slow-down-car [car-ahead]
   set speed [speed] of car-ahead - deceleration
 end
 
 ;; turtle (car) procedure
-to speed-up-car  
+to speed-up-car
   set speed speed + acceleration
 end
 

@@ -617,36 +617,36 @@ The particles are modeled as hard balls with no internal energy except that whic
 
 The basic principle of all GasLab models, including this one, is the following algorithm:
 
-1. A particle moves in a straight line without changing its speed, unless it collides with another particle or bounces off the wall.  
-2. Two particles "collide" if they find themselves on the same patch.  
-3. A random axis is chosen, as if they are two balls that hit each other and this axis is the line connecting their centers.  
-4. They exchange momentum and energy along that axis, according to the conservation of momentum and energy.  This calculation is done in the center of mass system.  
-5. Each particle is assigned its new velocity, energy, and heading.  
+1. A particle moves in a straight line without changing its speed, unless it collides with another particle or bounces off the wall.
+2. Two particles "collide" if they find themselves on the same patch.
+3. A random axis is chosen, as if they are two balls that hit each other and this axis is the line connecting their centers.
+4. They exchange momentum and energy along that axis, according to the conservation of momentum and energy.  This calculation is done in the center of mass system.
+5. Each particle is assigned its new velocity, energy, and heading.
 6. If a particle finds itself on or very close to a wall of the container, it "bounces" --- that is, reflects its direction and keeps its same speed.
 
 ## HOW TO USE IT
 
-Initial settings:  
-- NUMBER-OF-PARTICLES: number of gas particles  
-- INIT-PARTICLE-SPEED: initial speed of the particles  
-- PARTICLE-MASS: mass of the particles  
+Initial settings:
+- NUMBER-OF-PARTICLES: number of gas particles
+- INIT-PARTICLE-SPEED: initial speed of the particles
+- PARTICLE-MASS: mass of the particles
 - BOX-SIZE: size of the box. (percentage of the world-width)
 
-The SETUP button will set the initial conditions.  
+The SETUP button will set the initial conditions.
 The GO button will run the simulation.
 
-Other settings:  
-- TRACE?: Traces the path of one of the particles.  
+Other settings:
+- TRACE?: Traces the path of one of the particles.
 - COLLIDE?: Turns collisions between particles on and off.
 
-Monitors:  
-- FAST, MEDIUM, SLOW: numbers of particles with different speeds: fast (red), medium (green), and slow (blue).  
-- AVERAGE SPEED: average speed of the particles.  
+Monitors:
+- FAST, MEDIUM, SLOW: numbers of particles with different speeds: fast (red), medium (green), and slow (blue).
+- AVERAGE SPEED: average speed of the particles.
 - AVERAGE ENERGY: average kinetic energy of the particles.
 
-Plots:  
-- SPEED COUNTS: plots the number of particles in each range of speed.  
-- SPEED HISTOGRAM: speed distribution of all the particles.  The gray line is the average value, and the black line is the initial average.  
+Plots:
+- SPEED COUNTS: plots the number of particles in each range of speed.
+- SPEED HISTOGRAM: speed distribution of all the particles.  The gray line is the average value, and the black line is the initial average.
 - ENERGY HISTOGRAM: distribution of energies of all the particles, calculated as  m*(v^2)/2.  The gray line is the average value, and the black line is the initial average.
 
 Initially, all the particles have the same speed but random directions. Therefore the first histogram plots of speed and energy should show only one column each.  As the particles repeatedly collide, they exchange energy and head off in new directions, and the speeds are dispersed -- some particles get faster, some get slower.  The histogram distribution changes accordingly.

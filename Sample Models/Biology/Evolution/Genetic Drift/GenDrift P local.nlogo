@@ -150,8 +150,8 @@ Explore other rules by which patches might randomly influence each other.  What 
 
 ## RELATED MODELS
 
-* GenDrift (P global)  
-* GenDrift (T interact)  
+* GenDrift (P global)
+* GenDrift (T interact)
 * GenDrift (T reproduce)
 
 ## CREDITS AND REFERENCES

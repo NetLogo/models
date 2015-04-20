@@ -993,7 +993,7 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model is included here in "Code Examples" as an example of taking an existing model and adding sound to it.  
+This model is included here in "Code Examples" as an example of taking an existing model and adding sound to it.
 
 The original model comes from the GasLab model suite, in the Chemistry & Physics section of the Models Library. Those models were incorporated into a curriculum, Connected Chemistry. The Connected Chemistry models are in the models library in the curricular models section.
 
