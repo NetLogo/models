@@ -1313,15 +1313,6 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
 NetLogo 5.2.0
 @#$#@#$#@
-setup
-repeat 17
-[
-  check-caught
-  move-predator
-  ask bugs [ set-color move-bugs]
-  tick
-  if ticks mod 10 = 0 [ update-plots ]
-]
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
