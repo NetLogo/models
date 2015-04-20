@@ -5,6 +5,7 @@ to setup
     set shape "circle"
     setxy random-xcor random-ycor
   ]
+  reset-ticks
 end
 
 ;; Ask each node to create a link with a random other node.
