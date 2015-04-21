@@ -1349,6 +1349,7 @@ Polygon -6459832 true true 67 122 96 126 63 144
 @#$#@#$#@
 NetLogo 5.2.0-RC3
 @#$#@#$#@
+need-to-manually-make-preview-for-this-model
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
