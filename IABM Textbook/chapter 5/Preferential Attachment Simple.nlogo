@@ -1,7 +1,11 @@
 to setup
   ca
   set-default-shape turtles "circle"
-  create-turtles 2 [ fd 5 ]                   ;; create two turtles (nodes) and space them out
+  ;; create two turtles (nodes) and space them out
+  create-turtles 2 [
+    set color red
+    fd 5
+  ]
   ask turtle 0 [ create-link-with turtle 1 ]  ;; create a link between them
   reset-ticks
 end
@@ -13,6 +17,7 @@ to go
   let partner one-of [both-ends] of one-of links ;; this is the heart of the preferential attachment mechanism
   ;; create new node, link to partner
   create-turtles 1 [
+    set color red
     ;; move close to my partner, but not too close
     move-to partner
     fd 1
@@ -125,7 +130,7 @@ num-nodes
 num-nodes
 2
 500
-500
+100
 1
 1
 NIL
