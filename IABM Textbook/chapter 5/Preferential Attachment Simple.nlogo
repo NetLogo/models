@@ -66,10 +66,10 @@ ticks
 30.0
 
 BUTTON
-16
-58
-82
-91
+5
+10
+71
+43
 NIL
 setup
 NIL
@@ -83,10 +83,10 @@ NIL
 1
 
 BUTTON
-125
-104
-188
-137
+95
+50
+158
+83
 NIL
 go
 T
@@ -100,10 +100,10 @@ NIL
 0
 
 BUTTON
-24
-269
-94
-302
+5
+130
+75
+163
 layout
 layout display
 T
@@ -117,25 +117,25 @@ NIL
 0
 
 SLIDER
-4
-162
-176
-195
+5
+90
+177
+123
 num-nodes
 num-nodes
 2
 500
-100
+500
 1
 1
 NIL
 HORIZONTAL
 
 MONITOR
-25
-350
-91
-395
+5
+175
+71
+220
 min-deg
 min [ count link-neighbors] of turtles
 1
@@ -143,10 +143,10 @@ min [ count link-neighbors] of turtles
 11
 
 MONITOR
-110
-351
-180
-396
+75
+175
+145
+220
 max-deg
 max [count link-neighbors] of turtles
 1
@@ -154,10 +154,10 @@ max [count link-neighbors] of turtles
 11
 
 BUTTON
-17
-105
-102
-138
+5
+50
+90
+83
 go-once
 go
 NIL
@@ -169,6 +169,24 @@ NIL
 NIL
 NIL
 0
+
+PLOT
+5
+230
+205
+380
+Degree Distribution
+Degree
+# Nodes
+0.0
+1.0
+0.0
+1.0
+true
+false
+"" "set-plot-x-range 0 max [ count my-links ] of turtles"
+PENS
+"default" 1.0 0 -16777216 true "" "histogram [ count my-links ] of turtles"
 
 @#$#@#$#@
 ## ACKNOWLEDGEMENT
@@ -588,5 +606,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
