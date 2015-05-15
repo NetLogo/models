@@ -1,7 +1,7 @@
 to setup
   ca
   set-default-shape turtles "circle"
-  create-turtles 2 [ fd 5 ]                              ;; create two turtles (nodes) and space them out
+  create-turtles 2 [ fd 5 ]                   ;; create two turtles (nodes) and space them out
   ask turtle 0 [ create-link-with turtle 1 ]  ;; create a link between them
   reset-ticks
 end
@@ -12,33 +12,53 @@ to go
   ;; this gives a node a chance to be a partner based on how many links it has
   let partner one-of [both-ends] of one-of links ;; this is the heart of the preferential attachment mechanism
   ;; create new node, link to partner
-  create-turtles 1 [ fd 5 create-link-with partner ]
+  create-turtles 1 [
+    ;; move close to my partner, but not too close
+    move-to partner
+    fd 1
+    create-link-with partner
+  ]
   ;; lay out the nodes with a spring layout
-  layout-spring turtles links 0.2 5 1
+  layout
   tick
+end
+
+to layout
+  ;; layout-spring makes all the links act like springs.
+  ;; 0.2 - spring constant; how hard the spring pushes or pulls to get to its ideal length
+  ;; 2   - ideal spring length
+  ;; 0.5 - repulsion; how hard all turtles push against each other to space things out
+  layout-spring turtles links 0.2 2 0.5
+
+  ask turtles [
+    ;; stay away from the edges of the world; the closer I get to the edge, the more I try
+    ;; to get away from it.
+    facexy 0 0
+    fd (distancexy 0 0) / 100
+  ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
 10
-649
-470
-16
-16
-13.0
+675
+496
+32
+32
+7.0
 1
 10
 1
 1
 1
 0
+0
+0
 1
-1
-1
--16
-16
--16
-16
+-32
+32
+-32
+32
 1
 1
 1
@@ -85,7 +105,7 @@ BUTTON
 94
 302
 layout
-layout-spring turtles links 0.2 5 1\ntick
+layout display
 T
 1
 T
