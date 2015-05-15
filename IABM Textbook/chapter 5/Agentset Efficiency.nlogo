@@ -37,7 +37,7 @@ to go-2
   ]
   ask green-patches [
     if count red-patches > 5 [
-      set plabel random 5
+      set plabel 5 + random 5
     ]
   ]
   tick
