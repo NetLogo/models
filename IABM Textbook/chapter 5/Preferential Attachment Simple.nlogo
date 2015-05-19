@@ -1,7 +1,11 @@
 to setup
   ca
   set-default-shape turtles "circle"
-  create-turtles 2 [ fd 5 ]                              ;; create two turtles (nodes) and space them out
+  ;; create two turtles (nodes) and space them out
+  create-turtles 2 [
+    set color red
+    fd 5
+  ]
   ask turtle 0 [ create-link-with turtle 1 ]  ;; create a link between them
   reset-ticks
 end
@@ -12,33 +16,54 @@ to go
   ;; this gives a node a chance to be a partner based on how many links it has
   let partner one-of [both-ends] of one-of links ;; this is the heart of the preferential attachment mechanism
   ;; create new node, link to partner
-  create-turtles 1 [ fd 5 create-link-with partner ]
+  create-turtles 1 [
+    set color red
+    ;; move close to my partner, but not too close
+    move-to partner
+    fd 1
+    create-link-with partner
+  ]
   ;; lay out the nodes with a spring layout
-  layout-spring turtles links 0.2 5 1
+  layout
   tick
+end
+
+to layout
+  ;; layout-spring makes all the links act like springs.
+  ;; 0.2 - spring constant; how hard the spring pushes or pulls to get to its ideal length
+  ;; 2   - ideal spring length
+  ;; 0.5 - repulsion; how hard all turtles push against each other to space things out
+  layout-spring turtles links 0.2 2 0.5
+
+  ask turtles [
+    ;; stay away from the edges of the world; the closer I get to the edge, the more I try
+    ;; to get away from it.
+    facexy 0 0
+    fd (distancexy 0 0) / 100
+  ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
 10
-649
-470
-16
-16
-13.0
+675
+496
+32
+32
+7.0
 1
 10
 1
 1
 1
 0
+0
+0
 1
-1
-1
--16
-16
--16
-16
+-32
+32
+-32
+32
 1
 1
 1
@@ -46,10 +71,10 @@ ticks
 30.0
 
 BUTTON
-16
-58
-82
-91
+5
+10
+71
+43
 NIL
 setup
 NIL
@@ -63,10 +88,10 @@ NIL
 1
 
 BUTTON
-125
-104
-188
-137
+95
+50
+158
+83
 NIL
 go
 T
@@ -80,12 +105,12 @@ NIL
 0
 
 BUTTON
-24
-269
-94
-302
+5
+130
+75
+163
 layout
-layout-spring turtles links 0.2 5 1\ntick
+layout display
 T
 1
 T
@@ -97,10 +122,10 @@ NIL
 0
 
 SLIDER
-4
-162
-176
-195
+5
+90
+177
+123
 num-nodes
 num-nodes
 2
@@ -112,10 +137,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-25
-350
-91
-395
+5
+175
+71
+220
 min-deg
 min [ count link-neighbors] of turtles
 1
@@ -123,10 +148,10 @@ min [ count link-neighbors] of turtles
 11
 
 MONITOR
-110
-351
-180
-396
+75
+175
+145
+220
 max-deg
 max [count link-neighbors] of turtles
 1
@@ -134,10 +159,10 @@ max [count link-neighbors] of turtles
 11
 
 BUTTON
-17
-105
-102
-138
+5
+50
+90
+83
 go-once
 go
 NIL
@@ -149,6 +174,24 @@ NIL
 NIL
 NIL
 0
+
+PLOT
+5
+230
+205
+380
+Degree Distribution
+Degree
+# Nodes
+0.0
+1.0
+0.0
+1.0
+true
+false
+"" "set-plot-x-range 1 (max [ count my-links ] of turtles) + 1"
+PENS
+"default" 1.0 1 -16777216 true "" "histogram [ count my-links ] of turtles"
 
 @#$#@#$#@
 ## ACKNOWLEDGEMENT
@@ -181,9 +224,13 @@ GO continuously adds nodes until there are NUM-NODES nodes.
 
 The LAYOUT button attempts to move the nodes around to make the structure of the network easier to see.
 
+The DEGREE DISTRIBUTION plot is a histogram showing how many nodes of each degree there are. The degree of a node is the number of links that the node has.
+
 ## THINGS TO NOTICE
 
 The networks that result from running this model are often called “scale-free” or “power law” networks. These are networks in which the distribution of the number of connections of each node is not a normal distribution — instead it follows what is a called a power law distribution. Power law distributions are different from normal distributions in that they do not have a peak at the average, and they are more likely to contain extreme values (see Albert & Barabási 2002 for a further description of the frequency and significance of scale-free networks). Barabási and Albert originally described this mechanism for creating networks, but there are other mechanisms of creating scale-free networks and so the networks created by the mechanism implemented in this model are referred to as Barabási scale-free networks.
+
+If you look at the DEGREE DISTRIBUTION histogram, you will see that there are many more nodes with low degrees than nodes with high degrees. Nodes with a degree of one (meaning that they have just one link) should be by far the most common.
 
 ## THINGS TO TRY
 Let the model run a little while. How many nodes are “hubs”, that is, have many connections? How many have only a few? Does some low degree node ever become a hub? How often?
@@ -568,5 +615,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
