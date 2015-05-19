@@ -98,12 +98,6 @@ to adaptive-go
     set best-speed-so-far (0.1 * mean [speed] of turtles) + (0.9 * best-speed-so-far)
   ]
 end
-
-
-
-
-; Copyright 1997 Uri Wilensky.
-; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 14
