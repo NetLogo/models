@@ -189,7 +189,7 @@ Degree
 1.0
 true
 false
-"" "set-plot-x-range 0 max [ count my-links ] of turtles"
+"" "set-plot-x-range 1 (max [ count my-links ] of turtles) + 1"
 PENS
 "default" 1.0 0 -16777216 true "" "histogram [ count my-links ] of turtles"
 
