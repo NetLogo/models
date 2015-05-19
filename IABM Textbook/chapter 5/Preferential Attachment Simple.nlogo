@@ -224,9 +224,13 @@ GO continuously adds nodes until there are NUM-NODES nodes.
 
 The LAYOUT button attempts to move the nodes around to make the structure of the network easier to see.
 
+The DEGREE DISTRIBUTION plot is a histogram showing how many nodes of each degree there are. The degree of a node is the number of links that the node has.
+
 ## THINGS TO NOTICE
 
 The networks that result from running this model are often called “scale-free” or “power law” networks. These are networks in which the distribution of the number of connections of each node is not a normal distribution — instead it follows what is a called a power law distribution. Power law distributions are different from normal distributions in that they do not have a peak at the average, and they are more likely to contain extreme values (see Albert & Barabási 2002 for a further description of the frequency and significance of scale-free networks). Barabási and Albert originally described this mechanism for creating networks, but there are other mechanisms of creating scale-free networks and so the networks created by the mechanism implemented in this model are referred to as Barabási scale-free networks.
+
+If you look at the DEGREE DISTRIBUTION histogram, you will see that there are many more nodes with low degrees than nodes with high degrees. Nodes with a degree of one (meaning that they have just one link) should be by far the most common.
 
 ## THINGS TO TRY
 Let the model run a little while. How many nodes are “hubs”, that is, have many connections? How many have only a few? Does some low degree node ever become a hub? How often?
