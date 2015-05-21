@@ -742,7 +742,7 @@ CHOOSER
 map-view
 map-view
 "zones" "water sources" "yield" "occupancy"
-1
+0
 
 SLIDER
 15
