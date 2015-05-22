@@ -11,7 +11,7 @@ import org.apache.commons.io.FilenameUtils.getExtension
 
 object Model {
   val modelDir = new File(".")
-  val extensions = Array("nlogo", "nlogo3D")
+  val extensions = Array("nlogo", "nlogo3d")
   val models = {
     val testPath = new File("test/").getCanonicalPath
     val isUnderTest = (_: File).getCanonicalPath.startsWith(testPath)
