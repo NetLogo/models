@@ -23,6 +23,10 @@ object Model {
   val manualPreview = "need-to-manually-make-preview-for-this-model"
 }
 
+sealed abstract trait UpdateMode
+case object Continuous extends UpdateMode
+case object OnTicks extends UpdateMode
+
 class Model(val file: File) {
   import Model._
   assert(extensions.contains(getExtension(file.getName)))
@@ -33,4 +37,10 @@ class Model(val file: File) {
     previewCommands, systemDynamics, behaviorSpace,
     hubNetClient, linkShapes, modelSettings, deltaTick) = sections
   def needsManualPreview = previewCommands.toLowerCase.contains(manualPreview)
+  def is3d = getExtension(file.getName) == "nlogo3d"
+  def updateMode: UpdateMode =
+    if (interface.lines
+      .dropWhile(_ != "GRAPHICS-WINDOW")
+      .drop(if (is3d) 24 else 21).take(1).contains("1"))
+      OnTicks else Continuous
 }
