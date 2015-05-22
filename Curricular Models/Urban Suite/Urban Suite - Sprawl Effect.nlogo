@@ -321,7 +321,7 @@ Some of the patterns that form are reminiscent of Cellular Automata, or perhaps 
 
 ## CREDITS AND REFERENCES
 
-This model was based on a model originally written by William Rand and Derek Robinson as part of the Sluce Project at the University of Michigan (http://www.cscs.umich.edu/sluce).  For more about the original model (SOME) that was the basis for this model, please see:
+This model was based on a model originally written by William Rand and Derek Robinson as part of the Sluce Project at the University of Michigan ([http://vserver1.cscs.lsa.umich.edu/sluce/](http://vserver1.cscs.lsa.umich.edu/sluce/)).  For more about the original model (SOME) that was the basis for this model, please see:
 
 Brown D.G., Robinson D.T., Nassauer J.I., An L., Page S.E., Low B., Rand W., Zellner M., and R. Riolo (In Press) "Exurbia from the Bottom-Up: Agent-Based Modeling and Empirical Requirements." Geoforum.
 
@@ -331,7 +331,7 @@ Further modifications and refinements were made by members of the Center for Con
 
 The Urban Suite models were developed as part of the Procedural Modeling of Cities project, under the sponsorship of NSF ITR award 0326542, Electronic Arts & Maxis.
 
-Please see the project web site ( http://ccl.northwestern.edu/cities/ ) for more information.
+Please see the project web site ([http://ccl.northwestern.edu/cities/](http://ccl.northwestern.edu/cities/)) for more information.
 @#$#@#$#@
 default
 true

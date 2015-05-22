@@ -998,7 +998,7 @@ This model is included here in "Code Examples" as an example of taking an existi
 The original model comes from the GasLab model suite, in the Chemistry & Physics section of the Models Library. Those models were incorporated into a curriculum, Connected Chemistry. The Connected Chemistry models are in the models library in the curricular models section.
 
 For more information on Connected Chemistry, see:
-Wilensky, U., Levy, S. T., & Novak, M. (2004). Connected Chemistry curriculum. http://ccl.northwestern.edu/curriculum/chemistry. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL
+Wilensky, U., Levy, S. T., & Novak, M. (2004). Connected Chemistry curriculum. http://ccl.northwestern.edu/curriculum/chemistry/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL
 
 The code for this model comes form the Connected Chemistry models, with an important addition. The model is "sonified", that is events in the model, such as a particle hitting a wall, or colliding with another particle,  make sounds. Changes in the plots also make sounds. This is another form of feedback for the user, and has been used by blind students to make sense of the model without visuals.
 

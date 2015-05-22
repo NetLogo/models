@@ -258,7 +258,7 @@ Some of the models in Cellular Automata section, under Computer Science, also ha
 
 According to http://en.wikipedia.org/wiki/Minesweeper_%28computer_game%29, Minesweeper was invented by Robert Donner in 1989.  A version of the game is included with the Windows operating system.
 
-Landmines are a real problem that kills people every day. To learn more about the campaign to ban landmines, see http://www.icbl.org.
+Landmines are a real problem that kills people every day. To learn more about the campaign to ban landmines, see http://www.icbl.org/en-gb/home.aspx
 @#$#@#$#@
 default
 true

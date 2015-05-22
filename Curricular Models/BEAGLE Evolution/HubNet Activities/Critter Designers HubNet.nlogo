@@ -951,8 +951,9 @@ In the UPDATE-GLOBALS procedure, note the use of SUM, COUNT, VALUES-FROM, and WI
 
 ## CREDITS AND REFERENCES
 
-Schelling, T. (1978). Micromotives and Macrobehavior. New York: Norton.  
-See also a recent Atlantic article:   Rauch, J. (2002). Seeing Around Corners; The Atlantic Monthly; April 2002;Volume 289, No. 4; 35-48. http://www.theatlantic.com/issues/2002/04/rauch.htm
+Schelling, T. (1978). Micromotives and Macrobehavior. New York: Norton.
+
+See also: Rauch, J. (2002). Seeing Around Corners; The Atlantic Monthly; April 2002;Volume 289, No. 4; 35-48. http://www.theatlantic.com/magazine/archive/2002/04/seeing-around-corners/302471/
 @#$#@#$#@
 default
 true
@@ -1162,7 +1163,7 @@ Line -7500403 true 84 40 210 255
 Circle -7500403 true true 120 0 60
 
 @#$#@#$#@
-NetLogo 5.2.0-RC4
+NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

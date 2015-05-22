@@ -362,7 +362,7 @@ The code depends on agentsets always being randomly ordered.
 ## CREDITS AND REFERENCES
 
 Here is an eroded volcano in Kamchatka with a strong resemblance to this model:
-http://maps.google.com/?t=k&ll=52.544312,157.338467&spn=0.070884,0.118103&t=k
+https://www.google.com/maps/@52.544312,157.338467,7882m/data=!3m1!1e3?dg=dbrw&newdg=1
 
 Thanks to Greg Dunham and Seth Tisue for their work on this model.
 @#$#@#$#@

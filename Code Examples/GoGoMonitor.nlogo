@@ -820,7 +820,7 @@ To find out where to buy sensors and motors, go to the [GoGo Board website](http
 Add filters and normalization to the sensor data.
 Using a light sensor, make a turtle move forward when it's dark, and stop when there is light.
 Create animations that are controlled by sensors
-Create Bifocal Models (see [bifocal modeling](http://tltl.stanford.edu/projects/bifocal-modeling))
+Create Bifocal Models (see [bifocal modeling](https://tltl.stanford.edu/projects/bifocal-modeling))
 
 ## NETLOGO FEATURES
 
@@ -830,7 +830,7 @@ This model uses the NetLogo GoGo Extension. For more information, see the GoGo E
 
 To learn about GoGo Boards, see http://www.gogoboard.org.
 
-This model was created by Paulo Blikstein at Stanford's [Transformative Learning Technologies Lab](http://tltl.stanford.edu).
+This model was created by Paulo Blikstein at Stanford's [Transformative Learning Technologies Lab](https://tltl.stanford.edu/).
 @#$#@#$#@
 default
 true

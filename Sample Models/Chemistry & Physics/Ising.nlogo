@@ -278,11 +278,9 @@ Thanks to Seth Tisue for his work on this model and to Sara Solla and Kan Chen f
 The Ising model was first proposed by Wilhelm Lenz in 1920.  It is named after his student Ernst Ising, who also studied it.  This NetLogo model implements the Monte Carlo simulation of the Metropolis algorithm for the two dimensional Ising model.  The Metropolis algorithm comes from a 1953 paper by Nicholas Metropolis et al.
 
 There are many web pages which explore the Ising model in greater detail than attempted here.  Here are a few:
-http://bartok.ucsc.edu/peter/java/ising/keep/ising.html
-http://oscar.cacr.caltech.edu/Hrothgar/Ising/references.html
-http://www.physics.cornell.edu/sethna/teaching/sss/ising/intro.htm
-http://physics.syr.edu/courses/ijmp_c/Ising.html
-http://www.npac.syr.edu/users/paulc/lectures/montecarlo/
+http://pages.physics.cornell.edu/~sethna/teaching/sss/ising/intro.htm
+http://dtjohnson.net/projects/ising
+http://demonstrations.wolfram.com/IsingModel/
 @#$#@#$#@
 default
 true

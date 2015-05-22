@@ -331,7 +331,7 @@ Note two different methods that can be used for find-new-spot, one of them (the 
 
 Schelling, T. (1978). Micromotives and Macrobehavior. New York: Norton.
 
-See also a recent Atlantic article:   Rauch, J. (2002). Seeing Around Corners; The Atlantic Monthly; April 2002;Volume 289, No. 4; 35-48. http://www.theatlantic.com/issues/2002/04/rauch.htm
+See also: Rauch, J. (2002). Seeing Around Corners; The Atlantic Monthly; April 2002;Volume 289, No. 4; 35-48. http://www.theatlantic.com/magazine/archive/2002/04/seeing-around-corners/302471/
 @#$#@#$#@
 default
 true

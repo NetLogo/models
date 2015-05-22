@@ -398,7 +398,7 @@ Note that the number of atoms is very small compared to most real systems. Also,
 
 To learn more about the Lennard-Jones potential see:
 
-* http://chemwiki.ucdavis.edu/Physical_Chemistry/Quantum_Mechanics/Atomic_Theory/Intermolecular_Forces/Lennard-Jones_Potential.
+* http://chemwiki.ucdavis.edu/Physical_Chemistry/Intermolecular_Forces/Lennard-Jones_Potential
 * http://en.wikipedia.org/wiki/Lennard-Jones_potential
 
 ## HOW TO USE IT

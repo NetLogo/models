@@ -510,7 +510,7 @@ Explore mode actually only ever needs one item on the stack. However, the stack 
 
 ## CREDITS AND REFERENCES
 
-http://en.wikipedia.org/wiki/Bak–Tang–Wiesenfeld_sandpile
+https://en.wikipedia.org/wiki/Abelian_sandpile_model
 
 http://en.wikipedia.org/wiki/Self-organized_criticality
 

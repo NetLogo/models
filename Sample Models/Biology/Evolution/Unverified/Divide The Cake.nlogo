@@ -326,7 +326,7 @@ MONITOR
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model (and Cooperation and Altruism) are part of the EACH curriculum: "Evolution of Altruistic and Cooperative Habits: Learning About Complexity in Evolution".  See http://ccl.northwestern.edu/cm/EACH/ for more information.
+This model (and Cooperation and Altruism) are part of the EACH curriculum: "Evolution of Altruistic and Cooperative Habits: Learning About Complexity in Evolution".  See http://ccl.northwestern.edu/papers/EACH/ for more information.
 
 This is an evolutionary game-playing model.  Three types of agents must divide a common resource.  In the original model it's cake, but let's think of it as edible grass instead, which is green.  The agents come in three types: modest, fair, and greedy.  The agents move around competing for grass.  Agents need grass in order to produce offspring, so over time, the agent types that get more grass will tend to increase in number.
 

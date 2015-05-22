@@ -267,7 +267,7 @@ stratified?
 
 4-Blocks simulates an empirical probability experiment in which the randomness generator is a compound of 4 squares that each can independently be either green or blue.  The model helps us conceptualize relations between theoretical and empirical aspects of the binomial function: combinatorial analysis (what we can get) and experimentation (what we actually get).
 
-This model is a part of the ProbLab curriculum.  The ProbLab Curriculum is currently under development at the CCL.  For more information about the ProbLab Curriculum please refer to http://ccl.northwestern.edu/curriculum/ProbLab/ and http://edrl.berkeley.edu/design.shtml.
+This model is a part of the ProbLab curriculum.  The ProbLab Curriculum is currently under development at the CCL.  For more information about the ProbLab Curriculum please refer to http://ccl.northwestern.edu/curriculum/ProbLab/ and http://edrl.berkeley.edu/content/design.
 
 ## HOW IT WORKS
 

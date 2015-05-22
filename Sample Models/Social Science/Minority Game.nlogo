@@ -432,7 +432,7 @@ The primitives `map` and `reduce` were also used to simplify code.
 Original implementation: Daniel B. Stouffer, for the Center for Connected Learning and Computer-Based Modeling.
 
 This model was based upon studies by Dr. Damien Challet, et al.
-Information can be found on the web at http://www.unifr.ch/econophysics/minority/
+Information can be found on the web at https://web.archive.org/web/20141010122506/http://www3.unifr.ch/econophysics/minority/papers.html
 
 Challet, D. and Zhang, Y.-C. Emergence of Cooperation and Organization in an Evolutionary Game. Physica A 246, 407 (1997).
 

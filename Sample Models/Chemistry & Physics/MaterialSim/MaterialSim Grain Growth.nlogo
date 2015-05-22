@@ -829,7 +829,7 @@ Blikstein, P. & Wilensky, U. (2004) MaterialSim: An agent-based simulation toolk
 
 The core algorithm of the model was developed at the University of Sao Paulo and published in:  Blikstein, P. and Tschiptschin, A. P. Monte Carlo simulation of grain growth (II). Materials Research, Sao Carlos, 2 (3), p. 133-138, jul. 1999.
 
-Available for download at: http://www.blikstein.com/paulo/documents/papers/BliksteinTschiptschin-MonteCarlo-MaterialsResearch1999.pdf. See also http://www.pmt.usp.br/paulob/montecarlo for more information (in Portuguese).
+Available for download at: http://www.blikstein.com/paulo/documents/papers/BliksteinTschiptschin-MonteCarlo-MaterialsResearch1999.pdf. See also http://www.pmt.usp.br/paulob/montecarlo/ for more information (in Portuguese).
 @#$#@#$#@
 default
 true

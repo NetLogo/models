@@ -303,15 +303,15 @@ Note that complex arithmetic is not built in to NetLogo, so the basic operations
 ## CREDITS AND REFERENCES
 
 You may find more information on fractals in the following locations:
-This site offers an introduction to fractals.
-http://www.cs.wpi.edu/~matt/courses/cs563/talks/cbyrd/pres1.html
+This site offers an introduction to fractals:
+http://web.cs.wpi.edu/~matt/courses/cs563/talks/cbyrd/pres1.html.
 
 An introduction to complex mathematics and the Mandelbrot set.
-http://www.olympus.net/personal/dewey/mandelbrot.html
+http://home.olympus.net/~dewey/mandelbrot.html
 
 An introductory online textbook for Complex Analysis.
 (Note: This is a college level text, but the first chapter or so should be accessible to people with only some algebra background.)
-http://www.math.gatech.edu/~cain/winter99/complex.html
+http://people.math.gatech.edu/~cain/winter99/complex.html
 
 _The Fractal Geometry of Nature_ by Benoit Mandelbrot
 @#$#@#$#@

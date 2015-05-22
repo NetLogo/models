@@ -505,7 +505,7 @@ Galton Box, Random Walk Left Right
 
 ## CREDITS AND REFERENCES
 
-See: Wilensky, U. (1997). What is Normal Anyway? Therapy for Epistemological Anxiety.  Educational Studies in Mathematics. Volume 33, No. 2. pp. 171-202. http://ccl.northwestern.edu/cm/papers/normal/
+See: Wilensky, U. (1997). What is Normal Anyway? Therapy for Epistemological Anxiety.  Educational Studies in Mathematics. Volume 33, No. 2. pp. 171-202. https://ccl.northwestern.edu/papers/normal/
 @#$#@#$#@
 default
 true

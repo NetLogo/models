@@ -226,7 +226,7 @@ Reactor X-Section and Reactor Top Down are two different views of nuclear fissio
 
 ## CREDITS AND REFERENCES
 
-This model is based on the "Mousetrap" demo included with the Swarm agent-based modeling toolkit (http://www.swarm.org/).  See http://acoma.santafe.edu/projects/swarm/examples/mousetrap/.  Note that this model and that demo differ in various details.
+This model is based on the "Mousetrap" demo included with the Swarm agent-based modeling toolkit ([http://www.swarm.org](http://www.swarm.org)). See https://web.archive.org/web/20020719084215/http://acoma.santafe.edu/projects/swarm/examples/mousetrap/.  Note that this model and that demo differ in various details.
 @#$#@#$#@
 default
 true

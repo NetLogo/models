@@ -320,8 +320,8 @@ Erosion
 ## CREDITS AND REFERENCES
 
 National Elevation Dataset: http://seamless.usgs.gov
-ArcGIS: http://esri.com/software/arcgis/
-My World GIS: http://myworldgis.org/myworld
+ArcGIS: http://www.esri.com/software/arcgis/
+My World GIS: http://www.myworldgis.org/
 
 Thanks to Eric Russell for his work on this model.
 @#$#@#$#@

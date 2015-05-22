@@ -739,7 +739,7 @@ Uses GasLab particle collision code.
 
 ## CREDITS AND REFERENCES
 
-This model is part of the Connected Chemistry curriculum.  See http://ccl.northwestern.edu/curriculum/chemistry.
+This model is part of the Connected Chemistry curriculum.  See http://ccl.northwestern.edu/curriculum/chemistry/.
 
 We would like to thank Sharona Levy and Michael Novak for their substantial contributions to this model.
 @#$#@#$#@

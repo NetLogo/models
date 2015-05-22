@@ -360,7 +360,7 @@ The same `setup` procedure is used to create a uniform initial setup or a random
 
 ## CREDITS AND REFERENCES
 
-http://en.wikipedia.org/wiki/Bak–Tang–Wiesenfeld_sandpile
+https://en.wikipedia.org/wiki/Abelian_sandpile_model
 
 http://en.wikipedia.org/wiki/Self-organized_criticality
 

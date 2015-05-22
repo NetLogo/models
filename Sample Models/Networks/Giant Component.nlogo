@@ -348,8 +348,6 @@ There is also a version of this model using the (NW extension)[https://github.co
 This model is adapted from:
 Duncan J. Watts. Six Degrees: The Science of a Connected Age (W.W. Norton & Company, New York, 2003), pages 43-47.
 
-Watts' website is available at:  http://smallworld.columbia.edu/
-
 The work Watts describes was originally published in:
 P. Erdos and A. Renyi. On random graphs. Publ. Math. Debrecen, 6:290-297, 1959.
 

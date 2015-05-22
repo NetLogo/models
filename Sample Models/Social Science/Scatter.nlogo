@@ -555,7 +555,7 @@ The model creates turtles by asking patches to `sprout` a turtle initialized wit
 
 ## CREDITS AND REFERENCES
 
-The study is described in Levy, S.T., & Wilensky, U. (2004). Making sense of complexity: Patterns in forming causal connections between individual agent behaviors and aggregate group behaviors. In U. Wilensky (Chair) and S. Papert (Discussant) Networking and complexifying the science classroom: Students simulating and making sense of complex systems using the HubNet networked architecture. The annual meeting of the American Educational Research Association, San Diego, CA, April 12 - 16, 2004. http://ccl.northwestern.edu/papers/midlevel-AERA04.pdf
+The study is described in Levy, S.T., & Wilensky, U. (2004). Making sense of complexity: Patterns in forming causal connections between individual agent behaviors and aggregate group behaviors. In U. Wilensky (Chair) and S. Papert (Discussant) Networking and complexifying the science classroom: Students simulating and making sense of complex systems using the HubNet networked architecture. The annual meeting of the American Educational Research Association, San Diego, CA, April 12 - 16, 2004.
 
 Thanks to Stephanie Bezold for her work on this model.
 @#$#@#$#@
