@@ -4,7 +4,6 @@ import scala.Left
 import scala.Right
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-
 import org.apache.commons.validator.routines.UrlValidator
 import org.apache.commons.validator.routines.UrlValidator.ALLOW_2_SLASHES
 import org.pegdown.Extensions.AUTOLINKS
@@ -17,13 +16,12 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.exceptions.TestFailedException
 import org.scalatest.time.Seconds
 import org.scalatest.time.Span
-
 import com.ning.http.client.AsyncHttpClientConfig
-
 import Model.models
 import play.api.libs.ws.WSRequestHolder
 import play.api.libs.ws.WSResponse
 import play.api.libs.ws.ning.NingWSClient
+import java.net.ConnectException
 
 class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll {
 
@@ -60,7 +58,7 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
   } {
     test(link) {
       assert(urlValidator.isValid(link), clue)
-      try whenReady(request(link, head), timeout(Span(5, Seconds))) {
+      try whenReady(request(link, head), timeout(Span(60, Seconds))) {
         case Right(optMsg) => optMsg.foreach(info(_))
         case Left(msg) => fail(msg)
       }
@@ -83,7 +81,7 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
   def request(
     link: String,
     method: WSRequestHolder => Future[WSResponse],
-    retry: Int = 1): Future[Either[String, Option[String]]] = {
+    retry: Int = 5): Future[Either[String, Option[String]]] = {
     def right(msg: String = null) = Future.successful(Right(Option(msg)))
     def left(msg: String) = Future.successful(Left(msg))
     val requestHolder = client.url(link)
@@ -111,6 +109,8 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
         case sc =>
           left("Got response status code " + sc)
       }
+    }.recoverWith {
+      case e: ConnectException => request(link, method, retry - 1)
     }
   }
 
