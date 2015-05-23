@@ -387,7 +387,7 @@ In order to make the actual patch coordinate system more consistent with the con
 
 The problem is taken from a British mathematics textbook.
 
-For a fuller discussion, see Wilensky, U. (1996). Modeling Rugby: Kick First, Generalize Later? International Journal of Computers for Mathematical Learning. Vol. 1,  No. 1. p. 124 - 131.   http://ccl.northwestern.edu/cm/papers/rugby/
+For a fuller discussion, see Wilensky, U. (1996). Modeling Rugby: Kick First, Generalize Later? International Journal of Computers for Mathematical Learning. Vol. 1,  No. 1. p. 124 - 131. http://ccl.northwestern.edu/papers/rugby/
 @#$#@#$#@
 default
 true

@@ -246,7 +246,7 @@ DLA Alternate Linear has particles that fall straight down from the top of the w
 The mathematical procedures used in calculating the collision paths comes from:
 Eric W. Weisstein.  "Circle-Line Intersection."
 From MathWorld--A Wolfram Web Resource.
-http://mathworld. wolfram.com/Circle-LineIntersection.html
+http://mathworld.wolfram.com/Circle-LineIntersection.html
 @#$#@#$#@
 default
 true

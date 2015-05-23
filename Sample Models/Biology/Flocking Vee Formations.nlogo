@@ -409,7 +409,7 @@ Flocking
 ## CREDITS AND REFERENCES
 
 This model is loosely based on rules introduced in the paper:
-Nathan, A. & Barbosa, V. C. (2008). V-like formations in flocks of artificial birds. Artificial Life, 14(2), pp. 179-188. (available at http://arxiv.org/pdf/cs/0611032)
+Nathan, A. & Barbosa, V. C. (2008). V-like formations in flocks of artificial birds. Artificial Life, 14(2), pp. 179-188. (available at http://arxiv.org/pdf/cs/0611032.pdf)
 @#$#@#$#@
 default
 true

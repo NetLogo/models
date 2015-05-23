@@ -650,7 +650,7 @@ Links are used extensively in this model.
 
 Lists are used heavily in the procedures that calculates shortest paths.
 
-Though it is not used in this model, there exists a network extension for NetLogo that you can download at: https://github.com/NetLogo/NW-Extension.
+Though it is not used in this model, there exists a [network extension for NetLogo](http://ccl.northwestern.edu/netlogo/docs/nw.html).
 
 ## RELATED MODELS
 
@@ -667,12 +667,10 @@ The work described here was originally published in:
 DJ Watts and SH Strogatz. Collective dynamics of 'small-world' networks, Nature,
 393:440-442 (1998)
 
-For more information please see Watts' website:  http://smallworld.columbia.edu/index.html
-
 The small worlds idea was first made popular by Stanley Milgram's famous experiment (1967) which found that two random US citizens where on average connected by six acquaintances (giving rise to the popular "six degrees of separation" expression):
 Stanley Milgram.  The Small World Problem,  Psychology Today,  2: 60-67 (1967).
 
-This experiment was popularized into a game called "six degrees of Kevin Bacon" which you can find more information about here:  http://www.cs.virginia.edu/oracle/
+This experiment was popularized into a game called "six degrees of Kevin Bacon" which you can find more information about here:  http://oracleofbacon.org/
 @#$#@#$#@
 default
 true

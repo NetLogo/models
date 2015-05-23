@@ -946,7 +946,7 @@ Restaurants
 
 Original implementation: Daniel B. Stouffer, for the Center for Connected Learning and Computer-Based Modeling.
 
-This model was based upon studies by Dr. Damien Challet et al.  Information can be found on the web at http://www.unifr.ch/econophysics/minority/
+This model was based upon studies by Dr. Damien Challet et al.  Information can be found on the web at https://web.archive.org/web/20141010122506/http://www3.unifr.ch/econophysics/minority/papers.html
 
 Challet, D. and Zhang, Y.-C. Emergence of Cooperation and Organization in an Evolutionary Game. Physica A 246, 407 (1997).
 
@@ -1340,7 +1340,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0-RC3
+NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

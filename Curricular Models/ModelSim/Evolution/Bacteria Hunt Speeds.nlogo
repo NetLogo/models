@@ -425,8 +425,7 @@ This model is part of the Evolution unit of the ModelSim curriculum, sponsored b
 
 For more information about the project and the curriculum, see the ModelSim project website: http://ccl.northwestern.edu/modelsim/.
 
-Inspired by EvoDots software:
-http://faculty.washington.edu/~herronjc/SoftwareFolder/EvoDots.html
+Inspired by EvoDots software: http://faculty.washington.edu/herronjc/SoftwareFolder/EvoDots.html
 @#$#@#$#@
 default
 true

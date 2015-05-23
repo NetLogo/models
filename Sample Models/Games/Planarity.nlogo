@@ -247,7 +247,7 @@ Intersecting Links Example -- has sample code for finding the point where two li
 
 Thanks to Josh Unterman and Seth Tisue for their work on this model and to Jim Lyons for coding advice.
 
-Original version created by John Tantalo, from an original concept by Mary Radcliffe. Tantalo's site is here: http://www.planarity.net/.
+Original version created by John Tantalo, from an original concept by Mary Radcliffe. Tantalo's site is here: http://planarity.net/.
 
 Solvable graphs are called "planar graphs" by mathematicians.  See http://en.wikipedia.org/wiki/Planar_graph.
 @#$#@#$#@

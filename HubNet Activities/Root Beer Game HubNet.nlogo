@@ -542,6 +542,7 @@ GRAPHICS-WINDOW
 1
 0
 ticks
+30.0
 
 BUTTON
 58
@@ -726,9 +727,9 @@ Public Good
 
 For a discussion of the original MIT Beer Game and additional suggestions for discussion points, see http://web.mit.edu/jsterman/www/SDG/beergame.html
 
-For a bibliography of the beer game in academic publications (last revised July 1992), see http://www.sol-ne.org/repository/download/bibl.html?item_id=456327
+For a bibliography of the beer game in academic publications (last revised July 1992), see http://www.solonline.org/?page=Beer_Game_Biblio
 
-For instructions and materials for running the original board game version, see http://www.sol-ne.org/repository/download/instr.html?item_id=456354
+For instructions and materials for running the original board game version, see http://www.solonline.org?item_id=456354
 @#$#@#$#@
 default
 true
@@ -1019,7 +1020,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

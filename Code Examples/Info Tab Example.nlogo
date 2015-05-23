@@ -170,11 +170,11 @@ The simplest way to create a link is to just type it in:
 
 #### Example
 
-    http://ccl.northwestern.edu/netlogo
+    http://ccl.northwestern.edu/netlogo/
 
 #### Formatted
 
-http://ccl.northwestern.edu/netlogo
+http://ccl.northwestern.edu/netlogo/
 
 ### Links with text
 
@@ -184,11 +184,11 @@ If you want to use your own text for the link, here's how:
 
 #### Example
 
-    [NetLogo](http://ccl.northwestern.edu/netlogo)
+    [NetLogo](http://ccl.northwestern.edu/netlogo/)
 
 #### Formatted
 
-[NetLogo](http://ccl.northwestern.edu/netlogo)
+[NetLogo](http://ccl.northwestern.edu/netlogo/)
 
 ### Local links
 
@@ -350,7 +350,7 @@ We have tested the features shown above on a variety of systems.  If you use oth
 
 If you want all NetLogo users to be able to read your Info tab, use only the features shown above.
 
-More information about Markdown is at http://daringfireball.net/projects/markdown/. For rendering Markdown, NetLogo uses the [Pegdown](http://github.com/sirthias/pegdown) library.
+More information about Markdown is at http://daringfireball.net/projects/markdown/. For rendering Markdown, NetLogo uses the [Pegdown](https://github.com/sirthias/pegdown) library.
 
 [netlogo-link]: http://ccl.northwestern.edu/netlogo
 @#$#@#$#@

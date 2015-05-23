@@ -200,7 +200,7 @@ This model is from Chapter Five of the book "Introduction to Agent-Based Modelin
 
 Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
-This model is in the IABM Textbook folder of the NetLogo models library. The model, as well as any updates to the model, can also be found on the textbook website: http://intro-to-abm.com.
+This model is in the IABM Textbook folder of the NetLogo models library. The model, as well as any updates to the model, can also be found on the textbook website: http://www.intro-to-abm.com/.
 
 ## WHAT IS IT?
 
@@ -284,9 +284,9 @@ Albert-László Barabási. Linked: The New Science of Networks, Perseus Publishi
 For a more technical treatment, see:
 Albert-László Barabási & Reka Albert. Emergence of Scaling in Random Networks, Science, Vol 286, Issue 5439, 15 October 1999, pages 509-512.
 
-Barabási's webpage has additional information at: http://www.nd.edu/~alb/
+Barabási's webpage has additional information at: http://www.barabasi.com/
 
-The layout algorithm is based on the Fruchterman-Reingold layout algorithm.  More information about this algorithm can be obtained at: http://citeseer.ist.psu.edu/fruchterman91graph.html.
+The layout algorithm is based on the Fruchterman-Reingold layout algorithm.  More information about this algorithm can be obtained at: http://emr.cs.iit.edu/~reingold/force-directed.pdf.
 
 For a model similar to the one described in the suggested extension, please consult:
 W. Brian Arthur, "Urban Systems and Historical Path-Dependence", Chapt. 4 in Urban systems and Infrastructure, J. Ausubel and R. Herman (eds.), National Academy of Sciences, Washington, D.C., 1988.

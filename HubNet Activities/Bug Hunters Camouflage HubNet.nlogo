@@ -1025,7 +1025,7 @@ Guppy Spots
 
 ## CREDITS AND REFERENCES
 
-Inspired by this BugHunt! Macintosh freeware: http://bcrc.bio.umass.edu/BugHunt/.
+Inspired by this BugHunt! Macintosh freeware: https://web.archive.org/web/20101213084130/http://bcrc.bio.umass.edu/BugHunt/.
 
 Thanks to Michael Novak for his work on the design of this model and the BEAGLE Evolution curriculum.
 @#$#@#$#@
@@ -1389,7 +1389,7 @@ Polygon -7500403 true true 75 30 30 75 105 150 30 225 75 270 150 195 225 270 270
 Polygon -16777216 false false 30 75 105 150 30 225 75 270 150 195 225 270 270 225 195 150 270 75 225 30 150 105 75 30
 
 @#$#@#$#@
-NetLogo 5.2.0-RC3
+NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

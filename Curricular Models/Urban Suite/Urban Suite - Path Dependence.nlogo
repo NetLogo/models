@@ -402,7 +402,7 @@ In particular, it is demonstrating the same concept as the "Urban Suite - Positi
 
 Also, the Segregation library model in NetLogo also explores how individuals decide where to locate but based on very different preferences.
 
-For another urban settlement model, see the SOME model (created by the SLUCE project at University of Michigan), which explores residential settlements.   http://www.cscs.umich.edu/sluce/education/sluce_ed.htm
+For another urban settlement model, see the SOME model (created by the SLUCE project at University of Michigan), which explores residential settlements.   http://vserver1.cscs.lsa.umich.edu/sluce/education/sluce_ed.htm
 
 ## CREDITS AND REFERENCES
 

@@ -552,7 +552,7 @@ Note the use of lists in drawing the Lorenz Curve and computing the Gini index.
 
 This model is based on a model described in Epstein, J. & Axtell R. (1996). Growing Artificial Societies: Social Science from the Bottom Up. Washington, DC: Brookings Institution Press.
 
-For an explanation of Pareto's Law, see http://www.xrefer.com/entry/445978.
+For an explanation of Pareto's Law, see https://en.wikipedia.org/wiki/Pareto_principle.
 
 For more on the calculation of the Gini index see:
 

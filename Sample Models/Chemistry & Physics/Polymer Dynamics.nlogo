@@ -195,7 +195,7 @@ Radical Polymerization - another model about polymers
 
 ## CREDITS AND REFERENCES
 
-For a detailed treatment of this model, see Yaneer Bar-Yam, Dynamics of Complex Systems (2003), pages 496-502.  Westview Press, Boulder, CO.  The book is available online at http://necsi.org/publications/dcs/.
+For a detailed treatment of this model, see Yaneer Bar-Yam, Dynamics of Complex Systems (2003), pages 496-502.  Westview Press, Boulder, CO.  The book is available online at http://necsi.edu/publications/dcs/.
 
 See also Y. Bar-Yam, Y. Rabin, M. A. Smith, Macromolecules Rep. 25 (1992) 2985.
 @#$#@#$#@

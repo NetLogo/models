@@ -598,9 +598,9 @@ Slime
 
 ## CREDITS AND REFERENCES
 
-Swarm version of Heatbugs -- http://www.swarm.org/wiki/Examples_of_Swarm_applications
+Swarm version of Heatbugs -- https://web.archive.org/web/20130211011213/http://www.swarm.org/wiki/Examples_of_Swarm_applications
 
-RePast version of Heatbugs -- http://repast.sourceforge.net/examples/index.html
+RePast version of Heatbugs -- http://repast.sourceforge.net/repast_3/examples/
 @#$#@#$#@
 default
 true

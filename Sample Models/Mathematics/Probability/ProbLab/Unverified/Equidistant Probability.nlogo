@@ -643,7 +643,7 @@ This model is a part of the ProbLab curriculum. The ProbLab Curriculum is curren
 
 Additional reading:
 Abrahamson, D. & Wilensky, U.  (2003).  The quest of the bell curve: A constructionist approach to learning statistics through designing computer-based probability experiments. Proceedings of the Third Conference of the European Society for Research in Mathematics Education, Bellaria, Italy, Feb. 28 - March 3, 2003.
-Available for download at http://ccl.northwestern.edu/ps/papers/Probability/BellCurve.html
+Available for download at http://ccl.northwestern.edu/papers/2003/AbrahamsonWilenskyCERME3.pdf
 @#$#@#$#@
 default
 true

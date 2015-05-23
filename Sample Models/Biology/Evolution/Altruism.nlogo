@@ -326,7 +326,7 @@ count patches with [pcolor = green]
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model (and Cooperation and Divide the Cake) are part of the EACH unit ("Evolution of Altruistic and Cooperative Habits: Learning About Complexity in Evolution").  See http://ccl.northwestern.edu/cm/EACH/ for more information on the EACH unit. The EACH unit is embedded within the BEAGLE (Biological Experiments in Adaptation, Genetics, Learning and Evolution) evolution curriculum. (See http://ccl.northwestern.edu/curriculum/simevolution/beagle.shtml .)
+This model (and Cooperation and Divide the Cake) are part of the EACH unit ("Evolution of Altruistic and Cooperative Habits: Learning About Complexity in Evolution").  See http://ccl.northwestern.edu/papers/EACH/ for more information on the EACH unit. The EACH unit is embedded within the BEAGLE (Biological Experiments in Adaptation, Genetics, Learning and Evolution) evolution curriculum. (See http://ccl.northwestern.edu/curriculum/simevolution/beagle.shtml .)
 
 This is an evolutionary biology model.  It models population genetics with respect to the fitness of traits that are affected by social and environmental conditions.  The model has two types of patch agents: altruistic agents and selfish agents.
 
@@ -400,7 +400,7 @@ Cooperation
 
 ## CREDITS AND REFERENCES
 
-This model and the Cooperation model are part of the curriculum unit "Evolution of Altruistic and Cooperative Habits: Learning About Complexity in Evolution".  See http://ccl.northwestern.edu/cm/EACH/ for more information. The EACH unit is embedded within the BEAGLE (Biological Experiments in Adaptation, Genetics, Learning and Evolution) evolution curriculum. See http://ccl.northwestern.edu/curriculum/simevolution/beagle.shtml .
+This model and the Cooperation model are part of the curriculum unit "Evolution of Altruistic and Cooperative Habits: Learning About Complexity in Evolution".  See http://ccl.northwestern.edu/papers/EACH/ for more information. The EACH unit is embedded within the BEAGLE (Biological Experiments in Adaptation, Genetics, Learning and Evolution) evolution curriculum. See http://ccl.northwestern.edu/curriculum/simevolution/beagle.shtml .
 
 This model is based on a paper by Mitteldorf and Wilson, 2000, "Population Viscosity and the Evolution of Altruism", Journal of Theoretical Biology, v.204, pp.481-496.
 

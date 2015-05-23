@@ -783,7 +783,7 @@ Peppered Moths
 
 ## CREDITS AND REFERENCES
 
-Inspired by this: BugHunt! Macintosh freeware: http://bcrc.bio.umass.edu/BugHunt/
+Inspired by this: BugHunt! Macintosh freeware: https://web.archive.org/web/20101213084130/http://bcrc.bio.umass.edu/BugHunt/.
 @#$#@#$#@
 default
 true
