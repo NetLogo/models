@@ -1,9 +1,13 @@
 package org.nlogo.models
 
+import java.net.ConnectException
+import java.util.concurrent.TimeoutException
+
 import scala.Left
 import scala.Right
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+
 import org.apache.commons.validator.routines.UrlValidator
 import org.apache.commons.validator.routines.UrlValidator.ALLOW_2_SLASHES
 import org.pegdown.Extensions.AUTOLINKS
@@ -16,12 +20,13 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.exceptions.TestFailedException
 import org.scalatest.time.Seconds
 import org.scalatest.time.Span
+
 import com.ning.http.client.AsyncHttpClientConfig
+
 import Model.models
 import play.api.libs.ws.WSRequestHolder
 import play.api.libs.ws.WSResponse
 import play.api.libs.ws.ning.NingWSClient
-import java.net.ConnectException
 
 class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll {
 
@@ -58,7 +63,7 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
   } {
     test(link) {
       assert(urlValidator.isValid(link), clue)
-      try whenReady(request(link, head), timeout(Span(60, Seconds))) {
+      try whenReady(request(link, head), timeout(Span(90, Seconds))) {
         case Right(optMsg) => optMsg.foreach(info(_))
         case Left(msg) => fail(msg)
       }
@@ -80,11 +85,10 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
 
   def request(
     link: String,
-    method: WSRequestHolder => Future[WSResponse],
-    retry: Int = 5): Future[Either[String, Option[String]]] = {
+    method: WSRequestHolder => Future[WSResponse]): Future[Either[String, Option[String]]] = {
     def right(msg: String = null) = Future.successful(Right(Option(msg)))
     def left(msg: String) = Future.successful(Left(msg))
-    val requestHolder = client.url(link)
+    val requestHolder = client.url(link).withRequestTimeout(5000)
     method(requestHolder).flatMap { response =>
       response.status match {
         case 403 if method == head =>
@@ -104,13 +108,14 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
             case _ =>
               left(msg)
           }
-        case sc if sc >= 500 && sc < 600 && retry > 0 =>
-          request(link, method, retry - 1)
+        case sc if sc >= 500 && sc < 600 =>
+          request(link, method)
         case sc =>
           left("Got response status code " + sc)
       }
     }.recoverWith {
-      case e: ConnectException => request(link, method, retry - 1)
+      case e: ConnectException => request(link, method)
+      case e: TimeoutException => request(link, method)
     }
   }
 
