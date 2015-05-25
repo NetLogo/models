@@ -134,7 +134,6 @@ This model is in the IABM Textbook folder of the NetLogo models library. The mod
 
 ## WHAT IS IT?
 
-
 This is a kind of mathematical investigation — we are investigating the emergent shape created by the movement of many turtles (arrows) moving independently in simple ways. Each turtle is moving a little step forward and taking a little turn right to stay on a circle of radius 20.  What happens if the we slightly increase the step forward they are taking  in mid-action? Guess before you try it.
 
 ## HOW IT WORKS

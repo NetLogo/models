@@ -561,7 +561,7 @@ acceleration from gravity
 @#$#@#$#@
 ## WHAT IS IT?
 
-In this model, a gaseous atmosphere is placed above the surface of a "planet". The  model explores the behavior of gas molecules that have an external force acting on them (gravity), and therefore are no longer considered an ideal gas.  This is the eighth in a sequence of models from the "Connected Chemistry" curriculum, exploring the behavior of gases.  The Connected Chemistry curriculum was initially developed as part of the Modeling Across the Curriculum (MAC) Project ([http://ccl.northwestern.edu/curriculum/mac/](http://ccl.northwestern.edu/curriculum/mac/)).
+In this model, a gaseous atmosphere is placed above the surface of a "planet". The model explores the behavior of gas molecules that have an external force acting on them (gravity), and therefore are no longer considered an ideal gas.  This is the eighth in a sequence of models from the "Connected Chemistry" curriculum, exploring the behavior of gases. The Connected Chemistry curriculum was initially developed as part of the Modeling Across the Curriculum (MAC) Project: http://ccl.northwestern.edu/curriculum/mac/.
 
 ## HOW IT WORKS
 
