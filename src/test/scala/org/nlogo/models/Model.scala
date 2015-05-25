@@ -43,5 +43,8 @@ class Model(val file: File) {
       .dropWhile(_ != "GRAPHICS-WINDOW")
       .drop(if (is3d) 24 else 21).take(1).contains("1"))
       OnTicks else Continuous
+  def patchSize: Double = interface.lines
+    .dropWhile(_ != "GRAPHICS-WINDOW")
+    .drop(7).next.toDouble
   def quotedPath = "\"" + file.getCanonicalPath + "\""
 }
