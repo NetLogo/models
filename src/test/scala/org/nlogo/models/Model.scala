@@ -8,11 +8,13 @@ import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 import org.apache.commons.io.FileUtils.listFiles
 import org.apache.commons.io.FileUtils.readFileToString
 import org.apache.commons.io.FilenameUtils.getExtension
+import org.apache.commons.io.FilenameUtils.removeExtension
+import org.scalatest.FunSuite
 
 object Model {
   val modelDir = new File(".")
   val extensions = Array("nlogo", "nlogo3d")
-  val models = {
+  val models: Iterable[Model] = {
     val testPath = new File("test/").getCanonicalPath
     val isUnderTest = (_: File).getCanonicalPath.startsWith(testPath)
     listFiles(modelDir, extensions, true).asScala
@@ -21,6 +23,14 @@ object Model {
   }
   val sectionSeparator = "@#$#@#$#@"
   val manualPreview = "need-to-manually-make-preview-for-this-model"
+}
+
+trait TestModels extends FunSuite {
+  def testModels(testName: String)(testFun: Iterable[Model] => Iterable[String]): Unit =
+    test(testName) {
+      val failures = testFun(Model.models)
+      if (failures.nonEmpty) fail(failures.mkString("\n"))
+    }
 }
 
 sealed abstract trait UpdateMode
@@ -46,5 +56,6 @@ class Model(val file: File) {
   def patchSize: Double = interface.lines
     .dropWhile(_ != "GRAPHICS-WINDOW")
     .drop(7).next.toDouble
-  def quotedPath = "\"" + file.getCanonicalPath + "\""
+  def quotedPath = "\"" + file.getPath + "\""
+  def previewFile = new File(removeExtension(file.getPath) + ".png")
 }

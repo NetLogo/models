@@ -1,10 +1,6 @@
 package org.nlogo.models
 
-import org.scalatest.FunSuite
-import Model.models
-import org.scalatest.BeforeAndAfterAll
-
-class UpdateModeTests extends FunSuite with BeforeAndAfterAll {
+class UpdateModeTests extends TestModels {
   val continuousUpdateModels = Set(
     "./3D/Code Examples/Shapes Example 3D.nlogo3d",
     "./3D/Sample Models/Sierpinski Simple 3D.nlogo3d",
@@ -66,14 +62,12 @@ class UpdateModeTests extends FunSuite with BeforeAndAfterAll {
     "./Sample Models/Mathematics/Voronoi.nlogo",
     "./Sample Models/Social Science/Unverified/Prisoner's Dilemma/PD Basic.nlogo"
   )
-  for (model <- models) test(model.file.getPath) {
-    val targetMode =
-      if (continuousUpdateModels(model.file.getPath)) Continuous
-      else OnTicks
-    if (model.updateMode != targetMode) {
-      fail(
-        "\nupdate mode should be " + targetMode + " in:\n" +
-          model.quotedPath)
-    }
+  testModels("Models should use tick-based updates unless otherwise specified") {
+    for {
+      model <- _
+      excluded = continuousUpdateModels(model.file.getPath)
+      targetMode = if (excluded) Continuous else OnTicks
+      if model.updateMode != targetMode
+    } yield s"update mode should be $targetMode in ${model.quotedPath}"
   }
 }

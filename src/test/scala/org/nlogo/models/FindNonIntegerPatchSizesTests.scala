@@ -4,10 +4,11 @@ import org.scalatest.FunSuite
 
 import Model.models
 
-class FindNonIntegerPatchSizesTests extends FunSuite {
-  for (model <- models) test(model.file.getPath) {
-    if (model.patchSize.toInt != model.patchSize) fail(
-      "Found non-integer patch size in\n" + model.quotedPath
-    )
+class FindNonIntegerPatchSizesTests extends TestModels {
+  testModels("Models should have integer patch sizes") {
+    for {
+      model <- _
+      if model.patchSize.toInt != model.patchSize
+    } yield s"${model.patchSize} in ${model.quotedPath}"
   }
 }

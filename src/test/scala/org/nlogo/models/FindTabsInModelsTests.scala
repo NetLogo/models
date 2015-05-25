@@ -1,20 +1,11 @@
 package org.nlogo.models
 
-import org.scalatest.FunSuite
-
-import Model.models
-
-class FindTabsInModelsTests extends FunSuite {
-  for (model <- models) test(model.file.getPath) {
-    val linesWithTabs =
-      model.content.lines
-        .zipWithIndex
-        .filter(_._1.contains("\t"))
-        .map(_._2)
-    if (linesWithTabs.nonEmpty) fail(
-      "Found tab character(s) at line(s): " +
-        linesWithTabs.mkString(", ") + "\n" +
-        model.quotedPath
-    )
+class FindTabsInModelsTests extends TestModels {
+  testModels("Models should not use tab characters anywhere") {
+    for {
+      model <- _
+      (line, lineNumber) <- model.content.lines.zipWithIndex
+      if line contains "\t"
+    } yield s"line $lineNumber in ${model.quotedPath}"
   }
 }
