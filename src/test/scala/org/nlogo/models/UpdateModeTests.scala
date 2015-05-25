@@ -73,7 +73,7 @@ class UpdateModeTests extends FunSuite with BeforeAndAfterAll {
     if (model.updateMode != targetMode) {
       fail(
         "\nupdate mode should be " + targetMode + " in:\n" +
-          model.file.getCanonicalPath)
+          model.quotedPath)
     }
   }
 }
