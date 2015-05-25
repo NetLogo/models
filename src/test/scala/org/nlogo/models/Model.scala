@@ -56,6 +56,6 @@ class Model(val file: File) {
   def patchSize: Double = interface.lines
     .dropWhile(_ != "GRAPHICS-WINDOW")
     .drop(7).next.toDouble
-  def quotedPath = "\"" + file.getPath + "\""
+  def quotedPath = "\"" + file.getCanonicalPath + "\""
   def previewFile = new File(removeExtension(file.getPath) + ".png")
 }
