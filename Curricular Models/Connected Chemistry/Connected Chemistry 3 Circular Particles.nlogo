@@ -565,11 +565,11 @@ end
 GRAPHICS-WINDOW
 228
 10
-473
-272
+502
+305
 16
 16
-7.0
+8.0
 1
 20
 1
@@ -682,10 +682,10 @@ particle 0 heading
 11
 
 PLOT
-477
-11
-695
-135
+507
+10
+725
+134
 Kinetic Energy vs. Time
 time
 energy
@@ -701,10 +701,10 @@ PENS
 "particle 1" 1.0 0 -955883 true "" ""
 
 PLOT
-477
-135
-694
-259
+507
+134
+724
+258
 Particle 0 Speed vs. Time
 time
 speed
@@ -719,10 +719,10 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 PLOT
-476
-259
-695
-379
+506
+258
+725
+378
 Particle 0 Heading vs. Time
 time
 heading

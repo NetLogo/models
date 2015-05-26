@@ -28,13 +28,13 @@ to test-connection
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-705
 465
-950
-525
+550
+775
+681
 1
 0
-29.0
+100.0
 1
 10
 1
@@ -161,7 +161,7 @@ gogo-serial:sensor 8
 
 PLOT
 15
-535
+530
 800
 725
 Sensors

@@ -1,13 +1,13 @@
 extensions [gogo]
 @#$#@#$#@
 GRAPHICS-WINDOW
-695
-500
-940
-560
+485
+525
+795
+656
 1
 0
-29.0
+100.0
 1
 10
 1
@@ -117,7 +117,7 @@ gogo:read-sensor 8
 
 PLOT
 10
-500
+490
 795
 690
 Sensors

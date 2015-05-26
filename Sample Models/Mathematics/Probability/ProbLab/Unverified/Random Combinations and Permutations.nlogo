@@ -484,13 +484,13 @@ to-report ratio
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-508
-61
-753
-292
+510
+60
+770
+341
 2
 2
-40.0
+50.0
 1
 10
 1
@@ -526,10 +526,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-568
-405
-715
-450
+610
+465
+757
+510
 #Steps in This Sample
 count-steps
 3
@@ -559,10 +559,10 @@ single-success?
 -1000
 
 MONITOR
-497
-405
-569
-450
+539
+465
+611
+510
 #Samples
 samples-counter
 0
@@ -581,10 +581,10 @@ bars?
 -1000
 
 MONITOR
-417
-321
-474
-366
+459
+381
+516
+426
 NIL
 # 1
 3
@@ -592,10 +592,10 @@ NIL
 11
 
 MONITOR
-465
-321
-522
-366
+507
+381
+564
+426
 NIL
 # 2
 3
@@ -603,10 +603,10 @@ NIL
 11
 
 MONITOR
-516
-321
-573
-366
+558
+381
+615
+426
 NIL
 # 3
 3
@@ -614,10 +614,10 @@ NIL
 11
 
 MONITOR
-566
-321
-623
-366
+608
+381
+665
+426
 NIL
 # 4
 3
@@ -625,10 +625,10 @@ NIL
 11
 
 MONITOR
-616
-321
-673
-366
+658
+381
+715
+426
 NIL
 # 5
 3
@@ -636,10 +636,10 @@ NIL
 11
 
 MONITOR
-667
-321
-724
-366
+709
+381
+766
+426
 NIL
 # 6
 3
@@ -658,10 +658,10 @@ count-permis-successes
 11
 
 TEXTBOX
-408
-301
-703
-319
+460
+359
+755
+377
 Sample Space and Numbers of Choices by Type:
 11
 0.0
@@ -721,7 +721,7 @@ NIL
 MONITOR
 7
 10
-718
+767
 55
 NIL
 instructions
@@ -790,10 +790,10 @@ PENS
 "permutations" 1.0 1 -2674135 true "" ""
 
 SLIDER
-499
-456
-715
-489
+541
+516
+757
+549
 sample-size
 sample-size
 100
@@ -826,40 +826,40 @@ Analysis-Type
 2
 
 TEXTBOX
-483
-384
-643
-402
+525
+444
+685
+462
 Samples and Steps This Run:
 11
 0.0
 0
 
 TEXTBOX
-436
-87
-508
-135
+435
+115
+507
+163
 Set your combination here ----->
 11
 0.0
 0
 
 TEXTBOX
-436
-203
-504
-282
+435
+230
+503
+330
 The model guesses your combination here ----->
 11
 0.0
 0
 
 BUTTON
-413
-134
-506
-167
+412
+162
+505
+195
 Hide/Reveal
 hide/reveal
 NIL
@@ -1418,5 +1418,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
