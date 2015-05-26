@@ -2,17 +2,22 @@ package org.nlogo.models
 
 class ViewTests extends TestModels {
 
-  // finds models whose graphics windows' saved sizes don't match the size you should get if you
-  // compute from the saved patch size and screen-edge-x/y
-
-  // I think that this:
-  // https://github.com/NetLogo/NetLogo/blob/09198dc87a4c509a5ca86811ef4123e09ba282bb/src/main/org/nlogo/window/ViewWidget.java#L200
-  // ...explains most the cases where there is a discrepancy. The trick to keep the test
-  // happy seems to simply make sure that the view is at least 245 pixels wide.
-  // Non-integer patch sizes can also cause problems, but those should be caught
-  // by `FindNonIntegerPatchSizesTests`. -- NP 2015-05-25.
+  testModels("Models should have integer patch sizes") {
+    for {
+      model <- _
+      if model.patchSize.toInt != model.patchSize
+    } yield s"${model.patchSize} in ${model.quotedPath}"
+  }
 
   testModels("Saved view size must match size computed from the saved patch size and screen-edge-x/y") {
+    // finds models whose graphics windows' saved sizes don't match the size you should get if you
+    // compute from the saved patch size and screen-edge-x/y
+    // I think that this:
+    // https://github.com/NetLogo/NetLogo/blob/09198dc87a4c509a5ca86811ef4123e09ba282bb/src/main/org/nlogo/window/ViewWidget.java#L200
+    // ...explains most the cases where there is a discrepancy. The trick to keep the test
+    // happy seems to simply make sure that the view is at least 245 pixels wide.
+    // Non-integer patch sizes can also cause problems, but those should be caught
+    // by the previous test. -- NP 2015-05-25.
     for {
       model <- _
       if !model.is3d
