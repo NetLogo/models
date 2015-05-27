@@ -38,10 +38,11 @@ class SpellCheckTests extends TestModels {
       typos = (aspell #< inputStream).lineStream
       if typos.nonEmpty
       lines = model.content.lines.zipWithIndex.toStream
-      typosDesc = typos.distinct.sorted.map { typo =>
-        val lineNos = lines.filter(_._1 contains typo).map(_._2 + 1)
-        "  " + typo + " (" + lineNos.mkString(", ") + ")"
-      }
+      typosDesc = typos
+        .distinct
+        .map(typo => typo -> lines.filter(_._1 contains typo).map(_._2 + 1))
+        .sortBy(_._2.head) // sort line number of first occurence
+        .map { case (t, ns) => s"  $t (${ns.mkString(", ")})" }
     } yield model.quotedPath + "\n" + typosDesc.mkString("\n")
   }
 }
