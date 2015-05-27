@@ -357,7 +357,7 @@ reduce the step to better observe the interactions
 0
 
 @#$#@#$#@
-##ACKNOWLEDGEMENT
+##ACKNOWLEDGMENT
 
 Ths model is an alternate visualization of the Flocking model from the Biology section of the NetLogo Models Library. It uses visualization techniques as recommended in the paper:
 

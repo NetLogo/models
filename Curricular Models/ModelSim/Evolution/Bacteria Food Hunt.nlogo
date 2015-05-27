@@ -1,4 +1,4 @@
-breed [algaes algae]
+breed [algae alga]
 breed [bacteria bacterium]
 breed [flagella flagellum]
 breed [dividers divider]
@@ -163,7 +163,7 @@ to color-water-spots-and-add-algae
   if fertile? [
     set pcolor [180 200 230]
     sprout 1 [
-      set breed algaes
+      set breed algae
       set shape "algae"
       set color [90 140 90 150]
     ]
@@ -328,7 +328,7 @@ end
 ;; adjust the size of the algae to reflect how much food is in that patch
 to grow-algae
   if fertile? [
-    ask algaes-here [
+    ask algae-here [
       ifelse algae-energy >= 5
         [ set size (algae-energy / max-algae-energy) ]
         [ set size (5 / max-algae-energy) ]
@@ -418,7 +418,7 @@ end
 to bacteria-eat-algae  ;; bacteria procedure
   ;; if there is enough algae to eat at this patch, the bacteria eat it and then gain energy from it.
   if algae-energy > amount-of-algae-bacteria-eat [
-    ;; algaes lose five times as much food energy as the bacteria gains (s trophic level assumption - not 10)
+    ;; algae lose five times as much food energy as the bacteria gains (s trophic level assumption - not 10)
     set algae-energy (algae-energy - (amount-of-algae-bacteria-eat * 5))
     set energy energy + amount-of-algae-bacteria-eat  ;; bacteria gain energy by eating
   ]

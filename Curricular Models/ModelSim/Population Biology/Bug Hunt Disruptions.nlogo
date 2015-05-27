@@ -826,7 +826,7 @@ Bugs wander randomly around one of two regions (left or right). Each region is a
 
 Each step each bug loses one unit of energy and they must consume a food source (grass) to replenish their energy. When they run out of energy, they die. To allow the population to continue, each bug must have enough energy to have an offspring. When that threshold is reached, the offspring and parent split the energy amongst themselves.
 
-Different disturbances can be tested in this system, including temporary removal of grass (simulating a fire), addition of more bugs, and infection of some % of the bugs (simulating transmitable disease).
+Different disturbances can be tested in this system, including temporary removal of grass (simulating a fire), addition of more bugs, and infection of some % of the bugs (simulating transmittable disease).
 
 
 ## HOW TO USE IT

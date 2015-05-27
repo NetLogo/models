@@ -160,7 +160,7 @@ PENS
 "bottom-50%" 1.0 0 -13345367 true "" "plot sum [wealth] of min-n-of 250 turtles [wealth]"
 
 @#$#@#$#@
-## ACKNOWLEDGEMENT
+## ACKNOWLEDGMENT
 
 This model is from Chapter Two of the book "Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo", by Uri Wilensky & William Rand.
 

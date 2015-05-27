@@ -547,13 +547,13 @@ TEXTBOX
 80
 334
 182
-Horizontal lines are altruists - cooperate with everyone\nVertical lines are ethnocentric - cooperate with same, \nnot with different\nCrosses are cosmopolitan - cooperate with different,\n not with same\nDots are egoists - cooperate with noone\n
+Horizontal lines are altruists - cooperate with everyone\nVertical lines are ethnocentric - cooperate with same, \nnot with different\nCrosses are cosmopolitan - cooperate with different,\n not with same\nDots are egoists - cooperate with no one\n
 11
 0.0
 0
 
 @#$#@#$#@
-## ACKNOWLEDGEMENT
+## ACKNOWLEDGMENT
 
 This model is an alternate visualization of the Ethnocentrism model in the Social Sciences section of the NetLogo models library. It uses visualization techniques as recommended in the paper:
 
@@ -649,7 +649,7 @@ The alternate visualization is based on:
 http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuidelinesABMViz.pdf .
 
 This work is based on the visualization guidelines found in:
-Healy, C. (2006). Perception in Visualization.
+Healey, C. (2006). Perception in Visualization.
 http://www.csc.ncsu.edu/faculty/healey/PP/index.html
 @#$#@#$#@
 default

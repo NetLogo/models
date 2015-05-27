@@ -128,7 +128,7 @@ NIL
 1
 
 @#$#@#$#@
-## ACKNOWLEDGEMENT
+## ACKNOWLEDGMENT
 
 This model is from Chapter Eight of the book "Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo", by Uri Wilensky & William Rand.
 
@@ -207,7 +207,7 @@ Notice, also, that the COLOR PATCHES button is a bit different from the others: 
 
 ## RELATED MODELS
 
-This model originaly based upon the Template HubNet model from the library. All the models in the HubNet Activities folder of the library more or less share the same basic structure.
+This model originally based upon the Template HubNet model from the library. All the models in the HubNet Activities folder of the library more or less share the same basic structure.
 
 ## CREDITS AND REFERENCES
 @#$#@#$#@
@@ -517,7 +517,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0-RC4
+NetLogo 5.2.0
 @#$#@#$#@
 ask patches [ set pcolor one-of base-colors ] crt 10 [ fd random 10 ]
 @#$#@#$#@

@@ -109,13 +109,13 @@ to go-all-angles
 end
 
 to go-all-angles-and-pitches
-  let zangle -90
+  let z-angle -90
   set wiggle? false
   repeat 11 [
-    set collision-angle-z zangle
+    set collision-angle-z z-angle
     setup
     while [ go ] [ ]
-    set zangle zangle + 15
+    set z-angle z-angle + 15
   ]
 end
 
@@ -227,7 +227,7 @@ to detect-collisions ; particle procedure
     let dpy 0
     let dpz 0
 
-   ;; since our world is wrapped, we can't just use calcs like xcor - my-x. Instead, we take the smallest
+   ;; since our world is wrapped, we can't just use calculations like xcor - my-x. Instead, we take the smallest
    ;; of either the wrapped or unwrapped distance for each dimension
 
     ifelse ( abs ( xcor - my-x ) <= abs ( ( xcor - my-x ) - world-width ) )
@@ -348,16 +348,16 @@ to collide [ particle2 ] ;; turtle procedure
   ask particle2 [ update-component-vectors ]
 
   ;; find heading and pitch from the center of particle1 to the center of particle2
-  let theading towards particle2
-  let tpitch towards-pitch particle2
+  let t-heading towards particle2
+  let t-pitch towards-pitch particle2
 
   ;; use these to determine the x, y, z components of theta
-  let tx x-velocity theading tpitch 1
-  let ty y-velocity theading tpitch 1
-  let tz z-velocity tpitch 1
+  let tx x-velocity t-heading t-pitch 1
+  let ty y-velocity t-heading t-pitch 1
+  let tz z-velocity t-pitch 1
 
   ;; find the speed of particle1 in the direction of n
-  let particle1-to-theta orth-projection x-vector y-vector z-vector tx ty tz
+  let particle1-to-theta ortho-projection x-vector y-vector z-vector tx ty tz
 
   ;; express particle1's movement along theta in terms of xyz
   let x1-to-theta particle1-to-theta * tx
@@ -373,7 +373,7 @@ to collide [ particle2 ] ;; turtle procedure
   let z1-opp-theta ( ( z-vector ) - ( z1-to-theta ) )
 
   ;; do the same for particle2
-  let particle2-to-theta orth-projection [x-vector] of particle2 [y-vector] of particle2 [z-vector] of particle2 tx ty tz
+  let particle2-to-theta ortho-projection [x-vector] of particle2 [y-vector] of particle2 [z-vector] of particle2 tx ty tz
 
   let x2-to-theta particle2-to-theta * tx
   let y2-to-theta particle2-to-theta * ty
@@ -406,9 +406,9 @@ to collide [ particle2 ] ;; turtle procedure
   set x-vector x1-to-theta + x1-opp-theta
   set y-vector y1-to-theta + y1-opp-theta
   set z-vector z1-to-theta + z1-opp-theta
-  set heading vheading x-vector y-vector z-vector
-  set pitch vpitch x-vector y-vector z-vector
-  set speed vspeed x-vector y-vector z-vector
+  set heading v-heading x-vector y-vector z-vector
+  set pitch v-pitch x-vector y-vector z-vector
+  set speed v-speed x-vector y-vector z-vector
   set energy ( 0.5 * mass * speed ^ 2 )
   set shape "circle 2"
   stamp
@@ -418,9 +418,9 @@ to collide [ particle2 ] ;; turtle procedure
     set x-vector x2-to-theta + x2-opp-theta
     set y-vector y2-to-theta + y2-opp-theta
     set z-vector z2-to-theta + z2-opp-theta
-    set heading vheading x-vector y-vector z-vector
-    set pitch vpitch x-vector y-vector z-vector
-    set speed vspeed x-vector y-vector z-vector
+    set heading v-heading x-vector y-vector z-vector
+    set pitch v-pitch x-vector y-vector z-vector
+    set speed v-speed x-vector y-vector z-vector
     set energy ( 0.5 * mass * speed ^ 2 )
     set shape "circle 2"
     stamp
@@ -459,32 +459,32 @@ to-report z-velocity [ vector-pitch vector-speed ]
 end
 
 ;; reports speed of a vector given xyz coords
-to-report vspeed [ x y z ]
+to-report v-speed [ x y z ]
   report sqrt( x ^ 2 + y ^ 2 + z ^ 2 )
 end
 
 ;; reports xt heading of a vector given xyz coords
-to-report vheading [ x y z ]
+to-report v-heading [ x y z ]
   report atan x y
 end
 
 ;; reports pitch of a vector given xyz coords
-to-report vpitch [ x y z ]
-  report round asin ( z / ( vspeed x y z ) )
+to-report v-pitch [ x y z ]
+  report round asin ( z / ( v-speed x y z ) )
 end
 
-;; called by orthprojection
+;; called by ortho-projection
 to-report dot-product [ x1 y1 z1 x2 y2 z2 ]
   report ( ( x1 * x2 ) + ( y1 * y2 ) + ( z1 * z2 ) )
 end
 
 ;; component of 1 in the direction of 2 (Note order)
-to-report orth-projection [ x1 y1 z1 x2 y2 z2 ]
-  let dproduct dot-product x1 y1 z1 x2 y2 z2
-  let speed-of-2 ( vspeed x2 y2 z2 )
+to-report ortho-projection [ x1 y1 z1 x2 y2 z2 ]
+  let d-product dot-product x1 y1 z1 x2 y2 z2
+  let speed-of-2 ( v-speed x2 y2 z2 )
   ;; if speed is 0 then there's no projection anyway
   ifelse speed-of-2 > 0
-  [ report ( dproduct / speed-of-2 ) ]
+  [ report ( d-product / speed-of-2 ) ]
   [ report 0 ]
 end
 

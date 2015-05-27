@@ -441,11 +441,11 @@ end
 
 to migrate-static
     ask one-of migrants
-        [ let mypatch patch-here
+        [ let my-patch patch-here
           let newcomer one-of patches in-radius-nowrap 1.5 with
             [ occupied = "no"
               and elevation > 8.5
-              and land-value <= [land-value] of mypatch ]
+              and land-value <= [land-value] of my-patch ]
           if newcomer != nobody
           [ hatch 1 [ setxy ( [pxcor] of newcomer ) ( [pycor] of newcomer ) ]
             set occupied [origin] of self

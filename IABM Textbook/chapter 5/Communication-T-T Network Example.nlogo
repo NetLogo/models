@@ -140,7 +140,7 @@ PENS
 "default" 1.0 0 -2674135 true "" "plot count turtles with [ message? ]"
 
 @#$#@#$#@
-## ACKNOWLEDGEMENT
+## ACKNOWLEDGMENT
 
 This model is from Chapter Five of the book "Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo", by Uri Wilensky & William Rand.
 

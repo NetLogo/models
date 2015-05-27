@@ -2,10 +2,10 @@ breed [ rich a-rich ]
 breed [ poor a-poor ]
 breed [ jobs job ] ;; jobs are places of employment held by many people
 
-rich-own [utilityr]
-poor-own [utilityp]
+rich-own [utility-r]
+poor-own [utility-p]
 jobs-own [utility]
-patches-own [quality price sddist]
+patches-own [quality price sd-dist]
 globals [counter view-mode min-poor-util max-poor-util min-rich-util max-rich-util ]
 
 ;;
@@ -40,7 +40,7 @@ to setup-patches
   ]
   ask patches
   [
-    set sddist min [distance myself] of jobs
+    set sd-dist min [distance myself] of jobs
   ]
 end
 
@@ -166,11 +166,11 @@ to evaluate-poor
   let best-candidate max-one-of candidate-patches
     [ patch-utility-for-poor ]
   move-to best-candidate
-  set utilityp [ patch-utility-for-poor ] of best-candidate
+  set utility-p [ patch-utility-for-poor ] of best-candidate
 end
 
 to-report patch-utility-for-poor
-    report ( ( 1 / (sddist / 100 + 0.1) ) ^ ( 1 - poor-price-priority ) ) * ( ( 1 / price ) ^ ( 1 + poor-price-priority ) )
+    report ( ( 1 / (sd-dist / 100 + 0.1) ) ^ ( 1 - poor-price-priority ) ) * ( ( 1 / price ) ^ ( 1 + poor-price-priority ) )
 end
 
 to evaluate-rich
@@ -184,11 +184,11 @@ to evaluate-rich
   let best-candidate max-one-of candidate-patches
         [ patch-utility-for-rich ]
   move-to best-candidate
-  set utilityr [ patch-utility-for-rich ] of best-candidate
+  set utility-r [ patch-utility-for-rich ] of best-candidate
 end
 
 to-report patch-utility-for-rich
-  report ( ( 1 / (sddist + 0.1) ) ^ ( 1 - rich-quality-priority ) ) * ( quality ^ ( 1 + rich-quality-priority) )
+  report ( ( 1 / (sd-dist + 0.1) ) ^ ( 1 - rich-quality-priority ) ) * ( quality ^ ( 1 + rich-quality-priority) )
 end
 
 to kill-poor
@@ -214,7 +214,7 @@ to kill-service
   ask min-one-of jobs [who]
     [ die ]
   ask patches
-    [ set sddist min [distance myself + .01] of jobs ]
+    [ set sd-dist min [distance myself + .01] of jobs ]
 end
 
 to locate-service
@@ -233,7 +233,7 @@ to locate-service
       ]
     ]
     ask patches
-      [ set sddist min [distance myself + .01] of jobs ]
+      [ set sd-dist min [distance myself + .01] of jobs ]
   ]
 end
 
@@ -252,7 +252,7 @@ to evaluate-job
   ;;
   ;; On the other hand, companies would like to pay less rent, and so they may prefer to buy
   ;; land at low real-estate values
-  ;; (particularly true for industrial sectors, which have no need for consumers neraby)
+  ;; (particularly true for industrial sectors, which have no need for consumers nearby)
   let best-candidate max-one-of candidate-patches [ price ]
   move-to best-candidate
   set utility [ price ] of best-candidate
@@ -290,7 +290,7 @@ to update-patch-color
   ][
   ifelse view-mode = "dist"
   [
-    set pcolor scale-color blue sddist  ( 0.45 * ( max-pxcor * 1.414 ) ) ( 0.05 * ( max-pxcor * 1.414 ) )
+    set pcolor scale-color blue sd-dist  ( 0.45 * ( max-pxcor * 1.414 ) ) ( 0.05 * ( max-pxcor * 1.414 ) )
   ][
   ifelse view-mode = "poor-utility"
   [
@@ -309,17 +309,17 @@ end
 ;;
 
 to do-plots
-  let rtotal 0
-  let ptotal 0
+  let r-total 0
+  let p-total 0
   let step 0
-  let rtime 0
-  let ptime 0
+  let r-time 0
+  let p-time 0
 
   set-current-plot "Travel Distance"
-  set rtotal 0
-  set rtime 0
-  set ptotal 0
-  set ptime 0
+  set r-total 0
+  set r-time 0
+  set p-total 0
+  set p-time 0
   set-current-plot-pen "rich"
   plot median [ min [distance myself] of jobs ] of rich
 

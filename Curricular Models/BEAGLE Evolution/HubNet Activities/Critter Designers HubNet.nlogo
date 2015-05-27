@@ -9,10 +9,10 @@ globals
   longevity-leader-age-and-status ;; holds age of the species and whether it is extinct or alive
   max-critter-lifespan            ;; the max number of ticks a critter can live
   birth-cost                      ;; the amount of energy needed to give birth
-  dt                              ;; a time scaling unit used in the simulation to adjust how quickly events are rendered.  
-  player-spam-countdown           ;; the number of ticks a player must wait before placing a new species  
+  dt                              ;; a time scaling unit used in the simulation to adjust how quickly events are rendered.
+  player-spam-countdown           ;; the number of ticks a player must wait before placing a new species
   #-environment-changes           ;; the number of times the environment has changed
-  events                          ;; a string holding a description of all the automatic environment changes that occured in grass growth and max-grass
+  events                          ;; a string holding a description of all the automatic environment changes that occurred in grass growth and max-grass
   total-species-created           ;; the total number of species created
   max-species-age                 ;; the maximum age of all species created
 ]
@@ -28,18 +28,18 @@ clients-own
   user-id                        ;; unique id, input by the client when they log in, to identify each client turtle
   ; we have to keep track of the values from the client interface, whenever they change
   ; although we do not pass them on to critters they have already created.
-  gray-out-others?               ;; if false, only this client's critters will be colored 
+  gray-out-others?               ;; if false, only this client's critters will be colored
   show-energy?                   ;; if true, display the energy level for each individual critter of this client's species
   placing-spam-countdown         ;; the number of ticks this client must wait before placing a new species
   placements-made                ;; the number of species this client has placed
 
   population-size                ;; the number of critters this client has
   current-longevity              ;; the age of this client's current species
-  max-longevity                  ;; the age of the oldest species this client has created 
-  
+  max-longevity                  ;; the age of the oldest species this client has created
+
   speed                          ;; how fast this client's critters move
   behavior-dna                   ;; the pattern of steps that this client's critters move in
-  birthing-level                 ;; the energy level each individual must reach before reproducing as well as 
+  birthing-level                 ;; the energy level each individual must reach before reproducing as well as
                                  ;; how much energy is split between the parent and the offspring when this occurs
   carnivore?                     ;; if true, this client's species can eat other critters
 ]
@@ -55,12 +55,12 @@ critters-own
   speed
   behavior-dna
   birthing-level
-  carnivore?                    
+  carnivore?
 
   current-action                 ;; this critter's current action from their behavior-dna
   action-index                   ;; the list index of this critter's current action in their behavior-dna
-  movement-counter               ;; a counter that ticks down for a certain number of tics for each action in the 
-                                 ;; critters movement.  This allows the particpants to be able to see the critters turning
+  movement-counter               ;; a counter that ticks down for a certain number of tics for each action in the
+                                 ;; critters movement.  This allows the participants to be able to see the critters turning
                                  ;; and sliding forward or backward fluidly.
   movement-delta                 ;; the distance the critter moves
   species-start-tick             ;; the time (number of ticks) when this critter was made
@@ -72,7 +72,7 @@ species-logs-own
   species-id                     ;; number to identify this species
   age                            ;; the number of ticks this species has been alive for
   created-on                     ;; the time (number of ticks) when this species was made
-  last-alive-on                  ;; the time (number of ticks) when this species was last alive   
+  last-alive-on                  ;; the time (number of ticks) when this species was last alive
   extinct?                       ;; if true, this species is no longer alive
 ]
 
@@ -93,7 +93,7 @@ to startup
   setup-vars
 end
 
-to reset-client-stats 
+to reset-client-stats
       set placements-made 0
       set population-size 0
       set current-longevity 0
@@ -104,7 +104,7 @@ to setup
   clear-patches
   clear-all-plots
   clear-output
-  
+
   ask clients [
     reset-client-stats
   ]
@@ -153,11 +153,11 @@ end
 
 to make-a-species-log
    set total-species-created total-species-created + 1
-   set species-id total-species-created 
+   set species-id total-species-created
    hatch 1  [
       set breed species-logs
       set hidden? true
-      set created-on ticks 
+      set created-on ticks
       set last-alive-on ticks
       set extinct? false
       ]
@@ -216,7 +216,7 @@ end
 to go
   every 0.01
   [
-    calc-leader-stats 
+    calc-leader-stats
     ; possibly add a random critter of a new species at every 20th tick
     if (ticks mod 20 = 0) and (random 50 < 1 or species-count < minimum-random-species)
     [
@@ -328,14 +328,14 @@ to go
         die
       ]
     ]
-    
+
     ask n-of ((grass-growth / 100)  * dt * count patches ) patches  [
       add-sugar 0.1
       recolor-patch
     ]
 
-     update-species-logs ;; keep historical record of all species 
-     
+     update-species-logs ;; keep historical record of all species
+
     ; we do hubnet commands right before a tick, because the override lists get set here,
     ; and the display gets updated after a tick.
     listen-clients
@@ -359,24 +359,24 @@ to recolor-patch
 end
 
 
-to change-environmental-conditions  
+to change-environmental-conditions
      let growth-rate-change random 100 - random 100 ;sets growth-rate-change to a number between -99 and 99
      let max-grass-change random 80 - random 80 ;sets max-grass-change to a number between -79 and 79
      let old-max-grass max-grass
      let old-grass-growth grass-growth
-  
+
      set grass-growth grass-growth + growth-rate-change
      if grass-growth < 10 [set grass-growth 10]
      if grass-growth > 100 [set grass-growth 100]
-     
+
      set max-grass max-grass + max-grass-change
      if max-grass > 100 [set max-grass 100]
-     if max-grass < 10 [set max-grass 10] 
+     if max-grass < 10 [set max-grass 10]
      let this-event (word "time: " ticks )
-     set events lput  ( word  this-event " ggr: " grass-growth " mgpp: " max-grass) events 
+     set events lput  ( word  this-event " ggr: " grass-growth " mgpp: " max-grass) events
      set #-environment-changes #-environment-changes + 1
       output-print (word "Environmental change (time:" ticks ", grass-growth:" grass-growth ", max-grass:" max-grass )
- 
+
 end
 
 
@@ -385,7 +385,7 @@ to update-species-logs
      let this-creator-id creator-id
      let this-species-id species-id
      let this-extinct-status extinct?
-     ifelse any? critters with [creator-id = this-creator-id and this-species-id = species-id] 
+     ifelse any? critters with [creator-id = this-creator-id and this-species-id = species-id]
        [set last-alive-on ticks ]
        [if not extinct? [set extinct? true]]
      set age (last-alive-on - created-on)
@@ -544,13 +544,13 @@ to send-info-to-client
   hubnet-send user-id "Your Current Species Size" population-size
   hubnet-send user-id "Your Current Species Longevity"  current-longevity
   hubnet-send user-id "Your Max. Species Longevity"  max-longevity
-  
+
   if (gray-out-others?)  [ hubnet-send-override user-id critters with [ creator-id != (user-id-to-creator-id [user-id] of myself)] "color" [gray - 2] ]
   if (show-energy?)      [ hubnet-send-override user-id my-critters "label" [ (word round energy "     ") ]  ]
 end
 
 
-to broadcast-info-to-clients  
+to broadcast-info-to-clients
   if any? clients [
     hubnet-broadcast "# Alive Species" species-count
     hubnet-broadcast "# Extinct Species" count species-logs with [extinct?]
@@ -558,18 +558,18 @@ to broadcast-info-to-clients
     hubnet-broadcast "Species Longevity Leader" longevity-leader-info
     hubnet-broadcast "Longevity Record" longevity-leader-age-and-status
     hubnet-broadcast "time" ticks
-  ]  
+  ]
 end
 
 
-to calc-leader-stats   
+to calc-leader-stats
   if any? species-logs [
     let leader-log max-one-of species-logs [age]  ;; pull out a log
     let leader-species-extinct? [extinct?] of leader-log
     let leader-id [creator-id] of leader-log
     let leader-shape ""
     let leader-status ""
-    ifelse leader-species-extinct? 
+    ifelse leader-species-extinct?
        [set leader-shape "" set leader-status "extinct"]
        [set leader-shape  [(word (color-string color) " " shape)] of one-of critters with [creator-id = leader-id] set leader-status "alive"]
 
@@ -797,7 +797,7 @@ percent of living critters
 100.0
 true
 true
-"" "if (ticks mod 5 = 0 and ticks != 0) [\n  if (ticks mod 2000 = 0)\n  [\n    clear-all-plots\n    set-plot-x-range (ticks) / dt (ticks + 500) / dt\n  ]\n  if (ticks mod 2000) > 500  ; don't change the range until we've plotted all the way across once\n  [\n    set-plot-x-range (ticks - 500) / dt ticks / dt  ; only show the last 500 ticks\n  ]\n\n  foreach sort species-list\n  [\n    let crits critters with [ creator-id = ? ]\n    ; create-temporary-plot-pen will either create the pen, or set it current if it exists\n    create-temporary-plot-pen ?\n\n    let col [color] of one-of crits\n    if (col mod 10 > 7) ; make the white-ish colors more visible on the plot\n      [ set col col - 1 ]\n    set-plot-pen-color col\n    plotxy (ticks / dt) (count crits) * 100 / count critters\n  ]\n  ]"
+"" "if (ticks mod 5 = 0 and ticks != 0) [\n  if (ticks mod 2000 = 0)\n  [\n    clear-all-plots\n    set-plot-x-range (ticks) / dt (ticks + 500) / dt\n  ]\n  if (ticks mod 2000) > 500  ; don't change the range until we've plotted all the way across once\n  [\n    set-plot-x-range (ticks - 500) / dt ticks / dt  ; only show the last 500 ticks\n  ]\n\n  foreach sort species-list\n  [\n    let crits critters with [ creator-id = ? ]\n    ; create-temporary-plot-pen will either create the pen, or set it current if it exists\n    create-temporary-plot-pen ?\n\n    let col [color] of one-of crits\n    if (col mod 10 > 7) ; make the whitish colors more visible on the plot\n      [ set col col - 1 ]\n    set-plot-pen-color col\n    plotxy (ticks / dt) (count crits) * 100 / count critters\n  ]\n  ]"
 PENS
 "-players-" 1.0 0 -16777216 true "" ""
 
