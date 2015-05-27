@@ -194,7 +194,7 @@ PENS
 "default" 1.0 1 -16777216 true "" "histogram [ count my-links ] of turtles"
 
 @#$#@#$#@
-## ACKNOWLEDGEMENT
+## ACKNOWLEDGMENT
 
 This model is from Chapter Five of the book "Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo", by Uri Wilensky & William Rand.
 
@@ -204,7 +204,7 @@ This model is in the IABM Textbook folder of the NetLogo models library. The mod
 
 ## WHAT IS IT?
 
-This is a simplified verison of the Preferential Attachment model.  It generates a network where the probability of a new link being connected to a node is proportional to the number of links the node already has.
+This is a simplified version of the Preferential Attachment model.  It generates a network where the probability of a new link being connected to a node is proportional to the number of links the node already has.
 
 Such networks can be found in a surprisingly large range of real world situations, ranging from the connections between websites to the collaborations between actors.
 This model generates these networks by a process of “preferential attachment”, in which new network members prefer to make a connection to the more popular existing members.

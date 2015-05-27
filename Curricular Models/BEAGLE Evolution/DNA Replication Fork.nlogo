@@ -7,7 +7,7 @@ breed [nucleotides nucleotide]                               ;; the pieces that 
 breed [polymerases polymerase]                               ;; for gearing a hydrogen "old-stair" bond of free nucleosides to existing nucleotides
 breed [helicases helicase]                                   ;; for unzipping a DNA strand
 breed [topoisomerases topoisomerase]                         ;; for unwinding a DNA chromosome
-breed [topoisomerases-gears topoisomerase-gear]              ;; for visualizing  a spin in toposisomereses when unwinding a DNA chromosome
+breed [topoisomerases-gears topoisomerase-gear]              ;; for visualizing a spin in topoisomerases when unwinding a DNA chromosome
 breed [primases primase]                                     ;; for attaching to the first nucleotide on the top strand.  It marks the location where the topoisomerase must be to unwind
 
                                                              ;;;;;;;;;;;;; label turtles  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -16,7 +16,7 @@ breed [enzyme-tags enzyme-tag]                               ;; the turtle tied 
 
                                                              ;;;;;;;;;;;;; visualization turtles ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 breed [mouse-cursors mouse-cursor]                           ;; follows the cursor location
-breed [chromosome-builders initial-chromsomes-builder]       ;; initial temporary construction turtle
+breed [chromosome-builders initial-chromosomes-builder]       ;; initial temporary construction turtle
 
                                                              ;;;;;;;;;;;;; links ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 undirected-link-breed [old-stairs old-stair]                 ;; the link between nucleotide base pairs that made the old stairs of the "spiral staircase" in the DNA
@@ -215,7 +215,7 @@ to make-a-topoisomerase
     set size 1.5
     set heading -90 + random-float 10 - random-float 10
     hatch 1 [set breed topoisomerases-gears set shape "topoisomerase-gears" create-gearline-from myself [set tie-mode "fixed" set hidden? true tie]]
-    attach-enzyme-tag 150 .85 "topiomerase"
+    attach-enzyme-tag 150 .85 "topoisomerase"
     setxy (((max-pxcor - min-pxcor) / 2) - 3) (max-pycor - 1)
   ]
 end
@@ -614,15 +614,15 @@ to detect-mouse-selection-event
     ;;;;;;  cursor visualization ;;;;;;;;;;;;
     set hidden? true
     let all-moveable-molecules (turtle-set nucleosides polymerases helicases topoisomerases)
-    let dragable-molecules all-moveable-molecules with [not  being-dragged-by-cursor? and distance myself <= mouse-drag-radius]
+    let draggable-molecules all-moveable-molecules with [not being-dragged-by-cursor? and distance myself <= mouse-drag-radius]
 
-    ;; when mouse button has not been down and you are hovering over a dragable molecules - then the mouse cursor appears and is rotating
-    if not current-mouse-down? and mouse-inside? and (any? dragable-molecules) [ set color cursor-detect-color  set hidden? false rt 4 ]
+    ;; when mouse button has not been down and you are hovering over a draggable molecules - then the mouse cursor appears and is rotating
+    if not current-mouse-down? and mouse-inside? and (any? draggable-molecules) [ set color cursor-detect-color  set hidden? false rt 4 ]
     ;; when things are being dragged the mouse cursor is a different color and it is not rotating
     if is-this-cursor-dragging-anything? and mouse-inside? [ set color cursor-drag-color set hidden? false]
 
-    if not mouse-continuous-down? and current-mouse-down? and not is-this-cursor-dragging-anything? and any? dragable-molecules [
-      set target-turtle min-one-of dragable-molecules  [distance myself]
+    if not mouse-continuous-down? and current-mouse-down? and not is-this-cursor-dragging-anything? and any? draggable-molecules [
+      set target-turtle min-one-of draggable-molecules  [distance myself]
       ask target-turtle [setxy p-mouse-xcor p-mouse-ycor]
       create-cursor-drag-to target-turtle [ set hidden? false tie ]
     ] ;; create-link from cursor to one of the target turtles.  These links are called cursor-drags

@@ -147,7 +147,7 @@ neighbor-influence?
 -1000
 
 @#$#@#$#@
-## ACKNOWLEDGEMENT
+## ACKNOWLEDGMENT
 
 This model is from Chapter Three of the book "Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo", by Uri Wilensky & William Rand.
 

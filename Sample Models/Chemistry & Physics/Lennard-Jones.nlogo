@@ -1,7 +1,7 @@
 globals [
   max-move-dist
   cutoff-dist
-  vtotal
+  v-total
   eps
   total-move-attempts
   total-successful-moves
@@ -20,7 +20,7 @@ to setup
   set max-move-dist diameter
   set cutoff-dist 2.5 * diameter
   set pot-offset (- (4 * ((diameter / cutoff-dist) ^ 12 - (diameter / cutoff-dist) ^ 6)))
-  set vtotal calc-vtotal  ;calculate the initial energy
+  set v-total calc-v-total  ;calculate the initial energy
   crt num-atoms [
     set shape "circle"
     set size diameter
@@ -48,23 +48,23 @@ end
 to attempt-move
   set total-move-attempts total-move-attempts + 1  ;the is the total running average
   set current-move-attempts current-move-attempts + 1 ;this is just since the last max-move-distance adjustment
-  let vold calc-v; calculate current energy
-  let deltax (random-float 2 * max-move-dist) - max-move-dist  ; pick random x distance
-  let deltay (random-float 2 * max-move-dist) - max-move-dist ; pick random y distance
-  setxy (xcor + deltax) (ycor + deltay) ;move the random x and y distances
-  let vnew calc-v ;Calculate the new energy
+  let v-old calc-v; calculate current energy
+  let delta-x (random-float 2 * max-move-dist) - max-move-dist  ; pick random x distance
+  let delta-y (random-float 2 * max-move-dist) - max-move-dist ; pick random y distance
+  setxy (xcor + delta-x) (ycor + delta-y) ;move the random x and y distances
+  let v-new calc-v ;Calculate the new energy
 
-  let deltav vnew - vold
-  ifelse (vnew < vold) or (random-float 1 < exp( - deltav / temperature) ) [
+  let delta-v v-new - v-old
+  ifelse (v-new < v-old) or (random-float 1 < exp( - delta-v / temperature) ) [
     set total-successful-moves total-successful-moves + 1   ;the is the total running average
     set current-successful-moves current-successful-moves + 1   ;this is just since the last max-move-distance adjustment
-    set vtotal vtotal + deltav
+    set v-total v-total + delta-v
   ] [
-    setxy (xcor - deltax) (ycor - deltay) ;reset position
+    setxy (xcor - delta-x) (ycor - delta-y) ;reset position
   ]
 end
 
-to-report calc-vtotal
+to-report calc-v-total
   report sum [ calc-v ] of turtles / 2 ;divide by two because each particle has been counted twice
 end
 
@@ -101,7 +101,7 @@ to tune-acceptance-rate
 end
 
 to-report energy-per-particle
-  report vtotal / num-atoms
+  report v-total / num-atoms
 end
 
 ;*********setup procedures*************
@@ -112,11 +112,11 @@ to setup-atoms
     let row-dist (2 ^ (1 / 6)) * diameter ;this is the distance with minimum energy
     let ypos (- l * row-dist / 2) ;the y position of the first atom
     let xpos (- l * row-dist / 2) ;the x position of the first atom
-    let rnum 0  ;the row number
+    let r-num 0  ;the row number
     ask turtles [  ;set the atoms; positions
       if xpos > (l * row-dist / 2)  [  ;condition to start a new row
-        set rnum rnum + 1
-        set xpos (- l * row-dist / 2) + (rnum mod 2) * row-dist / 2
+        set r-num r-num + 1
+        set xpos (- l * row-dist / 2) + (r-num mod 2) * row-dist / 2
         set ypos ypos + row-dist
       ]
       setxy xpos ypos  ;if we are still in the same row
@@ -133,16 +133,16 @@ to setup-atoms
 end
 
 to remove-overlap
-  let rmin 0.7 * diameter
+  let r-min 0.7 * diameter
   ask turtles [
-    while [overlapping rmin] [
+    while [overlapping r-min] [
       setxy random-xcor random-ycor
     ]
   ]
 end
 
-to-report overlapping [rmin]
-  report any? other turtles in-radius rmin
+to-report overlapping [r-min]
+  report any? other turtles in-radius r-min
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
@@ -277,7 +277,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "if ticks > 3 [\nplot vtotal / num-atoms\n]"
+"default" 1.0 0 -16777216 true "" "if ticks > 3 [\n  plot v-total / num-atoms\n]"
 
 TEXTBOX
 4
@@ -341,7 +341,7 @@ TEXTBOX
 270
 225
 312
-Adjust the temparture and run the model. The temperature can be adjusted while the model runs\n
+Adjust the temperature and run the model. The temperature can be adjusted while the model runs\n
 11
 0.0
 1
@@ -360,7 +360,7 @@ We will consider the interactions of neutral atoms. To model their interactions 
 
 There are two basic principles to keep in mind for this model:
 
-1. Each atom tries to minimize its energy. The energy of an atom depends soley on its distance from other atoms, and is computed via the Lennard-Jones potential.
+1. Each atom tries to minimize its energy. The energy of an atom depends solely on its distance from other atoms, and is computed via the Lennard-Jones potential.
 2. Atoms sustain thermal kicks which can increase their energy. Basically, the higher the temperature, the more likely an atom is to get "kicked uphill" into a higher energy position.
 
 These two principles are discussed briefly in the next two sections.

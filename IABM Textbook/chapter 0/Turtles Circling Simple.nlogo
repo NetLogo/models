@@ -124,7 +124,7 @@ NIL
 0
 
 @#$#@#$#@
-## ACKNOWLEDGEMENT
+## ACKNOWLEDGMENT
 
 This model is from Chapter Zero of the book "Introduction to Agent-Based Modeling: Modeling natural, social and engineered complex systems with NetLogo", by Uri Wilensky & William Rand.
 

@@ -1,6 +1,6 @@
 patches-own [
   patch-type ;; inner, surface, or air
-  hCount
+  h-count
 ]
 
 globals[
@@ -8,10 +8,10 @@ globals[
   h4-color h3-color h2-color h1-color
   anchor-transparency ;;color transparency for anchors
   hydrogen-transparency ;;color transparency for hydrogen
-  boxSize hSize
-
-  hTotal ;; total hydrogen available in patches and free-roaming
-  hRemain ;; remaining hydrogen
+  box-size
+  h-size
+  h-total ;; total hydrogen available in patches and free-roaming
+  h-remain ;; remaining hydrogen
   ]
 
 breed [hydrogens hydrogen]  ;;hydrogen
@@ -23,24 +23,24 @@ to setup
 
   ;;Colors for Hydrogen Counts
   ifelse h4On
-  [set h4-color white]   
+  [set h4-color white]
   [set h4-color 0]
 
   ifelse h3On
-  [set h3-color green]  
+  [set h3-color green]
   [set h3-color 0]
 
   ifelse h2On
-  [set h2-color blue]  
+  [set h2-color blue]
   [set h2-color 0]
 
   ifelse h1On
-  [set h1-color red]  
+  [set h1-color red]
   [set h1-color 0]
 
-  set hydrogen-transparency 200 
-  set boxSize 0.30 
-  set hSize 0.35 
+  set hydrogen-transparency 200
+  set box-size 0.30
+  set h-size 0.35
 
   ;;SETUP PATCHES
 
@@ -52,50 +52,50 @@ to setup
   ask patches with [(pxcor > min-pxcor and pxcor < max-pxcor) and
                     (pycor > min-pycor and pycor < max-pycor) and
                     (pzcor > min-pzcor and pzcor < max-pzcor)] [
-    set patch-type "surface" 
+    set patch-type "surface"
   ]
-                    
+
   ;;Inner lattice patches
   ask patches with [(pxcor > min-pxcor + 1 and pxcor < max-pxcor - 1) and
                     (pycor > min-pycor + 1 and pycor < max-pycor - 1) and
                     (pzcor > min-pzcor + 1 and pzcor < max-pzcor - 1)] [
-    set patch-type "inner" 
+    set patch-type "inner"
   ]
 
   ;;Populate anchors
   ask patches with [patch-type != "air" ] [
-    sprout-anchors 1 [ 
-      set shape "square" 
+    sprout-anchors 1 [
+      set shape "square"
       set color lput anchor-transparency extract-rgb h4-color
-      set size boxSize 
-      set heading 0 
+      set size box-size
+      set heading 0
       set pitch 0
     ]
-    set hCount 4 
+    set h-count 4
   ]
 
   ;;Total Hydrogens
-  set hTotal ((count patches with [patch-type != "air"]) * 3)
-  set hRemain hTotal
+  set h-total ((count patches with [patch-type != "air"]) * 3)
+  set h-remain h-total
 
 
   ;;Grid Draw
-  if (gridDraw) [
-    ask patch min-pxcor min-pycor min-pzcor [ 
-      sprout 1 [ 
-        set color gray - 2 
+  if (grid-draw) [
+    ask patch min-pxcor min-pycor min-pzcor [
+      sprout 1 [
+        set color gray - 2
 
         ;;Y
         set heading 0
         ;;loop setup
         set xcor xcor - 1.5 set ycor ycor - 0.5 set zcor zcor - 1.5
-        repeat (max-pxcor * 2 + 1) [ 
+        repeat (max-pxcor * 2 + 1) [
           set zcor zcor + 1
-          repeat (max-pxcor * 2 + 1) [ 
+          repeat (max-pxcor * 2 + 1) [
             set ycor min-pxcor - 0.5
             set xcor xcor + 1
             pd fd .25 repeat (max-pxcor * 2) [ pu fd .5 pd fd .5 ] pu fd .5 pd fd .25 pu ]
-          set xcor xcor + 1 
+          set xcor xcor + 1
         ]
         set xcor xcor + 1
 
@@ -103,28 +103,28 @@ to setup
         set heading 90
         ;;loop setup
         set ycor ycor - 1 set zcor min-pzcor - 0.5 - 1
-        repeat (max-pxcor * 2 + 1) [ 
+        repeat (max-pxcor * 2 + 1) [
           set zcor zcor + 1
-          repeat (max-pxcor * 2 + 1) [ 
+          repeat (max-pxcor * 2 + 1) [
             set ycor ycor + 1
             pd fd .25 repeat (max-pxcor * 2) [ pu fd .5 pd fd .5 ] pu fd .5 pd fd .25 pu ]
-          set ycor ycor + 1 
+          set ycor ycor + 1
         ]
 
         ;;Z
         set pitch 90
         ;;loop setup
         set zcor zcor + 1 set xcor xcor - 1
-        repeat (max-pxcor * 2 + 1) [ 
+        repeat (max-pxcor * 2 + 1) [
           set ycor ycor + 1
-          repeat (max-pxcor * 2 + 1) [ 
+          repeat (max-pxcor * 2 + 1) [
             set xcor xcor + 1
             pd fd .25 repeat (max-pxcor * 2) [ pu fd .5 pd fd .5 ] pu fd .5 pd fd .25 pu ]
-          set xcor xcor + 1 
+          set xcor xcor + 1
         ]
-        
+
         ;;kill pen turtle
-        die 
+        die
       ]
     ]
   ]
@@ -134,66 +134,66 @@ end
 to go
 
   ;;Termination %
-  if (hRemain < (hTotal * endPercent / 100)) [ 
+  if (h-remain < (h-total * end-percent / 100)) [
     ask patch 0 0 0 [set pcolor red]
-    stop 
+    stop
   ]
 
   ;; removing H2 from model
   ask hydrogens with [color = yellow] [die]
 
   ;;Freedom! - Hydrogen desorbs
-  ask patches with [hCount = 2] [ 
-    if random-float 1.0 < p2to1 [ 
-      set hCount hCount - 1
-      sprout-hydrogens 1 [ 
+  ask patches with [h-count = 2] [
+    if random-float 1.0 < p2to1 [
+      set h-count h-count - 1
+      sprout-hydrogens 1 [
         set shape "circle"
-        set color lput hydrogen-transparency extract-rgb h1-color 
-        set size hSize 
+        set color lput hydrogen-transparency extract-rgb h1-color
+        set size h-size
         fd random-float .4 - .8
       ]
-      ask anchors-here [ 
-        set color lput anchor-transparency extract-rgb h1-color 
+      ask anchors-here [
+        set color lput anchor-transparency extract-rgb h1-color
       ]
     ]
   ]
 
-  ask patches with [hCount = 3] [ 
-    if random-float 1.0 < p3to2 [ 
-      set hCount hCount - 1
-      sprout-hydrogens 1 [ 
+  ask patches with [h-count = 3] [
+    if random-float 1.0 < p3to2 [
+      set h-count h-count - 1
+      sprout-hydrogens 1 [
         set shape "circle"
         set color lput hydrogen-transparency extract-rgb h2-color
-        set size hSize 
+        set size h-size
         fd random-float .4 - .8
       ]
-      ask anchors-here [ 
-        set color lput anchor-transparency extract-rgb h2-color 
+      ask anchors-here [
+        set color lput anchor-transparency extract-rgb h2-color
       ]
     ]
   ]
 
-  ask patches with [hCount = 4] [ 
-    if random-float 1.0 < p4to3 [ 
-      set hCount hCount - 1
-      sprout-hydrogens 1 [ 
+  ask patches with [h-count = 4] [
+    if random-float 1.0 < p4to3 [
+      set h-count h-count - 1
+      sprout-hydrogens 1 [
         set shape "circle"
         set color lput hydrogen-transparency extract-rgb h3-color
-        set size hSize 
+        set size h-size
         fd random-float .4 - .8
       ]
-      ask anchors-here [ 
-        set color lput anchor-transparency extract-rgb h3-color 
+      ask anchors-here [
+        set color lput anchor-transparency extract-rgb h3-color
       ]
     ]
   ]
 
   ;;Absorption
   ask hydrogens [
-  
+
     ;;2 to 3 absorption
-    ifelse ((hCount = 2) and (random-float 1.0 < p2to3)) [ 
-      set hCount hCount + 1 ;; patch variable
+    ifelse ((h-count = 2) and (random-float 1.0 < p2to3)) [
+      set h-count h-count + 1 ;; patch variable
       ask anchors-here [
         set color lput anchor-transparency extract-rgb h3-color
       ]
@@ -201,8 +201,8 @@ to go
     ] [
 
     ;;3 to 4 absorption
-      if ((hCount = 3) and (random-float 1.0 < p3to4)) [ 
-        set hCount hCount + 1 ;; patch variable
+      if ((h-count = 3) and (random-float 1.0 < p3to4)) [
+        set h-count h-count + 1 ;; patch variable
         ask anchors-here [
           set color lput anchor-transparency extract-rgb h4-color
         ]
@@ -214,28 +214,28 @@ to go
   ;; HYDROGEN MOVEMENT
 
   ask hydrogens-on patches with [patch-type = "inner"] [
-    let norm (count neighbors6 with [hCount = 1]) * red-diffuse + (count neighbors6 with [hCount > 1]) + 0.00000000001
-    let pRed (count neighbors6 with [hCount = 1]) * red-diffuse / norm ;;percent chance to move to red(depleted regions)
+    let norm (count neighbors6 with [h-count = 1]) * red-diffuse + (count neighbors6 with [h-count > 1]) + 0.00000000001
+    let pRed (count neighbors6 with [h-count = 1]) * red-diffuse / norm ;;percent chance to move to red(depleted regions)
 
     ifelse (random-float 1.0 < pRed) [
-      face one-of neighbors6 with [hCount = 1]
-    ] [ 
-      ifelse count (neighbors6 with [hCount > 1]) > 0 [ 
-        face one-of neighbors6 with [hCount > 1 ]
+      face one-of neighbors6 with [h-count = 1]
+    ] [
+      ifelse count (neighbors6 with [h-count > 1]) > 0 [
+        face one-of neighbors6 with [h-count > 1 ]
       ]
-      [ 
+      [
         face one-of neighbors6
       ]
     ]
-    
+
     ;; move to neighboring patch, then slightly off-center
-    fd random-float 1.4 - .8 
+    fd random-float 1.4 - .8
   ]
 
   ;; quick-diffuse surface hydrogens
-  ask hydrogens-on patches with [patch-type != "inner"] [ 
+  ask hydrogens-on patches with [patch-type != "inner"] [
     face one-of neighbors with [patch-type = "surface"]
-    fd 1 
+    fd 1
   ]
 
   ;; PAIRING-UP AND LEAVING
@@ -246,9 +246,9 @@ to go
     if ((count hydrogens-here) > 1) [
       ask n-of 2 hydrogens-here [
         set color yellow
-        set size .5  
+        set size .5
       ]
-      set hRemain hRemain - 2 
+      set h-remain h-remain - 2
     ]
   ]
 
@@ -396,15 +396,15 @@ true
 false
 "" ""
 PENS
-"hydrogens" 1.0 0 -13345367 true "" "plot hRemain"
+"hydrogens" 1.0 0 -13345367 true "" "plot h-remain"
 
 SLIDER
 15
 95
 210
 128
-endPercent
-endPercent
+end-percent
+end-percent
 0
 100
 23
@@ -515,10 +515,10 @@ Turns on/off the color visualizations for the nth free hydrogen
 SWITCH
 15
 160
-117
+137
 193
-gridDraw
-gridDraw
+grid-draw
+grid-draw
 0
 1
 -1000
@@ -529,7 +529,7 @@ MONITOR
 655
 125
 Fraction of Surface H Remaining
-(sum [hCount - 1] of patches with [patch-type = \"surface\"]) / (3 * count patches with [patch-type = \"surface\"])
+(sum [h-count - 1] of patches with [patch-type = \"surface\"]) / (3 * count patches with [patch-type = \"surface\"])
 3
 1
 11
@@ -540,7 +540,7 @@ MONITOR
 655
 70
 Percent of Hydrogen Remaining
-(hRemain / hTotal) * 100
+(h-remain / h-total) * 100
 3
 1
 11
@@ -609,7 +609,7 @@ NIL
 10.0
 true
 false
-";set-histogram-num-bars 4\n;histogram [hcount] of patches" ""
+";set-histogram-num-bars 4\n;histogram [h-count] of patches" ""
 PENS
 "pen-0" 1.0 1 -7500403 true "" ""
 
@@ -618,44 +618,44 @@ PENS
 
 This model simulates hydrogen diffusion through a lattice, in particular, hydrogen desorption from solid state hydrides. These hydrides are hydrogen storage materials that absorb hydrogen at high pressures, and release hydrogen at high temperatures.
 
-This research tool allows us to better understand the kinetics of hydrogen desorption from a lattice, which can aid in the development of candidate hydrogen storage materials for hydrogen fuel cell powered vehicles. These vehicles have the potential to be extremely efficient, zero-emission vehicles and may serve to be a central component in the battle against global warming. 
+This research tool allows us to better understand the kinetics of hydrogen desorption from a lattice, which can aid in the development of candidate hydrogen storage materials for hydrogen fuel cell powered vehicles. These vehicles have the potential to be extremely efficient, zero-emission vehicles and may serve to be a central component in the battle against global warming.
 
 Diffusion and desorption are complex material behaviors, and these kinetics are not well understood. There are several fundamental parameters involved in these processes:
 
-####Bond breaking  
-Hydrogen atoms are stored on molecular units like BH<sub>4</sub> and AlH<sub>4</sub>, where they are bonded to some central atom like boron or aluminum. In order for hydrogen to diffuse, it must break the bond formed with this central atom. An important factor affecting this process is the strength of the bond, controlled in the model by the hydrogen desporption probabilities sliders.
+####Bond breaking
+Hydrogen atoms are stored on molecular units like BH<sub>4</sub> and AlH<sub>4</sub>, where they are bonded to some central atom like boron or aluminum. In order for hydrogen to diffuse, it must break the bond formed with this central atom. An important factor affecting this process is the strength of the bond, controlled in the model by the hydrogen desorption probabilities sliders.
 
-####Diffusion through different phases  
+####Diffusion through different phases
 As hydrogen desorbs, the underlying crystal structure of the material will change. This in turn affects the movement speed of hydrogen atoms through the material. It is important to model the relative probability of a hydrogen atom moving into a cell depleted of hydrogen, versus a completely full cell.
 
-####Reabsorption  
+####Reabsorption
 There is a probability that if a hydrogen atom travels to a non-full cell, it will form bonds with the central atom in that cell. This reabsorption property is probabilistic and can dramatically affect the desorption rate from the materials.
 
-This model explores the contribution of each of these properties on the desorption and diffusion behavior of candidate hydrogen storage materials. Different materials can be modeled through setting the absorbtion and desoprtion probabilities to match the behavior of the material under investigation. 
+This model explores the contribution of each of these properties on the desorption and diffusion behavior of candidate hydrogen storage materials. Different materials can be modeled through setting the absorption and desorption probabilities to match the behavior of the material under investigation.
 
 ## HOW IT WORKS
 The model begins with a fully saturated lattice with all available hydrogen in compound form.  Hydrogen will diffuse freely through the lattice until they reach the surface of the material, where they must pair off in order to leave the lattice as a H<sub>2</sub> gas molecule. The simulation terminates when the available hydrogen in the model reaches the user-set termination percent.
 
-The SETUP button initializes the model with a fully satured latice of hydrogen atoms.
+The SETUP button initializes the model with a fully saturated lattice of hydrogen atoms.
 
-The GO button begins the diffusion process.  
-The lattice is represented by a series of small cubes marking the center of each lattice molecule. At each tick, hydrogen atoms have the opportunity to break their bonds to the lattice molecule. This behavior is contolled by the HYDROGEN DESORPTION PROBABILITIES sliders which define the probability of a hyrogen atom desorbing based on the number of hydrogen atoms currently bonded with the central atom.  Free hydrogen within the lattice will move to one of its six neighboring patches with equal probability, unless one of them is a depleted (red) patch, where the probability is altered by a factor of RED-DIFFUSE. The hydrogen will continue to desporb/absorb over the course of the model run until it pairs up and leaves the system.
+The GO button begins the diffusion process.
+The lattice is represented by a series of small cubes marking the center of each lattice molecule. At each tick, hydrogen atoms have the opportunity to break their bonds to the lattice molecule. This behavior is controlled by the HYDROGEN DESORPTION PROBABILITIES sliders which define the probability of a hydrogen atom desorbing based on the number of hydrogen atoms currently bonded with the central atom.  Free hydrogen within the lattice will move to one of its six neighboring patches with equal probability, unless one of them is a depleted (red) patch, where the probability is altered by a factor of RED-DIFFUSE. The hydrogen will continue to desorb/absorb over the course of the model run until it pairs up and leaves the system.
 
 When a free hydrogen atom reach the surface of the lattice, it will still move once per tick, but can only move to other patches on the surface of the material. When it pairs up with another hydrogen, it flashes yellow then is removed from the model.
 
-The color of the cube indicates the amount of available desorbable hydrogen.  
+The color of the cube indicates the amount of available desorbable hydrogen.
 White:&nbsp;&nbsp;XH<sub>4</sub>: fully saturated with 3 potential available hydrogen atoms
-Blue:&nbsp;&nbsp;&nbsp;&nbsp;XH<sub>3</sub>: 2 potential hydrogen to be desporbed
-Green:&nbsp;&nbsp;XH<sub>2</sub>: 1 potential hydroen to be desporbed
-Red:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XH&nbsp;&nbsp;: fully depleated with no available hydrogen to lose
+Blue:&nbsp;&nbsp;&nbsp;&nbsp;XH<sub>3</sub>: 2 potential hydrogen to be desorbed
+Green:&nbsp;&nbsp;XH<sub>2</sub>: 1 potential hydrogen to be desorbed
+Red:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XH&nbsp;&nbsp;: fully depleted with no available hydrogen to lose
 
 *This is modeled after LiBH<sub>4</sub>, which follows the reaction LiBH<sub>4</sub> -> LiH+B+3/2H<sub>2</sub>. LiH is a stable compound and does not desorb more hydrogen.
 
-When an atom has desorbed all available hydrogen, it becomes red and "stable". At this stage, it undergoes a "phase change". It is unknown if hydrogen will diffuse through these phases at different speeds, but it is very likely to have a different diffusing speed. Because the XH compound has less hydrogen, it ought to be less dense, and we anticipate the diffusion rate to be slower. In the model, this rate can be controlled by the RED-DIFUSE slider.
+When an atom has desorbed all available hydrogen, it becomes red and "stable". At this stage, it undergoes a "phase change". It is unknown if hydrogen will diffuse through these phases at different speeds, but it is very likely to have a different diffusing speed. Because the XH compound has less hydrogen, it ought to be less dense, and we anticipate the diffusion rate to be slower. In the model, this rate can be controlled by the RED-DIFFUSE slider.
 
-The desorbed hydrogen follow a similar color scheme:  
-Blue - first free hydrogen  
-Green - second free hydrogen  
+The desorbed hydrogen follow a similar color scheme:
+Blue - first free hydrogen
+Green - second free hydrogen
 Red - third free hydrogen
 
 ## HOW TO USE IT
@@ -664,23 +664,23 @@ The probability for desorption, diffusion, and absorption of free hydrogen can b
 
 ### Visualization Options
 
-The GridDraw switch enables the user to turn on or off the grid markings for each patch.  By default this is set to off and is generally not recommended for world sizes of larger than 5x5x5.
+The GRID-DRAW switch enables the user to turn on or off the grid markings for each patch.  By default this is set to off and is generally not recommended for world sizes of larger than 5x5x5.
 
 The four H-On switches enable the user to change the color of the desired hydrogen to dark gray.  This allows the user to focus their attention on one particular stage of diffusion.  For example, turning off the H4,H3,H2 switches will color everything dark gray except for the red depleted lattice patches as well as the final desorbed hydrogen.
 
 ### Monitors
 
 Fraction of Surface H Remaining:
-Displays the fraction of desorbable hydrogen (vs. initial) remaining in the surface layer of the lattice.  
+Displays the fraction of desorbable hydrogen (vs. initial) remaining in the surface layer of the lattice.
 
-Percent of Hydrogen Remaining:  
-Displays fraction of desorbable hydrogen (vs. initial) remaining in the entire lattice.  
+Percent of Hydrogen Remaining:
+Displays fraction of desorbable hydrogen (vs. initial) remaining in the entire lattice.
 
 Total Hydrogen Count:
 Displays total of both attached and free hydrogens remaining in the system over time.
 
 Patch Distribution:
-Shows the distribution of patches based on how many desorable hydrogen it are present
+Shows the distribution of patches based on how many desorbable hydrogen it are present
 
 ## THINGS TO NOTICE
 
@@ -690,10 +690,10 @@ One interesting thing to notice about the model is that the Total Hydrogen Count
 
 Setting all hydrogen control parameters to 0.10 will induce a "shell effect," where outer hydrogen atoms leave quickly, and free hydrogen atoms will become trapped in the central region of the lattice.  This is due to a re-absorption probability in combination with a slower relative diffusion rate through depleted cells.
 
-When the redDiffuse is increased, the desorption rate decreases dramatically, with nearly linear dependence on this slider. With zero redDiffuse (0% chance to move to a red patch when there are other patches to move to), we observe many desorbed hydrogen atoms tightly grouped around a small area of non-depleted patches sustained by abnormally high re-absorption rates. Eventually these patches will become depleted, causing an 'explosion' of each of these clusters of free hydrogen atoms.  While this phenomenon is rather unrealistic, 0% redDiffuse is unrealistic as well.
+When the RED-DIFFUSE is increased, the desorption rate decreases dramatically, with nearly linear dependence on this slider. With zero RED-DIFFUSE (0% chance to move to a red patch when there are other patches to move to), we observe many desorbed hydrogen atoms tightly grouped around a small area of non-depleted patches sustained by abnormally high re-absorption rates. Eventually these patches will become depleted, causing an 'explosion' of each of these clusters of free hydrogen atoms.  While this phenomenon is rather unrealistic, 0% RED-DIFFUSE is unrealistic as well.
 
-Absorption also plays a huge role on the rate of hydrogen leaving the system.  
-With the absorption sliders set to 0, the simulation runs extremely quickly.  
+Absorption also plays a huge role on the rate of hydrogen leaving the system.
+With the absorption sliders set to 0, the simulation runs extremely quickly.
 But with a slight increase of p3to4 and p2to3 to 0.02, the simulation time nearly doubles.
 
 ## EXTENDING THE MODEL

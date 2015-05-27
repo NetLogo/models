@@ -139,7 +139,7 @@ NIL
 0
 
 @#$#@#$#@
-## ACKNOWLEDGEMENT
+## ACKNOWLEDGMENT
 
 This model is from Chapter Eight of the book "Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo", by Uri Wilensky & William Rand.
 
@@ -149,7 +149,7 @@ This model is in the IABM Textbook folder of the NetLogo models library. The mod
 
 ## WHAT IS IT?
 
-This model should give a sense for the process of controlling an Arduino board with NetLogo. In it, we use only the Arduino’s onboard LED, located next to pin 13 (and connected to that pin). This example simply allows NetLogo to turn that LED on or off.
+This model should give a sense for the process of controlling an Arduino board with NetLogo. In it, we use only the Arduino's onboard LED, located next to pin 13 (and connected to that pin). This example simply allows NetLogo to turn that LED on or off.
 
 
 ## HOW IT WORKS
@@ -175,7 +175,7 @@ Once you have a connection, simply press the ON button to turn the LED on (it wi
 
 ## EXTENDING THE MODEL
 
-This model provides you with a `setup` procedure that you can use to initiate the communication with your Arduino, and a simple way to turn its built-in LED on and off, but this is only the beginning. Many different kinds of Arduino sensors can be obtained at a low cost from several manifacturors: find one that you like and experiment with it!
+This model provides you with a `setup` procedure that you can use to initiate the communication with your Arduino, and a simple way to turn its built-in LED on and off, but this is only the beginning. Many different kinds of Arduino sensors can be obtained at a low cost from several manufacturers: find one that you like and experiment with it!
 
 
 ## NETLOGO FEATURES

@@ -1,7 +1,7 @@
 globals
 [
-  tick-advance-amount                                ;; clock variables
-  max-tick-advance-amount                            ;; the largest a tick length is allowed to be
+  tick-advance-amount                        ;; clock variables
+  max-tick-advance-amount                    ;; the largest a tick length is allowed to be
   box-edge                                   ;; distance of box edge from axes
   avg-energy                                 ;; keeps track of average kinetic energy of gas molecules
   fast medium slow                           ;; current counts
@@ -11,8 +11,8 @@ globals
   activation-energy                          ;; total kinetic energy of gas molecule involved in collision required for chemical reaction to occur
   total-oxygen-molecules                     ;; keeps track of total molecules
   total-nitrogen-molecules                   ;; keeps track of total molecules
-  total-carbondioxide-molecules              ;; keeps track of total molecules
-  total-carboncharcoal-atoms                 ;; keeps track of total molecules
+  total-carbon-dioxide-molecules             ;; keeps track of total molecules
+  total-carbon-charcoal-atoms                ;; keeps track of total molecules
 ]
 
 breed [ gas-molecules gas-molecule ]
@@ -138,8 +138,8 @@ to update-variables
   set avg-energy mean [energy ] of gas-molecules
   set total-oxygen-molecules count gas-molecules with [shape = "oxygen"]
   set total-nitrogen-molecules count gas-molecules with [shape = "nitrogen"]
-  set total-carbondioxide-molecules count gas-molecules with [shape = "co2"]
-  set total-carboncharcoal-atoms count carbons
+  set total-carbon-dioxide-molecules count gas-molecules with [shape = "co2"]
+  set total-carbon-charcoal-atoms count carbons
 end
 
 
@@ -472,8 +472,8 @@ true
 "" ""
 PENS
 "Oxygen" 1.0 0 -13345367 true "" "plotxy ticks total-oxygen-molecules"
-"Carbon Dioxide" 1.0 0 -4539718 true "" "plotxy ticks total-carbondioxide-molecules"
-"Charcoal" 1.0 0 -955883 true "" "plotxy ticks total-carboncharcoal-atoms"
+"Carbon Dioxide" 1.0 0 -4539718 true "" "plotxy ticks total-carbon-dioxide-molecules"
+"Charcoal" 1.0 0 -955883 true "" "plotxy ticks total-carbon-charcoal-atoms"
 "Nitrogen" 1.0 0 -6565750 true "" "plotxy ticks total-nitrogen-molecules"
 
 SLIDER

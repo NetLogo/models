@@ -121,7 +121,7 @@ to detect-collisions ; particle procedure
     let dpy 0
     let dpz 0
 
-    ;; since our world is wrapped, we can't just use calcs like xcor - my-x. Instead, we take the smallest
+    ;; since our world is wrapped, we can't just use calculations like xcor - my-x. Instead, we take the smallest
     ;; of either the wrapped or unwrapped distance for each dimension
 
     ifelse ( abs ( xcor - my-x ) <= abs ( ( xcor - my-x ) - world-width ) )
@@ -247,79 +247,79 @@ to collide [ particle2 ] ;; turtle procedure
   ask particle2 [ update-component-vectors ]
 
   ;; find heading and pitch from the center of particle1 to the center of particle2
-  let theading towards particle2
-  let tpitch towards-pitch particle2
+  let t-heading towards particle2
+  let t-pitch towards-pitch particle2
 
   ;; use these to determine the x, y, z components of theta
-  let tx x-velocity theading tpitch 1
-  let ty y-velocity theading tpitch 1
-  let tz z-velocity tpitch 1
+  let tx x-velocity t-heading t-pitch 1
+  let ty y-velocity t-heading t-pitch 1
+  let tz z-velocity t-pitch 1
 
   ;; find the speed of particle1 in the direction of n
-  let particle1totheta ortho-projection vx vy vz tx ty tz
+  let particle1-to-theta ortho-projection vx vy vz tx ty tz
 
   ;; express particle1's movement along theta in terms of xyz
-  let x1totheta particle1totheta * tx
-  let y1totheta particle1totheta * ty
-  let z1totheta particle1totheta * tz
+  let x1-to-theta particle1-to-theta * tx
+  let y1-to-theta particle1-to-theta * ty
+  let z1-to-theta particle1-to-theta * tz
 
   ;; now we can find the x, y and z components of the particle's velocity that
   ;; aren't in the direction of theta by subtracting the x, y, and z
   ;; components of the velocity in the direction of theta from the components
   ;; of the overall velocity of the particle
-  let x1opptheta ( ( vx ) - ( x1totheta ) )
-  let y1opptheta ( ( vy ) - ( y1totheta ) )
-  let z1opptheta ( ( vz ) - ( z1totheta ) )
+  let x1-opp-theta ( ( vx ) - ( x1-to-theta ) )
+  let y1-opp-theta ( ( vy ) - ( y1-to-theta ) )
+  let z1-opp-theta ( ( vz ) - ( z1-to-theta ) )
 
   ;; do the same for particle2
-  let particle2totheta ortho-projection [vx] of particle2 [vy] of particle2 [vz] of particle2 tx ty tz
+  let particle2-to-theta ortho-projection [vx] of particle2 [vy] of particle2 [vz] of particle2 tx ty tz
 
-  let x2totheta particle2totheta * tx
-  let y2totheta particle2totheta * ty
-  let z2totheta particle2totheta * tz
+  let x2-to-theta particle2-to-theta * tx
+  let y2-to-theta particle2-to-theta * ty
+  let z2-to-theta particle2-to-theta * tz
 
-  let x2opptheta ( ( [vx] of particle2 ) - ( x2totheta ) )
-  let y2opptheta ( ( [vy] of particle2 ) - ( y2totheta ) )
-  let z2opptheta ( ( [vz] of particle2 ) - ( z2totheta ) )
+  let x2-opp-theta ( ( [vx] of particle2 ) - ( x2-to-theta ) )
+  let y2-opp-theta ( ( [vy] of particle2 ) - ( y2-to-theta ) )
+  let z2-opp-theta ( ( [vz] of particle2 ) - ( z2-to-theta ) )
 
   ;; calculate the velocity of the center of mass along theta
-  let vcm ( ( ( mass * particle1totheta ) + ( [mass] of particle2 * particle2totheta ) )
+  let vcm ( ( ( mass * particle1-to-theta ) + ( [mass] of particle2 * particle2-to-theta ) )
       / ( mass + [mass] of particle2 ) )
 
   ;; switch momentums along theta
-  set particle1totheta (2 * vcm - particle1totheta)
-  set particle2totheta (2 * vcm - particle2totheta)
+  set particle1-to-theta (2 * vcm - particle1-to-theta)
+  set particle2-to-theta (2 * vcm - particle2-to-theta)
 
   ;; determine the x, y, z components of each particle's new velocities
   ;; in the direction of theta
-  set x1totheta particle1totheta * tx
-  set y1totheta particle1totheta * ty
-  set z1totheta particle1totheta * tz
+  set x1-to-theta particle1-to-theta * tx
+  set y1-to-theta particle1-to-theta * ty
+  set z1-to-theta particle1-to-theta * tz
 
-  set x2totheta particle2totheta * tx
-  set y2totheta particle2totheta * ty
-  set z2totheta particle2totheta * tz
+  set x2-to-theta particle2-to-theta * tx
+  set y2-to-theta particle2-to-theta * ty
+  set z2-to-theta particle2-to-theta * tz
 
   ;; now, we add the new velocities along theta to the unchanged velocities
   ;; opposite theta to determine the new heading, pitch, and speed of each particle
-  set vx x1totheta + x1opptheta
-  set vy y1totheta + y1opptheta
-  set vz z1totheta + z1opptheta
-  set heading vheading vx vy vz
-  set pitch vpitch vx vy vz
-  set speed vspeed vx vy vz
+  set vx x1-to-theta + x1-opp-theta
+  set vy y1-to-theta + y1-opp-theta
+  set vz z1-to-theta + z1-opp-theta
+  set heading v-heading vx vy vz
+  set pitch v-pitch vx vy vz
+  set speed v-speed vx vy vz
   set energy ( 0.5 * mass * speed ^ 2 )
   if particle-color = "red-green-blue" [ recolor ]
   if particle-color = "purple shades" [ recolorshade ]
   if particle-color = "one color" [ recolornone ]
 
   ask particle2 [
-    set vx x2totheta + x2opptheta
-    set vy y2totheta + y2opptheta
-    set vz z2totheta + z2opptheta
-    set heading vheading vx vy vz
-    set pitch vpitch vx vy vz
-    set speed vspeed vx vy vz
+    set vx x2-to-theta + x2-opp-theta
+    set vy y2-to-theta + y2-opp-theta
+    set vz z2-to-theta + z2-opp-theta
+    set heading v-heading vx vy vz
+    set pitch v-pitch vx vy vz
+    set speed v-speed vx vy vz
     set energy ( 0.5 * mass * speed ^ 2 )
     if particle-color = "red-green-blue" [ recolor ]
     if particle-color = "purple shades" [ recolorshade ]
@@ -444,18 +444,18 @@ to-report z-velocity [ vector-pitch vector-speed ]
 end
 
 ;; reports speed of a vector given xyz coords
-to-report vspeed [ x y z ]
+to-report v-speed [ x y z ]
   report ( sqrt( x ^ 2 + y ^ 2 + z ^ 2 ) )
 end
 
 ;; reports xt heading of a vector given xyz coords
-to-report vheading [ x y z ]
+to-report v-heading [ x y z ]
   report atan x y
 end
 
 ;; reports pitch of a vector given xyz coords
-to-report vpitch [ x y z ]
-  report round asin ( z / ( vspeed x y z ) )
+to-report v-pitch [ x y z ]
+  report round asin ( z / ( v-speed x y z ) )
 end
 
 ;; called by ortho-projection
@@ -465,11 +465,11 @@ end
 
 ;; component of 1 in the direction of 2 (Note order)
 to-report ortho-projection [ x1 y1 z1 x2 y2 z2 ]
-  let dproduct dot-product x1 y1 z1 x2 y2 z2
-  let speed-of-2 ( vspeed x2 y2 z2 )
+  let d-product dot-product x1 y1 z1 x2 y2 z2
+  let speed-of-2 ( v-speed x2 y2 z2 )
   ;; if speed is 0 then there's no projection anyway
   ifelse ( speed-of-2 > 0 )
-  [ report ( dproduct / speed-of-2 ) ]
+  [ report ( d-product / speed-of-2 ) ]
   [ report 0 ]
 end
 

@@ -1,6 +1,6 @@
 breed [historical-settlements historical-settlement] ; historical occupation
 breed [households household]
-breed [waterpoints waterpoint]
+breed [water-points water-point]
 
 patches-own [
   water-source
@@ -33,9 +33,9 @@ historical-settlements-own [
 ]
 
 households-own [
-  farmx
-  farmy
-  farmplot
+  farm-x
+  farm-y
+  farm-plot
   last-harvest
   estimate
   age
@@ -44,7 +44,7 @@ households-own [
   nutrition-need
   nutrition-need-remaining]
 
-waterpoints-own [
+water-points-own [
   SARG
   meter-north
   meter-east
@@ -82,7 +82,7 @@ globals [
   settlements-data
   water-data
   typical-household-size
-  basenutrition-need
+  base-nutrition-need
   maize-gift-to-child
   water-source-distance
   years-of-stock
@@ -104,14 +104,14 @@ to setup
     if quality < 0 [ set quality 0 ]
   ]
   set typical-household-size 5 ; a household consist of 5 persons
-  set basenutrition-need 160   ; a person needs 160 kg of food (corn) each year
+  set base-nutrition-need 160   ; a person needs 160 kg of food (corn) each year
 
   ; The original model allowed for many of these parameters to take on a range of values,
   ; rather than just a single value.  To simplify the model interface, and keep the number of
   ; parameters modest, most of these "min- and max-"  variables are set to matching values during SETUP.
   ; The min/max variables are left here in the code, in case you want to explore more variation in these parameters.
-  set household-min-nutrition-need (basenutrition-need * typical-household-size)
-  set household-max-nutrition-need (basenutrition-need * typical-household-size)
+  set household-min-nutrition-need (base-nutrition-need * typical-household-size)
+  set household-max-nutrition-need (base-nutrition-need * typical-household-size)
   set min-fertility-age 16 ; when household agents can start to reproduce.  (reproduction means here that a daughter leaves the household to start a new household)
   set max-fertility-age 16
   set min-death-age death-age ;maximum age of a household
@@ -136,8 +136,8 @@ to setup
   determine-potential-farms ; determine how many farms could be on the land
   ; initialization of 14 households (based on the initial data) and put them randomly on the landscape
   create-households 14 [
-    set farmx random 80
-    set farmy random 120
+    set farm-x random 80
+    set farm-y random 120
     init-household
   ]
   estimate-harvest
@@ -160,7 +160,7 @@ to go
   ask households [ ; agents who expect not to have sufficient food next timestep move to a new spot (if available). If no spots are available, they leave the system.
     if estimate < nutrition-need [
       determine-potential-farms ; we have to check everytime whether locations are available for moving agents. Could be implemented more efficiently by only updating selected info
-      ask patch farmx farmy [ set num-occupying-farms 0 ]
+      ask patch farm-x farm-y [ set num-occupying-farms 0 ]
       find-farm-and-settlement
     ]
   ]
@@ -188,7 +188,7 @@ to init-household
   set aged-corn-stocks fput (household-min-initial-corn + random-float (household-max-initial-corn - household-min-initial-corn)) aged-corn-stocks
   set aged-corn-stocks fput (household-min-initial-corn + random-float (household-max-initial-corn - household-min-initial-corn)) aged-corn-stocks
   set aged-corn-stocks fput (household-min-initial-corn + random-float (household-max-initial-corn - household-min-initial-corn)) aged-corn-stocks
-  set farmplot self
+  set farm-plot self
   set age household-min-initial-age + random (household-max-initial-age - household-min-initial-age)
   set nutrition-need household-min-nutrition-need + random (household-max-nutrition-need - household-min-nutrition-need)
   set fertility-age min-fertility-age + random (max-fertility-age - min-fertility-age)
@@ -202,30 +202,30 @@ end
 to find-farm-and-settlement
   ; find a new spot for the settlement (might remain the same location as before)
   let still-hunting? true
-  let xh 0
-  let yh 0
+  let x 0
+  let y 0
   ifelse length potential-farms = 0 [ ; If there were no potential farms, the agent is removed from the system.
     ask patch-here [ set num-occupying-households num-occupying-households - 1 ]
-    ask patch farmx farmy [ set num-occupying-farms 0 ]
+    ask patch farm-x farm-y [ set num-occupying-farms 0 ]
     die
   ]
   [ ; otherwise (there are potential farm spots), we proceed to find a suitable one
     set best-farm determine-best-farm
     let best-yield [ yield ] of best-farm
-    set farmx [ pxcor ] of best-farm
-    set farmy [ pycor ] of best-farm
-    set farmplot best-farm
-    ask patch farmx farmy [
+    set farm-x [ pxcor ] of best-farm
+    set farm-y [ pycor ] of best-farm
+    set farm-plot best-farm
+    ask patch farm-x farm-y [
       set num-occupying-farms 1
     ]
     if count patches with [ water-source = 1 and num-occupying-farms = 0 and yield < best-yield ] > 0 [ ;if there are cells with water which are not farmed and in a zone that is less productive than the zone where the favorite farm plot is located
       ask min-one-of patches with [ water-source = 1 and num-occupying-farms = 0 and yield < best-yield ] [ distance best-farm ] [ ; find the most nearby spot
-        if distance best-farm <= water-source-distance [set xh pxcor set yh pycor set still-hunting? false]
+        if distance best-farm <= water-source-distance [set x pxcor set y pycor set still-hunting? false]
       ]
       if not still-hunting? [
-        ask min-one-of patches with [ num-occupying-farms = 0 and hydro <= 0 ] [ distancexy xh yh ] [ ; if the favorite location is nearby move to that spot
-          set xh pxcor
-          set yh pycor
+        ask min-one-of patches with [ num-occupying-farms = 0 and hydro <= 0 ] [ distancexy x y ] [ ; if the favorite location is nearby move to that spot
+          set x pxcor
+          set y pycor
           set num-occupying-households num-occupying-households + 1
         ]
       ]
@@ -233,39 +233,39 @@ to find-farm-and-settlement
     if still-hunting? [ ; if no settlement is found yet
       ask min-one-of patches with [ num-occupying-farms = 0 ] [ distance best-farm ] [ ;find a location that is not farmed with nearby water (but this might be in the same zone as the farm plot)
         if distance best-farm <= water-source-distance [
-          set xh pxcor
-          set yh pycor
+          set x pxcor
+          set y pycor
           set still-hunting? false
         ]
       ]
       if not still-hunting?  [
-        ask min-one-of patches with [ num-occupying-farms = 0 and hydro <= 0 ] [ distancexy xh yh ] [
-          set xh pxcor
-          set yh pycor
+        ask min-one-of patches with [ num-occupying-farms = 0 and hydro <= 0 ] [ distancexy x y ] [
+          set x pxcor
+          set y pycor
           set num-occupying-households num-occupying-households + 1
         ]
       ]
     ]
     if still-hunting? [ ; if still no settlement is found try to find a location that is not farmed even if this is not close to water
       ask min-one-of patches with [ num-occupying-farms = 0 ] [ distance best-farm ] [
-        set xh pxcor
-        set yh pycor
+        set x pxcor
+        set y pycor
         set still-hunting? false
       ]
       if not still-hunting? [
-        ask min-one-of patches with [ num-occupying-farms = 0 and hydro <= 0 ] [ distancexy xh yh ] [
-          set xh pxcor
-          set yh pycor
+        ask min-one-of patches with [ num-occupying-farms = 0 and hydro <= 0 ] [ distancexy x y ] [
+          set x pxcor
+          set y pycor
           set num-occupying-households num-occupying-households + 1
         ]
       ]
     ]
     if still-hunting? [ ;if no possible settlement is found, leave the system
-      ask patch farmx farmy [ set num-occupying-farms 0 ]
+      ask patch farm-x farm-y [ set num-occupying-farms 0 ]
       die ; note: once the running agent dies, it stops executing code
     ]
-    set xcor xh
-    set ycor yh
+    set xcor x
+    set ycor y
     ask patch-here [
       set num-occupying-households num-occupying-households + 1
     ]
@@ -286,13 +286,13 @@ end
 
 to-report determine-best-farm
   ; the agent likes to go to the potential farm which is closest nearby existing farm
-  let existingfarm patch farmx farmy
-  let distancetns 1000
+  let existing-farm patch farm-x farm-y
+  let distance-to-best 1000
   foreach potential-farms [
     ask ? [
-      if distance existingfarm < distancetns [
+      if distance existing-farm < distance-to-best [
         set best-farm self
-        set distancetns distance existingfarm
+        set distance-to-best distance existing-farm
       ]
     ]
   ]
@@ -311,7 +311,7 @@ to fissioning
   ]
   hatch 1 [
     init-household
-    set age 0 ;override the value derived in inithousehold since this will be a fresh household
+    set age 0 ;override the value derived in init-household since this will be a fresh household
     set ys years-of-stock
     while [ ys > -1 ] [
       set aged-corn-stocks replace-item ys aged-corn-stocks ((maize-gift-to-child / (1 - maize-gift-to-child)) * (item ys aged-corn-stocks))
@@ -398,7 +398,7 @@ to load-map-data
   [ user-message "There is no water.txt file in the data directory!" ]
 
   foreach water-data [
-    create-waterpoints 1 [
+    create-water-points 1 [
       set SARG item 0 ?
       set meter-north item 1 ?
       set meter-east item 2 ?
@@ -408,7 +408,7 @@ to load-map-data
     ]
   ]
 
-  ask waterpoints [
+  ask water-points [
     set xcor 24.5 + int ((meter-east - 2392) / 93.5)
     set ycor 45 + int (37.6 + ((meter-north - 7954) / 93.5))
     hide-turtle
@@ -465,7 +465,7 @@ to water
     set water-source 1
   ]
 
-  ask waterpoints [
+  ask water-points [
     if water-type = 2 [
       ask patch xcor ycor [ set water-source 1 ]
     ]
@@ -571,7 +571,7 @@ to calculate-harvest-consumption
   ; calculate first for each cell the base yield, and then the actual harvest of households. Update the stocks of corn available in storage.
   ask patches [ set base-yield (yield * quality * harvest-adjustment) ]
   ask households [
-    set last-harvest [ base-yield ] of patch farmx farmy * (1 + ((random-normal 0 1) * harvest-variance))
+    set last-harvest [ base-yield ] of patch farm-x farm-y * (1 + ((random-normal 0 1) * harvest-variance))
     set aged-corn-stocks replace-item 2 aged-corn-stocks (item 1 aged-corn-stocks)
     set aged-corn-stocks replace-item 1 aged-corn-stocks (item 0 aged-corn-stocks)
     set aged-corn-stocks replace-item 0 aged-corn-stocks last-harvest
@@ -599,7 +599,7 @@ to check-death
   ; agents who have not sufficient food derived or are older than death-age are removed from the system
   ask households [
     if nutrition-need-remaining > 0 or age > death-age [
-      ask patch farmx farmy [ set num-occupying-farms 0 ]
+      ask patch farm-x farm-y [ set num-occupying-farms 0 ]
       ask patch-here [ set num-occupying-households num-occupying-households - 1 ]
       die
     ]
@@ -840,7 +840,7 @@ This model simulates the population dynamics in the Long house Valley in Arizona
 ### Agents and the environment
 
 Each agent represents a household of five persons. Each household makes annual decisions on where to farm and where to settle. A household has an age, and a stock of food surplus
-previous years. Each cell represents a 100 meter by 100 meter space. Each cell is within one of the different zones of land: General Valley Floor, North Valley Floor, Midvalley Floor, Arable Uplands, Uplands Nonarable, Kinbiko Canyon or Dunes. These zones have agricultural productivity that is determined by the Palmer Drought Severity Index (PDSI).
+previous years. Each cell represents a 100 meter by 100 meter space. Each cell is within one of the different zones of land: General Valley Floor, North Valley Floor, Midvalley Floor, Arable Uplands, Uplands Non-Arable, Kinbiko Canyon or Dunes. These zones have agricultural productivity that is determined by the Palmer Drought Severity Index (PDSI).
 
 ### Initialization
 
@@ -872,7 +872,7 @@ Every year the following sequence of calculations is performed:
 ## HOW TO USE IT?
 
 If you click on SETUP the model will load the data files and initialize the model. If you click on GO the simulation will start. You can adjust a number of sliders before you click on SETUP to initialize the model for different values.
-The slider HARVEST-ADJUSTMENT is the fraction of the harvest that is kept after harvesting the corn. The rest is assumed the be lost in the harvesting process. The default value is around 60%. If you increase this number much more agents than the historal record is able to live in the valley.
+The slider HARVEST-ADJUSTMENT is the fraction of the harvest that is kept after harvesting the corn. The rest is assumed the be lost in the harvesting process. The default value is around 60%. If you increase this number much more agents than the historical record is able to live in the valley.
 The slider HARVEST-VARIANCE is used to create variation of quality of cells and temporal variability in harvest for each cell. If you have variance of the harvest some agents are lucky one year and need to use their storage another year. If there is no variance many agents will leave the valley at once when there is a bad year.
 The slider DEATH-AGE represents the maximum number of years an agent can exists. A lower number will reduce the population size.
 The slider FERTILITY-ENDS-AGE represents the maximum age of an agent to be able to produce offspring. A lower number will reduce the population size.
@@ -888,12 +888,12 @@ POPULATION GRAPH: the blue line shows the historical data, while the red line th
     * Red: North Valley Floor
     * White: Mid and North Dunes
     * Gray: Midvalley Floor
-    * Yellow: Nonarable Uplands
+    * Yellow: Non-Arable Uplands
     * Blue: Arable Uplands
     * Pink: Kinbiko Canyon
   * WATER SOURCES: this will show you the different surface water sources like springs. This is changing over time due to input data on retrodicted environmental history. Households will chose new locations based on being nearby water sources.
   * YIELD: Each cell is colors on the amount of yield can be derived from the cell. The more yield the lighter the color.
-  * OCCUPANCY: yellow cells are use for aggriculture, red cells for settlements
+  * OCCUPANCY: yellow cells are use for agriculture, red cells for settlements
 
 If HISTORIC-VIEW? is on you will see the locations of settlements according to the data. The settlements are shown as houses, and the size (area of the house shape) is proportional the number of households on that location.
 

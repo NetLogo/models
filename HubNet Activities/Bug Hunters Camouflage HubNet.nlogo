@@ -249,7 +249,7 @@ end
 to visualize-found-spots
   ask found-spots [
     set countdown countdown - 1
-    set color lput (countdown * 10) [255 255 255]  ;; sets the transparency of this spot to progressivley more transparent as countdown decreases
+    set color lput (countdown * 10) [255 255 255]  ;; sets the transparency of this spot to progressively more transparent as countdown decreases
     if countdown <= 0 [ die ]
   ]
 end

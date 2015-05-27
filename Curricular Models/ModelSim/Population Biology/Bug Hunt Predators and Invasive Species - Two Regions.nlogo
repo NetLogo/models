@@ -370,7 +370,7 @@ end
 
 
 to reproduce-invaders  ;; invaders procedure
-  let number-new-offspring (random (max-invaders-offspring + 1)) ;; set number of potential offpsring from 1 to (max-invaders-offspring)
+  let number-new-offspring (random (max-invaders-offspring + 1)) ;; set number of potential offspring from 1 to (max-invaders-offspring)
   if (energy > ((number-new-offspring + 1) * min-reproduce-energy-invaders)  and current-age > invader-reproduce-age)
   [
       set energy (energy - (number-new-offspring  * min-reproduce-energy-invaders))      ;;lose energy when reproducing --- given to children

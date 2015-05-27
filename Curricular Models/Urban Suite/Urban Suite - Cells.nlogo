@@ -1,4 +1,4 @@
-patches-own [ on? on-time seedp ]
+patches-own [ on? on-time seed-p ]
 
 globals [ starting-color on-cells ]
 
@@ -10,14 +10,14 @@ to setup
   clear-all
   reset-ticks
   set starting-color blue + 4
-  ask patches [ set on? false set seedp false ]
-  ask patch 0 0 [ turn-on set seedp true set pcolor white ]
+  ask patches [ set on? false set seed-p false ]
+  ask patch 0 0 [ turn-on set seed-p true set pcolor white ]
   set on-cells patches with [ on? ]
   color-cells
 end
 
 to create-random-seed
-  ask patch random-pxcor random-pycor [ turn-on set seedp true set pcolor white ]
+  ask patch random-pxcor random-pycor [ turn-on set seed-p true set pcolor white ]
   set on-cells patches with [ on? ]
   color-cells
 end
@@ -64,7 +64,7 @@ to color-cells
     let latest min [ on-time ] of on-cells
     let earliest max [ on-time ] of on-cells
     ask on-cells
-      [ if ( not seedp )
+      [ if ( not seed-p )
          [ set pcolor ( scale-color starting-color on-time latest ( earliest + 5 ) ) ] ]
   ]
 end

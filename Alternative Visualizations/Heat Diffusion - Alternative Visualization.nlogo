@@ -406,7 +406,7 @@ Choose a material and then press UPDATE ALPHA based on that material, or set ALP
 1
 
 @#$#@#$#@
-##ACKNOWLEDGEMENT
+##ACKNOWLEDGMENT
 
 Ths model is an adaptation of the Heat Diffusion model from the Chemistry and Physics section of the NetLogo Models Library. It uses visualization techniques as recommended in the paper:
 
