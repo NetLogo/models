@@ -1,9 +1,9 @@
 package org.nlogo.models
 
+import java.io.ByteArrayInputStream
 import java.io.File
 
 import scala.sys.process.ProcessBuilder
-import scala.sys.process.fileToProcess
 import scala.sys.process.stringSeqToProcess
 
 /**
@@ -11,13 +11,6 @@ import scala.sys.process.stringSeqToProcess
  * False positives are common, so feel free to add liberally to
  *
  *     src/test/resources/modelwords.txt
- *
- * Control character before words, in particular, cause trouble, e.g.:
- *
- *     \nWord
- *
- * In those cases, we just add `nWord` to the dictionary.
- * (https://github.com/NetLogo/NetLogo/issues/302)
  *
  * Note that the code is spell checked too. NetLogo keywords and common
  * variable names are already white listed, but you may need to add some.
@@ -35,11 +28,14 @@ class SpellCheckTests extends TestModels {
     "--ignore-case",
     "--personal", dictPath,
     "list")
+  val escapes = Set("\\n", "\\t")
 
   testModels("Models must not contain typos") {
     for {
       model <- _
-      typos = (model.file #> aspell).lineStream
+      content = escapes.foldLeft(model.content)(_.replace(_, " "))
+      inputStream = new ByteArrayInputStream(content.getBytes("UTF-8"))
+      typos = (aspell #< inputStream).lineStream
       if typos.nonEmpty
       lines = model.content.lines.zipWithIndex.toStream
       typosDesc = typos.distinct.sorted.map { typo =>
