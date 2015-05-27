@@ -1,29 +1,29 @@
 globals [
-  MAX-MOVE-DIST
-  CUTOFF-DIST
-  Vtotal
-  EPS
-  TOTAL-MOVE-ATTEMPTS
-  TOTAL-SUCCESSFUL-MOVES
-  DIAMETER
-  POT-OFFSET ; This offsets the LJ potential so that it is 0 at the cutoff distance
-  CURRENT-MOVE-ATTEMPTS
-  CURRENT-SUCCESSFUL-MOVES
+  max-move-dist
+  cutoff-dist
+  vtotal
+  eps
+  total-move-attempts
+  total-successful-moves
+  diameter
+  pot-offset ; This offsets the LJ potential so that it is 0 at the cutoff distance
+  current-move-attempts
+  current-successful-moves
 ]
 
 to setup
   clear-all
   reset-ticks
-  set EPS 1
+  set eps 1
   ;Set the diameter of particles based on density
-  set DIAMETER sqrt(density * world-width * world-height / num-atoms)
-  set MAX-MOVE-DIST DIAMETER
-  set CUTOFF-DIST 2.5 * DIAMETER
-  set POT-OFFSET (- (4 * ((DIAMETER / CUTOFF-DIST) ^ 12 - (DIAMETER / CUTOFF-DIST) ^ 6)))
-  set Vtotal calc-Vtotal  ;calculate the initial energy
+  set diameter sqrt(density * world-width * world-height / num-atoms)
+  set max-move-dist diameter
+  set cutoff-dist 2.5 * diameter
+  set pot-offset (- (4 * ((diameter / cutoff-dist) ^ 12 - (diameter / cutoff-dist) ^ 6)))
+  set vtotal calc-vtotal  ;calculate the initial energy
   crt num-atoms [
     set shape "circle"
-    set size DIAMETER
+    set size diameter
     set color blue
   ]
   setup-atoms
@@ -46,77 +46,77 @@ to go
 end
 
 to attempt-move
-  set TOTAL-MOVE-ATTEMPTS TOTAL-MOVE-ATTEMPTS + 1  ;the is the total running average
-  set CURRENT-MOVE-ATTEMPTS CURRENT-MOVE-ATTEMPTS + 1 ;this is just since the last max-move-distance adjustment
-  let Vold calc-V; Calculate current energy
-  let deltax (random-float 2 * MAX-MOVE-DIST) - MAX-MOVE-DIST  ; pick random x distance
-  let deltay (random-float 2 * MAX-MOVE-DIST) - MAX-MOVE-DIST ; pick random y distance
+  set total-move-attempts total-move-attempts + 1  ;the is the total running average
+  set current-move-attempts current-move-attempts + 1 ;this is just since the last max-move-distance adjustment
+  let vold calc-v; calculate current energy
+  let deltax (random-float 2 * max-move-dist) - max-move-dist  ; pick random x distance
+  let deltay (random-float 2 * max-move-dist) - max-move-dist ; pick random y distance
   setxy (xcor + deltax) (ycor + deltay) ;move the random x and y distances
-  let Vnew calc-V ;Calculate the new energy
+  let vnew calc-v ;Calculate the new energy
 
-  let deltaV Vnew - Vold
-  ifelse (Vnew < Vold) or (random-float 1 < exp( - deltaV / temperature) ) [
-    set TOTAL-SUCCESSFUL-MOVES TOTAL-SUCCESSFUL-MOVES + 1   ;the is the total running average
-    set CURRENT-SUCCESSFUL-MOVES CURRENT-SUCCESSFUL-MOVES + 1   ;this is just since the last max-move-distance adjustment
-    set Vtotal Vtotal + deltaV
+  let deltav vnew - vold
+  ifelse (vnew < vold) or (random-float 1 < exp( - deltav / temperature) ) [
+    set total-successful-moves total-successful-moves + 1   ;the is the total running average
+    set current-successful-moves current-successful-moves + 1   ;this is just since the last max-move-distance adjustment
+    set vtotal vtotal + deltav
   ] [
     setxy (xcor - deltax) (ycor - deltay) ;reset position
   ]
 end
 
-to-report calc-Vtotal
-  report sum [ calc-V ] of turtles / 2 ;divide by two because each particle has been counted twice
+to-report calc-vtotal
+  report sum [ calc-v ] of turtles / 2 ;divide by two because each particle has been counted twice
 end
 
-to-report calc-V
-  let V 0
+to-report calc-v
+  let v 0
 
-  ask other turtles in-radius CUTOFF-DIST [
+  ask other turtles in-radius cutoff-dist [
     let rsquare (distance myself) ^ 2
-    let dsquare DIAMETER * DIAMETER
+    let dsquare diameter * diameter
     let attract-term dsquare ^ 3 / rsquare ^ 3
     let repel-term attract-term * attract-term
     ;NOTE could do this a little faster by attract-term * (attract-term -1)
-    let Vi 4 * EPS * (repel-term - attract-term) + POT-OFFSET
-    set V V + Vi
+    let vi 4 * eps * (repel-term - attract-term) + pot-offset
+    set v v + vi
   ]
-  report V
+  report v
 end
 
 to-report accept-rate
-  report CURRENT-SUCCESSFUL-MOVES / CURRENT-MOVE-ATTEMPTS
+  report current-successful-moves / current-move-attempts
 end
 
 to tune-acceptance-rate
   ifelse accept-rate < 0.5 [
-    set MAX-MOVE-DIST MAX-MOVE-DIST * .95
+    set max-move-dist max-move-dist * .95
   ] [
-    set MAX-MOVE-DIST MAX-MOVE-DIST * 1.05
-    if MAX-MOVE-DIST > DIAMETER [
-      set MAX-MOVE-DIST DIAMETER
+    set max-move-dist max-move-dist * 1.05
+    if max-move-dist > diameter [
+      set max-move-dist diameter
     ]
   ]
-  set CURRENT-SUCCESSFUL-MOVES 0
-  set CURRENT-MOVE-ATTEMPTS 0
+  set current-successful-moves 0
+  set current-move-attempts 0
 end
 
 to-report energy-per-particle
-  report Vtotal / num-atoms
+  report vtotal / num-atoms
 end
 
-;*********SETUP Procedures*************
+;*********setup procedures*************
 
 to setup-atoms
   if initial-config = "HCP" [
-    let L sqrt(num-atoms) ;the # of atoms in a row
-    let row-dist (2 ^ (1 / 6)) * DIAMETER ;this is the distance with minimum energy
-    let ypos (- L * row-dist / 2) ;the y position of the first atom
-    let xpos (- L * row-dist / 2) ;the x position of the first atom
+    let l sqrt(num-atoms) ;the # of atoms in a row
+    let row-dist (2 ^ (1 / 6)) * diameter ;this is the distance with minimum energy
+    let ypos (- l * row-dist / 2) ;the y position of the first atom
+    let xpos (- l * row-dist / 2) ;the x position of the first atom
     let rnum 0  ;the row number
     ask turtles [  ;set the atoms; positions
-      if xpos > (L * row-dist / 2)  [  ;condition to start a new row
+      if xpos > (l * row-dist / 2)  [  ;condition to start a new row
         set rnum rnum + 1
-        set xpos (- L * row-dist / 2) + (rnum mod 2) * row-dist / 2
+        set xpos (- l * row-dist / 2) + (rnum mod 2) * row-dist / 2
         set ypos ypos + row-dist
       ]
       setxy xpos ypos  ;if we are still in the same row
@@ -133,7 +133,7 @@ to setup-atoms
 end
 
 to remove-overlap
-  let rmin 0.7 * DIAMETER
+  let rmin 0.7 * diameter
   ask turtles [
     while [overlapping rmin] [
       setxy random-xcor random-ycor
