@@ -311,7 +311,7 @@ Please cite the textbook as:
 
 ## CREDITS AND REFERENCES
 
-This model is a simplified version of the Preferential Attachement model from the networks section of the NetLogo models library:
+This model is a simplified version of the Preferential Attachment model from the networks section of the NetLogo models library:
 
 - Wilensky, U. (2005).  NetLogo Preferential Attachment model. http://ccl.northwestern.edu/netlogo/models/PreferentialAttachment. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
