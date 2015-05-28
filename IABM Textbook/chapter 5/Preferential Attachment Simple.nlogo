@@ -1,5 +1,5 @@
 to setup
-  ca
+  clear-all
   set-default-shape turtles "circle"
   ;; create two turtles (nodes) and space them out
   create-turtles 2 [
@@ -11,7 +11,7 @@ to setup
 end
 
 to go
-  if count turtles > num-nodes [stop]
+  if count turtles > num-nodes [ stop ]
   ;; choose a partner attached to a random link
   ;; this gives a node a chance to be a partner based on how many links it has
   let partner one-of [both-ends] of one-of links ;; this is the heart of the preferential attachment mechanism
@@ -31,17 +31,16 @@ end
 to layout
   ask turtles [
     ifelse display-degree?
-  [set size sqrt count my-links]
-  [set size 1]
+      [ set size sqrt count my-links ]
+      [ set size 1 ]
   ]
-  
   ;; layout-spring makes all the links act like springs.
   ;; 0.2 - spring constant; how hard the spring pushes or pulls to get to its ideal length
   ;; 2   - ideal spring length
   ;; 0.5 - repulsion; how hard all turtles push against each other to space things out
   layout-spring turtles links 0.2 2 0.5
 
-;; the layout doesnt look good if nodes get squeezed up against edges of the world
+  ;; the layout doesn't look good if nodes get squeezed up against edges of the world
   ask turtles [
     ;; stay away from the edges of the world; the closer I get to the edge, the more I try
     ;; to get away from it.
@@ -51,9 +50,9 @@ to layout
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
+240
 10
-675
+705
 496
 32
 32
@@ -95,10 +94,10 @@ NIL
 1
 
 BUTTON
-95
-50
-158
-83
+165
+10
+228
+43
 NIL
 go
 T
@@ -113,9 +112,9 @@ NIL
 
 BUTTON
 5
-130
+105
 75
-163
+138
 layout
 layout display
 T
@@ -130,9 +129,9 @@ NIL
 
 SLIDER
 5
-90
-177
-123
+65
+230
+98
 num-nodes
 num-nodes
 2
@@ -145,31 +144,31 @@ HORIZONTAL
 
 MONITOR
 5
-175
-71
-220
-min-deg
+165
+110
+210
+min degree
 min [ count link-neighbors] of turtles
 1
 1
 11
 
 MONITOR
-75
-175
-145
-220
-max-deg
+125
+165
+230
+210
+max degree
 max [count link-neighbors] of turtles
 1
 1
 11
 
 BUTTON
-5
-50
-90
-83
+75
+10
+160
+43
 go-once
 go
 NIL
@@ -184,9 +183,9 @@ NIL
 
 PLOT
 5
+220
 230
-205
-380
+365
 Degree Distribution
 Degree
 # Nodes
@@ -202,10 +201,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "histogram [ count my-links ] of turtles"
 
 SWITCH
-25
-405
-177
-438
+80
+105
+230
+138
 display-degree?
 display-degree?
 1
@@ -223,10 +222,12 @@ This model is in the IABM Textbook folder of the NetLogo models library. The mod
 
 ## WHAT IS IT?
 
-This is a simplified verison of the Preferential Attachment model in the networks section of the NetLogo models library. It generates a network where the probability of a new link being connected to a node is proportional to the number of links the node already has.
+This is a simplified version of the Preferential Attachment model in the networks section of the NetLogo models library. It generates a network where the probability of a new link being connected to a node is proportional to the number of links the node already has.
 
 Such networks are "scale-free" in that they look the same at whatever scale you look. Such scale-free networks can be found in a surprisingly large range of real world situations, ranging from the connections between websites to the collaborations between actors.
+
 This model generates these networks by a process of “preferential attachment”, in which new network members prefer to make a connection to the more popular existing members.
+
 Scale-free networks generate a degree distribution that follows a "power law" with a few very "link-rich" nodes or hubs, and many "link-poor" nodes.
 
 ## HOW IT WORKS
@@ -242,22 +243,26 @@ GO-ONCE creates one new node and finds it a partner based on preferential attach
 
 GO continuously preferentially adds nodes until there are NUM-NODES nodes.
 
-The LAYOUT button attempts to move the nodes around to make the structure of the network easier to see. Some network layout happens in the GO procedure, but pressing the LAYOUT buttom can add more layout during processing or in post-ptocessing the network.
+The LAYOUT button attempts to move the nodes around to make the structure of the network easier to see. Some network layout happens in the GO procedure, but pressing the LAYOUT button can add more layout during processing or in post-processing the network.
 
-The MIN-DEGREE minitor shows the degree of the node with the least links. It has to be at least 1, as all new nodes ar linked to old nodes.
+The MIN DEGREE monitor shows the degree of the node with the least links. It has to be at least 1, as all new nodes are linked to old nodes.
 
-The MAX-DEGREE monitor shows the degree of the node with the most links.
+The MAX DEGREE monitor shows the degree of the node with the most links.
 
 The DEGREE DISTRIBUTION plot shows the number of nodes with each degree value. This is a power law distribution.
 
 If you look at the DEGREE DISTRIBUTION histogram, you will see that there are many more nodes with low degrees than nodes with high degrees. Nodes with a degree of one (meaning that they have just one link) should be by far the most common.
-The DISPLAY DEGREE? switch, toggles an alternate visualization in which the size of the node is proportional to its degree. 
+
+The DISPLAY-DEGREE? switch, toggles an alternate visualization in which the size of the node is proportional to its degree.
 
 ## THINGS TO NOTICE
-The networks that result from running this model are often called “scale-free” or “power law” networks. These are networks in which the distribution of the number of connections of each node is not a normal distribution — instead it follows what is a called a power law distribution. Power law distributions are different from normal distributions in that they do not have a peak at the average, and they are more likely to contain extreme values (see Albert & Barabási 2002 for a further description of the frequency and significance of scale-free networks). Barabási and Albert originally described this mechanism for creating networks, but there are other mechanisms of creating scale-free networks and so the networks created by the mechanism implemented in this model are referred to as Barabási scale-free networks.
+
+The networks that result from running this model are often called “scale-free” or “power law” networks. These are networks in which the distribution of the number of connections of each node is not a normal distribution — instead it follows what is a called a “power law distribution”. Power law distributions are different from normal distributions in that they do not have a peak at the average, and they are more likely to contain extreme values (see Albert & Barabási 2002 for a further description of the frequency and significance of scale-free networks). Barabási and Albert originally described this mechanism for creating networks, but there are other mechanisms for creating scale-free networks and so the networks created by the mechanism implemented in this model are referred to as "Barabási scale-free networks".
 
 ## THINGS TO TRY
+
 Let the model run a little while. How many nodes are “hubs”, that is, have many connections? How many have only a few? Does some low degree node ever become a hub? How often?
+
 Choose a large value for the NUM-NODES slider, then allow a large network to form. Do you see a pattern as the number of nodes increases?
 
 ## EXTENDING THE MODEL
@@ -270,19 +275,19 @@ Nodes are turtle agents and edges are link agents.
 
 The model uses the ONE-OF primitive to chose a random link and the BOTH-ENDS primitive to select the two nodes attached to that link.
 
-It uses some clever code to give "tickets" to each node so that its chance of winning the lottery of being linked to by the new node is proportional to its degree
-   <i>let partner one-of [both-ends] of one-of links</i>
+It uses some clever code to give "tickets" to each node so that its chance of winning the lottery (and thus being linked to by the new node) is proportional to its degree:
 
-There are many ways to graphically display networks. This model uses the layout-spring primitive to implement a common method in which the movement of a node at each time step is the net result of "spring" forces that pulls connected nodes together, and repulsion forces that push all the nodes away from each other. 
+    let partner one-of [ both-ends ] of one-of links
 
-{Because the model uses  a bounded topology, some additional layout code keeps the nodes from staying at the view boundaries.}
+There are many ways to graphically display networks. This model uses the [`layout-spring`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#layout-spring) primitive to implement a common method in which the movement of a node at each time step is the net result of "spring" forces that pulls connected nodes together, and repulsion forces that push all the nodes away from each other. 
+
+Because the model uses  a bounded topology, some additional layout code keeps the nodes from staying at the view boundaries.
 
 Though it is not used in this model, there exists a network extension for NetLogo (bundled with NetLogo) that has many more network primitives.
 
 ## RELATED MODELS
 
-See other models in the Networks section of the Models Library, such as
- the fuller Preferential Attachment model, the Giant Component model and others.
+See other models in the Networks section of the Models Library, such as the fuller Preferential Attachment model, the Giant Component model and others.
 
 See also Network Example, in the Code Examples section.
 
@@ -305,21 +310,26 @@ Please cite the textbook as:
 * Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
 ## CREDITS AND REFERENCES
-This model is a simplified version of the PREFERENTIAL ATTACHMENT model from the networks section of the NetLogo models library.
-Wilensky, U. (2005).  NetLogo Preferential Attachment model.  http://ccl.northwestern.edu/netlogo/models/PreferentialAttachment.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+This model is a simplified version of the Preferential Attachement model from the networks section of the NetLogo models library:
+
+- Wilensky, U. (2005).  NetLogo Preferential Attachment model. http://ccl.northwestern.edu/netlogo/models/PreferentialAttachment. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Both the original and this model are based on:
-Albert-László Barabási. Linked: The New Science of Networks, Perseus Publishing, Cambridge, Massachusetts, pages 79-92.
+
+- Albert-László Barabási. Linked: The New Science of Networks, Perseus Publishing, Cambridge, Massachusetts, pages 79-92.
 
 For a more technical treatment, see:
-Albert-László Barabási & Reka Albert. Emergence of Scaling in Random Networks, Science, Vol 286, Issue 5439, 15 October 1999, pages 509-512.
+
+- Albert-László Barabási & Reka Albert. Emergence of Scaling in Random Networks, Science, Vol 286, Issue 5439, 15 October 1999, pages 509-512.
 
 Barabási's webpage has additional information at: http://www.barabasi.com/
 
 The layout algorithm is based on the Fruchterman-Reingold layout algorithm.  More information about this algorithm can be obtained at: http://emr.cs.iit.edu/~reingold/force-directed.pdf.
 
 For a model similar to the one described in the suggested extension, please consult:
-W. Brian Arthur, "Urban Systems and Historical Path-Dependence", Chapt. 4 in Urban systems and Infrastructure, J. Ausubel and R. Herman (eds.), National Academy of Sciences, Washington, D.C., 1988.
+
+- W. Brian Arthur, "Urban Systems and Historical Path-Dependence", Chapt. 4 in Urban systems and Infrastructure, J. Ausubel and R. Herman (eds.), National Academy of Sciences, Washington, D.C., 1988.
 @#$#@#$#@
 default
 true
