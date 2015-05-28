@@ -177,7 +177,7 @@ This model is part of the textbook, "Introduction to Agent-Based Modeling: Model
 If you mention this model or the NetLogo software in a publication, we ask that you include the cites.
 
 For the model itself:
-Wilensky, U. (1997). NetLogo DLA Simple model. http://ccl.northwestern.edu/netlogo/models/IABMTextbook/DLASimple. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+Wilensky, U. (1997). NetLogo DLA Simple model. http://ccl.northwestern.edu/netlogo/models/DLASimple. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 

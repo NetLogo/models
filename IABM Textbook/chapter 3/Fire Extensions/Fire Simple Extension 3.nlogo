@@ -281,7 +281,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Rand, W. & Wilensky, U. (2006).  NetLogo Fire Simple Extension 3 model.  http://ccl.northwestern.edu/netlogo/models/IABMTextbook/FireSimpleExtension3.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Rand, W. & Wilensky, U. (2006).  NetLogo Fire Simple Extension 3 model.  http://ccl.northwestern.edu/netlogo/models/FireSimpleExtension3.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 

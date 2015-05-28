@@ -330,7 +330,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Rand, W. & Wilensky, U. (2008). Traffic Basic Utility Model.  http://ccl.northwestern.edu/netlogo/models/IABMTextbook/TrafficBasicUtility.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Rand, W. & Wilensky, U. (2008). Traffic Basic Utility Model.  http://ccl.northwestern.edu/netlogo/models/TrafficBasicUtility.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 

@@ -323,7 +323,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Wilensky, U. (1997).  NetLogo Ants Simple model.  http://ccl.northwestern.edu/netlogo/models/IABMTextbook/AntsSimple.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
+* Wilensky, U. (1997).  NetLogo Ants Simple model.  http://ccl.northwestern.edu/netlogo/models/AntsSimple.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 

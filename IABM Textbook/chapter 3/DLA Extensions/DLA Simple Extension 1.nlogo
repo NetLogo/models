@@ -200,7 +200,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Wilensky, U. & Rand, W. (2006).  NetLogo DLA Simple Extension 1 model.  http://ccl.northwestern.edu/netlogo/models/IABMTextbook/DLASimpleExtension1.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. & Rand, W. (2006).  NetLogo DLA Simple Extension 1 model.  http://ccl.northwestern.edu/netlogo/models/DLASimpleExtension1.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 

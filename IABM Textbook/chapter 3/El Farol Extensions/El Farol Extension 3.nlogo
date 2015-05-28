@@ -399,7 +399,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Rand, W. and Wilensky, U. (2007).  NetLogo El Farol Extension 3 model.  http://ccl.northwestern.edu/netlogo/models/IABMTextbook/ElFarolExtension3.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Rand, W. and Wilensky, U. (2007).  NetLogo El Farol Extension 3 model.  http://ccl.northwestern.edu/netlogo/models/ElFarolExtension3.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 

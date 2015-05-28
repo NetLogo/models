@@ -58,7 +58,6 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
   for {
     (link, models) <- links
     if !link.startsWith("mailto")
-    if !link.contains("IABM") // TODO: remove exclusion once IABM models are on CCL server
     clue = "Used in: " + models.map(_.quotedPath).mkString("  \n  ", "  \n  ", "\n")
   } {
     test(link) {

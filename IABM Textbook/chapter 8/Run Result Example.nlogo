@@ -131,7 +131,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Rand, W. & Wilensky, U. (2008).  Run Result Example Model.  http://ccl.northwestern.edu/netlogo/models/IABMTEXTBOOK/RunResultExample.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Rand, W. & Wilensky, U. (2008).  Run Result Example Model.  http://ccl.northwestern.edu/netlogo/models/RunResultExample.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 

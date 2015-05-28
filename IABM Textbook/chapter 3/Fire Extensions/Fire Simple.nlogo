@@ -189,7 +189,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Wilensky, U. (2006).  NetLogo Fire Simple model.  http://ccl.northwestern.edu/netlogo/models/IABMTextbook/FireSimple.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. (2006).  NetLogo Fire Simple model.  http://ccl.northwestern.edu/netlogo/models/FireSimple.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 This model is a simplified version of:
 
