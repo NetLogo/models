@@ -18,7 +18,7 @@ to go
   ;; create new node, link to partner
   create-turtles 1 [
     set color red
-    ;; move close to my partner, but not too close
+    ;; move close to my partner, but not too close -- to enable nicer looking networks
     move-to partner
     fd 1
     create-link-with partner
@@ -29,12 +29,19 @@ to go
 end
 
 to layout
+  ask turtles [
+    ifelse display-degree?
+  [set size sqrt count my-links]
+  [set size 1]
+  ]
+  
   ;; layout-spring makes all the links act like springs.
   ;; 0.2 - spring constant; how hard the spring pushes or pulls to get to its ideal length
   ;; 2   - ideal spring length
   ;; 0.5 - repulsion; how hard all turtles push against each other to space things out
   layout-spring turtles links 0.2 2 0.5
 
+;; the layout doesnt look good if nodes get squeezed up against edges of the world
   ask turtles [
     ;; stay away from the edges of the world; the closer I get to the edge, the more I try
     ;; to get away from it.
@@ -130,7 +137,7 @@ num-nodes
 num-nodes
 2
 500
-100
+300
 1
 1
 NIL
@@ -192,6 +199,18 @@ false
 "" "set-plot-x-range 1 (max [ count my-links ] of turtles) + 1"
 PENS
 "default" 1.0 1 -16777216 true "" "histogram [ count my-links ] of turtles"
+"default" 1.0 0 -16777216 true "" "histogram [ count my-links ] of turtles"
+
+SWITCH
+25
+405
+177
+438
+display-degree?
+display-degree?
+1
+1
+-1000
 
 @#$#@#$#@
 ## ACKNOWLEDGMENT
@@ -204,10 +223,11 @@ This model is in the IABM Textbook folder of the NetLogo models library. The mod
 
 ## WHAT IS IT?
 
-This is a simplified version of the Preferential Attachment model.  It generates a network where the probability of a new link being connected to a node is proportional to the number of links the node already has.
+This is a simplified verison of the Preferential Attachment model in the networks section of the NetLogo models library. It generates a network where the probability of a new link being connected to a node is proportional to the number of links the node already has.
 
-Such networks can be found in a surprisingly large range of real world situations, ranging from the connections between websites to the collaborations between actors.
+Such networks are "scale-free" in that they look the same at whatever scale you look. Such scale-free networks can be found in a surprisingly large range of real world situations, ranging from the connections between websites to the collaborations between actors.
 This model generates these networks by a process of “preferential attachment”, in which new network members prefer to make a connection to the more popular existing members.
+Scale-free networks generate a degree distribution that follows a "power law" with a few very "link-rich" nodes or hubs, and many "link-poor" nodes.
 
 ## HOW IT WORKS
 
@@ -220,17 +240,21 @@ SETUP creates two nodes and creates a link between them.
 
 GO-ONCE creates one new node and finds it a partner based on preferential attachment.
 
-GO continuously adds nodes until there are NUM-NODES nodes.
+GO continuously preferentially adds nodes until there are NUM-NODES nodes.
 
-The LAYOUT button attempts to move the nodes around to make the structure of the network easier to see.
+The LAYOUT button attempts to move the nodes around to make the structure of the network easier to see. Some network layout happens in the GO procedure, but pressing the LAYOUT buttom can add more layout during processing or in post-ptocessing the network.
 
-The DEGREE DISTRIBUTION plot is a histogram showing how many nodes of each degree there are. The degree of a node is the number of links that the node has.
+The MIN-DEGREE minitor shows the degree of the node with the least links. It has to be at least 1, as all new nodes ar linked to old nodes.
 
-## THINGS TO NOTICE
+The MAX-DEGREE monitor shows the degree of the node with the most links.
 
-The networks that result from running this model are often called “scale-free” or “power law” networks. These are networks in which the distribution of the number of connections of each node is not a normal distribution — instead it follows what is a called a power law distribution. Power law distributions are different from normal distributions in that they do not have a peak at the average, and they are more likely to contain extreme values (see Albert & Barabási 2002 for a further description of the frequency and significance of scale-free networks). Barabási and Albert originally described this mechanism for creating networks, but there are other mechanisms of creating scale-free networks and so the networks created by the mechanism implemented in this model are referred to as Barabási scale-free networks.
+The DEGREE DISTRIBUTION plot shows the number of nodes with each degree value. This is a power law distribution.
 
 If you look at the DEGREE DISTRIBUTION histogram, you will see that there are many more nodes with low degrees than nodes with high degrees. Nodes with a degree of one (meaning that they have just one link) should be by far the most common.
+The DISPLAY DEGREE? switch, toggles an alternate visualization in which the size of the node is proportional to its degree. 
+
+## THINGS TO NOTICE
+The networks that result from running this model are often called “scale-free” or “power law” networks. These are networks in which the distribution of the number of connections of each node is not a normal distribution — instead it follows what is a called a power law distribution. Power law distributions are different from normal distributions in that they do not have a peak at the average, and they are more likely to contain extreme values (see Albert & Barabási 2002 for a further description of the frequency and significance of scale-free networks). Barabási and Albert originally described this mechanism for creating networks, but there are other mechanisms of creating scale-free networks and so the networks created by the mechanism implemented in this model are referred to as Barabási scale-free networks.
 
 ## THINGS TO TRY
 Let the model run a little while. How many nodes are “hubs”, that is, have many connections? How many have only a few? Does some low degree node ever become a hub? How often?
@@ -246,13 +270,19 @@ Nodes are turtle agents and edges are link agents.
 
 The model uses the ONE-OF primitive to chose a random link and the BOTH-ENDS primitive to select the two nodes attached to that link.
 
-There are many ways to graphically display networks. This model uses the layout-spring primitive to implement a common method in which the movement of a node at each time step is the net result of "spring" forces that pulls connected nodes together, and repulsion forces that push all the nodes away from each other.
+It uses some clever code to give "tickets" to each node so that its chance of winning the lottery of being linked to by the new node is proportional to its degree
+   <i>let partner one-of [both-ends] of one-of links</i>
+
+There are many ways to graphically display networks. This model uses the layout-spring primitive to implement a common method in which the movement of a node at each time step is the net result of "spring" forces that pulls connected nodes together, and repulsion forces that push all the nodes away from each other. 
+
+{Because the model uses  a bounded topology, some additional layout code keeps the nodes from staying at the view boundaries.}
 
 Though it is not used in this model, there exists a network extension for NetLogo (bundled with NetLogo) that has many more network primitives.
 
 ## RELATED MODELS
 
-See other models in the Networks section of the Models Library, such as Giant Component.
+See other models in the Networks section of the Models Library, such as
+ the fuller Preferential Attachment model, the Giant Component model and others.
 
 See also Network Example, in the Code Examples section.
 
