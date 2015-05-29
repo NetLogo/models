@@ -212,6 +212,10 @@ to-report my-instrument  ;; lever procedure
   report item ((who + instrument) mod length sound:instruments)
               sound:instruments
 end
+
+
+; Copyright 2005 Uri Wilensky. Includes code by James P. Steiner. 
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 265
@@ -753,6 +757,21 @@ The model uses NetLogo's sound extension.  The sound extension is described in t
 This model is a streamlined variant of the Machines 2005 model created and submitted to the NetLogo User Community Models repository by James Steiner.  Machines 2005 is available from http://ccl.northwestern.edu/netlogo/models/community/machines-2005.
 
 Thanks to James for creating an earlier version which was silent; Seth Tisue for first adding sound to it; and James again for his further improvements, and for releasing the model under a Creative Commons License.
+
+
+## HOW TO CITE
+
+If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
+
+* Wilensky, U. (2005).  NetLogo Sound Machines model.  http://ccl.northwestern.edu/netlogo/models/SoundMachines.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2005 Uri Wilensky. Includes code by James P. Steiner. 
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 2.5 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/2.5/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 @#$#@#$#@
 default
 true

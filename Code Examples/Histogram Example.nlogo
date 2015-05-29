@@ -14,6 +14,11 @@ end
 
 ;; the actual plotting code is in the plot in the Interface tab.
 ;; the plot has setup code and the pen in it has update code.
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 321

@@ -17,6 +17,11 @@ to go
   ;; This one line is the heart of the whole example.
   set smoothed smoothness * smoothed + (1 - smoothness) * n
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 374

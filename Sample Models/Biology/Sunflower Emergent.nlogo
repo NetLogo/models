@@ -64,6 +64,10 @@ to go
   ask temp-particles [ die ]  ;; kill off the temporary particles
   if not show-temps? [ tick ]
 end
+
+
+; Copyright 2009 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 225
@@ -330,6 +334,26 @@ Ball, P. (1995). The Self-Made Tapestry.
 Douady, S. and Couder, Y. (1992). Phyllotaxis as a Physical Self-Organized Process. Physical Review Letters, 68(13), 2098--2101.
 
 Dove, M. T. Structure and Dynamics: An Atomic View of Materials. New York: Oxford University Press, 2003.
+
+
+## HOW TO CITE
+
+If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
+
+* Wilensky, U. (2009).  NetLogo Sunflower Emergent model.  http://ccl.northwestern.edu/netlogo/models/SunflowerEmergent.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2009 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
 @#$#@#$#@
 default
 true

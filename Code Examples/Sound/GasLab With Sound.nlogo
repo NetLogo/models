@@ -495,6 +495,10 @@ to sing-pressure  ;;  pressure is sonified by a recorder with the tone a functio
         [ sound:start-note "recorder" ( 100 - 2000 / pressure ) pressure-loudness ]
         [ sound:start-note "recorder" ( 30 ) pressure-loudness + 10 ]
 end
+
+
+; Copyright 2004 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 212

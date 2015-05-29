@@ -101,6 +101,11 @@ end
 to-report link-ycor
   report ([ycor] of end1 + [ycor] of end2) / 2
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 161

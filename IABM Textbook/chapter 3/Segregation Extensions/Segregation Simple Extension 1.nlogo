@@ -79,6 +79,10 @@ to update-globals
   set percent-similar (similar-neighbors / total-neighbors) * 100
   set percent-unhappy (count turtles with [not happy?]) / (count turtles) * 100
 end
+
+
+; Copyright 2006 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 273
@@ -318,6 +322,18 @@ Wilensky, U. (1997). NetLogo Segregation model. http://ccl.northwestern.edu/netl
 Schelling, T. (1978). Micromotives and Macrobehavior. New York: Norton.
 
 See also: Rauch, J. (2002). Seeing Around Corners; The Atlantic Monthly; April 2002;Volume 289, No. 4; 35-48. http://www.theatlantic.com/magazine/archive/2002/04/seeing-around-corners/302471/
+
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2006 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
 @#$#@#$#@
 default
 true

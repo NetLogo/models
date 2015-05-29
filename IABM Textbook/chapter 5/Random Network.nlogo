@@ -53,6 +53,10 @@ to wire4
     ]
   ]
 end
+
+
+; Copyright 2008 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -324,7 +328,17 @@ Finally, in the WIRE4 procedure, we use the following code to loop through each 
 
 This is of the few situations where using the WHO number (which uniquely identifies a turtle) can be handy: by having each turtle from the outer loop asking only turtles with a greater WHO number than itself in the inner loop, we make sure that each possible pair of turtles if considered only once.
 
-## CREDITS AND REFERENCES
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2008 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
 @#$#@#$#@
 default
 true

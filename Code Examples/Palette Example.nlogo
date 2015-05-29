@@ -44,6 +44,11 @@ to-report patch-value
   let normalized-value (pxcor + (pycor * world-width)) / (world-width * world-height)
   report normalized-value * 10 + 5
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 210

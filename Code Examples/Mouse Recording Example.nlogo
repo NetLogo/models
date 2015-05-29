@@ -59,6 +59,11 @@ to follow-path
   set path but-first path               ;; removes the current coordinate pair from the beginning of the path
   set path lput (list x y) path         ;; adds the coordinate pair back onto the end of the list
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 224

@@ -12,6 +12,11 @@ to giant-arrow
   ask turtle 0 [ create-link-with turtle 1 [ set color red set thickness 1.5 ] ]
   create-turtles 1 [ set color black setxy 8 12 set label "Click the info tab!" ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 210

@@ -46,6 +46,11 @@ to-report wall? [angle]  ;; turtle procedure
   ;; the turtle looks left.
   report brown = [pcolor] of patch-right-and-ahead angle 1
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 201

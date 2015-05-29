@@ -369,6 +369,10 @@ end
 to-report year
   report floor (ticks / 5)
 end
+
+
+; Copyright 2007 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 243
@@ -699,6 +703,26 @@ The model makes heavy use of the MOUSE-* and USER-* primitives to allow the user
 This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
 
 Other references to Gregor Mendel's 1865 paper "Versuche ueber Pflanzen-Hybriden" and a revised version of the English translation by C.T. Druery and William Bateson, "Experiments in Plant Hybridization", can be found at http://www.mendelweb.org/Mendel.html
+
+
+## HOW TO CITE
+
+If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
+
+* Novak, M. and Wilensky, U. (2007).  NetLogo Plant Hybridization model.  http://ccl.northwestern.edu/netlogo/models/PlantHybridization.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2007 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
 @#$#@#$#@
 default
 true

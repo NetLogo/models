@@ -61,6 +61,11 @@ end
 to-report get-node [id]
   report one-of turtles with [node-id = id]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 184

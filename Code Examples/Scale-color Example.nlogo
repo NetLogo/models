@@ -24,6 +24,11 @@ to recolor  ;; turtle procedure
   ; the turtle becomes lighter
   set color scale-color shading xcor min-pxcor max-pxcor
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 209

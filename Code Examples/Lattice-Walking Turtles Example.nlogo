@@ -41,6 +41,11 @@ to set-location [new-location]  ;; walker procedure
   face new-location  ;; not strictly necessary, but improves the visuals a bit
   move-to new-location
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 182

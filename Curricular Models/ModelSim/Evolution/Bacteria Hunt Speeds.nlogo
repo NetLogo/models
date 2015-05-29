@@ -187,6 +187,10 @@ to visualize-removal-spots
     if countdown <= 0 [die]
   ]
 end
+
+
+; Copyright 2015 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 280
@@ -426,6 +430,26 @@ This model is part of the Evolution unit of the ModelSim curriculum, sponsored b
 For more information about the project and the curriculum, see the ModelSim project website: http://ccl.northwestern.edu/modelsim/.
 
 Inspired by EvoDots software: http://faculty.washington.edu/herronjc/SoftwareFolder/EvoDots.html
+
+
+## HOW TO CITE
+
+If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
+
+* Novak, M. and Wilensky, U. (2015).  NetLogo Bacteria Hunt Speeds model.  http://ccl.northwestern.edu/netlogo/models/BacteriaHuntSpeeds.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2015 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
 @#$#@#$#@
 default
 true

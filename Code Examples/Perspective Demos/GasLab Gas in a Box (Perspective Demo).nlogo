@@ -310,6 +310,10 @@ to-report last-n [n the-list]
     [ report the-list ]
     [ report last-n n butfirst the-list ]
 end
+
+
+; Copyright 1997 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 329

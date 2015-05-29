@@ -141,6 +141,10 @@ to handle-mouse-down
   ;; wait for the user to release mouse button
   while [mouse-down?] [ ]
 end
+
+
+; Copyright 2006 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 198
@@ -320,6 +324,26 @@ In Dawkins' original model, the user was presented with a series of "insects" th
 In this model, "flowers" are used as the biomorphs instead of the insect-like creatures Dawkins used; furthermore, these biomorphs only vary among four variables--num-color, step-size, size-modifier, and turn-increment--and not nine.  The idea is very similar, though.  The user is presented with a number of flowers.  By clicking on a flower, the user can choose the type of flower that will populate the next generation.  If ASEXUAL? is false, the user picks two biomorphs instead of just one; the next generation will be produced by selecting one the values for each of the four genotype variables from either one of the parents.
 
 Thanks to Nate Nichols for his work on this model.
+
+
+## HOW TO CITE
+
+If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
+
+* Nichols, N. and Wilensky, U. (2006).  NetLogo Sunflower Biomorphs model.  http://ccl.northwestern.edu/netlogo/models/SunflowerBiomorphs.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2006 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
 @#$#@#$#@
 default
 true

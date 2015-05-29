@@ -42,6 +42,11 @@ to recolor  ;; turtle procedure
     [ set color red ]
     [ set color blue ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 255

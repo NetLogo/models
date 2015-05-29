@@ -44,6 +44,11 @@ to-report lower-case-char [c]
      [ report c ]
      [ report item pos "abcdefghijklmnopqrstuvwxyz" ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 296

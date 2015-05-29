@@ -110,6 +110,11 @@ to-report selected? [x y]
   report x >= x-min and x <= x-max and
          y >= y-min and y <= y-max
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 180

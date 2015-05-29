@@ -231,6 +231,11 @@ to display-gradient-in-patches
   [ if (elevation <= 0) or (elevation >= 0)
     [ set pcolor scale-color black elevation min-g max-g ] ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 185

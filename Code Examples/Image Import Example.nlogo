@@ -1,6 +1,11 @@
 ;; There are no procedures in this model.
 ;; All of the code is in the buttons in
 ;; the interface tab.
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 364

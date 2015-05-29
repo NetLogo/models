@@ -29,6 +29,11 @@ to scatter3
     move-to one-of patches   ;; go to the center of a random patch
   ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 131

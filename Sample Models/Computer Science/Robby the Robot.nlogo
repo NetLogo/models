@@ -415,6 +415,11 @@ to-report chromosome-distance [individual1 individual2]
   ;; if distance is too large, report the edge of the view
   report ifelse-value (dist-candidate > max-pxcor) [max-pxcor] [dist-candidate]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 336
@@ -855,6 +860,21 @@ This NetLogo version of Robby is based on Mitchell's earlier versions in NetLogo
 It uses code from the Simple Genetic Algorithms model (Stonedahl & Wilensky, 2008) in the NetLogo Sample Models Library.
 
 Robby resembles a simpler version of Richard E. Pattis' Karel the Robot, http://en.wikipedia.org/wiki/Karel_(programming_language).
+
+
+## HOW TO CITE
+
+If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
+
+* Mitchell, M., Tisue, S. and Wilensky, U. (2012).  NetLogo Robby the Robot model.  http://ccl.northwestern.edu/netlogo/models/RobbytheRobot.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+[![CC0](http://ccl.northwestern.edu/images/creativecommons/zero.png)](http://creativecommons.org/publicdomain/zero/1.0/)
+
+Public Domain: To the extent possible under law, Uri Wilensky has waived all copyright and related or neighboring rights to this model.
 @#$#@#$#@
 default
 true

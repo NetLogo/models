@@ -22,6 +22,11 @@ to go
 end
 
 ;; the actual plotting code is in the plot itself, in the Interface tab
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 321

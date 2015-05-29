@@ -84,6 +84,11 @@ end
 to-report y-within? [y]  ;; turtle procedure
   report abs (ycor - y) <= abs (size / 2 * dy)
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 161

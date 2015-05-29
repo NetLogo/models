@@ -42,6 +42,11 @@ to bounce  ;; turtle procedure
   if abs [pycor] of patch-ahead 0.1 = max-pycor
     [ set heading (180 - heading) ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 360

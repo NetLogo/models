@@ -909,6 +909,10 @@ to-report user-id-of-intersection-for-current-metric
   [ report "" ]
   [ report [user-id] of current-intersection-for-client-metric ]
 end
+
+
+; Copyright 2002 Uri Wilensky and Walter Stroup.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 566
@@ -1462,7 +1466,27 @@ Together, these features allow the client to send NetLogo code to the model to b
 
 If the code that is executed is valid NetLogo syntax and doesn't produce any bad side-effects, such as clearing the View or having turtles die, everything should work fine.  However, there is no easy way of ensuring this currently.  As a result, code which may be unsafe to the model could be executed and may cause the model to stop unexpectedly or give a runtime error when trying to plot to the CLIENT PLOT.  We will be improving these features in future versions of NetLogo.
 
-## CREDITS AND REFERENCES
+
+## HOW TO CITE
+
+If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
+
+* Wilensky, U. and Stroup, W. (2002). NetLogo HubNet Gridlock Alternate HubNet model.  http://ccl.northwestern.edu/netlogo/models/HubNetGridlockAlternateHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2002 Uri Wilensky and Walter Stroup.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This activity and associated models and materials were created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
+
 @#$#@#$#@
 default
 true

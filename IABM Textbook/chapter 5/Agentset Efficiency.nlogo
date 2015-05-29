@@ -91,6 +91,10 @@ to-report test-1-2
   let result2 timer ;; the number of seconds it took to run GO-2 n times
   report list result1 result2
 end
+
+
+; Copyright 2008 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -289,7 +293,17 @@ You can read the documentation for the `profiler` extension online at [http://cc
 
 Try to replace the `test-1-2` procedure with one that is adapted from the example in the documentation of the `profiler` extension. Can you replicate the results that you had with `test-1-2`?
 
-## CREDITS AND REFERENCES
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2008 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
 @#$#@#$#@
 default
 true

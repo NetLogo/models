@@ -6,6 +6,11 @@ to setup
   ;; Now make all possible links
   ask turtles [ create-links-with other turtles ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 208

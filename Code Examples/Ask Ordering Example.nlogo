@@ -30,6 +30,11 @@ to go-by-size
     [ ask ?
         [ fd 1 ] ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 10

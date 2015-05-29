@@ -26,6 +26,11 @@ to hex-fd  ;; turtle procedure
    setxy (xcor + item (heading / 60) [0 1 1 0 -1 -1])
          (ycor + item (heading / 60) [1 0.5 -0.5 -1 -0.5 0.5])
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 135
