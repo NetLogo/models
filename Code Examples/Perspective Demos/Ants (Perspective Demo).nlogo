@@ -400,6 +400,8 @@ This is a version of the Ants model, modified to show off NetLogo's perspective 
 Ants
 
 ## CREDITS AND REFERENCES
+
+<!-- 1998 2001 MIT specialCE -->
 @#$#@#$#@
 default
 true

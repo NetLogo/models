@@ -180,6 +180,8 @@ Network Import Example - how to create a network based on data from a file
 
 * http://mathworld.wolfram.com/RandomGraph.html
 * http://en.wikipedia.org/wiki/Random_graph
+
+<!-- 2007 -->
 @#$#@#$#@
 default
 true

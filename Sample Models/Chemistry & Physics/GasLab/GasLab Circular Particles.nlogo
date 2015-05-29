@@ -796,6 +796,8 @@ Commercial licenses are also available. To inquire about commercial licenses, pl
 
 This model and associated activities and materials were created as part of the project: MODELING ACROSS THE CURRICULUM.  The project gratefully acknowledges the support of the National Science Foundation, the National Institute of Health, and the Department of Education (IERI program) -- grant number REC #0115699.
 
+
+<!-- 2005 MAC -->
 @#$#@#$#@
 default
 true

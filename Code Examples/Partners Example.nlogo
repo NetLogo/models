@@ -160,6 +160,8 @@ Turtles with no partner are gray; partnered turtles are red.  Unpartnered move r
 ## RELATED MODELS
 
 Grouping Turtles Example shows how to form groups that contain more than two turtles.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

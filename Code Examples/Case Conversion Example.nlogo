@@ -98,6 +98,8 @@ NIL
 ## WHAT IS IT?
 
 NetLogo doesn't have primitives for converting upper to lower case, or vice versa.  This example includes procedures that accomplish these tasks.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

@@ -212,6 +212,8 @@ NIL
 ## WHAT IS IT?
 
 This code example shows the 3D shapes available in NetLogo.
+
+<!-- 2005 -->
 @#$#@#$#@
 default
 true

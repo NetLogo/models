@@ -204,6 +204,8 @@ For details on `ask-concurrent`, read the Ask-Concurrent section of the Programm
 ## NETLOGO FEATURES
 
 The view update mode is set to "continuous" so you can see the agents move one at a time by moving the slider towards "slower".
+
+<!-- 2007 -->
 @#$#@#$#@
 default
 true

@@ -517,6 +517,8 @@ Commercial licenses are also available. To inquire about commercial licenses, pl
 
 To use this model for academic or commercial research, please contact Pratim Sengupta at <pratim.sengupta@vanderbilt.edu> or Uri Wilensky at <uri@northwestern.edu> for a mutual agreement prior to usage.
 
+
+<!-- 2007 NIELS Cite: Sengupta, P. -->
 @#$#@#$#@
 default
 true

@@ -179,6 +179,8 @@ Try changing start-x to 0.5 and start-y to 0.5. Where is the green patch now? No
 ## EXTENDING THE MODEL
 
 You could change the model such that there are a "halo" of turtles always distance-of-travel from the center.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

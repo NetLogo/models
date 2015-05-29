@@ -137,6 +137,8 @@ This example shows how to identify contiguous "clusters" of patches.
 ## CREDITS AND REFERENCES
 
 This was inspired by an earlier model by Robert Jan Klomp.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

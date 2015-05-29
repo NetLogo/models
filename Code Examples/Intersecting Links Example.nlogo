@@ -195,6 +195,8 @@ The math assumes that the links don't extend beyond the edges of the world.  If 
 To keep the math relatively simple, the code represents lines in slope-intercept form (y=mx+c); see http://mathworld.wolfram.com/Slope.html.
 
 Thanks to Gagandeep Singh for his work on this example.
+
+<!-- 2007 -->
 @#$#@#$#@
 default
 true

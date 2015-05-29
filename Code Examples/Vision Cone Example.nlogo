@@ -154,6 +154,8 @@ HORIZONTAL
 ## WHAT IS IT?
 
 This example demonstrates how to give a turtle a "cone of vision" in front of it.  It uses the `in-cone` primitive to filter an agentset according to whether the turtles or patches in it are in the calling turtle's cone of vision.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

@@ -162,6 +162,8 @@ The `walk` procedure will get stuck in an infinite loop if a turtle finds itself
 ## NETLOGO FEATURES
 
 Turtles use the `patch-right-and-ahead` primitive to look at patches around themselves, relative to the direction the turtle is facing.
+
+<!-- 2007 -->
 @#$#@#$#@
 default
 true

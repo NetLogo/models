@@ -97,6 +97,8 @@ NIL
 ## WHAT IS IT?
 
 This code example demonstrates Turtle-Patch communication. When a red turtle moves onto a patch, it turns the patch black.  When a yellow turtle moves onto a patch, it turns the patch magenta.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

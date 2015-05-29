@@ -170,6 +170,8 @@ NIL
 ## WHAT IS IT?
 
 This example demonstrates how to use the bitmap and QTJ (QuickTime for Java) extensions to view video files and import frames into NetLogo.
+
+<!-- 2011 -->
 @#$#@#$#@
 default
 true

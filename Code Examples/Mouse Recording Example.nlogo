@@ -140,6 +140,8 @@ Press \"go\", then use the mouse to draw in the view.
 ## WHAT IS IT?
 
 This is a demo presenting how to record and retrace movements of the mouse.  When the "go" button is pressed, the user can draw one or more lines with the mouse by clicking and dragging the mouse around the view.  Each set of drawn lines becomes a path along which a turtle travels, back and forth.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

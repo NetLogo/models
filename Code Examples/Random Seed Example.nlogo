@@ -130,6 +130,8 @@ OUTPUT
 This model shows how to use random seeds to create reproducible model runs.
 
 For background on "pseudorandom" numbers and the random seed, please read the "Random Numbers" section of the Programming Guide in NetLogo's User Manual.
+
+<!-- 2005 -->
 @#$#@#$#@
 default
 true

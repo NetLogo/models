@@ -295,6 +295,8 @@ This is a version of the Termites model, modified to show off NetLogo's perspect
 Termites
 
 ## CREDITS AND REFERENCES
+
+<!-- 1997 2001 MIT specialCE -->
 @#$#@#$#@
 default
 true

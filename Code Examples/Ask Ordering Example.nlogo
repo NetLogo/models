@@ -161,6 +161,8 @@ Agentsets in NetLogo are always in random order.  This code example demonstrates
 `sort` and `sort-by` are used to specify ordering.
 
 View updates are set to "continuous", so when you slow the model down far enough you can see the turtles moving one at a time.
+
+<!-- 2007 -->
 @#$#@#$#@
 default
 true

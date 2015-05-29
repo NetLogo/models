@@ -135,6 +135,8 @@ On the computers we tested, this also makes the model run faster since the hexag
 ## RELATED MODELS
 
 Link-Walking Turtles Example
+
+<!-- 2007 -->
 @#$#@#$#@
 default
 true

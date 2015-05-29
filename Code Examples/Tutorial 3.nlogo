@@ -236,6 +236,8 @@ HORIZONTAL
 ## WHAT IS IT?
 
 The construction of this model is described in Tutorial 3 in the NetLogo User Manual.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

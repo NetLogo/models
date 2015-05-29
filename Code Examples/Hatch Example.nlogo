@@ -143,6 +143,8 @@ This code example demonstrates the `hatch` command.
 Blue turtles never reproduce.  Pink turtles have a one-in-five chance of reproducing at each time tick.  Each turtle's life lasts 50 ticks.  Nine out of ten baby turtles are blue.
 
 The turtles created by `hatch` are exact duplicates of their parents, so it is necessary to reset each new turtle's age to 0 inside the `hatch` command.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

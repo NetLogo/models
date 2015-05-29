@@ -117,6 +117,8 @@ This is a code sample illustrating how to let the user drag turtles around with 
 ## NETLOGO FEATURES
 
 The code also demonstrates the use of the `watch`, `subject`, and `reset-perspective` primitives.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

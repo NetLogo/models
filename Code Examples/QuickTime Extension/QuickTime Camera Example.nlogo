@@ -121,6 +121,8 @@ NIL
 ## WHAT IS IT?
 
 This example demonstrates how to use the bitmap and QTJ (QuickTime for Java) extensions to capture frames from a video camera into NetLogo.
+
+<!-- 2011 -->
 @#$#@#$#@
 default
 true

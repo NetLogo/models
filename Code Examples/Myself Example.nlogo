@@ -169,6 +169,8 @@ EXAMPLE #2: Demonstrates \"myself\" in combination with ask and -of
 ## WHAT IS IT?
 
 This model demonstrates several possible kinds of uses for the `myself` primitive.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

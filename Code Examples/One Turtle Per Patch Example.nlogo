@@ -241,6 +241,8 @@ It also demonstrates how to create turtles so they are only one turtle per patch
 ## RELATED MODELS
 
 See the Segregation in the models library to see this being used in a real model.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

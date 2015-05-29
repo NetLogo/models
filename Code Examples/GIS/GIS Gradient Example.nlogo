@@ -187,6 +187,8 @@ It could be interesting to extend the model so that the "raindrop" turtles flow 
 The other GIS code example, GIS General Examples, provides a greater variety of examples of how to use the GIS extension.
 
 ## CREDITS AND REFERENCES
+
+<!-- 2008 -->
 @#$#@#$#@
 default
 true

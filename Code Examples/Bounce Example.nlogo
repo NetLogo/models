@@ -130,6 +130,8 @@ leave-trace?
 ## WHAT IS IT?
 
 This demo shows how to make turtles bounce off the walls.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

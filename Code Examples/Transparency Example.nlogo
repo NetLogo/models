@@ -151,6 +151,8 @@ to see a close up view of a smaller portion of the world.
 ## THINGS TO NOTICE
 
 At present transparency works only in the 2D view, not the 3D view.
+
+<!-- 2009 -->
 @#$#@#$#@
 default
 true

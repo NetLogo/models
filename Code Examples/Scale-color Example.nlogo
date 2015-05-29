@@ -114,6 +114,8 @@ This code example demonstrates the `scale-color` reporter.  As a turtle's x-coor
 ## THINGS TO NOTICE
 
 The tails of the turtles on the right edge of the world are visible on the left edge of the view.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

@@ -130,6 +130,8 @@ HORIZONTAL
 ## WHAT IS IT?
 
 This example sets up a box that can be placed anywhere in the world.  It is one patch thick.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

@@ -354,6 +354,8 @@ Add eighth notes.
 Add sharps and flats.
 
 Support several instruments at once.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

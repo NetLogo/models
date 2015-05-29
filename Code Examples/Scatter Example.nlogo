@@ -130,6 +130,8 @@ With all three scatter methods, sometimes turtles can land on the same patch.  I
 ## RELATED MODELS
 
 Scatter
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

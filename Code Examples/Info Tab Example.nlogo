@@ -358,6 +358,8 @@ If you want all NetLogo users to be able to read your Info tab, use only the fea
 More information about Markdown is at http://daringfireball.net/projects/markdown/. For rendering Markdown, NetLogo uses the [Pegdown](https://github.com/sirthias/pegdown) library.
 
 [netlogo-link]: http://ccl.northwestern.edu/netlogo
+
+<!-- 2010 -->
 @#$#@#$#@
 default
 true

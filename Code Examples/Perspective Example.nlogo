@@ -235,6 +235,8 @@ NIL
 This model shows how to see the world from different perspectives.  It demonstrates the `follow`, `watch`, and `reset-perspective` commands.
 
 Try it with the 2D view and with the 3D view. And check out what happens when you turn on wrapping.
+
+<!-- 2005 -->
 @#$#@#$#@
 default
 true

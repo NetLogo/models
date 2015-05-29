@@ -301,6 +301,8 @@ The Bug Hunt models in the ModelSim folder of the library use a version of this 
 ## CREDITS AND REFERENCES
 
 This example was developed by Nicolas Payette, inspired by Michael Novak's work on various ModelSim models.
+
+<!-- 2015 -->
 @#$#@#$#@
 default
 true

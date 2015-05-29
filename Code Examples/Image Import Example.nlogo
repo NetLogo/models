@@ -246,6 +246,8 @@ Images imported by `import-pcolors` and `import-pcolors-rgb` are scaled to fit t
 Try loading the different images into the patches to get an idea of the type of color distortion to expect.
 
 Try importing an image with `import-pcolors` and then import the same image with `import-drawing` and `import-pcolors-rgb`.  How does handling of the image differ?
+
+<!-- 2005 -->
 @#$#@#$#@
 default
 true

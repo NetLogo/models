@@ -539,6 +539,8 @@ If you mention this model in a publication, we ask that you include these citati
 [![CC0](http://ccl.northwestern.edu/images/creativecommons/zero.png)](http://creativecommons.org/publicdomain/zero/1.0/)
 
 Public Domain: To the extent possible under law, Uri Wilensky has waived all copyright and related or neighboring rights to this model.
+
+<!-- 2011 CC0 Cite: Weintrop, D., Tisue, S., Tinker, R., Head, B. -->
 @#$#@#$#@
 default
 true

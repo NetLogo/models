@@ -258,6 +258,8 @@ The left side of the world is the approximate NetLogo color equivalent to the sp
 ## NETLOGO FEATURES
 
 The origin patch (0,0) is in the corner rather than the center, so the dimensions of the patch grid can be even, so the grid can be divided into four equal quadrants.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

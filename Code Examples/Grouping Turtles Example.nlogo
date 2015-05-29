@@ -326,6 +326,8 @@ HORIZONTAL
 This example demonstrates two different methods for dividing an arbitrary number of turtles into groups, either by desired group size, or by desired number of groups.
 
 Please see the Code tab for details.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

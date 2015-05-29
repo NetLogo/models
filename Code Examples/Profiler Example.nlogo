@@ -172,6 +172,8 @@ TEXTBOX
 This code example demonstrates the functionality of the profiler extension, which records the number of times user-defined procedures are called, and how long they take to run.
 
 See the Interface tab for more information.  See also the Profiler section of the NetLogo User Manual.
+
+<!-- 2007 -->
 @#$#@#$#@
 default
 true

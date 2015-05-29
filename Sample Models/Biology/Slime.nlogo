@@ -284,6 +284,8 @@ This model was developed at the MIT Media Lab using CM StarLogo.  See Resnick, M
 
 This model was converted to NetLogo as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227. Converted from StarLogoT to NetLogo, 2000.
 
+
+<!-- 1997 2000 MIT -->
 @#$#@#$#@
 default
 true

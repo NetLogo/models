@@ -245,6 +245,8 @@ NIL
 ## WHAT IS IT?
 
 This example shows how to build a simple solar system using the `tie` command. You can explore the motion of the different heavenly bodies independently and combined.
+
+<!-- 2006 -->
 @#$#@#$#@
 default
 true

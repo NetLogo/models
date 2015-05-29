@@ -143,6 +143,8 @@ In this version of the code, the agentset for the lottery (`turtles`) and the re
 ## RELATED MODELS
 
 Preferential Attachment, in the Networks section of Sample Models, uses this code.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

@@ -134,6 +134,8 @@ The very simple method used to do smoothing causes the smoothed line to lag a bi
 ## CREDITS AND REFERENCES
 
 Thanks to Ed Hazzard for suggesting this example.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

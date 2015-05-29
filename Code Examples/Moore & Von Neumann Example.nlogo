@@ -143,6 +143,8 @@ This model shows how to make Moore (square) and Von Neumann (diamond) neighborho
 ## THINGS TO NOTICE
 
 World wrapping can be on or off; the same code works fine either way.
+
+<!-- 2006 -->
 @#$#@#$#@
 default
 true

@@ -188,6 +188,8 @@ While all six turtles show their line of sight with dots, the orange turtle's li
 ## EXTENDING THE MODEL
 
 Make each turtle able to see around it in all directions, not only the single direction in which it is facing.
+
+<!-- 2006 -->
 @#$#@#$#@
 default
 true

@@ -160,6 +160,8 @@ The monitors show that the turtle's xcor and ycor are always exact multiples of 
 ## RELATED MODELS
 
 Random Walk Example - shows a freer random walk which does not follow a grid
+
+<!-- 2006 -->
 @#$#@#$#@
 default
 true

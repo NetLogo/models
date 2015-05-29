@@ -119,6 +119,8 @@ This code example shows how to create and control groups of turtles, i.e. breeds
 It also shows how to set the default shape of a breed, so all turtles with that breed will have that shape.
 
 To create your own shapes, use the Shapes Editor in the Tools menu.
+
+<!-- 2005 -->
 @#$#@#$#@
 default
 true

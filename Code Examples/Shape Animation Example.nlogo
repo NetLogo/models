@@ -190,6 +190,8 @@ For the flowers, each progressive frame of their growth shows the development of
 ## NETLOGO FEATURES
 
 The model has a frame rate setting of 15 frames per second, for smooth animation that isn't too fast.  The speed can be further adjusted by the user using the speed slider.
+
+<!-- 2005 -->
 @#$#@#$#@
 default
 true

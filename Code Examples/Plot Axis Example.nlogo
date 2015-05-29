@@ -108,6 +108,8 @@ The plot contains two plot pens, \"position\" and \"axis\".  \"axis\" is used on
 ## WHAT IS IT?
 
 This example shows how to draw an axis line on a plot.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

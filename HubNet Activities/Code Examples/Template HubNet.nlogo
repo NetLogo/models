@@ -225,6 +225,8 @@ whenever the client moves.  Buttons on the client side send but do not receive m
 ## HOW TO USE IT
 
 To start the activity press the GO button.  Ask students to login using the HubNet client or you can test the activity locally by pressing the LOCAL button in the HubNet Control Center. To see the view in the client interface check the Mirror 2D view on clients checkbox.  The clients can use the UP, DOWN, LEFT, and RIGHT buttons to move their avatar and change the amount they move each step by changing the STEP-SIZE slider.
+
+<!-- 2007 -->
 @#$#@#$#@
 default
 true

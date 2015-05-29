@@ -157,6 +157,8 @@ Nodes and edges are both agents.  Nodes are turtles, edges are links.
 * Fully Connected Network Example
 * Preferential Attachment
 * Small Worlds
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

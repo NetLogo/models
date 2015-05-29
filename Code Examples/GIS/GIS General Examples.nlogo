@@ -588,6 +588,8 @@ This model doesn't do anything particularly interesting, but you can easily copy
 GIS Gradient Example provides another example of how to use the GIS extension.
 
 ## CREDITS AND REFERENCES
+
+<!-- 2008 -->
 @#$#@#$#@
 default
 true

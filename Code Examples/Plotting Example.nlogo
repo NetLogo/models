@@ -112,6 +112,8 @@ PENS
 ## WHAT IS IT?
 
 This shows all of the code needed to set up a plot which will display two variables as the model runs.  In this case, the two variables are the x-coordinate and the y-coordinate of a turtle.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

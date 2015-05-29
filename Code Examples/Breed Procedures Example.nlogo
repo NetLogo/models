@@ -123,6 +123,8 @@ but such code is tedious to write and runs slower.
 ## NETLOGO FEATURES
 
 The `run` command is fast when you use it over and over again on the same strings, so using this technique won't hurt the performance of your model.
+
+<!-- 2007 -->
 @#$#@#$#@
 default
 true

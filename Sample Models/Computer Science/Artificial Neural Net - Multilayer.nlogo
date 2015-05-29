@@ -507,6 +507,8 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-Share
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 
+
+<!-- 2006 Cite: Rand, W. -->
 @#$#@#$#@
 default
 true

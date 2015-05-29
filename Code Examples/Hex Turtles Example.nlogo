@@ -132,6 +132,8 @@ The resulting lattice has the correct structure, but distances and angles are di
 ## RELATED MODELS
 
 This example is for moving turtles.  Hex Cells Example shows how to make stationary hexagonal cells, such as for a cellular automaton.  (It would also be possible to combine both techniques in a single model.)
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true
