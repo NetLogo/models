@@ -14,6 +14,8 @@ import org.scalatest.FunSuite
 object Model {
   val modelDir = new File(".")
   val extensions = Array("nlogo", "nlogo3d")
+  val sectionSeparator = "@#$#@#$#@"
+  val manualPreview = "need-to-manually-make-preview-for-this-model"
   val models: Iterable[Model] = {
     val testPath = new File("test/").getCanonicalPath
     val isUnderTest = (_: File).getCanonicalPath.startsWith(testPath)
@@ -21,8 +23,6 @@ object Model {
       .filterNot(isUnderTest) // at least until https://github.com/NetLogo/models/issues/56 is fixed
       .map(new Model(_))
   }
-  val sectionSeparator = "@#$#@#$#@"
-  val manualPreview = "need-to-manually-make-preview-for-this-model"
 }
 
 trait TestModels extends FunSuite {
@@ -41,11 +41,11 @@ class Model(val file: File) {
   import Model._
   assert(extensions.contains(getExtension(file.getName)))
   def content = readFileToString(file, "UTF-8")
-  lazy val sections = (content + sectionSeparator).split(quote(sectionSeparator) + "\\n")
-  lazy val Array(
+  val sections = (content + sectionSeparator + "\n").split(quote(sectionSeparator) + "\\n")
+  val Array(
     code, interface, info, turtleShapes, version,
     previewCommands, systemDynamics, behaviorSpace,
-    hubNetClient, linkShapes, modelSettings, deltaTick) = sections
+    hubNetClient, linkShapes, modelSettings) = sections
   def needsManualPreview = previewCommands.toLowerCase.contains(manualPreview)
   def is3d = getExtension(file.getName) == "nlogo3d"
   def updateMode: UpdateMode =
