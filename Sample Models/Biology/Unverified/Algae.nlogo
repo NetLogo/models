@@ -415,13 +415,11 @@ In order to display all of the elements of the control strip above it, the 2D Vi
       set pcolor gray + 1.75
     ]
 
-
 ## CREDITS AND REFERENCES
 
 This model is based on a preliminary model developed by Allan Konopka at the 2004 NetLogo workshop at Northwestern University.
 
 Thanks to Josh Unterman for his work on this model.
-
 
 ## HOW TO CITE
 
@@ -440,7 +438,6 @@ Copyright 2005 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2005 -->
 @#$#@#$#@

@@ -678,7 +678,6 @@ The chemical reaction that hydrogen and oxygen gas undergoes to produce water va
 
 H<sub>2</sub> and O<sub>2</sub> are called the reactants and (H<sub>2</sub>O) is the product of the reaction.  Note that two hydrogen molecules and one oxygen molecule are consumed in this reaction to make two water vapor molecules.
 
-
 ## HOW IT WORKS
 
 For a reaction to occur, oxygen (O<sub>2</sub>) and hydrogen (H<sub>2</sub>) must have enough energy to break the atomic bonds in oxygen and hydrogen and allow the atoms to rearrange to make (H<sub>2</sub>O).  This bond breaking energy threshold is called the ACTIVATION-ENERGY.
@@ -694,8 +693,6 @@ The autoignition point for hydrogen gas under normal pressure and presence of ox
 The container wall is modeled as having a fixed pressure limit.  Once that pressure limit is reached the container breaks open (explodes).  The exploding container is shown simply as particles of the container flying apart and outward at a constant rate.
 
 The phenomena of a container walls failing when hydrogen and oxygen ignite can be seen in a balloon filled with hydrogen and oxygen gas that is lit with a match as well as many historical examples in space rockets.  Some alternate energy automobiles and other transportation vehicles also use this reaction to power the piston displacement in their internal combustion engines, since it produces no carbon dioxide in the products and therefore does not contribute that green house gas to the environment through its emissions
-
-
 
 ## HOW TO USE IT
 
@@ -719,13 +716,11 @@ Notice the shape of the curves for number of molecules.  Why do they exhibit the
 
 If the container breaks and molecules escape the system, pressure will no longer be graphed and the molecules will no longer be counted in the graphs of number of molecules once they reach the edge of the WORLD & VIEW.
 
-
 ## THINGS TO TRY
 
 Try Different BOND-ENERGY-RELEASED, ACTIVATION-ENERGY, and PRESSURE-LIMIT-CONTAINER levels to make the chemical reaction occur at different rates, or not at all.
 
 Compare rates of reactions and how long it takes the container to fail by reaching its pressure limit, for different initial gas temperatures.
-
 
 ## EXTENDING THE MODEL
 
@@ -747,7 +742,6 @@ This model is part of the Connected Chemistry curriculum.  See http://ccl.northw
 
 We would like to thank Sharona Levy and Michael Novak for their substantial contributions to this model.
 
-
 ## HOW TO CITE
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
@@ -767,7 +761,6 @@ Copyright 2007 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2007 ConChem Cite: Novak, M. -->
 @#$#@#$#@

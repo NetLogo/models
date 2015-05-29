@@ -786,7 +786,7 @@ Rules for the Iterated Prisoner's Dilemma
 
 1.  This game will consist of matches in which each student competes against one opponent at a time.  Students may search for partners on their own.  Once paired, students will play 10 rounds, and then separate and look for other partners.
 
-2.  Each round the student and his/her partner will earn or lose points by either cooperating (C) or defecting (D) based on the rules set in their individual client. Each students' strategy is either selected (the STRATEGY-CHOICE ) or edited on the HubNet client. 
+2.  Each round the student and his/her partner will earn or lose points by either cooperating (C) or defecting (D) based on the rules set in their individual client. Each students' strategy is either selected (the STRATEGY-CHOICE ) or edited on the HubNet client.
 
 3.  The point system is determined by the administrator, using the 4 sliders under "PAYOFF." That is, the administrator does not change the basic game but the value of the prizes and penalties.
 
@@ -794,9 +794,9 @@ Rules for the Iterated Prisoner's Dilemma
 
 Buttons:
 
-SETUP: Begin playing the iterated prisoner's dilemma.  
-RERUN: All players set their total back to zero, and are ready to replay  
-PLAY: When students pair up, they will play a user-defined number of turns before separating  
+SETUP: Begin playing the iterated prisoner's dilemma.
+RERUN: All players set their total back to zero, and are ready to replay
+PLAY: When students pair up, they will play a user-defined number of turns before separating
 CREATE ANDROID: Creates a computer player to compete with students
 
 Switches:
@@ -839,7 +839,6 @@ Note the use of the turtle variable `label` to display each turtle's average sco
 
 PD Basic, PD N-Person Iterated, PD Basic Evolutionary, PD 2-Person Iterated
 
-
 ## HOW TO CITE
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
@@ -859,7 +858,6 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-Share
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 
 This activity and associated models and materials were created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
-
 
 <!-- 2003 -->
 @#$#@#$#@

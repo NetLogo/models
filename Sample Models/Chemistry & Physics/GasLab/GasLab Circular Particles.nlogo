@@ -762,7 +762,6 @@ To see what the approximate mass of each particle is, type this in the command c
 
 Collisions between boxes and circles could also be explored.  Variations in size between particles could investigated or variations in the mass of some of the particle could be made to explore other factors that affect the outcome of collisions.
 
-
 ## NETLOGO FEATURES
 
 Instead of advancing one tick at a time as in most models, the tick counter takes on fractional values, using the `tick-advance` primitive.  (In the Interface tab, it is displayed as an integer, but if you make a monitor for `ticks` you'll see the exact value.)
@@ -774,7 +773,6 @@ Look at the other GasLab models to see collisions of "point" particles, that is,
 ## CREDITS AND REFERENCES
 
 This model was developed as part of the GasLab curriculum (http://ccl.northwestern.edu/curriculum/gaslab/) and has also been incorporated into the Connected Chemistry curriculum (http://ccl.northwestern.edu/curriculum/ConnectedChemistry/)
-
 
 ## HOW TO CITE
 
@@ -795,7 +793,6 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-Share
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 
 This model and associated activities and materials were created as part of the project: MODELING ACROSS THE CURRICULUM.  The project gratefully acknowledges the support of the National Science Foundation, the National Institute of Health, and the Department of Education (IERI program) -- grant number REC #0115699.
-
 
 <!-- 2005 MAC -->
 @#$#@#$#@

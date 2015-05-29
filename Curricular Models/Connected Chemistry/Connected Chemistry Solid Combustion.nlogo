@@ -583,7 +583,6 @@ C and O are called the reactants and CO2 is the product of the reaction.
 
 In this model, charcoal is modeled as a block o pure solid of 100% carbon.  The surrounding gas is modeled as oxygen and nitrogen.  Nitrogen is treated as an inert gas in this model that neither reacts with the oxygen nor the carbon.  In reality, at high temperatures, molecular nitrogen and oxygen can combine to form nitric oxide.  And at high temperatures and pressures two N2 molecules can react to become N4, which is called nitrogen diamond.  Neither of these reactions are represented in this model.
 
-
 ## HOW IT WORKS
 
 For a reaction to occur, oxygen (O2) and carbon (C) must have enough energy to break the atomic bond in oxygen and allow the atoms to rearrange to make CO2.  This bond breaking energy threshold is called the activation energy.
@@ -616,7 +615,6 @@ How many molecules of oxygen are needed to completely react with the 6 x 6 charc
 
 Why do different geometries of carbon atoms in the charcoal solid react more or less quickly, even if the number of carbon atoms is the same?
 
-
 ## THINGS TO TRY
 
 Try Different ENERGY-RELEASED levels INITIAL-GAS-TEMP values to make the chemical reaction occur at different rates (or not at all).
@@ -641,7 +639,6 @@ Add a pathway for incomplete combustion:  2C + 02  --> 2CO
 Add a pathway for generating nitrous oxide:  2C + 02  --> 2NO
     and the conditions it occurs under.
 
-
 ## NETLOGO FEATURES
 
 Uses GasLab particle collision code.
@@ -651,7 +648,6 @@ Uses GasLab particle collision code.
 This model is part of the Connected Chemistry curriculum.  See http://ccl.northwestern.edu/curriculum/chemistry/.
 
 We would like to thank Sharona Levy and Michael Novak for their substantial contributions to this model.
-
 
 ## HOW TO CITE
 
@@ -672,7 +668,6 @@ Copyright 2007 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2007 ConChem Cite: Novak, M. -->
 @#$#@#$#@

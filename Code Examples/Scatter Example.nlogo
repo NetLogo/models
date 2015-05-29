@@ -126,7 +126,6 @@ With all three scatter methods, sometimes turtles can land on the same patch.  I
 
       ask n-of 300 patches [ sprout 1 ]
 
-
 ## RELATED MODELS
 
 Scatter

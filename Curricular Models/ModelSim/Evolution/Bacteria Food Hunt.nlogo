@@ -809,7 +809,6 @@ When bacteria travel over patches with algae in them, they consume a portion of 
 
 Bacteria gain energy from eating algae.  As bacteria gain energy the inside of them visually fills up (like a gas tank).  When they reach a maximum threshold energy level they can asexually reproduce (mitosis), splitting their energy in half between the parent and offspring.  As bacteria lose energy the energy level in them visually drains down.  When the bacteria energy level reaches 0 it will die.
 
-
 ## HOW TO USE IT
 
 1. Adjust the slider parameters (see below), or use the default settings.
@@ -838,8 +837,6 @@ DUPLICATE BACTERIA >> will remove all existing bacteria from the right region, a
 
 << DUPLICATE BACTERIA   will remove all existing bacteria from the left region, and then copies an instance (duplicate) of every bacterium from the right region into the left region.
 
-
-
 ## THINGS TO NOTICE
 
 The histogram for bacteria in each region tends to shift to the right (increasing average speed) with certain combinations of environmental conditions and tend to shift to the left with other combinations, and sometimes shift toward a middle range value for other combinations.
@@ -847,8 +844,6 @@ The histogram for bacteria in each region tends to shift to the right (increasin
 Some variation between model runs in outcomes can be attributed to the random distribution of bacteria in each region.  This genetic drift affects can be reduced by using the DUPLICATE BACTERIA button between regions, to compare outcomes in two regions that have the same environmental conditions and the same distribution of bacteria in the same locations.
 
 The direction of evolutionary pressures in a region may take one direction at first, early in a model run, but then shift direction as the run progresses.  The effect can often be attributed to how the population is changing the environmental conditions.  Sometimes temporary success of one variation leads to a sudden resource collapse or bloom, which exerts an extreme counterbalancing selective pressure on the population.  This can tend to result in things like an initial tendency for a population to become faster, and the long term outcome of natural selection to be for the population to become slower (after the faster variants have been extirpated from population).
-
-
 
 ## THINGS TO TRY
 
@@ -858,24 +853,19 @@ Compare how changing the INITIAL-#-BACTERIA-PER-VARIATION slider influences the 
 
 Can you create two different outcomes in different regions, simply by changing the distribution of where the resource is located?  How about by changing the amount of the resource?  How about changing both?
 
-
-
 ## EXTENDING THE MODEL
 
 A sandbox version of the model could be used to give the player of the model the ability to draw the shape of the environment (walls), set region boundaries (in order to define any sub-space in the environment as a region), and modify (paint and erase) the distribution of the resources using the mouse cursor.
 
-
 ## RELATED MODELS
 
 Bacteria Hunt Speeds
-
 
 ## CREDITS AND REFERENCES
 
 This model is part of the Evolution unit of the ModelSim curriculum, sponsored by NSF grant DRL-1020101.
 
 For more information about the project and the curriculum, see the ModelSim project website: http://ccl.northwestern.edu/modelsim/.
-
 
 ## HOW TO CITE
 
@@ -894,7 +884,6 @@ Copyright 2015 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2015 Cite: Novak, M. -->
 @#$#@#$#@

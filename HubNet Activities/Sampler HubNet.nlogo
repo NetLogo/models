@@ -950,7 +950,6 @@ This activity uses HUBNET-SEND-OVERRIDE to reveal the samples in the client view
 
 All models in ProbLab deal with probability and statistics in ways that may enrich student understanding of sample space, randomness, and distributions. In particular, many models share with SAMPLER the 3-by-3 sample that we call a "9-block."
 
-
 ## HOW TO CITE
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
@@ -970,7 +969,6 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-Share
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 
 This activity and associated models and materials were created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
-
 
 <!-- 2003 Cite: Abrahamson, D. -->
 @#$#@#$#@

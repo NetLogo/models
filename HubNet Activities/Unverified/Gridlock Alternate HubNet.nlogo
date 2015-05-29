@@ -1354,7 +1354,6 @@ For further documentation, see the Participatory Simulations Guide found at http
 
 Notice: Gridlock Alternate uses features in NetLogo that are considered experimental.  The model may stop running if a student enters a metric in the client that is incorrect, such as dividing by 0, and causes a NetLogo error.  Further, we have not yet tested this alternate version of the model in real classrooms. If you use it in a classroom, we'd like to hear how it goes; contact us at feedback@ccl.northwestern.edu.
 
-
 ## HOW TO USE IT
 
 ### Quickstart Instructions:
@@ -1466,7 +1465,6 @@ Together, these features allow the client to send NetLogo code to the model to b
 
 If the code that is executed is valid NetLogo syntax and doesn't produce any bad side-effects, such as clearing the View or having turtles die, everything should work fine.  However, there is no easy way of ensuring this currently.  As a result, code which may be unsafe to the model could be executed and may cause the model to stop unexpectedly or give a runtime error when trying to plot to the CLIENT PLOT.  We will be improving these features in future versions of NetLogo.
 
-
 ## HOW TO CITE
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
@@ -1486,7 +1484,6 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-Share
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 
 This activity and associated models and materials were created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
-
 
 <!-- 2002 Stroup -->
 @#$#@#$#@

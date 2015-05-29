@@ -589,6 +589,8 @@ GIS Gradient Example provides another example of how to use the GIS extension.
 
 ## CREDITS AND REFERENCES
 
+
+
 <!-- 2008 -->
 @#$#@#$#@
 default

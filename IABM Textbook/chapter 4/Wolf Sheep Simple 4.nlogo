@@ -255,7 +255,6 @@ This model is in the IABM Textbook folder of the NetLogo models library. The mod
 
 This is the fourth model in a set of five models that build towards a predator prey model of population dynamics.  This fourth model gives the sheep the ability to reproduce.
 
-
 ## HOW IT WORKS
 
 The model creates a population of sheep that wander around the landscape. Moving around costs some energy, and when their energy gets too low, sheep die. However, the sheep can eat grass in the environment to regain energy and the grass regrows over time.  If the energy of a sheep gets above a certain level, it can reproduce.
@@ -300,7 +299,6 @@ Please cite the textbook as:
 * Wilensky, U.  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling
  Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
-
 ## COPYRIGHT AND LICENSE
 
 Copyright 2007 Uri Wilensky.
@@ -310,7 +308,6 @@ Copyright 2007 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2007 -->
 @#$#@#$#@

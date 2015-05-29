@@ -493,7 +493,7 @@ This triangle of pairs emerges as a result of the probabilities of rolling each 
 
 For example, there are four ways to roll a 5 (14, 23, 32 and 41), and thus the probability of rolling a 5 is 4/36, or 1/9.
 
-A printable sheet graphically depicting all of the combinations can be found here:  
+A printable sheet graphically depicting all of the combinations can be found here:
 http://ccl.northwestern.edu/curriculum/ProbLab/dice-total-distrib.doc
 
 ## HOW TO USE IT
@@ -506,7 +506,7 @@ Once you see that the sums chart is beginning to grow its "bump" in the middle, 
 
 IMPORTANT NOTE: Because there is limited space in the view, when dice are stacking up near the top of either the singles area or the pairs area, the program bumps the die columns down, so that they can keep growing.  A useful way to think about this is that you are always looking at only the top section of each dice stack.  The plots, however, keep track of all the dice that have been rolled.
 
-Buttons:  
+Buttons:
 SETUP -- reset the dice in the world but keep the logged in clients.
 
 GO -- GO needs to be running so that participants can submit their dice rolls, and so that the dice can move (e.g. from RANDOM-ROLL).
@@ -515,13 +515,13 @@ RANDOM-ROLL -- creates a random pair of dice that behaves the same as though it 
 
 AUTO-FILL -- creates random pairs in a loop.
 
-Switches:  
+Switches:
 COLORED-DICE? -- when set to "On", the dice that are created will be color-coded (from a set of 12 different colors) based on what client "rolled" them.
 
-Monitors:  
+Monitors:
 ROLLS -- the total number of rolls performed including random rolls and rolls from clients.
 
-Plots:  
+Plots:
 SINGLE DICE -- histogram of independent outcomes of rolling dice (each die value is a separate event).
 
 PAIR SUMS -- histogram of compound outcomes from rolling dice (each sum of a pair of dice is an event).
@@ -532,7 +532,7 @@ To start the activity over with the same group of students stop the GO button by
 
 The more events you stack up in the charts, the more the PAIR SUMS chart will take on a triangular shape.  Eventually, the '7' column will be the tallest, and then, in descending order, the '5' and '8,' the '4' and '9,' the '3' and '10,' the '2' and '11,' and the '1' and '12.'  The chart will not necessarily be perfect, but the more input the program gets, the closer the chart will approach this shape.
 
-At the same time, the SINGLE DICE graph approaches the shape of an equal distribution.  
+At the same time, the SINGLE DICE graph approaches the shape of an equal distribution.
 The SINGLE DICE is never exactly equally distributed.  If you look at the chart, you'll see that one of the columns is "beating" the other columns.  So why do we call it "equally distributed" if it's not really equal?  Well, it may depend on whether we are attending to the differences between the heights of the columns (an "additive" approach) or if we're attending to the proportions of the heights (a "multiplicative" approach).  Once you've accumulated hundreds of pairs of dice, one column may be over ten rows taller than another, but when you look at its plot, SINGLE DIE, this difference will not appear as large as it is in the bar chart of the display.
 
 ## THINGS TO TRY
@@ -555,7 +555,6 @@ See the ProbLab model Dice Stalagmite that is essentially the same activity but 
 
 Thanks to Dor Abrahamson for his work on the design of this model and the ProbLab curriculum.  Thanks to Josh Unterman for building Dice Stalagmite and to Steve Gorodetskiy for converting it to the Dice Stalagmite HubNet.
 
-
 ## HOW TO CITE
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
@@ -575,7 +574,6 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-Share
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 
 This activity and associated models and materials were created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
-
 
 <!-- 2004 Cite: Abrahamson, D. -->
 @#$#@#$#@

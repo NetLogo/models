@@ -2180,7 +2180,6 @@ New Poller Question - adds a new HubNet Client question
 
 There are many more ways the turtles could be used to convey information.  Change the model so they set their shape according to type of response they have to the current question.  Or have the turtles adjust their size according to how many responses they have.  There could also be a turtle-display mode where they sit according to their responses to two questions.
 
-
 ## HOW TO CITE
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
@@ -2200,7 +2199,6 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-Share
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 
 This activity and associated models and materials were created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
-
 
 <!-- 2002 Stroup -->
 @#$#@#$#@

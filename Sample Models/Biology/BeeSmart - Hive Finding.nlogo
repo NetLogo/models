@@ -649,8 +649,6 @@ The mechanism in this model is based on Honeybee Democracy (Seeley, 2010) with s
 
 This model is also the first of a series of models in a computational modeling-based scientific inquiry curricular unit “BeeSmart”, designed to help high school and university students learn complex systems principles as crosscutting concepts in science learning. Subsequent models are coming soon.
 
-
-
 ## HOW IT WORKS
 
 At each SETUP, 100 scout bees are placed at the center of the view. Meanwhile, a certain number (determined by the “hive-number” slider) of potential hive sites are randomly placed around the swarm.
@@ -663,20 +661,13 @@ When bees on a certain hive site observe a certain number of bees on the same si
 
 Typically, an initial scout goes through the states of “discover”-> “inspect-hive”-> “go-home”-> “dance”-> “re-visit”-> “pipe”; and non-initial scouts follow a slightly different sequence of states: “watch-dance”-> “re-visit” -> “inspect-hive”-> “go-home”-> “dance”-> “re-visit”-> “pipe”.
 
-
-
-
 ## HOW TO USE IT
-
 
 Use the sliders to define the initial conditions of the model. The default values usually guarantee a successful hive finding, but users are encouraged to change these settings and see how each parameter affects the process.
 
 Click SETUP after setting the parameters by the sliders. Then click GO and observe how the phenomenon unfolds. Toggle the “Show/Hide Dance Path” button to show or hide the waggle dance paths. Use the “Show/Hide Scouts” button to hide the bees if they block your view of the dance paths.
 
-
-
 ## THINGS TO NOTICE
-
 
 Notice the three plots on the right hand of the model:
 
@@ -688,10 +679,7 @@ Notice whether the timing of discovering the best hive site affects the swarm’
 
 Zoom in and compare the “enthusiasm” of dances for high quality sites with those for low quality ones. Bees not only dance longer but also more enthusiastically (or faster, in this model, when they are making turns) for higher quality sites.
 
-
-
 ## THINGS TO TRY
-
 
 Right click any scout and choose “Watch” from the right-click menu. A halo would appear around the scout to help you keep track of its movement.
 
@@ -701,16 +689,11 @@ Use the speed slider at the top of the model to slow down the model and observe 
 
 Use “Control +” or “Command +” to zoom in and see the colors of the bees.
 
-
-
-
-
 ## EXTENDING THE MODEL
 
 This model shows the honeybees’ hive-finding phenomenon as a continuous process. However, in reality, this process may last a few days. Bees do rest over night. Weather conditions may also affect this process. Adding these factors to the model can make it more accurately represent the phenomenon in the real world.
 
 Currently, Site qualities cannot be controlled from the interface. Some input interface elements can be added to enable users to specify the quality of each hive.
-
 
 ## NETLOGO FEATURES
 
@@ -720,20 +703,17 @@ The pens in the plots are dynamically generated temporary plot pens, which match
 
 The dance patterns are dynamically generated, which show the direction, distance, and quality of the hive advertised.
 
-
-
 ## RELATED MODELS
 
 Wilensky, U. (1997). NetLogo Ants model. http://ccl.northwestern.edu/netlogo/models/Ants. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Wilensky, U. (2003). NetLogo Honeycomb model. http://ccl.northwestern.edu/netlogo/models/Honeycomb. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
-
 ## CREDITS AND REFERENCES
+
 Seeley, T. D. (2010). Honeybee democracy. Princeton, NJ: Princeton University Press.
 
 Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University. Evanston, IL.
-
 
 ## HOW TO CITE
 
@@ -752,7 +732,6 @@ Copyright 2014 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2014 Cite: Guo, Y. -->
 @#$#@#$#@

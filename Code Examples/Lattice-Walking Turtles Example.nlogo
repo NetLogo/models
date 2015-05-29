@@ -131,7 +131,6 @@ On the computers we tested, this also makes the model run faster since the hexag
 
       clear-drawing  ask nodes [ stamp ]
 
-
 ## RELATED MODELS
 
 Link-Walking Turtles Example

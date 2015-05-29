@@ -729,7 +729,6 @@ See the HubNet SAMPLER model.
 
 This model is a part of the ProbLab curriculum  Thanks to Dor Abrahamson for his design of ProbLab.  The ProbLab curriculum is currently under development at Northwestern's Center for Connected Learning and Computer-Based Modeling and at the Graduate School of Education at University of California, Berkeley. For more information about the ProbLab curriculum please refer to http://ccl.northwestern.edu/curriculum/ProbLab/.
 
-
 ## HOW TO CITE
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
@@ -747,7 +746,6 @@ Copyright 2009 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2009 Cite: Abrahamson, D. -->
 @#$#@#$#@

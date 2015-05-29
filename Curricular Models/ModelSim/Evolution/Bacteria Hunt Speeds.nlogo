@@ -354,7 +354,6 @@ Another force is that predators who wait for their prey without moving, tend to 
 
 A player can intentionally cause bacteria to become faster over time, simply by trying to chase after them, clicking (eating) any bacteria that player can catch. And they can unintentionally cause bacteria to become slower over time, simply by waiting for bacteria to come to them and clicking (eating) any bacteria that travel under where that player is situated.
 
-
 ## HOW IT WORKS
 
 You assume the role of a predator (such as a nematode) amongst a population of single celled bacteria. To begin your pursuit of bacteria as a predator, press SETUP to create a population of bacteria, determined by six times the INITIAL-BACTERIA-PER-VARIATION slider. These bacteria that are created are randomly distributed around the world and assigned a variation (the number of flagella they posses [1 through 6])
@@ -368,7 +367,6 @@ Initially, there are equal numbers of each sub-population of bacteria (e.g. five
 Bacteria turn around (to face in the opposite direction) when they detect your mouse cursor (as a predator) in their detection cone (an arc of 120 degrees that has a range of 2 units). They are not able to detect you when your mouse cursor has turned gray (after a couple seconds of inactivity).
 
 Bacteria can detect the predator only in this arc in front of them, and so will not react to the mouse cursor when caught or chased from behind.
-
 
 ## HOW TO USE IT
 
@@ -396,7 +394,6 @@ AVG. # OF FLAGELLA PER BACTERIA is a bivariate graph of the average number of fl
 
 \# CAUGHT is a monitor showing the total number of bacteria caught.
 
-
 ## THINGS TO NOTICE
 
 The # OF BACTERIA EACH VARIATION histogram tends to shift to the right (corresponding to an increasing average speed in the population) if you assume the role of chasing easy prey.
@@ -411,11 +408,9 @@ Setup the model with more initial bacteria. Chase bacteria around trying to catc
 
 Setup and run the model again. This time wait in one location for the bacteria to come to you by placing the predator in one location and holding down the mouse button. All bacteria that run into you will be eaten.
 
-
 ## EXTENDING THE MODEL
 
 A HubNet version of the model with adjustable starting populations of bacteria would help show what happens when two or more competitors assume similar vs. different hunting strategies on the same population at the same time.
-
 
 ## RELATED MODELS
 
@@ -430,7 +425,6 @@ This model is part of the Evolution unit of the ModelSim curriculum, sponsored b
 For more information about the project and the curriculum, see the ModelSim project website: http://ccl.northwestern.edu/modelsim/.
 
 Inspired by EvoDots software: http://faculty.washington.edu/herronjc/SoftwareFolder/EvoDots.html
-
 
 ## HOW TO CITE
 
@@ -449,7 +443,6 @@ Copyright 2015 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2015 Cite: Novak, M. -->
 @#$#@#$#@

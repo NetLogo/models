@@ -357,7 +357,6 @@ You can create buttons that capture interesting patterns of behaviors by using t
 
 RANDOM-SEED initializes the NetLogo random number generator so that it always produces the same set of random numbers, enabling exact reproduction of model runs.
 
-
 ## CREDITS AND REFERENCES
 
 This model is part of the textbook: Wilensky & Rand (2015). Introduction to Agent-Based Modeling: Modeling the Natural, Social and Engineered Complex Systems with NetLogo.
@@ -372,7 +371,6 @@ Bonabeau, E., Funes, P. & Orme, B.  (2003). Exploratory Design Of Swarms. 2nd In
 
 Sweeney, L. B., & Meadows, D. (2010). The systems thinking playbook: Exercises to stretch and build learning and systems thinking capabilities.
 
-
 ## COPYRIGHT AND LICENSE
 
 Copyright 2014 Uri Wilensky.
@@ -382,7 +380,6 @@ Copyright 2014 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2014 Cite: Stonedahl, F., Wilensky, U., Rand, W. -->
 @#$#@#$#@

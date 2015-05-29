@@ -199,7 +199,6 @@ The rules for Vants were originally invented by the artificial life researcher C
 
 A 1991 video of Langton describing and demoing Vants (via screen capture with voice-over) is online at https://www.youtube.com/watch?v=w6XQQhCgq5c (length: 6 minutes)
 
-
 ## HOW TO CITE
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
@@ -217,7 +216,6 @@ Copyright 2005 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2005 -->
 @#$#@#$#@

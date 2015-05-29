@@ -348,7 +348,6 @@ This model uses lists extensively.
 
 Note that NetLogo includes SORT and SORT-BY primitives; normally, you would just use one of these, rather than implementing a sort algorithm yourself.  SORT arranges items in ascending order; SORT-BY lets you specify how items are to be ordered.
 
-
 ## HOW TO CITE
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
@@ -366,7 +365,6 @@ Copyright 2005 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2005 -->
 @#$#@#$#@

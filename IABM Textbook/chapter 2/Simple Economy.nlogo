@@ -189,10 +189,11 @@ Press SETUP to setup the model, then press GO to watch the model develop.
 Examine the various graphs and see how the model unfolds. Let it run for many ticks. The WEALTH DISTRIBUTION graph will change shape dramatically as time goes on. What happens to the WEALTH BY PERCENT graph over time?
 
 ## THINGS TO TRY
+
 Try running the model for many thousands of ticks. Does the distribution stabilize? How can you measure stabilization? Keep track of some individual agents. How do they move?
 
-
 ## EXTENDING THE MODEL
+
 Change the number of turtles.  Does this affect the results?
 Change the rules so agents can go into debt. Does this affect the results?
 Change the basic transaction rule of the model.  What happens if the turtles exchange more than one dollar? How about if they give a random amount to another agent at each tick? Change the rules so that the richer agents have a better chance of being given money? Or a smaller chance? How does this change the results?
@@ -228,7 +229,6 @@ Please cite the textbook as:
 Models of this kind are described in:
 Dragulescu, A. & V.M. Yakovenko, V.M. (2000).  Statistical Mechanics of Money. European Physics Journal B.
 
-
 ## COPYRIGHT AND LICENSE
 
 Copyright 2011 Uri Wilensky.
@@ -238,7 +238,6 @@ Copyright 2011 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2011 -->
 @#$#@#$#@

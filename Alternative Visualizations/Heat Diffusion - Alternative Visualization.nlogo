@@ -410,7 +410,7 @@ Choose a material and then press UPDATE ALPHA based on that material, or set ALP
 1
 
 @#$#@#$#@
-##ACKNOWLEDGMENT
+## ACKNOWLEDGMENT
 
 Ths model is an adaptation of the Heat Diffusion model from the Chemistry and Physics section of the NetLogo Models Library. It uses visualization techniques as recommended in the paper:
 
@@ -491,7 +491,6 @@ Keep track of the units:
 How do the different color schemes map to the gradient of heat?
 The palette extension enables us to use divergent color schemes.
 
-
 ## THINGS TO TRY
 
 Try different materials to observe the heat transfer speed.  How does this compare to physical experiments?
@@ -514,7 +513,6 @@ Try modeling derivative or combined boundary conditions.
 
 The bundled palette extension is used to create color schemes from the widely-used ColorBrewer standard ([http://colorbrewer2.org/](http://colorbrewer2.org/)). Here we use a divergent spectral color scheme.
 
-
 ## CREDITS AND REFERENCES
 
 Thanks to Weiguo Yang for his work on this model.
@@ -525,7 +523,6 @@ http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuideline
 
 The palette extension uses the ColorBrewer color schemes (Harrower & Brewer 2003). It enables  convenient selection and mapping of ColorBrewer Schemes in NetLogo.
 The ColorBrewer webpage (http://colorbrewer2.org/) shows the different color schemes.
-
 
 ## HOW TO CITE
 
@@ -546,7 +543,6 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-Share
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 
 This model was created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
-
 
 <!-- 1998 -->
 @#$#@#$#@

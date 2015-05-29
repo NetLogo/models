@@ -281,7 +281,6 @@ The result of the algorithm is a set of NUM-CENTROIDS points,  (each point is ca
 
 The purpose of the model is to allow you to see how the number of data points, clusters, and centroids interact, and how the algorithm can often find many different sets of clusters for the same dataset.
 
-
 ## HOW IT WORKS
 
 The algorithm works by finding the average position of the elements in NUM-CENTROIDS different clusters. It starts by simply guessing an average position for each of the NUM-CENTROIDS clusters, and then improves these guesses as it goes on.
@@ -342,7 +341,6 @@ _CREATE-TEMPORARY-PLOT-PEN_: The model plots the number of data points for each 
 
 For more information on k-means clustering, see http://en.wikipedia.org/wiki/K-means_clustering. (There are also many other sites on this topic on the web.)
 
-
 ## HOW TO CITE
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
@@ -360,7 +358,6 @@ Copyright 2014 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2014 Cite: Hjorth, A., Head, B. -->
 @#$#@#$#@

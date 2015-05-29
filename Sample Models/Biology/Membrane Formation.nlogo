@@ -283,7 +283,6 @@ First choose how many water molecules and how many lipid pairs to create. Press 
 * TOO-CLOSE-FORCE: How much a molecule should move when it's "too close" to another molecule
 * RANDOM-FORCE: Each molecule will move in a random direction this amount each tick. Increasing this "heats up" the system.
 
-
 ## THINGS TO NOTICE
 
 Often, the lipids will first form circular structures where their hydrophobic ends all point in towards a collection of water molecules. This is called a "micelle". Then, these micelles will join and extend, becoming a long bilayer surface. Finally, sometimes the two ends of a surface will meet, creating a membrane that separates the water on the inside from water on the outside.
@@ -324,7 +323,6 @@ Two papers that describe this work are:
 
 * Bedau M. A., Buchanan A., Gazzola G., Hanczyc M., Maeke T., McCaskill J. S., Poli I. and Packard N. H. (2005). Evolutionary design of a DDPD model of ligation. In Proceedings of the 7th International Conference on Artificial Evolution EA'05. Lecture Notes in Computer Science 3871, 201-212, Springer Verlag.
 
-
 ## HOW TO CITE
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
@@ -342,7 +340,6 @@ Copyright 2013 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2013 Cite: Head, B. -->
 @#$#@#$#@

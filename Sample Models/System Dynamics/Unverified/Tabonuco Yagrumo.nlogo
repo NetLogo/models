@@ -332,7 +332,6 @@ Tabonuco Yagrumo Hybrid
 
 This model is based on the work of The Learning Partnership in the Journey to El Yunque project (PI's include Steven McGee, Jess Zimmerman, and Steven Croft). To view the original materials or to learn more about that project, visit http://elyunque.net/journey.html.
 
-
 ## HOW TO CITE
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
@@ -350,7 +349,6 @@ Copyright 2006 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2006 -->
 @#$#@#$#@

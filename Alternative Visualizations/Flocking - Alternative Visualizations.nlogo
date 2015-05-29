@@ -361,12 +361,11 @@ reduce the step to better observe the interactions
 0
 
 @#$#@#$#@
-##ACKNOWLEDGMENT
+## ACKNOWLEDGMENT
 
 Ths model is an alternate visualization of the Flocking model from the Biology section of the NetLogo Models Library. It uses visualization techniques as recommended in the paper:
 
 Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation, JASSS, 12(2), 1.
-
 
 ## WHAT IS IT?
 
@@ -399,7 +398,6 @@ Value of 1 = "Are the boids aligned". Boids with the same direction have the sam
 Value of 2 = "Are the boids in separation or cohesion mode?". This colors the boids red when they are separating and green when they are cohering.
 Value of 3 = "Do all of the boids end up following the same leader?". Each flock gets a different color.
 Value of 4 = "Are the boids aligned ? Are the boids in separation or cohesion mode?". Boids with the same direction have the same color. Boids in separation mode have the default shape, Boids in cohesion mode have a "line" shape.
-
 
 ## THINGS TO NOTICE
 
@@ -454,7 +452,6 @@ To refer to this model in academic publications, please use:  Wilensky, U. (1998
 
 In other publications, please use:  Copyright 1998 Uri Wilensky.  All rights reserved.  See http://ccl.northwestern.edu/netlogo/models/Flocking for terms of use.
 
-
 ## HOW TO CITE
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
@@ -474,7 +471,6 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-Share
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 
 This model was created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
-
 
 <!-- 1998 -->
 @#$#@#$#@

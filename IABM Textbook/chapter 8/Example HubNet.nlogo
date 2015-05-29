@@ -142,11 +142,12 @@ This model is in the IABM Textbook folder of the NetLogo models library. The mod
 
 ## WHAT IS IT?
 
-This model provides the basic structure of the code for a HubNet model. For this reason, the model is very simple: all that each participant can do is move their turtle around the world. 
+This model provides the basic structure of the code for a HubNet model. For this reason, the model is very simple: all that each participant can do is move their turtle around the world.
 
-This model can be used as a template to build more complex participatory simulations. 
+This model can be used as a template to build more complex participatory simulations.
 
 ## HOW IT WORKS
+
 The model first loads HubNet. It then listens to HubNet's messages, and does one of four things: If a new users has entered, it creates a turtle for that user. If a user presses the 'forward' button, it asks the user's turtle to move forward. If a user clicks somewhere in their turtle's view of the model, it makes their turtle face that direction. And if a user leaves HubNet, it removes that turtle from the world.
 
 ## HOW TO USE IT
@@ -213,7 +214,6 @@ Notice, also, that the COLOR PATCHES button is a bit different from the others: 
 
 This model originally based upon the Template HubNet model from the library. All the models in the HubNet Activities folder of the library more or less share the same basic structure.
 
-
 ## COPYRIGHT AND LICENSE
 
 Copyright 2012 Uri Wilensky.
@@ -223,7 +223,6 @@ Copyright 2012 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2012 Cite: Brady, C. & Wilensky, U. -->
 @#$#@#$#@

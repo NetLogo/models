@@ -933,28 +933,28 @@ For further documentation, see the Participatory Simulations Guide found at http
 
 Contains instructions as to how to quickly setup the model, and clients to run this activity.  The instructions can be found below and can be seen progressively in the Quick Start instructions monitor in the Interface:
 
-Teacher: Follow these directions to setup the HubNet activity.  
-Optional: Zoom In (see Tools in the Menu Bar)  
-Change the traffic grid (using the sliders GRID-SIZE-X and GRID-SIZE-Y) to make enough lights for everyone.  
+Teacher: Follow these directions to setup the HubNet activity.
+Optional: Zoom In (see Tools in the Menu Bar)
+Change the traffic grid (using the sliders GRID-SIZE-X and GRID-SIZE-Y) to make enough lights for everyone.
 Change any other of the settings that you would like to change.  For example, if you plan on running Gridlock in the MANUAL mode, be sure to have AUTO? set to OFF.
 
-Press the SETUP button.  
+Press the SETUP button.
 Press the LOGIN button.
 
-Everyone: Open up a HubNet Client on your machine and input the IP Address of this computer, type your user name in the user name box and press ENTER.  
+Everyone: Open up a HubNet Client on your machine and input the IP Address of this computer, type your user name in the user name box and press ENTER.
 Teacher: Once everyone is logged in and has a light, stop the LOGIN button by pressing it again.
 
-Everyone: Whichever mode AUTO? is set for in NetLogo, you will control your intersection in a different way:  
-If you have chosen MANUAL, you can change the state of your light by pressing the CHANGE LIGHT button.  
+Everyone: Whichever mode AUTO? is set for in NetLogo, you will control your intersection in a different way:
+If you have chosen MANUAL, you can change the state of your light by pressing the CHANGE LIGHT button.
 If you have chosen AUTO, you can change the phase of your light by moving the PHASE slider to a different position.
 
 Teacher: Once everyone is ready, start the simulation by pressing the GO button.
 
-Teacher: You may want to view some of the plots.  Do this by changing the PLOTS-TO-DISPLAY chooser, which changes the plot displayed for everyone.  
-- Choose 'No Plots' to turn off all the plots.  
-- Choose 'Stopped Cars' to see the STOPPED CARS plot.  
-- Choose 'Average Speed of Cars' for the AVERAGE SPEED OF CARS plot.  
-- Choose 'Average Wait Time of Cars' for the AVERAGE WAIT TIME OF CARS plot.  
+Teacher: You may want to view some of the plots.  Do this by changing the PLOTS-TO-DISPLAY chooser, which changes the plot displayed for everyone.
+- Choose 'No Plots' to turn off all the plots.
+- Choose 'Stopped Cars' to see the STOPPED CARS plot.
+- Choose 'Average Speed of Cars' for the AVERAGE SPEED OF CARS plot.
+- Choose 'Average Wait Time of Cars' for the AVERAGE WAIT TIME OF CARS plot.
 - Choose 'All three plots' for all the plots.
 
 Teacher: To run the activity again with the same group, stop the model by pressing the GO button, if it is on.  Change the values of the sliders and switches to the values you want for the new run.  Press the SETUP button.  Once everyone is ready, restart the simulation by pressing the GO button.
@@ -963,39 +963,39 @@ Teacher: To start the simulation over with a new group, stop the model by pressi
 
 ### Buttons
 
-SETUP - generates a new traffic grid based on the current GRID-SIZE-X and GRID-SIZE-Y and NUM-CARS number of cars.  This also clears all the plots.  If the size of the grid has changed the clients will be assigned to new intersections.  
-GO - runs the simulation indefinitely  
-LOGIN - allows users to log into the activity without running the model or collecting data  
+SETUP - generates a new traffic grid based on the current GRID-SIZE-X and GRID-SIZE-Y and NUM-CARS number of cars.  This also clears all the plots.  If the size of the grid has changed the clients will be assigned to new intersections.
+GO - runs the simulation indefinitely
+LOGIN - allows users to log into the activity without running the model or collecting data
 REFRESH PLOTS - redraws the plots based on the current value of PLOTS-TO-DISPLAY.  Useful for looking at different plots when GO is off.
 
 ### Sliders
 
-SPEED-LIMIT - sets the maximum speed for the cars  
-NUMBER - the number of cars in the simulation (you must press the SETUP or RE-RUN buttons to see the change)  
-SIMULATION-SPEED - the speed at which the simulation runs  
-TICKS-PER-CYCLE - sets the maximum value that the phase can be.  This has no effect when the model is run with AUTO? false.  Also, the phase that each user chooses is scaled to be less than or equal to this value.  
-GRID-SIZE-X - sets the number of vertical roads there are (you must press the SETUP button to see the change)  
+SPEED-LIMIT - sets the maximum speed for the cars
+NUMBER - the number of cars in the simulation (you must press the SETUP or RE-RUN buttons to see the change)
+SIMULATION-SPEED - the speed at which the simulation runs
+TICKS-PER-CYCLE - sets the maximum value that the phase can be.  This has no effect when the model is run with AUTO? false.  Also, the phase that each user chooses is scaled to be less than or equal to this value.
+GRID-SIZE-X - sets the number of vertical roads there are (you must press the SETUP button to see the change)
 GRID-SIZE-Y - sets the number of horizontal roads there are (you must press the SETUP button to see the change)
 
 ### Choosers
 
-PLOTS-TO-DISPLAY - determines which plot is drawn in NetLogo:  
-- No Plots.  
-- STOPPED CARS  
-- AVERAGE SPEED OF CARS  
-- AVERAGE WAIT TIME OF CARS  
+PLOTS-TO-DISPLAY - determines which plot is drawn in NetLogo:
+- No Plots.
+- STOPPED CARS
+- AVERAGE SPEED OF CARS
+- AVERAGE WAIT TIME OF CARS
 - All three plots.
 
 ### Switches
 
-CRASH? - toggles car crashing  
-POWER? - toggles the presence of traffic lights  
+CRASH? - toggles car crashing
+POWER? - toggles the presence of traffic lights
 AUTO? - toggles between automatic mode, where the students' lights change on a cycle, and manual in which students directly control the lights with their clients. Lights which aren't associated with clients always change on a cycle.
 
 ### Plots
 
-STOPPED CARS - displays the number of stopped cars over time  
-AVERAGE SPEED OF CARS - displays the average speed of cars over time  
+STOPPED CARS - displays the number of stopped cars over time
+AVERAGE SPEED OF CARS - displays the average speed of cars over time
 AVERAGE WAIT TIME OF CARS - displays the average time cars are stopped over time
 
 ### Client Information
@@ -1022,7 +1022,6 @@ Using HubNet, try running this simulation with AUTO? being true.  Try to find a 
 
 Currently, the maximum speed limit (found in the SPEED-LIMIT slider) for the cars is 1.0.  This is due to the fact that the cars must look ahead the speed that they are traveling to see if there are cars ahead of them.  If there aren't, they speed up.  If there are, they slow down.  Looking ahead for a value greater than 1 is a little bit tricky.  Try implementing the correct behavior for speeds greater than 1.
 
-
 ## HOW TO CITE
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
@@ -1042,7 +1041,6 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-Share
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 
 This activity and associated models and materials were created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
-
 
 <!-- 1999 Stroup -->
 @#$#@#$#@

@@ -813,7 +813,6 @@ All of this takes a fair amount of time to show, so for long runs of the GA you'
 
 Any time you want to pause the algorithm and see how the current best strategy behaves, press GO-FOREVER and wait for the current generation to finish.  Re-check "view updates" if you unchecked it before.  Next, press VIEW-ROBBY'S-ENVIRONMENT.  This displays the grid that Robby moves in, with a new, random distribution of cans.  Then, press STEP-THRU-BEST-STRATEGY.  Each time you press this button, Robby will use the best  strategy from the last generation to take an action in the current environment.  Keep pressing the STEP-THRU-BEST-STRATEGY button to see how the strategy works.  At any time you can press VIEW-ROBBY'S-ENVIRONMENT again to start over with a new environment of cans.  If you want to go back to the "strategy view", press the VIEW-STRATEGIES button.
 
-
 ## THINGS TO NOTICE
 
 Robby's performance gradually improves.  How long does it take to get to a medium or high fitness?
@@ -860,7 +859,6 @@ This NetLogo version of Robby is based on Mitchell's earlier versions in NetLogo
 It uses code from the Simple Genetic Algorithms model (Stonedahl & Wilensky, 2008) in the NetLogo Sample Models Library.
 
 Robby resembles a simpler version of Richard E. Pattis' Karel the Robot, http://en.wikipedia.org/wiki/Karel_(programming_language).
-
 
 ## HOW TO CITE
 

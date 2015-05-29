@@ -414,7 +414,6 @@ Some communication models are also very similar to disease transmission ones:
 - Communication-T-T Network Example
 - Language Change
 
-
 ## NETLOGO FEATURES
 
 One particularity of this model is that it combines three different "variants" in the same model. The way this is accomplished in the code of the model is fairly simple: we have a few `if`-statements making the model behave slightly different, depending on the value of the VARIANT chooser.
@@ -430,7 +429,6 @@ if variant = "environmental" [
 
 One nice thing about this NetLogo feature is that the temporary plot pen that we create is automatically added to the plot's legend (and removed from the legend when the plot is cleared, when calling [`clear-all`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#clear-all)).
 
-
 ## COPYRIGHT AND LICENSE
 
 Copyright 2008 Uri Wilensky.
@@ -440,7 +438,6 @@ Copyright 2008 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2008 Cite: Rand, W., Wilensky, U. -->
 @#$#@#$#@

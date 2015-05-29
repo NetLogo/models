@@ -1158,7 +1158,6 @@ Plots:
 8. Then move your cursor to a spot inside the WORLD & VIEW, to the right of the current position of the orange wall.  Click on this spot and the wall will move and the particle motion will resume.
 8. Adjust the NUMBER-TO-ADD slider and press ADD PARTICLES.
 
-
 ## THINGS TO NOTICE
 
 The ideal gas law relationships can be established in this model, with careful data gathering and mathematical modeling.
@@ -1186,7 +1185,6 @@ This model is part of the Connected Chemistry curriculum.  See http://ccl.northw
 
 We would like to thank Sharona Levy and Michael Novak for their substantial contributions to this model.
 
-
 ## HOW TO CITE
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
@@ -1206,7 +1204,6 @@ Copyright 2005 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2005 ConChem -->
 @#$#@#$#@

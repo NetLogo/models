@@ -266,6 +266,7 @@ When a car sees another car right in front, it matches that car's speed and then
 The EFFICIENT-SPEED slider is the basis of the utility function for the cars. Cars slow down if they are exceeding it.
 
 ## THINGS TO NOTICE
+
 <b>From the Traffic Basic Model:</b>
 
 Traffic jams can start from small "seeds."  These cars start with random positions and random speeds. If some cars are clustered together, they will move slowly, causing cars behind them to slow down, and a traffic jam forms.
@@ -298,7 +299,6 @@ Set DECELERATION to zero.  What happens to the flow?  Gradually increase DECELER
 
 Try very low and very high values of EFFICIENT-SPEED-SPEED. Are there values where the model behavior changes qualitatively?
 
-
 ## EXTENDING THE MODEL
 
 Try other rules for speeding up and slowing down.  Is the rule presented here realistic? Are there other rules that are more accurate or represent better driving strategies?
@@ -325,7 +325,6 @@ The `watch` command is used to make it easier to focus on the red car.
 
 "Gridlock" (a HubNet model) is a participatory simulation version of Traffic Grid
 
-
 ## HOW TO CITE
 
 This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems using NetLogo.”
@@ -344,7 +343,6 @@ Please cite the textbook as:
 
 * Wilensky, U & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
-
 ## COPYRIGHT AND LICENSE
 
 Copyright 2008 Uri Wilensky.
@@ -354,7 +352,6 @@ Copyright 2008 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2008 Cite: Rand, W., Wilensky, U. -->
 @#$#@#$#@

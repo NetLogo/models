@@ -77,7 +77,6 @@ A heading begins with one or more hash marks (`#`). First level headings get one
     ### Third-level heading
     #### Fourth-level heading
 
-
 ## Paragraphs
 
 #### Example
@@ -125,7 +124,6 @@ For bold, surround text with two asterisks:
 You can also combine them:
 _**hello**_ and **_goodbye_**
 
-
 ## Ordered lists
 
 #### Example
@@ -145,7 +143,6 @@ We are about to start an ordered list.
     1. Subitems are indented 2 more spaces (4 in all for a second level item).
   2. The next item in the list starts with the next number.
   3. And so on...
-
 
 ## Unordered lists
 
@@ -317,7 +314,6 @@ Leave a blank line after this one, and then indent four spaces:
         [ fd 1 ]
       tick
     end
-
 
 ## Superscripts and subscripts
 

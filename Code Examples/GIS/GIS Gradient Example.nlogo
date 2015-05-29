@@ -188,6 +188,8 @@ The other GIS code example, GIS General Examples, provides a greater variety of 
 
 ## CREDITS AND REFERENCES
 
+
+
 <!-- 2008 -->
 @#$#@#$#@
 default

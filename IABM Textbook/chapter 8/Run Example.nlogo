@@ -122,7 +122,6 @@ Change the list of commands and see how that affects the results of the model.
 
 Sandpile Simple demonstrates the use of the [`run`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#run) primitive with [tasks](http://ccl.northwestern.edu/netlogo/docs/programming.html#tasks) instead of strings.
 
-
 ## COPYRIGHT AND LICENSE
 
 Copyright 2008 Uri Wilensky.
@@ -132,7 +131,6 @@ Copyright 2008 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2008 Cite: Rand, W. & Wilensky, U. -->
 @#$#@#$#@

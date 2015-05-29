@@ -589,7 +589,6 @@ To get you started, here's some code for creating a roughly equal number of the 
        ]
      ]
 
-
 ## NETLOGO FEATURES
 
 Tags are represented by lists of strings, so the code is heavily dependent on lists. `map`, `reduce`, and `foreach` are used to do list processing.
@@ -603,7 +602,6 @@ Sample Models > Biology > Wolf Sheep Predation
 ## CREDITS AND REFERENCES
 
 Holland, J. (1995). _Hidden Order: How Adaptation Builds Complexity_. Addison-Wesley, Reading, Massachusetts.
-
 
 ## HOW TO CITE
 
@@ -622,7 +620,6 @@ Copyright 2005 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2005 -->
 @#$#@#$#@

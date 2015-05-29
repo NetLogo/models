@@ -393,7 +393,6 @@ The problem is taken from a British mathematics textbook.
 
 For a fuller discussion, see Wilensky, U. (1996). Modeling Rugby: Kick First, Generalize Later? International Journal of Computers for Mathematical Learning. Vol. 1,  No. 1. p. 124 - 131. http://ccl.northwestern.edu/papers/rugby/
 
-
 ## HOW TO CITE
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
@@ -417,7 +416,6 @@ This model was created as part of the project: CONNECTED MATHEMATICS: MAKING SEN
 This model was developed at the MIT Media Lab using CM StarLogo.  See Wilensky, U. (1993). Thesis - Connected Mathematics: Building Concrete Relationships with Mathematical Knowledge. Adapted to StarLogoT, 1997, as part of the Connected Mathematics Project.  Adapted to NetLogo, 2001, as part of the Participatory Simulations Project.
 
 This model was converted to NetLogo as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227. Converted from StarLogoT to NetLogo, 2001.
-
 
 <!-- 1997 2001 Wilensky -->
 @#$#@#$#@

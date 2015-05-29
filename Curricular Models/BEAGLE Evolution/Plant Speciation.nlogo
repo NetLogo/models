@@ -667,7 +667,6 @@ The model is inspired by a paper by Antonovics (2006) which describes a real-lif
 
 For a short relevant background reading try http://en.wikipedia.org/wiki/Speciation
 
-
 ## HOW IT WORKS
 
 The model simulates individual plant organisms that inhabit a rectangular grid of patches. Each tick, the model simulates either one day in a year of a plant or one year (a complete generation of plant life): the currently existing plants fertilize each other, produce offspring, and may die (depending if the plants are set to be annual or perennial plants).
@@ -700,7 +699,6 @@ As long as C is less than both B and A, then you will have a fitness function th
 
        set fitness (1 - m) * (1 - .4 * t) + m * (1 - .4 * (1 - t))
 
-
 ## HOW TO USE IT
 
 PLANT-TYPE: When set to "annual", all old plants die at the end of the year. "Perennial" allows some old plants to remain behind to re-flower the next year.
@@ -723,13 +721,11 @@ CHANCE-TOLERANCE-MUTATION, CHANCE-FLOWER-TIME-MUTATION, FLOWER-TIME-MUTATION-STD
 
 There are a variety of plots. The histograms show the distribution of metal tolerance and flowering time for plants on the left and right side of the environment. Graphs on the right show the mean tolerance and flowering time for the left and right sides of the environment over time. The "simultaneous flowering" graph shows the probability that a randomly chosen plant from the left flowers at the same time as a randomly chosen plant from the right--that is, the probability that they can fertilize each other. If this nears 0 speciation has occurred--the left and right sides are no longer interbreeding. Though the model only rarely reaches this value as 0, it does often achieve stable states very close to 0, showing that the first step in speciation has been achieved -- that a population has split into two sub-populations that are co-evolving behavior to reinforce sexual isolation from one another.
 
-
 ## THINGS TO NOTICE
 
 The simplest case is to turn off all recombination and run the model with the default settings.  Notice that metal tolerance mutations will accumulate in a few individuals before simultaneous flower time begins to drop.  Speciation (sexual isolation) emerges after specialization of the population into two groups, to decrease gene flow between the groups and further increase odds of survival for offspring.
 
 When the whole population interbreeds there is a homogenizing force that keeps the plants on the right from becoming too metal tolerant--their genes are constantly diluted by genes from the intolerant left-side plants. Eventually, there will be a runaway effect where the left and right sides develop somewhat different flowering times (due to genetic drift), which decreases the flow of genes between the sides allowing the right to develop higher metal tolerance. This makes it increasingly disadvantageous to breed with left-side plants, creating selection pressure to increase the difference in flowering times further until the left and right are completely non-interbreeding and thus might be called separate species--this is called "reproductive isolation", the last step of speciation.
-
 
 ## THINGS TO TRY
 
@@ -743,28 +739,23 @@ Because of what is described above, parapatric speciation (in which two budding 
 
 Playing with the other parameters of the model can alter the details of what happens; in particular the flow of genes between the sides is affected by fertilization-radius and flower-duration in proportion to the world size.
 
-
 ## EXTENDING THE MODEL
 
 Allopatric speciation could be modeled by introducing physical barriers into the environment.
 
-
-##NETLOGO FEATURES
+## NETLOGO FEATURES
 
 Complex plotting procedures:  The histograms plot the populations of two regions each with a different color pen.
-
 
 ## RELATED MODELS
 
 All the models from the BEAGLE curriculum.
-
 
 ## CREDITS AND REFERENCES
 
 This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
 
 Antonovics, J. (2006). "Evolution in closely adjacent plant populations X: long-term persistence of reproductive isolation at a mine boundary". Heredity, 97(1), p33-37.
-
 
 ## HOW TO CITE
 
@@ -783,7 +774,6 @@ Copyright 2012 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2012 Cite: Novak, M., McGlynn, G. -->
 @#$#@#$#@

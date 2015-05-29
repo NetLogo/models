@@ -362,13 +362,11 @@ This model is in the IABM Textbook folder of the NetLogo models library. The mod
 
 The general intent of this model is to simulate how individuals within a limited geographic region decide to buy tickets to a live event.
 
-
 ## HOW IT WORKS
 
 During setup, census tract definitions and census tract data are read from external files. The GIS extension is used to read in the tract definitions. The data is read from census files. After this data is read in, households are created in each patch to represent the underlying population present in those location. Finally, a venue is randomly created somewhere in the space.
 
 Once the model runs, in each time step, agents who have not bought tickets calculate the expected utility of attending the event. Then, based on that probability, they decide whether or not to buy the ticket at that time step. This random draw simulates the fact that the particular period in which they decide or not to buy the ticket is stochastic. To make it more realistic you can elaborate the model so that it determines who buys early and who buys late.
-
 
 ## HOW TO USE IT
 
@@ -382,7 +380,6 @@ CONSUMER-EXPECTED-VALUE controls what value the consumers expect to get out of a
 
 DISTANCE-SENSITIVITY controls how sensitive consumers are about the distance they are from the event.
 
-
 ## THINGS TO NOTICE
 
 The basic pattern grows outward from the venue.
@@ -391,11 +388,9 @@ The density of sales decreases as we get further away from the venue.
 
 The number of sales increases quickly at first, and then slows down.
 
-
 ## THINGS TO TRY
 
 Adjust the CONSUMER-UNCERTAINTY and CONSUMER-EXPECTED-VALUE and see how it affects the results. Number of sales should increase as uncertainty decreases and should decrease as the expected value decreases.
-
 
 ## EXTENDING THE MODEL
 
@@ -403,23 +398,19 @@ Make the process of when consumers buy less stochastic.
 
 Add pricing tiers.
 
-
 ## NETLOGO FEATURES
 
 This model demonstrates the use of the NetLogo GIS extension. It uses the extension to load two GIS datasets for New York City: one for the census tracts and one for the roads. Information about the population in the various census tracts is then loaded from a text file using NetLogo's `file-*` primitives.
 
-
 ## RELATED MODELS
 
 GIS General Examples
-
 
 ## CREDITS AND REFERENCES
 
 This model was inspired by the work of Peggy Tseng and Wendy Moe. Especially, Peggy's dissertation:
 
 Tseng, P. (2009) Effects of Performance Schedules on Event Ticket Sales. Dissertation, University of Maryland Robert H. Smith School of Business. Chair: Moe, W.
-
 
 ## COPYRIGHT AND LICENSE
 
@@ -430,7 +421,6 @@ Copyright 2011 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2011 Cite: Rand, W. & Wilensky, U. -->
 @#$#@#$#@

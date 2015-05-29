@@ -307,17 +307,15 @@ The ants only respond to chemical levels between 0.05 and 2.  The lower limit is
 
 In the `uphill-chemical` procedure, the ant "follows the gradient" of the chemical. That is, it "sniffs" in three directions, then turns in the direction where the chemical is strongest. You might want to try variants of the `uphill-chemical` procedure, changing the number and placement of "ant sniffs."
 
-
 ## NETLOGO FEATURES
 
 The built-in `diffuse` primitive lets us diffuse the chemical easily without complicated code.
 
 The primitive `patch-right-and-ahead` is used to make the ants smell in different directions without actually turning.
 
-
 ## RELATED MODELS
-This model is a slight modification of the Ants models in the Biology section of the NetLogo models library.
 
+This model is a slight modification of the Ants models in the Biology section of the NetLogo models library.
 
 ## HOW TO CITE
 
@@ -337,7 +335,6 @@ Please cite the textbook as:
 
 * Wilensky, U & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
-
 ## COPYRIGHT AND LICENSE
 
 Copyright 1997 Uri Wilensky.
@@ -349,7 +346,6 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-Share
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 
 This model was created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
-
 
 <!-- 1997 -->
 @#$#@#$#@

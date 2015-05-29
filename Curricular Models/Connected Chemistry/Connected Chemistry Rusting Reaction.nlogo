@@ -822,7 +822,6 @@ The catalytic role of water is simplified to be a geometric catalyst (a cluster 
 
 The contributing role of UV radiation is simplified to be a localized and temporary energy boost in the vibrational energy of the iron atoms, which in turn brings the reactants closer to the activation energy required for the reaction.
 
-
 ## HOW IT WORKS
 
 The gas particles are modeled as hard balls with no internal energy except that which is due to their motion.  Solid particles are modeled as hard balls with internal energy represented as rotational energy.  Collisions between particles are elastic.
@@ -850,9 +849,7 @@ MOUSE-INTERACTION: Gives the user options to "add water", "remove water", "remov
 The SETUP button will set the initial conditions.
 The GO/STOP button will run the simulation.
 
-
 ## THINGS TO NOTICE
-
 
 In this model, iron atoms adjacent to a patch with water and the necessary oxygen molecule reactants in it are pulled away from the iron metal block when rust forms.  This leads to the deposition of rust above the surface of the iron as well as pitting of the iron block.  This pitting effect occurs in reality.
 
@@ -860,11 +857,9 @@ As you drag away rust (using the mouse cursor), you expose more iron to the air,
 
 The model demonstrates other emergent phenomena of when oxygen and iron react to form rust.  Some of these phenomena include how surface area affects the rate of the reaction, how temperature of the reactants affects the rate of the reaction, and how a catalyst (such as water) can speed up the rate of a reaction.  Other phenomena, such as atomic conservation in chemical reactions and limiting agents in chemical reactions are also visible in the model.
 
-
 ## THINGS TO TRY
 
 Explore different surface geometries of iron.  How does the surface area affect the rate of the reaction?
-
 
 ## EXTENDING THE MODEL
 
@@ -875,7 +870,6 @@ Water could be modeled as particles (H<sub>2</sub>O molecules) instead of colore
 Salt water vs. fresh water could be added to the model, such that the salt water served as a better catalyst than fresh water.
 
 UV light energy that is absorbed by the iron atom and converted to vibrational energy (particulate kinetic energy) could be reradiated as infra-red energy or conducted to particles in contact with each iron atom.  Currently such energy remains trapped in the iron atom unless a chemical reaction happens.
-
 
 ## NETLOGO FEATURES
 
@@ -888,7 +882,6 @@ When a gas particle is detected as having accidentally entered into the space of
 This model is part of the Connected Chemistry curriculum.  See http://ccl.northwestern.edu/curriculum/chemistry/.
 
 We would like to thank Sharona Levy and Michael Novak for their substantial contributions to this model.
-
 
 ## HOW TO CITE
 
@@ -909,7 +902,6 @@ Copyright 2007 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2007 ConChem Cite: Novak, M. -->
 @#$#@#$#@

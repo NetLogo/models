@@ -851,7 +851,6 @@ I discovered that in the patterns where the turtle moves a number of steps forwa
 
 It is important to understand that these patterns are able to be created because they obey certain basic rules about geometry.  For example, I mentioned above that all the functions create polygons. This is due to the fact that every polygon must have the interior sum of its angles equal to 360 degrees.  However, certain slight alterations like those mentioned above, are enough to change the shape and create a new one.  For example, if the DIRECTION slider started off at 0 in pattern-1, every hatching turtle would simply be moving forward by 0.5 steps as it was creating its pattern.  However, if we increase the slider by increments of 0.1, we notice that its movements seem to be getting tighter and tighter until it remains fixed in one place and keeps revolving around a point.
 
-
 ## HOW TO CITE
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
@@ -873,7 +872,6 @@ Commercial licenses are also available. To inquire about commercial licenses, pl
 This model was created as part of the project: CONNECTED MATHEMATICS: MAKING SENSE OF COMPLEX PHENOMENA THROUGH BUILDING OBJECT-BASED PARALLEL MODELS (OBPML).  The project gratefully acknowledges the support of the National Science Foundation (Applications of Advanced Technologies Program) -- grant numbers RED #9552950 and REC #9632612.
 
 This model was converted to NetLogo as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227. Converted from StarLogoT to NetLogo, 2001.
-
 
 <!-- 1998 2001 -->
 @#$#@#$#@

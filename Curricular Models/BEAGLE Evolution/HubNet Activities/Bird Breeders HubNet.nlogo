@@ -1467,7 +1467,6 @@ Sex:            ZZ   male          or    WZ female
 
 Along the edge of the WORLD & VIEW are cages to store birds in.  In the middle of the WORLD & VIEW are six sites to breed birds in.  In the corner of the model is a DNA sequencer that can be used to discover the genotype of a bird.  In the rest of the model are spaces with grass in them where birds or eggs can put to be released into the wild.
 
-
 ## HOW TO USE IT
 
 'Mirror 2D view on clients' MUST be ticked before learners connect their HubNet clients to the model. If learners connect before this is ticked, ask them to disconnect, tick the 'Mirror 2D...' box, and ask them to reconnect.
@@ -1516,13 +1515,11 @@ NUMBER OF RECESSIVE ALLELES IN GENE POOL graphs the number of recessive alleles 
 NUMBER OF DOMINANT ALLELES IN GENE POOL graphs the number of dominant alleles (A, B, C, and D) in the gene pool vs. the number of selections (the sum of the # of birds/eggs released + # of eggs hatched).
 NUMBER OF BIRDS WITH # OF DESIRABLE VARIATIONS graphs all the phenotype frequencies in the population.  It graphs the number of birds that show 1, 2, 3, and 4 of the 4 possible desirable variations in the traits that you are breeding for.
 
-
 ## THINGS TO NOTICE
 
 Even though birds produce four eggs when they mate, the four eggs may or may not produce the expected probabilities of a theoretical Punnett square.  This is because the expected probabilities represent what would result after an infinite set of crosses.
 
 If additional birds occupy a nesting site, then less than four eggs will be laid, since fewer patches are available.
-
 
 ## THINGS TO TRY
 
@@ -1532,11 +1529,9 @@ Write down the breeding plan you followed to create a line of the fancy bird.  C
 
 Track the changes in the frequency of recessive and dominant alleles.  Compare the general trends in the graph to the fluctuations that appear.  What are some things that cause the fluctuations?
 
-
 ## EXTENDING THE MODEL
 
 The model shows one scenarios of breeding birds.  The bird shapes could be changed to show breeding of other virtual creatures (reptiles, cats, fish, etc)
-
 
 ## NETLOGO FEATURES
 
@@ -1544,16 +1539,13 @@ Bird Breeders uses NetLogo lists as maps to easily keep track of how genotypes r
 
 The order of how breeds are defined, determine which breed appears on top of the others in the WORLD & VIEW.  Earlier defined breeds (such as grasses) are on the bottom layer.  This allows later defined breeds (such as eggs or birds) to move across and in front of them as the travel from cages to breeding sites.
 
-
 ## RELATED MODELS
 
 Plant Hybridization and Fish Tank Genetic Drift from the BEAGLE curricular folder.
 
-
 ## CREDITS AND REFERENCES
 
 This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
-
 
 ## HOW TO CITE
 
@@ -1572,7 +1564,6 @@ Copyright 2011 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2011 Cite: Novak, M. -->
 @#$#@#$#@

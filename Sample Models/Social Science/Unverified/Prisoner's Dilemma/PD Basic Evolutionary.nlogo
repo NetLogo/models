@@ -240,11 +240,9 @@ In an Iterated Prisoner's Dilemma where you have more than two players and multi
             (x, y) = x: your score, y: your partner's score
             Note: higher the score (amount of the benefit), the better.
 
-
 ## HOW TO USE IT
 
 Decide what percentage of patches should cooperate at the initial stage of the simulation and change the INITIAL-COOPERATION slider to match what you would like.  Next, determine the DEFECTION-AWARD multiple (mentioned as alpha in the payoff matrix above) for defecting or not cooperating.  The Defection-Award multiple varies from range of 0 to 3.  Press SETUP and note that red patches (that will defect) and blue patches (cooperate) are scattered across the  .  Press GO to make the patches interact with their eight neighboring patches.  First, they count the number of neighboring patches that are cooperating.  If a patch is cooperating, then its score is number of neighboring patches that also cooperated.   If a patch is defecting, then its score is the product of the number of neighboring patches who are cooperating and the Defection-Award multiple.
-
 
 ## HOW IT WORKS
 
@@ -256,7 +254,6 @@ If a patch is blue, then the patch cooperated in the previous and current round.
 If a patch is red, then the patch defected in the previous iteration as well as the current round.
 If a patch is green, then the patch cooperated in the previous round but defected in the current round.
 If a patch is yellow, then the patch defected in the previous round but cooperated in the current round.
-
 
 ## THINGS TO NOTICE
 
@@ -270,7 +267,6 @@ Increase the Defection-Award multiple by moving the "Defection-Award" slider (ju
 
 At each start of the model, either set the initial-cooperation percentage to be very high or very low (move the slider for "initial-cooperation"), and proportionally value the Defection-Award multiple (move the slider for "Defection-Award" in the same direction) with regards to the initial-cooperation percentage.  Which color dominates the world, when the initial-cooperation is high and the Defection-Award is high?  Which color dominates the world when initial-cooperation is low and the Defection-Award multiple is also low?
 
-
 ## EXTENDING THE MODEL
 
 Alter the code so that the patches have a strategy to implement.  For example, instead of adopting to cooperated or defect based on the neighboring patch with the maximum score.  Instead, let each patch consider the history of cooperation or defection of it neighboring patches, and allow it to decide whether to cooperate or defect as a result.
@@ -283,7 +279,6 @@ Implement these four strategies:
 4. Defect-all-the-time: regardless of neighboring patches' history, defect.
 
 How are the cooperating and defecting patches distributed?  Which strategy results with the highest score on average?  On what conditions will this strategy be a poor strategy to use?
-
 
 ## HOW TO CITE
 
@@ -304,7 +299,6 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-Share
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 
 This model was created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
-
 
 <!-- 2002 -->
 @#$#@#$#@

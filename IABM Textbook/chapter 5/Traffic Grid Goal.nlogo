@@ -719,13 +719,11 @@ This model is in the IABM Textbook folder of the NetLogo models library. The mod
 
 The code for this model differs somewhat from the code in the textbook. The textbook code calls the STAY procedure, which is not defined here. One of our suggestions in the "Extending the model" section below does, however, invite you to write a STAY procedure.
 
-
 ## WHAT IS IT?
 
 The Traffic Grid Goal model simulates traffic moving in a city grid. It allows you to control traffic lights and global variables, such as the speed limit and the number of cars, and explore traffic dynamics.
 
 This model extends the Traffic Grid model by giving the cars goals, namely to drive to and from work. It is the third in a series of traffic models that use different kinds of agent cognition. The agents in this model use goal-based cognition.
-
 
 ## HOW IT WORKS
 
@@ -734,7 +732,6 @@ Each time step, the cars face the next destination they are trying to get to (ei
 Each car has a house patch and a work patch. (The house patch turns yellow and the work patch turns orange for a car that you are watching.) The cars will alternately drive from their home to work and then from their work to home.
 
 There are two different ways the lights can change. First, the user can change any light at any time by making the light current, and then clicking CHANGE LIGHT. Second, lights can change automatically, once per cycle. Initially, all lights will automatically change at the beginning of each cycle.
-
 
 ## HOW TO USE IT
 
@@ -786,20 +783,17 @@ AVERAGE SPEED OF CARS -- displays the average speed of cars over time.
 
 AVERAGE WAIT TIME OF CARS -- displays the average time cars are stopped over time.
 
-
 ## THINGS TO NOTICE
 
 How is this model different than the Traffic Grid model? The one thing you may see at first glance is that cars move in all directions instead of only left to right and top to bottom. You will probably agree that this looks much more realistic.
 
 Another thing to notice is that, sometimes, cars get stuck: as explained in the book this is because the cars are mesuring the distance to their goals "as the bird flies", but reaching the goal sometimes require temporarily moving further from it (to get around a corner, for instance). A good way to witness that is to try the WATCH A CAR button until you find a car that is stuck. This situation could be prevented if the agents were more cognitively sophisticated. Do you think that it could also be avoided if the streets were layed out in a pattern different from the current one?
 
-
 ## THINGS TO TRY
 
 You can change the "granularity" of the grid by using the GRID-SIZE-X and GRID-SIZE-Y sliders. Do cars get stuck more often with bigger values for GRID-SIZE-X and GRID-SIZE-Y, resulting in more streets, or smaller values, resulting in less streets? What if you use a big value for X and a small value for Y?
 
 In the original Traffic Grid model from the model library, removing the traffic lights (by setting the POWER? switch to Off) quickly resulted in gridlock. Try it in this version of the model. Do you see a gridlock happening? Why do you think that is? Do you think it is more realistic than in the original model?
-
 
 ## EXTENDING THE MODEL
 
@@ -809,13 +803,11 @@ Can you enable the cars to stay at home and work for some time before leaving? T
 
 At the moment, only two of the four arms of each intersection have traffic lights on them. Having only two lights made sense in the original Traffic Grid model because the streets in that model were one-way streets, with traffic always flowing in the same direction. In our more complex model, cars can go in all directions, so it would be better if all four arms of the intersection had lights. What happens if you make that modification? Is the flow of traffic better or worse?
 
-
 ## RELATED MODELS
 
 This model is an adaptation of the TRAFFIC GRID model from the Social Sciences section of the NetLogo models library.
 
 It is also related to the TRAFFIC-BASIC-UTILITY and TRAFFIC-BASIC-ADAPTIVE models in the chapter 5 folder of the IABM TEXTBOOK folder. Each of the three traffic models from chapter five of the textbook demonstrates a different kind of agent cognition.
-
 
 ## COPYRIGHT AND LICENSE
 
@@ -826,7 +818,6 @@ Copyright 2008 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2008 Cite: Rand, W., Wilensky, U. -->
 @#$#@#$#@

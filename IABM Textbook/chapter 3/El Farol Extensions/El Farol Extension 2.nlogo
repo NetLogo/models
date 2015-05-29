@@ -347,8 +347,6 @@ The MAX REWARD monitor shows the highest reward for any agent.
 The MIN REWARD monitor shows the lowest reward for any agent.
 The AVG REWARD monitor shows the mean reward for all agents.
 
-
-
 ## THINGS TO NOTICE
 
 The green part of the world represents the homes of the patrons, while the blue part of the world represents the El Farol Bar. Over time the attendance will increase and decrease but its mean value comes close to the OVERCROWDING-THRESHOLD.
@@ -412,7 +410,6 @@ This model is inspired by a paper by W. Brian Arthur. "Inductive Reasoning and B
 
 David Fogel et al. also built a version of this model using a genetic algorithm.  "Inductive reasoning and bounded rationality reconsidered", Fogel, D.B.; Chellapilla, K.; Angeline, P.J., IEEE Transactions on Evolutionary Computation, 1999, v3n2, p142-146.
 
-
 ## COPYRIGHT AND LICENSE
 
 Copyright 2007 Uri Wilensky.
@@ -422,7 +419,6 @@ Copyright 2007 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2007 Cite: Rand, W., Wilensky, U. -->
 @#$#@#$#@

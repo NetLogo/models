@@ -599,7 +599,6 @@ Identifying Things in the Maze:
 -- Colorful Ghost with Eyes:
     These are the Ghosts - The antagonists.
 
-
 ## THINGS TO TRY
 
 Make a maze by strategically placing gates that has corridors that only Ghosts can travel down, but Pac-Man has to circum-navigate.
@@ -617,7 +616,6 @@ This model makes use of breeds, create-<breed>, user-message, user-input, user-y
 ## RELATED MODELS
 
 Pac-Man
-
 
 ## HOW TO CITE
 
@@ -638,7 +636,6 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-Share
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 
 This model was created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
-
 
 <!-- 2003 -->
 @#$#@#$#@

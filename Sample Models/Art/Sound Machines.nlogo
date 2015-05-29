@@ -758,7 +758,6 @@ This model is a streamlined variant of the Machines 2005 model created and submi
 
 Thanks to James for creating an earlier version which was silent; Seth Tisue for first adding sound to it; and James again for his further improvements, and for releasing the model under a Creative Commons License.
 
-
 ## HOW TO CITE
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
@@ -769,7 +768,7 @@ If you mention this model in a publication, we ask that you include these citati
 
 ## COPYRIGHT AND LICENSE
 
-Copyright 2005 Uri Wilensky. Includes code by James P. Steiner. 
+Copyright 2005 Uri Wilensky. Includes code by James P. Steiner.
 
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 2.5 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/2.5/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 

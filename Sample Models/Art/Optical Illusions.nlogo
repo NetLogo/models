@@ -379,7 +379,6 @@ Other models that were created "for fun" include Frogger, Lunar Lander and other
 
 Illusion #6 is based on the cover of the album "Merriweather Post Pavilion" by Animal Collective, which in turn is based on an illusion by Akiyoshi Kitaoka.
 
-
 ## HOW TO CITE
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
@@ -397,7 +396,6 @@ Copyright 2005 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2005 -->
 @#$#@#$#@

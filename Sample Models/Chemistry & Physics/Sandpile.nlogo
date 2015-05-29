@@ -525,7 +525,6 @@ Bak, P., Tang, C., & Wiesenfeld, K. 1987. Self-organized criticality: An explana
 
 The bureaucrats-and-folders metaphor is due to Peter Grassberger.
 
-
 ## HOW TO CITE
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:

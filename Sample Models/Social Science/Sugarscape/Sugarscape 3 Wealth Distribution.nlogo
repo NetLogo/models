@@ -387,7 +387,6 @@ The WEALTH-DISTRIBUTION histogram on the right shows the distribution of wealth.
 
 The LORENZ CURVE plot shows what percent of the wealth is held by what percent of the population, and the the GINI-INDEX V. TIME plot shows a measure of the inequity of the distribution over time.  A GINI-INDEX of 0 equates to everyone having the exact same amount of wealth (collected sugar), and a GINI-INDEX of 1 equates to the most skewed wealth distribution possible, where a single person has all the sugar, and no one else has any.
 
-
 ## THINGS TO NOTICE
 
 After running the model for a while, the wealth distribution histogram shows that there are many more agents with low wealth than agents with high wealth.
@@ -419,7 +418,6 @@ For more explanation of the Lorenz curve and the Gini index, see the Info tab of
 
 Epstein, J. and Axtell, R. (1996). Growing Artificial Societies: Social Science from the Bottom Up.  Washington, D.C.: Brookings Institution Press.
 
-
 ## HOW TO CITE
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
@@ -437,7 +435,6 @@ Copyright 2009 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2009 Cite: Li, J. -->
 @#$#@#$#@

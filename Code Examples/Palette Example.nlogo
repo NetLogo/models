@@ -109,23 +109,19 @@ scheme
 
 This model demonstrates basic usage of the `palette` extension.
 
-
 ## HOW TO USE IT
 
 Select the color scheme that you want in the SCHEME chooser and then click SETUP.
 
-
 ## HOW IT WORKS
 
 The model assigns fractional values from 0 to 10 to patches, from bottom to top, left to right. The values are displayed, rounded, as patch labels. The model demonstrates various ways of using the `palette` extension to assign colors to patches according to these values.
-
 
 ## NETLOGO FEATURES
 
 The `palette:scale-scheme`, `palette:scale-gradient` and `palette:scheme-colors` primitives of the `palette` extension are used here.
 
 See [the documentation for the extension](https://github.com/NetLogo/Palette-Extension/blob/master/README.md) for more details.
-
 
 ## CREDITS AND REFERENCES
 

@@ -620,7 +620,6 @@ Plants have two possible genes that determine their expression of leaf pattern: 
 CC or Cc or cC - solid green leaf
 cc - variegated green and yellow leaf
 
-
 ## HOW TO USE IT
 
 Buttons:
@@ -704,7 +703,6 @@ This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simev
 
 Other references to Gregor Mendel's 1865 paper "Versuche ueber Pflanzen-Hybriden" and a revised version of the English translation by C.T. Druery and William Bateson, "Experiments in Plant Hybridization", can be found at http://www.mendelweb.org/Mendel.html
 
-
 ## HOW TO CITE
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
@@ -722,7 +720,6 @@ Copyright 2007 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
 
 <!-- 2007 Cite: Novak, M. -->
 @#$#@#$#@
