@@ -420,7 +420,7 @@ If you mention this model in a publication, we ask that you include these citati
 
 * Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
-To cite the NIELS curriculum as a whole, please use: Sengupta, P. and Wilensky, U. (2008). NetLogo NIELS curriculum. http://ccl.northwestern.edu/NIELS. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+To cite the NIELS curriculum as a whole, please use: Sengupta, P. and Wilensky, U. (2008). NetLogo NIELS curriculum. http://ccl.northwestern.edu/NIELS/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 ## COPYRIGHT AND LICENSE
 
