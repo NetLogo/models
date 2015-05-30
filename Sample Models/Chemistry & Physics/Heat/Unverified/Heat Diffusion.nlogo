@@ -427,10 +427,6 @@ There are four buttons with the following functions:
 
 The TIME monitor shows how many time steps the model has gone through.
 
-## THINGS TO TRY
-
-Set the paramters on the temperature sliders.  Pick a value for ALPHA (or pick MATERIAL-TYPE and press UPDATE ALPHA).  After you have changed all the sliders to values you like, press Setup followed by GO or GO ONCE.
-
 ## THINGS TO NOTICE
 
 How does the equilibrium temperature distribution vary for different edge temperature settings?
@@ -448,6 +444,8 @@ Keep track of the units:
 </table>
 
 ## THINGS TO TRY
+
+Set the parameters on the temperature sliders.  Pick a value for ALPHA (or pick MATERIAL-TYPE and press UPDATE ALPHA).  After you have changed all the sliders to values you like, press Setup followed by GO or GO ONCE.
 
 Try different materials to observe the heat transfer speed.  How does this compare to physical experiments?
 
