@@ -468,10 +468,6 @@ RGB - colors the plate from a spectrum of RGB colors based on its temperature, u
 HSB - colors the plate from a spectrum of HSB colors based on its temperature
 DIVERGENT - colors the plate from a spectrum of colors from a divergent palette based on its temperature, uses the Palette extension
 
-## THINGS TO TRY
-
-Set the paramters on the temperature sliders.  Pick a value for ALPHA (or pick MATERIAL-TYPE and press UPDATE ALPHA).  After you have changed all the sliders to values you like, press SETUP followed by GO or GO ONCE.
-
 ## THINGS TO NOTICE
 
 How does the equilibrium temperature distribution vary for different edge temperature settings?
@@ -492,6 +488,8 @@ How do the different color schemes map to the gradient of heat?
 The palette extension enables us to use divergent color schemes.
 
 ## THINGS TO TRY
+
+Set the parameters on the temperature sliders.  Pick a value for ALPHA (or pick MATERIAL-TYPE and press UPDATE ALPHA).  After you have changed all the sliders to values you like, press SETUP followed by GO or GO ONCE.
 
 Try different materials to observe the heat transfer speed.  How does this compare to physical experiments?
 
