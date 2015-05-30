@@ -472,10 +472,6 @@ What would the effect of adding a catalyst to the system be?  Add a catalyst bre
 
 Add a monitor that measures the equilibrium constant for the system.  Is it really a constant?
 
-## RELATED MODELS
-
-Simple Kinetics 1, Simple Kinetics 3
-
 ## NETLOGO FEATURES
 
 Notice the use of breeds in the model.
