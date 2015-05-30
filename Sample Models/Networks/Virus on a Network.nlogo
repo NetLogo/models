@@ -346,9 +346,13 @@ Though it is not used in this model, there exists a network extension for NetLog
 
 ## HOW TO CITE
 
-If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
 
 * Stonedahl, F. and Wilensky, U. (2008).  NetLogo Virus on a Network model.  http://ccl.northwestern.edu/netlogo/models/VirusonaNetwork.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
 
 * Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 

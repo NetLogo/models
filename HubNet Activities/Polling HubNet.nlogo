@@ -717,9 +717,13 @@ Right now the activity allows you to clear all the questions, clear all the clie
 
 ## HOW TO CITE
 
-If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
 
 * Wilensky, U. and Stroup, W. (2000).  NetLogo HubNet Polling HubNet model.  http://ccl.northwestern.edu/netlogo/models/HubNetPollingHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
 
 * Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 

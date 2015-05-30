@@ -815,9 +815,13 @@ The various Wolf-Sheep models are non-HubNet versions of a similar model.  Also 
 
 ## HOW TO CITE
 
-If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
 
 * Wilensky, U. (2002).  NetLogo HubNet Predator Prey Game HubNet model.  http://ccl.northwestern.edu/netlogo/models/HubNetPredatorPreyGameHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
 
 * Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 

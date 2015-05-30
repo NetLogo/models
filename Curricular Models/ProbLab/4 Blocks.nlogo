@@ -323,9 +323,13 @@ You may want to monitor different aspects of the probabilistic experiment, to an
 
 ## HOW TO CITE
 
-If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
 
 * Abrahamson, D. and Wilensky, U. (2006).  NetLogo 4 Blocks model.  http://ccl.northwestern.edu/netlogo/models/4Blocks.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
 
 * Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
