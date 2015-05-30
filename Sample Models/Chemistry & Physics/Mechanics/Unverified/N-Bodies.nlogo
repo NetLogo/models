@@ -529,8 +529,6 @@ The KEEP-CENTERED? switch controls whether the simulation will re-center itself 
 
 If you want to design your own custom system, press SETUP to initialize the model, and then use the CREATE-PARTICLE button to create a particle with the settings set with the INITIAL-VELOCITY-X, INITIAL-VELOCITY-Y, INITIAL-MASS, and PARTICLE-COLOR sliders.  Particles are created by clicking in the View where you want to place the particle while the CREATE-PARTICLE button is running.  (Note, if KEEP-CENTERED? is On the particles will always move so that the center of mass is at the origin.)
 
-## THINGS TO TRY
-
 After you have set the sliders to the desired levels, press SETUP to initialize all particles, or SETUP TWO-PLANET to setup a predesigned stable two-planet system.  Next, press GO to begin running the simulation. You have two choices: you can either let it run without stopping (the GO forever button), or you can just advance the simulation by one time-step (the GO ONCE button). It may be useful to step through the simulation moment by moment, so that you can carefully watch the interaction of the particles.
 
 ## THINGS TO NOTICE
