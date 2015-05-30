@@ -628,10 +628,6 @@ This is a version of the GasLab Gas in a Box model, modified to show off NetLogo
 
 GasLab Gas in a Box
 
-## CREDITS AND REFERENCES
-
-
-
 <!-- 1997 2002 specialCE -->
 @#$#@#$#@
 default

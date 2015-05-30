@@ -819,10 +819,6 @@ o
 
 o  How symmetrical is the set of stalagmites?  How would you define "symmetry?"  How would you quantify and display its changes over time?
 
-## NETLOGO FEATURES
-
-
-
 ## RELATED MODELS
 
 Some of the other ProbLab (curricular) models, including SAMPLER-a HubNet Participatory Simulation-feature related visuals and activities.  In Stochastic Patchwork and especially in Sample Stalagmite you will see larger blocks, such as an arrays of green and blue squares.  In the Stochastic Patchwork model and especially in 9-Blocks model, we see frequency distribution histograms.  These histograms compare in interesting ways with the shape of the stalagmites in this model.

@@ -387,10 +387,6 @@ This is a version of the Flocking model, modified to show off NetLogo's perspect
 
 Flocking
 
-## CREDITS AND REFERENCES
-
-
-
 <!-- 1998 2002 specialCE -->
 @#$#@#$#@
 default
