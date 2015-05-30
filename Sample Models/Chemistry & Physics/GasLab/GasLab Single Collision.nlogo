@@ -575,18 +575,6 @@ Monitors:
 Plots:
 - SPEEDS: speed of each of the particles over time.
 
-## THINGS TO TRY
-
-Set the reflection-angle to zero.  Draw a picture representing the two balls as they collide, with their two faces touching.  Make the line connecting their centers be the same as theta.  Draw vectors representing their motion.
-
-While running the following situations note the paths of the two particles.  Can you make sense of what they do?  Is it what you expected?
-
-Choose a COLLISION-ANGLE and a REFLECTION-ANGLE and choose ONE-COLLISION to see one particular collision.
-
-Choose a COLLISION-ANGLE and choose ALL-REFLECTION-ANGLES to cycle through all of the angles of reflection.
-
-Choose a REFLECTION-ANGLE and choose ALL-COLLISION-ANGLES to cycle through all of the angles of collision.
-
 ## THINGS TO NOTICE
 
 With COLLISION-ANGLE = 180 (directly across from each other) and REFLECTION-ANGLE = 90, it looks as if the two particles miss each other.  What is happening?
@@ -598,6 +586,16 @@ With REFLECTION-ANGLE = 0 degrees, the two particles reverse direction. Why?
 What is the motion of the center of mass?  What would you expect it to be?
 
 ## THINGS TO TRY
+
+Set the reflection-angle to zero.  Draw a picture representing the two balls as they collide, with their two faces touching.  Make the line connecting their centers be the same as theta.  Draw vectors representing their motion.
+
+While running the following situations note the paths of the two particles.  Can you make sense of what they do?  Is it what you expected?
+
+Choose a COLLISION-ANGLE and a REFLECTION-ANGLE and choose ONE-COLLISION to see one particular collision.
+
+Choose a COLLISION-ANGLE and choose ALL-REFLECTION-ANGLES to cycle through all of the angles of reflection.
+
+Choose a REFLECTION-ANGLE and choose ALL-COLLISION-ANGLES to cycle through all of the angles of collision.
 
 Have the masses of the two particles be different.
 
