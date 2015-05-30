@@ -791,8 +791,6 @@ Setting all the particles to have a very slow speed (e.g. 0.001) and one particl
 To see what the approximate mass of each particle is, type this in the command center:
 ask particles [set label precision mass 0]
 
-## THINGS TO TRY
-
 Use the speed slider (at the top of the View) to run the model in slow motion.
 
 Use the command center to set the speed of all the particles to a very low number (but not zero - e.g. 0.01) and set the speed of one particle to a very high number (e.g. 1000).  Watch how the kinetic energy of the fast particle is distributed in collisions to the other particles.
