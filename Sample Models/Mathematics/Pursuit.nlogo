@@ -570,7 +570,7 @@ The SLOWDOWN slider controls how fast all of the turtles move.
 
 Press REVEAL after the model is done to see what the path of the leader was if SHOW-TRAIL? was turned off.  You can use this to check your guess as to what the function was.
 
-## HOW TO USE IT
+## THINGS TO NOTICE
 
 Try starting with 4 followers with a step size of 1.  Do not show the leader or the leader's trail.
 
@@ -596,8 +596,6 @@ To change the formula for the leader:
 A number of formulas have been stored in the procedures for this model.  To explicitly make a given formula active, choose the button for the formula you want instead of RANDOM.
 
 See the EXTENDING THE MODEL section for instructions on how to add your own formulas to the model.
-
-## THINGS TO NOTICE
 
 There are several characteristics of each follower's path and the leader's trail that are worth noting.
 
