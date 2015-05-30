@@ -252,6 +252,24 @@ Rand, William M. and Rust, Roland T., Agent-Based Modeling in Marketing: Guideli
 
 This model is a simplified model based on another model by Arthur Hjorth (arthur.hjorth@u.northwestern.edu).
 
+## HOW TO CITE
+
+This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo.”
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Rand, W. & Wilensky, U. (2012).  NetLogo Simple Viral Marketing model.  http://ccl.northwestern.edu/netlogo/models/SimpleViralMarketing.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the textbook as:
+
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+
 ## COPYRIGHT AND LICENSE
 
 Copyright 2012 Uri Wilensky.

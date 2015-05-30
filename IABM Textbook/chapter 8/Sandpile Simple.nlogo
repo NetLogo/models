@@ -364,6 +364,10 @@ The same `setup` procedure is used to create a uniform initial setup or a random
 
 ## CREDITS AND REFERENCES
 
+This model is a simplified version of:
+
+* Weintrop, D., Tisue, S., Tinker, R., Head, B. and Wilensky, U. (2011).  NetLogo Sandpile model.  http://ccl.northwestern.edu/netlogo/models/Sandpile.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
 https://en.wikipedia.org/wiki/Abelian_sandpile_model
 
 http://en.wikipedia.org/wiki/Self-organized_criticality
@@ -373,6 +377,24 @@ Bak, P. 1996. How nature works: the science of self-organized criticality. Coper
 Bak, P., Tang, C., & Wiesenfeld, K. 1987. Self-organized criticality: An explanation of the 1/f noise. Physical Review Letters, 59(4), 381.
 
 The bureaucrats-and-folders metaphor is due to Peter Grassberger.
+
+## HOW TO CITE
+
+This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo.”
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Weintrop, D., Tisue, S., Tinker, R. Head, B. & Wilensky, U. (2011).  NetLogo Sandpile Simple model.  http://ccl.northwestern.edu/netlogo/models/SandpileSimple.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the textbook as:
+
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
 ## COPYRIGHT AND LICENSE
 

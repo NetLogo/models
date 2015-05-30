@@ -328,6 +328,24 @@ Finally, in the WIRE4 procedure, we use the following code to loop through each 
 
 This is of the few situations where using the WHO number (which uniquely identifies a turtle) can be handy: by having each turtle from the outer loop asking only turtles with a greater WHO number than itself in the inner loop, we make sure that each possible pair of turtles if considered only once.
 
+## HOW TO CITE
+
+This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo.”
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U., Rand, W. (2008).  NetLogo Random Network model.  http://ccl.northwestern.edu/netlogo/models/RandomNetwork.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the textbook as:
+
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+
 ## COPYRIGHT AND LICENSE
 
 Copyright 2008 Uri Wilensky.

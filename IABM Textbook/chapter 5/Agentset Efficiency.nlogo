@@ -293,6 +293,24 @@ You can read the documentation for the `profiler` extension online at [http://cc
 
 Try to replace the `test-1-2` procedure with one that is adapted from the example in the documentation of the `profiler` extension. Can you replicate the results that you had with `test-1-2`?
 
+## HOW TO CITE
+
+This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo.”
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Rand, W., Wilensky, U. (2008).  NetLogo Agentset Efficiency model.  http://ccl.northwestern.edu/netlogo/models/AgentsetEfficiency.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the textbook as:
+
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+
 ## COPYRIGHT AND LICENSE
 
 Copyright 2008 Uri Wilensky.

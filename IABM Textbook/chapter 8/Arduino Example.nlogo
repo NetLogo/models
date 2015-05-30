@@ -190,6 +190,24 @@ The GoGoMonitor, GoGoMonitorSerial, GoGoMonitorSimple and GoGoMonitorSimpleSeria
 
 (a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
 
+## HOW TO CITE
+
+This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo.”
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Brady, C., Wilensky, U. (2015).  NetLogo Arduino Example model.  http://ccl.northwestern.edu/netlogo/models/ArduinoExample.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the textbook as:
+
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+
 ## COPYRIGHT AND LICENSE
 
 Copyright 2015 Uri Wilensky.

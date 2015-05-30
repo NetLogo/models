@@ -128,14 +128,13 @@ The Simple Machine Learning model builds on the present one to demonstrate how y
 
 ## HOW TO CITE
 
-This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling
- Natural, Social and Engineered Complex Systems with NetLogo."
+This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo.”
 
-If you mention this model or the NetLogo software in a publication, we ask that you include the cites.
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
 
 For the model itself:
 
-* Rand, W. & Wilensky, U. (2008).  Run Result Example Model.  http://ccl.northwestern.edu/netlogo/models/RunResultExample.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Rand, W. & Wilensky, U. (2008).  NetLogo Run Result Example model.  http://ccl.northwestern.edu/netlogo/models/RunResultExample.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
@@ -143,8 +142,7 @@ Please cite the NetLogo software as:
 
 Please cite the textbook as:
 
-Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling
- Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
 ## COPYRIGHT AND LICENSE
 

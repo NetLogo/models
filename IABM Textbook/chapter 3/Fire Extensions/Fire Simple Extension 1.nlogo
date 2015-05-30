@@ -187,16 +187,21 @@ What is the difference between 100% density and 55% probability-of-spread, and 5
 
 Fire Simple, Fire, Percolation, Rumor Mill
 
+## CREDITS AND REFERENCES
+
+This model is a simplified version of:
+
+* Wilensky, U. (1997).  NetLogo Fire model.  http://ccl.northwestern.edu/netlogo/models/Fire.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
 ## HOW TO CITE
 
-This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling
- Natural, Social and Engineered Complex Systems with NetLogo."
+This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo.”
 
-If you mention this model or the NetLogo software in a publication, we ask that you include the cites.
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
 
 For the model itself:
 
-* Wilensky, U. (2006).  NetLogo Fire Simple Extension 1 model.  http://ccl.northwestern.edu/netlogo/models/FireSimpleExtension1.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. (2006).  NetLogo Fire Simple Extension 1 model.  http://ccl.northwestern.edu/netlogo/models/FireSimpleExtension1.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
@@ -204,14 +209,7 @@ Please cite the NetLogo software as:
 
 Please cite the textbook as:
 
-Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling
- Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
-
-## CREDITS AND REFERENCES
-
-This model is a simplified version of:
-
-Wilensky, U. (1997). NetLogo Fire model. http://ccl.northwestern.edu/netlogo/models/Fire. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
 ## COPYRIGHT AND LICENSE
 

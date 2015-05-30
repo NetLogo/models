@@ -185,6 +185,12 @@ Make sliders to control the original radius and/or the number of turtles.
 
 This model is a simplification of the Turtles Circling Model in the Mathematics section of the NetLogo models library.
 
+## CREDITS AND REFERENCES
+
+This model is a simplified version of:
+
+* Wilensky, U. (1997).  NetLogo Turtles Circling model.  http://ccl.northwestern.edu/netlogo/models/TurtlesCircling.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
 ## HOW TO CITE
 
 This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo.”
@@ -193,7 +199,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Wilensky, U. (1997).  NetLogo Turtles Circling Simple model.  http://ccl.northwestern.edu/netlogo/models/TurtlesCirclingSimple.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL
+* Wilensky, U. (1997).  NetLogo Turtles Circling Simple model.  http://ccl.northwestern.edu/netlogo/models/TurtlesCirclingSimple.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
@@ -201,7 +207,7 @@ Please cite the NetLogo software as:
 
 Please cite the textbook as:
 
-* Wilensky, U & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
 ## COPYRIGHT AND LICENSE
 

@@ -228,6 +228,24 @@ Our strategies are not directly stored as strings, however: they are stored as _
 
 The `runresult` primitive can also be used with [tasks](http://ccl.northwestern.edu/netlogo/docs/programming.html#tasks) instead of strings. See the Sandpile model in the library for an example.
 
+## HOW TO CITE
+
+This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo.”
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Rand, W. & Wilensky, U. (2008).  NetLogo Simple Machine Learning model.  http://ccl.northwestern.edu/netlogo/models/SimpleMachineLearning.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the textbook as:
+
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+
 ## COPYRIGHT AND LICENSE
 
 Copyright 2008 Uri Wilensky.

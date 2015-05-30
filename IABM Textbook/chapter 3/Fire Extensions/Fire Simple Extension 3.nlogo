@@ -276,16 +276,21 @@ Try running the same settings with BIG-JUMPS? turned off and on, how does this a
 
 Fire Simple, Fire, Percolation, Rumor Mill
 
+## CREDITS AND REFERENCES
+
+This model is a simplified version of:
+
+* Wilensky, U. (1997).  NetLogo Fire model.  http://ccl.northwestern.edu/netlogo/models/Fire.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
 ## HOW TO CITE
 
-This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling
- Natural, Social and Engineered Complex Systems using NetLogo."
+This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo.”
 
-If you mention this model or the NetLogo software in a publication, we ask that you include the cites.
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
 
 For the model itself:
 
-* Rand, W. & Wilensky, U. (2006).  NetLogo Fire Simple Extension 3 model.  http://ccl.northwestern.edu/netlogo/models/FireSimpleExtension3.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. (2006).  NetLogo Fire Simple Extension 3 model.  http://ccl.northwestern.edu/netlogo/models/FireSimpleExtension3.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
@@ -293,14 +298,7 @@ Please cite the NetLogo software as:
 
 Please cite the textbook as:
 
-Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling
- Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
-
-## CREDITS AND REFERENCES
-
-This model is a simplified version of:
-
-Wilensky, U. (1997). NetLogo Fire model. http://ccl.northwestern.edu/netlogo/models/Fire. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
 ## COPYRIGHT AND LICENSE
 

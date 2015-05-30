@@ -322,20 +322,25 @@ For what slider settings does the model run forever without all agents being sat
 
 In the UPDATE-GLOBALS procedure, note the use of SUM, COUNT, VALUES-FROM, and WITH to compute the percentages displayed in the monitors and plots.
 
-## HOW TO CITE
-
-This model is part of the textbook, "Introduction to Agent-Based Modeling: Modeling
- Natural, Social and Engineered Complex Systems with NetLogo."
-
-If you mention this model or the NetLogo software in a publication, we ask that you include the cites below.
-
-For the model itself:
-
-* Wilensky, U. & Rand, W. (2006).  NetLogo Segregation Simple model.  http://ccl.northwestern.edu/netlogo/models/SegregationSimple.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+## CREDITS AND REFERENCES
 
 This model is a simplified version of:
 
-Wilensky, U. (1997). NetLogo Segregation model. http://ccl.northwestern.edu/netlogo/models/Segregation. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. (1997).  NetLogo Segregation model.  http://ccl.northwestern.edu/netlogo/models/Segregation.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Schelling, T. (1978). Micromotives and Macrobehavior. New York: Norton.
+
+See also: Rauch, J. (2002). Seeing Around Corners; The Atlantic Monthly; April 2002;Volume 289, No. 4; 35-48. http://www.theatlantic.com/magazine/archive/2002/04/seeing-around-corners/302471/
+
+## HOW TO CITE
+
+This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo.”
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U., Rand, W. (2006).  NetLogo Segregation Simple Extension 3 model.  http://ccl.northwestern.edu/netlogo/models/SegregationSimpleExtension3.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
@@ -343,18 +348,7 @@ Please cite the NetLogo software as:
 
 Please cite the textbook as:
 
-* Wilensky, U  & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling
- Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
-
-## CREDITS AND REFERENCES
-
-This model is adapted from:
-
-Wilensky, U. (1997). NetLogo Segregation model. http://ccl.northwestern.edu/netlogo/models/Segregation. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-
-Schelling, T. (1978). Micromotives and Macrobehavior. New York: Norton.
-
-See also: Rauch, J. (2002). Seeing Around Corners; The Atlantic Monthly; April 2002;Volume 289, No. 4; 35-48. http://www.theatlantic.com/magazine/archive/2002/04/seeing-around-corners/302471/
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
 ## COPYRIGHT AND LICENSE
 

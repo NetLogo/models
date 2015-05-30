@@ -359,8 +359,6 @@ RANDOM-SEED initializes the NetLogo random number generator so that it always pr
 
 ## CREDITS AND REFERENCES
 
-This model is part of the textbook: Wilensky & Rand (2015). Introduction to Agent-Based Modeling: Modeling the Natural, Social and Engineered Complex Systems with NetLogo.
-
 Versions of the Model are described in:
 
 Bonabeau, E., & Meyer, C. (2001). Swarm intelligence. A whole new way to think about business. Harvard Business Review, 5, 107-114.
@@ -370,6 +368,24 @@ Bonabeau. E. (2012). http://www.icosystem.com/labsdemos/the-game/ .
 Bonabeau, E., Funes, P. & Orme, B.  (2003). Exploratory Design Of Swarms. 2nd International Workshop on the Mathematics and Algorithms of Social Insects. Georgia Institute of technology, Atlanta, GA.
 
 Sweeney, L. B., & Meadows, D. (2010). The systems thinking playbook: Exercises to stretch and build learning and systems thinking capabilities.
+
+## HOW TO CITE
+
+This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo.”
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Stonedahl, F., Wilensky, U., Rand, W. (2014).  NetLogo Heroes and Cowards model.  http://ccl.northwestern.edu/netlogo/models/HeroesandCowards.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the textbook as:
+
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
 ## COPYRIGHT AND LICENSE
 
