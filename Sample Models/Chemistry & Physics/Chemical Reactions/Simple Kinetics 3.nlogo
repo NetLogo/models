@@ -363,10 +363,6 @@ Add a slider that allows you to alter the temperature of the system. Think about
 
 ## RELATED MODELS
 
-Simple Kinetics 1, Simple Kinetics 2
-
-## RELATED MODELS
-
 Simple Kinetics 1
 Simple Kinetics 2
 
