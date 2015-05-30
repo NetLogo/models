@@ -739,7 +739,7 @@ For instructions and materials for running the original board game version, see 
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
 
-* Wilensky, U. and Stroup, W. (2003). NetLogo HubNet Root Beer Game HubNet model.  http://ccl.northwestern.edu/netlogo/models/HubNetRootBeerGameHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. and Stroup, W. (2003).  NetLogo HubNet Root Beer Game HubNet model.  http://ccl.northwestern.edu/netlogo/models/HubNetRootBeerGameHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 * Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 

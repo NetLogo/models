@@ -1026,7 +1026,7 @@ Currently, the maximum speed limit (found in the SPEED-LIMIT slider) for the car
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
 
-* Wilensky, U. and Stroup, W. (1999). NetLogo HubNet Gridlock HubNet model.  http://ccl.northwestern.edu/netlogo/models/HubNetGridlockHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. and Stroup, W. (1999).  NetLogo HubNet Gridlock HubNet model.  http://ccl.northwestern.edu/netlogo/models/HubNetGridlockHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 * Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 

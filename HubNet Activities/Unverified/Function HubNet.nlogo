@@ -1183,7 +1183,7 @@ This model uses the runresult primitive to approximate the y value for each x va
 
 If you mention this model in a publication, we ask that you include these citations for the model itself and for the NetLogo software:
 
-* Wilensky, U. and Stroup, W. (1999). NetLogo HubNet Function HubNet model.  http://ccl.northwestern.edu/netlogo/models/HubNetFunctionHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. and Stroup, W. (1999).  NetLogo HubNet Function HubNet model.  http://ccl.northwestern.edu/netlogo/models/HubNetFunctionHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 * Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
