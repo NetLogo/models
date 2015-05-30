@@ -865,40 +865,30 @@ Both representations are stacked dot plots of the samples themselves ("stalagmit
 
 If you toss four coins, what is the chance of getting exactly three heads? To figure out the answer with precision, we need to know all the possible compound events in this experiment, that is, all the unique configurations of four coin states -- whether each is heads (H) or tails (T). To make sense of the list, below, imagine that you have tagged the coins with little identifiers, such as "A", "B", "C", and "D", and you always list the state of these four coins according to the order "ABCD".
 
-## | HHHH
-
-
-
-## | HHHT
-
-     HHTH
-     HTHH
-     THHH
-
-## | HHTT
-
-     HTHT
-     HTTH
-     THTH
-     TTHH
-     THHT
-
-## | TTTH
-
-     TTHT
-     THTT
-     HTTT
-
-## | TTTT
+    HHHH
+    HHHT
+    HHTH
+    HTHH
+    THHH
+    HHTT
+    HTHT
+    HTTH
+    THTH
+    TTHH
+    THHT
+    TTTH
+    TTHT
+    THTT
+    HTTT
+    TTTT
 
 Assuming fair coins, all the sixteen compound events, above, are equally likely (equiprobable).  But we could pool them indiscriminately into their five sets so as to form five aggregates that are heteroprobable:
 
-## | 4H0T
-
-     3H1T
-     2H2T
-     1H3T
-     0H4T
+    4H0T
+    3H1T
+    2H2T
+    1H3T
+    0H4T
 
 The likelihood of the four coins landing as each of these five aggregate events are related as 1:4:6:4:1, reflecting the number of unique compounds events in each.  And yet, most aggregate representations, such as histograms, do not make explicit this relation between the two different ways of parsing the sample space -- as sixteen equiprobable elemental events or as five heteroprobable aggregate events.  Consequently, students are liable to miss out on opportunities to make sense of the conventional aggregate representation
 
@@ -943,14 +933,6 @@ Using the default switch and slider settings, press Setup and then Go. Look clos
 Set the probability slider at .5 and press Go. What are you noticing about the shape of each of the two histograms?
 
 Set KEEP-REPEATS? to Off, STOP-AT-ALL-FOUND? to On, and STOP-AT-TOP? to Off. Try to guess what you will get in each of the stalagmite sets, and then press Go.
-
-## EXTENDING THE MODEL
-
-
-
-## NETLOGO FEATURES
-
-
 
 ## RELATED MODELS
 
