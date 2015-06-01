@@ -559,10 +559,9 @@ Horizontal lines are altruists - cooperate with everyone\nVertical lines are eth
 @#$#@#$#@
 ## ACKNOWLEDGMENT
 
-This model is an alternate visualization of the Ethnocentrism model in the Social Sciences section of the NetLogo models library. It uses visualization techniques as recommended in the paper:
+This model is an alternate visualization of the Ethnocentrism model from the Social Science section of the NetLogo Models Library. It uses visualization techniques as recommended in the paper:
 
-Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation, JASSS, 12(2), 1.
-http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuidelinesABMViz.pdf
+* Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation (JASSS), 12(2), 1. http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuidelinesABMViz.pdf.
 
 ## WHAT IS IT?
 

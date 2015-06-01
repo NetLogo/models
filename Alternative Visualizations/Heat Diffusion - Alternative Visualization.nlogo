@@ -412,9 +412,9 @@ Choose a material and then press UPDATE ALPHA based on that material, or set ALP
 @#$#@#$#@
 ## ACKNOWLEDGMENT
 
-Ths model is an adaptation of the Heat Diffusion model from the Chemistry and Physics section of the NetLogo Models Library. It uses visualization techniques as recommended in the paper:
+This model is an alternate visualization of the Heat Diffusion model from the Chemistry & Physics section of the NetLogo Models Library. It uses visualization techniques as recommended in the paper:
 
-Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation, JASSS, 12(2), 1.
+* Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation (JASSS), 12(2), 1. http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuidelinesABMViz.pdf.
 
 ## WHAT IS IT?
 
