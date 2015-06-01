@@ -214,7 +214,7 @@ to-report my-instrument  ;; lever procedure
 end
 
 
-; Copyright 2005 Uri Wilensky. Includes code by James P. Steiner. 
+; Copyright 2005 Uri Wilensky. Includes code by James P. Steiner.
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
