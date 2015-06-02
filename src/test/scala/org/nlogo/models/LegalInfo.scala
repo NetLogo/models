@@ -185,7 +185,8 @@ case class LegalInfo(model: Model) {
       case altViz(original) =>
         val originalFolder = Model.models
           .find(_.baseName == original).get
-          .file.getPath.split(File.separator)(2)
+          .file.getPath.split(File.separator)
+          .dropWhile(_ != "Sample Models").drop(1).head
         val builder = new StringBuilder
         builder.append(s"This model is an alternate visualization of the $original model ")
         builder.append(s"from the $originalFolder section of the NetLogo Models Library. ")
