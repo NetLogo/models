@@ -12,31 +12,31 @@ globals[
   h-size
   h-total ;; total hydrogen available in patches and free-roaming
   h-remain ;; remaining hydrogen
-  ]
+]
 
 breed [hydrogens hydrogen]  ;;hydrogen
 breed [anchors anchor] ;;patch visualization
 
 to setup
-  ca
+  clear-all
   set anchor-transparency 161
 
   ;;Colors for Hydrogen Counts
   ifelse h4On
-  [set h4-color white]
-  [set h4-color 0]
+    [ set h4-color white ]
+    [ set h4-color 0 ]
 
   ifelse h3On
-  [set h3-color green]
-  [set h3-color 0]
+    [ set h3-color green ]
+    [ set h3-color 0 ]
 
   ifelse h2On
-  [set h2-color blue]
-  [set h2-color 0]
+    [ set h2-color blue ]
+    [ set h2-color 0 ]
 
   ifelse h1On
-  [set h1-color red]
-  [set h1-color 0]
+    [ set h1-color red ]
+    [ set h1-color 0 ]
 
   set hydrogen-transparency 200
   set box-size 0.30
@@ -45,25 +45,28 @@ to setup
   ;;SETUP PATCHES
 
   ;; all patches start as air
-  ask patches
-  [ set patch-type "air" ]
+  ask patches [ set patch-type "air" ]
 
   ;;Quick diffuse surface patches
-  ask patches with [(pxcor > min-pxcor and pxcor < max-pxcor) and
-                    (pycor > min-pycor and pycor < max-pycor) and
-                    (pzcor > min-pzcor and pzcor < max-pzcor)] [
+  ask patches with [
+    (pxcor > min-pxcor and pxcor < max-pxcor) and
+    (pycor > min-pycor and pycor < max-pycor) and
+    (pzcor > min-pzcor and pzcor < max-pzcor)
+  ] [
     set patch-type "surface"
   ]
 
   ;;Inner lattice patches
-  ask patches with [(pxcor > min-pxcor + 1 and pxcor < max-pxcor - 1) and
-                    (pycor > min-pycor + 1 and pycor < max-pycor - 1) and
-                    (pzcor > min-pzcor + 1 and pzcor < max-pzcor - 1)] [
+  ask patches with [
+    (pxcor > min-pxcor + 1 and pxcor < max-pxcor - 1) and
+    (pycor > min-pycor + 1 and pycor < max-pycor - 1) and
+    (pzcor > min-pzcor + 1 and pzcor < max-pzcor - 1)
+  ] [
     set patch-type "inner"
   ]
 
   ;;Populate anchors
-  ask patches with [patch-type != "air" ] [
+  ask patches with [ patch-type != "air" ] [
     sprout-anchors 1 [
       set shape "square"
       set color lput anchor-transparency extract-rgb h4-color
@@ -75,12 +78,11 @@ to setup
   ]
 
   ;;Total Hydrogens
-  set h-total ((count patches with [patch-type != "air"]) * 3)
+  set h-total ((count patches with [ patch-type != "air" ]) * 3)
   set h-remain h-total
 
-
   ;;Grid Draw
-  if (grid-draw) [
+  if grid-draw [
     ask patch min-pxcor min-pycor min-pzcor [
       sprout 1 [
         set color gray - 2
@@ -134,16 +136,16 @@ end
 to go
 
   ;;Termination %
-  if (h-remain < (h-total * end-percent / 100)) [
-    ask patch 0 0 0 [set pcolor red]
+  if h-remain < (h-total * end-percent / 100) [
+    ask patch 0 0 0 [ set pcolor red ]
     stop
   ]
 
   ;; removing H2 from model
-  ask hydrogens with [color = yellow] [die]
+  ask hydrogens with [ color = yellow ] [ die ]
 
   ;;Freedom! - Hydrogen desorbs
-  ask patches with [h-count = 2] [
+  ask patches with [ h-count = 2 ] [
     if random-float 1.0 < p2to1 [
       set h-count h-count - 1
       sprout-hydrogens 1 [
@@ -158,7 +160,7 @@ to go
     ]
   ]
 
-  ask patches with [h-count = 3] [
+  ask patches with [ h-count = 3 ] [
     if random-float 1.0 < p3to2 [
       set h-count h-count - 1
       sprout-hydrogens 1 [
@@ -173,7 +175,7 @@ to go
     ]
   ]
 
-  ask patches with [h-count = 4] [
+  ask patches with [ h-count = 4 ] [
     if random-float 1.0 < p4to3 [
       set h-count h-count - 1
       sprout-hydrogens 1 [
@@ -190,17 +192,15 @@ to go
 
   ;;Absorption
   ask hydrogens [
-
     ;;2 to 3 absorption
-    ifelse ((h-count = 2) and (random-float 1.0 < p2to3)) [
+    ifelse (h-count = 2) and (random-float 1.0 < p2to3) [
       set h-count h-count + 1 ;; patch variable
       ask anchors-here [
         set color lput anchor-transparency extract-rgb h3-color
       ]
       die
     ] [
-
-    ;;3 to 4 absorption
+      ;;3 to 4 absorption
       if ((h-count = 3) and (random-float 1.0 < p3to4)) [
         set h-count h-count + 1 ;; patch variable
         ask anchors-here [
@@ -212,18 +212,16 @@ to go
   ]
 
   ;; HYDROGEN MOVEMENT
-
-  ask hydrogens-on patches with [patch-type = "inner"] [
-    let norm (count neighbors6 with [h-count = 1]) * red-diffuse + (count neighbors6 with [h-count > 1]) + 0.00000000001
-    let pRed (count neighbors6 with [h-count = 1]) * red-diffuse / norm ;;percent chance to move to red(depleted regions)
+  ask hydrogens-on patches with [ patch-type = "inner" ] [
+    let norm (count neighbors6 with [ h-count = 1 ]) * red-diffuse + (count neighbors6 with [h-count > 1]) + 0.00000000001
+    let pRed (count neighbors6 with [ h-count = 1 ]) * red-diffuse / norm ;;percent chance to move to red(depleted regions)
 
     ifelse (random-float 1.0 < pRed) [
-      face one-of neighbors6 with [h-count = 1]
+      face one-of neighbors6 with [ h-count = 1 ]
     ] [
-      ifelse count (neighbors6 with [h-count > 1]) > 0 [
-        face one-of neighbors6 with [h-count > 1 ]
-      ]
-      [
+      ifelse count (neighbors6 with [ h-count > 1 ]) > 0 [
+        face one-of neighbors6 with [ h-count > 1 ]
+      ] [
         face one-of neighbors6
       ]
     ]
@@ -233,17 +231,17 @@ to go
   ]
 
   ;; quick-diffuse surface hydrogens
-  ask hydrogens-on patches with [patch-type != "inner"] [
-    face one-of neighbors with [patch-type = "surface"]
+  ask hydrogens-on patches with [ patch-type != "inner" ] [
+    face one-of neighbors with [ patch-type = "surface" ]
     fd 1
   ]
 
   ;; PAIRING-UP AND LEAVING
   ;;==============================================================================
-  ask patches with [patch-type = "surface"] [
+  ask patches with [ patch-type = "surface" ] [
 
     ;; When there are two hydrogens on one surface lattice patch, combine and leave system
-    if ((count hydrogens-here) > 1) [
+    if count hydrogens-here > 1 [
       ask n-of 2 hydrogens-here [
         set color yellow
         set size .5
