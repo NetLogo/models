@@ -107,7 +107,7 @@ to update-strategies
     let week 1
     repeat memory-size [
       set prediction predict-attendance ? sublist history week (week + memory-size)
-      ;; increment the score by the difference between this week;'s attendance and your prediction for this week
+      ;; increment the score by the difference between this week's attendance and your prediction for this week
       set score score + abs (item (week - 1) history - prediction)
       set week week + 1
     ]
