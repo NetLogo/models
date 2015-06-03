@@ -237,6 +237,10 @@ to color-grass
     ]
   [set pcolor dirt-color]
 end
+
+
+; Copyright 2011 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 405
@@ -504,13 +508,11 @@ bugs-born
 
 This model explores the stability of consumer producer ecosystems and how temporary disturbances and more sustained environmental changes affect the stability of the population and the ecosystem.
 
-
 ## HOW IT WORKS
 
 Bugs wander randomly around the landscape.  Each step each bug loses one unit of energy and they must consume a food source (grass) to replenish their energy. When they run out of energy, they die. To allow the population to continue, each bug must have enough energy to have an offspring.  When that threshold is reached, the offspring and parent split the energy amongst themselves.  Grass grows at a fixed rate, and when it is eaten, a fixed amount of grass energy is deducted from the patch (square) where the grass was eaten.
 
 Different disturbances can be tested in this system, including temporary removal of grass (simulating a fire) and removal of some of the bugs (simulating disease).
-
 
 ## HOW TO USE IT
 
@@ -537,7 +539,6 @@ BUGS-TO-REMOVE:  Sets the % of existing bug population that will be removed when
 
 GRAPH-VALUES-FOR:  Sets the x-axis values of the bugs that are graphed in the DISTRIBUTION OF BUG VALUES histogram.  Options include "energy of the bugs", "age of the bugs", and "# of offspring of bugs".
 
-
 ## THINGS TO NOTICE
 
 Watch as the grass and bug populations fluctuate.  How are increases and decreases in the sizes of each population related?
@@ -546,11 +547,9 @@ Pressing REMOVE BUGS or BURN THE GRASS DOWN affects the size of the populations 
 
 Different AMOUNT-OF-GRASSLAND values affect the carrying capacity (average values) for both the bugs and grass.  Why?
 
-
 ## THINGS TO TRY
 
 Try adjusting the parameters under various settings. How sensitive is the stability of the model to the particular parameters.  Does the parameter setting affect the amount of fluctuations, the average values of bugs and grass, or does it lead to the collapse of the ecosystem (death of all the bugs)?
-
 
 ## EXTENDING THE MODEL
 
@@ -558,11 +557,9 @@ In this model, all the bugs are identical to each other and follow the same rule
 
 Try extending the model by introducing a predator that eats the bugs, or a competing population that also eats grass.
 
-
 ## NETLOGO FEATURES
 
 The visualization of fire embers uses the transparency value for the color to gradually fade out the color of the fire and let the background show through, before the embers disappear completely.
-
 
 ## RELATED MODELS
 
@@ -573,6 +570,30 @@ Refer to Bug Hunt Predators for extensions of this model that include predators 
 ## CREDITS AND REFERENCES
 
 This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Novak, M. and Wilensky, U. (2011).  NetLogo Bug Hunt Consumers model.  http://ccl.northwestern.edu/netlogo/models/BugHuntConsumers.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2011 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2011 Cite: Novak, M. -->
 @#$#@#$#@
 default
 true

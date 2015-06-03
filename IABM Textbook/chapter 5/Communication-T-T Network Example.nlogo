@@ -38,6 +38,10 @@ to recolor  ;; turtle procedure
     [ set color red ]
     [ set color blue ]
 end
+
+
+; Copyright 2004 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 230
@@ -144,9 +148,9 @@ PENS
 
 This model is from Chapter Five of the book "Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo", by Uri Wilensky & William Rand.
 
-Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
-This model is in the IABM Textbook folder of the NetLogo models library. The model, as well as any updates to the model, can also be found on the textbook website: http://www.intro-to-abm.com/.
+This model is in the IABM Textbook folder of the NetLogo Models Library. The model, as well as any updates to the model, can also be found on the textbook website: http://www.intro-to-abm.com/.
 
 ## WHAT IS IT?
 
@@ -158,7 +162,6 @@ The monitor keeps track of how many turtles have the message by reporting:
 
 The plot helps you visualize how this value changes through time.
 
-
 ## HOW IT WORKS
 
 SETUP creates 500 turtles and gives them random coordinates in the world.
@@ -167,11 +170,9 @@ In the GO procedure, the turtles pass messages. The way this is done is that eac
 
 The network is formed randomly, by asking each turtle to create links with either one or two other turtles, depending on the value chosen for LINKS-PER-NODE.
 
-
 ## HOW TO USE IT
 
 Choose the value of LINKS-PER-NODE to characterize the network. Press SETUP to create the turtles and the network linking them and give one turtle the message. Then press GO to watch the message spread through the network.
-
 
 ## THINGS TO NOTICE
 
@@ -182,7 +183,6 @@ Do you notice any difference between the pattern of transmission when LINKS-PER-
 One thing you may notice is that, when LINKS-PER-NODE is 1, it sometimes happen that not all turtles get the message. Do you understand why that happens? It never happens with the non-network version of this model. Can you explain why?
 
 Finally, do you think it is possible that not all turtles get the message when LINKS-PER-NODE is 2? Could you design a BehaviorSpace experiment that would help you answer this question?
-
 
 ## EXTENDING THE MODEL
 
@@ -196,7 +196,6 @@ If you want to push things a step further, how about allowing the user to compar
 
 The model currently stops when all turtles have received the message. However, sometimes the network is constructed in such a way that some turtles will never receive the message. Try to modify the code so that the model stops when this is the case.
 
-
 ## NETLOGO FEATURES
 
 This model uses turtle agents and link agents to represent a network.
@@ -209,7 +208,37 @@ This is not the only way to generate random networks. The Random Network model, 
 
 Communication T-T Example
 
-## CREDITS AND REFERENCES
+## HOW TO CITE
+
+This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo.”
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. (2004).  NetLogo Communication-T-T Network Example model.  http://ccl.northwestern.edu/netlogo/models/Communication-T-TNetworkExample.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the textbook as:
+
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2004 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This model was created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

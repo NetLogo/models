@@ -515,6 +515,10 @@ to remove-player
   ask players with [user-name = hubnet-message-source ]
     [ die ]
 end
+
+
+; Copyright 2006 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 274
@@ -847,7 +851,7 @@ PENS
 
 This selection model shows how sexual attraction and predation change the coloration and patterns in guppy's population.
 
-If you have not seen guppies you can see some at the "Sex and the Single Guppy" webpage:  
+If you have not seen guppies you can see some at the "Sex and the Single Guppy" webpage:
 http://www.pbs.org/wgbh/evolution/sex/guppy/low_bandwidth.html
 
 When you run the model, you can either play the role of a predator or the role of a mate.
@@ -858,10 +862,10 @@ You can notice that many guppies are very colorful, have garish patterns and lar
 
 The answer lies in the fact that guppies are driven by more than only a survival instinct. Guppies also desire to reproduce with other guppies and to do this they must be noticed by their mates. The "flashier" a male guppy is, the likelier a female guppy will choose him as a mate, passing his genes to the next generation. This is sexual selection at work, and it is the force that drives guppy's coloration toward conspicuousness just as hard as predation pushes coloration toward drabness.
 
-Thus as a mate, you will again probably notice the more brightly colored guppy males.  
+Thus as a mate, you will again probably notice the more brightly colored guppy males.
 When you click on a colorful mate, he will hatch an offspring, which will likely create another colorful guppy and guppies will increasingly become colorful over generations, pushed by breeding pressure.
 
-Quoting from "Sex and the Single Guppy"  [2]:  
+Quoting from "Sex and the Single Guppy"  [2]:
 There may be several evolutionary reasons why female guppies prefer flashy males. On the most basic level, the male with the biggest, brightest tail spot announces most loudly, "Hey, I'm over here" to any female it can see. Flashy colors are simply easier to locate.  However, there is also research to suggest that bright colors serve as an indicator of good genes in the way the strong physique of a human athlete is a direct indicator of that individual's health and vitality.  Or, bright coloration may signal to a potential mate that he's got something else going for him. After all, he's been able to survive the very handicap -- conspicuousness to predators -- that his flashiness creates.
 
 Whatever the reasons, it is clear from the research of Endler and other evolutionary biologists that male guppies live in the crossfire between their enemies and their would-be mates, with the opposing forces of predation and sexual selection forever pushing the guppy coloration in opposite directions.
@@ -886,47 +890,47 @@ Guppy populations are evolving to match, and/or stand out, from their environmen
 
 To run the activity press the GO button.  To start the activity over with the same group of students stop the GO button by pressing it again, press the SETUP button, and press GO again.  To run the activity with a new group of students press the RESET button in the Control Center.
 
-Buttons:  
-SETUP - Clears the world and populates the world with fish. All players are set to initial values.  
-GO - Runs the simulation, students can login and start eating, or mating with the fish population.  
-CHANGE BACKGROUND - loads the image selected in the BACKGROUND chooser into the drawing.  
+Buttons:
+SETUP - Clears the world and populates the world with fish. All players are set to initial values.
+GO - Runs the simulation, students can login and start eating, or mating with the fish population.
+CHANGE BACKGROUND - loads the image selected in the BACKGROUND chooser into the drawing.
 CLEAR BACKGROUND - erases the drawing so the patches show through.
 
-Sliders:  
-FISH-SPEED-SCALE - controls how quickly the fish move around the world  
-CARRYING-CAPACITY - the simulation will automatically keep CARRYING-CAPACITY fish in the world at all times.  If there are too many fish it will randomly kill some, however, if there are too few fish, a random fish already will automatically be reproduced.  Note that CARRYING-CAPACITY will only be active when the ENFORCE-CAPACITY? switch is in the "on" position.  
-MIN-AGE-REPRODUCTION - The minimum amount of time before a fish can reproduce after it is born and since the last time it reproduced.  
+Sliders:
+FISH-SPEED-SCALE - controls how quickly the fish move around the world
+CARRYING-CAPACITY - the simulation will automatically keep CARRYING-CAPACITY fish in the world at all times.  If there are too many fish it will randomly kill some, however, if there are too few fish, a random fish already will automatically be reproduced.  Note that CARRYING-CAPACITY will only be active when the ENFORCE-CAPACITY? switch is in the "on" position.
+MIN-AGE-REPRODUCTION - The minimum amount of time before a fish can reproduce after it is born and since the last time it reproduced.
 BACKGROUND-COLOR - the value of the color of the background (patches), which is only visible when there is no image loaded in the drawing.
 
-Switches:  
-ENFORCE-CAPACITY? - When it is on, the simulation automatically maintains number of fish in the world at CARRYING-CAPACITY.  
-SHOW-AGE? - When it is on, set the label of each fish to its age.  
+Switches:
+ENFORCE-CAPACITY? - When it is on, the simulation automatically maintains number of fish in the world at CARRYING-CAPACITY.
+SHOW-AGE? - When it is on, set the label of each fish to its age.
 ROCK-SHELTERS? - When it is on, a rock shelter is placed on top of the world, as new fish are born they emerge from the rocks rather than appearing where its parent was at the time of reproduction.
 
-Monitors:  
-FISH - The number of fish in the world.  
-MATES - The number of students logged in as mates.  
-PREDATORS - The number of students logged in as predators.  
-MATES-LEADER - The name of the student (or indication of a tie) with the highest number of mates found.  
-PREDATOR-LEADER - The name of the student (or indication of a tie) with the highest number of prey found.  
-MATES-FOUND - The number of mates found by the leader.  
-PREY-FOUND - The number of prey found by the leader.  
-TOTAL-MATES-FOUND - The number of mates found by all mates.  
+Monitors:
+FISH - The number of fish in the world.
+MATES - The number of students logged in as mates.
+PREDATORS - The number of students logged in as predators.
+MATES-LEADER - The name of the student (or indication of a tie) with the highest number of mates found.
+PREDATOR-LEADER - The name of the student (or indication of a tie) with the highest number of prey found.
+MATES-FOUND - The number of mates found by the leader.
+PREY-FOUND - The number of prey found by the leader.
+TOTAL-MATES-FOUND - The number of mates found by all mates.
 TOTAL-PREY-FOUND - The number of prey found by all predators.
 
-Choosers:  
-BACKGROUND - Select the name of the background image to use in the world.  
+Choosers:
+BACKGROUND - Select the name of the background image to use in the world.
 PLAYER-ROLES - Select the type of game to play so you can explore the affects of the two forces (mates and predators) separately and in competition with each other.
 
-Plots:  
+Plots:
 FOUND V TIME - The number of fish found by both predators and mates over time.
 
-Global variables in the procedures to change:  
-WANDER-ANGLE - The amount that the fish will wiggle when they move around the world.  
-MAX-COLOR-MUTATION-STEP - the maximum amount that a color gene can change by in one step  
-CHANCE-MUTATE-COLOR - The percent chance the fish parts will slightly change color when reproduced  
-CHANCE-MUTATE-SIZE - The percent chance the fish parts will slightly change size when reproduced  
-MAX-FISH-SIZE - A limit on the size fish can grow to, to keep the simulation reasonable  
+Global variables in the procedures to change:
+WANDER-ANGLE - The amount that the fish will wiggle when they move around the world.
+MAX-COLOR-MUTATION-STEP - the maximum amount that a color gene can change by in one step
+CHANCE-MUTATE-COLOR - The percent chance the fish parts will slightly change color when reproduced
+CHANCE-MUTATE-SIZE - The percent chance the fish parts will slightly change size when reproduced
+MAX-FISH-SIZE - A limit on the size fish can grow to, to keep the simulation reasonable
 MAX-SIZE-MUTATION-STEP - the maximum amount that a size gene can change by in one step
 
 ## THINGS TO TRY
@@ -949,13 +953,37 @@ This model uses `import-drawing` to load high resolution backdrops into the draw
 
 ## RELATED MODELS
 
-Bug Hunt Pursuit  
+Bug Hunt Pursuit
 Peppered Moths
 
 ## CREDITS AND REFERENCES
 
-[1] Inspired by Sex and the Single Guppy http://www.pbs.org/wgbh/evolution/sex/guppy/low_bandwidth.html  
+[1] Inspired by Sex and the Single Guppy http://www.pbs.org/wgbh/evolution/sex/guppy/low_bandwidth.html
 [2] Sex and the Single Guppy. Conclusion: Exhibitionism Explained http://www.pbs.org/wgbh/evolution/sex/guppy/conclusion.html
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Novak, M. and Wilensky, U. (2006).  NetLogo HubNet Guppy Spots HubNet model.  http://ccl.northwestern.edu/netlogo/models/HubNetGuppySpotsHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2006 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2006 Cite: Novak, M. -->
 @#$#@#$#@
 default
 true

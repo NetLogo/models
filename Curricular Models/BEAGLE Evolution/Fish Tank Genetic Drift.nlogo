@@ -701,6 +701,10 @@ to-report carrying-capacity-in-this-region [this-xcor]
   let tank-capacity-of-this-region (this-region-right-side - this-region-left-side) * carrying-capacity / 25
   report tank-capacity-of-this-region
 end
+
+
+; Copyright 2011 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 579
@@ -1212,7 +1216,6 @@ Over multiple generations this shift in gene distribution leads to alleles becom
 
 The underlying mechanism of random selection generates different outcomes than in  natural selection (where individual traits and genes are selected for the advantages they confer on the survival and reproduction of individuals).  In addition to natural selection, however, this random selection and resulting effects of genetic drift is one of the primary mechanisms, which drive evolution.  It is also believed to be one of the mechanisms, which contributes to speciation.
 
-
 ## HOW IT WORKS
 
 The fish have a simple genetic representation for five traits: sex (and corresponding body color), spotting, dorsal fin color, tail shape, and tail color.
@@ -1232,8 +1235,6 @@ The genotype for each fish is represented as a karyotype of a body cell.  A visu
 The arrows and hearts in the model represent the movement and recombination of alleles through sexual reproduction.  Arrows represent the movement of the male sex cell to the female sex cell.  The heart represents a fertilization event that will occur when that male sex cell reaches the randomly selected female sex cell.  A karyotype of the alleles in both the body cells (somatic cells) and/or the sex cells (gametes) for all the fish involved in reproduction can also be visualized as this process is occurring.
 
 The model has two random selection mechanisms used for driving the effects of genetic drift.  One of these is the AUTO-REPLACE switch.  It is used to continually remove a randomly selected individual from the population and replace it with an offspring from a randomly selected pair of parents.
-
-
 
 ## HOW TO USE IT
 
@@ -1266,7 +1267,6 @@ You can add dividers to break the tank up into smaller regions, by clicking on t
 
 AUTO-REPLACE?: when turned "on" will cause the computer select a fish at random to remove and replace it with a new one every .25 seconds.  The new fish will be an offspring of two randomly selected fish remaining in the population (one male and one female parent).  This can only occur if there is at least one male and at least one female available in that section of the fish tank.  For example, if a tank is divided into two regions, and the right region has only males, and the left region has both males and females, auto-replace will replace fish on the right side only.   If no region has both males and females, then no fish will be replaced in any part of the tank, even when AUTO-REPLACE? is set to "On".
 
-
 ## THINGS TO NOTICE
 
 When fish are randomly replaced fluctuation in the proportion of each allele in the population will occur  This is because only 1 of every two alleles for a gene is passed on to an offspring, and the process of separating out which allele is passed on through a gamete (via. meiosis) is fundamentally a random outcome.  When fluctuations bring the number of alleles down to zero, that allele is gone from the fish population and can't return.
@@ -1285,7 +1285,6 @@ One limiting bottleneck factor to notice is related to the proportion of males a
 
 When pressing SETUP for the same initial conditions for the % of each allele observer will notice that fluctuations occur in the phenotypes of the fish, even as no fluctuations have occurred in frequency of each allele in the gene pool of the population.  This is because of the rules of Mendelian genetics.  Imagine that we have two fish in a population that contains 50% of the alleles as "g" (no instructions for producing the protein for making the green pigmentation of the tail) and 50% of the alleles as "G" (instructions for producing the protein for making the green pigmentation of the tail.  A population where one fish has a GG genotype and the other has a gg genotype would have phenotypes of one fish with a green tail and one without.  But a population where one fish has a Gg genotype and the other has a Gg genotype would have both fish with green tails.  In both populations, however, the number of each type of allele in the gene pool is the same.  This type of fluctuation occurs from generation to generation in the fish.
 
-
 ## THINGS TO TRY
 
 You can watch random selection occur by "random selection" by turning on an auto replace process (which will steadily remove four fish from the population and replace them with new offspring fish from the population every second).
@@ -1302,7 +1301,6 @@ Simulate the reduction the effects of a disease, temporary loss of habitat, temp
 
 Try adding barriers in the fish tank (by clicking on the black bottom of the fish tank) to geographically isolate portions of the population from one another.  You can cause the isolated sub population to lose diversity of traits and alleles, but the overall population to keep the allele diversity needed for any variation.
 
-
 ## NETLOGO FEATURES
 
 Transparency is used to visualize the death of fish.  When a fish dies, the fish shape is removed and a bone shape appears and then gradually fades to transparent when a fish is removed from the population.
@@ -1311,11 +1309,9 @@ Directional links are used to visualize the transmission of a gamete to a "ferti
 
 Tie is used to build hierarchies of shapes that belong to parent shapes.  For example, sex cells and body cells have parent shapes (karyotypes) thank have other shapes linked to them (chromosomes - which represent the alleles).  And the fish shape has fish parts that are linked to it, each part a phenotype determined by the genetic information of the body cell of the parent.
 
-
 ## EXTENDING THE MODEL
 
 It might be useful to add the code that allows you to drag agents (fish) around using a mouse cursor.  That way you could move a fish from one region to another to explore what happens when a pioneer brings in new genes into a gene pool from a previously isolated population.
-
 
 ## RELATED MODELS
 
@@ -1325,6 +1321,30 @@ Bug Hunt Drift, under BEAGLE Evolution folder, under Curricular Resources
 ## CREDITS AND REFERENCES
 
 This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Novak, M. and Wilensky, U. (2011).  NetLogo Fish Tank Genetic Drift model.  http://ccl.northwestern.edu/netlogo/models/FishTankGeneticDrift.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2011 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2011 Cite: Novak, M. -->
 @#$#@#$#@
 default
 true

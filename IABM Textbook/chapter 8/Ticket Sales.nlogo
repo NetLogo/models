@@ -171,6 +171,10 @@ to buy
   set bought? true
   set color green
 end
+
+
+; Copyright 2011 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 261
@@ -348,23 +352,21 @@ NIL
 @#$#@#$#@
 ## ACKNOWLEDGMENT
 
-This model is from Chapter Two of the book "Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo", by Uri Wilensky & William Rand.
+This model is from Chapter Eight of the book "Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo", by Uri Wilensky & William Rand.
 
-Wilensky, U & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
-This model is in the IABM Textbook folder of the NetLogo models library. The model, as well as any updates or errata, can also be found on the textbook website: http://www.intro-to-abm.com/
+This model is in the IABM Textbook folder of the NetLogo Models Library. The model, as well as any updates to the model, can also be found on the textbook website: http://www.intro-to-abm.com/.
 
 ## WHAT IS IT?
 
 The general intent of this model is to simulate how individuals within a limited geographic region decide to buy tickets to a live event.
-
 
 ## HOW IT WORKS
 
 During setup, census tract definitions and census tract data are read from external files. The GIS extension is used to read in the tract definitions. The data is read from census files. After this data is read in, households are created in each patch to represent the underlying population present in those location. Finally, a venue is randomly created somewhere in the space.
 
 Once the model runs, in each time step, agents who have not bought tickets calculate the expected utility of attending the event. Then, based on that probability, they decide whether or not to buy the ticket at that time step. This random draw simulates the fact that the particular period in which they decide or not to buy the ticket is stochastic. To make it more realistic you can elaborate the model so that it determines who buys early and who buys late.
-
 
 ## HOW TO USE IT
 
@@ -378,7 +380,6 @@ CONSUMER-EXPECTED-VALUE controls what value the consumers expect to get out of a
 
 DISTANCE-SENSITIVITY controls how sensitive consumers are about the distance they are from the event.
 
-
 ## THINGS TO NOTICE
 
 The basic pattern grows outward from the venue.
@@ -387,11 +388,9 @@ The density of sales decreases as we get further away from the venue.
 
 The number of sales increases quickly at first, and then slows down.
 
-
 ## THINGS TO TRY
 
 Adjust the CONSUMER-UNCERTAINTY and CONSUMER-EXPECTED-VALUE and see how it affects the results. Number of sales should increase as uncertainty decreases and should decrease as the expected value decreases.
-
 
 ## EXTENDING THE MODEL
 
@@ -399,22 +398,49 @@ Make the process of when consumers buy less stochastic.
 
 Add pricing tiers.
 
-
 ## NETLOGO FEATURES
 
 This model demonstrates the use of the NetLogo GIS extension. It uses the extension to load two GIS datasets for New York City: one for the census tracts and one for the roads. Information about the population in the various census tracts is then loaded from a text file using NetLogo's `file-*` primitives.
 
-
 ## RELATED MODELS
 
 GIS General Examples
-
 
 ## CREDITS AND REFERENCES
 
 This model was inspired by the work of Peggy Tseng and Wendy Moe. Especially, Peggy's dissertation:
 
 Tseng, P. (2009) Effects of Performance Schedules on Event Ticket Sales. Dissertation, University of Maryland Robert H. Smith School of Business. Chair: Moe, W.
+
+## HOW TO CITE
+
+This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo.”
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Rand, W. & Wilensky, U. (2011).  NetLogo Ticket Sales model.  http://ccl.northwestern.edu/netlogo/models/TicketSales.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the textbook as:
+
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2011 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2011 Cite: Rand, W. & Wilensky, U. -->
 @#$#@#$#@
 default
 true

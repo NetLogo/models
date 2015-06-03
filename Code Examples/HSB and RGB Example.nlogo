@@ -22,6 +22,11 @@ to-report patch-quadrant  ;; patch procedure
   report list ifelse-value (pxcor < world-width / 2) [-1] [1]
               ifelse-value (pycor < world-width / 2) [-1] [1]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 175
@@ -253,6 +258,8 @@ The left side of the world is the approximate NetLogo color equivalent to the sp
 ## NETLOGO FEATURES
 
 The origin patch (0,0) is in the corner rather than the center, so the dimensions of the patch grid can be even, so the grid can be divided into four equal quadrants.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

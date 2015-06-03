@@ -27,6 +27,11 @@ to move-fish
   ask fish [ fd 1 ]
   tick
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 272
@@ -114,6 +119,8 @@ This code example shows how to create and control groups of turtles, i.e. breeds
 It also shows how to set the default shape of a breed, so all turtles with that breed will have that shape.
 
 To create your own shapes, use the Shapes Editor in the Tools menu.
+
+<!-- 2005 -->
 @#$#@#$#@
 default
 true

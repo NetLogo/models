@@ -51,6 +51,11 @@ to setup
         [ set plabel-color black ]
         [ set plabel-color white ] ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 134
@@ -104,6 +109,8 @@ This model was used to generate the color chart in the NetLogo User Manual.
 ## NETLOGO FEATURES
 
 Instead of the origin patch (0,0) being in the center of the world, it's near the upper left corner.  This makes the math simpler.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

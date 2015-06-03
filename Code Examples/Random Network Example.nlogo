@@ -24,6 +24,11 @@ to setup-erdos-renyi
                                     random-float 1.0 < probability]
   ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 202
@@ -175,6 +180,8 @@ Network Import Example - how to create a network based on data from a file
 
 * http://mathworld.wolfram.com/RandomGraph.html
 * http://en.wikipedia.org/wiki/Random_graph
+
+<!-- 2007 -->
 @#$#@#$#@
 default
 true

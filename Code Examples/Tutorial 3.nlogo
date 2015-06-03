@@ -68,6 +68,11 @@ to regrow-grass
     if random 100 < 3 [ set pcolor green ]
   ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 240
@@ -231,6 +236,8 @@ HORIZONTAL
 ## WHAT IS IT?
 
 The construction of this model is described in Tutorial 3 in the NetLogo User Manual.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

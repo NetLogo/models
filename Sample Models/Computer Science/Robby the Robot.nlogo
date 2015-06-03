@@ -415,6 +415,11 @@ to-report chromosome-distance [individual1 individual2]
   ;; if distance is too large, report the edge of the view
   report ifelse-value (dist-candidate > max-pxcor) [max-pxcor] [dist-candidate]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 336
@@ -808,7 +813,6 @@ All of this takes a fair amount of time to show, so for long runs of the GA you'
 
 Any time you want to pause the algorithm and see how the current best strategy behaves, press GO-FOREVER and wait for the current generation to finish.  Re-check "view updates" if you unchecked it before.  Next, press VIEW-ROBBY'S-ENVIRONMENT.  This displays the grid that Robby moves in, with a new, random distribution of cans.  Then, press STEP-THRU-BEST-STRATEGY.  Each time you press this button, Robby will use the best  strategy from the last generation to take an action in the current environment.  Keep pressing the STEP-THRU-BEST-STRATEGY button to see how the strategy works.  At any time you can press VIEW-ROBBY'S-ENVIRONMENT again to start over with a new environment of cans.  If you want to go back to the "strategy view", press the VIEW-STRATEGIES button.
 
-
 ## THINGS TO NOTICE
 
 Robby's performance gradually improves.  How long does it take to get to a medium or high fitness?
@@ -855,6 +859,26 @@ This NetLogo version of Robby is based on Mitchell's earlier versions in NetLogo
 It uses code from the Simple Genetic Algorithms model (Stonedahl & Wilensky, 2008) in the NetLogo Sample Models Library.
 
 Robby resembles a simpler version of Richard E. Pattis' Karel the Robot, http://en.wikipedia.org/wiki/Karel_(programming_language).
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Mitchell, M., Tisue, S. and Wilensky, U. (2012).  NetLogo Robby the Robot model.  http://ccl.northwestern.edu/netlogo/models/RobbytheRobot.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+[![CC0](http://ccl.northwestern.edu/images/creativecommons/zero.png)](http://creativecommons.org/publicdomain/zero/1.0/)
+
+Public Domain: To the extent possible under law, Uri Wilensky has waived all copyright and related or neighboring rights to this model.
+
+<!-- 2012 CC0 Cite: Mitchell, M., Tisue, S. -->
 @#$#@#$#@
 default
 true

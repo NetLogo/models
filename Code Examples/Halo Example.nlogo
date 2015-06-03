@@ -34,6 +34,11 @@ to make-halo  ;; runner procedure
     [ tie
       hide-link ] ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 286
@@ -158,6 +163,8 @@ Note the use of an RGB color with an alpha value to make partially transparent h
 ## RELATED MODELS
 
 Label Position Example
+
+<!-- 2005 -->
 @#$#@#$#@
 default
 true

@@ -64,6 +64,11 @@ end
 to paint-agents [agents]
   ask agents [ set pcolor [color] of myself - 2 ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 304
@@ -236,6 +241,8 @@ To see `neighbors` and `neighbors4` in the sample models see Shepherds, Altruism
 To see `in-radius` in the sample models see Fireflies, Flocking, and Simple Kinetics 3.
 
 To see `at-points` in the sample models see the Crystallization models, and Wave Machine.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

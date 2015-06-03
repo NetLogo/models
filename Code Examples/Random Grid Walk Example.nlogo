@@ -25,6 +25,11 @@ to walk2
   ]
   tick
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 189
@@ -155,6 +160,8 @@ The monitors show that the turtle's xcor and ycor are always exact multiples of 
 ## RELATED MODELS
 
 Random Walk Example - shows a freer random walk which does not follow a grid
+
+<!-- 2006 -->
 @#$#@#$#@
 default
 true

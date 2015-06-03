@@ -48,6 +48,10 @@ to preset [ seed ]
   random-seed seed
   setup
 end
+
+
+; Copyright 2014 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 290
@@ -303,9 +307,9 @@ NIL
 
 This model is from Chapter Two of the book "Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo", by Uri Wilensky & William Rand.
 
-Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
-This model is in the IABM Textbook folder of the NetLogo models library. The model, as well as any updates to the model, can also be found on the textbook website: http://www.intro-to-abm.com/.
+This model is in the IABM Textbook folder of the NetLogo Models Library. The model, as well as any updates to the model, can also be found on the textbook website: http://www.intro-to-abm.com/.
 
 ## UPDATES TO THE MODEL SINCE TEXTBOOK PUBLICATION
 
@@ -353,10 +357,7 @@ You can create buttons that capture interesting patterns of behaviors by using t
 
 RANDOM-SEED initializes the NetLogo random number generator so that it always produces the same set of random numbers, enabling exact reproduction of model runs.
 
-
 ## CREDITS AND REFERENCES
-
-This model is part of the textbook: Wilensky & Rand (2015). Introduction to Agent-Based Modeling: Modeling the Natural, Social and Engineered Complex Systems with NetLogo.
 
 Versions of the Model are described in:
 
@@ -367,6 +368,36 @@ Bonabeau. E. (2012). http://www.icosystem.com/labsdemos/the-game/ .
 Bonabeau, E., Funes, P. & Orme, B.  (2003). Exploratory Design Of Swarms. 2nd International Workshop on the Mathematics and Algorithms of Social Insects. Georgia Institute of technology, Atlanta, GA.
 
 Sweeney, L. B., & Meadows, D. (2010). The systems thinking playbook: Exercises to stretch and build learning and systems thinking capabilities.
+
+## HOW TO CITE
+
+This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo.”
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Stonedahl, F., Wilensky, U., Rand, W. (2014).  NetLogo Heroes and Cowards model.  http://ccl.northwestern.edu/netlogo/models/HeroesandCowards.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the textbook as:
+
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2014 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2014 Cite: Stonedahl, F., Wilensky, U., Rand, W. -->
 @#$#@#$#@
 default
 true

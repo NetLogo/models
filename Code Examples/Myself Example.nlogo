@@ -34,6 +34,11 @@ to infect
   lt random-float 20
   fd 1
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 279
@@ -164,6 +169,8 @@ EXAMPLE #2: Demonstrates \"myself\" in combination with ask and -of
 ## WHAT IS IT?
 
 This model demonstrates several possible kinds of uses for the `myself` primitive.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

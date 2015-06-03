@@ -492,6 +492,10 @@ to histogram-blocks
   plotxy mean-results 0
   plotxy mean-results plot-y-max
 end
+
+
+; Copyright 2006 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 270
@@ -815,8 +819,6 @@ o
 
 o  How symmetrical is the set of stalagmites?  How would you define "symmetry?"  How would you quantify and display its changes over time?
 
-## NETLOGO FEATURES
-
 ## RELATED MODELS
 
 Some of the other ProbLab (curricular) models, including SAMPLER-a HubNet Participatory Simulation-feature related visuals and activities.  In Stochastic Patchwork and especially in Sample Stalagmite you will see larger blocks, such as an arrays of green and blue squares.  In the Stochastic Patchwork model and especially in 9-Blocks model, we see frequency distribution histograms.  These histograms compare in interesting ways with the shape of the stalagmites in this model.
@@ -825,6 +827,30 @@ Some of the other ProbLab (curricular) models, including SAMPLER-a HubNet Partic
 
 Thanks to Dor Abrahamson for the design and of this model as well as the implementation of the original model. Thanks to Josh Unterman for implementing the advanced procedures.
 This model is a part of the ProbLab Curriculum, originally under development at Northwestern's Center for Connected Learning and Computer-Based Modeling and now also at the Embodied Design Research Laboratory at UC Berkeley.  For more information about ProbLab, please refer to http://ccl.northwestern.edu/curriculum/ProbLab/.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Abrahamson, D. and Wilensky, U. (2006).  NetLogo 4 Block Stalagmites model.  http://ccl.northwestern.edu/netlogo/models/4BlockStalagmites.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2006 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2006 Cite: Abrahamson, D. -->
 @#$#@#$#@
 default
 true

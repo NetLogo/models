@@ -166,6 +166,10 @@ to-report ratio
   let denominator precision (mean #permis-successes-per-sample-list / mean #combi-successes-per-sample-list) 2
   report word "1 : " denominator
 end
+
+
+; Copyright 2004 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 430
@@ -555,7 +559,6 @@ Currently the model just rolls dice randomly, and records when its roll is simil
 
 It should be interesting to track how long it takes the model from one success to another. Add code, monitors, and a plot to do so.
 
-
 ## NETLOGO FEATURES
 
 We rely on iteration to evenly distribute the dice in the model. Rather than hard coding the x and y values of each dice, we calculate a 'spacing' between them, and iterate over the number of dice (2). The advantage to this is that if we ever want to add more dice, or if we decide to change the size of the model view, dice will still be distributed evenly.
@@ -575,6 +578,32 @@ The ProbLab model Random Combinations and Permutations builds on Dice. There, yo
 ## CREDITS AND REFERENCES
 
 This model is a part of the ProbLab curriculum. For more information about the ProbLab Curriculum please refer to http://ccl.northwestern.edu/curriculum/ProbLab/.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Abrahamson, D. and Wilensky, U. (2004).  NetLogo Dice model.  http://ccl.northwestern.edu/netlogo/models/Dice.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2004 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This model was created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
+
+<!-- 2004 Cite: Abrahamson, D. -->
 @#$#@#$#@
 default
 true

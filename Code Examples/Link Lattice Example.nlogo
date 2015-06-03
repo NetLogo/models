@@ -30,6 +30,11 @@ to setup-hex
     ]
   ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 163
@@ -109,6 +114,8 @@ The square lattice can be modified to include diagonal links by changing `neighb
 
 * Hex Cells Example: shows how to treat patches as a hexagonal lattice, without creating any links.
 * Lattice-Walking Turtles Example: shows how to make turtles walk along the lattice.
+
+<!-- 2007 -->
 @#$#@#$#@
 default
 true

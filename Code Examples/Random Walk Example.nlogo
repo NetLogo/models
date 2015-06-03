@@ -15,6 +15,11 @@ to go
   ]
   tick
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 153
@@ -89,6 +94,8 @@ The turtle's pen is down, so it leaves a trail behind it in the drawing.
 ## RELATED MODELS
 
 Random Grid Walk Example: the same except that the random walk is constrained to lie on a grid
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

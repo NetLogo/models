@@ -23,6 +23,11 @@ to go
     display ]
   output-print word "Result: " [(word " < " shape " > ")] of turtles
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 59
@@ -125,6 +130,8 @@ OUTPUT
 This model shows how to use random seeds to create reproducible model runs.
 
 For background on "pseudorandom" numbers and the random seed, please read the "Random Numbers" section of the Programming Guide in NetLogo's User Manual.
+
+<!-- 2005 -->
 @#$#@#$#@
 default
 true

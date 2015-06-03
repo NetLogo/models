@@ -44,6 +44,11 @@ to-report patch-value
   let normalized-value (pxcor + (pycor * world-width)) / (world-width * world-height)
   report normalized-value * 10 + 5
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -104,16 +109,13 @@ scheme
 
 This model demonstrates basic usage of the `palette` extension.
 
-
 ## HOW TO USE IT
 
 Select the color scheme that you want in the SCHEME chooser and then click SETUP.
 
-
 ## HOW IT WORKS
 
 The model assigns fractional values from 0 to 10 to patches, from bottom to top, left to right. The values are displayed, rounded, as patch labels. The model demonstrates various ways of using the `palette` extension to assign colors to patches according to these values.
-
 
 ## NETLOGO FEATURES
 
@@ -121,10 +123,11 @@ The `palette:scale-scheme`, `palette:scale-gradient` and `palette:scheme-colors`
 
 See [the documentation for the extension](https://github.com/NetLogo/Palette-Extension/blob/master/README.md) for more details.
 
-
 ## CREDITS AND REFERENCES
 
 ColorBrewer: http://colorbrewer2.org/
+
+<!-- 2014 -->
 @#$#@#$#@
 default
 true

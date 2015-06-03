@@ -392,6 +392,10 @@ to update-statistics
    set max-energy-of-any-bug precision (max [energy] of bugs ) 1
   ]
 end
+
+
+; Copyright 2011 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 405
@@ -683,7 +687,6 @@ Even when individuals are identical, differences in where and when shared resour
 
 The degree of competition in an ecosystem depends on the number of individuals in the ecosystem and the amount of resources available per individual. A very small number of individuals may generate very little or no competition (individuals may have all the resources that they need).  However, many individuals will generate intensive competition for resources, such that very few resources are available for each individual and many individuals will die for lack of adequate resources.
 
-
 ## HOW IT WORKS
 
 In this model, you can have two kinds of bugs; bugs controlled by players using HubNet or automated bugs.
@@ -693,7 +696,6 @@ Each HubNet player assumes the role of a consumer.  When the HubNet simulation i
 In addition, automated bugs can be included in the model. They wander around the world randomly, eating grass.
 
 When bugs-lose-energy? is on, bugs lose energy at each step and they must eat grass to replenish their energy. When they run out of energy, they die. Automated bugs can be set to reproduce automatically when they have enough energy to have an offspring. In such a case, the offspring and parent split the energy amongst themselves.
-
 
 ## HOW TO USE IT
 
@@ -713,7 +715,7 @@ LENGTH-COMPETITION:  Determines how long the competition will last. The unit of 
 
 INCLUDE-CLIENTS-AS-BUGS?:  When "On", all HubNet connected clients will be given an individual bug to control that is assigned to their client when SETUP is pressed. When this is "Off", the model will run only on your local machine.
 
-AUTOMATED-BUGS-WANDER?:  When "On", automated bugs will turn a random amount left or right (between 30 and -30 degrees from its current heading) each tick.  When "off" the automated bugs will move in a straight line.  
+AUTOMATED-BUGS-WANDER?:  When "On", automated bugs will turn a random amount left or right (between 30 and -30 degrees from its current heading) each tick.  When "off" the automated bugs will move in a straight line.
 
 AUTOMATED-BUGS-LOSE-ENERGY?: When "On", bugs lose one unit of energy for each tick.
 
@@ -733,8 +735,6 @@ X-INTERVAL:  reports whatever the x-interval is for 20 bars in the historgram ra
 
 Note: Grass squares grow back (become darker green) over time and accumulate more stored energy (food) as they become darker.
 
-
-
 ## THINGS TO NOTICE
 
 The histogram of ENERGY LEVELS OF BUGS will show that some bugs are more successful at gaining more energy from plants than others.  The histogram will show this when the bugs are intentionally being controlled by players, when they are being randomly controlled by the computer, and any combination of both.
@@ -742,7 +742,6 @@ The histogram of ENERGY LEVELS OF BUGS will show that some bugs are more success
 When BUGS-LOSE-ENERGY is set to "off", the histogram will keep drifting further to the right then when it is set to "on".
 
 For large populations of participants or large populations of automated bugs, the histogram for ENERGY LEVELS OF BUGS will tend to approximate a bell shaped curve.  When both participants and automated bugs are present, two histograms tend to form showing a bi-modal bell-shaped distribution, where the intentionally competing participants tend to be in the right shifted bell-shaped distribution and the automated bugs tend to be in the left shifted bell-shaped distribution.
-
 
 ## THINGS TO TRY
 
@@ -752,11 +751,9 @@ If you adjust the AMOUNT-OF-GRASSLAND, does less grassland affect the shape of t
 
 How does LENGTH-OF-COMPETITION affect the spread of the distribution in the histogram?
 
-
 ## EXTENDING THE MODEL
 
 The model could be extended for some player to control predators and others to control consumers.  Alternately, some players could control consumers on one team (one type of color of bugs) and some players could control consumers on another team (another type of color of bugs).  Such a competition between teams may still tend to result in similar shaped and similar shifted histograms for energy level distributions for each team of bugs.
-
 
 ## NETLOGO FEATURES
 
@@ -769,6 +766,30 @@ Look the Wolf Sheep Predation model, Bug Hunt Consumers model, Bug Hunt Predatio
 ## CREDITS AND REFERENCES
 
 This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Novak, M. and Wilensky, U. (2011).  NetLogo Bug Hunters Competition HubNet model.  http://ccl.northwestern.edu/netlogo/models/BugHuntersCompetitionHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2011 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2011 Cite: Novak, M. -->
 @#$#@#$#@
 default
 true

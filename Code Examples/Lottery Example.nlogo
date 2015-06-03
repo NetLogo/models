@@ -35,6 +35,11 @@ to-report lottery-winner
             [ set pick pick - size ] ] ]
   report winner
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 171
@@ -138,6 +143,8 @@ In this version of the code, the agentset for the lottery (`turtles`) and the re
 ## RELATED MODELS
 
 Preferential Attachment, in the Networks section of Sample Models, uses this code.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

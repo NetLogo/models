@@ -170,6 +170,10 @@ end
 to-report choose-store
   report min-one-of turtles [ (price) + (distance myself) ]
 end
+
+
+; Copyright 2009 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 285
@@ -342,11 +346,9 @@ This model is a representation of Hotelling's law (1929), which examines the opt
 
 In this model, several stores attempt to maximize their profits by moving and changing their prices.  Each consumer chooses their store of preference based on the distance to the store and the price of the goods it offers.
 
-
 ## HOW IT WORKS
 
 Each consumer adds up the price and distance from each store, and then chooses to go to the store that offers the lowest sum. In the event of a tie, the consumer chooses randomly. The stores can either be constrained to one dimension, in which case all stores operate on a line, or they can be placed on a plane. Under the normal rule, each store tries to move randomly in the four cardinal directions to see if it can gain a larger market share; if not, it does not move. Then each store checks if it can earn a greater profit by increasing or decreasing the price of their goods; if not, it does not change the price. This decision is made without any knowledge of their competitors' strategies. There are two other conditions under which one can run this model: stores can either only change prices, or only move their location.
-
 
 ## HOW TO USE IT
 
@@ -359,7 +361,6 @@ If the LAYOUT chooser is on LINE, then the stores will operate only on one dimen
 
 If the RULES chooser is on PRICING-ONLY, then stores can only change their price.  If it is on MOVING-ONLY, then the stores can only move.  If it is on NORMAL, all stores can change their prices and move.
 
-
 ## THINGS TO NOTICE
 
 On the default settings, notice that the two stores end up in very close contact and with minimal prices. This is because each store tries to cut into their competitor's fringe consumers by moving closer and reducing their prices.
@@ -370,13 +371,11 @@ Try increasing the store number to three or more, and notice how the store with 
 
 Plots show the prices, areas, and revenues of all stores.
 
-
 ## THINGS TO TRY
 
 Try to see how stores behave differently when they are either prohibited from moving or changing their prices.
 
 Try increasing the number of stores. Examine how they behave differently and watch which ones are the most successful.  What patterns emerge?
-
 
 ## EXTENDING THE MODEL
 
@@ -414,6 +413,30 @@ One can extend this model further by introducing a different layout. How would t
 ## CREDITS AND REFERENCES
 
 Hotelling, Harold. (1929). "Stability in Competition." The Economic Journal 39.153: 41 -57. (Stable URL: http://www.jstor.org/stable/2224214 ).
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Ottino, B., Stonedahl, F. and Wilensky, U. (2009).  NetLogo Hotelling's Law model.  http://ccl.northwestern.edu/netlogo/models/Hotelling'sLaw.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2009 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2009 Cite: Ottino, B., Stonedahl, F. -->
 @#$#@#$#@
 default
 true

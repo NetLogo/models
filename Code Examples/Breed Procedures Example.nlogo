@@ -36,6 +36,11 @@ end
 to cows-speak  ;; cow procedure
   set label "mooooo!"
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 156
@@ -118,6 +123,8 @@ but such code is tedious to write and runs slower.
 ## NETLOGO FEATURES
 
 The `run` command is fast when you use it over and over again on the same strings, so using this technique won't hurt the performance of your model.
+
+<!-- 2007 -->
 @#$#@#$#@
 default
 true

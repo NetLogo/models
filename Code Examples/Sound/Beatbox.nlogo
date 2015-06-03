@@ -158,6 +158,11 @@ end
 to save-file
   export-world user-new-file
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 307
@@ -379,6 +384,8 @@ For more information on the sound extension, and on extensions in general, see t
 ## RELATED MODELS
 
 Composer
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

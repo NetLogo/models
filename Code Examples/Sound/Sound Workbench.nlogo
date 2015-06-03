@@ -55,6 +55,11 @@ to prev-instrument
     play
   ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 458
@@ -618,6 +623,8 @@ The instrument section allows you to choose one of the 128 instruments provided 
 Each time the model plays a sound, it writes the command used to generate the sound to the output area. You can copy and paste the command to use in your models.
 
 The memory bank lets you store the current sound for later retrieval, allowing you to hear how different sounds will sound together.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

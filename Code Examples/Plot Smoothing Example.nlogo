@@ -17,6 +17,11 @@ to go
   ;; This one line is the heart of the whole example.
   set smoothed smoothness * smoothed + (1 - smoothness) * n
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 374
@@ -129,6 +134,8 @@ The very simple method used to do smoothing causes the smoothed line to lag a bi
 ## CREDITS AND REFERENCES
 
 Thanks to Ed Hazzard for suggesting this example.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

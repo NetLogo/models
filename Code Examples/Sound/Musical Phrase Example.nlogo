@@ -34,6 +34,11 @@ to-report whole   report 240 / bpm end
 to-report half    report 120 / bpm end
 to-report quarter report  60 / bpm end
 to-report eighth  report  30 / bpm end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 265
@@ -107,6 +112,8 @@ The model uses `sound:play-note-later` with an increasing delay value to constru
 
 * Composer
 * Sound Workbench
+
+<!-- 2006 -->
 @#$#@#$#@
 default
 true

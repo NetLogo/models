@@ -322,6 +322,10 @@ end
 to-report last100coop-percent
   report sum last100coop / max list 1 sum last100meet
 end
+
+
+; Copyright 2003 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 350
@@ -555,10 +559,9 @@ Horizontal lines are altruists - cooperate with everyone\nVertical lines are eth
 @#$#@#$#@
 ## ACKNOWLEDGMENT
 
-This model is an alternate visualization of the Ethnocentrism model in the Social Sciences section of the NetLogo models library. It uses visualization techniques as recommended in the paper:
+This model is an alternate visualization of the Ethnocentrism model from the Social Science section of the NetLogo Models Library. It uses visualization techniques as recommended in the paper:
 
-Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation, JASSS, 12(2), 1.
-http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuidelinesABMViz.pdf
+* Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation (JASSS), 12(2), 1. http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuidelinesABMViz.pdf.
 
 ## WHAT IS IT?
 
@@ -651,6 +654,32 @@ http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuideline
 This work is based on the visualization guidelines found in:
 Healey, C. (2006). Perception in Visualization.
 http://www.csc.ncsu.edu/faculty/healey/PP/index.html
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. (2003).  NetLogo Ethnocentrism - Alternative Visualization model.  http://ccl.northwestern.edu/netlogo/models/Ethnocentrism-AlternativeVisualization.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2003 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This model was created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
+
+<!-- 2003 -->
 @#$#@#$#@
 default
 true

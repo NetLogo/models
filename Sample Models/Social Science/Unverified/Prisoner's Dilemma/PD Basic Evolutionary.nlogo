@@ -72,6 +72,10 @@ to establish-color  ;; patch procedure
        set color-class 2]
     ]
 end
+
+
+; Copyright 2002 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 426
@@ -236,11 +240,9 @@ In an Iterated Prisoner's Dilemma where you have more than two players and multi
             (x, y) = x: your score, y: your partner's score
             Note: higher the score (amount of the benefit), the better.
 
-
 ## HOW TO USE IT
 
 Decide what percentage of patches should cooperate at the initial stage of the simulation and change the INITIAL-COOPERATION slider to match what you would like.  Next, determine the DEFECTION-AWARD multiple (mentioned as alpha in the payoff matrix above) for defecting or not cooperating.  The Defection-Award multiple varies from range of 0 to 3.  Press SETUP and note that red patches (that will defect) and blue patches (cooperate) are scattered across the  .  Press GO to make the patches interact with their eight neighboring patches.  First, they count the number of neighboring patches that are cooperating.  If a patch is cooperating, then its score is number of neighboring patches that also cooperated.   If a patch is defecting, then its score is the product of the number of neighboring patches who are cooperating and the Defection-Award multiple.
-
 
 ## HOW IT WORKS
 
@@ -253,7 +255,6 @@ If a patch is red, then the patch defected in the previous iteration as well as 
 If a patch is green, then the patch cooperated in the previous round but defected in the current round.
 If a patch is yellow, then the patch defected in the previous round but cooperated in the current round.
 
-
 ## THINGS TO NOTICE
 
 Notice the effect the Defection-Award multiple plays in determining the number of patches that will completely cooperate (red) or completely defect (blue). At what Defection-Award multiple value will a patch be indifferent to defecting or cooperating?  At what Defection-Award multiple value will there be a dynamic change between red, blue, green, and yellow - where in the end of the model no particular color dominates all of the patches (i.e. view is not all red or all blue)?
@@ -265,7 +266,6 @@ Note the Initial-Cooperation percentage.  Given that Defection-Award multiple is
 Increase the Defection-Award multiple by moving the "Defection-Award" slider (just increase the "Defection-Award" slider while model is running), and observe how the histogram for each color of patch changes. In particular, pay attention to the red and blue bars.  Does the number of pure cooperation or defection decrease or increase with the increase of the Defection-Award multiple?  How about with a decrease of the Defection-Award multiple? (Just increase the "Defection-Award" slider while model is running.)
 
 At each start of the model, either set the initial-cooperation percentage to be very high or very low (move the slider for "initial-cooperation"), and proportionally value the Defection-Award multiple (move the slider for "Defection-Award" in the same direction) with regards to the initial-cooperation percentage.  Which color dominates the world, when the initial-cooperation is high and the Defection-Award is high?  Which color dominates the world when initial-cooperation is low and the Defection-Award multiple is also low?
-
 
 ## EXTENDING THE MODEL
 
@@ -280,7 +280,31 @@ Implement these four strategies:
 
 How are the cooperating and defecting patches distributed?  Which strategy results with the highest score on average?  On what conditions will this strategy be a poor strategy to use?
 
-## CREDITS AND REFERENCES
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. (2002).  NetLogo PD Basic Evolutionary model.  http://ccl.northwestern.edu/netlogo/models/PDBasicEvolutionary.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2002 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This model was created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
+
+<!-- 2002 -->
 @#$#@#$#@
 default
 true

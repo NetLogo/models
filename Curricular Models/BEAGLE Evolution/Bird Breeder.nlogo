@@ -731,6 +731,10 @@ to-report lookup-phenotype-for-gene [x]
   set item-counter 0
   report target-phenotype
 end
+
+
+; Copyright 2007 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 296
@@ -1021,7 +1025,6 @@ Breast color:  (CC) black
 Tail shape:
     (DD) spade          or  (Dd, dD) rope and spade   or  (dd) rope
 
-
 ## HOW TO USE IT
 
 There are 4 players in this selective breeding scenario and you are one of them.  The other three are computer players.  Each of the computer players take a passive role in the breeding of birds, but serve as sources for out-breeding your own stock of birds.  You start with 3 birds you own in your six cages (at the bottom of the world).]  There are 6 breeding locations (color coded) in the middle of the world.  When move (using your mouse) one male and one female bird into a breeding location and press BREED-BIRDS, eggs will hatch.  You may drag the eggs back to your cages to see what the birds look like and keep them.   To set a bird free, just click drag it into the white space in the world and release the mouse button.  You can only set birds free that you own.
@@ -1077,6 +1080,30 @@ Plant Hybridization model.
 ## CREDITS AND REFERENCES
 
 This model is part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Novak, M. and Wilensky, U. (2007).  NetLogo Bird Breeder model.  http://ccl.northwestern.edu/netlogo/models/BirdBreeder.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2007 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2007 Cite: Novak, M. -->
 @#$#@#$#@
 default
 true

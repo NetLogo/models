@@ -36,6 +36,11 @@ to go
   ]
   tick
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 138
@@ -120,6 +125,8 @@ In the `go` procedure in the Code tab, change `uphill` to `uphill4`, `downhill`,
 ## NETLOGO FEATURES
 
 If you look at the entry for `uphill` in the NetLogo Dictionary, it shows some code that does the exact same thing as the primitive does. If you need to do something that is similar to the primitive, but different in so way, you could use that code as a starting point.
+
+<!-- 2007 -->
 @#$#@#$#@
 default
 true

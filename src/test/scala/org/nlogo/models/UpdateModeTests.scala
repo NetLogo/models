@@ -66,7 +66,7 @@ class UpdateModeTests extends TestModels {
     for {
       model <- _
       excluded = continuousUpdateModels(model.file.getPath)
-      targetMode = if (excluded) Continuous else OnTicks
+      targetMode = if (excluded) Model.Continuous else Model.OnTicks
       if model.updateMode != targetMode
     } yield s"update mode should be $targetMode in ${model.quotedPath}"
   }

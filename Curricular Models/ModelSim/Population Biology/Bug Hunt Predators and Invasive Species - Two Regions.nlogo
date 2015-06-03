@@ -529,6 +529,10 @@ to keep-in-region [ which-region ] ; turtle procedure
     ]
   ]
 end
+
+
+; Copyright 2015 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 364
@@ -980,7 +984,6 @@ ticks
 
 This model explores the stability of consumer producer ecosystems when different  initial populations of predator, prey, and producers are initialized into the model and when different numbers of invasive species are added to the model run.
 
-
 ## HOW IT WORKS
 
 Bugs wander randomly around one of two regions (left or right).  Each region is a self contained ecosystem  in the world.  Bugs in one region never go into the other region.    As bugs reach the edge of their region, they wrap around to other side of their own region.
@@ -991,8 +994,6 @@ Different amounts of grassland can be assigned to each region using the sliders.
 Birds wander randomly around one of two regions (left or right), following similar movement, energy loss, and reproduction rules as the bugs. Birds eat bugs, and not grass.
 
 An invasive species can be introduced into either ecosystem in the model. Individuals of the invasive species wander randomly around the regions in which they are introduced. Their movement, energy loss, and reproduction rules are the same as the bugs. They also eat grass.
-
-
 
 ## HOW TO USE IT
 
@@ -1021,8 +1022,6 @@ FOOD-LEFT-INVADERS-EAT and FOOD-RIGHT-INVADERS-EAT:  Sets the amount of energy t
 
 LEFT-INVADERS-TO-ADD and RIGHT-INVADERS-TO-ADD:  Determines the size of invader population to add to that region, when the corresponding LAUNCH INVASION button is pressed.
 
-
-
 ## THINGS TO NOTICE
 
 Watch as the grass, bug, bird, and invader populations fluctuate.  How are increases and decreases in the sizes of each population related?
@@ -1032,28 +1031,47 @@ Different % of grassland values affect the carrying capacity (average values) fo
 Different food consumption values (FOOD-LEFT-BUGS-EAT and FOOD-RIGHT-BUGS-EAT and
 FOOD-LEFT-INVADERS-EAT and FOOD-RIGHT-INVADERS-EAT) may lead to different levels of stability as well as whether one population (bugs vs. invaders) outcompetes the other.
 
-
 ## THINGS TO TRY
 
 Try adjusting the parameters under various settings. How sensitive is the stability of the model to the particular parameters? Does the parameter setting affect the amount of fluctuations, the carrying capacity of bugs, grass, invaders, or birds, or does it lead to the collapse of one population in the ecosystem?
-
-
 
 ## NETLOGO FEATURES
 
 The two regions in this model are represented by shapes that add another "wall" that surround the region.
 
-
 ## RELATED MODELS
 
 Refer to Bug Hunt Disruptions and Bug Hunt Environmental Changes for extensions of this model that include temporary disturbances such as fire and disease.
-
 
 ## CREDITS AND REFERENCES
 
 This model is part of the Ecology & Population Biology unit of the ModelSim curriculum, sponsored by NSF grant DRL-1020101.
 
 For more information about the project and the curriculum, see the ModelSim project website: http://ccl.northwestern.edu/modelsim/.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Novak, M. and Wilensky, U. (2015).  NetLogo Bug Hunt Predators and Invasive Species - Two Regions model.  http://ccl.northwestern.edu/netlogo/models/BugHuntPredatorsandInvasiveSpecies-TwoRegions.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2015 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2015 Cite: Novak, M. -->
 @#$#@#$#@
 default
 true

@@ -28,6 +28,11 @@ to go
   if not user-yes-or-no? "Would you like more turtles?"
     [ stop ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 238
@@ -107,6 +112,8 @@ NIL
 This demonstrates the usage of NetLogo's user interaction primitives, all of which begin with `user-`.  They let a model pop up a dialog box showing information to, or requesting information from, the model user.
 
 (Not demonstrated are `user-choose-directory`, `user-choose-file`, and `user-choose-new-file`.)
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

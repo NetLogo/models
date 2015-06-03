@@ -91,6 +91,11 @@ to execute-move [new-heading]
   fd step-size
   send-info-to-clients
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 88
@@ -227,6 +232,8 @@ This example demonstrates client perspectives: specifically, HUBNET-SEND-FOLLOW,
 ## HOW TO USE IT
 
 Make sure that the "Mirror 2D view on clients" box is selected on the HubNet Control Center. To explore different perspectives that are available to clients, select different client-view buttons on the interface.
+
+<!-- 2009 -->
 @#$#@#$#@
 default
 true

@@ -24,6 +24,11 @@ to recolor  ;; turtle procedure
   ; the turtle becomes lighter
   set color scale-color shading xcor min-pxcor max-pxcor
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 209
@@ -109,6 +114,8 @@ This code example demonstrates the `scale-color` reporter.  As a turtle's x-coor
 ## THINGS TO NOTICE
 
 The tails of the turtles on the right edge of the world are visible on the left edge of the view.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

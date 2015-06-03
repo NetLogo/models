@@ -365,6 +365,10 @@ to color-grass ;; patch procedure
     ]
   [set pcolor dirt-color]
 end
+
+
+; Copyright 2011 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 411
@@ -683,7 +687,6 @@ HORIZONTAL
 
 This model explores the stability of predator-prey ecosystems and how that stability is affected when new species are introduced into the ecosystem.
 
-
 ## HOW IT WORKS
 
 Birds and bugs wander randomly around the landscape.  Each step costs both animals energy and they must consume a food source (bugs must eat grass and birds must eat bugs & the invaders) to replenish their energy - when they run out of energy they die. To allow the population to continue, each bird or bug must have enough energy to have a litter of offspring and the offspring and parent split the energy amongst themselves.  Grass grows at a fixed rate, and when it is eaten, a fixed amount of grass energy is deducted from the patch (square) where the grass was eaten.
@@ -691,7 +694,6 @@ Birds and bugs wander randomly around the landscape.  Each step costs both anima
 Invasive species (mice) can be introduced to this ecosystem as well.  The mice are indirect competitors of the bugs.  They also eat grass.  They reproduce following the same rules as bugs.  The eating behavior of the mice and the bugs can be adjusted.
 
 Other disruptions such as removing a portion of the bug population (simulating a disease) or burning down the grass (removing the food source for bugs and invasive species temporarily) can also be tested to see how these disruptions affect the stability of the ecosystem.
-
 
 ## HOW TO USE IT
 
@@ -720,7 +722,6 @@ GRASS-TO-BURN-DOWN:  Sets the % of designated grassland patches that will have a
 NUMBER-INVADERS-TO-ADD: The number of the invasive species introduced when LAUNCH INVASION is pressed.
 AMOUNT-OF-FOOD-INVADERS-EAT: The amount of grass consumed at each simulation step by each one of the invasive species.
 
-
 ## THINGS TO NOTICE
 
 Watch as the grass, predators, and bug populations fluctuate.  How are increases and decreases in the sizes of each population related?
@@ -729,23 +730,21 @@ How does changing the attributes of the bugs (AMOUNT-OF-FOOD-BUGS-EAT) or birds 
 
 How does introducing an invasive species that has the same diet as the bugs (i.e. grass) affect the stability of the ecosystem?  How does setting the AMOUNT-OF-FOOD-INVADERS-EAT to a different value than AMOUNT-OF-FOOD-BUGS-EAT affect the stability of each population in the ecosystem?
 
-
 ## THINGS TO TRY
 
 Try adjusting the parameters under various settings. How sensitive is the stability of the model to the particular parameters.  Does the parameter setting affect the amount of fluctuations, the average values of each population, or does it lead to the collapse of one of the populations in the ecosystem (death of all the bugs, birds, or invasive species)?
 
-
 ## EXTENDING THE MODEL
+
 Additional invasive plant or invasive predator could be added.
 
 The amount of food a predator or a bug eats could be adjusted so that faster food consumption also corresponds to higher metabolism (cost of energy per move per turn), so that there is a competitive disadvantage for rapid food consumption in some environments.
 
 Traits such as amount of food a predator eats, or min-reproduction energy could be inherited in offspring and subject to slight random changes from mutations.
 
-
 ## NETLOGO FEATURES
-scale-color is used to visualize the amount of food (energy) available for bugs or invaders at each patch.  A whitish green (color of 59.9) is used to represent little grass foliage (not much food available at this patch) and green (color of 55) is used to represents lots of foliage (max. food available at this patch).  All other values for food plant-energy are linearly scaled between this range of colors.
 
+scale-color is used to visualize the amount of food (energy) available for bugs or invaders at each patch.  A whitish green (color of 59.9) is used to represent little grass foliage (not much food available at this patch) and green (color of 55) is used to represents lots of foliage (max. food available at this patch).  All other values for food plant-energy are linearly scaled between this range of colors.
 
 ## RELATED MODELS
 
@@ -756,6 +755,30 @@ Look at Bug Hunt Consumers for a simpler version of this model that includes no 
 ## CREDITS AND REFERENCES
 
 This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Novak, M. and Wilensky, U. (2011).  NetLogo Bug Hunt Predators and Invasive Species model.  http://ccl.northwestern.edu/netlogo/models/BugHuntPredatorsandInvasiveSpecies.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2011 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2011 Cite: Novak, M. -->
 @#$#@#$#@
 default
 true

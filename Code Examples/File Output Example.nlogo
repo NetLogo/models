@@ -51,6 +51,11 @@ to write-to-file
   ]
   file-print ""  ;; blank line
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 304
@@ -160,6 +165,8 @@ The example creates 15 random turtles and opens a new text file of the user's ch
 ## RELATED MODELS
 
 File Input Example
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

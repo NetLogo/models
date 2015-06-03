@@ -27,6 +27,11 @@ to setup
     ]
   ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 125
@@ -86,6 +91,8 @@ Note that many models that use links don't need link breeds.  If a model only ha
 Each link breed is either directed or undirected.  When you create the breed, you must specify one or the other.
 
 Two undirected links of the same breed cannot exist between the same two turtles.  Two directed links of the same breed cannot exist between the same two turtles in the same direction.
+
+<!-- 2007 -->
 @#$#@#$#@
 default
 true

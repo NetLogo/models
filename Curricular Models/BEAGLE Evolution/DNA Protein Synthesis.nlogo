@@ -908,6 +908,10 @@ to reset-completed-events
 
 
 end
+
+
+; Copyright 2012 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 460
@@ -1418,7 +1422,6 @@ current-instruction-label
 
 This model allows you to explore the effects of deletion, substitution, and insertion mutations on a single strand of DNA and the subsequent outcomes in related protein synthesis in cells.  The model represents effects from mutations that include 1) the number of genes that are encoded in the DNA, 2) the mRNA molecules that are transcribed, and 3) the tRNA molecules that are used to transcribe the mRNA into an amino acid chain, as wells as 4) the subsequent protein that is synthesized.
 
-
 ## HOW IT WORKS
 
 In this model nucleotides are molecules, that when joined together, make up the structural units of DNA.  Visually this appears as single nitrogen base (represented as a colored polygon) and 1 phosphate group (represented as a yellow circle).  Only a single strand of the double stranded DNA molecule is show in this model, as the protein synthesis process starts with the doubled stranded DNA being unwound into two single strands to permit mRNA production.
@@ -1445,7 +1448,6 @@ In order for DNA to produce proteins for each gene, the following four steps mus
 3.  Once the mRNA has finished moving in to the ribosome, the 3-TRANSLATE button must be pressed to translate the mRNA in the original cell and the 8-TRANSLATE button must be pressed to translate the mRNA in the replicated cell.  This pairs a tRNA molecule with each set of three nucleotides in the mRNA molecule.
 
 4.  Once the entire mRNA molecule has been paired with tRNA, the 4-RELEASE button must be pressed to release the amino acid chain from that attached to the tRNA chain in the original cell.  And the 9-RELEASE button must be pressed to release it in the replicated cell.  This amino-acid chain is the protein molecule before it folds up to take on its tertiary structure.
-
 
 ## HOW TO USE IT
 
@@ -1493,13 +1495,11 @@ The 10-SHOW PRODUCTION SUMMARY button reports all the proteins that produced in 
 
 MUTATION-TYPE can be set to deletion, insertion or substitution.  The number of nucleotides affected is set by #-NUCLEOTIDES-AFFECTED.  So 6 substitutions will place 6 random nucleotides in place of back to back sequence of 6 original nucleotides at a random location in the DNA.  And 4 insertions will add 4 random nucleotides in sequence at a random location in the DNA.  And 3 deletions will delete 3 random nucleotides in sequence at a random location in the DNA.
 
-
 ## THINGS TO NOTICE
 
 Sometimes the end location for 1 gene is the same as for another gene.  This may make it hard to distinguish the numbering of each of the tags for these end locations, since when they are stacked on top of each other at the same location, their text and colors overlap.
 
 Some mutations introduce brand new genes into a strand of DNA.  Some mutations remove an entire gene in a strand of DNA.  Some only affect a few of the amino acids that used in protein synthesis.  Others affect many.  And some mutation affect the non-coding regions of DNA, resulting in no effects in the proteins produced by the cell.
-
 
 ## THINGS TO TRY
 
@@ -1511,11 +1511,9 @@ Are there certain types of mutations (deletion, insertion, or substitution) that
 
 Why do certain numbers of nucleotides affected (e.g. 3 and 6) seem to affect some aspects of the genes more frequently and not others?
 
-
 ## EXTENDING THE MODEL
 
 A representation of protein folding could be added to the model (where each neighboring amino acid affects the amount of relative change in orientation to the previous amino acid).
-
 
 ## NETLOGO FEATURES
 
@@ -1523,15 +1521,37 @@ The model makes use of transparency features in the color channel for the shapes
 
 The model makes use of "tag" turtles.  These breeds of turtles have no visible shape, but do have text labels displayed.  They are placed at a fine tuned position near the visible turtle it is helping provide a label for and is linked to it.
 
-
 ## RELATED MODELS
 
 DNA Replication Fork is the precursor model to this one.  It shows how two types of mutations (deletion and substitution) cam emerge when DNA is duplicated in mitosis or meiosis through simple unintentional copying errors.
 
-
 ## CREDITS AND REFERENCES
 
 This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Novak, M. and Wilensky, U. (2012).  NetLogo DNA Protein Synthesis model.  http://ccl.northwestern.edu/netlogo/models/DNAProteinSynthesis.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2012 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2012 Cite: Novak, M. -->
 @#$#@#$#@
 default
 true

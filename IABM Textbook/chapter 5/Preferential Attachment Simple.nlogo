@@ -48,6 +48,10 @@ to layout
     fd (distancexy 0 0) / 100
   ]
 end
+
+
+; Copyright 2008 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 240
@@ -216,9 +220,9 @@ display-degree?
 
 This model is from Chapter Five of the book "Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo", by Uri Wilensky & William Rand.
 
-Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
-This model is in the IABM Textbook folder of the NetLogo models library. The model, as well as any updates to the model, can also be found on the textbook website: http://www.intro-to-abm.com/.
+This model is in the IABM Textbook folder of the NetLogo Models Library. The model, as well as any updates to the model, can also be found on the textbook website: http://www.intro-to-abm.com/.
 
 ## WHAT IS IT?
 
@@ -279,7 +283,7 @@ It uses some clever code to give "tickets" to each node so that its chance of wi
 
     let partner one-of [ both-ends ] of one-of links
 
-There are many ways to graphically display networks. This model uses the [`layout-spring`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#layout-spring) primitive to implement a common method in which the movement of a node at each time step is the net result of "spring" forces that pulls connected nodes together, and repulsion forces that push all the nodes away from each other. 
+There are many ways to graphically display networks. This model uses the [`layout-spring`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#layout-spring) primitive to implement a common method in which the movement of a node at each time step is the net result of "spring" forces that pulls connected nodes together, and repulsion forces that push all the nodes away from each other.
 
 Because the model uses  a bounded topology, some additional layout code keeps the nodes from staying at the view boundaries.
 
@@ -291,29 +295,11 @@ See other models in the Networks section of the Models Library, such as the full
 
 See also Network Example, in the Code Examples section.
 
-## HOW TO CITE
-
-This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo.”
-
-If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
-
-For the model itself:
-
-* Wilensky, U. & Rand, W. (2008). Preferential Attachment Simple Model.  http://ccl.northwestern.edu/netlogo/models/PreferentialAttachmentSimple.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-
-Please cite the NetLogo software as:
-
-* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-
-Please cite the textbook as:
-
-* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
-
 ## CREDITS AND REFERENCES
 
-This model is a simplified version of the Preferential Attachment model from the networks section of the NetLogo models library:
+This model is a simplified version of:
 
-- Wilensky, U. (2005).  NetLogo Preferential Attachment model. http://ccl.northwestern.edu/netlogo/models/PreferentialAttachment. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. (2005).  NetLogo Preferential Attachment model.  http://ccl.northwestern.edu/netlogo/models/PreferentialAttachment.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Both the original and this model are based on:
 
@@ -330,6 +316,36 @@ The layout algorithm is based on the Fruchterman-Reingold layout algorithm.  Mor
 For a model similar to the one described in the suggested extension, please consult:
 
 - W. Brian Arthur, "Urban Systems and Historical Path-Dependence", Chapt. 4 in Urban systems and Infrastructure, J. Ausubel and R. Herman (eds.), National Academy of Sciences, Washington, D.C., 1988.
+
+## HOW TO CITE
+
+This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo.”
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U., Rand, W. (2008).  NetLogo Preferential Attachment Simple model.  http://ccl.northwestern.edu/netlogo/models/PreferentialAttachmentSimple.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the textbook as:
+
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2008 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2008 Cite: Wilensky, U., Rand, W. -->
 @#$#@#$#@
 default
 true

@@ -12,6 +12,11 @@ to giant-arrow
   ask turtle 0 [ create-link-with turtle 1 [ set color red set thickness 1.5 ] ]
   create-turtles 1 [ set color black setxy 8 12 set label "Click the info tab!" ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -72,7 +77,6 @@ A heading begins with one or more hash marks (`#`). First level headings get one
     ### Third-level heading
     #### Fourth-level heading
 
-
 ## Paragraphs
 
 #### Example
@@ -120,7 +124,6 @@ For bold, surround text with two asterisks:
 You can also combine them:
 _**hello**_ and **_goodbye_**
 
-
 ## Ordered lists
 
 #### Example
@@ -140,7 +143,6 @@ We are about to start an ordered list.
     1. Subitems are indented 2 more spaces (4 in all for a second level item).
   2. The next item in the list starts with the next number.
   3. And so on...
-
 
 ## Unordered lists
 
@@ -313,7 +315,6 @@ Leave a blank line after this one, and then indent four spaces:
       tick
     end
 
-
 ## Superscripts and subscripts
 
 Superscripts and subscripts are useful for writing formulas, equations, footnotes and more. Subscripts appear half a character below the baseline, and are written using the HTML tag `<sub>`. Superscripts appear half a character above the baseline, and are written using the HTML tag `<sup>`.
@@ -353,6 +354,8 @@ If you want all NetLogo users to be able to read your Info tab, use only the fea
 More information about Markdown is at http://daringfireball.net/projects/markdown/. For rendering Markdown, NetLogo uses the [Pegdown](https://github.com/sirthias/pegdown) library.
 
 [netlogo-link]: http://ccl.northwestern.edu/netlogo
+
+<!-- 2010 -->
 @#$#@#$#@
 default
 true

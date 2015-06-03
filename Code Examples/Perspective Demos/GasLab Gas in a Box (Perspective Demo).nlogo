@@ -310,6 +310,10 @@ to-report last-n [n the-list]
     [ report the-list ]
     [ report last-n n butfirst the-list ]
 end
+
+
+; Copyright 1997 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 329
@@ -624,7 +628,7 @@ This is a version of the GasLab Gas in a Box model, modified to show off NetLogo
 
 GasLab Gas in a Box
 
-## CREDITS AND REFERENCES
+<!-- 1997 2002 specialCE -->
 @#$#@#$#@
 default
 true

@@ -466,6 +466,10 @@ to keep-in-region [ which-region ] ; turtle procedure
     ]
   ]
 end
+
+
+; Copyright 2015 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 390
@@ -819,7 +823,6 @@ ticks
 
 This model explores the stability of consumer producer ecosystems in response to temporary disturbances.
 
-
 ## HOW IT WORKS
 
 Bugs wander randomly around one of two regions (left or right). Each region is a self contained ecosystem in the world. Bugs in one region never go into the other region. As bugs reach the edge of their region, they wrap around to other side of their own region.
@@ -827,7 +830,6 @@ Bugs wander randomly around one of two regions (left or right). Each region is a
 Each step each bug loses one unit of energy and they must consume a food source (grass) to replenish their energy. When they run out of energy, they die. To allow the population to continue, each bug must have enough energy to have an offspring. When that threshold is reached, the offspring and parent split the energy amongst themselves.
 
 Different disturbances can be tested in this system, including temporary removal of grass (simulating a fire), addition of more bugs, and infection of some % of the bugs (simulating transmittable disease).
-
 
 ## HOW TO USE IT
 
@@ -853,28 +855,23 @@ LEFT-BUGS-TO-INFECT and RIGHT-BUGS-TO-INFECT: Determine the percentage of the bu
 
 L-START WILD FIRE and R-START WILD FIRE: start a wild fire in a patch that has grass on the left side of the region. Fire moves from burning patches to adjacent patches that have grass in that region.
 
-
 ## THINGS TO NOTICE
 
 Watch as the grass and bug populations fluctuate. How are increases and decreases in the sizes of each population related?
 
 Adding bugs or infecting bugs affects the size of the populations in the short term, but not in the long term. What causes this behavior?
 
-
 ## THINGS TO TRY
 
 Try adjusting the parameters under various settings. How sensitive is the stability of the model to the particular parameters. Does the parameter setting affect the amount of fluctuations, the average values of bugs and grass, or does it lead to the collapse of the ecosystem (death of all the bugs)?
-
 
 ## EXTENDING THE MODEL
 
 In this model, all the bugs are identical to each other and follow the same rules. Try modeling variation in the bug population that would make it easier for some bugs to get food.
 
-
 ## NETLOGO FEATURES
 
 The visualization of fire embers uses the transparency value for the color to gradually fade out the color of the fire and let the background show through, before the embers disappear completely.
-
 
 ## RELATED MODELS
 
@@ -882,12 +879,35 @@ Wolf Sheep Predation and Rabbits Weeds Grass are other examples of interacting p
 
 Refer to Bug Hunt Environmental Changes and Bug Hunt Predators and Invasive Species - Two Regions for extensions of this model that include predators (birds that eat bugs) and an invasive species (another population of consumers).
 
-
 ## CREDITS AND REFERENCES
 
 This model is part of the Ecology & Population Biology unit of the ModelSim curriculum, sponsored by NSF grant DRL-1020101.
 
 For more information about the project and the curriculum, see the ModelSim project website: http://ccl.northwestern.edu/modelsim/.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Novak, M. and Wilensky, U. (2015).  NetLogo Bug Hunt Disruptions model.  http://ccl.northwestern.edu/netlogo/models/BugHuntDisruptions.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2015 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2015 Cite: Novak, M. -->
 @#$#@#$#@
 default
 true

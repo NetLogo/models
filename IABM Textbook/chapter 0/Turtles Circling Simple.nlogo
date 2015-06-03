@@ -27,6 +27,10 @@ end
 to change-speed
   ask turtles [set speed speed + .15]   ;; increase the step-size to .5
 end
+
+
+; Copyright 1997 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 266
@@ -126,17 +130,18 @@ NIL
 @#$#@#$#@
 ## ACKNOWLEDGMENT
 
-This model is from Chapter Zero of the book "Introduction to Agent-Based Modeling: Modeling natural, social and engineered complex systems with NetLogo", by Uri Wilensky & William Rand.
+This model is from Chapter Zero of the book "Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo", by Uri Wilensky & William Rand.
 
-Wilensky, U & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
-This model is in the IABM Textbook folder of the NetLogo models library. The model, as well as any updates to the model, can also be found on the textbook website: http://www.intro-to-abm.com/.
+This model is in the IABM Textbook folder of the NetLogo Models Library. The model, as well as any updates to the model, can also be found on the textbook website: http://www.intro-to-abm.com/.
 
 ## WHAT IS IT?
 
 This is a kind of mathematical investigation — we are investigating the emergent shape created by the movement of many turtles (arrows) moving independently in simple ways. Each turtle is moving a little step forward and taking a little turn right to stay on a circle of radius 20.  What happens if the we slightly increase the step forward they are taking  in mid-action? Guess before you try it.
 
 ## HOW IT WORKS
+
 We start with 40 turtles on a circle of radius 20 facing clockwise around the circle.
 The turtles move forward .35 units and turn right 1 degree to stay on the circle.
 
@@ -180,6 +185,11 @@ Make sliders to control the original radius and/or the number of turtles.
 
 This model is a simplification of the Turtles Circling Model in the Mathematics section of the NetLogo models library.
 
+## CREDITS AND REFERENCES
+
+This model is a simplified version of:
+
+* Wilensky, U. (1997).  NetLogo Turtles Circling model.  http://ccl.northwestern.edu/netlogo/models/TurtlesCircling.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 ## HOW TO CITE
 
@@ -189,7 +199,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Wilensky, U. (1997).  NetLogo Turtles Circling Simple model.  http://ccl.northwestern.edu/netlogo/models/TurtlesCirclingSimple.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL
+* Wilensky, U. (1997).  NetLogo Turtles Circling Simple model.  http://ccl.northwestern.edu/netlogo/models/TurtlesCirclingSimple.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
@@ -197,9 +207,21 @@ Please cite the NetLogo software as:
 
 Please cite the textbook as:
 
-* Wilensky, U & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
-## CREDITS AND REFERENCES
+## COPYRIGHT AND LICENSE
+
+Copyright 1997 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This model was created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
+
+<!-- 1997 -->
 @#$#@#$#@
 default
 true

@@ -42,6 +42,11 @@ to recolor  ;; turtle procedure
     [ set color red ]
     [ set color blue ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 255
@@ -179,6 +184,8 @@ The monitor keeps track of how many turtles have the message by reporting:
 The plot helps you visualize how this value changes through time. Notice the "S" shape of the plotted curve.
 
 Note that if you call a procedure inside `ask turtles [  ]`, then everything in that procedure will be executed by all of the turtles.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

@@ -249,6 +249,10 @@ to erase-all
     set heading color
   ]
 end
+
+
+; Copyright 2005 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 735
@@ -830,6 +834,30 @@ Blikstein, P. & Wilensky, U. (2004) MaterialSim: An agent-based simulation toolk
 The core algorithm of the model was developed at the University of Sao Paulo and published in:  Blikstein, P. and Tschiptschin, A. P. Monte Carlo simulation of grain growth (II). Materials Research, Sao Carlos, 2 (3), p. 133-138, jul. 1999.
 
 Available for download at: http://www.blikstein.com/paulo/documents/papers/BliksteinTschiptschin-MonteCarlo-MaterialsResearch1999.pdf. See also http://www.pmt.usp.br/paulob/montecarlo/ for more information (in Portuguese).
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Blikstein, P. and Wilensky, U. (2005).  NetLogo MaterialSim Grain Growth model.  http://ccl.northwestern.edu/netlogo/models/MaterialSimGrainGrowth.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2005 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2005 Cite: Blikstein, P. -->
 @#$#@#$#@
 default
 true

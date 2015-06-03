@@ -718,6 +718,10 @@ to-report limited-particle-energy
   if limited-energy < min-particle-energy [set limited-energy min-particle-energy]
   report limited-energy
 end
+
+
+; Copyright 2006 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 320
@@ -958,7 +962,6 @@ MOUSE-INTERACTION  sets the type interaction the user can do with the mouse in t
 Plots:
 - 1: TEMPERATURE OF GASES VS. TIME: plots the temperature of the different gases in the model, as indicated by their color (orange particles, green particles, and purple particles)
 
-
 ## THINGS TO NOTICE
 
 The mouse interaction can be used while the model is running as well as when it is stopped.
@@ -983,6 +986,34 @@ See other Connected Chemistry models.
 This model is part of the Connected Chemistry curriculum.  See http://ccl.northwestern.edu/curriculum/chemistry/.
 
 We would like to thank Sharona Levy and Michael Novak for their substantial contributions to this model.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. (2006).  NetLogo Connected Chemistry 8 Gas Particle Sandbox model.  http://ccl.northwestern.edu/netlogo/models/ConnectedChemistry8GasParticleSandbox.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+To cite the Connected Chemistry curriculum as a whole, please use:
+
+* Wilensky, U., Levy, S. T., & Novak, M. (2004). Connected Chemistry curriculum. http://ccl.northwestern.edu/curriculum/chemistry/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2006 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2006 ConChem -->
 @#$#@#$#@
 default
 true

@@ -578,6 +578,10 @@ to-report limit-gene [ gene ]
   if gene > 255 [ report 255 ]
   report gene
 end
+
+
+; Copyright 2006 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 190
@@ -909,7 +913,6 @@ When a bug uses color to identify the location of mates in an environment, then 
 
 If this continues over many generations, the distribution of colors in a population may shift to become better less camouflaged and more garish in the surrounding environment.
 
-
 ## HOW IT WORKS
 
 Each HubNet participant or player assumes the role of a predator or a mate. When the HubNet simulation is started after pressing GO, participants should try to click on bugs as fast as they can with the mouse.
@@ -933,7 +936,6 @@ These overall blend of pigments that results in a single phenotype for coloratio
 With each bug you eat, an existing bug is randomly chosen to reproduce one offspring. The offspring's gene-frequency for each of the three pigment genes may be slightly different than the parent (as determined by the MUTATION-STEP slider).
 
 With each bug you mate with, two new offspring are produced and the mate is removed from the population. The offspring's gene-frequency for each of the three pigment genes may be slightly different than the mate that was chosen (as determined by the MUTATION-STEP slider).
-
 
 ## HOW TO USE IT
 
@@ -979,7 +981,6 @@ FLASH BUGS is a button that quickly flashes the bugs from white to black and bac
 
 SHOW-GENES? is a switch that reveals the RGB (Red-Green-Blue) gene frequency values for each bug. The values for Red can range from 0 to 255, and this also true for Green and Blue. These numbers represent how fully expressed each pigment is (e.g. 102-255-51 would represent genetic information that expresses the red pigment at 40% its maximum value, the green pigment at 100%, and the blue pigment at 20%.
 
-
 ## THINGS TO TRY
 
 Larger numbers of bugs tend to take longer to start camouflaging or becoming garish, but larger numbers of prey or mates (participants) speed up the emergence of these outcomes in larger populations.
@@ -994,11 +995,9 @@ In environments that have two distinct areas (such as a ground and sky), each wi
 
 Once you reach a point where you are having trouble finding the bugs, it is useful to either press FLASH to show where they are (and how they are camouflaged), or press CLEAR-BACKGROUND to enable you to study their color distribution and location.
 
-
 ## EXTENDING THE MODEL
 
 What if the body shape of the bugs was heritable and mutated?
-
 
 ## NETLOGO FEATURES
 
@@ -1014,7 +1013,6 @@ The side by side 2 environment interface is a feature that is used in many of th
 
 It has proven useful for supporting students in comparing outcomes between different conditions/interactions in different environment, when they can see those environments and outcomes side by side.
 
-
 ## RELATED MODELS
 
 Bacteria Hunt Speeds
@@ -1022,12 +1020,35 @@ Bug Hunt Camouflage
 Peppered Moths
 Guppy Spots
 
-
 ## CREDITS AND REFERENCES
 
 Inspired by this BugHunt! Macintosh freeware: https://web.archive.org/web/20101213084130/http://bcrc.bio.umass.edu/BugHunt/.
 
 Thanks to Michael Novak for his work on the design of this model and the BEAGLE Evolution curriculum.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Novak, M. and Wilensky, U. (2006).  NetLogo HubNet Bug Hunters Camouflage HubNet model.  http://ccl.northwestern.edu/netlogo/models/HubNetBugHuntersCamouflageHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2006 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2006 Cite: Novak, M. -->
 @#$#@#$#@
 default
 true

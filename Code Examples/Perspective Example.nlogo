@@ -42,6 +42,11 @@ to bounce  ;; turtle procedure
   if abs [pycor] of patch-ahead 0.1 = max-pycor
     [ set heading (180 - heading) ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 360
@@ -230,6 +235,8 @@ NIL
 This model shows how to see the world from different perspectives.  It demonstrates the `follow`, `watch`, and `reset-perspective` commands.
 
 Try it with the 2D view and with the 3D view. And check out what happens when you turn on wrapping.
+
+<!-- 2005 -->
 @#$#@#$#@
 default
 true

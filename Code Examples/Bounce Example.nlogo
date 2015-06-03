@@ -48,6 +48,11 @@ to bounce  ;; turtle procedure
     ; if so, reflect heading around y axis
     [ set heading (180 - heading) ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 175
@@ -125,6 +130,8 @@ leave-trace?
 ## WHAT IS IT?
 
 This demo shows how to make turtles bounce off the walls.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

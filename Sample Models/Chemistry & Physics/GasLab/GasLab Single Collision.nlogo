@@ -266,6 +266,10 @@ to setup-particle  ;; particle procedure
   set energy (0.5 * mass * speed ^ 2 )
   set last-collision nobody
 end
+
+
+; Copyright 1997 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 399
@@ -571,18 +575,6 @@ Monitors:
 Plots:
 - SPEEDS: speed of each of the particles over time.
 
-## THINGS TO TRY
-
-Set the reflection-angle to zero.  Draw a picture representing the two balls as they collide, with their two faces touching.  Make the line connecting their centers be the same as theta.  Draw vectors representing their motion.
-
-While running the following situations note the paths of the two particles.  Can you make sense of what they do?  Is it what you expected?
-
-Choose a COLLISION-ANGLE and a REFLECTION-ANGLE and choose ONE-COLLISION to see one particular collision.
-
-Choose a COLLISION-ANGLE and choose ALL-REFLECTION-ANGLES to cycle through all of the angles of reflection.
-
-Choose a REFLECTION-ANGLE and choose ALL-COLLISION-ANGLES to cycle through all of the angles of collision.
-
 ## THINGS TO NOTICE
 
 With COLLISION-ANGLE = 180 (directly across from each other) and REFLECTION-ANGLE = 90, it looks as if the two particles miss each other.  What is happening?
@@ -594,6 +586,16 @@ With REFLECTION-ANGLE = 0 degrees, the two particles reverse direction. Why?
 What is the motion of the center of mass?  What would you expect it to be?
 
 ## THINGS TO TRY
+
+Set the reflection-angle to zero.  Draw a picture representing the two balls as they collide, with their two faces touching.  Make the line connecting their centers be the same as theta.  Draw vectors representing their motion.
+
+While running the following situations note the paths of the two particles.  Can you make sense of what they do?  Is it what you expected?
+
+Choose a COLLISION-ANGLE and a REFLECTION-ANGLE and choose ONE-COLLISION to see one particular collision.
+
+Choose a COLLISION-ANGLE and choose ALL-REFLECTION-ANGLES to cycle through all of the angles of reflection.
+
+Choose a REFLECTION-ANGLE and choose ALL-COLLISION-ANGLES to cycle through all of the angles of collision.
 
 Have the masses of the two particles be different.
 
@@ -616,6 +618,34 @@ Record the velocities of each particle after each collision. After you have seve
 ## CREDITS AND REFERENCES
 
 This model was developed as part of the GasLab curriculum (http://ccl.northwestern.edu/curriculum/gaslab/) and has also been incorporated into the Connected Chemistry curriculum (http://ccl.northwestern.edu/curriculum/ConnectedChemistry/)
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. (1997).  NetLogo GasLab Single Collision model.  http://ccl.northwestern.edu/netlogo/models/GasLabSingleCollision.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 1997 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This model was created as part of the project: CONNECTED MATHEMATICS: MAKING SENSE OF COMPLEX PHENOMENA THROUGH BUILDING OBJECT-BASED PARALLEL MODELS (OBPML).  The project gratefully acknowledges the support of the National Science Foundation (Applications of Advanced Technologies Program) -- grant numbers RED #9552950 and REC #9632612.
+
+This model was converted to NetLogo as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227. Converted from StarLogoT to NetLogo, 2002.
+
+<!-- 1997 2002 -->
 @#$#@#$#@
 default
 true

@@ -45,7 +45,7 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
   }
 
   val links: Map[String, Iterable[Model]] = models
-    .flatMap(m => linksInMarkdown(m.info).map(_ -> m)) // (link, model) pairs
+    .flatMap(m => linksInMarkdown(m.info.content).map(_ -> m)) // (link, model) pairs
     .groupBy(_._1) // group by links
     .mapValues(_.unzip._2) // keep only models in the map's values
   val builder = new AsyncHttpClientConfig.Builder()
@@ -57,7 +57,7 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
 
   for {
     (link, models) <- links
-    if !link.startsWith("mailto")
+    if link.startsWith("http")
     clue = "Used in: " + models.map(_.quotedPath).mkString("  \n  ", "  \n  ", "\n")
   } {
     test(link) {

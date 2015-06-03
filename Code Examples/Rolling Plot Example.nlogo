@@ -22,6 +22,11 @@ to go
 end
 
 ;; the actual plotting code is in the plot itself, in the Interface tab
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 321
@@ -119,6 +124,8 @@ Also note that setting the x range doesn't cause old data to be discarded.  Even
 ## RELATED MODELS
 
 Plotting Example
+
+<!-- 2007 -->
 @#$#@#$#@
 default
 true

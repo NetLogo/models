@@ -31,6 +31,11 @@ to turtle-draw
     ;; turtle anymore
     [ clear-turtles ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 267
@@ -161,6 +166,8 @@ This demo shows how to use the `mouse-down?`, `mouse-xcor`, and `mouse-ycor` rep
 ## NETLOGO FEATURES
 
 If you look at this model's settings (by clicking the SETTINGS button in the main toolbar), you will notice that it uses a "Frame Rate" of 1000, which is much higher than the default value of 30. This ensures that drawing happens as fast as possible. See the [NetLogo Programming Guide](http://ccl.northwestern.edu/netlogo/docs/programming.html#updates) for more information on frame rate and view updates in general.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

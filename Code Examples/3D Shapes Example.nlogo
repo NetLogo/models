@@ -29,6 +29,11 @@ to show-off [ t ]
   [ ask t [ rt 1 ]
     display ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 25
@@ -207,6 +212,8 @@ NIL
 ## WHAT IS IT?
 
 This code example shows the 3D shapes available in NetLogo.
+
+<!-- 2005 -->
 @#$#@#$#@
 default
 true

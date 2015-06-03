@@ -134,6 +134,10 @@ to add-turtles
     go
   ]
 end
+
+
+; Copyright 2013 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -336,6 +340,30 @@ We use the `in-radius` command to figure out if any of the seeds are too close t
 For more information on Voronoi diagrams, see http://en.wikipedia.org/wiki/Voronoi.  (There are also many other sites on this topic on the web.)
 
 This model was inspired by a Processing implementation of a Voronoi diagram, available here: http://www.openprocessing.org/sketch/7571
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Weintrop, D. and Wilensky, U. (2013).  NetLogo Voronoi - Emergent model.  http://ccl.northwestern.edu/netlogo/models/Voronoi-Emergent.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2013 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2013 Cite: Weintrop, D. -->
 @#$#@#$#@
 default
 true

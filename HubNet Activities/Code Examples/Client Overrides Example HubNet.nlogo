@@ -84,6 +84,11 @@ to remove-student
   ask students with [user-id = hubnet-message-source]
   [ die ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 231
@@ -179,6 +184,8 @@ what changes?
 ## NETLOGO FEATURES
 
 This model demonstrates basic usage of HUBNET-SEND-OVERRIDE and HUBNET-CLEAR-OVERRIDES.
+
+<!-- 2009 -->
 @#$#@#$#@
 default
 true

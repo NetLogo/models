@@ -62,6 +62,11 @@ to mark-line-of-sight  ;; walker procedure
     set dist dist + 1
   ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 274
@@ -183,6 +188,8 @@ While all six turtles show their line of sight with dots, the orange turtle's li
 ## EXTENDING THE MODEL
 
 Make each turtle able to see around it in all directions, not only the single direction in which it is facing.
+
+<!-- 2006 -->
 @#$#@#$#@
 default
 true

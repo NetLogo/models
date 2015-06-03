@@ -82,6 +82,10 @@ end
 to-report fitness  ;; turtle procedure
   report distance goal * -1
 end
+
+
+; Copyright 2008 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 303
@@ -178,19 +182,17 @@ PENS
 
 This model is from Chapter Eight of the book "Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo", by Uri Wilensky & William Rand.
 
-Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
-This model is in the IABM Textbook folder of the NetLogo models library. The model, as well as any updates to the model, can also be found on the textbook website: http://www.intro-to-abm.com/.
+This model is in the IABM Textbook folder of the NetLogo Models Library. The model, as well as any updates to the model, can also be found on the textbook website: http://www.intro-to-abm.com/.
 
 ## WHAT IS IT?
 
 This model illustrates how to integrate machine learning with agent-based modeling. The model creates a set of turtles whose goal is to get to the upper right corner of the world. The turtles start with random strategies, but the model then uses an evolutionary approach they improve their strategies over time to reach this corner.
 
-
 ## HOW IT WORKS
 
 The model initially creates 20 agents and a list of inputs, such as `HEADING` and `XCOR`, and operators, such as `+`, `-`, etc. It then sets the strategy for each of the agents to a random set of five input / operator combinations. Each strategy results in the turtle changing its heading. When the model runs, each agent executes their strategy twenty five times, moves forward 1 after execution of its strategy, and measures its fitness. On the basis of this measurement, the worst 75% of the turtles in terms of performance are killed and replaced by mutated copies of the top performing 25%. This process is then repeated.
-
 
 ## HOW TO USE IT
 
@@ -202,7 +204,6 @@ The BEST FITNESS monitor shows the maximum fitness for agents in the current gen
 
 The AVERAGE FITNESS VS. TIME plot shows the evolution of the average fitness of the whole population, which should increase over time.
 
-
 ## THINGS TO NOTICE
 
 Do all the agents do the same thing? Can you tell the difference between the different strategies? Do you understand how inputs and operators combine to produce a heading for the turtle?
@@ -213,13 +214,11 @@ Do the strategies seem to converge over time? You should notice that, even when 
 
 Finally, have you noticed that not every run of the model produces the same "best fitness". Sometimes, the population gets stuck in what we call a "local maximum". This happens when the best turtles in the population have sub-optimal fitness, but every single mutation their offsprings can have actually makes them worse. To reach the "global maximum", they would need many successive mutations, but the current model does not allow that: turtles that are worse then their parent get eliminated right away.
 
-
 ## EXTENDING THE MODEL
 
 Change the list of inputs and operators and see how that affects the results of the model. Can you find a combination of inputs and operators that allow the turtles to reach their goal exactly?
 
 Think about the "local maximum" problem mentioned in the previous section. Can you think of a way out of it? In the current model, only the best 25% of turtles get to reproduce, but maybe this does not have to be the case. Do you think it could be helpful to give other turtles a small chance to reproduce as well?
-
 
 ## NETLOGO FEATURES
 
@@ -229,7 +228,35 @@ Our strategies are not directly stored as strings, however: they are stored as _
 
 The `runresult` primitive can also be used with [tasks](http://ccl.northwestern.edu/netlogo/docs/programming.html#tasks) instead of strings. See the Sandpile model in the library for an example.
 
-## CREDITS AND REFERENCES
+## HOW TO CITE
+
+This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo.”
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Rand, W. & Wilensky, U. (2008).  NetLogo Simple Machine Learning model.  http://ccl.northwestern.edu/netlogo/models/SimpleMachineLearning.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the textbook as:
+
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2008 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2008 Cite: Rand, W. & Wilensky, U. -->
 @#$#@#$#@
 default
 true

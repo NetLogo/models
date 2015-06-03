@@ -666,6 +666,10 @@ to calculate-statistics
   set tank-1-avg-size mean [ size-gene ] of fish with [tank = 1]
   set tank-2-avg-size mean [ size-gene ] of fish with [tank = 2]
 end
+
+
+; Copyright 2012 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 463
@@ -1036,7 +1040,6 @@ When both predators and mates interact with a population the outcomes are more d
 Quoting from "Sex and the Single fish"  [2]:
 There may be several evolutionary reasons why fishs (or fish) prefer flashier mates. On the most basic level, the male with the biggest, brightest tail spot announces most loudly, "Hey, I'm over here" to any female it can see. Flashy colors are simply easier to locate.  However, there is also research to suggest that bright colors serve as an indicator of good genes in the way the strong physique of a human athlete is a direct indicator of that individual's health and vitality.  Or, bright coloration may signal to a potential mate that he's got something else going for him. After all, he's been able to survive the very handicap -- conspicuousness to predators -- that his flashiness creates.
 
-
 ## HOW IT WORKS
 
 You can assume either the role of a predator or the role of a mate.
@@ -1062,7 +1065,6 @@ The adaptation of spotting patterns for a population is also sometimes harder to
 In general however, the population will evolve to blend in, and/or stand out (being more easily spotted), from their environment depending on which of the selective pressures are stronger.  When there is an equal number of predators and mates, the selective pressures may not strongly push the adaptation of the population in a clear direction - the result may be a population that is balanced between having traits that help the fish stand out and traits that help the fish remain hidden.
 
 When you run the simulation you can set up two different tank environments to compare the outcomes from the same selective pressures from mates and predators in these different surroundings.
-
 
 ## HOW TO USE IT
 
@@ -1098,11 +1100,9 @@ The MATING monitor keeps track of the number of mating events that have occurred
 
 FLASH FISH will temporarily alternately flash the fish black and white so that they are visible.  This will last for about 3 seconds.
 
-
 ## THINGS TO NOTICE
 
 Fish get smaller and harder to find over time when only predators are present.  Fish get larger and easier to find over time when only mates are present.  Fish motion depends on the amount of environmental movement in the background.  If the background has little environmental movement, then fish with a lot of movement stand out, but if the background has some amount of environmental movement, then fish with a less (or a lot more) movement stand out.
-
 
 ## THINGS TO TRY
 
@@ -1110,11 +1110,9 @@ If you are having trouble finding the fish, it is useful to press FLASH to show 
 
 Try setting up experiments where the predators prey on only fish in one tank and the mates only breed with fish in the other tank.
 
-
 ## EXTENDING THE MODEL
 
 What if fish needed to move and eat food to survive?  Would that create other counter balancing selective pressure?  What if fish released pheromones for other creatures to detect?  Could that replace the need for garish appearances?   Would mates evolve pheromones that could be detected only by mates and not predators?
-
 
 ## NETLOGO FEATURES
 
@@ -1124,18 +1122,40 @@ This model uses RGB colors, that is, colors expressed as a three item list of re
 
 The background for each fish tank is created using the stamp command for turtle images of plants and rocks.
 
-
 ## RELATED MODELS
 
 Bub Hunters Camouflage
 Peppered Moth
-
 
 ## CREDITS AND REFERENCES
 
 This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
 
 [1] Inspired by Sex and the Single Guppy http://www.pbs.org/wgbh/evolution/sex/guppy/index.html
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Novak, M. and Wilensky, U. (2012).  NetLogo Fish Spotters HubNet model.  http://ccl.northwestern.edu/netlogo/models/FishSpottersHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2012 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2012 Cite: Novak, M. -->
 @#$#@#$#@
 default
 true

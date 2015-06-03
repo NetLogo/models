@@ -58,6 +58,11 @@ to merge  ;; node procedure
   ask link-neighbors with [leader != [leader] of myself]
     [ merge ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 225
@@ -172,6 +177,8 @@ count links
 ## WHAT IS IT?
 
 This is a code example showing how to make clusters of turtles that move as a unit.  In this example, whenever two turtles touch, their clusters merge.
+
+<!-- 2007 -->
 @#$#@#$#@
 default
 true

@@ -62,6 +62,11 @@ to show-clusters
       [ set plabel counter ] ]
     set counter counter + 1 ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 222
@@ -132,6 +137,8 @@ This example shows how to identify contiguous "clusters" of patches.
 ## CREDITS AND REFERENCES
 
 This was inspired by an earlier model by Robert Jan Klomp.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

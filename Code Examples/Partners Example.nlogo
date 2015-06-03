@@ -66,6 +66,11 @@ to find-partners
   ]
   tick
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 246
@@ -155,6 +160,8 @@ Turtles with no partner are gray; partnered turtles are red.  Unpartnered move r
 ## RELATED MODELS
 
 Grouping Turtles Example shows how to form groups that contain more than two turtles.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

@@ -144,6 +144,10 @@ end
 to-report overlapping [r-min]
   report any? other turtles in-radius r-min
 end
+
+
+; Copyright 2015 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 240
@@ -355,7 +359,6 @@ To emphasize how fundamental atomic theory is, Richard Feynman (one of the great
 
 We will consider the interactions of neutral atoms. To model their interactions with one another we use a mathematical function proposed by Sir John Edward Lennard-Jones in 1924. This function captures the fact that atoms attract each other when they are a small distance apart and repel each other when they are very close together. By modeling many atoms behaving according to the Lennard-Jones potential, we can see how the bulk behavior of matter at different temperatures emerges from the interactions between discrete atoms. The details of the Lennard-Jones function are discussed in the next section.
 
-
 ## HOW IT WORKS
 
 There are two basic principles to keep in mind for this model:
@@ -421,7 +424,6 @@ You can run the model one step at a time with the **go once** button. This will 
 
 At high temperatures the atoms move around the environment randomly. At low temperatures, the atoms cluster together, i.e. they solidify. Notice that they naturally form a hexagonally close packed structure (each atom wants to have 6 neighbors). This is not coded into the model anywhere. This is simply the lowest energy configuration due to the Lennard-Jones potential. Atoms tend towards it naturally as they try to minimize their energy.
 
-
 ## THINGS TO TRY
 
 ### Things to try in the model
@@ -443,8 +445,6 @@ At high temperatures the atoms move around the environment randomly. At low temp
 3. Try adding sliders for ϵ11, ϵ22 and ϵ12. See what different types of behavior you can get by varying the potential well depths.
 4. Try making the different atom types be different sizes as well (different σ). There will need to be σ11, σ22 and σ12 (which is (σ11 + σ22) / 2).
 
-
-
 ## HINTS
 
 Hint on solving for the minimum energy: take the derivative of the Lennard-Jones potential and set it equal to zero.
@@ -454,6 +454,30 @@ Hint on solving for the force: The force a particle experiences is the negative 
 ## CREDITS AND REFERENCES
 
 Original implementation: Jacob Kelter with Prof. Erik Luijten, Northwestern Material Science and Engineering, and with supervision by Uri Wilensky.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Kelter, J., Luijten, E. and Wilensky, U. (2015).  NetLogo Lennard-Jones model.  http://ccl.northwestern.edu/netlogo/models/Lennard-Jones.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2015 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2015 Cite: Kelter, J., Luijten, E. -->
 @#$#@#$#@
 default
 true

@@ -48,6 +48,10 @@ to turn-led [ on? ]
       "with the Arduino. Please press SETUP.")
   ]
 end
+
+
+; Copyright 2015 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 270
@@ -143,14 +147,13 @@ NIL
 
 This model is from Chapter Eight of the book "Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo", by Uri Wilensky & William Rand.
 
-Wilensky, U & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
-This model is in the IABM Textbook folder of the NetLogo models library. The model, as well as any updates to the model, can also be found on the textbook website: http://www.intro-to-abm.com/.
+This model is in the IABM Textbook folder of the NetLogo Models Library. The model, as well as any updates to the model, can also be found on the textbook website: http://www.intro-to-abm.com/.
 
 ## WHAT IS IT?
 
 This model should give a sense for the process of controlling an Arduino board with NetLogo. In it, we use only the Arduino's onboard LED, located next to pin 13 (and connected to that pin). This example simply allows NetLogo to turn that LED on or off.
-
 
 ## HOW IT WORKS
 
@@ -163,7 +166,6 @@ The Arduino requires a custom program, or “sketch,” to run on the board for 
 
 To compile your sketch file and upload it to your Arduino board, you will need to download and install the Arduino Software IDE, available from http://www.arduino.cc/en/main/software. You can learn how to use it by following the guide available at http://www.arduino.cc/en/Guide/HomePage.
 
-
 ## HOW TO USE IT
 
 Once you have sent the sketch file to your Arduino board, it should be ready to receive signals from NetLogo automatically whenever it gets plugged in.
@@ -172,25 +174,51 @@ Press the SETUP button to establish the connection between NetLogo and the Ardui
 
 Once you have a connection, simply press the ON button to turn the LED on (it will stay on if it is already on) and the OFF button to turn it off (it will stay off if it is already off).
 
-
 ## EXTENDING THE MODEL
 
 This model provides you with a `setup` procedure that you can use to initiate the communication with your Arduino, and a simple way to turn its built-in LED on and off, but this is only the beginning. Many different kinds of Arduino sensors can be obtained at a low cost from several manufacturers: find one that you like and experiment with it!
-
 
 ## NETLOGO FEATURES
 
 This model uses the [Arduino extension](https://github.com/NetLogo/Arduino-Extension).
 
-
 ## RELATED MODELS
 
 The GoGoMonitor, GoGoMonitorSerial, GoGoMonitorSimple and GoGoMonitorSimpleSerial models, in the Code Examples section of the library, are somewhat related to the present model, as they show how to use NetLogo to control a GoGo board (a device similar to an Arduino).
 
-
 ## CREDITS AND REFERENCES
 
 (a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+
+## HOW TO CITE
+
+This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo.”
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Brady, C., Wilensky, U. (2015).  NetLogo Arduino Example model.  http://ccl.northwestern.edu/netlogo/models/ArduinoExample.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the textbook as:
+
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2015 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2015 Cite: Brady, C., Wilensky, U. -->
 @#$#@#$#@
 default
 true

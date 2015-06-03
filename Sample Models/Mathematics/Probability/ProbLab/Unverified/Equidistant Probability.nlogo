@@ -233,6 +233,10 @@ to label-results
       [ set plabel precision counter 0 ]
   ]
 end
+
+
+; Copyright 2004 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 420
@@ -573,7 +577,6 @@ The user sets up an experiment by selecting some squares on the view. When the m
 
 There is a procedure in this model, "Epicenter," that helps think about how often a single creature might land in its neighboring squares. If we knew that, we might be able to figure out how often two or more creatures might land on the same square at the same time. For instance, if one creature has a 1-in-2 chance of landing on some square, and another creature has a 1-in-3 chance of landing on that same square, then there's a 1-in-6 chance that they will land on that square at the same moment. In this procedure, 10,000 creatures pop out of the middle square and take a step forward in some random direction. The other eight squares count up how many creatures landed on them, and these values are shown either as totals or as percentages.
 
-
 ## HOW TO USE IT
 
 Here is a quick way to get familiar with the model. Press "PRESET1," slow down the model (using the slider on the top-left corner of the view), make sure SINGLE-SUCCESS? is at "Off," then press FIND EQUIDISTANT POINT. Watch how two creatures first emerge, each from its red square, and then step one step forward in some random direction. Once you understand this, speed up the model gradually. Quite soon, the creatures will land on the same square at the same time, that square will become green, and it will display a percentage, for instance 5.00% (that is, 1/20). That would mean that it took 20 attempts to find that square. Also, the plot ATTEMPTS UNTIL SUCCESS will show a histogram bar at "20," and the average that is, simply, "20" at this time. Also, the monitor below the plot, MEAN ATTEMPTS TO SUCCESS, will show "20." Now press FIND EQUIDISTANT POINT again. It could be that a different square will be found this time. The plot and monitor will update, again. If you switch the SINGLE-SUCCESS switch to "Off" and press FIND EQUIDISTANT POINT, the model will keep searching and finding. Watch the monitor SAMPLES TAKEN UP TO NOW to see how many attempts have been taken towards completing a sample (the default setting of SAMPLE-SIZE is 1,000). Once a sample has been completed, the plot #SUCCESSES PER SAMPLE will show how many successful attempts there were in that sample.
@@ -644,6 +647,32 @@ This model is a part of the ProbLab curriculum. The ProbLab Curriculum is curren
 Additional reading:
 Abrahamson, D. & Wilensky, U.  (2003).  The quest of the bell curve: A constructionist approach to learning statistics through designing computer-based probability experiments. Proceedings of the Third Conference of the European Society for Research in Mathematics Education, Bellaria, Italy, Feb. 28 - March 3, 2003.
 Available for download at http://ccl.northwestern.edu/papers/2003/AbrahamsonWilenskyCERME3.pdf
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Abrahamson, D. and Wilensky, U. (2004).  NetLogo Equidistant Probability model.  http://ccl.northwestern.edu/netlogo/models/EquidistantProbability.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2004 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This model was created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
+
+<!-- 2004 Cite: Abrahamson, D. -->
 @#$#@#$#@
 default
 true

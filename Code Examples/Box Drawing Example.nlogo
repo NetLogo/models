@@ -44,6 +44,11 @@ to setup-center
       [set pcolor blue]                                ;; ... draws upper edge in blue
     ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 254
@@ -125,6 +130,8 @@ HORIZONTAL
 ## WHAT IS IT?
 
 This example sets up a box that can be placed anywhere in the world.  It is one patch thick.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

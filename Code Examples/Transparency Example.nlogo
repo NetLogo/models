@@ -28,6 +28,11 @@ to set-transparency
   ;; use EXTRACT-RGB and then add alpha to the end
   [ set color lput transparency extract-rgb color ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 278
@@ -146,6 +151,8 @@ to see a close up view of a smaller portion of the world.
 ## THINGS TO NOTICE
 
 At present transparency works only in the 2D view, not the 3D view.
+
+<!-- 2009 -->
 @#$#@#$#@
 default
 true

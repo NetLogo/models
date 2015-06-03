@@ -136,6 +136,10 @@ end
 to startup
   setup-constants ;; so that carrying-capacity can be used as upper bound of number-people slider
 end
+
+
+; Copyright 1998 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 280
@@ -323,12 +327,17 @@ turtle-shape
 1
 
 @#$#@#$#@
+## ACKNOWLEDGMENT
+
+This model is an alternate visualization of the Virus model from the Biology section of the NetLogo Models Library. It uses visualization techniques as recommended in the paper:
+
+* Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation (JASSS), 12(2), 1. http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuidelinesABMViz.pdf.
+
 ## WHAT IS IT?
 
 This model simulates the transmission and perpetuation of a virus in a human population.
 
 Ecological biologists have suggested a number of factors which may influence the survival of a directly transmitted virus within a population. (Yorke, et al. "Seasonality and the requirements for perpetuation and eradication of viruses in populations." Journal of Epidemiology, volume 109, pages 103-123)
-
 
 ## HOW IT WORKS
 
@@ -364,7 +373,6 @@ How long is a person infected before they either recover or die?  This length of
 
 Four important parameters of this model are set as constants in the code (See setup-constants procedure). They can be exposed as sliders if desired. The turtles’ lifespan is set to 50 years, the carrying capacity of the world is set to 300, the duration of immunity is set to 52 weeks, and the birth-rate is set to a 1 in 100 chance of reproducing per tick when the number of people is less than the carrying capacity.
 
-
 ## HOW TO USE IT
 
 Each "tick" represents a week in the time scale of this model.
@@ -381,7 +389,6 @@ The TURTLE-SHAPE chooser controls whether the people are visualized as person sh
 
 Three output monitors show the percent of the population that is infected, the percent that is immune, and the number of years that have passed.  The plot shows (in their respective colors) the number of susceptible, infected, and immune people.  It also shows the number of individuals in the total population in blue.
 
-
 ## THINGS TO NOTICE
 
 The factors controlled by the three sliders interact to influence how likely the virus is to thrive in this population.  Notice that in all cases, these factors must create a balance in which an adequate number of potential hosts remain available to the virus and in which the virus can adequately access those hosts.
@@ -390,13 +397,11 @@ Often there will initially be an explosion of infection since no one in the popu
 
 Notice that viruses that are too successful at first (infecting almost everyone) may not survive in the long term.  Since everyone infected generally dies or becomes immune as a result, the potential number of hosts is often limited.  The exception to the above is when the DURATION slider is set so high that population turnover (reproduction) can keep up and provide new hosts.
 
-
 ## THINGS TO TRY
 
 Think about how different slider values might approximate the dynamics of real-life viruses.  The famous Ebola virus in central Africa has a very short duration, a very high infectiousness value, and an extremely low recovery rate. For all the fear this virus has raised, how successful is it?  Set the sliders appropriately and watch what happens.
 
 The HIV virus, which causes AIDS, has an extremely long duration, an extremely low recovery rate, but an extremely low infectiousness value.  How does a virus with these slider values fare in this model?
-
 
 ## EXTENDING THE MODEL
 
@@ -405,7 +410,6 @@ Add additional sliders controlling the carrying capacity of the world (how many 
 Build a similar model simulating viral infection of a non-human host with very different reproductive rates, lifespans, and population densities.
 
 Add a slider controlling how long immunity lasts. You could also make immunity imperfect, so that immune turtles still have a small chance of getting infected. This chance could get higher over time.
-
 
 ## VISUALIZATION
 
@@ -417,7 +421,6 @@ At the lowest level, perceptual impediments arise when we exceed the limitations
 The circle visualization in this model is supposed to make it easier to see when agents interact because overlap is easier to see between circles than between the "people" shapes. In the circle visualization, the circles merge to create new compound shapes. Thus, it is easier to perceive new compound shapes in the circle visualization.
 Does the circle visualization make it easier for you to see what is happening?
 
-
 ## RELATED MODELS
 
 * AIDS
@@ -428,6 +431,32 @@ Does the circle visualization make it easier for you to see what is happening?
 This model can show an alternate visualization of the Virus model using circles to represent the people. It uses visualization techniques as recommended in the paper:
 
 Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation, JASSS, 12(2), 1.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. (1998).  NetLogo Virus - Circle Visualization model.  http://ccl.northwestern.edu/netlogo/models/Virus-CircleVisualization.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 1998 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This model was created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
+
+<!-- 1998 -->
 @#$#@#$#@
 default
 true

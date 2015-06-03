@@ -48,6 +48,10 @@ to listen-clients
     ]
   ]
 end
+
+
+; Copyright 2012 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 159
@@ -132,17 +136,18 @@ NIL
 
 This model is from Chapter Eight of the book "Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo", by Uri Wilensky & William Rand.
 
-Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
-This model is in the IABM Textbook folder of the NetLogo models library. The model, as well as any updates to the model, can also be found on the textbook website: http://www.intro-to-abm.com/.
+This model is in the IABM Textbook folder of the NetLogo Models Library. The model, as well as any updates to the model, can also be found on the textbook website: http://www.intro-to-abm.com/.
 
 ## WHAT IS IT?
 
-This model provides the basic structure of the code for a HubNet model. For this reason, the model is very simple: all that each participant can do is move their turtle around the world. 
+This model provides the basic structure of the code for a HubNet model. For this reason, the model is very simple: all that each participant can do is move their turtle around the world.
 
-This model can be used as a template to build more complex participatory simulations. 
+This model can be used as a template to build more complex participatory simulations.
 
 ## HOW IT WORKS
+
 The model first loads HubNet. It then listens to HubNet's messages, and does one of four things: If a new users has entered, it creates a turtle for that user. If a user presses the 'forward' button, it asks the user's turtle to move forward. If a user clicks somewhere in their turtle's view of the model, it makes their turtle face that direction. And if a user leaves HubNet, it removes that turtle from the world.
 
 ## HOW TO USE IT
@@ -209,7 +214,35 @@ Notice, also, that the COLOR PATCHES button is a bit different from the others: 
 
 This model originally based upon the Template HubNet model from the library. All the models in the HubNet Activities folder of the library more or less share the same basic structure.
 
-## CREDITS AND REFERENCES
+## HOW TO CITE
+
+This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo.”
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Brady, C. & Wilensky, U. (2012).  NetLogo Example HubNet model.  http://ccl.northwestern.edu/netlogo/models/ExampleHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the textbook as:
+
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2012 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2012 Cite: Brady, C. & Wilensky, U. -->
 @#$#@#$#@
 default
 true

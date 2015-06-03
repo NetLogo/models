@@ -38,6 +38,11 @@ to go
   ]
   tick
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 155
@@ -130,6 +135,8 @@ Animate the turtles as they move from node to node.
 
 * Lattice-Walking Turtles Example
 * Grid-Walking Turtles Example
+
+<!-- 2007 -->
 @#$#@#$#@
 default
 true

@@ -128,6 +128,11 @@ to-report note-shape
   if note-length = "1/4" [ report "quarter note" ]
   if note-length = "1/2" [ report "half note" ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 6
@@ -349,6 +354,8 @@ Add eighth notes.
 Add sharps and flats.
 
 Support several instruments at once.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

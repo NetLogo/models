@@ -35,6 +35,11 @@ to go
   recolor
   tick
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 211
@@ -118,6 +123,8 @@ NIL
 ## WHAT IS IT?
 
 Normally, the `diffuse` command diffuses the value of a variable over all of the patches equally.  The total value of the variable across all patches remains constant.  If wrapping is off, nothing special happens at the edge of the world.  This code example shows to make the value disappear at or "fall off" the edges of the world.
+
+<!-- 2005 -->
 @#$#@#$#@
 default
 true

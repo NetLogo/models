@@ -799,6 +799,10 @@ to-report instructions
     ]
   ]
 end
+
+
+; Copyright 2012 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 330
@@ -1113,7 +1117,6 @@ Alternatively, you can let the model run on its own without interacting with any
 
 By attempting to speed up this process using the mouse cursor you may find that the replication process incurs errors in the duplication.  These errors, though relatively rare in the cell duplication in living organisms do occur, are the basis for some types of mutations.  These mutations will in turn lead to the emergence of new proteins in daughter cells when the DNA is translated.
 
-
 ## HOW IT WORKS
 
 This model is based on simplified representations shown for how DNA polymerase facilitates DNA replication summarized at http://en.wikipedia.org/wiki/DNA_polymerase.
@@ -1136,7 +1139,6 @@ When the substitution switch is turned "on", then the polymerase protein does no
 When this interference results in a incorrect pairing of bases (e.g. an A with an A, or an A with a G), this is a type of substitution mutation.
 
 When a base is not paired up, or a section of DNA is not replicated, this is known as a deletion mutation.
-
 
 ## HOW TO USE IT
 
@@ -1176,21 +1178,17 @@ DELETIONS (both for the top and bottom strands).  This is a count of every base 
 
 SUBSTITUTIONS (both for the top and bottom strands).  This is a count of every A that is paired but not with a T and every G that is paired but not with a C.
 
-
 ## THINGS TO NOTICE
 
 Mutations can be incurred both in the top and bottom strands of DNA.  Since the mutation that affects one strand of DNA is not the same that necessarily affects another strand, different replication mutations may affect different daughter cells in mitosis or meiosis.
-
 
 ## THINGS TO TRY
 
 Compete against another user who also is running their own version of the model at the same time with the SUBSTITUTIONS? setting set to "on".  This element of competition will encourage the emergence of unintentional mutations as each player is tries to increase their rate of duplications, but end up decreasing their fidelity of duplication in the process.
 
-
 ## EXTENDING THE MODEL
 
 Another important type of mutation that could be added to the model is an insertion mutation.  That could be added by allowing more than one base to be paired up at an original nucleotide location.
-
 
 ## NETLOGO FEATURES
 
@@ -1198,15 +1196,37 @@ The model makes use of transparency features in the color channel for the shape 
 
 Shape and color changes of the polymerase molecule simulate the confirmation shape shape changes that the molecule undergoes as it catalyzes various parts of the reaction.
 
-
 ## RELATED MODELS
 
 The DNA Protein Synthesis in BEAGLE is the follow-up model for this one.  It shows how different mutations then lead to different types of proteins produced in cells. It is still under development and will be included in a future release.
 
-
 ## CREDITS AND REFERENCES
 
 This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Novak, M. and Wilensky, U. (2012).  NetLogo DNA Replication Fork model.  http://ccl.northwestern.edu/netlogo/models/DNAReplicationFork.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2012 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2012 Cite: Novak, M. -->
 @#$#@#$#@
 default
 true

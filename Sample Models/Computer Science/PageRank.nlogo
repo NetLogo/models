@@ -242,6 +242,10 @@ to update-page-appearance ;; page procedure
   [ set label word (precision rank 3) "     " ]
   [ set label "" ]
 end
+
+
+; Copyright 2009 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 255
@@ -475,6 +479,30 @@ Preferential Attachment, Diffusion on a Directed Network, Link Walking Turtles E
 The network configurations given in "Example 1" (with DAMPING-FACTOR 0.85) and "Example 2" (with DAMPING-FACTOR 1.0) are the same as the examples given in the figures of http://en.wikipedia.org/wiki/PageRank (as of January 2009).
 
 See also: Page et al. (1998) "The PageRank Citation Ranking: Bringing Order to the Web." Technical report, Stanford Digital Library Technologies Project.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Stonedahl, F. and Wilensky, U. (2009).  NetLogo PageRank model.  http://ccl.northwestern.edu/netlogo/models/PageRank.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2009 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2009 Cite: Stonedahl, F. -->
 @#$#@#$#@
 default
 true

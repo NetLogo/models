@@ -61,6 +61,11 @@ end
 to-report get-node [id]
   report one-of turtles with [node-id = id]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 184
@@ -118,6 +123,8 @@ It imports data from two different files.  The first is the "attributes.txt" fil
 The link primitives are used to represent and process connections between nodes.
 
 The file primitives are used to read data from external files.
+
+<!-- 2006 -->
 @#$#@#$#@
 default
 true

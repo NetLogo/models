@@ -26,6 +26,11 @@ to go
   ]
   tick
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 172
@@ -92,6 +97,8 @@ NIL
 ## WHAT IS IT?
 
 This code example demonstrates Turtle-Patch communication. When a red turtle moves onto a patch, it turns the patch black.  When a yellow turtle moves onto a patch, it turns the patch magenta.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

@@ -74,6 +74,11 @@ to update-spinner
   [ set heading ticks * 30
     set label ticks ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 321
@@ -213,6 +218,8 @@ If you want to see how the experiment was set up, select the experiment in the B
 Together, those commands make a complete movie.
 
 Since it isn't a real experiment, the setup does not vary any variables, and it does not use any reporters to measure the run.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

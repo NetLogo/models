@@ -26,6 +26,11 @@ to test-connection
     stop ]
 
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 465
@@ -948,6 +953,8 @@ This model uses the NetLogo GoGo Extension. For more information, see the GoGo E
 To learn about GoGo Boards, see http://www.gogoboard.org.
 
 This model was created by Paulo Blikstein at Stanford's [Transformative Learning Technologies Lab](https://tltl.stanford.edu/).
+
+<!-- 2005 -->
 @#$#@#$#@
 default
 true

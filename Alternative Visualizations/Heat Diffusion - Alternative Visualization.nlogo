@@ -189,6 +189,10 @@ to update-alpha
     ]
   ]
 end
+
+
+; Copyright 1998 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 290
@@ -406,11 +410,11 @@ Choose a material and then press UPDATE ALPHA based on that material, or set ALP
 1
 
 @#$#@#$#@
-##ACKNOWLEDGMENT
+## ACKNOWLEDGMENT
 
-Ths model is an adaptation of the Heat Diffusion model from the Chemistry and Physics section of the NetLogo Models Library. It uses visualization techniques as recommended in the paper:
+This model is an alternate visualization of the Heat Diffusion model from the Chemistry & Physics section of the NetLogo Models Library. It uses visualization techniques as recommended in the paper:
 
-Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation, JASSS, 12(2), 1.
+* Kornhauser, D., Wilensky, U., & Rand, W. (2009). Design guidelines for agent based model visualization. Journal of Artificial Societies and Social Simulation (JASSS), 12(2), 1. http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuidelinesABMViz.pdf.
 
 ## WHAT IS IT?
 
@@ -464,10 +468,6 @@ RGB - colors the plate from a spectrum of RGB colors based on its temperature, u
 HSB - colors the plate from a spectrum of HSB colors based on its temperature
 DIVERGENT - colors the plate from a spectrum of colors from a divergent palette based on its temperature, uses the Palette extension
 
-## THINGS TO TRY
-
-Set the paramters on the temperature sliders.  Pick a value for ALPHA (or pick MATERIAL-TYPE and press UPDATE ALPHA).  After you have changed all the sliders to values you like, press SETUP followed by GO or GO ONCE.
-
 ## THINGS TO NOTICE
 
 How does the equilibrium temperature distribution vary for different edge temperature settings?
@@ -487,8 +487,9 @@ Keep track of the units:
 How do the different color schemes map to the gradient of heat?
 The palette extension enables us to use divergent color schemes.
 
-
 ## THINGS TO TRY
+
+Set the parameters on the temperature sliders.  Pick a value for ALPHA (or pick MATERIAL-TYPE and press UPDATE ALPHA).  After you have changed all the sliders to values you like, press SETUP followed by GO or GO ONCE.
 
 Try different materials to observe the heat transfer speed.  How does this compare to physical experiments?
 
@@ -510,7 +511,6 @@ Try modeling derivative or combined boundary conditions.
 
 The bundled palette extension is used to create color schemes from the widely-used ColorBrewer standard ([http://colorbrewer2.org/](http://colorbrewer2.org/)). Here we use a divergent spectral color scheme.
 
-
 ## CREDITS AND REFERENCES
 
 Thanks to Weiguo Yang for his work on this model.
@@ -521,6 +521,32 @@ http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuideline
 
 The palette extension uses the ColorBrewer color schemes (Harrower & Brewer 2003). It enables  convenient selection and mapping of ColorBrewer Schemes in NetLogo.
 The ColorBrewer webpage (http://colorbrewer2.org/) shows the different color schemes.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. (1998).  NetLogo Heat Diffusion - Alternative Visualization model.  http://ccl.northwestern.edu/netlogo/models/HeatDiffusion-AlternativeVisualization.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 1998 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This model was created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
+
+<!-- 1998 -->
 @#$#@#$#@
 default
 true

@@ -186,6 +186,11 @@ to pop-n ;; patch procedure
   update-n ((first n-stack) - n)
   set n-stack but-last n-stack
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 330
@@ -519,6 +524,26 @@ Bak, P. 1996. How nature works: the science of self-organized criticality. Coper
 Bak, P., Tang, C., & Wiesenfeld, K. 1987. Self-organized criticality: An explanation of the 1/f noise. Physical Review Letters, 59(4), 381.
 
 The bureaucrats-and-folders metaphor is due to Peter Grassberger.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Weintrop, D., Tisue, S., Tinker, R., Head, B. and Wilensky, U. (2011).  NetLogo Sandpile model.  http://ccl.northwestern.edu/netlogo/models/Sandpile.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+[![CC0](http://ccl.northwestern.edu/images/creativecommons/zero.png)](http://creativecommons.org/publicdomain/zero/1.0/)
+
+Public Domain: To the extent possible under law, Uri Wilensky has waived all copyright and related or neighboring rights to this model.
+
+<!-- 2011 CC0 Cite: Weintrop, D., Tisue, S., Tinker, R., Head, B. -->
 @#$#@#$#@
 default
 true

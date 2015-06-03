@@ -326,6 +326,10 @@ to do-plots
   set-current-plot-pen "poor"
   plot median [ min [distance myself] of jobs ] of poor
 end
+
+
+; Copyright 2007 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 323
@@ -779,6 +783,30 @@ Further modifications and refinements were made by members of the Center for Con
 The Urban Suite models were developed as part of the Procedural Modeling of Cities project, under the sponsorship of NSF ITR award 0326542, Electronic Arts & Maxis.
 
 Please see the project web site ([http://ccl.northwestern.edu/cities/](http://ccl.northwestern.edu/cities/)) for more information.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Felsen, M. and Wilensky, U. (2007).  NetLogo Urban Suite - Economic Disparity model.  http://ccl.northwestern.edu/netlogo/models/UrbanSuite-EconomicDisparity.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2007 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2007 Cite: Felsen, M. -->
 @#$#@#$#@
 default
 true

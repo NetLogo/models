@@ -154,6 +154,11 @@ to-report get-home ;; turtle procedure
            (round ((world-height / side) * int (my-group / side)
              + min-pycor + int (world-height / (side * 2))))
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 255
@@ -321,6 +326,8 @@ HORIZONTAL
 This example demonstrates two different methods for dividing an arbitrary number of turtles into groups, either by desired group size, or by desired number of groups.
 
 Please see the Code tab for details.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

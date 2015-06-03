@@ -51,6 +51,11 @@ to go
         [ set color white ] ]
   tick
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 240
@@ -169,6 +174,8 @@ Also, you must use the `hex-neighbors` variable instead of the built-in `neighbo
 This example is for stationary cells.  Hex Turtles Example shows how to make turtles that move along a hexagonal lattice.  (It would also be possible to combine both techniques in a single model.)
 
 Link Lattice Example and Lattice-Walking Turtles Example demonstrate another approach to making a hexagonal lattice, using links instead of just patches.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

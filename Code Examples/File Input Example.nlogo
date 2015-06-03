@@ -81,6 +81,11 @@ to save-patch-data
     file-close
   ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 246
@@ -182,6 +187,8 @@ File input can be used to load in complicated information or to give the user th
 ## RELATED MODELS
 
 File Output Example
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

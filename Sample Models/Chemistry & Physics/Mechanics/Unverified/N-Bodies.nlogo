@@ -237,6 +237,10 @@ to fade ;; Patch Procedure
   [ set pcolor new-color ]
   [ set pcolor black ]
 end
+
+
+; Copyright 1998 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 194
@@ -525,8 +529,6 @@ The KEEP-CENTERED? switch controls whether the simulation will re-center itself 
 
 If you want to design your own custom system, press SETUP to initialize the model, and then use the CREATE-PARTICLE button to create a particle with the settings set with the INITIAL-VELOCITY-X, INITIAL-VELOCITY-Y, INITIAL-MASS, and PARTICLE-COLOR sliders.  Particles are created by clicking in the View where you want to place the particle while the CREATE-PARTICLE button is running.  (Note, if KEEP-CENTERED? is On the particles will always move so that the center of mass is at the origin.)
 
-## THINGS TO TRY
-
 After you have set the sliders to the desired levels, press SETUP to initialize all particles, or SETUP TWO-PLANET to setup a predesigned stable two-planet system.  Next, press GO to begin running the simulation. You have two choices: you can either let it run without stopping (the GO forever button), or you can just advance the simulation by one time-step (the GO ONCE button). It may be useful to step through the simulation moment by moment, so that you can carefully watch the interaction of the particles.
 
 ## THINGS TO NOTICE
@@ -563,7 +565,33 @@ This model creates the illusion of a plane of infinite size, to better model the
 
 When you examine the procedure window, take note that standard turtle commands like `set heading` and `fd 1` aren't used here. Everything is done directly to the x-coordinates and y-coordinates of the turtles.
 
-## CREDITS AND REFERENCES
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. (1998).  NetLogo N-Bodies model.  http://ccl.northwestern.edu/netlogo/models/N-Bodies.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 1998 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This model was created as part of the project: CONNECTED MATHEMATICS: MAKING SENSE OF COMPLEX PHENOMENA THROUGH BUILDING OBJECT-BASED PARALLEL MODELS (OBPML).  The project gratefully acknowledges the support of the National Science Foundation (Applications of Advanced Technologies Program) -- grant numbers RED #9552950 and REC #9632612.
+
+This model was converted to NetLogo as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227. Converted from StarLogoT to NetLogo, 2002.
+
+<!-- 1998 2002 -->
 @#$#@#$#@
 default
 true

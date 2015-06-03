@@ -56,6 +56,10 @@ to wiggle ; turtle procedure
   rt random 50
   lt random 50
 end
+
+
+; Copyright 1997 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 250
@@ -290,7 +294,7 @@ This is a version of the Termites model, modified to show off NetLogo's perspect
 
 Termites
 
-## CREDITS AND REFERENCES
+<!-- 1997 2001 MIT specialCE -->
 @#$#@#$#@
 default
 true

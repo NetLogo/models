@@ -418,6 +418,10 @@ to check-for-stick ;; solvent procedure
     ]
   ]
 end
+
+
+; Copyright 2012 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 275
@@ -641,7 +645,6 @@ Osmotic pressure is generally defined as the amount of pressure required to brin
 
 Osmotic pressure is a colligative property of a solution, meaning the number of particles matter more than the identity of the particles. Because adding pressure to the solution on one side of the membrane changes the rate at which the solvent passes through the membrane (a rate that is restricted by the presence of solute particles), osmotic pressure can be thought of as a measurement of the tendency of a solute to restrict osmosis. As a colligative property, changes in osmotic pressure are proportional to the number of solute particles, not the identity of the particles.  The colligative nature of osmotic pressure can be explored in this model by experimenting with different types and number of solute particles.
 
-
 ## HOW IT WORKS
 
 In this model, blue patches represent a container divided by a semipermeable membrane (the red squares) -- a physical, porous barrier separating two solutions that allows some particles to pass but not others. Blue circles represent solvent molecules (water in this model) that can pass freely through the membrane. At setup, 1000 of these solvent molecules are created and randomly distributed throughout the container.  White circles represent particles of added solute. The amount of solute defined by the sliders is placed on the appropriate side of the membrane. If a solute is an ionic compound, it breaks apart into the appropriate number of ions.  If the solute is covalent, the compound does not break apart. Solute particles cannot pass through the membrane.
@@ -649,7 +652,6 @@ In this model, blue patches represent a container divided by a semipermeable mem
 As the model runs, particles move through the container according to kinetic molecular theory using NetLogo code first defined in the GasLab suite of models.  All particles move in a straight line until they collide with another particle, the wall, or the membrane (only solute particles collide with the membrane). Particles collide with one another in an elastic collision. While solvent molecules (water represented by the blue circles) may pass through the membrane freely, solute particles (white circles) are restricted to the side they are created on. In addition, at each step solvent molecules have a 50% chance to "stick" to solute molecules occupying the same patch (solute particles can hold a maximum of five solvent molecules). "Stuck" molecules have a 2% chance to become unstuck at each step of the model. In this model, changes in volume for each side occur through the movement of the membrane.
 
 At each tick, the membrane moves according to the difference in the number of solvent molecules moving from left to right and those moving from right to left. As the model progresses, according to the phenomenon of osmosis, the solvent (water) shows a net movement towards the side of higher solute concentration.
-
 
 ## HOW TO USE IT
 
@@ -679,7 +681,6 @@ At each tick, the membrane moves according to the difference in the number of so
 
 **WATER #:** Plots the number of solvent particles on the left and right side of the membrane over time (ticks).
 
-
 ## THINGS TO NOTICE
 
 As the model runs, more solvent particles should end up on the side of the membrane with more solute particles. Because more solvent particles are free to move on the side with fewer solute particles, they are more likely to cross the membrane.
@@ -687,12 +688,10 @@ As the model runs, more solvent particles should end up on the side of the membr
 How does the membrane movement change when adding different solutes? Is there a pattern?
 What happens when adding Sodium Chloride?  How is this different from adding Sugar?
 
-
 ## THINGS TO TRY
 
 Try adding different solutes.  Can you get a change in the number of solute particles so that Sodium Chloride acts like Sugar?
 Is there a mathematical relationship between membrane movement and the number of solute particles. Will this relationship depend on the type of solute added?  Why or why not?
-
 
 ## EXTENDING THE MODEL
 
@@ -705,20 +704,41 @@ There are at least two other common proposals for an agent-based explanations fo
 
 Can you model these alternate explanations?
 
-
 ## NETLOGO FEATURES
 
 Fixed length links are simulated by first tying particles together, then applying motion rules to only the solute particles.
-
 
 ## RELATED MODELS
 
 GasLab suite
 
-
 ## CREDITS AND REFERENCES
 
 We thank Luis Amaral for his scientific consultation.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Holbert, N. and Wilensky, U. (2012).  NetLogo Osmotic Pressure model.  http://ccl.northwestern.edu/netlogo/models/OsmoticPressure.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2012 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2012 Cite: Holbert, N. -->
 @#$#@#$#@
 default
 true

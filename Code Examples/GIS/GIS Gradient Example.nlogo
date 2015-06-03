@@ -47,6 +47,11 @@ to go
   if not any? turtles
   [ stop ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 10
@@ -181,7 +186,7 @@ It could be interesting to extend the model so that the "raindrop" turtles flow 
 
 The other GIS code example, GIS General Examples, provides a greater variety of examples of how to use the GIS extension.
 
-## CREDITS AND REFERENCES
+<!-- 2008 -->
 @#$#@#$#@
 default
 true

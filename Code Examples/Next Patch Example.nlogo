@@ -90,6 +90,11 @@ to-report next-patch-8  ;; turtle procedure
   if diff = 0 [ report patch-at -1 1 ]
   report patch-at 0 1
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 172
@@ -181,6 +186,8 @@ See the Code tab for further commentary.
 ## RELATED MODELS
 
 This code is used in the Rugby model, in Sample Models under Mathematics.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

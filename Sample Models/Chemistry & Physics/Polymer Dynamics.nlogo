@@ -57,6 +57,10 @@ to-report crossing-chain?  ;; turtle procedure
            or
          (heading = 270 and any? turtles at-points [[-2 -1] [-2 0] [-2 1]])
 end
+
+
+; Copyright 2005 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 121
@@ -198,6 +202,30 @@ Radical Polymerization - another model about polymers
 For a detailed treatment of this model, see Yaneer Bar-Yam, Dynamics of Complex Systems (2003), pages 496-502.  Westview Press, Boulder, CO.  The book is available online at http://necsi.edu/publications/dcs/.
 
 See also Y. Bar-Yam, Y. Rabin, M. A. Smith, Macromolecules Rep. 25 (1992) 2985.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. (2005).  NetLogo Polymer Dynamics model.  http://ccl.northwestern.edu/netlogo/models/PolymerDynamics.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2005 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2005 -->
 @#$#@#$#@
 default
 true

@@ -587,6 +587,10 @@ to-report isothermal-wall?
   ifelse (( abs pxcor = -1 * box-edge-x) and (abs pycor <= box-edge-y)) or ((abs pycor = box-edge-y) and (abs pxcor <= box-edge-x)) and not insulated? and not insulated-walls?
     [report true][report false]
 end
+
+
+; Copyright 2012 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 485
@@ -1013,7 +1017,6 @@ For a reaction to occur, nitrogen (N<sub>2</sub>) and hydrogen (H<sub>2</sub>) m
 
 This excess energy is called the DIFFERENCE-BOND-ENERGY.  When the bond energy is released the products speed up due to an increased transfer of bond-energy to kinetic energy in the chemical reaction.  When bond energy is absorbed the products slow down from the chemical reaction.
 
-
 ## HOW TO USE IT
 
 \#-N2 determines the initial number of nitrogen (N<sub>2</sub>) molecules in the simulation.
@@ -1034,11 +1037,9 @@ WARM WALLS increases the isothermal energy level of the wall.  COOL WALLS decrea
 
 RESET REACTION COUNTS sets the counters for number of forward reactions and number of reverse reactions to 0.  This is useful to do when you think you have reached a stable state in the system.  After resetting the reaction counts, the % FORWARD REACTIONS and % REVERSE REACTIONS should stabilize at around 50%.
 
-
 ## THINGS TO NOTICE
 
 Le Chatelier's Principle can be understood as competing effects between two different contributions to when and how often certain reaction occur.  Explore high and low temperatures and high and low pressures, and try to understand why the system tends to respond to "increase the pressure" when the volume is increased.
-
 
 ## THINGS TO TRY
 
@@ -1048,13 +1049,11 @@ Try running the model starting only with ammonia molecules. Try running the mode
 
 Try to find the settings for the highest yield of ammonia.  What temperature and volume combination is optimal?
 
-
 ## EXTENDING THE MODEL
 
 In the Haber process in real life the inclusion of the catalyst of iron is often used.  A similar catalyst could be added here (using the same code and modeling assumption as used for the water catalyst in the iron rusting model).
 
 The model could be extended to represent a reversible reaction of A + B &harr; C + D.
-
 
 ## NETLOGO FEATURES
 
@@ -1064,7 +1063,33 @@ Uses GasLab particle collision code:
 
 Wilensky, U. (1998).  NetLogo GasLab Gas in a Box model. http://ccl.northwestern.edu/netlogo/models/GasLabGasinaBox. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
-## CREDITS AND REFERENCES
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Novak, M. and Wilensky, U. (2012).  NetLogo Connected Chemistry Reversible Reaction model.  http://ccl.northwestern.edu/netlogo/models/ConnectedChemistryReversibleReaction.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+To cite the Connected Chemistry curriculum as a whole, please use:
+
+* Wilensky, U., Levy, S. T., & Novak, M. (2004). Connected Chemistry curriculum. http://ccl.northwestern.edu/curriculum/chemistry/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2012 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2012 ConChem Cite: Novak, M. -->
 @#$#@#$#@
 default
 true

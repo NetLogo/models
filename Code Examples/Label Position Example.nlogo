@@ -34,6 +34,11 @@ to go
   ask banners [ reposition ]
   tick
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 236
@@ -157,6 +162,8 @@ Note the use of the TIE primitive.
 ## RELATED MODELS
 
 Halo Example
+
+<!-- 2011 -->
 @#$#@#$#@
 default
 true

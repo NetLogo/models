@@ -62,6 +62,11 @@ to get-away  ;; turtle procedure -- get out of yellow pile
   if pcolor = black
     [ set next-task task search-for-chip ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 228
@@ -174,6 +179,8 @@ Note the use of the `task` primitive to create a command task to be run later wi
 ## RELATED MODELS
 
 Termites
+
+<!-- 2007 -->
 @#$#@#$#@
 default
 true

@@ -8,6 +8,11 @@ end
 to go
   tick
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 242
@@ -103,6 +108,8 @@ The plot contains two plot pens, \"position\" and \"axis\".  \"axis\" is used on
 ## WHAT IS IT?
 
 This example shows how to draw an axis line on a plot.
+
+<!-- 2004 -->
 @#$#@#$#@
 default
 true

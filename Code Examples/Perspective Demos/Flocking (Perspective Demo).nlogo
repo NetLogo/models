@@ -99,6 +99,10 @@ to turn-at-most [turn max-turn]  ;; turtle procedure
         [ lt max-turn ] ]
     [ rt turn ]
 end
+
+
+; Copyright 1998 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 250
@@ -383,7 +387,7 @@ This is a version of the Flocking model, modified to show off NetLogo's perspect
 
 Flocking
 
-## CREDITS AND REFERENCES
+<!-- 1998 2002 specialCE -->
 @#$#@#$#@
 default
 true
