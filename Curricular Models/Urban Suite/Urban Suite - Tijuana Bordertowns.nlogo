@@ -14,9 +14,18 @@ builders-own [ too-close energy weight block-size origin]
 second-order-builders-own [ energy weight origin]
 third-order-builders-own [ energy weight origin ]
 
-globals [ values weights marginal-value marginal-weight crossed third-phase max-cost]
+globals [ values weights marginal-value marginal-weight crossed third-phase max-cost setup-done? ]
 
 to setup
+
+  if setup-done? = true [ ; note that setup-done? is 0 after clear-all
+    user-message (word
+      "Setup of the cityscapse is already completed. "
+      "Press GO if you want to run the simulation "
+      "or CLEAR if you want to start over.")
+    stop
+  ]
+
   tick
 
   generate-cityscape
@@ -32,7 +41,9 @@ to setup
 
   if third-phase = "stop"
      [ ask patches [ set land-value precision (land-value) 2 ]
-       reset-ticks stop ]
+       reset-ticks
+       set setup-done? true
+       stop ]
 end
 
 to generate-cityscape
@@ -378,6 +389,15 @@ end
 
 
 to go
+  
+    if setup-done? != true [
+      user-message (word
+        "Setup of the cityscapse is not completed. "
+        "Press CITYSCAPE and let it run until it stops "
+        "before trying to press GO again.")
+      stop
+    ]
+  
     tick
     if count third-order-builders != 0 [
       set values ( mean [ land-value ] of third-order-builders )
