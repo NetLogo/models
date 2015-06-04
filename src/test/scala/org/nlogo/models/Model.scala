@@ -2,14 +2,13 @@ package org.nlogo.models
 
 import java.io.File
 import java.util.regex.Pattern.quote
-
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
-
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FileUtils.listFiles
 import org.apache.commons.io.FileUtils.readFileToString
 import org.apache.commons.io.FilenameUtils.getExtension
 import org.apache.commons.io.FilenameUtils.removeExtension
+import scala.xml.XML
 
 object Model {
   sealed abstract trait UpdateMode
@@ -88,4 +87,5 @@ case class Model(
     if (name.endsWith(" 3D"))
       name.replaceFirst(" 3D$", "")
     else name
+    def behaviorSpaceXML = XML.loadString(behaviorSpace)
 }
