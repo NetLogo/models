@@ -539,7 +539,7 @@ Please cite the NetLogo software as:
 
 ## COPYRIGHT AND LICENSE
 
-[![CC0](http://ccl.northwestern.edu/images/creativecommons/zero.png)](http://creativecommons.org/publicdomain/zero/1.0/)
+[![CC0](http://ccl.northwestern.edu/images/creativecommons/zero.png)](https://creativecommons.org/publicdomain/zero/1.0/)
 
 Public Domain: To the extent possible under law, Uri Wilensky has waived all copyright and related or neighboring rights to this model.
 

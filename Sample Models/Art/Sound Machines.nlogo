@@ -774,7 +774,7 @@ Please cite the NetLogo software as:
 
 Copyright 2005 Uri Wilensky. Includes code by James P. Steiner.
 
-This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 2.5 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/2.5/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 2.5 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/2.5/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 <!-- 2005 Steiner -->
 @#$#@#$#@
