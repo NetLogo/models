@@ -20,7 +20,7 @@ to setup
 
   if setup-done? = true [ ; note that setup-done? is 0 after clear-all
     user-message (word
-      "Setup of the cityscapse is already completed. "
+      "Setup of the cityscape is already completed. "
       "Press GO if you want to run the simulation "
       "or CLEAR if you want to start over.")
     stop
@@ -392,7 +392,7 @@ to go
   
     if setup-done? != true [
       user-message (word
-        "Setup of the cityscapse is not completed. "
+        "Setup of the cityscape is not completed. "
         "Press CITYSCAPE and let it run until it stops "
         "before trying to press GO again.")
       stop
