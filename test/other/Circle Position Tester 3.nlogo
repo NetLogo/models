@@ -1,5 +1,9 @@
 to setup
-  ca
+  ;; (for this model to work with NetLogo's new plotting features,
+  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
+  ;; the beginning of your setup procedure and reset-ticks at the end
+  ;; of the procedure.)
+  __clear-all-and-reset-ticks
   ask patches [
     sprout 1 [
       set color green
@@ -29,6 +33,12 @@ GRAPHICS-WINDOW
 -1
 1
 -1
+1
+0
+0
+1
+ticks
+30.0
 
 BUTTON
 30
@@ -41,8 +51,11 @@ NIL
 1
 T
 OBSERVER
-T
 NIL
+NIL
+NIL
+NIL
+1
 
 BUTTON
 24
@@ -50,13 +63,16 @@ BUTTON
 181
 172
 NIL
-set shape "square 3"
+set shape \"square 3\"
 NIL
 1
 T
 TURTLE
-T
 NIL
+NIL
+NIL
+NIL
+1
 
 BUTTON
 30
@@ -69,8 +85,11 @@ NIL
 1
 T
 TURTLE
-T
 NIL
+NIL
+NIL
+NIL
+1
 
 BUTTON
 13
@@ -78,13 +97,16 @@ BUTTON
 181
 275
 NIL
-set shape "square"
+set shape \"square\"
 NIL
 1
 T
 TURTLE
-T
 NIL
+NIL
+NIL
+NIL
+1
 
 BUTTON
 903
@@ -99,6 +121,9 @@ T
 TURTLE
 NIL
 NIL
+NIL
+NIL
+1
 
 BUTTON
 43
@@ -111,8 +136,11 @@ NIL
 1
 T
 TURTLE
-T
 NIL
+NIL
+NIL
+NIL
+1
 
 BUTTON
 668
@@ -120,13 +148,16 @@ BUTTON
 1022
 91
 NIL
-setup\nask turtles [ set shape "square"\nset heading 0 ]
+setup\nask turtles [ set shape \"square\"\nset heading 0 ]
 NIL
 1
 T
 OBSERVER
-T
 NIL
+NIL
+NIL
+NIL
+1
 
 BUTTON
 748
@@ -141,6 +172,9 @@ T
 TURTLE
 NIL
 R
+NIL
+NIL
+1
 
 BUTTON
 774
@@ -153,8 +187,11 @@ NIL
 1
 T
 TURTLE
-T
 NIL
+NIL
+NIL
+NIL
+1
 
 BUTTON
 790
@@ -162,13 +199,16 @@ BUTTON
 926
 349
 NIL
-set shape "circle"
+set shape \"circle\"
 NIL
 1
 T
 TURTLE
 NIL
 NIL
+NIL
+NIL
+1
 
 BUTTON
 813
@@ -183,6 +223,9 @@ T
 TURTLE
 NIL
 NIL
+NIL
+NIL
+1
 
 BUTTON
 688
@@ -190,13 +233,16 @@ BUTTON
 1067
 385
 NIL
-set shape "corner"\nset size 2\nsetxy xcor + 0.5 ycor + 0.5
+set shape \"corner\"\nset size 2\nsetxy xcor + 0.5 ycor + 0.5
 NIL
 1
 T
 TURTLE
 NIL
 NIL
+NIL
+NIL
+1
 
 BUTTON
 8
@@ -204,13 +250,16 @@ BUTTON
 187
 372
 NIL
-set shape "plain square"
+set shape \"plain square\"
 NIL
 1
 T
 TURTLE
 NIL
 NIL
+NIL
+NIL
+1
 
 BUTTON
 99
@@ -218,13 +267,16 @@ BUTTON
 601
 550
 NIL
-setup\nask turtles [ set shape "plain square"\nif who != 4 [ die  ] set heading 0 ]
+setup\nask turtles [ set shape \"plain square\"\nif who != 4 [ die  ] set heading 0 ]
 NIL
 1
 T
 OBSERVER
-T
 NIL
+NIL
+NIL
+NIL
+1
 
 BUTTON
 98
@@ -232,13 +284,16 @@ BUTTON
 592
 584
 NIL
-setup\nask turtles [ set shape "circle"\nif who != 4 [ die  ] set heading 0 ]
+setup\nask turtles [ set shape \"circle\"\nif who != 4 [ die  ] set heading 0 ]
 NIL
 1
 T
 OBSERVER
 NIL
 NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 @#$#@#$#@
@@ -544,8 +599,23 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 3.1pre1
+NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
+@#$#@#$#@
+@#$#@#$#@
+default
+0.0
+-0.2 0 0.0 1.0
+0.0 1 1.0 0.0
+0.2 0 0.0 1.0
+link direction
+true
+0
+Line -7500403 true 150 150 90 180
+Line -7500403 true 150 150 210 180
+
+@#$#@#$#@
+0
 @#$#@#$#@

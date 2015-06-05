@@ -1446,6 +1446,7 @@ GRAPHICS-WINDOW
 1
 0
 ticks
+30.0
 
 BUTTON
 270
@@ -2474,7 +2475,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

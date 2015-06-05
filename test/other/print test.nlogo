@@ -16,7 +16,11 @@
 
 
 to go
-  ca
+  ;; (for this model to work with NetLogo's new plotting features,
+  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
+  ;; the beginning of your setup procedure and reset-ticks at the end
+  ;; of the procedure.)
+  __clear-all-and-reset-ticks
   cro 10 [ fd 10 ]
   ask patches with [ not any? turtles-here ]
   [ set pcolor blue ]
@@ -54,9 +58,10 @@ GRAPHICS-WINDOW
 -17
 17
 0
-1
+0
 1
 ticks
+30.0
 
 BUTTON
 48
@@ -73,6 +78,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 SLIDER
 142
@@ -125,8 +131,9 @@ foo-bar
 100.0
 true
 true
+"" ""
 PENS
-"default" 1.0 0 -5825686 true
+"default" 1.0 0 -5825686 true "" ""
 
 TEXTBOX
 53
@@ -136,6 +143,7 @@ TEXTBOX
 just a test to see if text shows up
 11
 0.0
+0
 
 CHOOSER
 163
@@ -148,15 +156,15 @@ hi
 0
 
 @#$#@#$#@
-Yea, verily, THIS IS THE INFO WINDOW!!!!!!!!!!!!!!!!!!
+Yea, verily, THIS IS THE INFO WINDOW!!!!!!!!!!!!!!!!!!  
 add model documentation here
-
 
 ;add model procedures here and try adding some really long sentence that will make the line wrap to a second line.  if that works then maybe we can try something else that might be cooler (or more problematic) than this.  such as:
 
 
 
                                                                     ;--maybetryingalinethatdoesn'thaveanyspacesinitbutisreallylongandmaybestartsprettyfarintothelinealreadybutwoulddefinatelybetoolongifitwasallwrittentothesameline.
+
 ;--isupposethatwecouldalsotestthiswiththereallylonglinestartingatthebeginningofthelinetoo:maybetryingalinethatdoesn'thaveanyspacesinitbutisreallylongandmaybestartsprettyfarintothelinealreadybutwoulddefinatelybetoolongifitwasallwrittentothesameline.
 
 
@@ -165,11 +173,6 @@ add model documentation here
 ;or maybe have a line with just one space in it, like the line above.
 
 ; hi there ;lakjsdfl;jasl;dkfjlasjdflkjasdl;fjl;kasjdflkjas;dlfjl;asjdfl;jasdl;kfjla;sjdflkjasdlkfjasldkjfal;skdjflkj
-
-
-
-
-
 
 
 
@@ -450,9 +453,23 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 4.0alpha3
+NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
+@#$#@#$#@
+default
+0.0
+-0.2 0 0.0 1.0
+0.0 1 1.0 0.0
+0.2 0 0.0 1.0
+link direction
+true
+0
+Line -7500403 true 150 150 90 180
+Line -7500403 true 150 150 210 180
+
+@#$#@#$#@
+0
 @#$#@#$#@

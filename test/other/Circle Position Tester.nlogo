@@ -1,5 +1,9 @@
 to setup
-  ca
+  ;; (for this model to work with NetLogo's new plotting features,
+  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
+  ;; the beginning of your setup procedure and reset-ticks at the end
+  ;; of the procedure.)
+  __clear-all-and-reset-ticks
   ask patches [
     sprout 1 [
       set color green
@@ -30,6 +34,11 @@ GRAPHICS-WINDOW
 18
 -18
 18
+0
+0
+1
+ticks
+30.0
 
 BUTTON
 26
@@ -42,8 +51,11 @@ NIL
 1
 T
 OBSERVER
-T
 NIL
+NIL
+NIL
+NIL
+1
 
 BUTTON
 20
@@ -51,13 +63,16 @@ BUTTON
 177
 233
 NIL
-set shape "square 3"
+set shape \"square 3\"
 NIL
 1
 T
 TURTLE
-T
 NIL
+NIL
+NIL
+NIL
+1
 
 BUTTON
 26
@@ -70,8 +85,11 @@ NIL
 1
 T
 TURTLE
-T
 NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 @#$#@#$#@
@@ -363,8 +381,23 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 3.1pre1
+NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
+@#$#@#$#@
+@#$#@#$#@
+default
+0.0
+-0.2 0 0.0 1.0
+0.0 1 1.0 0.0
+0.2 0 0.0 1.0
+link direction
+true
+0
+Line -7500403 true 150 150 90 180
+Line -7500403 true 150 150 210 180
+
+@#$#@#$#@
+0
 @#$#@#$#@

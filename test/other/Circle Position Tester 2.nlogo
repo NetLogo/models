@@ -1,4 +1,3 @@
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 294
@@ -21,6 +20,11 @@ GRAPHICS-WINDOW
 10
 -10
 10
+0
+0
+1
+ticks
+30.0
 
 BUTTON
 160
@@ -28,13 +32,16 @@ BUTTON
 248
 95
 circle
-ca random-seed 0\nask patches [ sprout 1 [ set shape "circle" ] ]
+;; (for this model to work with NetLogo's new plotting features,\n  ;; __clear-all-and-reset-ticks should be replaced with clear-all at\n  ;; the beginning of your setup procedure and reset-ticks at the end\n  ;; of the procedure.)\n  __clear-all-and-reset-ticks random-seed 0\nask patches [ sprout 1 [ set shape \"circle\" ] ]
 NIL
 1
 T
 OBSERVER
-T
 NIL
+NIL
+NIL
+NIL
+1
 
 BUTTON
 158
@@ -42,13 +49,16 @@ BUTTON
 247
 140
 circle2
-ca random-seed 0\nask patches [ sprout 1 [ set shape "circle2" ] ]
+;; (for this model to work with NetLogo's new plotting features,\n  ;; __clear-all-and-reset-ticks should be replaced with clear-all at\n  ;; the beginning of your setup procedure and reset-ticks at the end\n  ;; of the procedure.)\n  __clear-all-and-reset-ticks random-seed 0\nask patches [ sprout 1 [ set shape \"circle2\" ] ]
 NIL
 1
 T
 OBSERVER
-T
 NIL
+NIL
+NIL
+NIL
+1
 
 BUTTON
 72
@@ -56,13 +66,16 @@ BUTTON
 155
 95
 circle0
-ca random-seed 0\nask patches [ sprout 1 [ set shape "circle0" ] ]
+;; (for this model to work with NetLogo's new plotting features,\n  ;; __clear-all-and-reset-ticks should be replaced with clear-all at\n  ;; the beginning of your setup procedure and reset-ticks at the end\n  ;; of the procedure.)\n  __clear-all-and-reset-ticks random-seed 0\nask patches [ sprout 1 [ set shape \"circle0\" ] ]
 NIL
 1
 T
 OBSERVER
-T
 NIL
+NIL
+NIL
+NIL
+1
 
 BUTTON
 71
@@ -70,13 +83,16 @@ BUTTON
 152
 141
 circle02
-ca random-seed 0\nask patches [ sprout 1 [ set shape "circle02" ] ]
+;; (for this model to work with NetLogo's new plotting features,\n  ;; __clear-all-and-reset-ticks should be replaced with clear-all at\n  ;; the beginning of your setup procedure and reset-ticks at the end\n  ;; of the procedure.)\n  __clear-all-and-reset-ticks random-seed 0\nask patches [ sprout 1 [ set shape \"circle02\" ] ]
 NIL
 1
 T
 OBSERVER
-T
 NIL
+NIL
+NIL
+NIL
+1
 
 TEXTBOX
 22
@@ -84,6 +100,9 @@ TEXTBOX
 71
 92
 Filled
+12
+0.0
+0
 
 TEXTBOX
 16
@@ -91,6 +110,9 @@ TEXTBOX
 61
 134
 Unfilled
+12
+0.0
+0
 
 TEXTBOX
 67
@@ -98,6 +120,9 @@ TEXTBOX
 151
 56
 non-rotatable
+12
+0.0
+0
 
 TEXTBOX
 160
@@ -105,6 +130,9 @@ TEXTBOX
 283
 56
 rotatable
+12
+0.0
+0
 
 BUTTON
 82
@@ -117,8 +145,11 @@ NIL
 1
 T
 TURTLE
-T
 NIL
+NIL
+NIL
+NIL
+1
 
 BUTTON
 82
@@ -131,8 +162,11 @@ NIL
 1
 T
 TURTLE
-T
 NIL
+NIL
+NIL
+NIL
+1
 
 BUTTON
 82
@@ -145,8 +179,11 @@ NIL
 1
 T
 TURTLE
-T
 NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 @#$#@#$#@
@@ -450,8 +487,23 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 3.1pre1
+NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
+@#$#@#$#@
+@#$#@#$#@
+default
+0.0
+-0.2 0 0.0 1.0
+0.0 1 1.0 0.0
+0.2 0 0.0 1.0
+link direction
+true
+0
+Line -7500403 true 150 150 90 180
+Line -7500403 true 150 150 210 180
+
+@#$#@#$#@
+0
 @#$#@#$#@

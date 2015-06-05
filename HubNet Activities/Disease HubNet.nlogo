@@ -471,7 +471,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
-30
+30.0
 
 BUTTON
 131
@@ -1298,7 +1298,7 @@ Line -7500403 true 84 40 221 269
 Circle -2674135 true false 156 156 108
 
 @#$#@#$#@
-NetLogo 5.0beta1
+NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

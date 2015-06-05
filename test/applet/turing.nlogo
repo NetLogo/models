@@ -744,7 +744,7 @@ Polygon -6459832 true true 46 128 33 120 21 118 11 123 3 138 5 160 13 178 9 192 
 Polygon -6459832 true true 67 122 96 126 63 144
 
 @#$#@#$#@
-NetLogo 5.0beta3
+NetLogo 5.2.0
 @#$#@#$#@
 setup
 repeat 525 [ go ]

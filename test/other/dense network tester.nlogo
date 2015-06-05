@@ -74,7 +74,6 @@ end
 to-report benchmark-my-links
   report [my-links] of turtle 0
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 316
@@ -101,6 +100,7 @@ GRAPHICS-WINDOW
 0
 1
 ticks
+30.0
 
 SLIDER
 21
@@ -147,6 +147,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 PLOT
 30
@@ -162,12 +163,13 @@ NIL
 0.1
 true
 true
+"" ""
 PENS
-"link" 1.0 0 -16777216 true
-"link-neighbor?" 1.0 0 -2674135 true
-"link-neighbors" 1.0 0 -955883 true
-"link-with" 1.0 0 -1184463 true
-"my-links" 1.0 0 -10899396 true
+"link" 1.0 0 -16777216 true "" ""
+"link-neighbor?" 1.0 0 -2674135 true "" ""
+"link-neighbors" 1.0 0 -955883 true "" ""
+"link-with" 1.0 0 -1184463 true "" ""
+"my-links" 1.0 0 -10899396 true "" ""
 
 BUTTON
 109
@@ -184,6 +186,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 BUTTON
 53
@@ -200,6 +203,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 BUTTON
 70
@@ -216,6 +220,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 TEXTBOX
 49
@@ -512,7 +517,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 4.1pre1
+NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -529,4 +534,6 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
+@#$#@#$#@
+0
 @#$#@#$#@

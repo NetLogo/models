@@ -1,5 +1,9 @@
 to setup
-  ca
+  ;; (for this model to work with NetLogo's new plotting features,
+  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
+  ;; the beginning of your setup procedure and reset-ticks at the end
+  ;; of the procedure.)
+  __clear-all-and-reset-ticks
 end
 
 to go1
@@ -38,6 +42,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
+30.0
 
 PLOT
 13
@@ -53,8 +58,9 @@ NIL
 10.0
 true
 false
+"" ""
 PENS
-"default" 1.0 0 -16777216 true
+"default" 1.0 0 -16777216 true "" ""
 
 BUTTON
 49
@@ -71,6 +77,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 BUTTON
 40
@@ -87,6 +94,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 @#$#@#$#@
 @#$#@#$#@
@@ -373,7 +381,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 4.0beta5
+NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -390,4 +398,6 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
+@#$#@#$#@
+0
 @#$#@#$#@

@@ -3,7 +3,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
 to setup
-  clear-all
+  ;; (for this model to work with NetLogo's new plotting features,
+  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
+  ;; the beginning of your setup procedure and reset-ticks at the end
+  ;; of the procedure.)
+  __clear-all-and-reset-ticks
   set-default-shape turtles "circle"
   ;; make the initial network of two turtles and an edge
   make-node nobody        ;; first node, unattached
@@ -154,7 +158,6 @@ end
 to-report link-ycor
   report ([ycor] of end1 + [ycor] of end2) / 2
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 345
@@ -181,6 +184,7 @@ GRAPHICS-WINDOW
 1
 1
 ticks
+30.0
 
 BUTTON
 6
@@ -197,6 +201,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 BUTTON
 93
@@ -213,6 +218,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 BUTTON
 6
@@ -229,6 +235,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 SWITCH
 187
@@ -267,6 +274,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 BUTTON
 115
@@ -283,6 +291,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 @#$#@#$#@
 @#$#@#$#@
@@ -297,7 +306,7 @@ false
 Circle -7500403 true true 0 0 300
 
 @#$#@#$#@
-NetLogo 4.2pre1
+NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -305,9 +314,9 @@ NetLogo 4.2pre1
 @#$#@#$#@
 default
 0.0
--0.2 0 1.0 0.0
+-0.2 0 0.0 1.0
 0.0 1 1.0 0.0
-0.2 0 1.0 0.0
+0.2 0 0.0 1.0
 link direction
 true
 0

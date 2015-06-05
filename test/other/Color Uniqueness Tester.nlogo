@@ -85,7 +85,6 @@ to blacks
   foreach n-values 14 [? * 10]
     [ output-print (word ? " " bytes extract-rgb ?) ]
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 134
@@ -108,6 +107,11 @@ GRAPHICS-WINDOW
 8
 -7
 7
+0
+0
+1
+ticks
+30.0
 
 BUTTON
 12
@@ -120,14 +124,18 @@ NIL
 1
 T
 OBSERVER
-T
 NIL
+NIL
+NIL
+NIL
+1
 
 OUTPUT
 669
 101
 860
 385
+12
 
 BUTTON
 670
@@ -140,8 +148,11 @@ NIL
 1
 T
 OBSERVER
-T
 NIL
+NIL
+NIL
+NIL
+1
 
 BUTTON
 744
@@ -154,8 +165,11 @@ NIL
 1
 T
 OBSERVER
-T
 NIL
+NIL
+NIL
+NIL
+1
 
 BUTTON
 827
@@ -168,8 +182,11 @@ NIL
 1
 T
 OBSERVER
-T
 NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 This model was used to generate the color chart in the NetLogo User Manual.
@@ -449,9 +466,24 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 3.1pre1
+NetLogo 5.2.0
 @#$#@#$#@
 setup
 @#$#@#$#@
 @#$#@#$#@
+@#$#@#$#@
+@#$#@#$#@
+default
+0.0
+-0.2 0 0.0 1.0
+0.0 1 1.0 0.0
+0.2 0 0.0 1.0
+link direction
+true
+0
+Line -7500403 true 150 150 90 180
+Line -7500403 true 150 150 210 180
+
+@#$#@#$#@
+0
 @#$#@#$#@

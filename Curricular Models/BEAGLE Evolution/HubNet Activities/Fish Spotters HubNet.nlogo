@@ -198,14 +198,14 @@ to change-bottom
   create-rocks 1 [set shape top-ground set which-tank "top tank"]
   create-rocks 1 [set shape bottom-ground set which-tank "bottom tank"]
 
-  if bottom-ground = "rock"   [ask bottom-patches [set pcolor approximate-hsb 30 75 (60 + 80)]]
-  if top-ground    = "rock"   [ask top-patches [set pcolor approximate-hsb 30 75 (60 + 80)]]
-  if bottom-ground = "sand"   [ask bottom-patches [set pcolor approximate-hsb 30 0 (0 + 160)]]
-  if top-ground    = "sand"   [ask top-patches [set pcolor approximate-hsb 30 0 (0 + 160)]]
-  if bottom-ground = "plants" [ask bottom-patches [set pcolor approximate-hsb 30 0 (0 + 60)]]
-  if top-ground    = "plants" [ask top-patches [set pcolor approximate-hsb 30 0 (0 + 60)]]
-  if bottom-ground = "nothing" [ask bottom-patches [set pcolor approximate-hsb 0 0 255]]
-  if top-ground    = "nothing" [ask top-patches [set pcolor approximate-hsb  0 0 255]]
+  if bottom-ground = "rock"   [ask bottom-patches [set pcolor __approximate-hsb-old 30 75 (60 + 80)]]
+  if top-ground    = "rock"   [ask top-patches [set pcolor __approximate-hsb-old 30 75 (60 + 80)]]
+  if bottom-ground = "sand"   [ask bottom-patches [set pcolor __approximate-hsb-old 30 0 (0 + 160)]]
+  if top-ground    = "sand"   [ask top-patches [set pcolor __approximate-hsb-old 30 0 (0 + 160)]]
+  if bottom-ground = "plants" [ask bottom-patches [set pcolor __approximate-hsb-old 30 0 (0 + 60)]]
+  if top-ground    = "plants" [ask top-patches [set pcolor __approximate-hsb-old 30 0 (0 + 60)]]
+  if bottom-ground = "nothing" [ask bottom-patches [set pcolor __approximate-hsb-old 0 0 255]]
+  if top-ground    = "nothing" [ask top-patches [set pcolor __approximate-hsb-old  0 0 255]]
 
   ;; 3000 repetitions ensures that the bottom looks covered with rocks or plants or sand
   repeat 3000 [
@@ -214,9 +214,9 @@ to change-bottom
       rt random 360
       if which-tank = "top tank" [setxy random-float 100 random-float max-pycor ]
       if which-tank = "bottom tank" [setxy  random-float 100 (-1 * random-float (abs min-pycor)) ]
-      if my-tank = "sand" [set size gravel-size + random-float .2 set color approximate-hsb 30 (10 + random-float 50) (150 + random-float 90) ]
-      if my-tank = "rock" [set size gravel-size + random-float 1.2 set color approximate-hsb 30 (30 + random-float 90) (60 + random-float 160) ]
-      if my-tank = "plants" [set size gravel-size + random-float 1.2 set color approximate-hsb 90 (120 + random-float 100) (random-float 160) ]
+      if my-tank = "sand" [set size gravel-size + random-float .2 set color __approximate-hsb-old 30 (10 + random-float 50) (150 + random-float 90) ]
+      if my-tank = "rock" [set size gravel-size + random-float 1.2 set color __approximate-hsb-old 30 (30 + random-float 90) (60 + random-float 160) ]
+      if my-tank = "plants" [set size gravel-size + random-float 1.2 set color __approximate-hsb-old 90 (120 + random-float 100) (random-float 160) ]
       stamp
     ]
   ]
@@ -1637,7 +1637,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.1
+NetLogo 5.2.0
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

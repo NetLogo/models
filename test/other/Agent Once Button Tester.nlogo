@@ -25,6 +25,7 @@ GRAPHICS-WINDOW
 0
 1
 ticks
+30.0
 
 MONITOR
 61
@@ -43,7 +44,7 @@ BUTTON
 150
 127
 NIL
-clear-all crt 10
+;; (for this model to work with NetLogo's new plotting features,\n  ;; __clear-all-and-reset-ticks should be replaced with clear-all at\n  ;; the beginning of your setup procedure and reset-ticks at the end\n  ;; of the procedure.)\n  __clear-all-and-reset-ticks crt 10
 NIL
 1
 T
@@ -52,6 +53,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 MONITOR
 40
@@ -79,6 +81,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 BUTTON
 16
@@ -95,6 +98,7 @@ NIL
 NIL
 NIL
 NIL
+1
 
 TEXTBOX
 53
@@ -401,7 +405,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 4.0beta6
+NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -418,4 +422,6 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
+@#$#@#$#@
+0
 @#$#@#$#@
