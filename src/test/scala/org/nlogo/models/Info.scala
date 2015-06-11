@@ -43,20 +43,20 @@ object Info {
   }
   def fromContent(content: String): Info = {
     val contentLines = clean(content).lines.toSeq
-    val legalSnippet = contentLines.last
-    fromSections(contentToSections(contentLines.init), legalSnippet)
+    val legalSnippet = contentLines.lastOption
+    fromSections(contentToSections(contentLines.dropRight(1)), legalSnippet)
   }
-  def fromSections(sections: Iterable[(String, String)], legalSnippet: String): Info = {
+  def fromSections(sections: Iterable[(String, String)], legalSnippet: Option[String]): Info = {
     val content = sections
       .map { case (title, text) => s"## $title\n\n$text" }
       .mkString("", "\n\n", "\n\n") +
-      legalSnippet + "\n"
+      legalSnippet.getOrElse("") + "\n"
     Info(content, sections, legalSnippet)
   }
 }
 case class Info(
   val content: String,
   val sections: Iterable[(String, String)],
-  val legalSnippet: String) {
+  val legalSnippet: Option[String]) {
   val sectionMap: ListMap[String, String] = ListMap() ++ sections
 }

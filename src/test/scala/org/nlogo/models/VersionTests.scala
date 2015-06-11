@@ -17,12 +17,15 @@ class VersionTests extends FunSuite {
 
   test("All models are readable") {
     if (allModelFailures.nonEmpty) fail(
-      allModelFailures.map {
-        case (f, e) =>
-          "\"" + f.getCanonicalPath + "\"\n  " +
-            e + "\n" +
-            e.getStackTrace.mkString("\n")
-      }.mkString("\n")
+      "The following models failed:" +
+        allModelFailures.map { case (f, e) => "  \"" + f.getCanonicalPath + "\"" }.mkString("\n") +
+        "Details:\n" +
+        allModelFailures.map {
+          case (f, e) =>
+            "\"" + f.getCanonicalPath + "\"\n" +
+              e + "\n" +
+              e.getStackTrace.mkString("\n")
+        }.mkString("\n\n")
     )
   }
 

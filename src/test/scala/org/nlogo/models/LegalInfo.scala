@@ -88,7 +88,7 @@ case class LegalInfo(model: Model) {
   import LegalInfo._
 
   val (year: Int, year2: Option[Int], keywords: List[String], cite: String) = {
-    val pattern(y1, y2, keys, _, cite) = model.info.legalSnippet
+    val Some(pattern(y1, y2, keys, _, cite)) = model.info.legalSnippet
     (y1.toInt,
       if (y2 == null) None else Some(y2.trim.toInt),
       if (keys == null) List() else keys.split("""\s""").map(_.trim).filter(!_.isEmpty).toList,
