@@ -789,25 +789,6 @@ NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
-<experiments>
-  <experiment name="experiment1" repetitions="1" runMetricsEveryStep="false">
-    <go>go</go>
-    <final>file-close-all</final>
-    <timeLimit steps="1000000"/>
-    <enumeratedValueSet variable="N">
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Initial-Config">
-      <value value="&quot;random&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="Rho">
-      <value value="0.25"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="T">
-      <value value="1"/>
-    </enumeratedValueSet>
-  </experiment>
-</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default

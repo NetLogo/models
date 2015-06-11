@@ -1036,29 +1036,6 @@ NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
-<experiments>
-  <experiment name="experiment" repetitions="7" runMetricsEveryStep="false">
-    <setup>setup</setup>
-    <go>go</go>
-    <timeLimit steps="3000"/>
-    <metric>split</metric>
-    <metric>mean membrane-list</metric>
-    <metric>count solutes with [pxcor &lt; split]</metric>
-    <enumeratedValueSet variable="Solute_Type">
-      <value value="&quot;Sugar&quot;"/>
-      <value value="&quot;Sodium Chloride&quot;"/>
-      <value value="&quot;Magnesium Chloride&quot;"/>
-      <value value="&quot;Aluminum Chloride&quot;"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="solute-left">
-      <value value="50"/>
-      <value value="100"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="solute-right">
-      <value value="25"/>
-    </enumeratedValueSet>
-  </experiment>
-</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default
