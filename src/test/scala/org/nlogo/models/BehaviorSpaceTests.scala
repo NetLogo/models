@@ -4,7 +4,7 @@ import scala.util.Try
 
 class BehaviorSpaceTests extends TestModels {
 
-  testModels("BehaviorSpace experiments XML should be well formed") { models =>
+  testLibraryModels("BehaviorSpace experiments XML should be well formed") { models =>
     for {
       model <- models
       if model.behaviorSpace.nonEmpty
@@ -13,7 +13,7 @@ class BehaviorSpaceTests extends TestModels {
     } yield model.quotedPath + "\n  " + error
   }
 
-  testModels("BehaviorSpace experiment names should not start with \"experiment\"") { models =>
+  testLibraryModels("BehaviorSpace experiment names should not start with \"experiment\"") { models =>
     for {
       model <- models
       if model.behaviorSpace.nonEmpty

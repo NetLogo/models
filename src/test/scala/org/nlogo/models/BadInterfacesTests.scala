@@ -15,7 +15,7 @@ class BadInterfacesTests extends TestModels {
     "INPUTBOX" -> (8, 10),
     "PLOT" -> (14, 999999)) // any number of pens
 
-  testModels("Widget sections should have proper lengths") {
+  testLibraryModels("Widget sections should have proper lengths") {
     for {
       model <- _
       widget <- model.interface.split("\n\n")

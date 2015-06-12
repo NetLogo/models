@@ -30,7 +30,7 @@ class SpellCheckTests extends TestModels {
     "list")
   val escapes = Set("\\n", "\\t")
 
-  testModels("Models must not contain typos") {
+  testLibraryModels("Models must not contain typos") {
     for {
       model <- _
       content = escapes.foldLeft(model.content)(_.replace(_, " "))

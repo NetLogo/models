@@ -1,14 +1,11 @@
 globals [results]
 to setup
- ;; (for this model to work with NetLogo's new plotting features,
-  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
-  ;; the beginning of your setup procedure and reset-ticks at the end
-  ;; of the procedure.)
-  __clear-all-and-reset-ticks
+ clear-all
  set results ""
  system-dynamics-setup
  system-dynamics-do-plot
  record
+ reset-ticks
 end
 to go
  if ticks >= 0.5 [stop]

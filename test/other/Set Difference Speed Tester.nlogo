@@ -1,10 +1,6 @@
 to benchmark
   random-seed 0
-  ;; (for this model to work with NetLogo's new plotting features,
-  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
-  ;; the beginning of your setup procedure and reset-ticks at the end
-  ;; of the procedure.)
-  __clear-all-and-reset-ticks
+  clear-all
   crt 500
   no-display
   reset-timer
@@ -13,7 +9,7 @@ to benchmark
                      n-of 250 turtles
   ]
   print timer
-  display
+  reset-ticks
 end
 
 to-report diff1 [A B]

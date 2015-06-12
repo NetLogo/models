@@ -2,14 +2,14 @@ package org.nlogo.models
 
 class ViewTests extends TestModels {
 
-  testModels("Models should have integer patch sizes") {
+  testLibraryModels("Models should have integer patch sizes") {
     for {
       model <- _
       if model.patchSize.toInt != model.patchSize
     } yield s"${model.patchSize} in ${model.quotedPath}"
   }
 
-  testModels("Saved view size must match size computed from the saved patch size and screen-edge-x/y") {
+  testLibraryModels("Saved view size must match size computed from the saved patch size and screen-edge-x/y") {
     // finds models whose graphics windows' saved sizes don't match the size you should get if you
     // compute from the saved patch size and screen-edge-x/y
     // I think that this:

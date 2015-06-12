@@ -39,12 +39,12 @@ g
 11
 
 BUTTON
-27
-94
-150
-127
+6
+99
+203
+132
 NIL
-;; (for this model to work with NetLogo's new plotting features,\n  ;; __clear-all-and-reset-ticks should be replaced with clear-all at\n  ;; the beginning of your setup procedure and reset-ticks at the end\n  ;; of the procedure.)\n  __clear-all-and-reset-ticks crt 10
+clear-all crt 10 reset-ticks
 NIL
 1
 T

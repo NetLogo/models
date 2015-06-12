@@ -7,7 +7,7 @@ import scala.util.Try
 
 class LegalInformationTests extends TestModels {
 
-  testModels("The last line of the info tab should be a " +
+  testLibraryModels("The last line of the info tab should be a " +
     "well-formatted legal snippet inside an HTML comment") {
     for {
       model <- _
@@ -16,7 +16,7 @@ class LegalInformationTests extends TestModels {
     } yield model.quotedPath + "\n  " + error
   }
 
-  testModels("The notarizer should work properly on all models") { models =>
+  testLibraryModels("The notarizer should work properly on all models") { models =>
     for {
       model <- models
       error <- Try(Notarizer.notarize(model)).failed.toOption
@@ -24,7 +24,7 @@ class LegalInformationTests extends TestModels {
     } yield model.quotedPath + "\n  " + error
   }
 
-  testModels("Model file should be identical to output of Notarizer") { models =>
+  testLibraryModels("Model file should be identical to output of Notarizer") { models =>
     for {
       model <- models
       notarizedModel <- Try(Notarizer.notarize(model)).toOption

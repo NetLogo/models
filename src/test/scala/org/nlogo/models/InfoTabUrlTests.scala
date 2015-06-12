@@ -23,7 +23,7 @@ import org.scalatest.time.Span
 
 import com.ning.http.client.AsyncHttpClientConfig
 
-import Model.models
+import Model.libraryModels
 import play.api.libs.ws.WSRequestHolder
 import play.api.libs.ws.WSResponse
 import play.api.libs.ws.ning.NingWSClient
@@ -44,7 +44,7 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
     links.result()
   }
 
-  val links: Map[String, Iterable[Model]] = models
+  val links: Map[String, Iterable[Model]] = libraryModels
     .flatMap(m => linksInMarkdown(m.info.content).map(_ -> m)) // (link, model) pairs
     .groupBy(_._1) // group by links
     .mapValues(_.unzip._2) // keep only models in the map's values

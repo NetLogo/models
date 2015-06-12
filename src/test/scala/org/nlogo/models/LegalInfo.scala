@@ -183,7 +183,7 @@ case class LegalInfo(model: Model) {
             builder.result()
           }
       case altViz(original) =>
-        val originalFolder = Model.models
+        val originalFolder = Model.libraryModels
           .find(_.baseName == original).get
           .file.getPath.split(File.separator)
           .dropWhile(_ != "Sample Models").drop(1).head
@@ -208,7 +208,7 @@ case class LegalInfo(model: Model) {
       val originalName =
         if (model.name.startsWith("Wolf Sheep")) "Wolf Sheep Predation"
         else model.name.split("Simple").head.trim
-      Model.models.find(_.name == originalName).map { m =>
+      Model.libraryModels.find(_.name == originalName).map { m =>
         val rest = current.map { s =>
           (if (s.startsWith(thisModelIs)) s.lines.drop(4).mkString("\n") else s)
         }.map(s => if (s.nonEmpty) s"\n\n$s" else s).getOrElse("")
