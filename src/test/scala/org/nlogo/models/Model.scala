@@ -2,13 +2,16 @@ package org.nlogo.models
 
 import java.io.File
 import java.util.regex.Pattern.quote
+
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
+import scala.util.Try
+import scala.xml.XML
+
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FileUtils.listFiles
 import org.apache.commons.io.FileUtils.readFileToString
 import org.apache.commons.io.FilenameUtils.getExtension
 import org.apache.commons.io.FilenameUtils.removeExtension
-import scala.xml.XML
 
 object Model {
   sealed abstract trait UpdateMode
@@ -19,12 +22,15 @@ object Model {
   val extensions = Array("nlogo", "nlogo3d")
   val sectionSeparator = "@#$#@#$#@"
   val manualPreview = "need-to-manually-make-preview-for-this-model"
-  val models: Iterable[Model] = {
+
+  val allModels = for {
+    f <- listFiles(Model.modelDir, Model.extensions, true).asScala
+    m <- Try(apply(f)).toOption
+  } yield m
+
+  val libraryModels: Iterable[Model] = {
     val testPath = new File("test/").getCanonicalPath
-    val isUnderTest = (_: File).getCanonicalPath.startsWith(testPath)
-    listFiles(modelDir, extensions, true).asScala
-      .filterNot(isUnderTest)
-      .map(apply)
+    allModels.filterNot(_.file.getCanonicalPath.startsWith(testPath))
   }
 
   def apply(file: File): Model = {

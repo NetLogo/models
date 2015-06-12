@@ -62,7 +62,7 @@ class UpdateModeTests extends TestModels {
     "./Sample Models/Mathematics/Voronoi.nlogo",
     "./Sample Models/Social Science/Unverified/Prisoner's Dilemma/PD Basic.nlogo"
   )
-  testModels("Models should use tick-based updates unless otherwise specified") {
+  testLibraryModels("Models should use tick-based updates unless otherwise specified") {
     for {
       model <- _
       excluded = continuousUpdateModels(model.file.getPath)

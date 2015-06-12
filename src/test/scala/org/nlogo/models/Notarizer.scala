@@ -24,7 +24,7 @@ object Notarizer {
 
   def main(args: Array[String]): Unit =
     for {
-      model <- Model.models
+      model <- Model.libraryModels
       notarizedModel <- Try(notarize(model)).toOption
     } notarizedModel.save()
 }
