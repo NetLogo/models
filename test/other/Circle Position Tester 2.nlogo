@@ -32,7 +32,7 @@ BUTTON
 248
 95
 circle
-;; (for this model to work with NetLogo's new plotting features,\n  ;; __clear-all-and-reset-ticks should be replaced with clear-all at\n  ;; the beginning of your setup procedure and reset-ticks at the end\n  ;; of the procedure.)\n  __clear-all-and-reset-ticks random-seed 0\nask patches [ sprout 1 [ set shape \"circle\" ] ]
+clear-all\nrandom-seed 0\nask patches [ sprout 1 [ set shape \"circle\" ] ]\nreset-ticks
 NIL
 1
 T
@@ -49,7 +49,7 @@ BUTTON
 247
 140
 circle2
-;; (for this model to work with NetLogo's new plotting features,\n  ;; __clear-all-and-reset-ticks should be replaced with clear-all at\n  ;; the beginning of your setup procedure and reset-ticks at the end\n  ;; of the procedure.)\n  __clear-all-and-reset-ticks random-seed 0\nask patches [ sprout 1 [ set shape \"circle2\" ] ]
+clear-all\nrandom-seed 0\nask patches [ sprout 1 [ set shape \"circle2\" ] ]\nreset-ticks
 NIL
 1
 T
@@ -66,7 +66,7 @@ BUTTON
 155
 95
 circle0
-;; (for this model to work with NetLogo's new plotting features,\n  ;; __clear-all-and-reset-ticks should be replaced with clear-all at\n  ;; the beginning of your setup procedure and reset-ticks at the end\n  ;; of the procedure.)\n  __clear-all-and-reset-ticks random-seed 0\nask patches [ sprout 1 [ set shape \"circle0\" ] ]
+clear-all\nrandom-seed 0\nask patches [ sprout 1 [ set shape \"circle0\" ] ]\nreset-ticks
 NIL
 1
 T
@@ -83,7 +83,7 @@ BUTTON
 152
 141
 circle02
-;; (for this model to work with NetLogo's new plotting features,\n  ;; __clear-all-and-reset-ticks should be replaced with clear-all at\n  ;; the beginning of your setup procedure and reset-ticks at the end\n  ;; of the procedure.)\n  __clear-all-and-reset-ticks random-seed 0\nask patches [ sprout 1 [ set shape \"circle02\" ] ]
+clear-all\nrandom-seed 0\nask patches [ sprout 1 [ set shape \"circle02\" ] ]\nreset-ticks
 NIL
 1
 T

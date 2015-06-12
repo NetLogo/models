@@ -16,16 +16,13 @@
 
 
 to go
-  ;; (for this model to work with NetLogo's new plotting features,
-  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
-  ;; the beginning of your setup procedure and reset-ticks at the end
-  ;; of the procedure.)
-  __clear-all-and-reset-ticks
+  clear-all
   cro 10 [ fd 10 ]
   ask patches with [ not any? turtles-here ]
   [ set pcolor blue ]
   repeat 125 [ plot random-float 50 ]
   ask turtles [ show who ]
+  reset-ticks
 end
 
 

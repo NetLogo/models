@@ -1,9 +1,5 @@
 to setup
-  ;; (for this model to work with NetLogo's new plotting features,
-  ;; __clear-all-and-reset-ticks should be replaced with clear-all at
-  ;; the beginning of your setup procedure and reset-ticks at the end
-  ;; of the procedure.)
-  __clear-all-and-reset-ticks
+  clear-all
   ask patches [
     sprout 1 [
       set color green
@@ -11,6 +7,7 @@ to setup
     ] ]
   ask patches [ set pcolor (pxcor + pycor) mod 2 * 10 + 2 ]
   ask turtles with [xcor > 0] [ set size random-float 1.0 ]
+  reset-ticks
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
