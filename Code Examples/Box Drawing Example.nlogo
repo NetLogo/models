@@ -1,7 +1,3 @@
-;; declare a global variable, halfedge, to be used when the box center is at (0,0)
-
-globals [halfedge]
-
 ;; setup procedure for case where point (0,0) is lower left corner of Box
 ;;note slider that sets the size of the box.
 to setup-corner
@@ -28,7 +24,7 @@ to setup-center
   ca                                              ;; clear everything
   ;; set halfedge as edge divided by two. in case edge is an odd number,
   ;; halfedge get the integer value of the division.
-  set halfedge int (edge / 2)
+  let halfedge int (edge / 2)
   ask patches[
     ;; if patches are between (-halfedge,-halfedge) to (-halfedge,halfedge)...
     if (pxcor = (- halfedge) and pycor >= (- halfedge) and pycor <= (0 + halfedge) )
