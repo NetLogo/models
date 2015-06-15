@@ -29,6 +29,7 @@ to go-by-size
   foreach sort-by [[size] of ?1 > [size] of ?2] turtles
     [ ask ?
         [ fd 1 ] ]
+  tick
 end
 
 
