@@ -122,7 +122,7 @@ case class LegalInfo(model: Model) {
           }
       case altViz(original) =>
         val originalFolder = Model.libraryModels
-          .find(_.baseName == original).get
+          .find(_.name == original).get
           .file.getPath.split(File.separator)
           .dropWhile(_ != "Sample Models").drop(1).head
         val builder = new StringBuilder
