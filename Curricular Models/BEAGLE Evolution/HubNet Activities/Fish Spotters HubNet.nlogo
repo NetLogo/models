@@ -198,14 +198,14 @@ to change-bottom
   create-rocks 1 [set shape top-ground set which-tank "top tank"]
   create-rocks 1 [set shape bottom-ground set which-tank "bottom tank"]
 
-  if bottom-ground = "rock"   [ask bottom-patches [set pcolor __approximate-hsb-old 30 75 (60 + 80)]]
-  if top-ground    = "rock"   [ask top-patches [set pcolor __approximate-hsb-old 30 75 (60 + 80)]]
-  if bottom-ground = "sand"   [ask bottom-patches [set pcolor __approximate-hsb-old 30 0 (0 + 160)]]
-  if top-ground    = "sand"   [ask top-patches [set pcolor __approximate-hsb-old 30 0 (0 + 160)]]
-  if bottom-ground = "plants" [ask bottom-patches [set pcolor __approximate-hsb-old 30 0 (0 + 60)]]
-  if top-ground    = "plants" [ask top-patches [set pcolor __approximate-hsb-old 30 0 (0 + 60)]]
-  if bottom-ground = "nothing" [ask bottom-patches [set pcolor __approximate-hsb-old 0 0 255]]
-  if top-ground    = "nothing" [ask top-patches [set pcolor __approximate-hsb-old  0 0 255]]
+  if bottom-ground = "rock"   [ask bottom-patches [set pcolor brown + 0.5]]
+  if top-ground    = "rock"   [ask top-patches [set pcolor brown + 0.5]]
+  if bottom-ground = "sand"   [ask bottom-patches [set pcolor grey + 0.8]]
+  if top-ground    = "sand"   [ask top-patches [set pcolor grey + 0.8]]
+  if bottom-ground = "plants" [ask bottom-patches [set pcolor black + 2]]
+  if top-ground    = "plants" [ask top-patches [set pcolor black + 2]]
+  if bottom-ground = "nothing" [ask bottom-patches [set pcolor white]]
+  if top-ground    = "nothing" [ask top-patches [set pcolor white]]
 
   ;; 3000 repetitions ensures that the bottom looks covered with rocks or plants or sand
   repeat 3000 [
@@ -214,13 +214,25 @@ to change-bottom
       rt random 360
       if which-tank = "top tank" [setxy random-float 100 random-float max-pycor ]
       if which-tank = "bottom tank" [setxy  random-float 100 (-1 * random-float (abs min-pycor)) ]
-      if my-tank = "sand" [set size gravel-size + random-float .2 set color __approximate-hsb-old 30 (10 + random-float 50) (150 + random-float 90) ]
-      if my-tank = "rock" [set size gravel-size + random-float 1.2 set color __approximate-hsb-old 30 (30 + random-float 90) (60 + random-float 160) ]
-      if my-tank = "plants" [set size gravel-size + random-float 1.2 set color __approximate-hsb-old 90 (120 + random-float 100) (random-float 160) ]
+      if my-tank = "sand" [set size gravel-size + random-float .2 set color random-sand-color]
+      if my-tank = "rock" [set size gravel-size + random-float 1.2 set color random-rock-color]
+      if my-tank = "plants" [set size gravel-size + random-float 1.2 set color random-plant-color]
       stamp
     ]
   ]
   ask rocks [die]
+end
+
+to-report random-sand-color
+  report approximate-hsb (30 / 255 * 360) ((10 + random-float 50) / 255 * 100) ((150 + random-float 90) / 255 * 100)
+end
+
+to-report random-rock-color
+  report approximate-hsb (30 / 255 * 360) ((30 + random-float 90) / 255 * 100) ((60 + random-float 160) / 255 * 100)
+end
+
+to-report random-plant-color
+  report approximate-hsb (90 / 255 * 360) ((120 + random-float 100) / 255 * 100) ((random-float 160) / 255 * 100)
 end
 
 to setup-regions
