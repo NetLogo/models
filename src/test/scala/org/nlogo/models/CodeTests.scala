@@ -9,7 +9,7 @@ class CodeTests extends TestModels {
     val forbiddenPrimitives: Seq[(String, Seq[Exemption])] = Seq(
       "__set-line-thickness" -> Seq("Optical Illusions", "Halo Example"),
       "__clear-all-and-reset-ticks" -> Seq.empty,
-      "__approximate-hsb-old" -> Seq("Fish Spotters HubNet") // until https://github.com/NetLogo/models/issues/70 is fixed
+      "__approximate-hsb-old" -> Seq.empty
     )
 
     for {
