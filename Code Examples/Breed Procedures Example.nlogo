@@ -10,6 +10,7 @@ to setup
   ask patch 0  1 [ sprout-dogs 1 ]
   ask patch 0  0 [ sprout-cats 1 ]
   ask patch 0 -1 [ sprout-cows 1 ]
+  reset-ticks
 end
 
 to go
@@ -20,6 +21,7 @@ to go
     ;; onto it, and then runs that procedure
     run word breed "-speak"
   ]
+  tick
 end
 
 ;; Here we have the separate procedure definitions
@@ -63,8 +65,8 @@ GRAPHICS-WINDOW
 1
 -1
 1
-0
-0
+1
+1
 1
 ticks
 30.0
