@@ -198,14 +198,8 @@ to change-bottom
   create-rocks 1 [set shape top-ground set which-tank "top tank"]
   create-rocks 1 [set shape bottom-ground set which-tank "bottom tank"]
 
-  if bottom-ground = "rock"   [ask bottom-patches [set pcolor brown + 0.5]]
-  if top-ground    = "rock"   [ask top-patches [set pcolor brown + 0.5]]
-  if bottom-ground = "sand"   [ask bottom-patches [set pcolor grey + 0.8]]
-  if top-ground    = "sand"   [ask top-patches [set pcolor grey + 0.8]]
-  if bottom-ground = "plants" [ask bottom-patches [set pcolor black + 2]]
-  if top-ground    = "plants" [ask top-patches [set pcolor black + 2]]
-  if bottom-ground = "nothing" [ask bottom-patches [set pcolor white]]
-  if top-ground    = "nothing" [ask top-patches [set pcolor white]]
+  ask top-patches [ set pcolor ground-color top-ground ]
+  ask bottom-patches [ set pcolor ground-color bottom-ground ]
 
   ;; 3000 repetitions ensures that the bottom looks covered with rocks or plants or sand
   repeat 3000 [
@@ -221,6 +215,12 @@ to change-bottom
     ]
   ]
   ask rocks [die]
+end
+
+to-report ground-color [ ground ]
+  if ground = "rock"   [ report brown + 0.5 ]
+  if ground = "sand"   [ report grey + 0.8 ]
+  if ground = "plants" [ report black + 2 ]
 end
 
 to-report random-sand-color
