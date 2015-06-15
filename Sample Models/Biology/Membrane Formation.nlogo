@@ -258,7 +258,7 @@ PENS
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model simulates the formation of membranes in water. It shows how simple attractive and repulsive forces between different kinds of molecules can result in higher level structure. For more information about natural membranes, see http://en.wikipedia.org/wiki/Lipid_bilayer.
+This model simulates the formation of membranes in water. It shows how simple attractive and repulsive forces between different kinds of molecules can result in higher level structure. For more information about natural membranes, see https://en.wikipedia.org/wiki/Lipid_bilayer.
 
 ## HOW IT WORKS
 

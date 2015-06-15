@@ -244,7 +244,7 @@ Physically based modeling Online SIGGRAPH 2001 Course Notes
 http://www.pixar.com/companyinfo/research/pbm2001/
 
 Particle Systems on Wikipedia
-http://en.wikipedia.org/wiki/Particle_system
+https://en.wikipedia.org/wiki/Particle_system
 
 Thanks to Daniel Kornhauser for his work on this model.
 

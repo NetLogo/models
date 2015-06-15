@@ -646,7 +646,7 @@ In a precursor to this model, Watts and Strogatz created an "alpha" model where 
 
 ## NETWORK CONCEPTS
 
-In this model we need to find the shortest paths between all pairs of nodes.  This is accomplished through the use of a standard dynamic programming algorithm called the Floyd Warshall algorithm. You may have noticed that the model runs slowly for large number of nodes.  That is because the time it takes for the Floyd Warshall algorithm (or other "all-pairs-shortest-path" algorithm) to run grows polynomially with the number of nodes.  For more information on the Floyd Warshall algorithm please consult:  http://en.wikipedia.org/wiki/Floyd-Warshall_algorithm
+In this model we need to find the shortest paths between all pairs of nodes.  This is accomplished through the use of a standard dynamic programming algorithm called the Floyd Warshall algorithm. You may have noticed that the model runs slowly for large number of nodes.  That is because the time it takes for the Floyd Warshall algorithm (or other "all-pairs-shortest-path" algorithm) to run grows polynomially with the number of nodes.  For more information on the Floyd Warshall algorithm please consult:  https://en.wikipedia.org/wiki/Floyd-Warshall_algorithm
 
 ## NETLOGO FEATURES
 

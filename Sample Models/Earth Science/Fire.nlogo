@@ -194,7 +194,7 @@ See the "CA 1D Rule 30" and "CA 1D Rule 30 Turtle" for an example of a model wri
 
 ## CREDITS AND REFERENCES
 
-http://en.wikipedia.org/wiki/Forest-fire_model
+https://en.wikipedia.org/wiki/Forest-fire_model
 
 ## HOW TO CITE
 

@@ -675,7 +675,7 @@ perpendicularly from its surface.
 ## CREDITS AND REFERENCES
 
 Wikipedia on Lightning:
-http://en.wikipedia.org/wiki/Lightning
+https://en.wikipedia.org/wiki/Lightning
 
 How Stuff Works on Lightning:
 http://science.howstuffworks.com/nature/natural-disasters/lightning.htm

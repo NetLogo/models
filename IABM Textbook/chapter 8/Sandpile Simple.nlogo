@@ -372,7 +372,7 @@ This model is a simplified version of:
 
 https://en.wikipedia.org/wiki/Abelian_sandpile_model
 
-http://en.wikipedia.org/wiki/Self-organized_criticality
+https://en.wikipedia.org/wiki/Self-organized_criticality
 
 Bak, P. 1996. How nature works: the science of self-organized criticality. Copernicus, (Springer).
 

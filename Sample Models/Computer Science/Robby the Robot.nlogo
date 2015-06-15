@@ -858,7 +858,7 @@ Robby was invented by Melanie Mitchell and described in her book _Complexity: A 
 This NetLogo version of Robby is based on Mitchell's earlier versions in NetLogo and C.
 It uses code from the Simple Genetic Algorithms model (Stonedahl & Wilensky, 2008) in the NetLogo Sample Models Library.
 
-Robby resembles a simpler version of Richard E. Pattis' Karel the Robot, http://en.wikipedia.org/wiki/Karel_(programming_language).
+Robby resembles a simpler version of Richard E. Pattis' Karel the Robot, https://en.wikipedia.org/wiki/Karel_(programming_language).
 
 ## HOW TO CITE
 

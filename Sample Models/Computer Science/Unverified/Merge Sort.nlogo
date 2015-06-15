@@ -340,7 +340,7 @@ We stated above that the algorithm will take at most a constant factor times n l
 
 Can you make the elements draw their paths across the view?
 
-There are many different sorting algorithms. You can find a few described at http://en.wikipedia.org/wiki/Sorting_algorithm.  Try implementing the different sorts in NetLogo and use BehaviorSpace to compare them.  Do different sorts perform better with different input sets (uniformly random, nearly sorted, reverse sorted, etc.)?
+There are many different sorting algorithms. You can find a few described at https://en.wikipedia.org/wiki/Sorting_algorithm.  Try implementing the different sorts in NetLogo and use BehaviorSpace to compare them.  Do different sorts perform better with different input sets (uniformly random, nearly sorted, reverse sorted, etc.)?
 
 ## NETLOGO FEATURES
 

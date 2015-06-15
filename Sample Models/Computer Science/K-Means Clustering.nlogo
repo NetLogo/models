@@ -339,7 +339,7 @@ _CREATE-TEMPORARY-PLOT-PEN_: The model plots the number of data points for each 
 
 ## REFERENCES
 
-For more information on k-means clustering, see http://en.wikipedia.org/wiki/K-means_clustering. (There are also many other sites on this topic on the web.)
+For more information on k-means clustering, see https://en.wikipedia.org/wiki/K-means_clustering. (There are also many other sites on this topic on the web.)
 
 ## HOW TO CITE
 

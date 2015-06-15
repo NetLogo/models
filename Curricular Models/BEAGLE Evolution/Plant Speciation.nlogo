@@ -665,7 +665,7 @@ This is a model of parapatric speciation, where two subpopulations of a species 
 
 The model is inspired by a paper by Antonovics (2006) which describes a real-life example of a subpopulation of a species of grass on the boundary of a contaminated region that has developed an offset flowering time from the surrounding grass.
 
-For a short relevant background reading try http://en.wikipedia.org/wiki/Speciation
+For a short relevant background reading try https://en.wikipedia.org/wiki/Speciation
 
 ## HOW IT WORKS
 

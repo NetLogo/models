@@ -275,7 +275,7 @@ Because the number of patches is so large, it takes a while to update them all w
 
 ## CREDITS AND REFERENCES
 
-For more information on Voronoi diagrams, see http://en.wikipedia.org/wiki/Voronoi.  (There are also many other sites on this topic on the web.)
+For more information on Voronoi diagrams, see https://en.wikipedia.org/wiki/Voronoi.  (There are also many other sites on this topic on the web.)
 
 Thanks to John Jungck from Beloit College for inspiring this model with his talk at Northwestern University about Voronoi structures in nature.
 

@@ -688,7 +688,7 @@ If BOND-ENERGY-RELEASED was set to a negative number it would model an endotherm
 
 For reactions that require lots of activation-energy, some reactions will not occur at low temperatures, or will occur more slowly at lower temperatures.
 
-The autoignition point for hydrogen gas under normal pressure and presence of oxygen gas is 536C (709K).  http://en.wikipedia.org/wiki/Autoignition_temperature
+The autoignition point for hydrogen gas under normal pressure and presence of oxygen gas is 536C (709K).  https://en.wikipedia.org/wiki/Autoignition_temperature
 
 The container wall is modeled as having a fixed pressure limit.  Once that pressure limit is reached the container breaks open (explodes).  The exploding container is shown simply as particles of the container flying apart and outward at a constant rate.
 

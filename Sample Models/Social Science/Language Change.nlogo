@@ -547,7 +547,7 @@ Press RESET-STATES to reinitialize all language users to their original grammars
 
 The SINK-STATE-1? switch applies only for the INDIVIDUAL and THRESHOLD updating algorithms. If on, once an individual adopts grammar 1, then he can never go back to grammar 0.
 
-The LOGISTIC? switch applies only for the REWARD updating algorithm. If on, an individual's probability of using one of the grammars is pushed to the extremes (closer to 0% or 100%), based on the output of the logistic function. For more details, see http://en.wikipedia.org/wiki/Logistic_function.
+The LOGISTIC? switch applies only for the REWARD updating algorithm. If on, an individual's probability of using one of the grammars is pushed to the extremes (closer to 0% or 100%), based on the output of the logistic function. For more details, see https://en.wikipedia.org/wiki/Logistic_function.
 
 The ALPHA slider also applies only for the REWARD updating algorithm, and only when LOGISTIC? is turned on. ALPHA represents a bias in favor of grammar 1. Probabilities are pushed to the extremes, and shifted toward selecting grammar 1. The larger the value of ALPHA, the more likely a language user will speak using grammar 1.
 

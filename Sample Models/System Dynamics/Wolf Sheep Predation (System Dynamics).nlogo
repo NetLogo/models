@@ -158,7 +158,7 @@ Wolf-Sheep Predation (docked)
 
 * Lotka, A.J. (1956). Elements of Mathematical Biology.  New York: Dover.
 
-* "Lotka-Volterra equation". From Wikipedia. http://en.wikipedia.org/wiki/Lotka-Volterra_equation
+* "Lotka-Volterra equation". From Wikipedia. https://en.wikipedia.org/wiki/Lotka-Volterra_equation
 
 * Eric W. Weisstein. "Lotka-Volterra Equations." From MathWorld. http://mathworld.wolfram.com/Lotka-VolterraEquations.html
 

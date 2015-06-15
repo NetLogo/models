@@ -476,7 +476,7 @@ Preferential Attachment, Diffusion on a Directed Network, Link Walking Turtles E
 
 ## CREDITS AND REFERENCES
 
-The network configurations given in "Example 1" (with DAMPING-FACTOR 0.85) and "Example 2" (with DAMPING-FACTOR 1.0) are the same as the examples given in the figures of http://en.wikipedia.org/wiki/PageRank (as of January 2009).
+The network configurations given in "Example 1" (with DAMPING-FACTOR 0.85) and "Example 2" (with DAMPING-FACTOR 1.0) are the same as the examples given in the figures of https://en.wikipedia.org/wiki/PageRank (as of January 2009).
 
 See also: Page et al. (1998) "The PageRank Citation Ranking: Bringing Order to the Web." Technical report, Stanford Digital Library Technologies Project.
 

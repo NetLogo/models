@@ -1119,7 +1119,7 @@ By attempting to speed up this process using the mouse cursor you may find that 
 
 ## HOW IT WORKS
 
-This model is based on simplified representations shown for how DNA polymerase facilitates DNA replication summarized at http://en.wikipedia.org/wiki/DNA_polymerase.
+This model is based on simplified representations shown for how DNA polymerase facilitates DNA replication summarized at https://en.wikipedia.org/wiki/DNA_polymerase.
 
 In this model nucleotides are molecules that when joined together make up the structural units of DNA.  Visually this appears as a nitrogen base (represented as a colored polygon) and 1 phosphate group (represented as a yellow circle), and  white line that links these two representing the five-carbon sugar that forms the backbone of DNA.
 

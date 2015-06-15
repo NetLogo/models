@@ -517,7 +517,7 @@ Explore mode actually only ever needs one item on the stack. However, the stack 
 
 https://en.wikipedia.org/wiki/Abelian_sandpile_model
 
-http://en.wikipedia.org/wiki/Self-organized_criticality
+https://en.wikipedia.org/wiki/Self-organized_criticality
 
 Bak, P. 1996. How nature works: the science of self-organized criticality. Copernicus, (Springer).
 
