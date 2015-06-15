@@ -6,7 +6,7 @@
 ;; of -2, and so on.
 
 to setup
-  ca
+  clear-all
   ;; make the background white
   ask patches [ set pcolor white ]
   ;; draw all the colors 0 to 139
@@ -50,6 +50,7 @@ to setup
     [ ifelse pcolor mod 10 >= 4
         [ set plabel-color black ]
         [ set plabel-color white ] ]
+  reset-ticks
 end
 
 
@@ -78,8 +79,8 @@ GRAPHICS-WINDOW
 11
 -13
 1
-0
-0
+1
+1
 1
 ticks
 30.0
