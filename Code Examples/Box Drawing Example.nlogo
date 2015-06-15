@@ -16,6 +16,7 @@ to setup-corner
     if pycor = edge and pxcor >= 0 and pxcor <= edge
       [ set pcolor red ]                                 ;; ... draws upper edge in red
   ]
+  reset-ticks
 end
 
 
@@ -39,6 +40,7 @@ to setup-center
     if pycor = (0 + halfedge) and pxcor >= (- halfedge) and pxcor <= (0 + halfedge)
       [ set pcolor blue ]                                ;; ... draws upper edge in blue
   ]
+  reset-ticks
 end
 
 
@@ -67,8 +69,8 @@ GRAPHICS-WINDOW
 12
 -12
 12
-0
-0
+1
+1
 1
 ticks
 30.0
