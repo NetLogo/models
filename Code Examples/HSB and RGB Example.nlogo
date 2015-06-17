@@ -12,6 +12,7 @@ to go
   set RGB-color approximate-rgb rgb-red rgb-green rgb-blue
   ask quadrant -1 -1 [ set pcolor (list rgb-red rgb-green rgb-blue) ]
   ask quadrant  1 -1 [ set pcolor RGB-color ]
+  display
 end
 
 to-report quadrant [x y]  ;; inputs are 1 or -1
@@ -49,8 +50,8 @@ GRAPHICS-WINDOW
 9
 0
 9
-0
-0
+1
+1
 0
 ticks
 30.0

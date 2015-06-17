@@ -10,7 +10,6 @@ class UpdateModeTests extends TestModels {
     "./Code Examples/GoGoMonitorSerial.nlogo",
     "./Code Examples/GoGoMonitorSimple.nlogo",
     "./Code Examples/GoGoMonitorSimpleSerial.nlogo",
-    "./Code Examples/HSB and RGB Example.nlogo",
     "./Code Examples/Image Import Example.nlogo",
     "./Code Examples/Info Tab Example.nlogo",
     "./Code Examples/Link Breeds Example.nlogo",
