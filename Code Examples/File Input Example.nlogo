@@ -61,6 +61,7 @@ to show-patch-data
   ifelse ( is-list? patch-data )
     [ foreach patch-data [ ask patch first ? item 1 ? [ set pcolor last ? ] ] ]
     [ user-message "You need to load in patch data first!" ]
+  display
 end
 
 ;; This is the procedure that was used to create the file "File IO Patch Data.txt".
@@ -108,8 +109,8 @@ GRAPHICS-WINDOW
 17
 -17
 17
-0
-0
+1
+1
 1
 ticks
 30.0

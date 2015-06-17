@@ -5,7 +5,6 @@ class UpdateModeTests extends TestModels {
     "./3D/Code Examples/Shapes Example 3D.nlogo3d",
     "./Code Examples/Ask Ordering Example.nlogo",
     "./Code Examples/Ask-Concurrent Example.nlogo",
-    "./Code Examples/File Input Example.nlogo",
     "./Code Examples/GIS/GIS General Examples.nlogo",
     "./Code Examples/GoGoMonitor.nlogo",
     "./Code Examples/GoGoMonitorSerial.nlogo",
