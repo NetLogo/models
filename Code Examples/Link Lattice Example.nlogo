@@ -9,6 +9,7 @@ to setup-square
   ;; turtles. That's OK; the CREATE-LINKS-WITH command will skip
   ;; links that already exist.
   ask turtles [ create-links-with turtles-on neighbors4 ]
+  reset-ticks
 end
 
 to setup-hex
@@ -29,6 +30,7 @@ to setup-hex
       set ycor ycor - 0.5
     ]
   ]
+  reset-ticks
 end
 
 
@@ -57,8 +59,8 @@ GRAPHICS-WINDOW
 25
 0
 25
-0
-0
+1
+1
 1
 ticks
 30.0
