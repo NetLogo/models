@@ -11,6 +11,7 @@ to giant-arrow
   create-turtles 1 [ set color red setxy -7.25 -5 ]
   ask turtle 0 [ create-link-with turtle 1 [ set color red set thickness 1.5 ] ]
   create-turtles 1 [ set color black setxy 8 12 set label "Click the info tab!" ]
+  display
 end
 
 
@@ -39,8 +40,8 @@ GRAPHICS-WINDOW
 16
 -16
 16
-0
-0
+1
+1
 1
 ticks
 30.0
