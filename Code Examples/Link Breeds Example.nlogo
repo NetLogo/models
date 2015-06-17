@@ -26,6 +26,7 @@ to setup
       set color red
     ]
   ]
+  reset-ticks
 end
 
 
@@ -54,8 +55,8 @@ GRAPHICS-WINDOW
 6
 -6
 6
-0
-0
+1
+1
 1
 ticks
 30.0
