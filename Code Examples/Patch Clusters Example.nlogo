@@ -19,6 +19,7 @@ to setup
   repeat 20
   [ ask patches
     [ set pcolor [pcolor] of one-of neighbors4 ] ]
+  reset-ticks
 end
 
 to find-clusters
@@ -36,6 +37,7 @@ to find-clusters
     [ set cluster self
       grow-cluster ]
   ]
+  display
 end
 
 to grow-cluster  ;; patch procedure
@@ -89,8 +91,8 @@ GRAPHICS-WINDOW
 10
 -10
 10
-0
-0
+1
+1
 1
 ticks
 30.0
