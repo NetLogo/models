@@ -7,6 +7,7 @@ to setup
   ask turtle 0 [ fd 7 ]
   ask turtle 1 [ fd 14 ]
   ask turtle 2 [ fd 7 ]
+  reset-ticks
 end
 
 ;;  This procedure colors all the patches neighboring each turtle.
@@ -16,6 +17,7 @@ to paint-neighbors
   clear-patches
   ask turtles
     [ paint-agents neighbors ]
+  display
 end
 
 ;;  This procedure is similar to paint-neighbors, but uses the neighbors4 reporter.
@@ -26,6 +28,7 @@ to paint-neighbors4
   clear-patches
   ask turtles
     [ paint-agents neighbors4 ]
+  display
 end
 
 ;;  This procedure uses in-radius to paint a "circle" around each turtle.
@@ -39,6 +42,7 @@ to paint-in-radius
   clear-patches
   ask turtles
     [ paint-agents patches in-radius radius ]
+  display
 end
 
 ;;  This procedure uses the at-points reporter to paint an arbitrary neighborhood.
@@ -58,6 +62,7 @@ to paint-at-points
     if points = "line-up"
       [ paint-agents patches at-points [[0 1] [0 2] [0 3] [0 4]] ]
   ]
+  display
 end
 
 ;; This is a helper procedure, used to set the color of a set of patches.
@@ -91,8 +96,8 @@ GRAPHICS-WINDOW
 14
 -14
 14
-0
-0
+1
+1
 1
 ticks
 30.0
