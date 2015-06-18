@@ -10,6 +10,7 @@ to import-network
   import-attributes
   layout-circle (sort turtles) (max-pxcor - 1)
   import-links
+  reset-ticks
 end
 
 ;; This procedure reads in a files that contains node-specific attributes
@@ -88,8 +89,8 @@ GRAPHICS-WINDOW
 17
 -17
 17
-0
-0
+1
+1
 1
 ticks
 30.0
