@@ -20,6 +20,7 @@ to setup
       set color white
     ]
   ]
+  reset-ticks
 end
 
 ;; The next two procedures generate the lists of offsets that we pass to
@@ -76,8 +77,8 @@ GRAPHICS-WINDOW
 17
 -17
 17
-0
-0
+1
+1
 1
 ticks
 30.0
