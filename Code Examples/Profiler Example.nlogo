@@ -41,8 +41,8 @@ GRAPHICS-WINDOW
 12
 0
 0
-0
-0
+1
+1
 0
 ticks
 30.0
