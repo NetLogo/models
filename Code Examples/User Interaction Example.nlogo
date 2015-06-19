@@ -20,6 +20,8 @@ to go
     [ set color col
       fd random-float max-pxcor ]
 
+  display
+
   ;; user-message tells the user something
   user-message (word "OK, " name ", there are "
                      count turtles " turtles now.")
@@ -55,8 +57,8 @@ GRAPHICS-WINDOW
 17
 -17
 17
-0
-0
+1
+1
 1
 ticks
 30.0

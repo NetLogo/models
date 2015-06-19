@@ -15,7 +15,6 @@ class UpdateModeTests extends TestModels {
     "./Code Examples/Perspective Demos/Termites (Perspective Demo).nlogo",
     "./Code Examples/QuickTime Extension/QuickTime Movie Example.nlogo",
     "./Code Examples/Tie System Example.nlogo",
-    "./Code Examples/User Interaction Example.nlogo",
     "./Curricular Models/BEAGLE Evolution/Bird Breeder.nlogo",
     "./Curricular Models/Connected Chemistry/Connected Chemistry Atmosphere.nlogo",
     "./Curricular Models/Connected Chemistry/Connected Chemistry Rusting Reaction.nlogo",
