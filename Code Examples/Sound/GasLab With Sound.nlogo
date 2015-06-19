@@ -521,8 +521,8 @@ GRAPHICS-WINDOW
 33
 -33
 33
-0
-0
+1
+1
 1
 ticks
 30.0
