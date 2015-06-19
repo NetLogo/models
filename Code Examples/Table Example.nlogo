@@ -69,8 +69,8 @@ GRAPHICS-WINDOW
 16
 0
 0
-0
-0
+1
+1
 1
 ticks
 30.0

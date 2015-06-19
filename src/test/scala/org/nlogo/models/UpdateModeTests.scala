@@ -14,8 +14,6 @@ class UpdateModeTests extends TestModels {
     "./Code Examples/Myself Example.nlogo",
     "./Code Examples/Perspective Demos/Termites (Perspective Demo).nlogo",
     "./Code Examples/QuickTime Extension/QuickTime Movie Example.nlogo",
-    "./Code Examples/Sound/Sound Workbench.nlogo",
-    "./Code Examples/Table Example.nlogo",
     "./Code Examples/Tie System Example.nlogo",
     "./Code Examples/Transparency Example.nlogo",
     "./Code Examples/User Interaction Example.nlogo",
