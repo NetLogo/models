@@ -12,21 +12,25 @@ to setup
       set color green
     ]
   ]
+  reset-ticks
 end
 
 to set-transparency
-  ;; since turtle colors might be either numbers (NetLogo colors) or lists
-  ;; (RGB or RGBA colors) make sure to handle both cases when changing the
-  ;; transparency
-  ifelse is-list? color
-  ;; list might either have 3 or 4 member since RGB and RGBA colors
-  ;; are allowed, so you can't just replace or add an item at the
-  ;; end of the list.  So, we take the first 3 elements of the list
-  ;; and add the alpha to the end
-  [ set color lput transparency sublist color 0 3 ]
-  ;; to get the RGB equivalent of a NetLogo color we
-  ;; use EXTRACT-RGB and then add alpha to the end
-  [ set color lput transparency extract-rgb color ]
+  ask turtles [
+    ;; since turtle colors might be either numbers (NetLogo colors) or lists
+    ;; (RGB or RGBA colors) make sure to handle both cases when changing the
+    ;; transparency
+    ifelse is-list? color
+    ;; list might either have 3 or 4 member since RGB and RGBA colors
+    ;; are allowed, so you can't just replace or add an item at the
+    ;; end of the list.  So, we take the first 3 elements of the list
+    ;; and add the alpha to the end
+    [ set color lput transparency sublist color 0 3 ]
+    ;; to get the RGB equivalent of a NetLogo color we
+    ;; use EXTRACT-RGB and then add alpha to the end
+    [ set color lput transparency extract-rgb color ]
+  ]
+  display
 end
 
 
@@ -55,8 +59,8 @@ GRAPHICS-WINDOW
 16
 -16
 16
-0
-0
+1
+1
 1
 ticks
 30.0
@@ -103,7 +107,7 @@ set-transparency
 NIL
 1
 T
-TURTLE
+OBSERVER
 NIL
 NIL
 NIL
