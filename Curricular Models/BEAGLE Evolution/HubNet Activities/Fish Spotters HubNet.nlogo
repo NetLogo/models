@@ -711,10 +711,10 @@ time
 30.0
 
 BUTTON
-5
-210
-85
-243
+10
+10
+90
+43
 NIL
 setup
 NIL
@@ -728,11 +728,11 @@ NIL
 1
 
 BUTTON
-90
-210
-170
-243
-go/stop
+95
+10
+187
+43
+go/pause
 go
 T
 1
@@ -742,13 +742,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
-5
 10
-145
-43
+50
+150
+83
 tank-capacity
 tank-capacity
 2
@@ -761,9 +761,9 @@ HORIZONTAL
 
 BUTTON
 365
-210
+10
 455
-243
+43
 flash fish
 flash-fish
 NIL
@@ -777,25 +777,25 @@ NIL
 1
 
 CHOOSER
-148
-10
-323
-55
+153
+50
+328
+95
 client-roles
 client-roles
 "all mates" "all predators" "mix of mates & predators"
 0
 
 SLIDER
-155
-165
-455
-198
+160
+205
+460
+238
 amount-of-debris
 amount-of-debris
 0
 100
-35
+100
 5
 1
 %
@@ -803,9 +803,9 @@ HORIZONTAL
 
 SWITCH
 10
-515
+585
 160
-548
+618
 spot-mutations?
 spot-mutations?
 0
@@ -814,20 +814,20 @@ spot-mutations?
 
 SWITCH
 10
-255
+330
 160
-288
+363
 swim-mutations?
 swim-mutations?
-0
+1
 1
 -1000
 
 SWITCH
-5
-165
-150
-198
+10
+205
+155
+238
 color-mutations?
 color-mutations?
 0
@@ -836,9 +836,9 @@ color-mutations?
 
 PLOT
 160
-385
+365
 460
-515
+495
 Avg. Fish Size
 time
 size
@@ -855,9 +855,9 @@ PENS
 
 PLOT
 160
-255
+245
 460
-385
+365
 Avg. Fish Motion
 time
 motion
@@ -873,20 +873,20 @@ PENS
 "bottom tank" 1.0 0 -7500403 true "" "plot tank-2-avg-motion"
 
 CHOOSER
-125
-65
-223
-110
+130
+105
+228
+150
 top-water
 top-water
 "clear" "ripples" "debris"
 1
 
 MONITOR
-395
-10
-455
-55
+400
+50
+460
+95
 matings
 mate-total-found
 0
@@ -894,10 +894,10 @@ mate-total-found
 11
 
 MONITOR
-324
-10
-394
-55
+329
+50
+399
+95
 predations
 predator-total-found
 0
@@ -905,40 +905,40 @@ predator-total-found
 11
 
 CHOOSER
-225
-110
-335
-155
+230
+150
+340
+195
 bottom-ground
 bottom-ground
 "sand" "rock" "plants" "nothing"
 2
 
 CHOOSER
-225
-65
-336
-110
+230
+105
+341
+150
 top-ground
 top-ground
 "sand" "rock" "plants" "nothing"
-1
+0
 
 CHOOSER
-125
-110
-223
-155
+130
+150
+228
+195
 bottom-water
 bottom-water
 "clear" "ripples" "debris"
 2
 
 SLIDER
-6
-65
-126
-98
+11
+105
+131
+138
 top-flow
 top-flow
 0
@@ -950,10 +950,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-6
-110
-126
-143
+11
+150
+131
+183
 bottom-flow
 bottom-flow
 0
@@ -966,9 +966,9 @@ HORIZONTAL
 
 PLOT
 160
-515
+495
 460
-645
+620
 Avg. Fish Spotting
 time
 spotting
@@ -985,9 +985,9 @@ PENS
 
 SWITCH
 10
-385
+460
 160
-418
+493
 size-mutations?
 size-mutations?
 0
@@ -995,43 +995,32 @@ size-mutations?
 -1000
 
 CHOOSER
-335
-110
-455
-155
+340
+150
+460
+195
 bottom-initial-fish
 bottom-initial-fish
 "multi-colored" "all gray" "black or white"
 0
 
 CHOOSER
-335
-65
-455
-110
+340
+105
+460
+150
 top-initial-fish
 top-initial-fish
 "multi-colored" "all gray" "black or white"
-2
-
-SWITCH
-240
-210
-356
-243
-listening?
-listening?
 0
-1
--1000
 
 SWITCH
-570
-600
-673
-633
-a
-a
+245
+10
+361
+43
+listening?
+listening?
 0
 1
 -1000
@@ -1080,7 +1069,7 @@ When you run the simulation you can set up two different tank environments to co
 
 ## HOW TO USE IT
 
-To run the activity press the GO/STOP button.  To start the activity over with the same group of students stop the GO/STOP button by pressing it again, press the SETUP button, and press GO/STOP again.
+To run the activity press the GO/PAUSE button.  To start the activity over with the same group of students stop the GO/PAUSE button by pressing it again, press the SETUP button, and press GO/PAUSE again.
 
 Make sure you select Mirror 2D view on clients in the HubNet Control Center after you press SETUP.
 
