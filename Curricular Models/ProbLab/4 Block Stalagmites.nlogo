@@ -518,8 +518,8 @@ GRAPHICS-WINDOW
 45
 -87
 87
-0
-0
+1
+1
 1
 ticks
 30.0

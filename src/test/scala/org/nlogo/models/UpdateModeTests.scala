@@ -16,7 +16,6 @@ class UpdateModeTests extends TestModels {
     "./Code Examples/QuickTime Extension/QuickTime Movie Example.nlogo",
     "./Code Examples/Tie System Example.nlogo",
     "./Curricular Models/BEAGLE Evolution/Bird Breeder.nlogo",
-    "./Curricular Models/ProbLab/4 Block Stalagmites.nlogo",
     "./Curricular Models/ProbLab/4 Block Two Stalagmites.nlogo",
     "./HubNet Activities/Polling HubNet.nlogo",
     "./IABM Textbook/chapter 8/Example HubNet.nlogo",
