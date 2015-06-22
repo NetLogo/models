@@ -24,8 +24,7 @@ class UpdateModeTests extends TestModels {
     "./Sample Models/Games/Unverified/Pac-Man Level Editor.nlogo",
     "./Sample Models/Mathematics/Probability/ProbLab/Unverified/Equidistant Probability.nlogo",
     "./Sample Models/Mathematics/Probability/ProbLab/Unverified/Random Combinations and Permutations.nlogo",
-    "./Sample Models/Mathematics/Voronoi.nlogo",
-    "./Sample Models/Social Science/Unverified/Prisoner's Dilemma/PD Basic.nlogo"
+    "./Sample Models/Mathematics/Voronoi.nlogo"
   )
   testLibraryModels("Models should use tick-based updates unless otherwise specified") {
     for {
