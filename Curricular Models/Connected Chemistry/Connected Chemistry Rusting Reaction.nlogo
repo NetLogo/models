@@ -596,11 +596,11 @@ GRAPHICS-WINDOW
 10
 -10
 10
-0
-0
+1
+1
 1
 ticks
-30.0
+120.0
 
 BUTTON
 80
