@@ -6,9 +6,9 @@ turtles-own [
 
 to setup
   clear-all
-  reset-ticks
   create-network
   seed
+  reset-ticks
 end
 
 ;; seed the population with users who have already been given the product
@@ -56,10 +56,10 @@ end
 
 ;; simple loop just check to see if a turtle hasn't adopted then decide if they should adopt
 to go
-  tick
+  if all? turtles [ adopted? ] [ stop ]
   ask turtles with [ not adopted? ] [ decide-to-adopt ]
   ask turtles [ update-color ]
-  if all? turtles [ adopted? ] [ stop ]
+  tick
 end
 
 ;; the decision rule to adopt which is based on the Bass model of diffusion
@@ -86,6 +86,7 @@ end
 
 to layout
   layout-spring turtles links 1 14 1.5
+  display
 end
 
 
@@ -113,8 +114,8 @@ GRAPHICS-WINDOW
 50
 -50
 50
-0
-0
+1
+1
 1
 ticks
 30.0

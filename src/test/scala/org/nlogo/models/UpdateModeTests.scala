@@ -18,7 +18,6 @@ class UpdateModeTests extends TestModels {
     "./Curricular Models/BEAGLE Evolution/Bird Breeder.nlogo",
     "./HubNet Activities/Polling HubNet.nlogo",
     "./IABM Textbook/chapter 8/Example HubNet.nlogo",
-    "./IABM Textbook/chapter 8/Simple Viral Marketing.nlogo",
     "./Sample Models/Art/Optical Illusions.nlogo",
     "./Sample Models/Art/Unverified/Geometron Top-Down.nlogo",
     "./Sample Models/Biology/BeeSmart - Hive Finding.nlogo",
