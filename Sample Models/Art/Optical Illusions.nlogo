@@ -19,6 +19,7 @@ to illusion-1
     [ sprout 1
         [ set color white
           set size 1.7 ] ]
+  display
 end
 
 to illusion-2
@@ -41,6 +42,7 @@ to illusion-2
     [ set color black
       set shape "circle"
       set size 5 ]
+  display
 end
 
 to illusion-3
@@ -64,6 +66,7 @@ to illusion-3
   ;; move every other row over 1 to the left
   ask turtles with [pycor mod 16 = 12 ]
     [ set xcor xcor - 1 ]
+  display
 end
 
 to illusion-4
@@ -97,6 +100,7 @@ to illusion-4
               set heading 60 * counter
               fd 8
               set counter counter + 1 ] ] ]
+  display
 end
 
 to illusion-5
@@ -120,6 +124,7 @@ to illusion-5
   crt 1
     [ set shape "circle"
       set color black ]
+  display
 end
 
 to illusion-6
@@ -140,6 +145,7 @@ to illusion-6
       ]
     ]
   ]
+  display
 end
 
 to illusion-7
@@ -157,6 +163,7 @@ to illusion-7
     [ set color black ]
     [ set color white ]
   ]
+  display
 end
 
 
@@ -184,8 +191,8 @@ GRAPHICS-WINDOW
 22
 -17
 17
-0
-0
+1
+1
 0
 ticks
 30.0
