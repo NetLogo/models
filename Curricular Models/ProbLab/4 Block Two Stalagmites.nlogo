@@ -650,8 +650,8 @@ GRAPHICS-WINDOW
 45
 -91
 91
-0
-0
+1
+1
 1
 ticks
 30.0
