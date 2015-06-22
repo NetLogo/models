@@ -376,11 +376,11 @@ GRAPHICS-WINDOW
 34
 -34
 34
-0
-0
+1
+1
 1
 ticks
-60.0
+120.0
 
 BUTTON
 7
