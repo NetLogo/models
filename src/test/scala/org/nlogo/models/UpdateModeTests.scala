@@ -21,7 +21,6 @@ class UpdateModeTests extends TestModels {
     "./Sample Models/Art/Unverified/Geometron Top-Down.nlogo",
     "./Sample Models/Biology/Termites.nlogo",
     "./Sample Models/Computer Science/Painted Desert Challenge.nlogo",
-    "./Sample Models/Computer Science/Unverified/Merge Sort.nlogo",
     "./Sample Models/Games/Unverified/Pac-Man Level Editor.nlogo",
     "./Sample Models/Mathematics/Probability/ProbLab/Unverified/Equidistant Probability.nlogo",
     "./Sample Models/Mathematics/Probability/ProbLab/Unverified/Random Combinations and Permutations.nlogo",

@@ -62,6 +62,7 @@ to step-row
   set step-number (step-number + 1)
   combine-groups
   draw
+  display
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -162,6 +163,7 @@ to step-item
     set current-group (current-group + 1)
   ]
   [ set current-loc (current-loc + 1) ]
+  display
 end
 
 ;; Move the turtles to their appropriate locations
@@ -221,8 +223,8 @@ GRAPHICS-WINDOW
 50
 -25
 25
-0
-0
+1
+1
 0
 ticks
 30.0
