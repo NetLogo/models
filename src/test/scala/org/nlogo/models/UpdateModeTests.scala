@@ -19,7 +19,6 @@ class UpdateModeTests extends TestModels {
     "./HubNet Activities/Polling HubNet.nlogo",
     "./IABM Textbook/chapter 8/Example HubNet.nlogo",
     "./Sample Models/Art/Unverified/Geometron Top-Down.nlogo",
-    "./Sample Models/Biology/BeeSmart - Hive Finding.nlogo",
     "./Sample Models/Biology/Termites.nlogo",
     "./Sample Models/Computer Science/Painted Desert Challenge.nlogo",
     "./Sample Models/Computer Science/Unverified/Merge Sort.nlogo",
