@@ -148,7 +148,7 @@ end
 
 to organize-column ; column-kids procedure
   let column-organizers sample-organizers with [ pxcor + 1 = [pxcor] of myself ]
-  (foreach sort-by [ [ sample-summary-value ] of ?1 <=
+  (foreach sort-by [ [ sample-summary-value ] of ?1 <
                      [ sample-summary-value ] of ?2
                    ] [self] of column-organizers
            sort [ pycor ] of column-organizers
