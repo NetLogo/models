@@ -117,7 +117,11 @@ NIL
 
 The code example provides an illustration of how to import network data from external files.  This is useful when you have a specific network, perhaps created in another program or taken from real world data, that you would like to recreate in NetLogo.
 
-It imports data from two different files.  The first is the "attributes.txt" file, which contains information about the nodes -- in this case, the node-id, size, and color of each node. The second is the "links.txt" file, which contains information on how the nodes are connected and the strength of their connection.
+Note that the [Networks extension](http://ccl.northwestern.edu/netlogo/docs/nw.html) can automatically import networks from [GraphML](http://ccl.northwestern.edu/netlogo/docs/nw.html#load-graphml) and [many other formats](http://ccl.northwestern.edu/netlogo/docs/nw.html#load).
+
+The code example is useful when you have network data in a format not supported by the Networks extension.
+
+It imports data from two different files.  The first is the `"attributes.txt"` file, which contains information about the nodes -- in this case, the `node-id`, `size`, and `color` of each node. The second is the `"links.txt"` file, which contains information on how the nodes are connected and the strength of their connection.
 
 ## NETLOGO FEATURES
 
