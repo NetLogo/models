@@ -1,38 +1,47 @@
 to setup
-  ca
-  crt 50                               ; make  50 turtles
-  [
-    setxy random-xcor random-ycor      ; scatter them around the world
+  clear-all
+  create-turtles 50 [             ; make 50 turtles
+    setxy random-xcor random-ycor ; scatter them around the world
   ]
+  reset-ticks
 end
 
-; turtle procedure -- find closest turtle and move towards it
+; find closest turtle and move towards it
 to cluster
-  ; figure out what turtle, other than ourselves, is closest
-  let closest-turtle min-one-of other turtles [distance myself]
-
-  ; now move ourselves towards that turtle
-  face closest-turtle
-  ; but first "wiggle" a little
-  rt random-float 20
-  lt random-float 20
-  fd 1
-
+  ask turtles [
+    ; figure out what turtle, other than ourselves, is closest
+    let closest-turtle min-one-of other turtles [ distance myself ]
+    ; now move ourselves towards that turtle
+    face closest-turtle
+    ; but first "wiggle" a little
+    rt random-float 20
+    lt random-float 20
+    fd 1
+  ]
+  tick
 end
 
 
-; turtle procedure -- make a colored splotch around myself, the same color as me
+; make a colored splotch around myself, the same color as me
 to splotch
-  ask patches in-radius 2 [ set pcolor [color] of myself ]
+  ask turtles [
+    ask patches in-radius 2 [
+      set pcolor [ color ] of myself
+    ]
+  ]
+  tick
 end
 
 
-; turtle procedure -- turn any turtle I encounter the same color as me
+; turn any turtle I encounter the same color as me
 to infect
-  ask turtles-here [ set color [color] of myself ]
-  rt random-float 20
-  lt random-float 20
-  fd 1
+  ask turtles [
+    ask turtles-here [ set color [ color ] of myself ]
+    rt random-float 20
+    lt random-float 20
+    fd 1
+  ]
+  tick
 end
 
 
@@ -61,8 +70,8 @@ GRAPHICS-WINDOW
 17
 -17
 17
-0
-0
+1
+1
 1
 ticks
 30.0
@@ -94,12 +103,12 @@ cluster
 T
 1
 T
-TURTLE
+OBSERVER
 NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 8
@@ -111,12 +120,12 @@ infect
 T
 1
 T
-TURTLE
+OBSERVER
 NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 8
@@ -128,12 +137,12 @@ splotch
 NIL
 1
 T
-TURTLE
+OBSERVER
 NIL
 NIL
 NIL
 NIL
-1
+0
 
 TEXTBOX
 105
