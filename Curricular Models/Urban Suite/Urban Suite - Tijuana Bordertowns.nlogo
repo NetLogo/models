@@ -1055,7 +1055,7 @@ CROSSING-TICKS determined how many ticks of the model before a percentage of res
 
 \#-SERVICE-CENTERS determines the number of service centers (shown as large circles in the view) that are created when the city is created.
 
-INIT-DENSITY determines the initial number of migrants at the stat of a model run.
+INIT-DENSITY determines the initial number of migrants at the start of a model run.
 
 REQUIRED-CAPITAL determines how much savings a migrant must have before moving from their current location to a new location.
 
