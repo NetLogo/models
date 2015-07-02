@@ -252,9 +252,9 @@ NIL
 
 SLIDER
 5
-115
+150
 210
-148
+183
 ticks-between-tests
 ticks-between-tests
 1
@@ -341,9 +341,9 @@ best-acceleration-so-far
 
 SLIDER
 5
-150
+115
 210
-183
+148
 speed-limit
 speed-limit
 0.1
@@ -355,19 +355,19 @@ NIL
 HORIZONTAL
 
 @#$#@#$#@
-## ACKNOWLEDGMENT
+## ACKNOWLEDGEMENT
 
 This model is from Chapter Five of the book "Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo", by Uri Wilensky & William Rand.
 
-* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
-This model is in the IABM Textbook folder of the NetLogo Models Library. The model, as well as any updates to the model, can also be found on the textbook website: http://www.intro-to-abm.com/.
+This model is in the IABM Textbook folder of the NetLogo models library. The model, as well as any updates to the model, can also be found on the textbook website: http://intro-to-abm.com.
 
 ## WHAT IS IT?
 
 This model models the movement of cars on a highway. Each car follows a simple set of rules: it slows down (decelerates) if it sees a car close ahead, and speeds up (accelerates) if it doesn't see a car ahead.
 
-The model extends the Traffic Basic model, from the social science section of the NetLogo models library, by having cars adapt their acceleration speed to maintain a smooth flow of traffic.
+The model extends the Traffic Basic model, from the social science section of the NetLogo models library, by having cars adapt their acceleration to try and maintain a smooth flow of traffic.
 
 ## HOW TO USE IT
 
@@ -379,17 +379,68 @@ The INIT-ACCELERATION slider controls the rate at which cars initially accelerat
 
 When a car sees another car right in front, it matches that car's speed and then slows down a bit more.  How much slower it goes than the car in front of it is controlled by the DECELERATION slider.
 
-Click on ADAPTIVE-GO to see how the results change when the cars are adapting to the environment around them.
+The SPEED-LIMIT slider sets the maximum speed that the cars can go.
+
+Click on ADAPTIVE-GO to see how the results change when the cars are adapting to the environment around them, by changing their acceleration.
+
+ADAPTIVE-GO employs the TICKS-BETWEEN-TESTS slider. This slider controls how frequently the model tests to see if it has found a better acceleration.
+
+There are five monitors:
+
+- BEST ACCELERATION displays the acceleration that the model believes leads to the fastest moving traffic. This is only used in ADAPTIVE-GO mode.
+
+- CURRENT ACCELERATION displays the current value of the cars' acceleration. This only changes when in ADAPTIVE-GO mode.
+
+- RED CAR SPEED displays the speed of one randomly selected car, which is colored red. 
+
+- AVG SPEED displays the average speed of the cars.
+
+- SPEED-TO-BEAT displays the speed that AVG SPEED needs to beat when a test occurs for the model to think its found a better acceleration. This is only used in ADAPTIVE-GO mode.
+
+The CAR SPEEDS plot plots the minimum, maximum and average speed of the cars. If the PLOT-RED-CAR? switch is on, it also plots the speed of the red car.
+
+The SPEED TO BEAT VS AVG SPEED plot compares the average speed of the cars to the speed to beat over time. This is only used in ADAPTIVE-GO mode.
 
 ## THINGS TO NOTICE
 
-Traffic Basic explored how traffic jams can start from small disturbances.  The goal of Traffic Basic Adaptive is to examine how this changes when the cars are actively trying to avoid traffic jams.  Does the behavior of the cars and jams visibly change when they are adapting? Is there a difference in the plot of the fastest, slowest, and red cars, compared to the Traffic Basic model plot?
+Traffic Basic explored how traffic jams can start from small disturbances.  The goal of Traffic Basic Adaptive is to examine how this changes when the cars are actively trying to avoid traffic jams.  Does the behavior of the cars and jams visibly change when they are adapting? Is there a difference in the plot of the fastest, slowest, average and red cars, compared to the Traffic Basic model plot?
 
-In Traffic Basic changing the Acceleration and Deceleration could affect the model dramatically. What role does the INIT-ACCELERATION play versus the ACCELERATION slider in the original model?  Does it affect the results as much?  How about the DECELERATION slider?  Has its effect changed?
+In Traffic Basic changing the Acceleration and Deceleration could affect the model dramatically. What role does the INIT-ACCELERATION slider in this model play versus the ACCELERATION slider in the original model?  Does it affect the results as much?  How about the DECELERATION slider?  Has its effect changed?
+
+## THINGS TO TRY
+
+In this model there are four sliders that can affect the tendency to create traffic jams: the initial NUMBER of cars, INIT-ACCELERATION,  DECELERATION and TICKS-BETWEEN-TESTS. Look for patterns in how the three settings affect the traffic flow.  Which variable has the greatest effect?  Do the patterns make sense?  Do they seem to be consistent with your driving experiences?
+
+Set DECELERATION to zero.  What happens to the flow?  Gradually increase DECELERATION while the model runs.  At what point does the flow "break down"?
+
+## EXTENDING THE MODEL
+
+Try other rules for speeding up and slowing down.  Is the rule presented here realistic? Are there other rules that are more accurate or represent better driving strategies?
+
+In reality, different vehicles may follow different rules. Try giving different rules or ACCELERATION/DECELERATION values to some of the cars.  Can one bad driver mess things up?
+
+The asymmetry between acceleration and deceleration is a simplified representation of different driving habits and response times. Can you explicitly encode these into the model?
+
+What could you change to minimize the chances of traffic jams forming?
+
+What could you change to make traffic jams move forward rather than backward?
+
+Make a model of two-lane traffic.
+
+## NETLOGO FEATURES
+
+The plot shows both global values and the value for a single car, which helps one watch overall patterns and individual behavior at the same time.
+
+The `watch` command is used to make it easier to focus on the red car.
 
 ## RELATED MODELS
 
-Traffic Basic
+"Traffic Basic"
+
+"Traffic Grid" adds a street grid with stoplights at the intersections.
+
+"Gridlock" (a HubNet model) is a participatory simulation version of Traffic Grid
+
 
 ## HOW TO CITE
 
@@ -399,7 +450,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Rand, W., Wilensky, U. (2008).  NetLogo Traffic Basic Adaptive model.  http://ccl.northwestern.edu/netlogo/models/TrafficBasicAdaptive.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
+* Rand, W. & Wilensky, U. (2008). Traffic Basic Adapative Model.  http://ccl.northwestern.edu/netlogo/models/IABMTextbook/TrafficBasicAdaptice.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
