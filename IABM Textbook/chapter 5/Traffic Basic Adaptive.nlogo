@@ -1,5 +1,5 @@
-globals [ sample-car best-speed-so-far acceleration best-acceleration-so-far ]
-turtles-own [ speed speed-min trip-time-start trip-time ]
+globals [ sample-car speed-to-beat acceleration best-acceleration-so-far ]
+turtles-own [ speed speed-min trip-time-start trip-time]
 
 to setup
   clear-all
@@ -70,32 +70,25 @@ to speed-up-car  ;; turtle procedure
 end
 
 to adaptive-go
-
-  ;; check to see if we should test a new value for acceleration this tick
-  let testing? false
-  if ticks mod ticks-between-exploration = 0 [
-    set testing? true
-    set acceleration acceleration + random-float 0.001 - 0.0005
+  ;; Only test to see if the new acceleration is better every ticks-between-tests ticks
+  ;; to allow the speed to stabilize between changes to acceleration.
+  if ticks > 0 and ticks mod ticks-between-tests = 0 [
+    ;; check to see if our new speed of turtles is better than the speed to beat if so
+    ;;   then adopt the new acceleration
+    ifelse mean [ speed ] of turtles > speed-to-beat [
+      set best-acceleration-so-far acceleration
+      set speed-to-beat mean [ speed ] of turtles
+    ] [
+      ;; In case the speed threshold was set during instability (a spike), we slowly
+      ;; lower it over time to give us a chance to learn a better acceleration.
+      set speed-to-beat 0.1 * mean [ speed ] of turtles + 0.9 * speed-to-beat
+      set acceleration best-acceleration-so-far
+    ]
+    ;; Increase or decrease the acceleration to look for a better one.
+    set acceleration acceleration + random-float 0.002 - 0.001
   ]
-
   ;; invoke the non-adaptive go code
   go
-
-  ;; check to see if our new speed of turtles is better than the previous speeds if so
-  ;;   then adopt the new acceleration
-  ;; you don't want to take one data point as a measure of the speed. Instead you
-  ;; calculate a weighted average of the past observed speed and the current speed.
-
-  ifelse mean [ speed ] of turtles > best-speed-so-far and testing? [
-    set best-acceleration-so-far acceleration
-    set best-speed-so-far mean [ speed ] of turtles
-  ]
-  [
-    set acceleration best-acceleration-so-far
-  ]
-  if not testing? [
-    set best-speed-so-far (0.1 * mean [speed] of turtles) + (0.9 * best-speed-so-far)
-  ]
 end
 
 
@@ -103,13 +96,13 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-10
-290
-683
-438
+5
+280
+1023
+488
 25
 4
-13.0
+19.765
 1
 10
 1
@@ -130,10 +123,10 @@ ticks
 30.0
 
 BUTTON
-36
-72
-108
-113
+5
+185
+77
+226
 NIL
 setup
 NIL
@@ -147,10 +140,10 @@ NIL
 1
 
 BUTTON
-119
-73
-190
-113
+80
+185
+150
+225
 NIL
 go
 T
@@ -164,10 +157,10 @@ NIL
 0
 
 SLIDER
-12
-34
-216
-67
+5
+10
+209
+43
 number-of-cars
 number-of-cars
 1
@@ -179,10 +172,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-120
-200
-295
-233
+5
+80
+210
+113
 deceleration
 deceleration
 0
@@ -194,25 +187,25 @@ NIL
 HORIZONTAL
 
 SLIDER
-120
-165
-295
-198
+5
+45
+210
+78
 init-acceleration
 init-acceleration
 0
 .099
-0.0045
+0.0046
 .0001
 1
 NIL
 HORIZONTAL
 
 PLOT
-305
-15
-680
-270
+275
+10
+690
+210
 Car speeds
 time
 speed
@@ -224,15 +217,16 @@ true
 true
 "" ""
 PENS
-"red car" 1.0 0 -2674135 true "" "plot [speed] of sample-car"
+"red car" 1.0 0 -2674135 true "" "if plot-red-car? [plotxy ticks  [speed] of sample-car]"
 "min speed" 1.0 0 -13345367 true "" "plot min [speed] of turtles"
 "max speed" 1.0 0 -10899396 true "" "plot max [speed] of turtles"
+"avg speed" 1.0 0 -7500403 true "" "plot mean [speed] of turtles"
 
 MONITOR
-10
-155
-107
-200
+275
+210
+372
+255
 red car speed
   ifelse-value any? turtles\n  [   [speed] of sample-car  ]\n  [  0 ]
 3
@@ -240,10 +234,10 @@ red car speed
 11
 
 BUTTON
-120
-118
-226
-151
+155
+185
+265
+225
 NIL
 adaptive-go
 T
@@ -257,36 +251,99 @@ NIL
 0
 
 SLIDER
-123
-452
-341
-485
-ticks-between-exploration
-ticks-between-exploration
+5
+115
+210
+148
+ticks-between-tests
+ticks-between-tests
 1
+50
 20
-10
 1
 1
 NIL
 HORIZONTAL
 
 MONITOR
-11
-205
-99
-250
-NIL
+125
+230
+262
+275
+current acceleration
 acceleration
+4
+1
+11
+
+SWITCH
+380
+215
+517
+248
+plot-red-car?
+plot-red-car?
+1
+1
+-1000
+
+MONITOR
+690
+210
+765
+255
+avg speed
+mean [speed] of turtles
 3
 1
 11
 
-SLIDER
+PLOT
+690
+10
+1020
+210
+Speed to beat vs avg speed
+NIL
+NIL
+0.0
+10.0
+0.0
+1.0
+true
+true
+"" ""
+PENS
+"speed to beat" 1.0 0 -16777216 true "" "plot speed-to-beat"
+"avg speed" 1.0 0 -7500403 true "" "plot mean [ speed ] of turtles"
+
+MONITOR
+920
+210
+1020
+255
+NIL
+speed-to-beat
+4
+1
+11
+
+MONITOR
+5
+230
 120
-235
-295
-268
+275
+best acceleration
+best-acceleration-so-far
+4
+1
+11
+
+SLIDER
+5
+150
+210
+183
 speed-limit
 speed-limit
 0.1
