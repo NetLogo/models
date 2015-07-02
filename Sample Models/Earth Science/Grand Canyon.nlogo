@@ -34,7 +34,7 @@ to startup
   let min-elevation min patch-elevations
   ;; adjust the color-min a little so patches don't end up black
   set color-min min-elevation - ((color-max - min-elevation) / 10)
-  ;; transfer the date from the file into the sorted patches
+  ;; transfer the data from the file into the sorted patches
   ( foreach sort patches patch-elevations
     [ ask ?1 [ set elevation ?2 ] ] )
   set-default-shape turtles "circle"
