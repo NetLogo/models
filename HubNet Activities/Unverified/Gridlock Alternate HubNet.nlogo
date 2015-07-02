@@ -1216,7 +1216,7 @@ SLIDER
 151
 speed-limit
 speed-limit
-0
+0.1
 1
 1
 0.1
