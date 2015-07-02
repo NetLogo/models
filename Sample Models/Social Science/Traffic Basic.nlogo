@@ -244,6 +244,8 @@ The ACCELERATION slider controls the rate at which cars accelerate (speed up) wh
 
 When a car sees another car right in front, it matches that car's speed and then slows down a bit more.  How much slower it goes than the car in front of it is controlled by the DECELERATION slider.
 
+The SPEED-LIMIT slider controls how fast cars can go.
+
 ## THINGS TO NOTICE
 
 Traffic jams can start from small "seeds."  These cars start with random positions and random speeds. If some cars are clustered together, they will move slowly, causing cars behind them to slow down, and a traffic jam forms.
