@@ -1,5 +1,5 @@
 globals [ sample-car ]
-turtles-own [ speed speed-limit speed-min ]
+turtles-own [ speed speed-min ]
 
 to setup
   clear-all
@@ -29,7 +29,6 @@ to setup-cars
     set heading  90
     ;;; set initial speed to be in range 0.1 to 1.0
     set speed  0.1 + random-float .9
-    set speed-limit  1
     set speed-min  0
     separate-cars
   ]
@@ -161,10 +160,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-134
-182
-261
-215
+120
+180
+270
+213
 deceleration
 deceleration
 0
@@ -176,10 +175,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-134
-147
-261
-180
+120
+145
+270
+178
 acceleration
 acceleration
 0
@@ -193,8 +192,8 @@ HORIZONTAL
 PLOT
 286
 20
-704
-217
+696
+285
 Car speeds
 time
 speed
@@ -222,16 +221,31 @@ red car speed
 11
 
 SLIDER
-79
-248
-264
-281
+120
+250
+270
+283
 efficient-speed
 efficient-speed
 0
 1
 0.5
 .01
+1
+NIL
+HORIZONTAL
+
+SLIDER
+120
+215
+270
+248
+speed-limit
+speed-limit
+0.1
+1
+1
+0.1
 1
 NIL
 HORIZONTAL
@@ -658,5 +672,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@

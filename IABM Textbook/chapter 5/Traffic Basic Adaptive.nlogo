@@ -1,5 +1,5 @@
 globals [ sample-car best-speed-so-far acceleration best-acceleration-so-far ]
-turtles-own [ speed speed-limit speed-min trip-time-start trip-time]
+turtles-own [ speed speed-min trip-time-start trip-time ]
 
 to setup
   clear-all
@@ -30,7 +30,6 @@ to setup-cars
     set heading  90
     ;;; set initial speed to be in range 0.1 to 1.0
     set speed  0.1 + random-float .9
-    set speed-limit  1
     set speed-min  0
     separate-cars
   ]
@@ -104,10 +103,10 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-14
-251
-687
-399
+10
+290
+683
+438
 25
 4
 13.0
@@ -180,10 +179,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-133
-203
-260
-236
+120
+200
+295
+233
 deceleration
 deceleration
 0
@@ -195,9 +194,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-119
+120
 165
-293
+295
 198
 init-acceleration
 init-acceleration
@@ -210,10 +209,10 @@ NIL
 HORIZONTAL
 
 PLOT
-286
-20
-704
-217
+305
+15
+680
+270
 Car speeds
 time
 speed
@@ -258,10 +257,10 @@ NIL
 0
 
 SLIDER
-127
-413
-345
-446
+123
+452
+341
+485
 ticks-between-exploration
 ticks-between-exploration
 1
@@ -282,6 +281,21 @@ acceleration
 3
 1
 11
+
+SLIDER
+120
+235
+295
+268
+speed-limit
+speed-limit
+0.1
+1
+1
+0.1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## ACKNOWLEDGMENT
@@ -653,5 +667,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
