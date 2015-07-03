@@ -355,13 +355,13 @@ NIL
 HORIZONTAL
 
 @#$#@#$#@
-## ACKNOWLEDGEMENT
+## ACKNOWLEDGMENT
 
 This model is from Chapter Five of the book "Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo", by Uri Wilensky & William Rand.
 
-Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
+* Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
-This model is in the IABM Textbook folder of the NetLogo models library. The model, as well as any updates to the model, can also be found on the textbook website: http://intro-to-abm.com.
+This model is in the IABM Textbook folder of the NetLogo Models Library. The model, as well as any updates to the model, can also be found on the textbook website: http://www.intro-to-abm.com/.
 
 ## WHAT IS IT?
 
@@ -391,7 +391,7 @@ There are five monitors:
 
 - CURRENT ACCELERATION displays the current value of the cars' acceleration. This only changes when in ADAPTIVE-GO mode.
 
-- RED CAR SPEED displays the speed of one randomly selected car, which is colored red. 
+- RED CAR SPEED displays the speed of one randomly selected car, which is colored red.
 
 - AVG SPEED displays the average speed of the cars.
 
@@ -441,7 +441,6 @@ The `watch` command is used to make it easier to focus on the red car.
 
 "Gridlock" (a HubNet model) is a participatory simulation version of Traffic Grid
 
-
 ## HOW TO CITE
 
 This model is part of the textbook, “Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo.”
@@ -450,7 +449,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Rand, W. & Wilensky, U. (2008). Traffic Basic Adapative Model.  http://ccl.northwestern.edu/netlogo/models/IABMTextbook/TrafficBasicAdaptice.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Rand, W., Wilensky, U. (2008).  NetLogo Traffic Basic Adaptive model.  http://ccl.northwestern.edu/netlogo/models/TrafficBasicAdaptive.  Center for Connected Learning and Computer-Based Modeling, Northwestern Institute on Complex Systems, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
