@@ -1,5 +1,5 @@
-globals [ sample-car best-speed-so-far acceleration best-acceleration-so-far ]
-turtles-own [ speed speed-limit speed-min trip-time-start trip-time]
+globals [ sample-car speed-to-beat acceleration best-acceleration-so-far ]
+turtles-own [ speed speed-limit speed-min trip-time-start trip-time ]
 
 to setup
   clear-all
@@ -10,28 +10,26 @@ to setup
   reset-ticks
 end
 
-to setup-road  ;; patch procedure
+to setup-road ;; patch procedure
   if (pycor < 2) and (pycor > -2) [ set pcolor white ]
 end
 
 to setup-cars
-  if number-of-cars > world-width
-  [
-    user-message (word "There are too many cars for the amount of road.  Please decrease the NUMBER-OF-CARS slider to below "
-                       (world-width + 1)
-                       " and press the SETUP button again.  The setup has stopped.")
+  if number-of-cars > world-width [
+    user-message (word
+      "There are too many cars for the amount of road. Please decrease the NUMBER-OF-CARS slider to below "
+      (world-width + 1) " and press the SETUP button again. The setup has stopped.")
     stop
   ]
-
   set-default-shape turtles "car"
   create-turtles number-of-cars [
     set color blue
     set xcor random-xcor
-    set heading  90
+    set heading 90
     ;;; set initial speed to be in range 0.1 to 1.0
-    set speed  0.1 + random-float .9
-    set speed-limit  1
-    set speed-min  0
+    set speed  0.1 + random-float 0.9
+    set speed-limit 1
+    set speed-min 0
     separate-cars
   ]
   set sample-car one-of turtles
@@ -41,62 +39,57 @@ end
 ; this procedure is needed so when we click "Setup" we
 ; don't end up with any two cars on the same patch
 to separate-cars  ;; turtle procedure
-  if any? other turtles-here
-    [ fd 1
-      separate-cars ]
+  if any? other turtles-here [
+    fd 1
+    separate-cars
+  ]
 end
 
 to go
-   ;; if there is a car right ahead of you, match its speed then slow down
+  ;; if there is a car right ahead of you, match its speed then slow down
   ask turtles [
     let car-ahead one-of turtles-on patch-ahead 1
     ifelse car-ahead != nobody
-      [slow-down-car car-ahead]
+      [ slow-down-car car-ahead ]
       ;; otherwise, speed up
       [ speed-up-car ]
     ;;; don't slow down below speed minimum or speed up beyond speed limit
-    if speed < speed-min  [ set speed speed-min ]
-    if speed > speed-limit   [ set speed speed-limit ]
-    fd speed ]
+    if speed < speed-min [ set speed speed-min ]
+    if speed > speed-limit [ set speed speed-limit ]
+    fd speed
+  ]
   tick
 end
 
-to slow-down-car [car-ahead] ;; turtle procedure
-  set speed [speed] of car-ahead
+to slow-down-car [ car-ahead ] ;; turtle procedure
+  set speed [ speed ] of car-ahead
   set speed speed - deceleration
 end
 
-to speed-up-car  ;; turtle procedure
+to speed-up-car ;; turtle procedure
   set speed speed + acceleration
 end
 
 to adaptive-go
-
-  ;; check to see if we should test a new value for acceleration this tick
-  let testing? false
-  if ticks mod ticks-between-exploration = 0 [
-    set testing? true
-    set acceleration acceleration + random-float 0.001 - 0.0005
+  ;; Only test to see if the new acceleration is better every ticks-between-tests ticks
+  ;; to allow the speed to stabilize between changes to acceleration.
+  if ticks > 0 and ticks mod ticks-between-tests = 0 [
+    ;; check to see if our new speed of turtles is better than the speed to beat if so
+    ;;   then adopt the new acceleration
+    ifelse mean [ speed ] of turtles > speed-to-beat [
+      set best-acceleration-so-far acceleration
+      set speed-to-beat mean [ speed ] of turtles
+    ] [
+      ;; In case the speed threshold was set during instability (a spike), we slowly
+      ;; lower it over time to give us a chance to learn a better acceleration.
+      set speed-to-beat 0.1 * mean [ speed ] of turtles + 0.9 * speed-to-beat
+      set acceleration best-acceleration-so-far
+    ]
+    ;; Increase or decrease the acceleration to look for a better one.
+    set acceleration acceleration + random-float 0.002 - 0.001
   ]
-
   ;; invoke the non-adaptive go code
   go
-
-  ;; check to see if our new speed of turtles is better than the previous speeds if so
-  ;;   then adopt the new acceleration
-  ;; you don't want to take one data point as a measure of the speed. Instead you
-  ;; calculate a weighted average of the past observed speed and the current speed.
-
-  ifelse mean [ speed ] of turtles > best-speed-so-far and testing? [
-    set best-acceleration-so-far acceleration
-    set best-speed-so-far mean [ speed ] of turtles
-  ]
-  [
-    set acceleration best-acceleration-so-far
-  ]
-  if not testing? [
-    set best-speed-so-far (0.1 * mean [speed] of turtles) + (0.9 * best-speed-so-far)
-  ]
 end
 
 
@@ -104,13 +97,13 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-14
-251
-687
-399
+5
+280
+1035
+491
 25
 4
-13.0
+20.0
 1
 10
 1
@@ -131,10 +124,10 @@ ticks
 30.0
 
 BUTTON
-36
-72
-108
-113
+5
+185
+77
+226
 NIL
 setup
 NIL
@@ -148,10 +141,10 @@ NIL
 1
 
 BUTTON
-119
-73
-190
-113
+80
+185
+150
+225
 NIL
 go
 T
@@ -165,10 +158,10 @@ NIL
 0
 
 SLIDER
-12
-34
-216
-67
+5
+10
+209
+43
 number-of-cars
 number-of-cars
 1
@@ -180,10 +173,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-133
-203
-260
-236
+5
+80
+210
+113
 deceleration
 deceleration
 0
@@ -195,25 +188,25 @@ NIL
 HORIZONTAL
 
 SLIDER
-119
-165
-293
-198
+5
+45
+210
+78
 init-acceleration
 init-acceleration
 0
 .099
-0.0045
+0.0046
 .0001
 1
 NIL
 HORIZONTAL
 
 PLOT
-286
-20
-704
-217
+275
+10
+690
+210
 Car speeds
 time
 speed
@@ -225,15 +218,16 @@ true
 true
 "" ""
 PENS
-"red car" 1.0 0 -2674135 true "" "plot [speed] of sample-car"
+"red car" 1.0 0 -2674135 true "" "if plot-red-car? [plotxy ticks  [speed] of sample-car]"
 "min speed" 1.0 0 -13345367 true "" "plot min [speed] of turtles"
 "max speed" 1.0 0 -10899396 true "" "plot max [speed] of turtles"
+"avg speed" 1.0 0 -7500403 true "" "plot mean [speed] of turtles"
 
 MONITOR
-10
-155
-107
-200
+275
+210
+372
+255
 red car speed
   ifelse-value any? turtles\n  [   [speed] of sample-car  ]\n  [  0 ]
 3
@@ -241,10 +235,10 @@ red car speed
 11
 
 BUTTON
-120
-118
-226
-151
+155
+185
+265
+225
 NIL
 adaptive-go
 T
@@ -258,28 +252,91 @@ NIL
 0
 
 SLIDER
-127
-413
-345
-446
-ticks-between-exploration
-ticks-between-exploration
+5
+115
+210
+148
+ticks-between-tests
+ticks-between-tests
 1
+50
 20
-10
 1
 1
 NIL
 HORIZONTAL
 
 MONITOR
-11
-205
-99
-250
-NIL
+125
+230
+262
+275
+current acceleration
 acceleration
+4
+1
+11
+
+SWITCH
+380
+215
+517
+248
+plot-red-car?
+plot-red-car?
+1
+1
+-1000
+
+MONITOR
+690
+210
+765
+255
+avg speed
+mean [speed] of turtles
 3
+1
+11
+
+PLOT
+690
+10
+1020
+210
+Speed to beat vs avg speed
+NIL
+NIL
+0.0
+10.0
+0.0
+1.0
+true
+true
+"" ""
+PENS
+"speed to beat" 1.0 0 -16777216 true "" "plot speed-to-beat"
+"avg speed" 1.0 0 -7500403 true "" "plot mean [ speed ] of turtles"
+
+MONITOR
+920
+210
+1020
+255
+NIL
+speed-to-beat
+4
+1
+11
+
+MONITOR
+5
+230
+120
+275
+best acceleration
+best-acceleration-so-far
+4
 1
 11
 
@@ -296,7 +353,7 @@ This model is in the IABM Textbook folder of the NetLogo Models Library. The mod
 
 This model models the movement of cars on a highway. Each car follows a simple set of rules: it slows down (decelerates) if it sees a car close ahead, and speeds up (accelerates) if it doesn't see a car ahead.
 
-The model extends the Traffic Basic model, from the social science section of the NetLogo models library, by having cars adapt their acceleration speed to maintain a smooth flow of traffic.
+The model extends the Traffic Basic model, from the social science section of the NetLogo models library, by having cars adapt their acceleration to try and maintain a smooth flow of traffic.
 
 ## HOW TO USE IT
 
@@ -308,17 +365,65 @@ The INIT-ACCELERATION slider controls the rate at which cars initially accelerat
 
 When a car sees another car right in front, it matches that car's speed and then slows down a bit more.  How much slower it goes than the car in front of it is controlled by the DECELERATION slider.
 
-Click on ADAPTIVE-GO to see how the results change when the cars are adapting to the environment around them.
+Click on ADAPTIVE-GO to see how the results change when the cars are adapting to the environment around them, by changing their acceleration.
+
+ADAPTIVE-GO employs the TICKS-BETWEEN-TESTS slider. This slider controls how frequently the model tests to see if it has found a better acceleration.
+
+There are five monitors:
+
+- BEST ACCELERATION displays the acceleration that the model believes leads to the fastest moving traffic. This is only used in ADAPTIVE-GO mode.
+
+- CURRENT ACCELERATION displays the current value of the cars' acceleration. This only changes when in ADAPTIVE-GO mode.
+
+- RED CAR SPEED displays the speed of one randomly selected car, which is colored red.
+
+- AVG SPEED displays the average speed of the cars.
+
+- SPEED-TO-BEAT displays the speed that AVG SPEED needs to beat when a test occurs for the model to think its found a better acceleration. This is only used in ADAPTIVE-GO mode.
+
+The CAR SPEEDS plot plots the minimum, maximum and average speed of the cars. If the PLOT-RED-CAR? switch is on, it also plots the speed of the red car.
+
+The SPEED TO BEAT VS AVG SPEED plot compares the average speed of the cars to the speed to beat over time. This is only used in ADAPTIVE-GO mode.
 
 ## THINGS TO NOTICE
 
-Traffic Basic explored how traffic jams can start from small disturbances.  The goal of Traffic Basic Adaptive is to examine how this changes when the cars are actively trying to avoid traffic jams.  Does the behavior of the cars and jams visibly change when they are adapting? Is there a difference in the plot of the fastest, slowest, and red cars, compared to the Traffic Basic model plot?
+Traffic Basic explored how traffic jams can start from small disturbances.  The goal of Traffic Basic Adaptive is to examine how this changes when the cars are actively trying to avoid traffic jams.  Does the behavior of the cars and jams visibly change when they are adapting? Is there a difference in the plot of the fastest, slowest, average and red cars, compared to the Traffic Basic model plot?
 
-In Traffic Basic changing the Acceleration and Deceleration could affect the model dramatically. What role does the INIT-ACCELERATION play versus the ACCELERATION slider in the original model?  Does it affect the results as much?  How about the DECELERATION slider?  Has its effect changed?
+In Traffic Basic changing the Acceleration and Deceleration could affect the model dramatically. What role does the INIT-ACCELERATION slider in this model play versus the ACCELERATION slider in the original model?  Does it affect the results as much?  How about the DECELERATION slider?  Has its effect changed?
+
+## THINGS TO TRY
+
+In this model there are four sliders that can affect the tendency to create traffic jams: the initial NUMBER of cars, INIT-ACCELERATION,  DECELERATION and TICKS-BETWEEN-TESTS. Look for patterns in how the three settings affect the traffic flow.  Which variable has the greatest effect?  Do the patterns make sense?  Do they seem to be consistent with your driving experiences?
+
+Set DECELERATION to zero.  What happens to the flow?  Gradually increase DECELERATION while the model runs.  At what point does the flow "break down"?
+
+## EXTENDING THE MODEL
+
+Try other rules for speeding up and slowing down.  Is the rule presented here realistic? Are there other rules that are more accurate or represent better driving strategies?
+
+In reality, different vehicles may follow different rules. Try giving different rules or ACCELERATION/DECELERATION values to some of the cars.  Can one bad driver mess things up?
+
+The asymmetry between acceleration and deceleration is a simplified representation of different driving habits and response times. Can you explicitly encode these into the model?
+
+What could you change to minimize the chances of traffic jams forming?
+
+What could you change to make traffic jams move forward rather than backward?
+
+Make a model of two-lane traffic.
+
+## NETLOGO FEATURES
+
+The plot shows both global values and the value for a single car, which helps one watch overall patterns and individual behavior at the same time.
+
+The `watch` command is used to make it easier to focus on the red car.
 
 ## RELATED MODELS
 
-Traffic Basic
+"Traffic Basic"
+
+"Traffic Grid" adds a street grid with stoplights at the intersections.
+
+"Gridlock" (a HubNet model) is a participatory simulation version of Traffic Grid
 
 ## HOW TO CITE
 
