@@ -1,5 +1,5 @@
 globals [ sample-car speed-to-beat acceleration best-acceleration-so-far ]
-turtles-own [ speed speed-min trip-time-start trip-time]
+turtles-own [ speed speed-limit speed-min trip-time-start trip-time]
 
 to setup
   clear-all
@@ -30,6 +30,7 @@ to setup-cars
     set heading  90
     ;;; set initial speed to be in range 0.1 to 1.0
     set speed  0.1 + random-float .9
+    set speed-limit 1
     set speed-min  0
     separate-cars
   ]
@@ -252,9 +253,9 @@ NIL
 
 SLIDER
 5
-150
+115
 210
-183
+148
 ticks-between-tests
 ticks-between-tests
 1
@@ -339,21 +340,6 @@ best-acceleration-so-far
 1
 11
 
-SLIDER
-5
-115
-210
-148
-speed-limit
-speed-limit
-0.1
-1
-1
-0.1
-1
-NIL
-HORIZONTAL
-
 @#$#@#$#@
 ## ACKNOWLEDGMENT
 
@@ -378,8 +364,6 @@ Click on GO to start the cars moving.  Note that they wrap around the world as t
 The INIT-ACCELERATION slider controls the rate at which cars initially accelerate (speed up) when there are no cars ahead.
 
 When a car sees another car right in front, it matches that car's speed and then slows down a bit more.  How much slower it goes than the car in front of it is controlled by the DECELERATION slider.
-
-The SPEED-LIMIT slider sets the maximum speed that the cars can go.
 
 Click on ADAPTIVE-GO to see how the results change when the cars are adapting to the environment around them, by changing their acceleration.
 
