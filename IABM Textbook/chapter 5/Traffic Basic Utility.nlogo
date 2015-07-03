@@ -162,10 +162,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-134
-182
-261
-215
+120
+180
+275
+213
 deceleration
 deceleration
 0
@@ -177,10 +177,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-134
-147
-261
-180
+120
+145
+275
+178
 acceleration
 acceleration
 0
@@ -223,10 +223,10 @@ red car speed
 11
 
 SLIDER
-79
+120
+215
+275
 248
-264
-281
 efficient-speed
 efficient-speed
 0
@@ -659,5 +659,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@

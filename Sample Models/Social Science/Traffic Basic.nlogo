@@ -151,10 +151,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-134
-182
-261
-215
+121
+180
+266
+213
 deceleration
 deceleration
 0
@@ -166,10 +166,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-134
-147
-261
-180
+121
+145
+266
+178
 acceleration
 acceleration
 0
@@ -611,5 +611,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
