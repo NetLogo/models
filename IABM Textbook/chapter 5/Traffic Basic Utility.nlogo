@@ -263,8 +263,6 @@ The ACCELERATION slider controls the rate at which cars accelerate (speed up) wh
 
 When a car sees another car right in front, it matches that car's speed and then slows down a bit more.  How much slower it goes than the car in front of it is controlled by the DECELERATION slider.
 
-The SPEED-LIMIT slider controls how fast cars can go.
-
 The EFFICIENT-SPEED slider is the basis of the utility function for the cars. Cars slow down if they are exceeding it.
 
 ## THINGS TO NOTICE

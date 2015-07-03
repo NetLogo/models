@@ -308,8 +308,6 @@ The INIT-ACCELERATION slider controls the rate at which cars initially accelerat
 
 When a car sees another car right in front, it matches that car's speed and then slows down a bit more.  How much slower it goes than the car in front of it is controlled by the DECELERATION slider.
 
-The SPEED-LIMIT slider controls how fast cars can go.
-
 Click on ADAPTIVE-GO to see how the results change when the cars are adapting to the environment around them.
 
 ## THINGS TO NOTICE
