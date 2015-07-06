@@ -332,10 +332,10 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-323
-11
-778
-487
+350
+10
+805
+486
 44
 44
 5.0
@@ -359,10 +359,10 @@ ticks
 30.0
 
 BUTTON
-41
-24
-119
-57
+60
+15
+138
+48
 NIL
 setup
 NIL
@@ -376,10 +376,10 @@ NIL
 1
 
 BUTTON
-121
-24
-197
-57
+140
+15
+216
+48
 NIL
 go
 T
@@ -394,9 +394,9 @@ NIL
 
 SLIDER
 10
-150
-160
-183
+140
+170
+173
 number-of-tests
 number-of-tests
 0
@@ -408,10 +408,10 @@ NIL
 HORIZONTAL
 
 PLOT
-25
-296
-305
-481
+10
+285
+335
+485
 Travel Distance
 time
 # cells
@@ -427,10 +427,10 @@ PENS
 "poor" 1.0 0 -14070903 true "" ""
 
 BUTTON
-199
-24
-277
-57
+218
+15
+296
+48
 go-once
 go
 NIL
@@ -444,10 +444,10 @@ NIL
 0
 
 BUTTON
-39
-74
-118
-107
+35
+60
+125
+93
 view price
 set view-mode \"price\"\nupdate-view
 NIL
@@ -461,10 +461,10 @@ NIL
 0
 
 BUTTON
-120
-74
-196
-107
+130
+60
+220
+93
 view quality
 set view-mode \"quality\"\nupdate-view
 NIL
@@ -479,9 +479,9 @@ NIL
 
 SLIDER
 10
-185
-160
-218
+175
+170
+208
 residents-per-job
 residents-per-job
 0
@@ -493,10 +493,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-162
-220
-312
-253
+175
+210
+335
+243
 poor-per-step
 poor-per-step
 0
@@ -508,10 +508,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-162
-255
-312
-288
+175
+245
+335
+278
 rich-per-step
 rich-per-step
 0
@@ -523,10 +523,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-198
-74
-275
-107
+225
+60
+315
+93
 view dist
 set view-mode \"dist\"\nupdate-view
 NIL
@@ -540,10 +540,10 @@ NIL
 0
 
 SLIDER
-162
-150
-312
-183
+175
+140
+335
+173
 poor-price-priority
 poor-price-priority
 -1
@@ -555,10 +555,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-162
-185
-312
-218
+175
+175
+335
+208
 rich-quality-priority
 rich-quality-priority
 -1
@@ -571,9 +571,9 @@ HORIZONTAL
 
 SLIDER
 10
-220
-160
-253
+210
+170
+243
 max-jobs
 max-jobs
 5
@@ -586,9 +586,9 @@ HORIZONTAL
 
 SLIDER
 10
-255
-160
-288
+245
+170
+278
 death-rate
 death-rate
 0
@@ -600,10 +600,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-783
-12
-858
-57
+810
+11
+885
+56
 # of jobs
 count jobs
 17
@@ -611,10 +611,10 @@ count jobs
 11
 
 MONITOR
-783
-62
-858
-107
+810
+61
+885
+106
 population
 count poor + count rich
 17
@@ -622,10 +622,10 @@ count poor + count rich
 11
 
 BUTTON
-39
-109
-154
-142
+54
+99
+169
+132
 view rich-utility
 set view-mode \"rich-utility\"\nupdate-view
 NIL
@@ -639,10 +639,10 @@ NIL
 0
 
 BUTTON
-156
-109
-275
-142
+175
+100
+294
+133
 view poor-utility
 set view-mode \"poor-utility\"\nupdate-view
 NIL
@@ -656,10 +656,10 @@ NIL
 0
 
 MONITOR
-783
-112
-858
-157
+810
+111
+885
+156
 poor pop
 count poor
 17
@@ -667,10 +667,10 @@ count poor
 11
 
 MONITOR
-783
-162
-858
-207
+810
+161
+885
+206
 rich pop
 count rich
 17
@@ -1066,5 +1066,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
