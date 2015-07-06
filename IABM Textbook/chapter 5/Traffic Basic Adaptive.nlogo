@@ -98,9 +98,9 @@ end
 @#$#@#$#@
 GRAPHICS-WINDOW
 5
-280
+265
 1035
-491
+476
 25
 4
 20.0
@@ -125,9 +125,9 @@ ticks
 
 BUTTON
 5
-185
+165
 77
-226
+206
 NIL
 setup
 NIL
@@ -142,9 +142,9 @@ NIL
 
 BUTTON
 80
-185
+165
 150
-225
+205
 NIL
 go
 T
@@ -236,9 +236,9 @@ red car speed
 
 BUTTON
 155
-185
+165
 265
-225
+205
 NIL
 adaptive-go
 T
@@ -267,10 +267,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-125
-230
-262
-275
+130
+210
+267
+255
 current acceleration
 acceleration
 4
@@ -331,9 +331,9 @@ speed-to-beat
 
 MONITOR
 5
-230
+210
 120
-275
+255
 best acceleration
 best-acceleration-so-far
 4
@@ -758,5 +758,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
