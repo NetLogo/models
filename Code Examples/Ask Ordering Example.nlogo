@@ -145,7 +145,7 @@ NIL
 TEXTBOX
 221
 12
-480
+509
 39
 Use the speed slider, above, to slow the model down so you can see what's happening.
 11
