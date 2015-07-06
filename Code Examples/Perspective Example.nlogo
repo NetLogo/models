@@ -76,10 +76,10 @@ ticks
 30.0
 
 BUTTON
-17
-57
-84
-90
+19
+64
+86
+97
 NIL
 setup
 NIL
@@ -93,10 +93,10 @@ NIL
 1
 
 BUTTON
-88
-57
-157
 90
+64
+159
+97
 go
 go
 T
@@ -110,10 +110,10 @@ NIL
 1
 
 SWITCH
-185
-58
-314
-91
+187
+65
+316
+98
 leave-trace?
 leave-trace?
 1
@@ -121,10 +121,10 @@ leave-trace?
 -1000
 
 BUTTON
-32
-205
-190
-238
+34
+212
+192
+245
 NIL
 follow one-of turtles
 NIL
@@ -140,28 +140,28 @@ NIL
 TEXTBOX
 19
 35
-319
-53
+345
+61
 This model demonstrates view perspectives in NetLogo.
 11
 0.0
 0
 
 TEXTBOX
-22
-140
-289
-158
+24
+147
+291
+165
 Watch the world from different perspectives
 11
 0.0
 0
 
 BUTTON
-32
-283
-189
-316
+34
+290
+191
+323
 NIL
 reset-perspective
 NIL
@@ -175,20 +175,20 @@ NIL
 1
 
 TEXTBOX
-33
-173
-282
-191
+35
+180
+284
+198
 Try these in both 2D and 3D
 11
 0.0
 0
 
 BUTTON
-32
-244
-190
-277
+34
+251
+192
+284
 NIL
 watch one-of turtles
 NIL
@@ -202,10 +202,10 @@ NIL
 1
 
 MONITOR
-206
-231
-311
-276
+208
+238
+313
+283
 NIL
 subject
 3
@@ -213,10 +213,10 @@ subject
 11
 
 BUTTON
-191
-94
-309
-127
+193
+101
+311
+134
 NIL
 clear-drawing
 NIL
