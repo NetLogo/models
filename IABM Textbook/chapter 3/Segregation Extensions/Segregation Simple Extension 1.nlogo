@@ -27,14 +27,16 @@ to setup
   ask turtles
     [ set color (item (random number-of-ethnicities) colors) ]
 
-  update-variables
+  update-turtles
+  update-globals
   reset-ticks
 end
 
 to go
   if all? turtles [happy?] [ stop ]
   move-unhappy-turtles
-  update-variables
+  update-turtles
+  update-globals
   tick
 end
 
@@ -49,11 +51,6 @@ to find-new-spot
   if any? other turtles-here
     [ find-new-spot ]          ;; keep going until we find an unoccupied patch
   setxy pxcor pycor  ;; move to center of patch
-end
-
-to update-variables
-  update-turtles
-  update-globals
 end
 
 to update-turtles

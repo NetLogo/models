@@ -22,7 +22,8 @@ to setup
       ]
     ]
   ]
-  update-variables
+  update-turtles
+  update-globals
   reset-ticks
 end
 
@@ -30,7 +31,8 @@ end
 to go
   if all? turtles [ happy? ] [ stop ]
   move-unhappy-turtles
-  update-variables
+  update-turtles
+  update-globals
   tick
 end
 
@@ -46,11 +48,6 @@ to find-new-spot
   fd random-float 10
   if any? other turtles-here [ find-new-spot ] ;; keep going until we find an unoccupied patch
   move-to patch-here  ;; move to center of patch
-end
-
-to update-variables
-  update-turtles
-  update-globals
 end
 
 to update-turtles
