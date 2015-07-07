@@ -103,7 +103,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 32
@@ -120,7 +120,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

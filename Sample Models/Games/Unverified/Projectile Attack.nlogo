@@ -68,6 +68,7 @@ to setup
   ]
   set previous-wall-height wall-height
   set previous-wall-pos wall-position
+  reset-ticks
 end
 
 to go
@@ -214,7 +215,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 25
@@ -261,7 +262,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 25

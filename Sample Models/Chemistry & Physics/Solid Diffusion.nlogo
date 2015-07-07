@@ -113,7 +113,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 PLOT
 269
@@ -167,7 +167,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

@@ -104,7 +104,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 4
@@ -121,7 +121,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 95
@@ -138,7 +138,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

@@ -198,7 +198,7 @@ NIL
 G
 NIL
 NIL
-1
+0
 
 BUTTON
 13
@@ -215,7 +215,7 @@ NIL
 J
 NIL
 NIL
-1
+0
 
 BUTTON
 83
@@ -232,7 +232,7 @@ NIL
 K
 NIL
 NIL
-1
+0
 
 BUTTON
 158
@@ -249,7 +249,7 @@ NIL
 L
 NIL
 NIL
-1
+0
 
 TEXTBOX
 44

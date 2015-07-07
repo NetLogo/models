@@ -56,6 +56,7 @@ to setup              ;; Initializes the game
   set-default-shape river-turtles "turtle"
   set level start-level
   next-level
+  reset-ticks
 end
 
 to next-level        ;; This will call the appropriate level procedure, where the level is created
@@ -563,7 +564,7 @@ NIL
 J
 NIL
 NIL
-1
+0
 
 BUTTON
 236
@@ -580,7 +581,7 @@ NIL
 L
 NIL
 NIL
-1
+0
 
 BUTTON
 171
@@ -597,7 +598,7 @@ NIL
 I
 NIL
 NIL
-1
+0
 
 BUTTON
 172
@@ -614,7 +615,7 @@ NIL
 K
 NIL
 NIL
-1
+0
 
 BUTTON
 23
@@ -648,7 +649,7 @@ NIL
 S
 NIL
 NIL
-1
+0
 
 MONITOR
 168

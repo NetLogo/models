@@ -206,7 +206,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 PLOT
 240
@@ -246,7 +246,7 @@ plane-speed
 plane-speed
 0
 1514
-378
+757
 1
 1
 miles per hour
@@ -278,7 +278,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 TEXTBOX
 100

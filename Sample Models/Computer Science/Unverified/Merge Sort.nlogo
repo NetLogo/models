@@ -26,6 +26,7 @@ to setup
   set group-list []
   set group-count number-of-elements
   setup-elements
+  reset-ticks
 end
 
 to setup-elements
@@ -261,7 +262,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 10
@@ -293,7 +294,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

@@ -100,7 +100,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 MONITOR
 39
@@ -168,7 +168,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

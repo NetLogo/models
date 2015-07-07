@@ -433,7 +433,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 25
@@ -465,7 +465,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SWITCH
 20
@@ -544,7 +544,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SWITCH
 35
@@ -587,7 +587,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

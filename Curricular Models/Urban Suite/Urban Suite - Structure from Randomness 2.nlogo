@@ -76,7 +76,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 90
@@ -93,7 +93,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 PLOT
 15

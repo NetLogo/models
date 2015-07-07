@@ -178,7 +178,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 MONITOR
 201
@@ -206,7 +206,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SWITCH
 57
@@ -234,7 +234,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 PLOT
 9
@@ -269,7 +269,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

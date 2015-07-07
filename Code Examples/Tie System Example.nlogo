@@ -86,7 +86,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 68
@@ -103,7 +103,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 68
@@ -120,7 +120,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 66
@@ -137,7 +137,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 66
@@ -154,7 +154,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 84
@@ -171,7 +171,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 84
@@ -222,7 +222,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 84
@@ -239,7 +239,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

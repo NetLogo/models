@@ -24,6 +24,7 @@ to setup
                                                 (gis:envelope-of rivers-dataset)
                                                 (gis:envelope-of countries-dataset)
                                                 (gis:envelope-of elevation-dataset))
+  reset-ticks
 end
 
 ; Drawing point data from a shapefile, and optionally loading the
@@ -279,7 +280,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 5
@@ -296,7 +297,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 5
@@ -352,7 +353,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SWITCH
 5
@@ -380,7 +381,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 5
@@ -397,7 +398,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 185
@@ -414,7 +415,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 185
@@ -431,7 +432,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 CHOOSER
 5
@@ -458,7 +459,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 395
@@ -475,7 +476,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 395
@@ -492,7 +493,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 395
@@ -509,7 +510,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 590
@@ -526,7 +527,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 590
@@ -543,7 +544,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 185

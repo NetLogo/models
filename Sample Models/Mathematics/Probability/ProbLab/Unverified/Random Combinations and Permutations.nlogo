@@ -102,6 +102,7 @@ to setup
                          " block with " count patches-in-set-block
                          " squares in it.  Now press Create Combi.")
   set am-I-set-up? true
+  reset-ticks
 end
 
 
@@ -703,7 +704,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 7
@@ -720,7 +721,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 MONITOR
 7
@@ -874,7 +875,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 TEXTBOX
 9

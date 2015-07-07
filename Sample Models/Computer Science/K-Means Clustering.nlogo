@@ -206,7 +206,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 5
@@ -223,7 +223,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 PLOT
 5

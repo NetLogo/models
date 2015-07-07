@@ -87,7 +87,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 PLOT
 23
@@ -470,7 +470,7 @@ NetLogo 5.2.0
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
-0.0010
+0.001
     org.nlogo.sdm.gui.AggregateDrawing 6
         org.nlogo.sdm.gui.StockFigure "attributes" "attributes" 1 "FillColor" "Color" 225 225 175 307 122 60 40
             org.nlogo.sdm.gui.WrappedStock "stock" "1" 0

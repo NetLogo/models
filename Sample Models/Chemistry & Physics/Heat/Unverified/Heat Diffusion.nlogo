@@ -213,7 +213,7 @@ alpha
 alpha
 0.0010
 10.0
-10
+0.8418
 1.0E-4
 1
 NIL
@@ -294,7 +294,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 267
@@ -343,7 +343,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 160
