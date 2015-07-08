@@ -337,14 +337,22 @@ end
 
 ;; establish goal of driver (house or work) and move to next patch along the way
 to-report next-patch
+  ;; if I am going home and I am next to the patch that is my home
+  ;; my goal gets set to the patch that is my work
   if goal = house and (member? patch-here [ neighbors4 ] of house) [
     set goal work
   ]
+  ;; if I am going to work and I am next to the patch that is my work
+  ;; my goal gets set to the patch that is my home
   if goal = work and (member? patch-here [ neighbors4 ] of work) [
     set goal house
   ]
+  ;; CHOICES is an agentset of the candidate patches which the car can
+  ;; move to (white patches are roads, green and red patches are lights)
   let choices neighbors with [ pcolor = white or pcolor = red or pcolor = green ]
+  ;; choose the patch closest to the goal, this is the patch the car will move to
   let choice min-one-of choices [ distance [ goal ] of myself ]
+  ;; report the chosen patch
   report choice
 end
 
