@@ -14,20 +14,20 @@ end
 
 to go
   ask patches [
-      ;; each patch counts its number of green neighboring patches
-      ;; and stores the value in its live-neighbors variable
-    set live-neighbors count neighbors with [pcolor = green]
-    ]
+    ;; each patch counts its number of green neighboring patches
+    ;; and stores the value in its live-neighbors variable
+    set live-neighbors count neighbors with [ pcolor = green ]
+  ]
   ask patches [
-      ;; patches with 3 green neighbors, turn (or stay) green
+    ;; patches with 3 green neighbors, turn (or stay) green
     if live-neighbors = 3 [ set pcolor green ]
-      ;; patches with 0 or 1 green neighbors turn (or stay) dark blue
-      ;; from isolation
-    if (live-neighbors = 0) or (live-neighbors = 1)  [ set pcolor blue - 3 ]
-      ;; patches with 4 or more green neighbors turn (or stay) dark blue
-      ;; from overcrowding
-    if live-neighbors >= 4 [set pcolor blue - 3]
-      ;; patches with exactly 2 green neighbors keep their color
+    ;; patches with 0 or 1 green neighbors turn (or stay) dark blue
+    ;; from isolation
+    if live-neighbors = 0 or live-neighbors = 1  [ set pcolor blue - 3 ]
+    ;; patches with 4 or more green neighbors turn (or stay) dark blue
+    ;; from overcrowding
+    if live-neighbors >= 4 [ set pcolor blue - 3 ]
+    ;; patches with exactly 2 green neighbors keep their color
   ]
   tick
 end
