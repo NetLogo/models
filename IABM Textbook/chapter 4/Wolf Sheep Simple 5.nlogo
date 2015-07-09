@@ -3,14 +3,14 @@ breed [wolves wolf]
 
 turtles-own [ energy ]  ;; agents own energy
 
-patches-own [ grass ]  ;; patches have grass
+patches-own [ grass-amount ]  ;; patches have grass
 
 ;; this procedures sets up the model
 to setup
   clear-all
   ask patches [
     ;; give grass to the patches, color it shades of green
-    set grass random-float 10.0
+    set grass-amount random-float 10.0
     recolor-grass ;; change the world green
   ]
   create-sheep number-of-sheep [  ;; create the initial sheep
@@ -69,15 +69,15 @@ end
 ;; recolor the grass to indicate how much has been eaten
 to recolor-grass
 ;;  set pcolor scale-color green grass 0 20
-set pcolor scale-color green (10 - grass) -10 20
+set pcolor scale-color green (10 - grass-amount) -10 20
 end
 
 ;; regrow the grass
 to regrow-grass
   ask patches [
-    set grass grass + grass-regrowth-rate
-    if grass > 10.0 [
-      set grass 10.0
+    set grass-amount grass-amount + grass-regrowth-rate
+    if grass-amount > 10.0 [
+      set grass-amount 10.0
     ]
     recolor-grass
   ]
@@ -92,11 +92,11 @@ end
 ;; sheep procedure, sheep eat grass
 to eat-grass
   ;; check to make sure there is grass here
-  if ( grass >= energy-gain-from-grass ) [
+  if ( grass-amount >= energy-gain-from-grass ) [
     ;; increment the sheep's energy
     set energy energy + energy-gain-from-grass
     ;; decrement the grass
-    set grass grass - energy-gain-from-grass
+    set grass-amount grass-amount - energy-gain-from-grass
     recolor-grass
   ]
 end
@@ -117,7 +117,7 @@ to my-update-plots
   plot count wolves * 10 ;; scaling factor so plot looks nice
 
   set-current-plot-pen "grass"
-  plot sum [grass] of patches / 50 ;; scaling factor so plot looks nice
+  plot sum [grass-amount] of patches / 50 ;; scaling factor so plot looks nice
 end
 
 ;; turtle procedure, the agent changes its heading
@@ -751,7 +751,7 @@ NetLogo 5.2.0
     <timeLimit steps="1000"/>
     <metric>count wolves</metric>
     <metric>count sheep</metric>
-    <metric>sum [grass] of patches</metric>
+    <metric>sum [grass-amount] of patches</metric>
     <enumeratedValueSet variable="energy-gain-from-grass">
       <value value="2"/>
     </enumeratedValueSet>

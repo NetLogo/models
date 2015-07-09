@@ -2,15 +2,15 @@ breed [sheep a-sheep]
 
 sheep-own [ energy ]  ;; sheep own energy
 
-patches-own [ grass ]  ;; patches have grass
+patches-own [ grass-amount ]  ;; patches have grass
 
 ;; this procedures sets up the model
 to setup
   clear-all
   ask patches [
     ;; give grass to the patches, color it shades of green
-    set grass random-float 10.0
-    set pcolor scale-color green grass 0 20
+    set grass-amount random-float 10.0
+    set pcolor scale-color green grass-amount 0 20
   ]
   create-sheep number-of-sheep [
     setxy random-xcor random-ycor
@@ -39,15 +39,15 @@ end
 
 ;; recolor the grass to indicate how much has been eaten
 to recolor-grass
-  set pcolor scale-color green grass 0 20
+  set pcolor scale-color green grass-amount 0 20
 end
 
 ;; regrow the grass
 to regrow-grass
   ask patches [
-    set grass grass + grass-regrowth-rate
-    if grass > 10 [
-      set grass 10
+    set grass-amount grass-amount + grass-regrowth-rate
+    if grass-amount > 10 [
+      set grass-amount 10
     ]
     recolor-grass
   ]
@@ -56,11 +56,11 @@ end
 ;; sheep procedure, sheep eat grass
 to eat
   ;; check to make sure there is grass here
-  if ( grass >= energy-gain-from-grass ) [
+  if ( grass-amount >= energy-gain-from-grass ) [
     ;; increment the sheep's energy
     set energy energy + energy-gain-from-grass
     ;; decrement the grass
-    set grass grass - energy-gain-from-grass
+    set grass-amount grass-amount - energy-gain-from-grass
     recolor-grass
   ]
 end
