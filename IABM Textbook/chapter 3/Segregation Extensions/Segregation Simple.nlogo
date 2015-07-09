@@ -14,24 +14,22 @@ turtles-own [
 
 to setup
   clear-all
-
   ;; create a turtle on NUMBER randomly selected patches.
   ;; note that slider's maximum value is 2500 which is a little less than the total number of patches
-  ask n-of number patches
-    [ sprout 1 ]
-
+  ask n-of number patches [
+    sprout 1
+  ]
   ask turtles [
     ;; make approximately half the turtles red and the other half green
-    set color one-of [red green]
+    set color one-of [ red green ]
   ]
-
   update-turtles
   update-globals
   reset-ticks
 end
 
 to go
-  if all? turtles [happy?] [ stop ]
+  if all? turtles [ happy? ] [ stop ]
   move-unhappy-turtles
   update-turtles
   update-globals

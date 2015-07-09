@@ -6,11 +6,11 @@ globals [
 ]
 
 turtles-own [
-  happy?       ;; for each turtle, indicates whether at least %-similar-wanted percent of
-               ;; that turtles' neighbors are the same color as the turtle
-  similar-nearby   ;; how many neighboring patches have a turtle with my color?
-  total-nearby  ;; sum of previous two variables
-  my-%-similar-wanted  ;; the threshold for this particular turtle
+  happy?              ;; for each turtle, indicates whether at least %-similar-wanted percent of
+                      ;; that turtles' neighbors are the same color as the turtle
+  similar-nearby      ;; how many neighboring patches have a turtle with my color?
+  total-nearby        ;; sum of previous two variables
+  my-%-similar-wanted ;; the threshold for this particular turtle
 ]
 
 
@@ -21,13 +21,16 @@ to setup
 
   ;; create a turtle on NUMBER randomly selected patches.
   ; note that slider's maximum value is 2500 which is a little less than the total number of patches
-  ask n-of number patches
-    [ sprout 1 ]
+  ask n-of number patches [
+    sprout 1
+  ]
 
   ;; assign a color to each turtle from the list of our colors
-  ask turtles
-    [ set color (item (random number-of-ethnicities) colors)
-      set my-%-similar-wanted random %-similar-wanted]
+  ;; and assign an individual level of %-similar-wanted
+  ask turtles [
+    set color (item (random number-of-ethnicities) colors)
+    set my-%-similar-wanted random %-similar-wanted
+  ]
 
   update-turtles
   update-globals
