@@ -19,53 +19,49 @@ end
 
 to go
   ;; stop the model when done
-  if all? patches [pcolor != red]
-      [ stop ]
-
+  if all? patches [ pcolor != red ] [ stop ]
   ;; each burning tree (red patch) checks its 4 neighbors.
   ;; If any are unburned trees (green patches), change their probability
   ;; of igniting based on the wind direction
-  ask patches with [pcolor = red] [
+  ask patches with [ pcolor = red ] [
     ;; ask the unburned trees neighboring the burning tree
-    ask neighbors4 with [pcolor = green] [
+    ask neighbors4 with [ pcolor = green ] [
       let probability probability-of-spread
-
       ;; compute the direction from you (the green tree) to the burning tree
       ;; (NOTE: “myself” is the burning tree (the red patch) that asked you
       ;; to execute commands)
       let direction towards myself
-
       ;; the burning tree is north of you
       ;; so the south wind impedes the fire spreading to you
       ;; so reduce the probability of spread
-      if (direction = 0 ) [
-        set probability probability - south-wind-speed ]
-
+      if direction = 0 [
+        set probability probability - south-wind-speed
+      ]
       ;; the burning tree is east of you
       ;; so the west wind impedes the fire spreading to you
       ;; so reduce the probability of spread
-      if (direction = 90 ) [
-        set probability probability - west-wind-speed ]
-
+      if direction = 90 [
+        set probability probability - west-wind-speed
+      ]
       ;; the burning tree is south of you
       ;; so the south wind aids the fire spreading to you
       ;; so increase the probability of spread
-      if (direction = 180 ) [
-        set probability probability + south-wind-speed ]
-
+      if direction = 180 [
+        set probability probability + south-wind-speed
+      ]
       ;; the burning tree is west of you
       ;; so the west wind aids the fire spreading to you
       ;; so increase the probability of spread
-      if (direction = 270 ) [
-        set probability probability + west-wind-speed ]
+      if direction = 270 [
+        set probability probability + west-wind-speed
+      ]
       if random 100 < probability [
         set pcolor red ;; to catch on fire
       ]
     ]
-    set pcolor red - 3.5;; once the tree is burned, darken its color
+    set pcolor red - 3.5 ;; once the tree is burned, darken its color
   ]
-
-  tick   ;; advance the clock by one “tick”
+  tick ;; advance the clock by one “tick”
 end
 
 

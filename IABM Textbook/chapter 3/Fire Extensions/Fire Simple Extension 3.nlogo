@@ -60,11 +60,10 @@ to go
         set probability probability + west-wind-speed ]
       if random 100 < probability [
         set pcolor red ;; to catch on fire
-
         ;; if big jumps is on, then sparks can fly farther
-        if  big-jumps? [
-          let target patch-at ( west-wind-speed / 5 ) ( south-wind-speed / 5 )
-          if target != nobody and [pcolor] of target = green [
+        if big-jumps? [
+          let target patch-at (west-wind-speed / 5) (south-wind-speed / 5)
+          if target != nobody and [ pcolor ] of target = green [
             ask target [
               set pcolor red ;; to ignite the target patch
             ]
