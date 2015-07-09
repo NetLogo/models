@@ -220,9 +220,11 @@ The model demonstrates how traffic jams can form even without any accidents, bro
 
 ## HOW TO USE IT
 
-Click on the SETUP button to set up the cars. Set the NUMBER slider to change the number of cars on the road.
+Click on the SETUP button to set up the cars.
 
-Click on DRIVE to start the cars moving.  Note that they wrap around the world as they move, so the road is like a continuous loop.
+Set the NUMBER-OF-CARS slider to change the number of cars on the road.
+
+Click on GO to start the cars moving.  Note that they wrap around the world as they move, so the road is like a continuous loop.
 
 The ACCELERATION slider controls the rate at which cars accelerate (speed up) when there are no cars ahead.
 
