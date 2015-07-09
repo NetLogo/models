@@ -19,21 +19,17 @@ end
 
 to go
   ;; stop the model when done
-  if all? patches [pcolor != red]
-      [ stop ]
+  if all? patches [ pcolor != red ] [ stop ]
 
   ;; ask the burning trees to set fire to any neighboring non-burning trees
-  ask patches with [pcolor = red] [  ;; ask the burning trees
-    ask neighbors4 with [pcolor = green] [  ;; ask their non-burning neighbor trees
-
+  ask patches with [ pcolor = red ] [ ;; ask the burning trees
+    ask neighbors4 with [ pcolor = green ] [ ;; ask their non-burning neighbor trees
       ;; only burn if a random draw is greater than the probability of spread
-      if random 100 < probability-of-spread [
-        set pcolor red ;; to catch on fire
-      ]
+      if random 100 < probability-of-spread [ set pcolor red ] ;; to catch on fire
     ]
-    set pcolor red - 3.5    ;; once the tree is burned, darken its color
+    set pcolor red - 3.5 ;; once the tree is burned, darken its color
   ]
-  tick   ;; advance the clock by one “tick”
+  tick ;; advance the clock by one “tick”
 end
 
 
