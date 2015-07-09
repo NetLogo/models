@@ -1,31 +1,36 @@
 to setup
   clear-all
   ;; start with NUM-SEEDS green patches as “seeds”
-  ask n-of num-seeds patches
-    [ set pcolor green ]
-  create-turtles num-particles
-    [ set color red
-      set size 1.5 ;; easier to see
-      setxy random-xcor random-ycor ]
+  ask n-of num-seeds patches [
+    set pcolor green
+  ]
+  create-turtles num-particles [
+    set color red
+    set size 1.5 ;; easier to see
+    setxy random-xcor random-ycor
+  ]
   reset-ticks
 end
 
 to go
-  ask turtles
-  [ right random wiggle-angle
+  ask turtles [
+    right random wiggle-angle
     left random wiggle-angle
     forward 1
+    ;; if neighbor-influence is TRUE then make the probability proportionate
+    ;; to the number of green neighbors, otherwise use the slider as before
     let local-prob probability-of-sticking
-
-    ;; if neighbor-influence is TRUE then make the probability proportionate to the number of green neighbors, otherwise use the slider as before
     if neighbor-influence? [
       ;; increase the probability of sticking the more green neighbors there are
       set local-prob probability-of-sticking * (count neighbors with [ pcolor = green ] / 8)
     ]
-    if (pcolor = black) and ( any? neighbors with [pcolor = green] )
-          and ( random-float 1.0 < local-prob )
-      [ set pcolor green
-        die ] ]
+    if any? neighbors with [ pcolor = green ]
+      and pcolor = black
+      and random-float 1.0 < local-prob [
+      set pcolor green
+      die
+    ]
+  ]
   tick
 end
 

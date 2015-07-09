@@ -1,24 +1,29 @@
 to setup
   clear-all
-  ask patch 0 0
-    [ set pcolor green ]
-  create-turtles num-particles
-    [ set color red
-      set size 1.5  ;; easier to see
-      setxy random-xcor random-ycor ]
+  ;; start with one green "seed" patch at the center of the world
+  ask patch 0 0 [
+    set pcolor green
+  ]
+  create-turtles num-particles [
+    set color red
+    set size 1.5 ;; easier to see
+    setxy random-xcor random-ycor
+  ]
   reset-ticks
 end
 
 to go
-  ask turtles
+  ask turtles [
     ;; turn a random amount right and left
-    [ right random wiggle-angle
-      left random wiggle-angle
-      forward 1
-      ;; if you are touching a green patch, turn your own patch green and then die
-      if any? neighbors with [pcolor = green]
-        [ set pcolor green
-          die ] ]
+    right random wiggle-angle
+    left random wiggle-angle
+    forward 1
+    ;; if you are touching a green patch
+    if any? neighbors with [ pcolor = green ] [
+      set pcolor green ;; turn your own patch green 
+      die ;; and then die
+    ]
+  ]
   tick
 end
 

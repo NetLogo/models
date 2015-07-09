@@ -1,24 +1,30 @@
 to setup
   clear-all
-  ask patch 0 0 ;; at center of world, create one seed
-    [ set pcolor green ]
-  create-turtles num-particles
-    [ set color red
-      set size 1.5  ;; easier to see
-      setxy random-xcor random-ycor ]
+  ;; start with one green "seed" patch at the center of the world
+  ask patch 0 0 [
+    set pcolor green
+  ]
+  create-turtles num-particles [
+    set color red
+    set size 1.5 ;; easier to see
+    setxy random-xcor random-ycor
+  ]
   reset-ticks
 end
 
 to go
-  ask turtles
+  ask turtles [
     ;; turn a random amount right and left
-    [ right random wiggle-angle
-      left random wiggle-angle
-      forward 1
-      if ( pcolor = black ) and ( any? neighbors with [pcolor = green] )
-            and ( random-float 1.0 < probability-of-sticking )
-        [ set pcolor green
-          die ] ]
+    right random wiggle-angle
+    left random wiggle-angle
+    forward 1
+    if any? neighbors with [ pcolor = green ]
+      and pcolor = black
+      and random-float 1.0 < probability-of-sticking [
+      set pcolor green
+      die
+    ]
+  ]
   tick
 end
 
