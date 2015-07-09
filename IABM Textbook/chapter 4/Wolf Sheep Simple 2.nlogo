@@ -5,10 +5,9 @@ sheep-own [ energy ]  ;; sheep own energy
 ;; this procedure sets up the model
 to setup
   clear-all
-  ask patches [  ;; color the whole world green
+  ask patches [ ;; color the whole world green
     set pcolor green
   ]
-
   ;; create the initial sheep and set their initial properties
   create-sheep number-of-sheep [
     setxy random-xcor random-ycor

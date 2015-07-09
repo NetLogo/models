@@ -26,13 +26,13 @@ end
 ;; sheep procedure, the sheep changes its heading
 to wiggle
   ;; turn right then left, so the average is straight ahead
-  rt random 90
-  lt random 90
+  right random 90
+  left random 90
 end
 
 ;; sheep procedure
 to move
-  fd 1  ;; take a step forward
+  forward 1  ;; take a step forward
 end
 
 

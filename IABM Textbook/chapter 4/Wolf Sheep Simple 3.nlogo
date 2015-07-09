@@ -27,12 +27,12 @@ to go
     stop
   ]
   ask sheep [
-    wiggle  ;; first turn a little bit
-    move  ;; then step forward
+    wiggle        ;; first turn a little bit
+    move          ;; then step forward
     check-if-dead ;; checks to see if agent should die
-    eat   ;; sheep eat grass
+    eat           ;; sheep eat grass
   ]
-  regrow-grass ;; the grass grows back
+  regrow-grass    ;; the grass grows back
   tick
   my-update-plots ;; plot the population counts
 end
@@ -46,8 +46,8 @@ end
 to regrow-grass
   ask patches [
     set grass grass + grass-regrowth-rate
-    if grass > 10.0 [
-      set grass 10.0
+    if grass > 10 [
+      set grass 10
     ]
     recolor-grass
   ]
