@@ -129,7 +129,7 @@ to-report predict-attendance [strategy subhistory]
   ;; one can think of it as the the agent's prediction of the bar's attendance
   ;; in the absence of any other data
   ;; then we multiply each week in the history by its respective weight
-  report first strategy + sum (map [?1 * ?2] butfirst strategy subhistory)
+  report 100 * first strategy + sum (map [?1 * ?2] butfirst strategy subhistory)
 end
 
 ;; In this model it doesn't really matter exactly which patch
@@ -295,11 +295,11 @@ This is a verison of the El Farol model in the Social Science Section of the Net
 An agent will go to the bar on Thursday night if they think that there will not be more than a certain number of people there --- a number given by the OVERCROWDING-THRESHOLD.  To predict the attendance for any given week, each agent has access to a set of prediction strategies and the actual attendance figures of the bar from previous Thursdays.  A prediction strategy is represented as a list of weights that determines how the agent believes that each time period of the historical data affects the attendance prediction for the current week.  This definition of a strategy is based on an implementation of Arthur's model as revised by David Fogel et al. (1999).  The agent decides which one of its strategies to use by determining which one would have done the best had they used it in the preceding weeks.
 
 
-The number of potential strategies an agent has is given by NUMBER-STRATEGIES, and these potential strategies are distributed randomly to the agents during SETUP. As the model runs, at any one tick each agent will only utilize one strategy, based on its previous ability to predict the attendance at the bar.  In this version of the El Farol model, agents are given strategies and do not change them once they have them, however since they can change their strategies at any time based on performance, the ecology of strategies being used by the whole population changes over time.  The length of the attendance history the agents can use for a prediction or evaluation of a strategy is given by MEMORY-SIZE.  This evaluation of performance is carried out in UPDATE-STRATEGIES, which does not change the strategies, but rather updates hte performance of each strategy by testing it, and then selecting the strategy that has the best performance given the current data.  In order to test each strategy its performance on MEMORY-SIZE past days is computed.  To make this work, the model actually records twice the MEMORY-SIZE historical data so that a strategy can be tested MEMORY-SIZE days into the past still using the full MEMORY-SIZE data to make its prediction.
+The number of potential strategies an agent has is given by NUMBER-STRATEGIES, and these potential strategies are distributed randomly to the agents during SETUP. As the model runs, at any one tick each agent will only utilize one strategy, based on its previous ability to predict the attendance at the bar.  In this version of the El Farol model, agents are given strategies and do not change them once they have them, however since they can change their strategies at any time based on performance, the ecology of strategies being used by the whole population changes over time.  The length of the attendance history the agents can use for a prediction or evaluation of a strategy is given by MEMORY-SIZE.  This evaluation of performance is carried out in UPDATE-STRATEGIES, which does not change the strategies, but rather updates the performance of each strategy by testing it, and then selecting the strategy that has the best performance given the current data.  In order to test each strategy its performance on MEMORY-SIZE past days is computed.  To make this work, the model actually records twice the MEMORY-SIZE historical data so that a strategy can be tested MEMORY-SIZE days into the past still using the full MEMORY-SIZE data to make its prediction.
 
 ## HOW TO USE IT
 
-The NUMBER-STRATEGIES slider controls how many startegies each agent keeps in its memory. The OVERCROWDING-THRESHOLD slider controls when the bar is considered overcrowded. The MEMORY slider controls how far back, in the history of attendance, agents remember. To run the model, set the NUMBER-STRATEGIES, OVERCROWDING-THRESHOLD and MEMORY size, press SETUP, and then GO.
+The NUMBER-STRATEGIES slider controls how many strategies each agent keeps in its memory. The OVERCROWDING-THRESHOLD slider controls when the bar is considered overcrowded. The MEMORY slider controls how far back, in the history of attendance, agents remember. To run the model, set the NUMBER-STRATEGIES, OVERCROWDING-THRESHOLD and MEMORY size, press SETUP, and then GO.
 
 The BAR ATTENDANCE plot shows the average attendance at the bar over time.
 
@@ -340,7 +340,7 @@ Arthur's original model has been generalized as the Minority Game and is include
 
 Wilensky, U. (2004).  NetLogo Minority Game model.  http://ccl.northwestern.edu/netlogo/models/MinorityGame.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
-There is also a participatory game version of the Minority Game model in the models library.
+There is also a participatory simulation version of the Minority Game model in the models library.
 
 Stouffer, D. & Wilensky, U. (2004). NetLogo Minority Game HubNet model. http://ccl.northwestern.edu/netlogo/models/MinorityGameHubNet. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
