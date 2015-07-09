@@ -6,11 +6,13 @@ to setup
   clear-all
   ;; make some green trees
   ask patches [
-    if (random 100) < density
-    [ set pcolor green ]
+    if (random 100) < density [
+      set pcolor green
+    ]
     ;; make a column of burning trees at the left-edge
-    if pxcor = min-pxcor
-    [ set pcolor red ]
+    if pxcor = min-pxcor [
+      set pcolor red
+    ]
   ]
   ;; keep track of how many trees there are
   set initial-trees count patches with [pcolor = green]
@@ -19,17 +21,17 @@ end
 
 to go
   ;; stop the model when done
-  if all? patches [pcolor != red]
-      [ stop ]
-
+  if all? patches [ pcolor != red ] [
+    stop
+  ]
   ;; ask the burning trees to set fire to any neighboring non-burning trees
-  ask patches with [pcolor = red] [  ;; ask the burning trees
-    ask neighbors4 with [pcolor = green] [  ;; ask their non-burning neighbor trees
+  ask patches with [ pcolor = red ] [ ;; ask the burning trees
+    ask neighbors4 with [pcolor = green] [ ;; ask their non-burning neighbor trees
       set pcolor red ;; to catch on fire
     ]
-    set pcolor red - 3.5    ;; once the tree is burned, darken its color
+    set pcolor red - 3.5 ;; once the tree is burned, darken its color
   ]
-  tick   ;; advance the clock by one “tick”
+  tick ;; advance the clock by one “tick”
 end
 
 
