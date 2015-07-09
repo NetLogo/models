@@ -1,18 +1,16 @@
 patches-own [live-neighbors]
 
-
 to setup
   clear-all
-  ask patches
-  ;; create approximately 10% alive patches
-    [
-      set pcolor blue - 3 ;; dark blue cells are dead
-      if random 100 < 10
-      [ set pcolor green ] ;; green cells are alive
+  ask patches [
+    ;; create approximately 10% alive patches
+    set pcolor blue - 3 ;; dark blue cells are dead
+    if random 100 < 10 [
+      set pcolor green ;; green cells are alive
     ]
-    reset-ticks
+  ]
+  reset-ticks
 end
-
 
 to go
   ask patches [
