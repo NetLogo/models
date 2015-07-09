@@ -27,13 +27,13 @@ to go
     stop
   ]
   ask sheep [
-    wiggle  ;; first turn a little bit
-    move  ;; then step forward
-    check-if-dead  ;; check to see if agent should die
-    eat      ;; sheep eat grass
-    reproduce   ;;  the sheep reproduce
+    wiggle        ;; first turn a little bit
+    move          ;; then step forward
+    check-if-dead ;; check to see if agent should die
+    eat           ;; sheep eat grass
+    reproduce     ;; the sheep reproduce
   ]
-  regrow-grass ;; the grass grows back
+  regrow-grass    ;; the grass grows back
   tick
   my-update-plots ;; plot the population counts
 end
