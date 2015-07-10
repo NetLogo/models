@@ -1,10 +1,9 @@
 turtles-own [ strategy ]
-globals [ commands ]
 
 to setup
   clear-all
-  ; create a list of netlogo commands
-  set commands ["BK 1" "LT 90" "RT 90" "FD 1"]
+  ; create a list of NetLogo commands
+  let commands ["BK 1" "LT 90" "RT 90" "FD 1"]
   create-turtles 100 [
     set heading 0
     ; create a list with five random commands from the list
