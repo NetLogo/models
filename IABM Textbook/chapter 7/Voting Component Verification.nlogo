@@ -1,14 +1,14 @@
-patches-own
-[
+patches-own [
   vote   ;; my vote (0 or 1)
   total  ;; sum of votes around me
 ]
 
 to setup
   clear-all
-  ask patches
-    [ set vote random 2 ;; set vote to either 0 or 1
-      recolor-patch ]
+  ask patches [
+    set vote random 2 ;; set vote to either 0 or 1
+    recolor-patch
+  ]
   reset-ticks
   check-setup
 end
