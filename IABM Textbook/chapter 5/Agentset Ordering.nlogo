@@ -3,20 +3,23 @@ to setup
   clear-all
   create-turtles 100 [
     set size random-float 2.0
-    forward 10 set color blue
+    forward 10
+    set color blue
   ]
   reset-ticks
 end
 
 to go
-  ;; ask all turtles with size < 1 to ask a larger turtle to decrease its size, and then turn themselves red
+  ;; ask all turtles with size < 1 to ask a larger turtle to
+  ;; decrease its size, and then turn themselves red
   ask turtles with [ size < 1.0 ] [
     ;; each small turtle chooses a big turtle
-    let big-turtle one-of turtles with [size > 1.0]
+    let big-turtle one-of turtles with [ size > 1.0 ]
     if big-turtle != nobody [ ;; make sure there is a big turtle
       ask big-turtle [
-      set size size - 0.5 ;; decrease the size of the big turtle
-    ]]
+        set size size - 0.5 ;; decrease the size of the big turtle
+      ]
+    ]
     set color red ;; small turtles turn red
   ]
   tick
