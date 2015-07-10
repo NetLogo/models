@@ -177,8 +177,7 @@ to go
   ;; set the turtles speed for this time thru the procedure, move them forward their speed,
   ;; record data for plotting, and set the color of the turtles to an appropriate color
   ;; based on their speed
-  ask turtles
-  [
+  ask turtles [
     set-car-speed
     fd speed
     record-data

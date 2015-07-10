@@ -53,7 +53,9 @@ to setup
 
   ;; Make an agentset of all patches where there can be a house or road
   ;; those patches with the background color shade of brown and next to a road
-  let goal-candidates patches with [ pcolor = 38 and any? neighbors with [ pcolor = white ] ]
+  let goal-candidates patches with [
+    pcolor = 38 and any? neighbors with [ pcolor = white ]
+  ]
   ask one-of intersections [ become-current ]
 
   set-default-shape turtles "car"
@@ -188,8 +190,8 @@ to go
     face next-patch ;; car heads towards its goal
     set-car-speed
     fd speed
-    record-data
-    set-car-color
+    record-data     ;; record data for plotting
+    set-car-color   ;; set color to indicate speed
   ]
   label-subject ;; if we're watching a car, have it display its goal
   next-phase ;; update the phase and the global clock
