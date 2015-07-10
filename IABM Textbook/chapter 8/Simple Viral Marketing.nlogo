@@ -14,13 +14,13 @@ end
 ;; seed the population with users who have already been given the product
 ;;  you can either seed randomly or use betweenness centrality
 to seed
-  if centrality-measure = "random" [
+  if seeding-method = "random" [
     ask n-of budget turtles [
       set adopted? true
       update-color
     ]
   ]
-  if centrality-measure = "betweenness" [
+  if seeding-method = "betweenness" [
     ask max-n-of budget turtles [ nw:betweenness-centrality ] [
       set adopted? true
       update-color
@@ -64,10 +64,9 @@ end
 
 ;; the decision rule to adopt which is based on the Bass model of diffusion
 to decide-to-adopt
-  ifelse random-float 1.0 < .01 [
+  ifelse random-float 1.0 < 0.01 [
     set adopted? true
-  ]
-  [
+  ] [
     if any? link-neighbors [
       let neighbors-adoption count link-neighbors with [ adopted? ] / count link-neighbors
       if random-float 1.0 < 0.5 * neighbors-adoption [
@@ -176,8 +175,8 @@ CHOOSER
 93
 146
 138
-centrality-measure
-centrality-measure
+seeding-method
+seeding-method
 "betweenness" "random"
 0
 
