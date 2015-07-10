@@ -12,15 +12,15 @@ patches-own [n]
 ;; The input task says what each patch should do at setup time
 ;; to compute its initial value for n.  (See the Tasks section
 ;; of the Programming Guide for information on tasks.)
-to setup [setup-task]
+to setup [ setup-task ]
   clear-all
   ask patches [
-    ;; n is set to the result of running the initial-task (which is an input to the
-    ;; set procedure)
+    ;; n is set to the result of running the initial-task
+    ;; (which is an input to the set procedure)
     set n runresult setup-task
     recolor
   ]
-  set total sum [n] of patches
+  set total sum [ n ] of patches
   ;; set this to the empty list so we can add items to it later
   set sizes []
   reset-ticks
