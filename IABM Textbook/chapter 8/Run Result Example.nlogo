@@ -4,11 +4,10 @@ to setup
   clear-all
   let operators [" + " " - " " * " ]
   let inputs ["heading" "xcor" 1 2 10]
-
-  crt 20 [
+  create-turtles 20 [
     pen-down
-    ;; create a strategy for the turtle by joining
-    ;; random inputs with random operators
+    ; create a strategy for the turtle by joining
+    ; random inputs with random operators
     set strategy one-of inputs
     repeat 5 [ set strategy (word strategy one-of operators one-of inputs) ]
   ]
@@ -17,7 +16,7 @@ end
 
 to go
   ask turtles [
-    ;; each turtle calculates a new heading by running its strategy
+    ; each turtle calculates a new heading by running its strategy
     set heading run-result strategy
     fd 1
   ]
