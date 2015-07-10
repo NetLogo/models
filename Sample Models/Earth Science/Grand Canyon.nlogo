@@ -29,14 +29,16 @@ to startup
   file-open "Grand Canyon data.txt"
   let patch-elevations file-read
   file-close
-  set color-max max patch-elevations + 200 ;; put a little padding on the upper bound so we don't get too much
-                                           ;; white and higher elevations have a little more variation.
+  ;; put a little padding on the upper bound so we don't get too much
+  ;; white and higher elevations have a little more variation.
+  set color-max max patch-elevations + 200
   let min-elevation min patch-elevations
   ;; adjust the color-min a little so patches don't end up black
   set color-min min-elevation - ((color-max - min-elevation) / 10)
   ;; transfer the data from the file into the sorted patches
-  ( foreach sort patches patch-elevations
-    [ ask ?1 [ set elevation ?2 ] ] )
+  (foreach sort patches patch-elevations [
+    ask ?1 [ set elevation ?2 ]
+  ])
   set-default-shape turtles "circle"
   setup
 end
