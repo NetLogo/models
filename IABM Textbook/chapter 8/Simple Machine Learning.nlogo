@@ -30,25 +30,27 @@ end
 
 to go
   if ticks > 0 [
-    ;; kill off 75% of the turtles with the least fitness (maximum distance)
-    let number-to-replace round (0.75 * count turtles)  ;; kill of 15 turtles assuming we started with 20
-    ask min-n-of number-to-replace turtles [ fitness ] [
-      die
-    ]
+    ;; kill off 75% of the turtles with the least fitness
+    ;; (i.e., the ones further from the goal)
+    let number-to-replace round (0.75 * count turtles)
+    ask min-n-of number-to-replace turtles [ fitness ] [ die ]
+    ;; store turtles that survived in an agentset that won't expand when
+    ;; we hatch new turtles (as would the special `turtles` agentset).
+    let best-turtles turtle-set turtles
     ;; hatch new mutant turtles
-    let best-turtles turtle-set turtles  ;; need this so that best-turtles is not the special turtles agentset and would expand
     repeat number-to-replace [
       ask one-of best-turtles [
         hatch 1 [
           set strategy mutate strategy
-          set color one-of base-colors ;; pick a NetLogo primary color to differentiate this turtle from its parent
+          ;; pick a new color that may not be the same as the parent's color
+          set color one-of base-colors
         ]
       ]
     ]
   ]
   clear-drawing ;; clear the trails of the killed turtles
   ask turtles [
-    reset-positions  ;; send all the turtles back to the center of the world
+    reset-positions ;; send all the turtles back to the center of the world
   ]
   ask turtles [
     ;; each turtle runs its strategy and moves forward 25 times
@@ -61,19 +63,19 @@ to go
   tick
 end
 
+;; turtle procedure, set position to origin with random heading
+to reset-positions
+  home
+  set heading random 360
+  pen-down ;; put the pen down to draw the turtle's movement
+end
+
 ;; mutate a strategy by replacing one of its inputs or one of its operators
 to-report mutate [strat]
   ifelse random 2 = 0
     [ set strat replace-item (2 * random 6) strat one-of inputs ]
     [ set strat replace-item (1 + 2 * random 5) strat one-of operators ]
   report strat
-end
-
-;; turtle procedure, set position to origin with random heading
-to reset-positions
-  home
-  set heading random 360
-  pen-down  ;; put the pen down to draw the turtle's movement
 end
 
 ;; The greater the distance a turtle is to the goal, the smaller the fitness
