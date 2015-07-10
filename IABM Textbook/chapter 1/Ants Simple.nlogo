@@ -64,8 +64,9 @@ to go  ;; forever button
 
   ask turtles [ move recolor ]
   diffuse pheromone (diffusion-rate / 100)
-  ask patches
-  [ set pheromone pheromone * (100 - evaporation-rate) / 100  ;; slowly evaporate pheromone
+  ask patches [
+    ;; slowly evaporate pheromone
+    set pheromone pheromone * (100 - evaporation-rate) / 100
     if pheromone < 0.05 [ set pheromone 0 ]
   ]
   recolor-patches
@@ -95,13 +96,14 @@ to move-towards-nest  ;; turtle procedure
 end
 
 to look-for-food  ;; turtle procedure
-  ifelse  food > 0
-  [ set carrying-food? true  ;; pick up food
+  ifelse food > 0 [
+    set carrying-food? true  ;; pick up food
     set food food - 1        ;; and reduce the food source
     rt 180                   ;; and turn around
-    stop ]
-  [ ;; go in the direction where the pheromone smell is strongest
-    uphill-pheromone ]
+    stop
+  ] [ ;; go in the direction where the pheromone smell is strongest
+    uphill-pheromone
+  ]
 end
 
 ;; sniff left and right, and go where the strongest smell is
