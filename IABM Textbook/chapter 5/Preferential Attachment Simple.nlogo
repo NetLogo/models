@@ -14,7 +14,8 @@ to go
   if count turtles > num-nodes [ stop ]
   ;; choose a partner attached to a random link
   ;; this gives a node a chance to be a partner based on how many links it has
-  let partner one-of [both-ends] of one-of links ;; this is the heart of the preferential attachment mechanism
+  ;; this is the heart of the preferential attachment mechanism
+  let partner one-of [both-ends] of one-of links
   ;; create new node, link to partner
   create-turtles 1 [
     set color red
