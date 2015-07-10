@@ -47,6 +47,7 @@ end
 to go
   ;; if there is a car right ahead of you, match its speed then slow down
   ask turtles [
+    ;; choose a car on the patch ahead
     let car-ahead one-of turtles-on patch-ahead 1
     ifelse car-ahead != nobody
       [ slow-down-car car-ahead ]
@@ -72,7 +73,7 @@ end
 
 ;; adjust speed to be closer to most efficient speed
 to adjust-speed-for-efficiency
-  if not (speed = efficient-speed) [
+  if speed != efficient-speed [
     if (speed + acceleration < efficient-speed) [
       set speed speed + acceleration
     ]
