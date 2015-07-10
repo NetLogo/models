@@ -50,8 +50,7 @@ to go
     let car-ahead one-of turtles-on patch-ahead 1
     ifelse car-ahead != nobody
       [ slow-down-car car-ahead ]
-      ;; otherwise, speed up
-      [ speed-up-car ]
+      [ speed-up-car ] ;; otherwise, speed up
     ;; don't slow down below speed minimum or speed up beyond speed limit
     if speed < speed-min [ set speed speed-min ]
     if speed > speed-limit [ set speed speed-limit ]
