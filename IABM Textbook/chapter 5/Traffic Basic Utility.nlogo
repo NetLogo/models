@@ -1,5 +1,5 @@
 globals [ sample-car ]
-turtles-own [ speed speed-limit speed-min ]
+turtles-own [ speed speed-min ]
 
 to setup
   clear-all
@@ -27,7 +27,6 @@ to setup-cars
     set heading  90
     ;; set initial speed to be in range 0.1 to 1.0
     set speed  0.1 + random-float 0.9
-    set speed-limit 1
     set speed-min 0
     separate-cars
   ]
@@ -64,11 +63,6 @@ end
 ;; slow down so your speed is lower than the speed of the car ahead
 to slow-down-car [ car-ahead ]
   set speed [ speed ] of car-ahead - deceleration
-end
-
-;; turtle (car) procedure
-to speed-up-car
-  set speed speed + acceleration
 end
 
 ;; adjust speed to be closer to most efficient speed
