@@ -14,25 +14,29 @@ to setup
 end
 
 to go
-  ask patches
-    [ set total (sum [ vote ] of neighbors) ]
+  ask patches [
+    set total (sum [ vote ] of neighbors)
+  ]
   ;; use two ask patches blocks so all patches compute "total"
   ;; before any patches change their votes
-  ask patches
-    [ if total > 5 [ set vote 1 ]
-      if total < 3 [ set vote 0 ]
-      if total = 4
-        [ if change-vote-if-tied?
-          [ set vote (1 - vote) ] ] ;; invert the vote
-      if total = 5
-        [ ifelse award-close-calls-to-loser?
-          [ set vote 0 ]
-          [ set vote 1 ] ]
-      if total = 3
-        [ ifelse award-close-calls-to-loser?
-          [ set vote 1 ]
-          [ set vote 0 ] ]
-      recolor-patch ]
+  ask patches [
+    if total < 3 [ set vote 0 ]
+    if total = 3 [
+      ifelse award-close-calls-to-loser?
+        [ set vote 1 ]
+        [ set vote 0 ]
+    ]
+    if total = 4 and change-vote-if-tied? [
+      set vote (1 - vote) ;; invert the vote
+    ]
+    if total = 5 [
+      ifelse award-close-calls-to-loser?
+        [ set vote 0 ]
+        [ set vote 1 ]
+    ]
+    if total > 5 [ set vote 1 ]
+    recolor-patch
+  ]
   tick
 end
 

@@ -6,39 +6,44 @@ patches-own
 
 to setup
   clear-all
-  ask patches
-    [ ifelse random 100 < initial-green-pct
+  ask patches [
+    ifelse random 100 < initial-green-pct
       [ set vote 0 ]
       [ set vote 1 ]
-      recolor-patch ]
+    recolor-patch
+  ]
   reset-ticks
   check-setup
 end
 
 to go
-  ask patches
-    [ set total (sum [ vote ] of neighbors) ]
+  ask patches [
+    set total (sum [ vote ] of neighbors)
+  ]
   ;; use two ask patches blocks so all patches compute "total"
   ;; before any patches change their votes
   let votes-changed 0
-  ask patches
-    [ let previous-vote vote
-      if total > 5 [ set vote 1 ]
-      if total < 3 [ set vote 0 ]
-      if total = 4
-        [ if change-vote-if-tied?
-          [ set vote (1 - vote) ] ] ;; invert the vote
-      if total = 5
-        [ ifelse award-close-calls-to-loser?
-          [ set vote 0 ]
-          [ set vote 1 ] ]
-      if total = 3
-        [ ifelse award-close-calls-to-loser?
-          [ set vote 1 ]
-          [ set vote 0 ] ]
-      ;; increase our counter when the vote is not the same as before
-      if vote != previous-vote [ set votes-changed votes-changed + 1 ]
-      recolor-patch ]
+  ask patches [
+    let previous-vote vote
+    if total < 3 [ set vote 0 ]
+    if total = 3 [
+      ifelse award-close-calls-to-loser?
+        [ set vote 1 ]
+        [ set vote 0 ]
+    ]
+    if total = 4 and change-vote-if-tied? [
+      set vote (1 - vote) ;; invert the vote
+    ]
+    if total = 5 [
+      ifelse award-close-calls-to-loser?
+        [ set vote 0 ]
+        [ set vote 1 ]
+    ]
+    if total > 5 [ set vote 1 ]
+    ;; increase our counter when the vote is not the same as before
+    if vote != previous-vote [ set votes-changed votes-changed + 1 ]
+    recolor-patch
+  ]
   if votes-changed = 0 [ stop ] ;; stop when the model stabilizes
   tick
 end
