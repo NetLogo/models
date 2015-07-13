@@ -21,11 +21,9 @@ to go
   ask patches [
     ;; patches with 3 green neighbors, turn (or stay) green
     if live-neighbors = 3 [ set pcolor green ]
-    ;; patches with 0 or 1 green neighbors turn (or stay) dark blue
-    ;; from isolation
+    ;; patches with 0 or 1 green neighbors turn (or stay) dark blue (from isolation)
     if live-neighbors = 0 or live-neighbors = 1  [ set pcolor blue - 3 ]
-    ;; patches with 4 or more green neighbors turn (or stay) dark blue
-    ;; from overcrowding
+    ;; patches with 4 or more green neighbors turn (or stay) dark blue (from overcrowding)
     if live-neighbors >= 4 [ set pcolor blue - 3 ]
     ;; patches with exactly 2 green neighbors keep their color
   ]
