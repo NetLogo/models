@@ -9,8 +9,7 @@ end
 
 ;; GO-1 sets the labels of red patches to a small random number (0-4)
 ;; and the labels of green patches to a larger random number (5-9)
-;; as long as there are at least a certain number of patches of the
-;; other color.
+;; provided that there are at least 5 patches of the other color.
 to go-1
   ask patches with [ pcolor = red ] [
     if count patches with [ pcolor = green ] > 5 [
