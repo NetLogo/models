@@ -92,6 +92,8 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
       response.status match {
         case 403 if method == head =>
           request(link, get) // sometimes HEAD is forbidden, retry with a GET
+        case 429 if link.startsWith("https://www.youtube.com/watch") =>
+          right("Response code 429 (rate limiting) from youtube tolerated")
         case sc if sc >= 200 && sc < 300 =>
           right() // OK
         case sc if sc >= 300 && sc < 400 =>
