@@ -117,7 +117,7 @@ to my-update-plots
   plot count wolves * 10 ;; scaling factor so plot looks nice
 
   set-current-plot-pen "grass"
-  plot sum [grass-amount] of patches / 50 ;; scaling factor so plot looks nice
+  plot sum [ grass-amount ] of patches / 50 ;; scaling factor so plot looks nice
 end
 
 ;; turtle procedure, the agent changes its heading
