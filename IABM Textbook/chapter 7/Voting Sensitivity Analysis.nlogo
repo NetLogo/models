@@ -25,7 +25,7 @@ to go
   let votes-changed 0
   ask patches [
     let previous-vote vote
-    if total < 3 [ set vote 0 ]
+    if total < 3 [ set vote 0 ] ;; if majority of your neighbors vote 0, set your vote to 0
     if total = 3 [
       ifelse award-close-calls-to-loser?
         [ set vote 1 ]
@@ -39,7 +39,7 @@ to go
         [ set vote 0 ]
         [ set vote 1 ]
     ]
-    if total > 5 [ set vote 1 ]
+    if total > 5 [ set vote 1 ] ;; if majority of your neighbors vote 1, set your vote to 1
     ;; increase our counter when the vote is not the same as before
     if vote != previous-vote [ set votes-changed votes-changed + 1 ]
     recolor-patch

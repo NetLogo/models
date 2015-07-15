@@ -20,7 +20,7 @@ to go
   ;; use two ask patches blocks so all patches compute "total"
   ;; before any patches change their votes
   ask patches [
-    if total < 3 [ set vote 0 ]
+    if total < 3 [ set vote 0 ] ;; if majority of your neighbors vote 0, set your vote to 0
     if total = 3 [
       ifelse award-close-calls-to-loser?
         [ set vote 1 ]
@@ -34,7 +34,7 @@ to go
         [ set vote 0 ]
         [ set vote 1 ]
     ]
-    if total > 5 [ set vote 1 ]
+    if total > 5 [ set vote 1 ] ;; if majority of your neighbors vote 1, set your vote to 1
     recolor-patch
   ]
   tick
