@@ -30,7 +30,7 @@ to startup
   let patch-elevations file-read
   file-close
   ;; put a little padding on the upper bound so we don't get too much
-  ;; white and higher elevations have a little more variation.
+  ;; white, and higher elevations have a little more variation.
   set color-max max patch-elevations + 200
   let min-elevation min patch-elevations
   ;; adjust the color-min a little so patches don't end up black
