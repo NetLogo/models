@@ -184,10 +184,10 @@ ticks
 30.0
 
 BUTTON
-149
-116
-212
-149
+170
+115
+233
+148
 go
 go
 T
@@ -202,9 +202,9 @@ NIL
 
 BUTTON
 40
-116
+115
 106
-149
+148
 setup
 setup
 NIL
@@ -220,7 +220,7 @@ NIL
 SLIDER
 41
 10
-213
+231
 43
 memory-size
 memory-size
@@ -235,7 +235,7 @@ HORIZONTAL
 SLIDER
 41
 45
-213
+231
 78
 number-strategies
 number-strategies
@@ -269,7 +269,7 @@ PENS
 SLIDER
 41
 80
-213
+231
 113
 overcrowding-threshold
 overcrowding-threshold
@@ -734,5 +734,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
