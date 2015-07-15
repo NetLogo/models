@@ -183,9 +183,8 @@ to go
   set-signals
   set num-cars-stopped 0
 
-  ;; set the turtles speed for this time thru the procedure, move them forward their speed,
-  ;; record data for plotting, and set the color of the turtles to an appropriate color
-  ;; based on their speed
+  ;; set the cars’ speed, move them forward their speed, record data for plotting,
+  ;; and set the color of the cars to an appropriate color based on their speed
   ask turtles [
     face next-patch ;; car heads towards its goal
     set-car-speed
@@ -349,7 +348,7 @@ to-report next-patch
   if goal = work and (member? patch-here [ neighbors4 ] of work) [
     set goal house
   ]
-  ;; CHOICES is an agentset of the candidate patches which the car can
+  ;; CHOICES is an agentset of the candidate patches that the car can
   ;; move to (white patches are roads, green and red patches are lights)
   let choices neighbors with [ pcolor = white or pcolor = red or pcolor = green ]
   ;; choose the patch closest to the goal, this is the patch the car will move to
