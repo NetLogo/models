@@ -1,31 +1,17 @@
 ; The purpose of ths model is to show how to write model documentation in the Info tab.
 ; Click the Info tab for more information.
 
-to startup
-  giant-arrow
-end
-
-to giant-arrow
-  clear-all
-  create-ordered-turtles 1 [ set size 10 set color red setxy -7.25 10 ]
-  create-turtles 1 [ set color red setxy -7.25 -5 ]
-  ask turtle 0 [ create-link-with turtle 1 [ set color red set thickness 1.5 ] ]
-  create-turtles 1 [ set color black setxy 8 12 set label "Click the info tab!" ]
-  display
-end
-
-
 ; Public Domain:
 ; To the extent possible under law, Uri Wilensky has waived all
 ; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
-10
-649
-470
+70
+105
+509
+149
 16
-16
+0
 13.0
 1
 20
@@ -38,8 +24,8 @@ GRAPHICS-WINDOW
 1
 -16
 16
--16
-16
+0
+0
 1
 1
 1
@@ -47,14 +33,14 @@ ticks
 30.0
 
 TEXTBOX
-16
-84
-191
-134
+37
+36
+623
+243
 Click the Info tab!
-20
+40
 0.0
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
