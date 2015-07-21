@@ -273,6 +273,8 @@ The plot shows both global values and the value for a single turtle, which helps
 
 The `watch` command is used to make it easier to focus on the red car.
 
+The `speed-limit` and `speed-min` variables are set to constant values. Since they are the same for every car, these variables could have been defined as globals rather than turtle variables. We have specified them as turtle variables since modifications or extensions to this model might well have every car with its own speed-limit values.
+
 ## RELATED MODELS
 
 "Traffic Grid" adds a street grid with stoplights at the intersections.
