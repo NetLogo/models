@@ -223,8 +223,8 @@ NIL
 TEXTBOX
 186
 186
-298
-204
+307
+206
 Battery-positive (B+)
 11
 0.0
@@ -275,10 +275,10 @@ NIL
 1
 
 MONITOR
-302
-185
-451
-230
+313
+186
+462
+231
 Electrons Arrived At B+
 charge-flow
 17
@@ -286,10 +286,10 @@ charge-flow
 11
 
 PLOT
-453
-185
-755
-353
+466
+186
+758
+354
 Current vs Time
 Time (Seconds)
 Current
@@ -304,10 +304,10 @@ PENS
 "default" 1.0 0 -16777216 true "" ""
 
 MONITOR
-302
-279
-403
-324
+313
+280
+414
+325
 Current
 charge-flow / ticks
 2
@@ -360,10 +360,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-302
-232
-403
-277
+313
+233
+414
+278
 Timer
 ticks
 17
