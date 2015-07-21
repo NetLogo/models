@@ -129,6 +129,24 @@ NIL
 NIL
 1
 
+PLOT
+558
+201
+878
+393
+mean number of wins per turtle size
+size
+mean # of wins
+2.0
+8.0
+0.0
+10.0
+true
+false
+"" "clear-plot\nforeach sort remove-duplicates [ size ] of turtles [\n  plotxy ? mean [ label ] of turtles with [ size = ? ]\n]"
+PENS
+"default" 1.0 1 -16777216 true "" ""
+
 @#$#@#$#@
 ## WHAT IS IT?
 
