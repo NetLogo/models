@@ -225,7 +225,7 @@ note-length
 SLIDER
 475
 410
-646
+650
 443
 quarter-note-length
 quarter-note-length
@@ -311,7 +311,7 @@ item instrument-number sound:instruments
 TEXTBOX
 8
 273
-192
+223
 291
 1. Click setup to draw a new staff
 11
