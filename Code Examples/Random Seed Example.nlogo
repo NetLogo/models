@@ -59,7 +59,7 @@ ticks
 BUTTON
 59
 10
-188
+199
 43
 NIL
 use-new-seed
@@ -76,7 +76,7 @@ NIL
 BUTTON
 60
 50
-188
+200
 83
 NIL
 go
@@ -93,7 +93,7 @@ NIL
 BUTTON
 60
 91
-189
+200
 124
 NIL
 use-seed-from-user\n
@@ -110,7 +110,7 @@ NIL
 TEXTBOX
 254
 13
-693
+724
 139
 To run the model:\n1. Press USE-NEW-SEED\n2. Press GO\n\nTo reproduce a run:\n1. Press USE-SEED-FROM-USER\n2. Type in the seed from the run to reproduce (look in the output area below)\n3. Press GO
 11
@@ -2964,5 +2964,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
