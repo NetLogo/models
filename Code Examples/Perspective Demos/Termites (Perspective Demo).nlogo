@@ -153,10 +153,10 @@ density
 HORIZONTAL
 
 BUTTON
-9
-214
-228
-247
+10
+230
+229
+263
 NIL
 watch one-of turtles
 NIL
@@ -170,10 +170,10 @@ NIL
 1
 
 BUTTON
-9
-250
-228
-283
+10
+266
+229
+299
 NIL
 follow one-of turtles
 NIL
@@ -190,7 +190,7 @@ TEXTBOX
 11
 161
 245
-209
+220
 This is a version of the Termites model, modified to show off NetLogo's perspective features. Try it in both 2D and 3D.
 11
 0.0
@@ -207,10 +207,10 @@ Termites move fast! Use the speed slider to slow them down.
 0
 
 BUTTON
-10
-348
-146
-381
+11
+364
+147
+397
 subject pd
 if subject != nobody\n [ ask subject [ pd ] ]
 NIL
@@ -224,10 +224,10 @@ NIL
 1
 
 MONITOR
-9
-286
-102
-331
+10
+302
+103
+347
 NIL
 subject
 3
@@ -235,10 +235,10 @@ subject
 11
 
 BUTTON
-150
-348
-213
-381
+151
+364
+214
+397
 NIL
 pu
 NIL
@@ -252,10 +252,10 @@ NIL
 1
 
 BUTTON
-10
-385
-128
-418
+11
+401
+129
+434
 NIL
 clear-drawing
 NIL
@@ -269,10 +269,10 @@ NIL
 1
 
 BUTTON
-105
-287
-227
-320
+106
+303
+228
+336
 NIL
 reset-perspective
 NIL
@@ -598,5 +598,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
