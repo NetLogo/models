@@ -921,43 +921,129 @@ OUTPUT
 @#$#@#$#@
 ## WHAT IS IT?
 
-This project models the behavior of two types of turtles in a mythical pond. The red turtles and green turtles get along with one another. But each turtle wants to make sure that it lives near some of "its own." That is, each red turtle wants to live near at least some red turtles, and each green turtle wants to live near at least some green turtles. The simulation shows how these individual preferences ripple through the pond, leading to large-scale patterns.
+This model simulates competition between many different species in a complex ecosystem. The outcome of the competition shows that when all individuals in a population are identical to each other, the competitive advantage of a species will continue to change compared to other species when the environmental conditions keep changing.
 
-This project was inspired by Thomas Schelling's writings about social systems (particularly with regards to housing segregation in cities).
+The model can be set so that the computer randomly adds new species into the ecosystem as well.  Since different species outcompete each other at different times in a changing environment, this tends to result in the eventual disappearance of some species in the ecosystem over time.
 
-This model is a simplified version of the Segregation model that is in the Social Science section of the NetLogo models library.
+Any attempt by a participant to create an "optimal design" for a species is doomed to eventual failure and extinction if the model is run long enough.  This outcome suggests that the inclusion of evolutionary mechanisms (such as random mutations in offspring) might lead to some species that can survive longer in the ecosystem without going extinct than any species with a purposefully designed combination of unchanging traits.
+
+## HOW IT WORKS
+
+### Species
+
+Participants use the HubNet client interface to interact with the model and design new types of critters to test in the ecosystem. A single critter can be designed and then released into the environment at a time.  As this critter gains energy, it can reproduce offspring, which in turn can reproduce more offspring when they gain enough energy.  Each new offspring will have identical trait variations as the original ancestor critter, as each offspring is reproduced asexually from a single parent. All the descendants from the first ancestor critter are defined as being part of the same species.
+
+New critter species can be designed to follow different patterns of movement, have different speeds at which they move around the ecosystem, and have different energy levels required for giving birth to an offspring. Each new design you test can be either a herbivore or a carnivore.  A single individual is what is released into the ecosystem by the participants when a participant tests a new critter design.  Since your entire species of critters will have identical traits, the same shape and color of all the offspring of the critter design you test will also look the same.
+
+When a participant releases an individual with a new critter design into the ecosystem, all of the critters of the previous species are instantly removed from the ecosystem.
+
+### Ecosystem
+
+Activity leaders use the model interface to set up the ecosystem. The interface allows them to set the amount of grass that can grow and how fast it grows. These changes are attempting to represent the effects of variation of rainfall in time and space. The environmental conditions can be set to be fixed or varying in the ecosystem. When environmental conditions vary, the grass growth and speed values shift from time to time.
+
+As new critters are added and/or as the environmental conditions change, the stability of the ecosystem changes. New selective pressures may emerge with each change, which in turn leads to different levels of competitive advantage for a given combinations of traits. Over time, a design that gave a competitive advantage in one environment is likely to have less of a competitive advantage in another environment.
+
+Since individuals show no trait variation different from their ancestors, evolution does not occur in this model. When evolution does not occur, species designed to have a strong competitive edge for one set of environmental conditions are destined to go extinct when environmental changes are large enough or frequent enough. So, all species introduced into the ecosystem eventually go extinct as the environment keeps changing and new species are introduced.
+
+In the real world, the traits of individuals in a species don't remain fixed.  New traits that have never appeared before emerge in populations.  This occurs because offspring can incur mutations that give them different traits from their ancestors.  Though mutations are random, they introduce new trait variations into a population.   In a way, mutation serves like a "random design changer".  As many minor random design changes emerge in a population from mutations, some are bound to result in individuals that have a greater competitive advantage than the ancestors.  This permits species to keep "unintentionally" experimenting with alternate design plans as the environment changes.  Some such species continue to evolve over time, so that offspring can appear and behave very differently than their original ancestors.  In the real world then, while some species may go extinct, others continue to evolve to accumulate beneficial trait variations as the environment keeps changing.
 
 ## HOW TO USE IT
 
-Click the SETUP button to set up the turtles. There are equal numbers of red and green turtles. The turtles move around until there is at most one turtle on a patch.  Click GO to start the simulation. If turtles don't have enough same-color neighbors, they jump to a nearby patch.
+### Activity Leader
 
-The NUMBER slider controls the total number of turtles. (It takes effect the next time you click SETUP.)  The %-SIMILAR-WANTED slider controls the percentage of same-color turtles that each turtle wants among its neighbors. For example, if the slider is set at 30, each green turtle wants at least 30% of its neighbors to be green turtles.
+In the HubNet Control Center, press SETUP and GO once all clients have connected to the model. Once the model is running place a check mark next to both "Mirror 2D view on clients" and "Mirror plots on clients (experimental)". _Note: these options should always be unchecked before you press SETUP._  If you don't follow this order for checking these options after pressing SETUP an error will occur in the experimental plotting code.
 
-The "PERCENT SIMILAR" monitor shows the average percentage of same-color neighbors for each turtle. It starts at about 0.5, since each turtle starts (on average) with an equal number of red and green turtles as neighbors. The "PERCENT UNHAPPY" monitor shows the percent of turtles that have fewer same-color neighbors than they want (and thus want to move).  Both monitors are also plotted.
+#### Model sliders and switches:
+
+GRASS-GROWTH controls how fast the grass grows back on each patch.
+
+MAX-GRASS sets the % of patches that grow grass. 50% would allow only half the patches to grow grass.
+
+ENVIRONMENT-CHANGES? when turned to "off" keeps MAX-GRASS and GRASS-GROWTH levels set to whatever values the user left them at in the interface. When turned to "on", those levels will shift occasionally to random values picked by the computer.
+
+MINIMUM-RANDOM-SPECIES adjusts the number of random species the computer adds. When one of the species goes extinct, another randomly generated species replaces it. When set to 0, only species that client participants add will be in the ecosystem.
+
+\# ENVIRONMENTAL CHANGES keeps track of the number of automatic (computer selected) shifts in the MAX-GRASS and GRASS-GROWTH levels occurred.
+
+PLACEMENTS-PER-CLIENT sets the maximum number of critter designs each client can release and test in the ecosystem.
+
+\# ALIVE SPECIES is a histogram of the number of current species that are alive by % of time that they are alive for the simulation.  For short model runs, there may be some species that are alive for 100% of the time the simulation ran.  For long model runs it becomes progressively less likely that any species will be alive for 100% of the time of the model run.  The histogram will cluster to the left the longer the model runs.
+
+\# EXTINCT SPECIES is a histogram of the number of species that died by % of time that they are alive for the simulation.  The longer the model runs, the smaller the percent of time that the extinct species were alive for.  Species that came into existence at the start of the model run and went extinct just before the model run ended will appear clustered toward the right side of the histogram.  Species that came into existence at any point in the model run and then went extinct shortly after will tend to cluster toward the left side of the histogram.
+
+### HubNet Participant
+
+Open up a HubNet client on your machine and type your user name, select this activity and press ENTER.
+
+#### Client sliders, input boxes, and buttons:
+
+CHANGE SHAPE randomly changes the shape of the critters you are going to release. The newly assigned shape will show up in the YOUR CRITTER SHAPE monitor.
+
+BEHAVIOR-DNA allows you to input a string of characters that describe the pattern of steps that the critters move in (F = forward, L = left, R = right, * = random).
+
+SPEED controls how fast the critters move. Faster moving critters use up energy more quickly.
+
+BIRTHING-LEVEL controls the energy level each individual must reach before reproducing as well as how much energy is split between the parent and the offspring when this occurs.
+
+CARNIVORE? controls whether the species eats other critters (set the value to "On") or the species eats grass (set the value to "Off").
+
+PLACE NEW SPECIES this button releases one new individual that has the trait variations specified by YOUR CRITTER SHAPE, BEHAVIOR-DNA, SPEED, BIRTHING-LEVEL, and CARNIVORE?. When a new species is placed, that client's old species is automatically removed from the ecosystem.
+
+#### Client Switches:
+
+GRAY-OUT-OTHERS? controls whether to display the colors of all the species for the client (set the value to "On") or keep the color of client's species visible and turning all other species gray (set the value to "Off").
+
+FOLLOW-A-CRITTER? controls whether the client's view remains looking at the entire ecosystem (set the value to "Off") or attaches to a single randomly selected critter (set the value of "On").
+
+SHOW-ENERGY? displays the energy level for each individual critter of your species when set to "On".
+
+#### Client Monitors:
+
+YOUR CURRENT SPECIES LONGEVITY reports how long the current species has existed (elapsed time) in the ecosystem.
+
+YOUR MAX. SPECIES LONGEVITY reports the longest existence for any species you have tested in this ecosystem for this model run.
+
+YOUR CURRENT SPECIES SIZE reports how many individuals are in the current species.
+
+SPECIES LONGEVITY LEADER reports which participant has the record for the longest lasting species.
+
+### Common to Both Participant Leader and Client Views
+
+POPULATION graphs all the population percentages for each species on the same axis (percent of living creatures vs. time). Population percentages are a calculation of what number of individuals in the ecosystem belong to this species / total individuals in all species in the ecosystem * 100. So a level of 50% for one species graph would mean that half of the individuals from all species in the ecosystem are of that one species.
+
+LONGEVITY RECORD reports the record for the longest lasting species (elapsed time) in this model run.
+
+TIME reports how much time has elapsed in this model run.
+
+ALIVE SPECIES reports how many species are currently in this ecosystem.
+
+EXTINCT SPECIES reports how many species have died out completely in this ecosystem.
 
 ## THINGS TO NOTICE
 
-When you execute SETUP, the red and green turtles are randomly distributed throughout the pond. But many turtles are "unhappy" since they don't have enough same-color neighbors. The unhappy turtles jump to new locations in the vicinity. But in the new locations, they might tip the balance of the local population, prompting other turtles to leave. If a few red turtles move into an area, the local green turtles might leave. But when the green turtles move to a new area, they might prompt red turtles to leave that area.
+No matter how successful a critter design is at one instant in the ecosystem, its level of success will soon change as the ecosystem starts changing. Eventually, if the new species are continually being "tested out" in the environment enough times, one of them will end up outcompeting the current "native species".
 
-Over time, the number of unhappy turtles decreases. But the pond becomes more segregated, with clusters of red turtles and clusters of green turtles.
+The important evolutionary outcome here is that if species can't evolve, they are doomed to extinction if they must go head to head with alternate "designs" in a changing environment. Also, people who test multiple designs within the environment are more likely to strike upon a relatively successful design (at least in the short term), than those who stick with only one design.
 
-In the case where each turtle wants at least 30% same-color neighbors, the turtles end up with (on average) 70% same-color neighbors. So relatively small individual preferences can lead to significant overall segregation.
+And the most intentional design by a participant will still eventually get outcompeted and driven to extinction by many random designs thrown into the competition over a long period of time by the computer.
 
 ## THINGS TO TRY
 
-Try different values for %-SIMILAR-WANTED. How does the overall degree of segregation change?
+Use the model with an entire class to serve as an introduction to the topic of the mechanisms of evolution. If a student develops a successful design (that lasts for an entire simulation run or until the end of the lesson), keep the model running overnight with a large value set for MINIMUM-RANDOM-SPECIES and with the ENVIRONMENT-CHANGE? switch set to "On".
 
-If each turtle wants at least 40% same-color neighbors, what percentage (on average) do they end up with?
+## EXTENDING THE MODEL
+
+One or more computer generated species could be given the ability to generate mutations that cause minor changes in the traits of the offspring. Longevity experiments could be conducted to compare the success of computer generated, evolving species to the success of purposefully designed "fixed trait" species created by participants.
 
 ## NETLOGO FEATURES
 
-In the UPDATE-GLOBALS procedure, note the use of SUM, COUNT, VALUES-FROM, and WITH to compute the percentages displayed in the monitors and plots.
+The population graph updates to have a continually rolling x-axis.  This means that when a new maximum x-value is reached, that x-value becomes the new x-minimum value and the plots are wiped clean and the x-axis is reset with same x range as before, but the new minimum and maximum values.
+
+The command hubnet-send-override is used to change the appearance of agents in the client view, so that each client can customized what is displayed for that client.  This allows clients to "gray out" species that aren't their own in their client view or turn on labels for the agents in their view only.
 
 ## CREDITS AND REFERENCES
 
-Schelling, T. (1978). Micromotives and Macrobehavior. New York: Norton.
-
-See also: Rauch, J. (2002). Seeing Around Corners; The Atlantic Monthly; April 2002;Volume 289, No. 4; 35-48. http://www.theatlantic.com/magazine/archive/2002/04/seeing-around-corners/302471/
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
 
 ## HOW TO CITE
 
