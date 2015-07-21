@@ -30,6 +30,14 @@ class InfoTabsTests extends TestModels {
     } yield s"Length is $length in ${model.quotedPath}"
   }
 
+  testLibraryModels("First paragraph of WHAT IS IT should be unique") { models =>
+    for {
+      (optWhatItIs, groupedModels) <- models.groupBy(_.info.sectionMap.get(whatIsIt).map(_.lines.next))
+      whatItIs <- optWhatItIs
+      if groupedModels.size > 1
+    } yield whatItIs + "\n  " + groupedModels.map(_.quotedPath).mkString("\n  ")
+  }
+
   testLibraryModels("Info tabs should not have empty sections") { models =>
     for {
       model <- models
