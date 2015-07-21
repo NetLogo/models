@@ -501,9 +501,9 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-212
+270
 10
-490
+548
 309
 33
 33
@@ -528,10 +528,10 @@ ticks
 30.0
 
 BUTTON
-125
-44
-211
-77
+160
+45
+260
+78
 go/stop
 go
 T
@@ -545,10 +545,10 @@ NIL
 1
 
 BUTTON
-125
-11
-211
-44
+160
+7
+260
+40
 NIL
 setup
 NIL
@@ -562,9 +562,9 @@ NIL
 1
 
 PLOT
-491
+565
 155
-694
+768
 309
 Number vs. Time
 time
@@ -580,10 +580,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plotxy ticks (count particles)"
 
 SLIDER
-0
-78
-124
-111
+5
+80
+155
+113
 number-to-add
 number-to-add
 0
@@ -595,10 +595,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-125
-78
-211
-111
+160
+81
+260
+114
 add particles
 set particles-to-add\n    particles-to-add +\n      number-to-add
 NIL
@@ -612,9 +612,9 @@ NIL
 1
 
 SLIDER
-0
+5
 44
-124
+155
 77
 initial-number
 initial-number
@@ -627,10 +627,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-1
-112
-99
-157
+35
+125
+133
+170
 Number
 count particles
 0
@@ -638,9 +638,9 @@ count particles
 11
 
 PLOT
-492
+566
 10
-695
+769
 155
 Pressure vs. Time
 time
@@ -656,10 +656,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "if length pressure-history > 0\n[\n  ;; pressure plot is 'smoothed' by averaging 3 sequential values, only if switch is set this way\n  ifelse avg-plot-pressure?  \n    [ plotxy ticks (mean last-n 3 pressure-history) ]\n    [ plotxy ticks pressure ]\n]"
 
 MONITOR
-100
-113
-209
-158
+135
+125
+244
+170
 pressure
 pressure
 0
@@ -667,54 +667,54 @@ pressure
 11
 
 SWITCH
-228
+270
+470
+383
+503
+collisions?
+collisions?
+1
+1
+-1000
+
+SWITCH
+270
+435
+382
+468
+wall-hits?
+wall-hits?
+1
+1
+-1000
+
+SWITCH
+45
+345
+230
+378
+model-time?
+model-time?
+1
+1
+-1000
+
+SWITCH
+45
+380
+230
+413
+real-time?
+real-time?
+1
+1
+-1000
+
+SWITCH
+565
+430
+770
 463
-341
-496
-collisions?
-collisions?
-1
-1
--1000
-
-SWITCH
-229
-428
-341
-461
-wall-hits?
-wall-hits?
-1
-1
--1000
-
-SWITCH
-17
-359
-181
-392
-model-time?
-model-time?
-1
-1
--1000
-
-SWITCH
-17
-394
-182
-427
-real-time?
-real-time?
-1
-1
--1000
-
-SWITCH
-507
-428
-696
-461
 single-particle-speed?
 single-particle-speed?
 0
@@ -722,9 +722,9 @@ single-particle-speed?
 -1000
 
 SWITCH
-508
+565
 463
-696
+770
 496
 single-particle-wall-hits?
 single-particle-wall-hits?
@@ -733,10 +733,10 @@ single-particle-wall-hits?
 -1000
 
 SWITCH
-508
-497
-695
-530
+565
+495
+770
+528
 single-particle-collisions?
 single-particle-collisions?
 0
@@ -744,10 +744,10 @@ single-particle-collisions?
 -1000
 
 SLIDER
-16
-430
-183
-463
+45
+415
+230
+448
 real-time-pacer
 real-time-pacer
 0.5
@@ -759,9 +759,9 @@ sec
 HORIZONTAL
 
 SWITCH
-10
+35
 273
-200
+245
 306
 announce-add-particles?
 announce-add-particles?
@@ -770,20 +770,20 @@ announce-add-particles?
 -1000
 
 TEXTBOX
-538
-322
-654
-340
+600
+325
+741
+343
 Listen to one particle
 11
 0.0
 0
 
 SWITCH
-229
-394
-341
-427
+270
+400
+382
+433
 pressure?
 pressure?
 1
@@ -791,19 +791,19 @@ pressure?
 -1000
 
 TEXTBOX
-280
-322
-416
-340
+323
+327
+497
+345
 Listen to all the particles
 11
 0.0
 0
 
 TEXTBOX
-38
+63
 321
-128
+201
 339
 Time in a model
 11
@@ -811,10 +811,10 @@ Time in a model
 0
 
 SLIDER
-342
-463
-469
-496
+385
+470
+550
+503
 collisions-loudness
 collisions-loudness
 0
@@ -826,10 +826,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-343
-428
+385
+435
+550
 468
-461
 wall-hits-loudness
 wall-hits-loudness
 0
@@ -841,10 +841,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-343
-393
-469
-426
+385
+400
+550
+433
 pressure-loudness
 pressure-loudness
 0
@@ -856,9 +856,9 @@ NIL
 HORIZONTAL
 
 BUTTON
-33
+70
 225
-98
+135
 258
 all on
 set real-time? true \nset model-time? true \nset pressure? true \nset wall-hits? true \nset collisions? true \nset single-particle-speed? true \nset single-particle-collisions? true\nset single-particle-wall-hits? true \nset announce-add-particles? true
@@ -873,9 +873,9 @@ NIL
 1
 
 BUTTON
-99
+136
 225
-165
+202
 258
 all off
 sound:stop-music\nset collisions? false\nset single-particle-speed? false \nset single-particle-collisions? false\nset single-particle-wall-hits? false\nset announce-add-particles? false\nset model-time? false\nset real-time? false\nset pressure? false\nset wall-hits? false
@@ -890,9 +890,9 @@ NIL
 1
 
 SLIDER
-507
+565
 394
-696
+770
 427
 single-particle-loudness
 single-particle-loudness
@@ -905,10 +905,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-1
-163
-210
-208
+35
+176
+244
+221
 single speed
 [speed] of particle 3
 1
@@ -916,10 +916,10 @@ single speed
 11
 
 SWITCH
-70
-507
-235
-540
+45
+470
+230
+503
 avg-plot-pressure?
 avg-plot-pressure?
 1
@@ -927,10 +927,10 @@ avg-plot-pressure?
 -1000
 
 BUTTON
-252
-353
-341
-386
+295
+358
+384
+391
 group on
 set pressure? true set wall-hits? true set collisions? true
 NIL
@@ -944,10 +944,10 @@ NIL
 1
 
 BUTTON
-342
-353
-432
-386
+385
+358
+475
+391
 group off
 set pressure? false set wall-hits? false set collisions? false
 NIL
@@ -961,10 +961,10 @@ NIL
 1
 
 BUTTON
-515
-353
-603
-386
+577
+356
+665
+389
 single on
 set single-particle-speed? true set single-particle-collisions? true set single-particle-wall-hits? true
 NIL
@@ -978,10 +978,10 @@ NIL
 1
 
 BUTTON
-604
-353
-693
-386
+668
+356
+757
+389
 single off
 set single-particle-speed? false \nset single-particle-collisions? false \nset single-particle-wall-hits? false
 NIL
@@ -1319,5 +1319,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
