@@ -46,7 +46,7 @@ to setup
   ask turtles
     [ setxy nest-x nest-y                          ;; start the ants out at the nest
       set heading 90 ]
-  ask turtle (num-ants - 1)
+  ask turtle max [who] of turtles
     [ set color blue                               ;; last ant is blue
       set pen-size 2
       pd ]                                         ;; ...and leaves a trail
