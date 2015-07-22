@@ -4,7 +4,6 @@ breed [ followers follower ]
 globals [
   nest-x nest-y    ;; location of center of nest
   food-x food-y    ;; location of center of food
-  leader-heading   ;; heading of the leader ant
 ]
 
 to setup
@@ -53,7 +52,6 @@ to setup
   ask leaders
     [ set pen-size 2
       pd ]                                         ;; the leader also leaves a trail
-  set leader-heading [heading] of one-of leaders
   reset-ticks
 end
 
@@ -71,7 +69,6 @@ to go
      [ face turtle (who - 1)                        ;; follower ants follow the ant ahead of them
        if time-to-start? and (xcor < food-x)        ;; followers wait a bit before leaving nest
          [ fd 0.5 ] ]
-  set leader-heading [heading] of one-of leaders
   tick
 end
 
@@ -182,7 +179,7 @@ MONITOR
 177
 277
 leader-heading
-leader-heading
+[ heading ] of one-of leaders
 0
 1
 11
