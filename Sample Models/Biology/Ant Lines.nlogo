@@ -36,15 +36,13 @@ to setup
     ]
   ]
   create-leaders 1
-    [ set color red                                ;; leader ant is red
-      set size 2
-      wiggle 50 ]                                  ;; ...and starts out with a random heading
+    [ set color red ]                              ;; leader ant is red and start with a random heading
   create-followers (num-ants - 1)
-    [ set size 2
-      set color yellow ]                           ;; middle ants are yellow
+    [ set color yellow                             ;; middle ants are yellow
+      set heading 90 ]                             ;; and start with a fixed heading
   ask turtles
     [ setxy nest-x nest-y                          ;; start the ants out at the nest
-      set heading 90 ]
+      set size 2 ]
   ask turtle (max [who] of turtles)
     [ set color blue                               ;; last ant is blue
       set pen-size 2
