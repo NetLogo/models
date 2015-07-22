@@ -339,7 +339,7 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This simple model communicates with the sensors and output ports of a GoGo Board, an open source, easy-to-build, low cost, general purpose circuit board designed for educational projects.
+This simple model communicates with the sensors and output ports of a GoGo Board, an open source, easy-to-build, low cost, general purpose circuit board designed for educational projects. It uses the [`gogo` extension](https://github.com/NetLogo/GoGo-HID-Extension), which interfaces with GoGo boards running Human Interface Driver (HID) firmware.
 
 This model helps you test your connection to your GoGo Board, and serves as a starting point for building NetLogo activities that interact with the physical world. For a more complete version of this model, try the GoGoMonitor.
 
