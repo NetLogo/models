@@ -8,6 +8,7 @@ patches-own [
   spin           ;; holds -1 or 1
 ]
 
+;; 3 options for initialization, -1, 1 or random
 to setup [initial-magnetization]
   clear-all
   ask patches
@@ -19,14 +20,19 @@ to setup [initial-magnetization]
   reset-ticks
 end
 
+;; update 'count patches' patches at a time
 to go
-  ask one-of patches [ update ]
-  tick
+  repeat count patches [
+    ask one-of patches [ update ]
+  ]
+  tick-advance count patches  ;; use tick-advance as we are updating 'count patches' patches at a time
+  update-plots  ;; unlike "tick", tick-advance doesn't update the plots, so need to do so explicitly
 end
 
+;; update the spin of a single patch
 to update  ;; patch procedure
-  ;; flipping changes the sign on our energy, so the difference in energy
-  ;; if we flip is -2 times our current energy
+  ;; flipping changes the sign on our energy, 
+  ;; so the difference in energy, if we flip, is -2 times our current energy
   let Ediff 2 * spin * sum [spin] of neighbors4
   if (Ediff <= 0) or
      (temperature > 0 and (random-float 1.0 < exp ((- Ediff) / temperature)))
@@ -35,15 +41,25 @@ to update  ;; patch procedure
       recolor ]
 end
 
+;; color the patches according to their spin
 to recolor  ;; patch procedure
   ifelse spin = 1
     [ set pcolor blue + 2 ]
     [ set pcolor blue - 2 ]
 end
 
+;; a measure of magnetization, the average of the spins
 to-report magnetization
   report sum-of-spins / count patches
 end
+
+;; speed testing procedure
+ to test-go
+  setup 0
+  reset-timer
+  repeat 100 [go]
+  show "go" show list timer ticks
+  end
 
 
 ; Copyright 2003 Uri Wilensky.
@@ -119,7 +135,7 @@ temperature
 temperature
 0
 10
-2.24
+2.27
 0.01
 1
 NIL
@@ -152,7 +168,7 @@ true
 false
 "" ""
 PENS
-"average spin" 1.0 0 -13345367 true "" "if ticks mod plotting-interval = 0 [\n  plotxy ticks magnetization\n]"
+"average spin" 1.0 0 -13345367 true "" "plotxy ticks magnetization"
 "axis" 1.0 0 -16777216 true ";; draw a horizontal line to show the x axis\nauto-plot-off\nplotxy 0 0\nplotxy 1000000000000000 0\nauto-plot-on" ""
 
 BUTTON
@@ -189,27 +205,14 @@ NIL
 NIL
 1
 
-SLIDER
-72
-439
-244
-472
-plotting-interval
-plotting-interval
-1
-1000
-100
-1
-1
-NIL
-HORIZONTAL
-
 @#$#@#$#@
 ## WHAT IS IT?
 
-This is a model of a magnet at the microscopic level.  The magnetic moments (spins) of the atoms in the magnet can either be up or down.  Spins can change as a result of being influenced by neighboring spins and by the ambient temperature.  The overall behavior of the system will vary depending on the temperature.
+This is a model of a magnet at the microscopic level.  It is a classic model of condensed matter physics. A crystalline material is conceived of as a set of lattice points with spins. The spins (magnetic moments) of the atoms in the magnet can either be up or down.  Spins can change as a result of being influenced by neighboring spins and by the ambient temperature.  Spins prefer to align with their neighbors. The overall behavior of the system will vary depending on the temperature.
 
-When the temperature is low, there is spontaneous magnetization, and we say that the system is in the ferromagnetic phase.  When the temperature is high, there is no spontaneous magnetization, and we say that the system is in the paramagnetic phase.  (At room temperature, a refrigerator magnet is ferromagnetic, but an ordinary piece of iron is paramagnetic.)
+The first version of the model worked on by the physicist Ising was on a 1D lattice. Twenty years later, the physicist Onsager analytically solved the 2D Ising model, the model presented here, and showed that at low temperatures, the spins will tend to align, causing the material to spontaneously magnetize.
+
+In the 2D Ising model, when the temperature is low, there is spontaneous magnetization, and we say that the system is in the ferromagnetic phase.  When the temperature is high, there is no spontaneous magnetization, and we say that the system is in the paramagnetic phase.  (At room temperature, a refrigerator magnet is ferromagnetic, but an ordinary piece of iron is paramagnetic.)
 
 This very abstract model can be interpreted in other ways as well, for example as a model of liquid/gas phase transitions (where the two states are liquid and gas, instead of two magnetic spin states).  It has also been used as a basis for simulating phenomena in the social sciences that involve phase-transition-like behavior.
 
@@ -235,9 +238,7 @@ You can move the TEMPERATURE slider as the model runs if you want.
 
 The magnetization of the system is the average (mean) of all the spins.  The MAGNETIZATION monitor and plot show you the current magnetization and how it has varied so far over time.
 
-The default speed of the model is fairly slow.  If you move the speed slider to the right, you'll see a dramatic speedup (because NetLogo will spend more of its time computing and less of its time redrawing the grid).
 
-You can also speed up the model with the PLOTTING-INTERVAL slider.  If the slider is set to 1, we plot a point every tick.  If the slider is set to 100 (default), we plot a point every 100 ticks.  The less plotting takes place, the faster the model runs.
 
 ## THINGS TO NOTICE
 
@@ -250,6 +251,8 @@ What happens when the temperature slider is very high?  (This is called the "par
 What happens when the temperature slider is set very low?  (This is called the "ferromagnetic" state.)  Again, try this with all three setup buttons.
 
 Between these two very different behaviors is a transition point.  On an infinite grid, the transition point can be proved to be 2 / ln (1 + sqrt 2), which is about 2.27.  On a large enough finite toroidal grid, the transition point is near this number.
+
+Change the size of the NetLogo patch grid. How does this affect the magnetization?
 
 What happens when the temperature is near, but above the transition point?  What happens when the temperature is near, but below the transition point?  Note that the nearer you are to the transition point, the longer the system takes to exhibit its characteristic behavior -- in such cases, we say that the system has a long "correlation length".  So near the transition point, you'll need to do more and longer runs in order to be sure you understand what the typical behavior of the system is.
 
@@ -269,7 +272,29 @@ At each iteration, we give only one spin a chance to flip.  There are other poss
 
 ## NETLOGO FEATURES
 
-Because only a very small amount happens during each tick, this is a model where the speed slider is especially important, since it lets the user speed the model up by not updating the view every tick.
+This model makes 'count patches' attempted flips in every iteration of the GO loop. It codes this as 'repeat count patches [update]'. Note that this does not change the core Ising algorithm that does one attemtped patch flip at a time.
+However, this approach does necessitate a departure from the usual NetLogo practice of calling 'tick' at the end of the GO procedure. If we called "tick" at the end then the tick counter would advance only once for every 'count patches' attempted flips and the Ising model measures the xx at every attempted flip. We therefore use 'tick-advance' primtiive to advance the NetLogo clock and sync it up with the traditional Ising model. Because the 'tick-advance' primitive doesn't update the NetLogo plots, we have to expliclty call "update-plots". This last change also leads to one more departure from conventional NetLogo practice. In the Magnetization plot, we would usually have the code "plot magnetization". But that code would plot the magnetization every time the "update-plots" code was called, which would be only once in every count patches xx of the Ising model and the x-axis of the plot would not reflect true Ising xxes. To sync up the plot with the usual count of xxes in the Ising model, we use the code "ploxy ticks magnetization".
+
+
+A more direct translation of the core Ising algorithm to NetLogo would be as follows:
+
+to go
+ask one-of patches [update]
+tick
+end
+
+However, this more direct version would update the NetLogo view at every tick which would be at every potential patch flip. Because the view updates happen much more slowly than the calculations, the direct approach would ramatically slow down the model in its normal speed slider state. To significantly speed up the direct version, one would need to set the speed slider to its maximum value, so that NetLogo would not update the view at every tick.
+
+Another "natural" way to write the GO procedure in NetLogo would be as follows:
+to go
+ask patches [update]
+tick-advance count patches
+update-plots
+end
+
+This version uses the "patches" agentset to control the updating. At very tick all the patches would update. Note that this does change the core Ising algorithm as it eliminates the chance that the same patch would be picked more than once in the GO loop. However, in practice, we have not seen any changes in the aggregate behavior of the model using this changed algorithm.
+ 
+
 
 ## RELATED MODELS
 
@@ -282,9 +307,11 @@ Thanks to Seth Tisue for his work on this model and to Sara Solla and Kan Chen f
 The Ising model was first proposed by Wilhelm Lenz in 1920.  It is named after his student Ernst Ising, who also studied it.  This NetLogo model implements the Monte Carlo simulation of the Metropolis algorithm for the two dimensional Ising model.  The Metropolis algorithm comes from a 1953 paper by Nicholas Metropolis et al.
 
 There are many web pages which explore the Ising model in greater detail than attempted here.  Here are a few:
-http://pages.physics.cornell.edu/~sethna/teaching/sss/ising/intro.htm
-http://dtjohnson.net/projects/ising
-http://demonstrations.wolfram.com/IsingModel/
+http://bartok.ucsc.edu/peter/java/ising/keep/ising.html
+http://oscar.cacr.caltech.edu/Hrothgar/Ising/references.html
+http://www.physics.cornell.edu/sethna/teaching/sss/ising/intro.htm
+http://physics.syr.edu/courses/ijmp_c/Ising.html
+http://www.npac.syr.edu/users/paulc/lectures/montecarlo/
 
 ## HOW TO CITE
 
