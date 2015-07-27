@@ -9,23 +9,26 @@ patches-own [
 ]
 
 ;; 3 options for initialization, -1, 1 or random
-to setup [initial-magnetization]
+to setup
   clear-all
-  ask patches
-    [ ifelse initial-magnetization = 0
-        [ set spin one-of [-1 1] ]
-        [ set spin initial-magnetization ]
-      recolor ]
+  ask patches [ 
+    ifelse random 100 < probability-+1 [
+      set spin 1
+    ][
+      set spin -1
+    ]
+    recolor
+  ]
   set sum-of-spins sum [spin] of patches
   reset-ticks
 end
 
 ;; update 'count patches' patches at a time
 to go
-  repeat count patches [
+  repeat 1000 [
     ask one-of patches [ update ]
   ]
-  tick-advance count patches  ;; use tick-advance as we are updating 'count patches' patches at a time
+  tick-advance 1000  ;; use tick-advance as we are updating 'count patches' patches at a time
   update-plots  ;; unlike "tick", tick-advance doesn't update the plots, so need to do so explicitly
 end
 
@@ -52,15 +55,6 @@ end
 to-report magnetization
   report sum-of-spins / count patches
 end
-
-;; speed testing procedure
- to test-go
-  setup 0
-  reset-timer
-  repeat 100 [go]
-  show "go" show list timer ticks
-  end
-
 
 ; Copyright 2003 Uri Wilensky.
 ; See Info tab for full copyright and license.
@@ -93,27 +87,10 @@ ticks
 1000.0
 
 BUTTON
-4
-41
-89
-74
-NIL
-setup -1
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-82
-92
-225
-125
+160
+45
+305
+78
 NIL
 go
 T
@@ -128,9 +105,9 @@ NIL
 
 SLIDER
 10
-139
+80
 306
-172
+113
 temperature
 temperature
 0
@@ -142,10 +119,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-73
-186
-187
-231
+100
+115
+214
+160
 magnetization
 magnetization
 3
@@ -153,10 +130,10 @@ magnetization
 11
 
 PLOT
-9
-238
-305
-437
+10
+165
+306
+445
 Magnetization
 time
 average spin
@@ -171,30 +148,28 @@ PENS
 "average spin" 1.0 0 -13345367 true "" "plotxy ticks magnetization"
 "axis" 1.0 0 -16777216 true ";; draw a horizontal line to show the x axis\nauto-plot-off\nplotxy 0 0\nplotxy 1000000000000000 0\nauto-plot-on" ""
 
-BUTTON
-93
-41
-214
-74
-setup-random
-setup 0
-NIL
+SLIDER
+10
+10
+305
+43
+probability-+1
+probability-+1
+0
+100
+50
 1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
 1
+%
+HORIZONTAL
 
 BUTTON
-218
-41
-306
-74
-setup +1
-setup 1
+10
+45
+155
+78
+NIL
+setup
 NIL
 1
 T
@@ -642,5 +617,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
