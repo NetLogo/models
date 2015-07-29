@@ -4,43 +4,43 @@ globals [t]
 
 to test1
   clear-all
-  
+
   ;; create the table
   set t table:make
-  
+
   ;; table:put <table> <key> <value>
   ;; associate <value> with <key> in the table
   table:put t 0 "testvalue"
   table:put t "testkey" 1
- 
-  ;; table:get <table> <key> 
+
+  ;; table:get <table> <key>
   ;; reports the value in the table associated with <key>
   ;; if there is no value set for the key, returns 0
-  if table:get t 0 != "testvalue" [ user-message "should be \"testvalue\"" ] 
+  if table:get t 0 != "testvalue" [ user-message "should be \"testvalue\"" ]
   if table:get t "testkey" != 1 [ user-message "should be 1" ]
 
   ;; table:keys <table>
   ;; reports all keys in the table as a list
   output-print table:keys t
-  
+
   ;; table:length <table>
   ;; reports the number of key->value pairs in the table
   output-print table:length t
-  
+
   ;; table:has-key? <table> <key>
   ;; reports true if there is a value associated with the key in the table
   if ( not table:has-key? t 0 ) [ user-message "should contain 0" ]
   if ( not table:has-key? t "testkey" ) [ user-message "should contain testkey" ]
   if ( table:has-key? t "arbitrary" ) [user-message "should not have the arbitrary key" ]
-  
+
   ;; you can print a table
   output-print t
-  
+
   ;; table:clear <table>
   ;; clears all key->value associations in the table
   table:clear t
   if table:length t != 0 [ user-message "should have no entries" ]
-  
+
 end
 @#$#@#$#@
 GRAPHICS-WINDOW

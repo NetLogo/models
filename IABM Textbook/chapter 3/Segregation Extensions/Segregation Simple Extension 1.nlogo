@@ -16,7 +16,7 @@ to setup
   clear-all
 
   set colors [ red green yellow blue orange ]
-  
+
   ;; create a turtle on NUMBER randomly selected patches.
   ;; note that slider's maximum value is 2500 which is a little less than the total number of patches
   ask n-of number patches [

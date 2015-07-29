@@ -104,12 +104,12 @@ to initialize-system
     set android-history temp-history
     set player-history (reduce-memory (full-history temp-history android-memory) player-memory)
   ]
-  
+
   set success-list []
   set score-list []
-  
+
   reset-ticks
-  
+
   set avg-score 0
   set stdev-score 0
 
@@ -465,7 +465,7 @@ to setup-quick-start
   set qs-item 0
   set qs-items
   [
-    
+
     "Teacher: Follow these directions to run the HubNet activity."
     "Optional: Zoom In (see Zoom in the Menu Bar)"
     "Optional: Change any of the settings by dragging the sliders..."
@@ -478,15 +478,15 @@ to setup-quick-start
       "unclick the LOGIN button, and then press GO."
     "Everyone: Choose 0 or 1."
     "Teacher: To run the activity again with the same group..."
-      "stop the model by unclick the GO button..." 
-        "Change any of the settings that you would like..." 
-            "Then press the SETUP button..."  
+      "stop the model by unclick the GO button..."
+        "Change any of the settings that you would like..."
+            "Then press the SETUP button..."
                "Restart the simulation by pressing the GO button again."
       "Teacher: To start the simulation over with a new group..."
         "have all the clients log out"
           "or boot them using the KICK button in the Control Center"
               "press SETUP and follow these instructions again from the beginning."
-   
+
   ]
   set quick-start (item qs-item qs-items)
 end

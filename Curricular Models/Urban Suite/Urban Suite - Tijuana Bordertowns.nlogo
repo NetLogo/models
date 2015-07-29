@@ -389,7 +389,7 @@ end
 
 
 to go
-  
+
     if setup-done? != true [
       user-message (word
         "Setup of the cityscape is not completed. "
@@ -397,7 +397,7 @@ to go
         "before trying to press GO again.")
       stop
     ]
-  
+
     tick
     if count third-order-builders != 0 [
       set values ( mean [ land-value ] of third-order-builders )

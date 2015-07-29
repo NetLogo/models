@@ -12,7 +12,7 @@ to setup
   ;; the fire can't wrap around the edges of the screen
   ask patches with [abs pxcor < max-pxcor and
                     abs pycor < max-pycor ]
-    [ if (random-float 100) < density 
+    [ if (random-float 100) < density
         [ set pcolor green ] ]
   ;; make a column of burning trees
   ask patches with [pxcor = min-pxcor]

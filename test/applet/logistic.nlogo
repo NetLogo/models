@@ -11,7 +11,7 @@ to setup
 ask patches [set own-state random-float 1.0
              set pcolor 10 * own-state
               ]
-reset-ticks           
+reset-ticks
 end
 
 to go

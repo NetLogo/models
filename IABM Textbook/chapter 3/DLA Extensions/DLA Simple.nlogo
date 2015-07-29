@@ -20,7 +20,7 @@ to go
     forward 1
     ;; if you are touching a green patch
     if any? neighbors with [ pcolor = green ] [
-      set pcolor green ;; turn your own patch green 
+      set pcolor green ;; turn your own patch green
       die ;; and then die
     ]
   ]

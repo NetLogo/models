@@ -3,7 +3,7 @@ patches-own [on?]
 __includes [ "appletinclude.nls" ]
 
 to startup
-  setup 
+  setup
   repeat 500 [ go ]
   if ( not includedReporter ) [ error "include file definition not read" ]
 end
@@ -485,25 +485,25 @@ COLOR-PATHS?: Tells the heads to write color information onto the cell. This fea
 
 HEAD-SIZE: How large the head, or turtle appears.
 
-The rules of all heads are given by three parameters:  
+The rules of all heads are given by three parameters:
 [cell state]-[head state]-state [cell state]-[head state]-position [cell state]-[head state]-on?
 
 The prefix of each slider/toggle refers to the current state of the machine and the cell it is on.
 
-First prefix  - current cell state: on/off  
+First prefix  - current cell state: on/off
 Second prefix - current state of head, which may be either 0 or 1
 
 These prefixes specify the initial state which the following rules are applied to:
 
-Turn- specifies what direction the head will turn before moving forward 1 cell  
-New Head State- specifies the new head state  
+Turn- specifies what direction the head will turn before moving forward 1 cell
+New Head State- specifies the new head state
 New Cell State- specifies the state to apply to the current cell
 
 ## THINGS TO NOTICE
 
 Here are some interesting phenomena that occur with the example setups:
 
-Example 1: In the first example, the machine does nothing with only one head. With two or more heads, the heads cooperate with each other to fill the tape with data in a repetitive fashion forming a shape similar to a square rotated by 45 degrees.  When the heads wrap around and converge with the written data, they get stuck in a loop and do not write any more data. If the tape was infinite, the growth of the square would be unbounded. 
+Example 1: In the first example, the machine does nothing with only one head. With two or more heads, the heads cooperate with each other to fill the tape with data in a repetitive fashion forming a shape similar to a square rotated by 45 degrees.  When the heads wrap around and converge with the written data, they get stuck in a loop and do not write any more data. If the tape was infinite, the growth of the square would be unbounded.
 
 Example 2: Like the first example, the processors also aid each other in filling up the tape with data.  The pattern they form is less symmetric, and two processors may get stuck in a small loop with each other as the tape gets filled with data, potentially stunting the growth of the data.  This is an example where multiprocessing fails to work effectively.  This is analogous common problems faced by parallel algorithms. The processing of shared resources between multiple processors may conflict with proper functioning.
 
@@ -517,7 +517,7 @@ Example 5: The rules of this machine is very similar to that of Langton's vants,
 
 Start by tinkering around with the number of heads in the example models, and consider the following:
 
-How do the heads interact with each other? 
+How do the heads interact with each other?
 
 What can you conclude about the number of heads in relation to the complexity of their execution?
 
@@ -533,10 +533,10 @@ Try adding more states to the cells and/or heads to the model.  Do different typ
 
 ## CREDITS AND REFERENCES
 
-Langton, C. 1984. Self-reproduction in cellular automata. Physica D 10, 134-144  
-Langton, C. 1986. Studying artificial life with cellular automata. Physica D 22, 120-149  
-Sipser, M. 1997. Introduction to the Theory of Computation. PWS Publishing 125-147.  
-Wolfram, S. 2002. A New Kind of Science. Wolfram Media Inc.  Champaign, IL.   
+Langton, C. 1984. Self-reproduction in cellular automata. Physica D 10, 134-144
+Langton, C. 1986. Studying artificial life with cellular automata. Physica D 22, 120-149
+Sipser, M. 1997. Introduction to the Theory of Computation. PWS Publishing 125-147.
+Wolfram, S. 2002. A New Kind of Science. Wolfram Media Inc.  Champaign, IL.
 Pegg, E. 2002. Turmite. http://mathworld.wolfram.com/Turmite.html.
 
 Thanks to Ethan Bakshy for his work on this model.

@@ -99,7 +99,7 @@ to-report bad-intersections [t1 t2]
   if i = [list precision xcor 1 precision ycor 1] of end2
     [ report false ]
   show (word t1 " " t2 " " i)
-  report true  
+  report true
 end
 
 to-report intersection [t1 t2]
@@ -109,7 +109,7 @@ to-report intersection [t1 t2]
   if m1 = m2 [ report [] ]
   ;; is t1 vertical? if so, swap the two turtles
   if abs m1 = tan 90
-  [ 
+  [
     ifelse abs m2 = tan 90
       [ report [] ]
       [ report intersection t2 t1 ]

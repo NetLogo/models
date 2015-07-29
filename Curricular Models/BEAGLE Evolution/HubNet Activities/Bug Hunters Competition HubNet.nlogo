@@ -93,11 +93,11 @@ to setup
   if include-clients-as-bugs? [ask players [assign-bug-to-player]]
   add-bugs
 
-  
+
   listen-clients
   check-reset-perspective
   display-labels
-  
+
   reset-ticks
   set time-remaining (length-competition - ticks)
   send-all-info
@@ -137,11 +137,11 @@ to go
     tick
     set time-remaining (length-competition - ticks)
   ]
-  if ticks = length-competition  [ 
-    display 
+  if ticks = length-competition  [
+    display
     set competition-status "Over"
-    if time-remaining <= 0 [set time-remaining 0] 
-    send-all-info 
+    if time-remaining <= 0 [set time-remaining 0]
+    send-all-info
     tick
   ]
 end
@@ -376,7 +376,7 @@ to send-this-players-info ;; player procedure
     [set message-to-send (word  place  out-of any-ties)]
     [set message-to-send "not currently in this competition"]
   hubnet-send user-id "Your Place in the Competition" message-to-send
-  
+
 end
 
 

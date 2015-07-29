@@ -17,50 +17,50 @@ to setup
   output-print m2 ; => matrix: [[0 9 0][1 1 1][2 2 2][3 3 3]]
   output-print mRef ; same as above
   output-print mCopy ; different -- no 9 in the first row.
-  
+
                      ; output-print matrix:dimensions m4 ; => [5,1]
   output-print matrix:to-row-list m1 ; => [[1 2 3] [4 5 6] [7 8 9]]
   output-print matrix:to-column-list m4 ; => [[100][100][100][100][100]]
-  
-  let m5 matrix:plus-scalar m3 1 
+
+  let m5 matrix:plus-scalar m3 1
   output-print m5 ; => matrix:  [[2 1][1 2]]
-  
+
   output-print matrix:plus m3 m5 ; => [[3 1][1 3]]
-  
+
   output-print matrix:times-scalar m5 10 ; => [[20 10][10 20]]
-  output-print matrix:times (matrix:from-row-list [[1 2][3 4]]) 
+  output-print matrix:times (matrix:from-row-list [[1 2][3 4]])
     (matrix:from-row-list [[0 1][-1 0]])
   ; => {{matrix:  [ [ -2 1 ][ -4 3 ] ]}}
-  
-  output-print matrix:times-element-wise (matrix:from-row-list [[1 2][3 4]]) 
+
+  output-print matrix:times-element-wise (matrix:from-row-list [[1 2][3 4]])
     (matrix:from-row-list [[0 1][-1 0]])
   ; => {{matrix:    [[0 2][-3 0] ]}}
-  
-  
-  output-print matrix:inverse (matrix:from-row-list [[2 2][2 0]]) 
+
+
+  output-print matrix:inverse (matrix:from-row-list [[2 2][2 0]])
   ; => {{matrix:  [ [ 0 0.5 ][ 0.5 -0.5 ] ]}}
   output-print matrix:transpose m2 ; => matrix: [[0 1 2 3][9 1 2 3][0 1 2 3]]
   output-print matrix:submatrix m1 0 1 2 3 ; matrix, rowStart, colStart, rowEnd, colEnd
-                                           ; rows from 0 (inclusive) to 2 (exlusive), 
+                                           ; rows from 0 (inclusive) to 2 (exlusive),
                                            ; columns from 1 (inclusive) to 3 (exclusive)
                                            ; => matrix: [[2 3][5 6]]
-  
+
                                            ; recall m5 = [[2 1][1 2]]
   output-print matrix:real-eigenvalues m5 ; => [1.0000000000000002 3] NOTE: accuracy not perfect.
   output-print matrix:imaginary-eigenvalues m5 ; => [ 0 0 ]
   output-print matrix:eigenvectors m5 ; => matrix:  [[0.707... 0.707...][-0.707... 0.707...]] (.707... = sqrt(2)/2 )
-  
+
   let A matrix:from-row-list [[1 2][3 4]]
   let B matrix:from-row-list [[-2 1][-4 3]]
   output-print matrix:solve A B ; => [[0 1][-1 0]]
-                                ;  Solve is sort of like matrix division.  
+                                ;  Solve is sort of like matrix division.
                                 ;  That is, it tries to find matrix X such that  A * X = B.
                                 ;  It gives a "least-squares" solution, if no perfect solution exists.
-  
+
                                 ;;NOTE: The extension could easily be extended with more functionality,
-                                ;;      since the Jama library it is based on can do much more 
-                                ;;        (e.g. LU, Cholesky, SV decompositions) 
-  
+                                ;;      since the Jama library it is based on can do much more
+                                ;;        (e.g. LU, Cholesky, SV decompositions)
+
 end
 @#$#@#$#@
 GRAPHICS-WINDOW

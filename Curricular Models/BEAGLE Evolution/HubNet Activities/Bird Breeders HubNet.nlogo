@@ -313,7 +313,7 @@ to go
 ;;  ]
   calculate-all-alleles
   check-for-meeting-goals
-  
+
   tick
 end
 
