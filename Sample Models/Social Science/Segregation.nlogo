@@ -6,7 +6,7 @@ globals [
 
 turtles-own [
   happy?           ;; for each turtle, indicates whether at least %-similar-wanted percent of
-                   ;;   that turtles' neighbors are the same color as the turtle
+                   ;;   that turtle's neighbors are the same color as the turtle
   similar-nearby   ;; how many neighboring patches have a turtle with my color?
   other-nearby     ;; how many have a turtle of another color?
   total-nearby     ;; sum of previous two variables
