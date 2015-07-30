@@ -27,30 +27,27 @@ end
 
 to setup-nest
   ;; set nest? variable to true inside the nest, false elsewhere
-  ask patches [set nest? (distancexy 0 0) < 5]
+  ask patches [ set nest? (distancexy 0 0) < 5 ]
 end
 
 to setup-food
   ask patches [
-  ;; setup food source one on the right
-  if (distancexy (0.6 * max-pxcor) 0) < 5
-  [ set food 2 ]
-  ;; setup food source two on the lower-left
-  if (distancexy (-0.6 * max-pxcor) (-0.6 * max-pycor)) < 5
-  [ set food 2 ]
-  ;; setup food source three on the upper-left
-  if (distancexy (-0.8 * max-pxcor) (0.8 * max-pycor)) < 5
-  [ set food 2 ]
+    ;; setup food source one on the right
+    if (distancexy (0.6 * max-pxcor) 0) < 5 [ set food 2 ]
+    ;; setup food source two on the lower-left
+    if (distancexy (-0.6 * max-pxcor) (-0.6 * max-pycor)) < 5 [ set food 2 ]
+    ;; setup food source three on the upper-left
+    if (distancexy (-0.8 * max-pxcor) (0.8 * max-pycor)) < 5 [ set food 2 ]
   ]
 end
 
 to recolor-patches
   ask patches [
-  ;; scale color to show pheromone concentration
-  set pcolor scale-color green pheromone 0.1 5
-  ;; give color to nest and food sources
-  if nest? [ set pcolor violet ]
-  if food > 0 [ set pcolor cyan ]
+    ;; scale color to show pheromone concentration
+    set pcolor scale-color green pheromone 0.1 5
+    ;; give color to nest and food sources
+    if nest? [ set pcolor violet ]
+    if food > 0 [ set pcolor cyan ]
   ]
 end
 
@@ -74,25 +71,28 @@ to go  ;; forever button
 end
 
 to move  ;; turtle procedure
-  if not carrying-food?  [ look-for-food  ]     ;; if not carrying food, look for it
+  if not carrying-food? [ look-for-food  ]  ;; if not carrying food, look for it
   if carrying-food? [ move-towards-nest ]   ;; if carrying food head back to the nest
-  wander          ;; turn a small random amount and move forward
+  wander                                    ;; turn a small random amount and move forward
 end
 
 to create-ant
-  create-turtles 1
-  [ set size 2  ;; easier to see
-    set carrying-food? false ]
+  create-turtles 1 [
+    set size 2  ;; easier to see
+    set carrying-food? false
+  ]
 end
 
 to move-towards-nest  ;; turtle procedure
-  ifelse nest?
-  [ ;; drop food and head out again
+  ifelse nest? [
+    ;; drop food and head out again
     set carrying-food? false
-    rt 180 ]
-  [ set pheromone pheromone + 60  ;; drop some pheromone
+    rt 180
+  ] [
+    set pheromone pheromone + 60  ;; drop some pheromone
     ;; turn towards the nest, which is at the center
-    facexy 0 0 ]
+    facexy 0 0
+  ]
 end
 
 to look-for-food  ;; turtle procedure
@@ -113,10 +113,11 @@ to uphill-pheromone  ;; turtle procedure
     let scent-ahead pheromone-scent-at-angle   0
     let scent-right pheromone-scent-at-angle  45
     let scent-left  pheromone-scent-at-angle -45
-    if (scent-right > scent-ahead) or (scent-left > scent-ahead)
-    [ ifelse scent-right > scent-left
-      [ rt 45 ]
-      [ lt 45 ] ]
+    if (scent-right > scent-ahead) or (scent-left > scent-ahead) [
+      ifelse scent-right > scent-left
+        [ rt 45 ]
+        [ lt 45 ]
+    ]
   ]
 end
 
@@ -132,10 +133,10 @@ to recolor  ;; turtle procedure
   if carrying-food? [ set color orange + 1]
 end
 
-to-report pheromone-scent-at-angle [angle]
+to-report pheromone-scent-at-angle [ angle ]
   let p patch-right-and-ahead angle 1
   if p = nobody [ report 0 ]
-  report [pheromone] of p
+  report [ pheromone ] of p
 end
 
 
