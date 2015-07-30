@@ -377,7 +377,7 @@ This model is an alternate visualization of the Virus model from the Biology sec
 
 ## WHAT IS IT?
 
-This model simulates the transmission and perpetuation of a virus in a human population.
+This model simulates the transmission and perpetuation of a virus in a human population. This version includes alternative visualizations of the model.
 
 Ecological biologists have suggested a number of factors which may influence the survival of a directly transmitted virus within a population. (Yorke, et al. "Seasonality and the requirements for perpetuation and eradication of viruses in populations." Journal of Epidemiology, volume 109, pages 103-123)
 

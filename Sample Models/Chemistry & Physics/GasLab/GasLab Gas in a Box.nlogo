@@ -607,11 +607,11 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
+This model simulates the behavior of gas particles in a closed box, or a container with a fixed volume.  The path of single particle is visualized by a gray colored trace of the particle's most recent positions.
+
 This model is one in a series of GasLab models. They use the same basic rules for simulating the behavior of gases.  Each model integrates different features in order to highlight different aspects of gas behavior.
 
 The basic principle of the models is that gas particles are assumed to have two elementary actions: they move and they collide --- either with other particles or with any other objects such as walls.
-
-This model simulates the behavior of gas particles in a closed box, or a container with a fixed volume.  The path of single particle is visualized by a gray colored trace of the particle's most recent positions.
 
 This model is part of the Connected Mathematics "Making Sense of Complex Phenomena" Modeling Project.
 

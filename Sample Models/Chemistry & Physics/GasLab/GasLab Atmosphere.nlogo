@@ -675,11 +675,11 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
+In this model, a gaseous atmosphere is placed above the surface of a "planet", represented by a yellow line at the bottom of the world.
+
 This model is one in a series of GasLab models. They use the same basic rules for simulating the behavior of gases.  Each model integrates different features in order to highlight different aspects of gas behavior.
 
 The basic principle of the models is that gas particles are assumed to have two elementary actions: they move and they collide --- either with other particles or with any other objects such as walls.
-
-In this model, a gaseous atmosphere is placed above the surface of a "planet", represented by a yellow line at the bottom of the world.
 
 ## HOW IT WORKS
 

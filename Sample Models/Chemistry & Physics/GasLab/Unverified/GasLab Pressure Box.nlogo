@@ -643,11 +643,11 @@ count particles
 @#$#@#$#@
 ## WHAT IS IT?
 
+This model simulates the behavior of gas particles trapped in a container with a fixed volume, such as inflating a bike tire.  The number of particles in the box can be changed by adding particles through a valve on the side.
+
 This model is one in a series of GasLab models. They use the same basic rules for simulating the behavior of gases.  Each model integrates different features in order to highlight different aspects of gas behavior.
 
 The basic principle of the models is that gas particles are assumed to have two elementary actions: they move and they collide - either with other particles or with any other objects such as walls.
-
-This model simulates the behavior of gas particles trapped in a container with a fixed volume, such as inflating a bike tire.  The number of particles in the box can be changed by adding particles through a valve on the side.
 
 This model is part of the Connected Chemistry curriculum, which is part of the Modeling Across the Curriculum (MAC) Project.
 

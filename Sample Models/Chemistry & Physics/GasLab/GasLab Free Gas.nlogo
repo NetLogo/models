@@ -528,11 +528,11 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
+This model is the simplest gas model in the suite of GasLab models.  The particles are moving and colliding with each other with no external constraints, such as gravity or containers. In this model, particles are modeled as perfectly elastic ones with no energy except their kinetic energy -- which is due to their motion.  Collisions between particles are elastic.  Particles are colored according to their speed -- blue for slow, green for medium, and red for high.
+
 This model is one in a series of GasLab models. They use the same basic rules for simulating the behavior of gases.  Each model integrates different features in order to highlight different aspects of gas behavior.
 
 The basic principle of the models is that gas particles are assumed to have two elementary actions: they move and they collide --- either with other particles or with any other objects such as walls.
-
-This model is the simplest gas model in the suite of GasLab models.  The particles are moving and colliding with each other with no external constraints, such as gravity or containers. In this model, particles are modeled as perfectly elastic ones with no energy except their kinetic energy -- which is due to their motion.  Collisions between particles are elastic.  Particles are colored according to their speed -- blue for slow, green for medium, and red for high.
 
 ## HOW IT WORKS
 

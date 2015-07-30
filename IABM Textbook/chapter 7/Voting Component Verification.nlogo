@@ -176,9 +176,7 @@ This model is in the IABM Textbook folder of the NetLogo Models Library. The mod
 
 ## WHAT IS IT?
 
-This model is a simple cellular automaton that simulates voting distribution by having each patch take a "vote" of its eight surrounding neighbors, then perhaps change its own vote according to the outcome.
-
-The component verification extension adds the CHECK-SETUP procedure which examines whether or not the initial conditions of the model exceed the expected initial conditions.
+This model is a simple cellular automaton that simulates voting distribution by having each patch take a "vote" of its eight surrounding neighbors, then perhaps change its own vote according to the outcome. The component verification extension adds the CHECK-SETUP procedure which examines whether or not the initial conditions of the model exceed the expected initial conditions.
 
 ## HOW TO USE IT
 

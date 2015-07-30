@@ -149,11 +149,9 @@ This model is in the IABM Textbook folder of the NetLogo Models Library. The mod
 
 ## WHAT IS IT?
 
-Like the main DLA model, this model demonstrates diffusion-limited aggregation, in which particles moving (diffusing) in random trajectories stick together (aggregate) to form beautiful treelike branching fractal structures. There are many patterns found in nature that resemble the patterns produced by this model: crystals, coral, fungi, lightning, and so on.
+Like the main DLA model, this model demonstrates diffusion-limited aggregation, in which particles moving (diffusing) in random trajectories stick together (aggregate) to form beautiful treelike branching fractal structures. There are many patterns found in nature that resemble the patterns produced by this model: crystals, coral, fungi, lightning, and so on. This model extends the DLA Simple model because particles are not guaranteed to stick to each other, but are instead affected by a probability.
 
 This model is based on the DLA Simple model because it is a simplified version of the main DLA model in the Chemistry and Physics section of the NetLogo models library. In the main model, new particles are created as existing particles aggregate. In this model, particles are only created at the beginning. The main model is more computationally efficient, but the rules that drive the phenomenon are more digestible in this model.
-
-This model extends the DLA Simple model because particles are not guaranteed to stick to each other, but are instead affected by a probability.
 
 ## HOW TO USE IT
 

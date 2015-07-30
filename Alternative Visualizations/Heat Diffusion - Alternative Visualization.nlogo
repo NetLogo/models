@@ -418,9 +418,7 @@ This model is an alternate visualization of the Heat Diffusion model from the Ch
 
 ## WHAT IS IT?
 
-This model simulates transient and steady-state temperature distribution of a thin plate.
-
-This version of the model uses a more intuitive visualization of the gradient of heat than the original model.
+This model simulates transient and steady-state temperature distribution of a thin plate. This version of the model uses a more intuitive visualization of the gradient of heat than the original model.
 
 The View shows a square thin plate as viewed from above.  The plate is thermally isolated on the two faces parallel to the view such that heat can flow only in and out from the perimeter of the plate and not into or out of the world.  Heat is kept constant at the edges.  As the simulation runs, heat is transmitted from warmer parts of the plate to cooler parts of the plate as shown by the varying color of the plate.  Therefore, the temperature of the plate begins to change immediately and possibly differently at different locations, gradually converging to a stable state.  Overall, the temperature distribution over the plate is a function of time and location.  In addition to this simple use of the model, you are encouraged to control various paramaters, such as the temperature of each edge edge of the plate and of the center of the plate before--and even while--the model is running.
 

@@ -788,13 +788,11 @@ System
 @#$#@#$#@
 ## WHAT IS IT?
 
+This model simulates the behavior of gas particles in a box with a movable piston. The piston has weight which pushes it down, and the gas particles push upward against the piston when they collide with it. "Adiabatic" means "without loss or gain of heat".  In this model, no heat energy (such as heat loss through the walls of the box) is added to or removed from the system.
+
 This model is one in a series of GasLab models. They use the same basic rules for simulating the behavior of gases.  Each model integrates different features in order to highlight different aspects of gas behavior.
 
 The basic principle of the models is that gas particles are assumed to have two elementary actions: they move and they collide - either with other particles or with any other objects such as walls (see the model "GasLab Gas in a Box" for an introduction to the GasLab collection).
-
-This particular model simulates the behavior of gas particles in a box with a movable piston. The piston has weight which pushes it down, and the gas particles push upward against the piston when they collide with it.
-
-"Adiabatic" means "without loss or gain of heat".  In this model, no heat energy (such as heat loss through the walls of the box) is added to or removed from the system.
 
 ## HOW IT WORKS
 

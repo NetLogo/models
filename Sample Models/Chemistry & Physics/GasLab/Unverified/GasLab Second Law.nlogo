@@ -452,11 +452,11 @@ PENS
 @#$#@#$#@
 ## WHAT IS IT?
 
+This model simulates the Second Law of Thermodynamics via the behavior of gas particles in a box. The Second Law of Thermodynamics states that systems tend towards increased entropy.  Essentially what this means is that over time ordered systems become less ordered unless work is done on the system to keep it ordered.
+
 This model is one in a series of GasLab models. They use the same basic rules for simulating the behavior of gases.  Each model integrates different features in order to highlight different aspects of gas behavior.
 
 The basic principle of the models is that gas particles are assumed to have two elementary actions: they move and they collide --- either with other particles or with any other objects such as walls.
-
-This model simulates the Second Law of Thermodynamics via the behavior of gas particles in a box. The Second Law of Thermodynamics states that systems tend towards increased entropy.  Essentially what this means is that over time ordered systems become less ordered unless work is done on the system to keep it ordered.
 
 ## HOW IT WORKS
 

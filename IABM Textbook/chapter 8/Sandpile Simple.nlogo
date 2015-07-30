@@ -292,7 +292,7 @@ This model is in the IABM Textbook folder of the NetLogo Models Library. The mod
 
 ## WHAT IS IT?
 
-The Bak–Tang–Wiesenfeld sandpile model demonstrates the concept of "self-organized criticality". It further demonstrates that complexity can emerge from simple rules and that a system can arrive at a critical state spontaneously rather than through the fine tuning of precise parameters.
+The Bak–Tang–Wiesenfeld sandpile model demonstrates the concept of "self-organized criticality". It further demonstrates that complexity can emerge from simple rules and that a system can arrive at a critical state spontaneously rather than through the fine tuning of precise parameters. This is a simplified version of the original Sandpile model.
 
 ## HOW IT WORKS
 

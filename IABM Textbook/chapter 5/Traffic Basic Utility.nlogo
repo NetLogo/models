@@ -245,11 +245,9 @@ This model is in the IABM Textbook folder of the NetLogo Models Library. The mod
 
 ## WHAT IS IT?
 
-This model models the movement of cars on a highway. Each car follows a simple set of rules: it slows down (decelerates) if it sees a car close ahead, and speeds up (accelerates) if it doesn't see a car ahead.
+This model models the movement of cars on a highway. Each car follows a simple set of rules: it slows down (decelerates) if it sees a car close ahead, and speeds up (accelerates) if it doesn't see a car ahead. Cars start at a random speed between 0.1 and 1. This model extends the Traffic Basic model, from the social science section of the NetLogo models library, to include a utility function for the cars.
 
-Cars start at a random speed between 0.1 and 1 .
-
-This model extends the Traffic Basic model, from the social science section of the NetLogo models library, to include a utility function for the cars. The model sets the optimal speed for the cars (best fuel efficiency) to be 0.45. If the acceleration rule speeds the car past the optimal speed, the car decelerates instead of accelerating.
+The model sets the optimal speed for the cars (best fuel efficiency) to be 0.45. If the acceleration rule speeds the car past the optimal speed, the car decelerates instead of accelerating.
 
 ## HOW TO USE IT
 

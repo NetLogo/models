@@ -202,9 +202,7 @@ This model is in the IABM Textbook folder of the NetLogo Models Library. The mod
 
 ## WHAT IS IT?
 
-This model is a simple cellular automaton that simulates voting distribution by having each patch take a "vote" of its eight surrounding neighbors, then perhaps change its own vote according to the outcome.
-
-The sensitivity version of this model alters the original model by allowing the user to specify the initial percentage of the green patches in the model and to test whether the model's behavior is sensitive to the initial percentages of the colors.
+This model is a simple cellular automaton that simulates voting distribution by having each patch take a "vote" of its eight surrounding neighbors, then perhaps change its own vote according to the outcome. The sensitivity version of this model alters the original model by allowing the user to specify the initial percentage of the green patches in the model and to test whether the model's behavior is sensitive to the initial percentages of the colors.
 
 ## HOW TO USE IT
 

@@ -128,7 +128,7 @@ PENS
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model is an example of random selection.  It shows that patches that randomly exchange colors converge on a single color. The idea, explained in more detail in Dennett's "Darwin's Dangerous Idea", is that trait drifts can occur without any particular purpose or 'selecting pressure'.
+This model is an example of random selection.  It shows that patches that randomly exchange colors converge on a single color. The idea, explained in more detail in Dennett's "Darwin's Dangerous Idea", is that trait drifts can occur without any particular purpose or 'selecting pressure'. In this version of the model, exchange of color can only occur between neighboring patches.
 
 ## HOW IT WORKS
 

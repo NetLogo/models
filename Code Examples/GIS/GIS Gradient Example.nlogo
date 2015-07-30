@@ -168,7 +168,7 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model was built to test and demonstrate the functionality of the GIS NetLogo extension.
+This model was built to test and demonstrate the functionality of the GIS NetLogo extension. It simulates raindrops flowing downhill over the Earth's surface.
 
 ## HOW IT WORKS
 

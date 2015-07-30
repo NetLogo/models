@@ -576,11 +576,13 @@ HORIZONTAL
 @#$#@#$#@
 ## WHAT IS IT?
 
+This model illustrates a famous thought experiment, which raised important issues about the nature of entropy.
+
+In 1871, James Clerk Maxwell imagined a situation where a very small and nimble being could, by opening and closing a valve between two gas-filled chambers, allow only faster particles to go through one way and only slower particles to go through the other.  By doing this, the being (later called a demon) could raise the temperature of one chamber (faster particles) and lower the temperature of the other (slower particles), without the expenditure of work. This was a violation of the Second Law of Thermodynamics, and he asserted that this could not actually occur.  The implications of this puzzle have continued to be central to thermodynamics, entropy, and information theory up to the present time.
+
 This model is one in a series of GasLab models. They use the same basic rules for simulating the behavior of gases.  Each model integrates different features in order to highlight different aspects of gas behavior.
 
 The basic principle of the models is that gas particles are assumed to have two elementary actions: they move and they collide --- either with other particles or with any other objects such as walls.
-
-This model illustrates a famous thought experiment, which raised important issues about the nature of entropy.  In 1871, James Clerk Maxwell imagined a situation where a very small and nimble being could, by opening and closing a valve between two gas-filled chambers, allow only faster particles to go through one way and only slower particles to go through the other.  By doing this, the being (later called a demon) could raise the temperature of one chamber (faster particles) and lower the temperature of the other (slower particles), without the expenditure of work.  This was a violation of the Second Law of Thermodynamics, and he asserted that this could not actually occur.  The implications of this puzzle have continued to be central to thermodynamics, entropy, and information theory up to the present time.
 
 ## HOW IT WORKS
 

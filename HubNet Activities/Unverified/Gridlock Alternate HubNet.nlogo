@@ -1344,7 +1344,7 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-Students control traffic lights in a real-time traffic simulation.  The teacher controls overall variables, such as the speed limit and the number of cars.  This allows students to explore traffic dynamics, which can lead into many areas of study, from calculus to social studies.
+Students control traffic lights in a real-time traffic simulation.  The teacher controls overall variables, such as the speed limit and the number of cars.  This allows students to explore traffic dynamics, which can lead into many areas of study, from calculus to social studies. This alternate version of the Gridlock HubNet model allows the client to send NetLogo code to the model to be run and produce values which can then be plotted in the a client plot.
 
 Challenge the students to develop strategies to improve traffic and discuss the different ways to measure the quality of traffic.
 

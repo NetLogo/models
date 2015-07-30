@@ -890,11 +890,9 @@ note: pressing \"setup\" twice on Mac OS X may cause a crash
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model communicates with the sensors and output ports of a [GoGo Board](http://www.gogoboard.org), an open source, easy-to-build, low cost, general purpose circuit board designed for educational projects.
+This model communicates with the sensors and output ports of a [GoGo Board](http://www.gogoboard.org), an open source, easy-to-build, low cost, general purpose circuit board designed for educational projects. This model uses the old extension that connects to serial ports. For the new version, see the GoGo HID models.
 
 This model helps you test your connection to your GoGo Board, and serves as a starting point for building NetLogo activities that interact with the physical world. For a simpler version of this model, try the GoGoMonitorSimple.
-
-This model uses the old extension that connects to serial ports. For the new version, see the GoGo HID models.
 
 ## HOW IT WORKS
 
