@@ -67,10 +67,12 @@ end
 
 ;; adjust speed to be closer to most efficient speed
 to adjust-speed-for-efficiency
-  if speed != efficient-speed [
+  if speed != efficient-speed [ ;; if car is at efficient speed, do nothing
+    ;; if accelerating will still put you below the efficient speed, then accelerate
     if (speed + acceleration < efficient-speed) [
       set speed speed + acceleration
     ]
+    ;; if decelerating will still put you below the efficient speed, then decelerate
     if (speed - deceleration > efficient-speed) [
       set speed speed - deceleration
     ]
