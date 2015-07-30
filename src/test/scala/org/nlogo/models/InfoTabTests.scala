@@ -21,12 +21,14 @@ class InfoTabsTests extends TestModels {
       model.info.content.lines.dropWhile(_.isEmpty).take(1).mkString
   }
 
-  testLibraryModels("Length of first paragraph of WHAT IS IT should be > 42 and <= 540") { models =>
+  val minLen = 40
+  val maxLen = 700
+  testLibraryModels(s"Length of first paragraph of WHAT IS IT should be >= $minLen and <= $maxLen") { models =>
     for {
       model <- models
       paragraph <- model.info.sectionMap.get(whatIsIt).map(_.lines.next)
       length = paragraph.length
-      if length < 42 || length > 540
+      if length <= minLen || length > maxLen
     } yield s"Length is $length in ${model.quotedPath}"
   }
 
