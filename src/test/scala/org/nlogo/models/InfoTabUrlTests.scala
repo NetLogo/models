@@ -74,13 +74,22 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
     }
   }
 
-  // Some URLs get redirect when tried from here but are
-  // OK when used in browser. We make exception for those.
-  val acceptRedirectFrom: Set[String] = Set(
-    "http://www.the-scientist.com/?articles.view/articleNo/13750/title/Why-Leaves-Turn-Color-in-the-Fall/",
-    "http://www.jstor.org/stable/2224214",
-    "https://www.wolframscience.com/nksonline/page-331"
+  val exceptions: Map[Int, Seq[String]] = Map(
+    301 -> Seq(
+      "http://www.the-scientist.com/?articles.view/articleNo/13750/title/Why-Leaves-Turn-Color-in-the-Fall/",
+      "https://www.wolframscience.com/nksonline/page-331"
+    ),
+    302 -> Seq("http://www.jstor.org/stable/2224214"),
+    403 -> Seq("http://www.ncbi.nlm.nih.gov/pmc/articles/PMC128592/"),
+    429 -> Seq("https://www.youtube.com/watch")
   )
+
+  def redirectTolerated(link: String, response: WSResponse) =
+    response.header("Location") match {
+      case Some("/") => true
+      case Some(l) if l == link => true
+      case _ => false
+    }
 
   def request(
     link: String,
@@ -90,29 +99,21 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
     val requestHolder = client.url(link).withRequestTimeout(5000)
     method(requestHolder).flatMap { response =>
       response.status match {
-        case 403 if method == head =>
-          request(link, get) // sometimes HEAD is forbidden, retry with a GET
-        case 429 if link.startsWith("https://www.youtube.com/watch") =>
-          right("Response code 429 (rate limiting) from youtube tolerated")
         case sc if sc >= 200 && sc < 300 =>
           right() // OK
-        case sc if sc >= 300 && sc < 400 =>
+        case sc if sc >= 300 && sc < 400 && redirectTolerated(link, response) =>
           val location = response.header("Location").getOrElse("no location!")
-          val msg = "Got redirect " + sc + " => " + location
-          location match {
-            case "/" =>
-              right(msg + " (redirect to root tolerated)")
-            case l if l == link =>
-              right(msg + " (redirect to same URL tolerated)")
-            case _ if acceptRedirectFrom.contains(link) =>
-              right(msg + " (tolerated exception)")
-            case _ =>
-              left(msg)
-          }
+          right("Got redirect " + sc + " => " + location + " (tolerated)")
+        case 403 if method == head =>
+          request(link, get) // sometimes HEAD is forbidden, retry with a GET
         case sc if sc >= 500 && sc < 600 =>
           request(link, method)
-        case sc =>
-          left("Got response status code " + sc)
+        case sc if exceptions.get(sc).filter(_.exists(link startsWith _)).isDefined =>
+          right(s"Response code $sc tolerated for " + link)
+        case sc => left(
+          "Got response status code " + sc + ". Headers:\n" +
+            response.allHeaders.mkString("\n")
+        )
       }
     }.recoverWith {
       case e: ConnectException => request(link, method)
