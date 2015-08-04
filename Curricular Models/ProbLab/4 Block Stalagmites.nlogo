@@ -25,7 +25,7 @@ breed [ baby-dudes baby-dude ]
 ;; jwu - instead of having the sample-dudes stamp, they're going to create
 ;; a sample-organizer. the sample-organizers are going to have a better idea
 ;; of which specific sample the sample-dudes represented.
-breed [ sample-organizers ]
+breed [ sample-organizers sample-organizer ]
 sample-organizers-own [
   sample-values
   original-pycor
