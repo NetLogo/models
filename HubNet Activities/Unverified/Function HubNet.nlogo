@@ -138,13 +138,13 @@ end
 
 ;; change the equation submitted by a student
 to edit-student-equation
-  let student current-student false
-  if student = nobody
+  let this-student current-student false
+  if this-student = nobody
   [ stop ]
 
-  let eq user-input [my-equation] of student
+  let eq user-input [my-equation] of this-student
 
-  ask student [ set my-equation eq ]
+  ask this-student [ set my-equation eq ]
 end
 
 ;; return the student in index, position of the sorted list
