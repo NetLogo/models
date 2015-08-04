@@ -302,7 +302,7 @@ to set-color
   set color-names remove-item index color-names
 end
 
-to add-student-to [team]
+to add-student-to [this-team]
   create-players 1
   [
     set user-id hubnet-message-source
@@ -312,7 +312,7 @@ to add-student-to [team]
     set order 4
     set ordered 0
     ;; attach the new player to the end of the chain.
-    ask [last-player] of team
+    ask [last-player] of this-team
     [
        create-demand-link-to myself
          [ set orders-placed 4 ]
@@ -320,10 +320,10 @@ to add-student-to [team]
          [ set orders-filled n-values periods-of-delay [ 0 ] ]
     ]
     ;; set up directly left of the current last player
-    setxy [xcor] of [last-player] of team - 1 [ycor] of [last-player] of team
-    set my-team team
+    setxy [xcor] of [last-player] of this-team - 1 [ycor] of [last-player] of this-team
+    set my-team this-team
     set role my-role [members] of my-team
-    ask team
+    ask this-team
     [
       set last-player myself
       set members members + 1
@@ -335,7 +335,7 @@ to add-student-to [team]
         [ set orders-placed 4 hide-link ]
     ]
     set order-placed? false
-    set color [color] of team + 2
+    set color [color] of this-team + 2
     init-player
   ]
 end
