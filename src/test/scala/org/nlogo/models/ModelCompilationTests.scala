@@ -1,5 +1,8 @@
 package org.nlogo.models
 
+import scala.collection.JavaConverters.asScalaBufferConverter
+import scala.collection.JavaConverters.asScalaSetConverter
+import scala.collection.JavaConverters.mapAsScalaMapConverter
 import scala.util.Try
 
 import org.nlogo.headless.HeadlessWorkspace
@@ -29,6 +32,44 @@ class ModelCompilationTests extends TestModels {
       if !excluded(model)
       error <- Try(withWorkspace(model)(_ => ())).failed.toOption
     } yield s"${model.quotedPath}: " + error
+  }
+
+  testAllModels("Singular breed names should not be used as args/local names") { models =>
+    def findDuplicateNames(model: Model) = withWorkspace(model) { ws =>
+      val singularBreedNames =
+        ws.world.program.breedsSingular.keySet.asScala ++
+          ws.world.program.linkBreedsSingular.keySet.asScala
+      for {
+        (procedureName, p) <- ws.getProcedures.asScala.toSeq
+        localName <- (p.args.asScala ++ p.lets.asScala.map(_.varName))
+        if singularBreedNames contains localName
+      } yield (localName, procedureName)
+    }
+    for {
+      model <- models
+      if !excluded(model)
+      duplicateNames = findDuplicateNames(model)
+      if duplicateNames.nonEmpty
+    } yield s"${model.quotedPath}:\n" + duplicateNames.map {
+      case (n, p) => s"  $n in $p"
+    }.mkString("\n")
+  }
+
+  testAllModels("All breeds should have singular names") { models =>
+    def breedsWithNoSingular(model: Model) = withWorkspace(model) { ws =>
+      def find(
+        breeds: java.util.Map[String, AnyRef],
+        breedsSingular: java.util.Map[String, String]) =
+        breeds.asScala.keys.filterNot(breedsSingular.asScala.values.toSet.contains)
+      val p = ws.world.program
+      find(p.breeds, p.breedsSingular) ++ find(p.linkBreeds, p.linkBreedsSingular)
+    }
+    for {
+      model <- models
+      if !excluded(model)
+      breeds = breedsWithNoSingular(model)
+      if breeds.nonEmpty
+    } yield s"${model.quotedPath}:" + breeds.mkString("  \n", "  \n", "")
   }
 
   testLibraryModels("Preview commands should compile (except for test models)") { models =>
