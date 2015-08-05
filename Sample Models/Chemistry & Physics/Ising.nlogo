@@ -32,7 +32,8 @@ end
 ;; update the spin of a single patch
 to update  ;; patch procedure
   ;; flipping changes the sign on our energy,
-  ;; so the difference in energy, if we flip, is -2 times our current energy
+  ;; so the difference in energy, if we flip,
+  ;; is -2 times our current energy
   let Ediff 2 * spin * sum [ spin ] of neighbors4
   if (Ediff <= 0) or (temperature > 0 and (random-float 1.0 < exp ((- Ediff) / temperature))) [
     set spin (- spin)
@@ -281,9 +282,9 @@ The Ising model was first proposed by Wilhelm Lenz in 1920.  It is named after h
 
 There are many web pages which explore the Ising model in greater detail than attempted here. Here are a few:
 
--http://pages.physics.cornell.edu/~sethna/teaching/sss/ising/intro.htm
--http://dtjohnson.net/projects/ising
--http://demonstrations.wolfram.com/IsingModel/
+- http://pages.physics.cornell.edu/~sethna/teaching/sss/ising/intro.htm
+- http://dtjohnson.net/projects/ising
+- http://demonstrations.wolfram.com/IsingModel/
 
 ## HOW TO CITE
 
