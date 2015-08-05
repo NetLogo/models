@@ -8,43 +8,51 @@ patches-own [
   spin           ;; holds -1 or 1
 ]
 
-to setup [initial-magnetization]
+to setup
   clear-all
-  ask patches
-    [ ifelse initial-magnetization = 0
-        [ set spin one-of [-1 1] ]
-        [ set spin initial-magnetization ]
-      recolor ]
-  set sum-of-spins sum [spin] of patches
+  ask patches [
+    ifelse random 100 < probability-of-spin-up
+      [ set spin  1 ]
+      [ set spin -1 ]
+    recolor
+  ]
+  set sum-of-spins sum [ spin ] of patches
   reset-ticks
 end
 
 to go
-  ask one-of patches [ update ]
-  tick
+  ;; update 1000 patches at a time
+  repeat 1000 [
+    ask one-of patches [ update ]
+  ]
+  tick-advance 1000  ;; use `tick-advance`, as we are updating 1000 patches at a time
+  update-plots       ;; unlike `tick`, `tick-advance` doesn't update the plots, so we need to do so explicitly
 end
 
+;; update the spin of a single patch
 to update  ;; patch procedure
-  ;; flipping changes the sign on our energy, so the difference in energy
-  ;; if we flip is -2 times our current energy
-  let Ediff 2 * spin * sum [spin] of neighbors4
-  if (Ediff <= 0) or
-     (temperature > 0 and (random-float 1.0 < exp ((- Ediff) / temperature)))
-    [ set spin (- spin)
-      set sum-of-spins sum-of-spins + 2 * spin
-      recolor ]
+  ;; flipping changes the sign on our energy,
+  ;; so the difference in energy, if we flip,
+  ;; is -2 times our current energy
+  let Ediff 2 * spin * sum [ spin ] of neighbors4
+  if (Ediff <= 0) or (temperature > 0 and (random-float 1.0 < exp ((- Ediff) / temperature))) [
+    set spin (- spin)
+    set sum-of-spins sum-of-spins + 2 * spin
+    recolor
+  ]
 end
 
+;; color the patches according to their spin
 to recolor  ;; patch procedure
   ifelse spin = 1
     [ set pcolor blue + 2 ]
     [ set pcolor blue - 2 ]
 end
 
+;; a measure of magnetization, the average of the spins
 to-report magnetization
   report sum-of-spins / count patches
 end
-
 
 ; Copyright 2003 Uri Wilensky.
 ; See Info tab for full copyright and license.
@@ -77,27 +85,10 @@ ticks
 1000.0
 
 BUTTON
-4
-41
-89
-74
-NIL
-setup -1
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-82
-92
-225
-125
+160
+45
+305
+78
 NIL
 go
 T
@@ -112,24 +103,24 @@ NIL
 
 SLIDER
 10
-139
+80
 306
-172
+113
 temperature
 temperature
 0
 10
-2.24
+2.27
 0.01
 1
 NIL
 HORIZONTAL
 
 MONITOR
-73
-186
-187
-231
+100
+115
+214
+160
 magnetization
 magnetization
 3
@@ -137,10 +128,10 @@ magnetization
 11
 
 PLOT
-9
-238
-305
-437
+10
+165
+306
+445
 Magnetization
 time
 average spin
@@ -152,92 +143,75 @@ true
 false
 "" ""
 PENS
-"average spin" 1.0 0 -13345367 true "" "if ticks mod plotting-interval = 0 [\n  plotxy ticks magnetization\n]"
+"average spin" 1.0 0 -13345367 true "" "plotxy ticks magnetization"
 "axis" 1.0 0 -16777216 true ";; draw a horizontal line to show the x axis\nauto-plot-off\nplotxy 0 0\nplotxy 1000000000000000 0\nauto-plot-on" ""
 
-BUTTON
-93
-41
-214
-74
-setup-random
-setup 0
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-218
-41
-306
-74
-setup +1
-setup 1
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
 SLIDER
-72
-439
-244
-472
-plotting-interval
-plotting-interval
-1
-1000
+10
+10
+305
+43
+probability-of-spin-up
+probability-of-spin-up
+0
 100
+50
 1
 1
-NIL
+%
 HORIZONTAL
+
+BUTTON
+10
+45
+155
+78
+NIL
+setup
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-This is a model of a magnet at the microscopic level.  The magnetic moments (spins) of the atoms in the magnet can either be up or down.  Spins can change as a result of being influenced by neighboring spins and by the ambient temperature.  The overall behavior of the system will vary depending on the temperature.
+This is a model of a magnet at the microscopic level. It is a classic model of condensed matter physics. A crystalline material is conceived of as a set of lattice points with spins. The spins (magnetic moments) of the atoms in the magnet can either be up or down.  Spins can change as a result of being influenced by neighboring spins and by the ambient temperature. Spins prefer to align with their neighbors. The overall behavior of the system will vary depending on the temperature.
 
-When the temperature is low, there is spontaneous magnetization, and we say that the system is in the ferromagnetic phase.  When the temperature is high, there is no spontaneous magnetization, and we say that the system is in the paramagnetic phase.  (At room temperature, a refrigerator magnet is ferromagnetic, but an ordinary piece of iron is paramagnetic.)
+The first version of the model worked on by the physicist Ising was on a 1D lattice. Twenty years later, the physicist Onsager analytically solved the 2D Ising model (the model presented here) and showed that at low temperatures, the spins will tend to align, causing the material to spontaneously magnetize.
 
-This very abstract model can be interpreted in other ways as well, for example as a model of liquid/gas phase transitions (where the two states are liquid and gas, instead of two magnetic spin states).  It has also been used as a basis for simulating phenomena in the social sciences that involve phase-transition-like behavior.
+In the 2D Ising model, when the temperature is low, there is spontaneous magnetization, and we say that the system is in the ferromagnetic phase. When the temperature is high, there is no spontaneous magnetization, and we say that the system is in the paramagnetic phase. (At room temperature, a refrigerator magnet is ferromagnetic, but an ordinary piece of iron is paramagnetic.)
+
+This very abstract model can be interpreted in other ways as well, for example as a model of liquid/gas phase transitions where the two states are liquid and gas instead of two magnetic spin states. It has also been used as a basis for simulating phenomena in the social sciences that involve phase-transition-like behavior.
 
 ## HOW IT WORKS
 
-We represent the two possible spin states with the numbers +1 or -1.  Spins of +1 are shown in light blue, spins of -1 in dark blue.
+We represent the two possible spin states with the numbers +1 or -1. Spins of +1 are shown in light blue, spins of -1 in dark blue.
 
-The energy at each spin is defined as the negative of the sum of the products of the spin with each of its neighboring four spins.  So for example if a spin is surrounded by four opposing spins, then the energy is 4, the maximum possible.  But if a spin is surrounded by four like spins, then the energy is -4, the minimum possible.  Basically, the energy measures how many like or opposite neighbors the spin has.
+The energy at each spin is defined as the negative of the sum of the products of the spin with each of its neighboring four spins. So for example if a spin is surrounded by four opposing spins, then the energy is 4, the maximum possible. But if a spin is surrounded by four like spins, then the energy is -4, the minimum possible. Basically, the energy measures how many like or opposite neighbors the spin has.
 
-A spin decides whether to "flip" to its opposite as follows.  The spins are seeking a low energy state, so a spin will always flip if flipping would decrease its energy.  But the spins sometimes also flip into a higher energy state.  We calculate the exact probability of flipping using the Metropolis algorithm, which works as follows.  Call the potential gain in energy Ediff.  Then the probability of flipping is e ^ (-Ediff/temperature).
+A spin decides whether to "flip" to its opposite as follows. The spins are seeking a low energy state, so a spin will always flip if flipping would decrease its energy. But the spins sometimes also flip into a higher energy state. We calculate the exact probability of flipping using the Metropolis algorithm, which works as follows. Call the potential gain in energy Ediff.Then the probability of flipping is e<sup>-Ediff / temperature</sup>.
 
-The gist of this formula is that as the temperature increases, flipping to a higher energy state becomes increasingly likely, but as the energy to be gained by flipping increases, the likelihood of flipping decreases.  You could use a different formula with the same gist, but the Metropolis algorithm is most commonly used.
+The gist of this formula is that as the temperature increases, flipping to a higher energy state becomes increasingly likely, but as the energy to be gained by flipping increases, the likelihood of flipping decreases. You could use a different formula with the same gist, but the Metropolis algorithm is most commonly used.
 
 To run the model, we repeatedly pick a single random spin and give it the chance to flip.
 
 ## HOW TO USE IT
 
-Choose an initial temperature with the TEMPERATURE slider, then press SETUP to set up the grid and give each spin a random initial state.  (Or, if you want to start with all the spins set to the same state, press SETUP -1 or SETUP +1.)
+Choose an initial temperature with the TEMPERATURE slider, then press SETUP to set up the grid and give each spin a random initial state.
+
+You can control the proportion of spins that start at +1 using the PROBABILITY-OF-SPIN-UP slider. If you want all spins to be +1, set that slider to 100%. If you want all spins to be -1, set it at 0%.
 
 Then press GO to watch the model run.
 
 You can move the TEMPERATURE slider as the model runs if you want.
 
-The magnetization of the system is the average (mean) of all the spins.  The MAGNETIZATION monitor and plot show you the current magnetization and how it has varied so far over time.
-
-The default speed of the model is fairly slow.  If you move the speed slider to the right, you'll see a dramatic speedup (because NetLogo will spend more of its time computing and less of its time redrawing the grid).
-
-You can also speed up the model with the PLOTTING-INTERVAL slider.  If the slider is set to 1, we plot a point every tick.  If the slider is set to 100 (default), we plot a point every 100 ticks.  The less plotting takes place, the faster the model runs.
+The magnetization of the system is the average (mean) of all the spins. The MAGNETIZATION monitor and plot show you the current magnetization and how it has varied so far over time.
 
 ## THINGS TO NOTICE
 
@@ -245,46 +219,72 @@ In the default settings for the model, the temperature is set fairly low.  What 
 
 ## THINGS TO TRY
 
-What happens when the temperature slider is very high?  (This is called the "paramagnetic" state.)  Try this with all three setup buttons.
+What happens when the temperature slider is very high? (This is called the "paramagnetic" state.) Try this with different PROBABILITY-OF-SPIN-UP values.
 
-What happens when the temperature slider is set very low?  (This is called the "ferromagnetic" state.)  Again, try this with all three setup buttons.
+What happens when the temperature slider is set very low?  (This is called the "ferromagnetic" state.)  Again, try this with different PROBABILITY-OF-SPIN-UP values.
 
-Between these two very different behaviors is a transition point.  On an infinite grid, the transition point can be proved to be 2 / ln (1 + sqrt 2), which is about 2.27.  On a large enough finite toroidal grid, the transition point is near this number.
+Between these two very different behaviors is a transition point. On an infinite grid, the transition point can be proved to be 2 / ln (1 + sqrt 2), which is about 2.27.  On a large enough finite toroidal grid, the transition point is near this number.
 
-What happens when the temperature is near, but above the transition point?  What happens when the temperature is near, but below the transition point?  Note that the nearer you are to the transition point, the longer the system takes to exhibit its characteristic behavior -- in such cases, we say that the system has a long "correlation length".  So near the transition point, you'll need to do more and longer runs in order to be sure you understand what the typical behavior of the system is.
+Change the size of the NetLogo patch grid. How does this affect the magnetization?
+
+What happens when the temperature is near, but above the transition point?  What happens when the temperature is near, but below the transition point?  Note that the nearer you are to the transition point, the longer the system takes to exhibit its characteristic behavior -- in such cases, we say that the system has a long "correlation length". So near the transition point, you'll need to do more and longer runs in order to be sure you understand what the typical behavior of the system is.
 
 When the temperature is low, the system should quickly reach a fully magnetized state.  Note that if you set the temperature very low, sometimes fairly stable thick "stripes" of opposite colors can form, preventing the system from reaching full magnetization.  This is an effect of the finite size of the grid.
 
 ## EXTENDING THE MODEL
 
-The formula for Ediff given above can be modified by multiplying the result by a "coupling constant" (if we don't do this, effectively we are using a coupling constant of 1).  Using a negative coupling constant changes the model into its "antiferromagnetic" variant.  Experiment with the effect of varying the coupling constant.
+The formula for Ediff given above can be modified by multiplying the result by a "coupling constant" (if we don't do this, effectively we are using a coupling constant of 1).  Using a negative coupling constant changes the model into its "antiferromagnetic" variant. Experiment with the effect of varying the coupling constant.
 
 Can you eliminate the exponential formula for the probability of flipping and replace it with a simple discrete rule that gives similar behavior?
 
 How could you relate TEMPERATURE in this model to temperature in Fahrenheit, Celsius or Kelvin?
 
-If you think of the two grid states as "present" and "absent", then this model can be changed slightly to be a model of the motion of particles if you add a rule that states can only flip in pairs, so that the total number of particles is conserved.  Add this rule and see what behaviors result.
+If you think of the two grid states as "present" and "absent", then this model can be changed slightly to be a model of the motion of particles if you add a rule that states can only flip in pairs, so that the total number of particles is conserved. Add this rule and see what behaviors result.
 
-At each iteration, we give only one spin a chance to flip.  There are other possible methods, for example, the "checkerboard" update rule: if you imagine the rectangular lattice as being made of alternating white and black squares like a checkerboard, then at each iteration first all the white squares update simultaneously, then all the black squares update simultaneously.  On a parallel computer with many processors, and a programming language which takes advantage of them, the checkerboard rule would run much much faster.  Since NetLogo only simulates parallelism using a single processor, the checkerboard rule does not run dramatically faster.  (Note that if you use the checkerboard rule, the grid of spins must have even dimensions.)
+At each iteration, we give a fixed number of spins a chance to flip.  There are other possible methods, for example, the "checkerboard" update rule: if you imagine the rectangular lattice as being made of alternating white and black squares like a checkerboard, then at each iteration first all the white squares update simultaneously, then all the black squares update simultaneously.  On a parallel computer with many processors, and a programming language which takes advantage of them, the checkerboard rule would run much much faster. Since NetLogo only simulates parallelism using a single processor, the checkerboard rule does not run dramatically faster. (Note that if you use the checkerboard rule, the grid of spins must have even dimensions.)
 
 ## NETLOGO FEATURES
 
-Because only a very small amount happens during each tick, this is a model where the speed slider is especially important, since it lets the user speed the model up by not updating the view every tick.
+This model makes 1000 attempted flips in every iteration of the `GO` loop. It codes this as `repeat 1000 [ update ]`. Note that this does not change the core Ising algorithm that does one attempted patch flip at a time.
+
+However, this approach does necessitate a departure from the usual NetLogo practice of calling `tick` at the end of the `GO` procedure. If we called `tick` at the end, then the tick counter would advance only once for every 1000 attempted flips and the Ising model measures the magnetization at every attempted flip. We therefore use `tick-advance` primitive to advance the NetLogo clock and sync it up with the traditional Ising model. Because the `tick-advance` primitive doesn't update the NetLogo plots, we have to explicitly call `update-plots`.
+
+This last change also leads to one more departure from conventional NetLogo practice. In the Magnetization plot, we would usually have the code `plot magnetization`. But that code would plot the magnetization every time the `update-plots` code was called, which would be only once in every 1000 attempted flips of the Ising model and the x-axis of the plot would not reflect true Ising time steps. To sync up the plot with the usual measure of time in the Ising model, we use the code `plotxy ticks magnetization`.
+
+A more direct translation of the core Ising algorithm to NetLogo would be as follows:
+
+    to go
+      ask one-of patches [ update ]
+      tick
+    end
+
+However, this more direct version would update the NetLogo view at every tick, which would be at every potential patch flip. Because the view updates happen much more slowly than the calculations, the direct approach would dramatically slow down the model in its normal speed slider state. To significantly speed up the direct version, one would need to set the speed slider to its maximum value, so that NetLogo would not update the view at every tick.
+
+Another "natural" way to write the `GO` procedure in NetLogo would be as follows:
+
+    to go
+      ask patches [ update ]
+      tick-advance count patches
+      update-plots
+    end
+
+This version uses the `patches` agentset to control the updating. At every tick, all the patches would update. Note that this does change the core Ising algorithm, as it eliminates the chance that the same patch would be picked more than once in the `GO` loop. However, in practice, we have not seen any changes in the aggregate behavior of the model using this changed algorithm.
 
 ## RELATED MODELS
 
-Voting (a social science model, but the update rules are very similar, except that there is no concept of "temperature")
+Voting (a social science model, but the update rules are very similar, except that there is no concept of "temperature").
 
 ## CREDITS AND REFERENCES
 
 Thanks to Seth Tisue for his work on this model and to Sara Solla and Kan Chen for their assistance.
 
-The Ising model was first proposed by Wilhelm Lenz in 1920.  It is named after his student Ernst Ising, who also studied it.  This NetLogo model implements the Monte Carlo simulation of the Metropolis algorithm for the two dimensional Ising model.  The Metropolis algorithm comes from a 1953 paper by Nicholas Metropolis et al.
+The Ising model was first proposed by Wilhelm Lenz in 1920.  It is named after his student Ernst Ising, who also studied it. This NetLogo model implements the Monte Carlo simulation of the Metropolis algorithm for the two dimensional Ising model. The Metropolis algorithm comes from a 1953 paper by Nicholas Metropolis et al.
 
-There are many web pages which explore the Ising model in greater detail than attempted here.  Here are a few:
-http://pages.physics.cornell.edu/~sethna/teaching/sss/ising/intro.htm
-http://dtjohnson.net/projects/ising
-http://demonstrations.wolfram.com/IsingModel/
+There are many web pages which explore the Ising model in greater detail than attempted here. Here are a few:
+
+- http://pages.physics.cornell.edu/~sethna/teaching/sss/ising/intro.htm
+- http://dtjohnson.net/projects/ising
+- http://demonstrations.wolfram.com/IsingModel/
 
 ## HOW TO CITE
 
@@ -597,8 +597,6 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
 NetLogo 5.2.0
 @#$#@#$#@
-setup 0
-repeat 100000 [ go ]
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -615,5 +613,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
