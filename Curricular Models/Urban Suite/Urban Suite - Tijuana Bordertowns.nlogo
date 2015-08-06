@@ -945,7 +945,7 @@ BUTTON
 170
 78
 add node
-if mouse-down? \n    [  ask patch mouse-xcor mouse-ycor [\n       sprout-nodes 1 [ set size 3 set shape \"loop\" \n       set color red\n       set water 2.0 set electricity 3.0 set transport 1.0\n       set land-value (weights)\n       ask patches in-radius-nowrap carrying-capacity with\n     [ occupied != \"maquiladora\" and land-value < marginal-value ]\n        [ set water 2.0 set electricity 3.0 set transport 1.0\n          set land-value (weights) \n          - (((distance-nowrap min-one-of nodes [ \n           distance-nowrap myself ]) / carrying-capacity) * .15) \n           ] ] ]\n       display ]
+if mouse-down? \n    [  ask patch mouse-xcor mouse-ycor [\n       sprout-nodes 1 [ set size 3 set shape \"loop\" \n       set color red\n       set water 2.0 set electricity 3.0 set transport 1.0\n       set land-value (weights)\n       ask patches in-radius carrying-capacity with\n     [ occupied != \"maquiladora\" and land-value < marginal-value ]\n        [ set water 2.0 set electricity 3.0 set transport 1.0\n          set land-value (weights) \n          - (((distance min-one-of nodes [ \n           distance myself ]) / carrying-capacity) * .15) \n           ] ] ]\n       display ]
 T
 1
 T
