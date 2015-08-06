@@ -56,7 +56,7 @@ to generate-cityscape
          ask patches [ set water 10.0 set electricity 1.0 set occupied "no" set transport 1.5 ]
          ask center-region
             [ set land-value 35 ask neighbors [ set land-value 35 ]
-              ask patches in-radius-nowrap 20 [ set elevation 9.9 ]
+              ask patches in-radius 20 [ set elevation 9.9 ]
               set water 2.0 set electricity 3.0 set transport 1.0 ask neighbors [set water 2.0 set electricity 3.0 set transport 1.0]
               sprout-service-centers 1 [set shape "eyeball" set size 5 set color 4 ]
               sprout-builders round (random-normal 4 1)
@@ -82,7 +82,7 @@ to generate-cityscape
        set land-value (weight * 12)
        set transport .75
        set ctr "+"
-       ask patches in-radius-nowrap 8 [ set ctr "+" ] ]
+       ask patches in-radius 8 [ set ctr "+" ] ]
 
      ask builders [if ticks = block-size [ generate-second-order ]
                    if ticks = 3 * block-size [ generate-second-order ]
@@ -110,11 +110,11 @@ to generate-cityscape
                if round heading mod 15 < 5 or round heading mod 15 > 10
                    [ set heading heading + round (random-normal 5 10) ]
 
-               if ( ctr = "+" ) and (distance-nowrap one-of service-centers) < 60
+               if ( ctr = "+" ) and (distance one-of service-centers) < 60
                    [ set energy energy - .5 ]
                if ctr != "+"
                    [ set energy energy - 1 ]
-               if ctr != "+" and (distance-nowrap one-of service-centers) > 60
+               if ctr != "+" and (distance one-of service-centers) > 60
                    [ set energy energy - 2 ]
                if energy < .5 [ set energy 0 ]
 
@@ -158,11 +158,11 @@ to generate-cityscape
                if round heading mod 15 < 5 or round heading mod 15 > 10
                    [ set heading heading + round (random-normal 5 10) ]
 
-               if ctr = "+" and (distance-nowrap one-of service-centers) < 60
+               if ctr = "+" and (distance one-of service-centers) < 60
                    [ set energy energy - .5 ]
                if ctr != "+"
                    [ set energy energy - 1 ]
-               if (distance-nowrap one-of service-centers) > 60
+               if (distance one-of service-centers) > 60
                    [ set energy energy - 2 ]
                if energy < .5 [ set energy 0 ]
 
@@ -221,9 +221,9 @@ to generate-topography
     let topography n-of ((random 4) + 2) patches with
             [abs pxcor < ( max-pxcor - 20 ) and
              abs pycor < ( max-pycor - 20 ) ]
-    repeat 3 [ ask topography [ set elevation 8 ask n-of 15 patches in-radius-nowrap (random-normal 15 3)
+    repeat 3 [ ask topography [ set elevation 8 ask n-of 15 patches in-radius (random-normal 15 3)
                   [ set elevation 8 ] ask one-of neighbors
-                  [ set elevation 8 ask n-of 13 patches in-radius-nowrap (random-normal 8 2)
+                  [ set elevation 8 ask n-of 13 patches in-radius (random-normal 8 2)
                   [ set elevation 8 ] ] ] ]
     repeat 2 [ ask patches with [ (count neighbors with [ elevation = 8 ]) > 2 ] [ set elevation 8 ] ]
     ask patches with [ elevation = 8 and (count neighbors with [ elevation = 8 ]) < 2 ] [ set elevation 9.9 ]
@@ -235,7 +235,7 @@ end
      if #-service-centers > 1 [ ask service-centers
                         [ let my-roads builders with [ (member? myself ([origin] of self)) = true ]
                           ask one-of my-roads
-                               [ set heading towards-nowrap one-of service-centers with
+                               [ set heading towards one-of service-centers with
                                [ (member? self ( [origin] of myself )) = false ] ] ] ]
  end
 
@@ -260,8 +260,8 @@ to maquiladoras
                       and [land-value] of (max-one-of neighbors [land-value]) < .6 and land-value > .015
                       and transport != .75
                       and elevation = 9.9
-                      and ( count roads with [ distance-nowrap myself < 6 ] > 0 )
-                      and ( count roads with [ distance-nowrap myself < 3 ] = 0 )
+                      and ( count roads with [ distance myself < 6 ] > 0 )
+                      and ( count roads with [ distance myself < 3 ] = 0 )
                       and transport != .75
                       ]
 
@@ -273,7 +273,7 @@ to maquiladoras
                     set color 95
                     set size 7
                     let industrial-site one-of industrial-candidate
-                        with [ count employment-centers with [ distance-nowrap myself < 5 ] = 0 ]
+                        with [ count employment-centers with [ distance myself < 5 ] = 0 ]
                     if industrial-site != nobody
                     [ setxy ( [pxcor] of industrial-site ) ( [pycor] of industrial-site ) ]
                     set water "0.0"
@@ -283,7 +283,7 @@ to maquiladoras
     ask employment-centers [ ask employment-centers with
                     [ self != myself and xcor = [xcor] of myself and ycor = [ycor] of myself ] [ die ] ]
 
-    ;ask employment-centers with [ count roads with [ distance-nowrap myself < 6 ] = 0 ] [ die ]
+    ;ask employment-centers with [ count roads with [ distance myself < 6 ] = 0 ] [ die ]
 
     ask industrial-candidate
                     with [ ( any? employment-centers-here ) = true ]
@@ -302,7 +302,7 @@ end
             and elevation > 8.5
             and land-value <= ( values - .35  )
             and land-value > ( values ) / 45
-            and (count patches with [ water = 2 and (distance-nowrap myself) < 6 ]) > 0 ]
+            and (count patches with [ water = 2 and (distance myself) < 6 ]) > 0 ]
       ask potential-irregular-lots [ set ctr "p-i-lots" ]
 
       let floating-population ( round (((count patches with [ water = 2 and electricity = 3]) * init-density) / 6) )
@@ -313,7 +313,7 @@ end
                   set shape "circle"
                   set origin one-of ["oaxaca" "jalisco" "zacatecas" "mexico"]
                   set occupied [origin] of self
-                  set works [] set (works) lput (min-one-of employment-centers [ distance-nowrap myself ]) (works)
+                  set works [] set (works) lput (min-one-of employment-centers [ distance myself ]) (works)
                   set resident-since round (random-normal 8 2)
                   ]]
       stop
@@ -326,7 +326,7 @@ to initial-condition-2
       if count migrants with [ size = .65 ] != 0 [
       ask one-of migrants with [ size = .65 ]
                   [ set size .6
-                    repeat 4 [ ask one-of patches in-radius-nowrap 3 with [ occupied = "no" and occupied != "maquiladora"
+                    repeat 4 [ ask one-of patches in-radius 3 with [ occupied = "no" and occupied != "maquiladora"
                     and elevation > 8.5 ]
                     [ sprout-migrants 1 [
                     set shape "circle"
@@ -335,7 +335,7 @@ to initial-condition-2
                     set origin one-of [ "oaxaca" "jalisco" "zacatecas" "mexico"]
                     set occupied [origin] of self
                     set color red
-                    set works [] set (works) lput (min-one-of employment-centers [ distance-nowrap myself ]) (works)
+                    set works [] set (works) lput (min-one-of employment-centers [ distance myself ]) (works)
                     set resident-since round (random-normal 8 2)
                     get-costs ] ] ] ] ]
 
@@ -351,7 +351,7 @@ to initial-condition-2
 end
 
 to economics
-   ask migrants [ ask patches in-radius-nowrap (4 - (colonia-size) / 2) [ set colonia colonia - .5 ]
+   ask migrants [ ask patches in-radius (4 - (colonia-size) / 2) [ set colonia colonia - .5 ]
    get-costs
    set max-cost max [ living-expenses ] of migrants
    set income precision (random-normal max-cost 3) 2
@@ -462,7 +462,7 @@ end
 to migrate-static
     ask one-of migrants
         [ let my-patch patch-here
-          let newcomer one-of patches in-radius-nowrap 1.5 with
+          let newcomer one-of patches in-radius 1.5 with
             [ occupied = "no"
               and elevation > 8.5
               and land-value <= [land-value] of my-patch ]
@@ -475,19 +475,19 @@ to migrate-static
             set income precision (random-normal 55 3) 2
             set savings precision (random-normal 15 5) 2
             get-costs
-            ask patches in-radius-nowrap (4 - colonia-size) [ set colonia colonia - .5 ] ] ]
+            ask patches in-radius (4 - colonia-size) [ set colonia colonia - .5 ] ] ]
 end
 
 
 to move
     ask migrants with [ resident-since > 5  ]
     [ if water = 10.0 and savings > required-capital
-    [ let somewhere-nice one-of patches in-radius-nowrap 50 with
+    [ let somewhere-nice one-of patches in-radius 50 with
         [ water = 2.0 and electricity = 3.0
           and land-value < ([savings] of myself * 0.0010) ]
       if somewhere-nice != nobody [
-          face-nowrap somewhere-nice
-          jump distance-nowrap somewhere-nice
+          face somewhere-nice
+          jump distance somewhere-nice
           set color red set size .8
           set savings ( savings - ( land-value / 0.0010) )
           get-costs ] ] ]
@@ -507,7 +507,7 @@ to regularize
     let colonias one-of patches with [ colonia < (-14 - colonia-size)
                                        and (any? migrants-on neighbors) = true
                                        and pxcor < (max-pxcor - 4) and pycor < (max-pycor - 4)
-                                       and (count rings with [ distance-nowrap myself < 15 ]) = 0
+                                       and (count rings with [ distance myself < 15 ]) = 0
                                      ]
 
     if (count rings) < 5 and colonias != nobody
@@ -518,12 +518,12 @@ to regularize
 
 
 
-    ask rings [ set size abs ((mean [ colonia ] of (migrants in-radius-nowrap 10 )) ^ 2 ) / 3
+    ask rings [ set size abs ((mean [ colonia ] of (migrants in-radius 10 )) ^ 2 ) / 3
                if size < 3 [ die ]
-               if (count patches in-radius-nowrap 8 with [ water = 10 ]) < 5  [ die ]
-               if (count third-order-builders in-radius-nowrap 6) < 1
+               if (count patches in-radius 8 with [ water = 10 ]) < 5  [ die ]
+               if (count third-order-builders in-radius 6) < 1
                        [ let buildit
-                               one-of patches in-radius-nowrap size with
+                               one-of patches in-radius size with
                              [ (abs (land-value) - values) < .25
                                and any? migrants-here = true
                                and water = 10
@@ -532,7 +532,7 @@ to regularize
                              [ sprout-third-order-builders 1 [ set size 1
                                               set color red
                                               set weight marginal-weight
-                                              face-nowrap min-one-of migrants [ distance-nowrap myself ]
+                                              face min-one-of migrants [ distance myself ]
                                               set origin myself] ] ] ] ]
 end
 
@@ -594,8 +594,8 @@ to get-costs
        let food 27.0
        let other-utilities 8.0
        let my-workplace one-of employment-centers with [ ( member? self ( [works] of myself )  ) = true ]
-       let transport-costs ( transport * ( ( distance-nowrap one-of service-centers / 30 ) +
-                                             distance-nowrap my-workplace / 25 ) )
+       let transport-costs ( transport * ( ( distance one-of service-centers / 30 ) +
+                                             distance my-workplace / 25 ) )
 
        set living-expenses ( land-value + electricity + water + food + transport-costs + other-utilities )
 end
@@ -618,8 +618,8 @@ GRAPHICS-WINDOW
 1
 1
 0
-1
-1
+0
+0
 1
 -85
 85
