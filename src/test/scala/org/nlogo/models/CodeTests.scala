@@ -9,7 +9,8 @@ class CodeTests extends TestModels {
     val forbiddenPrimitives: Seq[(String, Seq[Exemption])] = Seq(
       "__set-line-thickness" -> Seq("Optical Illusions", "Halo Example"),
       "__clear-all-and-reset-ticks" -> Seq.empty,
-      "__approximate-hsb-old" -> Seq.empty
+      "__approximate-hsb-old" -> Seq.empty,
+      "in-radius-nowrap" -> Seq.empty
     )
 
     for {
