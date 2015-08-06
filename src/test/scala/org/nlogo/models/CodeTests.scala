@@ -10,7 +10,14 @@ class CodeTests extends TestModels {
       "__set-line-thickness" -> Seq("Optical Illusions", "Halo Example"),
       "__clear-all-and-reset-ticks" -> Seq.empty,
       "__approximate-hsb-old" -> Seq.empty,
-      "in-radius-nowrap" -> Seq.empty
+      "face-nowrap" -> Seq.empty,
+      "facexy-nowrap" -> Seq.empty,
+      "distance-nowrap" -> Seq.empty,
+      "distancexy-nowrap" -> Seq.empty,
+      "in-cone-nowrap" -> Seq.empty,
+      "in-radius-nowrap" -> Seq.empty,
+      "towards-nowrap" -> Seq.empty,
+      "towardsxy-nowrap" -> Seq.empty
     )
 
     for {
