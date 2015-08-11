@@ -29,13 +29,13 @@ to setup
 
   generate-cityscape
 
-  if count employment-centers > 0 and count migrants = 0 [
+  if any? employment-centers and not any? migrants [
     initial-condition
   ]
 
-  if count migrants > 0 and count migrants with [ size = .65 ] > 0 [
+  if any? migrants with [ size = .65 ] [
     ask patches [
-      set land-value precision (land-value) 2
+      set land-value precision land-value 2
     ]
     initial-condition-2
   ]
@@ -46,7 +46,7 @@ to setup
 
   if third-phase = "stop" [
     ask patches [
-      set land-value precision (land-value) 2
+      set land-value precision land-value 2
     ]
     reset-ticks
     set setup-done? true
@@ -58,7 +58,7 @@ to generate-cityscape
 
   if ticks = 1 [
     generate-topography
-    let center-region n-of #-service-centers patches with [
+    let center-region patches with [
       abs pxcor < (max-pxcor - 20) and
       abs pycor < (max-pycor - 20)
     ]
@@ -68,7 +68,7 @@ to generate-cityscape
       set occupied "no"
       set transport 1.5
     ]
-    ask center-region [
+    ask n-of #-service-centers center-region [
       set land-value 35
       ask neighbors [ set land-value 35 ]
       ask patches in-radius 20 [ set elevation 9.9 ]
@@ -89,7 +89,7 @@ to generate-cityscape
         set label (who + 1)
         set heading random-normal (label * (360 / count builders)) 20
         set energy random-normal 75 15
-        set block-size round (random-normal 2 .15)
+        set block-size round random-normal 2 .15
         set weight .9
         set pen-size 1.5
         pen-down
@@ -97,8 +97,9 @@ to generate-cityscape
     ]
 
     ask service-centers [
-      let my-roads builders with [ xcor = [ xcor ] of myself and ycor = [ ycor ] of myself ]
-      ask my-roads [ set origin (list myself) ]
+      ask builders-here [
+        set origin (list myself)
+      ]
     ]
 
     towards-other-centers
@@ -122,6 +123,7 @@ to generate-cityscape
     if ticks = 3 * block-size [ generate-second-order ]
     if ticks = 7 * block-size [ generate-second-order ]
     if ticks = 10 * block-size [ generate-second-order ]
+    
     if [ transport ] of patch-ahead 2 = .75
       or [ transport ] of patch-right-and-ahead 1 2 = .75
       or [ transport ] of patch-left-and-ahead 1 2 = .75 [
@@ -340,9 +342,11 @@ end
 to towards-other-centers
   if #-service-centers > 1 [
     ask service-centers [
-      let my-roads builders with [ (member? myself ([origin] of self)) = true ]
+      let my-roads builders with [ member? myself origin ]
       ask one-of my-roads [
-        set heading towards one-of service-centers with [ (member? self ([ origin ] of myself)) = false ]
+        set heading towards one-of service-centers with [
+          not member? self [ origin ] of myself
+        ]
       ]
     ]
   ]
@@ -350,12 +354,12 @@ end
 
 to generate-second-order
   hatch-second-order-builders 1 [
-    set heading heading + 90
-    set energy (random [ energy ] of myself)
+    right 90
+    set energy random energy
   ]
   hatch-second-order-builders 1 [
-    set heading heading - 90
-    set energy (random [ energy ] of myself)
+    left 90
+    set energy random energy
   ]
 end
 
