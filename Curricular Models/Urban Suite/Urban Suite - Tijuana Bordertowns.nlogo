@@ -123,7 +123,8 @@ to generate-cityscape
     if ticks = 3 * block-size [ generate-second-order ]
     if ticks = 7 * block-size [ generate-second-order ]
     if ticks = 10 * block-size [ generate-second-order ]
-    
+
+    if patch-ahead 2 = nobody [ die ]
     if [ transport ] of patch-ahead 2 = .75 [
       fd 2
       die
@@ -154,6 +155,8 @@ to generate-cityscape
     if ctr != "+" and distance one-of service-centers > 60 [ set energy energy - 2 ]
     if energy < .5 [ set energy 0 ]
     if energy = 0 [ die ]
+
+    if patch-ahead 1 = nobody [ die ]
 
     if [ elevation ] of patch-ahead 1 < 9.9 [
       fd .5
@@ -235,6 +238,8 @@ to generate-cityscape
         set energy (random-normal [energy] of myself 2) + 2
       ]
     ]
+
+    if patch-ahead 1 = nobody [ die ]
 
     if [ elevation ] of patch-ahead 1 < 9.9 [ die ]
 
@@ -442,7 +447,7 @@ to initial-condition-2
     ask one-of migrants with [ size = .65 ] [
       set size .6
       repeat 4 [
-        ask one-of patches in-radius 3 with [ occupied = "no" and occupied != "maquiladora" and elevation > 8.5 ] [
+        ask patch-set one-of patches in-radius 3 with [ occupied = "no" and occupied != "maquiladora" and elevation > 8.5 ] [
           sprout-migrants 1 [
             set shape "circle"
             set size .6
@@ -747,6 +752,7 @@ end
 
 to regulate
   ask third-order-builders [
+    if patch-ahead 1 = nobody [ die ]
     if [ transport ] of (patch-ahead 1) = .75 [
       fd 1
       die
