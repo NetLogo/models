@@ -124,9 +124,7 @@ to generate-cityscape
     if ticks = 7 * block-size [ generate-second-order ]
     if ticks = 10 * block-size [ generate-second-order ]
     
-    if [ transport ] of patch-ahead 2 = .75
-      or [ transport ] of patch-right-and-ahead 1 2 = .75
-      or [ transport ] of patch-left-and-ahead 1 2 = .75 [
+    if [ transport ] of patch-ahead 2 = .75 [
       fd 2
       die
     ]
@@ -162,15 +160,12 @@ to generate-cityscape
       die
     ]
 
-    if [ land-value ] of patch-ahead 1 != 0
-      or [ land-value ] of patch-right-and-ahead 1 1 != 0
-      or [ land-value ] of patch-left-and-ahead 1 1 != 0 [
-      fd .5 die
+    if [ land-value ] of patch-ahead 1 != 0 [
+      fd .5
+      die
     ]
 
-    if [ transport ] of patch-ahead 1 = .75
-      or [ transport ] of patch-right-and-ahead 1 1 = .75
-      or [ transport ] of patch-left-and-ahead 1 1 = .75 [
+    if [ transport ] of patch-ahead 1 = .75 [
       fd 1
       die
     ]
@@ -243,16 +238,12 @@ to generate-cityscape
 
     if [ elevation ] of patch-ahead 1 < 9.9 [ die ]
 
-    if [ transport ] of patch-ahead 1 = .75
-      or [ transport ] of patch-right-and-ahead 1 1 = .75
-      or [ transport ] of patch-left-and-ahead 1 1 = .75 [
+    if [ transport ] of patch-ahead 1 = .75 [
       fd .5
       die
     ]
 
-    if [ land-value ] of patch-ahead 1 != 0
-      or [ land-value ] of patch-right-and-ahead 1 1 != 0
-      or [ land-value ] of patch-left-and-ahead 1 1 != 0 [
+    if [ land-value ] of patch-ahead 1 != 0 [
       fd 1
       die
     ]
@@ -756,15 +747,11 @@ end
 
 to regulate
   ask third-order-builders [
-    if [ transport ] of (patch-ahead 1) = .75
-      or [ transport ] of (patch-right-and-ahead 1 1) = .75
-      or [ transport ] of (patch-left-and-ahead 1 1) = .75 [
+    if [ transport ] of (patch-ahead 1) = .75 [
       fd 1
       die
     ]
-    if [ land-value ] of (patch-ahead 1) > land-value
-      or [ land-value ] of (patch-right-and-ahead 1 1) > land-value
-      or [ land-value ] of (patch-left-and-ahead 1 1) > land-value [
+    if [ land-value ] of (patch-ahead 1) > land-value [
       fd .5
       die
     ]
