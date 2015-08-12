@@ -119,11 +119,8 @@ to generate-cityscape
   ]
 
   ask builders [
-    if ticks = block-size [ generate-second-order ]
-    if ticks = 3 * block-size [ generate-second-order ]
-    if ticks = 7 * block-size [ generate-second-order ]
-    if ticks = 10 * block-size [ generate-second-order ]
-
+    let ticks-list map [ ? * block-size ] [ 1 3 7 10 ]
+    if member? ticks ticks-list [ generate-second-order ]
     if patch-ahead 2 = nobody [ die ]
     if [ transport ] of patch-ahead 2 = .75 [
       fd 2
@@ -150,9 +147,13 @@ to generate-cityscape
       set heading heading + round (random-normal 5 10)
     ]
 
-    if ctr = "+" and distance one-of service-centers < 60 [ set energy energy - .5 ]
-    if ctr != "+" [ set energy energy - 1 ]
-    if ctr != "+" and distance one-of service-centers > 60 [ set energy energy - 2 ]
+    if ctr = "+" and distance one-of service-centers < 60 [
+      set energy energy - .5
+    ]
+    if ctr != "+" [
+      set energy energy - 1
+      if distance one-of service-centers > 60 [ set energy energy - 2 ]
+    ]
     if energy < .5 [ set energy 0 ]
     if energy = 0 [ die ]
 
@@ -173,16 +174,16 @@ to generate-cityscape
       die
     ]
 
-    if ticks < first-phase-limit [ if energy = 0 [ die ] ]
+    if ticks < first-phase-limit and energy = 0 [ die ]
 
     if ticks mod round (random-normal 5 1) = 0 and energy != 0 [
       hatch-third-order-builders 1 [
-        set heading [ heading ] of myself + 90
-        set energy (random-normal [ energy ] of myself 2) + 2
+        right 90
+        set energy (random-normal energy 2) + 2
       ]
       hatch-third-order-builders 1 [
-        set heading [ heading ] of myself - 90
-        set energy (random-normal [ energy ] of myself 2) + 2
+        left 90
+        set energy (random-normal energy 2) + 2
       ]
     ]
   ]
@@ -196,16 +197,11 @@ to generate-cityscape
     set weight weight - .0007
     set weight precision weight 3
     set land-value weight * 7
-
-    ifelse weight > .3 [
-      set water 2.0
-      set electricity 3.0
-      set transport 1.0
+    set water 2.0
+    set electricity 3.0
+    set transport 1.0
+    if weight > .3 [
       ask patches in-radius 2 [ set electricity 3.0 ]
-    ] [
-      set water 2.0
-      set electricity 3.0
-      set transport 1.0
     ]
 
     if weight < 0 [ set weight 0 ]
@@ -230,12 +226,12 @@ to generate-cityscape
 
     if ticks mod round (random-normal 3.75 .25) = 0 and energy != 0 [
       hatch 1 [
-        set heading [ heading ] of myself + 90
-        set energy (random-normal [ energy ] of myself 2) + 2
+        right 90
+        set energy (random-normal energy 2) + 2
       ]
       hatch 1 [
-        set heading [heading] of myself - 90
-        set energy (random-normal [energy] of myself 2) + 2
+        left 90
+        set energy (random-normal energy 2) + 2
       ]
     ]
 
@@ -254,28 +250,21 @@ to generate-cityscape
     ]
   ]
 
-  ask builders with [ round abs xcor = max-pxcor or round abs ycor = max-pycor ] [
-    die
-  ]
-  ask second-order-builders with [ round abs xcor = max-pxcor or round abs ycor = max-pycor ] [
-    die
-  ]
-  ask third-order-builders with [ round abs xcor = max-pxcor or round abs ycor = max-pycor ] [
+  let all-builders (turtle-set builders second-order-builders third-order-builders)
+  ask all-builders with [ abs pxcor = max-pxcor or abs pycor = max-pycor ] [
     die
   ]
 
-  if ticks > 10 and count third-order-builders != 0 [
+  if ticks > 10 and any? third-order-builders [
     set values mean [ land-value ] of third-order-builders
     set weights mean [ weight ] of third-order-builders
   ]
 
-  if count builders = 0 and (count third-order-builders with [ energy != 0 ]) = 0 and count third-order-builders != 0 [
-    no-display
+  if not any? builders and any? third-order-builders and all? third-order-builders [ energy = 0 ] [
     adjust
-    display
   ]
 
-  if count employment-centers > 0 [ stop ]
+  if any? employment-centers [ stop ]
 end
 
 to adjust
@@ -287,9 +276,9 @@ to adjust
     set land-value precision land-value 2
   ]
   set values mean [ land-value ] of third-order-builders
-  set marginal-value mean [ land-value ] of third-order-builders
+  set marginal-value values
   set weights mean [ weight ] of third-order-builders
-  set marginal-weight mean [ weight ] of third-order-builders
+  set marginal-weight weights
   ask third-order-builders [
     die
   ]
@@ -368,8 +357,8 @@ to maquiladoras
     and [ land-value ] of (max-one-of neighbors [ land-value ]) < .6 and land-value > .015
     and transport != .75
     and elevation = 9.9
-    and (count roads with [ distance myself < 6 ] > 0)
-    and (count roads with [ distance myself < 3 ] = 0)
+    and any? roads with [ distance myself < 6 ]
+    and not any? roads with [ distance myself < 3 ]
     and transport != .75
   ]
 
@@ -383,10 +372,10 @@ to maquiladoras
     set color 95
     set size 7
     let industrial-site one-of industrial-candidate with [
-      count employment-centers with [ distance myself < 5 ] = 0
+      not any? employment-centers with [ distance myself < 5 ]
     ]
     if industrial-site != nobody [
-      setxy ([ pxcor ] of industrial-site) ([ pycor ] of industrial-site)
+      move-to industrial-site
     ]
     set water "0.0"
     set electricity "0.0"
@@ -394,12 +383,12 @@ to maquiladoras
   ]
 
   ask employment-centers [
-    ask employment-centers with [ self != myself and xcor = [ xcor ] of myself and ycor = [ ycor ] of myself ] [
+    ask other employment-centers-here [
       die
     ]
   ]
 
-  ask industrial-candidate with [ (any? employment-centers-here) = true ] [
+  ask industrial-candidate with [ any? employment-centers-here ] [
     set occupied "maquiladora"
     ask neighbors [
       set occupied "maquiladora"
@@ -420,7 +409,7 @@ to initial-condition
     and elevation > 8.5
     and land-value <= (values - .35)
     and land-value > (values) / 45
-    and (count patches with [ water = 2 and (distance myself) < 6 ]) > 0
+    and any? patches with [ water = 2 and (distance myself) < 6 ]
   ]
   ask potential-irregular-lots [
     set ctr "p-i-lots"
@@ -443,7 +432,7 @@ to initial-condition
 end
 
 to initial-condition-2
-  if count migrants with [ size = .65 ] != 0 [
+  if any? migrants with [ size = .65 ] [
     ask one-of migrants with [ size = .65 ] [
       set size .6
       repeat 4 [
@@ -453,7 +442,7 @@ to initial-condition-2
             set size .6
             set color red
             set origin one-of [ "oaxaca" "jalisco" "zacatecas" "mexico"]
-            set occupied [origin] of self
+            set occupied origin
             set color red
             set works [] set (works) lput (min-one-of employment-centers [ distance myself ]) (works)
             set resident-since round (random-normal 8 2)
@@ -475,8 +464,8 @@ to initial-condition-2
     ]
   ]
 
-  ask migrants [ set occupied [origin] of self ]
-  if (count migrants with [ size = .65 ]) = 0 [
+  ask migrants [ set occupied origin ]
+  if not any? migrants with [ size = .65 ] [
     set third-phase "go"
     stop
   ]
@@ -498,7 +487,7 @@ to economics
       set living-expenses living-expenses - 1
     ]
   ]
-  if (count migrants with [ income < living-expenses ]) = 0 [
+  if not any? migrants with [ income < living-expenses ] [
     set third-phase "stop"
     stop
   ]
@@ -512,12 +501,12 @@ to update-display
     ask patches [ set pcolor land-value ]
   ]
   if visual-update = "units with no water" [
-    ask patches with [ water = 10 and (any? migrants-here) = true ] [
+    ask patches with [ water = 10 and any? migrants-here ] [
       set pcolor 67
     ]
   ]
   if visual-update = "units with no electricity" [
-    ask patches with [ electricity = 1 and (any? migrants-here) = true ] [
+    ask patches with [ electricity = 1 and any? migrants-here ] [
       set pcolor 127
     ]
   ]
@@ -559,7 +548,7 @@ to go
 
   tick
 
-  if count third-order-builders != 0 [
+  if any? third-order-builders [
     set values (mean [ land-value ] of third-order-builders)
     set weights (mean [ weight ] of third-order-builders)
   ]
@@ -574,7 +563,7 @@ to go
   ;show "About to migrate"
   if ticks mod migration-ticks = 0 [ migrate-static ]
 
-  ask migrants [ set occupied [ origin ] of self ]
+  ask migrants [ set occupied origin ]
 
   if ticks mod 15 = 0 [
     ask migrants [
@@ -584,29 +573,25 @@ to go
   ]
 
   ;show "About to grow the city"
-  ifelse city-growth? = true
-    [ ask third-order-builders [ set hidden? false ] ]
-    [ ask third-order-builders [ set hidden? true ] ]
+  ask third-order-builders [ set hidden? not city-growth? ]
 
   ;show "About to regulate"
-  if city-growth? = true [
-    regulate
-  ]
+  if city-growth? [ regulate ]
 
   ;show "About to call grow-city"
-  if city-growth? = true [
+  if city-growth? [
     if ticks mod building-ticks = 0 [ grow-city ]
   ]
 
   ;show "About to call on third-order builders"
-  if city-growth? = true and ticks mod (building-ticks * 2) = 0 [
+  if city-growth? and ticks mod (building-ticks * 2) = 0 [
     ask third-order-builders [
       hatch 1 [
-        set heading ([heading] of myself + 90)
+        right 90
         set weight marginal-weight
       ]
       hatch 1 [
-        set heading ([heading] of myself - 90)
+        left 90
         set weight marginal-weight
       ]
     ]
@@ -619,7 +604,7 @@ to go
     if colonia > -.1 [ set colonia 9.9 ]
   ]
 
-  ask turtles with [ round abs xcor = max-pxcor or round abs ycor = max-pycor] [ die ]
+  ask turtles with [ abs pxcor = max-pxcor or abs pycor = max-pycor ] [ die ]
 
   ;show "About to regularize"
   regularize
@@ -644,9 +629,9 @@ to migrate-static
     ]
     if newcomer != nobody [
       hatch 1 [
-        setxy [ pxcor ] of newcomer [ pycor ] of newcomer
+        move-to newcomer
       ]
-      set occupied [ origin ] of self
+      set occupied origin
       set shape "circle"
       set resident-since 0
       get-costs
@@ -657,7 +642,6 @@ to migrate-static
     ]
   ]
 end
-
 
 to move
   ask migrants with [ resident-since > 5 ] [
@@ -712,7 +696,7 @@ to regularize
     set size abs ((mean [ colonia ] of (migrants in-radius 10 )) ^ 2 ) / 3
     if size < 3 [ die ]
     if (count patches in-radius 8 with [ water = 10 ]) < 5  [ die ]
-    if (count third-order-builders in-radius 6) < 1 [
+    if not any? third-order-builders in-radius 6 [
       let buildit one-of patches in-radius size with [
         (abs (land-value) - values) < .25
         and any? migrants-here = true
@@ -746,18 +730,19 @@ to grow-city
     set water 2.0
     set electricity 3.0
     set transport 1.0
-    set colonia colonia + .15 ask neighbors [ set colonia (colonia + .15) ]
+    set colonia colonia + .15
+    ask neighbors [ set colonia (colonia + .15) ]
   ]
 end
 
 to regulate
   ask third-order-builders [
     if patch-ahead 1 = nobody [ die ]
-    if [ transport ] of (patch-ahead 1) = .75 [
+    if [ transport ] of patch-ahead 1 = .75 [
       fd 1
       die
     ]
-    if [ land-value ] of (patch-ahead 1) > land-value [
+    if [ land-value ] of patch-ahead 1 > land-value [
       fd .5
       die
     ]
@@ -775,7 +760,7 @@ end
 to get-costs
   let food 27.0
   let other-utilities 8.0
-  let my-workplace one-of employment-centers with [ (member? self ([works] of myself)) = true ]
+  let my-workplace one-of employment-centers with [ member? self [ works ] of myself ]
   let transport-costs (transport * ((distance one-of service-centers / 30) + distance my-workplace / 25))
   set living-expenses (land-value + electricity + water + food + transport-costs + other-utilities)
 end
