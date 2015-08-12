@@ -769,10 +769,10 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-276
-10
-970
-501
+287
+11
+981
+502
 85
 57
 4.0
@@ -904,7 +904,7 @@ visual-update
 SWITCH
 150
 418
-265
+273
 451
 color-code?
 color-code?
@@ -924,10 +924,10 @@ city-growth?
 -1000
 
 MONITOR
-276
-505
-336
-550
+287
+506
+347
+551
 builders
 count third-order-builders
 3
@@ -935,10 +935,10 @@ count third-order-builders
 11
 
 MONITOR
-341
-505
-396
-550
+352
+506
+407
+551
 values
 values
 2
@@ -976,10 +976,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-531
-505
-589
-550
+542
+506
+600
+551
 no water
 ( ( count patches with [ (any? migrants-here) = \ntrue and water = 10.0\n ] ) * 100) / \n((count patches with [ water = 2.0 and \nelectricity = 3.0]) * init-density)\n
 0
@@ -987,10 +987,10 @@ no water
 11
 
 MONITOR
-596
-505
-661
-550
+607
+506
+672
+551
 no power
 ( ( count patches with [ occupied != \"no\" and \noccupied != \"maquiladora\" and electricity = 1.0\n ] ) * 100) / \n((count patches with [ water = 2.0 and \nelectricity = 3.0]) * init-density)\n
 0
@@ -998,10 +998,10 @@ no power
 11
 
 MONITOR
-666
-505
-771
-550
+677
+506
+782
+551
 irregular settlers
 count migrants
 3
@@ -1039,10 +1039,10 @@ ticks
 HORIZONTAL
 
 MONITOR
-401
-505
-461
-550
+412
+506
+472
+551
 marginal
 marginal-value
 1
@@ -1050,10 +1050,10 @@ marginal-value
 11
 
 MONITOR
-776
-505
-836
-550
+787
+506
+847
+551
 NIL
 crossed
 0
@@ -1061,10 +1061,10 @@ crossed
 11
 
 MONITOR
-466
-505
-524
-550
+477
+506
+535
+551
 NIL
 weights
 3
@@ -1160,7 +1160,7 @@ mean [ savings  ] of migrants with [ size = .8 ]
 BUTTON
 150
 460
-241
+273
 493
 update-now
 update-display
