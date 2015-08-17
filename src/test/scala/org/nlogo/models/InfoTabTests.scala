@@ -57,4 +57,9 @@ class InfoTabsTests extends TestModels {
     } yield model.quotedPath + "\n" + duplicateSections.map("  " + _).mkString("\n")
   }
 
+  testLibraryModels("Bullet list using dashes should have space after dash") {
+    val pattern = """^-\w.+""".r.pattern
+    testLines(_.info.content, pattern.matcher(_).matches)
+  }
+
 }
