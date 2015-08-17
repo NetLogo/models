@@ -206,17 +206,17 @@ The turtles use feedback to make decisions about how they behave. They set out i
 
 ### Circles
 
--Select the number of turtles with the TURTLES slider.
--Press SETUP.
--Make sure the SECOND-FOCUS switch is set to OFF.
--Press the MOVE-TURTLES button. Adjust the radius of the circle with the CONSTANT slider. The turtles will automatically correct themselves as you change both CONSTANT and the location of the center. You can change the circle's center by clicking on a new point.
+- Select the number of turtles with the TURTLES slider.
+- Press SETUP.
+- Make sure the SECOND-FOCUS switch is set to OFF.
+- Press the MOVE-TURTLES button. Adjust the radius of the circle with the CONSTANT slider. The turtles will automatically correct themselves as you change both CONSTANT and the location of the center. You can change the circle's center by clicking on a new point.
 
 ### Ellipses
 
--Select the number of turtles with the TURTLES slider.
--Press SETUP.
--Make sure the SECOND-FOCUS switch is set to ON.
--Press the MOVE-TURTLES button. As for a circle, the size of the ellipse can be modified with CONSTANT, and new foci can be picked by clicking the mouse.
+- Select the number of turtles with the TURTLES slider.
+- Press SETUP.
+- Make sure the SECOND-FOCUS switch is set to ON.
+- Press the MOVE-TURTLES button. As for a circle, the size of the ellipse can be modified with CONSTANT, and new foci can be picked by clicking the mouse.
 
 ## THINGS TO NOTICE
 
