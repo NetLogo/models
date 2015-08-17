@@ -16,4 +16,20 @@ trait TestModels extends FunSuite {
       if (failures.nonEmpty) fail(failures.mkString("", "\n", "\n  -- "))
     }
 
+  def testLines(section: Model => String, p: String => Boolean,
+    msg: String => String = _ => "")(models: Iterable[Model]): Iterable[String] = {
+
+    def linesWhere(str: String, p: String => Boolean, msg: String => String): Iterator[String] =
+      for {
+        (line, lineNumber) <- str.lines.zipWithIndex
+        if p(line)
+      } yield "  " + msg(line) + s"line #$lineNumber:\n  " + line
+
+    for {
+      model <- models
+      errors = linesWhere(section(model), p, msg)
+      if errors.nonEmpty
+    } yield model.quotedPath + "\n" + errors.mkString("\n")
+
+  }
 }
