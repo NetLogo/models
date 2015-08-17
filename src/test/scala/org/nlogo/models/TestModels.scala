@@ -1,5 +1,6 @@
 package org.nlogo.models
 
+import org.nlogo.headless.HeadlessWorkspace
 import org.scalatest.FunSuite
 
 trait TestModels extends FunSuite {
@@ -32,4 +33,17 @@ trait TestModels extends FunSuite {
     } yield model.quotedPath + "\n" + errors.mkString("\n")
 
   }
+
+  def withWorkspace[A](model: Model)(f: HeadlessWorkspace => A) = {
+    val workspace = HeadlessWorkspace.newInstance
+    try {
+      workspace.compilerTestingMode = true
+      workspace.silent = true
+      // open the model from path instead of content string so that
+      // the current directory gets set (necessary for `__includes`)
+      workspace.open(model.file.getCanonicalPath)
+      f(workspace)
+    } finally workspace.dispose()
+  }
+
 }
