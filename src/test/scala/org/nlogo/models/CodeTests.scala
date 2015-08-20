@@ -28,4 +28,13 @@ class CodeTests extends TestModels {
     } yield model.quotedPath + "\n  uses " + prim
   }
 
+  /* Currently commented out because it generates far too much noise
+   * in the test reports. Will enable officially once the test passes.
+   * NP 2015-08-20
+   */
+//  testLibraryModels("Lines should not be longer than 85 characters") {
+//    // 85 is the limit in the IABM textbook, so let's aim for that everywhere
+//    testLines(_.code, _.length > 85, l => "%4d for ".format(l.length))
+//  }
+
 }
