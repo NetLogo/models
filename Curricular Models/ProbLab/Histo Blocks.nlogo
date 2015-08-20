@@ -103,8 +103,12 @@ to go
     ] [
       set label precision (1 - p) 2
     ]
-    if length (word label) = 3 [ set label word label "0" ] ;; force to 2 decimal places
-    if length (word label) = 1 [ set label word label ".00" ] ;; force to 2 decimal places
+    if length (word label) = 3 [
+      set label word label "0"   ;; force to 2 decimal places
+    ]
+    if length (word label) = 1 [
+      set label word label ".00" ;; force to 2 decimal places
+    ]
   ]
 
   tick
