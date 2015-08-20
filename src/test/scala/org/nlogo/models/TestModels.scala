@@ -23,7 +23,7 @@ trait TestModels extends FunSuite {
       for {
         (line, lineNumber) <- str.lines.zipWithIndex
         if p(line)
-      } yield "  " + msg(line) + s"line #$lineNumber:\n  " + line
+      } yield "  " + msg(line) + "line %4d |".format(lineNumber) + line
 
     for {
       model <- models
