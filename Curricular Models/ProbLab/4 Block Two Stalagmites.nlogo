@@ -1,21 +1,26 @@
 globals [
-         ;; colors of the background of the view and of the two possible colors in samples
-         background-color column-color target-color other-color
-         num-target-color  ;; how many of the squares (patches) in the sample are of the favored color
-         sample-right-xcor ;; the x-coordinate of the moving sample (not the magnified sample)
-         sample-location-patch-agentset ;; patches where the moving sample will sprout
-         token-right-sample-dude ;; bottom-left turtle in the moving sample
-         token-left-sample-dude ;; bottom-left turtle in the moving sample
-         stop-all? ;; Boolean variable for stopping the experiment
+  background-color               ;; colors of the background of the view
+  column-color                   ;;   ...
+  target-color                   ;; and of the two possible colors in samples
+  other-color                    ;;   ...
+  num-target-color               ;; how many of the squares (patches) in
+                                 ;; the sample are of the favored color
+  sample-right-xcor              ;; the x-coordinate of the moving sample
+                                 ;; (not the magnified sample)
 
-         popping?
+  sample-location-patch-agentset ;; patches where the moving sample will sprout
+  token-right-sample-dude        ;; bottom-left turtle in the moving sample
+  token-left-sample-dude         ;; bottom-left turtle in the moving sample
+  stop-all?                      ;; Boolean variable for stopping the experiment
 
-         left-sample-summary-value ; helps figure out which column to drop in
+  popping?
 
-         ; for the histograms
-         individual-4-blocks-list
-         categorized-4-blocks-list
-         ]
+  left-sample-summary-value      ;; helps figure out which column to drop in
+
+  ; for the histograms
+  individual-4-blocks-list
+  categorized-4-blocks-list
+]
 
 patches-own [ column ]
 
@@ -27,35 +32,36 @@ sample-dudes-own [distance-for-jump ]
 
 breed [ baby-dudes baby-dude ]
 
-;; JWU: added these two breeds to make the left-hand stuff
+;; these two breeds make the left-hand stuff
 breed [ left-column-kids left-column-kid ]
 breed [ left-sample-dudes left-sample-dude ]
-breed [ left-dummies left-dummy ] ; they're hatched when the left-sample-dudes die. they stick around (unless "bumped")
 
-;; jwu - instead of having the sample-dudes stamp, they're going to create
-;; a sample-organizer. the sample-organizers are going to have a better idea
-;; of which specific sample the sample-dudes represented.
-;; also, this way we can kill the old sample dudes to help the new ones find their place.
+breed [ left-dummies left-dummy ] ;; they're hatched when the left-sample-dudes die.
+                                  ;; they stick around (unless "bumped")
+
+;; Instead of having the sample-dudes stamp, they're going to create
+;; a sample-organizer. The sample-organizers are going to have a better idea
+;; of which specific sample the sample-dudes represented. Also, this way we
+;; can kill the old sample dudes to help the new ones find their place.
 breed [ sample-organizers sample-organizer ]
 sample-organizers-own [
   sample-values
   original-pycor
 ]
 
-to Go-org
+to go-org
   super-go
   organize-results
 end
 
 to super-go
   if stop-all? [
-      ifelse stop-at-top? [
+    ifelse stop-at-top? [
       stop
     ] [
       bump-down
     ]
   ]
-
   ifelse popping? [
     no-display
     unpop
@@ -69,7 +75,7 @@ to super-go
   plot-it
 end
 
-;; jwu - the popping? global controls the popping visuals
+;; global controls the popping visuals
 to pop
   set popping? true
   recolor-columns
@@ -80,16 +86,15 @@ to unpop
   recolor-columns
 end
 
-;; jwu - different color for each sample-summary-value
-to-report popping-color ; sample-organizers procedure
-  ;;report 15 + ((4 * sample-summary-value * 10) mod 120)
+;; different color for each sample-summary-value
+to-report popping-color ;; sample-organizers procedure
   report 15 + ((sample-summary-value * 10) mod 120)
 end
 
 ;; each 4-block gets a value greenness in the individual spots count for this much:
 ;; 84
 ;; 21
-to-report sample-summary-value ; sample-organizers reporter
+to-report sample-summary-value ;; sample-organizers reporter
   let result 0
   let power-of-two 3
   foreach sample-values [
@@ -103,9 +108,9 @@ end
 
 to-report sample-patches ; sample-organizers procedure
   let result []
-  foreach n-values 2 [?][
+  foreach n-values 2 [ ? ] [
     let i ?
-    foreach n-values 2 [?] [
+    foreach n-values 2 [ ? ] [
       set result lput patch-at ? (- i) result
     ]
   ]
@@ -138,9 +143,10 @@ end
 
 to reset-column-colors ; column-kids procedure
   ask column-kids [
-    ask patches with [ pcolor != black and
-                       (pxcor = [pxcor] of myself or
-                        pxcor = [pxcor] of myself - 1) ] [
+    ask patches with [
+      pcolor != black and
+      (pxcor = [ pxcor ] of myself or pxcor = [ pxcor ] of myself - 1)
+    ] [
       set pcolor [pcolor] of myself
     ]
   ]
@@ -149,11 +155,11 @@ end
 to make-a-sample-organizer ; sample-dudes procedure
   hatch-sample-organizers 1 [
     ht
-    set sample-values map [ ifelse-value ([color] of ? = target-color) [1] [0] ]
-                          sorted-sample-dudes
+    set sample-values map [
+      ifelse-value ([ color ] of ? = target-color) [ 1 ] [ 0 ]
+    ] sorted-sample-dudes
     display-sample
     set heading 180
-
     set categorized-4-blocks-list lput column categorized-4-blocks-list
   ]
 end
@@ -171,32 +177,33 @@ to organize-results
 end
 
 to organize-column ; column-kids procedure
-  let column-organizers sample-organizers with [ pxcor + 1 = [pxcor] of myself ]
-  (foreach sort-by [ [ sample-summary-value ] of ?1 <
-                     [ sample-summary-value ] of ?2
-                   ] [self] of column-organizers
-           sort [ pycor ] of column-organizers
-           [ ask ?1 [set ycor ?2] ])
+  let column-organizers sample-organizers with [
+    pxcor + 1 = [pxcor] of myself
+  ]
+  let organizers sort-by
+    [ [ sample-summary-value ] of ?1 < [ sample-summary-value ] of ?2 ]
+    [ self ] of column-organizers
+  let ycors sort [ pycor ] of column-organizers
+  (foreach organizers ycors [
+    ask ?1 [ set ycor ?2 ]
+  ])
 end
 
 to disorganize-results
  ask sample-organizers [
    set ycor original-pycor
-;    set original-pycor 0
  ]
  recolor-columns
 end
 
-to startup
-  ;set total-samples
-end
-
-;; This procedure colors the view, divides patches into columns of equal length ( plus a single partition column),
-;; and numbers these columns, beginning from the left, 0, 1, 2, 3, etc.
+;; This procedure colors the view, divides patches into columns
+;; of equal length ( plus a single partition column), and numbers
+;; these columns, beginning from the left, 0, 1, 2, 3, etc.
 to setup
-  ca reset-ticks
+  clear-all
+  reset-ticks
   clear-output
-  set background-color white - 1;black
+  set background-color white - 1
   set-default-shape left-dummies "big square"
   set column-color grey
   set target-color green
@@ -204,119 +211,103 @@ to setup
 
   set popping? false
 
-  ;; determines the location of the sample array beginning one column to the left of the histogram
-  set sample-right-xcor 12 ; -1 * round ( ( num-columns / 2 ) * ( side + 1 ) )
-; JWU: the above used to be like this before i screwed with it to add the stuff on the left
-; set sample-right-xcor -1 * round ( ( num-columns / 2 ) * ( side + 1 ) )
+  ;; determines the location of the sample array
+  ;; beginning one column to the left of the histogram
+  set sample-right-xcor 12
 
-  ;; assigns each patch with a column number. Each column is as wide as the value set in the 'side' slider
-  ask patches
-  [
+  ;; assigns each patch with a column number. Each column
+  ;; is as wide as the value set in the 'side' slider
+  ask patches [
     set pcolor background-color
-    ;; The following both centers the columns and assigns a column number to each patch
-    ;; We use "side + 1" and not just "side" so as to create an empty column between samples
-    set column floor ( ( pxcor - ( ( 5 * ( 3 ) ) / 1 ) ) / ( 3 ) )
-; JWU:   the above used to be like this before i screwed with it to add the stuff on the left
-;    set column floor ( ( pxcor + ( ( num-columns * ( side + 1 ) ) / 2 ) ) / ( side + 1 ) )
-    if ((column < 0 and column > -3 )or column >= 5 or column < -3 - 15)
-; JWU:   the above used to be like this before i screwed with it to add the stuff on the left
-;    if column < 0 or column >= num-columns
-      [ set column -100 ]
-
-     if column < 0 and column != -100 [
-       set column column + 18
-
-     ]
+    ;; The following both centers the columns
+    ;; and assigns a column number to each patch
+    ;; We use "side + 1" and not just "side" so
+    ;; as to create an empty column between samples
+    set column floor ((pxcor - ((5 * (3)) / 1)) / (3))
+    if ((column < 0 and column > -3) or column >= 5 or column < -3 - 15) [
+      set column -100
+    ]
+    if column < 0 and column != -100 [
+      set column column + 18
+    ]
   ]
 
   ;; leave one-patch strips between the columns empty
-  ask patches with
-  [ [column] of patch-at -1 0 != column ]
-  [
-    set column -100  ;; so that they do not take part in commands that report relevant column numbers
+  ask patches with [ [ column ] of patch-at -1 0 != column ] [
+   ;; so that they do not take part in commands that report relevant column numbers
+    set column -100
   ]
 
-   ;; colors the columns with two shades of some color, alternately
-   ask patches
-   [
-     if column != -100
-     [
-       ifelse int ( column / 2 ) = column / 2
-       [ set pcolor column-color ][ set pcolor column-color - 1 ]
-
-
-        ;; JWU: do some funky switching of columns so that the 2-zs are next the the 2-zs, etc.
-     if column < 0 and column != -100 [
+  ;; colors the columns with two shades of some color, alternately
+  ask patches [
+    if column != -100 [
+      ifelse int (column / 2) = column / 2
+        [ set pcolor column-color ]
+        [ set pcolor column-color - 1 ]
+      ;; do some funky switching of columns so that
+      ;; the 2-zs are next the the 2-zs, etc.
+      if column < 0 and column != -100 [
         set column item position column [
           0    1 2 3 4    5 6 7 8  9 10    11 12 13 14      15
         ] [
           0    1 2 4 8    3 5 9 6 10 12     7 11 13 14      15
         ]
-
-     ]
-   ]
+      ]
+    ]
   ]
 
-  ;; This draws the  base-line and creates a sample-kids turtle at the base of each column
-  ask patches with
-  [ ( pycor = -1 * max-pycor + 5 ) and  ;; The base line is several patches above the column labels.
-    ( column != -100 ) ]
-  [
-
-
-         ;; JWU: make sure only the grouped guys do this
-          if pxcor > 9
-          [
-
-    set pcolor black
-    if [column] of patch-at -1 0 != column   ;; find the leftmost patch in the column...
-    [
-      ask patch (pxcor + 2 - 1)  ;; ...then move over to the right of the column
-                ( -1 * max-pycor + 1 )
-        [ set plabel column ]
-      ask patch (pxcor + floor 1)  ;; ...then move over to the middle of the column
-                ( -1 * max-pycor + 1 )
-      [
-       sprout 1
-        [
-          hide-turtle
-          set color pcolor
-          set breed column-kids
-          set sample-list []
-          ;; each column-kid knows how many different combinations his column has
-          set binomial-coefficient item column binomrow 4
+  ;; This draws the base-line and creates a sample-kids
+  ;; turtle at the base of each column
+  ask patches with [
+    ;; The base line is several patches above the column labels.
+    (pycor = -1 * max-pycor + 5) and
+    (column != -100)
+  ] [
+    ;; make sure only the grouped guys do this
+    if pxcor > 9 [
+      set pcolor black
+      ;; find the leftmost patch in the column...
+      if [ column ] of patch-at -1 0 != column [
+        ;; ...then move over to the right of the column
+        ask patch (pxcor + 2 - 1) (-1 * max-pycor + 1) [
+          set plabel column
+        ]
+        ;; ...then move over to the middle of the column
+        ask patch (pxcor + floor 1) (-1 * max-pycor + 1) [
+          sprout 1 [
+            hide-turtle
+            set color pcolor
+            set breed column-kids
+            set sample-list []
+            ;; each column-kid knows how many different combinations his column has
+            set binomial-coefficient item column binomrow 4
+          ]
         ]
       ]
     ]
-           ]
 
-
-    ;; JWU: get the ones on the left fixed up.
     if pxcor < 9 [
-          set pcolor black
-          if [column] of patch-at -1 0 != column   ;; find the leftmost patch in the column...
-          [
-            ask patch (pxcor + floor 1 )  ;; ...then move over to the middle of the column
-                      ( -1 * max-pycor + 1 )
-            [
-             sprout 1
-              [
-                hide-turtle
-                set color pcolor
-                set breed left-column-kids
-              ]
-            ]
+      set pcolor black
+      ;; find the leftmost patch in the column...
+      if [ column ] of patch-at -1 0 != column [
+        ;; ...then move over to the middle of the column
+        ask patch (pxcor + floor 1 ) (-1 * max-pycor + 1) [
+          sprout 1 [
+            hide-turtle
+            set color pcolor
+            set breed left-column-kids
           ]
-
+        ]
+      ]
     ]
   ]
 
   set stop-all? false
   set num-target-color false
 
-  ;; again, instead of just accumulating and calling histogram, we have to build our own
-  ;; because of the averaging pen
-  set individual-4-blocks-list n-values 16 [0]
+  ;; again, instead of just accumulating and calling histogram,
+  ;; we have to build our own because of the averaging pen
+  set individual-4-blocks-list n-values 16 [ 0 ]
   set categorized-4-blocks-list []
 
 end
@@ -335,96 +326,88 @@ to bump-down
 end
 
 to go
-  ;; The model keeps track of which different combinations have been discovered. Each
-  ;; column-kid reports whether or not its column has all the possible combinations. When bound? is true,
-  ;; a report from ALL column-kids that their columns are full will stop the run.
+  ;; The model keeps track of which different combinations
+  ;; have been discovered. Each column-kid reports whether
+  ;; or not its column has all the possible combinations.
+  ;; When bound? is true, a report from ALL column-kids
+  ;; that their columns are full will stop the run.
   sample
   drop-in-bin
-
   tick
 end
 
-;; This procedure creates a square sample of dimensions side-times-side, e.g., 3-by-3,
-;; located to the left of the columns. Each patch in this sample sprouts a turtle.
-;; The color of the sample-dudes in this square are either target-color or other-color,
-;; based on a random algorithm (see below)
+;; This procedure creates a square sample of dimensions
+;; side-times-side, e.g., 3-by-3, located to the left of
+;; the columns. Each patch in this sample sprouts a turtle.
+;; The color of the sample-dudes in this square are either
+;; target-color or other-color, based on a random algorithm
+;; (see below)
 to sample
-  ;; creates a square agentset of as many sample-dudes as determined by the 'side' slider,
-  ;; positioning these sample sample-dudes at the top of the screen and to the left of the histogram columns
-  set sample-location-patch-agentset patches with
-  [
-    ( pxcor <= sample-right-xcor ) and
-    ( pxcor > sample-right-xcor - 2 ) and
-    ( pycor > ( max-pycor - 2 ) ) ]
-  ;;; jwu - this used to be an ask. that was wrong because now agentsets are randomized.
-  foreach sort sample-location-patch-agentset
-  [
-    ask ?
-    [
-      sprout 1
-      [
-        ; output-show "here comes turtle: " + who
-        ; output-show "pxcor: " + pxcor
-        ; output-show "pycor: " + pycor
+  ;; creates a square agentset of as many sample-dudes as determined
+  ;; by the 'side' slider, positioning these sample sample-dudes at
+  ;; the top of the screen and to the left of the histogram columns
+  set sample-location-patch-agentset patches with [
+    (pxcor <= sample-right-xcor) and
+    (pxcor > sample-right-xcor - 2) and
+    (pycor > (max-pycor - 2))
+  ]
+  foreach sort sample-location-patch-agentset [
+    ask ? [
+      sprout 1 [
         ht
         set breed sample-dudes
         setxy pxcor pycor
-
-      ;; Each turtle in the sample area chooses randomly between the target-color and the other color.
-      ;; The higher you have set the probability slider, the higher the chance the turtle will get the target color
-      ifelse random 100 < probability-to-be-target-color
-        [ set color target-color ]
-        [ set color other-color ]
-      ; output-show color = target-color
-      st
+        ;; Each turtle in the sample area chooses randomly
+        ;; between the target-color and the other color.
+        ;; The higher you have set the probability slider, the
+        ;; higher the chance the turtle will get the target color
+        ifelse random 100 < probability-to-be-target-color
+          [ set color target-color ]
+          [ set color other-color ]
+        st
       ]
-
-      ;; JWU: left-sample-dudes stuff
-      sprout 1
-      [
+      sprout 1 [
         ht
         set breed left-sample-dudes
         setxy pxcor pycor
         set color [color] of one-of sample-dudes-here
-
-      ; output-show color = target-color
-      st
+        st
       ]
-
-
     ]
   ]
 
   ;; to find the correct column to go to
   set left-sample-summary-value calculate-left-sample-summary-value
 
-  ; output-show sorted-sample-dudes
-  ; output-show map [ color-of ? = target-color ] sorted-sample-dudes
-  ;; num-target-color reports how many sample-dudes in the random sample are of the target color
-
+  ;; num-target-color reports how many sample-dudes
+  ;; in the random sample are of the target color
   set num-target-color count sample-dudes with [ color = target-color ]
 end
 
-;; This procedure moves the random sample sideways to its column and then down above other previous samples
-;; in that column.
+;; This procedure moves the random sample sideways to its column
+;; and then down above other previous samples in that column.
 to drop-in-bin
   find-your-column
   descend
 end
 
-;; The random sample moves to the right until it is in its correct column, that is, until it is in the column
-;; that collects samples which have exactly as many sample-dudes of the target color as this sample has.
-;; The rationale is that the as long as the sample is not in its column, it keeps moving sideways.
-;; So, if the sample has 9 sample-dudes (3-by-3) and is moving sideways, but 6 of them are not yet in their correct column,
-;; the sample keeps moving. When all of the 9 sample-dudes are the sample's correct column, this procedure stops.
+;; The random sample moves to the right until it is in
+;; its correct column, that is, until it is in the column
+;; that collects samples which have exactly as many
+;; sample-dudes of the target color as this sample has.
+;; The rationale is that the as long as the sample is not
+;; in its column, it keeps moving sideways. So, if the
+;; sample has 9 sample-dudes (3-by-3) and is moving sideways,
+;; but 6 of them are not yet in their correct column,
+;; the sample keeps moving. When all of the 9 sample-dudes
+;; are the sample's correct column, this procedure stops.
 to find-your-column
   ask sample-dudes [ set heading 90 ]
   ask left-sample-dudes [ set heading -90 ]
   while [
     count sample-dudes with [ column = num-target-color ] != 4  or
     count left-sample-dudes with [ column = left-sample-summary-value ] != 4
-  ]
-  [
+  ] [
     if count sample-dudes with [ column = num-target-color ] != 4 [
       ask sample-dudes [
         fd 1
@@ -436,108 +419,102 @@ to find-your-column
       ]
     ]
   ]
-
 end
 
-
-;; Moves the sample downwards along the column until it is either on the base line or
-;; exactly over another sample in that column.
+;; Moves the sample downwards along the column until it is either
+;; on the base line or exactly over another sample in that column.
 to descend
   let right-lowest-in-sample min [ pycor ] of sample-dudes
   let left-lowest-in-sample min [ pycor ] of left-sample-dudes
-  ask sample-dudes
-  [ set heading 180 ]
-  ask left-sample-dudes
-  [ set heading 180 ]
+  ask sample-dudes [ set heading 180 ]
+  ask left-sample-dudes [ set heading 180 ]
 
-  ;; The lowest row in the square sample is in charge of checking whether or not the sample has arrived all the way down
-  ;; In order to determine who this row is -- as the samples keeps moving down -- we find a turtle with the lowest y coordinate
-  ;; checks whether the row directly below the sample's lowest row is available to keep moving down
-  set token-right-sample-dude one-of sample-dudes with [ pycor = right-lowest-in-sample ]
-  set token-left-sample-dude one-of left-sample-dudes with [ pycor = left-lowest-in-sample ]
-  while
-  [
-   (( [ [ pcolor ] of patch-at 0 -2 ] of token-right-sample-dude ) != black  and
-    ( [ [ pcolor ] of patch-at 0 -2 ] of token-right-sample-dude ) != target-color and
-    ( [ [ pcolor ] of patch-at 0 -2 ] of token-right-sample-dude ) != other-color)
-              or
-   (( [ [ pcolor ] of patch-at 0 -2 ] of token-left-sample-dude ) != black  and
-    ( [ [ pcolor ] of patch-at 0 -2 ] of token-left-sample-dude ) != target-color and
-    ( [ [ pcolor ] of patch-at 0 -2 ] of token-left-sample-dude ) != other-color and
-    ( [ [ any? left-dummies-here ] of patch-at 0 -2 ] of token-left-sample-dude ) != true)
-  ]
-  [
-    if (( [ [ pcolor ] of patch-at 0 -2 ] of token-right-sample-dude ) != black  and
-        ( [ [ pcolor ] of patch-at 0 -2 ] of token-right-sample-dude ) != target-color and
-        ( [ [ pcolor ] of patch-at 0 -2 ] of token-right-sample-dude ) != other-color)
-    [
+  ;; The lowest row in the square sample is in charge of checking
+  ;; whether or not the sample has arrived all the way down
+  ;; In order to determine who this row is -- as the samples keeps
+  ;; moving down -- we find a turtle with the lowest y coordinate
+  ;; checks whether the row directly below the sample's lowest row
+  ;; is available to keep moving down
+  set token-right-sample-dude
+    one-of sample-dudes with [ pycor = right-lowest-in-sample ]
+  set token-left-sample-dude
+    one-of left-sample-dudes with [ pycor = left-lowest-in-sample ]
+  while [
+    free-below? token-right-sample-dude or (free-below? token-left-sample-dude and
+      [ [ not any? left-dummies-here ] of patch-at 0 -2 ] of token-left-sample-dude)
+  ] [
+    if free-below? token-right-sample-dude [
       ;; As in find-your-column, shift the sample one row down
-      ask sample-dudes
-      [ fd 1 ]
-      ;; Instead of establishing again the lowest row in the sample, the y coordinate of the row
-      ;; gets smaller by 1 because the sample is now one row lower than when it started this 'while' procedure
-      set right-lowest-in-sample ( right-lowest-in-sample - 1 )
+      ask sample-dudes [ fd 1 ]
+      ;; Instead of establishing again the lowest row in the sample, the
+      ;; y coordinate of the row gets smaller by 1 because the sample is
+      ;; now one row lower than when it started this 'while' procedure
+      set right-lowest-in-sample (right-lowest-in-sample - 1)
     ]
 
-    if (( [ [ pcolor ] of patch-at 0 -2 ] of token-left-sample-dude ) != black  and
-        ( [ [ pcolor ] of patch-at 0 -2 ] of token-left-sample-dude ) != target-color and
-        ( [ [ pcolor ] of patch-at 0 -2 ] of token-left-sample-dude ) != other-color and
-        ( [ [ any? left-dummies-here ] of patch-at 0 -2 ] of token-left-sample-dude ) != true)
-    [
-      ask left-sample-dudes
-      [ fd 1 ]
-
-      ;; Instead of establishing again the lowest row in the sample, the y coordinate of the row
-      ;; gets smaller by 1 because the sample is now one row lower than when it started this 'while' procedure
+    if free-below? token-left-sample-dude and
+      [ [ not any? left-dummies-here ] of patch-at 0 -2 ] of token-left-sample-dude [
+      ask left-sample-dudes [ fd 1 ]
+      ;; Instead of establishing again the lowest row in the sample, the
+      ;; y coordinate of the row gets smaller by 1 because the sample is
+      ;; now one row lower than when it started this 'while' procedure
       set left-lowest-in-sample ( left-lowest-in-sample - 1 )
     ]
   ]
-    ; keep track of results for the histogram
-    ask one-of left-sample-dudes [
-      set individual-4-blocks-list replace-item (position column [0  1 2 4 8  3 5 9 6 10 12  7 11 13 14  15])
-                                                 individual-4-blocks-list
-                                               ((item (position column [0  1 2 4 8  3 5 9 6 10 12  7 11 13 14  15]) individual-4-blocks-list) + 1)
+  ; keep track of results for the histogram
+  ask one-of left-sample-dudes [
+    let i position column [0  1 2 4 8  3 5 9 6 10 12  7 11 13 14  15]
+    set individual-4-blocks-list
+      replace-item i individual-4-blocks-list ((item i individual-4-blocks-list) + 1)
+  ]
+  ask left-sample-dudes [
+    hatch 1 [
+      set breed left-dummies
+      set size 1.25
+      set heading 180
     ]
-    ask left-sample-dudes [
-      hatch 1 [
-        set breed left-dummies
-        set size 1.25
-        set heading 180
-      ]
-      die
-    ]
+    die
+  ]
 
 
-  ;; Once sample-dudes have reached as low down in the column as they can go (they are on top of either the base line
-  ;; or a previous sample) they might color the patch with their own color before they "die."
+  ;; Once sample-dudes have reached as low down in the column
+  ;; as they can go (they are on top of either the base line
+  ;; or a previous sample) they might color the patch with
+  ;; their own color before they "die."
   finish-off
 
-  ;; If the column has been stacked up so far that it is near the top of the screen, the whole supra-procedure stops
+  ;; If the column has been stacked up so far that it is near
+  ;; the top of the screen, the whole supra-procedure stops
   ;; and so the experiment ends
-  ifelse (max-pycor - right-lowest-in-sample < ( 3 ))
-              or
-         (max-pycor - left-lowest-in-sample < ( 3 ))
-         [ set stop-all? true ] [ set stop-all? false ]
+  set stop-all?
+    (max-pycor - right-lowest-in-sample < 3) or
+    (max-pycor - left-lowest-in-sample < 3)
 end
 
-;; jwu - we can't sort by who number, because who numbers get reused in weird ways, it seems. (5/10/06)
+to-report free-below? [ dude ]
+  report
+    ([ [ pcolor ] of patch-at 0 -2 ] of dude) != black and
+    ([ [ pcolor ] of patch-at 0 -2 ] of dude) != target-color and
+    ([ [ pcolor ] of patch-at 0 -2 ] of dude) != other-color
+end
+
 to-report sorted-sample-dudes
-;report sort sample-dudes
-report sort-by [
-         (([pxcor] of ?1 < [pxcor] of ?2) and ([pycor] of ?1 = [pycor] of ?2)) or
-         (([pycor] of ?1 > [pycor] of ?2))
-       ] sample-dudes
+  report sort-by [
+    (([pxcor] of ?1 < [pxcor] of ?2) and ([pycor] of ?1 = [pycor] of ?2)) or
+    (([pycor] of ?1 > [pycor] of ?2))
+  ] sample-dudes
 end
 
 ;; using lots of code from the grouped side stuff
 to-report calculate-left-sample-summary-value
   let sorted-left-sample-dudes
   sort-by [
-         (([pxcor] of ?1 < [pxcor] of ?2) and ([pycor] of ?1 = [pycor] of ?2)) or
-         (([pycor] of ?1 > [pycor] of ?2))
-       ] left-sample-dudes
-  let left-sample-values map [ ifelse-value ([color] of ? = target-color) [1] [0] ]
-                          sorted-left-sample-dudes
+    (([pxcor] of ?1 < [pxcor] of ?2) and ([pycor] of ?1 = [pycor] of ?2)) or
+    (([pycor] of ?1 > [pycor] of ?2))
+  ] left-sample-dudes
+  let left-sample-values map [
+    ifelse-value ([color] of ? = target-color) [1] [0]
+  ] sorted-left-sample-dudes
   let result 0
   let power-of-two 3
   foreach left-sample-values [
@@ -550,54 +527,61 @@ to-report calculate-left-sample-summary-value
 end
 
 to finish-off
-  ;; creates local list of the colors of this specific sample, for instance the color combination of a 9-square,
-  ;; beginning from its top-left corner and running to the right and then taking the next row and so on
+  ;; creates local list of the colors of this specific sample,
+  ;; for instance the color combination of a 9-square,
+  ;; beginning from its top-left corner and running to the
+  ;; right and then taking the next row and so on
   ;; might be "green green red green red green"
-  ;; jwu - need to use map and sort instead of values-from cause of
+  ;; need to use map and sort instead of values-from cause of
   ;; the new randomized agentsets in 3.1pre2
   let sample-color-combination map [ [color] of ? ] sorted-sample-dudes
 
   ;; determines which turtle lives at the bottom of the column where the sample is
-  let this-column-kid one-of column-kids with [ column = [ column ] of token-right-sample-dude ]
+  let this-column-kid one-of column-kids with [
+    column = [ column ] of token-right-sample-dude
+  ]
 
-    ;; jwu - make the upper left sample-dude create a sample-organizer
-    let the-sample-sample-dude max-one-of sample-dudes with-min [ pxcor ] [ pycor ]
+  ;; make the upper left sample-dude create a sample-organizer
+  let the-sample-sample-dude max-one-of sample-dudes with-min [ pxcor ] [ pycor ]
 
-  ;; accepts to list only new samples and makes a previously encountered sample if keep-duplicates? is on
+  ;; accepts to list only new samples and makes a previously
+  ;; encountered sample if keep-duplicates? is on
   ifelse not member? sample-color-combination [sample-list] of this-column-kid
   [
     ask the-sample-sample-dude [
       make-a-sample-organizer
     ]
-    ask sample-dudes
-    [ die ]
+    ask sample-dudes [
+      die
+    ]
   ]
   [
     ask the-sample-sample-dude [
       make-a-sample-organizer
     ]
-    ask sample-dudes
-    [ die ]
+    ask sample-dudes [
+      die
+    ]
   ]
-    ask this-column-kid
-    [ set sample-list fput sample-color-combination sample-list ]
-
+  ask this-column-kid [
+    set sample-list fput sample-color-combination sample-list
+  ]
 end
 
 ;; procedure for calculating the row of coefficients
-;; column-kids needs their coefficient so as to judge if their column has all the possible different combinations
-to-report binomrow [n]
-  if n = 0 [ report [1] ]
+;; column-kids needs their coefficient so as to judge
+;; if their column has all the possible different combinations
+to-report binomrow [ n ]
+  if n = 0 [ report [ 1 ] ]
   let prevrow binomrow (n - 1)
-  report (map [?1 + ?2] fput 0 prevrow
-                        lput 0 prevrow)
+  report (map [ ?1 + ?2 ] (fput 0 prevrow) (lput 0 prevrow))
 end
 
 ;; reports the proportion of the sample space that has been generated up to now
 to-report %-full
   ifelse samples-found = 0
     [ report precision 0 0 ]
-    [ report precision ( samples-found / ( 2 ^ ( 4 ) ) ) 3 ]
+    [ report precision (samples-found / (2 ^ 4)) 3 ]
 end
 
 to-report samples-found
@@ -605,7 +589,7 @@ to-report samples-found
 end
 
 to-report total-samples-to-find
-  report precision ( 2 ^ ( 4 ) ) 0
+  report precision (2 ^ 4) 0
 end
 
 to plot-it
