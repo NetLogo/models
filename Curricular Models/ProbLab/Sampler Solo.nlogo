@@ -40,8 +40,8 @@ patches-own
 [
   my-color  ;; variables for when user toggles between samples and reveal displays
 
-  ;; a list of the users (including the observer/instructor/server and all active clients)
-  ;; that have this patch in their current sample
+  ;; a list of the users (including the observer/instructor/server and
+  ;; all active clients) that have this patch in their current sample
   agents-with-me-in-sample
 ]
 
@@ -251,7 +251,8 @@ to sample
   tick
 end
 
-;; based on input, create the chosen sample and have all patches in it set pcolor to my-color
+;; based on input, create the chosen sample and
+;; have all patches in it set pcolor to my-color
 to change-sample [ x y block-side agent ]
   let patches-in-sample 0
 
@@ -260,7 +261,10 @@ to change-sample [ x y block-side agent ]
   ;; designates all patches in a square around the mouse spot as being in the sample.
   ;; the sample-block side is set on the interface using the slider
   ask patch x y
-  [ set patches-in-sample (in-rectangle patches ((block-side - 1) / 2)  ((block-side - 1) / 2) ) ]
+  [
+    let d (block-side - 1) / 2
+    set patches-in-sample in-rectangle patches d d
+  ]
 
   ;; hide all the patches and frames
   ask patches with [ true ]
@@ -295,7 +299,8 @@ to change-sample [ x y block-side agent ]
   if agent = "observer"
   [
     set num-patches-in-observer-sample count patches-in-sample
-    set num-target-color-patches-in-observer-sample count patches-in-sample with [pcolor = target-color]
+    set num-target-color-patches-in-observer-sample
+      count patches-in-sample with [ pcolor = target-color ]
   ]
 end
 
@@ -304,11 +309,15 @@ end
 to-report in-rectangle [ patchset width/2 height/2 ]  ;; turtle and patch procedure
   ;; this procedure does not work with a non-patch-agentset variable
   if not is-patch-set? patchset
-  [ report nobody ]
+    [ report nobody ]
+  let min-x pxcor - width/2
+  let max-x pxcor + width/2
+  let min-y pycor - height/2
+  let max-y pycor + height/2
   report patchset with
   [
-    pxcor <= ([pxcor] of myself + width/2) and pxcor >= ([pxcor] of myself - width/2) and
-    pycor <= ([pycor] of myself + height/2) and pycor >= ([pycor] of myself - height/2)
+    pxcor >= min-x and pxcor <= max-x and
+    pycor >= min-y and pycor <= max-y
   ]
 end
 
@@ -343,7 +352,8 @@ end
 to-report target-color-%-in-sample
   ifelse (num-patches-in-observer-sample = 0)
   [ report -1 ]
-  [ report ( 100 * num-target-color-patches-in-observer-sample / num-patches-in-observer-sample ) ]
+  [ report (100 * num-target-color-patches-in-observer-sample /
+      num-patches-in-observer-sample) ]
 end
 
 
@@ -369,20 +379,38 @@ to simulate-classroom-histogram
   let err 0
   let class-mean 0
   let stand-dev 0
-  if real-%-target-color = 0 [set stand-dev 0 set class-mean 0 set err 0]
-  if real-%-target-color > 0 and  real-%-target-color <= 5  [set class-mean %-target-color + 2 set stand-dev 1.5 set err 1]
-  if real-%-target-color > 5 and  real-%-target-color <= 7 [set class-mean %-target-color + 3 set stand-dev 2 set err -2 + random 5]
-  if real-%-target-color > 7 and real-%-target-color <= 30 [set class-mean %-target-color + 3    set stand-dev 6 set err -2 + random 5]
-  if real-%-target-color > 30 and real-%-target-color <= 70 [set class-mean %-target-color + 3    set stand-dev 8 set err -3 + random 7]
-  if real-%-target-color > 70 and real-%-target-color <= 93 [set class-mean %-target-color + 3    set stand-dev 6 set err -2 + random 5]
-  if real-%-target-color > 93 and real-%-target-color < 100 [set class-mean %-target-color - 2   set stand-dev 1.5 set err -1]
-  if real-%-target-color = 100 [set stand-dev 0 set class-mean 100 set err 0]
+  if real-%-target-color = 0 [
+    set stand-dev 0 set class-mean 0 set err 0
+  ]
+  if real-%-target-color > 0 and real-%-target-color <= 5  [
+    set class-mean %-target-color + 2 set stand-dev 1.5 set err 1
+  ]
+  if real-%-target-color > 5 and real-%-target-color <= 7 [
+    set class-mean %-target-color + 3 set stand-dev 2 set err -2 + random 5
+  ]
+  if real-%-target-color > 7 and real-%-target-color <= 30 [
+    set class-mean %-target-color + 3 set stand-dev 6 set err -2 + random 5
+  ]
+  if real-%-target-color > 30 and real-%-target-color <= 70 [
+    set class-mean %-target-color + 3 set stand-dev 8 set err -3 + random 7
+  ]
+  if real-%-target-color > 70 and real-%-target-color <= 93 [
+    set class-mean %-target-color + 3 set stand-dev 6 set err -2 + random 5
+  ]
+  if real-%-target-color > 93 and real-%-target-color < 100 [
+    set class-mean %-target-color - 2 set stand-dev 1.5 set err -1
+  ]
+  if real-%-target-color = 100 [
+    set stand-dev 0 set class-mean 100 set err 0
+  ]
 
   set class-mean ( real-%-target-color + err )
   set organize? true
   reveal
   set guesses-list []
-  repeat class-size [ set guesses-list ( lput random-normal class-mean stand-dev guesses-list ) ]
+  repeat class-size [
+    set guesses-list (lput random-normal class-mean stand-dev guesses-list)
+  ]
   plot-guesses
 end
 
