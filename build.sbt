@@ -3,13 +3,13 @@ scalaVersion := "2.11.6"
 resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/"
 
 libraryDependencies ++= Seq(
-  "org.nlogo" % "NetLogo" % "5.3.0" % Test from
+  "org.nlogo" % "NetLogo" % "5.3.0" from
     "http://ccl.northwestern.edu/devel/NetLogo-5.3-17964bb.jar",
-  "asm" % "asm-all" % "3.3.1" % Test,
-  "org.picocontainer" % "picocontainer" % "2.13.6" % Test,
+  "asm" % "asm-all" % "3.3.1",
+  "org.picocontainer" % "picocontainer" % "2.13.6",
   "org.scalatest" %% "scalatest" % "2.2.4" % Test,
-  "commons-io" % "commons-io" % "2.4" % Test,
-  "commons-validator" % "commons-validator" % "1.4.1" % Test,
-  "com.typesafe.play" %% "play-ws" % "2.3.8" % Test,
-  "org.pegdown" % "pegdown" % "1.1.0" % Test
+  "commons-io" % "commons-io" % "2.4",
+  "commons-validator" % "commons-validator" % "1.4.1",
+  "com.typesafe.play" %% "play-ws" % "2.3.8",
+  "org.pegdown" % "pegdown" % "1.1.0"
 )
