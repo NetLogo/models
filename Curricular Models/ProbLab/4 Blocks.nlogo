@@ -23,20 +23,26 @@ to initialize
   set-colors
   set target-color-list []
   ask patches [ set pcolor white - 1]
-  set stratified-list n-values 16 [0] ;; counts the frequency of each of the 16 permutations.
-  ;; This list indexes the positions of the 16 permutations in the CT by the bitmask of the four patches.
+
+  ;; counts the frequency of each of the 16 permutations:
+  set stratified-list n-values 16 [0]
+
+  ;; This list indexes the positions of the 16 permutations
+  ;; in the CT by the bitmask of the four patches.
   set stratified-indices (list 0 1 2 5 3 6 7 11 4 8 9 12 10 13 14 15)
 end
 
-;; We used color variables and not just colors so that you could change the color values
-;; to suit you. For instance, perhaps you would want to change the green to cyan
+;; We used color variables and not just colors so that you
+;; could change the color values to suit you. For instance,
+;; perhaps you would want to change the green to cyan.
 to set-colors
   set target-color green
   set other-color blue
 end
 
-to create-the-frames ;; each individual patch in the block is framed, creating an overall effect
-                     ;; of a grid that helps distinguish individual patches in the block
+to create-the-frames
+  ;; each individual patch in the block is framed, creating an overall effect
+  ;; of a grid that helps distinguish individual patches in the block
   set-default-shape frames "frame"
   ask patches [
     sprout 1 [
@@ -91,9 +97,10 @@ end
 ;;;;;;;;;;;;;;;;;;
 
 to make-histogram
-  set target-color-list fput count patches with [pcolor = target-color] target-color-list
+  let target-color-patches patches with [pcolor = target-color]
+  set target-color-list fput count target-color-patches target-color-list
   ;; i is the bitmask of the patches
-  let i sum [ 2 ^ ( pxcor + 2 * pycor ) ] of patches with [pcolor = target-color]
+  let i sum [ 2 ^ ( pxcor + 2 * pycor ) ] of target-color-patches
   set i item i stratified-indices
   set stratified-list replace-item i stratified-list (item i stratified-list + 1)
 
