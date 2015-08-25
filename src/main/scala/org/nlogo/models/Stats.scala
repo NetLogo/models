@@ -5,6 +5,7 @@ import java.io.File
 import java.util.Date
 
 import scala.collection.JavaConverters.mapAsScalaMapConverter
+import scala.util.Try
 
 import org.jfree.chart.labels.ItemLabelAnchor
 import org.jfree.chart.labels.ItemLabelPosition
@@ -15,8 +16,7 @@ import org.jfree.chart.title.TextTitle
 import org.jfree.graphics2d.svg.SVGGraphics2D
 import org.jfree.graphics2d.svg.SVGUtils
 import org.jfree.ui.TextAnchor
-import org.nlogo.api.TokenType.COMMAND
-import org.nlogo.api.TokenType.REPORTER
+import org.nlogo.nvm.Instruction
 
 import scalax.chart.Chart
 import scalax.chart.api.BarChart
@@ -25,14 +25,28 @@ object Stats {
 
   def exportPrimitivesUsagePlot(): Unit = {
 
+    def reporterNames(instruction: Instruction): Iterable[String] =
+      for {
+        ins <- instruction.args
+        name <- instructionName(ins).toSeq ++ reporterNames(ins)
+      } yield name
+
+    def instructionName(instruction: Instruction): Option[String] =
+      for {
+        token <- Option(instruction.token)
+        if token.name.nonEmpty
+        if token.name.toLowerCase == token.name // exclude user-defined
+        if !(token.name.charAt(0) == '"') // exclude strings
+        if Try(token.name.toDouble).isFailure // exclude numbers
+      } yield token.name
+
     def tokenNames(model: Model) = withWorkspace(model) { ws =>
       for {
         (_, procedure) <- ws.getProcedures.asScala
         command <- procedure.code
-        token <- Option(command.token)
-        if token.name == token.name.toLowerCase // prims are lowercase, user procedures uppercase
-        if token.tyype == COMMAND || token.tyype == REPORTER
-      } yield token.name
+        commandName = instructionName(command)
+        name <- commandName.toSeq ++ reporterNames(command)
+      } yield name
     }
 
     val data = Model.libraryModels
@@ -67,7 +81,7 @@ object Stats {
     plot.getDomainAxis.setTickLabelFont(new Font("Monospaced", Font.PLAIN, 12))
     plot.getDomainAxis.setUpperMargin(0.005)
     plot.getDomainAxis.setLowerMargin(0.005)
-    saveAsSVG(chart, "test/stats/usage_of_primitives.svg", (800, 1800))
+    saveAsSVG(chart, "test/stats/usage_of_primitives.svg", (800, 4500))
   }
 
   // shouldn't be needed anymore once
