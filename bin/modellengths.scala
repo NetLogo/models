@@ -15,7 +15,7 @@ def hasActualCode(line:String):Boolean =
   !line.matches("""\s*[\[\]\(\)]\s*;.*""")    // ignore if nothing but a bracket/paren and a comment
 
 val hash = collection.mutable.HashMap[String,Int]()
-for{path <- Process(Seq("find", "models/Sample Models", "-name", "*.nlogo", "-o", "-name", "*.nlogo3d")).lines
+for{path <- Process(Seq("find", "models/Sample Models", "-name", "*.nlogo", "-o", "-name", "*.nlogo3d")).lineStream
     name = path.split("/").last.stripSuffix(".nlogo")
     if !path.containsSlice("/System Dynamics/")
     if !path.containsSlice("/GasLab/") || List("GasLab Circular Particles","GasLab Gas in a Box").contains(name)}
