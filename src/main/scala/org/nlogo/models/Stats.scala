@@ -13,10 +13,6 @@ import org.jfree.chart.title.TextTitle
 import org.jfree.graphics2d.svg.SVGGraphics2D
 import org.jfree.graphics2d.svg.SVGUtils
 import org.jfree.ui.TextAnchor
-import org.nlogo.api.TokenType.COMMAND
-import org.nlogo.api.TokenType.REPORTER
-import org.nlogo.lex.Tokenizer2D
-import org.nlogo.lex.Tokenizer3D
 
 import scalax.chart.Chart
 import scalax.chart.api.BarChart
@@ -25,17 +21,9 @@ object Stats {
 
   def exportPrimitivesUsagePlot(): Unit = {
 
-    def tokenNames(model: Model) = {
-      val tokenizer = if (model.is3d) Tokenizer3D else Tokenizer2D
-      for {
-        token <- tokenizer.tokenize(model.code)
-        if token.tyype == REPORTER || token.tyype == COMMAND
-      } yield token.name
-    }
-
     val data = Model.libraryModels
       .filterNot(model => model.is3d)
-      .flatMap(model => tokenNames(model).toSeq.distinct.map(_ -> model))
+      .flatMap(model => model.primitiveTokenNames.distinct.map(_ -> model))
       .groupBy(_._1).mapValues(_.size)
       .toSeq
       .sortBy(t => (0 - t._2, t._1))

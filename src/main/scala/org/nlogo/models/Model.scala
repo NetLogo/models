@@ -12,6 +12,10 @@ import org.apache.commons.io.FileUtils.listFiles
 import org.apache.commons.io.FileUtils.readFileToString
 import org.apache.commons.io.FilenameUtils.getExtension
 import org.apache.commons.io.FilenameUtils.removeExtension
+import org.nlogo.lex.Tokenizer2D
+import org.nlogo.lex.Tokenizer3D
+import org.nlogo.api.TokenType.COMMAND
+import org.nlogo.api.TokenType.REPORTER
 
 object Model {
   sealed abstract trait UpdateMode
@@ -93,5 +97,9 @@ case class Model(
     if (name.endsWith(" 3D"))
       name.replaceFirst(" 3D$", "")
     else name
-    def behaviorSpaceXML = XML.loadString(behaviorSpace)
+  def behaviorSpaceXML = XML.loadString(behaviorSpace)
+  def tokens = (if (is3d) Tokenizer3D else Tokenizer2D).tokenize(code)
+  def primitiveTokenNames = tokens
+    .filter(t => t.tyype == REPORTER || t.tyype == COMMAND)
+    .map(_.name)
 }
