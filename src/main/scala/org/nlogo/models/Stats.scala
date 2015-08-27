@@ -22,7 +22,6 @@ object Stats {
   def exportPrimitivesUsagePlot(): Unit = {
 
     val data = Model.libraryModels
-      .filterNot(model => model.is3d)
       .flatMap(model => model.primitiveTokenNames.distinct.map(_ -> model))
       .groupBy(_._1).mapValues(_.size)
       .toSeq
