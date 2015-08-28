@@ -2,7 +2,7 @@ package org.nlogo.models
 
 class CodeTests extends TestModels {
 
-  testAllModels("Deprecated primitives are not used") { models =>
+  testAllModels("Forbidden primitives are not used") { models =>
 
     type Exemption = String // the base name of an exempted model
 
