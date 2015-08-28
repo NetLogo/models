@@ -2,7 +2,7 @@ package org.nlogo.models
 
 class CodeTests extends TestModels {
 
-  testAllModels("Forbidden primitives are not used") { models =>
+  testLibraryModels("Forbidden primitives are not used") { models =>
 
     type Exemption = String // the base name of an exempted model
 
@@ -40,7 +40,7 @@ class CodeTests extends TestModels {
       "__hubnet-set-view-mirroring" -> Seq.empty,
       "__hubnet-wait-for-clients" -> Seq.empty,
       "__hubnet-wait-for-messages" -> Seq.empty,
-      "__ignore" -> Seq("List Benchmark", "One-Of Turtles Benchmark"),
+      "__ignore" -> Seq.empty,
       "__inspect-with-radius" -> Seq.empty,
       "__let" -> Seq.empty,
       "__life" -> Seq.empty,
