@@ -24,7 +24,7 @@ class CodeTests extends TestModels {
       (prim, exceptions) <- forbiddenPrimitives
       model <- models
       if !exceptions.contains(model.baseName)
-      if model.content.contains(prim)
+      if model.primitiveTokenNames.contains(prim)
     } yield model.quotedPath + "\n  uses " + prim
   }
 
