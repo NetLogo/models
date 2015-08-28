@@ -90,10 +90,11 @@ class CodeTests extends TestModels {
     )
 
     for {
-      (prim, exceptions) <- forbiddenPrimitives
       model <- models
+      tokenNames = model.primitiveTokenNames.toSet
+      (prim, exceptions) <- forbiddenPrimitives
       if !exceptions.contains(model.baseName)
-      if model.primitiveTokenNames.contains(prim)
+      if tokenNames.contains(prim)
     } yield model.quotedPath + "\n  uses " + prim
   }
 
