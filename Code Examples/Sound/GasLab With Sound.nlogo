@@ -40,7 +40,7 @@ end
 to setup
   sound:stop-music  ;; start music by closing previous one
   let tmp message-shown?
-  ca
+  clear-all
   set message-shown? tmp
   set-default-shape particles "circle"
   set-default-shape flashes "square"
@@ -106,8 +106,8 @@ to go
       [ set pcolor yellow
         die ]
   ifelse (single-particle-speed? or single-particle-collisions? or single-particle-wall-hits? )  ;; single particle speed is traced
-      [ ask particle 3 [ pd ] ]
-      [ ask particle 3 [ pu ] ]
+      [ ask particle 3 [ pen-down ] ]
+      [ ask particle 3 [ pen-up ] ]
   fade-patches ;; if the single particle is tracing, then the trace disappears after a while
 end
 
@@ -165,7 +165,7 @@ to bounce  ;; particle procedure
       set wall-hits wall-hits + 1
       if (wall-hits?) [ sound:play-note "celesta" tone wall-hits-loudness 0.15 ] ;; when a particle hits the wall there's  sound (macro)
       if (single-particle-wall-hits? and who = 3) ;; when a particle hits the wall there's  sound (micro)
-        [ ask particle 3 [ pd ] sound:play-note "clavi" ( 30 + heading / 5 ) wall-hits-loudness 0.2 ]
+        [ ask particle 3 [ pen-down ] sound:play-note "clavi" ( 30 + heading / 5 ) wall-hits-loudness 0.2 ]
 
   ;;  if the particle is hitting a vertical wall, only the horizontal component of the speed
   ;;  vector can change.  The change in velocity for this component is 2 * the speed of the particle,
@@ -178,14 +178,14 @@ to bounce  ;; particle procedure
       set wall-hits wall-hits + 1
       if wall-hits? [ sound:play-note "celesta" heading  single-particle-loudness 0.1 ]
   if (single-particle-wall-hits? and who = 3)
-     [ ask particle 3 [ pd ] sound:play-note "clavi" ( 30 + heading / 5 ) single-particle-loudness 0.1 ]
+     [ ask particle 3 [ pen-down ] sound:play-note "clavi" ( 30 + heading / 5 ) single-particle-loudness 0.1 ]
 
   ;;  if the particle is hitting a horizontal wall, only the vertical component of the speed
   ;;  vector can change.  The change in velocity for this component is 2 * the speed of the particle,
   ;; due to the reversing of direction of travel from the collision with the wall
       set momentum-difference momentum-difference + (abs (dy * 2 * mass * speed) / length-horizontal-surface)  ]
   ask patch new-px new-py
-    [ sprout-flashes 1 [ ht
+    [ sprout-flashes 1 [ hide-turtle
                          set birthday ticks
                          set pcolor yellow - 3 ] ]
 end
@@ -250,7 +250,7 @@ to check-for-collision  ;; particle procedure
       if collisions? ;; make a sound when there's a collision that is a function of the sum of their speeds (macro)
         [ sound:play-note "telephone ring" 2 * ([speed] of self + [speed] of candidate) collisions-loudness 0.15 ]
       if (single-particle-collisions? and ( who = 3 or [who] of candidate = 3 )) ;; make a sound when there's a collision that is a function of the sum of their speeds (micro)
-         [ ask particle 3 [ pd ] sound:play-note "glockenspiel" 69 single-particle-loudness + 40 0.2 ]
+         [ ask particle 3 [ pen-down ] sound:play-note "glockenspiel" 69 single-particle-loudness + 40 0.2 ]
 
     ]
   ]

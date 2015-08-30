@@ -36,7 +36,7 @@ to setup
   draw-piston
   ;;set vclock 0
   ;; create the gas molecules
-  crt number [
+  create-turtles number [
      set new-speed initspeed
      set mass initmass
      random-position

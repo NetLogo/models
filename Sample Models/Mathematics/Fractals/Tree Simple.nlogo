@@ -4,13 +4,13 @@ turtles-own
 ; setup the initial turtle and its properties
 to setup
   clear-all
-  crt 1
+  create-turtles 1
   [
     set shape "line"
     set color init-color
     setxy init-x init-y
     set heading 0
-    pd
+    pen-down
   ]
   reset-ticks
 end

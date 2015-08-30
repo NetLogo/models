@@ -80,8 +80,8 @@ to go
     set color blue ]
 
   ifelse draw?
-    [ ask turtles [ pd ] ]
-    [ ask turtles [ pu ] ]
+    [ ask turtles [ pen-down ] ]
+    [ ask turtles [ pen-up ] ]
 
   ask raindrops [ flow ]
 

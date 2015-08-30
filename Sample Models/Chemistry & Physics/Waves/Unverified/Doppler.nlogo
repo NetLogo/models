@@ -79,7 +79,7 @@ to go
   ;; draw
   ifelse show-amplitudes? [
     ;; hide the wave and show total amplitude on each patch
-    ask wave-components [ ht ]
+    ask wave-components [ hide-turtle ]
     ask patches [
       let amp amplitude-here []
       ifelse amp > 0
@@ -90,7 +90,7 @@ to go
     ]
   ] [
     ;; show the wave and paint patches black
-    ask wave-components [ st ]
+    ask wave-components [ show-turtle ]
     ask patches
     [
        set pcolor black
@@ -132,7 +132,7 @@ to emit-wave
     set amplitude initial-wave-amplitude
     set wave-id next-wave-id
     set heading j * ( 360.0 / num-wave-components )
-    if show-amplitudes? [ ht ]
+    if show-amplitudes? [ hide-turtle ]
   ]
   set next-wave-id next-wave-id + 1
 end

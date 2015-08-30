@@ -55,7 +55,7 @@ to startup
 end
 
 to initialize
-  ca
+  clear-all
 
   ;; building the optional colors for the color combinations
   set color-list [ green blue magenta cyan pink yellow ]
@@ -203,7 +203,7 @@ to assign-color-or-image
       ask my-guess-block-buddy
       [
         if not any? dice-here [ make-dice ]
-        ask dice-here [ ht ]
+        ask dice-here [ hide-turtle ]
       ]
     ]
   ]
@@ -349,7 +349,7 @@ to guess  ;; patches-in-set-block procedure
        ask dice-here
        [
          set shape item ( random length dice-rotation ) dice-rotation
-         st
+         show-turtle
        ]
     ]
   ]
@@ -409,7 +409,7 @@ end
 
 to hide-set-block
   if dice?
-    [ ask patches-in-set-block [ ask dice-here [ ht ] ] ]
+    [ ask patches-in-set-block [ ask dice-here [ hide-turtle ] ] ]
   ask patches-in-set-block [set pcolor gray - 2 ]
  set hide? false
 end
@@ -417,7 +417,7 @@ end
 ;; procedure that re-assigns to patches-in-set-block the appearance properties of the original combination
 to reveal-set-block
   ifelse dice?
-    [ ask dice with [ pycor > 0 ] [ set pcolor green st ] ]
+    [ ask dice with [ pycor > 0 ] [ set pcolor green show-turtle ] ]
     [ ask patches-in-set-block [ set pcolor my-color ] ]
  set hide? true
 end

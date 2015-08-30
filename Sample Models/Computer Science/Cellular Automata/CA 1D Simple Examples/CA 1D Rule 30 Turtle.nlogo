@@ -14,7 +14,7 @@ to make-turtles
     sprout 1 ;; each patch sprouts a turtle
     [
       set heading 180 ;; face the turtle downwards
-      ht              ;; make the turtle invisible
+      hide-turtle     ;; make the turtle invisible
     ]
   ]
 end

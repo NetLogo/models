@@ -31,7 +31,7 @@ globals [
 to new
   if user-yes-or-no? "Do you really want to clear the level?"
   [
-    ca
+    clear-all
     set difficulty 0
     set level 0
     set score 0

@@ -71,7 +71,7 @@ to search-for-sheep ;; shepherds procedure
   set carried-sheep one-of sheep-here with [not hidden?]
   if (carried-sheep != nobody)
     [ ask carried-sheep
-        [ ht ]           ;; make the sheep invisible to other shepherds
+        [ hide-turtle ]  ;; make the sheep invisible to other shepherds
       set color blue     ;; turn shepherd blue while carrying sheep
       fd 1 ]
 end
@@ -84,7 +84,7 @@ end
 to find-empty-spot ;; shepherds procedure
   if all? sheep-here [hidden?]
     [ ask carried-sheep
-        [ st ]                ;; make the sheep visible again
+        [ show-turtle ]       ;; make the sheep visible again
       set color brown         ;; set my own color back to brown
       set carried-sheep nobody
       set found-herd? false

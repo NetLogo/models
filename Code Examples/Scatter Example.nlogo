@@ -1,7 +1,7 @@
 ;; setup clears all and then creates a lot of turtles
 to setup
   clear-all
-  crt 300
+  create-turtles 300
   reset-ticks
 end
 

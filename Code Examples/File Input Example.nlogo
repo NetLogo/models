@@ -57,7 +57,8 @@ end
 ;; The list is a list of three-tuples where the first item is the pxcor, the
 ;; second is the pycor, and the third is pcolor. Ex. [ [ 0 0 5 ] [ 1 34 26 ] ... ]
 to show-patch-data
-  cp ct
+  clear-patches
+  clear-turtles
   ifelse ( is-list? patch-data )
     [ foreach patch-data [ ask patch first ? item 1 ? [ set pcolor last ? ] ] ]
     [ user-message "You need to load in patch data first!" ]

@@ -52,7 +52,7 @@ end
 to make-new-cars
   if (random-float 100 < freq-north) and not any? turtles-on patch 0 min-pycor
     [
-      crt 1
+      create-turtles 1
         [ set ycor min-pycor
           set heading 0
           set color 5 + 10 * random 14
@@ -61,7 +61,7 @@ to make-new-cars
     ]
   if (random-float 100 < freq-east) and not any? turtles-on patch min-pxcor 0
     [
-      crt 1
+      create-turtles 1
         [ set xcor min-pxcor
           set heading 90
           set color 5 + 10 * random 14

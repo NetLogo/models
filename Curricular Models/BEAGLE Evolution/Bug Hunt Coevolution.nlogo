@@ -37,7 +37,7 @@ globals [
 
 
 to setup
-  ca
+  clear-all
   set total-caught 0
   set histogram-interval-size 1
   set old-show-initial-bug-vision-cone? 0

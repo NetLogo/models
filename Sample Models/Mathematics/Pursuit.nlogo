@@ -28,7 +28,7 @@ to setup-leader
       set size 3
       set shape "circle"
       set xcor min-pxcor
-      if not show-leader? [ ht ]
+      if not show-leader? [ hide-turtle ]
       update-leader-ycor ]
 end
 
@@ -49,7 +49,7 @@ to setup-followers
     set shape "circle"
     set size 2
     set pen-size 2
-    pd
+    pen-down
   ]
 end
 
@@ -60,7 +60,7 @@ to reveal
     [ set xcor 0
       while [xcor < max-pxcor]
         [ move-leader ]
-      st ]
+      show-turtle ]
   set show-trail? old-value-of-show-trail?
 end
 

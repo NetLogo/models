@@ -25,7 +25,7 @@ students-own
 ;;;;;;;;;;;;;;;;;;;;;
 
 to startup
-  ca
+  clear-all
   ask patches [ set pcolor gray ]
   hubnet-reset
 end

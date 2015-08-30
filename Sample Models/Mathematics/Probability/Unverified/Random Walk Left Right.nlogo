@@ -26,12 +26,12 @@ end
 
 ;; draw a line up the middle
 to draw-line-up-middle
-  crt 1
+  create-turtles 1
   [
     set heading 0
     set pen-size 3
     set pcolor 8
-    pd
+    pen-down
     fd world-height
     die
   ]
@@ -43,13 +43,13 @@ end
 to setup-turtles
   ;; the origin is at the bottom of the view so there is no need
   ;; to relocate the turtles upon creation
-  crt number-of-turtles
+  create-turtles number-of-turtles
   [
     set color black
     set pen-size 3
     ifelse turtle-trails?
-      [ pd ]  ;; have the turtles put down their pens
-      [ pu ]  ;; have the turtles pick up their pens
+      [ pen-down ]  ;; have the turtles put down their pens
+      [ pen-up ]  ;; have the turtles pick up their pens
     set heading 0
   ]
 end

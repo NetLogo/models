@@ -107,7 +107,7 @@ end
 ;;; sets up the model
 to setup
   clear-all
-  crt number-of-turtles
+  create-turtles number-of-turtles
   [
     ;; we want the color to be related to the who number of the turtles, so
     ;; that it will be fairly obvious if turtles are grouped in an ordered way.

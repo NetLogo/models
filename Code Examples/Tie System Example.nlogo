@@ -3,7 +3,7 @@ breed [ planets planet ]
 breed [ moons moon ]
 
 to setup
-  ca
+  clear-all
   set-default-shape turtles "planet"
   create-suns 1
   [ set size 6

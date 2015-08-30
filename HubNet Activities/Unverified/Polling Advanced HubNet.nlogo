@@ -118,7 +118,7 @@ end
 ;; Only called by SETUP-PROMPT, which is called by the setup button, and STARTUP.
 to setup
   hubnet-reset
-  ca
+  clear-all
   clear-output
   setup-vars
   load-questions-prompt
@@ -210,7 +210,8 @@ end
 ;;  Clients are dead in the water - they must exit and relogin.
 to clear-clients
   clear-plot
-  cp ct
+  clear-patches
+  clear-turtles
   clear-output
 end
 

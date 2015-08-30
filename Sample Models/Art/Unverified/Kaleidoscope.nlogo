@@ -5,7 +5,7 @@ to setup
   clear-all
   set-default-shape turtles "circle"
   ;; the patterns assume evenly spaced turtles
-  create-ordered-turtles nturtles [ pd ]
+  create-ordered-turtles nturtles [ pen-down ]
   set curr-color-sep color-sep
   reset-ticks
 end

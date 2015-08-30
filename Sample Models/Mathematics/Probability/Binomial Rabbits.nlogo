@@ -32,7 +32,7 @@ to setup
   clear-all
   set steps sentence hop-1 list hop-2 hop-3
   set ratios sentence ratio-1 list ratio-2 ratio-3
-  crt number [
+  create-turtles number [
     set x-zoom  0
     set x-ave  0
     setxy 0  0
@@ -71,12 +71,12 @@ to hopping
   set kx  x-scaling
   set x-scale  (world-width - 1) * kx
   ask turtles  [
-    ht
+    hide-turtle
     set-step
     set x-zoom  (x-zoom + step)
     set x-ave  (x-zoom / ky)
     setxy (x-zoom / kx)  ycor
-    st
+    show-turtle
   ]
 end
 

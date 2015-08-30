@@ -5,7 +5,7 @@
 globals [ previous-carbon ]
 
 to setup
-  ca
+  clear-all
   set previous-carbon 0
   system-dynamics-setup    ;; defined by the System Dynamics Modeler
   do-plot

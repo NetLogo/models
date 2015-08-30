@@ -87,8 +87,8 @@ to explode                 ;; turtle procedure
       set x-vel (x-vel * .5 + dx + (random-float 2.0) - 1)
       set y-vel (y-vel * .3 + dy + (random-float 2.0) - 1)
       ifelse trails?
-        [ pd ]
-        [ pu ]
+        [ pen-down ]
+        [ pen-up ]
      ]
 end
 

@@ -13,7 +13,7 @@ to setup
       [ set pcolor yellow ]
   ]
   ;; randomly distribute termites
-  crt number [
+  create-turtles number [
     set color white
     setxy random-xcor random-ycor
     set next-task task search-for-chip

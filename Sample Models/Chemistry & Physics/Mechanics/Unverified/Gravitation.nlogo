@@ -21,7 +21,7 @@ to setup
   clear-all
   set g 0.5
   set-default-shape turtles "circle"
-  crt number
+  create-turtles number
   [
     if (not colors?)
     [ set color white ]

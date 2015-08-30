@@ -7,7 +7,7 @@ to setup
   ask patches
     [ if random-float 100 < density
         [ set pcolor ((random colors) * 10) + 5 ] ]
-  crt number
+  create-turtles number
     [ set chip-color ((random colors) * 10) + 5
       set color white
       set chip? false

@@ -13,7 +13,8 @@ patches-own
 to setup-general
   set row max-pycor   ;; Set the current row to be the top
   set done? false
-  cp ct
+  clear-patches
+  clear-turtles
 end
 
 ;; Setup for a single point

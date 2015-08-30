@@ -10,7 +10,7 @@ breed [ river-labels river-label ]
 patches-own [ population country-name elevation ]
 
 to setup
-  ca
+  clear-all
   ; Note that setting the coordinate system here is optional, as
   ; long as all of your datasets use the same coordinate system.
   gis:load-coordinate-system (word "data/" projection ".prj")
@@ -197,8 +197,8 @@ end
 ; this one to see its effect.
 to match-cells-to-patches
   gis:set-world-envelope gis:raster-world-envelope elevation-dataset 0 0
-  cd
-  ct
+  clear-drawing
+  clear-turtles
 end
 
 ; This command also demonstrates the technique of creating a new, empty

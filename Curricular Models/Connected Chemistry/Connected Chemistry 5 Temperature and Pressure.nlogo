@@ -40,7 +40,8 @@ particles-own
 
 
 to setup
-  ca reset-ticks
+  clear-all
+  reset-ticks
   set collide? true
   set maxparticles 400
   set temp-increment 7.5

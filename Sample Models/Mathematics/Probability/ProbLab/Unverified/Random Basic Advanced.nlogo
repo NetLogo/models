@@ -55,7 +55,7 @@ to setup-column-counters  ;; column-counters show messengers where to take their
     sprout 1
     [
       set breed column-counters
-      ht
+      hide-turtle
       set heading 0
       ;; each column-counter knows its column in the histogram
       set my-column floor (max-pxcor + pxcor + 1)
@@ -93,7 +93,7 @@ to place-messengers-and-choose-random-values
       [
         set breed messengers
         set shape "messenger"
-        ht
+        hide-turtle
         set color 3 + 10 * counter
         set label-color red
         set heading 180
@@ -104,7 +104,7 @@ to place-messengers-and-choose-random-values
    set counter counter + 1
   ]
   set counter 0
-  ask messengers [st]
+  ask messengers [show-turtle]
 end
 
 to point-to-your-column ;; turtle procedures. Each messenger points towards the top of its column
@@ -144,7 +144,7 @@ to lay-your-brick ;; when messenger has arrived, the column-counter builds a bri
       ]
     ]
 
-    ht
+    hide-turtle
 end
 
 to create-brick ;; turtle procedure  ;; its patch creates the square brick

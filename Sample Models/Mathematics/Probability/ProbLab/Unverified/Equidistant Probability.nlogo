@@ -21,7 +21,7 @@ patches-own
 ;; SETTING UP THE MODEL
 
 to setup
-  ca
+  clear-all
   set attempts-list []
   set successes-per-sample-list []
   set successful-attempt? false

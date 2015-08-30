@@ -1,7 +1,7 @@
 to setup
   clear-all
   set-default-shape turtles "arrow half"
-  crt 500
+  create-turtles 500
     [ move-to one-of patches
       ;; turtle headings must be multiples of 60
       set heading 60 * random 6

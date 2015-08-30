@@ -721,7 +721,7 @@ end
 to grow-city
   ask third-order-builders [
     fd .75
-    pd
+    pen-down
     set pen-size 1
     set weight weight - .05
     set weight precision weight 3

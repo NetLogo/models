@@ -22,7 +22,7 @@ globals [
 ]
 
 to setup
-  ca
+  clear-all
   set-default-shape muscle-fibers "circle"
   initialize-hormones
   new-muscle-fibers

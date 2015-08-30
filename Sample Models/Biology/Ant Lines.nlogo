@@ -46,10 +46,10 @@ to setup
   ask turtle (max [who] of turtles)
     [ set color blue                               ;; last ant is blue
       set pen-size 2
-      pd ]                                         ;; ...and leaves a trail
+      pen-down ]                                   ;; ...and leaves a trail
   ask leaders
     [ set pen-size 2
-      pd ]                                         ;; the leader also leaves a trail
+      pen-down ]                                   ;; the leader also leaves a trail
   reset-ticks
 end
 

@@ -27,7 +27,7 @@ to setup
     [ set pcolor yellow ]
   ]
   ;; create enough turtles to fill room to init-temp temperature
-  crt (round (initial-temp * (((world-width - 16) * (world-width - 16)) / 81)))
+  create-turtles (round (initial-temp * (((world-width - 16) * (world-width - 16)) / 81)))
   [
     set color red
     fd (random-float (max-pxcor - 8))
@@ -63,7 +63,7 @@ to thermo-control
 end
 
 to run-heater
-  crt heater-strength
+  create-turtles heater-strength
   [
     if (new? = 0)
     [ set new? 1 ]

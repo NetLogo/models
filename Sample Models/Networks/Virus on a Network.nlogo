@@ -17,7 +17,7 @@ end
 
 to setup-nodes
   set-default-shape turtles "circle"
-  crt number-of-nodes
+  create-turtles number-of-nodes
   [
     ; for visual reasons, we don't put any nodes *too* close to the edges
     setxy (random-xcor * 0.95) (random-ycor * 0.95)

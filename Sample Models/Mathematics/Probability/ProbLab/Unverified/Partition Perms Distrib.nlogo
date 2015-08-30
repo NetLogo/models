@@ -33,7 +33,7 @@ to startup
 end
 
 to setup
-  ca
+  clear-all
   ;; during setup, both the-short-list and the-long-list are initialized,
   ;; but during the run, the-short-list keeps initializing at each success, whereas the-long-list does not
   set the-long-list []
@@ -120,7 +120,8 @@ to finish-up
     set addend "-"
     set successes-so-far successes-so-far + 1
     if wait-at-full? [ wait .5 ]
-    cp ct
+    clear-patches
+    clear-turtles
   ]
 end
 

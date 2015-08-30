@@ -7,7 +7,7 @@ turtles-own [
 
 to setup
   clear-all
-  crt population
+  create-turtles population
   [ set color magenta
     setxy random-xcor random-ycor
     set leader nobody

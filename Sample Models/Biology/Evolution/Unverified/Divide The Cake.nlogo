@@ -11,7 +11,7 @@ turtles-own [
 ]
 
 to setup
-  ca
+  clear-all
   ask patches
     [ set pcolor green ]
   setup-turtles
@@ -20,7 +20,7 @@ end
 
 to setup-turtles
   let total (modest-proportion + fair-proportion + greedy-proportion)
-  crt initial-number
+  create-turtles initial-number
     [ setxy random-xcor random-ycor
       ;; This will assign proportions of the turtles to agent types
       ;; according to the ratio of greedy, fair, and modest turtles

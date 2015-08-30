@@ -138,7 +138,7 @@ end
 to sprout-a-sample-dude
   sprout 1
   [
-    ht
+    hide-turtle
     set breed sample-dudes
     setxy pxcor pycor
 
@@ -147,7 +147,7 @@ to sprout-a-sample-dude
     ifelse random 100 < probability-to-be-target-color
     [ set color target-color ]
     [ set color other-color ]
-    st
+    show-turtle
   ]
 end
 

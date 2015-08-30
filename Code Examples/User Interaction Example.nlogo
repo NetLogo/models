@@ -16,7 +16,7 @@ to go
                         ["red + 1" "blue - 2" "green + 3"]
 
   ;; make the turtles
-  crt num
+  create-turtles num
     [ set color col
       fd random-float max-pxcor ]
 

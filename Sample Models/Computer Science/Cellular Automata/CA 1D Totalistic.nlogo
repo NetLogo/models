@@ -42,7 +42,8 @@ to setup
     [ switch-to-code ]
     [ code-to-switch ]
   set last-code code
-  cp ct
+  clear-patches
+  clear-turtles
   reset-ticks
   set current-row max-pycor  ;; set current row to top position
   set gone? false
@@ -54,7 +55,8 @@ to setup-continue
 
   let value-list []
   set value-list map [[value] of ?] sort patches with [pycor = current-row]  ;; copy cell states from the current row to a list
-  cp ct
+  clear-patches
+  clear-turtles
   set current-row max-pycor  ;; reset current row to top
   ask patches with [ pycor = current-row ]
   [

@@ -65,7 +65,7 @@ end
 ;; set up the initial values for the turtle variables
 to setup-turtles
   set-default-shape turtles "person"
-  crt num-people
+  create-turtles num-people
     [ move-to one-of patches  ;; put turtles on patch centers
       set size 1.5  ;; easier to see
       set-initial-turtle-vars

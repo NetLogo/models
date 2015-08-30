@@ -43,7 +43,7 @@ patches-own
 ;; Create num-cars of turtles if there are enough road patches for one turtle to
 ;; be created per road patch. Set up the plots.
 to setup
-  ca
+  clear-all
   setup-globals
 
   ;; First we ask the patches to draw themselves and set up a few variables
@@ -65,7 +65,7 @@ to setup
   ]
 
   ;; Now create the turtles and have each created turtle call the functions setup-cars and set-car-color
-  crt num-cars
+  create-turtles num-cars
   [
     setup-cars
     set-car-color

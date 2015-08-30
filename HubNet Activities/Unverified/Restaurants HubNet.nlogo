@@ -79,7 +79,8 @@ end
 ;; initializes the display and
 ;; set parameters for the system
 to setup
-  cp ct
+  clear-patches
+  clear-turtles
   clear-output
   setup-quick-start
   reset

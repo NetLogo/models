@@ -66,9 +66,10 @@ end
 
 to setup-circles
   set-default-shape turtles "circle"
-  crt dividend [ set color white
-                 setxy ( min-pxcor ) random-ycor
-               ]
+  create-turtles dividend [
+    set color white
+    setxy ( min-pxcor ) random-ycor
+  ]
 end
 
 

@@ -26,7 +26,7 @@ to setup [mode]
   clear-all
   make-box
   set vclock  0
-  crt number
+  create-turtles number
   [ set new-speed 10.0
     set shape "circle"
     set mass 1.0

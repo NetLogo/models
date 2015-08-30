@@ -3,7 +3,7 @@ turtles-own [len]
 
 to setup
   clear-all
-  crt 1 [
+  create-turtles 1 [
     set color init-color
     setxy init-x init-y
     set heading 0

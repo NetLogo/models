@@ -385,7 +385,7 @@ to make-piston
     [ set color orange
       set heading 0
       set pcolor color
-      ht
+      hide-turtle
     ]
   ]
 end

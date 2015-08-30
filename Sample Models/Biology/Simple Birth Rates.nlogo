@@ -16,10 +16,11 @@ to setup
 end
 
 to setup-experiment
-  cp ct
+  clear-patches
+  clear-turtles
   clear-all-plots
   reset-ticks
-  crt carrying-capacity
+  create-turtles carrying-capacity
   [
     setxy random-xcor random-ycor         ; randomize turtle locations
     ifelse who < (carrying-capacity / 2)  ; start out with equal numbers of reds and blues

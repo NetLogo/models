@@ -34,7 +34,7 @@ to startup
 end
 
 to setup
-  ca
+  clear-all
   set infinity 99999  ;; just an arbitrary choice for a large number
   set-default-shape turtles "circle"
   make-turtles
@@ -57,7 +57,7 @@ to setup
 end
 
 to make-turtles
-  crt num-nodes [ set color gray + 2 ]
+  create-turtles num-nodes [ set color gray + 2 ]
   ;; arrange them in a circle in order by who number
   layout-circle (sort turtles) max-pxcor - 1
 end

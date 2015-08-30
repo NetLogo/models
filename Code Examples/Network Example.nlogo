@@ -1,7 +1,7 @@
 to setup
   clear-all
   set-default-shape turtles "circle"
-  crt number-of-nodes [
+  create-turtles number-of-nodes [
     set color blue
     set size 2
   ]

@@ -87,7 +87,7 @@ patches-own [
 
 
 to startup
-  ca
+  clear-all
   hubnet-set-client-interface "COMPUTER" []
   hubnet-reset
   setup-vars

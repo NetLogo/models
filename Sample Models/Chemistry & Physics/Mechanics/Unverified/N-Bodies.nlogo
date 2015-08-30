@@ -21,7 +21,7 @@ to setup
   clear-all
   set g 20
   set-default-shape turtles "circle"
-  crt number
+  create-turtles number
   ifelse symmetrical-setup?
   [ zero-sum-initial-setup ]
   [ random-initial-setup ]
@@ -75,7 +75,7 @@ to create-particle
     let my mouse-ycor
     if (not any? turtles-on patch mx my)
     [
-      crt 1
+      create-turtles 1
       [ set xc mx ;initial-position-x
         set yc my ;initial-position-y
         setxy xc yc
@@ -100,12 +100,12 @@ end
 to setup-two-planet
   set number 0
   setup
-  crt 1
+  create-turtles 1
   [ set color yellow
     set mass 200
     set size sqrt mass
   ]
-  crt 1
+  create-turtles 1
   [ set color blue
     set mass 5
     set size sqrt mass
@@ -115,7 +115,7 @@ to setup-two-planet
     set vx 0
     set vy 9
   ]
-  crt 1
+  create-turtles 1
   [ set color red
     set mass 5
     set size sqrt mass

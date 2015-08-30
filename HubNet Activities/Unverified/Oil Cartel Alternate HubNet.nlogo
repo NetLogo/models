@@ -299,7 +299,7 @@ to create-new-seller [ id ]
   create-sellers 1
   [
     set user-id id     ;; remember which client this is
-    ht
+    hide-turtle
     init-seller-vars
 
     ;; Replot supply-and-demand so it gets mirrored

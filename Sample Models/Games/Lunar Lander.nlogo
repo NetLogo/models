@@ -9,7 +9,7 @@ turtles-own [
 to setup
   clear-all
   setup-terrain
-  crt 1 [
+  create-turtles 1 [
     set shape "lander"
     set color red
     set size 10
@@ -27,7 +27,7 @@ to setup-terrain
                + min-pxcor
   ;; first use a turtle to draw the surface of the moon
   ;; including the landing platform
-  crt 1 [
+  create-turtles 1 [
     set color gray
     setxy min-pxcor
           floor (min-pycor / 2)

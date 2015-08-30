@@ -4,7 +4,7 @@ frogs-own [struggle? poison]
 snakes-own [resistance]
 
 to setup
-  ca
+  clear-all
   ask patches [ set pcolor white ]
   set-default-shape frogs "frog top"
   setup-individuals

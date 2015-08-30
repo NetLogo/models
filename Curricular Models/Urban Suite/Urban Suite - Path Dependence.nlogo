@@ -10,7 +10,8 @@ turtles-own [ moved-in? ]
 
 ;; sets the model up
 to setup
-  ca reset-ticks
+  clear-all
+  reset-ticks
 
   ;; if we are distributing the firms make sure they are not on the same patches
   ifelse distribute? [
@@ -28,7 +29,7 @@ to setup
 
   ;; otherwise just create them randomly
   [
-    crt initial-firms [  immigrate setxy random-pxcor random-pycor ]
+    create-turtles initial-firms [  immigrate setxy random-pxcor random-pycor ]
   ]
 
   ;; update the sizes of the firms on the basis of the other firms there

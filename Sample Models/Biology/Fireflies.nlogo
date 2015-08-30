@@ -7,7 +7,7 @@ turtles-own
 
 to setup
   clear-all
-  crt number
+  create-turtles number
     [ setxy random-xcor random-ycor
       set shape "butterfly"
       set clock random (round cycle-length)
@@ -38,12 +38,12 @@ end
 
 to recolor ; turtle procedure
   ifelse (clock < threshold)
-    [ st
+    [ show-turtle
       set color yellow ]
     [ set color gray - 2
       ifelse show-dark-fireflies?
-        [ st ]
-        [ ht ] ]
+        [ show-turtle ]
+        [ hide-turtle ] ]
 end
 
 to move ; turtle procedure

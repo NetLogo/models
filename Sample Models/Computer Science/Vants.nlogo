@@ -2,7 +2,7 @@ to setup
   clear-all
   ask patches
     [ set pcolor white ]
-  crt num-vants
+  create-turtles num-vants
     [ face one-of neighbors4
       set color red
       set size 6 ]    ;; much easier to see this way

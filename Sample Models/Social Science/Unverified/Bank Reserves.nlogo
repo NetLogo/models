@@ -27,7 +27,7 @@ to setup
   initialize-variables
   ask patches [set pcolor black]
   set-default-shape turtles "person"
-  crt people [setup-turtles]
+  create-turtles people [setup-turtles]
   setup-bank
   set x-max 300
   set y-max 2 * money-total

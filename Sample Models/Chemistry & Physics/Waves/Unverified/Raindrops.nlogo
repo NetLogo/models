@@ -4,7 +4,7 @@ globals [drop-width k]
 to setup
   clear-all
   set-default-shape turtles "circle"
-  crt (max-pxcor * max-pycor) [
+  create-turtles (max-pxcor * max-pycor) [
     set ypos (floor (who / max-pxcor))    ;Line up the turtles according to their ID
     set xpos (who - (max-pxcor * ypos))
     set xpos (xpos - (.5 * max-pxcor))    ;Center the resulting box
@@ -49,13 +49,13 @@ to update-position-and-color  ;Turtle procedure
      let y (zpos + (ypos * sin angle))
      let x (xpos + (ypos * cos angle))
      ifelse patch-at (x - xcor) (y - ycor) != nobody
-      [ setxy x y st ]
-      [ ht ]]
+      [ setxy x y show-turtle ]
+      [ hide-turtle ]]
    [
      ifelse patch-at (xpos - xcor) (ypos - ycor) != nobody
       [ setxy xpos ypos
-      st ]
-      [ ht ]]
+      show-turtle ]
+      [ hide-turtle ]]
 end
 
 

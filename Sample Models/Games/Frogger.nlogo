@@ -46,7 +46,7 @@ to startup            ;; Setup is the 'New Game' button, this will setup the gam
 end
 
 to setup              ;; Initializes the game
-  ca
+  clear-all
   set action 0
   set dead? false
   set lives start-lives
@@ -80,7 +80,8 @@ end
 ;; more like real grass.
 
 to draw-map
-  cp ct
+  clear-patches
+  clear-turtles
   ask patches
     [ set pcolor scale-color green ((random 500) + 5000) 0 9000 ]
   setup-pads

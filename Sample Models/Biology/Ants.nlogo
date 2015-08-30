@@ -13,7 +13,7 @@ patches-own [
 to setup
   clear-all
   set-default-shape turtles "bug"
-  crt population
+  create-turtles population
   [ set size 2         ;; easier to see
     set color red  ]   ;; red = not carrying food
   setup-patches

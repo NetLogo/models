@@ -273,7 +273,7 @@ to create-client
   ;; the user-id variable to the hubnet-source
   create-clients 1
   [
-    ht
+    hide-turtle
     set user-id hubnet-message-source
     set user-color item (count clients mod length base-colors) base-colors
     set die1 "--"

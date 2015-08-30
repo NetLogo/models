@@ -20,7 +20,8 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;
 
 to setup-general  ;; setup general working environment
-  cp ct
+  clear-patches
+  clear-turtles
   set row max-pycor   ;; reset current row
   refresh-rules
   set gone? false

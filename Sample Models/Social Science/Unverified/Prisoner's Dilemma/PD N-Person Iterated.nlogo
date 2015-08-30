@@ -68,12 +68,12 @@ end
 
 ;;create the appropriate number of turtles playing each strategy
 to make-turtles
-  crt num-random [ set strategy "random" set color gray - 1 ]
-  crt num-cooperate [ set strategy "cooperate" set color red ]
-  crt num-defect [ set strategy "defect" set color blue ]
-  crt num-tit-for-tat [ set strategy "tit-for-tat" set color lime ]
-  crt num-unforgiving [ set strategy "unforgiving" set color turquoise - 1 ]
-  crt num-unknown [set strategy "unknown" set color magenta ]
+  create-turtles num-random [ set strategy "random" set color gray - 1 ]
+  create-turtles num-cooperate [ set strategy "cooperate" set color red ]
+  create-turtles num-defect [ set strategy "defect" set color blue ]
+  create-turtles num-tit-for-tat [ set strategy "tit-for-tat" set color lime ]
+  create-turtles num-unforgiving [ set strategy "unforgiving" set color turquoise - 1 ]
+  create-turtles num-unknown [set strategy "unknown" set color magenta ]
 end
 
 ;;set the variables that all turtles share

@@ -31,7 +31,7 @@ to startup
 end
 
 to setup
-  ca
+  clear-all
   set expected-value-calculation ""
   setup-misc-globals ; collects ratio-unit sliders, etc.
   ;;checks for all 0s

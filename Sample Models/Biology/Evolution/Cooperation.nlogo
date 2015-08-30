@@ -16,7 +16,7 @@ end
 
 to setup-cows
   set-default-shape turtles "cow"   ;; applies to both breeds
-  crt initial-cows [
+  create-turtles initial-cows [
     setxy random-xcor random-ycor
     set energy metabolism * 4
     ifelse (random-float 1.0 < cooperative-probability) [

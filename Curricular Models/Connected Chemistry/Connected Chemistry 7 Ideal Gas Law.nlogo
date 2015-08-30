@@ -56,7 +56,8 @@ particles-own
 
 
 to setup
-  ca reset-ticks
+  clear-all
+  reset-ticks
   set maxparticles 400
   set run-go? true
   set temp-increment 7.5
@@ -93,7 +94,7 @@ to setup
   set init-avg-speed avg-speed
   set init-avg-energy avg-energy
   set temperature avg-energy * 6
-  create-volume-target 1 [set color white ht]
+  create-volume-target 1 [set color white hide-turtle]
   set total-particle-number initial-number
   reset-ticks
   recolor
@@ -245,7 +246,7 @@ to bounce  ;; particle procedure
 
   ask patch new-px new-py
   [ sprout 1 [
-                ht
+                 hide-turtle
                  set breed flashes
                  set birthday ticks
                  ifelse shade-of? ([pcolor] of patch-here) piston-color
@@ -631,7 +632,7 @@ to move-piston
    [ if (mouse-xcor >= piston-position and mouse-xcor < box-edge - 2)
       [ piston-out ceiling (mouse-xcor - piston-position) ]
      set run-go? true
-     ask volume-target [ht]
+     ask volume-target [hide-turtle]
      stop
    ]
 
@@ -646,9 +647,9 @@ to move-piston
       [ set temp-volume volume ]
       [ set temp-volume (temp-target-wall * delta-vertical-surface * 1)]
 
-   ask volume-target [st setxy mouse-xcor mouse-ycor set label (word "volume: "  floor temp-volume)]
+   ask volume-target [show-turtle setxy mouse-xcor mouse-ycor set label (word "volume: "  floor temp-volume)]
 
-   if (abs mouse-ycor > box-edge-y) [ask volume-target [ht set label ""]]
+   if (abs mouse-ycor > box-edge-y) [ask volume-target [hide-turtle set label ""]]
 end
 
 to piston-out [dist]

@@ -9,7 +9,7 @@ to setup
   clear-turtles
   clear-all-plots
   ;; create turtles with random colors and locations
-  crt number [
+  create-turtles number [
     set color item (random colors) [5 15 25 35 45 55 65 85 95 125]
     setxy random-xcor random-ycor
     move-off-wall

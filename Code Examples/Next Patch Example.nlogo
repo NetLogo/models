@@ -5,7 +5,7 @@ turtles-own [next prev]
 
 to setup
   clear-all
-  crt 1
+  create-turtles 1
     [ set color green
       set next patch-here
       set prev patch-here

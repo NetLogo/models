@@ -13,7 +13,7 @@ to setup
   clear-all
   ask patches [ set pcolor green ]
   set done? false  ; the race is not over yet
-  crt number
+  create-turtles number
   [
     ifelse (gradation?)
       [ set hunch (random-float 100) ]             ; gradation is on, so give a hunch BETWEEN 0 and 100

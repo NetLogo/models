@@ -3,7 +3,7 @@
 ;; Code Tab of the System Dynamics Modeler.
 
 to setup
-  ca
+  clear-all
   system-dynamics-setup
   system-dynamics-do-plot
 end

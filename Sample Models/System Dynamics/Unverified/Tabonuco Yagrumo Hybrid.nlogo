@@ -14,7 +14,7 @@ breed [ yagrumos yagrumo ]
 
 
 to setup
-  ca
+  clear-all
   set-default-shape yagrumos "plant"
   set-default-shape tabonucos "tree"
   set previous-carbon 0

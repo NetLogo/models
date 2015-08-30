@@ -21,7 +21,7 @@ to setup
 end
 
 to set-stem   ;;create two stem cells
-  crt 2
+  create-turtles 2
   [
     set size 2   ; easier to see
     setxy (min-pxcor / 2) 0
@@ -42,8 +42,8 @@ to go
   ask turtles
   [
     ifelse leave-trail?
-      [ pd ]
-      [ pu ]
+      [ pen-down ]
+      [ pen-up ]
     if (who = 1) and (xcor < 25)
     [ fd 1 ]  ;stem cell movement
     set age age + 1

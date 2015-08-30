@@ -38,7 +38,7 @@ to draw-walls
 end
 
 to erode
-  crt number-of-pores
+  create-turtles number-of-pores
     [ setxy random-xcor thickness-of-medium
       dig-tunnel 180 90 ]
 end
@@ -56,7 +56,7 @@ to dig-tunnel [direction wiggle]  ;; turtle procedure
 end
 
 to create-molecules [number new-breed new-color]
-  crt number
+  create-turtles number
     [ set xcor (max-pxcor - 3) - random-float (2 * (max-pxcor - 3))
       set ycor thickness-of-medium + random-float (max-pycor - thickness-of-medium)
       set breed new-breed

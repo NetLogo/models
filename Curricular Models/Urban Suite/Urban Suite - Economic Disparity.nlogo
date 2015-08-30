@@ -13,7 +13,7 @@ globals [counter view-mode min-poor-util max-poor-util min-rich-util max-rich-ut
 ;;
 
 to setup
-  ca
+  clear-all
   set view-mode "quality"
   setup-jobs
   setup-patches

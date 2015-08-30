@@ -91,7 +91,7 @@ to place-particle [x y]
     set size 10
     set heading 0
     set color red
-    pd  ;; put the pen down so that we can see where it has traveled
+    pen-down  ;; put the pen down so that we can see where it has traveled
     if force-x != 0 or force-y != 0
       [ set heading (atan force-x force-y) ]
   ]

@@ -257,7 +257,7 @@ to setup-goats [ farmer# ]  ;; turtle procedure
   set shape "goat"
   set food-stored 0
   set owner# farmer#
-  st
+  show-turtle
 end
 
 ;; updates patches' color and increase grass supply with growth rate
@@ -439,7 +439,7 @@ end
 to setup-farm  ;; farmer procedure
   setxy ((random-float (world-width - 2)) + min-pxcor + 1)
         ((random-float (world-height - 2)) + min-pycor + 1)
-  ht
+  hide-turtle
 end
 
 ;; pick a color for the turtle

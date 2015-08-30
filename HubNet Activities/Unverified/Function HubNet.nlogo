@@ -105,7 +105,7 @@ to go
         draw-grid
         draw-axes
       ]
-      [ cd ]
+      [ clear-drawing ]
       set old-grid? grid?
     ]
     if old-legend? != reveal-legend?
@@ -467,7 +467,8 @@ end
 ;;
 
 to setup-grid
-  cp cd
+  clear-patches
+  clear-drawing
   set old-grid? grid?
 
   set width x-maximum - x-minimum

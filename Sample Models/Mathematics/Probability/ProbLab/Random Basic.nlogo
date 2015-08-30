@@ -55,7 +55,7 @@ to setup-column-counters
   [
     sprout-column-counters 1
     [
-      ht  ;; it is nice to see them but probably visually redundant
+      hide-turtle  ;; it is nice to see them but probably visually redundant
       set heading 0
       ;; this assigns a column name to column-counters that
       ;; corresponds with the parameter setting of sample-space

@@ -2,7 +2,7 @@ to setup
   clear-all
   set-default-shape turtles "circle"
   draw-walls
-  crt 5                                 ;; create some turtles
+  create-turtles 5                      ;; create some turtles
     [ randomize ]                       ;; place them randomly
   reset-ticks
 end
@@ -27,8 +27,8 @@ end
 to go
   ask turtles [
     ifelse leave-trace?             ;; the turtle puts its pen up or down depending on the
-      [ pd ]                        ;; value of the LEAVE-TRACE? switch
-      [ pu ]
+      [ pen-down ]                  ;;   value of the LEAVE-TRACE? switch
+      [ pen-up ]
     bounce
     fd 0.1
   ]

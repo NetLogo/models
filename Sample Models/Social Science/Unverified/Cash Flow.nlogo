@@ -30,7 +30,7 @@ turtles-own [
 to setup
   clear-all
   initialize-settings
-  crt people [setup-turtles]
+  create-turtles people [setup-turtles]
   poll-class
   setup-bank
   set xmax 300

@@ -2,7 +2,7 @@ patches-own [chemical]
 
 to setup
   clear-all
-  crt population
+  create-turtles population
   [ set color red
     set size 2  ;; easier to see
     setxy random-xcor random-ycor ]

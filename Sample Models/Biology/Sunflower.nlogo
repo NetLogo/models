@@ -9,7 +9,7 @@ end
 ;; then each turtle moves forward by step-size, increases
 ;; its size and if it is on the edge of the view, dies.
 to go
-  crt 1
+  create-turtles 1
   [
     set color 10 * (ticks mod num-colors) + 15
     set size 0.6 * sqrt distancexy 0 0

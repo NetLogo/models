@@ -15,7 +15,7 @@ end
 to setup-sphere
   setup
   ;; generate a sphere of radius SHAPE-SIZE
-  crt num-turtles
+  create-turtles num-turtles
   [
     set p shape-size            ; all points are equal distance from the center
     set theta random-float 360  ; however, random distribution on the surface of the sphere
@@ -30,7 +30,7 @@ to setup-cube-filled
   setup
   ;; generate a square with edge of length radius
   ;; placing a point randomly anywhere inside the square
-  crt num-turtles
+  create-turtles num-turtles
   [
     cartesian ((- shape-size) + 2 * (random-float shape-size))
               ((- shape-size) + 2 * (random-float shape-size))
@@ -43,7 +43,7 @@ end
 ; cube with turtles only on its surface
 to setup-cube-surface
   setup
-  crt num-turtles
+  create-turtles num-turtles
   [
     let temp-alpha shape-size * (1 - 2 * (random 2))   ; +-shape-size
     ; random distribution bounded by +-shape-size
@@ -69,7 +69,7 @@ end
 ; 3D cone
 to setup-cone
   setup
-  crt num-turtles
+  create-turtles num-turtles
   [
     set theta (random-float 360)        ; points have a random angle
     set p (random-float shape-size)
@@ -87,7 +87,7 @@ to setup-cylinder-v
   setup
   ;the code is almost the same as the setup-cone code
   ;except the xy-plane radius remains constant
-  crt num-turtles
+  create-turtles num-turtles
   [
     let temp-alpha (random 3) - 1         ; which surface (left, right, or body?)
     set theta (random-float 360)
@@ -111,7 +111,7 @@ end
 to setup-cylinder-h
   setup
   ;generates a cylinder in a horizontal position with capped ends
-  crt num-turtles
+  create-turtles num-turtles
   [
     let temp-alpha (random 3) - 1      ; which surface (left, right, or body?)
     set theta (random-float 360)
@@ -133,7 +133,7 @@ end
 
 to setup-pyramid
   setup
-  crt num-turtles
+  create-turtles num-turtles
   [
     let temp-alpha (- shape-size) + 2 * (random-float shape-size)  ; z coordinate
     set theta (random 2)                         ; front/back or side?

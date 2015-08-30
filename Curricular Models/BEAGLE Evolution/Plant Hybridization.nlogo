@@ -247,7 +247,7 @@ to pollinate [my-pollen]
 
         set color gray  + 2
         set ycor ycor - 0.3
-        pd
+        pen-down
 
         set heading 90
         repeat 360

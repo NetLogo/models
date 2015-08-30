@@ -12,7 +12,7 @@ to setup
   if draw-rings? [
     ;; draw the rings by making ring shape turtles that stamp their shape
     ;; and then go away
-    crt floor (world-width * sqrt 2 / (ring-radius * 2)) [
+    create-turtles floor (world-width * sqrt 2 / (ring-radius * 2)) [
       set color gray - 1
       set shape "ring"
       set size ring-radius * 2 * (who + 1)
@@ -20,7 +20,7 @@ to setup
       die
     ]
     ;; draw X and Y axes
-    crt 1 [
+    create-turtles 1 [
       set heading 0
       set color gray - 1
       set shape "line"
@@ -32,7 +32,7 @@ to setup
       die
     ]
   ]
-  crt num-turtles
+  create-turtles num-turtles
   reset-ticks
 end
 
@@ -45,8 +45,8 @@ to go
     set yc yc + (step-size * dy)
     ; hide turtles who have moved out of the world
     ifelse patch-at (xc - xcor) (yc - ycor) = nobody
-      [ ht ]
-      [ st
+      [ hide-turtle ]
+      [ show-turtle
         set xcor xc
         set ycor yc ]
     set dist sqrt (xc * xc + yc * yc)

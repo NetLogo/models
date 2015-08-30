@@ -28,9 +28,9 @@ to go
     ifelse patch-at 0 (ypos - ycor) != nobody ;; hide turtles outside the visible world
     [
       set ycor ypos
-      st
+      show-turtle
     ]
-    [ ht ]
+    [ hide-turtle ]
   ]
   ask turtles with [color = red]  ;;the red turtles respond to their neighbors' positions
   [ ;; make your new y velocity equal to your old one + the average pos of your two neighbors

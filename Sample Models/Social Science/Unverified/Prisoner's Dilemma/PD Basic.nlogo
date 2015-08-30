@@ -7,7 +7,7 @@ to setup
     set pcolor gray]
 
   ;;make the face visible
-  crt 1 [set color gray set size 30 set shape "face"]
+  create-turtles 1 [set color gray set size 30 set shape "face"]
   ;; set up the prisoner's dilemma
   ifelse partner-silence-known? [
     set partner-is-silent? partner-silent?

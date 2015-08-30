@@ -3,9 +3,9 @@ patches-own [ non-usage ]
 
 
 to setup
-  ca
+  clear-all
   set-default-shape turtles "person"
-  crt people
+  create-turtles people
 
   ask turtles
     [ set color gray

@@ -43,7 +43,7 @@ walls-own
 ]
 
 to setup
-  ca
+  clear-all
   reset-ticks
   set particle-size 1.0
   set max-tick-advance-amount 0.02

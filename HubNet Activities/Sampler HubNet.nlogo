@@ -42,7 +42,7 @@ to setup
   ;; that means clearing information from previous rounds
   setup-variables
 
-  cd
+  clear-drawing
 
   ;; if random-%-green is on choose a random value
   ;; otherwise, use the %-GREEN

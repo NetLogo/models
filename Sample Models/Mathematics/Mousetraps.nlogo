@@ -8,7 +8,7 @@ to setup
     [ set pcolor blue + 3 ]
   set-default-shape turtles "circle"
   ;; make the first ball
-  crt 1
+  create-turtles 1
     [ set color white
       set size 1.5 ]  ;; easier to see
   reset-ticks

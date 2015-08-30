@@ -36,7 +36,8 @@ particles-own
 
 
 to setup
-  ca reset-ticks
+  clear-all
+  reset-ticks
   set pressure-history [0 0 0]  ;; plotted pressure will be averaged over the past 3 entries
   set-default-shape particles "circle"
   set-default-shape flashes "square"

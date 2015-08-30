@@ -42,7 +42,8 @@ particles-own
 
 
 to setup
-  ca reset-ticks
+  clear-all
+  reset-ticks
   set maxparticles 500
   set run-go? true
   set-default-shape particles "circle"
@@ -74,7 +75,7 @@ to setup
       [turn-labels-on]
       [ask turtles [ set label ""]]
 
-  create-volume-target 1 [set color white ht]  ;; cursor for targeting new location for volume using MOVE WALL
+  create-volume-target 1 [set color white hide-turtle]  ;; cursor for targeting new location for volume using MOVE WALL
   do-recolor
   calculate-tick-advance-amount
 end
@@ -197,7 +198,7 @@ to bounce  ;; particle procedure
 
       if ( breed = particles) [
       ask patch new-px new-py
-    [ sprout 1 [ ht
+    [ sprout 1 [ hide-turtle
                  set breed flashes
                  set birthday ticks
                  ifelse shade-of? ([pcolor] of patch-here) piston-color
@@ -433,7 +434,7 @@ to move-piston
    [ if (mouse-xcor >= piston-position and mouse-xcor < (box-edge))
       [ piston-out ceiling (mouse-xcor - piston-position) ]
      set run-go? true
-      ask volume-target [ht]
+      ask volume-target [hide-turtle]
      stop
    ]
 
@@ -451,9 +452,9 @@ to move-piston
       [ set temp-volume (temp-target-wall * delta-vertical-surface * 1)]
 
 
-      ask volume-target [st setxy mouse-xcor mouse-ycor set label (word "volume: " floor temp-volume)]
+      ask volume-target [show-turtle setxy mouse-xcor mouse-ycor set label (word "volume: " floor temp-volume)]
 
-   if ((abs mouse-ycor > box-edge) or (abs mouse-xcor > box-edge)) [ask volume-target [ht set label ""]]
+   if ((abs mouse-ycor > box-edge) or (abs mouse-xcor > box-edge)) [ask volume-target [hide-turtle set label ""]]
 end
 
 to piston-out [dist]

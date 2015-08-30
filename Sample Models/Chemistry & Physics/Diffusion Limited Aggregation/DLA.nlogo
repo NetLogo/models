@@ -40,7 +40,7 @@ end
 to make-new-turtle
   ;; each new turtle starts its random walk from a position
   ;; a bit outside the current radius and facing the center
-  crt 1
+  create-turtles 1
     [ set color red
       set size 3  ;; easier to see
       setxy 0 0

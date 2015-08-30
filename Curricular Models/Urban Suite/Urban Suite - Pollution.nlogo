@@ -9,7 +9,7 @@ patches-own[ pollution
              is-power-plant?
              is-tree? ]
 to setup
-  ca
+  clear-all
   reset-ticks
 
   set-default-shape people "person"

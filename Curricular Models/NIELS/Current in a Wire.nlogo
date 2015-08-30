@@ -17,7 +17,7 @@ to setup
   [ set pcolor gray]
 
   ;; create electrons
-  crt number-of-electrons
+  create-turtles number-of-electrons
   [
     set breed electrons
     setxy random-xcor random-ycor

@@ -233,7 +233,7 @@ end
 to dance
   set dance-task task [
     ifelse count scouts with [piping?] in-radius 3 > 0 [                                          ;while dancing, if detecting any piping bee, start piping too
-      pu
+      pen-up
       set next-task pipe-task
       set task-string "piping"
       set bee-timer 20
@@ -284,7 +284,7 @@ to re-visit
     ifelse bee-timer > 0 [                            ; wait a bit after the previous trip
       set bee-timer bee-timer - 1
     ][
-    pu
+    pen-up
     ifelse distance target < 1 [                     ; if on target, learn about the target
       if interest = 0 [set interest [quality] of target set color [color] of target]
       set next-task inspect-hive-task
@@ -402,10 +402,10 @@ end
 
 to show-hide-scouts
   ifelse scouts-visible? [
-    ask scouts [ht]
+    ask scouts [hide-turtle]
   ]
   [
-    ask scouts [st]
+    ask scouts [show-turtle]
   ]
   set scouts-visible? not scouts-visible?
 end

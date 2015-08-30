@@ -21,7 +21,7 @@ to setup-cars
     stop
   ]
   set-default-shape turtles "car"
-  crt number-of-cars [
+  create-turtles number-of-cars [
     set color blue
     set xcor random-xcor
     set heading 90

@@ -161,21 +161,21 @@ to show-or-hide
   ifelse show-left?
     [
       if any? lefts with [ hidden? ]
-        [ ask lefts [ st ] ]
+        [ ask lefts [ show-turtle ] ]
     ]
     [
       if any? lefts with [ not hidden? ]
-        [ ask lefts [ ht ] ]
+        [ ask lefts [ hide-turtle ] ]
     ]
 
    ifelse show-right?
     [
       if any? rights with [ hidden? ]
-        [ ask rights [ st ] ]
+        [ ask rights [ show-turtle ] ]
     ]
     [
       if any? rights with [ not hidden? ]
-        [ ask rights [ ht ] ]
+        [ ask rights [ hide-turtle ] ]
     ]
 end
 

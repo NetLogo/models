@@ -21,7 +21,7 @@ to setup
   set cutoff-dist 2.5 * diameter
   set pot-offset (- (4 * ((diameter / cutoff-dist) ^ 12 - (diameter / cutoff-dist) ^ 6)))
   set v-total calc-v-total  ;calculate the initial energy
-  crt num-atoms [
+  create-turtles num-atoms [
     set shape "circle"
     set size diameter
     set color blue

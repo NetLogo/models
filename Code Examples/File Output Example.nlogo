@@ -4,7 +4,7 @@ turtles-own [ value ]     ;; This is some phony turtle variable
 ;; by the user.  It will erase any pre-existing file.
 to setup
   clear-all
-  crt 15
+  create-turtles 15
   [
     setxy random-xcor random-ycor
     set value 5

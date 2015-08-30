@@ -1,8 +1,8 @@
 ;;  This procedure creates 8 turtles in puts them in a circle,
 ;;  and moves three to the edges of the world
 to setup
-  ca
-  crt 8
+  clear-all
+  create-turtles 8
   [ fd 10 ]
   ask turtle 0 [ fd 7 ]
   ask turtle 1 [ fd 14 ]

@@ -1,6 +1,6 @@
 to setup
   clear-all
-  crt 3000             ; create 3000 turtles
+  create-turtles 3000             ; create 3000 turtles
   reset-ticks
 end
 

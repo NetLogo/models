@@ -14,7 +14,7 @@ turtles-own [
 to setup
   clear-all
   set-default-shape turtles "circle"
-  crt population
+  create-turtles population
     [ set color red
       setxy random-xcor random-ycor
       rt random-float 360

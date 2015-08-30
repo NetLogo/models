@@ -65,7 +65,7 @@ to setup-plant
   ;; Kill the old Plant
   ask turtles [ die ]
   ;; Create the new Plant
-  crt 1
+  create-turtles 1
   [
     set color brown
     set sugar 5000

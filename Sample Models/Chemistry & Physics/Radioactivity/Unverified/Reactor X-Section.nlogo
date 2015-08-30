@@ -141,7 +141,7 @@ end
 
 to release-neutron ;; Button
   let whom nobody
-  crt 1
+  create-turtles 1
   [ set color yellow
     set xcor ((random (reactor-size - 2)) - r)
     set ycor ((random (reactor-size - 2)) - r)

@@ -56,11 +56,11 @@ end
 
 to setup
   reset-ticks
-  cd
+  clear-drawing
   setup-patches
   ask walkers
   [
-    pu
+    pen-up
     set-position xcor-initial
   ]
   ask footprints [ die ]
@@ -69,11 +69,11 @@ end
 
 to reset-clock
   reset-ticks
-  cd
+  clear-drawing
   setup-patches
   ask walkers
   [ set-position xcor
-    pu ]
+    pen-up ]
   ask footprints [ die ]
   my-setup-plots
 end
@@ -99,7 +99,7 @@ to set-position [x]
   set xcor x
   set interval 0
   set my-xcor xcor
-  st
+  show-turtle
   show-or-hide-id-labels
 end
 
@@ -107,7 +107,7 @@ end
 ;; view and color all even floor a gray color
 to setup-patches
   clear-output
-  cp
+  clear-patches
   ;; give the floors some color to be able to distinguish one floor from another
   ask patches with [ pxcor mod 2 = 0 ]
   [ set pcolor gray - 2 ]
@@ -242,9 +242,9 @@ to move-walkers  ;; turtle procedure
       ;; hide the turtle, it's out of the view
       ;; otherwise show the turtle and move there.
       ifelse patch-at (my-xcor - xcor) 0 != nobody
-      [ st
+      [ show-turtle
         set xcor my-xcor ]
-      [ ht ]
+      [ hide-turtle ]
       set inner-tick inner-tick + 1
       if animation?
       [

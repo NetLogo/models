@@ -26,7 +26,7 @@ end
 
 ;; used for creating a new node
 to make-node [old-node]
-  crt 1
+  create-turtles 1
   [
     set color red
     if old-node != nobody

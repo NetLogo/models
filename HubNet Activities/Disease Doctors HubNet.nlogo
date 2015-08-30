@@ -405,9 +405,9 @@ end
 ;;; this procedure is handy for testing out additional shapes and colors;
 ;;; you can call it from the Command Center
 to show-gamut
-  ca
+  clear-all
   setup-vars
-  crt max-possible-codes [
+  create-turtles max-possible-codes [
     fd max-pxcor * 0.7
     if who mod 3 = 0
       [ fd max-pxcor * 0.3 ]

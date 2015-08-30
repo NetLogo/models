@@ -376,7 +376,7 @@ end
 ;;; this procedure is handy for testing out additional shapes and colors;
 ;;; you can call it from the Command Center
 to show-gamut
-  ca
+  clear-all
   setup-vars
   create-ordered-turtles max-possible-codes [
     fd max-pxcor * 0.7

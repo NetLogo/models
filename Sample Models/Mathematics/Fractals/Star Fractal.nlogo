@@ -7,7 +7,7 @@ turtles-own [
 
 to setup
   clear-all
-  crt 1 [
+  create-turtles 1 [
     set size 8                    ;; so turtles are easy to see
     set ycor max-pycor * 0.9      ;; place near top of world
     set star-side ycor * 1.97538  ;; length of the sides of the star it will draw

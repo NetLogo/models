@@ -9,7 +9,7 @@ to setup
   clear-all
   set cohesion-flag true
   set normal-flag true
-  crt population
+  create-turtles population
     [ set size 1.5
       if first question != "D"
         [ set color yellow - 2 + random 7 ]  ;; random shades look nice

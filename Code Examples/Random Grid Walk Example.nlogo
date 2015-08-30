@@ -1,6 +1,6 @@
 to setup
   clear-all
-  crt 1                                 ;; create one turtle
+  create-turtles 1                                 ;; create one turtle
   [
     set color orange
     set size 3                          ;; make it easier to see

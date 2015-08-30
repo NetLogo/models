@@ -94,7 +94,7 @@ to distribute-cans
   ask patches with [random-float 1 < can-density] [
     sprout-cans 1 [
       set color orange
-      if not visuals? [ht]
+      if not visuals? [hide-turtle]
     ]
   ]
 end

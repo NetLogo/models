@@ -29,7 +29,7 @@ to create-particles
   let n random-poisson (rate * step-size)
   if n + count turtles > max-number-of-particles
     [ set n max-number-of-particles - count turtles ]
-  crt n
+  create-turtles n
   [
     set color red + 3.5
     set size 0.3 + random-float 1.5

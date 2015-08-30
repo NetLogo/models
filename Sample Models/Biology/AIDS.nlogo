@@ -48,7 +48,7 @@ end
 ;;   and some are sick.  Also assigns colors to people with the ASSIGN-COLORS routine.
 
 to setup-people
-  crt initial-people
+  create-turtles initial-people
     [ setxy random-xcor random-ycor
       set known? false
       set coupled? false

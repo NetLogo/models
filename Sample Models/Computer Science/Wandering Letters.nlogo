@@ -28,7 +28,7 @@ to setup
   ;; turtle's label
   set-default-shape turtles "blank"
   ;; create enough turtles to have one for every character in text
-  crt (length text)
+  create-turtles (length text)
   [
     set word-length 0
     set leader nobody

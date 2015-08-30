@@ -18,7 +18,7 @@ to setup
   clear-all
   draw-road
   set-default-shape turtles "car"
-  crt number [ setup-cars ]
+  create-turtles number [ setup-cars ]
   set selected-car one-of turtles
   ;; color the selected car red so that it is easy to watch
   ask selected-car [ set color red ]

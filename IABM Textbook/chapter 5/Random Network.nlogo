@@ -1,6 +1,6 @@
 ;; Create nodes.
 to setup
-  ca
+  clear-all
   create-turtles num-nodes [
     set shape "circle"
     setxy random-xcor random-ycor

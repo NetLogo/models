@@ -121,7 +121,7 @@ to setup
   ]
 
   ;; Now create the turtles and have each created turtle call the functions setup-cars and set-car-color
-  crt number
+  create-turtles number
   [
     setup-cars
     set-car-color

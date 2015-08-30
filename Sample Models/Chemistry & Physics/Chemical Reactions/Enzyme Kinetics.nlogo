@@ -30,7 +30,7 @@ end
 
 ;; observer procedure to add molecules to reaction
 to add [kind amount]
-  crt amount
+  create-turtles amount
     [ set breed kind
       setxy random-xcor random-ycor
       set partner nobody

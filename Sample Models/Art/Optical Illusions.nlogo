@@ -32,13 +32,13 @@ to illusion-2
     [ set pcolor black ]
   ;; make diagonal lines that start at the center
   ;; and go to different parts of the world
-  crt 60
+  create-turtles 60
     [ set heading who * 6
       set color black
       set shape "line"
       set size 100 ]
   ;; make a circle in the center
-  crt 1
+  create-turtles 1
     [ set color black
       set shape "circle"
       set size 5 ]
@@ -121,7 +121,7 @@ to illusion-5
       set shape "diamond2"
       fd 15 ]
   ;; make the dot in the middle
-  crt 1
+  create-turtles 1
     [ set shape "circle"
       set color black ]
   display
@@ -153,10 +153,10 @@ to illusion-7
   set caption "Spirals or circles?"
   ask patches [ set pcolor gray ]
   set-default-shape turtles "square 3"
-  cro 16 [ fd  4 rt 15 ]
-  cro 32 [ fd  8 lt 15 ]
-  cro 46 [ fd 12 rt 15 ]
-  cro 60 [ fd 16 lt 15 ]
+  create-ordered-turtles 16 [ fd  4 rt 15 ]
+  create-ordered-turtles 32 [ fd  8 lt 15 ]
+  create-ordered-turtles 46 [ fd 12 rt 15 ]
+  create-ordered-turtles 60 [ fd 16 lt 15 ]
   ask turtles [
     set size 1.7
     ifelse who mod 2 = 0

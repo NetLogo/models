@@ -3,7 +3,7 @@ turtles-own [ modulus ]
 ; create a turtle and set its initial location and modulus
 to setup
   clear-all
-  crt 1
+  create-turtles 1
   [
     set heading 0
     setxy 0 -3

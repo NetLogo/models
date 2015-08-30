@@ -25,7 +25,7 @@ to import-attributes
   [
     ;; this reads a single line into a three-item list
     let items read-from-string (word "[" file-read-line "]")
-    crt 1 [
+    create-turtles 1 [
       set node-id item 0 items
       set size    item 1 items
       set color   item 2 items

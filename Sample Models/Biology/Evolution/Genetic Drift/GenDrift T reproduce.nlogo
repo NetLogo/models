@@ -1,6 +1,6 @@
 to setup
   clear-all
-  crt number [
+  create-turtles number [
     set color 5 + (random colors) * 10
     if color = turquoise     ;; turquoise (75) is too similar to another color
       [ set color magenta ]  ;; so use magenta (125) instead

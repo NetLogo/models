@@ -41,7 +41,7 @@ to setup-target
 end
 
 to setup-particles
-  crt number
+  create-turtles number
   [
     colorize
     distribute

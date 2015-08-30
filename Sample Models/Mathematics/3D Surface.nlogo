@@ -3,7 +3,7 @@ turtles-own [x3 y3 z3]
 to setup
   clear-all
   set-default-shape turtles "circle"
-  crt number [
+  create-turtles number [
     ;; randomly distribute the turtles over the xy plane
     set x3 random-float 100 - 50
     set y3 0

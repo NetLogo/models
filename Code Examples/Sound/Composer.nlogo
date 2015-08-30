@@ -18,7 +18,7 @@ to setup
 
   ;; create the players
   create-players 8 [
-    ht
+    hide-turtle
     set xcor x-offset
     set ycor who + y-offset
     set tone item who scale
@@ -26,7 +26,7 @@ to setup
     set color black
     set shape "line left"
     set plabel item who note-names
-    st
+    show-turtle
   ]
 
   ask turtles [ rt 90 ]
@@ -108,7 +108,7 @@ end
 
 to erase-notes
  ask cursors [
-      st
+      show-turtle
       setxy mouse-xcor mouse-ycor
       set shape "X"
       set current-note item ( round mouse-ycor - y-offset ) note-names

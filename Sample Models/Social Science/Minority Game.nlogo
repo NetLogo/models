@@ -35,7 +35,7 @@ end
 
 ;; creates the specified number of turtles
 to initialize-turtles
-  crt number
+  create-turtles number
     [ setxy 0 (world-height * who / number)  ;; disperse over the y-axis
       set heading 90
       assign-strategies

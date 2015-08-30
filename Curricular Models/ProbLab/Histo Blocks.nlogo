@@ -14,7 +14,8 @@ globals [
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to setup
-  ca reset-ticks
+  clear-all
+  reset-ticks
   set-plot-x-range 0 5
   setup-view
   set number-of-items-in-column-text "-"

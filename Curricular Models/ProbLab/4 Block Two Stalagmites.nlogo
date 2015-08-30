@@ -154,7 +154,7 @@ end
 
 to make-a-sample-organizer ; sample-dudes procedure
   hatch-sample-organizers 1 [
-    ht
+    hide-turtle
     set sample-values map [
       ifelse-value ([ color ] of ? = target-color) [ 1 ] [ 0 ]
     ] sorted-sample-dudes
@@ -354,7 +354,7 @@ to sample
   foreach sort sample-location-patch-agentset [
     ask ? [
       sprout 1 [
-        ht
+        hide-turtle
         set breed sample-dudes
         setxy pxcor pycor
         ;; Each turtle in the sample area chooses randomly
@@ -364,14 +364,14 @@ to sample
         ifelse random 100 < probability-to-be-target-color
           [ set color target-color ]
           [ set color other-color ]
-        st
+        show-turtle
       ]
       sprout 1 [
-        ht
+        hide-turtle
         set breed left-sample-dudes
         setxy pxcor pycor
         set color [color] of one-of sample-dudes-here
-        st
+        show-turtle
       ]
     ]
   ]

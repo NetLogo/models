@@ -16,7 +16,8 @@ particles-own
 ]
 
 to setup
-  ca reset-ticks
+  clear-all
+  reset-ticks
   set-default-shape particles "circle"
   set maxparticles 400
   set tick-advance-amount 0

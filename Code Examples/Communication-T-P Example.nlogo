@@ -1,6 +1,6 @@
 to setup
   clear-all
-  crt 20 [
+  create-turtles 20 [
     ;; color half the turtles red,
     ;; the other half yellow
     set color one-of [yellow red]

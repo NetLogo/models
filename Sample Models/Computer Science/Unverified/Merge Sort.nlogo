@@ -18,7 +18,7 @@ globals
 ;;;;;;;;;;;;;;;;;;;;;;
 
 to setup
-  ca
+  clear-all
   set current-count 1
   set current-loc 0
   set current-group 0

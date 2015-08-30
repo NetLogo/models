@@ -27,7 +27,7 @@ to setup
 end
 
 to make-turtles
-  crt num-nodes [ set size 3 ]
+  create-turtles num-nodes [ set size 3 ]
   layout-circle turtles max-pxcor - 1
 end
 

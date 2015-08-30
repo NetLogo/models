@@ -19,7 +19,7 @@ to setup
   [ set pcolor gray + 2 ]
 
   ;; create electrons
-  crt 200 - resistance-right-wire
+  create-turtles 200 - resistance-right-wire
   [
     set breed electrons
     setxy random max-pxcor - 3 random-ycor
@@ -27,7 +27,7 @@ to setup
     set color orange - 2
     set size 1
   ]
-  crt 200 - resistance-left-wire
+  create-turtles 200 - resistance-left-wire
   [
     set breed electrons
     setxy random min-pxcor + 3 random-ycor

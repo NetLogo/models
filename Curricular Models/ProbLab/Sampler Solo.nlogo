@@ -126,7 +126,7 @@ to setup-frames  ;; patch procedure
     sprout 1
     [
       set breed frames
-      ht
+      hide-turtle
     ]
   ]
 end
@@ -134,7 +134,7 @@ end
 ;; ask all the frames to hide, even if grid? is true
 to hide-frames
   ask frames
-  [ ht ]
+  [ hide-turtle ]
 end
 
 ;; create and kill gatherers which modify the bi-linear random distribution of
@@ -143,7 +143,7 @@ end
 to abnormality-distribution
   create-gatherers (4 + random 4)  ;; create gatherers
   [
-    ht
+    hide-turtle
     setxy (random-float world-width) (random-float world-height)
     rt random-float 360.0
     gather
@@ -181,7 +181,7 @@ end
 ;; setup the model for use.  this kills all the turtles and should only be used
 ;; with a new group
 to setup
-    ca
+    clear-all
     set organize? false
     initialize true ;; initialize turns back on the display
     reset-ticks
@@ -270,7 +270,7 @@ to change-sample [ x y block-side agent ]
   ask patches with [ true ]
   [ set pcolor hide-patch-color ]
   ask frames
-  [ ht ]
+  [ hide-turtle ]
 
   ;; show the patches their frames (if grid? is true) in the currently chosen sample
   ask patches-in-sample
