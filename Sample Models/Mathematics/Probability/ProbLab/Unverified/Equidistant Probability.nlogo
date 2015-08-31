@@ -228,7 +228,7 @@ to label-results
   ask patches with [ ( pcolor != 104 ) and ( pcolor != red ) ]
   [
     set plabel-color pcolor + 5
-    ifelse Display-Results = "by-%"
+    ifelse display-results = "by-%"
       [ set plabel word precision ( 100 * counter / helper) 2 "%" ]
       [ set plabel precision counter 0 ]
   ]
@@ -525,8 +525,8 @@ CHOOSER
 381
 163
 426
-Display-Results
-Display-Results
+display-results
+display-results
 "by-total" "by-%"
 1
 

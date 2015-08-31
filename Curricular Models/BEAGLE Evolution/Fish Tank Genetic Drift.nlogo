@@ -25,7 +25,7 @@ globals [
   #-big-T-alleles  #-small-t-alleles
   #-big-F-alleles  #-small-f-alleles
   #-big-G-alleles  #-small-g-alleles
-  #-Y-chromosomes  #-X-chromosomes
+  #-y-chromosomes  #-x-chromosomes
 
   ;; globals for keeping track of default values for shapes and colors used for phenotypes
   water-color
@@ -490,8 +490,8 @@ to update-statistics
   set #-small-f-alleles count alleles with [value = "f"]
   set #-big-G-alleles   count alleles with [value = "G"]
   set #-small-g-alleles count alleles with [value = "g"]
-  set #-Y-chromosomes   count alleles with [value = "Y"]
-  set #-X-chromosomes   count alleles with [value = "X"]
+  set #-y-chromosomes   count alleles with [value = "Y"]
+  set #-x-chromosomes   count alleles with [value = "X"]
 
 
   set #-of-green-dorsal-fins     count fish-parts with [color = green-dorsal-fin-color]

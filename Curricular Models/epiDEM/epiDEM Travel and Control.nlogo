@@ -1,33 +1,33 @@
 globals
 [
-  recovery-time       ;; Time (in hours) it takes to recover from the infection
-  nbInfected-previous ;; Number of infected people at the previous tick
-  border              ;; The patches representing the yellow border
-  angle               ;; Heading for individuals
-  betaN               ;; The average number of new secondary infections per infected this tick
-  gamma               ;; The average number of new recoveries per infected this tick
-  r0                  ;; The number of secondary infections that arise due to a single infective introduced in a wholly susceptible population
+  recovery-time        ;; Time (in hours) it takes to recover from the infection
+  nb-infected-previous ;; Number of infected people at the previous tick
+  border               ;; The patches representing the yellow border
+  angle                ;; Heading for individuals
+  beta-n               ;; The average number of new secondary infections per infected this tick
+  gamma                ;; The average number of new recoveries per infected this tick
+  r0                   ;; The number of secondary infections that arise due to a single infective introduced in a wholly susceptible population
 ]
 
 turtles-own
 [
-  infected?          ;; If true, the person is infected.
-  cured?             ;; If true, the person has lived through an infection. They cannot be re-infected.
-  inoculated?        ;; If true, the person has been inoculated.
-  isolated?          ;; If true, the person is isolated, unable to infect anyone.
-  hospitalized?      ;; If true, the person is hospitalized and will recovery in half the average-recovery-time.
+  infected?            ;; If true, the person is infected.
+  cured?               ;; If true, the person has lived through an infection. They cannot be re-infected.
+  inoculated?          ;; If true, the person has been inoculated.
+  isolated?            ;; If true, the person is isolated, unable to infect anyone.
+  hospitalized?        ;; If true, the person is hospitalized and will recovery in half the average-recovery-time.
 
-  infection-length   ;; How long the person has been infected.
-  isolation-tendency ;; Chance the person will self-quarantine during any hour being infected.
+  infection-length     ;; How long the person has been infected.
+  isolation-tendency   ;; Chance the person will self-quarantine during any hour being infected.
   hospital-going-tendency ;; Chance that an infected person will go to the hospital when infected
 
-  continent          ;; Which continent a person lives one, people on continent 1 are squares, people on continent 2 are circles.
+  continent            ;; Which continent a person lives one, people on continent 1 are squares, people on continent 2 are circles.
 
-  ambulance?         ;; If true, the person is an ambulance and will transport infected people to the hospital.
+  ambulance?           ;; If true, the person is an ambulance and will transport infected people to the hospital.
 
-  susceptible-0       ;; Tracks whether the person was initially susceptible
-  nbInfected          ;; Number of secondary infections caused by an infected person at the end of the tick
-  nbRecovered         ;; Number of recovered people at the end of the tick
+  susceptible-0        ;; Tracks whether the person was initially susceptible
+  nb-infected          ;; Number of secondary infections caused by an infected person at the end of the tick
+  nb-recovered         ;; Number of recovered people at the end of the tick
 ]
 
 ;;;
@@ -293,8 +293,8 @@ to move  ;; turtle procedure
 end
 
 to clear-count
-  set nbInfected 0
-  set nbRecovered 0
+  set nb-infected 0
+  set nb-recovered 0
 end
 
 to maybe-recover
@@ -310,7 +310,7 @@ to maybe-recover
           [
             set infected? false
             set cured? true
-            set nbRecovered (nbRecovered + 1)
+            set nb-recovered (nb-recovered + 1)
           ]
         ]
       ]
@@ -319,7 +319,7 @@ to maybe-recover
         [
           set infected? false
           set cured? true
-          set nbRecovered (nbRecovered + 1 )
+          set nb-recovered (nb-recovered + 1 )
         ]
       ]
 end
@@ -375,14 +375,14 @@ to infect  ;; turtle procedure
              if random 100 < infection-chance * 2 ;; twice as likely to infect a linked person
              [
                set infected? true
-               set nbInfected (nbInfected + 1)
+               set nb-infected (nb-infected + 1)
              ]
            ]
            [
              if random 100 < infection-chance
              [
                set infected? true
-               set nbInfected (nbInfected + 1)
+               set nb-infected (nb-infected + 1)
              ]
            ]
        ]
@@ -394,22 +394,22 @@ end
 
 to calculate-r0
 
-  let new-infected sum [ nbInfected ] of turtles
-  let new-recovered sum [ nbRecovered ] of turtles
-  set nbInfected-previous (count turtles with [ infected? ] + new-recovered - new-infected)  ;; Number of infected people at the previous tick
+  let new-infected sum [ nb-infected ] of turtles
+  let new-recovered sum [ nb-recovered ] of turtles
+  set nb-infected-previous (count turtles with [ infected? ] + new-recovered - new-infected)  ;; Number of infected people at the previous tick
   let susceptible-t (initial-people - (count turtles with [ infected? ]) - (count turtles with [ cured? ]))  ;; Number of susceptibles now
   let s0 sum [ susceptible-0 ] of turtles  ;; Initial number of susceptibles
 
-  ifelse nbInfected-previous < 10
-  [ set betaN 0 ]
+  ifelse nb-infected-previous < 10
+  [ set beta-n 0 ]
   [
-    set betaN (new-infected / nbInfected-previous)       ;; This is the average number of new secondary infections per infected this tick
+    set beta-n (new-infected / nb-infected-previous)       ;; This is the average number of new secondary infections per infected this tick
   ]
 
-  ifelse nbInfected-previous < 5
+  ifelse nb-infected-previous < 5
   [ set gamma 0 ]
   [
-    set gamma (new-recovered / nbInfected-previous)     ;; This is the average number of new recoveries per infected this tick
+    set gamma (new-recovered / nb-infected-previous)     ;; This is the average number of new recoveries per infected this tick
   ]
 
   if ((initial-people - susceptible-t) != 0 and (susceptible-t != 0))   ;; Prevent from dividing by 0
@@ -595,8 +595,8 @@ true
 true
 "" ""
 PENS
-"Infection Rate" 1.0 0 -2674135 true "" "plot (betaN * nbInfected-previous)"
-"Recovery Rate" 1.0 0 -10899396 true "" "plot (gamma * nbInfected-previous)"
+"Infection Rate" 1.0 0 -2674135 true "" "plot (beta-n * nb-infected-previous)"
+"Recovery Rate" 1.0 0 -10899396 true "" "plot (gamma * nb-infected-previous)"
 
 SLIDER
 18

@@ -169,7 +169,7 @@ to setup-vars
   set auto-save-web ""
 
   set names-showing? see-names?
-  set graphics-display Turtle-display
+  set graphics-display turtle-display
   set plot-mode "Histogram"
   set plot-mode-is? plot-mode
   set sort-up ""
@@ -379,8 +379,8 @@ to show-data-listener
 end
 
 to turtle-movement-listener
-  if not (graphics-display = Turtle-display)
-  [ set graphics-display Turtle-display
+  if not (graphics-display = turtle-display)
+  [ set graphics-display turtle-display
     if graphics-display = "Word-Sort"
     [ if sort-up = "" [set sort-up user-input "Sort up / down word -"]
       if sort-right = "" [set sort-right user-input "Sort right / left word -"]
@@ -1643,8 +1643,8 @@ CHOOSER
 179
 721
 224
-Turtle-Display
-Turtle-Display
+turtle-display
+turtle-display
 "Sit" "Wander" "Line-Up" "Word-Sort"
 0
 

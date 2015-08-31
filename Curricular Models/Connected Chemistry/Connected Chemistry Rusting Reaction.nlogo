@@ -262,11 +262,11 @@ to check-mouse-interactions
   if (mouse-interaction = "add water") [add-water-catalyst]
   if (mouse-interaction = "remove water") [remove-water-catalyst]
   if (mouse-interaction = "drag away rust") [listen-move-rust-molecules]
-  if (mouse-interaction = "shine UV light on iron") [shine-UV-light]
+  if (mouse-interaction = "shine UV light on iron") [shine-uv-light]
 end
 
 
-to shine-UV-light
+to shine-uv-light
  let snap-xcor mouse-xcor
  let snap-ycor mouse-ycor
  if mouse-down? [

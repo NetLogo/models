@@ -2,7 +2,7 @@ globals [
           instructions       ;; The messages that appear in the instructions monitor
 
      ;; Booleans to preempt run-time errors and/or user confusions
-          am-I-set-up?
+          am-i-set-up?
           combi-exists?
           abort-create-combi?
 
@@ -70,7 +70,7 @@ to initialize
 
   ;; Variables for managing use of the model
   set combi-exists? false
-  set am-I-set-up? false
+  set am-i-set-up? false
 
   ;; List variables for selecting and searching values
   set color-rotation []
@@ -92,7 +92,7 @@ end
 
 to setup
   set-default-shape frames "frame"
-  set am-I-set-up? false
+  set am-i-set-up? false
   initialize
   create-set-block   ;; the set-block is the group of patches to be used in setting the combination
   create-guess-block ;; the set-block is the group of patches to be used in guessing the combination
@@ -101,7 +101,7 @@ to setup
   set instructions (word "OK, you have created a " width "-by-" height
                          " block with " count patches-in-set-block
                          " squares in it.  Now press Create Combi.")
-  set am-I-set-up? true
+  set am-i-set-up? true
 end
 
 
@@ -143,7 +143,7 @@ end
 
 ;; procedure for choosing the combination
 to create-combi
-  if not am-I-set-up? [ wait .1 alert-setup stop ]
+  if not am-i-set-up? [ wait .1 alert-setup stop ]
   if not dice? [ask dice [ die ] ]
   if abort-create-combi? [ stop ]
 
@@ -262,7 +262,7 @@ to search-combi
   if ( dice? ) and ( sum permis-choices != count patches-in-set-block ) [ alert-forgot-choice stop ]
 
   ;; managing the user-code interface
-  if not am-I-set-up? or not combi-exists? [ alert-setup stop ]
+  if not am-i-set-up? or not combi-exists? [ alert-setup stop ]
   set abort-create-combi? true
   set instructions word "The program guesses combinations randomly and tracks"
                         " the number of times it discovers your combination."
@@ -291,7 +291,7 @@ to search-combi
   ;; for 'single-success?' true, we want the program to stop after a combination has been found that
   ;; matches the user's combination
   if single-success? [
-    ifelse Analysis-Type = "both" [
+    ifelse analysis-type = "both" [
       if all-combi-match? [
         congratulate-combi
         stop
@@ -301,7 +301,7 @@ to search-combi
         stop
       ]
     ] [
-      ifelse Analysis-Type = "combination" [
+      ifelse analysis-type = "combination" [
         if all-combi-match? [
            congratulate-combi
            stop
@@ -436,14 +436,14 @@ to plot-sample
   set #combi-successes-per-sample-list fput count-combi-successes #combi-successes-per-sample-list
   set #permis-successes-per-sample-list fput count-permis-successes #permis-successes-per-sample-list
   set-current-plot "Successes per Sample Distribution"
-  ifelse Analysis-Type = "both"
+  ifelse analysis-type = "both"
   [
     ;; this line regulates the appearance of the plot -- it centers the two histograms
     set-plot-x-range 0  max ( list ( round 1.5 * ceiling ( mean  #permis-successes-per-sample-list ) )
                                   ( 1 + max #permis-successes-per-sample-list ) .1 )
   ]
   [
-    ifelse Analysis-Type = "combination"
+    ifelse analysis-type = "combination"
       [set-plot-x-range 0 max ( list ( 2 * ceiling ( mean  #combi-successes-per-sample-list ) )
                                     ( 1 + max #combi-successes-per-sample-list ) .1 ) ]
       [set-plot-x-range 0 max (list ( 2 * ceiling ( mean  #permis-successes-per-sample-list ) )
@@ -452,16 +452,16 @@ to plot-sample
 
   ;; In order to collapse two procedures into one, we use (below) the do-plot procedure.
   ;; Here, we assign values for this procedure according to the two conditions of search (combi and permis).
-  if Analysis-Type != "permutations"
+  if analysis-type != "permutations"
     [ do-plot #combi-successes-per-sample-list "combination" ]
-  if Analysis-Type != "combination"
+  if analysis-type != "combination"
     [ do-plot #permis-successes-per-sample-list "permutations" ]
 end
 
 ;; plotting procedure
 to do-plot [ event-list current-plot-name ]
-  if Analysis-Type = "combination" [ set-current-plot-pen "combination" plot-pen-reset ]
-  if Analysis-Type = "permutations"  [ set-current-plot-pen "permutations" plot-pen-reset ]
+  if analysis-type = "combination" [ set-current-plot-pen "combination" plot-pen-reset ]
+  if analysis-type = "permutations"  [ set-current-plot-pen "permutations" plot-pen-reset ]
   set-current-plot-pen current-plot-name
   ifelse bars? [ set-plot-pen-mode 1 ] [ set-plot-pen-mode 0 ]
   histogram event-list
@@ -824,8 +824,8 @@ CHOOSER
 173
 390
 218
-Analysis-Type
-Analysis-Type
+analysis-type
+analysis-type
 "permutations" "combination" "both"
 2
 

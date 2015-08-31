@@ -92,22 +92,22 @@ to spawn-particles
     ]
   ]
 
-  if Solute_Type = "Sugar" [                       ;; checks to see the identity of the solute based on the chooser
+  if solute-type = "Sugar" [                       ;; checks to see the identity of the solute based on the chooser
     output-type "C12H22O11"                        ;; write the chemical formula in the output area
     create-solutes-and-ions 1                      ;; since sugar is covalent and it does not break into ions in solvent, one molecule is formed
   ]
 
-  if Solute_Type = "Sodium Chloride" [
+  if solute-type = "Sodium Chloride" [
     output-type "NaCl"
     create-solutes-and-ions 2                      ;; Sodium Chloride breaks up into Na+ and Cl- ions, so two ions are formed
   ]
 
-  if Solute_Type = "Magnesium Chloride" [
+  if solute-type = "Magnesium Chloride" [
     output-type "MgCl2"
     create-solutes-and-ions 3                      ;; Magnesium Chloride breaks up into Mg2+ and two Cl- ions, so three ions are formed
   ]
 
-  if Solute_Type = "Aluminum Chloride" [
+  if solute-type = "Aluminum Chloride" [
     output-type "AlCl3"
     create-solutes-and-ions 4                      ;; Aluminum Chloride breaks up into Al3+ and three Cl- ions, so four ions are formed
   ]
@@ -489,8 +489,8 @@ CHOOSER
 50
 155
 95
-Solute_Type
-Solute_Type
+solute-type
+solute-type
 "Sugar" "Sodium Chloride" "Magnesium Chloride" "Aluminum Chloride"
 0
 

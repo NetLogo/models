@@ -119,9 +119,9 @@ to fire
       [
         set size 1
         set color black
-        set x-vel ( sin angle * ( Power / 100 ))
-        set y-vel ( cos angle * ( Power / 100 ))
-        set velocity Power / 100
+        set x-vel ( sin angle * ( power / 100 ))
+        set y-vel ( cos angle * ( power / 100 ))
+        set velocity power / 100
       ]
     ]
   ]

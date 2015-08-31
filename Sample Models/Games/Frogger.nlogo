@@ -117,10 +117,10 @@ to setup-pads
 end
 
 to create-truck [ x y direction quickness ]   ;; Creates and initializes a truck
-  let truckColor (random 13 + 1) * 10 + 3
+  let truck-color (random 13 + 1) * 10 + 3
   ask patches with [(pxcor = x or pxcor = (x + 1)) and pycor = y]
     [ sprout-trucks 1
-        [ set color truckColor
+        [ set color truck-color
           set heading direction
           set speed quickness
           set time speed

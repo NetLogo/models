@@ -211,19 +211,19 @@ end
 ;; get the step leaders to move towards the earth
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 to move-step-leaders-down
-  let movex 0
-  let movey 0
+  let move-x 0
+  let move-y 0
 
   ask step-leaders[
-    set moveX 1000 ;; default values to indicate that the move coordinates have not been set
-    set moveY 1000
+    set move-x 1000 ;; default values to indicate that the move coordinates have not been set
+    set move-y 1000
 
     ask neighbors with [pcolor = gray - 2] [ ;; if the patch is gray then the leader
                                              ;; has reached a dust particle and is more likely
                                              ;; move that direction and ionize it
       if random 100 < dust-probability [
-        set movex pxcor
-        set movey pycor
+        set move-x pxcor
+        set move-y pycor
       ]
     ]
 
@@ -237,18 +237,18 @@ to move-step-leaders-down
       ifelse any? trees-here ;; if any tree exists in the local area
       [
         ifelse ((xcoor - pxcor) > 0)   ;; check if it is to the left
-          [set movex (xcoor - 1)] ;; then move one step to the left
-          [set movex (xcoor + 1)] ;; otherwise, it is to the right, so move one step to the right
+          [set move-x (xcoor - 1)] ;; then move one step to the left
+          [set move-x (xcoor + 1)] ;; otherwise, it is to the right, so move one step to the right
 
-        set movey (ycoor - 1) ;; move down one step closer to the surface
+        set move-y (ycoor - 1) ;; move down one step closer to the surface
       ]
       [
         if any? positive-streamers-here ;; if one exists then the leader moves in the direction towards it
           [ ifelse ((xcoor - pxcor) > 0)   ;; if the positive streamer is to the left
-            [set movex (xcoor - 1)] ;; then move one step to the left
-            [set movex (xcoor + 1)] ;; otherwise, it is to the right, so move one step to the right
+            [set move-x (xcoor - 1)] ;; then move one step to the left
+            [set move-x (xcoor + 1)] ;; otherwise, it is to the right, so move one step to the right
 
-          set movey (ycoor - 1) ] ;; move down one step closer to the surface
+          set move-y (ycoor - 1) ] ;; move down one step closer to the surface
       ]]
 
     ;; if no charges or dust particles are encouraging direction, pick at random but most likely toward earth
@@ -256,7 +256,7 @@ to move-step-leaders-down
     ;; the path will move based on some probability of ten by selecting a random number below 10.
     ;; these probabilities are not scientific and are used only to help guide the path
 
-    if movex = 1000 [
+    if move-x = 1000 [
 
       ;;set y movement
       let rand-no random 10
@@ -266,12 +266,12 @@ to move-step-leaders-down
       ;; if it is 2 the path will move up one towards the cloud (10%)
 
       ifelse (rand-no > 2)[
-        set movey ycor - 1
+        set move-y ycor - 1
       ][
       ifelse (rand-no < 2)[
-        set movey ycor
+        set move-y ycor
       ][
-      set movey ycor + 1
+      set move-y ycor + 1
       ]
       ]
 
@@ -283,22 +283,22 @@ to move-step-leaders-down
       set rand-no random 10
 
       ifelse (rand-no > 6)[
-        set movex xcor - 1
+        set move-x xcor - 1
       ][
       ifelse (rand-no < 3)[
-        set movex xcor
+        set move-x xcor
       ][
-      set movex xcor + 1
+      set move-x xcor + 1
       ]
       ]
     ]
 
     ;; make sure its still in the bounds of the world; otherwise, the path fades
-    ifelse (movex < min-pxcor) or (movex > max-pxcor) or (movey > max-pycor)
+    ifelse (move-x < min-pxcor) or (move-x > max-pxcor) or (move-y > max-pycor)
       [die]
-      [If (random 100 < fade-probability) ;; these is some chance (the fade-probability) that the path will fade on its own
+      [if (random 100 < fade-probability) ;; these is some chance (the fade-probability) that the path will fade on its own
         [die]
-      setxy movex movey
+      setxy move-x move-y
       ]
 
     ;; check if the path hit a tree
@@ -310,7 +310,7 @@ to move-step-leaders-down
         (pcolor = (violet + 3)) or               ;; the path of a streamer, or
         (hit-tree?) or                         ;; a tree, or
         (pycor = surface))                       ;; the earth's surface
-      [ make-lightning movex movey                     ;; then lightning strikes and we turn the patch yellow
+      [ make-lightning move-x move-y                     ;; then lightning strikes and we turn the patch yellow
         set pcolor yellow ]
       [ set pcolor (blue + 3)]                     ;; otherwise, turn that patch of air to plasma (ie, a blue patch)
     ]
@@ -335,43 +335,43 @@ end
 to grow-positive-streamers-up
 
   ask positive-streamers [
-    let movex 0
-    let movey 0
+    let move-x 0
+    let move-y 0
 
     ;;;;;;;;;;;;;;;;;;; if the patch is gray then the leader has reached a dust particle and is more likely to ionize it
     ask neighbors [
       if pcolor = gray - 2 [
         if random 100 < dust-probability [
-          set movex pxcor
-          set movey pycor
+          set move-x pxcor
+          set move-y pycor
         ]
       ]
     ]
 
     ;;;;;;;;;;;;;;;;; generate random direction moves for the path to grow
-    if (movex = 0)[
+    if (move-x = 0)[
       ;;set y movement
       let rand-no random 10
 
       ifelse (rand-no < 8)[
-        set movey ycor + 1
+        set move-y ycor + 1
       ][
       ifelse (rand-no < 2)[
-        set movey ycor
+        set move-y ycor
       ][
-      set movey ycor - 1
+      set move-y ycor - 1
       ]
       ]
 
       ;;set x movement
       set rand-no random 11
       ifelse (rand-no < 5)[
-        set movex xcor - 1
+        set move-x xcor - 1
       ][
       ifelse (rand-no < 2)[
-        set movex xcor
+        set move-x xcor
       ][
-      set movex xcor + 1
+      set move-x xcor + 1
       ]
       ]
     ]
@@ -379,20 +379,20 @@ to grow-positive-streamers-up
     ;;;;;;;;;;;;;;;;; if the movement is off the screen, kill the stream
     let random-growth-height (surface + random 20 + 20)
 
-    ifelse (moveX < min-pxcor) or (movex > max-pxcor) or
-      (moveY < surface) or (movey > max-pycor) or
-      (moveY > random-growth-height)
+    ifelse (move-x < min-pxcor) or (move-x > max-pxcor) or
+      (move-y < surface) or (move-y > max-pycor) or
+      (move-y > random-growth-height)
       [die]
       [if (random 100 < fade-probability)  ;;there is some probability that the stream will just end
         [die]
-      setxy movex movey
+      setxy move-x move-y
       ]
 
     ;;;;;;;;;;;;;;;;; if the patch is empty then change the color to show the path is now positive
     ;;;;;;;;;;;;;;;;; if the patch has both a stepleader and a positive streamer the paths connect and lightning strikes!
     ask patch-here [
       ifelse (any? step-leaders-here or (pcolor = (blue + 3)))
-        [make-lightning movex movey
+        [make-lightning move-x move-y
           set pcolor yellow ]
         [set pcolor (violet + 3)]
     ]

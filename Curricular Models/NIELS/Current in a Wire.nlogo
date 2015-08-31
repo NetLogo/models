@@ -79,7 +79,7 @@ end
 
 to go
 
-  ;; update the size of battery-terminals with values of Voltage
+  ;; update the size of battery-terminals with values of voltage
   update-battery-size
 
   ;; Rules for electrons
@@ -147,11 +147,11 @@ to update-battery-size
   ;; now update the size of Battery-negative
   ask cathodes
   [
-    set size 1.5 + 0.5 * Voltage
+    set size 1.5 + 0.5 * voltage
   ]
   ask anodes
   [
-    set size 1.5 + 0.5 * Voltage
+    set size 1.5 + 0.5 * voltage
   ]
 end
 

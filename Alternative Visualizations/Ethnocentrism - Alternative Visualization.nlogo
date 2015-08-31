@@ -1,5 +1,5 @@
 ;; agents have a probablity to reproduce and a strategy
-turtles-own [ PTR cooperate-with-same? cooperate-with-different? ]
+turtles-own [ ptr cooperate-with-same? cooperate-with-different? ]
 
 globals [
   ;; the remaining variables support the replication of published experiments
@@ -102,7 +102,7 @@ to go
   immigrate       ;; new agents immigrate into the world
 
   ;; reset the probability to reproduce
-  ask turtles [ set PTR initial-PTR ]
+  ask turtles [ set ptr initial-ptr ]
 
   ;; have all of the agents interact with other agents if they can
   ask turtles [ interact ]
@@ -139,8 +139,8 @@ to interact  ;; turtle procedure
       if [cooperate-with-same?] of myself [
         set coopown coopown + 1
         set coopown-agg coopown-agg + 1
-        ask myself [ set PTR PTR - cost-of-giving ]
-        set PTR PTR + gain-of-receiving
+        ask myself [ set ptr ptr - cost-of-giving ]
+        set ptr ptr + gain-of-receiving
       ]
     ]
     ;; if we are different colors we take a different strategy
@@ -152,8 +152,8 @@ to interact  ;; turtle procedure
       ifelse [cooperate-with-different?] of myself [
         set coopother coopother + 1
         set coopother-agg coopother-agg + 1
-        ask myself [ set PTR PTR - cost-of-giving ]
-        set PTR PTR + gain-of-receiving
+        ask myself [ set ptr ptr - cost-of-giving ]
+        set ptr ptr + gain-of-receiving
       ]
       [
         set defother defother + 1
@@ -166,7 +166,7 @@ end
 ;; use PTR to determine if the agent gets to reproduce
 to reproduce  ;; turtle procedure
   ;; if a random variable is less than the PTR the agent can reproduce
-  if random-float 1.0 < PTR [
+  if random-float 1.0 < ptr [
     ;; find an empty location to reproduce into
     let destination one-of neighbors4 with [not any? turtles-here]
     if destination != nobody [

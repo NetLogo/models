@@ -1,4 +1,4 @@
-globals [ BUILD-THRESHOLD ]
+globals [ build-threshold ]
 patches-own [ attraction ]
 
 breed [ houses house ]
@@ -11,7 +11,7 @@ to setup
   clear-all
   setup-patches
   setup-turtles
-  set BUILD-THRESHOLD floor (max-attraction / 2)
+  set build-threshold floor (max-attraction / 2)
   reset-ticks
 end
 
@@ -87,7 +87,7 @@ to go
 end
 
 to-report want-to-build?
-  report random attraction >= BUILD-THRESHOLD or patience-counter = 0
+  report random attraction >= build-threshold or patience-counter = 0
 end
 
 to turn-toward-attraction

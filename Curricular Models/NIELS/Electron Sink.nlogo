@@ -64,7 +64,7 @@ to go
     die
   ]
 
-  if current >= Filling-Capacity
+  if current >= filling-capacity
   [
     user-message (word "The Sink Is Full; Time Taken to Fill = " ticks " isecs ")
     stop
@@ -170,8 +170,8 @@ TEXTBOX
 20
 120
 200
-210
-Filling-Capacity Of The Electron-Sink Is The Maximum Number Of Electrons That The Sink Can Hold.\n\n
+206
+Filling capacity of the electron sink is the maximum number of electrons that the sink can hold.\n\n
 12
 0.0
 1
@@ -220,11 +220,11 @@ Electron-Sink
 
 CHOOSER
 20
-190
+200
 195
-235
-Filling-Capacity
-Filling-Capacity
+245
+filling-capacity
+filling-capacity
 300 500 1000 1200 2000
 3
 

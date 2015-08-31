@@ -1,14 +1,14 @@
 globals
 [
-  recovery-time        ;; Time (in hours) it takes to recover from the infection
-  nbInfected-previous  ;; Number of infected people at the previous tick
-  betaN                ;; The average number of new secondary
-                       ;; infections per infected this tick
-  gamma                ;; The average number of new recoveries
-                       ;; per infected this tick
-  r0                   ;; The number of secondary infections that arise
-                       ;; due to a single infected introduced in a wholly
-                       ;; susceptible population
+  recovery-time         ;; Time (in hours) it takes to recover from the infection
+  nb-infected-previous  ;; Number of infected people at the previous tick
+  beta-n                ;; The average number of new secondary
+                        ;; infections per infected this tick
+  gamma                 ;; The average number of new recoveries
+                        ;; per infected this tick
+  r0                    ;; The number of secondary infections that arise
+                        ;; due to a single infected introduced in a wholly
+                        ;; susceptible population
 ]
 
 turtles-own
@@ -18,9 +18,9 @@ turtles-own
                       ;; They cannot be re-infected.
   susceptible-0       ;; Initial number of susceptible people
   infection-length    ;; How long the person has been infected
-  nbInfected          ;; Number of secondary infections caused by an
+  nb-infected         ;; Number of secondary infections caused by an
                       ;; infected person at the end of the tick
-  nbRecovered         ;; Number of recovered people at the end of the tick
+  nb-recovered        ;; Number of recovered people at the end of the tick
 ]
 
 
@@ -113,8 +113,8 @@ to move  ;; turtle procedure
 end
 
 to clear-count
-  set nbInfected 0
-  set nbRecovered 0
+  set nb-infected 0
+  set nb-recovered 0
 end
 
 ;; Infection can occur to any susceptible person nearby
@@ -126,7 +126,7 @@ to infect  ;; turtle procedure
      [ ask nearby-uninfected
        [ if random-float 100 < infection-chance
          [ set infected? true
-           set nbInfected (nbInfected + 1)
+           set nb-infected (nb-infected + 1)
          ]
        ]
      ]
@@ -142,18 +142,18 @@ to maybe-recover
     if random-float 100 < recovery-chance
     [ set infected? false
       set cured? true
-      set nbRecovered (nbRecovered + 1)
+      set nb-recovered (nb-recovered + 1)
     ]
   ]
 end
 
 to calculate-r0
 
-  let new-infected sum [ nbInfected ] of turtles
-  let new-recovered sum [ nbRecovered ] of turtles
+  let new-infected sum [ nb-infected ] of turtles
+  let new-recovered sum [ nb-recovered ] of turtles
 
   ;; Number of infected people at the previous tick:
-  set nbInfected-previous
+  set nb-infected-previous
     count turtles with [ infected? ] +
     new-recovered - new-infected
 
@@ -166,19 +166,19 @@ to calculate-r0
   ;; Initial number of susceptibles:
   let s0 sum [ susceptible-0 ] of turtles
 
-  ifelse nbInfected-previous < 10
-  [ set betaN 0 ]
+  ifelse nb-infected-previous < 10
+  [ set beta-n 0 ]
   [
-    ;; This is betaN, the average number of new
+    ;; This is beta-n, the average number of new
     ;; secondary infections per infected per tick
-    set betaN (new-infected / nbInfected-previous)
+    set beta-n (new-infected / nb-infected-previous)
   ]
 
-  ifelse nbInfected-previous < 10
+  ifelse nb-infected-previous < 10
   [ set gamma 0 ]
   [
     ;; This is the average number of new recoveries per infected per tick
-    set gamma (new-recovered / nbInfected-previous)
+    set gamma (new-recovered / nb-infected-previous)
   ]
 
   ;; Prevent division by 0:
@@ -309,8 +309,8 @@ true
 true
 "" ""
 PENS
-"Infection Rate" 1.0 0 -2674135 true "" "plot (betaN * nbInfected-previous)"
-"Recovery Rate" 1.0 0 -10899396 true "" "plot (gamma * nbInfected-previous)"
+"Infection Rate" 1.0 0 -2674135 true "" "plot (beta-n * nb-infected-previous)"
+"Recovery Rate" 1.0 0 -10899396 true "" "plot (gamma * nb-infected-previous)"
 
 SLIDER
 46
