@@ -22,19 +22,19 @@ to setup
   set anchor-transparency 161
 
   ;;Colors for Hydrogen Counts
-  ifelse h4On
+  ifelse h4-on?
     [ set h4-color white ]
     [ set h4-color 0 ]
 
-  ifelse h3On
+  ifelse h3-on?
     [ set h3-color green ]
     [ set h3-color 0 ]
 
-  ifelse h2On
+  ifelse h2-on?
     [ set h2-color blue ]
     [ set h2-color 0 ]
 
-  ifelse h1On
+  ifelse h1-on?
     [ set h1-color red ]
     [ set h1-color 0 ]
 
@@ -214,9 +214,9 @@ to go
   ;; HYDROGEN MOVEMENT
   ask hydrogens-on patches with [ patch-type = "inner" ] [
     let norm (count neighbors6 with [ h-count = 1 ]) * red-diffuse + (count neighbors6 with [h-count > 1]) + 0.00000000001
-    let pRed (count neighbors6 with [ h-count = 1 ]) * red-diffuse / norm ;;percent chance to move to red(depleted regions)
+    let p-red (count neighbors6 with [ h-count = 1 ]) * red-diffuse / norm ;;percent chance to move to red(depleted regions)
 
-    ifelse (random-float 1.0 < pRed) [
+    ifelse (random-float 1.0 < p-red) [
       face one-of neighbors6 with [ h-count = 1 ]
     ] [
       ifelse count (neighbors6 with [ h-count > 1 ]) > 0 [
@@ -431,10 +431,10 @@ HORIZONTAL
 SWITCH
 15
 295
-110
+117
 328
-h3On
-h3On
+h3-on?
+h3-on?
 0
 1
 -1000
@@ -442,32 +442,32 @@ h3On
 SWITCH
 15
 260
-110
+117
 293
-h4On
-h4On
+h4-on?
+h4-on?
 0
 1
 -1000
 
 SWITCH
-115
+120
 260
-210
+222
 293
-h2On
-h2On
+h2-on?
+h2-on?
 0
 1
 -1000
 
 SWITCH
-115
+120
 295
-210
+222
 328
-h1On
-h1On
+h1-on?
+h1-on?
 0
 1
 -1000
@@ -594,7 +594,7 @@ NIL
 10.0
 true
 false
-"" "plot-pen-reset\nset-plot-pen-color h1-color\nplot ifelse-value (h1On) [count anchors with [color = lput anchor-transparency extract-rgb h1-color]][0]\nset-plot-pen-color h2-color\nplot ifelse-value (h2On) [count anchors with [color = lput anchor-transparency extract-rgb h2-color]][0]\nset-plot-pen-color h3-color\nplot ifelse-value (h3On) [count anchors with [color = lput anchor-transparency extract-rgb h3-color]][0]\nset-plot-pen-color black\nplot ifelse-value (h4On) [count anchors with [color = lput anchor-transparency extract-rgb h4-color]][0]"
+"" "plot-pen-reset\nset-plot-pen-color h1-color\nplot ifelse-value (h1-on?) [count anchors with [color = lput anchor-transparency extract-rgb h1-color]][0]\nset-plot-pen-color h2-color\nplot ifelse-value (h2-on?) [count anchors with [color = lput anchor-transparency extract-rgb h2-color]][0]\nset-plot-pen-color h3-color\nplot ifelse-value (h3-on?) [count anchors with [color = lput anchor-transparency extract-rgb h3-color]][0]\nset-plot-pen-color black\nplot ifelse-value (h4-on?) [count anchors with [color = lput anchor-transparency extract-rgb h4-color]][0]"
 PENS
 "pen-0" 1.0 1 -7500403 true "" ""
 

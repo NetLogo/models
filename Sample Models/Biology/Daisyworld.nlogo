@@ -144,7 +144,7 @@ to calc-temperature  ;; patch procedure
   ;; and an absorbed-luminosity of .5 yields a local-heating of approximately 30 C
   ;; and a absorbed-luminosity of 0.01 yields a local-heating of approximately -273 C
   ifelse absorbed-luminosity > 0
-      [set local-heating 72 * LN(absorbed-luminosity) + 80]
+      [set local-heating 72 * ln absorbed-luminosity + 80]
       [set local-heating 80]
   set temperature ((temperature + local-heating) / 2)
      ;; set the temperature at this patch to be the average of the current temperature and the local-heating effect

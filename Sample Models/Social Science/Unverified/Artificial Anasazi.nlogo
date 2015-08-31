@@ -17,7 +17,7 @@ patches-own [
 ]
 
 historical-settlements-own [
-  SARG                 ; an ID number relating to data collected by the "Southwestern Anthropological Research Group" (unused by the simulation, left for reference)
+  sarg                 ; an ID number relating to data collected by the "Southwestern Anthropological Research Group" (unused by the simulation, left for reference)
   meter-north          ; real world location measurements
   meter-east           ; real world location measurements
   start-date           ; historical start date
@@ -45,7 +45,7 @@ households-own [
   nutrition-need-remaining]
 
 water-points-own [
-  SARG
+  sarg
   meter-north
   meter-east
   water-type
@@ -371,7 +371,7 @@ to load-map-data
 
   foreach settlements-data [
     create-historical-settlements 1 [
-      set SARG item 0 ?
+      set sarg item 0 ?
       set meter-north item 1 ?
       set meter-east item 2 ?
       set start-date item 3 ?
@@ -399,7 +399,7 @@ to load-map-data
 
   foreach water-data [
     create-water-points 1 [
-      set SARG item 0 ?
+      set sarg item 0 ?
       set meter-north item 1 ?
       set meter-east item 2 ?
       set water-type item 3 ?

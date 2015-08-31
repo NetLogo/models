@@ -159,10 +159,10 @@ end
 ;; returning less frequently means increasing the phase, and vice versa
 ;; 'frequency-update' is the interface slider value for increasing/decreasing the phase
 to update-attendance-frequency ;; patron procedure
-  if attendance < (Equilibrium - dead-zone)
+  if attendance < (equilibrium - dead-zone)
     [if (attendance-frequency > 1)
       [set attendance-frequency (attendance-frequency - frequency-update)]]
-  if attendance > Equilibrium
+  if attendance > equilibrium
     [set attendance-frequency (attendance-frequency + frequency-update)]
 end
 

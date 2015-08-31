@@ -222,13 +222,13 @@ to show-next-piece
 end
 
 to setup-piece [s]  ;; Piece Procedure
-  if (s = 0) [ setupO  set color blue   ]
-  if (s = 1) [ setupL  set color red    ]
-  if (s = 2) [ setupJ  set color yellow ]
-  if (s = 3) [ setupT  set color green  ]
-  if (s = 4) [ setupS  set color orange ]
-  if (s = 5) [ setupZ  set color sky    ]
-  if (s = 6) [ setupI  set color violet ]
+  if (s = 0) [ setup-o  set color blue   ]
+  if (s = 1) [ setup-l  set color red    ]
+  if (s = 2) [ setup-j  set color yellow ]
+  if (s = 3) [ setup-t  set color green  ]
+  if (s = 4) [ setup-s  set color orange ]
+  if (s = 5) [ setup-z  set color sky    ]
+  if (s = 6) [ setup-i  set color violet ]
   setxy ([xcor] of turtle 0) + x
         ([ycor] of turtle 0) + y
 end
@@ -243,7 +243,7 @@ end
 ;; O-Block
 ;; 01
 ;; 23
-to setupO ;;Piece Procedure
+to setup-o ;;Piece Procedure
   if (who = 1) [ set x 1 set y  0 ]
   if (who = 2) [ set x 0 set y -1 ]
   if (who = 3) [ set x 1 set y -1 ]
@@ -252,7 +252,7 @@ end
 ;; L-Block
 ;; 201
 ;; 3
-to setupL ;;Piece Procedure
+to setup-l ;;Piece Procedure
   if (who = 1) [ set x  1 set y  0 ]
   if (who = 2) [ set x -1 set y  0 ]
   if (who = 3) [ set x -1 set y -1 ]
@@ -261,7 +261,7 @@ end
 ;; J-Block
 ;; 102
 ;;   3
-to setupJ ;;Piece Procedure
+to setup-j ;;Piece Procedure
   if (who = 1) [ set x -1 set y  0 ]
   if (who = 2) [ set x  1 set y  0 ]
   if (who = 3) [ set x  1 set y -1 ]
@@ -270,7 +270,7 @@ end
 ;; T-Block
 ;; 201
 ;;  3
-to setupT ;;Piece Procedure
+to setup-t ;;Piece Procedure
   if (who = 1) [ set x  1 set y  0 ]
   if (who = 2) [ set x -1 set y  0 ]
   if (who = 3) [ set x  0 set y -1 ]
@@ -279,7 +279,7 @@ end
 ;; S-Block
 ;;  01
 ;; 23
-to setupS ;;Piece Procedure
+to setup-s ;;Piece Procedure
   if (who = 1) [ set x  1 set y  0 ]
   if (who = 2) [ set x -1 set y -1 ]
   if (who = 3) [ set x  0 set y -1 ]
@@ -288,7 +288,7 @@ end
 ;; Z-block
 ;; 10
 ;;  32
-to setupZ ;;Piece Procedure
+to setup-z ;;Piece Procedure
   if (who = 1) [ set x -1 set y  0 ]
   if (who = 2) [ set x  1 set y -1 ]
   if (who = 3) [ set x  0 set y -1 ]
@@ -296,7 +296,7 @@ end
 
 ;; I-Block
 ;; 1023
-to setupI ;;Piece Procedure
+to setup-i ;;Piece Procedure
   if (who = 1) [ set x -1 set y 0 ]
   if (who = 2) [ set x  1 set y 0 ]
   if (who = 3) [ set x  2 set y 0 ]

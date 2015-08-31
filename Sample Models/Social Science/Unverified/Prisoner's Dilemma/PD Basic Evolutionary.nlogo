@@ -46,7 +46,7 @@ to interact  ;; patch procedure
   let total-cooperaters count neighbors with [cooperate?]  ;; total number neighbors who cooperated
   ifelse cooperate?
     [set score total-cooperaters]                   ;; cooperator gets score of # of neighbors who cooperated
-    [set score Defection-Award * total-cooperaters] ;; non-cooperator get score of a multiple of the
+    [set score defection-award * total-cooperaters] ;; non-cooperator get score of a multiple of the
                                                     ;; neighbors who cooperated
 end
 
@@ -168,8 +168,8 @@ SLIDER
 117
 210
 150
-Defection-Award
-Defection-Award
+defection-award
+defection-award
 0
 3
 1.59

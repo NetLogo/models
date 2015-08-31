@@ -1,17 +1,17 @@
 globals [
-  HSB-as-RGB
-  HSB-color
-  RGB-color
+  hsb-as-rgb
+  hsb-color
+  rgb-color
 ]
 
 to go
-  set HSB-as-RGB hsb hue saturation brightness
-  set HSB-color approximate-hsb hue saturation brightness
-  ask quadrant -1  1 [ set pcolor HSB-as-RGB ]
-  ask quadrant  1  1 [ set pcolor HSB-color ]
-  set RGB-color approximate-rgb rgb-red rgb-green rgb-blue
+  set hsb-as-rgb hsb hue saturation brightness
+  set hsb-color approximate-hsb hue saturation brightness
+  ask quadrant -1  1 [ set pcolor hsb-as-rgb ]
+  ask quadrant  1  1 [ set pcolor hsb-color ]
+  set rgb-color approximate-rgb rgb-red rgb-green rgb-blue
   ask quadrant -1 -1 [ set pcolor (list rgb-red rgb-green rgb-blue) ]
-  ask quadrant  1 -1 [ set pcolor RGB-color ]
+  ask quadrant  1 -1 [ set pcolor rgb-color ]
   display
 end
 

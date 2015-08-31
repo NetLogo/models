@@ -123,8 +123,8 @@ to setup-consumers
   ask customers
   [ die ]
 
-  create-customers Num-Consumer
-    [ set energy Consumer-Energy
+  create-customers num-consumer
+    [ set energy consumer-energy
     set persuaded? false
     set my-restaurant -1
 
@@ -242,11 +242,11 @@ to serve-customers ;; turtle procedure
    set persuaded? false
    set my-restaurant -1
    set appeal 0
-   set energy Consumer-Energy ]
+   set energy consumer-energy ]
 
   set num-customers (num-customers + new-customers)
   set days-revenue (days-revenue + (new-customers * restaurant-price))
-  set days-cost round (days-cost + (new-customers * Service-Cost * restaurant-service) + (new-customers * Quality-Cost * restaurant-quality))
+  set days-cost round (days-cost + (new-customers * service-cost * restaurant-service) + (new-customers * quality-cost * restaurant-quality))
   set days-profit round (days-revenue - days-cost)
 end
 
@@ -262,7 +262,7 @@ to attract-customers ;; turtle procedure
   let restaurant-appeal false
 
   ;; Try and persuade customers that are within range
-  ask customers with [ (energy < Consumer-Threshold) and (customer-cuisine = r-cuisine) ] in-radius 7
+  ask customers with [ (energy < consumer-threshold) and (customer-cuisine = r-cuisine) ] in-radius 7
   [
     set util-price (customer-money - adj-price)
     set util-quality (adj-quality - customer-taste)
@@ -295,12 +295,12 @@ to end-day ;; turtle procedure
     hubnet-send user-id "Day's Cost" days-cost ]
 
   set account-balance round (account-balance + days-profit)
-  set days-cost Rent-Cost
+  set days-cost rent-cost
   set days-revenue 0
   set days-profit (days-revenue - days-cost)
   set num-customers 0
 
-  if (Bankruptcy?) ;; If the owner is bankrupt shut his restaurant down
+  if (bankruptcy?) ;; If the owner is bankrupt shut his restaurant down
   [ if (account-balance < 0)
   [ set bankrupt? true ] ]
 end
@@ -480,17 +480,17 @@ to execute-command [command]
   if command = "Service"
   [ ask restaurants with [ user-id = hubnet-message-source ]
     [ set restaurant-service hubnet-message
-      set profit-customer round (restaurant-price - ((Service-Cost * restaurant-service) + (Quality-Cost * restaurant-quality))) ]
+      set profit-customer round (restaurant-price - ((service-cost * restaurant-service) + (quality-cost * restaurant-quality))) ]
     stop ]
   if command = "Quality"
   [ ask restaurants with [ user-id = hubnet-message-source ]
     [ set restaurant-quality hubnet-message
-      set profit-customer round (restaurant-price - ((Service-Cost * restaurant-service) + (Quality-Cost * restaurant-quality))) ]
+      set profit-customer round (restaurant-price - ((service-cost * restaurant-service) + (quality-cost * restaurant-quality))) ]
     stop ]
   if command = "Price"
   [ ask restaurants with [ user-id = hubnet-message-source ]
     [ set restaurant-price hubnet-message
-      set profit-customer round (restaurant-price - ((Service-Cost * restaurant-service) + (Quality-Cost * restaurant-quality))) ]
+      set profit-customer round (restaurant-price - ((service-cost * restaurant-service) + (quality-cost * restaurant-quality))) ]
     stop ]
 end
 
@@ -548,7 +548,7 @@ to reset-owner-variables  ;; owner procedure
   set bankrupt? false
   set account-balance 2000
   set days-revenue 0
-  set days-cost Rent-Cost
+  set days-cost rent-cost
   set days-profit 0
   set profit-customer 100
   set num-customers 0

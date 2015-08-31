@@ -44,7 +44,7 @@ end
 to update-position-and-color  ;Turtle procedure
   set zpos ((zpos + delta-z) * (.01 * friction))    ;Steal energy by pulling the turtle closer
   set color scale-color blue zpos -40 40            ;to ground level
-  ifelse three-D?
+  ifelse three-d?
    [
      let y (zpos + (ypos * sin angle))
      let x (xpos + (ypos * cos angle))
@@ -92,10 +92,10 @@ ticks
 SWITCH
 6
 198
-111
+123
 231
-three-D?
-three-D?
+three-d?
+three-d?
 1
 1
 -1000

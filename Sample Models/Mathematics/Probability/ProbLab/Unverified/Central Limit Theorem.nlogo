@@ -220,7 +220,7 @@ to-report expected-value
   ;; Next, we calculate the mean of this list, to get the expected value of the population
   let columns-list [ ( count turtles with [ xcor = [pxcor] of myself ] ) * ( pxcor + max-pxcor ) ] of patches with [pycor = max-pycor]
 
-  if show-EV? [ report (sum columns-list) / (count turtles ) ]
+  if show-ev? [ report (sum columns-list) / (count turtles ) ]
 end
 
 
@@ -570,10 +570,10 @@ expected-value
 SWITCH
 581
 496
-689
+702
 529
-show-EV?
-show-EV?
+show-ev?
+show-ev?
 0
 1
 -1000

@@ -133,8 +133,8 @@ end
 to birds-forget ;; bird procedure
   ;; first increment all of the times in memory
   set memory map [list (item 0 ?) (1 + item 1 ?)] memory
-  ;; then remove any entries whose times have hit MEMORY-DURATION
-  set memory filter [item 1 ? <= MEMORY-DURATION] memory
+  ;; then remove any entries whose times have hit memory-duration
+  set memory filter [item 1 ? <= memory-duration] memory
 end
 
 ;; Each butterfly has an equal chance of reproducing

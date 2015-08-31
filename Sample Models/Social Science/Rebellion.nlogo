@@ -96,10 +96,10 @@ to-report grievance
 end
 
 to-report estimated-arrest-probability
-  let C count cops-on neighborhood
-  let A 1 + count (agents-on neighborhood) with [active?]
+  let c count cops-on neighborhood
+  let a 1 + count (agents-on neighborhood) with [active?]
   ;; See Info tab for a discussion of the following formula
-  report 1 - exp (- k * floor (C / A))
+  report 1 - exp (- k * floor (c / a))
 end
 
 ;; COP BEHAVIOR
@@ -120,11 +120,11 @@ end
 
 to display-agent  ;; agent procedure
   ifelse visualization = "2D"
-    [ display-agent-2D ]
-    [ display-agent-3D ]
+    [ display-agent-2d ]
+    [ display-agent-3d ]
 end
 
-to display-agent-2D  ;; agent procedure
+to display-agent-2d  ;; agent procedure
   set shape "circle"
   ifelse active?
     [ set color red ]
@@ -133,7 +133,7 @@ to display-agent-2D  ;; agent procedure
         [ set color scale-color green grievance 1.5 -0.5 ] ]
 end
 
-to display-agent-3D  ;; agent procedure
+to display-agent-3d  ;; agent procedure
   set color scale-color green grievance 1.5 -0.5
   ifelse active?
     [ set shape "person active" ]
@@ -425,7 +425,7 @@ Each "agent," or member of the general population, has an individual level of gr
 
 Each agent also calculates an individual risk of rebelling at the beginning of each turn.  This ESTIMATED-ARREST-PROBABILITY, is based on the number of cops and already rebelling agents within VISION patches, namely 1 - exp (- k * (C/A)<sub>v</sub>) --- where (C/A)<sub>v</sub> is the ratio of cops to active agents, and k is a constant set in "startup" to ensure a reasonable value when there is only one cop and one agent within a particular field of vision.  In our implementation, we changed one aspect of Epstein's description.  After dividing by C by A, we take the "floor" of the result (that is, round downwards to an integer).  Without this change, the model does not exhibit punctuated equilibrium.  The effect of the change is that if there are more rebels than cops in the neighborhood, the probability of arrest is zero, otherwise it is very nearly 1.0.  In other words, the rule could be written more simply as:
 
-      ifelse A > C [ report 0 ] [ report 0.99 ]
+      ifelse a > c [ report 0 ] [ report 0.99 ]
 
 An agent's NET-RISK is the product of the calculated ESTIMATED-ARREST-PROBABILITY and RISK-AVERSION randomly set for each agent at birth.
 
