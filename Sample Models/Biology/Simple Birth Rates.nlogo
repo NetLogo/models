@@ -19,7 +19,7 @@ to setup-experiment
   clear-patches
   clear-turtles
   clear-all-plots
-  reset-ticks
+  clear-ticks
   create-turtles carrying-capacity
   [
     setxy random-xcor random-ycor         ; randomize turtle locations
