@@ -65,14 +65,17 @@ to go
    set global-temperature (mean [temperature] of patches)
    update-display
    tick
-   if (scenario = "ramp-up-ramp-down")
-   [
-     if (ticks > 200 and ticks <= 400) [set solar-luminosity solar-luminosity + 0.005]
-     if (ticks > 600 and ticks <= 850) [set solar-luminosity solar-luminosity - 0.0025]
+   if scenario = "ramp-up-ramp-down" [
+     if ticks > 200 and ticks <= 400 [
+       set solar-luminosity precision (solar-luminosity + 0.005) 4
+     ]
+     if ticks > 600 and ticks <= 850 [
+       set solar-luminosity precision (solar-luminosity - 0.0025) 4
+     ]
    ]
-   if (scenario = "low solar luminosity")  [set solar-luminosity 0.6 ]
-   if (scenario = "our solar luminosity")  [set solar-luminosity 1.0 ]
-   if (scenario = "high solar luminosity") [set solar-luminosity 1.4 ]
+   if scenario = "low solar luminosity"  [ set solar-luminosity 0.6 ]
+   if scenario = "our solar luminosity"  [ set solar-luminosity 1.0 ]
+   if scenario = "high solar luminosity" [ set solar-luminosity 1.4 ]
 end
 
 to set-as-black ;; turtle procedure
