@@ -121,10 +121,10 @@ ticks
 30.0
 
 BUTTON
-134
-26
-255
-59
+145
+25
+265
+58
 run-experiment
 go-experiment
 T
@@ -138,10 +138,10 @@ NIL
 1
 
 SLIDER
-10
-63
-248
-96
+15
+65
+265
+98
 carrying-capacity
 carrying-capacity
 1
@@ -153,10 +153,10 @@ turtles
 HORIZONTAL
 
 BUTTON
-6
-26
-66
-59
+15
+25
+75
+58
 setup
 setup
 NIL
@@ -170,10 +170,10 @@ NIL
 1
 
 BUTTON
-70
-26
-130
-59
+80
+25
+140
+58
 go
 go
 T
@@ -187,9 +187,9 @@ NIL
 1
 
 SLIDER
-13
+15
 135
-251
+265
 168
 red-fertility
 red-fertility
@@ -202,10 +202,10 @@ children
 HORIZONTAL
 
 SLIDER
-12
-99
-250
-132
+15
+100
+265
+133
 blue-fertility
 blue-fertility
 0.0
@@ -295,6 +295,7 @@ Does the population with a lower birth rate always end up extinct?
 ## THINGS TO TRY
 
 Try running an experiment with the same settings many times.
+
 Does one population always go extinct? How does the number of generations until extinction vary?
 
 ## EXTENDING THE MODEL
@@ -634,5 +635,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
