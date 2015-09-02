@@ -15,14 +15,13 @@ class BadInterfacesTests extends TestModels {
     "INPUTBOX" -> (8, 10),
     "PLOT" -> (14, 999999)) // any number of pens
 
-  testLibraryModels("Widget sections should have proper lengths") {
+  testLibraryModels("Widget sections should have proper lengths") { model =>
     for {
-      model <- _
       widget <- model.interface.split("\n\n")
       kind = widget.split("\n").head
       (min, max) <- allowedLengths.get(kind)
       len = widget.split("\n").size
       if len < min || len > max
-    } yield s"$kind (min: $min, max: $max) has length $len in ${model.quotedPath}"
+    } yield s"$kind (min: $min, max: $max) has length $len"
   }
 }

@@ -4,23 +4,18 @@ import scala.util.Try
 
 class BehaviorSpaceTests extends TestModels {
 
-  testLibraryModels("BehaviorSpace experiments XML should be well formed") { models =>
-    for {
-      model <- models
-      if model.behaviorSpace.nonEmpty
-      error <- Try(model.behaviorSpaceXML).failed.toOption
-      if !error.isInstanceOf[UnsupportedOperationException]
-    } yield model.quotedPath + "\n  " + error
+  testLibraryModels("BehaviorSpace experiments XML should be well formed") {
+    Option(_)
+      .filter(_.behaviorSpace.nonEmpty)
+      .flatMap(m => Try(m.behaviorSpaceXML).failed.toOption)
+      .filterNot(_.isInstanceOf[UnsupportedOperationException])
   }
 
-  testLibraryModels("BehaviorSpace experiment names should not start with \"experiment\"") { models =>
-    for {
-      model <- models
-      if model.behaviorSpace.nonEmpty
-      xml = model.behaviorSpaceXML
-      experimentNames = (xml \ "experiment" \ "@name").map(_.text)
-      badExperimentNames = experimentNames.filter(_.startsWith("experiment"))
-      if badExperimentNames.nonEmpty
-    } yield model.quotedPath + ":\n" + badExperimentNames.map("  " + _).mkString("\n")
+  testLibraryModels("BehaviorSpace experiment names should not start with \"experiment\"") {
+    Seq(_).filter(_.behaviorSpace.nonEmpty).flatMap { m =>
+      (m.behaviorSpaceXML \ "experiment" \ "@name")
+        .map(_.text)
+        .filter(_.startsWith("experiment"))
+    }
   }
 }

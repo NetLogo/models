@@ -28,9 +28,6 @@ class VersionTests extends TestModels {
 
   val acceptedVersions = Set("NetLogo 5.2.0", "NetLogo 3D 5.2.0")
   testAllModels("Version should be one of " + acceptedVersions.mkString(", ")) {
-    for {
-      model <- _
-      if !acceptedVersions.contains(model.version.trim)
-    } yield model.quotedPath + "\n  " + model.version
+    Option(_).map(_.version.trim).filterNot(acceptedVersions.contains)
   }
 }

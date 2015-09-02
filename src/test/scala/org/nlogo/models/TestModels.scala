@@ -4,32 +4,28 @@ import org.scalatest.FunSuite
 
 trait TestModels extends FunSuite {
 
-  def testLibraryModels(testName: String)(testFun: Iterable[Model] => Iterable[String]): Unit =
+  def testLibraryModels(testName: String)(testFun: Model => Iterable[Any]): Unit =
     testModels(Model.libraryModels, testName, testFun)
 
-  def testAllModels(testName: String)(testFun: Iterable[Model] => Iterable[String]): Unit =
+  def testAllModels(testName: String)(testFun: Model => Iterable[Any]): Unit =
     testModels(Model.allModels, testName, testFun)
 
-  def testModels(models: Iterable[Model], testName: String, testFun: Iterable[Model] => Iterable[String]): Unit =
+  def testModels(models: Iterable[Model], testName: String, testFun: Model => Iterable[Any]): Unit =
     test(testName) {
-      val failures = testFun(models)
-      if (failures.nonEmpty) fail(failures.mkString("", "\n", "\n  -- "))
+      val allFailures = for {
+        model <- models
+        failures = testFun(model)
+        if failures.nonEmpty
+      } yield model.quotedPath + failures.mkString("\n  ", "\n  ", "\n")
+      if (allFailures.nonEmpty) fail(allFailures.mkString("\n"))
     }
 
   def testLines(section: Model => String, p: String => Boolean,
-    msg: String => String = _ => "")(models: Iterable[Model]): Iterable[String] = {
-
-    def linesWhere(str: String, p: String => Boolean, msg: String => String): Iterator[String] =
-      for {
-        (line, lineNumber) <- str.lines.zipWithIndex
-        if p(line)
-      } yield "  " + msg(line) + "line %4d |".format(lineNumber) + line
-
-    for {
-      model <- models
-      errors = linesWhere(section(model), p, msg)
-      if errors.nonEmpty
-    } yield model.quotedPath + "\n" + errors.mkString("\n")
+    msg: String => String = _ => "")(model: Model): Iterable[String] = {
+    (for {
+      (line, lineNumber) <- section(model).lines.zipWithIndex
+      if p(line)
+    } yield "  " + msg(line) + "line %4d |".format(lineNumber) + line).toIterable
   }
 
 }

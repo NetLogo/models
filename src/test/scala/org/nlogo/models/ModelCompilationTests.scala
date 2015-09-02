@@ -14,36 +14,30 @@ class ModelCompilationTests extends TestModels {
   def excluded(model: Model) =
     model.is3d || model.code.lines.exists(_.startsWith("extensions"))
 
-  testAllModels("Models should compile") { models =>
+  testAllModels("Models should compile") { model =>
     for {
-      model <- models
-      if !excluded(model)
-      error <- Try(withWorkspace(model)(_ => ())).failed.toOption
-    } yield s"${model.quotedPath}: " + error
+      m <- Option(model)
+      if !excluded(m)
+      error <- Try(withWorkspace(m)(_ => ())).failed.toOption
+    } yield error.toString
   }
 
-  testAllModels("Singular breed names should not be used as args/local names") { models =>
-    def findDuplicateNames(model: Model) = withWorkspace(model) { ws =>
-      val singularBreedNames =
-        ws.world.program.breedsSingular.keySet.asScala ++
-          ws.world.program.linkBreedsSingular.keySet.asScala
-      for {
-        (procedureName, p) <- ws.getProcedures.asScala.toSeq
-        localName <- (p.args.asScala ++ p.lets.asScala.map(_.varName))
-        if singularBreedNames contains localName
-      } yield (localName, procedureName)
-    }
-    for {
-      model <- models
-      if !excluded(model)
-      duplicateNames = findDuplicateNames(model)
-      if duplicateNames.nonEmpty
-    } yield s"${model.quotedPath}:\n" + duplicateNames.map {
-      case (n, p) => s"  $n in $p"
-    }.mkString("\n")
+  testAllModels("Singular breed names should not be used as args/local names") {
+    def findDuplicateNames(model: Model): Seq[String] =
+      withWorkspace(model) { ws =>
+        val singularBreedNames =
+          ws.world.program.breedsSingular.keySet.asScala ++
+            ws.world.program.linkBreedsSingular.keySet.asScala
+        for {
+          (procedureName, p) <- ws.getProcedures.asScala.toSeq
+          localName <- (p.args.asScala ++ p.lets.asScala.map(_.varName))
+          if singularBreedNames contains localName
+        } yield s"$localName in $procedureName"
+      }
+    Seq(_).filterNot(excluded).flatMap(findDuplicateNames)
   }
 
-  testAllModels("All breeds should have singular names") { models =>
+  testAllModels("All breeds should have singular names") {
     def breedsWithNoSingular(model: Model) = withWorkspace(model) { ws =>
       def find(
         breeds: java.util.Map[String, AnyRef],
@@ -52,58 +46,48 @@ class ModelCompilationTests extends TestModels {
       val p = ws.world.program
       find(p.breeds, p.breedsSingular) ++ find(p.linkBreeds, p.linkBreedsSingular)
     }
-    for {
-      model <- models
-      if !excluded(model)
-      breeds = breedsWithNoSingular(model)
-      if breeds.nonEmpty
-    } yield s"${model.quotedPath}:" + breeds.mkString("  \n", "  \n", "")
+    Seq(_).filterNot(excluded).flatMap(breedsWithNoSingular)
   }
 
-  testLibraryModels("Preview commands should compile (except for test models)") { models =>
+  testLibraryModels("Preview commands should compile (except for test models)") {
     def compilePreviewCommands(model: Model): Unit = withWorkspace(model) { ws =>
       if (!(ws.previewCommands contains "need-to-manually-make-preview-for-this-model")) {
         val source = s"to __custom-preview-commands\n${ws.previewCommands}\nend"
         ws.compiler.compileMoreCode(source, None, ws.world.program, ws.getProcedures, ws.getExtensionManager)
       }
     }
-    for {
-      model <- models
-      if !excluded(model)
-      error <- Try(compilePreviewCommands(model)).failed.toOption
-    } yield s"${model.quotedPath}: " + error
+    Seq(_).filterNot(excluded).flatMap { m =>
+      Try(compilePreviewCommands(m)).failed.toOption
+    }
   }
 
-  testAllModels("All BehaviorSpace experiments should compile") { models =>
+  testAllModels("All BehaviorSpace experiments should compile") {
     def compileExperiments(model: Model): Unit = withWorkspace(model) { ws =>
       val lab = HeadlessWorkspace.newLab
       lab.names.foreach(lab.newWorker(_).compile(ws))
     }
-    for {
-      model <- models
-      if !excluded(model)
-      error <- Try(compileExperiments(model)).failed.toOption
-    } yield s"${model.quotedPath}: " + error
+    Seq(_).filterNot(excluded).flatMap { m =>
+      Try(compileExperiments(m)).failed.toOption
+    }
   }
 
-  testLibraryModels("Procedures should not use `reset-ticks` more than once") { models =>
-    for {
-      model <- models
-      if !(model.is3d || model.code.contains("extensions"))
-      procedures = withWorkspace(model) { ws =>
-        // It would be better to use StructureParser output
-        // directly (instead of final compilation output)
-        // but it is not currently accessible in the 5.3
-        // branch (and it doesn't seem worth it to mess around
-        // with reflection just for this) -- NP 2015-09-01
-        for {
-          (procedureName, procedure) <- ws.getProcedures.asScala
-          commandNames = procedure.code.flatMap(cmd => Option(cmd.token).map(_.name))
-          if commandNames.count(_ == "reset-ticks") > 1
-        } yield procedureName
+  testLibraryModels("Procedures should not use `reset-ticks` more than once") {
+    Seq(_)
+      .filterNot { m => m.is3d || m.code.contains("extensions") }
+      .flatMap {
+        withWorkspace(_) { ws =>
+          // It would be better to use StructureParser output
+          // directly (instead of final compilation output)
+          // but it is not currently accessible in the 5.3
+          // branch (and it doesn't seem worth it to mess around
+          // with reflection just for this) -- NP 2015-09-01
+          for {
+            (procedureName, procedure) <- ws.getProcedures.asScala
+            commandNames = procedure.code.flatMap(cmd => Option(cmd.token).map(_.name))
+            if commandNames.count(_ == "reset-ticks") > 1
+          } yield procedureName
+        }
       }
-      if procedures.nonEmpty
-    } yield model.quotedPath + "\n  " + procedures.mkString("\n")
   }
 
 }

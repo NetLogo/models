@@ -3,10 +3,9 @@ package org.nlogo.models
 class ViewTests extends TestModels {
 
   testLibraryModels("Models should have integer patch sizes") {
-    for {
-      model <- _
-      if model.patchSize.toInt != model.patchSize
-    } yield s"${model.patchSize} in ${model.quotedPath}"
+    Option(_)
+      .filterNot(m => m.patchSize.toInt == m.patchSize)
+      .map(_.patchSize.toString)
   }
 
   testLibraryModels("Saved view size must match size computed from the saved patch size and screen-edge-x/y") {
@@ -18,11 +17,7 @@ class ViewTests extends TestModels {
     // happy seems to simply make sure that the view is at least 245 pixels wide.
     // Non-integer patch sizes can also cause problems, but those should be caught
     // by the previous test. -- NP 2015-05-25.
-    for {
-      model <- _
-      if !model.is3d
-      msg <- checkModel(model)
-    } yield msg
+    Option(_).filterNot(_.is3d).flatMap(checkModel)
   }
 
   def checkModel(model: Model): Option[String] = {

@@ -30,19 +30,15 @@ class SpellCheckTests extends TestModels {
     "list")
   val escapes = Set("\\n", "\\t")
 
-  testLibraryModels("Models must not contain typos") {
-    for {
-      model <- _
-      content = escapes.foldLeft(model.content)(_.replace(_, " "))
-      inputStream = new ByteArrayInputStream(content.getBytes("UTF-8"))
-      typos = (aspell #< inputStream).lineStream
-      if typos.nonEmpty
-      lines = model.content.lines.zipWithIndex.toStream
-      typosDesc = typos
-        .distinct
-        .map(typo => typo -> lines.filter(_._1 contains typo).map(_._2 + 1))
-        .sortBy(_._2.head) // sort line number of first occurence
-        .map { case (t, ns) => s"  $t (${ns.mkString(", ")})" }
-    } yield model.quotedPath + "\n" + typosDesc.mkString("\n")
+  testLibraryModels("Models must not contain typos") { model =>
+    val content = escapes.foldLeft(model.content)(_.replace(_, " "))
+    val inputStream = new ByteArrayInputStream(content.getBytes("UTF-8"))
+    val lines = model.content.lines.zipWithIndex.toStream
+    (aspell #< inputStream)
+      .lineStream
+      .distinct
+      .map(typo => typo -> lines.filter(_._1 contains typo).map(_._2 + 1))
+      .sortBy(_._2.head) // sort line number of first occurence
+      .map { case (t, ns) => s"  $t (${ns.mkString(", ")})" }
   }
 }

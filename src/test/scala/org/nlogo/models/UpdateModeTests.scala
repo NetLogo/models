@@ -25,12 +25,12 @@ class UpdateModeTests extends TestModels {
     "./Sample Models/Mathematics/Probability/ProbLab/Unverified/Random Combinations and Permutations.nlogo",
     "./Sample Models/Mathematics/Voronoi.nlogo"
   )
-  testLibraryModels("Models should use tick-based updates unless otherwise specified") {
+  testLibraryModels("Models should use tick-based updates unless otherwise specified") { model =>
     for {
-      model <- _
-      excluded = continuousUpdateModels(model.file.getPath)
+      m <- Option(model)
+      excluded = continuousUpdateModels(m.file.getPath)
       targetMode = if (excluded) Model.Continuous else Model.OnTicks
       if model.updateMode != targetMode
-    } yield s"update mode should be $targetMode in ${model.quotedPath}"
+    } yield s"update mode should be $targetMode"
   }
 }
