@@ -57,7 +57,6 @@ particles-own
 
 to setup
   clear-all
-  reset-ticks
   set maxparticles 400
   set run-go? true
   set temp-increment 7.5

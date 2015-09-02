@@ -1,5 +1,7 @@
 package org.nlogo.models
 
+import scala.collection.JavaConverters.mapAsScalaMapConverter
+
 import org.nlogo.api.TokenType
 import org.nlogo.api.TokenType.COMMAND
 import org.nlogo.api.TokenType.IDENT
@@ -189,6 +191,26 @@ class CodeTests extends TestModels {
       } yield token.name).toSet
       if nonLowerCaseTokens.nonEmpty
     } yield model.quotedPath + "\n  " + nonLowerCaseTokens.mkString("\"", "\", \"", "\"")
+  }
+
+  testLibraryModels("Procedures should not use `reset-ticks` more than once") { models =>
+    for {
+      model <- models
+      if !(model.is3d || model.code.contains("extensions"))
+      procedures = withWorkspace(model) { ws =>
+        // It would be better to use StructureParser output
+        // directly (instead of final compilation output)
+        // but it is not currently accessible in the 5.3
+        // branch (and it doesn't seem worth it to mess around
+        // with reflection just for this) -- NP 2015-09-01
+        for {
+          (procedureName, procedure) <- ws.getProcedures.asScala
+          commandNames = procedure.code.flatMap(cmd => Option(cmd.token).map(_.name))
+          if commandNames.count(_ == "reset-ticks") > 1
+        } yield procedureName
+      }
+      if procedures.nonEmpty
+    } yield model.quotedPath + "\n  " + procedures.mkString("\n")
   }
 
   /* Currently commented out because it generates far too much noise
