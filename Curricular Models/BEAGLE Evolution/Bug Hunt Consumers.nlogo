@@ -52,10 +52,8 @@ to setup
   set dirt-color (white)
   set-default-shape bugs "bug"
   set-default-shape embers "fire"
-  reset-ticks
   add-starting-grass
   add-bugs
-
   reset-ticks
 end
 
