@@ -22,7 +22,7 @@ to setup
   ]
 
   ; To create the lipids, NUM-LIPIDS oil molecules are created. Each oil molecule then picks
-  ; one water molecule that hasn’t been linked to an oil yet. That water molecule is stored
+  ; one water molecule that hasn't been linked to an oil yet. That water molecule is stored
   ; in a variable so that the oil molecule can perform a sequence of actions on it. The oil
   ; molecule first creates a link with its partner and then moves to position LIPID-LENGTH ;
   ; away from the water molecule.
