@@ -992,7 +992,7 @@ setup
 setup-aggregate
 repeat 75 [ go step-aggregate ]
 @#$#@#$#@
-0.1
+0.0010
     org.nlogo.sdm.gui.AggregateDrawing 25
         org.nlogo.sdm.gui.StockFigure "attributes" "attributes" 1 "FillColor" "Color" 225 225 175 270 100 60 40
             org.nlogo.sdm.gui.WrappedStock "sheepStock" "initial-number-sheep ;; taken from agent model's slider" 1
