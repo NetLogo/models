@@ -1,5 +1,17 @@
-globals [ sample-car speed-to-beat acceleration best-acceleration-so-far ]
-turtles-own [ speed speed-limit speed-min trip-time-start trip-time ]
+globals [
+  sample-car
+  speed-to-beat
+  acceleration
+  best-acceleration-so-far
+]
+
+turtles-own [
+  speed
+  speed-limit
+  speed-min
+  trip-time-start
+  trip-time
+]
 
 to setup
   clear-all
@@ -11,14 +23,16 @@ to setup
 end
 
 to setup-road ;; patch procedure
-  if (pycor < 2) and (pycor > -2) [ set pcolor white ]
+  if pycor < 2 and pycor > -2 [ set pcolor white ]
 end
 
 to setup-cars
   if number-of-cars > world-width [
     user-message (word
-      "There are too many cars for the amount of road. Please decrease the NUMBER-OF-CARS slider to below "
-      (world-width + 1) " and press the SETUP button again. The setup has stopped.")
+      "There are too many cars for the amount of road. "
+      "Please decrease the NUMBER-OF-CARS slider to below "
+      (world-width + 1) " and press the SETUP button again. "
+      "The setup has stopped.")
     stop
   ]
   set-default-shape turtles "car"
@@ -71,11 +85,12 @@ to speed-up-car ;; turtle procedure
 end
 
 to adaptive-go
-  ;; Only test to see if the new acceleration is better every ticks-between-tests ticks
-  ;; to allow the speed to stabilize between changes to acceleration.
+  ;; Only test to see if the new acceleration is better
+  ;; every ticks-between-tests ticks to allow the speed
+  ;; to stabilize between changes to acceleration.
   if ticks > 0 and ticks mod ticks-between-tests = 0 [
-    ;; check to see if our new speed of turtles is better than the speed to beat if so
-    ;;   then adopt the new acceleration
+    ;; check to see if our new speed of turtles is better than
+    ;; the speed to beat if so then adopt the new acceleration
     ifelse mean [ speed ] of turtles > speed-to-beat [
       set best-acceleration-so-far acceleration
       set speed-to-beat mean [ speed ] of turtles
