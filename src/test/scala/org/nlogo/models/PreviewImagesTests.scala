@@ -8,25 +8,49 @@ class PreviewImagesTests extends TestModels {
 
   def needsPreviewFile(m: Model) = m.is3d || m.needsManualPreview
 
+  // Some models are automatically excluded from `all-previews`
+  // (http://git.io/vGb9l), but for them to be checked by other
+  // tests (and also to be consistent) we need them to be
+  // explicitely tagged with "need-to-manually-make-preview-for-this-model"
+  val modelsThatShouldNeedManualPreviews = Model.libraryModels.filter { m =>
+    val path = m.file.getPath.toUpperCase
+    Set("HUBNET", "/GOGO/", "/CODE EXAMPLES/SOUND/").exists(path.contains)
+  }
+  testModels(modelsThatShouldNeedManualPreviews,
+    "Some library models should be tagged as needing manual previews", {
+      Option(_).filterNot(needsPreviewFile)
+        .map(_ => "should be tagged as needing manual preview")
+    })
+
   testLibraryModels("Models should have committed preview iif they're 3d or require manual preview") { model =>
     for {
       m <- Option(model)
       if m.previewFile.isFile != needsPreviewFile(m)
     } yield {
       "\"" + m.previewFile.getPath + "\"" +
-        " should " + (if (needsPreviewFile(m)) "" else "not") +
-        " be committed"
+        " should" + (if (needsPreviewFile(m)) " " else " not ") +
+        "be committed"
     }
   }
 
-  testLibraryModels("Non-manual preview images should be in `.gitignore`") { model =>
-    val ignored = readFileToString(new File(".gitignore"), "UTF-8").lines.toSet
+  val ignoredLines = readFileToString(new File(".gitignore"), "UTF-8").lines.toSeq
+  val ignored = ignoredLines.toSet
+  testLibraryModels("Images should be in `.gitignore` iif they don't need manual previews") { model =>
     for {
       m <- Option(model)
-      if !needsPreviewFile(m)
+      needsPreview = needsPreviewFile(m)
       imagePath = m.previewFile.getPath.drop(1)
-      if !ignored.contains(imagePath)
-    } yield imagePath + " should be added to .gitignore"
+      if ignored.contains(imagePath) == needsPreview
+    } yield imagePath +
+      " should " + (if (needsPreview) "not" else "") +
+      " be added to .gitignore"
+  }
+
+  test(".gitignore should not have duplicates") {
+    val duplicates =
+      ignoredLines.groupBy(identity)
+        .collect { case (x, ys) if ys.size > 1 => x }
+    if (duplicates.nonEmpty) fail(duplicates.mkString("\n"))
   }
 
 }

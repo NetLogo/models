@@ -731,6 +731,7 @@ Line -7500403 true 84 40 221 269
 @#$#@#$#@
 NetLogo 5.2.0
 @#$#@#$#@
+need-to-manually-make-preview-for-this-model
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

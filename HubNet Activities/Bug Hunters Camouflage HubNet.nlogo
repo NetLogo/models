@@ -1412,6 +1412,7 @@ Polygon -16777216 false false 30 75 105 150 30 225 75 270 150 195 225 270 270 22
 @#$#@#$#@
 NetLogo 5.2.0
 @#$#@#$#@
+need-to-manually-make-preview-for-this-model
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

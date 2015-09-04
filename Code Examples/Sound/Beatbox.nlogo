@@ -672,7 +672,9 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
 NetLogo 5.2.0
 @#$#@#$#@
-import-world "Beats/seth3.csv"
+need-to-manually-make-preview-for-this-model
+; use: import-world "Beats/seth3.csv"
+; ...to create manual preview.
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

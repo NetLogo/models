@@ -1028,6 +1028,7 @@ Polygon -10899396 true false 180 255 150 210 105 210 75 240 135 240
 @#$#@#$#@
 NetLogo 5.2.0
 @#$#@#$#@
+need-to-manually-make-preview-for-this-model
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

@@ -1039,6 +1039,7 @@ Line -16777216 false 281 155 281 192
 @#$#@#$#@
 NetLogo 5.2.0
 @#$#@#$#@
+need-to-manually-make-preview-for-this-model
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
