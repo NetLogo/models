@@ -56,7 +56,7 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
   val get = (_: WSRequestHolder).get()
 
   for {
-    (link, models) <- links.par
+    (link, models) <- links
     if link.startsWith("http")
     clue = "Used in: " + models.map(_.quotedPath).mkString("  \n  ", "  \n  ", "\n")
   } {
