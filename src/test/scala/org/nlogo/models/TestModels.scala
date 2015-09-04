@@ -13,7 +13,7 @@ trait TestModels extends FunSuite {
   def testModels(models: Iterable[Model], testName: String, testFun: Model => Iterable[Any]): Unit =
     test(testName) {
       val allFailures = for {
-        model <- models
+        model <- models.par
         failures = testFun(model)
         if failures.nonEmpty
       } yield model.quotedPath + failures.mkString("\n  ", "\n  ", "\n")
