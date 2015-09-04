@@ -425,7 +425,7 @@ This model is related to the other BEAGLE models since they all examine evolutio
 
 ## CREDITS AND REFERENCES
 
-This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/rp/beagle/index.shtml)
 
 This model is related to a model that was used as the basis for a poster published at the Genetic and Evolutionary Computation Conference.  This model uses a more individual-based reproductive mechanism, whereas the model in the paper used a global one:
 

@@ -754,7 +754,7 @@ Look at Bug Hunt Consumers for a simpler version of this model that includes no 
 
 ## CREDITS AND REFERENCES
 
-This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/rp/beagle/index.shtml)
 
 ## HOW TO CITE
 

@@ -699,7 +699,7 @@ The model makes heavy use of the MOUSE-* and USER-* primitives to allow the user
 
 ## CREDITS AND REFERENCES
 
-This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/rp/beagle/index.shtml)
 
 Other references to Gregor Mendel's 1865 paper "Versuche ueber Pflanzen-Hybriden" and a revised version of the English translation by C.T. Druery and William Bateson, "Experiments in Plant Hybridization", can be found at http://www.mendelweb.org/Mendel.html
 

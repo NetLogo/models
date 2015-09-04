@@ -468,7 +468,7 @@ GenDrift models in the Genetic Drift folder, under Biology
 
 ## CREDITS AND REFERENCES
 
-This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/rp/beagle/index.shtml)
 
 ## HOW TO CITE
 

@@ -1043,7 +1043,7 @@ The command hubnet-send-override is used to change the appearance of agents in t
 
 ## CREDITS AND REFERENCES
 
-This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/rp/beagle/index.shtml)
 
 ## HOW TO CITE
 

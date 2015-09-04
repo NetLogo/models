@@ -753,7 +753,7 @@ All the models from the BEAGLE curriculum.
 
 ## CREDITS AND REFERENCES
 
-This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/rp/beagle/index.shtml)
 
 Antonovics, J. (2006). "Evolution in closely adjacent plant populations X: long-term persistence of reproductive isolation at a mine boundary". Heredity, 97(1), p33-37.
 

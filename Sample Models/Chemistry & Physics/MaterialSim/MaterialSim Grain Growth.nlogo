@@ -721,7 +721,7 @@ Usually this kind of study is made by careful analysis and comparison of picture
 
 Anderson, Srolovitz et al. proposed the most widely known and employed theory for computer modeling and simulation of grain growth, using the Monte Carlo method. Instead of considering the grains as spheres, and being obliged to make numerous geometrical approximations, Anderson proposed that the computer would simulate the behavior of each individual atom in the system. Each atom would follow a very simple rule: it will always try to have, in its immediate neighborhood, as many atoms as possible with the same orientation as it. It will do so by randomly (hence Monte Carlo) re-orienting itself and seeing if it is more stable than it was before. If it is, it will stay in its new orientation, and if not, it will revert back to its previous orientation.
 
-This model is part of the MaterialSim (Blikstein & Wilensky, 2004) curricular package. To learn more about MaterialSim, see http://ccl.northwestern.edu/materialsim/.
+This model is part of the MaterialSim (Blikstein & Wilensky, 2004) curricular package. To learn more about MaterialSim, see http://ccl.northwestern.edu/rp/materialsim/index.shtml.
 
 ## HOW IT WORKS
 
@@ -824,7 +824,7 @@ Crystallization Moving
 
 ## CREDITS AND REFERENCES
 
-This model is part of the MaterialSim (Blikstein & Wilensky, 2004) curricular package. To learn more about MaterialSim, see http://ccl.northwestern.edu/materialsim/.
+This model is part of the MaterialSim (Blikstein & Wilensky, 2004) curricular package. To learn more about MaterialSim, see http://ccl.northwestern.edu/rp/materialsim/index.shtml.
 
 Two papers describing the use of this model in education are:
 Blikstein, P. & Wilensky, U. (2005) Less is More: Agent-Based Simulation as a Powerful Learning Tool in Materials Science.  The IV International Conference on Autonomous Agents and Multiagent Systems. Utrecht, Netherlands.

@@ -765,7 +765,7 @@ Look the Wolf Sheep Predation model, Bug Hunt Consumers model, Bug Hunt Predatio
 
 ## CREDITS AND REFERENCES
 
-This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/simevolution/beagle.shtml)
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/rp/beagle/index.shtml)
 
 ## HOW TO CITE
 
