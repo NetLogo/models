@@ -3,6 +3,8 @@ package org.nlogo.models
 import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.collection.JavaConverters.asScalaSetConverter
 import scala.collection.JavaConverters.mapAsScalaMapConverter
+import scala.util.Failure
+import scala.util.Success
 import scala.util.Try
 
 import org.nlogo.headless.HeadlessWorkspace
@@ -14,80 +16,74 @@ class ModelCompilationTests extends TestModels {
   def excluded(model: Model) =
     model.is3d || model.code.lines.exists(_.startsWith("extensions"))
 
-  testAllModels("Models should compile") { model =>
+  def compilationTests(model: Model)(ws: HeadlessWorkspace): Iterable[String] =
+    breedNamesUsedAsArgsOrVars(ws) ++
+      breedsWithNoSingularName(ws) ++
+      uncompilableExperiments(ws) ++
+      (if (model.isTestModel) Nil else {
+        uncompilablePreviewCommands(ws) ++
+          proceduresUsingResetTicksMoreThanOnce(ws)
+      })
+
+  testAllModels("Compilation output should satisfy various properties") { model =>
+    if (excluded(model)) Seq.empty else {
+      Try(withWorkspace(model)(compilationTests(model))) match {
+        case Failure(error) => Seq(error.toString)
+        case Success(errors) => errors
+      }
+    }
+  }
+
+  def breedNamesUsedAsArgsOrVars(ws: HeadlessWorkspace): Iterable[String] = {
+    val singularBreedNames =
+      ws.world.program.breedsSingular.keySet.asScala ++
+        ws.world.program.linkBreedsSingular.keySet.asScala
     for {
-      m <- Option(model)
-      if !excluded(m)
-      error <- Try(withWorkspace(m)(_ => ())).failed.toOption
-    } yield error.toString
+      (procedureName, p) <- ws.getProcedures.asScala.toSeq
+      localName <- (p.args.asScala ++ p.lets.asScala.map(_.varName))
+      if singularBreedNames contains localName
+    } yield s"Singular breed name $localName if used as variable or argument name in $procedureName"
   }
 
-  testAllModels("Singular breed names should not be used as args/local names") {
-    def findDuplicateNames(model: Model): Seq[String] =
-      withWorkspace(model) { ws =>
-        val singularBreedNames =
-          ws.world.program.breedsSingular.keySet.asScala ++
-            ws.world.program.linkBreedsSingular.keySet.asScala
-        for {
-          (procedureName, p) <- ws.getProcedures.asScala.toSeq
-          localName <- (p.args.asScala ++ p.lets.asScala.map(_.varName))
-          if singularBreedNames contains localName
-        } yield s"$localName in $procedureName"
-      }
-    Seq(_).filterNot(excluded).flatMap(findDuplicateNames)
+  def breedsWithNoSingularName(ws: HeadlessWorkspace): Iterable[String] = {
+    def find(
+      breeds: java.util.Map[String, AnyRef],
+      breedsSingular: java.util.Map[String, String]) =
+      breeds.asScala.keys.filterNot(breedsSingular.asScala.values.toSet.contains)
+    val p = ws.world.program
+    find(p.breeds, p.breedsSingular) ++ find(p.linkBreeds, p.linkBreedsSingular)
   }
 
-  testAllModels("All breeds should have singular names") {
-    def breedsWithNoSingular(model: Model) = withWorkspace(model) { ws =>
-      def find(
-        breeds: java.util.Map[String, AnyRef],
-        breedsSingular: java.util.Map[String, String]) =
-        breeds.asScala.keys.filterNot(breedsSingular.asScala.values.toSet.contains)
-      val p = ws.world.program
-      find(p.breeds, p.breedsSingular) ++ find(p.linkBreeds, p.linkBreedsSingular)
-    }
-    Seq(_).filterNot(excluded).flatMap(breedsWithNoSingular)
+  def uncompilablePreviewCommands(ws: HeadlessWorkspace): Iterable[String] = {
+    def compile(source: String) =
+      ws.compiler.compileMoreCode(source, None, ws.world.program,
+        ws.getProcedures, ws.getExtensionManager)
+    for {
+      commands <- Seq(ws.previewCommands)
+      source = s"to __custom-preview-commands\n${commands}\nend"
+      if !source.contains("need-to-manually-make-preview-for-this-model")
+      error <- Try(compile(source)).failed.toOption
+    } yield s"Preview commands do not compile:\n$error\n$source"
   }
 
-  testLibraryModels("Preview commands should compile (except for test models)") {
-    def compilePreviewCommands(model: Model): Unit = withWorkspace(model) { ws =>
-      if (!(ws.previewCommands contains "need-to-manually-make-preview-for-this-model")) {
-        val source = s"to __custom-preview-commands\n${ws.previewCommands}\nend"
-        ws.compiler.compileMoreCode(source, None, ws.world.program, ws.getProcedures, ws.getExtensionManager)
-      }
-    }
-    Seq(_).filterNot(excluded).flatMap { m =>
-      Try(compilePreviewCommands(m)).failed.toOption
-    }
+  def uncompilableExperiments(ws: HeadlessWorkspace): Iterable[String] = {
+    val lab = HeadlessWorkspace.newLab
+    for {
+      experiment <- lab.names
+      error <- Try(lab.newWorker(experiment).compile(ws)).failed.toOption
+    } yield s"BehaviorSpace experiment '$experiment' does not compile: $error"
   }
 
-  testAllModels("All BehaviorSpace experiments should compile") {
-    def compileExperiments(model: Model): Unit = withWorkspace(model) { ws =>
-      val lab = HeadlessWorkspace.newLab
-      lab.names.foreach(lab.newWorker(_).compile(ws))
-    }
-    Seq(_).filterNot(excluded).flatMap { m =>
-      Try(compileExperiments(m)).failed.toOption
-    }
+  def proceduresUsingResetTicksMoreThanOnce(ws: HeadlessWorkspace): Iterable[String] = {
+    // It would be better to use StructureParser output
+    // directly (instead of final compilation output)
+    // but it is not currently accessible in the 5.3
+    // branch (and it doesn't seem worth it to mess around
+    // with reflection just for this) -- NP 2015-09-01
+    for {
+      (procedureName, procedure) <- ws.getProcedures.asScala
+      commandNames = procedure.code.flatMap(cmd => Option(cmd.token).map(_.name))
+      if commandNames.count(_ == "reset-ticks") > 1
+    } yield s"Procedure $procedureName uses `reset-ticks` more than once"
   }
-
-  testLibraryModels("Procedures should not use `reset-ticks` more than once") {
-    Seq(_)
-      .filterNot { m => m.is3d || m.code.contains("extensions") }
-      .flatMap {
-        withWorkspace(_) { ws =>
-          // It would be better to use StructureParser output
-          // directly (instead of final compilation output)
-          // but it is not currently accessible in the 5.3
-          // branch (and it doesn't seem worth it to mess around
-          // with reflection just for this) -- NP 2015-09-01
-          for {
-            (procedureName, procedure) <- ws.getProcedures.asScala
-            commandNames = procedure.code.flatMap(cmd => Option(cmd.token).map(_.name))
-            if commandNames.count(_ == "reset-ticks") > 1
-          } yield procedureName
-        }
-      }
-  }
-
 }

@@ -16,7 +16,8 @@ trait TestModels extends FunSuite {
         model <- models
         failures = testFun(model)
         if failures.nonEmpty
-      } yield model.quotedPath + failures.mkString("\n  ", "\n  ", "\n")
+      } yield model.quotedPath + "\n" +
+        failures.mkString("\n").lines.map("  " + _).mkString("\n")
       if (allFailures.nonEmpty) fail(allFailures.mkString("\n"))
     }
 
