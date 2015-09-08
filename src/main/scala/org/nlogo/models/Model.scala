@@ -32,10 +32,7 @@ object Model {
     m <- Try(apply(f)).toOption
   } yield m
 
-  val libraryModels: Iterable[Model] = {
-    val testPath = new File("test/").getCanonicalPath
-    allModels.filterNot(_.file.getCanonicalPath.startsWith(testPath))
-  }
+  val libraryModels: Iterable[Model] = allModels.filterNot(_.isTestModel)
 
   def apply(file: File): Model = {
     val content = readFileToString(file, "UTF-8")
@@ -75,6 +72,7 @@ case class Model(
   def save() = FileUtils.write(file, content, "UTF-8")
   def needsManualPreview = previewCommands.toLowerCase.contains(manualPreview)
   def is3d = getExtension(file.getName) == "nlogo3d"
+  def isTestModel = file.getCanonicalPath.startsWith(new File("test/").getCanonicalPath)
   def updateMode: UpdateMode =
     if (interface.lines
       .dropWhile(_ != "GRAPHICS-WINDOW")
