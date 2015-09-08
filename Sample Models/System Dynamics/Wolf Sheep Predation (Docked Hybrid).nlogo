@@ -658,7 +658,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Wilensky, U. (2005).  NetLogo Wolf Sheep Predation (docked) model.  http://ccl.northwestern.edu/netlogo/models/WolfSheepPredation(docked).  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. (2005).  NetLogo Wolf Sheep Predation (Docked Hybrid) model.  http://ccl.northwestern.edu/netlogo/models/WolfSheepPredation(DockedHybrid).  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 

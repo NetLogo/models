@@ -151,8 +151,8 @@ This model uses the System Dynamics Modeler to simulate the Lotka-Volterra equat
 
 ## RELATED MODELS
 
-Wolf-Sheep Predation
-Wolf-Sheep Predation (docked)
+Wolf Sheep Predation
+Wolf Sheep Predation (Docked Hybrid)
 
 ## CREDITS AND REFERENCES
 
