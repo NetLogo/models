@@ -68,6 +68,7 @@ class CodeTests extends TestModels {
     "__turtlecode" -> Seq.empty,
     "__updatemonitor" -> Seq.empty,
     "__zip-log-files" -> Seq.empty,
+    "ask-concurrent" -> Seq("Ask-Concurrent Example", "Bug Hunt Camouflage"),
     "bf" -> Seq.empty,
     "bl" -> Seq.empty,
     "ca" -> Seq.empty,
