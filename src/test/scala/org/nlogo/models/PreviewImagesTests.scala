@@ -3,6 +3,7 @@ package org.nlogo.models
 import java.io.File
 
 import org.apache.commons.io.FileUtils.readFileToString
+import org.apache.commons.io.FilenameUtils.removeExtension
 
 class PreviewImagesTests extends TestModels {
 
@@ -51,6 +52,14 @@ class PreviewImagesTests extends TestModels {
       ignoredLines.groupBy(identity)
         .collect { case (x, ys) if ys.size > 1 => x }
     if (duplicates.nonEmpty) fail(duplicates.mkString("\n"))
+  }
+
+  test(".gitignore should not contain preview entries for non-existing models") {
+    val modelNames = Model.libraryModels.map(_.name).toSet
+    val unneededEntries =
+      ignoredLines.filter(_.endsWith(".png"))
+        .filterNot(path => modelNames.contains(removeExtension(new File(path).getName)))
+    if (unneededEntries.nonEmpty) fail(unneededEntries.mkString("\n"))
   }
 
 }
