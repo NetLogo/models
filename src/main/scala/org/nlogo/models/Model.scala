@@ -16,6 +16,7 @@ import org.nlogo.lex.Tokenizer2D
 import org.nlogo.lex.Tokenizer3D
 import org.nlogo.api.TokenType.COMMAND
 import org.nlogo.api.TokenType.REPORTER
+import org.nlogo.api.TokenType.VARIABLE
 
 object Model {
   sealed abstract trait UpdateMode
@@ -98,6 +99,6 @@ case class Model(
   def behaviorSpaceXML = XML.loadString(behaviorSpace)
   def tokens = (if (is3d) Tokenizer3D else Tokenizer2D).tokenize(code)
   def primitiveTokenNames = tokens
-    .filter(t => t.tyype == REPORTER || t.tyype == COMMAND)
+    .filter(t => t.tyype == REPORTER || t.tyype == COMMAND || t.tyype == VARIABLE)
     .map(_.name)
 }

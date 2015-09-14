@@ -91,7 +91,31 @@ class CodeTests extends TestModels {
     "se" -> Seq.empty,
     "st" -> Seq.empty,
     "towards-nowrap" -> Seq.empty,
-    "towardsxy-nowrap" -> Seq.empty
+    "towardsxy-nowrap" -> Seq.empty,
+    "who" -> Seq("Disease HubNet", "Restaurants HubNet", "Prisoners Dilemma HubNet",
+      "Disease Doctors HubNet", "Planarity", "Tetris", "PD N-Person Iterated",
+      "Minority Game", "Osmotic Pressure", "Scattering", "N-Bodies", "Rope",
+      "Speakers", "Raindrops", "GasLab Free Gas", "GasLab Moving Piston",
+      "GasLab Heat Box", "GasLab Second Law", "GasLab Pressure Box",
+      "GasLab Isothermal Piston", "GasLab Single Collision", "GasLab Two Gas",
+      "GasLab Gravity Box", "GasLab Atmosphere", "GasLab Gas in a Box",
+      "GasLab Maxwells Demon", "GasLab Adiabatic Piston", "Turing Machine 2D",
+      "PageRank", "Dining Philosophers", "Team Assembly", "Ants",
+      "Simple Birth Rates", "BeeSmart Hive Finding", "Sunflower Biomorphs",
+      "AIDS", "Tumor", "Flocking Vee Formations", "Ant Lines", "Kaleidoscope",
+      "Geometron Top-Down", "Optical Illusions", "Sound Machines", "Random Walk 360",
+      "ProbLab Genetics", "Expected Value Advanced", "GasLab Free Gas", "Rope",
+      "Three Loops Example", "Shapes Example", "Disease With Android Avoidance HubNet",
+      "Random Network", "Ask Ordering Example", "Label Position Example", "Beatbox",
+      "Composer", "GasLab With Sound", "Grouping Turtles Example", "Mouse Recording Example",
+      "Line of Sight Example", "GasLab Gas in a Box (Perspective Demo)",
+      "Ants (Perspective Demo)", "Intersecting Lines Example", "3D Shapes Example",
+      "Urban Suite - Economic Disparity", "Urban Suite - Tijuana Bordertowns",
+      "Connected Chemistry 5 Temperature and Pressure", "Connected Chemistry 6 Volume and Pressure",
+      "Connected Chemistry 1 Bike Tire", "Connected Chemistry 7 Ideal Gas Law",
+      "Connected Chemistry 3 Circular Particles", "Connected Chemistry 4 Number and Pressure",
+      "Connected Chemistry Atmosphere", "Connected Chemistry 2 Changing Pressure",
+      "Connected Chemistry 8 Gas Particle Sandbox", "DNA Protein Synthesis")
   )
 
   testLibraryModels("Forbidden primitives are not used") { model =>
