@@ -4,7 +4,10 @@ import java.io.ByteArrayInputStream
 import java.io.File
 
 import scala.sys.process.ProcessBuilder
+import scala.sys.process.ProcessLogger
 import scala.sys.process.stringSeqToProcess
+
+import org.scalatest.BeforeAndAfterAll
 
 /**
  * This test is not very sophisticated, but enough to catch the most egregious typos.
@@ -17,7 +20,11 @@ import scala.sys.process.stringSeqToProcess
  *
  * -- NP 2015-05-26
  */
-class SpellCheckTests extends TestModels {
+class SpellCheckTests extends TestModels with BeforeAndAfterAll {
+
+  override def beforeAll() =
+    if (Seq("which", "aspell").!(ProcessLogger(_ => ())) != 0)
+      throw new Exception("aspell not installed!")
 
   val dictPath = new File(getClass.getResource("/modelwords.txt").toURI).getPath
   val aspell: ProcessBuilder = Seq(
