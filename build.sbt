@@ -1,5 +1,7 @@
 scalaVersion := "2.11.6"
 
+scalacOptions ++= Seq("-feature")
+
 resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/"
 
 libraryDependencies ++= Seq(
