@@ -3,10 +3,11 @@ package org.nlogo.models
 import java.net.ConnectException
 import java.util.concurrent.TimeoutException
 
-import scala.Left
-import scala.Right
+import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.concurrent.duration.DurationInt
+import scala.util.Try
 
 import org.apache.commons.validator.routines.UrlValidator
 import org.apache.commons.validator.routines.UrlValidator.ALLOW_2_SLASHES
@@ -17,9 +18,6 @@ import org.pegdown.ToHtmlSerializer
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.FunSuite
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.exceptions.TestFailedException
-import org.scalatest.time.Seconds
-import org.scalatest.time.Span
 
 import com.ning.http.client.AsyncHttpClientConfig
 
@@ -48,6 +46,7 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
     .flatMap(m => linksInMarkdown(m.info.content).map(_ -> m)) // (link, model) pairs
     .groupBy(_._1) // group by links
     .mapValues(_.unzip._2) // keep only models in the map's values
+
   val builder = new AsyncHttpClientConfig.Builder()
   val client = new NingWSClient(builder.build())
   val urlValidator = new UrlValidator(ALLOW_2_SLASHES)
@@ -55,23 +54,17 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
   val head = (_: WSRequestHolder).head()
   val get = (_: WSRequestHolder).get()
 
-  for {
-    (link, models) <- links
-    if link.startsWith("http")
-    clue = "Used in: " + models.map(_.quotedPath).mkString("  \n  ", "  \n  ", "\n")
-  } {
-    test(link) {
-      assert(urlValidator.isValid(link), clue)
-      try whenReady(request(link, head), timeout(Span(90, Seconds))) {
-        case Right(optMsg) => optMsg.foreach(info(_))
-        case Left(msg) => fail(msg)
-      }
-      catch {
-        case e: TestFailedException =>
-          info(clue)
-          throw e
-      }
-    }
+  test("URLs used in info tabs should be valid") {
+    val failures = for {
+      (link, models) <- links.par
+      if link.startsWith("http")
+      duration = 60.seconds
+      failure <- Try(Await.result(request(link, head), duration))
+        .getOrElse(Some(s"Timed out after ${duration}!"))
+      message = (failure + "\nUsed in:\n" +
+        models.map(_.quotedPath).mkString("\n")).indent(2)
+    } yield link + "\n" + message
+    if (failures.nonEmpty) fail(failures.mkString("\n"))
   }
 
   val exceptions: Map[Int, Seq[String]] = Map(
@@ -93,31 +86,33 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
 
   def request(
     link: String,
-    method: WSRequestHolder => Future[WSResponse]): Future[Either[String, Option[String]]] = {
-    def right(msg: String = null) = Future.successful(Right(Option(msg)))
-    def left(msg: String) = Future.successful(Left(msg))
-    val requestHolder = client.url(link).withRequestTimeout(5000)
-    method(requestHolder).flatMap { response =>
-      response.status match {
-        case sc if sc >= 200 && sc < 300 =>
-          right() // OK
-        case sc if sc >= 300 && sc < 400 && redirectTolerated(link, response) =>
-          val location = response.header("Location").getOrElse("no location!")
-          right("Got redirect " + sc + " => " + location + " (tolerated)")
-        case 403 if method == head =>
-          request(link, get) // sometimes HEAD is forbidden, retry with a GET
-        case sc if sc >= 500 && sc < 600 =>
-          request(link, method)
-        case sc if exceptions.get(sc).filter(_.exists(link startsWith _)).isDefined =>
-          right(s"Response code $sc tolerated for " + link)
-        case sc => left(
-          "Got response status code " + sc + ". Headers:\n" +
-            response.allHeaders.mkString("\n")
-        )
+    method: WSRequestHolder => Future[WSResponse],
+    timeout: Int = 1000): Future[Option[String]] = {
+    def success = Future.successful(None)
+    def failure(msg: String) = Future.successful(Option(msg))
+    if (!urlValidator.isValid(link)) failure("Invalid URL!") else {
+      val requestHolder = client.url(link).withRequestTimeout(timeout)
+      method(requestHolder).flatMap { response =>
+        response.status match {
+          case sc if sc >= 200 && sc < 300 =>
+            success
+          case sc if sc >= 300 && sc < 400 && redirectTolerated(link, response) =>
+            success
+          case 403 if method == head =>
+            request(link, get) // sometimes HEAD is forbidden, retry with a GET
+          case sc if sc >= 500 && sc < 600 =>
+            request(link, method)
+          case sc if exceptions.get(sc).filter(_.exists(link startsWith _)).isDefined =>
+            success
+          case sc => failure(
+            "Got response status code " + sc + ". Headers:\n" +
+              response.allHeaders.mkString("\n")
+          )
+        }
+      }.recoverWith {
+        case e: ConnectException => request(link, method, timeout * 2)
+        case e: TimeoutException => request(link, method, timeout * 2)
       }
-    }.recoverWith {
-      case e: ConnectException => request(link, method)
-      case e: TimeoutException => request(link, method)
     }
   }
 

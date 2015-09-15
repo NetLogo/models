@@ -14,4 +14,9 @@ package object models {
       f(workspace)
     } finally workspace.dispose()
   }
+
+  implicit class RicherString(s: String) {
+    def indent(spaces: Int): String =
+      s.lines.map((" " * spaces) + _).mkString("\n")
+  }
 }
