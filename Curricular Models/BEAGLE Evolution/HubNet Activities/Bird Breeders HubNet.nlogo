@@ -208,7 +208,6 @@ end
 
 to setup-cages
    let these-cages nobody
-   show count players with [assigned?]
    ;; make cages and birds for player 1
    set these-cages patches with [pxcor = -4 and pycor <= 3 and pycor >= -2]
    ask these-cages [set pcolor player-1-cage-color  set patch-owned-by 1 sprout 1 [set breed cages set shape "cage"]]
