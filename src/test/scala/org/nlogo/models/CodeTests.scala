@@ -87,7 +87,11 @@ class CodeTests extends TestModels {
     "pd" -> Seq.empty,
     "ppd" -> Seq.empty,
     "ppu" -> Seq.empty,
-    "print" -> Seq.empty,
+    "print" -> Seq(
+      // IABM textbook models using `print` in example code:
+      "Example HubNet", "Voting Sensitivity Analysis",
+      "Voting Component Verification", "Spread of Disease"
+    ),
     "pu" -> Seq.empty,
     "se" -> Seq.empty,
     "show" -> Seq.empty,
