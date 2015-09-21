@@ -166,8 +166,8 @@ true
 true
 "" ""
 PENS
-"top-10%" 1.0 0 -2674135 true "" "plot top-10-pct-wealth"
-"bottom-50%" 1.0 0 -13345367 true "" "plot bottom-50-pct-wealth"
+"top 10%" 1.0 0 -2674135 true "" "plot top-10-pct-wealth"
+"bottom 50%" 1.0 0 -13345367 true "" "plot bottom-50-pct-wealth"
 
 @#$#@#$#@
 ## ACKNOWLEDGMENT
