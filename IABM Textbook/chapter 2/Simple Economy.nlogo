@@ -112,11 +112,11 @@ turtles
 500.0
 0.0
 40.0
-false
+true
 false
 "" ""
 PENS
-"current" 5.0 1 -10899396 true "" "let num-bins 1 + ceiling (max [ wealth ] of turtles / 5)\nlet intervals n-values num-bins [ list (? * 5) ((? + 1) * 5) ]\nlet max-y max map [ count turtles with [ wealth >= first ? and wealth < last ? ] ] intervals\nlet minimum 40\nset-plot-y-range 0 (max list max-y minimum)\nhistogram [ wealth ] of turtles"
+"current" 5.0 1 -10899396 true "" "set-plot-y-range 0 40\nhistogram [ wealth ] of turtles"
 
 MONITOR
 599
