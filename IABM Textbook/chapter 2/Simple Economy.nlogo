@@ -212,7 +212,7 @@ This model makes extensive use of the "widget" based graph methods.
 
 ## RELATED MODELS
 
-This model is related to the WEALTH DISTRIBUTION model.
+Wealth Distribution.
 
 ## CREDITS AND REFERENCES
 
