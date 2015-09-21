@@ -210,7 +210,7 @@ Change the basic transaction rule of the model.  What happens if the turtles exc
 
 NetLogo plots have an auto scaling feature that allows a plot's x range and y range to grow automatically, but not to shrink. We do, however, want the y range of the WEALTH DISTRIBUTION histogram to shrink since we start with all 500 turtles having the same wealth (producing a single high bar in the histogram), but the distribution of wealth eventually flattens to a point where no particular bin has more than 40 turtles in it.
 
-To manually adjust the histogram's y range, we use the [`set-plot-y-range`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#set-plot-y-range) command. Look at the histogram's pen update commands to see how it is done.
+To get NetLogo to correctly adjust the histogram's y range, we use [`set-plot-y-range 0 40`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#set-plot-y-range) in the histogram's pen update commands and let auto scaling set the maximum higher if needed.
 
 ## RELATED MODELS
 
