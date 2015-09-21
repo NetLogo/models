@@ -160,8 +160,8 @@ true
 true
 "" ""
 PENS
-"top-10%" 1.0 0 -2674135 true "" "plot sum sublist (sort [ wealth ] of turtles) 450 500"
-"bottom-50%" 1.0 0 -13345367 true "" "plot sum sublist (sort [ wealth ] of turtles) 0 250"
+"top-10%" 1.0 0 -2674135 true "" "plot sum [wealth] of max-n-of 50 turtles [wealth]"
+"bottom-50%" 1.0 0 -13345367 true "" "plot sum [wealth] of min-n-of 250 turtles [wealth]"
 
 @#$#@#$#@
 ## ACKNOWLEDGMENT
