@@ -106,8 +106,8 @@ PLOT
 744
 300
 wealth distribution
-NIL
-NIL
+wealth
+turtles
 0.0
 500.0
 0.0
