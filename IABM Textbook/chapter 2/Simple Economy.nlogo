@@ -201,7 +201,9 @@ Try running the model for many thousands of ticks. Does the distribution stabili
 ## EXTENDING THE MODEL
 
 Change the number of turtles.  Does this affect the results?
+
 Change the rules so agents can go into debt. Does this affect the results?
+
 Change the basic transaction rule of the model.  What happens if the turtles exchange more than one dollar? How about if they give a random amount to another agent at each tick? Change the rules so that the richer agents have a better chance of being given money? Or a smaller chance? How does this change the results?
 
 ## NETLOGO FEATURES
@@ -215,7 +217,8 @@ This model is related to the WEALTH DISTRIBUTION model.
 ## CREDITS AND REFERENCES
 
 Models of this kind are described in:
-Dragulescu, A. & V.M. Yakovenko, V.M. (2000).  Statistical Mechanics of Money. European Physics Journal B.
+
+* Dragulescu, A. & V.M. Yakovenko, V.M. (2000).  Statistical Mechanics of Money. European Physics Journal B.
 
 ## HOW TO CITE
 
