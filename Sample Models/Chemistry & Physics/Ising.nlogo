@@ -276,7 +276,7 @@ Voting (a social science model, but the update rules are very similar, except th
 
 ## CREDITS AND REFERENCES
 
-Thanks to Seth Tisue for his work on this model and to Sara Solla and Kan Chen for their assistance.
+Thanks to Seth Tisue and Bryan Head for their work on this model and to Sara Solla and Kan Chen, for their assistance.
 
 The Ising model was first proposed by Wilhelm Lenz in 1920.  It is named after his student Ernst Ising, who also studied it. This NetLogo model implements the Monte Carlo simulation of the Metropolis algorithm for the two dimensional Ising model. The Metropolis algorithm comes from a 1953 paper by Nicholas Metropolis et al.
 
