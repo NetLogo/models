@@ -21,12 +21,12 @@ to setup
 end
 
 to go
-  ;; update 1000 patches at a time
-  repeat 1000 [
-    ask one-of patches [ update ]
+  ask one-of patches [ update ]
+  if ticks mod 1000 = 0 [
+    display    ;; update the view once every 1000 ticks
+    no-display ;; and then turn off display updates to speed up the model
   ]
-  tick-advance 1000  ;; use `tick-advance`, as we are updating 1000 patches at a time
-  update-plots       ;; unlike `tick`, `tick-advance` doesn't update the plots, so we need to do so explicitly
+  tick
 end
 
 ;; update the spin of a single patch
@@ -595,7 +595,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-M3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
