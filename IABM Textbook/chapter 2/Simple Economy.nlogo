@@ -101,7 +101,7 @@ NIL
 0
 
 PLOT
-229
+233
 143
 744
 300
@@ -120,9 +120,9 @@ PENS
 
 MONITOR
 599
-425
+423
 744
-470
+468
 wealth of bottom 50%
 bottom-50-pct-wealth
 1
@@ -130,9 +130,9 @@ bottom-50-pct-wealth
 11
 
 MONITOR
-608
+598
 365
-728
+744
 410
 wealth of top 10%
 top-10-pct-wealth
@@ -151,10 +151,10 @@ Total wealth = $50,000
 1
 
 PLOT
-229
-332
-563
-482
+233
+318
+567
+468
 wealth by percent
 NIL
 NIL
