@@ -28,6 +28,14 @@ to transact
   ask one-of other turtles [ set wealth wealth + 1 ]
 end
 
+to-report top-10-pct-wealth
+  report sum [ wealth ] of max-n-of (count turtles * 0.10) turtles [ wealth ]
+end
+
+to-report bottom-50-pct-wealth
+  report sum [ wealth ] of min-n-of (count turtles * 0.50) turtles [ wealth ]
+end
+
 ; Copyright 2011 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@
@@ -116,7 +124,7 @@ MONITOR
 744
 470
 wealth of bottom 50%
-sum sublist (sort [ wealth ] of turtles) 0 250
+bottom-50-pct-wealth
 1
 1
 11
@@ -127,7 +135,7 @@ MONITOR
 728
 410
 wealth of top 10%
-sum sublist (sort [ wealth ] of turtles) 450 500
+top-10-pct-wealth
 1
 1
 11
@@ -158,8 +166,8 @@ true
 true
 "" ""
 PENS
-"top-10%" 1.0 0 -2674135 true "" "plot sum [wealth] of max-n-of 50 turtles [wealth]"
-"bottom-50%" 1.0 0 -13345367 true "" "plot sum [wealth] of min-n-of 250 turtles [wealth]"
+"top-10%" 1.0 0 -2674135 true "" "plot top-10-pct-wealth"
+"bottom-50%" 1.0 0 -13345367 true "" "plot bottom-50-pct-wealth"
 
 @#$#@#$#@
 ## ACKNOWLEDGMENT
