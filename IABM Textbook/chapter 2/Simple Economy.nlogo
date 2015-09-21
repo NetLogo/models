@@ -1,4 +1,4 @@
-turtles-own [wealth]
+turtles-own [ wealth ]
 
 to setup
   clear-all
@@ -8,27 +8,25 @@ to setup
     set color green
     set size 2
 
-  ;;  visualize the turtles from left to right in ascending order of wealth
+    ;; visualize the turtles from left to right in ascending order of wealth
     setxy wealth random-ycor
   ]
   reset-ticks
 end
 
-
 to go
   ;; transact and then update your location
-  ask turtles with [wealth > 0] [transact]
+  ask turtles with [ wealth > 0 ] [ transact ]
   ;; prevent wealthy turtles from moving too far to the right
-  ask turtles [if wealth <= max-pxcor [set xcor wealth] ]
+  ask turtles [ if wealth <= max-pxcor [ set xcor wealth ] ]
   tick
 end
 
 to transact
   ;; give a dollar to another turtle
   set wealth wealth - 1
-  ask one-of other turtles [set wealth wealth + 1]
+  ask one-of other turtles [ set wealth wealth + 1 ]
 end
-
 
 ; Copyright 2011 Uri Wilensky.
 ; See Info tab for full copyright and license.
@@ -524,7 +522,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-M3
 @#$#@#$#@
 resize-world 0 500 0 500 setup ask turtles [ set size 5 ] repeat 150 [ go ]
 @#$#@#$#@
