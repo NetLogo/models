@@ -279,9 +279,8 @@ to lay-offspring ;; bug procedure
   let this-bug self
   let birth-sites-in-radius patches with [ distance this-bug <= offspring-distance ]
   let birth-sites-in-region birth-sites-in-radius with [ region = this-region ]
-  ifelse any? birth-sites-in-region and not any? edges-on birth-sites-in-region
+  if any? birth-sites-in-region and not any? edges-on birth-sites-in-region
     [ move-to one-of birth-sites-in-region ]
-    [ show "no" ]
   set heading random 360
 end
 
@@ -1410,7 +1409,7 @@ Polygon -7500403 true true 75 30 30 75 105 150 30 225 75 270 150 195 225 270 270
 Polygon -16777216 false false 30 75 105 150 30 225 75 270 150 195 225 270 270 225 195 150 270 75 225 30 150 105 75 30
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-M3
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

@@ -87,11 +87,18 @@ class CodeTests extends TestModels {
     "pd" -> Seq.empty,
     "ppd" -> Seq.empty,
     "ppu" -> Seq.empty,
+    "print" -> Seq(
+      // IABM textbook models using `print` in example code:
+      "Example HubNet", "Voting Sensitivity Analysis",
+      "Voting Component Verification", "Spread of Disease"
+    ),
     "pu" -> Seq.empty,
     "se" -> Seq.empty,
+    "show" -> Seq.empty,
     "st" -> Seq.empty,
     "towards-nowrap" -> Seq.empty,
     "towardsxy-nowrap" -> Seq.empty,
+    "type" -> Seq.empty,
     "who" -> Seq("Disease HubNet", "Restaurants HubNet", "Prisoners Dilemma HubNet",
       "Disease Doctors HubNet", "Planarity", "Tetris", "PD N-Person Iterated",
       "Minority Game", "Osmotic Pressure", "Scattering", "N-Bodies", "Rope",
@@ -115,7 +122,8 @@ class CodeTests extends TestModels {
       "Connected Chemistry 1 Bike Tire", "Connected Chemistry 7 Ideal Gas Law",
       "Connected Chemistry 3 Circular Particles", "Connected Chemistry 4 Number and Pressure",
       "Connected Chemistry Atmosphere", "Connected Chemistry 2 Changing Pressure",
-      "Connected Chemistry 8 Gas Particle Sandbox", "DNA Protein Synthesis")
+      "Connected Chemistry 8 Gas Particle Sandbox", "DNA Protein Synthesis"),
+    "write" -> Seq.empty
   )
 
   testLibraryModels("Forbidden primitives are not used") { model =>
