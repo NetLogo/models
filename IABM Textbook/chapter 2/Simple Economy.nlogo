@@ -1,4 +1,4 @@
-turtles-own [wealth]
+turtles-own [ wealth ]
 
 to setup
   clear-all
@@ -8,27 +8,33 @@ to setup
     set color green
     set size 2
 
-  ;;  visualize the turtles from left to right in ascending order of wealth
+    ;; visualize the turtles from left to right in ascending order of wealth
     setxy wealth random-ycor
   ]
   reset-ticks
 end
 
-
 to go
   ;; transact and then update your location
-  ask turtles with [wealth > 0] [transact]
+  ask turtles with [ wealth > 0 ] [ transact ]
   ;; prevent wealthy turtles from moving too far to the right
-  ask turtles [if wealth <= max-pxcor [set xcor wealth] ]
+  ask turtles [ if wealth <= max-pxcor [ set xcor wealth ] ]
   tick
 end
 
 to transact
   ;; give a dollar to another turtle
   set wealth wealth - 1
-  ask one-of other turtles [set wealth wealth + 1]
+  ask one-of other turtles [ set wealth wealth + 1 ]
 end
 
+to-report top-10-pct-wealth
+  report sum [ wealth ] of max-n-of (count turtles * 0.10) turtles [ wealth ]
+end
+
+to-report bottom-50-pct-wealth
+  report sum [ wealth ] of min-n-of (count turtles * 0.50) turtles [ wealth ]
+end
 
 ; Copyright 2011 Uri Wilensky.
 ; See Info tab for full copyright and license.
@@ -95,41 +101,41 @@ NIL
 0
 
 PLOT
-229
+233
 143
 744
 300
 wealth distribution
-NIL
-NIL
+wealth
+turtles
 0.0
 500.0
 0.0
 40.0
-false
+true
 false
 "" ""
 PENS
-"current" 5.0 1 -10899396 true "" "histogram [wealth] of turtles"
+"current" 5.0 1 -10899396 true "" "set-plot-y-range 0 40\nhistogram [ wealth ] of turtles"
 
 MONITOR
 599
-425
+423
 744
-470
+468
 wealth of bottom 50%
-sum sublist (sort [ wealth ] of turtles) 0 250
+bottom-50-pct-wealth
 1
 1
 11
 
 MONITOR
-608
+598
 365
-728
+744
 410
 wealth of top 10%
-sum sublist (sort [ wealth ] of turtles) 450 500
+top-10-pct-wealth
 1
 1
 11
@@ -145,10 +151,10 @@ Total wealth = $50,000
 1
 
 PLOT
-229
-332
-563
-482
+233
+318
+567
+468
 wealth by percent
 NIL
 NIL
@@ -160,8 +166,8 @@ true
 true
 "" ""
 PENS
-"top-10%" 1.0 0 -2674135 true "" "plot sum sublist (sort [ wealth ] of turtles) 450 500"
-"bottom-50%" 1.0 0 -13345367 true "" "plot sum sublist (sort [ wealth ] of turtles) 0 250"
+"top 10%" 1.0 0 -2674135 true "" "plot top-10-pct-wealth"
+"bottom 50%" 1.0 0 -13345367 true "" "plot bottom-50-pct-wealth"
 
 @#$#@#$#@
 ## ACKNOWLEDGMENT
@@ -195,21 +201,26 @@ Try running the model for many thousands of ticks. Does the distribution stabili
 ## EXTENDING THE MODEL
 
 Change the number of turtles.  Does this affect the results?
+
 Change the rules so agents can go into debt. Does this affect the results?
+
 Change the basic transaction rule of the model.  What happens if the turtles exchange more than one dollar? How about if they give a random amount to another agent at each tick? Change the rules so that the richer agents have a better chance of being given money? Or a smaller chance? How does this change the results?
 
 ## NETLOGO FEATURES
 
-This model makes extensive use of the "widget" based graph methods.
+NetLogo plots have an auto scaling feature that allows a plot's x range and y range to grow automatically, but not to shrink. We do, however, want the y range of the WEALTH DISTRIBUTION histogram to shrink since we start with all 500 turtles having the same wealth (producing a single high bar in the histogram), but the distribution of wealth eventually flattens to a point where no particular bin has more than 40 turtles in it.
+
+To get NetLogo to correctly adjust the histogram's y range, we use [`set-plot-y-range 0 40`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#set-plot-y-range) in the histogram's pen update commands and let auto scaling set the maximum higher if needed.
 
 ## RELATED MODELS
 
-This model is related to the WEALTH DISTRIBUTION model.
+Wealth Distribution.
 
 ## CREDITS AND REFERENCES
 
 Models of this kind are described in:
-Dragulescu, A. & V.M. Yakovenko, V.M. (2000).  Statistical Mechanics of Money. European Physics Journal B.
+
+* Dragulescu, A. & V.M. Yakovenko, V.M. (2000).  Statistical Mechanics of Money. European Physics Journal B.
 
 ## HOW TO CITE
 
@@ -524,7 +535,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-M3
 @#$#@#$#@
 resize-world 0 500 0 500 setup ask turtles [ set size 5 ] repeat 150 [ go ]
 @#$#@#$#@
