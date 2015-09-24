@@ -829,13 +829,12 @@ Set KEEP-REPEATS? to 'Off' and STOP-AT-ALL-FOUND? to On.  When you press GO the 
 ## EXTENDING THE MODEL
 
 Add monitors and/or graphs to explore aspects of the experiments that are difficult to see in the current version.  For instance:
-o
-      How many trials does it take for the experiment to produce an all-green 4-block?  How is this dependent on the various settings?
 
-o
-       Are there more samples with an even number of green squares as compared to those with an odd number of green squares?
+- How many trials does it take for the experiment to produce an all-green 4-block?  How is this dependent on the various settings?
 
-o  How symmetrical is the set of stalagmites?  How would you define "symmetry?"  How would you quantify and display its changes over time?
+- Are there more samples with an even number of green squares as compared to those with an odd number of green squares?
+
+- How symmetrical is the set of stalagmites?  How would you define "symmetry?"  How would you quantify and display its changes over time?
 
 ## RELATED MODELS
 
