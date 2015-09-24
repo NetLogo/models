@@ -382,6 +382,8 @@ Altruism, Cooperation, PD Basic
 
 ## CREDITS AND REFERENCES
 
+This model, the Cooperation model and the Altruism model are part of the curriculum unit "Evolution of Altruistic and Cooperative Habits: Learning About Complexity in Evolution".  See http://ccl.northwestern.edu/rp/each/index.shtml for more information. The EACH unit is embedded within the BEAGLE (Biological Experiments in Adaptation, Genetics, Learning and Evolution) evolution curriculum. See http://ccl.northwestern.edu/rp/beagle/index.shtml.
+
 This model is based on William Harms's "Divide the Cake" model, described in Brian Skyrms's book "The Evolution of the Social Contract".
 
 Thanks to Damon Centola for his implementation of this model.

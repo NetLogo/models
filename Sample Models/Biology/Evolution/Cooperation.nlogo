@@ -461,7 +461,7 @@ Altruism
 
 ## CREDITS AND REFERENCES
 
-This model and the Altruism model are part of the EACH unit "Evolution of Altruistic and Cooperative Habits: Learning About Complexity in Evolution".  See http://ccl.northwestern.edu/papers/EACH/ for more information. EACH is embedded with the BEAGLE (Biological Experiments in Adaptation, Genetics, Learning and Evolution) evolution curriculum. See http://ccl.northwestern.edu/curriculum/simevolution/beagle.shtml .
+This model, the Altruism model and the Divide the Cake model are part of the curriculum unit "Evolution of Altruistic and Cooperative Habits: Learning About Complexity in Evolution".  See http://ccl.northwestern.edu/rp/each/index.shtml for more information. The EACH unit is embedded within the BEAGLE (Biological Experiments in Adaptation, Genetics, Learning and Evolution) evolution curriculum. See http://ccl.northwestern.edu/rp/beagle/index.shtml.
 
 Thanks to Damon Centola, Eamon McKenzie, Josh Mitteldorf, and Scott Styles.
 
