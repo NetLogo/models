@@ -444,7 +444,7 @@ The `watch` command is used to make it easier to focus on the red car.
 
 ## CREDITS AND REFERENCES
 
-This model is an extension of the NetLogo Traffic Basic Adaptive model (Rand and Wilensky, 2008).
+This model is an extension of the NetLogo Traffic Basic Adaptive model (Rand and Wilensky, 2008). This extension is based on exploration 20 from chapter 5 of the "Introduction to Agent-Based Modeling" textbook.
 
 ## HOW TO CITE
 
