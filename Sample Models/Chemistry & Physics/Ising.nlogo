@@ -54,6 +54,7 @@ to-report magnetization
   report sum-of-spins / count patches
 end
 
+
 ; Copyright 2003 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@

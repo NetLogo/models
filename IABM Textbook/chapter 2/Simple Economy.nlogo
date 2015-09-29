@@ -36,6 +36,7 @@ to-report bottom-50-pct-wealth
   report sum [ wealth ] of min-n-of (count turtles * 0.50) turtles [ wealth ]
 end
 
+
 ; Copyright 2011 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@

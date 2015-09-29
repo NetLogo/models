@@ -195,6 +195,7 @@ to calculate-r0
     set r0 r0 * s0 ]
 end
 
+
 ; Copyright 2011 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@

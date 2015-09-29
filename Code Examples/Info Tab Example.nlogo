@@ -1,6 +1,7 @@
 ; The purpose of ths model is to show how to write model documentation in the Info tab.
 ; Click the Info tab for more information.
 
+
 ; Public Domain:
 ; To the extent possible under law, Uri Wilensky has waived all
 ; copyright and related or neighboring rights to this model.

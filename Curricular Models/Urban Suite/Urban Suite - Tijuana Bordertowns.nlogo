@@ -765,6 +765,7 @@ to get-costs
   set living-expenses (land-value + electricity + water + food + transport-costs + other-utilities)
 end
 
+
 ; Copyright 2007 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@
