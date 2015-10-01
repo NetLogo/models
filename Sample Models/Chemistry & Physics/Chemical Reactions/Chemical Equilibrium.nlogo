@@ -36,12 +36,12 @@ to go
     wiggle
 
     ;; If a blue molecule meets a yellow molecule, they
-    ;; respectively become green and brown molecules
-    check-for-reaction blue yellow green brown
+    ;; respectively become green and pink molecules
+    check-for-reaction blue yellow green pink
 
-    ;; If a green molecule meets a brown molecule, they
+    ;; If a green molecule meets a pink molecule, they
     ;; respectively become blue and yellow molecules
-    check-for-reaction green brown blue yellow
+    check-for-reaction green pink blue yellow
 
   ]
   tick
@@ -238,7 +238,7 @@ PENS
 "yellows" 1.0 0 -1184463 true "" "plot count turtles with [color = yellow]"
 "blues" 1.0 0 -13345367 true "" "plot count turtles with [color = blue]"
 "greens" 1.0 0 -12087248 true "" "plot count turtles with [color = green]"
-"browns" 1.0 0 -8431303 true "" "plot count turtles with [color = brown]"
+"browns" 1.0 0 -2064490 true "" "plot count turtles with [color = pink]"
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -263,7 +263,7 @@ While how much of each "reactant" and "product" a system ends up with depends on
 
 ## HOW IT WORKS
 
-In the model, blue and yellow molecules can react with one another as can green and brown molecules. At each tick, each molecule move randomly throughout the world encountering other molecules. If it meets a molecule with which it can react (for example a yellow molecule meeting a blue, or a brown meeting a green, a reaction occurs. Because blue and yellow molecules react to produce green and brown molecules, and green and brown molecules react to produce blue and yellow molecules, eventually a state of equilibrium is reached.
+In the model, blue and yellow molecules can react with one another as can green and pink molecules. At each tick, each molecule move randomly throughout the world encountering other molecules. If it meets a molecule with which it can react (for example a yellow molecule meeting a blue, or a pink meeting a green, a reaction occurs. Because blue and yellow molecules react to produce green and pink molecules, and green and pink molecules react to produce blue and yellow molecules, eventually a state of equilibrium is reached.
 
 To keep molecules from immediately reacting twice in a row, each molecule has a "ready-timer." After a reaction, this timer is set to 2, and over two ticks, the timer is decremented back to zero, allowing the molecule to react again.
 
@@ -613,7 +613,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-M3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
