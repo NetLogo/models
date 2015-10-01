@@ -12,7 +12,7 @@ class CodeTests extends TestModels {
   type Exemption = String // the base name of an exempted model
   val forbiddenPrimitives: Seq[(String, Seq[Exemption])] = Seq(
     "__approximate-hsb-old" -> Seq.empty,
-    "__bench gui" -> Seq.empty,
+    "__bench" -> Seq.empty,
     "__change-language" -> Seq.empty,
     "__change-topology" -> Seq.empty,
     "__clear-all-and-reset-ticks" -> Seq.empty,
