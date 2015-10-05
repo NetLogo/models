@@ -186,14 +186,14 @@ end
 to place-box
   undraw-box
   ask patch 0 0 [ set pcolor gray ]
-  while [not mouse-down?] [wait 0.01]
+  while [ not mouse-down? ] [ ] ;; block until the user clicks
   set box-x (abs round mouse-xcor)
   set box-y (abs round mouse-ycor)
   if box-x <= 2 [set box-x 2]
   if box-y <= 2 [set box-y 2]
   draw-box
 
-  while [mouse-down?] [wait 0.1]
+  while [ mouse-down? ] [ ] ;; block until mouse button released
   ask patch 0 0 [ set pcolor black ]
 end
 
@@ -526,7 +526,7 @@ true
 0
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-M3
 @#$#@#$#@
 setup
 set box-x 18
