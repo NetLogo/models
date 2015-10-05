@@ -99,7 +99,10 @@ class CodeTests extends TestModels {
     "towards-nowrap" -> Seq.empty,
     "towardsxy-nowrap" -> Seq.empty,
     "type" -> Seq.empty,
-    "wait" -> Seq.empty,
+    "wait" -> Seq(
+      "Sound Workbench", "Fish Spotters HubNet", "Bug Hunt Camouflage",
+      "Bug Hunters Camouflage HubNet", "Memory HubNet", "Central Limit Theorem"
+    ),
     "who" -> Seq("Disease HubNet", "Restaurants HubNet", "Prisoners Dilemma HubNet",
       "Disease Doctors HubNet", "Planarity", "Tetris", "PD N-Person Iterated",
       "Minority Game", "Osmotic Pressure", "Scattering", "N-Bodies", "Rope",
