@@ -216,23 +216,16 @@ to change-environment
 end
 
 ;; a visualization technique to find bugs if you are convinced they are not there anymore
-;; it allows flashing without actually changing and recalculating the color attribute of the bugs
 to flash-bugs
-  ;; we use ASK-CONCURRENT here instead of ASK because when
-  ;; the bugs WAIT, we want them all to wait together, not each
-  ;; wait one at a time.
-  ask-concurrent bugs [
-    let old-color color
-    repeat 3 [
-      set color black
-      display
-      wait 0.1
-      set color white
-      display
-      wait 0.1
-    ]
-    set color old-color
+  repeat 3 [
+    ask bugs [ set color black ]
+    display
+    wait 0.1
+    ask bugs [ set color white ]
+    display
+    wait 0.1
   ]
+  ask bugs [ set-phenotype-color ]
   display
 end
 
@@ -1146,7 +1139,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-M3
 @#$#@#$#@
 setup
 @#$#@#$#@
