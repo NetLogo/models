@@ -290,17 +290,17 @@ to clear-environment
 end
 
 ;; a visualization technique to find bugs if you are convinced they are not there anymore
-;; it allows flashing without actually changing and recalculating the color attribute of the bugs
 to flash-bugs
   repeat 3 [
     ask bugs [ set color black ]
-    wait 0.1
     display
+    wait 0.1
     ask bugs [ set color white ]
-    wait 0.1
     display
+    wait 0.1
   ]
   ask bugs [ set-phenotype-color ]
+  display
 end
 
 to assign-genotype-labels  ;; turtle procedure
