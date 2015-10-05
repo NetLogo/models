@@ -62,10 +62,8 @@ to go
   [
     ifelse random-float 100 < probability-to-be-target-color [
       set pcolor target-color
-      ;set flag 1
     ] [
       set pcolor other-color
-      ;set flag 0
     ]
 
     if one-by-one-choices? [ display ]
