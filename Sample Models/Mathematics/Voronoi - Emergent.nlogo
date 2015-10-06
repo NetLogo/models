@@ -1,19 +1,19 @@
-breed [seeds seed]         ;; these are the circles in the middle of the polygons
-breed [movers mover]       ;; these are the turtles that move around, forming the edges
+breed [ seeds seed ]    ; these are the circles in the middle of the polygons
+breed [ movers mover ]  ; these are the turtles that move around, forming the edges
 
 to setup
   clear-all
 
-  ;; create the seeds and randomly distribute them
+  ; create the seeds and randomly distribute them
   create-seeds num-seeds [
     set shape "circle"
     set size 2
     setxy random-xcor random-ycor
   ]
 
-  ;; create the turtles and randomly distribute them
+  ; create the turtles and randomly distribute them
   create-movers num-turtles [
-    set size .75
+    set size 0.75
     setxy random-xcor random-ycor
   ]
 
@@ -27,13 +27,13 @@ end
 to go
   separate-seeds
   run (word "go-" go-mode)
-  ;; the following line is used in place of tick to make the turtles
-  ;; move further in each tick, resulting in them appearing to move faster
-  tick-advance .2
+  ; the following line is used in place of tick to make the turtles
+  ; move further in each tick, resulting in them appearing to move faster
+  tick-advance 0.2
 end
 
-;; check to make sure that the seeds are not too close together, as this interferes
-;; with the emergent Voronoi pattern
+; check to make sure that the seeds are not too close together, as this interferes
+; with the emergent Voronoi pattern
 to separate-seeds
   ask seeds [
     ask other seeds in-radius 2 [
@@ -44,38 +44,38 @@ to separate-seeds
   ]
 end
 
-;; report the seeds that are the closest to the turtle
-;; (rounding the distance to the nearest tenth)
+; report the seeds that are the closest to the turtle
+; (rounding the distance to the nearest tenth)
 to-report nearby-seeds ;; turtle reporter
   report seeds with-min [ precision (distance myself) 1 ]
 end
 
-;; have the turtles move, but not change their heading based on the nearest seed
+; have the turtles move, but not change their heading based on the nearest seed
 to go-random
   ask movers [
-    ;; the turtle first finds the seeds that are the closest to it
-    ;; (rounding the distance to the nearest tenth), next, it checks to see how many
-    ;; seeds are closest. If there is only one, the turtle then moves forward.
-    ;; If there is more than one, it stops as it has found a midpoint between seeds.
-    if count nearby-seeds = 1 [ fd .04 ]
-    rt .5 - random-float 1
+    ; the turtle first finds the seeds that are the closest to it
+    ; (rounding the distance to the nearest tenth), next, it checks to see how many
+    ; seeds are closest. If there is only one, the turtle then moves forward.
+    ; If there is more than one, it stops as it has found a midpoint between seeds.
+    if count nearby-seeds = 1 [ fd 0.04 ]
+    rt 0.5 - random-float 1
    ]
 end
 
-;; have the turtles move, changing their heading based on the nearest seed
+; have the turtles move, changing their heading based on the nearest seed
 to go-organized
   ask movers [
-    ;; the turtle first finds the seeds that are the closest to it
-    ;; (rounding the distance to the nearest tenth)
+    ; the turtle first finds the seeds that are the closest to it
+    ; (rounding the distance to the nearest tenth)
     let nearby nearby-seeds
 
-    ;; If the turtle only has only one closest seeds, it faces that seed and moves backward
+    ; If the turtle only has only one closest seeds, it faces that seed and moves backward
     if count nearby = 1 [
       face one-of nearby
-      bk .04
-      ;; Here we ask the turtle to slightly change its direction to introduce some
-      ;;   noise into the turtle's movement
-      rt .5 - random-float 1
+      bk 0.04
+      ; Here we ask the turtle to slightly change its direction to introduce some
+      ;   noise into the turtle's movement
+      rt 0.5 - random-float 1
     ]
   ]
 end
@@ -104,9 +104,9 @@ end
 
 to remove-seeds
   if mouse-down? [
-    let candidate min-one-of seeds [distancexy mouse-xcor mouse-ycor]
-    if [distancexy mouse-xcor mouse-ycor] of candidate < 1 [
-      ask candidate [die]
+    let candidate min-one-of seeds [ distancexy mouse-xcor mouse-ycor ]
+    if [ distancexy mouse-xcor mouse-ycor ] of candidate < 1 [
+      ask candidate [ die ]
       display
     ]
   ]
@@ -114,9 +114,9 @@ end
 
 to move-seeds
    if mouse-down? [
-    let candidate min-one-of seeds [distancexy mouse-xcor mouse-ycor]
-    if [distancexy mouse-xcor mouse-ycor] of candidate < 1 [
-      while [mouse-down?] [
+    let candidate min-one-of seeds [ distancexy mouse-xcor mouse-ycor ]
+    if [ distancexy mouse-xcor mouse-ycor ] of candidate < 1 [
+      while [ mouse-down? ] [
         go
         ask candidate [ setxy mouse-xcor mouse-ycor ]
       ]
@@ -127,7 +127,7 @@ end
 to add-turtles
   if mouse-down? [
     create-movers 1 [
-      set size .75
+      set size 0.75
       setxy mouse-xcor mouse-ycor
     ]
     go
