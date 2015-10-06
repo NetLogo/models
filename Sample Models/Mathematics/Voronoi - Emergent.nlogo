@@ -27,8 +27,9 @@ end
 to go
   separate-seeds
   run (word "go-" go-mode)
-  ; the following line is used in place of tick to make the turtles
-  ; move further in each tick, resulting in them appearing to move faster
+  ; tick-advance is used in place of tick to allow the go-mode methods to be
+  ; executed multiple times per whole tick. This results in the view updating
+  ; less frequently giving the turtles the appearance of moving faster.
   tick-advance 0.2
 end
 
