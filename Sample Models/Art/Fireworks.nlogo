@@ -1,6 +1,10 @@
 breed [ rockets rocket ]
 breed [ frags frag ]
 
+globals [
+  countdown       ; how many ticks to wait before a new salvo of fireworks
+]
+
 turtles-own [
   col             ; sets color of an explosion particle
   x-vel           ; x-velocity
@@ -21,31 +25,39 @@ to setup
   reset-ticks
 end
 
-; This procedure executes the model.  If there are no turtles, then
-; it creates a random number according to the slider FIREWORKS and
-; sets all the initial values for each firework. It then calls
-; PROJECTILE-MOTION, which launches and explodes the fireworks.
+; This procedure executes the model. If there are no turtles,
+; it will either initiate a new salvo of fireworks by calling
+; INIT-ROCKETS or continue to count down if it hasn't reached 0.
+; It then calls PROJECTILE-MOTION, which launches and explodes
+; any currently existing fireworks.
 to go
   if not any? turtles [
-
-    ifelse trails? ; used so that the trails don't immediately disappear
-      [ wait 1 ]
-      [ wait .3 ]
-    clear-drawing
-
-    create-rockets (random fireworks) [
-      setxy random-xcor min-pycor
-      set x-vel ((random-float (2 * initial-x-vel)) - (initial-x-vel))
-      set y-vel ((random-float initial-y-vel) + initial-y-vel * 2)
-      set col one-of base-colors
-      set color (col + 2)
-      set size 2
-      set terminal-y-vel (random-float 4.0) ; at what speed does the rocket explode?
+    ifelse countdown = 0 [
+      init-rockets
+      ; use a higher countdown to get a longer pause when trails are drawn
+      set countdown ifelse-value trails? [ 30 ] [ 10 ]
+    ] [
+      ; count down before lauching a new salvo
+      set countdown countdown - 1
     ]
   ]
   ask turtles [ projectile-motion ]
-  display
-  if not any? turtles [ tick ]
+  tick
+end
+
+; This procedure creates a random number of rockets according to the
+; slider FIREWORKS and sets all the initial values for each firework.
+to init-rockets
+  clear-drawing
+  create-rockets (random fireworks) [
+    setxy random-xcor min-pycor
+    set x-vel ((random-float (2 * initial-x-vel)) - (initial-x-vel))
+    set y-vel ((random-float initial-y-vel) + initial-y-vel * 2)
+    set col one-of base-colors
+    set color (col + 2)
+    set size 2
+    set terminal-y-vel (random-float 4.0) ; at what speed does the rocket explode?
+  ]
 end
 
 ; This function simulates the actual free-fall motion of the turtles.
