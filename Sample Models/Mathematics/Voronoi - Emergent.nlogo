@@ -89,17 +89,16 @@ to do-mouse-action
 end
 
 to add-new-seed
-  while [mouse-down?] [
-    wait .1
-    ;; create the new seed when the users releases the mouse button
-    if not mouse-down? [
-      create-seeds 1 [
-        set shape "circle"
-        set size 2
-        setxy mouse-xcor mouse-ycor
-      ]
-      display
+  if mouse-down? [
+    ; block until the user releases the mouse button
+    while [ mouse-down? ] [ ]
+    ; and then create the new seed
+    create-seeds 1 [
+      set shape "circle"
+      set size 2
+      setxy mouse-xcor mouse-ycor
     ]
+    display
   ]
 end
 
@@ -671,7 +670,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-M3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
