@@ -280,11 +280,17 @@ Each rocket, represented by a turtle, is launched upward with an initial x and y
 ## HOW TO USE IT
 
 SETUP sets up the model according to the values indicated by all the sliders and the switch. GO is a forever button that executes the model continually.
+
 FIREWORKS creates a random number of fireworks between 0 and the number indicated on the slider.
+
 FRAGMENTS determines how many particle fragments will emerge after the explosion of a single firework.
+
 GRAVITY determines the gravitational strength in the environment.  A larger value will give a greater gravitational acceleration, meaning that particles will be forced to the ground at a faster rate.  The inverse is true for smaller values.
+
 INIT-X-VEL sets the initial x-velocity of each rocket to a random number between the negative and positive value of the number indicated on the slider.
+
 INIT-Y-VEL sets the initial y-velocity of each rocket to a random number between 0 and the number indicated on the slider plus ten.  This is to ensure that there is a range of difference in the initial y-velocities of the fireworks.
+
 FADE-AMOUNT determines the rate at which the explosion particles fade after the explosion.
 
 TRAILS allows the user to turn the trails left by the explosion particles on or off.  In other words, if the TRAILS switch is ON, then the turtles will leave trails.  If it is OFF, then they will not leave trails.
