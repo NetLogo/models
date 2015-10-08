@@ -27,7 +27,8 @@ end
 
 to go
   move-cars
-  make-new-cars
+  make-new-car freq-north 0 min-pycor 0
+  make-new-car freq-east min-pxcor 0 90
   ; if we are in "auto" mode and a light has been
   ; green for long enough, we turn it yellow
   if auto? and elapsed? green-length [
