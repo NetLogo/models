@@ -9,11 +9,10 @@ patches-own [ clear-in ]
 to setup
   clear-all
   set-default-shape turtles "car"
-  ask patches
-    [ set pcolor green - 1
-      if abs pxcor <= 1 or abs pycor <= 1
-        [ set pcolor black ]
-    ]
+  ask patches [
+    set pcolor green - 1
+    if abs pxcor <= 1 or abs pycor <= 1 [ set pcolor black ]
+  ]
   ; start with one green light and one red light
   ask one-of lights [
     set pcolor green
@@ -34,8 +33,8 @@ to go
   if auto? and elapsed? green-length [
     change-to-yellow
   ]
-  ; if a light has been yellow for long enough, we
-  ; turn it red and turn the other one green
+  ; if a light has been yellow for long enough,
+  ; we turn it red and turn the other one green
   if any? lights with [ pcolor = yellow ] and elapsed? yellow-length [
     change-to-red
   ]
@@ -61,6 +60,7 @@ to make-new-cars
           set speed min (list clear-ahead speed-limit)
         ]
     ]
+  ]
 end
 
 to move-cars
@@ -68,38 +68,41 @@ to move-cars
   check-for-collisions
 end
 
-to move ;; turtle procedure
+to move ; turtle procedure
   let clear-to clear-ahead
-  ifelse clear-to > speed
-  [ if speed < speed-limit
-    [ set speed speed + min (list max-accel (clear-to - 1 - speed)) ] ;; accelerate
-    if speed > speed-limit
-    [ set speed speed-limit ] ;; but don't speed
+  ifelse clear-to > speed [
+    if speed < speed-limit [
+      ; accelerate
+      set speed speed + min (list max-accel (clear-to - 1 - speed))
+    ]
+    if speed > speed-limit [
+      ; but don't speed
+      set speed speed-limit
+    ]
   ]
-  [ set speed speed - min (list max-brake (speed - (clear-to - 1))) ;; brake
+  [
+    set speed speed - min (list max-brake (speed - (clear-to - 1))) ;; brake
     if speed < 0 [ set speed 0 ]
   ]
-  repeat speed ;; move ahead the correct amount
-  [
+  repeat speed [ ; move ahead the correct amount
     fd 1
-    if not can-move? 1
-    [ die ]
-
-    if pcolor = orange
-    [ set clear-in 5  ;; if you hit an accident you cause another one
+    if not can-move? 1 [ die ]
+    if pcolor = orange [
+      set clear-in 5 ; if you hit an accident you cause another one
       die
     ]
   ]
 end
 
-to-report clear-ahead ;;turtle procedure
+to-report clear-ahead ; turtle procedure
   let n 1
-  repeat max-accel + speed  ;; look ahead the number of patches that could be travelled
-  [ if (n * dx + pxcor <= max-pxcor) and (n * dy + pycor <= max-pycor)
-    [ if([pcolor] of patch-ahead n = red) or
-        ([pcolor] of patch-ahead n = orange) or
-        (any? turtles-on patch-ahead n)
-      [ report n ]
+  repeat max-accel + speed [ ; look ahead the number of patches that could be travelled
+    if (n * dx + pxcor <= max-pxcor) and (n * dy + pycor <= max-pycor) [
+      if ([ pcolor ] of patch-ahead n = red) or
+         ([ pcolor ] of patch-ahead n = orange) or
+         (any? turtles-on patch-ahead n) [
+         report n
+      ]
       set n n + 1
     ]
   ]
@@ -107,13 +110,11 @@ to-report clear-ahead ;;turtle procedure
 end
 
 to check-for-collisions
-  ask patches with [ pcolor = orange ]
-  [ set clear-in clear-in - 1
-    if clear-in = 0
-    [ set pcolor black ]
+  ask patches with [ pcolor = orange ] [
+    set clear-in clear-in - 1
+    if clear-in = 0 [ set pcolor black ]
   ]
-  ask patches with [ count turtles-here > 1 ]
-  [
+  ask patches with [ count turtles-here > 1 ] [
     set pcolor orange
     set clear-in 5
     ask turtles-here [ die ]
