@@ -26,7 +26,8 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;
 
 to go
-  move-cars
+  ask turtles [ move ]
+  check-for-collisions
   make-new-car freq-north 0 min-pycor 0
   make-new-car freq-east min-pxcor 0 90
   ; if we are in "auto" mode and a light has been
@@ -62,11 +63,6 @@ to make-new-cars
         ]
     ]
   ]
-end
-
-to move-cars
-  ask turtles [ move ]
-  check-for-collisions
 end
 
 to move ; turtle procedure
