@@ -10,13 +10,13 @@ to setup
   clear-all
   set-default-shape turtles "car"
   ask patches [
-    set pcolor green - 1
-    if abs pxcor <= 1 or abs pycor <= 1 [ set pcolor black ]
+    ifelse abs pxcor <= 1 or abs pycor <= 1
+      [ set pcolor black ]     ; the roads are black
+      [ set pcolor green - 1 ] ; and the grass is a darker green than a green light
   ]
-  ; start with one green light and one red light
   ask one-of lights [
-    set pcolor green
-    ask other lights [ set pcolor red ]
+    set pcolor green                    ; start with one green light
+    ask other lights [ set pcolor red ] ; and one red light
   ]
   reset-ticks
 end
