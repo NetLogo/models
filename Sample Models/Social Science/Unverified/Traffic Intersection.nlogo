@@ -66,44 +66,42 @@ to make-new-cars
 end
 
 to move ; turtle procedure
-  let clear-to clear-ahead
-  ifelse clear-to > speed [
-    if speed < speed-limit [
-      ; accelerate
-      set speed speed + min (list max-accel (clear-to - 1 - speed))
-    ]
-    if speed > speed-limit [
-      ; but don't speed
-      set speed speed-limit
-    ]
-  ]
-  [
-    set speed speed - min (list max-brake (speed - (clear-to - 1))) ;; brake
-    if speed < 0 [ set speed 0 ]
-  ]
+
+  let min-speed (speed - max-brake)
+  let max-speed min (list (speed + max-accel) speed-limit)
+
+  ; try to adjust my speed to how much space I have ahead of me
+  set speed space-ahead
+
+  ; but don't accelerate more than possible or break the speed limit
+  if speed > max-speed [ set speed max-speed ]
+
+  ; or don't break harder than possible
+  if speed < min-speed [ set speed min-speed ]
+
   repeat speed [ ; move ahead the correct amount
     fd 1
-    if not can-move? 1 [ die ]
+    if not can-move? 1 [ die ] ; die when I reach the end of the world
     if pcolor = orange [
-      set clear-in 5 ; if you hit an accident you cause another one
+      set clear-in 5 ; if I hit an accident, I cause another one
       die
     ]
   ]
 end
 
-to-report clear-ahead ; turtle procedure
-  let n 1
-  repeat max-accel + speed [ ; look ahead the number of patches that could be travelled
-    if (n * dx + pxcor <= max-pxcor) and (n * dy + pycor <= max-pycor) [
-      if ([ pcolor ] of patch-ahead n = red) or
-         ([ pcolor ] of patch-ahead n = orange) or
-         (any? turtles-on patch-ahead n) [
-         report n
-      ]
-      set n n + 1
-    ]
-  ]
+to-report space-ahead ; turtle reporter
+  let n 0
+  while [ can-move-to? patch-ahead (n + 1) ] [ set n (n + 1) ]
   report n
+end
+
+to-report can-move-to? [ target-patch ] ; turtle reporter
+  report
+    is-patch? target-patch and                 ; the target patch is on the map and
+    not any? turtles-on target-patch and       ; it isn't blocked by another car and
+    [ pcolor ] of target-patch != red and      ; it's not a red light and
+    [ pcolor ] of target-patch != orange and   ; there is no accident there and
+    distance target-patch <= max-accel + speed ; I can go fast enough to get there
 end
 
 to check-for-collisions
