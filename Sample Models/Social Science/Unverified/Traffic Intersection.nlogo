@@ -418,32 +418,45 @@ In this model the turtles are cars traveling through an intersection.  The user 
 ## HOW IT WORKS
 
 The rules for each car are:
+
 - I can only go in the direction I started in, or stop.
+
 - I stop for cars in front of me and red lights, and I slow down at a yellow light.
+
 - If I am moving quickly and I see that I will have to stop soon, I slow down proportional to the distance of non-free space up to MAX-BRAKE.
+
 - If I see that I have free space in front of me, I speed up proportional to the amount of free space up to MAX-ACCEL.
+
 - If I am on the same space as another car, we crash and die.
 
 ## HOW TO USE IT
 
 WAIT-TIME-OVERALL shows how many cars are waiting during the given clock tick.
+
 WAIT-TIME-EASTBOUND shows how many eastbound cars are waiting during the given clock tick.
+
 WAIT-TIME-NORTHBOUND shows how many northbound cars are waiting during the given clock tick.
 
 CLOCK shows how many ticks have elapsed.
 
 Use the FREQ-EAST slider to select how often new eastbound cars travel on the road.
+
 Use the FREQ-NORTH slider to select how often new northbound cars travel on the road.
 
 Use the SPEED-LIMIT slider to select how fast the cars will travel.
+
 Use the MAX-ACCEL slider to determine how fast the cars can accelerate.
+
 Use the MAX-BRAKE slider to determine how fast the cars can decelerate.
 
 Use the GREEN-LENGTH slider to set how long the light will remain green.
+
 Use the YELLOW-LENGTH slider to set how long the light will remain yellow.
 
 Press GO ONCE to make the cars move once.
+
 Press GO to make the cars move continuously.
+
 To stop the cars, press the GO button again.
 
 ## THINGS TO NOTICE
@@ -461,22 +474,35 @@ Try to answer the following questions before running the simulations.
 Record your predictions.
 
 Compare your predicted results with the actual results.
+
 - What reasoning led you to correct predictions?
+
 - What assumptions that you made need to be revised?
 
 Try different numbers of eastbound cars while keeping all other slider values the same.
+
 Try different numbers of northbound cars while keeping all other slider values the same.
+
 Try different values of SPEED-LIMIT while keeping all other slider values the same.
+
 Try different values of MAX-ACCEL while keeping all other slider values the same.
+
 Try different values of GREEN-LENGTH and YELLOW-LENGTH while keeping all other slider values the same.
 
 For all of the above cases, consider the following:
+
 - What happens to the waiting time of eastbound cars?
+
 - What happens to the waiting time of northbound cars?
+
 - What happens to the overall waiting time?
+
 - What generalizations can you make about the impact of each variable on the waiting time of cars?
+
 - What kind of relationship exists between the number of cars and the waiting time they experience?
+
 - What kind of relationship exists between the speed of cars and the waiting time they experience?
+
 - What kind of relationship exists between the number of ticks of green light and the waiting time cars experience?
 
 Use your answers to the above questions to come up with a strategy for minimizing the waiting time of cars.
