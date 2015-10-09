@@ -37,7 +37,7 @@ to go
       ; use a higher countdown to get a longer pause when trails are drawn
       set countdown ifelse-value trails? [ 30 ] [ 10 ]
     ] [
-      ; count down before lauching a new salvo
+      ; count down before launching a new salvo
       set countdown countdown - 1
     ]
   ]
