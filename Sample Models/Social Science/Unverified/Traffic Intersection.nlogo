@@ -66,19 +66,7 @@ to make-new-cars
 end
 
 to move ; turtle procedure
-
-  let min-speed (speed - max-brake)
-  let max-speed min (list (speed + max-accel) speed-limit)
-
-  ; try to adjust my speed to how much space I have ahead of me
-  set speed space-ahead
-
-  ; but don't accelerate more than possible or break the speed limit
-  if speed > max-speed [ set speed max-speed ]
-
-  ; or don't break harder than possible
-  if speed < min-speed [ set speed min-speed ]
-
+  adjust-speed
   repeat speed [ ; move ahead the correct amount
     fd 1
     if not can-move? 1 [ die ] ; die when I reach the end of the world
@@ -89,19 +77,41 @@ to move ; turtle procedure
   ]
 end
 
-to-report space-ahead ; turtle reporter
-  let n 0
-  while [ can-move-to? patch-ahead (n + 1) ] [ set n (n + 1) ]
-  report n
+to adjust-speed
+
+  ; calculate the minimum and maximum possible speed I could go
+  let min-speed max (list (speed - max-brake) 0)
+  let max-speed min (list (speed + max-accel) speed-limit)
+
+  set speed max-speed
+
+  let blocked-patch next-blocked-patch
+  if blocked-patch != nobody [
+    set speed min (list speed (distance blocked-patch - 1))
+  ]
+
+  ; but don't go below my minimum speed
+  if speed < min-speed [ set speed min-speed ]
+
 end
 
-to-report can-move-to? [ target-patch ] ; turtle reporter
+to-report next-blocked-patch ; turtle procedure
+  ; check all patches ahead until I find a blocked
+  ; patch or I reach the end of the world
+  let patch-to-check patch-here
+  while [ patch-to-check != nobody and not is-blocked? patch-to-check ] [
+    set patch-to-check patch-ahead ((distance patch-to-check) + 1)
+  ]
+  ; report the blocked patch or nobody if I didn't find any
+  report patch-to-check
+end
+
+to-report is-blocked? [ target-patch ] ; turtle reporter
   report
-    is-patch? target-patch and                 ; the target patch is on the map and
-    not any? turtles-on target-patch and       ; it isn't blocked by another car and
-    [ pcolor ] of target-patch != red and      ; it's not a red light and
-    [ pcolor ] of target-patch != orange and   ; there is no accident there and
-    distance target-patch <= max-accel + speed ; I can go fast enough to get there
+    ; the patch is blocked if there is another turtle on it or
+    any? other turtles-on target-patch or
+    ; it's a red or yellow light, or there is an accident there
+    member? [ pcolor ] of target-patch [ red yellow orange ]
 end
 
 to check-for-collisions
