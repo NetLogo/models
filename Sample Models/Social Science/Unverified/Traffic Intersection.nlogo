@@ -127,7 +127,10 @@ to-report is-blocked? [ target-patch ] ; turtle reporter
   report
     any? other cars-on target-patch or
     any? accidents-on target-patch or
-    any? (lights-on target-patch) with [ member? color [ yellow red ] ]
+    any? (lights-on target-patch) with [ color = red ] or
+    (any? (lights-on target-patch) with [ color = yellow ] and
+      ; only stop for a yellow light if I'm not already on it:
+      target-patch != patch-here)
 end
 
 to check-for-collisions
