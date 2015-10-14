@@ -218,9 +218,9 @@ NIL
 1
 
 BUTTON
-107
+105
 10
-169
+170
 43
 NIL
 go
@@ -235,10 +235,10 @@ NIL
 1
 
 BUTTON
-107
+105
 85
-178
-118
+170
+119
 switch
 change-to-yellow
 NIL
@@ -421,9 +421,9 @@ PENS
 "northbound" 1.0 0 -2674135 true "" "plot count cars with [ heading = 0 and speed = 0 ]"
 
 BUTTON
-87
+105
 45
-169
+170
 78
 go once
 go
@@ -880,5 +880,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
