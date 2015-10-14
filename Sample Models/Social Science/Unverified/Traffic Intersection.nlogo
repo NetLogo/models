@@ -96,15 +96,19 @@ to adjust-speed
   let min-speed max (list (speed - max-brake) 0)
   let max-speed min (list (speed + max-accel) speed-limit)
 
-  set speed max-speed
+  set speed max-speed ; aim to go as fast as possible
 
   let blocked-patch next-blocked-patch
   if blocked-patch != nobody [
-    set speed min (list speed (distance blocked-patch - 1))
+    ; if there is an obstacle ahead, reduce my speed
+    ; until I'm sure I won't hit it on the next tick
+    let space-ahead (distance blocked-patch - 1)
+    while [ speed + max (list (speed - max-brake) 0) > space-ahead ] [
+      set speed (speed - 1)
+    ]
+    ; but don't go below my minimum possible speed
+    if speed < min-speed [ set speed min-speed ]
   ]
-
-  ; but don't go below my minimum speed
-  if speed < min-speed [ set speed min-speed ]
 
 end
 
