@@ -448,11 +448,11 @@ The rules for each car are:
 
 - I can only go in the direction I started in, or stop.
 
-- I stop for cars in front of me and red lights, and I slow down at a yellow light.
+- I stop for cars in front of me and red lights, and I stop for a yellow light if I'm not already on it.
 
-- If I am moving quickly and I see that I will have to stop soon, I slow down proportional to the distance of non-free space up to MAX-BRAKE.
+- If I am moving quickly and I see that I will have to stop soon, I try to slow down enough to make sure I can stop in time, up to MAX-BRAKE.
 
-- If I see that I have free space in front of me, I speed up proportional to the amount of free space up to MAX-ACCEL.
+- If I see that I have free space in front of me, I speed up towards the SPEED-LIMIT, up to MAX-ACCEL.
 
 - If I am on the same space as another car, we crash and die.
 
@@ -541,8 +541,6 @@ What factor (or combination of factors) has the most influence over the waiting 
 Find a realistic way to eliminate all crashes by only changing car behavior.
 
 Allow different light lengths for each direction in order to control wait time better.
-
-In the model, the yellow light is only for visual effect.  In real life, it tells cars that they need to start braking if they're going to be able to stop before the light turns red.  Make the cars use this information, and see how it affects the model.
 
 Is there a better way to measure the efficiency of an intersection than the current number of stopped cars?
 
