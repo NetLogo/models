@@ -1,6 +1,18 @@
-globals [ ticks-at-last-change ]
-turtles-own [ speed ]
-patches-own [ clear-in ]
+globals [
+  ticks-at-last-change  ; value of the tick counter the last time a light changed
+]
+
+breed [ lights light ]
+
+breed [ accidents accident ]
+accidents-own [
+  clear-in              ; how many ticks before an accident is cleared
+]
+
+breed [ cars car ]
+cars-own [
+  speed                 ; how many patches per tick the car moves
+]
 
 ;;;;;;;;;;;;;;;;;;;;
 ;;SETUP PROCEDURES;;
@@ -8,16 +20,16 @@ patches-own [ clear-in ]
 
 to setup
   clear-all
-  set-default-shape turtles "car"
+  set-default-shape lights "square"
+  set-default-shape accidents "fire"
+  set-default-shape cars "car"
   ask patches [
     ifelse abs pxcor <= 1 or abs pycor <= 1
       [ set pcolor black ]     ; the roads are black
-      [ set pcolor green - 1 ] ; and the grass is a darker green than a green light
+      [ set pcolor green - 1 ] ; and the grass is green
   ]
-  ask one-of lights [
-    set pcolor green                    ; start with one green light
-    ask other lights [ set pcolor red ] ; and one red light
-  ]
+  ask patch 0 -1 [ sprout-lights 1 [ set color green ] ]
+  ask patch -1 0 [ sprout-lights 1 [ set color red ] ]
   reset-ticks
 end
 
@@ -26,7 +38,7 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;
 
 to go
-  ask turtles [ move ]
+  ask cars [ move ]
   check-for-collisions
   make-new-car freq-north 0 min-pycor 0
   make-new-car freq-east min-pxcor 0 90
@@ -37,7 +49,7 @@ to go
   ]
   ; if a light has been yellow for long enough,
   ; we turn it red and turn the other one green
-  if any? lights with [ pcolor = yellow ] and elapsed? yellow-length [
+  if any? lights with [ color = yellow ] and elapsed? yellow-length [
     change-to-red
   ]
   tick
@@ -70,8 +82,9 @@ to move ; turtle procedure
   repeat speed [ ; move ahead the correct amount
     fd 1
     if not can-move? 1 [ die ] ; die when I reach the end of the world
-    if pcolor = orange [
-      set clear-in 5 ; if I hit an accident, I cause another one
+    if any? accidents-here [
+      ; if I hit an accident, I cause another one
+      ask accidents-here [ set clear-in 5 ]
       die
     ]
   ]
@@ -108,42 +121,39 @@ end
 
 to-report is-blocked? [ target-patch ] ; turtle reporter
   report
-    ; the patch is blocked if there is another turtle on it or
-    any? other turtles-on target-patch or
-    ; it's a red or yellow light, or there is an accident there
-    member? [ pcolor ] of target-patch [ red yellow orange ]
+    any? other cars-on target-patch or
+    any? accidents-on target-patch or
+    any? (lights-on target-patch) with [ member? color [ yellow red ] ]
 end
 
 to check-for-collisions
-  ask patches with [ pcolor = orange ] [
+  ask accidents [
     set clear-in clear-in - 1
-    if clear-in = 0 [ set pcolor black ]
+    if clear-in = 0 [ die ]
   ]
-  ask patches with [ count turtles-here > 1 ] [
-    set pcolor orange
-    set clear-in 5
-    ask turtles-here [ die ]
+  ask patches with [ count cars-here > 1 ] [
+    sprout-accidents 1 [
+      set size 1.5
+      set color yellow
+      set clear-in 5
+    ]
+    ask cars-here [ die ]
   ]
 end
 
 to change-to-yellow
-  ask lights with [ pcolor = green ] [
-    set pcolor yellow
+  ask lights with [ color = green ] [
+    set color yellow
     set ticks-at-last-change ticks
   ]
 end
 
 to change-to-red
-  ask lights with [ pcolor = yellow ] [
-    set pcolor red
-    ask other lights [ set pcolor green ]
+  ask lights with [ color = yellow ] [
+    set color red
+    ask other lights [ set color green ]
     set ticks-at-last-change ticks
   ]
-end
-
-; reports the set of two patches that are used as traffic lights
-to-report lights
-  report (patch-set patch 0 -1 patch -1 0)
 end
 
 ; reports `true` if `time-length` ticks
@@ -356,7 +366,7 @@ MONITOR
 707
 115
 waiting overall
-count turtles with [speed = 0]
+count cars with [ speed = 0 ]
 0
 1
 11
@@ -367,7 +377,7 @@ MONITOR
 707
 164
 waiting-eastbound
-count turtles with [heading = 90 and speed = 0]
+count cars with [ heading = 90 and speed = 0 ]
 0
 1
 11
@@ -378,7 +388,7 @@ MONITOR
 707
 213
 waiting-northbound
-count turtles with [heading = 0 and speed = 0]
+count cars with [ heading = 0 and speed = 0 ]
 0
 1
 11
@@ -399,9 +409,9 @@ true
 true
 "" ""
 PENS
-"overall" 1.0 0 -16777216 true "" "plot count turtles with [speed = 0]"
-"eastbound" 1.0 0 -13345367 true "" "plot count turtles with [heading = 90 and speed = 0]"
-"northbound" 1.0 0 -2674135 true "" "plot count turtles with [heading = 0 and speed = 0]"
+"overall" 1.0 0 -16777216 true "" "plot count cars with [ speed = 0 ]"
+"eastbound" 1.0 0 -13345367 true "" "plot count cars with [ heading = 90 and speed = 0 ]"
+"northbound" 1.0 0 -2674135 true "" "plot count cars with [ heading = 0 and speed = 0 ]"
 
 BUTTON
 87
@@ -664,6 +674,13 @@ Circle -7500403 true true 8 8 285
 Circle -16777216 true false 60 75 60
 Circle -16777216 true false 180 75 60
 Polygon -16777216 true false 150 168 90 184 62 210 47 232 67 244 90 220 109 205 150 198 192 205 210 220 227 242 251 229 236 206 212 183
+
+fire
+false
+0
+Polygon -7500403 true true 151 286 134 282 103 282 59 248 40 210 32 157 37 108 68 146 71 109 83 72 111 27 127 55 148 11 167 41 180 112 195 57 217 91 226 126 227 203 256 156 256 201 238 263 213 278 183 281
+Polygon -955883 true false 126 284 91 251 85 212 91 168 103 132 118 153 125 181 135 141 151 96 185 161 195 203 193 253 164 286
+Polygon -2674135 true false 155 284 172 268 172 243 162 224 148 201 130 233 131 260 135 282
 
 fish
 false
