@@ -171,7 +171,7 @@ to toggle-power-pellet
       ifelse powerup?
       [ set shape "circle" ]
       [ set shape "pellet" ]
-      wait 0.1
+      while [ mouse-down? ] [ ] ;; wait until mouse button is released
     ]
   ]
 end
