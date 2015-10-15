@@ -50,19 +50,17 @@ to new
       setxy 10 10
     ]
 
-    create-ghosts 4
+    foreach n-values 4 [ ? ]
     [
-      set shape "ghost"
-      setxy 0 3
-      set heading 0
-      set eaten? false
+      create-ghosts 1
+      [
+        set shape "ghost"
+        set color item ? ghost-colors
+        setxy 10 (9 - ?)
+        set heading 0
+        set eaten? false
+      ]
     ]
-
-    ; set ghost colors and initial position
-    ask turtle 1 [ set color 15  setxy 10 9 ]
-    ask turtle 2 [ set color 26  setxy 10 8 ]
-    ask turtle 3 [ set color 127 setxy 10 7 ]
-    ask turtle 4 [ set color 85  setxy 10 6 ]
 
     ask turtles
     [ set home-pos list xcor ycor ]
@@ -72,6 +70,9 @@ to new
   ]
 end
 
+to-report ghost-colors
+  report [ 15 26 127 85 ]
+end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Runtime Procedures ;;
@@ -191,7 +192,7 @@ to place-ghost
   ifelse [pcolor] of patch mouse-xcor mouse-ycor = blue
   [ user-message "You must place a ghost on a corridor space or a gate, not a wall." ]
   [
-    ask turtle which-ghost
+    ask one-of ghosts with [ color = item (which-ghost - 1) ghost-colors ]
     [ setxy (round mouse-xcor) (round mouse-ycor) ]
   ]
 end
