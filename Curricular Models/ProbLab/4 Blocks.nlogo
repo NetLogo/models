@@ -57,7 +57,7 @@ end
 ;;;;;;;;;;;;;;;;;;
 
 to go
-  if one-by-one-choices? [ask patches [set pcolor white - 1 ] display ]
+  if one-by-one-choices? [ask patches [set pcolor white - 1 ] display wait .3]
   ask patches
   [
     ifelse random-float 100 < probability-to-be-target-color [
@@ -66,11 +66,12 @@ to go
       set pcolor other-color
     ]
 
-    if one-by-one-choices? [ display ]
+    if one-by-one-choices? [ display wait 0.1 ]
   ]
 
   make-histogram
   tick
+  if one-by-one-choices? [ wait 0.5 ]
 end
 
 ;;;;;;;;;;;;;;;;;;
@@ -651,7 +652,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.1-M3
+NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
