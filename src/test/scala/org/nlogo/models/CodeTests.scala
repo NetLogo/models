@@ -101,7 +101,9 @@ class CodeTests extends TestModels {
     "type" -> Seq.empty,
     "wait" -> Seq(
       "Sound Workbench", "Fish Spotters HubNet", "Bug Hunt Camouflage",
-      "Bug Hunters Camouflage HubNet", "Memory HubNet", "Central Limit Theorem"
+      "Bug Hunters Camouflage HubNet", "Memory HubNet", "Central Limit Theorem",
+      "Gridlock HubNet", "Gridlock Alternate HubNet", "Polling Advanced HubNet",
+      "Public Good HubNet"
     ),
     "who" -> Seq("Disease HubNet", "Restaurants HubNet", "Prisoners Dilemma HubNet",
       "Disease Doctors HubNet", "Planarity", "Tetris", "PD N-Person Iterated",
