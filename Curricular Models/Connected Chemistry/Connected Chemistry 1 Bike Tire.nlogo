@@ -313,7 +313,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 14
@@ -380,7 +380,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 106
@@ -397,7 +397,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
