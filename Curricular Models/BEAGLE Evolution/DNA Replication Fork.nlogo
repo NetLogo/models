@@ -388,7 +388,7 @@ to unwind-dna
       lt wind-angle  ;; left turn unwinds, right turn winds
       set unwound? true
       set color unwound-dna-color
-      wait 0.02   ;; for visualization purposes
+      display
     ]
   ]
 end
