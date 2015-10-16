@@ -107,7 +107,10 @@ class CodeTests extends TestModels {
       "Expected Value Advanced", "Random Combinations and Permutations",
       "Partition Perms Distrib"
     ),
-    "who" -> Seq("Disease HubNet", "Restaurants HubNet", "Prisoners Dilemma HubNet",
+    "who" -> Seq(
+      // Some of the following models may make justifiable use of `who`, but most
+      // probably don't. They should be revisited at some point. NP 2015-10-16.
+      "Disease HubNet", "Restaurants HubNet", "Prisoners Dilemma HubNet",
       "Disease Doctors HubNet", "Planarity", "Tetris", "PD N-Person Iterated",
       "Minority Game", "Osmotic Pressure", "Scattering", "N-Bodies", "Rope",
       "Speakers", "Raindrops", "GasLab Free Gas", "GasLab Moving Piston",
@@ -130,7 +133,9 @@ class CodeTests extends TestModels {
       "Connected Chemistry 1 Bike Tire", "Connected Chemistry 7 Ideal Gas Law",
       "Connected Chemistry 3 Circular Particles", "Connected Chemistry 4 Number and Pressure",
       "Connected Chemistry Atmosphere", "Connected Chemistry 2 Changing Pressure",
-      "Connected Chemistry 8 Gas Particle Sandbox", "DNA Protein Synthesis"),
+      "Connected Chemistry 8 Gas Particle Sandbox", "DNA Protein Synthesis",
+      "Hotelling's Law", "Tie System Example"
+    ),
     "write" -> Seq.empty
   )
 
