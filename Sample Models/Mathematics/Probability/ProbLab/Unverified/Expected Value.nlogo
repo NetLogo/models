@@ -630,7 +630,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 4
@@ -647,7 +647,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 TEXTBOX
 21
@@ -777,8 +777,8 @@ BUTTON
 12
 247
 48
-NIL
 Go
+go
 T
 1
 T
@@ -787,7 +787,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SWITCH
 129

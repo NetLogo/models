@@ -1803,7 +1803,7 @@ BUTTON
 720
 368
 ^ CHANGE ^
-set sort-up user-input \"Sort up / down word -\"\nset Turtle-Display \"Word-Sort\"
+set sort-up user-input \"Sort up / down word -\"\nset turtle-display \"Word-Sort\"
 NIL
 1
 T
@@ -1820,7 +1820,7 @@ BUTTON
 720
 454
 ^ CHANGE ^
-set sort-right user-input \"Sort right / left word -\"\nset Turtle-Display \"Word-Sort\"
+set sort-right user-input \"Sort right / left word -\"\nset turtle-display \"Word-Sort\"
 NIL
 1
 T

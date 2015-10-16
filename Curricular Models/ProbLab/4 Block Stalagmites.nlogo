@@ -579,8 +579,8 @@ BUTTON
 15
 265
 58
-NIL
 Setup
+setup
 NIL
 1
 T
@@ -658,7 +658,7 @@ BUTTON
 135
 151
 Organize
-Organize-Results
+organize-results
 NIL
 1
 T
@@ -675,7 +675,7 @@ BUTTON
 135
 191
 Disorganize
-Disorganize-Results
+disorganize-results
 NIL
 1
 T
@@ -692,7 +692,7 @@ BUTTON
 265
 190
 Go-Org
-Go-org
+go-org
 T
 1
 T
@@ -1168,7 +1168,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-RC1
 @#$#@#$#@
 setup
 repeat 150 [ go ]

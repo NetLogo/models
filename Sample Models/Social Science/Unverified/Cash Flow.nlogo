@@ -369,7 +369,7 @@ MONITOR
 240
 162
 Wallets total
-Wallets-total
+wallets-total
 2
 1
 11
@@ -391,7 +391,7 @@ MONITOR
 235
 223
 Money total
-Money-total
+money-total
 2
 1
 11
@@ -806,7 +806,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

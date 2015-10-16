@@ -457,8 +457,8 @@ BUTTON
 89
 84
 122
-NIL
-Preset1
+Preset 1
+preset1
 NIL
 1
 T
@@ -474,8 +474,8 @@ BUTTON
 89
 163
 122
-NIL
-Preset2
+Preset 2
+preset2
 NIL
 1
 T
@@ -491,8 +491,8 @@ BUTTON
 123
 84
 156
-NIL
-Preset3
+Preset 3
+preset3
 NIL
 1
 T
@@ -508,8 +508,8 @@ BUTTON
 123
 163
 156
-NIL
-Preset4
+Preset 4
+preset4
 NIL
 1
 T
@@ -535,8 +535,8 @@ BUTTON
 158
 84
 191
-NIL
-Preset5
+Preset 5
+preset5
 NIL
 1
 T
@@ -552,8 +552,8 @@ BUTTON
 158
 163
 191
-NIL
-Preset6
+Preset 6
+preset6
 NIL
 1
 T

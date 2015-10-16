@@ -268,8 +268,8 @@ BUTTON
 61
 117
 94
-NIL
 Setup
+setup
 NIL
 1
 T
@@ -350,10 +350,10 @@ count
 50.0
 true
 true
-"" "if ticks > 0 [\nifelse Analysis-Type = \"Both\"\n  [\n    ;; this line regulates the appearance of the plot -- it centers the two histograms\n    set-plot-x-range 0  max ( list ( round 1.5 * ceiling ( mean  #permis-successes-per-sample-list ) )\n                                  ( 1 + max #permis-successes-per-sample-list ) .1 )\n  ]\n  [\n    ifelse Analysis-Type = \"Combination\"\n      [set-plot-x-range 0 max ( list ( 2 * ceiling ( mean  #combi-successes-per-sample-list ) )\n                                    ( 1 + max #combi-successes-per-sample-list ) .1 ) ]\n      [set-plot-x-range 0 max (list ( 2 * ceiling ( mean  #permis-successes-per-sample-list ) )\n                                    ( 1 + max #permis-successes-per-sample-list ) .1 ) ]\n  ]\n]"
+"" "if ticks > 0 [\nifelse analysis-type = \"Both\"\n  [\n    ;; this line regulates the appearance of the plot -- it centers the two histograms\n    set-plot-x-range 0  max ( list ( round 1.5 * ceiling ( mean  #permis-successes-per-sample-list ) )\n                                  ( 1 + max #permis-successes-per-sample-list ) .1 )\n  ]\n  [\n    ifelse analysis-type = \"Combination\"\n      [set-plot-x-range 0 max ( list ( 2 * ceiling ( mean  #combi-successes-per-sample-list ) )\n                                    ( 1 + max #combi-successes-per-sample-list ) .1 ) ]\n      [set-plot-x-range 0 max (list ( 2 * ceiling ( mean  #permis-successes-per-sample-list ) )\n                                    ( 1 + max #permis-successes-per-sample-list ) .1 ) ]\n  ]\n]"
 PENS
-"Combination" 1.0 1 -16777216 true "" "if Analysis-Type = \"Combination\" or Analysis-Type = \"Both\" [\n  plot-pen-reset\n  ifelse bars? [ set-plot-pen-mode 1 ] [ set-plot-pen-mode 0 ]\n  histogram #combi-successes-per-sample-list\n  set count-steps 0\n  set count-permis-successes 0\n  set count-combi-successes 0\n]"
-"Permutations" 1.0 1 -2674135 true "" "if Analysis-Type = \"Permutations\" or Analysis-Type = \"Both\" [\n  plot-pen-reset\n  ifelse bars? [ set-plot-pen-mode 1 ] [ set-plot-pen-mode 0 ]\n  histogram #permis-successes-per-sample-list\n  set count-steps 0\n  set count-permis-successes 0\n  set count-combi-successes 0\n]"
+"Combination" 1.0 1 -16777216 true "" "if analysis-type = \"Combination\" or analysis-type = \"Both\" [\n  plot-pen-reset\n  ifelse bars? [ set-plot-pen-mode 1 ] [ set-plot-pen-mode 0 ]\n  histogram #combi-successes-per-sample-list\n  set count-steps 0\n  set count-permis-successes 0\n  set count-combi-successes 0\n]"
+"Permutations" 1.0 1 -2674135 true "" "if analysis-type = \"Permutations\" or analysis-type = \"Both\" [\n  plot-pen-reset\n  ifelse bars? [ set-plot-pen-mode 1 ] [ set-plot-pen-mode 0 ]\n  histogram #permis-successes-per-sample-list\n  set count-steps 0\n  set count-permis-successes 0\n  set count-combi-successes 0\n]"
 
 MONITOR
 125
@@ -975,7 +975,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

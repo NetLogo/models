@@ -645,8 +645,8 @@ SLIDER
 95
 158
 128
-Num-Consumer
-Num-Consumer
+num-consumer
+num-consumer
 0
 500
 350
@@ -660,8 +660,8 @@ SLIDER
 129
 158
 162
-Consumer-Energy
-Consumer-Energy
+consumer-energy
+consumer-energy
 25
 50
 50
@@ -788,8 +788,8 @@ SWITCH
 129
 425
 162
-Bankruptcy?
-Bankruptcy?
+bankruptcy?
+bankruptcy?
 1
 1
 -1000
@@ -799,8 +799,8 @@ SWITCH
 95
 425
 128
-Show-Rank?
-Show-Rank?
+show-rank?
+show-rank?
 0
 1
 -1000
@@ -891,11 +891,11 @@ NIL
 
 SLIDER
 3
-163
+164
 158
-196
-Consumer-Threshold
-Consumer-Threshold
+197
+consumer-threshold
+consumer-threshold
 10
 30
 30
@@ -909,8 +909,8 @@ SLIDER
 95
 295
 128
-Service-Cost
-Service-Cost
+service-cost
+service-cost
 0.01
 0.5
 0.2
@@ -924,8 +924,8 @@ SLIDER
 163
 295
 196
-Quality-Cost
-Quality-Cost
+quality-cost
+quality-cost
 0.01
 1
 0.2
@@ -939,8 +939,8 @@ SLIDER
 129
 295
 162
-Rent-Cost
-Rent-Cost
+rent-cost
+rent-cost
 0
 200
 100
@@ -952,10 +952,10 @@ HORIZONTAL
 SLIDER
 3
 200
-157
+158
 233
-#Auto-Restaurants
-#Auto-Restaurants
+#auto-restaurants
+#auto-restaurants
 1
 5
 5
@@ -970,7 +970,7 @@ BUTTON
 157
 267
 Create-Restaurants
-create-automated-restaurants #Auto-Restaurants
+create-automated-restaurants #auto-restaurants
 NIL
 1
 T
@@ -1554,7 +1554,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

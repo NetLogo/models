@@ -235,8 +235,8 @@ SLIDER
 84
 260
 117
-People
-People
+people
+people
 0.0
 200.0
 57
@@ -250,8 +250,8 @@ SLIDER
 84
 137
 117
-Reserves
-Reserves
+reserves
+reserves
 0.0
 100.0
 52
@@ -292,7 +292,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 PLOT
 4
@@ -318,7 +318,7 @@ MONITOR
 173
 259
 218
-WALLETS TOTAL
+Wallets Total
 wallets-total
 2
 1
@@ -329,7 +329,7 @@ MONITOR
 124
 259
 169
-SAVINGS TOTAL
+Savings Total
 savings-total
 2
 1
@@ -340,7 +340,7 @@ MONITOR
 222
 259
 267
-LOANS TOTAL
+Loans Total
 loans-total
 2
 1
@@ -351,7 +351,7 @@ MONITOR
 124
 144
 169
-MONEY TOTAL
+Money Total
 money-total
 2
 1
@@ -362,7 +362,7 @@ MONITOR
 222
 144
 267
-BANK RESERVES
+Bank Reserves
 bank-reserves
 2
 1
@@ -373,7 +373,7 @@ MONITOR
 173
 144
 218
-BANK TO LOAN
+Bank to Loan
 bank-to-loan
 2
 1
@@ -798,7 +798,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
