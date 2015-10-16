@@ -151,6 +151,9 @@ class CodeTests extends TestModels {
   // Some of these exceptions are debatable and should
   // be revisited at some point -- NP 2015-08-30
   val nonLowercaseExceptions = Map[String, Set[String]](
+    "CA 1D Elementary" -> Set(
+      "OIO", "IOI", "OII", "III", "OOI", "IOO", "IIO", "OOO"
+    ),
     "CA Stochastic" -> Set(
       "OIO", "IOI", "OII", "III", "OOI", "IOO", "IIO", "OOO"
     ),
@@ -203,7 +206,7 @@ class CodeTests extends TestModels {
       "Kf", "Keq", "Kb", "Ku", "Kr"
     ),
     "Radical Polymerization" -> Set(
-      "Io", "Km", "Ki"
+      "Io", "Km", "Ki", "Kr"
     ),
     "Simple Kinetics 1" -> Set(
       "Kb", "Ku"
@@ -213,6 +216,15 @@ class CodeTests extends TestModels {
     ),
     "Prisoners Dilemma HubNet" -> Set(
       "D-C", "C-C", "D-D", "C-D", "COOPERATE", "DEFECT"
+    ),
+    "Ethnocentrism" -> Set(
+      "initial-PTR"
+    ),
+    "Ethnocentrism - Alternative Visualization" -> Set(
+      "initial-PTR"
+    ),
+    "Wolf Sheep Predation (Docked Hybrid)" -> Set(
+      "sheepStock", "wolfStock", "predationRate", "predatorEfficiency"
     )
   )
 
