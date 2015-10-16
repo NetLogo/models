@@ -103,7 +103,9 @@ class CodeTests extends TestModels {
       "Sound Workbench", "Fish Spotters HubNet", "Bug Hunt Camouflage",
       "Bug Hunters Camouflage HubNet", "Memory HubNet", "Central Limit Theorem",
       "Gridlock HubNet", "Gridlock Alternate HubNet", "Polling Advanced HubNet",
-      "Public Good HubNet"
+      "Public Good HubNet", "4 Blocks", "9-Blocks", "Expected Value",
+      "Expected Value Advanced", "Random Combinations and Permutations",
+      "Partition Perms Distrib"
     ),
     "who" -> Seq("Disease HubNet", "Restaurants HubNet", "Prisoners Dilemma HubNet",
       "Disease Doctors HubNet", "Planarity", "Tetris", "PD N-Person Iterated",
