@@ -17,6 +17,7 @@ import org.nlogo.lex.Tokenizer3D
 import org.nlogo.api.TokenType.COMMAND
 import org.nlogo.api.TokenType.REPORTER
 import org.nlogo.api.TokenType.VARIABLE
+import org.nlogo.api.Token
 
 object Model {
   sealed abstract trait UpdateMode
@@ -97,8 +98,12 @@ case class Model(
       name.replaceFirst(" 3D$", "")
     else name
   def behaviorSpaceXML = XML.loadString(behaviorSpace)
-  def tokens = (if (is3d) Tokenizer3D else Tokenizer2D).tokenize(code)
-  def primitiveTokenNames = tokens
+  lazy val tokens: Seq[Token] = {
+    val widgetCode = WidgetParser.parseWidgets(interface.lines.toArray).mkString("\n")
+    val tokenizer = if (is3d) Tokenizer3D else Tokenizer2D
+    tokenizer.tokenize(code + previewCommands + widgetCode)
+  }
+  def primitiveTokenNames: Seq[String] = tokens
     .filter(t => t.tyype == REPORTER || t.tyype == COMMAND || t.tyype == VARIABLE)
     .map(_.name)
 }
