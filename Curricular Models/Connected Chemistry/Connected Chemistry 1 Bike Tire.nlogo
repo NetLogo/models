@@ -214,7 +214,7 @@ to place-particles
   if mouse-down?
   [
     paint-particles number-of-particles-to-add mouse-xcor mouse-ycor
-    while [mouse-down?] [wait 0.1]
+    while [mouse-down?] [ ] ; wait until mouse button released
   ]
    set total-particle-number (count particles)
   display
@@ -526,7 +526,7 @@ true
 0
 
 @#$#@#$#@
-NetLogo 5.2.1-M3
+NetLogo 5.2.1-RC1
 @#$#@#$#@
 setup
 set box-x 18
