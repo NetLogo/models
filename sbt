@@ -4,8 +4,8 @@
 # Author: Paul Phillips <paulp@improving.org>
 
 # todo - make this dynamic
-declare -r sbt_release_version="0.13.8"
-declare -r sbt_unreleased_version="0.13.8"
+declare -r sbt_release_version="0.13.9"
+declare -r sbt_unreleased_version="0.13.9"
 declare -r buildProps="project/build.properties"
 
 declare sbt_jar sbt_dir sbt_create sbt_version
@@ -106,7 +106,8 @@ declare -r noshare_opts="-Dsbt.global.base=project/.sbtboot -Dsbt.boot.directory
 declare -r latest_28="2.8.2"
 declare -r latest_29="2.9.3"
 declare -r latest_210="2.10.5"
-declare -r latest_211="2.11.6"
+declare -r latest_211="2.11.7"
+declare -r latest_212="2.12.0-M3"
 
 declare -r script_path="$(get_script_path "$BASH_SOURCE")"
 declare -r script_name="${script_path##*/}"
@@ -115,7 +116,7 @@ declare -r script_name="${script_path##*/}"
 declare java_cmd="java"
 declare sbt_opts_file="$(init_default_option_file SBT_OPTS .sbtopts)"
 declare jvm_opts_file="$(init_default_option_file JVM_OPTS .jvmopts)"
-declare sbt_launch_repo="http://typesafe.artifactoryonline.com/typesafe/ivy-releases"
+declare sbt_launch_repo="http://repo.typesafe.com/typesafe/ivy-releases"
 
 # pull -J and -D options to give to java.
 declare -a residual_args
@@ -244,7 +245,7 @@ download_url () {
 
   mkdir -p "${jar%/*}" && {
     if which curl >/dev/null; then
-      curl --fail --silent "$url" --output "$jar"
+      curl --fail --silent --location "$url" --output "$jar"
     elif which wget >/dev/null; then
       wget --quiet -O "$jar" "$url"
     fi
@@ -303,6 +304,7 @@ runner with the -x option.
   -29                       use $latest_29
   -210                      use $latest_210
   -211                      use $latest_211
+  -212                      use $latest_212
   -scala-home <path>        use the scala build at the specified directory
   -scala-version <version>  use the specified version of scala
   -binary-version <version> use the specified scala version when searching for dependencies
@@ -381,6 +383,7 @@ process_args ()
                -29) setScalaVersion "$latest_29" && shift ;;
               -210) setScalaVersion "$latest_210" && shift ;;
               -211) setScalaVersion "$latest_211" && shift ;;
+              -212) setScalaVersion "$latest_212" && shift ;;
 
            --debug) addSbt debug && addResidual "$1" && shift ;;
             --warn) addSbt warn  && addResidual "$1" && shift ;;
