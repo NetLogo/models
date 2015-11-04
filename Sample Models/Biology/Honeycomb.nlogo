@@ -112,7 +112,7 @@ BUTTON
 94
 188
 hide bees
-ht
+hide-turtle
 NIL
 1
 T
@@ -129,7 +129,7 @@ BUTTON
 191
 188
 show bees
-st
+show-turtle
 NIL
 1
 T
@@ -508,7 +508,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

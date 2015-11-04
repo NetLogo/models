@@ -157,12 +157,12 @@ NIL
 1
 
 BUTTON
-84
-306
-220
-339
+45
+295
+255
+328
 NIL
-ask planets [ pd ]
+ask planets [ pen-down ]
 NIL
 1
 T
@@ -174,12 +174,12 @@ NIL
 1
 
 BUTTON
-84
-408
-151
-441
+45
+400
+127
+433
 NIL
-pu
+pen-up
 NIL
 1
 T
@@ -191,29 +191,12 @@ NIL
 1
 
 BUTTON
-152
-408
-220
-441
+130
+400
+255
+433
 NIL
-cd
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-84
-340
-220
-373
-NIL
-ask moons [ pd ]
+clear-drawing
 NIL
 1
 T
@@ -225,12 +208,29 @@ NIL
 1
 
 BUTTON
-84
-374
-220
-407
+45
+330
+255
+363
 NIL
-ask suns [ pd ]
+ask moons [ pen-down ]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+45
+365
+255
+398
+NIL
+ask suns [ pen-down ]
 NIL
 1
 T
@@ -537,10 +537,10 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1
 @#$#@#$#@
 setup
-ask turtles [ pd ]
+ask turtles [ pen-down ]
 repeat 360 [ ask planets [ lt who ] ask suns [ rt 1 ] ]
 @#$#@#$#@
 @#$#@#$#@
@@ -558,5 +558,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@

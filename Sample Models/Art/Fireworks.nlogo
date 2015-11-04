@@ -636,7 +636,7 @@ set trails? true
 set fireworks 30
 random-seed 3
 setup
-repeat 50 [ go wait 0.05 ]
+repeat 50 [ go ]
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

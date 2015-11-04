@@ -1205,7 +1205,7 @@ NetLogo 5.2.0
 random-seed 3
 setup-clear
 infect
-repeat 100 [ go wait 0.1 ]
+repeat 100 [ go ]
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

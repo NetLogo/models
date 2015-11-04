@@ -676,7 +676,7 @@ BUTTON
 771
 113
 show-grid
-ask patches with [pycor = max-pycor]\n[\n   sprout 1\n   [\n     set xcor xcor + 0.4\n     set heading 180\n     set color white - 2\n     pd\n     jump world-height\n     die\n   ]\n]\n\nask patches with [pxcor = min-pxcor]\n[\n   sprout 1\n   [\n     set ycor ycor + 0.4\n     set heading 90\n     set color white - 2\n     pd\n     jump world-width\n     die\n   ]\n]
+ask patches with [pycor = max-pycor]\n[\n   sprout 1\n   [\n     set xcor xcor + 0.4\n     set heading 180\n     set color white - 2\n     pen-down\n     jump world-height\n     die\n   ]\n]\n\nask patches with [pxcor = min-pxcor]\n[\n   sprout 1\n   [\n     set ycor ycor + 0.4\n     set heading 90\n     set color white - 2\n     pen-down\n     jump world-width\n     die\n   ]\n]
 NIL
 1
 T
@@ -693,7 +693,7 @@ BUTTON
 771
 147
 hide-grid
-cd
+clear-drawing
 NIL
 1
 T
@@ -1268,7 +1268,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

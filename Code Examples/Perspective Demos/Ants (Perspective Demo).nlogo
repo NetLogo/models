@@ -297,10 +297,10 @@ This is a version of the Ants model, modified to show off NetLogo's perspective 
 BUTTON
 54
 355
-117
+130
 388
 NIL
-pd
+pen-down
 NIL
 1
 T
@@ -312,12 +312,12 @@ NIL
 1
 
 BUTTON
-125
-356
-188
-389
+131
+355
+213
+388
 NIL
-pu
+pen-up
 NIL
 1
 T
@@ -359,10 +359,10 @@ NIL
 BUTTON
 53
 317
-189
+212
 350
-subject pd
-if subject != nobody\n[ ask subject [ pd ] ]
+subject pen-down
+if subject != nobody\n[ ask subject [ pen-down ] ]
 NIL
 1
 T
@@ -684,7 +684,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

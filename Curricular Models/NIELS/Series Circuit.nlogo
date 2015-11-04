@@ -266,7 +266,7 @@ BUTTON
 148
 101
 Watch An Electron
-ask electrons [ set color orange - 2 pu ]\nclear-drawing \nask one-of electrons with [xcor > max-pxcor - 10]\n[if pcolor != black [ set color yellow pd \n  watch-me\n]]
+ask electrons [ set color orange - 2 pen-up ]\nclear-drawing \nask one-of electrons with [xcor > max-pxcor - 10]\n[if pcolor != black [ set color yellow pen-down \n  watch-me\n]]
 NIL
 1
 T
@@ -283,7 +283,7 @@ BUTTON
 124
 136
 Stop Watching
-ask electrons [ pu set color orange - 2]\nreset-perspective\n
+ask electrons [ pen-up set color orange - 2]\nreset-perspective\n
 NIL
 1
 T
@@ -300,7 +300,7 @@ BUTTON
 171
 182
 Hide Atoms
-ask nuclei [ht]
+ask nuclei [hide-turtle]
 NIL
 1
 T
@@ -317,7 +317,7 @@ BUTTON
 171
 215
 Show Atoms
-ask nuclei [st]
+ask nuclei [show-turtle]
 NIL
 1
 T
@@ -840,7 +840,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

@@ -634,7 +634,7 @@ NetLogo 5.2.0
 @#$#@#$#@
 setup
 repeat 1200 [ go ]
-ask turtles [ ht ]
+ask turtles [ hide-turtle ]
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
