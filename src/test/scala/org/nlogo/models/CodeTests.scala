@@ -105,7 +105,7 @@ class CodeTests extends TestModels {
       "Gridlock HubNet", "Gridlock Alternate HubNet", "Polling Advanced HubNet",
       "Public Good HubNet", "4 Blocks", "9-Blocks", "Expected Value",
       "Expected Value Advanced", "Random Combinations and Permutations",
-      "Partition Perms Distrib"
+      "Partition Perms Distrib", "GoGoMonitorSerial", "GoGoMonitorSimpleSerial"
     ),
     "who" -> Seq(
       // Some of the following models may make justifiable use of `who`, but most
