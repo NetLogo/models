@@ -951,9 +951,10 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
 NetLogo 5.2.0
 @#$#@#$#@
+random-seed 1
 set starting-level 9
 new
-repeat 25 [ play wait 0.15 ]
+repeat 250 [ play ]
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

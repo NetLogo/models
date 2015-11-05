@@ -221,8 +221,8 @@ BUTTON
 109
 75
 142
-NIL
 Setup
+setup
 NIL
 1
 T
@@ -238,8 +238,8 @@ BUTTON
 109
 141
 142
-NIL
 Go
+go
 T
 1
 T
@@ -248,7 +248,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SWITCH
 33
@@ -723,7 +723,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

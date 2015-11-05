@@ -1,15 +1,23 @@
-turtles-own [col               ;sets color of an explosion particle
-             x-vel             ;x-velocity
-             y-vel             ;y-velocity
-            ]
 breed [ rockets rocket ]
 breed [ frags frag ]
-rockets-own [ terminal-y-vel ] ;velocity at which rocket will explode
-frags-own [ dim ]              ;used for fading particles
 
-;SETUP
-;-----
-;This function clears all patches and turtles.
+globals [
+  countdown       ; how many ticks to wait before a new salvo of fireworks
+]
+
+turtles-own [
+  col             ; sets color of an explosion particle
+  x-vel           ; x-velocity
+  y-vel           ; y-velocity
+]
+
+rockets-own [
+  terminal-y-vel  ; velocity at which rocket will explode
+]
+
+frags-own [
+  dim             ; used for fading particles
+]
 
 to setup
   clear-all
@@ -17,92 +25,81 @@ to setup
   reset-ticks
 end
 
-
-;GO
-;--
-;This function executes the model.  If there are no turtles, then it creates a random number
-;according to the slider FIREWORKS and sets all the initial values for each firework.
-;It then calls PROJECTILE-MOTION, which launches and explodes the fireworks.
-
+; This procedure executes the model. If there are no turtles,
+; it will either initiate a new salvo of fireworks by calling
+; INIT-ROCKETS or continue to count down if it hasn't reached 0.
+; It then calls PROJECTILE-MOTION, which launches and explodes
+; any currently existing fireworks.
 to go
-  if not any? turtles
-  [
-    ifelse trails?      ;;used so that the trails don't immediately disappear
-      [wait 1]
-      [wait .3]
-    clear-drawing
-
-    create-rockets (random fireworks)
-    [
-      setxy random-xcor min-pycor
-      set x-vel ((random-float (2 * initial-x-vel)) - (initial-x-vel))
-      set y-vel ((random-float initial-y-vel) + initial-y-vel * 2 )
-      set col ((random 14) + 1) * 10 - 5    ;; reports a random 'primary' color   i.e. 5, 15, 25, etc.
-      set color (col + 2)
-      set size 2
-      set terminal-y-vel (random-float 4.0)     ;; at what speed does the rocket explode?
+  if not any? turtles [
+    ifelse countdown = 0 [
+      init-rockets
+      ; use a higher countdown to get a longer pause when trails are drawn
+      set countdown ifelse-value trails? [ 30 ] [ 10 ]
+    ] [
+      ; count down before launching a new salvo
+      set countdown countdown - 1
     ]
   ]
-  ask turtles
-    [ projectile-motion ]
-  display
-  if not any? turtles
-    [ tick ]
+  ask turtles [ projectile-motion ]
+  tick
 end
 
+; This procedure creates a random number of rockets according to the
+; slider FIREWORKS and sets all the initial values for each firework.
+to init-rockets
+  clear-drawing
+  create-rockets (random fireworks) [
+    setxy random-xcor min-pycor
+    set x-vel ((random-float (2 * initial-x-vel)) - (initial-x-vel))
+    set y-vel ((random-float initial-y-vel) + initial-y-vel * 2)
+    set col one-of base-colors
+    set color (col + 2)
+    set size 2
+    set terminal-y-vel (random-float 4.0) ; at what speed does the rocket explode?
+  ]
+end
 
-;PROJECTILE-MOTION
-;-----------------
-;This function simulates the actual free-fall motion of the turtles.
-;If a turtle is a rocket it checks if it has slowed down enough to explode.
-
-to projectile-motion               ;; turtle procedure
+; This function simulates the actual free-fall motion of the turtles.
+; If a turtle is a rocket it checks if it has slowed down enough to explode.
+to projectile-motion ; turtle procedure
   set y-vel (y-vel - (gravity / 5))
   set heading (atan x-vel y-vel)
   let move-amount (sqrt ((x-vel ^ 2) + (y-vel ^ 2)))
-  if not can-move? move-amount
-    [ die ]
+  if not can-move? move-amount [ die ]
   fd (sqrt ((x-vel ^ 2) + (y-vel ^ 2)))
 
-  ifelse (breed = rockets)
-    [if (y-vel < terminal-y-vel)
-       [explode
-        die
-       ]
+  ifelse (breed = rockets) [
+    if (y-vel < terminal-y-vel) [
+      explode
+      die
     ]
-    [fade]
+  ] [
+    fade
+  ]
 end
 
-
-;EXPLODE
-;-------
-;This is where the explosion is created.
-;EXPLODE calls hatch a number of times indicated by the slider FRAGMENTS.
-
-to explode                 ;; turtle procedure
-  hatch-frags fragments
-    [ set dim 0
-      rt random 360
-      set size 1
-      set x-vel (x-vel * .5 + dx + (random-float 2.0) - 1)
-      set y-vel (y-vel * .3 + dy + (random-float 2.0) - 1)
-      ifelse trails?
-        [ pen-down ]
-        [ pen-up ]
-     ]
+; This is where the explosion is created.
+; EXPLODE calls hatch a number of times indicated by the slider FRAGMENTS.
+to explode ; turtle procedure
+  hatch-frags fragments [
+    set dim 0
+    rt random 360
+    set size 1
+    set x-vel (x-vel * .5 + dx + (random-float 2.0) - 1)
+    set y-vel (y-vel * .3 + dy + (random-float 2.0) - 1)
+    ifelse trails?
+      [ pen-down ]
+      [ pen-up ]
+  ]
 end
 
-
-;FADE
-;----
-;This function changes the color of a frag.
-;Each frag fades its color by an amount proportional to FADE-AMOUNT.
-
-to fade                    ;; frag procedure
+; This function changes the color of a frag.
+; Each frag fades its color by an amount proportional to FADE-AMOUNT.
+to fade ; frag procedure
   set dim dim - (fade-amount / 10)
   set color scale-color col dim -5 .5
-  if ( color < (col - 3.5) )
-    [die]
+  if (color < (col - 3.5)) [ die ]
 end
 
 
@@ -168,7 +165,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SWITCH
 4
@@ -283,11 +280,17 @@ Each rocket, represented by a turtle, is launched upward with an initial x and y
 ## HOW TO USE IT
 
 SETUP sets up the model according to the values indicated by all the sliders and the switch. GO is a forever button that executes the model continually.
+
 FIREWORKS creates a random number of fireworks between 0 and the number indicated on the slider.
+
 FRAGMENTS determines how many particle fragments will emerge after the explosion of a single firework.
+
 GRAVITY determines the gravitational strength in the environment.  A larger value will give a greater gravitational acceleration, meaning that particles will be forced to the ground at a faster rate.  The inverse is true for smaller values.
+
 INIT-X-VEL sets the initial x-velocity of each rocket to a random number between the negative and positive value of the number indicated on the slider.
+
 INIT-Y-VEL sets the initial y-velocity of each rocket to a random number between 0 and the number indicated on the slider plus ten.  This is to ensure that there is a range of difference in the initial y-velocities of the fireworks.
+
 FADE-AMOUNT determines the rate at which the explosion particles fade after the explosion.
 
 TRAILS allows the user to turn the trails left by the explosion particles on or off.  In other words, if the TRAILS switch is ON, then the turtles will leave trails.  If it is OFF, then they will not leave trails.
@@ -627,13 +630,13 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-M3
 @#$#@#$#@
 set trails? true
 set fireworks 30
 random-seed 3
 setup
-repeat 50 [ go wait 0.05 ]
+repeat 50 [ go ]
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

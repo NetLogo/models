@@ -50,19 +50,17 @@ to new
       setxy 10 10
     ]
 
-    create-ghosts 4
+    foreach n-values 4 [ ? ]
     [
-      set shape "ghost"
-      setxy 0 3
-      set heading 0
-      set eaten? false
+      create-ghosts 1
+      [
+        set shape "ghost"
+        set color item ? ghost-colors
+        setxy 10 (9 - ?)
+        set heading 0
+        set eaten? false
+      ]
     ]
-
-    ; set ghost colors and initial position
-    ask turtle 1 [ set color 15  setxy 10 9 ]
-    ask turtle 2 [ set color 26  setxy 10 8 ]
-    ask turtle 3 [ set color 127 setxy 10 7 ]
-    ask turtle 4 [ set color 85  setxy 10 6 ]
 
     ask turtles
     [ set home-pos list xcor ycor ]
@@ -72,6 +70,9 @@ to new
   ]
 end
 
+to-report ghost-colors
+  report [ 15 26 127 85 ]
+end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Runtime Procedures ;;
@@ -171,7 +172,7 @@ to toggle-power-pellet
       ifelse powerup?
       [ set shape "circle" ]
       [ set shape "pellet" ]
-      wait 0.1
+      while [ mouse-down? ] [ ] ;; wait until mouse button is released
     ]
   ]
 end
@@ -191,7 +192,7 @@ to place-ghost
   ifelse [pcolor] of patch mouse-xcor mouse-ycor = blue
   [ user-message "You must place a ghost on a corridor space or a gate, not a wall." ]
   [
-    ask turtle which-ghost
+    ask one-of ghosts with [ color = item (which-ghost - 1) ghost-colors ]
     [ setxy (round mouse-xcor) (round mouse-ycor) ]
   ]
 end
@@ -557,25 +558,39 @@ Use the various tools to construct a level for the Pac-Man model.
 The following are for setup, loading, and saving:
 
 NEW LEVEL - Clears the level and sets it up to start making a new level from scratch.
+
 LOAD LEVEL - Prompts for a level number to load for editing.  The file opened will be the file "pacmap#.csv" (where # is the input level number), and the file must be in the Games folder in the Sample Models section of the Models Library.  (Files will not be visible in the Models Library Browser.)
--- With both NEW LEVEL and LOAD LEVEL, any unsaved changes to a level will be lost (you will be reminded of this and prompted to continue when using these buttons).
+
+(With both NEW LEVEL and LOAD LEVEL, any unsaved changes to a level will be lost. You will be reminded of this and prompted to continue when using these buttons.)
+
 SAVE LEVEL - Prompts to save the current level to a file usable by the Pac-Man model.  The file will be saved in the Games folder in the Sample Models section of the Models Library with the Pac-Man model with the file name "pacmap#.csv" (where # is the currently set level number).  Saving a level with the same level number as a previously created level will overwrite the old level (it is not be possible to recover overwritten levels).
+
 SET LEVEL - Sets the current value of 'level' which determines the filename of the level when it is saved with SAVE LEVEL.
+
 LEVEL - This monitor shows the current value of level.
 
 The following are the tools for actually editing levels:
 
 USE TOOL - Allows you to use the current tool on a patch by clicking on it with the mouse.
+
 CURRENT TOOL - Shows what the currently selected tool is.
+
 WHICH-GHOST - This slider determines which Ghost will be moved by the PLACE GHOST tool.
 
 -- The following buttons set the current tool to do different actions.
+
 ERASER - This tool allows you to clear a patch of walls, gates, and pellets.
+
 DRAW WALL - This tool allows you to draw a wall (blue) on the current patch.
+
 DRAW GATE - This tool allows you to draw a gate (gray) on the current patch.
+
 PLACE PELLET - This tool allows you to place a pellet on the grid.
+
 TOGGLE POWER PELLET - This tool allows you to change a Pellet into a Power Pellet and vice versa.
+
 PLACE PAC-MAN - This tool allows you to change Pac-Man's starting position.
+
 PLACE GHOST - This tool allows you to change the starting position of the Ghost chosen by WHICH-GHOST.
 
 ## THINGS TO NOTICE
@@ -583,21 +598,18 @@ PLACE GHOST - This tool allows you to change the starting position of the Ghost 
 If Pac-Man goes off the edge of the maze he will wrap around to the other side.
 
 Identifying Things in the Maze:
--- Yellow Circle with a mouth:  This is Pac-Man - The protagonist.
--- Small White Circles:
-         These are Pellets - Pac-Man will have to collect all of these (including the Power-Pellets) to move on to the next level.
 
--- Large White Circles:
-         These are Power-Pellets - They allow Pac-Man to eat the Ghosts for a limited amount of time.
+- Yellow Circle with a mouth:  This is Pac-Man - The protagonist.
 
--- Blue Squares:
-                These are the walls of the maze - Neither Pac-Man nor the Ghosts can move through the walls.
+- Small White Circles: These are Pellets - Pac-Man will have to collect all of these (including the Power-Pellets) to move on to the next level.
 
--- Gray Squares:
-                These are the Ghost Gates - Only Ghosts can move through them, and if they do so after having been eaten they will be healed.
+- Large White Circles: These are Power-Pellets - They allow Pac-Man to eat the Ghosts for a limited amount of time.
 
--- Colorful Ghost with Eyes:
-    These are the Ghosts - The antagonists.
+- Blue Squares: These are the walls of the maze - Neither Pac-Man nor the Ghosts can move through the walls.
+
+- Gray Squares: These are the Ghost Gates - Only Ghosts can move through them, and if they do so after having been eaten they will be healed.
+
+- Colorful Ghost with Eyes: These are the Ghosts - The antagonists.
 
 ## THINGS TO TRY
 
@@ -975,7 +987,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-RC1
 @#$#@#$#@
 import-world "../pacmap4.csv"
 @#$#@#$#@

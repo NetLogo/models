@@ -52,8 +52,8 @@ to select-squares
       [ set pcolor pmy-color ]
       [ set pcolor red ]
     ]
-    wait .2 ;; to give the user a chance to retract his/her clicking finger
     set num-squares count patches with [ pcolor = red ]
+    while [ mouse-down? ] [ ] ; wait until mouse button released
   ]
 end
 
@@ -457,8 +457,8 @@ BUTTON
 89
 84
 122
-NIL
-Preset1
+Preset 1
+preset1
 NIL
 1
 T
@@ -474,8 +474,8 @@ BUTTON
 89
 163
 122
-NIL
-Preset2
+Preset 2
+preset2
 NIL
 1
 T
@@ -491,8 +491,8 @@ BUTTON
 123
 84
 156
-NIL
-Preset3
+Preset 3
+preset3
 NIL
 1
 T
@@ -508,8 +508,8 @@ BUTTON
 123
 163
 156
-NIL
-Preset4
+Preset 4
+preset4
 NIL
 1
 T
@@ -535,8 +535,8 @@ BUTTON
 158
 84
 191
-NIL
-Preset5
+Preset 5
+preset5
 NIL
 1
 T
@@ -552,8 +552,8 @@ BUTTON
 158
 163
 191
-NIL
-Preset6
+Preset 6
+preset6
 NIL
 1
 T
@@ -957,7 +957,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

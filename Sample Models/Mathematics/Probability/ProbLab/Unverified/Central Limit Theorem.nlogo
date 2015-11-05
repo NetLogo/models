@@ -257,10 +257,10 @@ ticks
 BUTTON
 8
 10
-74
+81
 43
 NIL
-Setup
+setup
 NIL
 1
 T
@@ -328,7 +328,7 @@ BUTTON
 164
 414
 NIL
-Go
+go
 T
 1
 T
@@ -345,7 +345,7 @@ BUTTON
 84
 414
 Go Once
-Go
+go
 NIL
 1
 T
@@ -438,7 +438,7 @@ BUTTON
 81
 178
 Preset 1
-Preset1
+preset1
 NIL
 1
 T
@@ -455,7 +455,7 @@ BUTTON
 152
 178
 Preset 2
-Preset2
+preset2
 NIL
 1
 T
@@ -472,7 +472,7 @@ BUTTON
 81
 214
 Preset 3
-Preset3
+preset3
 NIL
 1
 T
@@ -489,7 +489,7 @@ BUTTON
 152
 214
 Preset 4
-Preset4
+preset4
 NIL
 1
 T
@@ -506,7 +506,7 @@ BUTTON
 82
 251
 Preset 5
-Preset5
+preset5
 NIL
 1
 T
@@ -523,7 +523,7 @@ BUTTON
 152
 251
 Preset 6
-Preset6
+preset6
 NIL
 1
 T
@@ -997,7 +997,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

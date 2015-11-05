@@ -1,4 +1,4 @@
-globals [ stop-light ]
+globals [ ticks-at-last-change ]
 turtles-own [ speed ]
 patches-own [ clear-in ]
 
@@ -14,21 +14,12 @@ to setup
       if abs pxcor <= 1 or abs pycor <= 1
         [ set pcolor black ]
     ]
-  set stop-light "north"
-  draw-stop-light
+  ; start with one green light and one red light
+  ask one-of lights [
+    set pcolor green
+    ask other lights [ set pcolor red ]
+  ]
   reset-ticks
-end
-
-to draw-stop-light
-  ask patches with [abs pxcor <= 1 and abs pycor <= 1]
-    [ set pcolor black ]
-  ifelse stop-light = "north"
-  [ ask patch 0 -1 [ set pcolor red ]
-    ask patch -1 0 [ set pcolor green ]
-  ]
-  [ ask patch 0 -1 [ set pcolor green ]
-    ask patch -1 0 [ set pcolor red ]
-  ]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;
@@ -38,13 +29,15 @@ end
 to go
   move-cars
   make-new-cars
-  if auto? ;; switch the light automatically
-  [ if ticks mod (green-length + yellow-length) = 0
-    [ switch ]
-    if ticks mod (green-length + yellow-length) > green-length
-    [ ask patches with [pcolor = green]
-      [ set pcolor yellow ]
-    ]
+  ; if we are in "auto" mode and a light has been
+  ; green for long enough, we turn it yellow
+  if auto? and elapsed? green-length [
+    change-to-yellow
+  ]
+  ; if a light has been yellow for long enough, we
+  ; turn it red and turn the other one green
+  if any? lights with [ pcolor = yellow ] and elapsed? yellow-length [
+    change-to-red
   ]
   tick
 end
@@ -127,14 +120,30 @@ to check-for-collisions
   ]
 end
 
-to switch
-  ifelse stop-light = "north"
-  [ set stop-light "east"
-    draw-stop-light
+to change-to-yellow
+  ask lights with [ pcolor = green ] [
+    set pcolor yellow
+    set ticks-at-last-change ticks
   ]
-  [ set stop-light "north"
-    draw-stop-light
+end
+
+to change-to-red
+  ask lights with [ pcolor = yellow ] [
+    set pcolor red
+    ask other lights [ set pcolor green ]
+    set ticks-at-last-change ticks
   ]
+end
+
+; reports the set of two patches that are used as traffic lights
+to-report lights
+  report (patch-set patch 0 -1 patch -1 0)
+end
+
+; reports `true` if `time-length` ticks
+; has elapsed since the last light change
+to-report elapsed? [ time-length ]
+  report (ticks - ticks-at-last-change) > time-length
 end
 
 
@@ -208,7 +217,7 @@ BUTTON
 178
 118
 switch
-ask patches with [ pcolor = green ]\n[ set pcolor yellow ]\nwait 0.5\nswitch
+change-to-yellow
 NIL
 1
 T
@@ -799,7 +808,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-M3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

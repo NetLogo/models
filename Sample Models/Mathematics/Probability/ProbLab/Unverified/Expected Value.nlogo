@@ -117,8 +117,12 @@ to setup-patches
   ifelse setup-apart?
   [
     print-out nums
+    display
     wait 2
-    repeat (#patches / 4) [ disperse ]
+    repeat (#patches / 4) [
+      disperse
+      display
+    ]
     ask patches [ set value position pcolor colors ]
   ]
   ;;colors the patches from their given values
@@ -626,7 +630,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 4
@@ -643,7 +647,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 TEXTBOX
 21
@@ -773,8 +777,8 @@ BUTTON
 12
 247
 48
-NIL
 Go
+go
 T
 1
 T
@@ -783,7 +787,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SWITCH
 129
@@ -1299,7 +1303,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

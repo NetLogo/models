@@ -169,7 +169,7 @@ BUTTON
 274
 191
 Play note
-Play
+play
 NIL
 1
 T
@@ -234,8 +234,8 @@ BUTTON
 430
 66
 478
-NIL
 Save 1
+save 1
 NIL
 1
 T
@@ -262,8 +262,8 @@ BUTTON
 484
 67
 529
-NIL
 Save 2
+save 2
 NIL
 1
 T
@@ -402,8 +402,8 @@ BUTTON
 535
 67
 580
-NIL
 Save 3
+save 3
 NIL
 1
 T
@@ -511,12 +511,12 @@ NIL
 1
 
 BUTTON
-401
-345
-521
-378
+397
+346
+533
+379
 Play C-major chord
-let tmp tone\nforeach [ 60 64 67 ] [\nset tone ? Play ]\nset tone tmp
+let tmp tone\nforeach [ 60 64 67 ] [\nset tone ? play ]\nset tone tmp
 NIL
 1
 T
@@ -909,7 +909,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

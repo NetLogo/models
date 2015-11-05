@@ -99,7 +99,18 @@ class CodeTests extends TestModels {
     "towards-nowrap" -> Seq.empty,
     "towardsxy-nowrap" -> Seq.empty,
     "type" -> Seq.empty,
-    "who" -> Seq("Disease HubNet", "Restaurants HubNet", "Prisoners Dilemma HubNet",
+    "wait" -> Seq(
+      "Sound Workbench", "Fish Spotters HubNet", "Bug Hunt Camouflage",
+      "Bug Hunters Camouflage HubNet", "Memory HubNet", "Central Limit Theorem",
+      "Gridlock HubNet", "Gridlock Alternate HubNet", "Polling Advanced HubNet",
+      "Public Good HubNet", "4 Blocks", "9-Blocks", "Expected Value",
+      "Expected Value Advanced", "Random Combinations and Permutations",
+      "Partition Perms Distrib", "GoGoMonitorSerial", "GoGoMonitorSimpleSerial"
+    ),
+    "who" -> Seq(
+      // Some of the following models may make justifiable use of `who`, but most
+      // probably don't. They should be revisited at some point. NP 2015-10-16.
+      "Disease HubNet", "Restaurants HubNet", "Prisoners Dilemma HubNet",
       "Disease Doctors HubNet", "Planarity", "Tetris", "PD N-Person Iterated",
       "Minority Game", "Osmotic Pressure", "Scattering", "N-Bodies", "Rope",
       "Speakers", "Raindrops", "GasLab Free Gas", "GasLab Moving Piston",
@@ -122,7 +133,9 @@ class CodeTests extends TestModels {
       "Connected Chemistry 1 Bike Tire", "Connected Chemistry 7 Ideal Gas Law",
       "Connected Chemistry 3 Circular Particles", "Connected Chemistry 4 Number and Pressure",
       "Connected Chemistry Atmosphere", "Connected Chemistry 2 Changing Pressure",
-      "Connected Chemistry 8 Gas Particle Sandbox", "DNA Protein Synthesis"),
+      "Connected Chemistry 8 Gas Particle Sandbox", "DNA Protein Synthesis",
+      "Hotelling's Law", "Tie System Example"
+    ),
     "write" -> Seq.empty
   )
 
@@ -138,6 +151,9 @@ class CodeTests extends TestModels {
   // Some of these exceptions are debatable and should
   // be revisited at some point -- NP 2015-08-30
   val nonLowercaseExceptions = Map[String, Set[String]](
+    "CA 1D Elementary" -> Set(
+      "OIO", "IOI", "OII", "III", "OOI", "IOO", "IIO", "OOO"
+    ),
     "CA Stochastic" -> Set(
       "OIO", "IOI", "OII", "III", "OOI", "IOO", "IIO", "OOO"
     ),
@@ -190,7 +206,7 @@ class CodeTests extends TestModels {
       "Kf", "Keq", "Kb", "Ku", "Kr"
     ),
     "Radical Polymerization" -> Set(
-      "Io", "Km", "Ki"
+      "Io", "Km", "Ki", "Kr"
     ),
     "Simple Kinetics 1" -> Set(
       "Kb", "Ku"
@@ -200,6 +216,15 @@ class CodeTests extends TestModels {
     ),
     "Prisoners Dilemma HubNet" -> Set(
       "D-C", "C-C", "D-D", "C-D", "COOPERATE", "DEFECT"
+    ),
+    "Ethnocentrism" -> Set(
+      "initial-PTR"
+    ),
+    "Ethnocentrism - Alternative Visualization" -> Set(
+      "initial-PTR"
+    ),
+    "Wolf Sheep Predation (Docked Hybrid)" -> Set(
+      "sheepStock", "wolfStock", "predationRate", "predatorEfficiency"
     )
   )
 
