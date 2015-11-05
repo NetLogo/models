@@ -341,7 +341,7 @@ to setup-walker
       set velocities [0 0 0 0 0 0 0 0 0]
       set heading 0
       set interval 0
-      set color 5 + 10 * random 14
+      set color one-of base-colors
       set xcor-initial random-pxcor
       setxy xcor-initial [pycor] of p
       set my-xcor xcor
@@ -1294,7 +1294,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

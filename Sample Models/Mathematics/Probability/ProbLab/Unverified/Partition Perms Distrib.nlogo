@@ -96,7 +96,7 @@ to paint
     [set pxcor-of-right-most-colored-patch ( max [ pxcor ] of patches with [ pcolor != black ] )]
 
   ;; temp-color will be any of 14 colors from the NetLogo color space
-  let temp-color ( 10 * random 14 ) + 5
+  let temp-color one-of base-colors
 
   ;; we color only the patches that reflect the latest addend
   ask patches with
@@ -767,7 +767,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.1-RC1
+NetLogo 5.2.1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

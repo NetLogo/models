@@ -11,7 +11,7 @@ to setup
   clear-all
   ask patches
   [ ;; use dark colors so the labels are visible
-    set pcolor 3 + 10 * random 14
+    set pcolor one-of base-colors - 2
     ;; initially, we're in no cluster
     set cluster nobody ]
   ;; by spreading colors from patch to patch, connected areas
@@ -425,7 +425,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1
 @#$#@#$#@
 setup
 find-clusters

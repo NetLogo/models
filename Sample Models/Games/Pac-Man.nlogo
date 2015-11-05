@@ -310,7 +310,7 @@ to make-bonus ;; Observer Procedure
       [ sprout-bonuses 1
         [ set shape "star"
           set heading 0
-          set color random 14 * 10 + 5
+          set color one-of base-colors
           set value (random 10 + 1) * 100
           set countdown random 200 + 50 ] ]
       set next-bonus-in 5 + random 10 ] ]
@@ -959,7 +959,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1
 @#$#@#$#@
 new
 @#$#@#$#@
