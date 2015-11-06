@@ -270,7 +270,6 @@ to go
   drop-in-bin
 
   tick
-  if plot? [ histogram-blocks ]
 end
 
 to-report column-full?
@@ -488,27 +487,6 @@ end
 
 to-report total-samples-to-find
   report precision (2 ^ (side ^ 2)) 0
-end
-
-to histogram-blocks
-  let sample-value-summaries [ sample-summary-value ] of sample-organizers
-  let possible-values n-values (2 ^ (side * side)) [ ? ]
-  let results []
-  foreach possible-values [
-    let i ?
-    set results lput length filter [ ? = i ] sample-value-summaries results
-  ]
-
-  set-current-plot "Events by Number of Outcomes"
-  let max-results max results
-  if mean results > 0 [ set-plot-x-range 0 (max-results + 1) ]
-  set-current-plot-pen "Histogram"
-  histogram results
-  set-current-plot-pen "Mean"
-  let mean-results mean results
-  plot-pen-reset
-  plotxy mean-results 0
-  plotxy mean-results plot-y-max
 end
 
 
@@ -751,7 +729,7 @@ Number of Outcomes per Event
 15.0
 true
 false
-"" ""
+"" "if plot? [\n  let sample-value-summaries [ sample-summary-value ] of sample-organizers\n  let possible-values n-values (2 ^ (side * side)) [ ? ]\n  let results []\n  foreach possible-values [\n    let i ?\n    set results lput length filter [ ? = i ] sample-value-summaries results\n  ]\n\n  let max-results max results\n  if mean results > 0 [ set-plot-x-range 0 (max-results + 1) ]\n  set-current-plot-pen \"Histogram\"\n  histogram results\n  set-current-plot-pen \"Mean\"\n  let mean-results mean results\n  plot-pen-reset\n  plotxy mean-results 0\n  plotxy mean-results plot-y-max\n]"
 PENS
 "histogram" 1.0 1 -16777216 true "" ""
 "Mean" 1.0 0 -2674135 true "" ""
