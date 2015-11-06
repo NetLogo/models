@@ -49,12 +49,9 @@ sample-organizers-own [
   original-pycor
 ]
 
-to go-org
-  super-go
-  organize-results
-end
 
-to super-go
+to go
+
   if stop-all? [
     ifelse stop-at-top? [
       stop
@@ -62,17 +59,27 @@ to super-go
       bump-down
     ]
   ]
-  ifelse popping? [
-    no-display
-    unpop
-    go
-    pop
-    display
-  ] [
-    go
-    display
-  ]
+
+  let popped? popping?
+  if popped? [ unpop ]
+
+  ;; The model keeps track of which different combinations
+  ;; have been discovered. Each column-kid reports whether
+  ;; or not its column has all the possible combinations.
+  ;; When bound? is true, a report from ALL column-kids
+  ;; that their columns are full will stop the run.
+  sample
+  drop-in-bin
+
+  if popped? [ pop ]
+
+  tick
   plot-it
+end
+
+to go-org
+  go
+  organize-results
 end
 
 ;; global controls the popping visuals
@@ -323,17 +330,6 @@ to bump-down
   ask sample-organizers [ fd 3 ]
   ask left-dummies [ fd 3 ]
   recolor-columns
-end
-
-to go
-  ;; The model keeps track of which different combinations
-  ;; have been discovered. Each column-kid reports whether
-  ;; or not its column has all the possible combinations.
-  ;; When bound? is true, a report from ALL column-kids
-  ;; that their columns are full will stop the run.
-  sample
-  drop-in-bin
-  tick
 end
 
 ;; This procedure creates a square sample of dimensions
@@ -661,7 +657,7 @@ BUTTON
 245
 128
 Go
-super-go
+go
 T
 1
 T
@@ -678,7 +674,7 @@ BUTTON
 165
 128
 Go Once
-super-go
+go
 NIL
 1
 T
@@ -693,7 +689,7 @@ BUTTON
 10
 135
 165
-166
+168
 Organize Results
 organize-results
 NIL

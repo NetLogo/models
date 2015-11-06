@@ -34,24 +34,30 @@ sample-organizers-own [
   original-pycor
 ]
 
-to go-org
+to go
   if stop-all? [ stop ]
-  super-go
-  organize-results
+
+  let popped? popping?
+  if popped? [ unpop ]
+
+  ;; The model keeps track of which different combinations have been
+  ;; discovered. Each column-kid reports whether or not its column has
+  ;; all the possible combinations. When bound? is true, a report from
+  ;; ALL column-kids that their columns are full will stop the run.
+  if stop-at-all-found? and all? column-kids [ column-full? ] [
+    stop
+  ]
+  sample
+  ifelse magnify? [ magnify-on-side ] [ ask baby-dudes [ die ] ]
+  drop-in-bin
+
+  if popped? [ pop ]
+  tick
 end
 
-to super-go
-  if stop-all? [ stop ]
-  ifelse popping? [
-    no-display
-    unpop
-    go
-    pop
-    display
-  ] [
-    go
-    display
-  ]
+to go-org
+  go
+  organize-results
 end
 
 ;; the popping? global controls the popping visuals
@@ -254,22 +260,6 @@ to setup
   set stop-all? false
   set num-target-color false
   reset-ticks
-end
-
-to go
-  if stop-all? [ stop ]
-  ;; The model keeps track of which different combinations have been
-  ;; discovered. Each column-kid reports whether or not its column has
-  ;; all the possible combinations. When bound? is true, a report from
-  ;; ALL column-kids that their columns are full will stop the run.
-  if stop-at-all-found? and all? column-kids [ column-full? ] [
-    stop
-  ]
-  sample
-  ifelse magnify? [ magnify-on-side ] [ ask baby-dudes [ die ] ]
-  drop-in-bin
-
-  tick
 end
 
 to-report column-full?
@@ -541,7 +531,7 @@ BUTTON
 265
 103
 Go
-super-go
+go
 T
 1
 T
@@ -619,7 +609,7 @@ BUTTON
 135
 103
 Go Once
-super-go
+go
 NIL
 1
 T
