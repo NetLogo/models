@@ -84,6 +84,7 @@ class CodeTests extends TestModels {
     "ht" -> Seq.empty,
     "in-cone-nowrap" -> Seq.empty,
     "in-radius-nowrap" -> Seq.empty,
+    "no-display" -> Seq.empty,
     "pd" -> Seq.empty,
     "ppd" -> Seq.empty,
     "ppu" -> Seq.empty,
