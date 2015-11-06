@@ -123,10 +123,12 @@ end
 to run-market
   if (market-running? != true) [ plot-supply-and-demand ]
 
-  ;; Turn off the display if needed
-  ifelse (perfect-information? = true)
-    [ display ]
-    [ no-display ]
+  ;; Hide buyers when perfect information is turned off
+  ask buyers [ set hidden? not perfect-information? ]
+
+  ;; Since there is no `setup` procedure where `reset-ticks` could be
+  ;; called in this model, we have to use `display` instead of `tick`.
+  display
 
   set market-running? true
 
@@ -1457,7 +1459,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
