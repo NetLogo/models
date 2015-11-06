@@ -543,9 +543,9 @@ ticks
 30.0
 
 SLIDER
-300
+285
 570
-529
+535
 603
 probability-to-be-target-color
 probability-to-be-target-color
