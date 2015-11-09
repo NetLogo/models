@@ -184,29 +184,25 @@ end
 
 ;; allows the user to place the box by clicking on one corner.
 to place-box
-  undraw-box
-  ask patch 0 0 [ set pcolor gray ]
-  while [ not mouse-down? ] [ ] ;; block until the user clicks
-  set box-x (abs round mouse-xcor)
-  set box-y (abs round mouse-ycor)
-  if box-x <= 2 [set box-x 2]
-  if box-y <= 2 [set box-y 2]
-  draw-box
-
-  while [ mouse-down? ] [ ] ;; block until mouse button released
-  ask patch 0 0 [ set pcolor black ]
+  if mouse-inside? [
+    set box-x max (list 2 (abs round mouse-xcor))
+    set box-y max (list 2 (abs round mouse-ycor))
+    draw-box
+    display
+  ]
+  if mouse-down? [ stop ]
 end
 
-;; removes the box.
-to undraw-box
-  ask patches [ set pcolor black ]
-end
-
-;; draws a square yellow box at distance box-edge from the origin
 to draw-box
-  ask patches with [((abs pxcor = box-x) and (abs pycor <= box-y)) or
-                    ((abs pycor = box-y) and (abs pxcor <= box-x))]
-    [ set pcolor yellow ]
+  ask patches [
+    set pcolor ifelse-value is-box? box-x box-y [ yellow ] [ black ]
+  ]
+end
+
+to-report is-box? [ x y ] ;; patch reporter
+  report
+    (abs pxcor = x and abs pycor <= y) or
+    (abs pycor = y and abs pxcor <= x)
 end
 
 ;; allows the user to place a particle using the mouse
@@ -389,7 +385,7 @@ BUTTON
 43
 NIL
 place-box
-NIL
+T
 1
 T
 OBSERVER
@@ -417,6 +413,7 @@ This model helps students become acclimated to the user interface of NetLogo and
 When the COLLIDE? switch is on, the particles are modeled as hard balls with no internal energy except that which is due to their motion.  Collisions between particles are elastic.  When the BOUNCE? switch is on, the particle will then bounce off the wall in an elastic reflection (angle of incidence equals the angle of reflection).
 
 Particles behave according to the following rules:
+
 1. A particle moves in a straight line without changing its speed, unless it collides with another particle or bounces off the wall.
 2. Two particles "collide" if COLLIDE switch is on and they find themselves on the same patch (the world is composed of a grid of small squares called patches).
 3. A random axis is chosen, as if they are two balls that hit each other and this axis is the line connecting their centers.
@@ -427,20 +424,21 @@ Particles behave according to the following rules:
 ## HOW TO USE IT
 
 1. Press the SETUP button
-2. Press the PLACE-BOX button.  (A small gray dot will be drawn)
-3. Click anywhere in the black portion of the WORLD & VIEW and a yellow box will be drawn to make a corner of it where you click.
-4. Repeat steps 1-3 to draw different boxes.
-6. If there is no yellow box in your model, repeat steps 1-3.
-7. Press the PLACE-PARTICLES button.  The button will remain a dark black color.
-8. Click anywhere in the WORLD & VIEW to draw in some particles.
-9. Press GO/STOP and observe what happens.
-10. Turn the COLLIDE? switch off and repeat steps 7-9 and observe the effect.
-11. Turn the BOUNCE? switch off and repeat steps 7-9 and observe the effect.
+2. Press the PLACE-BOX button. While the button is pressed, a yellow box will appear when you move your mouse pointer over the view.
+3. Once you are satisfied with the position of the yellow box, click on the view to place the box there.
+4. If you don't like the position of your yellow box, you can repeat steps 2 and 3 to draw a new box.
+5. Press the PLACE-PARTICLES button.  The button will remain a dark black color.
+6. Click anywhere in the view to draw in some particles.
+7. Press GO/STOP and observe what happens.
+8. Turn the COLLIDE? switch off and repeat steps 5-7 and observe the effect.
+9. Turn the BOUNCE? switch off and repeat steps 5-7 and observe the effect.
 
 Initial settings:
+
 - NUMBER-OF-PARTICLES-TO-ADD: the number of gas particles in the box when the simulation starts.
 
 Monitors:
+
 - CLOCK: the number of times the go procedure has been run
 - NUMBER: the number of particles in the box
 
