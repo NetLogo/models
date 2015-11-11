@@ -92,14 +92,14 @@ to check-caught
   ask one-of bugs [ hatch 1 [ rt random 360 ] ]
 end
 
-to-report colors
+to-report colors-by-speed
   ;; report a list of bug colors by speed
   report [ violet blue green brown orange red ]
 end
 
 to set-color  ;; turtle procedure
   ifelse show-colors?
-    [ set color item (speed - 1) colors ]
+    [ set color item (speed - 1) colors-by-speed ]
     [ set color gray ]
 end
 
@@ -193,7 +193,7 @@ frequency
 50.0
 true
 false
-"" ";; the HISTOGRAM primitive can't make a multi-colored histogram,\n;; so instead we plot each bar individually\nclear-plot\nforeach [ 1 2 3 4 5 6 ] [\n  create-temporary-plot-pen (word ?)\n  set-plot-pen-mode 1 ; bar mode\n  set-plot-pen-color item (? - 1) colors\n  plotxy ? count bugs with [ speed = ? ]\n]"
+"" ";; the HISTOGRAM primitive can't make a multi-colored histogram,\n;; so instead we plot each bar individually\nclear-plot\nforeach [ 1 2 3 4 5 6 ] [\n  create-temporary-plot-pen (word ?)\n  set-plot-pen-mode 1 ; bar mode\n  set-plot-pen-color item (? - 1) colors-by-speed\n  plotxy ? count bugs with [ speed = ? ]\n]"
 PENS
 
 PLOT
@@ -254,7 +254,7 @@ number
 10.0
 true
 false
-"" ";; the HISTOGRAM primitive can't make a multi-colored histogram,\n;; so instead we plot each bar individually\nclear-plot\nforeach [ 1 2 3 4 5 6 ] [\n  create-temporary-plot-pen (word ?)\n  set-plot-pen-mode 1 ; bar mode\n  set-plot-pen-color item (? - 1) colors\n  plotxy ? item (? - 1) catches-by-speed \n]"
+"" ";; the HISTOGRAM primitive can't make a multi-colored histogram,\n;; so instead we plot each bar individually\nclear-plot\nforeach [ 1 2 3 4 5 6 ] [\n  create-temporary-plot-pen (word ?)\n  set-plot-pen-mode 1 ; bar mode\n  set-plot-pen-color item (? - 1) colors-by-speed\n  plotxy ? item (? - 1) catches-by-speed \n]"
 PENS
 
 SWITCH
