@@ -1,7 +1,8 @@
-breed [predators predator]
-breed [bugs bug]
+breed [ predators predator ]
+
+breed [ bugs bug ]
 bugs-own [
-  speed    ;; either 1, 2, 3, 4, 5, or 6
+  speed  ;; either 1, 2, 3, 4, 5, or 6
 ]
 
 globals [
@@ -14,7 +15,7 @@ to setup
   set-default-shape predators "bird"
   ask patches [ set pcolor white ]   ;; white background
   set catches-by-speed n-values 6 [ 0 ]
-  foreach [1 2 3 4 5 6] [
+  foreach [ 1 2 3 4 5 6 ] [
     create-bugs initial-bugs-each-speed [ set speed ? ]
   ]
   ask bugs [
@@ -39,7 +40,7 @@ to go
     check-caught
     ask predators [ move-predator ]
     ;; recolor the bugs in case the user changed SPEED-COLOR-MAP
-    ask bugs [ set-color move-bugs]
+    ask bugs [ set-color move-bugs ]
     ;; advance the clock without plotting
     tick-advance 1
     ;; plotting takes time, so only plot every 10 ticks
@@ -47,16 +48,11 @@ to go
   ]
 end
 
-;;;;;;;;;;;;;;;;;;;;;
-;; Runtime Procedures
-;;;;;;;;;;;;;;;;;;;;;
-
-
 to move-bugs
   let candidate-predator nobody
   let target-heading 0
 
-  if wiggle? [right (random-float 45 - random-float 45)]
+  if wiggle? [ right (random-float 45 - random-float 45) ]
   fd speed * 0.06
 
   ifelse flee? [
@@ -64,15 +60,13 @@ to move-bugs
     ifelse any? predators-in-view [
       set candidate-predator one-of predators-in-view
       set target-heading 180 + towards candidate-predator
-
       set heading target-heading
       set label "!"
     ]
-    [set label ""]
+    [ set label "" ]
   ]
-  [set label ""]
+  [ set label "" ]
 end
-
 
 to move-predator
   setxy mouse-xcor mouse-ycor
@@ -83,7 +77,7 @@ end
 
 to check-caught
   if not mouse-down? or not mouse-inside? [ stop ]
-  let prey [bugs in-radius (size / 2)] of one-of predators
+  let prey [ bugs in-radius (size / 2) ] of one-of predators
   ;; no prey here? oh well
   if not any? prey [ stop ]
   ;; eat only one of the bugs at the mouse location
@@ -97,6 +91,7 @@ to check-caught
 end
 
 to-report colors
+  ;; report a list of bug colors by speed
   report [ violet blue green brown orange red ]
 end
 
