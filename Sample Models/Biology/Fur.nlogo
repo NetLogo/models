@@ -341,7 +341,7 @@ Voting, in the Social Science section, is based on simpler rules but generates p
 
 The mechanism of "diffusion-driven instability" was first proposed by Alan Turing in 1952. B.N. Nagorcka first proposed applying it to hair and fur. The particular variant presented in this model was proposed by David Young.
 
-In building this model, we used information on this web site: http://classes.yale.edu/fractals/Panorama/Biology/Leopard/Leopard.html .
+In building this model, we used information on this web site: http://users.math.yale.edu/public_html/People/frame/Fractals/Panorama/Biology/Leopard/Leopard.html
 
 Research published in Nature Genetics (Economou et al, 2012) appears to confirm the mechanisms the model proposes.
 http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3303118/
@@ -693,7 +693,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

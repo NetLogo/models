@@ -311,7 +311,7 @@ This site offers an introduction to fractals:
 http://web.cs.wpi.edu/~matt/courses/cs563/talks/cbyrd/pres1.html.
 
 An introduction to complex mathematics and the Mandelbrot set.
-http://home.olympus.net/~dewey/mandelbrot.html
+http://www.ddewey.net/mandelbrot/
 
 An introductory online textbook for Complex Analysis.
 (Note: This is a college level text, but the first chapter or so should be accessible to people with only some algebra background.)
@@ -630,7 +630,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-RC1
 @#$#@#$#@
 setup
 repeat 1200 [ go ]
