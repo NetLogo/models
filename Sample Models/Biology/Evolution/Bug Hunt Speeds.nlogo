@@ -111,13 +111,13 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-271
+310
 10
-741
-501
+826
+547
 11
 11
-20.0
+22.0
 1
 10
 1
@@ -138,10 +138,10 @@ ticks
 30.0
 
 MONITOR
-57
-95
-117
-140
+60
+85
+120
+130
 caught
 sum catches-by-speed
 0
@@ -149,10 +149,10 @@ sum catches-by-speed
 11
 
 BUTTON
-5
-52
-66
-85
+10
+45
+71
+78
 NIL
 setup
 NIL
@@ -166,10 +166,10 @@ NIL
 1
 
 BUTTON
-68
-52
-129
-85
+73
+45
+134
+78
 NIL
 go
 T
@@ -183,10 +183,10 @@ NIL
 0
 
 PLOT
-4
-259
-269
-379
+10
+265
+305
+405
 Current Bug Population
 speeds
 frequency
@@ -200,10 +200,10 @@ false
 PENS
 
 PLOT
-3
-140
-269
-260
+10
+135
+305
+265
 Avg. Bug Speed vs. Time
 time
 rate
@@ -218,10 +218,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plotxy ticks mean [speed] of bugs"
 
 MONITOR
-6
-95
-56
-140
+9
+85
+59
+130
 bugs
 (count bugs)
 0
@@ -229,10 +229,10 @@ bugs
 11
 
 SLIDER
-6
-15
-175
-48
+10
+10
+205
+43
 initial-bugs-each-speed
 initial-bugs-each-speed
 1
@@ -244,10 +244,10 @@ NIL
 HORIZONTAL
 
 PLOT
-4
-378
-269
-498
+10
+405
+305
+545
 Bugs Caught
 speeds
 number
@@ -261,32 +261,32 @@ false
 PENS
 
 SWITCH
+210
+10
+305
+43
+wiggle?
+wiggle?
+0
+1
+-1000
+
+SWITCH
+210
+45
+305
+78
+flee?
+flee?
+0
+1
+-1000
+
+SWITCH
 175
-15
-265
-48
-wiggle?
-wiggle?
-0
-1
--1000
-
-SWITCH
-176
-53
-266
-86
-flee?
-flee?
-0
-1
--1000
-
-SWITCH
-140
-93
-266
-126
+80
+305
+113
 show-colors?
 show-colors?
 0
@@ -701,5 +701,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
