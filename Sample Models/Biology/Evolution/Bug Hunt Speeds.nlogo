@@ -25,7 +25,6 @@ to setup
   ;; the predator breed contains one turtle that is used to represent
   ;; a predator of the bugs (a bird)
   create-predators 1 [
-    set shape "bird"
     set color black
     set size 1.5
     set heading 315
