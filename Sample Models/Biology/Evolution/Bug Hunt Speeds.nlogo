@@ -1,30 +1,21 @@
-breed [predators predator]
-breed [bugs bug]
+breed [ predators predator ]
+
+breed [ bugs bug ]
 bugs-own [
-  speed    ;; either 1, 2, 3, 4, 5, or 6
+  speed             ;; either 1, 2, 3, 4, 5, or 6
 ]
 
 globals [
-    total-speed-6-caught         ;; keeps track of the number of bugs caught with speed of 6
-    total-speed-5-caught         ;; keeps track of the number of bugs caught with speed of 5
-    total-speed-4-caught         ;; keeps track of the number of bugs caught with speed of 4
-    total-speed-3-caught         ;; keeps track of the number of bugs caught with speed of 3
-    total-speed-2-caught         ;; keeps track of the number of bugs caught with speed of 2
-    total-speed-1-caught         ;; keeps track of the number of bugs caught with speed of 1
+  catches-by-speed  ;; a list of total bugs caught, where the list index is the speed minus one
 ]
 
 to setup
   clear-all
-  set   total-speed-6-caught 0
-  set   total-speed-5-caught 0
-  set   total-speed-4-caught 0
-  set   total-speed-3-caught 0
-  set   total-speed-2-caught 0
-  set   total-speed-1-caught 0
   set-default-shape bugs "bug"
   set-default-shape predators "bird"
   ask patches [ set pcolor white ]   ;; white background
-  foreach [1 2 3 4 5 6] [
+  set catches-by-speed n-values 6 [ 0 ]
+  foreach [ 1 2 3 4 5 6 ] [
     create-bugs initial-bugs-each-speed [ set speed ? ]
   ]
   ask bugs [
@@ -34,7 +25,6 @@ to setup
   ;; the predator breed contains one turtle that is used to represent
   ;; a predator of the bugs (a bird)
   create-predators 1 [
-    set shape "bird"
     set color black
     set size 1.5
     set heading 315
@@ -47,9 +37,12 @@ to go
   ;; use EVERY to limit the overall speed of the model
   every 0.03 [
     check-caught
-    move-predator
+    ask predators [ move-predator ]
     ;; recolor the bugs in case the user changed SPEED-COLOR-MAP
-    ask bugs [ set-color move-bugs]
+    ask bugs [
+      set-color
+      move-bug
+    ]
     ;; advance the clock without plotting
     tick-advance 1
     ;; plotting takes time, so only plot every 10 ticks
@@ -57,66 +50,57 @@ to go
   ]
 end
 
-;;;;;;;;;;;;;;;;;;;;;
-;; Runtime Procedures
-;;;;;;;;;;;;;;;;;;;;;
+to move-bug
+  let candidate-predator nobody
+  let target-heading 0
 
+  if wiggle? [ right (random-float 45 - random-float 45) ]
+  fd speed * 0.06
 
-to move-bugs
-    let candidate-predator nobody
-    let target-heading 0
-
-    ask bugs [
-       if wiggle? [right (random-float 5 - random-float 5)]
-       fd speed * 0.001
-
-       ifelse flee? [
-         ifelse any? predators in-cone 2 120 [
-           set candidate-predator one-of predators in-cone 2  120
-           set target-heading 180 + towards candidate-predator
-
-           set heading target-heading
-           set label "!"
-         ]
-         [set label ""]
-       ]
-       [set label ""]
-     ]
+  ifelse flee? [
+    let predators-in-view predators in-cone 2 120
+    ifelse any? predators-in-view [
+      set candidate-predator one-of predators-in-view
+      set target-heading 180 + towards candidate-predator
+      set heading target-heading
+      set label "!"
+    ]
+    [ set label "" ]
+  ]
+  [ set label "" ]
 end
 
-
 to move-predator
-  ask predators [
-    setxy mouse-xcor mouse-ycor
-    ;; only show the predator if the mouse pointer is
-    ;; actually inside the view
-    set hidden? not mouse-inside?
-  ]
+  setxy mouse-xcor mouse-ycor
+  ;; only show the predator if the mouse pointer is
+  ;; actually inside the view
+  set hidden? not mouse-inside?
 end
 
 to check-caught
   if not mouse-down? or not mouse-inside? [ stop ]
-  let prey [bugs in-radius (size / 2)] of one-of predators
+  let prey [ bugs in-radius (size / 2) ] of one-of predators
   ;; no prey here? oh well
   if not any? prey [ stop ]
   ;; eat only one of the bugs at the mouse location
   ask one-of prey [
-    if speed = 6 [ set total-speed-6-caught total-speed-6-caught + 1 ]
-    if speed = 5 [ set total-speed-5-caught total-speed-5-caught + 1 ]
-    if speed = 4 [ set total-speed-4-caught total-speed-4-caught + 1 ]
-    if speed = 3 [ set total-speed-3-caught total-speed-3-caught + 1 ]
-    if speed = 2 [ set total-speed-2-caught total-speed-2-caught + 1 ]
-    if speed = 1 [ set total-speed-1-caught total-speed-1-caught + 1 ]
+    let n item (speed - 1) catches-by-speed
+    set catches-by-speed replace-item (speed - 1) catches-by-speed (n + 1)
     die
   ]
   ;; replace the eaten bug with a random offspring from the remaining population
   ask one-of bugs [ hatch 1 [ rt random 360 ] ]
 end
 
+to-report colors-by-speed
+  ;; report a list of bug colors by speed
+  report [ violet blue green brown orange red ]
+end
+
 to set-color  ;; turtle procedure
   ifelse show-colors?
-    [ set color item (speed - 1) [violet blue green brown orange red] ]
-    [ set color gray]
+    [ set color item (speed - 1) colors-by-speed ]
+    [ set color gray ]
 end
 
 
@@ -124,13 +108,13 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-271
+310
 10
-741
-501
+826
+547
 11
 11
-20.0
+22.0
 1
 10
 1
@@ -151,21 +135,21 @@ ticks
 30.0
 
 MONITOR
-57
-95
-117
-140
+60
+85
+120
+130
 caught
-total-speed-1-caught +\ntotal-speed-2-caught +\ntotal-speed-3-caught +\ntotal-speed-4-caught +\ntotal-speed-5-caught +\ntotal-speed-6-caught
+sum catches-by-speed
 0
 1
 11
 
 BUTTON
-5
-52
-66
-85
+10
+45
+71
+78
 NIL
 setup
 NIL
@@ -179,10 +163,10 @@ NIL
 1
 
 BUTTON
-68
-52
-129
-85
+73
+45
+134
+78
 NIL
 go
 T
@@ -193,13 +177,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 PLOT
-4
-259
-269
-379
+10
+265
+305
+405
 Current Bug Population
 speeds
 frequency
@@ -209,20 +193,14 @@ frequency
 50.0
 true
 false
-"" ";; the HISTOGRAM primitive can't make a multi-colored histogram,\n;; so instead we plot each bar individually\nclear-plot\nforeach [1 2 3 4 5 6] [\n  set-current-plot-pen word \"pen\" ?\n  plotxy ? count bugs with [speed = ?]\n]"
+"" ";; the HISTOGRAM primitive can't make a multi-colored histogram,\n;; so instead we plot each bar individually\nclear-plot\nforeach [ 1 2 3 4 5 6 ] [\n  create-temporary-plot-pen (word ?)\n  set-plot-pen-mode 1 ; bar mode\n  set-plot-pen-color item (? - 1) colors-by-speed\n  plotxy ? count bugs with [ speed = ? ]\n]"
 PENS
-"pen1" 1.0 1 -8630108 true "" ""
-"pen2" 1.0 1 -13345367 true "" ""
-"pen3" 1.0 1 -10899396 true "" ""
-"pen4" 1.0 1 -3355648 true "" ""
-"pen5" 1.0 1 -955883 true "" ""
-"pen6" 1.0 1 -2674135 true "" ""
 
 PLOT
-3
-140
-269
-260
+10
+135
+305
+265
 Avg. Bug Speed vs. Time
 time
 rate
@@ -237,10 +215,10 @@ PENS
 "default" 1.0 0 -16777216 true "" "plotxy ticks mean [speed] of bugs"
 
 MONITOR
-6
-95
-56
-140
+9
+85
+59
+130
 bugs
 (count bugs)
 0
@@ -248,10 +226,10 @@ bugs
 11
 
 SLIDER
-6
-15
-175
-48
+10
+10
+205
+43
 initial-bugs-each-speed
 initial-bugs-each-speed
 1
@@ -263,10 +241,10 @@ NIL
 HORIZONTAL
 
 PLOT
-4
-378
-269
-498
+10
+405
+305
+545
 Bugs Caught
 speeds
 number
@@ -276,42 +254,36 @@ number
 10.0
 true
 false
-"" "clear-plot\n\n  plotxy 2 total-speed-2-caught\n\n  set-histogram-num-bars 8\n  set-current-plot-pen \"pen3\"\n  plotxy 3 total-speed-3-caught\n\n  set-histogram-num-bars 8\n  set-current-plot-pen \"pen4\"\n  plotxy 4 total-speed-3-caught\n\n  set-histogram-num-bars 8\n  set-current-plot-pen \"pen5\"\n  plotxy 5  total-speed-5-caught\n\n  set-histogram-num-bars 8\n  set-current-plot-pen \"pen6\"\n  plotxy 6  total-speed-6-caught"
+"" ";; the HISTOGRAM primitive can't make a multi-colored histogram,\n;; so instead we plot each bar individually\nclear-plot\nforeach [ 1 2 3 4 5 6 ] [\n  create-temporary-plot-pen (word ?)\n  set-plot-pen-mode 1 ; bar mode\n  set-plot-pen-color item (? - 1) colors-by-speed\n  plotxy ? item (? - 1) catches-by-speed \n]"
 PENS
-"pen1" 1.0 1 -8630108 true "set-histogram-num-bars 8" "plotxy 1 total-speed-1-caught"
-"pen2" 1.0 1 -13345367 true "set-histogram-num-bars 8" "plotxy 2 total-speed-2-caught"
-"pen3" 1.0 1 -10899396 true "set-histogram-num-bars 8" "plotxy 3 total-speed-3-caught"
-"pen4" 1.0 1 -4079321 true "set-histogram-num-bars 8" "plotxy 4 total-speed-4-caught"
-"pen5" 1.0 1 -955883 true "set-histogram-num-bars 8" "plotxy 5 total-speed-5-caught"
-"pen6" 1.0 1 -2674135 true "set-histogram-num-bars 8" "plotxy 6 total-speed-6-caught"
+
+SWITCH
+210
+10
+305
+43
+wiggle?
+wiggle?
+0
+1
+-1000
+
+SWITCH
+210
+45
+305
+78
+flee?
+flee?
+0
+1
+-1000
 
 SWITCH
 175
-15
-265
-48
-wiggle?
-wiggle?
-0
-1
--1000
-
-SWITCH
-176
-53
-266
-86
-flee?
-flee?
-0
-1
--1000
-
-SWITCH
-140
-93
-266
-126
+80
+305
+113
 show-colors?
 show-colors?
 0
@@ -699,17 +671,11 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-RC1
 @#$#@#$#@
 setup
-repeat 17
-[
-  check-caught
-  move-predator
-  ask bugs [ set-color move-bugs]
-  tick
-  if ticks mod 10 = 0 [ update-plots ]
-]
+ask predators [ show-turtle ]
+repeat 15 [ ask bugs [ move-bug ] ]
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -726,5 +692,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
