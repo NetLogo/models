@@ -47,7 +47,7 @@ to go
   ;; use EVERY to limit the overall speed of the model
   every 0.03 [
     check-caught
-    move-predator
+    ask predators [ move-predator ]
     ;; recolor the bugs in case the user changed SPEED-COLOR-MAP
     ask bugs [ set-color move-bugs]
     ;; advance the clock without plotting
@@ -63,35 +63,32 @@ end
 
 
 to move-bugs
-    let candidate-predator nobody
-    let target-heading 0
+  let candidate-predator nobody
+  let target-heading 0
 
-    ask bugs [
-       if wiggle? [right (random-float 5 - random-float 5)]
-       fd speed * 0.001
+  if wiggle? [right (random-float 45 - random-float 45)]
+  fd speed * 0.06
 
-       ifelse flee? [
-         ifelse any? predators in-cone 2 120 [
-           set candidate-predator one-of predators in-cone 2  120
-           set target-heading 180 + towards candidate-predator
+  ifelse flee? [
+    let predators-in-view predators in-cone 2 120
+    ifelse any? predators-in-view [
+      set candidate-predator one-of predators-in-view
+      set target-heading 180 + towards candidate-predator
 
-           set heading target-heading
-           set label "!"
-         ]
-         [set label ""]
-       ]
-       [set label ""]
-     ]
+      set heading target-heading
+      set label "!"
+    ]
+    [set label ""]
+  ]
+  [set label ""]
 end
 
 
 to move-predator
-  ask predators [
-    setxy mouse-xcor mouse-ycor
-    ;; only show the predator if the mouse pointer is
-    ;; actually inside the view
-    set hidden? not mouse-inside?
-  ]
+  setxy mouse-xcor mouse-ycor
+  ;; only show the predator if the mouse pointer is
+  ;; actually inside the view
+  set hidden? not mouse-inside?
 end
 
 to check-caught
@@ -699,7 +696,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1
 @#$#@#$#@
 setup
 repeat 17
