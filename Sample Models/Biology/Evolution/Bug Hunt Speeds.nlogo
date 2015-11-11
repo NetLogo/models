@@ -2,11 +2,11 @@ breed [ predators predator ]
 
 breed [ bugs bug ]
 bugs-own [
-  speed  ;; either 1, 2, 3, 4, 5, or 6
+  speed             ;; either 1, 2, 3, 4, 5, or 6
 ]
 
 globals [
-  catches-by-speed ;; a list of total bugs caught, where the list index is the speed minus one
+  catches-by-speed  ;; a list of total bugs caught, where the list index is the speed minus one
 ]
 
 to setup
@@ -39,7 +39,10 @@ to go
     check-caught
     ask predators [ move-predator ]
     ;; recolor the bugs in case the user changed SPEED-COLOR-MAP
-    ask bugs [ set-color move-bug ]
+    ask bugs [
+      set-color
+      move-bug
+    ]
     ;; advance the clock without plotting
     tick-advance 1
     ;; plotting takes time, so only plot every 10 ticks
