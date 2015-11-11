@@ -39,7 +39,7 @@ to go
     check-caught
     ask predators [ move-predator ]
     ;; recolor the bugs in case the user changed SPEED-COLOR-MAP
-    ask bugs [ set-color move-bugs ]
+    ask bugs [ set-color move-bug ]
     ;; advance the clock without plotting
     tick-advance 1
     ;; plotting takes time, so only plot every 10 ticks
@@ -47,7 +47,7 @@ to go
   ]
 end
 
-to move-bugs
+to move-bug
   let candidate-predator nobody
   let target-heading 0
 
@@ -672,7 +672,7 @@ NetLogo 5.2.1-RC1
 @#$#@#$#@
 setup
 ask predators [ show-turtle ]
-repeat 15 [ ask bugs [ move-bugs ] ]
+repeat 15 [ ask bugs [ move-bug ] ]
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
