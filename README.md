@@ -14,4 +14,4 @@ See each model's Info tab for details.
 
 ---
 
-![](https://travis-ci.org/NetLogo/models.svg?branch=master)
+[![](https://travis-ci.org/NetLogo/models.svg?branch=master)](https://travis-ci.org/NetLogo/models)
