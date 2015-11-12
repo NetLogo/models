@@ -890,7 +890,7 @@ note: pressing \"setup\" twice on Mac OS X may cause a crash
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model communicates with the sensors and output ports of a [GoGo Board](http://www.gogoboard.org), an open source, easy-to-build, low cost, general purpose circuit board designed for educational projects. This model uses the old extension that connects to serial ports. For the new version, see the GoGo HID models.
+This model communicates with the sensors and output ports of a [GoGo Board](http://gogoboardpi.org), an open source, easy-to-build, low cost, general purpose circuit board designed for educational projects. This model uses the old extension that connects to serial ports. For the new version, see the GoGo HID models.
 
 This model helps you test your connection to your GoGo Board, and serves as a starting point for building NetLogo activities that interact with the physical world. For a simpler version of this model, try the GoGoMonitorSimple.
 
@@ -933,7 +933,7 @@ Connect various motors, lights, and other circuits to the GoGo Board's output po
 
 Change the refresh rates by editing the code in the plot, and modifying the wait time (default value is 0.01 or 0.1, higher values would cause the sampling rate to decrease).
 
-To find out where to buy sensors and motors, go to the [GoGo Board website](http://www.gogoboard.org).
+To find out where to buy sensors and motors, go to the [GoGo Board website](http://gogoboardpi.org).
 
 ## EXTENDING THE MODEL
 
@@ -948,7 +948,7 @@ This model uses the NetLogo GoGo Extension. For more information, see the GoGo E
 
 ## CREDITS AND REFERENCES
 
-To learn about GoGo Boards, see http://www.gogoboard.org.
+To learn about GoGo Boards, see http://gogoboardpi.org.
 
 This model was created by Paulo Blikstein at Stanford's [Transformative Learning Technologies Lab](https://tltl.stanford.edu/).
 
