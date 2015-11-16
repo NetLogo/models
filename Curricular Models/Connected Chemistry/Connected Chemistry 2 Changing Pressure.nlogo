@@ -464,13 +464,13 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-212
+265
 10
-487
-306
+561
+327
 26
 26
-5.0
+5.4
 1
 10
 1
@@ -491,10 +491,10 @@ ticks
 30.0
 
 BUTTON
-140
-42
-212
-75
+160
+45
+255
+78
 go/stop
 go
 T
@@ -508,9 +508,9 @@ NIL
 1
 
 BUTTON
-140
+160
 10
-212
+255
 43
 NIL
 setup
@@ -525,10 +525,10 @@ NIL
 1
 
 PLOT
-491
-155
-694
-309
+575
+165
+778
+319
 Number vs. Time
 time
 number
@@ -543,25 +543,25 @@ PENS
 "default" 1.0 0 -16777216 true "" "plotxy ticks (total-particle-number)"
 
 SLIDER
-2
-78
-125
-111
+10
+80
+155
+113
 number-to-add
 number-to-add
 0
 100
-50
+51
 1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-126
-78
-212
-111
+160
+80
+255
+113
 add particles
 add-particles-side
 NIL
@@ -575,9 +575,9 @@ NIL
 1
 
 SLIDER
-2
 10
-139
+10
+155
 43
 initial-number
 initial-number
@@ -590,10 +590,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-60
-124
-126
-169
+23
+123
+89
+168
 Number
 count particles
 0
@@ -601,9 +601,9 @@ count particles
 11
 
 PLOT
-492
+575
 10
-695
+778
 155
 Pressure vs. Time
 time
@@ -619,16 +619,16 @@ PENS
 "default" 1.0 0 -16777216 true "" "if is-list? pressure-history [\n   plotxy ticks (mean pressure-history) \n  ]"
 
 OUTPUT
-130
+108
 143
-201
+179
 173
 12
 
 TEXTBOX
-135
+113
 125
-195
+173
 143
 Pressure
 11
@@ -636,10 +636,10 @@ Pressure
 0
 
 SWITCH
-2
-44
-139
-77
+10
+45
+155
+78
 show-wall-hits?
 show-wall-hits?
 1
@@ -802,7 +802,7 @@ false
 Rectangle -7500403 true true 0 0 300 300
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -820,5 +820,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
