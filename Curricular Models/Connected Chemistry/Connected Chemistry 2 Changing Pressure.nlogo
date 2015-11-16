@@ -646,6 +646,17 @@ show-wall-hits?
 1
 -1000
 
+MONITOR
+190
+125
+255
+171
+Pressure
+instant-pressure
+1
+1
+11
+
 @#$#@#$#@
 ## WHAT IS IT?
 
