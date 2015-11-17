@@ -94,12 +94,12 @@ to-report new-location-task
     set possible-moves fput patch-here possible-moves
   ]
 
-  ; pair the potential moves with their revenues, and sort these pairs by revenues
+  ; pair the potential moves with their market shares, and sort these pairs by market share
   let moves-with-market-shares
     sort-by [ last ?1 > last ?2 ]
     map [ list ? (market-share-if-move-to ?) ] possible-moves
 
-  ; report the first item of the first pair, i.e., the move with the best revenues
+  ; report the first item of the first pair, i.e., the move with the best market share
   let chosen-location first first moves-with-market-shares
 
   let store self ; put self in a local variable so that it can be "captured" by the task
