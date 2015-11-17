@@ -48,7 +48,7 @@ to setup-stores
 end
 
 to go
-  ; We accumulate location and price changes as list of tasks to be run later
+  ; We accumulate location and price changes as lists of tasks to be run later
   ; in order to simulate simultaneous decision making on the part of the stores
 
   let location-changes ifelse-value (rules = "pricing-only")
@@ -85,9 +85,8 @@ end
 ; and report a task that will allow the chosen location change to be enacted later
 to-report new-location-task
 
-  ; we want the neighbors4 in random order, but we want to turn them from an agentset to a list
-  ; and `sort` is the way to do that, hence the weird `shuffle sort` expression
-  let possible-moves shuffle sort (neighbors4 with [ member? self consumers ])
+  ; Use `[ self ] of` to turn the `neighbors4` agentset into a shuffled list
+  let possible-moves [ self ] of neighbors4 with [ member? self consumers ]
 
   if area-count > 0 [
     ; Only consider the status quo if we already have a market share, but if we consider it,
@@ -95,12 +94,12 @@ to-report new-location-task
     set possible-moves fput patch-here possible-moves
   ]
 
-  ; pair the potential moves with their revenues, and sort these pairs by revenues
+  ; pair the potential moves with their market shares, and sort these pairs by market share
   let moves-with-market-shares
     sort-by [ last ?1 > last ?2 ]
     map [ list ? (market-share-if-move-to ?) ] possible-moves
 
-  ; report the first item of the first pair, i.e., the move with the best revenues
+  ; report the first item of the first pair, i.e., the move with the best market share
   let chosen-location first first moves-with-market-shares
 
   let store self ; put self in a local variable so that it can be "captured" by the task
