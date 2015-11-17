@@ -48,7 +48,7 @@ to setup-stores
 end
 
 to go
-  ; We accumulate location and price changes as list of tasks to be run later
+  ; We accumulate location and price changes as lists of tasks to be run later
   ; in order to simulate simultaneous decision making on the part of the stores
 
   let location-changes ifelse-value (rules = "pricing-only")
