@@ -85,9 +85,8 @@ end
 ; and report a task that will allow the chosen location change to be enacted later
 to-report new-location-task
 
-  ; we want the neighbors4 in random order, but we want to turn them from an agentset to a list
-  ; and `sort` is the way to do that, hence the weird `shuffle sort` expression
-  let possible-moves shuffle sort (neighbors4 with [ member? self consumers ])
+  ; Use `[ self ] of` to turn the `neighbors4` agentset into a shuffled list
+  let possible-moves [ self ] of neighbors4 with [ member? self consumers ]
 
   if area-count > 0 [
     ; Only consider the status quo if we already have a market share, but if we consider it,
