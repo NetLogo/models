@@ -143,7 +143,7 @@ to back-propagate
   ask output-node-1 [
     ;; activation * (1 - activation) is used because it is the derivation
     ;; of the sigmoid activation function. If we used a different activation function
-    ;; we would use its derivation
+    ;; we would use its derivaite
     set err activation * (1 - activation) * (answer - activation)
     set example-error example-error + ( (answer - activation) ^ 2 )
   ]
