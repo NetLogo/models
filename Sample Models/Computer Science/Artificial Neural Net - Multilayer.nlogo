@@ -141,6 +141,9 @@ to back-propagate
   let answer target-answer
 
   ask output-node-1 [
+    ;; activation * (1 - activation) is used because it is the derivation
+    ;; of the sigmoid activation function. If we used a different activation function
+    ;; we would use its derivative
     set err activation * (1 - activation) * (answer - activation)
     set example-error example-error + ( (answer - activation) ^ 2 )
   ]
@@ -436,7 +439,23 @@ The activation values of the input nodes are the inputs to the network. The acti
 
 The sigmoid function maps negative values to values between 0 and 0.5, and maps positive values to values between 0.5 and 1.  The values increase nonlinearly between 0 and 1 with a sharp transition at 0.5.
 
-To train the network a lot of inputs are presented to the network along with how the network should correctly classify the inputs.  The network uses a back-propagation algorithm to pass error back from the output node and uses this error to update the weights along each link.
+In order for the network to learn anything, it needs to be trained. In this example the training algorithm used is called the back-propagation algorithm. It consists of two phases: propagate and back-propagate. The propagate phase was described above, it propagates the activation values of the input nodes to the output node of the network.
+In the back-propagate phase, the produced error value is passed back through the network layer-by-layer.
+
+To do the back-propagation phase, the error is first calculated as a difference between the correct (expected) output and the actual output of the network. Since all of the hidden nodes connected to the output contribute to the error, all of the weights need to be updated. To do this we need to calculate how much each of the nodes contributed to the overall error on the output. This is done by calculating a local gradient for each of the nodes, excluding the input nodes (since the input is the activation we provide to the network, and thus has no error associated with it).
+
+The local gradients are calculated layer-by-layer. For the output nodes it is calculated as the multiplication of the error with the result of passing the activation value to the derivative of the activation function. Since in this model the activation function is the sigmoid function, it's simplified derivative ends up being:
+activation_value * ( 1 - activation_value ) [Neural networks and Learning Machines 3rd edition].
+In case we wished to use a different activation function, we would use it's derivative in calculating the local gradient.
+
+For each hidden node, the local gradient is calculated as follows:
+1. For each output node connected to the hidden node, multiply its local gradient with the weight of the link connecting them
+2. Sum all of the results from 1
+3. Multiply the result from 2 with the result of passing the activation value of the hidden node to the derivative of the activation function.
+
+To update the weights of each of the links we first calculate the multiplication of the learning rate with the local gradient of end2 (this will be the output-node in case the link connects a hidden node with the output node) and the activation value of end1 (this will be the hidden node in case the link connects a hidden node with the output node). The result is then added to the old weight.
+
+The propagate and back-propagate phases are repeated for each training data (or example) introduced to the network.
 
 ## HOW TO USE IT
 
@@ -818,7 +837,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.2.1
 @#$#@#$#@
 setup repeat 100 [ train ]
 @#$#@#$#@
