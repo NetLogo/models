@@ -1,9 +1,9 @@
-links-own [weight]
+links-own [ weight ]
 
-breed [bias-nodes bias-node]
-breed [input-nodes input-node]
-breed [output-nodes output-node]
-breed [hidden-nodes hidden-node]
+breed [ bias-nodes bias-node ]
+breed [ input-nodes input-node ]
+breed [ output-nodes output-node ]
+breed [ hidden-nodes hidden-node ]
 
 turtles-own [
   activation     ;; Determines the nodes output
@@ -67,7 +67,7 @@ to setup-links
   connect-all hidden-nodes output-nodes
 end
 
-to connect-all [nodes1 nodes2]
+to connect-all [ nodes1 nodes2 ]
   ask nodes1 [
     create-links-to nodes2 [
       set weight random-float 0.2 - 0.1
@@ -77,7 +77,7 @@ end
 
 to recolor
   ask turtles [
-    set color item (step activation) [black white]
+    set color item (step activation) [ black white ]
   ]
   ask links [
     set thickness 0.05 * abs weight
@@ -87,7 +87,7 @@ to recolor
       set label ""
     ]
     ifelse weight > 0
-      [ set color [ 255 0 0 196 ] ]   ; transparent red
+      [ set color [ 255 0 0 196 ] ] ; transparent red
       [ set color [ 0 0 255 196 ] ] ; transparent light blue
   ]
 end
@@ -101,7 +101,7 @@ to train
   repeat examples-per-epoch [
     ask input-nodes [ set activation random 2 ]
     propagate
-    back-propagate
+    backpropagate
   ]
   set epoch-error epoch-error / examples-per-epoch
   tick
@@ -112,11 +112,11 @@ end
 ;;;
 
 to-report target-answer
-  let a [activation] of input-node-1 = 1
-  let b [activation] of input-node-2 = 1
+  let a [ activation ] of input-node-1 = 1
+  let b [ activation ] of input-node-2 = 1
   ;; run-result will interpret target-function as the appropriate boolean operator
   report ifelse-value run-result
-    (word "a " target-function " b") [1][0]
+    (word "a " target-function " b") [ 1 ] [ 0 ]
 end
 
 ;;;
@@ -132,30 +132,30 @@ end
 
 ;; Determine the activation of a node based on the activation of its input nodes
 to-report new-activation  ;; node procedure
-  report sigmoid sum [[activation] of end1 * weight] of my-in-links
+  report sigmoid sum [ [ activation ] of end1 * weight ] of my-in-links
 end
 
 ;; changes weights to correct for errors
-to back-propagate
+to backpropagate
   let example-error 0
   let answer target-answer
 
   ask output-node-1 [
-    ;; activation * (1 - activation) is used because it is the derivation
-    ;; of the sigmoid activation function. If we used a different activation function
-    ;; we would use its derivative
+    ;; `activation * (1 - activation)` is used because it is the
+    ;; derivative of the sigmoid activation function. If we used a
+    ;; different activation function, we would use its derivative.
     set err activation * (1 - activation) * (answer - activation)
-    set example-error example-error + ( (answer - activation) ^ 2 )
+    set example-error example-error + ((answer - activation) ^ 2)
   ]
   set epoch-error epoch-error + example-error
 
   ;; The hidden layer nodes are given error values adjusted appropriately for their
   ;; link weights
   ask hidden-nodes [
-    set err activation * (1 - activation) * sum [weight * [err] of end2] of my-out-links
+    set err activation * (1 - activation) * sum [ weight * [ err ] of end2 ] of my-out-links
   ]
   ask links [
-    set weight weight + learning-rate * [err] of end2 * [activation] of end1
+    set weight weight + learning-rate * [ err ] of end2 * [ activation ] of end1
   ]
 end
 
@@ -170,7 +170,7 @@ end
 
 ;; computes the step function given an input value and the weight on the link
 to-report step [input]
-  report ifelse-value (input > 0.5) [1][0]
+  report ifelse-value (input > 0.5) [ 1 ] [ 0 ]
 end
 
 ;;;
@@ -180,7 +180,7 @@ end
 ;; test runs one instance and computes the output
 to test
   let result result-for-inputs input-1 input-2
-  let correct? ifelse-value (result = target-answer) ["correct"] ["incorrect"]
+  let correct? ifelse-value (result = target-answer) [ "correct" ] [ "incorrect" ]
   user-message (word
     "The expected answer for " input-1 " " target-function " " input-2 " is " target-answer ".\n\n"
     "The network reported " result ", which is " correct? ".")
@@ -190,7 +190,7 @@ to-report result-for-inputs [n1 n2]
   ask input-node-1 [ set activation n1 ]
   ask input-node-2 [ set activation n2 ]
   propagate
-  report step [activation] of one-of output-nodes
+  report step [ activation ] of one-of output-nodes
 end
 
 
@@ -377,7 +377,7 @@ TEXTBOX
 TEXTBOX
 10
 60
-119
+125
 88
 2. Train neural net:
 11
@@ -439,23 +439,28 @@ The activation values of the input nodes are the inputs to the network. The acti
 
 The sigmoid function maps negative values to values between 0 and 0.5, and maps positive values to values between 0.5 and 1.  The values increase nonlinearly between 0 and 1 with a sharp transition at 0.5.
 
-In order for the network to learn anything, it needs to be trained. In this example the training algorithm used is called the back-propagation algorithm. It consists of two phases: propagate and back-propagate. The propagate phase was described above, it propagates the activation values of the input nodes to the output node of the network.
-In the back-propagate phase, the produced error value is passed back through the network layer-by-layer.
+In order for the network to learn anything, it needs to be trained. In this example, the training algorithm used is called the backpropagation algorithm. It consists of two phases: propagate and backpropagate. The propagate phase was described above: it propagates the activation values of the input nodes to the output node of the network.
+In the backpropagate phase, the error in the produced value is passed back through the network layer by layer.
 
-To do the back-propagation phase, the error is first calculated as a difference between the correct (expected) output and the actual output of the network. Since all of the hidden nodes connected to the output contribute to the error, all of the weights need to be updated. To do this we need to calculate how much each of the nodes contributed to the overall error on the output. This is done by calculating a local gradient for each of the nodes, excluding the input nodes (since the input is the activation we provide to the network, and thus has no error associated with it).
+To do the backpropagation phase, the error is first calculated as a difference between the correct (expected) output and the actual output of the network. Since all of the hidden nodes connected to the output contribute to the error, all of the weights need to be updated. To do this, we need to calculate how much each of the nodes contributed to the overall error on the output. This is done by calculating a local gradient for each of the nodes, excluding the input nodes (since the input is the activation we provide to the network, and thus has no error associated with it).
 
-The local gradients are calculated layer-by-layer. For the output nodes it is calculated as the multiplication of the error with the result of passing the activation value to the derivative of the activation function. Since in this model the activation function is the sigmoid function, it's simplified derivative ends up being:
-activation_value * ( 1 - activation_value ) [Neural networks and Learning Machines 3rd edition].
-In case we wished to use a different activation function, we would use it's derivative in calculating the local gradient.
+The local gradients are calculated layer by layer. For the output nodes, it is the multiplication of the error with the result of passing the activation value to the derivative of the activation function. Since, in this model, the activation function is the sigmoid function, its simplified derivative ends up being:
+
+    activation_value * (1 - activation_value)
+
+If we wished to use a different activation function, we would use the derivative of that function instead.
 
 For each hidden node, the local gradient is calculated as follows:
-1. For each output node connected to the hidden node, multiply its local gradient with the weight of the link connecting them
-2. Sum all of the results from 1
-3. Multiply the result from 2 with the result of passing the activation value of the hidden node to the derivative of the activation function.
 
-To update the weights of each of the links we first calculate the multiplication of the learning rate with the local gradient of end2 (this will be the output-node in case the link connects a hidden node with the output node) and the activation value of end1 (this will be the hidden node in case the link connects a hidden node with the output node). The result is then added to the old weight.
+1. For each output node connected to the hidden node, multiply its local gradient with the weight of the link connecting them;
 
-The propagate and back-propagate phases are repeated for each training data (or example) introduced to the network.
+2. Sum all the results from the previous step;
+
+3. Multiply that sum with the result of passing the activation value of the hidden node to the derivative of the activation function.
+
+To update the weights of each of the links, we multiply the learning rate with the local gradient of `end2` (this will be the output node in case the link connects a hidden node with the output node) and the activation value of `end1` (this will be the hidden node in case the link connects a hidden node with the output node). The result is then added to the old weight.
+
+The propagate and backpropagate phases are repeated for each example shown to the network.
 
 ## HOW TO USE IT
 
@@ -491,7 +496,7 @@ Switch back and forth between OR and XOR several times during a run.  Why does i
 
 Add additional functions for the network to learn beside OR and XOR.  This may require you to add additional hidden nodes to the network.
 
-Back-propagation using gradient descent is considered somewhat unrealistic as a model of real neurons, because in the real neuronal system there is no way for the output node to pass its error back.  Can you implement another weight-update rule that is more valid?
+Backpropagation using gradient descent is considered somewhat unrealistic as a model of real neurons, because in the real neuronal system there is no way for the output node to pass its error back.  Can you implement another weight-update rule that is more valid?
 
 ## NETLOGO FEATURES
 
@@ -505,7 +510,9 @@ This is the second in the series of models devoted to understanding artificial n
 
 The code for this model is inspired by the pseudo-code which can be found in Tom M. Mitchell's "Machine Learning" (1997).
 
-Thanks to Craig Brozefsky for his work in improving this model.
+See also Haykin (2009) Neural Networks and Learning Machines, Third Edition.
+
+Thanks to Craig Brozefsky for his work in improving this model and to Marin Aglić Čuvić for info tab improvements.
 
 ## HOW TO CITE
 
@@ -837,7 +844,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.1
+NetLogo 5.2.0
 @#$#@#$#@
 setup repeat 100 [ train ]
 @#$#@#$#@
