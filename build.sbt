@@ -2,7 +2,7 @@ scalaVersion := "2.11.7"
 
 fork := true
 
-javaOptions += "-Dorg.nlogo.noGenerator=true"
+javaOptions ++= Seq("-Dorg.nlogo.noGenerator=true", "-Xmx2G")
 
 scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
 
