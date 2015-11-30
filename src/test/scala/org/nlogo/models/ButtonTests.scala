@@ -34,6 +34,7 @@ class ButtonTests extends TestModels {
           Try(ws.evaluateCommands(jobOwner, code, agentSet, true)) // catch regular exceptions
             .failed.toOption.orElse(Option(ws.lastLogoException)) // and Logo exceptions
         }
+        if exception.getMessage != "You can't get user input headless."
       } yield "\"" + displayName + "\" button: " + exception.getMessage
     }
 
