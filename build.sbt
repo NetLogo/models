@@ -1,5 +1,9 @@
 scalaVersion := "2.11.7"
 
+fork := true
+
+javaOptions += "-Dorg.nlogo.noGenerator=true"
+
 scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
 
 resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/"

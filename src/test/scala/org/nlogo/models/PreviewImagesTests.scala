@@ -18,10 +18,10 @@ class PreviewImagesTests extends TestModels {
     Set("HUBNET", "/GOGO/", "/CODE EXAMPLES/SOUND/").exists(path.contains)
   }
   testModels(modelsThatShouldNeedManualPreviews,
-    "Some library models should be tagged as needing manual previews", {
+    "Some library models should be tagged as needing manual previews") {
       Option(_).filterNot(needsPreviewFile)
         .map(_ => "should be tagged as needing manual preview")
-    })
+    }
 
   testLibraryModels("Models should have committed preview iif they're 3d or require manual preview") { model =>
     for {
