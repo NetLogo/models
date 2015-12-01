@@ -80,6 +80,7 @@ to setup
     calculate-all-alleles
     visualize-genetics
     give-instructions
+    reset-ticks
 end
 
 
@@ -795,7 +796,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 5
@@ -812,7 +813,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SWITCH
 6
@@ -840,7 +841,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 153
@@ -887,7 +888,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 3
@@ -984,7 +985,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

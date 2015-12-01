@@ -511,7 +511,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 208
@@ -601,7 +601,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SWITCH
 9
@@ -629,7 +629,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

@@ -122,7 +122,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 7
@@ -154,7 +154,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 8
@@ -186,7 +186,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

@@ -1,6 +1,7 @@
 to setup
   clear-all
   ask n-of 30 patches [ sprout 1 ]
+  reset-ticks
 end
 
 to go
@@ -86,7 +87,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 TEXTBOX
 24

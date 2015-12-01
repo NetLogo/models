@@ -226,7 +226,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 2
@@ -286,7 +286,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 499
@@ -365,7 +365,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

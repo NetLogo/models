@@ -218,7 +218,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 21
@@ -294,7 +294,7 @@ NIL
 I
 NIL
 NIL
-1
+0
 
 BUTTON
 654
@@ -311,7 +311,7 @@ NIL
 L
 NIL
 NIL
-1
+0
 
 BUTTON
 584
@@ -328,7 +328,7 @@ NIL
 J
 NIL
 NIL
-1
+0
 
 BUTTON
 615
@@ -345,7 +345,7 @@ NIL
 K
 NIL
 NIL
-1
+0
 
 SWITCH
 595
@@ -456,7 +456,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

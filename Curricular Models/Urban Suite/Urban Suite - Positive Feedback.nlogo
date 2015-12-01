@@ -94,7 +94,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 51
@@ -144,7 +144,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SWITCH
 36

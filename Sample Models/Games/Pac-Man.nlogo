@@ -410,7 +410,7 @@ NIL
 P
 NIL
 NIL
-1
+0
 
 BUTTON
 88
@@ -427,7 +427,7 @@ NIL
 I
 NIL
 NIL
-1
+0
 
 BUTTON
 143
@@ -444,7 +444,7 @@ NIL
 L
 NIL
 NIL
-1
+0
 
 BUTTON
 88
@@ -461,7 +461,7 @@ NIL
 K
 NIL
 NIL
-1
+0
 
 BUTTON
 33
@@ -478,7 +478,7 @@ NIL
 J
 NIL
 NIL
-1
+0
 
 MONITOR
 121

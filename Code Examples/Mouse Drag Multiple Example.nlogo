@@ -13,6 +13,7 @@ to setup
   ]
   ;; initially, no turtles are selected
   set selected no-turtles
+  reset-ticks
 end
 
 to go
@@ -158,7 +159,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 8

@@ -291,7 +291,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 11
@@ -353,7 +353,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 74
@@ -370,7 +370,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 74
@@ -387,7 +387,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 205
@@ -404,7 +404,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 20
@@ -415,7 +415,7 @@ spin-speed
 spin-speed
 -25.0
 25.0
-6
+0
 0.01
 1
 NIL
@@ -436,7 +436,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 113
@@ -531,7 +531,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 205
@@ -548,7 +548,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 56

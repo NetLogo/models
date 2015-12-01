@@ -112,7 +112,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 150
@@ -129,7 +129,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 260
@@ -146,7 +146,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 380
@@ -163,7 +163,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

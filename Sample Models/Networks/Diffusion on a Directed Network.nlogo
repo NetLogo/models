@@ -182,7 +182,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 10
@@ -262,7 +262,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 110
@@ -279,7 +279,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

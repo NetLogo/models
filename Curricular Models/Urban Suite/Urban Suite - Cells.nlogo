@@ -163,7 +163,7 @@ NIL
 N
 NIL
 NIL
-1
+0
 
 BUTTON
 165
@@ -180,7 +180,7 @@ NIL
 F
 NIL
 NIL
-1
+0
 
 CHOOSER
 5
@@ -222,7 +222,7 @@ NIL
 G
 NIL
 NIL
-1
+0
 
 BUTTON
 80
