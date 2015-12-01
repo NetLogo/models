@@ -21,7 +21,8 @@ trait TestModels extends FunSuite {
           case (model, failures) =>
             model.quotedPath + "\n" + failures.map("  " + _).mkString("\n")
         }
-      if (allFailures.nonEmpty) fail(allFailures.mkString("\n"))
+      if (allFailures.nonEmpty)
+        fail(allFailures.mkString("\n") + "\n(" + allFailures.size + " failing models)")
     }
 
   def testLines(
