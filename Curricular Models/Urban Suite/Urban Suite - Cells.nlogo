@@ -239,7 +239,7 @@ NIL
 R
 NIL
 NIL
-1
+0
 
 CHOOSER
 150
@@ -319,7 +319,7 @@ NIL
 C
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

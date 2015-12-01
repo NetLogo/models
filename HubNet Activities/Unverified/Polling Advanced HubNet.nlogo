@@ -2084,7 +2084,7 @@ BUTTON
 1353
 233
 Save INDIVIDUAL responses
-NIL
+let where user-directory\nask turtles [ save-responses where ]
 NIL
 1
 T

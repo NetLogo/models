@@ -508,7 +508,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SWITCH
 121
@@ -517,7 +517,7 @@ SWITCH
 154
 organize?
 organize?
-1
+0
 1
 -1000
 
@@ -541,7 +541,7 @@ SLIDER
 %-target-color
 0
 100
-50
+0
 1
 1
 NIL
@@ -562,7 +562,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 10
@@ -594,7 +594,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SWITCH
 120
@@ -665,7 +665,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 10
@@ -682,7 +682,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 TEXTBOX
 25
