@@ -32,6 +32,8 @@ class ButtonTests extends TestModels {
             case "OBSERVER" => source
           }
           val jobOwner = new SimpleJobOwner(displayName, ws.mainRNG, classOf[Observer])
+          try ws.evaluateCommands(jobOwner, "startup", ws.world.observers, true)
+          catch { case e: CompilerException => /* ignore */ }
           Try(ws.evaluateCommands(jobOwner, code, ws.world.observers, true)) // catch regular exceptions
             .failed.toOption.orElse(Option(ws.lastLogoException)) // and Logo exceptions
         }
