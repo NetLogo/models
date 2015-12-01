@@ -8,7 +8,8 @@ to setup
   create-turtles population
     [ set color yellow - 2 + random 7  ;; random shades look nice
       set size 1.5  ;; easier to see
-      setxy random-xcor random-ycor ]
+      setxy random-xcor random-ycor
+      set flockmates no-turtles ]
   reset-ticks
 end
 

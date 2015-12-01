@@ -8,7 +8,8 @@ to setup
   create-turtles population
     [ set color yellow - 2 + random 7  ;; random shades look nice
       set size 1.5  ;; easier to see
-      setxy random-xcor random-ycor ]
+      setxy random-xcor random-ycor
+      set flockmates no-turtles ]
   ask patches
     [ set pcolor green - random 2 ]
   reset-ticks
@@ -672,7 +673,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.1
+NetLogo 5.2.0
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
