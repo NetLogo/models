@@ -5,6 +5,7 @@ import scala.util.Try
 
 import org.nlogo.api.CompilerException
 import org.nlogo.api.ModelReader
+import org.nlogo.api.Observer
 import org.nlogo.api.SimpleJobOwner
 
 class ButtonTests extends TestModels {
@@ -25,13 +26,13 @@ class ButtonTests extends TestModels {
         source = ModelReader.restoreLines(lines(6)).stripLineEnd
         displayName = Option(lines(5)).filterNot(_ == "NIL").getOrElse(source)
         exception <- withWorkspace(model) { ws =>
-          val (code, agentSet) = lines(10) match {
-            case "TURTLE"   => "ask turtles [" + source + "\n]" -> ws.world.turtles
-            case "PATCH"    => "ask patches [" + source + "\n]" -> ws.world.patches
-            case "OBSERVER" => source -> ws.world.observers
+          val code = lines(10) match {
+            case "TURTLE"   => "ask turtles [" + source + "\n]"
+            case "PATCH"    => "ask patches [" + source + "\n]"
+            case "OBSERVER" => source
           }
-          val jobOwner = new SimpleJobOwner(displayName, ws.mainRNG, agentSet.`type`)
-          Try(ws.evaluateCommands(jobOwner, code, agentSet, true)) // catch regular exceptions
+          val jobOwner = new SimpleJobOwner(displayName, ws.mainRNG, classOf[Observer])
+          Try(ws.evaluateCommands(jobOwner, code, ws.world.observers, true)) // catch regular exceptions
             .failed.toOption.orElse(Option(ws.lastLogoException)) // and Logo exceptions
         }
         if exception.getMessage != "You can't get user input headless."
