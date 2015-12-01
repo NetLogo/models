@@ -14,7 +14,8 @@ to setup
       if first question != "D"
         [ set color yellow - 2 + random 7 ]  ;; random shades look nice
       setxy random-xcor random-ycor
-      rt random-float 360 ]
+      rt random-float 360
+      set flockmates no-turtles ]
   reset-ticks
 end
 
