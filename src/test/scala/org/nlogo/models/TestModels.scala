@@ -1,8 +1,8 @@
 package org.nlogo.models
 
 import scala.collection.GenIterable
-
 import org.scalatest.FunSuite
+import scala.collection.GenSeq
 
 trait TestModels extends FunSuite {
 
@@ -14,15 +14,16 @@ trait TestModels extends FunSuite {
 
   def testModels(models: GenIterable[Model], testName: String)(testFun: Model => GenIterable[Any]): Unit =
     test(testName) {
-      val allFailures: GenIterable[String] = models
+      val allFailures: GenSeq[String] = models
         .map(model => (model, testFun(model)))
         .filter(_._2.nonEmpty)
         .map {
           case (model, failures) =>
-            model.quotedPath + "\n" + failures.map("  " + _).mkString("\n")
-        }
+            val descriptions = failures.map(_.toString).filterNot(_.isEmpty).map("  " + _)
+            (model.quotedPath +: descriptions.toSeq).mkString("\n")
+        }(collection.breakOut)
       if (allFailures.nonEmpty)
-        fail(allFailures.mkString("\n") + "\n(" + allFailures.size + " failing models)")
+        fail((allFailures :+ s"(${allFailures.size} failing models)").mkString("\n"))
     }
 
   def testLines(

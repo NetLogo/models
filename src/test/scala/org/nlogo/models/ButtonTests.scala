@@ -72,6 +72,6 @@ class ButtonTests extends TestModels {
           if modelButtons.exists(_.disabledUntilTicksStart)
           enabledButtons = modelButtons.filterNot(_.disabledUntilTicksStart)
           if !enabledButtons.exists(_.run().right.exists(_.ticks != -1))
-        } yield "Has buttons disabled until ticks start but no buttons that resets ticks."
+        } yield ""
     }
 }
