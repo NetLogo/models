@@ -66,6 +66,7 @@ to new
   [ set pcolor black ]
   ;; setup the new piece
   new-piece
+  reset-ticks
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;

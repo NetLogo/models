@@ -13,6 +13,7 @@ to setup
       set chip? false
       setxy random-xcor random-ycor
       set size 2 ] ;; easier to see
+  reset-ticks
 end
 
 to go

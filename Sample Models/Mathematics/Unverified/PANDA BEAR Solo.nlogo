@@ -35,6 +35,7 @@ to setup
   ask one-of vertices [ edgify ]
   ;; update the data in the display
   update
+  reset-ticks
 end
 
 ;; sets the turtle variables to appropriate initial values

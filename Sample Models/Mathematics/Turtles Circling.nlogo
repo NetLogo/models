@@ -1,6 +1,6 @@
 to setup
   setup-circle radius number
-  setup-plots
+  reset-ticks
 end
 
 to setup-circle [r n]

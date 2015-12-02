@@ -3,6 +3,7 @@ to use-new-seed
   let my-seed new-seed            ;; generate a new seed
   output-print word "Generated seed: " my-seed  ;; print it out
   random-seed my-seed             ;; use the new seed
+  reset-ticks
 end
 
 ;; Use a seed entered by the user
@@ -10,6 +11,7 @@ to use-seed-from-user
   let my-seed read-from-string user-input "Enter a random seed (an integer):"
   output-print word "User-entered seed: " my-seed  ;; print it out
   random-seed my-seed             ;; use the new seed
+  reset-ticks
 end
 
 ;; create turtles and assign them shapes randomly
