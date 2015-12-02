@@ -1,12 +1,16 @@
 package org.nlogo.models
 
+import scala.Left
+import scala.Right
 import scala.collection.JavaConverters.asScalaBufferConverter
+import scala.collection.parallel.ParMap
 import scala.util.Try
 
 import org.nlogo.api.CompilerException
 import org.nlogo.api.ModelReader
 import org.nlogo.api.Observer
 import org.nlogo.api.SimpleJobOwner
+import org.nlogo.api.World
 
 class ButtonTests extends TestModels {
 
@@ -15,30 +19,59 @@ class ButtonTests extends TestModels {
   def excluded(model: Model) =
     model.is3d || model.code.lines.exists(_.startsWith("extensions"))
 
-  testModels(Model.libraryModels.par,
-    "Buttons should be disabled until ticks start if they trigger a runtime error") { model =>
-      if (excluded(model)) Seq.empty else for {
+  case class Button(
+    val model: Model,
+    val displayName: String,
+    val code: String,
+    val disabledUntilTicksStart: Boolean) {
+    def run(): Either[Throwable, World] = withWorkspace(model) { ws =>
+      val jobOwner = new SimpleJobOwner(displayName, ws.mainRNG, classOf[Observer])
+      try ws.evaluateCommands(jobOwner, "startup", ws.world.observers, true)
+      catch { case e: CompilerException => /* ignore */ }
+      val exception =
+        Try(ws.evaluateCommands(jobOwner, code, ws.world.observers, true)) // catch regular exceptions
+          .failed.toOption.orElse(Option(ws.lastLogoException)) // and Logo exceptions
+          .filterNot(_.getMessage == "You can't get user input headless.")
+      exception match {
+        case Some(e) => Left(e)
+        case None    => Right(ws.world)
+      }
+    }
+  }
+
+  val buttons: ParMap[Model, Iterable[Button]] =
+    Model.libraryModels.par.filterNot(excluded).map { model =>
+      model -> (for {
         widget <- ModelReader.parseWidgets(model.interface.lines.toArray).asScala
         lines = widget.asScala
         if lines(0) == "BUTTON"
         disabledUntilTicksStart = (lines(15) == "0")
-        if !disabledUntilTicksStart
         source = ModelReader.restoreLines(lines(6)).stripLineEnd
         displayName = Option(lines(5)).filterNot(_ == "NIL").getOrElse(source)
-        exception <- withWorkspace(model) { ws =>
-          val code = lines(10) match {
-            case "TURTLE"   => "ask turtles [" + source + "\n]"
-            case "PATCH"    => "ask patches [" + source + "\n]"
-            case "OBSERVER" => source
-          }
-          val jobOwner = new SimpleJobOwner(displayName, ws.mainRNG, classOf[Observer])
-          try ws.evaluateCommands(jobOwner, "startup", ws.world.observers, true)
-          catch { case e: CompilerException => /* ignore */ }
-          Try(ws.evaluateCommands(jobOwner, code, ws.world.observers, true)) // catch regular exceptions
-            .failed.toOption.orElse(Option(ws.lastLogoException)) // and Logo exceptions
+        code = lines(10) match {
+          case "TURTLE"   => "ask turtles [" + source + "\n]"
+          case "PATCH"    => "ask patches [" + source + "\n]"
+          case "OBSERVER" => source
         }
-        if exception.getMessage != "You can't get user input headless."
-      } yield "\"" + displayName + "\" button: " + exception.getMessage
-    }
+      } yield Button(model, displayName, code, disabledUntilTicksStart))
+    }(collection.breakOut)
 
+  testModels(buttons.keys, "Buttons should be disabled until ticks start if they trigger a runtime error") { model =>
+    for {
+      button <- buttons(model)
+      if !button.disabledUntilTicksStart
+      exception <- button.run().left.toOption
+    } yield "\"" + button.displayName + "\" button: " + exception.getMessage
+  }
+
+  testModels(buttons.keys,
+    "If any button is disabled until ticks start, ensure at least one enabled button that resets ticks") {
+      model =>
+        for {
+          modelButtons <- buttons.get(model)
+          if modelButtons.exists(_.disabledUntilTicksStart)
+          enabledButtons = modelButtons.filterNot(_.disabledUntilTicksStart)
+          if !enabledButtons.exists(_.run().right.exists(_.ticks != -1))
+        } yield "Has buttons disabled until ticks start but no buttons that resets ticks."
+    }
 }
