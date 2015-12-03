@@ -206,7 +206,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 26
@@ -256,7 +256,7 @@ SWITCH
 120
 show-trail?
 show-trail?
-1
+0
 1
 -1000
 
@@ -462,7 +462,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 26
@@ -479,7 +479,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 TEXTBOX
 17

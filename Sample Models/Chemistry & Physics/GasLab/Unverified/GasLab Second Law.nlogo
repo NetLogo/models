@@ -278,7 +278,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 8

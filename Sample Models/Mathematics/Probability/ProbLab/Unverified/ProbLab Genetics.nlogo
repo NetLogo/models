@@ -387,7 +387,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 8
@@ -404,7 +404,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 7
@@ -421,7 +421,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 PLOT
 577
@@ -483,7 +483,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 PLOT
 577

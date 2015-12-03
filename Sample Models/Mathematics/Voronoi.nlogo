@@ -27,6 +27,7 @@ to setup
   ask n-of number patches [ make-point ]
   ask patches [ recolor ]
   set current-point nobody
+  reset-ticks
 end
 
 to make-point ; patch procedure
@@ -194,7 +195,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SWITCH
 20

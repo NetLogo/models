@@ -75,7 +75,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 16
@@ -92,7 +92,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 39

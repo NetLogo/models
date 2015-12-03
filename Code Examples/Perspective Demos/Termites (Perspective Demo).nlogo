@@ -11,6 +11,7 @@ to setup
     setxy random-xcor random-ycor
     set size 5  ;; easier to see
   ]
+  reset-ticks
 end
 
 to go ;; turtle procedure
@@ -103,7 +104,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 45
@@ -167,7 +168,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 10
@@ -184,7 +185,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 TEXTBOX
 11
@@ -221,7 +222,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 MONITOR
 10
@@ -249,7 +250,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 11
@@ -266,7 +267,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 106
@@ -283,7 +284,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -579,7 +580,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.1
+NetLogo 5.2.0
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

@@ -36,6 +36,7 @@ to setup
         "Please check that your board is connected.")
     ]
   ]
+  reset-ticks
 end
 
 to turn-led [ on? ]

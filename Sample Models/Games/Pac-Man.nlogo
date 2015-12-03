@@ -38,6 +38,7 @@ to new  ;; Observer Button
   set extra-lives 0
   set scared 0
   set level-over? false
+  reset-ticks
 end
 
 to load-map  ;; Observer Procedure
@@ -410,7 +411,7 @@ NIL
 P
 NIL
 NIL
-1
+0
 
 BUTTON
 88
@@ -427,7 +428,7 @@ NIL
 I
 NIL
 NIL
-1
+0
 
 BUTTON
 143
@@ -444,7 +445,7 @@ NIL
 L
 NIL
 NIL
-1
+0
 
 BUTTON
 88
@@ -461,7 +462,7 @@ NIL
 K
 NIL
 NIL
-1
+0
 
 BUTTON
 33
@@ -478,7 +479,7 @@ NIL
 J
 NIL
 NIL
-1
+0
 
 MONITOR
 121
@@ -959,7 +960,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.1
+NetLogo 5.2.0
 @#$#@#$#@
 new
 @#$#@#$#@

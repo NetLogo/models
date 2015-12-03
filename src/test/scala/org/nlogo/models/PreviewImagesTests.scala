@@ -9,6 +9,10 @@ class PreviewImagesTests extends TestModels {
 
   def needsPreviewFile(m: Model) = m.is3d || m.needsManualPreview
 
+  val ignoredLines = readFileToString(new File(".gitignore"), "UTF-8").lines.toSeq
+  val ignored = ignoredLines.toSet
+  def isInGitIgnore(m: Model) = ignored.contains(m.previewFile.getPath.drop(1))
+
   // Some models are automatically excluded from `all-previews`
   // (http://git.io/vGb9l), but for them to be checked by other
   // tests (and also to be consistent) we need them to be
@@ -18,14 +22,15 @@ class PreviewImagesTests extends TestModels {
     Set("HUBNET", "/GOGO/", "/CODE EXAMPLES/SOUND/").exists(path.contains)
   }
   testModels(modelsThatShouldNeedManualPreviews,
-    "Some library models should be tagged as needing manual previews", {
+    "Some library models should be tagged as needing manual previews") {
       Option(_).filterNot(needsPreviewFile)
         .map(_ => "should be tagged as needing manual preview")
-    })
+    }
 
   testLibraryModels("Models should have committed preview iif they're 3d or require manual preview") { model =>
     for {
       m <- Option(model)
+      if !isInGitIgnore(m)
       if m.previewFile.isFile != needsPreviewFile(m)
     } yield {
       "\"" + m.previewFile.getPath + "\"" +
@@ -34,15 +39,12 @@ class PreviewImagesTests extends TestModels {
     }
   }
 
-  val ignoredLines = readFileToString(new File(".gitignore"), "UTF-8").lines.toSeq
-  val ignored = ignoredLines.toSet
   testLibraryModels("Images should be in `.gitignore` iif they don't need manual previews") { model =>
     for {
       m <- Option(model)
       needsPreview = needsPreviewFile(m)
-      imagePath = m.previewFile.getPath.drop(1)
-      if ignored.contains(imagePath) == needsPreview
-    } yield imagePath +
+      if isInGitIgnore(m) == needsPreview
+    } yield m.previewFile.getPath.drop(1) +
       " should " + (if (needsPreview) "not" else "") +
       " be added to .gitignore"
   }

@@ -118,7 +118,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 CHOOSER
 30
@@ -127,7 +127,7 @@ CHOOSER
 175
 step-size
 step-size
-10 1 0.1 0.01 0.0010
+10 1 0.1 0.01 0.001
 1
 
 BUTTON
@@ -145,7 +145,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 CHOOSER
 30

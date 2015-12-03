@@ -99,7 +99,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 PLOT
 25
@@ -134,7 +134,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SWITCH
 33

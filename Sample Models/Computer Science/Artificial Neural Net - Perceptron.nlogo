@@ -384,7 +384,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 505
@@ -401,7 +401,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 CHOOSER
 505
@@ -443,7 +443,7 @@ learning-rate
 learning-rate
 0.0
 1.0
-0.0050
+0.005
 1.0E-4
 1
 NIL
@@ -568,7 +568,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

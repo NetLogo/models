@@ -256,7 +256,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 560
@@ -273,7 +273,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 CHOOSER
 560
@@ -420,7 +420,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

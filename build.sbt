@@ -1,6 +1,10 @@
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.7"
 
-scalacOptions ++= Seq("-feature")
+fork := true
+
+javaOptions ++= Seq("-Dorg.nlogo.noGenerator=true", "-Xmx2G")
+
+scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
 
 resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/"
 

@@ -94,7 +94,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 TEXTBOX
 19

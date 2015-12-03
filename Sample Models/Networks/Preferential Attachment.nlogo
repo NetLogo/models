@@ -191,7 +191,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 6
@@ -208,7 +208,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SWITCH
 187
@@ -258,7 +258,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 115
@@ -275,7 +275,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

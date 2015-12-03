@@ -20,6 +20,7 @@ to setup
     ]
   set curr-color-sep color-sep
   set counter 0
+  reset-ticks
 end
 
 to lift-pen
@@ -572,7 +573,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 232
@@ -589,7 +590,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 150
@@ -606,7 +607,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 232
@@ -623,7 +624,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 150
@@ -640,7 +641,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 232
@@ -657,7 +658,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 MONITOR
 167

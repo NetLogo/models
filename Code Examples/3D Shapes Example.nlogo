@@ -17,6 +17,7 @@ to setup
   ;; car looks best from the side
   ask turtles with [ shape = "car" ]
   [ set heading 90 ]
+  reset-ticks
 end
 
 to demo
@@ -94,7 +95,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 170
@@ -111,7 +112,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 170
@@ -128,7 +129,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 344
@@ -145,7 +146,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 344
@@ -162,7 +163,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 344
@@ -179,7 +180,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 TEXTBOX
 172
@@ -206,7 +207,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

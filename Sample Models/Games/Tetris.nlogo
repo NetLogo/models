@@ -66,6 +66,7 @@ to new
   [ set pcolor black ]
   ;; setup the new piece
   new-piece
+  reset-ticks
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -376,7 +377,7 @@ NIL
 L
 NIL
 NIL
-1
+0
 
 BUTTON
 8
@@ -393,7 +394,7 @@ NIL
 J
 NIL
 NIL
-1
+0
 
 BUTTON
 24
@@ -410,7 +411,7 @@ NIL
 S
 NIL
 NIL
-1
+0
 
 BUTTON
 91
@@ -427,7 +428,7 @@ NIL
 D
 NIL
 NIL
-1
+0
 
 BUTTON
 63
@@ -444,7 +445,7 @@ NIL
 ,
 NIL
 NIL
-1
+0
 
 MONITOR
 93
@@ -483,7 +484,7 @@ NIL
 P
 NIL
 NIL
-1
+0
 
 SLIDER
 6
@@ -551,7 +552,7 @@ NIL
 K
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?

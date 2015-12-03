@@ -35,6 +35,7 @@ to setup
   ask one-of vertices [ edgify ]
   ;; update the data in the display
   update
+  reset-ticks
 end
 
 ;; sets the turtle variables to appropriate initial values
@@ -222,7 +223,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 19
@@ -312,7 +313,7 @@ NIL
 W
 NIL
 NIL
-1
+0
 
 BUTTON
 121
@@ -329,7 +330,7 @@ NIL
 S
 NIL
 NIL
-1
+0
 
 BUTTON
 210
@@ -346,7 +347,7 @@ NIL
 D
 NIL
 NIL
-1
+0
 
 BUTTON
 33
@@ -363,7 +364,7 @@ NIL
 A
 NIL
 NIL
-1
+0
 
 INPUTBOX
 71

@@ -6,6 +6,7 @@ to setup
     [ set plabel-color black
       set column-number pxcor + max-pxcor ]
   go
+  reset-ticks
 end
 
 to go
@@ -110,7 +111,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 9

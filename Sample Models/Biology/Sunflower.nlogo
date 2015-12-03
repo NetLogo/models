@@ -88,7 +88,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 4
@@ -114,7 +114,7 @@ turn-increment
 turn-increment
 0
 3.236
-0.618034
+0.619
 1.0E-6
 1
 degrees
