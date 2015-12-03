@@ -8,10 +8,18 @@ end
 
 ;; Use a seed entered by the user
 to use-seed-from-user
-  let my-seed read-from-string user-input "Enter a random seed (an integer):"
-  output-print word "User-entered seed: " my-seed  ;; print it out
-  random-seed my-seed             ;; use the new seed
-  reset-ticks
+  loop [
+    let my-seed user-input "Enter a random seed (an integer):"
+    carefully [ set my-seed read-from-string my-seed ] [ ]
+    ifelse is-number? my-seed and round my-seed = my-seed [
+      random-seed my-seed ;; use the new seed
+      output-print word "User-entered seed: " my-seed  ;; print it out
+      reset-ticks
+      stop
+    ] [
+      user-message "Please enter an integer."
+    ]
+  ]
 end
 
 ;; create turtles and assign them shapes randomly
