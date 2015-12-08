@@ -24,4 +24,14 @@ class BadInterfacesTests extends TestModels {
       if len < min || len > max
     } yield s"$kind (min: $min, max: $max) has length $len"
   }
+
+  testLibraryModels("Output widgets should have reasonably sized font") { model =>
+    for {
+      widget <- model.interface.split("\n\n")
+      lines = widget.split("\n")
+      if lines.head == "OUTPUT"
+      fontSize <- lines.lift(5).map(_.toInt)
+      if fontSize < 8 || fontSize > 14
+    } yield s"OUTPUT has font size $fontSize"
+  }
 }
