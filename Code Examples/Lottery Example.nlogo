@@ -103,11 +103,11 @@ NIL
 0
 
 TEXTBOX
-43
-187
-133
-324
-Bigger turtles have a bigger chance of winning the lottery.  A turtle's number is how many times it won.
+35
+186
+167
+340
+Bigger turtles have\na bigger chance of\nwinning the lottery.\nA turtle's number\nis how many times\nit won.
 11
 0.0
 0

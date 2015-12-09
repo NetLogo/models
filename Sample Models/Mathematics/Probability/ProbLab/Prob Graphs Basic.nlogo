@@ -197,9 +197,9 @@ PENS
 
 SLIDER
 9
-179
+203
 184
-212
+236
 sample-space-size
 sample-space-size
 1
@@ -270,10 +270,10 @@ total-attempts
 11
 
 MONITOR
-680
-66
-737
-111
+705
+70
+762
+115
 rate
 total-successes / total-attempts
 3
@@ -294,7 +294,7 @@ total-successes
 TEXTBOX
 551
 89
-677
+694
 107
 ________________     =
 11
@@ -381,9 +381,9 @@ mean successes-per-sample-list
 TEXTBOX
 9
 87
-139
-178
-The program will record and plot the random occurrence of the event \"1\" among other integers in the sample space of size...
+148
+191
+The program will\nrecord and plot the\nrandom occurrence\nof the event \"1\"\namong other integers\nin the sample space\nof size...
 11
 0.0
 0
@@ -400,10 +400,10 @@ mean counter-list
 11
 
 MONITOR
-143
-98
-193
-143
+142
+93
+192
+138
 NIL
 event
 3

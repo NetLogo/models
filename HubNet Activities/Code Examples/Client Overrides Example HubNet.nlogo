@@ -156,7 +156,7 @@ TEXTBOX
 92
 227
 137
-Users click on their client view to reveal the color of patches at that location.
+Users click on their client view\nto reveal the color of patches\nat that location.
 12
 0.0
 1
@@ -474,8 +474,6 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 NetLogo 5.2.0
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
-; setup
-; ask one-of patches [ set pcolor true-color ask neighbors [ set pcolor true-color ] ]
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

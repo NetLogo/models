@@ -97,9 +97,9 @@ NIL
 
 TEXTBOX
 15
-205
+195
 165
-223
+213
 Sensors
 14
 15.0
@@ -191,7 +191,7 @@ HORIZONTAL
 TEXTBOX
 450
 10
-585
+640
 28
 Output Port Controls:
 14
@@ -210,10 +210,10 @@ Initialize
 
 TEXTBOX
 15
-230
+220
 400
-315
-Sensor values are arbitrary units that go from 0 to 1023. To get \"real\" units such as degrees (for temperature), you need to look at the sensor documentation or use a real thermometer to build a conversion table or graph.\nYou can add up to eight sensor monitors, but each additional monitor makes NetLogo slightly slower.
+316
+Sensor values are arbitrary units that go from 0 to 1023. To get\n\"real\" units such as degrees (for temperature), you need to look\nat the sensor documentation or use a real thermometer to build\na conversion table or graph.\n\nYou can add up to eight sensor monitors, but each additional\nmonitor makes NetLogo slightly slower.
 11
 0.0
 1
@@ -221,9 +221,9 @@ Sensor values are arbitrary units that go from 0 to 1023. To get \"real\" units 
 TEXTBOX
 15
 30
-385
+395
 75
-To use this model, you should have connected the USB cable to the computer and to the GoGo Board. A beep from the GoGo board means the board is connected.
+To use this model, you should have connected the USB cable to\nthe computer and to the GoGo Board. A beep from the GoGo\nboard means the board is connected.
 11
 0.0
 1
@@ -231,9 +231,9 @@ To use this model, you should have connected the USB cable to the computer and t
 TEXTBOX
 450
 30
-740
+760
 146
-You can control motors, LEDs, small light bulbs or relays: turn them on and off, reverse the polarity (which causes motors to reverse direction), and change the power level. In this model, we only control output port A, but you can control up to four ports (A, B, C and D). To use more than one motor, use batteries or an external power supply.
+You can control motors, LEDs, small light bulbs or\nrelays: turn them on and off, reverse the polarity\n(which causes motors to reverse direction), and\nchange the power level. In this model, we only\ncontrol output port A, but you can control up to\nfour ports (A, B, C and D). To use more than one\nmotor, use batteries or an external power supply.
 11
 0.0
 1
@@ -280,7 +280,7 @@ TEXTBOX
 110
 400
 140
-GoGo board have two built in ways to verify if your board is connected: an on-board LED and the ability to beep.
+GoGo board have two built in ways to verify if your board is\nconnected: an on-board LED and the ability to beep.
 11
 0.0
 1

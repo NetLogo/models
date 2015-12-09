@@ -212,19 +212,19 @@ PENS
 TEXTBOX
 192
 265
-236
+243
 299
-Battery-positive
+Battery-\npositive
 11
 0.0
 0
 
 TEXTBOX
-666
+661
 266
 714
 305
-Battery-negative\n
+Battery-\nnegative\n
 11
 0.0
 0

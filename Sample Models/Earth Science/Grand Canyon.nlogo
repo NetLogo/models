@@ -192,7 +192,7 @@ TEXTBOX
 138
 190
 170
-Click on the map to place raindrops manually
+Click on the map to place\nraindrops manually
 11
 0.0
 0

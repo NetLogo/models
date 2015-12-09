@@ -154,7 +154,7 @@ initial-cooperation
 HORIZONTAL
 
 TEXTBOX
-235
+220
 49
 426
 198

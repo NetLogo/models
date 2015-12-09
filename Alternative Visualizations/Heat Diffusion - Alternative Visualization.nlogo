@@ -402,9 +402,9 @@ color-scheme
 TEXTBOX
 151
 62
-310
+337
 136
-Choose a material and then press UPDATE ALPHA based on that material, or set ALPHA directly from the slider.
+Choose a material and then\npress UPDATE ALPHA based\non that material, or set ALPHA\ndirectly from the slider.
 11
 0.0
 1

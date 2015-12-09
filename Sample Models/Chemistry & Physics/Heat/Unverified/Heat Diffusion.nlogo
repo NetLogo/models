@@ -375,9 +375,9 @@ material-type
 TEXTBOX
 155
 90
-292
+315
 163
-Choose a material and then press UPDATE ALPHA based on that material, or set ALPHA directly from the slider.
+Choose a material and\nthen press UPDATE ALPHA\nbased on that material,\nor set ALPHA directly\nfrom the slider.
 11
 0.0
 1

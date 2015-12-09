@@ -165,9 +165,9 @@ PENS
 TEXTBOX
 8
 396
-260
-464
-This shows the elevations of the patches ahead of the orange turtle. The leftmost line is the patch the turtle is standing on. Orange lines are patches the turtle can see.
+268
+480
+This shows the elevations of the patches\nahead of the orange turtle.\n\nThe leftmost line is the patch the turtle is\nstanding on. Orange lines are patches the \nturtle can see.
 11
 0.0
 0

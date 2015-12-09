@@ -252,7 +252,7 @@ HORIZONTAL
 TEXTBOX
 450
 10
-585
+725
 28
 Output Port Controls:
 14
@@ -274,7 +274,7 @@ TEXTBOX
 230
 400
 315
-Sensor values are arbitrary units that go from 0 to 1023. To get \"real\" units such as degrees (for temperature), you need to look at the sensor documentation or use a real thermometer to build a conversion table or graph.\nYou can add up to eight sensor monitors, but each additional monitor makes NetLogo slightly slower.
+Sensor values are arbitrary units that go from 0 to 1023.\nTo get \"real\" units such as degrees (for temperature),\nyou need to look at the sensor documentation or use\na real thermometer to build a conversion table or graph.\nYou can add up to eight sensor monitors, but each \nadditional monitor makes NetLogo slightly slower.
 11
 0.0
 1
@@ -282,9 +282,9 @@ Sensor values are arbitrary units that go from 0 to 1023. To get \"real\" units 
 TEXTBOX
 15
 30
-385
+405
 145
-To use this model, you should have connected the USB cable to the computer and to the GoGo Board, and installed the USB-Serial drivers. Most connection problems are solved by (1) closing NetLogo, (2) turning the GoGo Board off, (3) Waiting 5 seconds, (4) turning the board back on, (5) waiting 5 seconds, (6) opening NetLogo again.\nRefer to the NetLogo documentation for more information.  \n(NOTE: Pressing \"setup\" twice on Mac OS may cause a crash)
+To use this model, you should have connected the USB cable to\nthe computer and to the GoGo Board, and installed the\nUSB-Serial drivers. Most connection problems are solved by\n(1) closing NetLogo, (2) turning the GoGo Board off,\n(3) Waiting 5 seconds, (4) turning the board back on,\n(5) waiting 5 seconds, (6) opening NetLogo again.\nRefer to the NetLogo documentation for more information.  \n(NOTE: Pressing \"setup\" twice on Mac OS may cause a crash)
 11
 0.0
 1
@@ -292,9 +292,9 @@ To use this model, you should have connected the USB cable to the computer and t
 TEXTBOX
 450
 30
-740
+770
 146
-You can control motors, LEDs, small light bulbs or relays: turn them on and off, reverse the polarity (which causes motors to reverse direction), and change the power level. In this model, we only control output port A, but you can control up to four ports (A, B, C and D). To use more than one motor, use batteries or an external power supply.
+You can control motors, LEDs, small light bulbs or\nrelays: turn them on and off, reverse the polarity\n(which causes motors to reverse direction), and\nchange the power level. In this model, we only\ncontrol output port A, but you can control up to\nfour ports (A, B, C and D). To use more than one\nmotor, use batteries or an external power supply.
 11
 0.0
 1

@@ -211,9 +211,9 @@ show-updates?
 TEXTBOX
 13
 241
-180
+189
 294
-While the GO button is down, you can drag the points around with the mouse.
+While the GO button is down,\nyou can drag the points\naround with the mouse.
 11
 0.0
 0

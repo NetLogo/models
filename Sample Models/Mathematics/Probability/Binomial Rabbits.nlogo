@@ -192,10 +192,10 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-282
-10
-697
-446
+319
+13
+734
+449
 22
 -1
 9.0
@@ -427,9 +427,9 @@ y-scale
 11
 
 TEXTBOX
-19
+9
 374
-268
+312
 428
 GREEN LINE - Starting rabbit position\nPURPLE LINE - Average rabbit position\nYELLOW LINES - Number of rabbits at that position
 11

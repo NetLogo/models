@@ -387,7 +387,7 @@ PENS
 TEXTBOX
 319
 335
-750
+778
 409
 RULES:\n- Particle crossing left to right pushes propeller clockwise.\n- Particle crossing right to left pushes propeller counterclockwise.\n- Propeller slows down over time as work is extracted from the system.
 11

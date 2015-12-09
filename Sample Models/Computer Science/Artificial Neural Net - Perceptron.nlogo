@@ -536,7 +536,7 @@ TEXTBOX
 TEXTBOX
 505
 15
-619
+665
 33
 3. Test perceptron:
 11

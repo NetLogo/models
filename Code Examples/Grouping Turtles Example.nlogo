@@ -190,9 +190,9 @@ ticks
 TEXTBOX
 11
 282
-232
+244
 350
-To group turtles into a fixed number of groups, each of similar size, select the number of groups and press assign-by-number.
+To group turtles into a fixed number\nof groups, each of similar size, select\nthe number of groups and press\nassign-by-number.
 11
 0.0
 0
@@ -202,7 +202,7 @@ TEXTBOX
 135
 220
 192
-To group turtles into groups of a particular size, select the size and press assign-by-size.
+To group turtles into groups of a\nparticular size, select the size and\npress assign-by-size.
 11
 0.0
 0

@@ -485,7 +485,7 @@ HORIZONTAL
 TEXTBOX
 12
 175
-178
+248
 315
       PAYOFF:\n             Partner    \nTurtle    C       D\n-------------------------\n    C        3      0  \n-------------------------\n    D        5      1\n-------------------------\n(C = Cooperate, D = Defect)
 11

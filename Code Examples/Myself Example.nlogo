@@ -50,10 +50,10 @@ end
 ; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
-279
-10
-604
-356
+302
+11
+627
+357
 17
 17
 9.0
@@ -147,9 +147,9 @@ NIL
 TEXTBOX
 105
 289
-271
+280
 374
-EXAMPLE #3: Demonstrates \"myself\" in combination with -of, with, min-one-of, distance, and towards
+EXAMPLE #3: Demonstrates\n\"myself\" in combination with\n\"-of\", \"with\", \"min-one-of\",\n\"distance\", and \"towards\"
 11
 0.0
 0
@@ -157,9 +157,9 @@ EXAMPLE #3: Demonstrates \"myself\" in combination with -of, with, min-one-of, d
 TEXTBOX
 98
 109
-263
+280
 171
-EXAMPLE #1: Demonstrates \"myself\" in combination with ask and in-radius
+EXAMPLE #1: Demonstrates\n\"myself\" in combination with\n\"ask\" and \"in-radius\"
 11
 0.0
 0
@@ -167,9 +167,9 @@ EXAMPLE #1: Demonstrates \"myself\" in combination with ask and in-radius
 TEXTBOX
 102
 200
+295
 267
-267
-EXAMPLE #2: Demonstrates \"myself\" in combination with ask and -of
+EXAMPLE #2: Demonstrates\n\"myself\" in combination with\n\"ask\" and \"-of\"
 11
 0.0
 0

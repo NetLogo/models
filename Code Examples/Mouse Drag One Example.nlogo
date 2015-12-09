@@ -94,7 +94,7 @@ TEXTBOX
 186
 114
 234
-Click and drag turtles to move them around.
+Click and drag\nturtles to move\nthem around.
 11
 0.0
 0

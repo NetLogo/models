@@ -140,7 +140,7 @@ TEXTBOX
 165
 270
 193
-After you stop the GO button, click this to close the file.
+After you stop the GO button, click this\nto close the file.
 11
 0.0
 0
@@ -149,8 +149,8 @@ TEXTBOX
 15
 20
 279
-54
-Choose a directory where you have write permission and choose a unique filename.
+51
+Choose a directory where you have write\npermission and choose a unique filename.
 11
 0.0
 0

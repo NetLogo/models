@@ -486,9 +486,9 @@ logistic?
 TEXTBOX
 15
 205
-195
-360
-* threshold-val and sink state only apply for \"individual\" and \"threshold\" updating algorithms\n\n* when logistic? is off, there's a built-in bias towards grammar 1\n\n* alpha only applies to the \"reward\" updating algorithm and when logistic? is on
+210
+356
+* threshold-val and sink state only\napply for \"individual\" and \"threshold\"\nupdating algorithms\n\n* when logistic? is off, there's a\nbuilt-in bias towards grammar 1\n\n* alpha only applies to the\n\"reward\" updating algorithm\nand when logistic? is on
 10
 0.0
 0

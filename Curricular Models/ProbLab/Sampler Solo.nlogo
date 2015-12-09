@@ -685,11 +685,11 @@ NIL
 0
 
 TEXTBOX
-25
+20
 480
 245
-605
-The histogram simulates a typical run in a classroom. The aggregation of students' guesses approximates a normal distribution, and the classroom mean is a few % scores off of the population value.
+601
+The histogram simulates a typical run\nin a classroom. The aggregation of\nstudents' guesses approximates a\nnormal distribution, and the\nclassroom mean is a few % scores\noff of the population value.
 11
 0.0
 0

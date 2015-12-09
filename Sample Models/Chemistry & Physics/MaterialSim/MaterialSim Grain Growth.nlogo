@@ -284,9 +284,9 @@ ticks
 TEXTBOX
 35
 10
-315
+320
 80
-Model starting point (you can start from a random arrangement or a picture from a microscope. You can also determine if you want a certain percentage of a second element, sometimes called grain refiner)
+Model starting point (you can start from a\nrandom arrangement or a picture from a\nmicroscope. You can also determine if you\nwant a certain percentage of a second\nelement, sometimes called grain refiner)
 11
 0.0
 0
@@ -498,9 +498,9 @@ HORIZONTAL
 TEXTBOX
 30
 320
-295
-365
-Draw/edit grains (this is optional, you can use this to \"draw\" new grain structures, or edit the grains at any point during the simulation)
+315
+361
+Draw/edit grains (this is optional, you can use\nthis to \"draw\" new grain structures, or edit\nthe grains at any point during the simulation)
 11
 0.0
 0
@@ -538,9 +538,9 @@ Grain size plot and calculations
 TEXTBOX
 34
 200
-304
+324
 245
-Change the shape of atoms (different shapes might help visualize the atomic planes, or the proportion of different types of grains)
+Change the shape of atoms (different shapes\nmight help visualize the atomic planes, or the\nproportion of different types of grains)
 11
 0.0
 0
@@ -592,9 +592,9 @@ NIL
 TEXTBOX
 345
 365
-540
+555
 406
-This slider determines how often the grain size is measured
+This slider determines how often\nthe grain size is measured
 11
 0.0
 1
@@ -602,9 +602,9 @@ This slider determines how often the grain size is measured
 TEXTBOX
 344
 478
-724
+749
 553
-A high annealing temperature makes some atoms randomly jump to the next grain. When it is zero, only the energetically favorable jumps will happen. Temperature here is represented as a relative value -- a percentage of random jumps out of the possible jumps. 100% means that all the jumps are random.
+A high annealing temperature makes some atoms randomly jump\nto the next grain. When it is zero, only the energetically favorable\njumps will happen. Temperature here is represented as a relative\nvalue -- a percentage of random jumps out of the possible jumps.\n100% means that all the jumps are random.
 11
 0.0
 1
@@ -612,7 +612,7 @@ A high annealing temperature makes some atoms randomly jump to the next grain. W
 TEXTBOX
 30
 175
-305
+320
 193
 _____________________________________________
 11
@@ -622,7 +622,7 @@ _____________________________________________
 TEXTBOX
 30
 295
-315
+325
 321
 _____________________________________________
 11

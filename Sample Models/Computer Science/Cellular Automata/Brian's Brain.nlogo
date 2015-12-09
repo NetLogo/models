@@ -184,9 +184,9 @@ NIL
 TEXTBOX
 151
 140
-279
+286
 239
-When one of these buttons is down, you can add or remove cells by holding down the mouse button and \"drawing\".
+When one of these\nbuttons is down, you\ncan add or remove\ncells by holding down\nthe mouse button\nand \"drawing\".
 11
 0.0
 0

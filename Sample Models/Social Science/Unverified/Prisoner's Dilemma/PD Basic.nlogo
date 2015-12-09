@@ -193,7 +193,7 @@ TEXTBOX
 24
 308
 80
-Decide whether to remain silent or confess and then answer the police to receive your sentence.
+Decide whether to remain silent or confess and\nthen answer the police to receive your sentence.
 11
 0.0
 0

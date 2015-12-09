@@ -122,7 +122,7 @@ TEXTBOX
 125
 242
 156
-Three different strategies for turtles to follow:
+Three different strategies\nfor turtles to follow:
 11
 0.0
 0
@@ -145,9 +145,9 @@ HORIZONTAL
 TEXTBOX
 6
 334
-307
+315
 409
-With strategies #1 and #2, this should always be 1.  With strategy #3, it may be greater than 1 while the turtles are still finding new places.  But after unpressing the forever button, it should always return to 1.
+With strategies #1 and #2, this should always be 1.\nWith strategy #3, it may be greater than 1 while the\nturtles are still finding new places.  But after\nunpressing the forever button, it should always\nreturn to 1.
 11
 0.0
 0

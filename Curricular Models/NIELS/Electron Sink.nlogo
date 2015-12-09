@@ -171,7 +171,7 @@ TEXTBOX
 120
 200
 206
-Filling capacity of the electron sink is the maximum number of electrons that the sink can hold.\n\n
+Filling capacity of the\nelectron sink is the\nmaximum number of\nelectrons that the \nsink can hold.\n\n
 12
 0.0
 1
@@ -203,7 +203,7 @@ TEXTBOX
 255
 651
 283
-Unit Of Time: \"isecs\" = imaginary seconds
+Unit Of Time: \"isecs\" =\nimaginary seconds
 11
 113.0
 1

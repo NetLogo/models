@@ -419,11 +419,11 @@ NIL
 1
 
 TEXTBOX
-5
-240
-272
+17
+230
+284
 291
-Examples: Press the buttons to setup examples of L-System Fractals.  Then press the GO or GO ONCE buttons to see them draw.
+Examples: Press the buttons to setup\nexamples of L-System Fractals.  Then\npress the GO or GO ONCE buttons to\nsee them draw.
 11
 0.0
 0

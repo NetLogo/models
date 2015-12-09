@@ -118,9 +118,9 @@ end
 ; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
-180
+215
 10
-610
+645
 461
 17
 17
@@ -181,9 +181,9 @@ NIL
 TEXTBOX
 14
 156
-163
-285
-After pressing SETUP and GO, you can select turtles by dragging a selection rectangle around them.\n\nOnce turtles are selected they will turn red.  You then move them by dragging them.
+199
+310
+After pressing SETUP and\nGO, you can select turtles\nby dragging a selection\nrectangle around them.\n\nOnce turtles are selected\nthey will turn red.  You then\nmove them by dragging them.
 11
 0.0
 0

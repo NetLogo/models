@@ -136,7 +136,7 @@ TEXTBOX
 209
 207
 279
-To see the difference, adjust the speed slider towards \"slower\" until you see the turtles moving one at a time.
+To see the difference,\nadjust the speed slider\ntowards \"slower\" until you\nsee the turtles moving\none at a time.
 11
 0.0
 1
@@ -146,7 +146,7 @@ TEXTBOX
 95
 229
 128
-example of difference between ASK and ASK-CONCURRENT:
+example of difference between\nASK and ASK-CONCURRENT:
 11
 0.0
 1
@@ -169,11 +169,11 @@ NIL
 0
 
 TEXTBOX
-52
+35
 302
 225
 332
-slightly more involved example of ASK-CONCURRENT:
+slightly more involved\nexample of ASK-CONCURRENT:
 11
 0.0
 1
