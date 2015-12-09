@@ -408,7 +408,7 @@ NIL
 TEXTBOX
 85
 146
-235
+254
 164
 controls for the red vertex
 11
@@ -418,9 +418,9 @@ controls for the red vertex
 TEXTBOX
 93
 84
-307
+338
 113
-click and drag the vertices with the mouse
+click and drag the vertices\nwith the mouse
 11
 0.0
 0

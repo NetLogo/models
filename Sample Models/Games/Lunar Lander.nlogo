@@ -252,11 +252,11 @@ NIL
 0
 
 TEXTBOX
-44
+20
 154
-194
+215
 231
-Land on the blue landing pad!\n\nYou must land straight, and land very gently.
+Land on the blue landing pad!\n\nYou must land straight,\nand land very gently.
 11
 0.0
 0

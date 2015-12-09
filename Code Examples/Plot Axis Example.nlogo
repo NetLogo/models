@@ -97,9 +97,9 @@ NIL
 TEXTBOX
 500
 89
-659
+678
 148
-The plot contains two plot pens, \"position\" and \"axis\".  \"axis\" is used only to make the X axis visible.
+The plot contains two plot\npens, \"position\" and \"axis\".\n\"axis\" is used only to make\nthe X axis visible.
 11
 0.0
 0

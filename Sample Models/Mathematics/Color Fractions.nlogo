@@ -150,7 +150,7 @@ TEXTBOX
 128
 240
 159
-You can move the sliders while the GO button is running.
+You can move the sliders while\nthe GO button is running.
 11
 0.0
 0

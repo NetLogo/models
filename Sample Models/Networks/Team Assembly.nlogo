@@ -368,7 +368,7 @@ HORIZONTAL
 TEXTBOX
 14
 158
-229
+323
 177
 probability of choosing an incumbent
 11
@@ -378,7 +378,7 @@ probability of choosing an incumbent
 TEXTBOX
 11
 218
-277
+314
 236
 probability of choosing a previous collaborator
 11

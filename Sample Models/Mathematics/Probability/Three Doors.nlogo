@@ -200,9 +200,9 @@ Darker turtles switch doors more often.\nLighter turtles switch doors less often
 TEXTBOX
 19
 131
-174
+187
 225
-if Gradation is off, all turtles stick with one strategy, either the \"stick\" or the \"switch\" strategy. If Gradation is on, they do mixed strategies.
+if Gradation is off, all\nturtles stick with one\nstrategy, either the \"stick\"\nor the \"switch\" strategy. If\nGradation is on, they do\nmixed strategies.
 11
 0.0
 0

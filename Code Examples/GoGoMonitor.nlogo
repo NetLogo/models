@@ -717,9 +717,9 @@ plot-sensor-8
 TEXTBOX
 565
 280
-780
+795
 481
-Check if the USB cable is connected to the computer and to the GoGo Board, and that the GoGo board is on. Most connection problems are solved by:\n(1) Closing NetLogo.\n(2) Turning the GoGo Board off.\n(3) Waiting 5 seconds.\n(4) Turning the board back on.\n(5) Waiting 5 seconds.\n(6) Opening NetLogo again.\n\nRefer to the NetLogo documentation for more information.
+Check if the USB cable is connected to\nthe computer and to the GoGo Board,\nand that the GoGo board is on. Most\nconnection problems are solved by:\n\n(1) Closing NetLogo.\n(2) Turning the GoGo Board off.\n(3) Waiting 5 seconds.\n(4) Turning the board back on.\n(5) Waiting 5 seconds.\n(6) Opening NetLogo again.\n\nRefer to the NetLogo documentation\nfor more information.
 11
 0.0
 1
@@ -727,9 +727,9 @@ Check if the USB cable is connected to the computer and to the GoGo Board, and t
 TEXTBOX
 565
 240
-775
+780
 276
-If you cannot connect to the GoGo Board:
+If you cannot connect\nto the GoGo Board:
 14
 15.0
 1

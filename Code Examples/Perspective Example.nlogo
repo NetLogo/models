@@ -140,7 +140,7 @@ NIL
 TEXTBOX
 19
 35
-345
+353
 61
 This model demonstrates view perspectives in NetLogo.
 11

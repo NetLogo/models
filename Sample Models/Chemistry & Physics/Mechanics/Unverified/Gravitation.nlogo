@@ -245,9 +245,9 @@ HORIZONTAL
 TEXTBOX
 10
 232
-182
+192
 311
-Click and hold the mouse in the view while GO is running to act as a gravitational source with mass set by the slider value.
+Click and hold the mouse in\nthe view while GO is running\nto act as a gravitational\nsource with mass set by the\nslider value.
 11
 0.0
 0
@@ -616,7 +616,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.1
+NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

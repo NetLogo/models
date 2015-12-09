@@ -63,10 +63,10 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-250
-49
-683
-503
+255
+45
+688
+499
 70
 70
 3.0
@@ -190,22 +190,22 @@ NIL
 TEXTBOX
 11
 161
-245
+251
 220
-This is a version of the Termites model, modified to show off NetLogo's perspective features. Try it in both 2D and 3D.
+This is a version of the Termites model,\nmodified to show off NetLogo's\nperspective features. Try it in both\n2D and 3D.
 11
 0.0
 0
 
 TEXTBOX
-250
-10
-462
-41
-Termites move fast! Use the speed slider to slow them down.
+255
+6
+535
+47
+Termites move fast! Use the speed slider\nto slow them down.
 11
 0.0
-0
+1
 
 BUTTON
 11

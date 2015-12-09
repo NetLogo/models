@@ -215,7 +215,7 @@ PENS
 MONITOR
 35
 151
-143
+152
 196
 % most populous
 max-percent
@@ -279,7 +279,7 @@ TEXTBOX
 391
 281
 419
-As the model runs, you may optionally create and remove walls that separate groups of turtles.
+As the model runs, you may optionally create and\nremove walls that separate groups of turtles.
 10
 0.0
 0

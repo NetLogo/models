@@ -346,7 +346,7 @@ TEXTBOX
 8
 251
 55
-You can change the question while the simulation is running. \n(While the go button is pressed...)
+You can change the question\nwhile the simulation is running. \n(While the go button is pressed...)
 11
 0.0
 0
@@ -356,7 +356,7 @@ TEXTBOX
 347
 247
 375
-reduce the step to better observe the interactions
+reduce the step to better\nobserve the interactions
 11
 0.0
 0

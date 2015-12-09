@@ -914,9 +914,9 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-460
+465
 10
-1214
+1219
 425
 -1
 -1
@@ -1113,7 +1113,7 @@ count proteins with [strand = \"duplicate\"]
 TEXTBOX
 306
 263
-459
+461
 281
 Replicated DNA in new cell
 11
@@ -2211,7 +2211,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.1-RC1
+NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

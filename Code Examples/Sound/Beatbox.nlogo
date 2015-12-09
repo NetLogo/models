@@ -241,11 +241,11 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-192
+137
 14
 304
-77
-(for steadier beats, freeze view using checkbox above)
+105
+(for steadier beats, freeze\nview using the \"view\nupdates\" checkbox in\nNetLogo's toolbar above)
 11
 0.0
 0
@@ -673,8 +673,6 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 NetLogo 5.2.0
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
-; use: import-world "Beats/seth3.csv"
-; ...to create manual preview.
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

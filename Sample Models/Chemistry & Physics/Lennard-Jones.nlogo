@@ -150,9 +150,9 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-240
+239
 10
-745
+744
 536
 16
 16
@@ -298,7 +298,7 @@ TEXTBOX
 10
 238
 81
-Model starting point. You can choose the number of atoms, the density and the initial configuration (random or hexagonally-close-packed)
+Model starting point. You can\nchoose the number of atoms,\nthe density and the initial\nconfiguration (random or\nhexagonally-close-packed)
 11
 0.0
 1
@@ -306,7 +306,7 @@ Model starting point. You can choose the number of atoms, the density and the in
 TEXTBOX
 31
 251
-208
+223
 279
 _____________________________
 11
@@ -333,7 +333,7 @@ NIL
 TEXTBOX
 3
 263
-21
+27
 299
 2
 30
@@ -343,9 +343,9 @@ TEXTBOX
 TEXTBOX
 30
 270
-225
+231
 312
-Adjust the temperature and run the model. The temperature can be adjusted while the model runs\n
+Adjust the temperature and run\nthe model. The temperature can\nbe adjusted while the model runs\n
 11
 0.0
 1
@@ -785,7 +785,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.1-RC1
+NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

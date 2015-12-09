@@ -425,15 +425,15 @@ TEXTBOX
 251
 153
 280
-(OK to change during run)
+(OK to change\nduring run)
 11
 0.0
 0
 
 BUTTON
-430
+462
 445
-536
+568
 478
 ideal-temp
 set color-by-unhappiness? false\nask turtles [ color-by-ideal-temp ]
@@ -448,9 +448,9 @@ NIL
 1
 
 BUTTON
-541
+573
 445
-657
+689
 478
 happiness
 set color-by-unhappiness? true
@@ -465,19 +465,19 @@ NIL
 1
 
 TEXTBOX
-371
-466
-418
-496
+376
+453
+459
+483
 Color bug by:
 11
 0.0
 0
 
 BUTTON
-430
+462
 481
-537
+569
 514
 watch saddest
 watch max-one-of turtles [ unhappiness ]
@@ -492,9 +492,9 @@ NIL
 0
 
 BUTTON
-541
+573
 481
-659
+691
 514
 watch happiest
 watch min-one-of turtles [ unhappiness ]
@@ -509,9 +509,9 @@ NIL
 0
 
 BUTTON
-662
+694
 481
-799
+831
 514
 NIL
 reset-perspective

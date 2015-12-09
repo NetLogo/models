@@ -172,10 +172,10 @@ ticks
 30.0
 
 BUTTON
-44
-115
-112
-148
+41
+135
+109
+168
 NIL
 setup
 NIL
@@ -189,10 +189,10 @@ NIL
 1
 
 SLIDER
-33
-446
-212
-479
+30
+466
+209
+499
 diffusion-rate
 diffusion-rate
 0
@@ -204,10 +204,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-33
-487
-212
-520
+30
+507
+209
+540
 evaporation-rate
 evaporation-rate
 0
@@ -219,10 +219,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-117
-115
-187
-148
+114
+135
+184
+168
 NIL
 go
 T
@@ -236,10 +236,10 @@ NIL
 0
 
 SLIDER
-25
-70
-204
-103
+22
+90
+201
+123
 population
 population
 0
@@ -251,10 +251,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-10
-182
-222
-215
+7
+202
+219
+235
 NIL
 watch one-of turtles
 NIL
@@ -268,10 +268,10 @@ NIL
 0
 
 BUTTON
-10
-221
-223
-254
+7
+241
+220
+274
 NIL
 follow one-of turtles
 NIL
@@ -288,17 +288,17 @@ TEXTBOX
 12
 17
 250
-59
-This is a version of the Ants model, modified to show off NetLogo's perspective features. Try it in both 2D and 3D.
+77
+This is a version of the Ants model,\nmodified to show off NetLogo's\nperspective features. Try it in both\n2D and 3D.
 11
 0.0
 0
 
 BUTTON
-54
-355
-130
-388
+51
+375
+127
+408
 NIL
 pen-down
 NIL
@@ -312,10 +312,10 @@ NIL
 1
 
 BUTTON
-131
-355
-213
-388
+128
+375
+210
+408
 NIL
 pen-up
 NIL
@@ -329,10 +329,10 @@ NIL
 1
 
 MONITOR
-154
-261
-256
-306
+151
+281
+253
+326
 NIL
 subject
 3
@@ -340,10 +340,10 @@ subject
 11
 
 BUTTON
-54
-395
-183
-428
+51
+415
+180
+448
 NIL
 clear-drawing
 NIL
@@ -357,10 +357,10 @@ NIL
 1
 
 BUTTON
-53
-317
-212
-350
+50
+337
+209
+370
 subject pen-down
 if subject != nobody\n[ ask subject [ pen-down ] ]
 NIL
@@ -374,10 +374,10 @@ NIL
 1
 
 BUTTON
-10
-261
-151
-294
+7
+281
+148
+314
 NIL
 reset-perspective
 NIL
@@ -684,7 +684,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.1
+NetLogo 5.2.0
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

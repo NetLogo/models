@@ -292,7 +292,7 @@ TEXTBOX
 129
 280
 196
-The switches are only considered during SETUP and READ-SWITCHES.
+The switches are\nonly considered\nduring SETUP and\nREAD-SWITCHES.
 10
 0.0
 0

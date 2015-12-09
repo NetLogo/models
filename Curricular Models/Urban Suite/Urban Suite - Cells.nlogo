@@ -194,9 +194,9 @@ neighborhood
 
 SLIDER
 5
-240
+257
 193
-273
+290
 probability
 probability
 0
@@ -272,28 +272,28 @@ PENS
 TEXTBOX
 8
 96
-243
+263
 156
-A cell may be turned on if the number of cells in its neighborhood that are already on, is greater than 0 and satisfies the n-count expression.
+A cell may be turned on if the number\nof cells in its neighborhood that are\nalready on, is greater than 0 and\nsatisfies the n-count expression.
 11
 0.0
 1
 
 TEXTBOX
-5
-219
-262
-243
-The chance each eligible cell has of turning on:
+8
+221
+265
+255
+The chance each eligible cell\nhas of turning on:
 11
 0.0
 1
 
 SLIDER
 199
-240
+257
 308
-273
+290
 age-limit
 age-limit
 0

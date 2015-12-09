@@ -103,10 +103,10 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-493
-11
-805
-344
+518
+10
+830
+343
 75
 75
 2.0
@@ -130,10 +130,10 @@ ticks
 30.0
 
 SLIDER
-262
-182
-369
-215
+273
+180
+380
+213
 off-0-state
 off-0-state
 0
@@ -145,10 +145,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-260
-310
-371
-343
+271
+308
+382
+341
 on-0-state
 on-0-state
 0
@@ -160,10 +160,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-260
-246
-369
-279
+271
+244
+380
+277
 off-1-state
 off-1-state
 0
@@ -175,10 +175,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-260
-378
-370
-411
+271
+376
+381
+409
 on-1-state
 on-1-state
 0
@@ -224,10 +224,10 @@ NIL
 0
 
 SWITCH
-369
-182
-480
-215
+380
+180
+491
+213
 off-0-on?
 off-0-on?
 0
@@ -235,10 +235,10 @@ off-0-on?
 -1000
 
 SWITCH
-372
-310
-480
-343
+383
+308
+491
+341
 on-0-on?
 on-0-on?
 0
@@ -246,10 +246,10 @@ on-0-on?
 -1000
 
 SWITCH
-369
-245
-478
-278
+380
+243
+489
+276
 off-1-on?
 off-1-on?
 0
@@ -257,10 +257,10 @@ off-1-on?
 -1000
 
 SWITCH
-371
-378
-481
-411
+382
+376
+492
+409
 on-1-on?
 on-1-on?
 0
@@ -268,30 +268,30 @@ on-1-on?
 -1000
 
 TEXTBOX
-270
-146
-370
-164
+281
+144
+381
+162
 New Head State
 11
 0.0
 0
 
 TEXTBOX
-139
-144
-239
-162
+150
+142
+250
+160
 Turn
 11
 0.0
 0
 
 TEXTBOX
-381
-146
-471
-164
+392
+144
+482
+162
 New Cell State
 11
 0.0
@@ -375,9 +375,9 @@ NIL
 TEXTBOX
 17
 181
-122
+136
 226
-If cell is off and head is in state 0:
+If cell is off and\nhead is in state 0:
 11
 0.0
 0
@@ -385,9 +385,9 @@ If cell is off and head is in state 0:
 TEXTBOX
 16
 240
-121
+134
 285
-If cell is off and head is in state 1:
+If cell is off and\nhead is in state 1:
 11
 0.0
 0
@@ -395,9 +395,9 @@ If cell is off and head is in state 1:
 TEXTBOX
 16
 308
-121
+135
 353
-If cell is on and head is in state 0:
+If cell is on and\nhead is in state 0:
 11
 0.0
 0
@@ -405,48 +405,48 @@ If cell is on and head is in state 0:
 TEXTBOX
 17
 377
-119
+133
 422
-If cell is on and head is in state 1:
+If cell is on and\nhead is in state 1:
 11
 0.0
 0
 
 CHOOSER
-124
-176
-262
-221
+135
+174
+273
+219
 off-0-turn
 off-0-turn
 "--" "Right" "Backwards" "Left"
 2
 
 CHOOSER
-123
-240
-261
-285
+134
+238
+272
+283
 off-1-turn
 off-1-turn
 "--" "Right" "Backwards" "Left"
 1
 
 CHOOSER
-123
-304
-261
-349
+134
+302
+272
+347
 on-0-turn
 on-0-turn
 "--" "Right" "Backwards" "Left"
 0
 
 CHOOSER
-123
-371
-261
-416
+134
+369
+272
+414
 on-1-turn
 on-1-turn
 "--" "Right" "Backwards" "Left"

@@ -198,10 +198,10 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-233
-11
-549
-276
+255
+10
+571
+275
 8
 -1
 18.0
@@ -225,9 +225,9 @@ ticks
 30.0
 
 BUTTON
-135
+155
 10
-220
+240
 43
 setup
 setup
@@ -242,9 +242,9 @@ NIL
 1
 
 BUTTON
-135
+155
 50
-220
+240
 85
 train
 train
@@ -259,10 +259,10 @@ NIL
 0
 
 BUTTON
-560
-135
-655
-169
+582
+134
+677
+168
 test
 test
 NIL
@@ -276,30 +276,30 @@ NIL
 0
 
 CHOOSER
-560
-35
-655
-80
+582
+34
+677
+79
 input-1
 input-1
 0 1
 1
 
 CHOOSER
-560
-85
-655
-130
+582
+84
+677
+129
 input-2
 input-2
 0 1
 0
 
 MONITOR
-490
-280
-547
-325
+512
+279
+569
+324
 output
 [precision activation 2] of one-of output-nodes
 3
@@ -307,9 +307,9 @@ output
 11
 
 SLIDER
-14
+10
 128
-220
+240
 161
 learning-rate
 learning-rate
@@ -322,9 +322,9 @@ NIL
 HORIZONTAL
 
 PLOT
-13
+10
 209
-220
+240
 364
 Error vs. Epochs
 Epochs
@@ -340,9 +340,9 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot epoch-error"
 
 SLIDER
-14
+10
 168
-220
+240
 201
 examples-per-epoch
 examples-per-epoch
@@ -355,10 +355,10 @@ NIL
 HORIZONTAL
 
 CHOOSER
-235
-280
-395
-325
+257
+279
+417
+324
 target-function
 target-function
 "or" "xor"
@@ -367,7 +367,7 @@ target-function
 TEXTBOX
 10
 20
-127
+140
 38
 1. Setup neural net:
 11
@@ -377,7 +377,7 @@ TEXTBOX
 TEXTBOX
 10
 60
-125
+135
 88
 2. Train neural net:
 11
@@ -385,20 +385,20 @@ TEXTBOX
 0
 
 TEXTBOX
-560
-15
-710
-33
+582
+14
+732
+32
 3. Test neural net:
 11
 0.0
 0
 
 SWITCH
-235
-330
-395
-363
+257
+329
+417
+362
 show-weights?
 show-weights?
 1
@@ -406,9 +406,9 @@ show-weights?
 -1000
 
 BUTTON
-135
+155
 90
-220
+240
 123
 train once
 train

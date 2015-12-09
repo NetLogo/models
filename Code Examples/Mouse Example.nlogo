@@ -119,7 +119,7 @@ TEXTBOX
 82
 246
 161
-Press \"patch draw\" or \"turtle draw\", then move the mouse over the view, hold down the mouse button, and move the mouse to draw.
+Press \"patch draw\" or \"turtle draw\",\nthen move the mouse over the view,\nhold down the mouse button, and\nmove the mouse to draw.
 11
 0.0
 0

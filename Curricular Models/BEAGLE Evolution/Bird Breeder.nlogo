@@ -738,9 +738,9 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-296
+320
 10
-806
+830
 541
 -1
 -1
@@ -926,9 +926,9 @@ OUTPUT
 TEXTBOX
 13
 424
-283
+316
 466
-Bird Scenario Goal:  breed 3 birds each with a blue head cap, purple breast, red wing, and red tail
+Bird Scenario Goal:  breed 3 birds each with a blue\nhead cap, purple breast, red wing, and red tail
 11
 0.0
 0
@@ -963,9 +963,9 @@ scenario
 TEXTBOX
 13
 460
-269
+306
 516
-Dragon Scenario Goal:  breed 3 dragons each fire breathing, with a white breast, a red body, and a rope tail.
+Dragon Scenario Goal:  breed 3 dragons each\nfire breathing, with a white breast, a red body,\nand a rope tail.
 11
 0.0
 0

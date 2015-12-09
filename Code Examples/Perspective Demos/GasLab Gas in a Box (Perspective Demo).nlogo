@@ -601,9 +601,9 @@ NIL
 TEXTBOX
 14
 346
-282
+290
 390
-This is a version of the GasLab Gas in a Box model, modified to show off NetLogo's perspective features. Try it in both 2D and 3D.
+This is a version of the GasLab Gas in a Box\nmodel, modified to show off NetLogo's\nperspective features. Try it in both 2D and 3D.
 11
 0.0
 0

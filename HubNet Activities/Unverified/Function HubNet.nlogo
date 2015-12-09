@@ -1026,11 +1026,11 @@ slope
 11
 
 TEXTBOX
-48
+35
 539
 138
 577
-Send students a rule to follow.
+Send students\na rule to follow.
 11
 0.0
 0

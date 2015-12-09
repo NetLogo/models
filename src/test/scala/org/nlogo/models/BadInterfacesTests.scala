@@ -1,5 +1,11 @@
 package org.nlogo.models
 
+import java.awt.Font
+import java.awt.image.BufferedImage
+
+import org.nlogo.api.ModelReader
+import org.nlogo.awt.Fonts
+
 class BadInterfacesTests extends TestModels {
 
   val allowedLengths = Map(
@@ -33,5 +39,24 @@ class BadInterfacesTests extends TestModels {
       fontSize <- lines.lift(5).map(_.toInt)
       if fontSize < 8 || fontSize > 14
     } yield s"OUTPUT has font size $fontSize"
+  }
+
+  testLibraryModels("Textboxes (i.e., notes) should be wide enough") { model =>
+    val graphics = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB).createGraphics
+    val bufferPct = 3 // how much of a safety buffer do we want to keep for wider fonts?
+    for {
+      widget <- model.interface.split("\n\n")
+      lines = widget.split("\n")
+      if lines.head == "TEXTBOX"
+      noteWidth = lines(3).toInt - lines(1).toInt
+      fontSize = lines(6).toInt
+      font = new Font(Fonts.platformFont, Font.PLAIN, fontSize)
+      fontMetrics = graphics.getFontMetrics(font)
+      string <- ModelReader.restoreLines(lines(5)).lines
+      stringWidth = fontMetrics.stringWidth(string)
+      desiredWidth = (stringWidth + stringWidth * (bufferPct / 100.0)).ceil.toInt
+      if noteWidth < desiredWidth
+    } yield s"Line width is $stringWidth px but note width is $noteWidth px. " +
+      s"It should be $desiredWidth px to get a $bufferPct% buffer:\n    $string"
   }
 }

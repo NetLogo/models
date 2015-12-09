@@ -312,7 +312,7 @@ Driver settings
 TEXTBOX
 11
 306
-101
+132
 324
 Display settings
 11

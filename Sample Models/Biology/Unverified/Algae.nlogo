@@ -168,10 +168,10 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-309
-10
-589
-671
+346
+13
+626
+674
 4
 10
 30.0
@@ -337,7 +337,7 @@ day-and-night?
 TEXTBOX
 205
 504
-298
+322
 531
 light hours per 24
 11
@@ -346,20 +346,20 @@ light hours per 24
 
 TEXTBOX
 207
-410
-306
-457
-change light throughout the day
+415
+334
+462
+change light\nthroughout the day
 11
 0.0
 0
 
 TEXTBOX
 205
-455
-305
-497
-change duration of light from day to day
+460
+330
+502
+change duration of\nlight from day to day
 11
 0.0
 0

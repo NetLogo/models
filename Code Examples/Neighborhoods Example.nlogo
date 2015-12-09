@@ -213,11 +213,11 @@ points
 0
 
 TEXTBOX
-37
+14
 284
-253
-360
-You can control whether neighborhoods wrap around the edges of the world by editing the view and turning horizontal and/or vertical wrapping on or off.
+285
+349
+You can control whether neighborhoods\nwrap around the edges of the world by\nediting the view and turning horizontal \nand/or vertical wrapping on or off.
 11
 0.0
 0

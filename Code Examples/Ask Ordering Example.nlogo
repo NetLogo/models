@@ -86,7 +86,7 @@ TEXTBOX
 53
 575
 81
-Stop one GO button before starting another.
+Stop one GO button before\nstarting another.
 11
 0.0
 0
@@ -147,7 +147,7 @@ TEXTBOX
 12
 509
 39
-Use the speed slider, above, to slow the model down so you can see what's happening.
+Use the speed slider, above, to slow the model\ndown so you can see what's happening.
 11
 0.0
 1

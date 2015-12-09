@@ -517,9 +517,9 @@ count bugs
 
 PLOT
 10
-278
+303
 170
-398
+423
 Current Hues
 hue
 number
@@ -535,9 +535,9 @@ PENS
 
 PLOT
 170
-278
+303
 347
-398
+423
 Current Brightnesses
 <-- dark   bright --->
 number
@@ -553,9 +553,9 @@ PENS
 
 PLOT
 347
-278
+303
 532
-398
+423
 Current Saturations
 <-- grayish   colorful-->
 number
@@ -571,9 +571,9 @@ PENS
 
 PLOT
 9
-399
+424
 169
-519
+544
 Initial Hues
 hue
 number
@@ -589,9 +589,9 @@ PENS
 
 PLOT
 347
-399
+424
 532
-519
+544
 Initial Saturations
 <--grayish   colorful-->
 number
@@ -607,9 +607,9 @@ PENS
 
 PLOT
 170
-398
+423
 347
-518
+543
 Initial Brightnesses
 <-- dark   bright --->
  number
@@ -645,10 +645,10 @@ PENS
 
 TEXTBOX
 12
-259
+270
 532
-307
-Histograms of the Number of Bugs with Different Color Attributes in the Bug Population:
+318
+Histograms of the Number of Bugs with Different\nColor Attributes in the Bug Population:
 12
 103.0
 1
@@ -1139,7 +1139,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.1-M3
+NetLogo 5.2.0
 @#$#@#$#@
 setup
 @#$#@#$#@

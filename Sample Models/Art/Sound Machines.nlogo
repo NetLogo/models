@@ -647,7 +647,7 @@ sound parameters:
 TEXTBOX
 277
 445
-613
+674
 463
 You may use the mouse to select levers and move them.
 11

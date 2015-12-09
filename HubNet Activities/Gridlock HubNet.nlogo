@@ -580,10 +580,10 @@ ticks
 
 TEXTBOX
 7
-427
-266
-449
-This chooser determines which plot is drawn.
+411
+185
+453
+This chooser determines\nwhich plot is drawn.
 11
 0.0
 0

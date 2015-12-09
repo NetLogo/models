@@ -535,7 +535,7 @@ TEXTBOX
 26
 258
 58
-Speed up speed slider or turn off view updates for faster response.
+Speed up speed slider or turn off\nview updates for faster response.
 11
 0.0
 1
@@ -641,7 +641,7 @@ TEXTBOX
 487
 658
 518
-Watch Robby move one step at a time.
+Watch Robby move\none step at a time.
 10
 0.0
 1
@@ -651,7 +651,7 @@ TEXTBOX
 424
 676
 476
-Setup and view Robby's environment by randomly distributing cans throughout the world.
+Setup and view Robby's\nenvironment by randomly\ndistributing cans\nthroughout the world.
 10
 0.0
 1
@@ -661,7 +661,7 @@ TEXTBOX
 393
 660
 435
-After running the GA,  watch Robby use the best evolved strategy:
+After running the GA,  watch Robby use\nthe best evolved strategy:
 14
 95.0
 1
@@ -765,7 +765,7 @@ TEXTBOX
 530
 670
 558
-Return to a view of the strategies.
+Return to a view of\nthe strategies.
 10
 0.0
 1

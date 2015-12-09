@@ -168,11 +168,11 @@ NIL
 1
 
 TEXTBOX
-10
-155
-246
-187
-By default, the only valid file is File IO Patch Data.txt in the model's directory.
+11
+144
+247
+186
+By default, the only valid file is\nFile IO Patch Data.txt\nin the model's directory.
 11
 0.0
 0

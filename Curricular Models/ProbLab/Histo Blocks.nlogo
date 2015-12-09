@@ -319,9 +319,9 @@ NIL
 HORIZONTAL
 
 BUTTON
-25
+15
 10
-130
+120
 43
 Setup
 setup
@@ -336,9 +336,9 @@ NIL
 1
 
 BUTTON
-135
+125
 10
-240
+230
 43
 Go
 go
@@ -353,9 +353,9 @@ NIL
 0
 
 SWITCH
-25
+15
 50
-240
+230
 83
 plot-individual-blocks?
 plot-individual-blocks?
@@ -397,19 +397,19 @@ number-of-items-in-column * probability-of-items-in-column
 11
 
 TEXTBOX
-28
+18
 133
-240
+238
 203
-Press Setup, then Go.\nUse the slider to change the p value.\nClick on a column in the View to see its information in the monitors. \n
+Press Setup, then Go.\nUse the slider to change the p value.\nClick on a column in the View to see\nits information in the monitors. \n
 11
 0.0
 1
 
 SWITCH
-25
+15
 88
-240
+230
 121
 auto-adjust-y-axis?
 auto-adjust-y-axis?
@@ -829,7 +829,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.1-RC1
+NetLogo 5.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

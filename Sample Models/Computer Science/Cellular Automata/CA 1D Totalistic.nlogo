@@ -425,9 +425,9 @@ NIL
 TEXTBOX
 124
 65
-215
+226
 98
-Random Settings:
+Random\nSettings:
 11
 0.0
 0
@@ -853,7 +853,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.1-RC1
+NetLogo 5.2.0
 @#$#@#$#@
 setup-random
 repeat world-height - 1 [ go ]

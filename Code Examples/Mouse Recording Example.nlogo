@@ -131,7 +131,7 @@ TEXTBOX
 87
 219
 125
-Press \"go\", then use the mouse to draw in the view.
+Press \"go\", then use the mouse\nto draw in the view.
 11
 0.0
 0

@@ -833,7 +833,7 @@ analysis-type
 TEXTBOX
 525
 444
-685
+740
 462
 Samples and Steps This Run:
 11
@@ -841,21 +841,21 @@ Samples and Steps This Run:
 0
 
 TEXTBOX
-435
+417
 115
 507
 163
-Set your combination here ----->
+Set your\ncombination\nhere ----->
 11
 0.0
 0
 
 TEXTBOX
-435
+418
 230
 503
-330
-The model guesses your combination here ----->
+326
+The model\nguesses your\ncombination\nhere ----->
 11
 0.0
 0
@@ -880,7 +880,7 @@ NIL
 TEXTBOX
 9
 252
-159
+194
 270
 Successes in This Sample:
 11
@@ -888,7 +888,7 @@ Successes in This Sample:
 0
 
 TEXTBOX
-223
+214
 252
 409
 270

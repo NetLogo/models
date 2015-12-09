@@ -204,7 +204,7 @@ Setup parameters:
 TEXTBOX
 8
 315
-167
+233
 333
 Environmental parameters:
 11

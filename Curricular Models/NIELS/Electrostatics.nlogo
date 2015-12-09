@@ -220,14 +220,14 @@ fade-rate
 HORIZONTAL
 
 TEXTBOX
-15
-83
+11
+82
 187
-157
-Click and hold the mouse in the view while GO is pressed to control a positive electrostatic charge.
+156
+Click and hold the mouse in\nthe view while GO is pressed\nto control a positive\nelectrostatic charge.
 11
 0.0
-0
+1
 
 PLOT
 709
