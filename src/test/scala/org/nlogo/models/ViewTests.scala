@@ -2,13 +2,13 @@ package org.nlogo.models
 
 class ViewTests extends TestModels {
 
-  testLibraryModels("Models should have integer patch sizes") {
+  testModels("Models should have integer patch sizes") {
     Option(_)
       .filterNot(m => m.patchSize.toInt == m.patchSize)
       .map(_.patchSize.toString)
   }
 
-  testLibraryModels("Saved view size must match size computed from the saved patch size and screen-edge-x/y") {
+  testModels("Saved view size must match size computed from the saved patch size and screen-edge-x/y") {
     // finds models whose graphics windows' saved sizes don't match the size you should get if you
     // compute from the saved patch size and screen-edge-x/y
     // I think that this:
@@ -17,7 +17,7 @@ class ViewTests extends TestModels {
     // happy seems to simply make sure that the view is at least 245 pixels wide.
     // Non-integer patch sizes can also cause problems, but those should be caught
     // by the previous test. -- NP 2015-05-25.
-    Option(_).filterNot(_.is3d).flatMap(checkModel)
+    Option(_).filterNot(_.is3D).flatMap(checkModel)
   }
 
   def checkModel(model: Model): Option[String] = {

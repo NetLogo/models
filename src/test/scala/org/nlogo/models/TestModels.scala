@@ -1,16 +1,25 @@
 package org.nlogo.models
 
 import scala.collection.GenIterable
-import org.scalatest.FunSuite
 import scala.collection.GenSeq
+
+import org.nlogo.api.Version
+import org.scalatest.FunSuite
+
+import Model.allModels
+import Model.libraryModels
 
 trait TestModels extends FunSuite {
 
-  def testLibraryModels(testName: String)(testFun: Model => GenIterable[Any]): Unit =
-    testModels(Model.libraryModels, testName)(testFun)
-
-  def testAllModels(testName: String)(testFun: Model => GenIterable[Any]): Unit =
-    testModels(Model.allModels, testName)(testFun)
+  def testModels(
+    testName: String,
+    includeTestModels: Boolean = false,
+    includeOtherDimension: Boolean = false)(testFun: Model => GenIterable[Any]): Unit = {
+    val models =
+      (if (includeTestModels) allModels else libraryModels)
+        .filter(includeOtherDimension || _.is3D == Version.is3D)
+    testModels(models, testName)(testFun)
+  }
 
   def testModels(models: GenIterable[Model], testName: String)(testFun: Model => GenIterable[Any]): Unit =
     test(testName) {

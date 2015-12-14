@@ -37,7 +37,7 @@ class SpellCheckTests extends TestModels with BeforeAndAfterAll {
     "list")
   val escapes = Set("\\n", "\\t")
 
-  testLibraryModels("Models must not contain typos") { model =>
+  testModels("Models must not contain typos") { model =>
     val content = escapes.foldLeft(model.content)(_.replace(_, " "))
     val inputStream = new ByteArrayInputStream(content.getBytes("UTF-8"))
     val lines = model.content.lines.zipWithIndex.toStream

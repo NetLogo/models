@@ -12,12 +12,12 @@ import org.apache.commons.io.FileUtils.listFiles
 import org.apache.commons.io.FileUtils.readFileToString
 import org.apache.commons.io.FilenameUtils.getExtension
 import org.apache.commons.io.FilenameUtils.removeExtension
-import org.nlogo.lex.Tokenizer2D
-import org.nlogo.lex.Tokenizer3D
+import org.nlogo.api.Token
 import org.nlogo.api.TokenType.COMMAND
 import org.nlogo.api.TokenType.REPORTER
 import org.nlogo.api.TokenType.VARIABLE
-import org.nlogo.api.Token
+import org.nlogo.lex.Tokenizer2D
+import org.nlogo.lex.Tokenizer3D
 
 object Model {
   sealed abstract trait UpdateMode
@@ -30,7 +30,7 @@ object Model {
   val manualPreview = "need-to-manually-make-preview-for-this-model"
 
   val allModels = for {
-    f <- listFiles(Model.modelDir, Model.extensions, true).asScala
+    f <- listFiles(modelDir, extensions, true).asScala
     m <- Try(apply(f)).toOption
   } yield m
 
@@ -73,12 +73,12 @@ case class Model(
     .mkString("", sectionSeparator + "\n", sectionSeparator + "\n")
   def save() = FileUtils.write(file, content, "UTF-8")
   def needsManualPreview = previewCommands.toLowerCase.contains(manualPreview)
-  def is3d = getExtension(file.getName) == "nlogo3d"
+  def is3D = getExtension(file.getName) == "nlogo3d"
   def isTestModel = file.getCanonicalPath.startsWith(new File("test/").getCanonicalPath)
   def updateMode: UpdateMode =
     if (interface.lines
       .dropWhile(_ != "GRAPHICS-WINDOW")
-      .drop(if (is3d) 24 else 21).take(1).contains("1"))
+      .drop(if (is3D) 24 else 21).take(1).contains("1"))
       OnTicks else Continuous
   def patchSize: Double = interface.lines
     .dropWhile(_ != "GRAPHICS-WINDOW")
@@ -100,7 +100,7 @@ case class Model(
   def behaviorSpaceXML = XML.loadString(behaviorSpace)
   lazy val tokens: Seq[Token] = {
     val widgetCode = WidgetParser.parseWidgets(interface.lines.toArray).mkString("\n")
-    val tokenizer = if (is3d) Tokenizer3D else Tokenizer2D
+    val tokenizer = if (is3D) Tokenizer3D else Tokenizer2D
     tokenizer.tokenize(code + previewCommands + widgetCode)
   }
   def primitiveTokenNames: Seq[String] = tokens

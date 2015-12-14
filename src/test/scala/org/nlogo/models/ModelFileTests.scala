@@ -2,11 +2,11 @@ package org.nlogo.models
 
 class ModelFileTests extends TestModels {
 
-  testAllModels("Models should not use tab characters anywhere") {
+  testModels("Models should not use tab characters anywhere", includeTestModels = true) {
     testLines(_.content, _ contains "\t", _ => "")
   }
 
-  testAllModels("Models should not countain trailing whitespace") {
+  testModels("Models should not countain trailing whitespace", includeTestModels = true) {
     testLines(_.content, line => line != line.replaceAll("\\s+$", ""), _ => "")
   }
 

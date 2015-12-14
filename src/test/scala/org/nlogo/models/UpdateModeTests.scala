@@ -25,7 +25,7 @@ class UpdateModeTests extends TestModels {
     "./Sample Models/Mathematics/Probability/ProbLab/Unverified/Random Combinations and Permutations.nlogo",
     "./Sample Models/Mathematics/Voronoi.nlogo"
   )
-  testLibraryModels("Models should use tick-based updates unless otherwise specified") { model =>
+  testModels("Models should use tick-based updates unless otherwise specified") { model =>
     for {
       m <- Option(model)
       excluded = continuousUpdateModels(m.file.getPath)

@@ -7,7 +7,7 @@ import org.apache.commons.io.FilenameUtils.removeExtension
 
 class PreviewImagesTests extends TestModels {
 
-  def needsPreviewFile(m: Model) = m.is3d || m.needsManualPreview
+  def needsPreviewFile(m: Model) = m.is3D || m.needsManualPreview
 
   val ignoredLines = readFileToString(new File(".gitignore"), "UTF-8").lines.toSeq
   val ignored = ignoredLines.toSet
@@ -27,7 +27,7 @@ class PreviewImagesTests extends TestModels {
         .map(_ => "should be tagged as needing manual preview")
     }
 
-  testLibraryModels("Models should have committed preview iif they're 3d or require manual preview") { model =>
+  testModels("Models should have committed preview iif they're 3d or require manual preview") { model =>
     for {
       m <- Option(model)
       if !isInGitIgnore(m)
@@ -39,7 +39,7 @@ class PreviewImagesTests extends TestModels {
     }
   }
 
-  testLibraryModels("Images should be in `.gitignore` iif they don't need manual previews") { model =>
+  testModels("Images should be in `.gitignore` iif they don't need manual previews") { model =>
     for {
       m <- Option(model)
       needsPreview = needsPreviewFile(m)

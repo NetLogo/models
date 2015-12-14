@@ -1,7 +1,7 @@
 package org.nlogo.models
 
 class MergeConflictTests extends TestModels {
-  testAllModels("No merge conflicts appear in model files") {
+  testModels("No merge conflicts appear in model files", includeTestModels = true) {
     testLines(_.content, _.contains("<<<<<<< HEAD"))
   }
 }
