@@ -140,7 +140,7 @@ class CodeTests extends TestModels {
     "write" -> Seq.empty
   )
 
-  testLibraryModels("Forbidden primitives are not used") { model =>
+  testModels("Forbidden primitives are not used") { model =>
     val tokenNames = model.primitiveTokenNames.toSet
     for {
       (prim, exceptions) <- forbiddenPrimitives
@@ -233,7 +233,7 @@ class CodeTests extends TestModels {
     IDENT, COMMAND, REPORTER, KEYWORD, VARIABLE
   )
 
-  testLibraryModels("All identifiers should be lowercase") { model =>
+  testModels("All identifiers should be lowercase") { model =>
     val allowed = nonLowercaseExceptions.getOrElse(model.baseName, Set.empty)
     (for {
       token <- model.tokens

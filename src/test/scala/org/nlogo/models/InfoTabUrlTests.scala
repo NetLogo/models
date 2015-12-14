@@ -11,6 +11,7 @@ import scala.util.Try
 
 import org.apache.commons.validator.routines.UrlValidator
 import org.apache.commons.validator.routines.UrlValidator.ALLOW_2_SLASHES
+import org.nlogo.api.Version
 import org.pegdown.Extensions.AUTOLINKS
 import org.pegdown.LinkRenderer
 import org.pegdown.PegDownProcessor
@@ -43,6 +44,7 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
   }
 
   val links: Map[String, Iterable[Model]] = libraryModels
+    .filter(_.is3D == Version.is3D)
     .flatMap(m => linksInMarkdown(m.info.content).map(_ -> m)) // (link, model) pairs
     .groupBy(_._1) // group by links
     .mapValues(_.unzip._2) // keep only models in the map's values
@@ -79,9 +81,9 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
 
   def redirectTolerated(link: String, response: WSResponse) =
     response.header("Location") match {
-      case Some("/") => true
+      case Some("/")            => true
       case Some(l) if l == link => true
-      case _ => false
+      case _                    => false
     }
 
   def request(

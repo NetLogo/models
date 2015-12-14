@@ -10,14 +10,17 @@ import org.nlogo.api.CompilerException
 import org.nlogo.api.ModelReader
 import org.nlogo.api.Observer
 import org.nlogo.api.SimpleJobOwner
+import org.nlogo.api.Version
 import org.nlogo.api.World
 
 class ButtonTests extends TestModels {
 
-  // 3D models and models using extensions are excluded because our
-  // current setup makes it non-trivial to headlessly compile them
-  def excluded(model: Model) =
-    model.is3d || model.code.lines.exists(_.startsWith("extensions"))
+  // models using extensions are excluded because our current
+  // setup makes it non-trivial to headlessly compile them
+  val models = Model.libraryModels
+    .filter(_.is3D == Version.is3D)
+    .filterNot(_.code.lines.exists(_.startsWith("extensions")))
+    .par
 
   case class Button(
     val model: Model,
@@ -40,7 +43,7 @@ class ButtonTests extends TestModels {
   }
 
   val buttons: ParMap[Model, Iterable[Button]] =
-    Model.libraryModels.par.filterNot(excluded).map { model =>
+    models.map { model =>
       model -> (for {
         widget <- ModelReader.parseWidgets(model.interface.lines.toArray).asScala
         lines = widget.asScala

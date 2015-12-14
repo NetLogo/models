@@ -4,13 +4,13 @@ class InfoTabsTests extends TestModels {
 
   val whatIsIt = Info.WhatIsIt.name
 
-  testLibraryModels("All models' info tabs should have WHAT IS IT? section") {
+  testModels("All models' info tabs should have WHAT IS IT? section") {
     Option(_)
       .filterNot(_.info.sectionMap.keySet.contains(whatIsIt))
       .map(_ => "doesn't have WHAT IS IT? section")
   }
 
-  testLibraryModels("Most info tabs should start with WHAT IS IT? section") {
+  testModels("Most info tabs should start with WHAT IS IT? section") {
     Option(_)
       .filter(_.info.sections.head._1 != whatIsIt)
       .filterNot { m =>
@@ -24,7 +24,7 @@ class InfoTabsTests extends TestModels {
 
   val minLen = 40
   val maxLen = 700
-  testLibraryModels(s"Length of first paragraph of WHAT IS IT should be >= $minLen and <= $maxLen") { model =>
+  testModels(s"Length of first paragraph of WHAT IS IT should be >= $minLen and <= $maxLen") { model =>
     for {
       paragraph <- model.info.sectionMap.get(whatIsIt).map(_.lines.next)
       length = paragraph.length
@@ -41,18 +41,18 @@ class InfoTabsTests extends TestModels {
     if (failures.nonEmpty) fail(failures.mkString("\n"))
   }
 
-  testLibraryModels("Info tabs should not have empty sections") {
+  testModels("Info tabs should not have empty sections") {
     Seq(_).flatMap(_.info.sections.filter(_._2.isEmpty).map(_._1))
   }
 
-  testLibraryModels("Info tabs should not have repeated sections") {
+  testModels("Info tabs should not have repeated sections") {
     Seq(_).flatMap { m =>
       val sectionTitles = m.info.sections.map(_._1).toSeq
       sectionTitles diff sectionTitles.distinct
     }
   }
 
-  testLibraryModels("Bullet list using dashes should have space after dash") {
+  testModels("Bullet list using dashes should have space after dash") {
     val pattern = """^-\w.+""".r.pattern
     testLines(_.info.content, pattern.matcher(_).matches)
   }

@@ -21,7 +21,7 @@ class BadInterfacesTests extends TestModels {
     "INPUTBOX" -> (8, 10),
     "PLOT" -> (14, 999999)) // any number of pens
 
-  testLibraryModels("Widget sections should have proper lengths") { model =>
+  testModels("Widget sections should have proper lengths") { model =>
     for {
       widget <- model.interface.split("\n\n")
       kind = widget.split("\n").head
@@ -31,7 +31,7 @@ class BadInterfacesTests extends TestModels {
     } yield s"$kind (min: $min, max: $max) has length $len"
   }
 
-  testLibraryModels("Output widgets should have reasonably sized font") { model =>
+  testModels("Output widgets should have reasonably sized font") { model =>
     for {
       widget <- model.interface.split("\n\n")
       lines = widget.split("\n")
@@ -41,7 +41,7 @@ class BadInterfacesTests extends TestModels {
     } yield s"OUTPUT has font size $fontSize"
   }
 
-  testLibraryModels("Textboxes (i.e., notes) should be wide enough") { model =>
+  testModels("Textboxes (i.e., notes) should be wide enough") { model =>
     val graphics = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB).createGraphics
     val bufferPct = 3 // how much of a safety buffer do we want to keep for wider fonts?
     for {

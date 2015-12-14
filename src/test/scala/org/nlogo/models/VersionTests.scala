@@ -3,8 +3,8 @@ package org.nlogo.models
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 import scala.util.Failure
 import scala.util.Try
-
 import org.apache.commons.io.FileUtils.listFiles
+import org.nlogo.api.Version
 
 class VersionTests extends TestModels {
 
@@ -26,8 +26,12 @@ class VersionTests extends TestModels {
     )
   }
 
-  val acceptedVersions = Set("NetLogo 5.2.0", "NetLogo 3D 5.2.0", "NetLogo 3D 5.2.1", "NetLogo 5.2.1-M2", "NetLogo 5.2.1-M3", "NetLogo 5.2.1-RC1", "NetLogo 5.2.1")
-  testAllModels("Version should be one of " + acceptedVersions.mkString(", ")) {
+  val acceptedVersions =
+    if (Version.is3D)
+      Set("NetLogo 3D 5.2.0", "NetLogo 3D 5.2.1")
+    else
+      Set("NetLogo 5.2.0", "NetLogo 5.2.1-M2", "NetLogo 5.2.1-M3", "NetLogo 5.2.1-RC1", "NetLogo 5.2.1")
+  testModels("Version should be one of " + acceptedVersions.mkString(", ")) {
     Option(_).map(_.version.trim).filterNot(acceptedVersions.contains)
   }
 }

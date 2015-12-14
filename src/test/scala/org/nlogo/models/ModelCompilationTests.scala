@@ -7,14 +7,14 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
+import org.nlogo.api.Version
 import org.nlogo.headless.HeadlessWorkspace
 
 class ModelCompilationTests extends TestModels {
 
-  // 3D models and models using extensions are excluded because our
-  // current setup makes it non-trivial to headlessly compile them
-  def excluded(model: Model) =
-    model.is3d || model.code.lines.exists(_.startsWith("extensions"))
+  // models using extensions are excluded because our current
+  // setup makes it non-trivial to headlessly compile them
+  def excluded(model: Model) = model.code.lines.exists(_.startsWith("extensions"))
 
   def compilationTests(model: Model)(ws: HeadlessWorkspace): Iterable[String] =
     breedNamesUsedAsArgsOrVars(ws) ++
@@ -25,10 +25,10 @@ class ModelCompilationTests extends TestModels {
           proceduresUsingResetTicksMoreThanOnce(ws)
       })
 
-  testAllModels("Compilation output should satisfy various properties") { model =>
+  testModels("Compilation output should satisfy various properties", includeTestModels = true) { model =>
     if (excluded(model)) Seq.empty else {
       Try(withWorkspace(model)(compilationTests(model))) match {
-        case Failure(error) => Seq(error.toString)
+        case Failure(error)  => Seq(error.toString)
         case Success(errors) => errors
       }
     }
