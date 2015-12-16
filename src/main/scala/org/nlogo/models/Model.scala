@@ -106,4 +106,27 @@ case class Model(
   def primitiveTokenNames: Seq[String] = tokens
     .filter(t => t.tyype == REPORTER || t.tyype == COMMAND || t.tyype == VARIABLE)
     .map(_.name)
+
+  lazy val isCompilable: Boolean = {
+    val neverCompilable = Set(
+      "GoGoMonitorSerial",
+      "GoGoMonitorSimpleSerial",
+      "QuickTime Movie Example",
+      "QuickTime Camera Example",
+      "Arduino Example"
+    ) // because they use extensions unbundled in hexy
+    val notCompilableOnTravis = Set(
+      "Beatbox",
+      "Composer",
+      "GasLab With Sound",
+      "Musical Phrase Example",
+      "Percussion Workbench",
+      "Sound Workbench",
+      "Sound Machines",
+      "Frogger",
+      "Sound Machines"
+    ) // because MIDI is not available on Travis
+    !(neverCompilable.contains(name) || (onTravis && notCompilableOnTravis.contains(name)))
+  }
+
 }
