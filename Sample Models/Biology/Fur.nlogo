@@ -347,7 +347,7 @@ Research published in Nature Genetics (Economou et al, 2012) appears to confirm 
 http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3303118/
 
 A news article in IO9 by Alasdair Wilkins describing the research can be found here.
-http://io9.com/5886406/scientists-confirm-alan-turings-50-year-old-theory-for-why-tigers-have-stripes
+http://io9.gizmodo.com/5886406/scientists-confirm-alan-turings-50-year-old-theory-for-why-tigers-have-stripes
 
 Here is a quote from the Wilkins article:
 
@@ -693,7 +693,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.1
+NetLogo 5.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
