@@ -5,6 +5,7 @@ cache:
   - $HOME/.ivy2
   - $HOME/.sbt/boot
   - $HOME/.sbt/launchers
+  - $HOME/.sbt/0.13/staging
 addons:
   apt:
     packages:
@@ -18,6 +19,9 @@ jdk:
 script:
   - ./sbt test
   - ./sbt test -Dorg.nlogo.is3d=true
+  # Tricks to avoid unnecessary cache updates (see http://www.scala-sbt.org/0.13/docs/Travis-CI-with-sbt.html)
+  - find $HOME/.sbt -name "*.lock" | xargs rm
+  - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
 notifications:
   email:
     - nicolaspayette@gmail.com
