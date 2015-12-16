@@ -195,9 +195,9 @@ NIL
 
 BUTTON
 104
-61
+60
 194
-95
+93
 go once
 go
 NIL
