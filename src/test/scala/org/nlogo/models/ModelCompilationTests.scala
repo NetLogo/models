@@ -12,10 +12,6 @@ import org.nlogo.headless.HeadlessWorkspace
 
 class ModelCompilationTests extends TestModels {
 
-  // models using extensions are excluded because our current
-  // setup makes it non-trivial to headlessly compile them
-  def excluded(model: Model) = model.code.lines.exists(_.startsWith("extensions"))
-
   def compilationTests(model: Model)(ws: HeadlessWorkspace): Iterable[String] =
     breedNamesUsedAsArgsOrVars(ws) ++
       breedsWithNoSingularName(ws) ++
@@ -26,12 +22,12 @@ class ModelCompilationTests extends TestModels {
       })
 
   testModels("Compilation output should satisfy various properties", includeTestModels = true) { model =>
-    if (excluded(model)) Seq.empty else {
+    if (model.isCompilable) {
       Try(withWorkspace(model)(compilationTests(model))) match {
         case Failure(error)  => Seq(error.toString)
         case Success(errors) => errors
       }
-    }
+    } else Seq.empty
   }
 
   def breedNamesUsedAsArgsOrVars(ws: HeadlessWorkspace): Iterable[String] = {

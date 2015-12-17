@@ -15,29 +15,30 @@ import org.nlogo.api.World
 
 class ButtonTests extends TestModels {
 
-  // models using extensions are excluded because our current
-  // setup makes it non-trivial to headlessly compile them
-  val models = Model.libraryModels
-    .filter(_.is3D == Version.is3D)
-    .filterNot(_.code.lines.exists(_.startsWith("extensions")))
-    .par
+  val models = Model.libraryModels.filter { model =>
+    (model.is3D == Version.is3D) &&
+      (model.isCompilable) &&
+      (!Set("GoGoMonitor", "GoGoMonitorSimple").contains(model.name)) // won't work without a GoGo board
+  }.par
 
   case class Button(
     val model: Model,
     val displayName: String,
     val code: String,
     val disabledUntilTicksStart: Boolean) {
-    def run(): Either[Throwable, World] = withWorkspace(model) { ws =>
-      val jobOwner = new SimpleJobOwner(displayName, ws.mainRNG, classOf[Observer])
-      try ws.evaluateCommands(jobOwner, "startup", ws.world.observers, true)
-      catch { case e: CompilerException => /* ignore */ }
-      val exception =
-        Try(ws.evaluateCommands(jobOwner, code, ws.world.observers, true)) // catch regular exceptions
-          .failed.toOption.orElse(Option(ws.lastLogoException)) // and Logo exceptions
+    def run(): Try[World] = Try {
+      withWorkspace(model) { ws =>
+        val jobOwner = new SimpleJobOwner(displayName, ws.mainRNG, classOf[Observer])
+        try
+          ws.evaluateCommands(jobOwner, "startup", ws.world.observers, true)
+        catch {
+          case e: CompilerException => /* ignore */
+        }
+        ws.evaluateCommands(jobOwner, code, ws.world.observers, true)
+        Option(ws.lastLogoException)
           .filterNot(_.getMessage == "You can't get user input headless.")
-      exception match {
-        case Some(e) => Left(e)
-        case None    => Right(ws.world)
+          .foreach(throw _)
+        ws.world
       }
     }
   }
@@ -63,7 +64,7 @@ class ButtonTests extends TestModels {
     for {
       button <- buttons(model)
       if !button.disabledUntilTicksStart
-      exception <- button.run().left.toOption
+      exception <- button.run().failed.toOption
     } yield "\"" + button.displayName + "\" button: " + exception.getMessage
   }
 
@@ -74,7 +75,7 @@ class ButtonTests extends TestModels {
           modelButtons <- buttons.get(model)
           if modelButtons.exists(_.disabledUntilTicksStart)
           enabledButtons = modelButtons.filterNot(_.disabledUntilTicksStart)
-          if !enabledButtons.exists(_.run().right.exists(_.ticks != -1))
+          if !enabledButtons.exists(_.run().filter(_.ticks != -1).isSuccess)
         } yield ""
     }
 }

@@ -3,6 +3,9 @@ package org.nlogo
 import org.nlogo.headless.HeadlessWorkspace
 
 package object models {
+
+  lazy val onTravis: Boolean = sys.env.get("TRAVIS").filter(_.toBoolean).isDefined
+
   def withWorkspace[A](model: Model)(f: HeadlessWorkspace => A) = {
     val workspace = HeadlessWorkspace.newInstance
     try {

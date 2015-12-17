@@ -2,12 +2,11 @@ package org.nlogo.models
 
 import scala.collection.GenIterable
 import scala.collection.GenSeq
-
 import org.nlogo.api.Version
 import org.scalatest.FunSuite
-
 import Model.allModels
 import Model.libraryModels
+import scala.util.Try
 
 trait TestModels extends FunSuite {
 
@@ -23,14 +22,16 @@ trait TestModels extends FunSuite {
 
   def testModels(models: GenIterable[Model], testName: String)(testFun: Model => GenIterable[Any]): Unit =
     test(testName) {
-      val allFailures: GenSeq[String] = models
-        .map(model => (model, testFun(model)))
-        .filter(_._2.nonEmpty)
-        .map {
-          case (model, failures) =>
-            val descriptions = failures.map(_.toString).filterNot(_.isEmpty).map("  " + _)
-            (model.quotedPath +: descriptions.toSeq).mkString("\n")
-        }(collection.breakOut)
+      val allFailures: GenSeq[String] =
+        (for {
+          model <- models
+          failures <- Try(testFun(model))
+            .recover { case e => Seq(e.toString + "\n" + e.getStackTrace.mkString("\n")) }
+            .toOption
+          if failures.nonEmpty
+          descriptions = failures.map(_.toString).filterNot(_.isEmpty).map("  " + _)
+        } yield (model.quotedPath +: descriptions.toSeq).mkString("\n"))(collection.breakOut)
+
       if (allFailures.nonEmpty)
         fail((allFailures :+ s"(${allFailures.size} failing models)").mkString("\n"))
     }
