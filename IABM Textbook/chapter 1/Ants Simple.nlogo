@@ -100,7 +100,6 @@ to look-for-food  ;; turtle procedure
     set carrying-food? true  ;; pick up food
     set food food - 1        ;; and reduce the food source
     rt 180                   ;; and turn around
-    stop
   ] [ ;; go in the direction where the pheromone smell is strongest
     uphill-pheromone
   ]
@@ -641,7 +640,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
