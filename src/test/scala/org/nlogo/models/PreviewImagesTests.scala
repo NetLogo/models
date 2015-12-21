@@ -13,19 +13,53 @@ class PreviewImagesTests extends TestModels {
   val ignored = ignoredLines.toSet
   def isInGitIgnore(m: Model) = ignored.contains(m.previewFile.getPath.drop(1))
 
-  // Some models are automatically excluded from `all-previews`
-  // (http://git.io/vGb9l), but for them to be checked by other
-  // tests (and also to be consistent) we need them to be
-  // explicitely tagged with "need-to-manually-make-preview-for-this-model"
-  val modelsThatShouldNeedManualPreviews = Model.libraryModels.filter { m =>
-    val path = m.file.getPath.toUpperCase
-    Set("HUBNET", "/GOGO/", "/CODE EXAMPLES/SOUND/").exists(path.contains)
+  val manualPreviewNeeded = Set(
+    "HubNet", "/Sound/", "GoGo", "QuickTime", "Arduino"
+  )
+  val manualPreviewPermitted = Set(
+    "Table Example",
+    "Info Tab Example",
+    "Profiler Example",
+    "Mouse Example",
+    "Plotting Example",
+    "Termites (Perspective Demo)",
+    "Flocking (Perspective Demo)",
+    "Ants (Perspective Demo)",
+    "3D Shapes Example",
+    "File Input Example",
+    "User Interaction Example",
+    "Matrix Example",
+    "Mouse Recording Example",
+    "Plot Smoothing Example",
+    "Case Conversion Example",
+    "Perspective Example",
+    "Rolling Plot Example",
+    "Plot Axis Example",
+    "Electrostatics",
+    "Series Circuit", // because https://github.com/NetLogo/models/issues/48
+    "Current in a Wire", // idem
+    "Parallel Circuit", // idem
+    "Electron Sink", // idem
+    "Simple Genetic Algorithm",
+    "Exponential Growth",
+    "Tabonuco Yagrumo",
+    "Wolf Sheep Predation (System Dynamics)",
+    "Logistic Growth",
+    "Prob Graphs Basic",
+    "Equidistant Probability",
+    "Partition Perms Distrib"
+  )
+  testModels("Models should have manual previews only if needed or permitted") { m =>
+    if (manualPreviewNeeded.exists(m.quotedPath.contains))
+      if (m.needsManualPreview)
+        None
+      else
+        Some("Should need manual preview")
+    else if (m.needsManualPreview && !manualPreviewPermitted.contains(m.name))
+      Some("\"" + m.name + "\" should NOT need manual preview")
+    else
+      None
   }
-  testModels(modelsThatShouldNeedManualPreviews,
-    "Some library models should be tagged as needing manual previews") {
-      Option(_).filterNot(needsPreviewFile)
-        .map(_ => "should be tagged as needing manual preview")
-    }
 
   testModels("Models should have committed preview iif they're 3d or require manual preview") { model =>
     for {
