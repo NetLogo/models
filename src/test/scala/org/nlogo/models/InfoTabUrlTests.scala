@@ -76,6 +76,7 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
     ),
     302 -> Seq("http://www.jstor.org/stable/2224214"),
     403 -> Seq("http://www.ncbi.nlm.nih.gov/pmc/articles/PMC128592/"),
+    403 -> Seq("http://www.red3d.com/cwr/boids/"),
     429 -> Seq("https://www.youtube.com/watch")
   )
 
