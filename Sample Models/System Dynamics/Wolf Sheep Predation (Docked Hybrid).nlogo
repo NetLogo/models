@@ -1,14 +1,14 @@
 ;; Sheep and wolves are both breeds of turtle.
-breed [sheep a-sheep]  ;; sheep is its own plural, so we use "a-sheep" as the singular.
+breed [sheep a-sheep] ;; sheep is its own plural: we use "a-sheep" as the singular.
 breed [wolves wolf]
-turtles-own [energy]       ;; both wolves and sheep have energy
+turtles-own [energy]  ;; both wolves and sheep have energy
 
 to setup
   clear-all
   ask patches [ set pcolor green ]
   set-default-shape sheep "sheep"
-  create-sheep initial-number-sheep  ;; create the sheep, then initialize their variables
-  [
+  create-sheep initial-number-sheep [ ;; create the sheep
+    ;; then initialize their variables
     set color white
     set size 1.5  ;; easier to see
     set label-color blue - 2
@@ -16,8 +16,8 @@ to setup
     setxy random-xcor random-ycor
   ]
   set-default-shape wolves "wolf"
-  create-wolves initial-number-wolves  ;; create the wolves, then initialize their variables
-  [
+  create-wolves initial-number-wolves [ ;; create the wolves
+    ;; then initialize their variables
     set color black
     set size 1.5  ;; easier to see
     set energy random (2 * wolf-gain-from-food)
