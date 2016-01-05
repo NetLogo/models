@@ -14,13 +14,13 @@ javaOptions ++= Seq(
 fork := true
 
 libraryDependencies ++= Seq(
-  "org.scalatest" %% "scalatest" % "2.2.4" % Test,
+  "org.scalatest" %% "scalatest" % "2.2.6" % Test,
   "commons-io" % "commons-io" % "2.4",
   "commons-validator" % "commons-validator" % "1.4.1",
   "com.typesafe.play" %% "play-ws" % "2.3.8",
   "com.github.wookietreiber" %% "scala-chart" % "0.4.2",
   "org.jfree" % "jfreesvg" % "3.0",
-  "org.scalactic" % "scalactic_2.11" % "2.2.4"
+  "org.scalactic" % "scalactic_2.11" % "2.2.6"
 )
 
 (test in Test) <<= (test in Test) dependsOn {
