@@ -303,7 +303,7 @@ The consumption of the food is shown in a plot.  The line colors in the plot mat
 
 Try different placements for the food sources. What happens if two food sources are equidistant from the nest? When that happens in the real world, ant colonies typically exploit one source then the other (not at the same time).
 
-In this project, the ants use a "trick" to find their way back to the nest: they follow the "nest scent." Real ants use a variety of different approaches to find their way back to the nest. Try to implement some alternative strategies.
+In this model, the ants always "know" where the nest is: when they want to go back to the nest, they just turn towards the center of the world (using `facexy 0 0`). Real ants use a variety of different approaches to find their way back to the nest. Try to implement some alternative strategies.
 
 The ants only respond to chemical levels between 0.05 and 2.  The lower limit is used so the ants aren't infinitely sensitive.  Try removing the upper limit.  What happens?  Why?
 
