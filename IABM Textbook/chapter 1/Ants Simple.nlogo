@@ -1,7 +1,6 @@
 patches-own [
   pheromone            ;; amount of pheromone on this patch
   food                 ;; amount of food on this patch (0, 1, or 2)
-  nest?                ;; true on nest patches, false elsewhere
 ]
 
 turtles-own [
@@ -26,28 +25,37 @@ to setup-patches
 end
 
 to setup-nest
-  ;; set nest? variable to true inside the nest, false elsewhere
-  ask patches [ set nest? (distancexy 0 0) < 5 ]
+  ask patches with [ nest? ] [
+    set pcolor violet
+  ]
 end
 
 to setup-food
-  ask patches [
-    ;; setup food source one on the right
-    if (distancexy (0.6 * max-pxcor) 0) < 5 [ set food 2 ]
-    ;; setup food source two on the lower-left
-    if (distancexy (-0.6 * max-pxcor) (-0.6 * max-pycor)) < 5 [ set food 2 ]
-    ;; setup food source three on the upper-left
-    if (distancexy (-0.8 * max-pxcor) (0.8 * max-pycor)) < 5 [ set food 2 ]
+  ;; setup a food source on the right
+  ask patch (0.6 * max-pxcor) 0 [
+    make-food-source cyan
+  ]
+  ;; setup a food source on the lower-left
+  ask patch (-0.6 * max-pxcor) (-0.6 * max-pycor) [
+    make-food-source sky
+  ]
+  ;; setup a food source on the upper-left
+  ask patch (-0.8 * max-pxcor) (0.8 * max-pycor) [
+    make-food-source blue
+  ]
+end
+
+to make-food-source [ food-source-color ] ;; patch procedure
+  ask patches with [ distance myself < 5 ] [
+    set food 2
+    set pcolor food-source-color
   ]
 end
 
 to recolor-patches
-  ask patches [
+  ask patches with [ food = 0 and not nest? ] [
     ;; scale color to show pheromone concentration
     set pcolor scale-color green pheromone 0.1 5
-    ;; give color to nest and food sources
-    if nest? [ set pcolor violet ]
-    if food > 0 [ set pcolor cyan ]
   ]
 end
 
@@ -59,7 +67,10 @@ to go  ;; forever button
   ;; add ants one at a time
   if count turtles < population [ create-ant ]
 
-  ask turtles [ move recolor ]
+  ask turtles [
+    move
+    recolor
+  ]
   diffuse pheromone (diffusion-rate / 100)
   ask patches [
     ;; slowly evaporate pheromone
@@ -128,8 +139,9 @@ to wander  ;; turtle procedure
 end
 
 to recolor  ;; turtle procedure
-  set color red
-  if carrying-food? [ set color orange + 1]
+  ifelse carrying-food?
+    [ set color orange + 1 ]
+    [ set color red ]
 end
 
 to-report pheromone-scent-at-angle [ angle ]
@@ -138,14 +150,18 @@ to-report pheromone-scent-at-angle [ angle ]
   report [ pheromone ] of p
 end
 
+to-report nest? ;; patch or turtle reporter
+  report distancexy 0 0 < 5
+end
+
 
 ; Copyright 1997 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-257
+370
 10
-764
+877
 538
 35
 35
@@ -170,10 +186,10 @@ ticks
 30.0
 
 BUTTON
-46
-71
-126
-104
+100
+55
+180
+88
 NIL
 setup
 NIL
@@ -187,10 +203,10 @@ NIL
 1
 
 SLIDER
-31
-106
-221
-139
+85
+90
+275
+123
 diffusion-rate
 diffusion-rate
 0.0
@@ -202,10 +218,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-31
-141
-221
-174
+85
+125
+275
+158
 evaporation-rate
 evaporation-rate
 0.0
@@ -217,10 +233,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-136
-71
-211
-104
+190
+55
+265
+88
 NIL
 go
 T
@@ -234,10 +250,10 @@ NIL
 0
 
 SLIDER
-31
-36
-221
-69
+85
+20
+275
+53
 population
 population
 0.0
@@ -251,7 +267,7 @@ HORIZONTAL
 PLOT
 10
 180
-245
+360
 535
 Remaining Food
 Time
@@ -261,10 +277,13 @@ Food
 0.0
 10.0
 true
-false
+true
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot sum [ food ] of patches"
+"total" 1.0 0 -16777216 true "" "plot sum [ food ] of patches"
+"right" 1.0 0 -11221820 true "" "plot sum [ food ] of patches with [ pcolor = cyan ]"
+"upper-left" 1.0 0 -13345367 true "" "plot sum [ food ] of patches with [ pcolor = blue ]"
+"lower-left" 1.0 0 -13791810 true "" "plot sum [ food ] of patches with [ pcolor = sky ]"
 
 @#$#@#$#@
 ## ACKNOWLEDGMENT
