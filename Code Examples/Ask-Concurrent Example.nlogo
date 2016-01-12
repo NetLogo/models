@@ -183,6 +183,8 @@ slightly more involved\nexample of ASK-CONCURRENT:
 
 This example demonstrates the difference between the `ask` and `ask-concurrent` commands.
 
+Note: using `ask-concurrent` is not recommended. It is only there for backward compatibility.
+
 ## HOW TO USE IT
 
 Press SETUP to make some turtles.
