@@ -756,22 +756,6 @@ What if bugs moved?
 
 Because this model depends on interaction with the user, we measure the passage of time in seconds.  We use `timer` to measure how much time passes each time through `go`, and we use `tick-advance` to advance the clock by that amount.  (A simpler approach would have been to not use the tick counter at all and only use `timer`, but the problem with `timer` is that it keeps advancing even when `go` isn't pressed.)
 
-In the code for flashing the bugs, we use `ask-concurrent`.  We could have avoided it as follows, but the downside is that an extra turtle variable would have been required.
-
-      turtles-own [old-color]
-
-      ask bugs [ set old-color color ]
-      repeat 3 [
-        ask bugs [ set color black ]
-        display
-        wait 0.1
-        ask turtles [ set color white ]
-        display
-        wait 0.1
-      ]
-      ask bugs [ set color old-color ]
-      display
-
 ## RELATED MODELS
 
 Bug Hunt Speeds
@@ -1139,7 +1123,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3
 @#$#@#$#@
 setup
 @#$#@#$#@
