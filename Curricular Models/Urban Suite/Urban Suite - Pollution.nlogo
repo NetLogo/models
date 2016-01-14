@@ -5,8 +5,11 @@ breed [ trees tree ]
 
 turtles-own [ health ]
 
-patches-own[ pollution
-             is-power-plant? ]
+patches-own [
+  pollution
+  is-power-plant?
+]
+
 to setup
   clear-all
   reset-ticks
@@ -33,8 +36,7 @@ to setup
 end
 
 to go
-  ask people
-  [
+  ask people [
     wander
     reproduce
     maybe-plant
@@ -42,66 +44,76 @@ to go
     maybe-die
   ]
 
-diffuse pollution 0.8
- ask patches [ pollute ]
+  diffuse pollution 0.8
 
- ask trees [ cleanup maybe-die ]
+  ask patches [ pollute ]
+  ask trees [
+    cleanup
+    maybe-die
+  ]
 
- if not any? people
-   [ stop ]
+  if not any? people [ stop ]
 
- do-plot
- tick
+  do-plot
+  tick
 end
 
 to create-power-plants
-  ask n-of power-plants patches [ set is-power-plant? true ]
+  ask n-of power-plants patches [
+    set is-power-plant? true
+  ]
 end
 
 to pollute  ;; patch procedure
-  if ( is-power-plant? )
-  [
+  if is-power-plant? [
     set pcolor red
     set pollution polluting-rate
   ]
-  set pcolor scale-color red ( pollution - .1 ) 5 0
+  set pcolor scale-color red (pollution - .1) 5 0
 end
 
 to cleanup  ;; tree procedure
-    set pcolor green + 3
-    set pollution max (list 0 ( pollution - 1 ) )
-    ask neighbors [ set pollution max (list 0 ( pollution - .5 ) ) ]
-    set health health - 0.1
+  set pcolor green + 3
+  set pollution max (list 0 (pollution - 1))
+  ask neighbors [
+    set pollution max (list 0 (pollution - .5))
+  ]
+  set health health - 0.1
 end
 
-to wander   ;; person procedure
+to wander  ;; person procedure
   rt random-float 50
   lt random-float 50
   fd 1
   set health health - 0.1
 end
 
-to reproduce ;; person procedure
-  if ( ( health > 4 ) and ( ( random-float 1 ) < birth-rate ) )
-    [ hatch-people 1 [ set health 5 ] ]
+to reproduce  ;; person procedure
+  if health > 4 and random-float 1 < birth-rate [
+    hatch-people 1 [
+      set health 5
+    ]
+  ]
 end
 
-to maybe-plant ;; person procedure
-  if ( ( random-float 1 ) < planting-rate )
-  [ hatch-trees 1 [ set health 5 set color green ] ]
+to maybe-plant  ;; person procedure
+  if random-float 1 < planting-rate [
+    hatch-trees 1 [
+      set health 5
+      set color green
+    ]
+  ]
 end
 
 to eat-pollution  ;; person procedure
-  if ( pollution > 0.5 )
-  [
+  if pollution > 0.5 [
     set health (health - (pollution / 10))
   ]
 end
 
 
-to maybe-die     ;;die if you run out of health
-  if ( health <= 0 )
-    [ die ]
+to maybe-die  ;; die if you run out of health
+  if health <= 0 [ die ]
 end
 
 to do-plot
