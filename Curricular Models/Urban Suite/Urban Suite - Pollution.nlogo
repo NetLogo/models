@@ -6,8 +6,7 @@ breed [ trees tree ]
 turtles-own [ health ]
 
 patches-own[ pollution
-             is-power-plant?
-             is-tree? ]
+             is-power-plant? ]
 to setup
   clear-all
   reset-ticks
