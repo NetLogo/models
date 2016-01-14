@@ -1,6 +1,4 @@
 breed [ people person ]
-
-; just used to make pretty graphics
 breed [ trees tree ]
 
 turtles-own [ health ]
