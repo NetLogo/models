@@ -307,9 +307,13 @@ Trees, however, clean up pollution in the cell they are planted, and the neighbo
 Trees live for a set period of time and cannot reproduce.
 
 Each time step (tick) of the model, people agents
+
 1. move randomly to an adjacent cell
+
 2. with some probability, they may plant a landscape element
+
 3. if they are healthy enough, with some probability, they may reproduce (clone)
+
 4. if their health has dropped to 0, they die.
 
 ## HOW TO USE IT
@@ -348,7 +352,7 @@ Make the pollution rate dependent upon the number of people.
 
 ## NETLOGO FEATURES
 
-This model uses the DIFFUSE command to spread pollution.
+This model uses the `diffuse` command to spread pollution.
 
 ## RELATED MODELS
 
