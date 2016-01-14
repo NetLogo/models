@@ -25,7 +25,7 @@ to setup
 
   create-people initial-population [
     set color black
-    randomize-position
+    setxy random-pxcor random-pycor
     set health 5
   ]
 
@@ -111,11 +111,6 @@ end
 
 to maybe-die  ;; die if you run out of health
   if health <= 0 [ die ]
-end
-
-to randomize-position
-  setxy random-float world-width
-        random-float world-height
 end
 
 
