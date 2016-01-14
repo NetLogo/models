@@ -12,7 +12,6 @@ patches-own [
 
 to setup
   clear-all
-  reset-ticks
 
   set-default-shape people "person"
   set-default-shape trees "tree"
@@ -32,10 +31,13 @@ to setup
     set health 5
   ]
 
-  do-plot
+  reset-ticks
 end
 
 to go
+
+  if not any? people [ stop ]
+
   ask people [
     wander
     reproduce
@@ -47,14 +49,12 @@ to go
   diffuse pollution 0.8
 
   ask patches [ pollute ]
+
   ask trees [
     cleanup
     maybe-die
   ]
 
-  if not any? people [ stop ]
-
-  do-plot
   tick
 end
 
@@ -111,18 +111,8 @@ to eat-pollution  ;; person procedure
   ]
 end
 
-
 to maybe-die  ;; die if you run out of health
   if health <= 0 [ die ]
-end
-
-to do-plot
-  set-current-plot-pen "trees"
-  plot count trees
-  set-current-plot-pen "people"
-  plot count people
-  set-current-plot-pen "pollution"
-  plot sum [pollution] of patches
 end
 
 to randomize-position
@@ -241,9 +231,9 @@ true
 true
 "" ""
 PENS
-"trees" 1.0 0 -10899396 true "" ""
-"people" 1.0 0 -2674135 true "" ""
-"pollution" 1.0 0 -8630108 true "" ""
+"trees" 1.0 0 -10899396 true "" "plot count trees"
+"people" 1.0 0 -2674135 true "" "plot count people"
+"pollution" 1.0 0 -8630108 true "" "plot sum [ pollution ] of patches"
 
 MONITOR
 195
