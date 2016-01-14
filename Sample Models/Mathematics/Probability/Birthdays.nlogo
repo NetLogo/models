@@ -73,7 +73,7 @@ to make-turtles
 end
 
 to sort-turtles
-  ;; sort-by takes an agentset and returns a sorted list
+  ;; sort-on takes a criterion (birthday) and an agentset, and returns a list of agents sorted on that criterion
   let sorted sort-on [birthday] turtles
   ;; finally, we position each turtle according to its position
   ;; in the sorted list
@@ -222,7 +222,7 @@ Include leap year birthdays in the list of possibilities.
 
 ## NETLOGO FEATURES
 
-This model uses lists a lot, including list primitives such as `map`, `foreach`, `item`, `position`, `sentence`, and `sort-by`.  Lists are used mostly to make the model display actual day names, instead of just numbers from 0 to 364.  Lists are also used when sorting the turtles by birthday.
+This model uses lists a lot, including list primitives such as `map`, `foreach`, `item`, `position`, `sentence`, and `sort-on`.  Lists are used mostly to make the model display actual day names, instead of just numbers from 0 to 364.  Lists are also used when sorting the turtles by birthday.
 
 ## RELATED MODELS
 
