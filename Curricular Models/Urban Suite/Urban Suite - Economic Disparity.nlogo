@@ -710,7 +710,7 @@ There are five view modes, which are controlled by the buttons VIEW PRICE, VIEW 
 
 VIEW PRICE displays the land-price value of each location, with white being a high price, black being a low price, and the various shades of yellow are in between.
 
-VIEW QUALITY displays the quality value of each location, with white being a high price, black being a low price, and the various shades of green are in between.
+VIEW QUALITY displays the quality value of each location, with white being a high quality, black being a low quality, and the various shades of green are in between.
 
 VIEW DIST. displays the distance from each location to a place of employment.  Brighter colors demonstrate closeness.
 
@@ -1048,7 +1048,7 @@ Polygon -6459832 true true 46 128 33 120 21 118 11 123 3 138 5 160 13 178 9 192 
 Polygon -6459832 true true 67 122 96 126 63 144
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

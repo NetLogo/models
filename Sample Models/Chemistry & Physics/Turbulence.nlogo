@@ -308,7 +308,6 @@ Parameters:
 
  * COUPLING-STRENGTH is the amount of "diffusion," or the influence that cells have on one another.
  * ROUGHNESS is the amount of turbulence that is added to each cell at every time step.
- * DISPLAY-CONTINUOUS? will display state values as a gradient from dark to light (laminar and turbulent, respectively) if on, otherwise they will discretized and displayed as either black and white.
 
 Running the model:
 
@@ -684,7 +683,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3
 @#$#@#$#@
 set roughness 0.002
 setup-random
