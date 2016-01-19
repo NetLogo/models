@@ -393,8 +393,8 @@ There are three plots:
 RUMOR SPREAD - plots the percentage of people who know the rumor at each time step.
 
 SUCCESSIVE DIFFERENCES - plots the number of new people who are hearing the rumor at each time step.
-SUCCESSIVE RATIOS - plots the percentage of new people who are hearing the rumor at each time step.
 
+SUCCESSIVE RATIOS - plots the ratio of the number of people who have now heard the rumor compared to the number of people who had heard it before.
 
 The monitor CLIQUE% is the percentage of people that have heard the rumor.
 
