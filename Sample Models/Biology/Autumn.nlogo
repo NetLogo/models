@@ -118,24 +118,23 @@ to go
 
   ;; Make sure that values remain between 0 - 100
   ask leaves [
-    if chlorophyll < 0 [ set chlorophyll 0 ]
-    if chlorophyll > 100 [ set chlorophyll 100 ]
-    if water-level < 0 [ set water-level 0 ]
-    if water-level > 100 [ set water-level 100 ]
-    if sugar-level < 0 [ set sugar-level 0 ]
-    if sugar-level > 100 [ set sugar-level 100 ]
-    if carotene < 0 [ set carotene 0 ]
-    if carotene > 100 [ set carotene 100 ]
-    if anthocyanin < 0 [ set anthocyanin 0 ]
-    if anthocyanin > 100 [ set anthocyanin 100 ]
-    if attachedness < 0 [ set attachedness 0 ]
-    if attachedness > 100 [ set attachedness 100 ]
+    set chlorophyll (clip chlorophyll)
+    set water-level (clip water-level)
+    set sugar-level (clip sugar-level)
+    set carotene (clip carotene)
+    set anthocyanin (clip anthocyanin)
+    set attachedness (clip attachedness)
   ]
 
   ;; increment the tick counter
   tick
 end
 
+to-report clip [ value ]
+  if value < 0 [ report 0 ]
+  if value > 100 [ report 100 ]
+  report value
+end
 
 ;; ---------------------------------------
 ;; make-wind-blow: When the wind blows,
