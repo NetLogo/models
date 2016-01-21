@@ -424,13 +424,13 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-350
-154
-710
-535
+205
+10
+705
+531
 17
 17
-10.0
+14.0
 1
 12
 1
@@ -451,9 +451,9 @@ ticks
 30.0
 
 SLIDER
+5
 10
-10
-341
+200
 43
 number-of-leaves
 number-of-leaves
@@ -466,10 +466,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-122
-83
-188
-116
+40
+125
+106
+158
 NIL
 setup
 NIL
@@ -483,10 +483,10 @@ NIL
 1
 
 SLIDER
-349
-79
-554
-112
+5
+240
+200
+273
 wind-factor
 wind-factor
 0
@@ -498,10 +498,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-191
-83
-254
-116
+109
+125
+172
+158
 NIL
 go
 T
@@ -515,25 +515,25 @@ NIL
 0
 
 SLIDER
-349
-10
-556
-43
+5
+171
+200
+204
 temperature
 temperature
 0
 40
-10
+11
 1
 1
-degrees C
+°C
 HORIZONTAL
 
 SLIDER
-349
-44
-555
-77
+5
+205
+200
+238
 rain-intensity
 rain-intensity
 0
@@ -545,10 +545,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-349
-115
-555
-148
+5
+275
+200
+308
 sun-intensity
 sun-intensity
 0
@@ -560,10 +560,10 @@ sun-intensity
 HORIZONTAL
 
 PLOT
-13
-122
-344
-252
+710
+10
+1041
+180
 Leaves
 Time
 NIL
@@ -579,10 +579,10 @@ PENS
 "dead leaves" 1.0 0 -6459832 true "" "plot count dead-leaves"
 
 PLOT
-13
-259
-345
-379
+710
+185
+1042
+355
 Weather conditions
 Time
 NIL
@@ -600,10 +600,10 @@ PENS
 "sunlight" 1.0 0 -1184463 true "" "plot sun-intensity"
 
 PLOT
-13
-378
-344
-509
+710
+360
+1041
+530
 Leaf averages
 Time
 NIL
@@ -623,10 +623,10 @@ PENS
 "attachedness" 1.0 0 -16777216 true "" "if any? leaves [  plot mean [attachedness] of leaves ]"
 
 SLIDER
-10
-46
-187
-79
+5
+45
+200
+78
 start-sugar-mean
 start-sugar-mean
 0
@@ -638,10 +638,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-191
-45
-341
-78
+5
+80
+200
+113
 start-sugar-stddev
 start-sugar-stddev
 0
@@ -653,10 +653,10 @@ NIL
 HORIZONTAL
 
 CHOOSER
-560
-10
-704
-55
+5
+310
+200
+355
 leaf-display-mode
 leaf-display-mode
 "solid" "chlorophyll" "water" "sugar" "carotene" "anthocyanin" "attachedness"
@@ -1123,5 +1123,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
