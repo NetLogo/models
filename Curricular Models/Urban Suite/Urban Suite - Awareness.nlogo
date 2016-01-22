@@ -1,65 +1,66 @@
 turtles-own [ awareness ]
 patches-own [ non-usage ]
 
-
 to setup
   clear-all
   set-default-shape turtles "person"
   create-turtles people
 
-  ask turtles
-    [ set color gray
-      fd random 25
-      setxy random-xcor random-ycor
-      set awareness 0
-    ]
+  ask turtles [
+    set color gray
+    fd random 25
+    setxy random-xcor random-ycor
+    set awareness 0
+  ]
 
-  ask n-of centers patches
-    [ set pcolor green
-      set non-usage 0
-    ]
+  ask n-of centers patches [
+    set pcolor green
+    set non-usage 0
+  ]
   reset-ticks
 end
 
 to wander
-  fd 1 lt random 50 rt random 50
+  fd 1
+  lt random 50
+  rt random 50
 end
 
 to go
   ask turtles [ wander ]
 
   ;; adjust awareness according to our location
-  ask turtles
-    [ if ( pcolor = green or pcolor = blue ) [ set awareness awareness + 5 ]
-      if ( pcolor = black ) [ set awareness awareness - 1 ]
-      set non-usage 0
-    ]
+  ask turtles [
+    if pcolor = green or pcolor = blue [ set awareness awareness + 5 ]
+    if pcolor = black [ set awareness awareness - 1 ]
+    set non-usage 0
+  ]
 
   ; inform others around us
-  ask turtles with [ well-informed? or activist? ]
-    [ ask other turtles-here with [ unaware? or aware? ]
-        [ set awareness awareness + 1 ]
+  ask turtles with [ well-informed? or activist? ] [
+    ask other turtles-here with [ unaware? or aware? ] [
+      set awareness awareness + 1
     ]
+  ]
 
   ; place limits on the awareness value
   ask turtles with [ awareness > 15 ] [ set awareness 15 ]   ;; setting max awareness
-  ask turtles with [awareness < 0 ] [ set awareness 0 ]      ;; setting minimum awareness
+  ask turtles with [ awareness < 0 ] [ set awareness 0 ]     ;; setting minimum awareness
 
   color-turtles
 
   ;; create centers
-  ask turtles with [ activist? ]
-    [ let open-patches neighbors with [ pcolor = black ]
-      if ( any? open-patches )
-        [ ask one-of open-patches [ set pcolor blue ] ]
-    ]  ;; a random patch turns green
-
-  ;;
-  ask patches with [ pcolor != black ]           ;;WE WANT NON-USED CENTERS TO DISAPPEAR
-    [
-      if ( not any? turtles-here ) [ set non-usage (non-usage + 1) ]
-      if ( non-usage > non-usage-limit ) [ set pcolor black ]
+  ask turtles with [ activist? ] [
+    let open-patches neighbors with [ pcolor = black ]
+    if any? open-patches [
+      ask one-of open-patches [ set pcolor blue ]
     ]
+  ]
+
+  ask patches with [ pcolor != black ] [ ;; we want non-used centers to disappear
+    if not any? turtles-here [ set non-usage (non-usage + 1) ]
+    if non-usage > non-usage-limit [ set pcolor black ]
+  ]
 
  do-plotting
 
@@ -67,10 +68,21 @@ to go
 end
 
 to color-turtles
-  ask turtles [ ifelse ( activist? ) [ set color 64 ]
-                [ ifelse ( well-informed? ) [ set color 66 ]
-                  [ ifelse ( aware? ) [ set color 68 ]
-                    [ set color gray ] ] ] ]
+  ask turtles [
+    ifelse activist? [
+      set color 64
+    ] [
+      ifelse well-informed? [
+        set color 66
+      ] [
+        ifelse aware? [
+          set color 68
+        ] [
+          set color gray
+        ]
+      ]
+    ]
+  ]
  end
 
 to-report activist?
@@ -90,7 +102,10 @@ to-report unaware?
 end
 
 to place-centers
-  if ( mouse-down? ) [ ask patch mouse-xcor mouse-ycor [ set pcolor green ] display ]
+  if mouse-down? [
+    ask patch mouse-xcor mouse-ycor [ set pcolor green ]
+    display
+  ]
 end
 
 to do-plotting
@@ -745,7 +760,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
