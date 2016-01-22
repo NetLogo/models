@@ -62,8 +62,6 @@ to go
     if non-usage > non-usage-limit [ set pcolor black ]
   ]
 
- do-plotting
-
  tick
 end
 
@@ -106,23 +104,6 @@ to place-centers
     ask patch mouse-xcor mouse-ycor [ set pcolor green ]
     display
   ]
-end
-
-to do-plotting
-  set-current-plot "Avg. Awareness"
-  set-current-plot-pen "Awareness"
-    plot mean [ awareness ] of turtles
-
-  set-current-plot "Level of Awareness"
-  set-current-plot-pen "Activist"
-    plot count turtles with [ activist? ]
-  set-current-plot-pen "Well Informed"
-    plot count turtles with [ well-informed? ]
-  set-current-plot-pen "Aware"
-    plot count turtles with [ aware? ]
-  set-current-plot-pen "Unaware"
-    plot count turtles with [ unaware? ]
-
 end
 
 
@@ -243,10 +224,10 @@ true
 true
 "" ""
 PENS
-"Activist" 1.0 0 -14439633 true "" ""
-"Well Informed" 1.0 0 -11085214 true "" ""
-"Aware" 1.0 0 -5509967 true "" ""
-"Unaware" 1.0 0 -7500403 true "" ""
+"Activist" 1.0 0 -14439633 true "" "plot count turtles with [ activist? ]"
+"Well Informed" 1.0 0 -11085214 true "" "plot count turtles with [ well-informed? ]"
+"Aware" 1.0 0 -5509967 true "" "plot count turtles with [ aware? ]"
+"Unaware" 1.0 0 -7500403 true "" "plot count turtles with [ unaware? ]"
 
 SLIDER
 80
@@ -290,7 +271,7 @@ true
 false
 "" ""
 PENS
-"Awareness" 1.0 0 -16777216 true "" ""
+"Awareness" 1.0 0 -16777216 true "" "plot mean [ awareness ] of turtles"
 
 MONITOR
 75
