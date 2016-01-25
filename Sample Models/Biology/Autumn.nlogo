@@ -1,7 +1,7 @@
-breed [leaves leaf]
-breed [dead-leaves dead-leaf]
-breed [raindrops raindrop]
-breed [suns sun]
+breed [ leaves leaf ]
+breed [ dead-leaves dead-leaf ]
+breed [ raindrops raindrop ]
+breed [ suns sun ]
 
 leaves-own [
   water-level       ;; amount of water in the leaf
@@ -34,10 +34,12 @@ to setup
   set-default-shape suns "circle"
 
   ;; Create sky and grass
-  ask patches
-    [ set pcolor blue - 2 ]
-  ask patches with [pycor < min-pycor + 2]
-    [ set pcolor green ]
+  ask patches [
+    set pcolor blue - 2
+  ]
+  ask patches with [ pycor < min-pycor + 2 ] [
+    set pcolor green
+  ]
 
   ;; Create leaves
   create-leaves number-of-leaves [
@@ -56,15 +58,17 @@ to setup
   ]
 
   ;; Create trunk and branches
-  ask patches with [pxcor = 0 and pycor <= 5 or
-                    abs pxcor = (pycor + 2) and pycor < 4 or
-                    abs pxcor = (pycor + 8) and pycor < 3]
-    [ set pcolor brown ]
+  ask patches with [
+    pxcor = 0 and pycor <= 5 or
+    abs pxcor = (pycor + 2) and pycor < 4 or
+    abs pxcor = (pycor + 8) and pycor < 3
+  ] [
+    set pcolor brown
+  ]
 
   ;; Create the sun
   create-suns 1 [
-    setxy max-pxcor - 2
-          max-pycor - 3
+    setxy (max-pxcor - 2) (max-pycor - 3)
     ;; change appearance based on intensity
     show-intensity
   ]
@@ -91,8 +95,7 @@ to go
   ask suns [ show-intensity ]
 
   ;; Now our leaves respond accordingly
-  ask attached-leaves
-  [
+  ask attached-leaves [
     adjust-water
     adjust-chlorophyll
     adjust-sugar
@@ -104,33 +107,34 @@ to go
   ask leaves [ fall-if-necessary ]
 
   ;; Leaves on the bottom should be killed off
-  ask leaves with [ycor <= bottom-line]
-    [ set breed dead-leaves ]
+  ask leaves with [ ycor <= bottom-line ] [
+    set breed dead-leaves
+  ]
 
   ;; Leaves without water should also be killed off
-  ask leaves with [water-level < 1]
-    [ set attachedness 0 ]
+  ask leaves with [ water-level < 1 ] [
+    set attachedness 0
+  ]
 
   ;; Make sure that values remain between 0 - 100
   ask leaves [
-    if chlorophyll < 0 [ set chlorophyll 0 ]
-    if chlorophyll > 100 [ set chlorophyll 100 ]
-    if water-level < 0 [ set water-level 0 ]
-    if water-level > 100 [ set water-level 100 ]
-    if sugar-level < 0 [ set sugar-level 0 ]
-    if sugar-level > 100 [ set sugar-level 100 ]
-    if carotene < 0 [ set carotene 0 ]
-    if carotene > 100 [ set carotene 100 ]
-    if anthocyanin < 0 [ set anthocyanin 0 ]
-    if anthocyanin > 100 [ set anthocyanin 100 ]
-    if attachedness < 0 [ set attachedness 0 ]
-    if attachedness > 100 [ set attachedness 100 ]
+    set chlorophyll (clip chlorophyll)
+    set water-level (clip water-level)
+    set sugar-level (clip sugar-level)
+    set carotene (clip carotene)
+    set anthocyanin (clip anthocyanin)
+    set attachedness (clip attachedness)
   ]
 
   ;; increment the tick counter
   tick
 end
 
+to-report clip [ value ]
+  if value < 0 [ report 0 ]
+  if value > 100 [ report 100 ]
+  report value
+end
 
 ;; ---------------------------------------
 ;; make-wind-blow: When the wind blows,
@@ -142,11 +146,12 @@ end
 ;; ---------------------------------------
 
 to make-wind-blow
-  ask leaves [ ifelse random 2 = 1
-                 [ rt 10 * wind-factor ]
-                 [ lt 10 * wind-factor ]
-               set attachedness attachedness - wind-factor
-             ]
+  ask leaves [
+    ifelse random 2 = 1
+      [ rt 10 * wind-factor ]
+      [ lt 10 * wind-factor ]
+    set attachedness attachedness - wind-factor
+  ]
 end
 
 
@@ -181,26 +186,26 @@ to move-water
 
   ;; We assume that the roots extend under the entire grassy area; rain flows through
   ;; the roots to the trunk
-  ask raindrops with [location = "falling" and pcolor = green] [
+  ask raindrops with [ location = "falling" and pcolor = green ] [
     set location "in roots"
     face patch 0 ycor
   ]
 
   ;; Water flows from the trunk up to the central part of the tree.
-  ask raindrops with [location = "in roots" and pcolor = brown] [
+  ask raindrops with [ location = "in roots" and pcolor = brown ] [
     face patch 0 0
     set location "in trunk"
   ]
 
   ;; Water flows out from the trunk to the leaves.  We're not going to
   ;; simulate branches here in a serious way
-  ask raindrops with [location = "in trunk" and patch-here = patch 0 0] [
+  ask raindrops with [ location = "in trunk" and patch-here = patch 0 0 ] [
     set location "in leaves"
     set heading random 360
   ]
 
   ;; if the raindrop is in the leaves and there is nothing left disappear
-  ask raindrops with [location = "in leaves" and amount-of-water <= 0.5] [
+  ask raindrops with [ location = "in leaves" and amount-of-water <= 0.5 ] [
     die
   ]
 
@@ -208,9 +213,10 @@ to move-water
   ;; where they can no longer flow into a leaf then disappear
   ask raindrops with [
     (location = "in trunk" or location = "in leaves")
-     and (ycor > max [ycor] of leaves or
-          xcor > max [xcor] of leaves or
-          xcor < min [xcor] of leaves) ] [
+    and (ycor > max [ ycor ] of leaves or
+         xcor > max [ xcor ] of leaves or
+         xcor < min [ xcor ] of leaves)
+  ] [
     die
   ]
 
@@ -242,27 +248,29 @@ to adjust-water
   ;; Below a certain temperature, the leaf does not absorb
   ;; water any more.  Instead, it converts sugar and and water
   ;; to anthocyanin, in a proportion
-  if temperature < 10 [ stop  ]
+  if temperature < 10 [ stop ]
 
   ;; If there is a raindrop near this leaf with some water
   ;; left in it, then absorb some of that water
-  let nearby-raindrops raindrops in-radius 2 with [location = "in leaves" and amount-of-water >= 0]
+  let nearby-raindrops raindrops in-radius 2 with [ location = "in leaves" and amount-of-water >= 0 ]
 
   if any? nearby-raindrops [
-    let my-raindrop min-one-of nearby-raindrops [distance myself]
-    set water-level water-level + ([amount-of-water] of my-raindrop * 0.20)
+    let my-raindrop min-one-of nearby-raindrops [ distance myself ]
+    set water-level water-level + ([ amount-of-water ] of my-raindrop * 0.20)
     ask my-raindrop [
       set amount-of-water (amount-of-water * 0.80)
     ]
   ]
 
   ;; Reduce the water according to the temperature
-  if temperature > evaporation-temp
-    [ set water-level water-level - (0.5 * (temperature - evaporation-temp)) ]
+  if temperature > evaporation-temp [
+    set water-level water-level - (0.5 * (temperature - evaporation-temp))
+  ]
 
   ;; If the water level goes too low, reduce the attachedness
-  if water-level < 25
-    [ set attachedness attachedness - 1 ]
+  if water-level < 25 [
+    set attachedness attachedness - 1
+  ]
 
 end
 
@@ -277,16 +285,19 @@ end
 to adjust-chlorophyll
 
   ;; If the temperature is low, then reduce the chlorophyll
-  if temperature < 15
-    [ set chlorophyll chlorophyll - (.5 * (15 - temperature)) ]
+  if temperature < 15 [
+    set chlorophyll chlorophyll - (.5 * (15 - temperature))
+  ]
 
   ;; If the sun is strong, then reduce the chlorophyll
-  if sun-intensity > 75
-    [ set chlorophyll chlorophyll - (.5 * (sun-intensity - 75)) ]
+  if sun-intensity > 75 [
+    set chlorophyll chlorophyll - (.5 * (sun-intensity - 75))
+  ]
 
   ;; New chlorophyll comes from water and sunlight
-  if temperature > 15 and sun-intensity > 20
-    [ set chlorophyll chlorophyll + 1 ]
+  if temperature > 15 and sun-intensity > 20 [
+    set chlorophyll chlorophyll + 1
+  ]
 
 end
 
@@ -298,12 +309,12 @@ end
 to adjust-sugar
   ;; If there is enough water and sunlight, reduce the chlorophyll
   ;; and water, and increase the sugar
-  if water-level > 1 and sun-intensity > 20 and chlorophyll > 1
-    [ set water-level water-level - 0.5
-      set chlorophyll chlorophyll - 0.5
-      set sugar-level sugar-level + 1
-      set attachedness attachedness + 5
-    ]
+  if water-level > 1 and sun-intensity > 20 and chlorophyll > 1 [
+    set water-level water-level - 0.5
+    set chlorophyll chlorophyll - 0.5
+    set sugar-level sugar-level + 1
+    set attachedness attachedness + 5
+  ]
 
   ;; Every tick of the clock, we reduce the sugar by 1
   set sugar-level sugar-level - 0.5
@@ -316,13 +327,11 @@ end
 
 to fall-if-necessary
   if attachedness > 0 [ stop ]
-  if ycor > bottom-line
-    [
-      let target-xcor (xcor + random-float wind-factor
-                            - random-float wind-factor)
-      facexy target-xcor bottom-line
-      fd random-float (.7 * max (list wind-factor .5))
-     ]
+  if ycor > bottom-line [
+    let target-xcor (xcor + random-float wind-factor - random-float wind-factor)
+    facexy target-xcor bottom-line
+    fd random-float (.7 * max (list wind-factor .5))
+  ]
 end
 
 
@@ -334,48 +343,57 @@ end
 to change-color
   ;; If the temperature is low, then we turn the
   ;; sugar into anthocyanin
-  if temperature < 20 and sugar-level > 0 and water-level > 0
-    [ set sugar-level sugar-level - 1
-      set water-level water-level - 1
-      set anthocyanin anthocyanin + 1 ]
+  if temperature < 20 and sugar-level > 0 and water-level > 0 [
+    set sugar-level sugar-level - 1
+    set water-level water-level - 1
+    set anthocyanin anthocyanin + 1
+  ]
 
   ;; If we have more than 50 percent chlorophyll, then
   ;; we are green, and scale the color accordingly
-  ifelse chlorophyll > 50
-       [ set color scale-color green chlorophyll 150 -50 ]
+  ifelse chlorophyll > 50 [
+    set color scale-color green chlorophyll 150 -50
+  ] [
+    ;; If we are lower than 50 percent chlorophyll, then
+    ;; we have yellow (according to the carotene), red (according
+    ;; to the anthocyanin), or orange (if they are about equal).
 
-  ;; If we are lower than 50 percent chlorophyll, then
-  ;; we have yellow (according to the carotene), red (according
-  ;; to the anthocyanin), or orange (if they are about equal).
-
-       ;; If we have roughly equal anthocyanin and carotene,
-       ;; then the leaves should be in orange.
-       [ if abs (anthocyanin - carotene ) < 10
-           [ set color scale-color orange carotene 150 -50 ]
-
-         if anthocyanin > carotene + 10
-           [ set color scale-color red anthocyanin 170 -50 ]
-
-         if carotene > anthocyanin + 10
-           [ set color scale-color yellow carotene 150 -50 ]
-       ]
+    ;; If we have roughly equal anthocyanin and carotene,
+    ;; then the leaves should be in orange.
+    if abs (anthocyanin - carotene ) < 10 [
+      set color scale-color orange carotene 150 -50
+    ]
+    if anthocyanin > carotene + 10 [
+      set color scale-color red anthocyanin 170 -50
+    ]
+    if carotene > anthocyanin + 10 [
+      set color scale-color yellow carotene 150 -50
+    ]
+  ]
 end
 
 to change-shape
-  ifelse leaf-display-mode = "solid"
-    [ set shape "default" ]
-  [ if leaf-display-mode = "chlorophyll"
-      [ set-shape-for-value chlorophyll ]
-    if leaf-display-mode = "water"
-      [ set-shape-for-value water-level ]
-    if leaf-display-mode = "sugar"
-      [ set-shape-for-value sugar-level ]
-    if leaf-display-mode = "carotene"
-      [ set-shape-for-value carotene ]
-    if leaf-display-mode = "anthocyanin"
-      [ set-shape-for-value anthocyanin ]
-    if leaf-display-mode = "attachedness"
-      [ set-shape-for-value attachedness ]
+  ifelse leaf-display-mode = "solid" [
+    set shape "default"
+  ] [
+    if leaf-display-mode = "chlorophyll" [
+      set-shape-for-value chlorophyll
+    ]
+    if leaf-display-mode = "water" [
+      set-shape-for-value water-level
+    ]
+    if leaf-display-mode = "sugar" [
+      set-shape-for-value sugar-level
+    ]
+    if leaf-display-mode = "carotene" [
+      set-shape-for-value carotene
+    ]
+    if leaf-display-mode = "anthocyanin" [
+      set-shape-for-value anthocyanin
+    ]
+    if leaf-display-mode = "attachedness" [
+      set-shape-for-value attachedness
+    ]
   ]
 end
 
@@ -385,11 +403,20 @@ to-report attached-leaves
 end
 
 ;; makes the leaf appear to be more or less filled depending on value
-to set-shape-for-value [value]
-  ifelse value > 75 [ set shape "default" ]
-  [ ifelse value <= 25 [ set shape "default one-quarter" ]
-    [ ifelse value <= 50 [ set shape "default half" ]
-                         [ set shape "default three-quarter" ]]]
+to set-shape-for-value [ value ]
+  ifelse value > 75 [
+    set shape "default"
+  ] [
+    ifelse value <= 25 [
+      set shape "default one-quarter"
+    ] [
+      ifelse value <= 50 [
+        set shape "default half"
+      ] [
+        set shape "default three-quarter"
+      ]
+    ]
+  ]
 end
 
 
@@ -397,13 +424,13 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-350
-154
-710
-535
+205
+10
+705
+531
 17
 17
-10.0
+14.0
 1
 12
 1
@@ -424,9 +451,9 @@ ticks
 30.0
 
 SLIDER
+5
 10
-10
-341
+200
 43
 number-of-leaves
 number-of-leaves
@@ -439,10 +466,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-122
-83
-188
-116
+40
+125
+106
+158
 NIL
 setup
 NIL
@@ -456,10 +483,10 @@ NIL
 1
 
 SLIDER
-349
-79
-554
-112
+5
+240
+200
+273
 wind-factor
 wind-factor
 0
@@ -471,10 +498,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-191
-83
-254
-116
+109
+125
+172
+158
 NIL
 go
 T
@@ -488,25 +515,25 @@ NIL
 0
 
 SLIDER
-349
-10
-556
-43
+5
+171
+200
+204
 temperature
 temperature
 0
 40
-10
+11
 1
 1
-degrees C
+°C
 HORIZONTAL
 
 SLIDER
-349
-44
-555
-77
+5
+205
+200
+238
 rain-intensity
 rain-intensity
 0
@@ -518,10 +545,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-349
-115
-555
-148
+5
+275
+200
+308
 sun-intensity
 sun-intensity
 0
@@ -533,10 +560,10 @@ sun-intensity
 HORIZONTAL
 
 PLOT
-13
-122
-344
-252
+710
+10
+1041
+180
 Leaves
 Time
 NIL
@@ -552,10 +579,10 @@ PENS
 "dead leaves" 1.0 0 -6459832 true "" "plot count dead-leaves"
 
 PLOT
-13
-259
-345
-379
+710
+185
+1042
+355
 Weather conditions
 Time
 NIL
@@ -573,10 +600,10 @@ PENS
 "sunlight" 1.0 0 -1184463 true "" "plot sun-intensity"
 
 PLOT
-13
-378
-344
-509
+710
+360
+1041
+530
 Leaf averages
 Time
 NIL
@@ -596,10 +623,10 @@ PENS
 "attachedness" 1.0 0 -16777216 true "" "if any? leaves [  plot mean [attachedness] of leaves ]"
 
 SLIDER
-10
-46
-187
-79
+5
+45
+200
+78
 start-sugar-mean
 start-sugar-mean
 0
@@ -611,10 +638,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-191
-45
-341
-78
+5
+80
+200
+113
 start-sugar-stddev
 start-sugar-stddev
 0
@@ -626,10 +653,10 @@ NIL
 HORIZONTAL
 
 CHOOSER
-560
-10
-704
-55
+5
+310
+200
+355
 leaf-display-mode
 leaf-display-mode
 "solid" "chlorophyll" "water" "sugar" "carotene" "anthocyanin" "attachedness"
@@ -1076,7 +1103,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3
 @#$#@#$#@
 setup
 repeat 30 [ go ]
@@ -1096,5 +1123,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
