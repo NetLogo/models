@@ -401,7 +401,7 @@ Note that the number of atoms is very small compared to most real systems. Also,
 
 To learn more about the Lennard-Jones potential see:
 
-* http://chemwiki.ucdavis.edu/Physical_Chemistry/Physical_Properties_of_Matter/Intermolecular_Forces/Lennard-Jones_Potential
+* http://chemwiki.ucdavis.edu/Physical_Chemistry/Physical_Properties_of_Matter/Atomic_and_Molecular_Properties/Intermolecular_Forces/Specific_Interactions/Lennard-Jones_Potential
 * https://en.wikipedia.org/wiki/Lennard-Jones_potential
 
 ## HOW TO USE IT
@@ -785,7 +785,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
