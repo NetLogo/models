@@ -328,7 +328,7 @@ Frequency: How often you lift weights must be managed appropriately in order to 
 
 Sleep: The body performs most of its recovery while sleeping.  If you don't get enough sleep, you will not be providing enough opportunity for recovery, so you will find it difficult to gain muscle.
 
-Intensity: How hard you works in the weight room affects how effective you are at recruiting all of your muscle fibers.  The greater the number of fibers recruited, the greater the growth stimulus, assuming appropriate recovery is provided for.
+Intensity: How hard you work in the weight room affects how effective you are at recruiting all of your muscle fibers.  The greater the number of fibers recruited, the greater the growth stimulus, assuming appropriate recovery is provided for.
 
 Genetic: The ratio of slow twitch to fast twitch muscle fibers plays a large role in how much muscle an individual is capable of developing.  Someone with a majority of fibers that exhibit slow twitch characteristics will have high endurance, but the potential to develop only moderate muscle mass.  An individual with a majority of fibers with fast twitch characteristics will have the potential to develop considerable muscle mass, but low endurance.
 
@@ -374,7 +374,7 @@ Steps one through three should be run with %-SLOW-TWITCH slider set to 50.
 
 3.  Many undertake weight training in an effort to build the maximum amount of muscle they are capable of.  Find the best method for achieving this.  How must it vary over time?  Why is it important to take one's current level of condition into consideration when choosing a resistance training program?
 
-4.  An issue rarely addressed in conventional training is that of genetic ability.  A major factor effecting this the proportion of slow twitch vs. fast twitch muscle fibers a person possesses.  Slow twitch fibers provide for greater endurance, fast twitch greater strength and size.
+4.  An issue rarely addressed in conventional training is that of genetic ability.  A major factor affecting this is the proportion of slow twitch vs. fast twitch muscle fibers a person possesses.  Slow twitch fibers provide for greater endurance, fast twitch greater strength and size.
 
 Attempt to obtain maximal muscular development with the %-SLOW-TWITCH slider set at 90% and then 10%. How do the results one can obtain vary with genetic ability?  Training methods?  What does this suggest about the average person following the routines of genetically gifted professional bodybuilders?
 
@@ -711,7 +711,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.1-RC1
+NetLogo 5.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
