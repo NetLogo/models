@@ -108,7 +108,7 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
             success
           case sc if sc >= 300 && sc < 400 && redirectTolerated(link, response) =>
             success
-          case 403 if method == head =>
+          case sc if (sc == 403 || sc == 404) && method == head =>
             request(link, get) // sometimes HEAD is forbidden, retry with a GET
           case sc if sc >= 500 && sc < 600 =>
             request(link, method)
