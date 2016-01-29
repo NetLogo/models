@@ -121,7 +121,7 @@ The model assigns fractional values from 0 to 10 to patches, from bottom to top,
 
 The `palette:scale-scheme`, `palette:scale-gradient` and `palette:scheme-colors` primitives of the `palette` extension are used here.
 
-See [the documentation for the extension](https://github.com/NetLogo/Palette-Extension/blob/master/README.md) for more details.
+See [the documentation for the extension](https://github.com/NetLogo/Palette-Extension#readme) for more details.
 
 ## CREDITS AND REFERENCES
 
@@ -435,7 +435,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3
 @#$#@#$#@
 scheme-color-scale-gradient
 @#$#@#$#@
