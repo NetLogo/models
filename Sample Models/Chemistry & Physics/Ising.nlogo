@@ -82,7 +82,7 @@ GRAPHICS-WINDOW
 1
 1
 1
-ticks
+attempted flips
 1000.0
 
 BUTTON
