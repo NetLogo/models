@@ -540,6 +540,8 @@ Would this model be the same if the wealth were randomly distributed (as opposed
 
 Try allowing metabolism or vision or another characteristic to be inherited.  Will we see any sort of evolution?  Will the "fittest" survive?
 
+We said above that "there is no inheritance of wealth" in the model, but that is not entirely true. New turtles are born in the same location as their parents. If grain is plentiful relative to the population at this location, they inherit a good starting situation. Try moving the turtles to a random patch when they are born. Does that lead to a more equitable distribution of wealth?
+
 Try adding in seasons into the model.  That is to say have the grain grow better in a section of the landscape during certain times and worse at others.
 
 How could you change the model to achieve wealth equality?
@@ -875,7 +877,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
