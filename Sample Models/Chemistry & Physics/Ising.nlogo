@@ -246,7 +246,13 @@ At each iteration, we give a fixed number of spins a chance to flip.  There are 
 
 ## NETLOGO FEATURES
 
-This model makes 1000 attempted flips in every iteration of the `GO` loop. It codes this as `repeat 1000 [ update ]`. Note that this does not change the core Ising algorithm that does one attempted patch flip at a time.
+This model makes 1000 attempted flips in every iteration of the `GO` loop. It codes this as:
+
+    repeat 1000 [
+      ask one-of patches [ update ]
+    ]
+
+Note that this does not change the core Ising algorithm that does one attempted patch flip at a time.
 
 However, this approach does necessitate a departure from the usual NetLogo practice of calling `tick` at the end of the `GO` procedure. If we called `tick` at the end, then the tick counter would advance only once for every 1000 attempted flips and the Ising model measures the magnetization at every attempted flip. We therefore use `tick-advance` primitive to advance the NetLogo clock and sync it up with the traditional Ising model. Because the `tick-advance` primitive doesn't update the NetLogo plots, we have to explicitly call `update-plots`.
 
@@ -596,7 +602,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
