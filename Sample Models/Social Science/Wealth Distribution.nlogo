@@ -538,7 +538,7 @@ Allow the grain to give an advantage or disadvantage to its carrier, such as eve
 
 Would this model be the same if the wealth were randomly distributed (as opposed to a gradient)?  Try different landscapes, making SETUP buttons for each new landscape.
 
-Try allowing metabolism or vision or another characteristic to be inherited.  Will we see any sort of evolution?  Will the "fittest" survive?
+Try allowing metabolism or vision or another characteristic to be inherited.  Will we see any sort of evolution?  Will the "fittest" survive? If not, why not?
 
 We said above that "there is no inheritance of wealth" in the model, but that is not entirely true. New turtles are born in the same location as their parents. If grain is plentiful relative to the population at this location, they inherit a good starting situation. Try moving the turtles to a random patch when they are born. Does that lead to a more equitable distribution of wealth?
 
