@@ -5,6 +5,8 @@ walkers-own [ goal ]
 
 patches-own [ popularity ]
 
+globals [ mouse-clicked? ]
+
 to setup
   clear-all
   set-default-shape buildings "house"
@@ -31,26 +33,33 @@ to go
 end
 
 to check-building-placement
-  if mouse-down? [
-    ask patch mouse-xcor mouse-ycor [
-      ifelse any? buildings in-radius 4
-        [ unbecome-building ]
-        [ become-building ]
+  ifelse mouse-down? [
+    if not mouse-clicked? [
+      set mouse-clicked? true
+      ask patch mouse-xcor mouse-ycor [ toggle-building ]
     ]
+  ] [
+    set mouse-clicked? false
   ]
 end
 
-to unbecome-building
-  ask buildings in-radius 4 [
-    set popularity 1
-    die
-  ]
-end
-
-to become-building
-  sprout-buildings 1 [
-    set color red
-    set size 4
+to toggle-building
+  let nearby-buildings buildings in-radius 4
+  ifelse any? nearby-buildings [
+    ; if there is a building near where the mouse was clicked
+    ; (and there should always only be one), we remove it and
+    ; reset the popularity of the underneath patch to 1
+    ask nearby-buildings [
+      set popularity 1
+      die
+    ]
+  ] [
+    ; if there was no buildings near where
+    ; the mouse was clicked, we create one
+    sprout-buildings 1 [
+      set color red
+      set size 4
+    ]
   ]
 end
 
