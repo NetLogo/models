@@ -85,25 +85,32 @@ to move-walkers
 end
 
 to walk-towards-goal
-  let last-distance distance goal
-  let best-route-tile route-on-the-way-to goal last-distance
-
   ; boost the popularity of the route we're using
   if pcolor = green [
     ask patch-here [ become-more-popular ]
   ]
-
-  ifelse best-route-tile = nobody
-    [ face goal ]
-    [ face best-route-tile ]
+  face best-way-to goal
   fd 1
 end
 
-to-report route-on-the-way-to [l current-distance]
-  let routes-on-the-way-to-goal (patches in-radius walker-vision-dist with [
-    pcolor = gray and distance l < current-distance - 1
-  ])
-  report min-one-of routes-on-the-way-to-goal [ distance self ]
+to-report best-way-to [ destination ]
+
+  ; of all the visible route patches, select the ones
+  ; that would take me closer to my destination
+  let visible-patches patches in-radius walker-vision-dist
+  let visible-routes visible-patches with [ pcolor = gray ]
+  let routes-that-take-me-closer visible-routes with [
+    distance destination < [ distance destination - 1 ] of myself
+  ]
+
+  ifelse any? routes-that-take-me-closer [
+    ; from those route patches, choose the one that is the closest to me
+    report min-one-of routes-that-take-me-closer [ distance self ]
+  ] [
+    ; if there are no nearby routes to my destination
+    report destination
+  ]
+
 end
 
 
