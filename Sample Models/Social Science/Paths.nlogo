@@ -34,21 +34,24 @@ end
 to check-building-placement
   if mouse-down? [
     ask patch (round mouse-xcor) (round mouse-ycor) [
-    ifelse any? buildings-here
-      [ unbecome-building ]
-      [ become-building ]
+      ifelse any? buildings in-radius 4
+        [ unbecome-building ]
+        [ become-building ]
     ]
   ]
 end
 
 to unbecome-building
-  set popularity 1
-  ask buildings-here [ die ]
+  ask buildings in-radius 4 [
+    set popularity 1
+    die
+  ]
 end
 
 to become-building
   sprout-buildings 1 [
     set color red
+    set size 4
   ]
 end
 
