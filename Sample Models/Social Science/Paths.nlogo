@@ -1,17 +1,18 @@
-turtles-own [ goal ]
+breed [ buildings building ]
+
+breed [ walkers walker ]
+walkers-own [ goal ]
 
 patches-own [ popularity ]
 
-globals [ buildings ]
-
 to setup
   clear-all
-  set buildings (list)
+  set-default-shape buildings "house"
   ask patches [
     set pcolor green
     set popularity 1
   ]
-  create-turtles walker-count [
+  create-walkers walker-count [
     set xcor random-xcor
     set ycor random-ycor
     set goal one-of patches
@@ -33,7 +34,7 @@ end
 to check-building-placement
   if mouse-down? [
     ask patch (round mouse-xcor) (round mouse-ycor) [
-    ifelse pcolor = red
+    ifelse any? buildings-here
       [ unbecome-building ]
       [ become-building ]
     ]
@@ -41,19 +42,19 @@ to check-building-placement
 end
 
 to unbecome-building
-  set pcolor green
   set popularity 1
-  set buildings (remove self buildings)
+  ask buildings-here [ die ]
 end
 
 to become-building
-  set pcolor red
-  set buildings (fput self buildings)
+  sprout-buildings 1 [
+    set color red
+  ]
 end
 
 to decay-popularity
-  ask patches with [ pcolor != red ] [
-    if popularity > 1 and not any? turtles-here [
+  ask patches with [ not any? buildings-here ] [
+    if popularity > 1 and not any? walkers-here [
       set popularity popularity * (100 - popularity-decay-rate) / 100
     ]
     ifelse pcolor = green [
@@ -75,10 +76,10 @@ to become-more-popular
 end
 
 to move-walkers
-  ask turtles [
+  ask walkers [
     ifelse patch-here = goal [
-      ifelse length buildings >= 2 [
-        set goal one-of buildings
+      ifelse count buildings >= 2 [
+        set goal [ patch-here ] of one-of buildings
       ] [
         set goal one-of patches
       ]
