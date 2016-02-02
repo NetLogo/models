@@ -6,7 +6,6 @@ globals [ buildings ]
 
 to setup
   clear-all
-  reset-ticks
   set buildings (list)
   ask patches [
     set pcolor green
@@ -19,6 +18,7 @@ to setup
     set color blue
     set size 2
   ]
+  reset-ticks
 end
 
 ;; Click to place buildings
