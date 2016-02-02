@@ -13,8 +13,7 @@ to setup
     set popularity 1
   ]
   create-walkers walker-count [
-    set xcor random-xcor
-    set ycor random-ycor
+    setxy random-xcor random-ycor
     set goal one-of patches
     set color blue
     set size 2
@@ -33,7 +32,7 @@ end
 
 to check-building-placement
   if mouse-down? [
-    ask patch (round mouse-xcor) (round mouse-ycor) [
+    ask patch mouse-xcor mouse-ycor [
       ifelse any? buildings in-radius 4
         [ unbecome-building ]
         [ become-building ]
