@@ -1,8 +1,8 @@
-turtles-own [goal]
+turtles-own [ goal ]
 
-patches-own [popularity]
+patches-own [ popularity ]
 
-globals [buildings]
+globals [ buildings ]
 
 to setup
   clear-all
@@ -31,12 +31,13 @@ to go
 end
 
 to check-building-placement
-  if mouse-down?
-  [ask patch (round mouse-xcor) (round mouse-ycor) [
+  if mouse-down? [
+    ask patch (round mouse-xcor) (round mouse-ycor) [
     ifelse pcolor = red
-    [ unbecome-building ]
-    [ become-building ]
-  ]]
+      [ unbecome-building ]
+      [ become-building ]
+    ]
+  ]
 end
 
 to unbecome-building
@@ -51,14 +52,20 @@ to become-building
 end
 
 to decay-popularity
-  ask patches with [pcolor != red] [
-    if popularity > 1 and not any? turtles-here [ set popularity popularity * (100 - popularity-decay-rate) / 100 ]
-    ifelse pcolor = green
-    [ if popularity < 1 [ set popularity 1 ] ]
-    [ if popularity < 1 [
+  ask patches with [ pcolor != red ] [
+    if popularity > 1 and not any? turtles-here [
+      set popularity popularity * (100 - popularity-decay-rate) / 100
+    ]
+    ifelse pcolor = green [
+      if popularity < 1 [
+        set popularity 1
+      ]
+    ] [
+      if popularity < 1 [
         set popularity 1
         set pcolor green
-        ] ]
+      ]
+    ]
   ]
 end
 
@@ -69,11 +76,16 @@ end
 
 to move-walkers
   ask turtles [
-    ifelse patch-here = goal
-      [ ifelse length buildings >= 2
-        [set goal one-of buildings]
-        [set goal one-of patches] ]
-      [ walk-towards-goal ] ]
+    ifelse patch-here = goal [
+      ifelse length buildings >= 2 [
+        set goal one-of buildings
+      ] [
+        set goal one-of patches
+      ]
+    ] [
+      walk-towards-goal
+    ]
+  ]
 end
 
 to walk-towards-goal
@@ -81,20 +93,21 @@ to walk-towards-goal
   let best-route-tile route-on-the-way-to goal last-distance
 
   ; boost the popularity of the route we're using
-  if pcolor = green
-  [ ask patch-here [become-more-popular] ]
+  if pcolor = green [
+    ask patch-here [ become-more-popular ]
+  ]
 
   ifelse best-route-tile = nobody
-  [ face goal ]
-  [ face best-route-tile ]
+    [ face goal ]
+    [ face best-route-tile ]
   fd 1
 end
 
 to-report route-on-the-way-to [l current-distance]
   let routes-on-the-way-to-goal (patches in-radius walker-vision-dist with [
-      pcolor = gray and distance l < current-distance - 1
-    ])
-  report min-one-of routes-on-the-way-to-goal [distance self]
+    pcolor = gray and distance l < current-distance - 1
+  ])
+  report min-one-of routes-on-the-way-to-goal [ distance self ]
 end
 
 
@@ -616,7 +629,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
