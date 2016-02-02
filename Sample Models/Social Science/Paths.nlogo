@@ -10,10 +10,7 @@ globals [ mouse-clicked? ]
 to setup
   clear-all
   set-default-shape buildings "house"
-  ask patches [
-    set pcolor green
-    set popularity 1
-  ]
+  ask patches [ set pcolor green ]
   create-walkers walker-count [
     setxy random-xcor random-ycor
     set goal one-of patches
@@ -48,11 +45,7 @@ to toggle-building
   ifelse any? nearby-buildings [
     ; if there is a building near where the mouse was clicked
     ; (and there should always only be one), we remove it and
-    ; reset the popularity of the underneath patch to 1
-    ask nearby-buildings [
-      set popularity 1
-      die
-    ]
+    ask nearby-buildings [ die ]
   ] [
     ; if there was no buildings near where
     ; the mouse was clicked, we create one
@@ -64,26 +57,17 @@ to toggle-building
 end
 
 to decay-popularity
-  ask patches with [ not any? buildings-here ] [
-    if popularity > 1 and not any? walkers-here [
-      set popularity popularity * (100 - popularity-decay-rate) / 100
-    ]
-    ifelse pcolor = green [
-      if popularity < 1 [
-        set popularity 1
-      ]
-    ] [
-      if popularity < 1 [
-        set popularity 1
-        set pcolor green
-      ]
-    ]
+  ask patches with [ not any? walkers-here ] [
+    set popularity popularity * (100 - popularity-decay-rate) / 100
+    ; when popularity is below 1, the patch becomes (or stays) grass
+    if popularity < 1 [ set pcolor green ]
   ]
 end
 
 to become-more-popular
   set popularity popularity + popularity-per-step
-  if popularity > minimum-route-popularity [ set pcolor gray ]
+  ; if the increase in popularity takes us above the threshold, become a route
+  if popularity >= minimum-route-popularity [ set pcolor gray ]
 end
 
 to move-walkers
