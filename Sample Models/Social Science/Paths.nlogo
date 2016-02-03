@@ -132,10 +132,10 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-195
-10
-710
-546
+230
+15
+745
+551
 50
 50
 5.0
@@ -159,9 +159,9 @@ ticks
 30.0
 
 BUTTON
-10
 30
-83
+30
+103
 63
 NIL
 setup
@@ -176,9 +176,9 @@ NIL
 1
 
 BUTTON
-102
+122
 30
-165
+185
 63
 NIL
 go
@@ -195,7 +195,7 @@ NIL
 SLIDER
 5
 170
-175
+215
 203
 minimum-route-popularity
 minimum-route-popularity
@@ -209,9 +209,9 @@ HORIZONTAL
 
 SLIDER
 5
+210
 215
-175
-248
+243
 walker-count
 walker-count
 0
@@ -224,9 +224,9 @@ HORIZONTAL
 
 SLIDER
 5
-260
-175
-293
+250
+215
+283
 walker-vision-dist
 walker-vision-dist
 0
@@ -240,7 +240,7 @@ HORIZONTAL
 SLIDER
 5
 90
-175
+215
 123
 popularity-decay-rate
 popularity-decay-rate
@@ -255,7 +255,7 @@ HORIZONTAL
 SLIDER
 5
 130
-175
+215
 163
 popularity-per-step
 popularity-per-step
@@ -269,9 +269,9 @@ HORIZONTAL
 
 SWITCH
 5
-305
-175
-338
+290
+215
+323
 show-popularity?
 show-popularity?
 1
