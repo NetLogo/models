@@ -247,11 +247,11 @@ NUMBER: sets the number of fireflies to be created.
 
 CYCLE-LENGTH: sets the length of each firefly's clock before it resets to 0.
 
-FLASHES-TO-RESTART: sets the number of flashes a firefly must see in a single tick before its clock resets.
+FLASHES-TO-RESET: sets the number of flashes a firefly must see in a single tick before its clock resets.
 
 FLASH-LENGTH: sets the duration, in ticks, of each flash.
 
-STRATEGY: sets the synchronization strategy to be used. One value is phase delay, where upon seeing FLASHES-TO-RESTART flashes a firefly will reset its clock to the FLASH-LENGTH tick (just after a flash would normally occur). This causes the firefly to synchronize with the next flash of the firefly it is responding to. The other value is phase advance, where upon seeing FLASHES-TO-RESTART flashes a firefly will reset its clock to zero. This causes the firefly to flash immediately. Under phase advance, fireflies can only begin to reset their clocks during a window which begins two ticks after they have flashed. This assures that flashes do not get stuck in a short cycle where they persistently reset their clocks and stay lit indefinitely.
+STRATEGY: sets the synchronization strategy to be used. One value is phase delay, where upon seeing FLASHES-TO-RESET flashes a firefly will reset its clock to the FLASH-LENGTH tick (just after a flash would normally occur). This causes the firefly to synchronize with the next flash of the firefly it is responding to. The other value is phase advance, where upon seeing FLASHES-TO-RESET flashes a firefly will reset its clock to zero. This causes the firefly to flash immediately. Under phase advance, fireflies can only begin to reset their clocks during a window which begins two ticks after they have flashed. This assures that flashes do not get stuck in a short cycle where they persistently reset their clocks and stay lit indefinitely.
 
 SHOW-DARK-FIREFLIES: if switch set to on, non-flashing fireflies are displayed in gray. If switch set to off, non-flashing fireflies are colored black and, thus, invisible.
 
