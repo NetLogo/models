@@ -1,24 +1,23 @@
-turtles-own [goal]
+breed [ buildings building ]
 
-patches-own [popularity]
+breed [ walkers walker ]
+walkers-own [ goal ]
 
-globals [buildings]
+patches-own [ popularity ]
+
+globals [ mouse-clicked? ]
 
 to setup
   clear-all
-  reset-ticks
-  set buildings (list)
-  ask patches [
-    set pcolor green
-    set popularity 1
-  ]
-  create-turtles walker-count [
-    set xcor random-xcor
-    set ycor random-ycor
+  set-default-shape buildings "house"
+  ask patches [ set pcolor green ]
+  create-walkers walker-count [
+    setxy random-xcor random-ycor
     set goal one-of patches
-    set color blue
+    set color yellow
     set size 2
   ]
+  reset-ticks
 end
 
 ;; Click to place buildings
@@ -27,74 +26,105 @@ to go
   check-building-placement
   move-walkers
   decay-popularity
+  recolor-patches
   tick
 end
 
 to check-building-placement
-  if mouse-down?
-  [ask patch (round mouse-xcor) (round mouse-ycor) [
-    ifelse pcolor = red
-    [ unbecome-building ]
-    [ become-building ]
-  ]]
+  ifelse mouse-down? [
+    if not mouse-clicked? [
+      set mouse-clicked? true
+      ask patch mouse-xcor mouse-ycor [ toggle-building ]
+    ]
+  ] [
+    set mouse-clicked? false
+  ]
 end
 
-to unbecome-building
-  set pcolor green
-  set popularity 1
-  set buildings (remove self buildings)
-end
-
-to become-building
-  set pcolor red
-  set buildings (fput self buildings)
+to toggle-building
+  let nearby-buildings buildings in-radius 4
+  ifelse any? nearby-buildings [
+    ; if there is a building near where the mouse was clicked
+    ; (and there should always only be one), we remove it and
+    ask nearby-buildings [ die ]
+  ] [
+    ; if there was no buildings near where
+    ; the mouse was clicked, we create one
+    sprout-buildings 1 [
+      set color red
+      set size 4
+    ]
+  ]
 end
 
 to decay-popularity
-  ask patches with [pcolor != red] [
-    if popularity > 1 and not any? turtles-here [ set popularity popularity * (100 - popularity-decay-rate) / 100 ]
-    ifelse pcolor = green
-    [ if popularity < 1 [ set popularity 1 ] ]
-    [ if popularity < 1 [
-        set popularity 1
-        set pcolor green
-        ] ]
+  ask patches with [ not any? walkers-here ] [
+    set popularity popularity * (100 - popularity-decay-rate) / 100
+    ; when popularity is below 1, the patch becomes (or stays) grass
+    if popularity < 1 [ set pcolor green ]
   ]
 end
 
 to become-more-popular
   set popularity popularity + popularity-per-step
-  if popularity > minimum-route-popularity [ set pcolor gray ]
+  ; if the increase in popularity takes us above the threshold, become a route
+  if popularity >= minimum-route-popularity [ set pcolor gray ]
 end
 
 to move-walkers
-  ask turtles [
-    ifelse patch-here = goal
-      [ ifelse length buildings >= 2
-        [set goal one-of buildings]
-        [set goal one-of patches] ]
-      [ walk-towards-goal ] ]
+  ask walkers [
+    ifelse patch-here = goal [
+      ifelse count buildings >= 2 [
+        set goal [ patch-here ] of one-of buildings
+      ] [
+        set goal one-of patches
+      ]
+    ] [
+      walk-towards-goal
+    ]
+  ]
 end
 
 to walk-towards-goal
-  let last-distance distance goal
-  let best-route-tile route-on-the-way-to goal last-distance
-
-  ; boost the popularity of the route we're using
-  if pcolor = green
-  [ ask patch-here [become-more-popular] ]
-
-  ifelse best-route-tile = nobody
-  [ face goal ]
-  [ face best-route-tile ]
+  if pcolor != gray [
+    ; boost the popularity of the patch we're on
+    ask patch-here [ become-more-popular ]
+  ]
+  face best-way-to goal
   fd 1
 end
 
-to-report route-on-the-way-to [l current-distance]
-  let routes-on-the-way-to-goal (patches in-radius walker-vision-dist with [
-      pcolor = gray and distance l < current-distance - 1
-    ])
-  report min-one-of routes-on-the-way-to-goal [distance self]
+to-report best-way-to [ destination ]
+
+  ; of all the visible route patches, select the ones
+  ; that would take me closer to my destination
+  let visible-patches patches in-radius walker-vision-dist
+  let visible-routes visible-patches with [ pcolor = gray ]
+  let routes-that-take-me-closer visible-routes with [
+    distance destination < [ distance destination - 1 ] of myself
+  ]
+
+  ifelse any? routes-that-take-me-closer [
+    ; from those route patches, choose the one that is the closest to me
+    report min-one-of routes-that-take-me-closer [ distance self ]
+  ] [
+    ; if there are no nearby routes to my destination
+    report destination
+  ]
+
+end
+
+to recolor-patches
+  ifelse show-popularity? [
+    let range (minimum-route-popularity * 3)
+    ask patches with [ pcolor != gray ] [
+      set pcolor scale-color green popularity (- range) range
+    ]
+  ] [
+    ask patches with [ pcolor != gray ] [
+      set pcolor green
+    ]
+  ]
 end
 
 
@@ -102,10 +132,10 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-195
-10
-710
-546
+230
+15
+745
+551
 50
 50
 5.0
@@ -130,9 +160,9 @@ ticks
 
 BUTTON
 10
-30
-83
-63
+25
+85
+58
 NIL
 setup
 NIL
@@ -146,10 +176,10 @@ NIL
 1
 
 BUTTON
-102
-30
+90
+25
 165
-63
+58
 NIL
 go
 T
@@ -164,9 +194,9 @@ NIL
 
 SLIDER
 5
-170
-175
-203
+210
+215
+243
 minimum-route-popularity
 minimum-route-popularity
 0
@@ -179,9 +209,9 @@ HORIZONTAL
 
 SLIDER
 5
+250
 215
-175
-248
+283
 walker-count
 walker-count
 0
@@ -194,9 +224,9 @@ HORIZONTAL
 
 SLIDER
 5
-260
-175
-293
+290
+215
+323
 walker-vision-dist
 walker-vision-dist
 0
@@ -209,9 +239,9 @@ HORIZONTAL
 
 SLIDER
 5
-90
-175
-123
+130
+215
+163
 popularity-decay-rate
 popularity-decay-rate
 0
@@ -224,9 +254,9 @@ HORIZONTAL
 
 SLIDER
 5
-130
-175
-163
+170
+215
+203
 popularity-per-step
 popularity-per-step
 0
@@ -236,6 +266,27 @@ popularity-per-step
 1
 NIL
 HORIZONTAL
+
+SWITCH
+5
+330
+215
+363
+show-popularity?
+show-popularity?
+1
+1
+-1000
+
+TEXTBOX
+10
+80
+195
+120
+Once GO is running, click on\nthe view to place buildings.
+12
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -257,6 +308,7 @@ You can interact with this model by placing points of interest for the turtles t
 - `minimum-route-popularity` controls how popular a given patch must become to turn into an established route.
 - `walker-count` controls the number of turtles in the world.
 - `walker-vision-dist` controls how far from itself each turtle will look to find a patch with an established route to move it closer to its goal.
+- `show-popularity?` allows you to color more popular patches in a lighter shade of green, reflecting the fact that lots of people have walked on them, and showing the paths as they form.
 
 ## THINGS TO TRY
 
@@ -616,7 +668,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
