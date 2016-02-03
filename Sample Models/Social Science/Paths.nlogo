@@ -26,6 +26,7 @@ to go
   check-building-placement
   move-walkers
   decay-popularity
+  recolor-patches
   tick
 end
 
@@ -85,8 +86,8 @@ to move-walkers
 end
 
 to walk-towards-goal
-  ; boost the popularity of the route we're using
-  if pcolor = green [
+  if pcolor != gray [
+    ; boost the popularity of the patch we're on
     ask patch-here [ become-more-popular ]
   ]
   face best-way-to goal
@@ -111,6 +112,19 @@ to-report best-way-to [ destination ]
     report destination
   ]
 
+end
+
+to recolor-patches
+  ifelse show-popularity? [
+    let range (minimum-route-popularity * 3)
+    ask patches with [ pcolor != gray ] [
+      set pcolor scale-color green popularity (- range) range
+    ]
+  ] [
+    ask patches with [ pcolor != gray ] [
+      set pcolor green
+    ]
+  ]
 end
 
 
@@ -253,6 +267,17 @@ popularity-per-step
 NIL
 HORIZONTAL
 
+SWITCH
+5
+305
+175
+338
+show-popularity?
+show-popularity?
+1
+1
+-1000
+
 @#$#@#$#@
 ## WHAT IS IT?
 
@@ -273,6 +298,7 @@ You can interact with this model by placing points of interest for the turtles t
 - `minimum-route-popularity` controls how popular a given patch must become to turn into an established route.
 - `walker-count` controls the number of turtles in the world.
 - `walker-vision-dist` controls how far from itself each turtle will look to find a patch with an established route to move it closer to its goal.
+- `show-popularity?` allows you to color more popular patches in a lighter shade of green, reflecting the fact that lots of people have walked on them, and showing the paths as they form.
 
 ## THINGS TO TRY
 
