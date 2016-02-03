@@ -14,7 +14,7 @@ to setup
   create-walkers walker-count [
     setxy random-xcor random-ycor
     set goal one-of patches
-    set color blue
+    set color yellow
     set size 2
   ]
   reset-ticks
