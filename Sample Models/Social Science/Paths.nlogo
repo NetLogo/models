@@ -159,10 +159,10 @@ ticks
 30.0
 
 BUTTON
-30
-30
-103
-63
+10
+25
+85
+58
 NIL
 setup
 NIL
@@ -176,10 +176,10 @@ NIL
 1
 
 BUTTON
-122
-30
-185
-63
+90
+25
+165
+58
 NIL
 go
 T
@@ -194,9 +194,9 @@ NIL
 
 SLIDER
 5
-170
+210
 215
-203
+243
 minimum-route-popularity
 minimum-route-popularity
 0
@@ -209,9 +209,9 @@ HORIZONTAL
 
 SLIDER
 5
-210
+250
 215
-243
+283
 walker-count
 walker-count
 0
@@ -224,9 +224,9 @@ HORIZONTAL
 
 SLIDER
 5
-250
+290
 215
-283
+323
 walker-vision-dist
 walker-vision-dist
 0
@@ -239,9 +239,9 @@ HORIZONTAL
 
 SLIDER
 5
-90
+130
 215
-123
+163
 popularity-decay-rate
 popularity-decay-rate
 0
@@ -254,9 +254,9 @@ HORIZONTAL
 
 SLIDER
 5
-130
+170
 215
-163
+203
 popularity-per-step
 popularity-per-step
 0
@@ -269,14 +269,24 @@ HORIZONTAL
 
 SWITCH
 5
-290
+330
 215
-323
+363
 show-popularity?
 show-popularity?
 1
 1
 -1000
+
+TEXTBOX
+10
+80
+195
+120
+Once GO is running, click on\nthe view to place buildings.
+12
+0.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
