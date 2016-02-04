@@ -67,9 +67,9 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-301
+300
 10
-737
+736
 467
 35
 35
@@ -94,10 +94,10 @@ ticks
 30.0
 
 SLIDER
-9
-37
-282
-70
+10
+10
+285
+43
 number
 number
 0
@@ -109,10 +109,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-54
-154
-211
-187
+150
+180
+285
+213
 cycle-length
 cycle-length
 5
@@ -124,10 +124,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-146
-118
-282
-151
+55
+100
+240
+133
 flash-length
 flash-length
 1
@@ -139,10 +139,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-11
-118
-145
-151
+10
+180
+144
+213
 flashes-to-reset
 flashes-to-reset
 1
@@ -154,10 +154,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-48
-190
-136
-223
+55
+140
+143
+173
 setup
 setup
 NIL
@@ -171,10 +171,10 @@ NIL
 1
 
 SWITCH
-47
-226
-229
-259
+55
+220
+237
+253
 show-dark-fireflies?
 show-dark-fireflies?
 1
@@ -182,10 +182,10 @@ show-dark-fireflies?
 -1000
 
 BUTTON
-138
-190
-226
-223
+150
+140
+240
+173
 go
 go
 T
@@ -201,7 +201,7 @@ NIL
 PLOT
 11
 268
-295
+286
 467
 Flashing Fireflies
 Time
@@ -217,10 +217,10 @@ PENS
 "flashing" 1.0 0 -2674135 true "" "plot count turtles with [color = yellow]"
 
 CHOOSER
-82
-72
-220
-117
+55
+50
+240
+95
 strategy
 strategy
 "delay" "advance"
@@ -628,5 +628,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
