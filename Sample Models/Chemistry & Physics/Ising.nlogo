@@ -182,7 +182,7 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This is a model of a magnet at the microscopic level. It is a classic model of condensed matter physics. A crystalline material is conceived of as a set of lattice points with spins. The spins (magnetic moments) of the atoms in the magnet can either be up or down.  Spins can change as a result of being influenced by neighboring spins and by the ambient temperature. Spins prefer to align with their neighbors. The overall behavior of the system will vary depending on the temperature.
+This is a model of a magnet at the microscopic level. It is a classic model of condensed matter physics. A crystalline material is conceived of as a set of lattice points with spins. The spins (magnetic moments) of the atoms in the magnet can either be up or down. Spins can change as a result of being influenced by neighboring spins and by the ambient temperature. Spins prefer to align with their neighbors. The overall behavior of the system will vary depending on the temperature.
 
 The first version of the model worked on by the physicist Ising was on a 1D lattice. Twenty years later, the physicist Onsager analytically solved the 2D Ising model (the model presented here) and showed that at low temperatures, the spins will tend to align, causing the material to spontaneously magnetize.
 
@@ -196,7 +196,9 @@ We represent the two possible spin states with the numbers +1 or -1. Spins of +1
 
 The energy at each spin is defined as the negative of the sum of the products of the spin with each of its neighboring four spins. So for example if a spin is surrounded by four opposing spins, then the energy is 4, the maximum possible. But if a spin is surrounded by four like spins, then the energy is -4, the minimum possible. Basically, the energy measures how many like or opposite neighbors the spin has.
 
-A spin decides whether to "flip" to its opposite as follows. The spins are seeking a low energy state, so a spin will always flip if flipping would decrease its energy. But the spins sometimes also flip into a higher energy state. We calculate the exact probability of flipping using the Metropolis algorithm, which works as follows. Call the potential gain in energy Ediff.Then the probability of flipping is e<sup>-Ediff / temperature</sup>.
+A spin decides whether to "flip" to its opposite as follows. The spins are seeking a low energy state, so a spin will always flip if flipping would decrease its energy. But the spins sometimes also flip into a higher energy state. We calculate the exact probability of flipping using the Metropolis algorithm, which works as follows. Call the potential gain in energy Ediff. Then the probability of flipping is:
+
+e<sup>-Ediff / temperature</sup>.
 
 The gist of this formula is that as the temperature increases, flipping to a higher energy state becomes increasingly likely, but as the energy to be gained by flipping increases, the likelihood of flipping decreases. You could use a different formula with the same gist, but the Metropolis algorithm is most commonly used.
 
