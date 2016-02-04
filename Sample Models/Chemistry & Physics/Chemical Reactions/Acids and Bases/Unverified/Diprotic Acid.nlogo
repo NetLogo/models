@@ -52,8 +52,6 @@ to setup
   ;;randomizes position and headings
   ask turtles [setxy random-xcor random-ycor]
   reset-ticks
-  plot-molecules
-  plot-ph
 end
 
 to go ;;main turtle procedure
@@ -62,7 +60,6 @@ to go ;;main turtle procedure
   ask turtles [fd 1]
   calculate-ions
   tick
-  if (ticks > 30) [plot-pH plot-molecules]
 end
 
 
@@ -225,25 +222,6 @@ to record-pH
   plot pH
 end
 
-to plot-pH
-  set-current-plot "pH Curve"
-  plot pH
-end
-
-to plot-molecules
-  set-current-plot "Molecule Counts"
-  set-current-plot-pen "con-base"
-  plot count con-bases
-  set-current-plot-pen "acid"
-  plot count acids
-  set-current-plot-pen "hydroxide"
-  plot count hydroxides
-  set-current-plot-pen "hydronium"
-  plot count hydroniums
-  set-current-plot-pen "water"
-  plot count waters
-end
-
 
 ; Copyright 2005 Uri Wilensky.
 ; See Info tab for full copyright and license.
@@ -389,7 +367,7 @@ true
 true
 "" ""
 PENS
-"ph" 1.0 0 -2674135 true "" ""
+"ph" 1.0 0 -2674135 true "" "plot pH"
 
 PLOT
 8
@@ -425,11 +403,11 @@ true
 true
 "" ""
 PENS
-"acid" 1.0 0 -1184463 true "" ""
-"hydronium" 1.0 0 -10899396 true "" ""
-"con-base" 1.0 0 -5825686 true "" ""
-"hydroxide" 1.0 0 -2674135 true "" ""
-"water" 1.0 0 -13345367 true "" ""
+"acid" 1.0 0 -1184463 true "" "plot count acids"
+"hydronium" 1.0 0 -10899396 true "" "plot count hydroniums"
+"con-base" 1.0 0 -5825686 true "" "plot count con-bases"
+"hydroxide" 1.0 0 -2674135 true "" "plot count hydroxides"
+"water" 1.0 0 -13345367 true "" "plot count waters"
 
 SWITCH
 75
@@ -921,7 +899,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

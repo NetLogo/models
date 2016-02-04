@@ -8,8 +8,6 @@ to setup
   ask patches [ set pcolor white ]
   set-default-shape frogs "frog top"
   setup-individuals
-  growth-plot
-  trait-plot
   reset-ticks
 end
 
@@ -71,8 +69,6 @@ to go
   ]
 
   tick
-  growth-plot
-  trait-plot
 end
 
 to hunt-frogs
@@ -99,22 +95,6 @@ to reproduce
      set resistance random-normal [resistance] of myself 1
    ]
  ]
-end
-
-to growth-plot
-  set-current-plot "populations"
-  set-current-plot-pen "frogs"
-  plot count frogs
-  set-current-plot-pen "snakes"
-  plot count snakes
-end
-
-to trait-plot
-  set-current-plot "traits"
-  set-current-plot-pen "poison"
-  plot average-poison
-  set-current-plot-pen "resistance"
-  plot average-resistance
 end
 
 to-report average-poison
@@ -311,8 +291,8 @@ true
 false
 "" ""
 PENS
-"frogs" 1.0 0 -2674135 true "" ""
-"snakes" 1.0 0 -13345367 true "" ""
+"frogs" 1.0 0 -2674135 true "" "plot count frogs"
+"snakes" 1.0 0 -13345367 true "" "plot count snakes"
 
 PLOT
 202
@@ -330,8 +310,8 @@ true
 false
 "" ""
 PENS
-"poison" 1.0 0 -2674135 true "" ""
-"resistance" 1.0 0 -13345367 true "" ""
+"poison" 1.0 0 -2674135 true "" "plot average-poison"
+"resistance" 1.0 0 -13345367 true "" "plot average-resistance"
 
 SLIDER
 4
@@ -749,7 +729,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

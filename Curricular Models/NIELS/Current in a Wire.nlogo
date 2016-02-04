@@ -93,7 +93,6 @@ to go
   tick
 
   ;; Keep plotting
-  do-plot
 end
 
 
@@ -124,19 +123,6 @@ to move
        ]
      die
    ]
-end
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Plotting procedures ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;
-
-to do-plot
-
-  ;; plot current vs. time
-  set-current-plot "Current vs Time"
-  plotxy ticks (charge-flow) / ticks
-
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -301,7 +287,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" ""
+"default" 1.0 0 -16777216 true "" "if ticks > 0 [ plotxy ticks (charge-flow) / ticks ]"
 
 MONITOR
 313
@@ -791,7 +777,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

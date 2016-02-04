@@ -108,11 +108,6 @@ to go
       set xcor (- 2) ]
   ]
   tick
-
-  ;; Keep plotting
-  if ticks > 20
-  [ do-plot ]
-
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -151,18 +146,6 @@ to move
       ]
     die
   ]
-end
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Plotting procedures ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;
-to do-plot
-  set-current-plot "Current"
-  set-current-plot-pen "left current"
-  plotxy ticks charge-flow-left / ticks
-  set-current-plot-pen "right current"
-  plotxy ticks charge-flow-right / ticks
 end
 
 
@@ -246,8 +229,8 @@ true
 true
 "" ""
 PENS
-"left current" 1.0 0 -16777216 true "" ""
-"right current" 1.0 0 -13345367 true "" ""
+"left current" 1.0 0 -16777216 true "" "if ticks > 20 [ plotxy ticks charge-flow-left / ticks ]"
+"right current" 1.0 0 -13345367 true "" "if ticks > 20 [ plotxy ticks charge-flow-right / ticks ]"
 
 MONITOR
 275
@@ -840,7 +823,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.1
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
