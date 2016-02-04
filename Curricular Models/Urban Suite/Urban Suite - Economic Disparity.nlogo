@@ -127,7 +127,6 @@ to go
   if count (poor) >= 20 [kill-poor]
   if count (jobs) >= max-jobs [kill-service]
   update-view
-  do-plots
   tick
 end
 
@@ -304,29 +303,6 @@ to update-patch-color
   ]]]]]
 end
 
-;;
-;; Plotting Procedure
-;;
-
-to do-plots
-  let r-total 0
-  let p-total 0
-  let step 0
-  let r-time 0
-  let p-time 0
-
-  set-current-plot "Travel Distance"
-  set r-total 0
-  set r-time 0
-  set p-total 0
-  set p-time 0
-  set-current-plot-pen "rich"
-  plot median [ min [distance myself] of jobs ] of rich
-
-  set-current-plot-pen "poor"
-  plot median [ min [distance myself] of jobs ] of poor
-end
-
 
 ; Copyright 2007 Uri Wilensky.
 ; See Info tab for full copyright and license.
@@ -423,8 +399,8 @@ true
 true
 "" ""
 PENS
-"rich" 1.0 0 -3508570 true "" ""
-"poor" 1.0 0 -14070903 true "" ""
+"rich" 1.0 0 -3508570 true "" "plot median [ min [distance myself] of jobs ] of rich"
+"poor" 1.0 0 -14070903 true "" "plot median [ min [distance myself] of jobs ] of poor"
 
 BUTTON
 218
@@ -1048,7 +1024,7 @@ Polygon -6459832 true true 46 128 33 120 21 118 11 123 3 138 5 160 13 178 9 192 
 Polygon -6459832 true true 67 122 96 126 63 144
 
 @#$#@#$#@
-NetLogo 5.3
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

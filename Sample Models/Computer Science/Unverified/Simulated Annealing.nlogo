@@ -9,7 +9,6 @@ to setup
   ]
   ask patches [ update-visual ]
   set global-energy (sum [find-energy] of patches )
-  plot global-energy
   set temperature 1
   reset-ticks
 end
@@ -25,7 +24,6 @@ to go
   ; we lower the temperature after 1000 attempted swaps
   set temperature temperature * (1 - cooling-rate / 100)
   set global-energy (sum [find-energy] of patches )
-  plot global-energy
   tick
 end
 
@@ -226,7 +224,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -2674135 true "" ""
+"default" 1.0 0 -2674135 true "" "plot global-energy"
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -591,7 +589,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

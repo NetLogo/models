@@ -243,6 +243,73 @@ class CodeTests extends TestModels {
     } yield token.name).toSet
   }
 
+  val plotInCodeExceptions = Set(
+    // Some of the following models probably could (carefully) be
+    // converted to have all their plotting code in the plots:
+    "4 Block Two Stalagmites",
+    "4 Blocks",
+    "Artificial Neural Net - Perceptron",
+    "BeeSmart Hive Finding",
+    "Bug Hunt Predators and Invasive Species - Two Regions",
+    "Bug Hunt Environmental Changes",
+    "Bug Hunt Disruptions",
+    "Bug Hunt Coevolution",
+    "Central Limit Theorem",
+    "Connected Chemistry 3 Circular Particles",
+    "Connected Chemistry 5 Temperature and Pressure",
+    "Connected Chemistry 6 Volume and Pressure",
+    "Connected Chemistry 8 Gas Particle Sandbox",
+    "Decay",
+    "Diprotic Acid",
+    "Doppler",
+    "Enzyme Kinetics",
+    "Equidistant Probability",
+    "Expected Value Advanced",
+    "Expected Value",
+    "GasLab Atmosphere",
+    "GasLab Circular Particles",
+    "GasLab Free Gas",
+    "GasLab Free Gas 3D",
+    "GasLab Gas in a Box",
+    "GasLab Gravity Box",
+    "GasLab Heat Box",
+    "GasLab Isothermal Piston",
+    "GasLab Moving Piston",
+    "GasLab Second Law",
+    "Histo Blocks",
+    "Minority Game",
+    "Prob Graphs Basic",
+    "ProbLab Genetics",
+    "Robby the Robot",
+    "Sample Stalagmite",
+    "Sampler Solo",
+    "Sandpile 3D",
+    "Solid Diffusion",
+    "Strong Acid",
+    "Tabonuco Yagrumo Hybrid",
+    "Tabonuco Yagrumo",
+    "Urban Suite - Cells",
+    "Weak Acid",
+    // The "Wolf Sheep Simple" models from the IABM textbook
+    // demonstrate in-code plotting for pedagogical reasons.
+    // They should *not* be converted, ever.
+    "Wolf Sheep Simple 2",
+    "Wolf Sheep Simple 3",
+    "Wolf Sheep Simple 4",
+    "Wolf Sheep Simple 5"
+  )
+
+  testModels("Plotting commands should not be in the main code") { model =>
+    if (plotInCodeExceptions.contains(model.name) ||
+      model.name.contains("HubNet")) // give a pass to HubNet models for now
+      Seq.empty
+    else (for {
+      token <- model.codeTokens
+      if token.tyype == COMMAND
+      if Set("plot", "plotxy") contains token.name.toLowerCase
+    } yield token.name).toSet
+  }
+
   /* Currently commented out because it generates far too much noise
    * in the test reports. Will enable officially once the test passes.
    * NP 2015-08-20

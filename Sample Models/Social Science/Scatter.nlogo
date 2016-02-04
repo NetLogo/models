@@ -157,17 +157,6 @@ to avoid-walls ;; turtle procedure
   [ rt 180 ]
 end
 
-;;
-;; PLOTTING
-;;
-
-;; if there are any turtles with turtle-rule as their rule, plot the
-;; mean distance from the origin
-to plot-rule-mean [turtle-rule]
-  if any? (turtles with [rule = turtle-rule])
-  [ plot mean [distance origin] of (turtles with [rule = turtle-rule]) ]
-end
-
 
 ; Copyright 2004 Uri Wilensky.
 ; See Info tab for full copyright and license.
@@ -337,13 +326,13 @@ average distance
 100.0
 true
 false
-"set-plot-x-range 0 30\nset-plot-y-range  0 5 ; set initial y range to half of height" ""
+"set-plot-x-range 0 30\nset-plot-y-range  0 5 ; set initial y range to half of height" "foreach [ \"random-min\" \"random-away\" \"random\" \"open-min\" \"open-min-max\" ] [\n  ;; if there are any turtles with turtle-rule as their rule,\n  ;; plot the mean distance from the origin\n  if any? turtles with [ rule = ? ] [\n    set-current-plot-pen ?\n    plot mean [ distance origin ] of turtles with [ rule = ? ]\n  ]\n]"
 PENS
-"random-min" 1.0 0 -8630108 true "" "plot-rule-mean \"random-min\""
-"random-away" 1.0 0 -2064490 true "" "plot-rule-mean \"random-away\""
-"random" 1.0 0 -6459832 true "" "plot-rule-mean \"random\""
-"open-min" 1.0 0 -13345367 true "" "plot-rule-mean \"open-min\""
-"open-min-max" 1.0 0 -955883 true "" "plot-rule-mean \"open-min-max\""
+"random-min" 1.0 0 -8630108 true "" ""
+"random-away" 1.0 0 -2064490 true "" ""
+"random" 1.0 0 -6459832 true "" ""
+"open-min" 1.0 0 -13345367 true "" ""
+"open-min-max" 1.0 0 -955883 true "" ""
 
 SLIDER
 724
@@ -872,7 +861,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 set too-close 1.5
 set too-far 2.0

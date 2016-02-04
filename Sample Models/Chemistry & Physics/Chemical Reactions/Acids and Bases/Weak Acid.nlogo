@@ -35,7 +35,6 @@ to setup
   set base-added 0
   calculate-pH
   reset-ticks
-  plot-pH
 end
 
 to go
@@ -48,9 +47,8 @@ to go
     [ fd 1
       rt random 10
       lt random 10 ]
-  tick
   calculate-pH
-  plot-pH
+  tick
 end
 
 ;; adds base molecules to the solution
@@ -129,13 +127,6 @@ to calculate-pH
       [ set pH (- log (concH / 1000) 10) ]
       [ let pOH (- log (concOH / 1000) 10)
         set pH 14 - pOH ] ]
-end
-
-;; plotting procedures
-
-to plot-pH
-  set-current-plot "pH Curve"
-  plot pH
 end
 
 to record-pH
@@ -317,7 +308,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -2674135 true "" ""
+"default" 1.0 0 -2674135 true "" "plot pH"
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -726,7 +717,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
