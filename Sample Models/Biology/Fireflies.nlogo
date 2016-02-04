@@ -253,7 +253,7 @@ FLASH-LENGTH: sets the duration, in ticks, of each flash.
 
 STRATEGY: sets the synchronization strategy to be used. One value is phase delay, where upon seeing FLASHES-TO-RESET flashes a firefly will reset its clock to the FLASH-LENGTH (just after a flash would normally occur). This causes the firefly to synchronize with the next flash of the firefly it is responding to. The other value is phase advance, where upon seeing FLASHES-TO-RESET flashes a firefly will reset its clock to zero. This causes the firefly to flash immediately. Under phase advance, fireflies can only begin to reset their clocks during a window which begins two ticks after they have flashed. This assures that flashes do not get stuck in a short cycle where they persistently reset their clocks and stay lit indefinitely.
 
-SHOW-DARK-FIREFLIES: if switch set to on, non-flashing fireflies are displayed in gray. If switch set to off, non-flashing fireflies are colored black and, thus, invisible.
+SHOW-DARK-FIREFLIES?: if switch set to on, non-flashing fireflies are displayed in gray. If switch set to off, non-flashing fireflies are colored black and, thus, invisible.
 
 All settings (except SHOW-DARK-FIREFLIES) must be set before pressing the SETUP button. Changes to the sliders (except SHOW-DARK-FIREFLIES) will have no effect on a simulation in progress.
 
@@ -267,7 +267,7 @@ In this model fireflies cannot reset their cycle when they are in the middle of 
 
 ## THINGS TO TRY
 
-Run the model with the "delay"strategy in the default settings.  Change FLASHES-TO-RESET to 2, and run the model with the "advance" strategy (while keeping the other settings steady). Which strategy seems more effective? Why?
+Run the model with the "delay" strategy in the default settings.  Change FLASHES-TO-RESET to 2, and run the model with the "advance" strategy (while keeping the other settings steady). Which strategy seems more effective? Why?
 
 Try adjusting FLASHES-TO-RESET between 0, 1 and 2 using both phase delay and phase advance settings. Notice that each setting will give a characteristically different plot, and some of them do not allow for synchronization at all (for example, with the delay strategy, contrast FLASHES-TO-RESET set to 1 as opposed to 2). Why does this control make such a difference in the outcome of the simulation?
 
