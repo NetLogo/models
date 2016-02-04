@@ -259,7 +259,7 @@ STRATEGY: sets the synchronization strategy to be used when a firefly sees enoug
 
 SHOW-DARK-FIREFLIES?: if switch set to on, non-flashing fireflies are displayed in gray. If switch set to off, non-flashing fireflies are colored black and, thus, invisible.
 
-All settings (except SHOW-DARK-FIREFLIES) must be set before pressing the SETUP button. Changes to the sliders (except SHOW-DARK-FIREFLIES) will have no effect on a simulation in progress.
+Some settings need to be set before pressing the SETUP button. Changes to the NUMBER, STRATEGY and FLASH-LENGTH sliders will have no effect on a simulation in progress. FLASHES-TO-RESET, CYCLE-LENGTH and SHOW-DARK-FIREFLIES?, on the other hand, can be modified and _will_ have an effect while the simulation is running.
 
 ## THINGS TO NOTICE
 
