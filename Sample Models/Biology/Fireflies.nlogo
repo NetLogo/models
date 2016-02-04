@@ -67,9 +67,9 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-301
+300
 10
-737
+736
 467
 35
 35
@@ -94,10 +94,10 @@ ticks
 30.0
 
 SLIDER
-9
-37
-282
-70
+10
+10
+285
+43
 number
 number
 0
@@ -109,10 +109,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-54
-154
-211
-187
+150
+180
+285
+213
 cycle-length
 cycle-length
 5
@@ -124,10 +124,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-146
-118
-282
-151
+55
+100
+240
+133
 flash-length
 flash-length
 1
@@ -139,10 +139,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-11
-118
-145
-151
+10
+180
+144
+213
 flashes-to-reset
 flashes-to-reset
 1
@@ -154,10 +154,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-48
-190
-136
-223
+55
+140
+143
+173
 setup
 setup
 NIL
@@ -171,10 +171,10 @@ NIL
 1
 
 SWITCH
-47
-226
-229
-259
+55
+220
+237
+253
 show-dark-fireflies?
 show-dark-fireflies?
 1
@@ -182,10 +182,10 @@ show-dark-fireflies?
 -1000
 
 BUTTON
-138
-190
-226
-223
+150
+140
+240
+173
 go
 go
 T
@@ -201,7 +201,7 @@ NIL
 PLOT
 11
 268
-295
+286
 467
 Flashing Fireflies
 Time
@@ -217,10 +217,10 @@ PENS
 "flashing" 1.0 0 -2674135 true "" "plot count turtles with [color = yellow]"
 
 CHOOSER
-82
-72
-220
-117
+55
+50
+240
+95
 strategy
 strategy
 "delay" "advance"
@@ -247,15 +247,19 @@ NUMBER: sets the number of fireflies to be created.
 
 CYCLE-LENGTH: sets the length of each firefly's clock before it resets to 0.
 
-FLASHES-TO-RESTART: sets the number of flashes a firefly must see in a single tick before its clock resets.
+FLASHES-TO-RESET: sets the number of flashes a firefly must see in a single tick before its clock resets.
 
 FLASH-LENGTH: sets the duration, in ticks, of each flash.
 
-STRATEGY: sets the synchronization strategy to be used. One value is phase delay, where upon seeing FLASHES-TO-RESTART flashes a firefly will reset its clock to the FLASH-LENGTH tick (just after a flash would normally occur). This causes the firefly to synchronize with the next flash of the firefly it is responding to. The other value is phase advance, where upon seeing FLASHES-TO-RESTART flashes a firefly will reset its clock to zero. This causes the firefly to flash immediately. Under phase advance, fireflies can only begin to reset their clocks during a window which begins two ticks after they have flashed. This assures that flashes do not get stuck in a short cycle where they persistently reset their clocks and stay lit indefinitely.
+STRATEGY: sets the synchronization strategy to be used when a firefly sees enough other fireflies flashing around it (where "enough" is defined by FLASHES-TO-RESET). There are two possible strategies:
 
-SHOW-DARK-FIREFLIES: if switch set to on, non-flashing fireflies are displayed in gray. If switch set to off, non-flashing fireflies are colored black and, thus, invisible.
+- **"delay"**: the firefly resets its clock to the FLASH-LENGTH (just after a flash would normally occur). This causes the firefly to synchronize with the next flash of the firefly it is responding to.
 
-All settings (except SHOW-DARK-FIREFLIES) must be set before pressing the SETUP button. Changes to the sliders (except SHOW-DARK-FIREFLIES) will have no effect on a simulation in progress.
+- **"advance"**: the firefly flashes immediately. When using this strategy, fireflies can only begin to reset their clocks during a window which begins two ticks after they have flashed. This ensures that flashes do not get stuck in a short cycle where they persistently reset their clocks and stay lit indefinitely.
+
+SHOW-DARK-FIREFLIES?: if switch set to on, non-flashing fireflies are displayed in gray. If switch set to off, non-flashing fireflies are colored black and, thus, invisible.
+
+Some settings need to be set before pressing the SETUP button. Changes to the NUMBER, STRATEGY and FLASH-LENGTH sliders will have no effect on a simulation in progress. FLASHES-TO-RESET, CYCLE-LENGTH and SHOW-DARK-FIREFLIES?, on the other hand, can be modified and _will_ have an effect while the simulation is running.
 
 ## THINGS TO NOTICE
 
@@ -267,7 +271,7 @@ In this model fireflies cannot reset their cycle when they are in the middle of 
 
 ## THINGS TO TRY
 
-Run the model with the "delay"strategy in the default settings.  Change FLASHES-TO-RESET to 2, and run the model with the "advance" strategy (while keeping the other settings steady). Which strategy seems more effective? Why?
+Run the model with the "delay" strategy in the default settings.  Change FLASHES-TO-RESET to 2, and run the model with the "advance" strategy (while keeping the other settings steady). Which strategy seems more effective? Why?
 
 Try adjusting FLASHES-TO-RESET between 0, 1 and 2 using both phase delay and phase advance settings. Notice that each setting will give a characteristically different plot, and some of them do not allow for synchronization at all (for example, with the delay strategy, contrast FLASHES-TO-RESET set to 1 as opposed to 2). Why does this control make such a difference in the outcome of the simulation?
 
@@ -606,7 +610,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -624,5 +628,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
