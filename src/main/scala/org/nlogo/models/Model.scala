@@ -98,10 +98,14 @@ case class Model(
       name.replaceFirst(" 3D$", "")
     else name
   def behaviorSpaceXML = XML.loadString(behaviorSpace)
-  lazy val tokens: Seq[Token] = {
+  lazy val (codeTokens, previewCommandsTokens, widgetTokens, tokens) = {
     val widgetCode = WidgetParser.parseWidgets(interface.lines.toArray).mkString("\n")
     val tokenizer = if (is3D) Tokenizer3D else Tokenizer2D
-    tokenizer.tokenize(code + previewCommands + widgetCode)
+    val codeTokens = tokenizer.tokenize(code)
+    val previewCommandsTokens = tokenizer.tokenize(previewCommands)
+    val widgetTokens = tokenizer.tokenize(widgetCode)
+    val allTokens = codeTokens ++ previewCommandsTokens ++ widgetTokens
+    (codeTokens, previewCommandsTokens, widgetTokens, allTokens)
   }
   def primitiveTokenNames: Seq[String] = tokens
     .filter(t => t.tyype == REPORTER || t.tyype == COMMAND || t.tyype == VARIABLE)
