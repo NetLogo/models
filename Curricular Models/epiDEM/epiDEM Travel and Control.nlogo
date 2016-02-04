@@ -25,7 +25,7 @@ turtles-own
 
   ambulance?           ;; If true, the person is an ambulance and will transport infected people to the hospital.
 
-  susceptible-0        ;; Tracks whether the person was initially susceptible
+  susceptible?         ;; Tracks whether the person was initially susceptible
   nb-infected          ;; Number of secondary infections caused by an infected person at the end of the tick
   nb-recovered         ;; Number of recovered people at the end of the tick
 ]
@@ -64,7 +64,7 @@ to setup-people
       set hospitalized? false
       set ambulance? false
       set infected? false
-      set susceptible-0 1
+      set susceptible? true
 
       assign-tendency
 
@@ -77,13 +77,13 @@ to setup-people
       ;; Each individual has a 5% chance of starting out infected
       if (random-float 100 < 5)
       [ set infected? true
-        set susceptible-0 0
+        set susceptible? false
         set infection-length random recovery-time
       ]
 
       ifelse (not infected?) and (random-float 100 < inoculation-chance)
         [ set inoculated? true
-          set susceptible-0 0 ]
+          set susceptible? false ]
         [ set inoculated? false ]
 
       assign-color
@@ -110,6 +110,7 @@ to setup-ambulance
     set hospitalized? false
     set infected? false
     set inoculated? false
+    set susceptible? false
 
     set ambulance? true
 
@@ -398,7 +399,7 @@ to calculate-r0
   let new-recovered sum [ nb-recovered ] of turtles
   set nb-infected-previous (count turtles with [ infected? ] + new-recovered - new-infected)  ;; Number of infected people at the previous tick
   let susceptible-t (initial-people - (count turtles with [ infected? ]) - (count turtles with [ cured? ]))  ;; Number of susceptibles now
-  let s0 sum [ susceptible-0 ] of turtles  ;; Initial number of susceptibles
+  let s0 count turtles with [ susceptible? ] ;; Initial number of susceptibles
 
   ifelse nb-infected-previous < 10
   [ set beta-n 0 ]

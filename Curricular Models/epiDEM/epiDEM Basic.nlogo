@@ -15,7 +15,7 @@ turtles-own
   infected?           ;; If true, the person is infected
   cured?              ;; If true, the person has lived through an infection.
                       ;; They cannot be re-infected.
-  susceptible-0       ;; Initial number of susceptible people
+  susceptible?        ;; Tracks whether the person was initially susceptible
   infection-length    ;; How long the person has been infected
   recovery-time       ;; Time (in hours) it takes before the person has a chance to recover from the infection
   nb-infected         ;; Number of secondary infections caused by an
@@ -41,7 +41,7 @@ to setup-people
     setxy random-xcor random-ycor
     set cured? false
     set infected? false
-    set susceptible-0 1
+    set susceptible? true
 
     set shape "person"
     set color white
@@ -61,7 +61,7 @@ to setup-people
     if (random-float 100 < 5)
     [
       set infected? true
-      set susceptible-0 0
+      set susceptible? false
       set infection-length random recovery-time
     ]
     assign-color
@@ -164,7 +164,7 @@ to calculate-r0
     count turtles with [ cured? ]
 
   ;; Initial number of susceptibles:
-  let s0 sum [ susceptible-0 ] of turtles
+  let s0 count turtles with [ susceptible? ]
 
   ifelse nb-infected-previous < 10
   [ set beta-n 0 ]
