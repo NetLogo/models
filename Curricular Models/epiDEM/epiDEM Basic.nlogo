@@ -17,7 +17,7 @@ turtles-own
                       ;; They cannot be re-infected.
   susceptible-0       ;; Initial number of susceptible people
   infection-length    ;; How long the person has been infected
-  recovery-time       ;; Time (in hours) it takes to recover from the infection
+  recovery-time       ;; Time (in hours) it takes before the person has a chance to recover from the infection
   nb-infected         ;; Number of secondary infections caused by an
                       ;; infected person at the end of the tick
   nb-recovered        ;; Number of recovered people at the end of the tick

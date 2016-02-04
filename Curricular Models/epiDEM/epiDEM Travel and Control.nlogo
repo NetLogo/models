@@ -17,7 +17,7 @@ turtles-own
   hospitalized?        ;; If true, the person is hospitalized and will recovery in half the average-recovery-time.
 
   infection-length     ;; How long the person has been infected.
-  recovery-time        ;; Time (in hours) it takes to recover from the infection
+  recovery-time        ;; Time (in hours) it takes before the person has a chance to recover from the infection
   isolation-tendency   ;; Chance the person will self-quarantine during any hour being infected.
   hospital-going-tendency ;; Chance that an infected person will go to the hospital when infected
 
