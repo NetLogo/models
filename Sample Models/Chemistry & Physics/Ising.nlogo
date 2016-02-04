@@ -204,6 +204,8 @@ The gist of this formula is that as the temperature increases, flipping to a hig
 
 To run the model, we repeatedly pick a single random spin and give it the chance to flip.
 
+In real world materials, many flips can happen at once. In our idealized model, each step in the algorithm corresponds to an attempted flip, not to the passage of time as it would occur in the physical world.
+
 ## HOW TO USE IT
 
 Choose an initial temperature with the TEMPERATURE slider, then press SETUP to set up the grid and give each spin a random initial state.
