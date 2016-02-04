@@ -82,7 +82,7 @@ GRAPHICS-WINDOW
 1
 1
 1
-ticks
+attempted flips
 1000.0
 
 BUTTON
@@ -182,7 +182,7 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This is a model of a magnet at the microscopic level. It is a classic model of condensed matter physics. A crystalline material is conceived of as a set of lattice points with spins. The spins (magnetic moments) of the atoms in the magnet can either be up or down.  Spins can change as a result of being influenced by neighboring spins and by the ambient temperature. Spins prefer to align with their neighbors. The overall behavior of the system will vary depending on the temperature.
+This is a model of a magnet at the microscopic level. It is a classic model of condensed matter physics. A crystalline material is conceived of as a set of lattice points with spins. The spins (magnetic moments) of the atoms in the magnet can either be up or down. Spins can change as a result of being influenced by neighboring spins and by the ambient temperature. Spins prefer to align with their neighbors. The overall behavior of the system will vary depending on the temperature.
 
 The first version of the model worked on by the physicist Ising was on a 1D lattice. Twenty years later, the physicist Onsager analytically solved the 2D Ising model (the model presented here) and showed that at low temperatures, the spins will tend to align, causing the material to spontaneously magnetize.
 
@@ -196,11 +196,15 @@ We represent the two possible spin states with the numbers +1 or -1. Spins of +1
 
 The energy at each spin is defined as the negative of the sum of the products of the spin with each of its neighboring four spins. So for example if a spin is surrounded by four opposing spins, then the energy is 4, the maximum possible. But if a spin is surrounded by four like spins, then the energy is -4, the minimum possible. Basically, the energy measures how many like or opposite neighbors the spin has.
 
-A spin decides whether to "flip" to its opposite as follows. The spins are seeking a low energy state, so a spin will always flip if flipping would decrease its energy. But the spins sometimes also flip into a higher energy state. We calculate the exact probability of flipping using the Metropolis algorithm, which works as follows. Call the potential gain in energy Ediff.Then the probability of flipping is e<sup>-Ediff / temperature</sup>.
+A spin decides whether to "flip" to its opposite as follows. The spins are seeking a low energy state, so a spin will always flip if flipping would decrease its energy. But the spins sometimes also flip into a higher energy state. We calculate the exact probability of flipping using the Metropolis algorithm, which works as follows. Call the potential gain in energy Ediff. Then the probability of flipping is:
+
+e<sup>-Ediff / temperature</sup>.
 
 The gist of this formula is that as the temperature increases, flipping to a higher energy state becomes increasingly likely, but as the energy to be gained by flipping increases, the likelihood of flipping decreases. You could use a different formula with the same gist, but the Metropolis algorithm is most commonly used.
 
 To run the model, we repeatedly pick a single random spin and give it the chance to flip.
+
+In real world materials, many flips can happen at once. In our idealized model, each step in the algorithm corresponds to an attempted flip, not to the passage of time as it would occur in the physical world.
 
 ## HOW TO USE IT
 
@@ -246,7 +250,13 @@ At each iteration, we give a fixed number of spins a chance to flip.  There are 
 
 ## NETLOGO FEATURES
 
-This model makes 1000 attempted flips in every iteration of the `GO` loop. It codes this as `repeat 1000 [ update ]`. Note that this does not change the core Ising algorithm that does one attempted patch flip at a time.
+This model makes 1000 attempted flips in every iteration of the `GO` loop. It codes this as:
+
+    repeat 1000 [
+      ask one-of patches [ update ]
+    ]
+
+Note that this does not change the core Ising algorithm that does one attempted patch flip at a time.
 
 However, this approach does necessitate a departure from the usual NetLogo practice of calling `tick` at the end of the `GO` procedure. If we called `tick` at the end, then the tick counter would advance only once for every 1000 attempted flips and the Ising model measures the magnetization at every attempted flip. We therefore use `tick-advance` primitive to advance the NetLogo clock and sync it up with the traditional Ising model. Because the `tick-advance` primitive doesn't update the NetLogo plots, we have to explicitly call `update-plots`.
 
@@ -596,7 +606,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
