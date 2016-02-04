@@ -1,6 +1,5 @@
 globals
 [
-  recovery-time        ;; Time (in hours) it takes to recover from the infection
   nb-infected-previous ;; Number of infected people at the previous tick
   border               ;; The patches representing the yellow border
   angle                ;; Heading for individuals
@@ -18,6 +17,7 @@ turtles-own
   hospitalized?        ;; If true, the person is hospitalized and will recovery in half the average-recovery-time.
 
   infection-length     ;; How long the person has been infected.
+  recovery-time        ;; Time (in hours) it takes to recover from the infection
   isolation-tendency   ;; Chance the person will self-quarantine during any hour being infected.
   hospital-going-tendency ;; Chance that an infected person will go to the hospital when infected
 
@@ -1142,7 +1142,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

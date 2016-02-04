@@ -1,6 +1,5 @@
 globals
 [
-  recovery-time         ;; Time (in hours) it takes to recover from the infection
   nb-infected-previous  ;; Number of infected people at the previous tick
   beta-n                ;; The average number of new secondary
                         ;; infections per infected this tick
@@ -18,6 +17,7 @@ turtles-own
                       ;; They cannot be re-infected.
   susceptible-0       ;; Initial number of susceptible people
   infection-length    ;; How long the person has been infected
+  recovery-time       ;; Time (in hours) it takes to recover from the infection
   nb-infected         ;; Number of secondary infections caused by an
                       ;; infected person at the end of the tick
   nb-recovered        ;; Number of recovered people at the end of the tick
@@ -795,7 +795,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
