@@ -55,24 +55,13 @@ to go
   tick
 end
 
-to make-new-cars
-  if (random-float 100 < freq-north) and not any? turtles-on patch 0 min-pycor
-    [
-      create-turtles 1
-        [ set ycor min-pycor
-          set heading 0
-          set color one-of base-colors
-          set speed min (list clear-ahead speed-limit)
-        ]
-    ]
-  if (random-float 100 < freq-east) and not any? turtles-on patch min-pxcor 0
-    [
-      create-turtles 1
-        [ set xcor min-pxcor
-          set heading 90
-          set color one-of base-colors
-          set speed min (list clear-ahead speed-limit)
-        ]
+to make-new-car [ freq x y h ]
+  if (random-float 100 < freq) and not any? turtles-on patch x y [
+    create-cars 1 [
+      setxy x y
+      set heading h
+      set color one-of base-colors
+      adjust-speed
     ]
   ]
 end
@@ -862,7 +851,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.1
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
