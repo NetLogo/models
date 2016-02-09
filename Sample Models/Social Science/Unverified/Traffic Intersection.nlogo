@@ -92,15 +92,24 @@ to adjust-speed
     ; if there is an obstacle ahead, reduce my speed
     ; until I'm sure I won't hit it on the next tick
     let space-ahead (distance blocked-patch - 1)
-    while [ target-speed + max (list (target-speed - max-brake) 0) > space-ahead ] [
+    while [
+      breaking-distance-at target-speed > space-ahead and
+      target-speed > min-speed
+    ] [
       set target-speed (target-speed - 1)
     ]
-    ; but don't go below my minimum possible speed
-    if target-speed < min-speed [ set target-speed min-speed ]
   ]
 
   set speed target-speed
 
+end
+
+to-report breaking-distance-at [ speed-at-this-tick ] ; car reporter
+  ; If I was to break as hard as I can on the next tick,
+  ; how much distance would I have travelled assuming I'm
+  ; currently going at `speed-this-tick`?
+  let min-speed-at-next-tick max (list (speed-at-this-tick - max-brake) 0)
+  report speed-at-this-tick + min-speed-at-next-tick
 end
 
 to-report next-blocked-patch ; turtle procedure
