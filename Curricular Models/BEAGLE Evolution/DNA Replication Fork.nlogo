@@ -1,41 +1,46 @@
-;;;;;;;;;;;;; small molecules  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-breed [phosphates phosphate]                                 ;; the free floating phosphates that are broken off a nucleoside-tri-phosphate when a nucleotide is formed
-breed [nucleosides nucleoside]                               ;; the free floating nucleoside-tri-phosphates
-breed [nucleotides nucleotide]                               ;; the pieces that are inside the DNA chain
+                                                        ;;;;;;;;;;;;; small molecules  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+breed [phosphates phosphate]                            ;; the free floating phosphates that are broken off a nucleoside-tri-phosphate when a nucleotide is formed
+breed [nucleosides nucleoside]                          ;; the free floating nucleoside-tri-phosphates
+breed [nucleotides nucleotide]                          ;; the pieces that are inside the DNA chain
 
-                                                             ;;;;;;;;;;;;enzymes ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-breed [polymerases polymerase]                               ;; for gearing a hydrogen "old-stair" bond of free nucleosides to existing nucleotides
-breed [helicases helicase]                                   ;; for unzipping a DNA strand
-breed [topoisomerases topoisomerase]                         ;; for unwinding a DNA chromosome
-breed [topoisomerases-gears topoisomerase-gear]              ;; for visualizing a spin in topoisomerases when unwinding a DNA chromosome
-breed [primases primase]                                     ;; for attaching to the first nucleotide on the top strand.  It marks the location where the topoisomerase must be to unwind
+                                                        ;;;;;;;;;;;;enzymes ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+breed [polymerases polymerase]                          ;; for gearing a hydrogen "old-stair" bond of free nucleosides to existing nucleotides
+breed [helicases helicase]                              ;; for unzipping a DNA strand
+breed [topoisomerases topoisomerase]                    ;; for unwinding a DNA chromosome
+breed [topoisomerases-gears topoisomerase-gear]         ;; for visualizing a spin in topoisomerases when unwinding a DNA chromosome
+breed [primases primase]                                ;; for attaching to the first nucleotide on the top strand.
+                                                        ;;   It marks the location where the topoisomerase must be to unwind
 
-                                                             ;;;;;;;;;;;;; label turtles  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-breed [nucleotide-tags nucleotide-tag]                       ;; the turtle tied to the nucleotide that supports a fine tuned placement of the A, G, C, T lettering
-breed [enzyme-tags enzyme-tag]                               ;; the turtle tied to the helicase and polymerase that supports a fine tuned placement of the label
+                                                        ;;;;;;;;;;;;; label turtles  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+breed [nucleotide-tags nucleotide-tag]                  ;; the turtle tied to the nucleotide that supports a fine tuned placement of the A, G, C, T lettering
+breed [enzyme-tags enzyme-tag]                          ;; the turtle tied to the helicase and polymerase that supports a fine tuned placement of the label
 
-                                                             ;;;;;;;;;;;;; visualization turtles ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-breed [mouse-cursors mouse-cursor]                           ;; follows the cursor location
-breed [chromosome-builders initial-chromosomes-builder]       ;; initial temporary construction turtle
+                                                        ;;;;;;;;;;;;; visualization turtles ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+breed [mouse-cursors mouse-cursor]                      ;; follows the cursor location
+breed [chromosome-builders initial-chromosomes-builder] ;; initial temporary construction turtle
 
-                                                             ;;;;;;;;;;;;; links ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-undirected-link-breed [old-stairs old-stair]                 ;; the link between nucleotide base pairs that made the old stairs of the "spiral staircase" in the DNA
-undirected-link-breed [new-stairs new-stair]                 ;; the link between nucleotide base pairs that makes the new stairs of the "spiral staircase" in the replicated DNA
-undirected-link-breed [taglines tagline]                     ;; the link between an agent and where its label agent is.  This allows fine tuned placement of visualizing of labels
-directed-link-breed [gearlines gearline]                     ;; the link between topoisomerase and its topoisomerases-gears
-directed-link-breed [cursor-drags cursor-drag]               ;; the link the mouse-cursor and any other agent it is dragging with it during a mouse-down? event
-directed-link-breed [backbones backbone]                     ;; the link between adjacent nucleotides on the same side of the DNA strand - this represents the sugar backbone of the strand
-                                                             ;;   it allows the entire strand to be wound or unwound
+                                                        ;;;;;;;;;;;;; links ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+undirected-link-breed [old-stairs old-stair]            ;; links between nucleotide base pairs that made the old stairs of the "spiral staircase" in the DNA
+undirected-link-breed [new-stairs new-stair]            ;; links between nucleotide base pairs that makes the new stairs of the "spiral staircase" in the replicated DNA
+undirected-link-breed [taglines tagline]                ;; links between an agent and where its label agent is. This allows fine tuned placement of visualizing of labels
+directed-link-breed [gearlines gearline]                ;; links between topoisomerase and its topoisomerases-gears
+directed-link-breed [cursor-drags cursor-drag]          ;; links the mouse-cursor and any other agent it is dragging with it during a mouse-down? event
+directed-link-breed [backbones backbone]                ;; links between adjacent nucleotides on the same side of the DNA strand -
+                                                        ;;   this represents the sugar backbone of the strand it allows the entire strand to be wound or unwound
 
-                                                             ;;;;;;;;;;;;;;;;;;;turtle variables ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-nucleosides-own [class value place]                          ;; class is top or bottom and copy or original / value is A, G, C, or T /  place is a # of order in sequence
-nucleotides-own [class value place unwound? unzipped-stage]  ;; nucleotides may be any of 4 unzipped-stages (how far the zipper is undone)
-nucleotide-tags-own [value]                                  ;; the value for their label when visualized
-polymerases-own [locked-state]                               ;; locked-state can be four possible values for polymerase for when it is bound to a nucleotide and
-                                                             ;;   responding to confirmation of whether a matched nucleoside is nearby or not
-topoisomerases-own [locked?]                                 ;; locked? is true/false for when the topoisomerase is on the site of the primase
+                                                        ;;;;;;;;;;;;;;;;;;;turtle variables ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+nucleosides-own [class value place]                     ;; class is top or bottom and copy or original / value is A, G, C, or T /  place is a # of order in sequence
+nucleotides-own [                                       ;; nucleotides may be any of 4 unzipped-stages (how far the zipper is undone)
+  class value
+  place unwound?
+  unzipped-stage
+]
+nucleotide-tags-own [value]                             ;; the value for their label when visualized
+polymerases-own [locked-state]                          ;; locked-state can be four possible values for polymerase for when it is bound to a nucleotide and
+                                                        ;;   responding to confirmation of whether a matched nucleoside is nearby or not
+topoisomerases-own [locked?]                            ;; locked? is true/false for when the topoisomerase is on the site of the primase
 
-globals [                                                    ;;;;;;;;;;;;;;;;;;;;globals ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+globals [                                               ;;;;;;;;;;;;;;;;;;;;globals ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   initial-length-dna
   mouse-continuous-down?
 
@@ -78,7 +83,8 @@ globals [                                                    ;;;;;;;;;;;;;;;;;;;
   total-substitution-mutations-bottom-strand
   total-correct-duplications-bottom-strand
 
-  lock-radius           ;; how far away an enzyme must be from a target interaction (with another molecule ) for it to lock those molecules (or itself) into a confirmation state/site
+  lock-radius           ;; how far away an enzyme must be from a target interaction (with another molecule )
+                        ;;   for it to lock those molecules (or itself) into a confirmation state/site
   mouse-drag-radius     ;; how far away a molecule must be in order for the mouse-cursor to link to it and the user to be able to drag it (with mouse-down?
   molecule-step         ;; how far each molecules moves each tick
   wind-angle            ;; angle of winding used for twisting up the DNA
@@ -456,7 +462,12 @@ end
 
 to move-free-molecules
   let all-molecules (turtle-set nucleosides phosphates polymerases helicases topoisomerases)
-  ask all-molecules [if not being-dragged-by-cursor? [fd molecule-step]]  ;; only move the molecules that aren't being dragged by the users mouse cursor (during mouse-down?)
+  ask all-molecules [
+    if not being-dragged-by-cursor? [
+      ;; only move the molecules that aren't being dragged by the users mouse cursor (during mouse-down?)
+      fd molecule-step
+    ]
+  ]
 end
 
 to clean-up-free-phosphates
@@ -488,8 +499,10 @@ to lock-polymerase-to-one-nucleotide
     if count nucleosides-ready-to-gear-to-polymerase = 1 [
       set potential-nucleoside-ready-to-gear-to-polymerase nucleosides-ready-to-gear-to-polymerase
     ]
-    let nucleotides-ready-to-gear-to-polymerase nucleotides with
-      [not any? my-old-stairs and not any? my-new-stairs and (class = "original-dna-bottom" or class = "original-dna-top") and distance myself < lock-radius]  ;; nearby nucleotides (different than nucleosides) that are not stair lined to any other nucleotides
+    let nucleotides-ready-to-gear-to-polymerase nucleotides with [
+      ;; nearby nucleotides (different than nucleosides) that are not stair lined to any other nucleotides
+      not any? my-old-stairs and not any? my-new-stairs and (class = "original-dna-bottom" or class = "original-dna-top") and distance myself < lock-radius
+    ]
 
     if any? nucleotides-ready-to-gear-to-polymerase and all-base-pairs-unwound? and not being-dragged-by-cursor? [
       set target-nucleotide-ready-to-gear-to-polymerase min-one-of nucleotides-ready-to-gear-to-polymerase [distance myself]
@@ -500,18 +513,30 @@ to lock-polymerase-to-one-nucleotide
     ]
 
     if not any? nucleotides-ready-to-gear-to-polymerase or any? other polymerases-here [set locked-state 0]   ;; if no open nucleotide are present then no gearing
-    if any? nucleotides-ready-to-gear-to-polymerase and all-base-pairs-unwound? and potential-nucleoside-ready-to-gear-to-polymerase = nobody and not any? other polymerases-here [set locked-state 1]   ;; if an open nucleotide is present but no nucleosides
-    if target-nucleotide-ready-to-gear-to-polymerase != nobody and all-base-pairs-unwound? and potential-nucleoside-ready-to-gear-to-polymerase != nobody and not any? other polymerases-here   [
+    if any? nucleotides-ready-to-gear-to-polymerase and
+      all-base-pairs-unwound? and
+      potential-nucleoside-ready-to-gear-to-polymerase = nobody and
+      not any? other polymerases-here [
+      ;; if an open nucleotide is present but no nucleosides
+      set locked-state 1
+    ]
+    if target-nucleotide-ready-to-gear-to-polymerase != nobody and
+      all-base-pairs-unwound?
+      and potential-nucleoside-ready-to-gear-to-polymerase != nobody
+      and not any? other polymerases-here [
       set locked-state 2   ;; if an open nucleotide is present and a nucleosides is present
 
-      ifelse ((would-these-nucleotides-pair-correctly? target-nucleotide-ready-to-gear-to-polymerase potential-nucleoside-ready-to-gear-to-polymerase) or (substitutions?)) [
+      ifelse (
+        (would-these-nucleotides-pair-correctly? target-nucleotide-ready-to-gear-to-polymerase potential-nucleoside-ready-to-gear-to-polymerase) or
+        (substitutions?)
+      ) [
         ask potential-nucleoside-ready-to-gear-to-polymerase  [
           ask my-in-cursor-drags  [die]
           ask tagline-neighbors [die]
           set breed nucleotides
           set shape (word "nucleotide-"  value)
           set unwound? true
-          if target-class = "original-dna-top"     [  set heading 180 set class "copy-of-dna-bottom" attach-nucleo-tag 175 0.7]
+          if target-class = "original-dna-top"     [ set heading 180 set class "copy-of-dna-bottom" attach-nucleo-tag 175 0.7]
           if target-class = "original-dna-bottom"  [ set heading 0 set class "copy-of-dna-top" attach-nucleo-tag 5 0.5]
           setxy target-xcor target-ycor
           break-off-phosphates-from-nucleoside
@@ -1479,7 +1504,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.1-RC1
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

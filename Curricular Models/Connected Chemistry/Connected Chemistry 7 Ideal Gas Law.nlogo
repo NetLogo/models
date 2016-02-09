@@ -155,7 +155,12 @@ end
 to cool
   ifelse ( outside-energy > 20 ) [ set outside-energy outside-energy - temp-increment ] [ set outside-energy 0 ]
   if (outside-energy = 0)
-   [ user-message "You are currently trying to cool the walls of the container below absolute zero (OK or -273C).  Absolute zero is the lowest theoretical temperature for all matter in the universe and has never been achieved in a real-world laboratory"]
+   [ user-message (word
+     "You are currently trying to cool the walls of the container below "
+     "absolute zero (OK or -273C).  Absolute zero is the lowest theoretical "
+     "temperature for all matter in the universe and has never been "
+     "achieved in a real-world laboratory")
+   ]
   calculate-wall-color
   ask heated-walls
       [set pcolor wall-color]
@@ -1240,7 +1245,7 @@ false
 Rectangle -7500403 true true 0 0 297 299
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

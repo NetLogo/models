@@ -256,23 +256,83 @@ end
 
 to set-code  ;; outputs the code to the input box, for students to see and modify
   if selected-strategy = "random"
-    [ set user-code ("ifelse-value (random 2 = 0)\n  [DEFECT] \n[COOPERATE]") stop ]
+    [ set user-code (word
+        "ifelse-value (random 2 = 0)\n"
+        "  [DEFECT]\n"
+        "  [COOPERATE]")
+      stop ]
   if selected-strategy = "cooperate"
     [ set user-code ("COOPERATE") stop ]
   if selected-strategy = "defect"
     [ set user-code ("DEFECT") stop ]
   if selected-strategy = "go-by-majority"
-    [ set user-code ("ifelse-value (empty? play-history)\n  [COOPERATE] \n[ \n  ifelse-value (total-defects / (length play-history) > 0.5)\n    [DEFECT] \n  [COOPERATE] \n]") stop ]
+    [ set user-code (word
+        "ifelse-value (empty? play-history)\n"
+        "  [COOPERATE]\n"
+        "  [ \n"
+        "    ifelse-value (total-defects / (length play-history) > 0.5)\n"
+        "      [DEFECT]\n"
+        "      [COOPERATE]\n]")
+      stop ]
   if selected-strategy = "tit-for-tat"
-    [ set user-code ("ifelse-value (empty? play-history)\n  [COOPERATE] \n[ \n  ifelse-value (last play-partner-history = DEFECT)\n    [DEFECT]\n  [COOPERATE] \n]") stop ]
+    [ set user-code (word
+        "ifelse-value (empty? play-history)\n"
+        "  [COOPERATE]\n"
+        "  [\n"
+        "    ifelse-value (last play-partner-history = DEFECT)\n"
+        "      [DEFECT]\n"
+        "      [COOPERATE]\n"
+        "  ]") stop ]
   if selected-strategy = "suspicious-tit-for-tat"
-    [ set user-code ("ifelse-value (empty? play-history)\n  [DEFECT] \n[ \n  ifelse-value (last play-partner-history = DEFECT)\n    [DEFECT]\n  [COOPERATE] \n]") stop ]
+    [ set user-code (word
+        "ifelse-value (empty? play-history)\n"
+        "  [DEFECT]\n"
+        "  [ \n"
+        "    ifelse-value (last play-partner-history = DEFECT)\n"
+        "      [DEFECT]\n"
+        "      [COOPERATE]\n"
+        "  ]")
+      stop ]
   if selected-strategy = "tit-for-two-tats"
-    [ set user-code ("ifelse-value (length play-history < 2 )\n  [COOPERATE] \n[ \n  ifelse-value ((last play-partner-history = DEFECT) and item (length play-partner-history - 2) play-partner-history = DEFECT)\n    [DEFECT] \n  [COOPERATE] \n]") stop ]
+    [ set user-code (word
+        "ifelse-value (length play-history < 2 )\n"
+        "  [COOPERATE]\n"
+        "  [\n"
+        "    ifelse-value ((last play-partner-history = DEFECT) and item (length play-partner-history - 2) play-partner-history = DEFECT)\n"
+        "      [DEFECT]\n"
+        "      [COOPERATE]\n"
+        "  ]")
+      stop ]
   if selected-strategy = "pavlov"
-    [ set user-code ("ifelse-value (empty? play-history) \n[ \n  ifelse-value (random 2 = 0) [DEFECT] [COOPERATE] \n] \n[ \n  ifelse-value (last play-partner-history = DEFECT) \n  [\n    ifelse-value (last play-history = DEFECT)\n      [COOPERATE]\n    [DEFECT]\n  ]\n  [\n    ifelse-value (last play-history = DEFECT)\n      [DEFECT]\n    [COOPERATE]\n  ]\n]") stop ]
+    [ set user-code (word
+        "ifelse-value (empty? play-history) \n"
+        "  [\n"
+        "    ifelse-value (random 2 = 0) [DEFECT] [COOPERATE]\n"
+        "  ]\n"
+        "  [ \n"
+        "    ifelse-value (last play-partner-history = DEFECT)\n"
+        "      [\n"
+        "        ifelse-value (last play-history = DEFECT)\n"
+        "          [COOPERATE]\n"
+        "          [DEFECT]\n"
+        "      ]\n"
+        "      [\n"
+        "        ifelse-value (last play-history = DEFECT)\n"
+        "          [DEFECT]\n"
+        "          [COOPERATE]\n"
+        "      ]\n"
+        "  ]")
+    stop ]
   if selected-strategy = "unforgiving"
-    [ set user-code ("ifelse-value (empty? play-history)\n  [COOPERATE] \n[ \n  ifelse-value ((last play-partner-history = DEFECT) or (last play-history = DEFECT))\n    [DEFECT] \n  [COOPERATE] \n]") stop ]
+    [ set user-code (word
+        "ifelse-value (empty? play-history)\n"
+        "  [COOPERATE] \n"
+        "  [\n"
+        "    ifelse-value ((last play-partner-history = DEFECT) or (last play-history = DEFECT))\n"
+        "      [DEFECT]\n"
+        "      [COOPERATE]\n"
+        "  ]")
+    stop ]
 end
 
 
@@ -478,7 +538,17 @@ to send-info-to-clients
     hubnet-send user-id "Partner's Score:" ([score] of partner)
     hubnet-send user-id "Partner's History:" (map [ ifelse-value (? = true) ["D "] ["C "] ] play-partner-history)
     hubnet-send user-id "Your History:" ( map [ ifelse-value (? = true) ["D "] ["C "] ] play-history)
-    hubnet-send user-id "Points:" (map [ifelse-value ((?1 = false) and (?2 = false)) [C-C] [ifelse-value ((?1 = false) and (?2 = true)) [C-D] [ ifelse-value ((?1 = true) and (?2 = false)) [D-C] [D-D]]]] play-history play-partner-history)
+    hubnet-send user-id "Points:" (map [
+      ifelse-value ((?1 = false) and (?2 = false))
+        [ C-C ]
+        [ ifelse-value ((?1 = false) and (?2 = true))
+            [ C-D ]
+            [ ifelse-value ((?1 = true) and (?2 = false))
+                [ D-C ]
+                [ D-D ]
+            ]
+        ]
+      ] play-history play-partner-history)
   ]
   [
     hubnet-send user-id "Partner's Score:" ("")
@@ -1507,7 +1577,7 @@ Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 ; setup

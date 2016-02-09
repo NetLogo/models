@@ -1,14 +1,29 @@
 breed [fish a-fish]
-breed [fish-parts a-fish-part]      ;; fish parts include fins, tails, and spots - all of which are tied and attached to the main fish body
 
-breed [somatic-cells somatic-cell]  ;; fish are tied to somatic-cells.  Fish are what wander about (the body of the organism), while the somatic cell contains all the genetic information of the organism
-breed [gamete-cells gamete-cell]    ;; sex cells that are hatched from somatic cells through a simplified form of meiosis
-breed [alleles allele]              ;; alleles are tied to somatic cells or gamete cells - 1 allele is assigned to one chromosome
+;; fish parts include fins, tails, and spots - all of
+;; which are tied and attached to the main fish body
+breed [fish-parts a-fish-part]
+
+;; fish are tied to somatic-cells.  Fish are what
+;; wander about (the body of the organism),
+;; while the somatic cell contains all the
+;; genetic information of the organism
+breed [somatic-cells somatic-cell]
+
+;; sex cells that are hatched from somatic cells
+;; through a simplified form of meiosis
+breed [gamete-cells gamete-cell]
+
+;; alleles are tied to somatic cells or gamete
+;; cells - 1 allele is assigned to one chromosome
+breed [alleles allele]
 
 breed [fish-bones a-fish-bones]     ;; used for visualization of fish death
 breed [fish-zygotes a-fish-zygote]  ;; used for visualization of a fish mating event
 
-breed [mouse-cursors mouse-cursor]  ;; used for visualization of different types of mouse actions the user can do in the fish tank - namely removing fish and adding/subtracting dividers
+;; used for visualization of different types of mouse actions the user can do in the
+;; fish tank - namely removing fish and adding/subtracting dividers
+breed [mouse-cursors mouse-cursor]
 
 fish-own          [sex bearing]
 somatic-cells-own [sex]
@@ -27,7 +42,8 @@ globals [
   #-big-G-alleles  #-small-g-alleles
   #-y-chromosomes  #-x-chromosomes
 
-  ;; globals for keeping track of default values for shapes and colors used for phenotypes
+  ;; globals for keeping track of default values for
+  ;; shapes and colors used for phenotypes
   water-color
   green-dorsal-fin-color  no-green-dorsal-fin-color
   yellow-tail-fin-color   no-yellow-tail-fin-color
@@ -42,20 +58,25 @@ globals [
   #-of-forked-tails       #-of-no-forked-tails
   #-of-males              #-of-females
 
-  mouse-continuous-down?      ;; keeps track of whether the mouse button was down on last tick
+  ;; keeps track of whether the mouse button was down on last tick
+  mouse-continuous-down?
 
   num-fish-removed
   num-fish-born
   num-fish-in-tank
   fish-forward-step      ;; size of movement steps each tick
   gamete-forward-step    ;; size of movement steps each tick
-  intra-chromosome-pair-spacing inter-chromosome-pair-spacing  ;; used for spacing the chromosomes out in the karyotypes of the somatic cells and gametes
+
+  ;; used for spacing the chromosomes out in the
+  ;; karyotypes of the somatic cells and gametes
+  intra-chromosome-pair-spacing
+  inter-chromosome-pair-spacing
+
   size-of-karyotype-background-for-cells
 
   initial-#-females
   initial-#-males
 ]
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;; setup procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -70,7 +91,10 @@ to setup
   set num-fish-removed 0
   set num-fish-born 0
   set num-fish-in-tank 0
-  set size-of-karyotype-background-for-cells 5.2   ;;; the size of the large pink rectangle used as the background for the cell or karyotype of the cell
+
+  ;; the size of the large pink rectangle used as the
+  ;; background for the cell or karyotype of the cell
+  set size-of-karyotype-background-for-cells 5.2
 
   set initial-#-females (floor ((initial-females / 100) * carrying-capacity))
   set initial-#-males carrying-capacity - initial-#-females
@@ -91,7 +115,12 @@ to setup
   set-default-shape somatic-cells "cell-somatic"
   set-default-shape fish-bones    "fish-bones"
 
-  create-mouse-cursors 1 [set shape "x" set hidden? true set color red set heading 0]
+  create-mouse-cursors 1 [
+    set shape "x"
+    set hidden? true
+    set color red
+    set heading 0
+  ]
 
   set-tank-regions
   create-initial-gene-pool
@@ -108,11 +137,29 @@ to set-tank-regions
   ask patches [
     set divider-here? false
     set type-of-patch "water"
-    ;; water edge are the patches right up against the tank wall on the inside of the tank - they are used to determine whether to turn the fish around as they are moving about the tank
-    if pycor =  (max-pycor-edge - 2) or pycor = (min-pycor-edge + 2) or pxcor = left-side-of-water-in-tank or pxcor = right-side-of-water-in-tank   [set type-of-patch "water-edge"]
-    if pycor >= (max-pycor-edge - 1)  [set type-of-patch "air"]
-    if pxcor <= (left-side-of-water-in-tank - 1) or pxcor >= (right-side-of-water-in-tank + 1) or pycor <= (min-pycor-edge + 1) [set type-of-patch "tank-wall"]
-    if pycor = (max-pycor-edge )  or pycor = (min-pycor-edge)  or pxcor = (left-side-of-water-in-tank - 2) or pxcor >= (right-side-of-water-in-tank + 2) [set type-of-patch "air"]
+    ;; water edge are the patches right up against the tank wall on the inside of the
+    ;; tank - they are used to determine whether to turn the fish around as they are
+    ;; moving about the tank
+    if pycor =  (max-pycor-edge - 2) or
+      pycor = (min-pycor-edge + 2) or
+      pxcor = left-side-of-water-in-tank or
+      pxcor = right-side-of-water-in-tank [
+      set type-of-patch "water-edge"
+    ]
+    if pycor >= (max-pycor-edge - 1) [
+      set type-of-patch "air"
+    ]
+    if pxcor <= (left-side-of-water-in-tank - 1) or
+      pxcor >= (right-side-of-water-in-tank + 1) or
+      pycor <= (min-pycor-edge + 1) [
+      set type-of-patch "tank-wall"
+    ]
+    if pycor = (max-pycor-edge) or
+      pycor = (min-pycor-edge) or
+      pxcor = (left-side-of-water-in-tank - 2) or
+      pxcor >= (right-side-of-water-in-tank + 2) [
+      set type-of-patch "air"
+    ]
   ]
   set water-patches  patches with [type-of-patch = "water"]
 end
@@ -137,20 +184,25 @@ end
 
 to create-initial-fish
   ;; makes the cells for the initial fish
-    create-somatic-cells initial-#-males [set sex "male"]
-    create-somatic-cells initial-#-females [set sex "female"]
-    ask somatic-cells [setup-new-somatic-cell-attributes]
+  create-somatic-cells initial-#-males [set sex "male"]
+  create-somatic-cells initial-#-females [set sex "female"]
+  ask somatic-cells [setup-new-somatic-cell-attributes]
   ;; randomly sorts out the gene pool to each somatic cell
-    distribute-gene-pool-to-somatic-cells
+  distribute-gene-pool-to-somatic-cells
   ;; grows the body parts from the resulting genotype, and distributes the fish
-    ask somatic-cells [grow-fish-parts-from-somatic-cell]
-    distribute-fish-in-tank
+  ask somatic-cells [grow-fish-parts-from-somatic-cell]
+  distribute-fish-in-tank
 end
 
 
 to setup-new-somatic-cell-attributes
-  ;; somatic cells are the same as body cells - they are the rectangle shape that is tied to the fish and chromosomes that looks like a karyotype
-  set heading 0  set breed somatic-cells set color [100 100 100 100]  set size size-of-karyotype-background-for-cells set hidden? true
+  ;; somatic cells are the same as body cells - they are the rectangle shape that is
+  ;; tied to the fish and chromosomes that looks like a karyotype
+  set heading 0
+  set breed somatic-cells
+  set color [100 100 100 100]
+  set size size-of-karyotype-background-for-cells
+  set hidden? true
 end
 
 
@@ -175,8 +227,10 @@ to make-initial-alleles-for-gene [gene-number allele-1 allele-2 num-big-alleles 
     set label-color color
     set label (word value "     " )
   ]
-  ;; after coloring all the alleles with black band on chromosomes with the dominant allele label, now go back and
-  ;; select the correct proportion of these to recolor code as recessive alleles with white bands on chromosomes and add recessive letter label
+  ;; after coloring all the alleles with black band on chromosomes with the
+  ;; dominant allele label, now go back and select the correct proportion of
+  ;; these to recolor code as recessive alleles with white bands on chromosomes
+  ;; and add recessive letter label
   ask n-of num-big-alleles  alleles with [gene = gene-number] [
     set value allele-1
     set color [220 220 220 255]
@@ -195,21 +249,41 @@ to distribute-gene-pool-to-somatic-cells
   ask somatic-cells [
     set this-somatic-cell self
     foreach [1 2 3 4 ] [
-      position-and-link-alleles self  ? "left"  ;; assign one of the alleles to appear on the left side of the chromosome pair
-      position-and-link-alleles self  ? "right" ;; assign the other allele to appear on the right side
+      ;; assign one of the alleles to appear on the left side of the chromosome pair
+      position-and-link-alleles self  ? "left"
+      ;; assign the other allele to appear on the right side
+      position-and-link-alleles self  ? "right"
     ]
 
-    ;;; now assign the sex chromosome pair, putting one of the Xs on the left, and the other chromosome (whether it is an X or } on the right
+    ;; now assign the sex chromosome pair, putting one of the Xs on the left,
+    ;; and the other chromosome (whether it is an X or } on the right
     ask one-of alleles with [not owned-by-fish? and gene = 5 and value = "X"] [
-       set owned-by-fish? true set size 1.2 set xcor ((inter-chromosome-pair-spacing * 4) + .1) set ycor -0.4 set side "left"
-       create-link-from this-somatic-cell  [set hidden? true set tie-mode "fixed" tie ]
+       set owned-by-fish? true
+       set size 1.2
+       set xcor ((inter-chromosome-pair-spacing * 4) + .1)
+       set ycor -0.4
+       set side "left"
+       create-link-from this-somatic-cell  [
+         set hidden? true
+         set tie-mode "fixed"
+         tie
+       ]
     ]
-    ifelse sex = "male" [set last-sex-allele "Y"] [set last-sex-allele "X"]
-    ask one-of alleles with [not owned-by-fish? and gene = 5 and value = last-sex-allele] [
-       set owned-by-fish? true set size 1.2 set xcor ((inter-chromosome-pair-spacing * 4) + intra-chromosome-pair-spacing + .1) set ycor -0.4 set side "right"
-       create-link-from this-somatic-cell  [set hidden? true set tie-mode "fixed" tie ]
+    ifelse sex = "male" [ set last-sex-allele "Y" ] [ set last-sex-allele "X" ]
+    ask one-of alleles with [
+      not owned-by-fish? and gene = 5 and value = last-sex-allele
+    ] [
+      set owned-by-fish? true
+      set size 1.2
+      set xcor ((inter-chromosome-pair-spacing * 4) + intra-chromosome-pair-spacing + .1)
+      set ycor -0.4
+      set side "right"
+      create-link-from this-somatic-cell [
+        set hidden? true
+        set tie-mode "fixed"
+        tie
+      ]
     ]
-
   ]
 end
 
@@ -218,16 +292,24 @@ to position-and-link-alleles [this-somatic-cell gene-number which-side]
   let pair-shift-right 0
   let side-shift 0
 
-  ;; adjusts the spacing between chromosome pairs (1-4( so that one of each pair is moved to the left and one of each pair is moved to the right
-  ifelse which-side = "right" [set side-shift intra-chromosome-pair-spacing][set side-shift 0]
-  set pair-shift-right  ((inter-chromosome-pair-spacing * gene-number) - .45)
+  ;; adjusts the spacing between chromosome pairs (1-4( so that one of each pair
+  ;; is moved to the left and one of each pair is moved to the right
+  ifelse which-side = "right"
+    [ set side-shift intra-chromosome-pair-spacing ]
+    [ set side-shift 0 ]
+  set pair-shift-right ((inter-chromosome-pair-spacing * gene-number) - .45)
 
   ask one-of alleles with [not owned-by-fish? and gene = gene-number] [
-       set owned-by-fish? true
-       set side which-side
-       set size 1.2
-       setxy ([xcor] of this-somatic-cell + (pair-shift-right + side-shift)) ([ycor] of this-somatic-cell - 0.4)
-       create-link-from this-somatic-cell  [set hidden? true set tie-mode "fixed" tie ]
+    set owned-by-fish? true
+    set side which-side
+    set size 1.2
+    set xcor ([xcor] of this-somatic-cell + (pair-shift-right + side-shift))
+    set ycor ([ycor] of this-somatic-cell - 0.4)
+    create-link-from this-somatic-cell [
+      set hidden? true
+      set tie-mode "fixed"
+      tie
+    ]
   ]
 end
 
@@ -256,16 +338,27 @@ end
 
 
 to auto-selection
-  if auto-replace? [every 0.25 [    ;; use EVERY to limit the rate of selection - to slow things down for visualization purposes
-    ;;let under-carrying-capacity carrying-capacity -  num-fish-in-tank
-    if any? fish [ask one-of fish [ if both-sexes-in-this-fishs-tank-region? [remove-this-fish]]]
-  ] ]
+  if auto-replace? [
+    ;; use EVERY to limit the rate of selection
+    ;; to slow things down for visualization purposes
+    every 0.25 [
+      ;;let under-carrying-capacity carrying-capacity -  num-fish-in-tank
+      if any? fish [
+        ask one-of fish [
+          if both-sexes-in-this-fishs-tank-region? [
+            remove-this-fish
+          ]
+        ]
+      ]
+    ]
+  ]
 end
 
 
 
 to move-gametes-together
-  ;; moves the male sex cell (gamete) toward its target female sex cell it will fertilize (zygote).
+  ;; moves the male sex cell (gamete) toward its target
+  ;; female sex cell it will fertilize (zygote).
   let my-zygote nobody
   let distance-to-zygote 0
   ;; if the user as the see-sex-cells? switch on then slow down their motion
@@ -284,8 +377,10 @@ end
 
 
 to convert-zygote-into-somatic-cell
-  ;; upon arriving at the female sex cell the male sex cell will fertilize it and disappear
-  ;; the zygote (shown as a heart) will convert into a somatic cell and a fish will immediately appear (skipping the time it takes for the embryo to form)
+  ;; upon arriving at the female sex cell the male sex cell will fertilize
+  ;; it and disappear the zygote (shown as a heart) will convert into a
+  ;; somatic cell and a fish will immediately appear (skipping the time
+  ;; it takes for the embryo to form)
   let female-sex-cell-alleles nobody
   let male-sex-cell-alleles nobody
   let male-gamete nobody
@@ -296,13 +391,32 @@ to convert-zygote-into-somatic-cell
    set male-gamete gamete-cells with [out-link-neighbor? myself and sex = "male"]
    set female-gamete gamete-cells with [out-link-neighbor? myself and sex = "female"]
    if any? male-gamete and any? female-gamete [
-     if distance one-of male-gamete <= .01 and distance one-of female-gamete <= .01  [  ;; close enough for fertilization to be complete
+     if distance one-of male-gamete <= .01 and distance one-of female-gamete <= .01  [
+       ;; close enough for fertilization to be complete
        setup-new-somatic-cell-attributes
        set this-somatic-cell self
-       ask male-gamete   [ set male-sex-cell-alleles alleles-that-belong-to-this-gamete die]
-       ask female-gamete [ set female-sex-cell-alleles alleles-that-belong-to-this-gamete die]
-       ask male-sex-cell-alleles      [ create-link-from this-somatic-cell  [set hidden? true  set tie-mode "fixed" tie]]
-       ask female-sex-cell-alleles    [ create-link-from this-somatic-cell  [set hidden? true  set tie-mode "fixed" tie]]
+       ask male-gamete [
+         set male-sex-cell-alleles alleles-that-belong-to-this-gamete
+         die
+       ]
+       ask female-gamete [
+         set female-sex-cell-alleles alleles-that-belong-to-this-gamete
+         die
+       ]
+       ask male-sex-cell-alleles [
+         create-link-from this-somatic-cell [
+           set hidden? true
+           set tie-mode "fixed"
+           tie
+         ]
+       ]
+       ask female-sex-cell-alleles [
+         create-link-from this-somatic-cell [
+           set hidden? true
+           set tie-mode "fixed"
+           tie
+         ]
+       ]
        align-alleles-for-this-somatic-cell this-somatic-cell
        set sex sex-phenotype
        grow-fish-parts-from-somatic-cell
@@ -314,14 +428,26 @@ end
 
 
 to align-alleles-for-this-somatic-cell [this-zygote]
-  ;; when gametes merge they may both have chromosomes on the right (for each matching pair) or both on the left
+  ;; when gametes merge they may both have chromosomes on the right
+  ;; (for each matching pair) or both on the left
   ;; this procedure moves one of them over if that is the case
   let all-alleles alleles with [in-link-neighbor? this-zygote]
   foreach [1 2 3 4 5] [
-    if count all-alleles with [gene = ? and side = "left"]  > 1
-       [ask one-of all-alleles with [gene = ?] [set heading 90 forward intra-chromosome-pair-spacing set side "right"] ]
-    if count all-alleles with [gene = ? and side = "right"] > 1
-       [ask one-of all-alleles with [gene = ?] [set heading 90 back intra-chromosome-pair-spacing set side "left"] ]
+    if count all-alleles with [gene = ? and side = "left"]  > 1 [
+      ask one-of all-alleles with [gene = ?] [
+        set heading 90
+        forward intra-chromosome-pair-spacing
+        set side "right"
+      ]
+    ]
+    if count all-alleles with [gene = ? and side = "right"] > 1 [
+      ask one-of all-alleles with [gene = ?] [
+        set heading 90
+        back
+        intra-chromosome-pair-spacing
+        set side "left"
+      ]
+    ]
   ]
 end
 
@@ -335,17 +461,28 @@ to find-potential-mates
   let all-fish-and-fish-zygotes nobody
 
   if any? somatic-cells with [sex = "male"] [
-    ask one-of somatic-cells with [sex = "male"]    [ set dad self set xcor-dad xcor]
-    ask dad [ set turtles-in-this-region other-turtles-in-this-turtles-tank-region ]  ;; if  parent genetic information for sexual reproduction still exists in the gene pool in this region
-    set all-fish-and-fish-zygotes turtles-in-this-region  with [breed = fish or breed = fish-zygotes]
-
-    set potential-mates turtles-in-this-region with [breed = somatic-cells and sex = "female"]
-
+    ask one-of somatic-cells with [ sex = "male" ] [
+      set dad self
+      set xcor-dad xcor
+    ]
+    ask dad [
+      ;; if  parent genetic information for sexual reproduction
+      ;; still exists in the gene pool in this region
+      set turtles-in-this-region other-turtles-in-this-turtles-tank-region
+    ]
+    set all-fish-and-fish-zygotes turtles-in-this-region with [
+      breed = fish or breed = fish-zygotes
+    ]
+    set potential-mates turtles-in-this-region with [
+      breed = somatic-cells and sex = "female"
+    ]
     if any? potential-mates [
        ask one-of potential-mates  [ set mom self ]
        ;;; only reproduce up to the carrying capacity in this region allowed
        let this-carrying-capacity  carrying-capacity-in-this-region xcor-dad
-       if count all-fish-and-fish-zygotes < this-carrying-capacity [reproduce-offspring-from-these-two-parents mom dad  ]
+       if count all-fish-and-fish-zygotes < this-carrying-capacity [
+         reproduce-offspring-from-these-two-parents mom dad
+       ]
     ]
   ]
 end
@@ -442,8 +579,17 @@ end
 
 to remove-this-fish
  set num-fish-removed num-fish-removed + 1
- hatch 1 [set breed fish-bones set color white set countdown 25]  ;; make the fish bones for visualization of this fishes death
- ask out-link-neighbors [ask out-link-neighbors [die] die]  ;; ask the somatic cells and the fish-parts and the alleles attached to this fish to die first
+ hatch 1 [
+   ;; make the fish bones for visualization of this fishes death
+   set breed fish-bones
+   set color white
+   set countdown 25
+ ]
+ ask out-link-neighbors [
+   ;; ask the somatic cells and the fish-parts and the alleles attached to this fish to die first
+   ask out-link-neighbors [ die ]
+   die
+ ]
  die
 end
 
@@ -458,21 +604,54 @@ to detect-mouse-selection-event
   ask mouse-cursors [
     setxy p-mouse-xcor p-mouse-ycor
     ;;;;;;  cursor visualization ;;;;;;;;;;;;
-    if (p-type-of-patch = "water") [set hidden? false set shape "x"  set label-color white set label "remove fish"]
-    if divider-here? and p-type-of-patch = "tank-wall" [set hidden? false set shape "subtract divider" set label-color white set label "remove divider"]
-    if not divider-here? and p-type-of-patch = "tank-wall" [set hidden? false set shape "add divider" set label-color white set label "add divider"]
-    if (p-type-of-patch != "water" and p-type-of-patch != "tank-wall") [set hidden? true set shape "x" set label ""]
+    if (p-type-of-patch = "water") [
+      set hidden? false
+      set shape "x"
+      set label-color white
+      set label "remove fish"
+    ]
+    if divider-here? and p-type-of-patch = "tank-wall" [
+      set hidden? false
+      set shape "subtract divider"
+      set label-color white
+      set label "remove divider"
+    ]
+    if not divider-here? and p-type-of-patch = "tank-wall" [
+      set hidden? false
+      set shape "add divider"
+      set label-color white
+      set label "add divider"
+    ]
+    if (p-type-of-patch != "water" and p-type-of-patch != "tank-wall") [
+      set hidden? true
+      set shape "x"
+      set label ""
+    ]
     ;;;;; cursor actions ;;;;;;;;;;;;;;;
-    if mouse-was-just-down? [ask fish-here [remove-this-fish]]
-    if (mouse-was-just-down? and not mouse-continuous-down? and p-type-of-patch = "tank-wall" and pycor = (min-pycor + 1)  and pxcor > (min-pxcor + 1) and pxcor < (max-pxcor - 1)) [
+    if mouse-was-just-down? [
+      ask fish-here [remove-this-fish]
+    ]
+    if (mouse-was-just-down? and
+      not mouse-continuous-down? and
+      p-type-of-patch = "tank-wall" and
+      pycor = (min-pycor + 1) and
+      pxcor > (min-pxcor + 1) and
+      pxcor < (max-pxcor - 1)) [
       set divider-here? not divider-here?
       let divider-xcor pxcor
-      ask patches with [(type-of-patch = "water" or type-of-patch = "water-edge") and pxcor = divider-xcor] [set divider-here? not divider-here?]
+      ask patches with [
+        (type-of-patch = "water" or type-of-patch = "water-edge") and
+        pxcor = divider-xcor
+      ] [
+        set divider-here? not divider-here?
+      ]
     ]
     ifelse not mouse-inside? [set hidden? true][set hidden? false]
   ]
 
-  ifelse mouse-was-just-down? [set mouse-continuous-down? true][set mouse-continuous-down? false]
+  ifelse mouse-was-just-down?
+    [ set mouse-continuous-down? true ]
+    [ set mouse-continuous-down? false ]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -492,7 +671,6 @@ to update-statistics
   set #-small-g-alleles count alleles with [value = "g"]
   set #-y-chromosomes   count alleles with [value = "Y"]
   set #-x-chromosomes   count alleles with [value = "X"]
-
 
   set #-of-green-dorsal-fins     count fish-parts with [color = green-dorsal-fin-color]
   set #-of-no-green-dorsal-fins  count fish-parts with [color = no-green-dorsal-fin-color]
@@ -514,23 +692,74 @@ end
 
 
 to visualize-tank
-   ask patches with [(type-of-patch = "water" or type-of-patch = "water-edge")] [ifelse not divider-here? [set pcolor water-color][set pcolor gray - 3.5]]
-   ask patches with [type-of-patch = "tank-wall" ] [ifelse not divider-here? [set pcolor gray - 3][set pcolor gray - 4] ]
-   ask patches with [type-of-patch = "air"  ] [set pcolor gray + 3]
+   ask patches with [(type-of-patch = "water" or type-of-patch = "water-edge")] [
+     ifelse not divider-here?
+       [ set pcolor water-color ]
+       [ set pcolor gray - 3.5 ]
+   ]
+   ask patches with [type-of-patch = "tank-wall" ] [
+     ifelse not divider-here?
+       [ set pcolor gray - 3 ]
+       [ set pcolor gray - 4 ]
+     ]
+   ask patches with [type-of-patch = "air" ] [
+     set pcolor gray + 3
+   ]
 end
 
 
 to visualize-fish-and-alleles
-   ifelse see-body-cells?
-     [ ask somatic-cells [set hidden? false  ask alleles with [in-link-neighbor? myself] [set hidden? false] ] ]
-     [ ask somatic-cells [set hidden? true   ask alleles with [in-link-neighbor? myself] [set hidden? true ] ] ]
-   ifelse see-sex-cells?
-     [ ask gamete-cells [set hidden? false  ask alleles with [in-link-neighbor? myself] [set hidden? false] ] ask fish-zygotes [set hidden? false]]
-     [ ask gamete-cells [set hidden? true   ask alleles with [in-link-neighbor? myself] [set hidden? true ] ] ask fish-zygotes [set hidden? true ]]
-   ifelse see-fish?
-     [ask fish [set hidden? false]  ask fish-parts [set hidden? false]]
-     [ask fish [set hidden? true ]  ask fish-parts [set hidden? true]]
-
+  ifelse see-body-cells? [
+    ask somatic-cells [
+      set hidden? false
+      ask alleles with [ in-link-neighbor? myself ] [
+        set hidden? false
+      ]
+    ]
+  ] [
+    ask somatic-cells [
+      set hidden? true
+      ask alleles with [ in-link-neighbor? myself ] [
+        set hidden? true
+      ]
+    ]
+  ]
+  ifelse see-sex-cells? [
+    ask gamete-cells [
+      set hidden? false
+      ask alleles with [ in-link-neighbor? myself ] [
+        set hidden? false
+      ]
+    ]
+    ask fish-zygotes [
+      set hidden? false
+    ]
+  ] [
+    ask gamete-cells [
+      set hidden? true
+      ask alleles with [ in-link-neighbor? myself ] [
+        set hidden? true
+      ]
+    ]
+    ask fish-zygotes [
+      set hidden? true
+    ]
+  ]
+  ifelse see-fish? [
+    ask fish [
+      set hidden? false
+    ]
+    ask fish-parts [
+      set hidden? false
+    ]
+  ] [
+    ask fish [
+      set hidden? true
+    ]
+    ask fish-parts [
+      set hidden? true
+    ]
+  ]
 end
 
 
@@ -546,31 +775,56 @@ to grow-fish-parts-from-somatic-cell
     if sex = "male" [set color male-color]
     if sex = "female" [set color female-color]
   ]
-  create-link-from  this-fish-body  [set hidden? true set tie-mode "fixed" tie ]  ;; somatic cell will link to the fish body - thus following the fish body around as it moves
+  create-link-from  this-fish-body  [
+    ;; somatic cell will link to the fish body -
+    ;; thus following the fish body around as it moves
+    set hidden? true
+    set tie-mode "fixed"
+    tie
+  ]
 
-    hatch 1 [set breed fish-parts  ;;;make tail
-       set breed fish-parts
-       set size 1
-       set shape tail-shape-phenotype
-       set color tail-color-phenotype
-       set heading -90 fd .4
-       create-link-from this-fish-body  [set hidden? true set tie-mode "fixed" tie ]   ;; fish-parts will link to the fish body - thus following the fish body around as it moves
-     ]
-    hatch 1 [                      ;;;make fins
-       set breed fish-parts
-       set size 1
-       set shape "fish-fins"
-       set color dorsal-fin-color-phenotype
-       create-link-from this-fish-body  [set hidden? true set tie-mode "fixed" tie ]    ;; fish-parts will link to the fish body - thus following the fish body around as it moves
-     ]
+  hatch 1 [
+    set breed fish-parts  ;;;make tail
+    set breed fish-parts
+    set size 1
+    set shape tail-shape-phenotype
+    set color tail-color-phenotype
+    set heading -90 fd .4
+    create-link-from this-fish-body [
+      ;; fish-parts will link to the fish body -
+      ;; thus following the fish body around as it moves
+      set hidden? true
+      set tie-mode "fixed"
+      tie
+    ]
+  ]
+  hatch 1 [                      ;;;make fins
+    set breed fish-parts
+    set size 1
+    set shape "fish-fins"
+    set color dorsal-fin-color-phenotype
+    create-link-from this-fish-body  [
+      ;; fish-parts will link to the fish body -
+      ;; thus following the fish body around as it moves
+      set hidden? true
+      set tie-mode "fixed"
+      tie
+    ]
+  ]
 
-    hatch 1 [                      ;;;make spots
-       set breed fish-parts
-       set size 1
-       set shape rear-spots-phenotype
-       set color [ 0 0 0 255]
-       create-link-from this-fish-body  [set hidden? true set tie-mode "fixed" tie ]   ;; fish-parts will link to the fish body - thus following the fish body around as it moves
-     ]
+  hatch 1 [                      ;;;make spots
+    set breed fish-parts
+    set size 1
+    set shape rear-spots-phenotype
+    set color [ 0 0 0 255]
+    create-link-from this-fish-body [
+      ;; fish-parts will link to the fish body -
+      ;; thus following the fish body around as it moves
+      set hidden? true
+      set tie-mode "fixed"
+      tie
+    ]
+  ]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1728,7 +1982,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

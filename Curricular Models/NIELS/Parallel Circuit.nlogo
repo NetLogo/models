@@ -52,16 +52,31 @@ to setup
         if pcolor = black [
         set xcor max-pxcor - 3
       ] ] ]
-  ask n-of (resistance-top-wire) patches with [top-wire? and pycor > (max-pycor / 2 + 1) and pxcor < (max-pxcor - 5) and pxcor > (min-pxcor + 5) and pcolor != black and pcolor != red]
-    [ sprout-nuclei 1 [
-        set color blue
-        set size 2.5
-         ] ]
-  ask n-of (resistance-bottom-wire) patches with [not top-wire? and pycor < (max-pycor / 2 - 0.1) and pxcor < (max-pxcor - 5) and pxcor > (min-pxcor + 5)and pcolor != black and pcolor != red]
-    [ sprout-nuclei 1 [
-        set color blue
-        set size 2.5
-         ] ]
+  ask n-of (resistance-top-wire) patches with [
+    top-wire? and pycor > (max-pycor / 2 + 1) and
+    pxcor < (max-pxcor - 5) and
+    pxcor > (min-pxcor + 5) and
+    pcolor != black and
+    pcolor != red
+  ] [
+    sprout-nuclei 1 [
+      set color blue
+      set size 2.5
+    ]
+  ]
+  ask n-of (resistance-bottom-wire) patches with [
+    not top-wire? and
+    pycor < (max-pycor / 2 - 0.1) and
+    pxcor < (max-pxcor - 5) and
+    pxcor > (min-pxcor + 5) and
+    pcolor != black and
+    pcolor != red
+  ] [
+    sprout-nuclei 1 [
+      set color blue
+      set size 2.5
+    ]
+  ]
 
   reset-ticks
 end
@@ -729,7 +744,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

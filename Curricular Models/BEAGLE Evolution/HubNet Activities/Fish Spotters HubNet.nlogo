@@ -312,14 +312,32 @@ to adjust-fish-population-size-to-carrying-capacity
   let #-fish-bottom-tank count fish with [tank = 2]
 
   ;; adjust top tank
-  if #-fish-top-tank = 0 [ create-fish tank-capacity [make-one-initial-fish 1]]  ;; if all the fish are removed by predators at once, make a new batch of random fish
-  if #-fish-top-tank < tank-capacity [ ask one-of fish with [tank = 1][ make-one-offspring-fish ] ] ;; reproduce random other fish until you've reached the carrying capacity
-  if #-fish-top-tank > tank-capacity [ ask one-of fish with [tank = 1][ remove-fish ] ];; remove other fish until you've reached the carrying capacity
+  if #-fish-top-tank = 0 [
+    ;; if all the fish are removed by predators at once, make a new batch of random fish
+    create-fish tank-capacity [make-one-initial-fish 1]
+  ]
+  if #-fish-top-tank < tank-capacity [
+    ;; reproduce random other fish until you've reached the carrying capacity
+    ask one-of fish with [tank = 1][ make-one-offspring-fish ]
+  ]
+  if #-fish-top-tank > tank-capacity [
+    ;; remove other fish until you've reached the carrying capacity
+    ask one-of fish with [tank = 1][ remove-fish ]
+  ]
 
   ;; adjust bottom tank
-  if #-fish-bottom-tank = 0 [ create-fish tank-capacity [make-one-initial-fish 2]]  ;; if all the fish are removed by predators at once, make a new batch of random fish
-  if #-fish-bottom-tank < tank-capacity [ ask one-of fish with [tank = 2][ make-one-offspring-fish ] ] ;; reproduce random other fish until you've reached the carrying capacity
-  if #-fish-bottom-tank > tank-capacity [ ask one-of fish with [tank = 2][ remove-fish ] ];; remove other fish until you've reached the carrying capacity
+  if #-fish-bottom-tank = 0 [
+    ;; if all the fish are removed by predators at once, make a new batch of random fish
+    create-fish tank-capacity [make-one-initial-fish 2]
+  ]
+  if #-fish-bottom-tank < tank-capacity [
+    ;; reproduce random other fish until you've reached the carrying capacity
+    ask one-of fish with [tank = 2][ make-one-offspring-fish ]
+  ]
+  if #-fish-bottom-tank > tank-capacity [
+    ;; remove other fish until you've reached the carrying capacity
+    ask one-of fish with [tank = 2][ remove-fish ]
+  ]
 end
 
 to remove-fish ;; fish procedure
@@ -433,12 +451,44 @@ to setup-debris-at-this-patch
 end
 
 to set-debris-appearance
-  if top-water    = "clear"   and tank = 1 [set heading 90  set shape "empty" ]
-  if bottom-water = "clear"   and tank = 2 [set heading 90  set shape "empty" ]
-  if top-water    = "ripples" and tank = 1 [set heading 0 bk 0.5 fd random-float 1 set heading 90  bk 0.5 fd random-float 1 set color ripple-debris-color set shape "ripples" ]
-  if bottom-water = "ripples" and tank = 2 [set heading 0 bk 0.5 fd random-float 1 set heading 90  bk 0.5 fd random-float 1 set color ripple-debris-color set shape "ripples" ]
-  if top-water    = "debris"  and tank = 1 [set heading random 360  set color (list 0 (100 + random 155) 0 (50 + random 205)) set shape "debris" ]
-  if bottom-water = "debris"  and tank = 2 [set heading random 360  set color (list 0 (100 + random 155) 0 (50 + random 205)) set shape "debris" ]
+  if top-water = "clear" and tank = 1 [
+    set heading 90
+    set shape "empty"
+  ]
+  if bottom-water = "clear" and tank = 2 [
+    set heading 90
+    set shape "empty"
+  ]
+  if top-water = "ripples" and tank = 1 [
+    set heading 0
+    bk 0.5
+    fd random-float 1
+    set heading 90
+    bk 0.5
+    fd random-float 1
+    set color ripple-debris-color
+    set shape "ripples"
+  ]
+  if bottom-water = "ripples" and tank = 2 [
+    set heading 0
+    bk 0.5
+    fd random-float 1
+    set heading 90
+    bk 0.5
+    fd random-float 1
+    set color ripple-debris-color
+    set shape "ripples"
+  ]
+  if top-water = "debris" and tank = 1 [
+    set heading random 360
+    set color (list 0 (100 + random 155) 0 (50 + random 205))
+    set shape "debris"
+  ]
+  if bottom-water = "debris" and tank = 2 [
+    set heading random 360
+    set color (list 0 (100 + random 155) 0 (50 + random 205))
+    set shape "debris"
+  ]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1638,7 +1688,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

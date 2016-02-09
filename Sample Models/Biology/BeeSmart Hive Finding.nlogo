@@ -1,38 +1,53 @@
-breed [sites site]
-breed [scouts scout]
+breed [ sites site ]
+breed [ scouts scout ]
 
-sites-own [quality discovered? scouts-on-site]
+sites-own [
+  quality discovered?
+  scouts-on-site
+]
 scouts-own [
 
-  my-home                   ; a bee's original position
-  next-task                 ; the code block a bee is running
-  task-string               ; the behavior a bee is displaying
-  bee-timer                 ; a timer keeping track of the length of the current state or the waiting time before entering next state
-  target                    ; the hive that a bee is currently focusing on exploring
-  interest                  ; a bee's interest in the target hive
-  trips                     ; times a bee has visited the target
+  my-home          ; a bee's original position
+  next-task        ; the code block a bee is running
+  task-string      ; the behavior a bee is displaying
+  bee-timer        ; a timer keeping track of the length of the current state
+                   ;   or the waiting time before entering next state
+  target           ; the hive that a bee is currently focusing on exploring
+  interest         ; a bee's interest in the target hive
+  trips            ; times a bee has visited the target
 
-  initial-scout?            ; true if it is an initial scout, who explores the unknown horizons
-  no-discovery?             ; true if it is an initial scout and fails to discover any hive site on its initial exploration
-  on-site?                  ; true if it's inspecting a hive site
-  piping?                   ; a bee starts to "pipe" when the decision of the best hive is made. true if a be observes more bees on a certain hive site than the quorum or when it observes other bees piping
+  initial-scout?   ; true if it is an initial scout, who explores the unknown horizons
+  no-discovery?    ; true if it is an initial scout and fails to discover any hive site
+                   ;   on its initial exploration
+  on-site?         ; true if it's inspecting a hive site
+  piping?          ; a bee starts to "pipe" when the decision of the best hive is made.
+                   ;   true if a be observes more bees on a certain hive site than the
+                   ;   quorum or when it observes other bees piping
 
-  ; dance related variables
-  dist-to-hive              ; the distance between the swarm and the hive that a bee is exploring
-  circle-switch             ; when making a waggle dance, a bee alternates left and right to make the figure "8". circle-switch alternates between 1 and -1 to tell a bee which direction to turn.
-  temp-x-dance              ; initial position of a dance
+  ; dance related variables:
+
+  dist-to-hive     ; the distance between the swarm and the hive that a bee is exploring
+  circle-switch    ; when making a waggle dance, a bee alternates left and right to make
+                   ;   the figure "8". circle-switch alternates between 1 and -1 to tell
+                   ;   a bee which direction to turn.
+  temp-x-dance     ; initial position of a dance
   temp-y-dance
-
 ]
 
 globals [
-  color-list                ; colors for hives, which keeps consistency among the hive colors, plot pens colors, and committed bees' colors
-  quality-list              ; quality of hives
+  color-list       ; colors for hives, which keeps consistency among the hive colors, plot
+                   ;   pens colors, and committed bees' colors
+  quality-list     ; quality of hives
 
-  ; visualization
-  show-dance-path?          ; dance path is the circular patter with a zigzag line in the middle. when large amount of bees dance, the patterns overlaps each other, which makes them hard to distinguish. turn show-dance-path? off can clear existing patterns
-  scouts-visible?           ; you can hide scouts and only look at the dance patterns to avoid distraction from bees' dancing movements
-  watch-dance-task          ; a list of tasks
+  ; visualization:
+
+  show-dance-path? ; dance path is the circular patter with a zigzag line in the middle.
+                   ;   when large amount of bees dance, the patterns overlaps each other,
+                   ;   which makes them hard to distinguish. turn show-dance-path? off can
+                   ;   clear existing patterns
+  scouts-visible?  ; you can hide scouts and only look at the dance patterns to avoid
+                   ;   distraction from bees' dancing movements
+  watch-dance-task ; a list of tasks
   discover-task
   inspect-hive-task
   go-home-task
@@ -56,14 +71,27 @@ to setup
 end
 
 to setup-hives
-  set color-list [97.9 94.5 57.5 63.8 17.6 14.9 27.5 25.1 117.9 114.4]
-  set quality-list [100 75 50 1 54 48 40 32 24 16]
-  ask n-of hive-number patches with [distancexy 0 0 > 16 and abs pxcor < (max-pxcor - 2) and abs pycor < (max-pycor - 2)][ ;randomly placing hives around the center in the view with a minimum distance of 16 from the center
-    sprout-sites 1 [set shape "box" set size 2 set color gray set discovered? false]
+  set color-list [ 97.9 94.5 57.5 63.8 17.6 14.9 27.5 25.1 117.9 114.4 ]
+  set quality-list [ 100 75 50 1 54 48 40 32 24 16 ]
+  ask n-of hive-number patches with [
+    distancexy 0 0 > 16 and abs pxcor < (max-pxcor - 2) and
+    abs pycor < (max-pycor - 2)
+  ] [
+    ; randomly placing hives around the center in the
+    ; view with a minimum distance of 16 from the center
+    sprout-sites 1 [
+      set shape "box"
+      set size 2
+      set color gray
+      set discovered? false
+    ]
   ]
-  let i 0   ;assign quality and plot pens to each hive
+  let i 0 ; assign quality and plot pens to each hive
   repeat count sites [
-    ask site i [set quality item i quality-list set label quality]
+    ask site i [
+      set quality item i quality-list
+      set label quality
+    ]
     set-current-plot "on-site"
     create-temporary-plot-pen word "site" i
     set-plot-pen-color item i color-list
@@ -76,7 +104,7 @@ end
 
 to setup-bees
   create-scouts 100 [
-    fd random-float 4                  ;let bees spread out from the center
+    fd random-float 4 ; let bees spread out from the center
     set my-home patch-here
     set shape "bee"
     set color gray
@@ -88,8 +116,14 @@ to setup-bees
     set piping? false
     set next-task watch-dance-task
     set task-string "watching-dance"
-    ]
-  ask n-of (initial-percentage) scouts[set initial-scout? true set bee-timer random 100] ; assigning some of the scouts to be initial scouts. bee-timer here determines how long they will wait before starting initial exploration
+  ]
+  ; assigning some of the scouts to be initial scouts.
+  ; bee-timer here determines how long they will wait
+  ; before starting initial exploration
+  ask n-of (initial-percentage) scouts [
+    set initial-scout? true
+    set bee-timer random 100
+  ]
 end
 
 
@@ -109,7 +143,8 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 to watch-dance
   set watch-dance-task task [
-    if count scouts with [piping?] in-radius 3 > 0 [                       ; if detecting any piping scouts in the swarm, pipe too
+    if count scouts with [piping?] in-radius 3 > 0 [
+      ; if detecting any piping scouts in the swarm, pipe too
       set target [target] of one-of scouts with [piping?]
       set color [color] of target
       set next-task pipe-task
@@ -118,53 +153,104 @@ to watch-dance
       set piping? true
     ]
     move-around
-    if initial-scout? and bee-timer < 0 [set next-task discover-task set task-string "discovering" set bee-timer initial-explore-time set initial-scout? false]     ; a initial scout, after the waiting period, takes off to discover new hives. it has limited time to do the initial exploration, as specified by initial-explore-time.
-    if not initial-scout? [                                                ; if a bee is not a initial scout (either born not to be or lost its initial scout status due to the failure of discovery in its initial exploration), it watches other bees in its cone of vision
-      if bee-timer < 0 [                                                   ; idle bees have bee-timer less than 0, usually as the result of reducing bee-timer from executing other tasks, such as dance
+    if initial-scout? and bee-timer < 0 [
+      ; a initial scout, after the waiting period,
+      ; takes off to discover new hives.
+      ; it has limited time to do the initial exploration,
+      ; as specified by initial-explore-time.
+      set next-task discover-task
+      set task-string "discovering"
+      set bee-timer initial-explore-time
+      set initial-scout? false
+    ]
+    if not initial-scout? [
+      ; if a bee is not a initial scout (either born not to be
+      ; or lost its initial scout status due to the failure of
+      ; discovery in its initial exploration), it watches other
+      ; bees in its cone of vision
+      if bee-timer < 0 [
+        ; idle bees have bee-timer less than 0, usually as the
+        ; result of reducing bee-timer from executing other tasks,
+        ; such as dance
         if count other scouts in-cone 3 60 > 0 [
           let observed one-of scouts in-cone 3 60
-          if [next-task] of observed = dance-task [                        ; randomly pick one dancing bee in its cone of vision
-            if random ((1 / [interest] of observed) * 1000) < 1 [          ; this line generates a probability of a dance being followed. random x < 1 means a chance of 1 / x. in this case, x = ((1 / [interest] of observed) * 1000), which is a function to correlate interest, i.e. the enthusiasm of a dance, with its probability of being followed: the higher the interest, the smaller 1 / interest, hence the smaller x, and larger 1 / x, which means a higher probability of being seen.
-              set target [target] of observed                              ; follow the dance
-              set color white                                              ; use white to a bee's state of having in mind a target without having visited it yet
+          if [ next-task ] of observed = dance-task [
+            ; randomly pick one dancing bee in its cone of vision
+            ; random x < 1 means a chance of 1 / x. in this case,
+            ; x = ((1 / [interest] of observed) * 1000), which is
+            ; a function to correlate interest, i.e. the enthusiasm
+            ; of a dance, with its probability of being followed:
+            ; the higher the interest, the smaller 1 / interest,
+            ; hence the smaller x, and larger 1 / x, which means
+            ; a higher probability of being seen.
+            if random ((1 / [interest] of observed) * 1000) < 1 [
+              ; follow the dance
+              set target [target] of observed
+              ; use white to a bee's state of having in mind
+              ; a target  without having visited it yet
+              set color white
               set next-task re-visit-task
-              set task-string "revisiting"                                 ; re-visit could be an initial scout's subsequent visits of a hive after it discovered the hive, or it could be a non-initial scout's first visit and subsequent visits to a hive (because non-scouts don't make initial visit, which is defined as the discovering visit).
+              ; re-visit could be an initial scout's subsequent
+              ; visits of a hive after it discovered the hive,
+              ; or it could be a non-initial scout's first visit
+              ; and subsequent visits to a hive (because non-scouts
+              ; don't make initial visit, which is defined as the
+              ; discovering visit).
+              set task-string "revisiting"
             ]
           ]
         ]
       ]
     ]
+    ; reduce bees' waiting time by 1 tick
     set bee-timer bee-timer - 1
-  ]                                                                        ; reduce bees' waiting time by 1 tick
+  ]
 end
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;discover;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 to discover
   set discover-task task [
-    ifelse bee-timer < 0 [                                                  ; if run out of time (a bee has limited time to make initial discovery), go home, and admit no discovery was made
+    ifelse bee-timer < 0 [
+      ; if run out of time (a bee has limited time to make initial
+      ; discovery), go home, and admit no discovery was made
       set next-task go-home-task
       set task-string "going-home"
       set no-discovery? true
-    ][
-    ifelse count sites in-radius 3 > 0 [                                   ; if a bee finds sites around it (within a distance of 3) on its way
-      let temp-target one-of sites in-radius 3                             ; then randomly choose one to focus on
-      ifelse not [discovered?] of temp-target [                            ; if this one hive was not discovered by other bees previously
-        set target temp-target                                             ; commit to this hive
-        ask target [set discovered? true set color item who color-list]    ; make the target as discovered
-        set interest [quality] of target                                   ; collect info about the target
-        set color [color] of target                                        ; the bee changes its color to show its commitment to this hive
-        set next-task inspect-hive-task
-        set task-string "inspecting-hive"
-        set bee-timer 100                                                  ; will inspect the target for 100 ticks
-      ][
-      rt (random 60 - random 60) proceed set bee-timer bee-timer - 1         ; if no hive site is around, keep going forward with a random heading between [-60, 60] degrees
+    ] [
+      ; if a bee finds sites around it (within a distance of 3) on its way
+      ifelse count sites in-radius 3 > 0 [
+        ; then randomly choose one to focus on
+        let temp-target one-of sites in-radius 3
+        ; if this one hive was not discovered by other bees previously
+        ifelse not [discovered?] of temp-target [
+          ; commit to this hive
+          set target temp-target
+          ask target [
+            ; make the target as discovered
+            set discovered? true
+            set color item who color-list
+          ]
+          ; collect info about the target
+          set interest [ quality ] of target
+          ; the bee changes its color to show its commitment to this hive
+          set color [ color ] of target
+          set next-task inspect-hive-task
+          set task-string "inspecting-hive"
+          ; will inspect the target for 100 ticks
+          set bee-timer 100
+        ] [
+          ; if no hive site is around, keep going forward
+          ; with a random heading between [-60, 60] degrees
+          rt (random 60 - random 60) proceed
+          set bee-timer bee-timer - 1
+        ]
+      ] [
+        rt (random 60 - random 60) proceed
       ]
-    ][
-    rt (random 60 - random 60) proceed] set bee-timer bee-timer - 1
+      set bee-timer bee-timer - 1
     ]
   ]
 end
@@ -174,23 +260,36 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 to inspect-hive
   set inspect-hive-task task [
-    ifelse bee-timer < 0 [                                                   ; after spending certain time (as specified in bee-timer, see the last comment of this task) on inspecting hives, they fly home.
-      set next-task go-home-task
-      set task-string "going-home"
-      set on-site? false set trips trips + 1
-    ][                                                                       ; while on inspect-hive task,
-    if distance target > 2 [face target fd 1]                                ; a bee flies to its target hive
-    set on-site? true
-    if count scouts with [on-site? and target = [target] of myself] in-radius 3 > quorum [
+    ; after spending certain time (as specified in bee-timer, see the
+    ; last comment of this task) on inspecting hives, they fly home.
+    ifelse bee-timer < 0 [
       set next-task go-home-task
       set task-string "going-home"
       set on-site? false
-      set piping? true
-    ]
-    ; if it counts more bees than what the quorum specifies, it starts to pipe.
-    ifelse random 3 = 0 [hide-turtle][show-turtle]                           ; this line makes the visual effect of a bee showing up and disappearing, representing the bee checks both outside and inside of the hive
-    set dist-to-hive distancexy 0 0                                          ; a bee knows how far this hive is from its swarm
-    set bee-timer bee-timer - 1                                                ; the bee-timer keeps track of how long the bee has been inspecting the hive. it lapses as the model ticks. it is set in either the discover task (100 ticks) or the re-visit task (50 ticks).
+      set trips trips + 1
+    ] [
+      ; while on inspect-hive task,
+      if distance target > 2 [
+        face target fd 1 ; a bee flies to its target hive
+      ]
+      set on-site? true
+      ; if it counts more bees than what the quorum specifies, it starts to pipe.
+      let nearby-scouts scouts with [ on-site? and target = [ target ] of myself ] in-radius 3
+      if count nearby-scouts > quorum [
+        set next-task go-home-task
+        set task-string "going-home"
+        set on-site? false
+        set piping? true
+      ]
+      ; this line makes the visual effect of a bee showing up and disappearing,
+      ; representing the bee checks both outside and inside of the hive
+      ifelse random 3 = 0 [ hide-turtle ] [ show-turtle ]
+      ; a bee knows how far this hive is from its swarm
+      set dist-to-hive distancexy 0 0
+      ; the bee-timer keeps track of how long the bee has been inspecting
+      ; the hive. It lapses as the model ticks. it is set in either the
+      ; discover task (100 ticks) or the re-visit task (50 ticks).
+      set bee-timer bee-timer - 1
     ]
   ]
 end
@@ -200,25 +299,33 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 to go-home
   set go-home-task task[
-    ifelse distance my-home < 1 [              ; if back at home
-      ifelse no-discovery? [                   ; if the bee is an initial scout that failed to discover a hive site
+    ifelse distance my-home < 1 [ ; if back at home
+      ifelse no-discovery? [
+        ; if the bee is an initial scout that failed to discover a hive site
         set next-task watch-dance-task
         set task-string "watching-dance"
         set no-discovery? false
-        set initial-scout? false               ; it loses its initial scout status and becomes a non-scout, who watches other bees' dances
-      ][
-      ifelse piping? [                         ; if the bee saw enough bees on the target site, it prepares to pipe for 20 ticks
-        set next-task pipe-task
-        set task-string "piping"
-        set bee-timer 20
-      ][
-      set next-task dance-task
-      set task-string "dancing"
-      set bee-timer 0                          ; if it didn't see enough bees on the target site, it prepares to dance to advocate it. it resets the bee-timer to 0 for the dance task
+        ; it loses its initial scout status and becomes a
+        ; non-scout, who watches other bees' dances
+        set initial-scout? false
+      ] [
+        ifelse piping? [
+          ; if the bee saw enough bees on the target site,
+          ; it prepares to pipe for 20 ticks
+          set next-task pipe-task
+          set task-string "piping"
+          set bee-timer 20
+        ] [
+          ; if it didn't see enough bees on the target site,
+          ; it prepares to dance to advocate it. it resets
+          ; the bee-timer to 0 for the dance task
+          set next-task dance-task
+          set task-string "dancing"
+          set bee-timer 0
+        ]
       ]
-      ]
-    ][
-    face my-home proceed
+    ] [
+      face my-home proceed
     ]
   ]
 end
@@ -226,13 +333,25 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;dance;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;bees dance multiple rounds for a good site. After visiting the site for the first time, they return to the swarm and make a long dance for it enthusiastically, and then go back to visit the site again. When they return, they would dance for it for another round, with slightly declined length and enthusiasm. such cycle repeats until the enthusiasm is completely gone.
-;in the code below, interest represents a bee's enthusiasm and the length of the dance. trips keep track of how many times the bee has visited the target. after each revisiting trip, the interest declines by [15, 19], as represented by (15 + random 5)
-;interest - (trips - 1) * (15 + random 5) determines how long a bee will dance after each trip. e.g. when a hive is first discovered (trips = 1), if the hive quality is 100, i.e. the bee's initial interest in this hive is 100, it would dance 100 - (1 - 1) * (15 + random 5) = 100. However, after 100 ticks of dance, the bee's interest in this hive would reduce to [85,81].
-;Assuming it declined to 85, when the bee dances for the hive a second time, it would only dance between 60 to 70 ticks: 85 - (2 - 1) * (15 + random 5) = [70, 66]
+; bees dance multiple rounds for a good site. After visiting the site for the first
+; time, they return to the swarm and make a long dance for it enthusiastically, and
+; then go back to visit the site again. When they return, they would dance for it
+; for another round, with slightly declined length and enthusiasm. such cycle repeats
+; until the enthusiasm is completely gone. in the code below, interest represents
+; a bee's enthusiasm and the length of the dance. trips keep track of how many times
+; the bee has visited the target. after each revisiting trip, the interest declines
+; by [15, 19], as represented by (15 + random 5).
+; interest - (trips - 1) * (15 + random 5) determines how long a bee will dance after
+; each trip. e.g. when a hive is first discovered (trips = 1), if the hive quality is
+; 100, i.e. the bee's initial interest in this hive is 100, it would dance
+; 100 - (1 - 1) * (15 + random 5) = 100. However, after 100 ticks of dance, the bee's
+; interest in this hive would reduce to [85,81].
+; Assuming it declined to 85, when the bee dances for the hive a second time, it
+; would only dance between 60 to 70 ticks: 85 - (2 - 1) * (15 + random 5) = [70, 66]
 to dance
   set dance-task task [
-    ifelse count scouts with [piping?] in-radius 3 > 0 [                                          ;while dancing, if detecting any piping bee, start piping too
+    ifelse count scouts with [piping?] in-radius 3 > 0 [
+      ; while dancing, if detecting any piping bee, start piping too
       pen-up
       set next-task pipe-task
       set task-string "piping"
@@ -240,37 +359,43 @@ to dance
       set target [target] of one-of scouts with [piping?]
       set color [color] of target
       set piping? true
-    ][
-    if bee-timer > interest - (trips - 1) * (15 + random 5) and interest > 0 [                    ;if a bee dances longer than its current interest, and if it's still interested in the target, go to revisit the target again
-      set next-task re-visit-task
-      set task-string "revisiting"
-      pen-up
-      set interest interest - (15 + random 5)                                                     ; interest decline by [15,19]
-      set bee-timer 25                                                                            ; revisit 25 ticks
-    ]
-    if bee-timer > interest - (trips - 1) * (15 + random 5) and interest <= 0 [                   ; if a bee dances longer than its current interest, and if it's no longer interested in the target, as represented by interest <=0, stay in the swarm, rest for 50 ticks, and then watch dance
-      set next-task watch-dance-task
-      set task-string "watching-dance"
-      set target nobody
-      set interest 0
-      set trips 0
-      set color gray
-      set bee-timer 50
-    ]
-    if bee-timer <=  interest - (trips - 1) * (15 + random 5)[                                    ; if a bee dances short than its current interest, keep dancing
-      ifelse interest <= 50 and random 100 < 43 [
+    ] [
+      if bee-timer > interest - (trips - 1) * (15 + random 5) and interest > 0 [
+        ; if a bee dances longer than its current interest, and if it's still
+        ; interested in the target, go to revisit the target again
         set next-task re-visit-task
         set task-string "revisiting"
-        set interest interest - (15 + random 5)
-        set bee-timer 10
-      ][
-      ifelse show-dance-path? [pen-down][pen-up]
-      repeat 2 [
-        waggle
-        make-semicircle]
+        pen-up
+        set interest interest - (15 + random 5) ; interest decline by [15,19]
+        set bee-timer 25                        ; revisit 25 ticks
       ]
-    ]
-    set bee-timer bee-timer + 1
+      if bee-timer > interest - (trips - 1) * (15 + random 5) and interest <= 0 [
+        ; if a bee dances longer than its current interest, and if it's no longer
+        ; interested in the target, as represented by interest <=0, stay in the
+        ; swarm, rest for 50 ticks, and then watch dance
+        set next-task watch-dance-task
+        set task-string "watching-dance"
+        set target nobody
+        set interest 0
+        set trips 0
+        set color gray
+        set bee-timer 50
+      ]
+      if bee-timer <=  interest - (trips - 1) * (15 + random 5) [
+        ; if a bee dances short than its current interest, keep dancing
+        ifelse interest <= 50 and random 100 < 43 [
+          set next-task re-visit-task
+          set task-string "revisiting"
+          set interest interest - (15 + random 5)
+          set bee-timer 10
+        ] [
+          ifelse show-dance-path? [pen-down][pen-up]
+          repeat 2 [
+            waggle
+            make-semicircle]
+        ]
+      ]
+      set bee-timer bee-timer + 1
     ]
   ]
 end
@@ -278,22 +403,27 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;re-visit;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 to re-visit
   set re-visit-task task [
-    ifelse bee-timer > 0 [                            ; wait a bit after the previous trip
+    ifelse bee-timer > 0 [
+      ; wait a bit after the previous trip
       set bee-timer bee-timer - 1
-    ][
-    pen-up
-    ifelse distance target < 1 [                     ; if on target, learn about the target
-      if interest = 0 [set interest [quality] of target set color [color] of target]
-      set next-task inspect-hive-task
-      set task-string "inspecting-hive"
-      set bee-timer 50
-    ][
-    proceed                                          ; if hasn't reached target yet (distance > 1), keep flying
-    face target
-    ]
+    ] [
+      pen-up
+      ifelse distance target < 1 [
+        ; if on target, learn about the target
+        if interest = 0 [
+          set interest [ quality ] of target
+          set color [ color ] of target
+        ]
+        set next-task inspect-hive-task
+        set task-string "inspecting-hive"
+        set bee-timer 50
+      ] [
+        ; if hasn't reached target yet (distance > 1), keep flying
+        proceed
+        face target
+      ]
     ]
   ]
 end
@@ -304,19 +434,29 @@ end
 to pipe
   set pipe-task task [
     move-around
-    if count scouts with [piping?] in-radius 5 = count scouts in-radius 5 [set bee-timer bee-timer - 1] ;if every surrounding bee is piping, wait a bit (20 ticks as set in line 6 of the watch-dance procedure) for bees to come back to the swarm from the hive before taking off
+    if count scouts with [ piping? ] in-radius 5 = count scouts in-radius 5 [
+      ; if every surrounding bee is piping, wait a bit (20 ticks as
+      ; set in the watch-dance procedure) for bees to come back to
+      ; the swarm from the hive before taking off
+      set bee-timer bee-timer - 1
+    ]
     if bee-timer < 0 [
       set next-task take-off-task
       set task-string "taking-off"
-      ]
-   ]
+    ]
+  ]
 end
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;take-off;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 to take-off
   set take-off-task task [
-    ifelse distance target > 1 [face target fd 1][set on-site? true]
+    ifelse distance target > 1 [
+      face target fd 1
+    ] [
+      set on-site? true
+    ]
   ]
 end
 
@@ -324,8 +464,11 @@ end
 ;;;;;;;;;;;;;;run-time;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 to go
-  if all? scouts [on-site?] and length remove-duplicates [target] of scouts = 1 [stop]  ; if all scouts are on site, and they all have the same target hive, stop.
-  ask scouts [run next-task]
+  if all? scouts [ on-site? ] and length remove-duplicates [ target ] of scouts = 1 [
+  ; if all scouts are on site, and they all have the same target hive, stop.
+    stop
+  ]
+  ask scouts [ run next-task ]
   plot-on-site-scouts
   tick
 end
@@ -334,19 +477,23 @@ end
 ;;;;;;;;;;;;;;utilities;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 to make-semicircle
-  let num-of-turns 1 / interest * 2600          ;calculate the size of the semicircle. 2600 and 5 (in pi / 5) are numbers selected by trial and error to make the dance path look good
+  ; calculate the size of the semicircle. 2600 and 5 (in pi / 5) are numbers
+  ; selected by trial and error to make the dance path look good
+  let num-of-turns 1 / interest * 2600
   let angle-per-turn 180 / num-of-turns
   let semicircle 0.5 * dist-to-hive * pi / 5
   if circle-switch = 1 [
     face target lt 90
     repeat num-of-turns [
-      lt angle-per-turn fd (semicircle / 180 * angle-per-turn)
+      lt angle-per-turn
+      fd (semicircle / 180 * angle-per-turn)
     ]
   ]
   if circle-switch = -1 [
     face target rt 90
     repeat num-of-turns [
-      rt angle-per-turn fd (semicircle / 180 * angle-per-turn)
+      rt angle-per-turn
+      fd (semicircle / 180 * angle-per-turn)
     ]
   ]
 
@@ -355,16 +502,26 @@ to make-semicircle
 end
 
 to waggle
-  face target                                            ; pointing the zigzag direction to the target
+  ; pointing the zigzag direction to the target
+  face target
   set temp-x-dance xcor set temp-y-dance ycor
-  let waggle-switch 1                                    ; switch toggles between 1 and -1, which makes a bee dance a zigzag line by turning left and right
-  lt 60 fd .4                                            ; first part of a zigzag line
-  repeat (dist-to-hive - 2) / 2 [                        ; correlates the number of turns in the zigzag line with the distance between the swarm and the hive. the number 2 is selected by trial and error to make the dance path look good
-    if waggle-switch = 1 [rt 120 fd .8]                  ; alternates left and right along the diameter line that points to the target
+  ; switch toggles between 1 and -1, which makes a bee
+  ; dance a zigzag line by turning left and right
+  let waggle-switch 1
+  ; first part of a zigzag line
+  lt 60
+  fd .4
+  ; correlates the number of turns in the zigzag line with the distance
+  ; between the swarm and the hive. the number 2 is selected by trial
+  ; and error to make the dance path look good
+  repeat (dist-to-hive - 2) / 2 [
+    ; alternates left and right along the diameter line that points to the target
+    if waggle-switch = 1 [rt 120 fd .8]
     if waggle-switch = -1 [lt 120 fd .8]
     set waggle-switch waggle-switch * -1
   ]
-  ifelse waggle-switch = -1 [lt 120 fd .4][rt 120 fd .4] ; finish the last part of the zigzag line
+  ; finish the last part of the zigzag line
+  ifelse waggle-switch = -1 [lt 120 fd .4][rt 120 fd .4]
 end
 
 to proceed
@@ -1070,7 +1227,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.1-RC1
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

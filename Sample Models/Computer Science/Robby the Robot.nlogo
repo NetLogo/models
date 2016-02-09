@@ -69,7 +69,11 @@ to setup
   display-fitness best-individual
 
   plot-pen-up
-  plotxy -1 0        ;plots are initialized to begin at an x-value of 0, this moves the plot-pen to the point (-1,0) so that best-fitness for generation 0 will be drawn at x = 0
+
+  ; plots are initialized to begin at an x-value of 0, this moves the plot-pen to
+  ; the point (-1,0) so that best-fitness for generation 0 will be drawn at x = 0
+  plotxy -1 0
+
   set-plot-y-range (precision best-fitness 0) (precision best-fitness 0) + 3
   plot best-fitness
   plot-pen-down
@@ -1172,7 +1176,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 setup repeat 5 [ go ]
 @#$#@#$#@

@@ -1,6 +1,6 @@
-breed [historical-settlements historical-settlement] ; historical occupation
-breed [households household]
-breed [water-points water-point]
+breed [ historical-settlements historical-settlement ] ; historical occupation
+breed [ households household ]
+breed [ water-points water-point ]
 
 patches-own [
   water-source
@@ -17,17 +17,19 @@ patches-own [
 ]
 
 historical-settlements-own [
-  sarg                 ; an ID number relating to data collected by the "Southwestern Anthropological Research Group" (unused by the simulation, left for reference)
+  sarg                 ; an ID number relating to data collected by the
+                       ;   "Southwestern Anthropological Research Group"
+                       ;   (unused by the simulation, left for reference)
   meter-north          ; real world location measurements
   meter-east           ; real world location measurements
   start-date           ; historical start date
   end-date             ; historical end date
   median-date          ; historical median date
-  settlement-type      ; extra historical data from the file (unused by this simulation)
-  settlement-size      ; extra historical data from the file (unused by this simulation)
-  description          ; extra historical data from the file (unused by this simulation)
-  room-count           ; extra historical data from the file (unused by this simulation)
-  elevation            ; extra historical data from the file (unused by this simulation)
+  settlement-type      ; extra historical data from the file (unused)
+  settlement-size      ; extra historical data from the file (unused)
+  description          ; extra historical data from the file (unused)
+  room-count           ; extra historical data from the file (unused)
+  elevation            ; extra historical data from the file (unused)
   baseline-households  ; baseline number of households
   number-of-households ; "current" number of households
 ]
@@ -97,7 +99,9 @@ to setup
   set alluvium-exist? false
   set year 800
 
-  set farm-sites-available 0 ; variable that count the number of sites available for farming
+  ; variable that count the number of sites available for farming
+  set farm-sites-available 0
+
   ask patches [
     set water-source 0
     set quality ((random-normal 0 1) * harvest-variance) + 1.0
@@ -106,13 +110,18 @@ to setup
   set typical-household-size 5 ; a household consist of 5 persons
   set base-nutrition-need 160   ; a person needs 160 kg of food (corn) each year
 
-  ; The original model allowed for many of these parameters to take on a range of values,
-  ; rather than just a single value.  To simplify the model interface, and keep the number of
-  ; parameters modest, most of these "min- and max-"  variables are set to matching values during SETUP.
-  ; The min/max variables are left here in the code, in case you want to explore more variation in these parameters.
+  ; The original model allowed for many of these parameters to take on a range of
+  ; values, rather than just a single value. To simplify the model interface, and
+  ; keep the number of parameters modest, most of these "min- and max-"  variables
+  ; are set to matching values during SETUP. The min/max variables are left here in
+  ; the code, in case you want to explore more variation in these parameters.
   set household-min-nutrition-need (base-nutrition-need * typical-household-size)
   set household-max-nutrition-need (base-nutrition-need * typical-household-size)
-  set min-fertility-age 16 ; when household agents can start to reproduce.  (reproduction means here that a daughter leaves the household to start a new household)
+
+  ; when household agents can start to reproduce. (reproduction means here
+  ; that a daughter leaves the household to start a new household)
+  set min-fertility-age 16
+
   set max-fertility-age 16
   set min-death-age death-age ;maximum age of a household
   set max-death-age death-age
@@ -152,21 +161,30 @@ to go
   set historical-total-households 0
   set total-households 0
   calculate-yield
-  set potential count patches with [ base-yield >= household-min-nutrition-need ] ; potential amount of households based on level of base-yield (dependent on PSDI and water availability)
+
+  ; potential amount of households based on level of base-yield (dependent on PSDI and water availability)
+  set potential count patches with [ base-yield >= household-min-nutrition-need ]
+
   if historic-view? [ show-historical-population ]
   calculate-harvest-consumption
   check-death
   estimate-harvest
-  ask households [ ; agents who expect not to have sufficient food next timestep move to a new spot (if available). If no spots are available, they leave the system.
+  ask households [
+    ; agents who expect not to have sufficient food next timestep move to a new spot
+    ; (if available). If no spots are available, they leave the system.
     if estimate < nutrition-need [
-      determine-potential-farms ; we have to check everytime whether locations are available for moving agents. Could be implemented more efficiently by only updating selected info
+      ; we have to check everytime whether locations are available for moving agents.
+      ; Could be implemented more efficiently by only updating selected info
+      determine-potential-farms
       ask patch farm-x farm-y [ set num-occupying-farms 0 ]
       find-farm-and-settlement
     ]
   ]
   determine-potential-farms
   ask households [
-    if (age > fertility-age) and (age <= fertility-ends-age) and (random-float 1.0 < fertility) [
+    if (age > fertility-age) and
+      (age <= fertility-ends-age) and
+      (random-float 1.0 < fertility) [
       if length potential-farms > 0 [
         determine-potential-farms
         fissioning
@@ -181,8 +199,9 @@ to go
 end
 
 to init-household
-  ; Initialization of households which derive initial storage, age, amount of nutrients needed, etc.
-  ; This procedure also finds a spot for the farming plots and settlements on the initial landscape
+  ; Initialization of households which derive initial storage, age, amount of
+  ; nutrients needed, etc. This procedure also finds a spot for the farming
+  ; plots and settlements on the initial landscape
   set best-farm self
   set aged-corn-stocks []
   set aged-corn-stocks fput (household-min-initial-corn + random-float (household-max-initial-corn - household-min-initial-corn)) aged-corn-stocks
@@ -218,7 +237,8 @@ to find-farm-and-settlement
     ask patch farm-x farm-y [
       set num-occupying-farms 1
     ]
-    if count patches with [ water-source = 1 and num-occupying-farms = 0 and yield < best-yield ] > 0 [ ;if there are cells with water which are not farmed and in a zone that is less productive than the zone where the favorite farm plot is located
+    if count patches with [ water-source = 1 and num-occupying-farms = 0 and yield < best-yield ] > 0 [
+      ;if there are cells with water which are not farmed and in a zone that is less productive than the zone where the favorite farm plot is located
       ask min-one-of patches with [ water-source = 1 and num-occupying-farms = 0 and yield < best-yield ] [ distance best-farm ] [ ; find the most nearby spot
         if distance best-farm <= water-source-distance [set x pxcor set y pycor set still-hunting? false]
       ]
@@ -231,7 +251,8 @@ to find-farm-and-settlement
       ]
     ]
     if still-hunting? [ ; if no settlement is found yet
-      ask min-one-of patches with [ num-occupying-farms = 0 ] [ distance best-farm ] [ ;find a location that is not farmed with nearby water (but this might be in the same zone as the farm plot)
+      ; find a location that is not farmed with nearby water (but this might be in the same zone as the farm plot)
+      ask min-one-of patches with [ num-occupying-farms = 0 ] [ distance best-farm ] [
         if distance best-farm <= water-source-distance [
           set x pxcor
           set y pycor
@@ -1248,7 +1269,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.3
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
