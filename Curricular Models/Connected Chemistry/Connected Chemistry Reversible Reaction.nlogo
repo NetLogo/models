@@ -274,7 +274,11 @@ to cool
   ifelse ( outside-energy > 20 ) [ set outside-energy outside-energy - energy-increment ] [ set outside-energy 0 ]
   if (outside-energy <= 0) [
     set outside-energy min-outside-energy
-    user-message "You are currently trying to cool the walls of the container below absolute zero (OK or -273C).  Absolute zero is the lowest theoretical temperature for all matter in the universe and has never been achieved in a real-world laboratory"
+    user-message (word
+      "You are currently trying to cool the walls of the container below "
+      "absolute zero (OK or -273C).  Absolute zero is the lowest theoretical "
+      "temperature for all matter in the universe and has never been "
+      "achieved in a real-world laboratory")
   ]
   recalculate-wall-color
   ask heatable-walls [set pcolor wall-color]
@@ -584,8 +588,11 @@ end
 
 ;; reports true if there wall is at a fixed temperature
 to-report isothermal-wall?
-  ifelse (( abs pxcor = -1 * box-edge-x) and (abs pycor <= box-edge-y)) or ((abs pycor = box-edge-y) and (abs pxcor <= box-edge-x)) and not insulated? and not insulated-walls?
-    [report true][report false]
+  report
+    (( abs pxcor = -1 * box-edge-x) and (abs pycor <= box-edge-y)) or
+    ((abs pycor = box-edge-y) and (abs pxcor <= box-edge-x)) and
+    not insulated? and
+    not insulated-walls?
 end
 
 
@@ -1144,7 +1151,7 @@ false
 Rectangle -7500403 true true 0 0 297 299
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

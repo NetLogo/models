@@ -7,12 +7,23 @@ globals [
 to setup
   ifelse length (gogo-serial:ports) > 0
     [ set serial-port user-one-of "Select a port:" gogo-serial:ports ]
-    [ user-message "There is a problem with the connection. Check if the board is on, and if the cable is connected. Otherwise, try to quit NetLogo, power cycle the GoGo Board, and open NetLogo again. For more information on how to fix connection issues, refer to the NetLogo documentation or the info tab of this model"
-      stop ]
+    [ user-message (word
+      "There is a problem with the connection. Check if the board is "
+      "on, and if the cable is connected. Otherwise, try to quit "
+      "NetLogo, power cycle the GoGo Board, and open NetLogo again. "
+      "For more information on how to fix connection issues, refer "
+      "to the NetLogo documentation or the info tab of this model")
+    stop ]
   gogo-serial:open serial-port
   repeat 5
   [ if not gogo-serial:ping
-    [ user-message "There is a problem with the connection. Check if the board is on, and if the cable is connected. Otherwise, try to quit NetLogo, power cycle the GoGo Board, and open NetLogo again. For more information on how to fix connection issues, refer to the NetLogo documentation or the info tab of this model"] ]
+    [ user-message (word
+      "There is a problem with the connection. Check if the board is "
+      "on, and if the cable is connected. Otherwise, try to quit "
+      "NetLogo, power cycle the GoGo Board, and open NetLogo again. "
+      "For more information on how to fix connection issues, refer "
+      "to the NetLogo documentation or the info tab of this model")
+    ] ]
   gogo-serial:talk-to-output-ports [ "a" ]
   set-current-plot "Sensor 1"
 end
@@ -20,11 +31,16 @@ end
 to test-connection
   carefully
   [ ifelse not gogo-serial:ping
-    [ user-message "There is a problem with the connection. Check if the board is on, and if the cable is connected. Otherwise, try to quit NetLogo, power cycle the GoGo Board, and open NetLogo again. For more information on how to fix connection issues, refer to the NetLogo documentation or the info tab of this model" ]
+    [ user-message (word
+      "There is a problem with the connection. Check if the board is "
+      "on, and if the cable is connected. Otherwise, try to quit "
+      "NetLogo, power cycle the GoGo Board, and open NetLogo again. "
+      "For more information on how to fix connection issues, refer "
+      "to the NetLogo documentation or the info tab of this model")
+    ]
     [ user-message "GoGo Board connected and working!" ] ]
   [ user-message error-message
     stop ]
-
 end
 
 
@@ -677,7 +693,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

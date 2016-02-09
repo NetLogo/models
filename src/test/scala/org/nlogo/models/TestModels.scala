@@ -13,10 +13,12 @@ trait TestModels extends FunSuite {
   def testModels(
     testName: String,
     includeTestModels: Boolean = false,
-    includeOtherDimension: Boolean = false)(testFun: Model => GenIterable[Any]): Unit = {
+    includeOtherDimension: Boolean = false,
+    filter: Model => Boolean = _ => true)(testFun: Model => GenIterable[Any]): Unit = {
     val models =
       (if (includeTestModels) allModels else libraryModels)
         .filter(includeOtherDimension || _.is3D == Version.is3D)
+        .filter(filter)
     testModels(models, testName)(testFun)
   }
 

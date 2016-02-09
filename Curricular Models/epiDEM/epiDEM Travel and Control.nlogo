@@ -413,12 +413,16 @@ to calculate-r0
   ]
 
   if ((initial-people - susceptible-t) != 0 and (susceptible-t != 0))   ;; Prevent from dividing by 0
-  [ set r0 (ln (s0 / susceptible-t) / (initial-people - susceptible-t)) ;; This is derived from integrating dI / dS = (beta*SI - gamma*I) / (-beta*SI)
-    set r0 r0 * s0 ]                                                    ;; Assuming one infected individual introduced in the beginning, and hence counting I(0) as negligible,
-end                                                                     ;; we get the relation
-                                                                        ;; N - gamma*ln(S(0)) / beta = S(t) - gamma*ln(S(t)) / beta, where N is the initial 'susceptible' population.
-                                                                        ;; Since N >> 1
-                                                                        ;; Using this, we have R_0 = beta*N / gamma = N*ln(S(0)/S(t)) / (K-S(t))
+  [
+    ;; This is derived from integrating dI / dS = (beta*SI - gamma*I) / (-beta*SI)
+    ;; Assuming one infected individual introduced in the beginning, and hence counting I(0) as negligible,
+    ;; we get the relation
+    ;; N - gamma*ln(S(0)) / beta = S(t) - gamma*ln(S(t)) / beta, where N is the initial 'susceptible' population.
+    ;; Since N >> 1
+    ;; Using this, we have R_0 = beta*N / gamma = N*ln(S(0)/S(t)) / (K-S(t))
+    set r0 (ln (s0 / susceptible-t) / (initial-people - susceptible-t))
+    set r0 r0 * s0 ]
+end
 
 
 ; Copyright 2011 Uri Wilensky.
@@ -1142,7 +1146,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

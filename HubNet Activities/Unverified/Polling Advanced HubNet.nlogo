@@ -456,7 +456,8 @@ to line-up
   set heading 0
   ifelse is-number? item current-question my-choices
   [ ifelse min [item current-question my-choices] of turtles < 0 or max [item current-question my-choices] of turtles > 10
-    [ set xcor ((1 + item current-question my-choices - min [item current-question my-choices] of turtles) * world-width / (1 + max [item current-question my-choices] of turtles - min [item current-question my-choices] of turtles) + min-pxcor)]
+    [ set xcor ((1 + item current-question my-choices - min [item current-question my-choices] of turtles) * world-width /
+        (1 + max [item current-question my-choices] of turtles - min [item current-question my-choices] of turtles) + min-pxcor)]
     [ set xcor ((1 + item current-question my-choices) * world-width / 12 + min-pxcor)]
   ]
   [ set xcor -1 * max-pxcor ]
@@ -921,7 +922,10 @@ end
 ;Saving questions
 ;ALWAYS makes a web page.  Poller data is hidden in comments at the bottom.
 to save-questions-prompt
-  user-message "Select the directory and filename for your questions.  You should add an extension - either .htm or .html\nIf you don't add an extension, NetLogo will automatically add .html"
+  user-message (word
+    "Select the directory and filename for your questions. "
+    "You should add an extension - either .htm or .html\n"
+    "If you don't add an extension, NetLogo will automatically add .html")
   let option user-new-file
   ifelse is-string? option
   [ if not (substring option (length option - 5) (length option) = ".html")
@@ -2476,7 +2480,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

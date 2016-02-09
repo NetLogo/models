@@ -123,7 +123,10 @@ to check-for-reaction
       set reactants-oxygen-molecules n-of 3 oxygen-molecules-on neighbors
       set water-catalysts count neighbors with [water?]
       set other-iron-atoms n-of 3 iron-atoms-on neighbors
-      if (sum [energy] of reactants-oxygen-molecules > activation-energy or (sum [energy] of reactants-oxygen-molecules > activation-energy / 2 and water-catalysts > 0) ) [
+      if (
+        sum [energy] of reactants-oxygen-molecules > activation-energy or
+        (sum [energy] of reactants-oxygen-molecules > activation-energy / 2 and water-catalysts > 0)
+      ) [
         if rust-forms = "at oxygen locations" [  ;; have rust form right where one of the oxygen molecules were
           ask n-of 2 reactants-oxygen-molecules [
           hatch 1 [create-rust-molecule]]
@@ -1254,7 +1257,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

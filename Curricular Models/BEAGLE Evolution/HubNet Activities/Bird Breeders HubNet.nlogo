@@ -65,7 +65,7 @@ birds-own [
   first-genes second-genes third-genes fourth-genes fifth-genes sex-gene   ;; genetic information is stored in these five variables
   transporting? breeding? selected? just-bred? sequenced? released?       ;; the state of the bird is stored in these seven variables
   destination-patch                                                       ;; this variable is used for keeping track of where the bird is moving toward
-  release-counter                                                         ;; this variable counts down to keep track of how to visualize the "fading" out of a released bird
+  release-counter                                                         ;; counts down to keep track of how to visualize the "fading" out of a released bird
 ]
 
 eggs-own  [
@@ -73,7 +73,7 @@ eggs-own  [
   first-genes second-genes third-genes fourth-genes fifth-genes sex-gene   ;; genetic information is stored in these five variables
   transporting? breeding? selected? just-bred? sequenced? released?       ;; the state of the egg is stored in these seven variables
   destination-patch                                                       ;; this variable is used for keeping track of where the egg is moving toward
-  release-counter                                                         ;; this variable counts down to keep track of how to visualize the "fading" out of a released egg
+  release-counter                                                         ;; counts down to keep track of how to visualize the "fading" out of a released egg
 ]
 
 ;; owned-by corresponds a particular user-id
@@ -83,7 +83,8 @@ destination-flags-own [owned-by]
 first-traits-own      [owned-by first-genes  ]
 second-traits-own     [owned-by second-genes ]
 third-traits-own      [owned-by third-genes  ]
-fourth-traits-own      [owned-by fourth-genes fifth-genes sex-gene ]       ;; the fourth trait related to presence of feathers (head cap) is sex linked - it only appears if the individual is male)
+;; the fourth trait related to presence of feathers (head cap) is sex linked - it only appears if the individual is male)
+fourth-traits-own     [owned-by fourth-genes fifth-genes sex-gene ]
 
 
 
@@ -137,10 +138,26 @@ to setup
   set egg-size  0.55
 
   set genes-to-phenotype [
-    ["AA" "set color [150 150 150 255]"] ["Aa" "set color [150 150 150 255]"] ["aA" "set color [150 150 150 255]"] ["aa" "set color [0 150 255 255]"]        ;; sets crest colors
-    ["BB" "set color [150 150 150 255]"] ["Bb" "set color [150 150 150 255]"] ["bB" "set color [150 150 150 255]"] ["bb" "set color [155 0 100 255]"]        ;; sets wing colors
-    ["CC" "set color [150 150 150 255]"] ["Cc" "set color [150 150 150 255]"] ["cC" "set color [150 150 150 255]"] ["cc" "set color [255 0 200 255]"]        ;; sets chest colors
-    ["DD" "set color [150 150 150 255]"] ["Dd" "set color [150 150 150 255]"] ["dD" "set color [150 150 150 255]"] ["dd" "set color [255 0 0 255]" ]         ;; sets tail colors
+    ;; sets crest colors
+    ["AA" "set color [150 150 150 255]"]
+    ["Aa" "set color [150 150 150 255]"]
+    ["aA" "set color [150 150 150 255]"]
+    ["aa" "set color [0 150 255 255]"]
+    ;; sets wing colors
+    ["BB" "set color [150 150 150 255]"]
+    ["Bb" "set color [150 150 150 255]"]
+    ["bB" "set color [150 150 150 255]"]
+    ["bb" "set color [155 0 100 255]"]
+    ;; sets chest colors
+    ["CC" "set color [150 150 150 255]"]
+    ["Cc" "set color [150 150 150 255]"]
+    ["cC" "set color [150 150 150 255]"]
+    ["cc" "set color [255 0 200 255]"]
+    ;; sets tail colors
+    ["DD" "set color [150 150 150 255]"]
+    ["Dd" "set color [150 150 150 255]"]
+    ["dD" "set color [150 150 150 255]"]
+    ["dd" "set color [255 0 0 255]" ]
   ]
 
   set-default-shape birds "bird"
@@ -512,7 +529,11 @@ to calculate-all-alleles
   set frequency-allele-dominant-fourth-trait   (count birds with [(item 0 fourth-genes)  = "D"]) + (count birds with [(item 1 fourth-genes)  = "D"])
   set frequency-allele-recessive-fourth-trait  (count birds with [(item 0 fourth-genes)  = "d"]) + (count birds with [(item 1 fourth-genes)  = "d"])
 
-  if ((both-second-trait-alleles-exist? and both-first-trait-alleles-exist? and both-fourth-alleles-exist? and both-third-trait-alleles-exist? and both-sexes-exist?) = false)
+  if ((both-second-trait-alleles-exist? and
+    both-first-trait-alleles-exist? and
+    both-fourth-alleles-exist? and
+    both-third-trait-alleles-exist? and
+    both-sexes-exist?) = false)
    [user-message (word "The current of birds in all the cages of all the player does not have"
     " enough genetic diversity for it to be possible for you to find a way to develop the desired breed."
     "  Press HALT then press SETUP to start the model over and try again.")
@@ -701,7 +722,11 @@ to check-click-on-bird-or-egg [msg]
       set destination-patch nobody
       set this-bird-or-egg self
       hatch 1 [
-        set breed selection-tags set owned-by this-player-number set color (lput 150 extract-rgb (player-tag-and-destination-flag-color this-player-number ) ) set heading 0 set size 1.0 set label ""
+        set breed selection-tags set owned-by this-player-number
+        set color (lput 150 extract-rgb (player-tag-and-destination-flag-color this-player-number ) )
+        set heading 0
+        set size 1.0
+        set label ""
         create-link-from this-bird-or-egg [set hidden? true tie]
       ]
     ]
@@ -1006,8 +1031,14 @@ end
 
 to-report is-other-players-cage-or-occupied-site? [this-player-number this-user-id ]
   let validity? false
-  if ((patch-owned-by >= 1 and patch-owned-by <= 4) and patch-owned-by != this-player-number)  [set validity? true ]   ;;You can not move a bird/egg to another players cage or dna sequencer
-  if (any? other birds-here or any? other eggs-here) [set validity? true ]                 ;; You can not move a bird/egg on top of another bird/egg
+  if ((patch-owned-by >= 1 and patch-owned-by <= 4) and patch-owned-by != this-player-number) [
+    ;;You can not move a bird/egg to another players cage or dna sequencer
+    set validity? true
+  ]
+  if (any? other birds-here or any? other eggs-here) [
+    ;; You can not move a bird/egg on top of another bird/egg
+    set validity? true
+  ]
   report validity?
 end
 
@@ -2243,7 +2274,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

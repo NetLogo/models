@@ -117,10 +117,26 @@ to set-scenario
 
     set genes-to-phenotype
       [
-        ["AA"  "set color (yellow - 1)"] ["Aa"  "set color orange"] ["aA"  "set color orange"] ["aa"  "set color red"]                                                       ;; sets body color
-        ["BB"  "set shape second-trait-shape-3"] ["Bb"  "set shape second-trait-shape-2"] ["bB"  "set shape second-trait-shape-2"] ["bb"  "set shape second-trait-shape-1"]  ;; fire shape
-        ["CC"  "set color (gray - 2.5)"] ["Cc"  "set color (gray + 1)"] ["cC"  "set color (gray + 1)"] ["cc"  "set color white"]                                             ;; sets breast color
-        ["DD"  "set shape fourth-shape-1"] ["Dd"  "set shape fourth-shape-2"] ["dD"  "set shape fourth-shape-2"] ["dd"  "set shape fourth-shape-3" ]                             ;; sets tail shape
+        ;; sets body color
+        ["AA"  "set color (yellow - 1)"]
+        ["Aa"  "set color orange"]
+        ["aA"  "set color orange"]
+        ["aa"  "set color red"]
+        ;; fire shape
+        ["BB"  "set shape second-trait-shape-3"]
+        ["Bb"  "set shape second-trait-shape-2"]
+        ["bB"  "set shape second-trait-shape-2"]
+        ["bb"  "set shape second-trait-shape-1"]
+        ;; sets breast color
+        ["CC"  "set color (gray - 2.5)"]
+        ["Cc"  "set color (gray + 1)"]
+        ["cC"  "set color (gray + 1)"]
+        ["cc"  "set color white"]
+        ;; sets tail shape
+        ["DD"  "set shape fourth-shape-1"]
+        ["Dd"  "set shape fourth-shape-2"]
+        ["dD"  "set shape fourth-shape-2"]
+        ["dd"  "set shape fourth-shape-3" ]
       ]
     ]
 end
@@ -1639,7 +1655,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

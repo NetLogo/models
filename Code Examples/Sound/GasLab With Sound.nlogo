@@ -249,7 +249,8 @@ to check-for-collision  ;; particle procedure
       ask candidate [ set last-collision myself ]
       if collisions? ;; make a sound when there's a collision that is a function of the sum of their speeds (macro)
         [ sound:play-note "telephone ring" 2 * ([speed] of self + [speed] of candidate) collisions-loudness 0.15 ]
-      if (single-particle-collisions? and ( who = 3 or [who] of candidate = 3 )) ;; make a sound when there's a collision that is a function of the sum of their speeds (micro)
+      ;; make a sound when there's a collision that is a function of the sum of their speeds (micro)
+      if (single-particle-collisions? and ( who = 3 or [who] of candidate = 3 ))
          [ ask particle 3 [ pen-down ] sound:play-note "glockenspiel" 69 single-particle-loudness + 40 0.2 ]
 
     ]
@@ -1300,7 +1301,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
