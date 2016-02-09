@@ -1,6 +1,5 @@
 globals
 [
-  recovery-time        ;; Time (in hours) it takes to recover from the infection
   nb-infected-previous ;; Number of infected people at the previous tick
   border               ;; The patches representing the yellow border
   angle                ;; Heading for individuals
@@ -18,6 +17,7 @@ turtles-own
   hospitalized?        ;; If true, the person is hospitalized and will recovery in half the average-recovery-time.
 
   infection-length     ;; How long the person has been infected.
+  recovery-time        ;; Time (in hours) it takes before the person has a chance to recover from the infection
   isolation-tendency   ;; Chance the person will self-quarantine during any hour being infected.
   hospital-going-tendency ;; Chance that an infected person will go to the hospital when infected
 
@@ -25,7 +25,7 @@ turtles-own
 
   ambulance?           ;; If true, the person is an ambulance and will transport infected people to the hospital.
 
-  susceptible-0        ;; Tracks whether the person was initially susceptible
+  susceptible?         ;; Tracks whether the person was initially susceptible
   nb-infected          ;; Number of secondary infections caused by an infected person at the end of the tick
   nb-recovered         ;; Number of recovered people at the end of the tick
 ]
@@ -64,7 +64,7 @@ to setup-people
       set hospitalized? false
       set ambulance? false
       set infected? false
-      set susceptible-0 1
+      set susceptible? true
 
       assign-tendency
 
@@ -77,13 +77,13 @@ to setup-people
       ;; Each individual has a 5% chance of starting out infected
       if (random-float 100 < 5)
       [ set infected? true
-        set susceptible-0 0
+        set susceptible? false
         set infection-length random recovery-time
       ]
 
       ifelse (not infected?) and (random-float 100 < inoculation-chance)
         [ set inoculated? true
-          set susceptible-0 0 ]
+          set susceptible? false ]
         [ set inoculated? false ]
 
       assign-color
@@ -110,6 +110,7 @@ to setup-ambulance
     set hospitalized? false
     set infected? false
     set inoculated? false
+    set susceptible? false
 
     set ambulance? true
 
@@ -398,7 +399,7 @@ to calculate-r0
   let new-recovered sum [ nb-recovered ] of turtles
   set nb-infected-previous (count turtles with [ infected? ] + new-recovered - new-infected)  ;; Number of infected people at the previous tick
   let susceptible-t (initial-people - (count turtles with [ infected? ]) - (count turtles with [ cured? ]))  ;; Number of susceptibles now
-  let s0 sum [ susceptible-0 ] of turtles  ;; Initial number of susceptibles
+  let s0 count turtles with [ susceptible? ] ;; Initial number of susceptibles
 
   ifelse nb-infected-previous < 10
   [ set beta-n 0 ]
@@ -760,7 +761,7 @@ What follows is a summary of the sliders in the model.
 
 INITIAL-PEOPLE (initialized to vary between 50 - 400): The total number of individuals the simulation begins with.
 INFECTION-CHANCE (10 - 50): Probability of disease transmission from one individual to another.
-RECOVERY-CHANCE (10 - 100): Probability of an individual's recovery, after the average recovery tie has elapsed.
+RECOVERY-CHANCE (10 - 100): Probability of an individual's recovery once the infection has lasted longer than the person's recovery time.
 AVERAGE-RECOVERY-TIME (50 - 300): Time it takes for an individual to recover, on average. The actual individual's recovery time is pulled from a normal distribution centered around the AVERAGE-RECOVERY-TIME at its mean, with a standard deviation of a quarter of the AVERAGE-RECOVERY-TIME. Each time-step can be considered to be in hours, although any suitable time unit will do.
 AVERAGE-ISOLATION-TENDENCY (0 - 50): Average tendency of individuals to isolate themselves and will not spread the disease. Once an infected person is identified as an "isolator," the individual will isolate himself in the current location (as indicated by the grey patch) and will stay there until full recovery.
 AVERAGE-HOSPITAL-GOING-TENDENCY (0 - 50): Average tendency of individuals to go to a hospital when sick. If an infected person is identified as a "hospital goer," then he or she will go to the hospital, and will recover in half the time of an average recovery period, due to better medication and rest.

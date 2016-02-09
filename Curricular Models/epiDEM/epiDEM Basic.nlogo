@@ -1,6 +1,5 @@
 globals
 [
-  recovery-time         ;; Time (in hours) it takes to recover from the infection
   nb-infected-previous  ;; Number of infected people at the previous tick
   beta-n                ;; The average number of new secondary
                         ;; infections per infected this tick
@@ -16,8 +15,9 @@ turtles-own
   infected?           ;; If true, the person is infected
   cured?              ;; If true, the person has lived through an infection.
                       ;; They cannot be re-infected.
-  susceptible-0       ;; Initial number of susceptible people
+  susceptible?        ;; Tracks whether the person was initially susceptible
   infection-length    ;; How long the person has been infected
+  recovery-time       ;; Time (in hours) it takes before the person has a chance to recover from the infection
   nb-infected         ;; Number of secondary infections caused by an
                       ;; infected person at the end of the tick
   nb-recovered        ;; Number of recovered people at the end of the tick
@@ -41,7 +41,7 @@ to setup-people
     setxy random-xcor random-ycor
     set cured? false
     set infected? false
-    set susceptible-0 1
+    set susceptible? true
 
     set shape "person"
     set color white
@@ -61,7 +61,7 @@ to setup-people
     if (random-float 100 < 5)
     [
       set infected? true
-      set susceptible-0 0
+      set susceptible? false
       set infection-length random recovery-time
     ]
     assign-color
@@ -164,7 +164,7 @@ to calculate-r0
     count turtles with [ cured? ]
 
   ;; Initial number of susceptibles:
-  let s0 sum [ susceptible-0 ] of turtles
+  let s0 count turtles with [ susceptible? ]
 
   ifelse nb-infected-previous < 10
   [ set beta-n 0 ]
@@ -428,7 +428,7 @@ What follows is a summary of the sliders in the model.
 
 INITIAL-PEOPLE (initialized to vary between 50 - 400): The total number of individuals in the simulation, determined by the user.
 INFECTION-CHANCE (10 - 100): Probability of disease transmission from one individual to another.
-RECOVERY-CHANCE (10 - 100): Probability of an infected individual to recover.
+RECOVERY-CHANCE (10 - 100): Probability of an infected individual to recover once the infection has lasted longer than the person's recovery time.
 AVERAGE-RECOVERY-TIME (50 - 300): The time it takes for an individual to recover on average. The actual individual's recovery time is pulled from a normal distribution centered around the AVERAGE-RECOVERY-TIME at its mean, with a standard deviation of a quarter of the AVERAGE-RECOVERY-TIME. Each time-step can be considered to be in hours, although any suitable time unit will do.
 
 A number of graphs are also plotted in this model.
@@ -795,7 +795,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
