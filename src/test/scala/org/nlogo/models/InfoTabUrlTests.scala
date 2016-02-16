@@ -74,10 +74,6 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
       "http://www.the-scientist.com/?articles.view/articleNo/13750/title/Why-Leaves-Turn-Color-in-the-Fall/",
       "https://www.wolframscience.com/nksonline/page-331"
     ),
-    302 -> Seq(
-      "http://www.barabasi.com",
-      "http://www.jstor.org/stable/2224214"
-    ),
     403 -> Seq(
       "http://www.ncbi.nlm.nih.gov/pmc/articles/PMC128592/",
       "http://www.red3d.com/cwr/boids/"
@@ -88,11 +84,12 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
   )
 
   def redirectTolerated(link: String, response: WSResponse) =
-    response.header("Location") match {
-      case Some("/")            => true
-      case Some(l) if l == link => true
-      case _                    => false
-    }
+    Set(302, 207).contains(response.status) ||
+      (response.header("Location") match {
+        case Some("/")            => true
+        case Some(l) if l == link => true
+        case _                    => false
+      })
 
   def request(
     link: String,
