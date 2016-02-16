@@ -1,6 +1,18 @@
-globals [ ticks-at-last-change ]
-turtles-own [ speed ]
-patches-own [ clear-in ]
+globals [
+  ticks-at-last-change  ; value of the tick counter the last time a light changed
+]
+
+breed [ lights light ]
+
+breed [ accidents accident ]
+accidents-own [
+  clear-in              ; how many ticks before an accident is cleared
+]
+
+breed [ cars car ]
+cars-own [
+  speed                 ; how many patches per tick the car moves
+]
 
 ;;;;;;;;;;;;;;;;;;;;
 ;;SETUP PROCEDURES;;
@@ -8,17 +20,16 @@ patches-own [ clear-in ]
 
 to setup
   clear-all
-  set-default-shape turtles "car"
-  ask patches
-    [ set pcolor green - 1
-      if abs pxcor <= 1 or abs pycor <= 1
-        [ set pcolor black ]
-    ]
-  ; start with one green light and one red light
-  ask one-of lights [
-    set pcolor green
-    ask other lights [ set pcolor red ]
+  set-default-shape lights "square"
+  set-default-shape accidents "fire"
+  set-default-shape cars "car"
+  ask patches [
+    ifelse abs pxcor <= 1 or abs pycor <= 1
+      [ set pcolor black ]     ; the roads are black
+      [ set pcolor green - 1 ] ; and the grass is green
   ]
+  ask patch 0 -1 [ sprout-lights 1 [ set color green ] ]
+  ask patch -1 0 [ sprout-lights 1 [ set color red ] ]
   reset-ticks
 end
 
@@ -27,117 +38,129 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;
 
 to go
-  move-cars
-  make-new-cars
+  ask cars [ move ]
+  check-for-collisions
+  make-new-car freq-north 0 min-pycor 0
+  make-new-car freq-east min-pxcor 0 90
   ; if we are in "auto" mode and a light has been
   ; green for long enough, we turn it yellow
   if auto? and elapsed? green-length [
     change-to-yellow
   ]
-  ; if a light has been yellow for long enough, we
-  ; turn it red and turn the other one green
-  if any? lights with [ pcolor = yellow ] and elapsed? yellow-length [
+  ; if a light has been yellow for long enough,
+  ; we turn it red and turn the other one green
+  if any? lights with [ color = yellow ] and elapsed? yellow-length [
     change-to-red
   ]
   tick
 end
 
-to make-new-cars
-  if (random-float 100 < freq-north) and not any? turtles-on patch 0 min-pycor
-    [
-      create-turtles 1
-        [ set ycor min-pycor
-          set heading 0
-          set color one-of base-colors
-          set speed min (list clear-ahead speed-limit)
-        ]
+to make-new-car [ freq x y h ]
+  if (random-float 100 < freq) and not any? turtles-on patch x y [
+    create-cars 1 [
+      setxy x y
+      set heading h
+      set color one-of base-colors
+      adjust-speed
     ]
-  if (random-float 100 < freq-east) and not any? turtles-on patch min-pxcor 0
-    [
-      create-turtles 1
-        [ set xcor min-pxcor
-          set heading 90
-          set color one-of base-colors
-          set speed min (list clear-ahead speed-limit)
-        ]
-    ]
+  ]
 end
 
-to move-cars
-  ask turtles [ move ]
-  check-for-collisions
-end
-
-to move ;; turtle procedure
-  let clear-to clear-ahead
-  ifelse clear-to > speed
-  [ if speed < speed-limit
-    [ set speed speed + min (list max-accel (clear-to - 1 - speed)) ] ;; accelerate
-    if speed > speed-limit
-    [ set speed speed-limit ] ;; but don't speed
-  ]
-  [ set speed speed - min (list max-brake (speed - (clear-to - 1))) ;; brake
-    if speed < 0 [ set speed 0 ]
-  ]
-  repeat speed ;; move ahead the correct amount
-  [
+to move ; turtle procedure
+  adjust-speed
+  repeat speed [ ; move ahead the correct amount
     fd 1
-    if not can-move? 1
-    [ die ]
-
-    if pcolor = orange
-    [ set clear-in 5  ;; if you hit an accident you cause another one
+    if not can-move? 1 [ die ] ; die when I reach the end of the world
+    if any? accidents-here [
+      ; if I hit an accident, I cause another one
+      ask accidents-here [ set clear-in 5 ]
       die
     ]
   ]
 end
 
-to-report clear-ahead ;;turtle procedure
-  let n 1
-  repeat max-accel + speed  ;; look ahead the number of patches that could be travelled
-  [ if (n * dx + pxcor <= max-pxcor) and (n * dy + pycor <= max-pycor)
-    [ if([pcolor] of patch-ahead n = red) or
-        ([pcolor] of patch-ahead n = orange) or
-        (any? turtles-on patch-ahead n)
-      [ report n ]
-      set n n + 1
+to adjust-speed
+
+  ; calculate the minimum and maximum possible speed I could go
+  let min-speed max (list (speed - max-brake) 0)
+  let max-speed min (list (speed + max-accel) speed-limit)
+
+  let target-speed max-speed ; aim to go as fast as possible
+
+  let blocked-patch next-blocked-patch
+  if blocked-patch != nobody [
+    ; if there is an obstacle ahead, reduce my speed
+    ; until I'm sure I won't hit it on the next tick
+    let space-ahead (distance blocked-patch - 1)
+    while [
+      breaking-distance-at target-speed > space-ahead and
+      target-speed > min-speed
+    ] [
+      set target-speed (target-speed - 1)
     ]
   ]
-  report n
+
+  set speed target-speed
+
+end
+
+to-report breaking-distance-at [ speed-at-this-tick ] ; car reporter
+  ; If I was to break as hard as I can on the next tick,
+  ; how much distance would I have travelled assuming I'm
+  ; currently going at `speed-this-tick`?
+  let min-speed-at-next-tick max (list (speed-at-this-tick - max-brake) 0)
+  report speed-at-this-tick + min-speed-at-next-tick
+end
+
+to-report next-blocked-patch ; turtle procedure
+  ; check all patches ahead until I find a blocked
+  ; patch or I reach the end of the world
+  let patch-to-check patch-here
+  while [ patch-to-check != nobody and not is-blocked? patch-to-check ] [
+    set patch-to-check patch-ahead ((distance patch-to-check) + 1)
+  ]
+  ; report the blocked patch or nobody if I didn't find any
+  report patch-to-check
+end
+
+to-report is-blocked? [ target-patch ] ; turtle reporter
+  report
+    any? other cars-on target-patch or
+    any? accidents-on target-patch or
+    any? (lights-on target-patch) with [ color = red ] or
+    (any? (lights-on target-patch) with [ color = yellow ] and
+      ; only stop for a yellow light if I'm not already on it:
+      target-patch != patch-here)
 end
 
 to check-for-collisions
-  ask patches with [ pcolor = orange ]
-  [ set clear-in clear-in - 1
-    if clear-in = 0
-    [ set pcolor black ]
+  ask accidents [
+    set clear-in clear-in - 1
+    if clear-in = 0 [ die ]
   ]
-  ask patches with [ count turtles-here > 1 ]
-  [
-    set pcolor orange
-    set clear-in 5
-    ask turtles-here [ die ]
+  ask patches with [ count cars-here > 1 ] [
+    sprout-accidents 1 [
+      set size 1.5
+      set color yellow
+      set clear-in 5
+    ]
+    ask cars-here [ die ]
   ]
 end
 
 to change-to-yellow
-  ask lights with [ pcolor = green ] [
-    set pcolor yellow
+  ask lights with [ color = green ] [
+    set color yellow
     set ticks-at-last-change ticks
   ]
 end
 
 to change-to-red
-  ask lights with [ pcolor = yellow ] [
-    set pcolor red
-    ask other lights [ set pcolor green ]
+  ask lights with [ color = yellow ] [
+    set color red
+    ask other lights [ set color green ]
     set ticks-at-last-change ticks
   ]
-end
-
-; reports the set of two patches that are used as traffic lights
-to-report lights
-  report (patch-set patch 0 -1 patch -1 0)
 end
 
 ; reports `true` if `time-length` ticks
@@ -195,9 +218,9 @@ NIL
 1
 
 BUTTON
-107
+105
 10
-169
+170
 43
 NIL
 go
@@ -212,10 +235,10 @@ NIL
 0
 
 BUTTON
-107
+105
 85
-178
-118
+170
+119
 switch
 change-to-yellow
 NIL
@@ -350,7 +373,7 @@ MONITOR
 707
 115
 waiting overall
-count turtles with [speed = 0]
+count cars with [ speed = 0 ]
 0
 1
 11
@@ -361,7 +384,7 @@ MONITOR
 707
 164
 waiting-eastbound
-count turtles with [heading = 90 and speed = 0]
+count cars with [ heading = 90 and speed = 0 ]
 0
 1
 11
@@ -372,7 +395,7 @@ MONITOR
 707
 213
 waiting-northbound
-count turtles with [heading = 0 and speed = 0]
+count cars with [ heading = 0 and speed = 0 ]
 0
 1
 11
@@ -393,14 +416,14 @@ true
 true
 "" ""
 PENS
-"overall" 1.0 0 -16777216 true "" "plot count turtles with [speed = 0]"
-"eastbound" 1.0 0 -13345367 true "" "plot count turtles with [heading = 90 and speed = 0]"
-"northbound" 1.0 0 -2674135 true "" "plot count turtles with [heading = 0 and speed = 0]"
+"overall" 1.0 0 -16777216 true "" "plot count cars with [ speed = 0 ]"
+"eastbound" 1.0 0 -13345367 true "" "plot count cars with [ heading = 90 and speed = 0 ]"
+"northbound" 1.0 0 -2674135 true "" "plot count cars with [ heading = 0 and speed = 0 ]"
 
 BUTTON
-87
+105
 45
-169
+170
 78
 go once
 go
@@ -422,32 +445,45 @@ In this model the turtles are cars traveling through an intersection.  The user 
 ## HOW IT WORKS
 
 The rules for each car are:
+
 - I can only go in the direction I started in, or stop.
-- I stop for cars in front of me and red lights, and I slow down at a yellow light.
-- If I am moving quickly and I see that I will have to stop soon, I slow down proportional to the distance of non-free space up to MAX-BRAKE.
-- If I see that I have free space in front of me, I speed up proportional to the amount of free space up to MAX-ACCEL.
+
+- I stop for cars in front of me and red lights, and I stop for a yellow light if I'm not already on it.
+
+- If I am moving quickly and I see that I will have to stop soon, I try to slow down enough to make sure I can stop in time, up to MAX-BRAKE.
+
+- If I see that I have free space in front of me, I speed up towards the SPEED-LIMIT, up to MAX-ACCEL.
+
 - If I am on the same space as another car, we crash and die.
 
 ## HOW TO USE IT
 
 WAIT-TIME-OVERALL shows how many cars are waiting during the given clock tick.
+
 WAIT-TIME-EASTBOUND shows how many eastbound cars are waiting during the given clock tick.
+
 WAIT-TIME-NORTHBOUND shows how many northbound cars are waiting during the given clock tick.
 
 CLOCK shows how many ticks have elapsed.
 
 Use the FREQ-EAST slider to select how often new eastbound cars travel on the road.
+
 Use the FREQ-NORTH slider to select how often new northbound cars travel on the road.
 
 Use the SPEED-LIMIT slider to select how fast the cars will travel.
+
 Use the MAX-ACCEL slider to determine how fast the cars can accelerate.
+
 Use the MAX-BRAKE slider to determine how fast the cars can decelerate.
 
 Use the GREEN-LENGTH slider to set how long the light will remain green.
+
 Use the YELLOW-LENGTH slider to set how long the light will remain yellow.
 
 Press GO ONCE to make the cars move once.
+
 Press GO to make the cars move continuously.
+
 To stop the cars, press the GO button again.
 
 ## THINGS TO NOTICE
@@ -465,22 +501,35 @@ Try to answer the following questions before running the simulations.
 Record your predictions.
 
 Compare your predicted results with the actual results.
+
 - What reasoning led you to correct predictions?
+
 - What assumptions that you made need to be revised?
 
 Try different numbers of eastbound cars while keeping all other slider values the same.
+
 Try different numbers of northbound cars while keeping all other slider values the same.
+
 Try different values of SPEED-LIMIT while keeping all other slider values the same.
+
 Try different values of MAX-ACCEL while keeping all other slider values the same.
+
 Try different values of GREEN-LENGTH and YELLOW-LENGTH while keeping all other slider values the same.
 
 For all of the above cases, consider the following:
+
 - What happens to the waiting time of eastbound cars?
+
 - What happens to the waiting time of northbound cars?
+
 - What happens to the overall waiting time?
+
 - What generalizations can you make about the impact of each variable on the waiting time of cars?
+
 - What kind of relationship exists between the number of cars and the waiting time they experience?
+
 - What kind of relationship exists between the speed of cars and the waiting time they experience?
+
 - What kind of relationship exists between the number of ticks of green light and the waiting time cars experience?
 
 Use your answers to the above questions to come up with a strategy for minimizing the waiting time of cars.
@@ -492,8 +541,6 @@ What factor (or combination of factors) has the most influence over the waiting 
 Find a realistic way to eliminate all crashes by only changing car behavior.
 
 Allow different light lengths for each direction in order to control wait time better.
-
-In the model, the yellow light is only for visual effect.  In real life, it tells cars that they need to start braking if they're going to be able to stop before the light turns red.  Make the cars use this information, and see how it affects the model.
 
 Is there a better way to measure the efficiency of an intersection than the current number of stopped cars?
 
@@ -632,6 +679,13 @@ Circle -7500403 true true 8 8 285
 Circle -16777216 true false 60 75 60
 Circle -16777216 true false 180 75 60
 Polygon -16777216 true false 150 168 90 184 62 210 47 232 67 244 90 220 109 205 150 198 192 205 210 220 227 242 251 229 236 206 212 183
+
+fire
+false
+0
+Polygon -7500403 true true 151 286 134 282 103 282 59 248 40 210 32 157 37 108 68 146 71 109 83 72 111 27 127 55 148 11 167 41 180 112 195 57 217 91 226 126 227 203 256 156 256 201 238 263 213 278 183 281
+Polygon -955883 true false 126 284 91 251 85 212 91 168 103 132 118 153 125 181 135 141 151 96 185 161 195 203 193 253 164 286
+Polygon -2674135 true false 155 284 172 268 172 243 162 224 148 201 130 233 131 260 135 282
 
 fish
 false
@@ -808,7 +862,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.1
+NetLogo 5.3.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -826,5 +880,5 @@ Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 
 @#$#@#$#@
-0
+1
 @#$#@#$#@
