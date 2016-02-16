@@ -1245,7 +1245,7 @@ false
 Rectangle -7500403 true true 0 0 297 299
 
 @#$#@#$#@
-NetLogo 5.3.1-RC1
+NetLogo 5.3.1-RC2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
