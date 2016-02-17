@@ -190,7 +190,7 @@ end
 
 ;; imposes a threshold limit on gene-frequency.
 ;; without this genes could drift into negative values
-;; or very large values 
+;; or very large values
 to-report limit-gene [gene]
   if gene < 0   [ report 0   ]
   if gene > 255 [ report 255 ]
@@ -1006,7 +1006,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.0.4-RC2
+NetLogo 5.3.1-RC2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
