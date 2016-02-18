@@ -102,7 +102,8 @@ class CodeTests extends TestModels {
     "type" -> Seq.empty,
     "wait" -> Seq(
       "Sound Workbench", "Fish Spotters HubNet", "Bug Hunt Camouflage",
-      "Bug Hunters Camouflage Two Regions HubNet", "Memory HubNet", "Central Limit Theorem",
+      "Bug Hunters Camouflage HubNet", "Bug Hunters Camouflage Two Regions HubNet",
+      "Memory HubNet", "Central Limit Theorem",
       "Gridlock HubNet", "Gridlock Alternate HubNet", "Polling Advanced HubNet",
       "Public Good HubNet", "4 Blocks", "9-Blocks", "Expected Value",
       "Expected Value Advanced", "Random Combinations and Permutations",
