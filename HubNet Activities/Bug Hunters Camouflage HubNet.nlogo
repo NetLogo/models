@@ -41,7 +41,7 @@ end
 ;; this kills off all the turtles (including the players)
 ;; so we don't necessarily want to do this each time we setup
 to setup-clear
-  ca
+  clear-all
   set-default-shape bugs "moth"
   set adult-age 50
   setup
@@ -50,7 +50,7 @@ end
 ;; setup the model for another round of bug catching
 ;; with the same group of users logged in
 to setup
-  cp
+  clear-patches
   clear-all-plots
   reset-ticks
   ask bugs [ die ]
@@ -549,7 +549,7 @@ BUTTON
 425
 95
 clear background
-cd
+clear-drawing
 NIL
 1
 T
