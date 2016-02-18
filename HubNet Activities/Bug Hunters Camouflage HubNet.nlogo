@@ -1,45 +1,24 @@
-extensions [bitmap]
 globals
 [
-  predator-leader               ;; a string expressing the player who has found the most bug (or a tie if appropriate)
-  predator-leader-found         ;; the number of bug the leader has found
-  mate-leader                   ;; a string expressing the player who has found the most bug (or a tie if appropriate)
-  mate-leader-found             ;; the number of bug the leader has found
-  predator-total-found          ;; running total of the total number of bug found
-  mate-total-found              ;; running total of the total number of bug found
-  leader                        ;; a string expressing the player who has found the most bugs (or a tie if appropriate)
-  leader-found                  ;; the number of bugs the leader has found
-  total-found                   ;; running total of the total number of bugs found by everyone
-  adult-age                     ;; the number of ticks before bugs are full grown
-  image1                        ;; the first image uploaded by the user for the environment
-  image2                        ;; the second image uploaded by the user for the environment
-  image3                        ;; default image
-  image4                        ;; default image
-  image5                        ;; default image
-  number-of-predators           ;; keeps track of the number of predators (clients that are assigned this role) in the competition
-  number-of-mates               ;; keeps track of the number of mates     (clients that are assigned this role) in the competition
-  host-mouse-down-released?     ;; keeps track of mouse-button release event to prevent host from holding down button and moving mouse to vacuum up bugs
-  host-role                     ;; keeps track of the role the host is assigned (mate or predator)
+  leader            ;; a string expressing the player who has caught the most bugs (or a tie if appropriate)
+  leader-caught     ;; the number of bugs the leader has caught
+  total-caught      ;; running total of the total number of bugs caught by everyone
+  adult-age         ;; the number of ticks before bugs are full grown
 ]
 
 ;; each client controls one player turtle
 ;; players are always hidden in the view
 breed [players player]
-breed [found-spots found-spot]
-breed [edges edge]
-breed [bugs bug]
-
-found-spots-own [countdown]
 
 players-own
 [
   user-name    ;; the unique name users enter on their clients
-  host?        ;; all clients have this set to false...but the host is also a player, in which case this is set to true.
-  role         ;; set as predator or mate
-  found        ;; the number of bugs this user as found
+  caught       ;; the number of bugs this user as caught
   attempts     ;; times the user has clicked in the view trying to catch a bug
   percent      ;; percent of catches relative to the leader
 ]
+
+breed [bugs bug]
 
 ;; gene-frequencies determine the color
 ;; of each bug and mutate as bugs reproduce
@@ -48,17 +27,13 @@ bugs-own
   red-gene    ;; gene for strength of expressing red pigment (0-255)
   blue-gene   ;; gene for strength of expressing blue pigment (0-255)
   green-gene  ;; gene for strength of expressing green pigment (0-255)
-  birthday    ;; when this bug was born
 ]
-
-patches-own [type-of-patch region]
 
 ;;;;;;;;;;;;;;;;;;;
 ;; Setup Procedures
 ;;;;;;;;;;;;;;;;;;;
 
 to startup
-  clear-all
   hubnet-reset
   setup-clear
 end
@@ -66,11 +41,9 @@ end
 ;; this kills off all the turtles (including the players)
 ;; so we don't necessarily want to do this each time we setup
 to setup-clear
-  clear-environment
-  reset-ticks
+  clear-all
   set-default-shape bugs "moth"
-  set adult-age 25
-  add-host
+  set adult-age 50
   setup
 end
 
@@ -81,78 +54,27 @@ to setup
   clear-all-plots
   reset-ticks
   ask bugs [ die ]
-  ask found-spots [ die ]
-  set host-mouse-down-released? false
-  set total-found 0
+
+  set total-caught 0
   set leader ""
-  set host-role ""
-  set leader-found 0
-  setup-regions
-  set-default-image-filenames
+  set leader-caught 0
+
   change-environment
-  make-initial-bugs carrying-capacity-environment-left  1
-  make-initial-bugs carrying-capacity-environment-right 2
+  make-initial-bugs
   ;; make sure to return players to initial conditions
-  ask players with [ not host? ] [ initialize-player ]
-  ask players with [ host? ] [ initialize-host ]
+  ask players [ initialize-player ]
 end
 
-to setup-regions
-  let min-pycor-edge min-pycor
-  let max-pycor-edge max-pycor
-  let water-patches nobody
-  ask edges [ die ]
-  ask patches [
-    set region 0
-    if (pxcor = 0 or pycor = min-pycor or pycor = max-pycor or pxcor = min-pxcor or pxcor = max-pxcor) [
-      set type-of-patch "outside-region"
-    ]
-    if pxcor < 0 and pxcor > min-pxcor and pycor < max-pycor and pycor > min-pycor [ set region 1 ]
-    if pxcor > 0 and pxcor > min-pxcor and pycor < max-pycor and pycor > min-pycor [ set region 2 ]
-    if type-of-patch = "outside-region" [
-      sprout-edges 1 [
-        set region 0
-        set color white
-        set shape "edges"
-      ]
-    ]
-  ]
-end
-
-to make-initial-bugs [carrying-capacity which-side]
-  let initial-colors-of-bugs ""
-  if which-side = 1 [ set initial-colors-of-bugs initial-colors-bugs-left ]
-  if which-side = 2 [ set initial-colors-of-bugs initial-colors-bugs-right ]
-  create-bugs carrying-capacity [
-    set size adult-bug-size
-    set shape "moth"
-    set birthday (-1 * adult-age)
+to make-initial-bugs
+  create-bugs carrying-capacity
+  [
+    set size bug-size
     ;; assign gene frequencies from 0 to 255, where 0 represents 0% expression of the gene
     ;; and 255 represent 100% expression of the gene for that pigment
-    if initial-colors-of-bugs = "random variation" [
-      set red-gene random 255
-      set blue-gene random 255
-      set green-gene random 255
-    ]
-    if initial-colors-of-bugs = "all gray" [
-      set red-gene 122
-      set blue-gene 122
-      set green-gene 122
-    ]
-    if initial-colors-of-bugs = "all black or white" [
-      ifelse random 2 = 0 [
-         set red-gene 0
-         set blue-gene  0
-         set green-gene  0
-      ]
-      [
-         set red-gene  255
-         set blue-gene  255
-         set green-gene 255
-      ]
-    ]
-    if which-side = 1 [ move-to one-of patches with [ region = 1 ] ]
-    if which-side = 2 [ move-to one-of patches with [ region = 2 ] ]
+    set red-gene random 255
+    set blue-gene random 255
+    set green-gene random 255
+    setxy random-xcor random-ycor
     set-phenotype-color
     assign-genotype-labels
   ]
@@ -165,146 +87,97 @@ end
 to go
   grow-bugs
   reproduce-bugs
-  cull-extra-bugs
-  listen-host
   listen-clients
-  visualize-found-spots
-  tick
+  every 0.01
+  [ tick ]
+  do-plots
 end
 
 to grow-bugs
-  ask bugs [
+  ask bugs
+  [
     ;; show genotypes if appropriate, hide otherwise
     assign-genotype-labels
-    ;; if the bug is smaller than adult-bug-size then it's not full
+    ;; if the bug is smaller than bug-size then it's not full
     ;; grown and it should get a little bigger
     ;; so that bugs don't just appear full grown in the view
     ;; but instead slowly come into existence. as it's easier
     ;; to see the new bugs when they simply appear
-    let age ticks - birthday
-    ifelse age < adult-age
-      [ set size adult-bug-size * (age / adult-age) ]
-      [ set size adult-bug-size ]
+    ifelse size < bug-size
+    [ set size size + (bug-size / adult-age) ]
+    [ set size bug-size ]
   ]
- ;; grow the newly hatched offspring until they reach their ADULT-AGE, at which point they should be the full bug-SIZE
 end
 
 ;; keep a stable population of bugs as predation rates go up or down
 to reproduce-bugs
   ;; if all the bugs are removed by predators at once
   ;; make a new batch of random bugs
-  if count bugs with [ region = 1 ] = 0
-    [ make-initial-bugs carrying-capacity-environment-left 1 ]
-  if count bugs with [ region = 2 ] = 0
-    [ make-initial-bugs carrying-capacity-environment-right 2 ]
+  if count bugs = 0
+  [ make-initial-bugs ]
+
   ;; otherwise reproduce random other bugs  until
   ;; you've reached the carrying capacity
-  if count bugs with [ region = 1 ] < carrying-capacity-environment-left
-    [ ask one-of bugs with [ region = 1 ] [ make-one-offspring ] ]
-  if count bugs with [region = 2 ] < carrying-capacity-environment-right
-    [ ask one-of bugs with [ region = 2 ] [ make-one-offspring ] ]
-end
-
-to cull-extra-bugs
-  ;; if all the bugs are removed by predators at once
-  ;; make a new batch of random bugs
-  if count bugs with [ region = 1 ] = 0
-    [ make-initial-bugs carrying-capacity-environment-left 1 ]
-  if count bugs with [ region = 2 ] = 0
-    [ make-initial-bugs carrying-capacity-environment-right 2 ]
-  ;; otherwise reproduce random other bugs  until
-  ;; you've reached the carrying capacity
-  if count bugs with [ region = 1 ] > carrying-capacity-environment-left
-    [ ask one-of bugs with [ region = 1 ] [ die ] ]
-  if count bugs with [ region = 2 ] > carrying-capacity-environment-right
-    [ ask one-of bugs with [ region = 2 ] [ die] ]
-end
-
-;;;;;;;;;;;;;;;;;;;;;
-;; Visualization Procedures
-;;;;;;;;;;;;;;;;;;;;;
-
-to visualize-death
-  hatch 1 [
-    set breed found-spots
-    set hidden? false
-    set shape "x"
-    set size 1.6
-    set countdown 15
-  ]
-  die
-end
-
-to visualize-mating
-  hatch 1 [
-    set breed found-spots
-    set hidden? false
-    set shape "heart"
-    set size 1.8
-    set countdown 15
-  ]
-  die
-end
-
-to visualize-found-spots
-  ask found-spots [
-    set countdown countdown - 1
-    set color lput (countdown * 10) [255 255 255]  ;; sets the transparency of this spot to progressively more transparent as countdown decreases
-    if countdown <= 0 [ die ]
-  ]
+  if count bugs < carrying-capacity
+  [ ask one-of bugs [ make-one-offspring ] ]
 end
 
 to make-one-offspring ;; turtle procedure
   ;; three possible random mutations can occur, one in each frequency of gene expression
   ;; the max-mutation-step determines the maximum amount the gene frequency can drift up
   ;; or down in this offspring
-  let red-mutation   random (max-color-mutation + 1) - random (max-color-mutation + 1)
-  let green-mutation random (max-color-mutation + 1) - random (max-color-mutation + 1)
-  let blue-mutation  random (max-color-mutation + 1) - random (max-color-mutation + 1)
-  hatch 1 [
-     set size 0.2
-     set birthday ticks
+  let red-mutation   random (max-mutation-step + 1) - random (max-mutation-step + 1)
+  let green-mutation random (max-mutation-step + 1) - random (max-mutation-step + 1)
+  let blue-mutation  random (max-mutation-step + 1) - random (max-mutation-step + 1)
+  hatch 1
+  [
+     set size 0
      set red-gene   limit-gene (red-gene   + red-mutation)
      set green-gene limit-gene (green-gene + green-mutation)
      set blue-gene  limit-gene (blue-gene  + blue-mutation)
      set-phenotype-color
      ;; move away from the parent slightly
-     lay-offspring
+     wander
    ]
 end
 
-;; used to move bug slightly away from their parent
-to lay-offspring ;; bug procedure
-  let this-region region
-  let this-bug self
-  let birth-sites-in-radius patches with [ distance this-bug <= offspring-distance ]
-  let birth-sites-in-region birth-sites-in-radius with [ region = this-region ]
-  if any? birth-sites-in-region and not any? edges-on birth-sites-in-region
-    [ move-to one-of birth-sites-in-region ]
-  set heading random 360
+;;  ask all bugs to reproduce, ignoring carrying-capacity limits
+to make-generation
+  ask bugs [ make-one-offspring ]
 end
 
-to clear-environment
-  clear-drawing
-  ask bugs [ set xcor xcor + 0.000001 ] ;; a way to force a display update
+;; used to move bugs slightly away from their parent
+to wander ;; turtle procedure
+   rt random 360
+   fd random-float offspring-distance + 1
+end
+
+;; loads an image as a background among the images listed in the environment chooser
+to change-environment
+    import-drawing environment
 end
 
 ;; a visualization technique to find bugs if you are convinced they are not there anymore
+;; it allows flashing without actually changing and recalculating the color attribute of the bugs
 to flash-bugs
-  repeat 3 [
+  repeat 3
+  [
     ask bugs [ set color black ]
-    display
     wait 0.1
+    display
     ask bugs [ set color white ]
-    display
     wait 0.1
+    display
   ]
   ask bugs [ set-phenotype-color ]
-  display
 end
 
 to assign-genotype-labels  ;; turtle procedure
-  ifelse show-genes? [ set label color ] [ set label "" ]
+  ifelse show-genotype?
+  ;; we display the genotype without decimal digits, to make
+  ;; the data display of this information less cluttered
+  [ set label color ]
+  [ set label "" ]
 end
 
 ;; convert the genetic representation of gene frequency
@@ -315,34 +188,33 @@ to set-phenotype-color  ;; turtle procedure
   set color rgb red-gene green-gene blue-gene
 end
 
-to listen-host
-  if mouse-inside? and mouse-down? and host-mouse-down-released? [
-    ask players with [ host? ] [
-      set host-mouse-down-released? false
-      check-found-bugs (list mouse-xcor mouse-ycor)
-    ]
-  ]
-  set host-mouse-down-released? not mouse-down?
+;; imposes a threshold limit on gene-frequency.
+;; without this genes could drift into negative values
+;; or very large values
+to-report limit-gene [gene]
+  if gene < 0   [ report 0   ]
+  if gene > 255 [ report 255 ]
+  report gene
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;; HubNet Procedures
 ;;;;;;;;;;;;;;;;;;;;;;
+
 to listen-clients
-  while [ hubnet-message-waiting? ] [
+  while [hubnet-message-waiting?]
+  [
     hubnet-fetch-message
-    ifelse hubnet-enter-message? [
-      add-player
-    ]
+    ifelse hubnet-enter-message?
+    [ add-player ]
     [
-      ifelse hubnet-exit-message? [
-        remove-player
-      ]
-      [
-        if hubnet-message-tag = "View" [
-          ask players with [ user-name = hubnet-message-source ] [
-            check-found-bugs hubnet-message
-          ]
+      ifelse hubnet-exit-message?
+     [ remove-player ]
+     [
+        if hubnet-message-tag = "View"
+        [
+          ask players with [ user-name = hubnet-message-source ]
+            [ eat-bugs ]
         ]
       ]
     ]
@@ -352,230 +224,112 @@ end
 ;; when a client logs in make a new player
 ;; and give it the default attributes
 to add-player
-  create-players 1 [
+  create-players 1
+  [
     set user-name hubnet-message-source
     initialize-player
   ]
 end
 
-to add-host
-  create-players 1 [ initialize-host ]
-end
-
-to initialize-host
-  set user-name "host"
-  initialize-player
-  set host? true ;;changes this back to true after initial-player sets it to false by default
-  set host-role role
-end
-
 to initialize-player ;; player procedure
   hide-turtle
-  set number-of-mates count players with [ role = "mate" ]
-  set number-of-predators count players with [ role = "predator" ]
-  if players-roles = "all mates"     [ set role "mate" ]
-  if players-roles = "all predators" [ set role "predator" ]
-  if players-roles = "mix of mates & predators" [
-    ifelse number-of-mates >= number-of-predators
-      [ set role "predator" ]
-      [ set role "mate" ]
-  ]
   set attempts 0
-  set found 0
-  set host? false
+  set caught 0
   set-percent
-  send-player-info
+  send-student-info
 end
 
-to check-found-bugs [ msg ]
-  ;; extract the coords from the hubnet message
-  let clicked-xcor (item 0 msg)
-  let clicked-ycor (item 1 msg)
-  let this-region 0
-  if clicked-ycor > 0 [ set this-region 1 ]
-  if clicked-ycor < 0 [ set this-region 2 ]
-  let this-player-role role
-
-  set this-region region
-  set xcor clicked-xcor      ;; go to the location of the click
-  set ycor clicked-ycor
-  set attempts attempts + 1  ;; each mouse click is recorded as an attempt for that player
-
-  ;;  if the players clicks close enough to a bug's location, they catch it
-  ;;  the in-radius (bug-size / 2) calculation helps make sure the user catches the bug
-  ;;  if they click within one shape radius (approximately since the shape of the bug isn't
-  ;;  a perfect circle, even if the size of the bug is other than 1)
-  let candidates bugs with [ distance myself < size / 2 and region = this-region ]
-  let num-region-bugs count bugs with [ region = this-region ]
-  ifelse any? candidates and num-region-bugs >= 2 [ ;; must have at least 2 bugs in the region
-    ;; randomly select one of the bugs you clicked on
-    let found-bug one-of candidates
-    set found found + 1
-    ifelse this-player-role = "mate"
-      [ set mate-total-found mate-total-found + 1 ]
-      [ set predator-total-found predator-total-found + 1 ]
-    ask found-bug [
-      ;; if you are a mate, kill of a random bug, make two offspring from your mating, and the selected mate is killed off too
-      if this-player-role = "mate" [
-        repeat 2 [ make-one-offspring ]
-        visualize-mating
-        ask one-of other bugs with [ region = this-region ] [ die ]
-        die
-      ]
-      ;; if you are a predator, make an offspring from another random bug, then remove the one you selected
-      if this-player-role = "predator" [
-        ask one-of other bugs with [ region = this-region ] [
-          make-one-offspring
-        ]
-        visualize-death
-      ]
-    ]
-    ask players [ send-player-info ]
-  ]
-  [ ;; even if we didn't catch a bug we need to update the attempts monitor
-    send-player-info
-  ]
-end
-
-to broadcast-competition-info
-  hubnet-broadcast "# of predators" count players with [ role = "predator" ]
-  hubnet-broadcast "Top predator" predator-leader
-  hubnet-broadcast "Top predator's catches" predator-leader-found
-  hubnet-broadcast "# of mates" count players with [ role = "mate" ]
-  hubnet-broadcast "Top mate" mate-leader
-  hubnet-broadcast "Top mate's matings" mate-leader-found
-end
-
-;; when clients log out simply get rid of the player turtle
+;; when clients log out simply
+;; get rid of the player turtle
 to remove-player
-  ask players with [ user-name = hubnet-message-source and not host? ] [
-    die
-  ]
+  ask players with [ user-name = hubnet-message-source ]
+    [ die ]
 end
 
 to eat-bugs
   ;; extract the coords from the hubnet message
-  let clicked-xcor (item 0 hubnet-message)
-  let clicked-ycor (item 1 hubnet-message)
+  let clicked-xcor  (item 0 hubnet-message)
+  let clicked-ycor  (item 1 hubnet-message)
 
-  ask players with [ user-name = hubnet-message-source ] [
+  ask players with [ user-name = hubnet-message-source ]
+  [
     set xcor clicked-xcor      ;; go to the location of the click
     set ycor clicked-ycor
     set attempts attempts + 1  ;; each mouse click is recorded as an attempt
                                ;; for that player
 
     ;;  if the players clicks close enough to a bug's location, they catch it
-    ;;  the in-radius (adult-bug-size / 2) calculation helps make sure the user catches the bug
+    ;;  the in-radius (bug-size / 2) calculation helps make sure the user catches the bug
     ;;  if they click within one shape radius (approximately since the shape of the bug isn't
     ;;  a perfect circle, even if the size of the bug is other than 1)
-    let candidates bugs in-radius (adult-bug-size / 2)
-    ifelse any? candidates [
+    let candidates bugs in-radius (bug-size / 2)
+    ifelse any? candidates
+    [
       let doomed-bug one-of candidates
-      set found found + 1
-      set total-found total-found + 1
-      ask doomed-bug [ visualize-death ]
+      set caught caught + 1
+      set total-caught total-caught + 1
+      ask doomed-bug
+        [ die ]
+
+      ;; if a bug is caught update the leader
+      ;; as it may have changed
+      update-leader-stats
       ;; all the players have monitors
       ;; displaying information about the leader
       ;; so we need to make sure that gets updated
       ;; when the leader changed
-      ask players [
+      ask players
+      [
         set-percent
-        send-player-info
+        send-student-info
       ]
     ]
-    [ ;; even if we didn't catch a bug we need to update the attempts monitor
-      send-player-info
-    ]
+    ;; even if we didn't catch a bug we need to update the attempts monitor
+    [ send-student-info ]
   ]
 end
 
-;; calculate the percentage that this player found to the leader
+;; calculate the percentage that this player caught to the leader
 to set-percent ;; player procedure
   ;; make sure we don't get a divide by 0 error
-  ifelse leader-found > 0
-    [ set percent (found / leader-found) * 100]
-    [ set percent 0 ]
+  ifelse leader-caught > 0
+  [ set percent (caught / leader-caught) * 100]
+  [ set percent 0 ]
 end
 
 ;; update the monitors on the client
-to send-player-info ;; player procedure
-  hubnet-send user-name "Your name" user-name
-  hubnet-send user-name "Your role" role
-  hubnet-send user-name "You have found" found
+to send-student-info ;; player procedure
+  hubnet-send user-name  "Your name" user-name
+  hubnet-send user-name "You have caught" caught
   hubnet-send user-name "# Attempts"  attempts
+  hubnet-send user-name "Relative %"  (precision percent 2) ;; just show 2 decimal places
+  hubnet-send user-name "Top hunter" leader
+  hubnet-send user-name "Top hunter's catches" leader-caught
 end
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Image Loading  and Combining Procedures
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; do the bookkeeping to display the proper leader and score
+to update-leader-stats
+  if any? players
+  [
+    let leaders players with-max [ caught ]
+    let number-leaders count leaders
 
-to set-default-image-filenames
-  set image3 "seashore.jpg"
-  set image4 "glacier.jpg"
-  set image5 "poppyfield.jpg"
-end
-
-to upload-image1
-  set image1 user-file
-end
-
-to upload-image2
-  set image2 user-file
-end
-
-;; loads a single or combined image as environment
-to change-environment
-  clear-drawing
-  if (left-environment = "image1" or environment-right = "image1") and (image1 = 0) [
-    user-message "Please upload image 1."
-    stop
+    ;; if there is more than one leader just report
+    ;; a tie otherwise report the name
+    ifelse number-leaders > 1
+    [ set leader word number-leaders "-way tie" ]
+    [ ask one-of leaders [ set leader user-name ] ]
+    set leader-caught [caught] of one-of leaders
   ]
-  if (left-environment = "image2" or environment-right = "image2") and (image2 = 0) [
-    user-message "Please upload image 2."
-    stop
-  ]
-  if not (left-environment  = "none") [
-    set-environment (match-image-input left-environment) 1
-  ]
-  if not (environment-right = "none") [
-    set-environment (match-image-input environment-right) 2
-  ]
-  ask bugs [ set hidden? true ]
-  let image-file-name "stitched-image.png"
-  bitmap:export bitmap:from-view image-file-name
-  import-drawing image-file-name
-  carefully [ file-delete image-file-name ] []
-  ask bugs [ set hidden? false ]
-end
-
-to set-environment [image-name region-name]
-  let xcor-image 0 ;;if region is 1 this will stay as 0, if 2 it will be 400
-  if region-name = 2 [ set xcor-image 400 ]
-  let image-name-scaled bitmap:scaled (bitmap:import image-name) 410 410
-  bitmap:copy-to-drawing image-name-scaled xcor-image 0
 end
 
 ;;;;;;;;;;;;;;;;;;;;;
-;; Reporters
+;; Plotting Procedure
 ;;;;;;;;;;;;;;;;;;;;;
 
-to-report match-image-input [ input-image ] ;; match the choices in the chooser with images
-  let target-image ""
-  if input-image = "image1" [ set target-image image1 ]
-  if input-image = "image2" [ set target-image image2 ]
-  if input-image = "seashore" [ set target-image image3 ]
-  if input-image = "glacier" [ set target-image image4 ]
-  if input-image = "poppyfield" [ set target-image image5 ]
-  report target-image
-end
-
-;; imposes a threshold limit on gene-frequency.
-;; without this genes could drift into negative values
-;; or very large values
-to-report limit-gene [ gene ]
-  if gene < 0   [ report 0   ]
-  if gene > 255 [ report 255 ]
-  report gene
+to do-plots
+  set-current-plot "Bugs Caught by All Hunters vs. Time"
+  plot total-caught
 end
 
 
@@ -583,11 +337,11 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-190
-95
-1010
-536
-40
+502
+10
+922
+451
+20
 20
 10.0
 1
@@ -596,11 +350,11 @@ GRAPHICS-WINDOW
 1
 1
 0
-0
-0
 1
--40
-40
+1
+1
+-20
+20
 -20
 20
 1
@@ -610,9 +364,9 @@ ticks
 30.0
 
 BUTTON
-15
+180
 10
-80
+305
 43
 NIL
 setup
@@ -627,11 +381,11 @@ NIL
 1
 
 BUTTON
-85
+310
 10
-175
+425
 43
-go/pause
+NIL
 go
 T
 1
@@ -641,40 +395,66 @@ NIL
 NIL
 NIL
 NIL
+1
+
+MONITOR
+173
+210
+423
+255
+Top hunter's catches
+leader-caught
 0
+1
+11
 
 SLIDER
-215
+5
 10
-510
+170
 43
-carrying-capacity-environment-left
-carrying-capacity-environment-left
+carrying-capacity
+carrying-capacity
 0
 100
-2
+20
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+175
+170
+425
+203
+offspring-distance
+offspring-distance
+1
+20
+5
 1
 1
 NIL
 HORIZONTAL
 
 CHOOSER
-375
-45
-510
-90
-left-environment
-left-environment
-"seashore" "glacier" "poppyfield" "image1" "image2" "none"
 5
+50
+137
+95
+environment
+environment
+"seashore.jpg" "glacier.jpg" "poppyfield.jpg"
+2
 
 BUTTON
-525
+140
 50
-670
-86
-change environments
-change-environment
+285
+95
+change background
+import-drawing environment
 NIL
 1
 T
@@ -686,11 +466,11 @@ NIL
 1
 
 BUTTON
-15
-445
 175
-478
-flash bugs
+100
+425
+133
+flash
 flash-bugs
 NIL
 1
@@ -702,15 +482,26 @@ NIL
 NIL
 1
 
+SWITCH
+6
+172
+171
+205
+show-genotype?
+show-genotype?
+1
+1
+-1000
+
 SLIDER
-15
-190
-175
-223
-adult-bug-size
-adult-bug-size
+5
+100
+170
+133
+bug-size
+bug-size
 0.1
-2
+10
 1.5
 0.1
 1
@@ -718,12 +509,12 @@ NIL
 HORIZONTAL
 
 BUTTON
-15
-410
 175
-443
-clear both backgrounds
-clear-environment
+135
+425
+168
+make a generation
+make-generation\nask bugs [assign-genotype-labels]
 NIL
 1
 T
@@ -734,288 +525,149 @@ NIL
 NIL
 1
 
-SLIDER
-15
-225
-175
-258
-max-color-mutation
-max-color-mutation
-0
-50
-20
-1
-1
-NIL
-HORIZONTAL
-
-CHOOSER
-215
-45
-370
-90
-initial-colors-bugs-left
-initial-colors-bugs-left
-"random variation" "all gray" "all black or white"
-0
-
-BUTTON
-15
-110
-175
-143
-upload custom image 1
-upload-image1
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-15
-145
-175
-178
-upload custom image 2
-upload-image2
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-CHOOSER
-850
-45
-985
-90
-environment-right
-environment-right
-"seashore" "glacier" "poppyfield" "image1" "image2" "none"
+PLOT
 5
+260
+425
+444
+Bugs Caught by All Hunters vs. Time
+days
+bugs
+0.0
+100.0
+0.0
+50.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -16777216 true "" ""
 
-CHOOSER
-15
+BUTTON
+290
 50
-175
+425
 95
-players-roles
-players-roles
-"all mates" "all predators" "mix of mates & predators"
+clear background
+clear-drawing
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
 1
 
 SLIDER
-685
-10
-985
-43
-carrying-capacity-environment-right
-carrying-capacity-environment-right
+6
+137
+171
+170
+max-mutation-step
+max-mutation-step
 0
 100
-0
+25
 1
 1
 NIL
 HORIZONTAL
 
-CHOOSER
-685
-45
-845
-90
-initial-colors-bugs-right
-initial-colors-bugs-right
-"random variation" "all gray" "all black or white"
-0
-
-SLIDER
-15
-260
-175
-293
-offspring-distance
-offspring-distance
-2
-40
-40
-2
-1
-NIL
-HORIZONTAL
-
-SWITCH
-15
-480
-175
-513
-show-genes?
-show-genes?
-1
-1
--1000
-
 MONITOR
-15
-305
-175
-350
-role of the host
-host-role
-17
-1
-11
-
-MONITOR
-15
-350
-95
-395
-host found
-item 0 [found] of players with [host?]
-17
-1
-11
-
-MONITOR
-95
-350
-175
-395
-# attempts
-item 0 [attempts] of players with [host?]
-17
+5
+210
+170
+255
+Top hunter
+leader
+3
 1
 11
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-This is a HubNet activity of natural selection that shows how a population hunted by a predator can develop camouflaging. It can shows how a population can become progressively more garish in appearance, when sexual selection is the prevalent selective pressure on the population.
+This is a HubNet activity of natural/artificial selection that shows how a population hunted by a predator can develop camouflaging.  For example, in a forest with green leaves, green bugs may emerge as the predominant bug color.
 
-For example, in a forest with green leaves, green bugs may emerge as the predominant bug color, when predators are hunting them, while red or yellow bugs may emerge as the predominant bug color in the same green leaved forest, when only mates are seeking them.
-
-When a predator uses color to identify the location of prey in an environment, then the prey that have heritable trait variations that allow them to blend into the background better, tend to survive longer and reproduce more often.
-
-If this continues over many generations, the distribution of colors in a population may shift to become better camouflaged in the surrounding environment.
-
-When a bug uses color to identify the location of mates in an environment, then the mates that have heritable trait variations that allow them to stand out from the background better, tend to reproduce offspring with that bug more often.
-
-If this continues over many generations, the distribution of colors in a population may shift to become better less camouflaged and more garish in the surrounding environment.
+When a predator uses color and shape to identify the location of prey in an environment, then the colors and patterns in the environment provide additional selective pressure on the prey.  If some prey tend to blend into the background better, they tend to survive longer and reproduce more often.  If this continues over many generations, the distribution of colors in a population may shift to become better camouflaged in the surrounding environment.
 
 ## HOW IT WORKS
 
-Each HubNet participant or player assumes the role of a predator or a mate. When the HubNet simulation is started after pressing GO, participants should try to click on bugs as fast as they can with the mouse.
+Each HubNet participant or player assumes the role of a predator.  When the HubNet simulation is started after pressing GO, participants should try to click on bugs as fast as they can with the mouse.
 
-If the player is in the role of a predator, then each bug they catch is one that they ate. If the player is in the role of a mate, then each bug they catch is one that they mate with.
+Each participant can monitor his or her relative success compared to other participants by watching the monitors in the client that show the TOP HUNTER (the person with most catches), how many that person caught (TOP HUNTER'S CATCHES) and the RELATIVE % they have caught compared to the best hunter (e.g. if the player has caught 40 and the best hunter has caught 80, then s/he has 50%).
 
-Each participant can monitor his or her relative success compared to other participants by watching the monitors in the client that show the number of bugs found (YOU HAVE FOUND) or if they are the host (HOST FOUND). .
+Over time a small population of bugs will become harder and harder to detect in the environment (the environment is an image file that is loaded into the model).  Camouflaging emerges from: 1) a selective pressure that results from the interaction of predator, prey, and environment, 2) the genetic representation for genes to show color, 3) and small random changes that accumulate in new offspring in the remaining population that tend to be more advantageous.
 
-Over time a population of bugs will either become harder or easier to detect in the environment (the environment is an image file that is loaded into the model), depending on whether mates or predators are exerting a selective pressure on the population.
+Trying to become the best hunter (in number of moth catches) in the HubNet environment helps simulate the competitive pressure for limited food resources that exists between individual predators in a population.  Without this simulated competition, a participant could leisurely hunt for bugs regardless of how easy they are to catch or find.  This would not put any selective pressure on the moth population over time, and so camouflaging would not emerge in the population.
 
-Camouflaging emerges from: 1) a selective pressure that results from the interaction of predator, prey, and environment, 2) the genetic representation for genes to show color, 3) and small random changes that accumulate in new offspring in the remaining population that tend to be more advantageous.
+Bugs have 3 genes that determine their phenotype for color.  One gene is RED-GENE, another is GREEN-GENE, and the last is BLUE-GENE.  The more frequently the gene for a pigment is coded for, the stronger that presence of color is in the overall blend of pigments that results in a single phenotype for coloration (determined by an RGB [Red-Green-Blue] calculation).
 
-Garishness also emerges from: 1) a selective pressure that results from the interaction of predator, prey, and environment, 2) the genetic representation for genes to show color, 3) and small random changes that accumulate in new offspring in the remaining population that tend to be more advantageous.
-
-Trying to become the most successful predator or mate (in NUMBER FOUND of bugs) in the HubNet environment helps simulate the competitive pressure for limited food resources that exists between individual predators in a population or the competitive pressure for limited mates available to mate with in a mating season. Without this simulated competition, a participant could leisurely hunt for bugs regardless of how easy they are to catch or find. This sort of interaction would not put any (or as much) selective pressure on the bug population over time, and so camouflaging or garish colors would not emerge as readily in the population in this case.
-
-3 genes determine the heritable trait of bug color. One gene is RED-GENE, another is GREEN-GENE, and the last is BLUE-GENE. Higher values for each of these genes, represent more copies of the gene/allele. More genes for producing pigmentation, leads to more saturated and brighter colors. So for example, a high values for the red-gene, results in the production of lots of red "substance" by the bug. A value of 0 for the RED-GENE would result in no red substance being expressed by the bug.
-
-These overall blend of pigments that results in a single phenotype for coloration is determined by an RGB [Red-Green-Blue] calculation of all the gene values.
-
-With each bug you eat, an existing bug is randomly chosen to reproduce one offspring. The offspring's gene-frequency for each of the three pigment genes may be slightly different than the parent (as determined by the MUTATION-STEP slider).
-
-With each bug you mate with, two new offspring are produced and the mate is removed from the population. The offspring's gene-frequency for each of the three pigment genes may be slightly different than the mate that was chosen (as determined by the MUTATION-STEP slider).
+With each bug you eat, an existing bug is randomly chosen to reproduce one offspring.  The offspring's gene-frequency for each of the three pigment genes may be slightly different than the parent (as determined by the MUTATION-STEP slider).
 
 ## HOW TO USE IT
 
-To run the simulation the GO button. To start the simulation over with the same group of players stop the GO button by pressing it again, press the SETUP button, and press GO again. To run the activity with a new group of students press the RESET button in the Control Center.
+To run the activity press the GO button.  To start the activity over with the same group of students stop the GO button by pressing it again, press the SETUP button, and press GO again.  To run the activity with a new group of students press the RESET button in the Control Center.
 
 Make sure you select Mirror 2D view on clients in the HubNet Control Center after you press SETUP.
 
-PREDATOR-ROLES specifies the type of role each player is assigned (the players include all the clients as well as the host).
+CARRYING-CAPACITY determines the size of the population on SETUP, and how many bugs are in the world at one time when GO is pressed and bugs are being eaten.
 
-- when this value is set to "all mates" each player will eat bugs when they click on them.
+MAX-MUTATION-STEP determines how much the pigment genes can drift from their current values in each new generation.  For example, a MAX-MUTATION-STEP of 1 means that the gene frequency for any of the three pigments could go up 1, down 1, or stay the same in the offspring.
 
-- when this value is set to "all predators" each player will mate with bugs when they click on them
+OFFSPRING-DISTANCE determines how far away (in patches) an offspring could show up from a parent.  For example, a distance of 5 means the offspring could be up to 5 patches away from the parent.
 
-- when this value is set to "a mix of predator & mates", a player may end up being assigned the role of either a mate or predator, and then they keep that role until SETUP is pressed again. The assigned role for that player will appear in the ROLE OF HOST monitor for the host or in the YOUR ROLE monitor for the clients.
+BUG-SIZE can be changed at any time during GO or before SETUP to modify the size of the shapes for the bugs.
 
-UPLOAD IMAGE 1 is a button that is used to load an image file into memory, for use as a potential background. UPLOAD IMAGE 2 does the same, but for a 2nd image. Both buttons allow you to select an image file from anywhere on your computer hard drive to use as a background image. Once the image is loaded, then changing the LEFT-ENVIRONMENT or RIGHT ENVIRONMENT chooser to "image1" or "image2" will use that loaded image as the new background when SETUP or CHANGE ENVIRONMENTS is pressed.
+SHOW-GENOTYPE? reveals the RGB (Red-Green-Blue) gene frequency values for each bug.  The values for Red can range from 0 to 255, and this also true for Green and Blue.  These numbers represent how fully expressed each pigment is (e.g. 102-255-51 would represent genetic information that expresses the red pigment at 40% its maximum value, the green pigment at 100%, and the blue pigment at 20%.
 
-CARRYING-CAPACITY-ENVIRONMENT-LEFT determines the size of the population in the left environment on SETUP, and how many bugs are in the world at one time when GO is pressed and bugs are being eaten or mates with. CARRYING-CAPACITY-ENVIRONMENT-RIGHT determines the size of the population in the right environment.
+ENVIRONMENT specifies the file name to load as a background image on SETUP or on CHANGE-ENVIRONMENT.  The image file must be located in the same directory as the model.
 
-INITIAL-COLORS-BUGS-LEFT (applies to bugs in the left environment when SETUP is pressed) and INITIAL-COLORS-BUGS-RIGHT (applies to bugs in the right environment when SETUP is pressed):
+MAKE-SINGLE-GENERATION creates one offspring from the existing bugs, without being limited by the CARRYING-CAPACITY.
 
-- when this value is set to "random variations", the genotype of each bug's pigment production can range from 0 to 255, for red, and for green, and for blue pigments.
+The plots "BUGS CAUGHT BY ALL HUNTERS VS. TIME" keeps track of how many bugs all the participants have caught.
 
-- when this value is set to "all gray", the genotype of each bug's pigment production will be set to 127.
-
-- when this value is set to "all black or white", each bug has a 50/50 chance of being black or white ( pigment production will be set to 0 for each pigment or 255 for each pigment)
-
-LEFT ENVIRONMENT is a chooser that specifies the file name to load as a background image in the left environment on SETUP or when the CHANGE ENVIRONMENTS button is pressed. RIGHT ENVIRONMENT is a chooser that specifies the image to use in the right environment. Three default images are provided in the models library folder with the model that can be selected: "seashore", "glacier", and "poppyfield"
-
-ADULT-BUG-SIZE is a slider that can be changed at any time during GO or before SETUP to modify the size of the shapes for the bugs. When bugs are born they start out at a size of 0, then quickly grow to the value set by ADULT-BUG-SIZE and remain at that value for the remainder of their life. This "growth" in size helps prevent the predators and mates on cueing in on "sudden" bug appearances in the environment, which diminish the survival/reproductive advantage that color variations would offer.
-
-MAX-COLOR-MUTATION is a slider that determines how much the pigment genes can drift from their current values in each new generation. For example, a MAX-COLOR-MUTATION of 1 means that the gene frequency for any of the three pigments could go up 1, down 1, or any value in between (including 0, which would be no change) in the offspring.
-
-OFFSPRING-DISTANCE is a slider that determines how far away (in patches) an offspring could show up from a parent. For example, a distance of 5 means the offspring could be between 0 and 5 patches away from the parent.
-
-HOST FOUND is a monitor showing the number of bugs found by the host
-
-HOST ATTEMPTS is a monitor showing the number of attempted clicks of the mouse button by the host, as they hunted in the environment.
-
-CLEAR BOTH BACKGROUNDS is a button that removes the images from both background, and makes the background all black.
-
-FLASH BUGS is a button that quickly flashes the bugs from white to black and back a few times, to show the players where the camouflaged bugs were hiding.
-
-SHOW-GENES? is a switch that reveals the RGB (Red-Green-Blue) gene frequency values for each bug. The values for Red can range from 0 to 255, and this also true for Green and Blue. These numbers represent how fully expressed each pigment is (e.g. 102-255-51 would represent genetic information that expresses the red pigment at 40% its maximum value, the green pigment at 100%, and the blue pigment at 20%.
+There are several monitors TOP HUNTER reports the person with most catches and TOP HUNTER'S CATCHES reports how many they caught.
 
 ## THINGS TO TRY
 
-Larger numbers of bugs tend to take longer to start camouflaging or becoming garish, but larger numbers of prey or mates (participants) speed up the emergence of these outcomes in larger populations.
+Larger numbers of bugs tend to take longer to start camouflaging, but larger numbers of prey (participants) speed up the emergence camouflaging in larger populations.
 
-A common response from the players when they are predators (within about 1 minute of interaction with the model) is "where did the bugs all go?" If you keep playing with the model, the user might get better at finding those hard to find bugs, but if s/he keeps trying to catch bugs quickly, even an experienced user will find that the creatures will become very hard to find in certain environments.
+A common response from the user (within about 1 minute of interaction with the model) is "where did the bugs all go?"  If you keep playing with the model, the user might get better at finding the bugs, but if s/he keeps trying to catch bugs quickly, even an experienced user will find that the creatures will become very hard to find in certain environments.
 
-Each new offspring starts at zero size and grows to full size (specified by BUG-SIZE) after a while. This growth in size is included to make brand new offspring harder to detect. If newly created offspring were full sized right away, your eyes would more easily detect the sudden appearance of something new.
+Each new offspring starts at zero size and grows to full size (specified by BUG-SIZE) after a while.  This growth in size is included to make brand new offspring harder to detect.  If newly created offspring were full sized right away, your eyes would more easily detect the sudden appearance of something new.
 
-Sometimes two or more "near background" colors emerge as a predominant feature in a population of bugs. An example of this is the appearance of mostly green and red bugs in the poppy field, or dark blue/black and snow blue in the glacier background. Other times, the saturation of the bugs appears to be selected for. An example of this is a common outcome of "shell colored" bugs on the seashore background (e.g. light yellow, light tan, and light blue bugs similar to the shells of the seashore).
+Sometimes two or more "near background" colors emerge as a predominant feature in a population of bugs.  An example of this is the appearance of mostly green and red bugs in the poppy field, or dark blue/black and snow blue in the glacier background.  Other times, the saturation of the bugs appears to be selected for.  An example of this is a common outcome of "shell colored" bugs on the seashore background (e.g. light yellow, light tan, and light blue bugs similar to the shells of the seashore).
 
-In environments that have two distinct areas (such as a ground and sky), each with their own patterns and background colors, you might see two distinct populations of different camouflaging outcomes. Often, while hunting in one area, you will be surprised to look over at the other area (after they hadn't been paying attention to that area in a while) and notice that now there are a bunch of bugs in that background that blend in this new area very well, but whose colors are distinctly different than those that blend into the original area you were hunting in.
+Larger numbers of bugs tend to take longer to start camouflaging.
+
+In environments that have two distinct areas (such as a ground and sky), each with their own patterns and background colors, you might see two distinct populations of different camouflaging outcomes.  Often, while hunting in one area, you will be surprised to look over at the other area (after they hadn't been paying attention to that area in a while) and notice that now there are a bunch of bugs in that background that blend in this new area very well, but whose colors are distinctly different than those that blend into the original area you were hunting in.
 
 Once you reach a point where you are having trouble finding the bugs, it is useful to either press FLASH to show where they are (and how they are camouflaged), or press CLEAR-BACKGROUND to enable you to study their color distribution and location.
 
 ## EXTENDING THE MODEL
 
-What if the body shape of the bugs was heritable and mutated?
+What if bugs reproduced sexually and recombined gene frequencies in their offspring?
+
+What if the shape of the bugs changed?
+
+What if a second population of insects, with slightly different body shape, was poisonous, and lost points for the user when they selected it?  Would the bugs drift to become more like this color (Mimicry), stay more like the environment, or some other outcome?
 
 ## NETLOGO FEATURES
-
-The bitmap extension is used to support `bitmap:export bitmap:from-view` to build a new image file from the file selected for import, for later use by the IMPORT-DRAWING primitive.
 
 IMPORT-DRAWING is the primitive that loads the image into the drawing, which in this case is merely a backdrop.
 
 IN-RADIUS is the primitive used to check if the mouse is within the graphical "footprint" of a turtle.
 
-This model uses RGB colors, that is, colors expressed as a three item list of red, green and blue. This gives a large range of colors than with NetLogo colors.
-
-The side by side 2 environment interface is a feature that is used in many of the update evolution and population dynamics models in the BEAGLE curriculum. It is built using a breed of turtles called edges that are on a graphics layer above the bugs. When bugs travel under the edges they are relocated so that they are "wrapped" around to the other side of their respective environment, similar to the world wrapping feature in the WORLD VIEW.
-
-It has proven useful for supporting students in comparing outcomes between different conditions/interactions in different environment, when they can see those environments and outcomes side by side.
+This model uses RGB colors, that is, colors expressed as a three item list of red, green and blue.  This gives a large range of colors than with NetLogo colors.
 
 ## RELATED MODELS
 
-Bacteria Hunt Speeds
+Bug Hunt Speeds
 Bug Hunt Camouflage
+Bug Hunter Camouflage Two Regions HubNet
 Peppered Moths
 Guppy Spots
 
@@ -1133,11 +785,6 @@ false
 0
 Circle -7500403 true true 90 90 120
 
-edges
-false
-0
-Rectangle -7500403 true true 0 0 300 300
-
 face happy
 false
 0
@@ -1210,27 +857,6 @@ Polygon -7500403 true true 165 214 164 239 142 277 154 287 175 286 188 277 164 2
 Polygon -16777216 true false 171 251 164 246 143 270 155 280 176 279 189 270 161 251
 Polygon -7500403 true true 165 201 164 226 149 261 154 274 175 273 181 260 164 226
 Polygon -16777216 false false 145 142 154 152 149 168 92 158 33 176 49 182 25 196 45 197 33 211 52 211 42 221 57 218 52 225 93 231 147 228 150 240 150 252 149 267 143 271 145 272 141 276 145 281 137 289 150 300 177 300 194 289 184 279 189 275 185 274 188 271 179 262 181 258 176 253 181 240 181 230 228 233 267 227 261 219 277 222 267 213 286 213 275 200 292 198 271 182 285 178 226 159 175 170 174 151 164 144
-
-heart
-false
-0
-Polygon -2674135 true false 241 99 239 131 209 176 179 206 150 240 149 99
-Polygon -2674135 true false 241 97 237 82 226 70 208 61 196 59 180 62 165 71 158 82 153 90 149 104 242 104
-Polygon -2674135 true false 59 97 63 82 74 70 92 61 104 59 120 62 135 71 142 82 147 90 151 104 58 104
-Polygon -2674135 true false 58 99 60 131 90 176 120 206 150 240 150 99
-Polygon -16777216 false false 149 97 143 82 136 74 128 65 116 59 104 58 88 60 74 69 64 78 58 100 58 110 59 131 75 155 90 177 120 207 150 240 180 204 210 175 227 147 238 131 241 105 239 85 227 72 211 61 195 58 181 60 169 66 159 77 154 86
-
-heart2
-false
-0
-Polygon -2064490 true false 59 97 63 82 74 70 92 61 104 59 120 62 135 71 142 82 147 90 151 104 58 104
-Polygon -2674135 true false 29 67 33 52 44 40 62 31 74 29 90 32 105 41 112 52 117 60 121 74 28 74
-Polygon -2064490 true false 241 97 237 82 226 70 208 61 196 59 180 62 165 71 158 82 153 90 149 104 242 104
-Polygon -2674135 true false 211 67 207 52 196 40 178 31 166 29 150 32 135 41 128 52 123 60 119 74 212 74
-Polygon -2064490 true false 58 99 60 131 90 176 120 206 150 221 150 99
-Polygon -2674135 true false 28 69 30 101 60 146 90 176 120 191 120 69
-Polygon -2064490 true false 241 99 239 131 209 176 179 206 149 221 149 99
-Polygon -2674135 true false 211 69 209 101 179 146 149 176 119 191 119 69
 
 house
 false
@@ -1405,60 +1031,20 @@ Line -7500403 true 84 40 221 269
 x
 false
 0
-Polygon -7500403 true true 75 30 30 75 105 150 30 225 75 270 150 195 225 270 270 225 195 150 270 75 225 30 150 105
-Polygon -16777216 false false 30 75 105 150 30 225 75 270 150 195 225 270 270 225 195 150 270 75 225 30 150 105 75 30
+Polygon -7500403 true true 270 75 225 30 30 225 75 270
+Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.2.1-RC1
+NetLogo 5.3.1-RC2
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
-MONITOR
-5
-10
-130
-59
-Your name
-NIL
-0
-1
-
-MONITOR
-5
-120
-130
-169
-You have found
-NIL
-3
-1
-
-MONITOR
-5
-175
-130
-224
-# Attempts
-NIL
-0
-1
-
-MONITOR
-5
-65
-130
-114
-Your role
-NIL
-3
-1
-
 VIEW
-140
+175
 10
-950
+585
 420
 0
 0
@@ -1472,10 +1058,90 @@ VIEW
 1
 1
 1
--40
-40
 -20
 20
+-20
+20
+
+MONITOR
+10
+10
+135
+59
+Your name
+NIL
+0
+1
+
+TEXTBOX
+15
+65
+143
+128
+Try to catch bugs by clicking on them in the view to the right.
+11
+0.0
+0
+
+MONITOR
+10
+120
+135
+169
+You have caught
+NIL
+3
+1
+
+MONITOR
+10
+175
+135
+224
+# Attempts
+NIL
+0
+1
+
+MONITOR
+10
+240
+135
+289
+Top hunter
+NIL
+0
+1
+
+MONITOR
+10
+290
+135
+339
+Top hunter's catches
+NIL
+3
+1
+
+MONITOR
+10
+400
+133
+449
+Relative %
+NIL
+1
+1
+
+TEXTBOX
+15
+350
+160
+392
+Relative % = 100 * \n(your catches) / \n(top hunter's catches)
+11
+0.0
+0
 
 @#$#@#$#@
 default
