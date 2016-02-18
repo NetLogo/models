@@ -667,6 +667,7 @@ This model uses RGB colors, that is, colors expressed as a three item list of re
 
 Bug Hunt Speeds
 Bug Hunt Camouflage
+Bug Hunter Camouflage Two Regions HubNet
 Peppered Moths
 Guppy Spots
 
