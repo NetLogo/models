@@ -136,7 +136,7 @@ class CodeTests extends TestModels {
       "Connected Chemistry 3 Circular Particles", "Connected Chemistry 4 Number and Pressure",
       "Connected Chemistry Atmosphere", "Connected Chemistry 2 Changing Pressure",
       "Connected Chemistry 8 Gas Particle Sandbox", "DNA Protein Synthesis",
-      "Hotelling's Law", "Tie System Example"
+      "Hotelling's Law", "Tie System Example", "Piaget-Vygotsky Game"
     ),
     "write" -> Seq.empty
   )
@@ -227,6 +227,9 @@ class CodeTests extends TestModels {
     ),
     "Wolf Sheep Predation (Docked Hybrid)" -> Set(
       "sheepStock", "wolfStock", "predationRate", "predatorEfficiency"
+    ),
+    "Piaget-Vygotsky Game" -> Set(
+      "ZPD"
     )
   )
 
