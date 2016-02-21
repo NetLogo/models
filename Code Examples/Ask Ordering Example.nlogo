@@ -13,22 +13,30 @@ end
 ;;; three different version of GO
 
 to go-random
-  ask turtles
-    [ fd 1 ]
+  ask turtles [
+    fd 1
+    display
+  ]
   tick
 end
 
 to go-by-who-number
-  foreach sort turtles
-    [ ask ?
-        [ fd 1 ] ]
+  foreach sort turtles [
+    ask ? [
+      fd 1
+      display
+    ]
+  ]
   tick
 end
 
 to go-by-size
-  foreach sort-by [[size] of ?1 > [size] of ?2] turtles
-    [ ask ?
-        [ fd 1 ] ]
+  foreach sort-by [ [ size ] of ?1 > [ size ] of ?2 ] turtles [
+    ask ? [
+      fd 1
+      display
+    ]
+  ]
   tick
 end
 
@@ -58,8 +66,8 @@ GRAPHICS-WINDOW
 50
 -8
 8
-0
-0
+1
+1
 1
 ticks
 30.0
@@ -142,16 +150,6 @@ NIL
 NIL
 0
 
-TEXTBOX
-221
-12
-509
-39
-Use the speed slider, above, to slow the model\ndown so you can see what's happening.
-11
-0.0
-1
-
 @#$#@#$#@
 ## WHAT IS IT?
 
@@ -160,8 +158,6 @@ Agentsets in NetLogo are always in random order.  This code example demonstrates
 ## NETLOGO FEATURES
 
 `sort` and `sort-by` are used to specify ordering.
-
-View updates are set to "continuous", so when you slow the model down far enough you can see the turtles moving one at a time.
 
 <!-- 2007 -->
 @#$#@#$#@
