@@ -285,7 +285,7 @@ to dance ; bee procedure
     ]
     display
     ; displays a simplified waggle dance with 5 states instead of the figure-8 waggle path
-    ; the higher the quality of the supported site, the move vigrous the dance looks.
+    ; the higher the quality of the supported site, the move vigorous the dance looks.
   ]
   ask dancers [
     set bee-timer bee-timer - 1
