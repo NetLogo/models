@@ -1,8 +1,10 @@
 package org.nlogo.models
 
-import Model._
-import org.nlogo.api.TokenType
-import org.nlogo.api.TokenType._
+import java.nio.charset.StandardCharsets.UTF_8
+import java.nio.file.Files
+import java.nio.file.Paths
+
+import Model.libraryModels
 
 object CodeComplexity {
 
@@ -21,5 +23,11 @@ object CodeComplexity {
         .map { case (m, w) => s"$m, $w" }
         .mkString("\n")
     )
+    writeFile("identifier_costs.txt", models.flatMap(_.primitiveTokenNames).toSeq.distinct.sorted.mkString("\n"))
+
+  }
+
+  def writeFile(fileName: String, content: String) {
+    Files.write(Paths.get(fileName), content.getBytes(UTF_8))
   }
 }
