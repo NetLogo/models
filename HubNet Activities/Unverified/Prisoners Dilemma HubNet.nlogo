@@ -241,17 +241,17 @@ to set-defect-shape
 end
 
 to-report test-strategy [ snippet ]
+  let success? false
   carefully [
-    let tester (run-result snippet)
-    ifelse not (tester = false or tester = true) [
-      hubnet-send user-id "Errors:" ("the output must be either true, or false") report false
+    ifelse is-boolean? (run-result snippet) [
+      set success? true
     ] [
-      report true
+      hubnet-send user-id "Errors:" ("the output must be either true, or false")
     ]
   ] [
     hubnet-send user-id "Errors:" (error-message)
-    report false
   ]
+  report success?
 end
 
 to set-code  ;; outputs the code to the input box, for students to see and modify
@@ -1577,7 +1577,7 @@ Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
 
 @#$#@#$#@
-NetLogo 5.3.1-RC2
+NetLogo 5.3.1-RC3
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 ; setup
