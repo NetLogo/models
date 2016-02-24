@@ -356,7 +356,7 @@ mutation-rate
 mutation-rate
 0.0
 1.0
-0.0050
+0.005
 0.0010
 1
 NIL
@@ -938,7 +938,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.3.1-RC2
+NetLogo 5.3.1-RC3
 @#$#@#$#@
 setup-full repeat 150 [ go ]
 @#$#@#$#@
@@ -975,7 +975,7 @@ setup-full repeat 150 [ go ]
       <value value="0.5"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="mutation-rate">
-      <value value="0.0050"/>
+      <value value="0.005"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="cost-of-giving">
       <value value="0.01"/>
@@ -1024,7 +1024,7 @@ setup-full repeat 150 [ go ]
       <value value="0.5"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="mutation-rate">
-      <value value="0.0050"/>
+      <value value="0.005"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="cost-of-giving">
       <value value="0.01"/>
@@ -1073,7 +1073,7 @@ setup-full repeat 150 [ go ]
       <value value="0.5"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="mutation-rate">
-      <value value="0.0050"/>
+      <value value="0.005"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="cost-of-giving">
       <value value="0.01"/>
@@ -1122,7 +1122,7 @@ setup-full repeat 150 [ go ]
       <value value="0.5"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="mutation-rate">
-      <value value="0.0050"/>
+      <value value="0.005"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="cost-of-giving">
       <value value="0.01"/>
@@ -1171,7 +1171,7 @@ setup-full repeat 150 [ go ]
       <value value="0.5"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="mutation-rate">
-      <value value="0.0050"/>
+      <value value="0.005"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="cost-of-giving">
       <value value="0.01"/>
@@ -1220,7 +1220,7 @@ setup-full repeat 150 [ go ]
       <value value="0.5"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="mutation-rate">
-      <value value="0.0050"/>
+      <value value="0.005"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="cost-of-giving">
       <value value="0.02"/>
@@ -1367,7 +1367,7 @@ setup-full repeat 150 [ go ]
       <value value="0.5"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="mutation-rate">
-      <value value="0.0050"/>
+      <value value="0.005"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="cost-of-giving">
       <value value="0.01"/>

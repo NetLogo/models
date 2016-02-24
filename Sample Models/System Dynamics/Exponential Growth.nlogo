@@ -466,11 +466,11 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.3.1-RC2
+NetLogo 5.3.1-RC3
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
-0.0010
+0.001
     org.nlogo.sdm.gui.AggregateDrawing 6
         org.nlogo.sdm.gui.StockFigure "attributes" "attributes" 1 "FillColor" "Color" 225 225 175 307 122 60 40
             org.nlogo.sdm.gui.WrappedStock "stock" "1" 0
