@@ -318,7 +318,7 @@ Distance From Target
 1.0
 30.0
 0.0
-75.0
+50.0
 true
 true
 "set-plot-x-range 1 attempts-per-run" "if attempts > 0 [\n  set-current-plot-pen strategy\n  plotxy attempts (mean [ score ] of turtles)\n]"
