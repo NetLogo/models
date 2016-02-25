@@ -193,7 +193,11 @@ end
 to custom-strategy ;; turtle procedure
 
   carefully [
-    set defect-now? (run-result user-code)
+    let strategy-output (run-result user-code)
+    if not is-boolean? strategy-output [
+      error (word "bad strategy output: " strategy-output)
+    ]
+    set defect-now? strategy-output
   ] [
     ifelse (breed = students) [
       hubnet-send user-id "Errors:" (error-message)
