@@ -250,7 +250,7 @@ to-report test-strategy [ snippet ]
     ifelse is-boolean? (run-result snippet) [
       set success? true
     ] [
-      hubnet-send user-id "Errors:" ("the output must be either true, or false")
+      hubnet-send user-id "Errors:" ("the output must be either true or false")
     ]
   ] [
     hubnet-send user-id "Errors:" (error-message)
