@@ -524,7 +524,7 @@ true
 0
 
 @#$#@#$#@
-NetLogo 5.3.1-RC3
+NetLogo 5.3.1
 @#$#@#$#@
 setup
 set box-x 18
