@@ -574,6 +574,8 @@ The various reporters called by the `print-probabilities` procedure use higher-o
 
 - https://en.wikipedia.org/wiki/Signaling_game
 
+Thanks to Ryan Muldoon for his help with this model.
+
 ## HOW TO CITE
 
 If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
