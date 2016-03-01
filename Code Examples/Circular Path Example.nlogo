@@ -127,7 +127,7 @@ CHOOSER
 175
 step-size
 step-size
-10 1 0.1 0.01 0.001
+10 1 0.1 0.01 0.0010
 1
 
 BUTTON
