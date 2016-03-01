@@ -1277,7 +1277,7 @@ Line -7500403 true 84 40 210 255
 Circle -7500403 true true 120 0 60
 
 @#$#@#$#@
-NetLogo 5.2.0
+NetLogo 6.0-M1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
