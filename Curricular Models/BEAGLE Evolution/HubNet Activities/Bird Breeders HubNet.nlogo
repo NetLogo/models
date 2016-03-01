@@ -457,7 +457,7 @@ end
 
 to assign-new-player
   if not any? players with [user-id = hubnet-message-source and assigned?]  [  ;; no players with this id and is assigned
-    ask one-of players with [not assigned?] [ set user-id hubnet-message-source set assigned? true]
+    ask turtle-set one-of players with [not assigned?] [ set user-id hubnet-message-source set assigned? true]
   ]
   reset-player-numbers
 end
@@ -2274,7 +2274,7 @@ Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 
 @#$#@#$#@
-NetLogo 5.3.1-RC2
+NetLogo 5.3.1-RC3
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
