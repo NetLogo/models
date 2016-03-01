@@ -219,7 +219,7 @@ true
 false
 "" ""
 PENS
-"%-target-color" 0.001 1 -10899396 true "" ""
+"%-target-color" 0.0010 1 -10899396 true "" ""
 
 @#$#@#$#@
 ## WHAT IS IT?

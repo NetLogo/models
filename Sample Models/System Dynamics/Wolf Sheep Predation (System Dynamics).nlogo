@@ -473,7 +473,7 @@ NetLogo 5.3.1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
-0.001
+0.0010
     org.nlogo.sdm.gui.AggregateDrawing 25
         org.nlogo.sdm.gui.StockFigure "attributes" "attributes" 1 "FillColor" "Color" 225 225 175 233 88 60 40
             org.nlogo.sdm.gui.WrappedStock "sheep" "100" 1

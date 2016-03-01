@@ -443,7 +443,7 @@ learning-rate
 learning-rate
 0.0
 1.0
-0.005
+0.0050
 1.0E-4
 1
 NIL
