@@ -551,7 +551,7 @@ true
 Polygon -7500403 true true 150 5 40 250 150 205 260 250
 
 @#$#@#$#@
-NetLogo 6.0-M1
+NetLogo 6.0-M2
 @#$#@#$#@
 setup-random repeat 50 [ go ]
 @#$#@#$#@

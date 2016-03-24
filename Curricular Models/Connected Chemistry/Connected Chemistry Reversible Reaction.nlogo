@@ -1151,7 +1151,7 @@ false
 Rectangle -7500403 true true 0 0 297 299
 
 @#$#@#$#@
-NetLogo 6.0-M1
+NetLogo 6.0-M2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

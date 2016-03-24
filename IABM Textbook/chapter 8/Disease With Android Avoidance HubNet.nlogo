@@ -1335,7 +1335,7 @@ Line -7500403 true 84 40 221 269
 Circle -2674135 true false 156 156 108
 
 @#$#@#$#@
-NetLogo 6.0-M1
+NetLogo 6.0-M2
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
