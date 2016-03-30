@@ -1410,7 +1410,7 @@ Polygon -7500403 true true 75 30 30 75 105 150 30 225 75 270 150 195 225 270 270
 Polygon -16777216 false false 30 75 105 150 30 225 75 270 150 195 225 270 270 225 195 150 270 75 225 30 150 105 75 30
 
 @#$#@#$#@
-NetLogo 6.0-M2
+NetLogo 6.0-M3
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

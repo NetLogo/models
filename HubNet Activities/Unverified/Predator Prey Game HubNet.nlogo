@@ -1037,7 +1037,7 @@ Line -16777216 false 263 127 281 155
 Line -16777216 false 281 155 281 192
 
 @#$#@#$#@
-NetLogo 6.0-M2
+NetLogo 6.0-M3
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

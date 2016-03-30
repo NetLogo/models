@@ -302,7 +302,7 @@ false
 Circle -7500403 true true 0 0 300
 
 @#$#@#$#@
-NetLogo 6.0-M2
+NetLogo 6.0-M3
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

@@ -524,7 +524,7 @@ true
 0
 
 @#$#@#$#@
-NetLogo 6.0-M2
+NetLogo 6.0-M3
 @#$#@#$#@
 setup
 set box-x 18
