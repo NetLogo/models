@@ -82,6 +82,7 @@ class CodeTests extends TestModels {
     "face-nowrap" -> Seq.empty,
     "facexy-nowrap" -> Seq.empty,
     "ht" -> Seq.empty,
+    "hubnet-set-client-interface" -> Seq.empty,
     "in-cone-nowrap" -> Seq.empty,
     "in-radius-nowrap" -> Seq.empty,
     "no-display" -> Seq.empty,

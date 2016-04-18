@@ -68,7 +68,6 @@ globals
 
 to startup
   ;; standard HubNet setup
-  hubnet-set-client-interface "COMPUTER" []
   hubnet-reset
   setup-clear
 end

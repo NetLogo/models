@@ -46,7 +46,6 @@ patches-own [
 
 
 to startup ;; setting up hubnet
-  hubnet-set-client-interface "COMPUTER" []
   hubnet-reset
   setup
 end

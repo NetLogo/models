@@ -88,7 +88,6 @@ patches-own [
 
 to startup
   clear-all
-  hubnet-set-client-interface "COMPUTER" []
   hubnet-reset
   setup-vars
 end
