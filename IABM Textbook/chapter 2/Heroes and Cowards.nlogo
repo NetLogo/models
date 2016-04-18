@@ -311,12 +311,6 @@ This model is from Chapter Two of the book "Introduction to Agent-Based Modeling
 
 This model is in the IABM Textbook folder of the NetLogo Models Library. The model, as well as any updates to the model, can also be found on the textbook website: http://www.intro-to-abm.com/.
 
-## UPDATES TO THE MODEL SINCE TEXTBOOK PUBLICATION
-
-In the textbook version of the code, there is a slight chance that a turtle's friend is also its enemy. Here, we prevent this from happening by choosing the enemy of a turtle amongst the set of other turtles not including its friend.
-
-Also, we could not resist adding a few interesting preset configurations. Have fun playing with them!
-
 ## WHAT IS IT?
 
 The "Heroes and Cowards" game, also called the "Friends and Enemies" game or the "Aggressors and Defenders" game dates back to the Fratelli Theater Group at the 1999 Embracing Complexity conference, or perhaps earlier.
