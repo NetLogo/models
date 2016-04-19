@@ -237,7 +237,7 @@ SLIDER
 493
 number-of-ethnicities
 number-of-ethnicities
-0
+2
 5
 3
 1
