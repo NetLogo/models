@@ -311,7 +311,7 @@ This site offers an introduction to fractals:
 http://web.cs.wpi.edu/~matt/courses/cs563/talks/cbyrd/pres1.html.
 
 An introduction to complex mathematics and the Mandelbrot set.
-http://www.ddewey.net/mandelbrot/
+https://web.archive.org/web/20160131061433/http://www.ddewey.net/mandelbrot/
 
 An introductory online textbook for Complex Analysis.
 (Note: This is a college level text, but the first chapter or so should be accessible to people with only some algebra background.)
