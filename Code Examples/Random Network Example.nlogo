@@ -4,10 +4,18 @@ to setup-simple-random
   create-turtles num-nodes
   layout-circle turtles (max-pxcor - 1)
   ;; Now make links one at a time until we have enough
+  if num-links > max-links [ set num-links max-links ]
   while [count links < num-links] [
     ;; Note that if the link already exists, nothing happens
     ask one-of turtles [ create-link-with one-of other turtles ]
   ]
+end
+
+to-report max-links
+  ;; report the maximum number of links that can be added
+  ;; to a random network, given the specified number
+  ;; of nodes, with 1000 as an arbitrary upper bound
+  report min (list (num-nodes * (num-nodes - 1) / 2) 1000)
 end
 
 to setup-erdos-renyi
@@ -99,7 +107,7 @@ SLIDER
 num-links
 num-links
 0
-100
+max-links
 25
 1
 1
@@ -141,7 +149,7 @@ num-nodes
 num-nodes
 2
 500
-24
+25
 1
 1
 NIL

@@ -34,11 +34,19 @@ end
 ;; It uses WHILE to ensure we get NUM-LINKS links.
 to wire3
   ask links [ die ]
+  if num-links > max-links [ set num-links max-links ]
   while [ count links < num-links ] [
     ask one-of turtles [
       create-link-with one-of other turtles
     ]
   ]
+end
+
+;; Report the maximum number of links that can be added
+;; to a random network, given the specified number
+;; of nodes, with 1000 as an arbitrary upper bound
+to-report max-links
+  report min (list (num-nodes * (num-nodes - 1) / 2) 1000)
 end
 
 ;; A variant of the classic Erdős-Rényi where each possible pair of nodes
@@ -125,7 +133,7 @@ SLIDER
 num-links
 num-links
 0
-min (list (num-nodes * (num-nodes - 1) / 2) 1000)
+max-links
 100
 1
 1
