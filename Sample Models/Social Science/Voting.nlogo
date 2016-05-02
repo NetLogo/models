@@ -13,12 +13,15 @@ to setup
 end
 
 to go
+  ;; keep track of whether any patch has changed their vote
+  let any-votes-changed? false
   ask patches
     [ set total (sum [vote] of neighbors) ]
   ;; use two ask patches blocks so all patches compute "total"
   ;; before any patches change their votes
   ask patches
-    [ if total > 5 [ set vote 1 ]
+    [ let previous-vote vote
+      if total > 5 [ set vote 1 ]
       if total < 3 [ set vote 0 ]
       if total = 4
         [ if change-vote-if-tied?
@@ -31,7 +34,11 @@ to go
         [ ifelse award-close-calls-to-loser?
           [ set vote 1 ]
           [ set vote 0 ] ]
+      if vote != previous-vote
+        [ set any-votes-changed? true ]
       recolor-patch ]
+  ;; if the votes have stabilized, we stop the simulation
+  if not any-votes-changed? [ stop ]
   tick
 end
 
