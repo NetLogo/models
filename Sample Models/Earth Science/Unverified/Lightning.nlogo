@@ -1039,7 +1039,7 @@ Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
 
 @#$#@#$#@
-NetLogo 6.0-M5
+NetLogo 6.0-M6
 @#$#@#$#@
 setup
 repeat 50 [ go ]
