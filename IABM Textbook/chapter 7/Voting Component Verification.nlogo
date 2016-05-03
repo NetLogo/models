@@ -14,12 +14,15 @@ to setup
 end
 
 to go
+  ;; keep track of whether any patch has changed their vote
+  let any-votes-changed? false
   ask patches [
     set total (sum [ vote ] of neighbors)
   ]
   ;; use two ask patches blocks so all patches compute "total"
   ;; before any patches change their votes
   ask patches [
+    let previous-vote vote
     if total < 3 [ set vote 0 ] ;; if majority of your neighbors vote 0, set your vote to 0
     if total = 3 [
       ifelse award-close-calls-to-loser?
@@ -35,8 +38,11 @@ to go
         [ set vote 1 ]
     ]
     if total > 5 [ set vote 1 ] ;; if majority of your neighbors vote 1, set your vote to 1
+    if vote != previous-vote [ set any-votes-changed? true ]
     recolor-patch
   ]
+  ;; if the votes have stabilized, we stop the simulation
+  if not any-votes-changed? [ stop ]
   tick
 end
 
@@ -173,6 +179,10 @@ This model is from Chapter Seven of the book "Introduction to Agent-Based Modeli
 * Wilensky, U. & Rand, W. (2015). Introduction to Agent-Based Modeling: Modeling Natural, Social and Engineered Complex Systems with NetLogo. Cambridge, MA. MIT Press.
 
 This model is in the IABM Textbook folder of the NetLogo Models Library. The model, as well as any updates to the model, can also be found on the textbook website: http://www.intro-to-abm.com/.
+
+## UPDATES TO THE MODEL SINCE TEXTBOOK PUBLICATION
+
+The code for the `go` procedure of this model has been improved since the textbook's publication: it now stops the simulation if no votes have changed in the last tick.
 
 ## WHAT IS IT?
 
