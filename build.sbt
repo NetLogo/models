@@ -29,7 +29,7 @@ libraryDependencies ++= Seq(
       buildStructure.value,
       extensionsKey,
       state.value,
-      buildStructure.value.allProjectRefs.find(_.project.contains("NetLogo")).get
+      buildStructure.value.allProjectRefs.find(_.project.contains("netlogo")).get
     )
   }
 }
