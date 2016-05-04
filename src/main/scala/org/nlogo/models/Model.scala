@@ -117,13 +117,6 @@ case class Model(
     .map(_.text)
 
   lazy val isCompilable: Boolean = {
-    val neverCompilable = Set(
-      "GoGoMonitorSerial",
-      "GoGoMonitorSimpleSerial",
-      "QuickTime Movie Example",
-      "QuickTime Camera Example",
-      "Arduino Example"
-    ) // because they use extensions unbundled in hexy
     val notCompilableOnTravis = Set(
       "Beatbox",
       "Composer",
@@ -135,7 +128,7 @@ case class Model(
       "Frogger",
       "Sound Machines"
     ) // because MIDI is not available on Travis
-    !(neverCompilable.contains(name) || (onTravis && notCompilableOnTravis.contains(name)))
+    !(onTravis && notCompilableOnTravis.contains(name))
   }
 
 }
