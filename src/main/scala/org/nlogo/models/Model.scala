@@ -3,6 +3,7 @@ package org.nlogo.models
 import java.io.File
 import java.util.regex.Pattern.quote
 
+import scala.Boolean
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 import scala.util.Try
 import scala.xml.XML
@@ -12,12 +13,12 @@ import org.apache.commons.io.FileUtils.listFiles
 import org.apache.commons.io.FileUtils.readFileToString
 import org.apache.commons.io.FilenameUtils.getExtension
 import org.apache.commons.io.FilenameUtils.removeExtension
-import org.nlogo.api.Token
-import org.nlogo.api.TokenType.COMMAND
-import org.nlogo.api.TokenType.REPORTER
-import org.nlogo.api.TokenType.VARIABLE
-import org.nlogo.lex.Tokenizer2D
-import org.nlogo.lex.Tokenizer3D
+import org.nlogo.api.NetLogoLegacyDialect
+import org.nlogo.api.NetLogoThreeDDialect
+import org.nlogo.compiler.Compiler
+import org.nlogo.core.TokenType.Command
+import org.nlogo.core.TokenType.Ident
+import org.nlogo.core.TokenType.Reporter
 
 object Model {
   sealed abstract trait UpdateMode
@@ -98,18 +99,22 @@ case class Model(
       name.replaceFirst(" 3D$", "")
     else name
   def behaviorSpaceXML = XML.loadString(behaviorSpace)
-  lazy val (codeTokens, previewCommandsTokens, widgetTokens, tokens) = {
-    val widgetCode = WidgetParser.parseWidgets(interface.lines.toArray).mkString("\n")
-    val tokenizer = if (is3D) Tokenizer3D else Tokenizer2D
-    val codeTokens = tokenizer.tokenize(code)
-    val previewCommandsTokens = tokenizer.tokenize(previewCommands)
-    val widgetTokens = tokenizer.tokenize(widgetCode)
-    val allTokens = codeTokens ++ previewCommandsTokens ++ widgetTokens
-    (codeTokens, previewCommandsTokens, widgetTokens, allTokens)
-  }
+
+  lazy val (codeTokens, previewCommandsTokens, widgetTokens, tokens) =
+    withWorkspace(this) { ws =>
+      val dialect = if (is3D) NetLogoThreeDDialect else NetLogoLegacyDialect
+      val compiler = new Compiler(dialect)
+      def tokenize(source: String) = compiler.tokenizeForColorization(source, ws.getExtensionManager)
+      val widgetCode = WidgetParser.parseWidgets(interface.lines.toArray).mkString("\n")
+      val codeTokens = tokenize(code)
+      val previewCommandsTokens = tokenize(previewCommands)
+      val widgetTokens = tokenize(widgetCode)
+      val allTokens = codeTokens ++ previewCommandsTokens ++ widgetTokens
+      (codeTokens, previewCommandsTokens, widgetTokens, allTokens)
+    }
   def primitiveTokenNames: Seq[String] = tokens
-    .filter(t => t.tyype == REPORTER || t.tyype == COMMAND || t.tyype == VARIABLE)
-    .map(_.name)
+    .filter(t => t.tpe == Reporter || t.tpe == Command || t.tpe == Ident)
+    .map(_.text)
 
   lazy val isCompilable: Boolean = {
     val neverCompilable = Set(

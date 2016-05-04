@@ -9,6 +9,7 @@ import scala.util.Try
 
 import org.nlogo.api.Version
 import org.nlogo.headless.HeadlessWorkspace
+import org.nlogo.core.Breed
 
 class ModelCompilationTests extends TestModels {
 
@@ -31,32 +32,30 @@ class ModelCompilationTests extends TestModels {
   }
 
   def breedNamesUsedAsArgsOrVars(ws: HeadlessWorkspace): Iterable[String] = {
-    val singularBreedNames =
-      ws.world.program.breedsSingular.keySet.asScala ++
-        ws.world.program.linkBreedsSingular.keySet.asScala
+    val singularBreedNames: Set[String] = {
+      def singularNames(breeds: Map[String, Breed]) = breeds.values.map(_.singular)
+      Set() ++ singularNames(ws.world.program.breeds) ++ singularNames(ws.world.program.linkBreeds)
+    }
     for {
       (procedureName, p) <- ws.getProcedures.asScala.toSeq
-      localName <- (p.args.asScala ++ p.lets.asScala.map(_.varName))
+      localName <- (p.args ++ p.lets.map(_.name))
       if singularBreedNames contains localName
     } yield s"Singular breed name $localName if used as variable or argument name in $procedureName"
   }
 
-  def breedsWithNoSingularName(ws: HeadlessWorkspace): Iterable[String] = {
-    def find(
-      breeds: java.util.Map[String, AnyRef],
-      breedsSingular: java.util.Map[String, String]) =
-      breeds.asScala.keys.filterNot(breedsSingular.asScala.values.toSet.contains)
-    val p = ws.world.program
-    find(p.breeds, p.breedsSingular) ++ find(p.linkBreeds, p.linkBreedsSingular)
-  }
+  def breedsWithNoSingularName(ws: HeadlessWorkspace): Iterable[String] =
+    for {
+      breed <- ws.world.program.breeds.values ++ ws.world.program.linkBreeds.values
+      if breed.singular == null
+    } yield breed.name
 
   def uncompilablePreviewCommands(ws: HeadlessWorkspace): Iterable[String] = {
     def compile(source: String) =
       ws.compiler.compileMoreCode(source, None, ws.world.program,
-        ws.getProcedures, ws.getExtensionManager)
+        ws.getProcedures, ws.getExtensionManager, ws.getCompilationEnvironment)
     for {
       commands <- Seq(ws.previewCommands)
-      source = s"to __custom-preview-commands\n${commands}\nend"
+      source = s"to __custom-preview-commands\n${commands.source}\nend"
       if !source.contains("need-to-manually-make-preview-for-this-model")
       error <- Try(compile(source)).failed.toOption
     } yield s"Preview commands do not compile:\n$error\n$source"
@@ -78,7 +77,7 @@ class ModelCompilationTests extends TestModels {
     // with reflection just for this) -- NP 2015-09-01
     for {
       (procedureName, procedure) <- ws.getProcedures.asScala
-      commandNames = procedure.code.flatMap(cmd => Option(cmd.token).map(_.name))
+      commandNames = procedure.code.flatMap(cmd => Option(cmd.token).map(_.text))
       if commandNames.count(_ == "reset-ticks") > 1
     } yield s"Procedure $procedureName uses `reset-ticks` more than once"
   }

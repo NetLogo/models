@@ -1,11 +1,7 @@
 package org.nlogo.models
 
-import org.nlogo.api.TokenType
-import org.nlogo.api.TokenType.COMMAND
-import org.nlogo.api.TokenType.IDENT
-import org.nlogo.api.TokenType.KEYWORD
-import org.nlogo.api.TokenType.REPORTER
-import org.nlogo.api.TokenType.VARIABLE
+import org.nlogo.core.TokenType
+import org.nlogo.core.TokenType._
 
 class CodeTests extends TestModels {
 
@@ -234,17 +230,17 @@ class CodeTests extends TestModels {
   )
 
   val typesToCheck = Set[TokenType](
-    IDENT, COMMAND, REPORTER, KEYWORD, VARIABLE
+    TokenType.Ident, TokenType.Command, TokenType.Reporter, TokenType.Keyword
   )
 
   testModels("All identifiers should be lowercase") { model =>
     val allowed = nonLowercaseExceptions.getOrElse(model.baseName, Set.empty)
     (for {
       token <- model.tokens
-      if typesToCheck.contains(token.tyype)
-      if !allowed.contains(token.name)
-      if token.name != token.name.toLowerCase
-    } yield token.name).toSet
+      if typesToCheck.contains(token.tpe)
+      if !allowed.contains(token.text)
+      if token.text != token.text.toLowerCase
+    } yield token.text).toSet
   }
 
   val plotInCodeExceptions = Set(
@@ -309,9 +305,9 @@ class CodeTests extends TestModels {
       Seq.empty
     else (for {
       token <- model.codeTokens
-      if token.tyype == COMMAND
-      if Set("plot", "plotxy") contains token.name.toLowerCase
-    } yield token.name).toSet
+      if token.tpe == Command
+      if Set("plot", "plotxy") contains token.text.toLowerCase
+    } yield token.text).toSet
   }
 
   /* Currently commented out because it generates far too much noise
