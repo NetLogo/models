@@ -126,7 +126,11 @@ case class Model(
       "Frogger",
       "Sound Machines"
     ) // because MIDI is not available on Travis
-    !(onTravis && notCompilableOnTravis.contains(name))
+    val neverCompilable = Set(
+      "GoGoMonitor",
+      "GoGoMonitorSimple"
+    )
+    !(neverCompilable.contains(name) || (onTravis && notCompilableOnTravis.contains(name)))
   }
 
 }
