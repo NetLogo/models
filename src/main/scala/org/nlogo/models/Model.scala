@@ -19,6 +19,7 @@ import org.nlogo.compiler.Compiler
 import org.nlogo.core.TokenType.Command
 import org.nlogo.core.TokenType.Ident
 import org.nlogo.core.TokenType.Reporter
+import org.nlogo.lex.Tokenizer
 
 object Model {
   sealed abstract trait UpdateMode
@@ -100,18 +101,15 @@ case class Model(
     else name
   def behaviorSpaceXML = XML.loadString(behaviorSpace)
 
-  lazy val (codeTokens, previewCommandsTokens, widgetTokens, tokens) =
-    withWorkspace(this) { ws =>
-      val dialect = if (is3D) NetLogoThreeDDialect else NetLogoLegacyDialect
-      val compiler = new Compiler(dialect)
-      def tokenize(source: String) = compiler.tokenizeForColorization(source, ws.getExtensionManager)
-      val widgetCode = WidgetParser.parseWidgets(interface.lines.toArray).mkString("\n")
-      val codeTokens = tokenize(code)
-      val previewCommandsTokens = tokenize(previewCommands)
-      val widgetTokens = tokenize(widgetCode)
-      val allTokens = codeTokens ++ previewCommandsTokens ++ widgetTokens
-      (codeTokens, previewCommandsTokens, widgetTokens, allTokens)
-    }
+  lazy val (codeTokens, previewCommandsTokens, widgetTokens, tokens) = {
+    def tokenize(source: String) = Tokenizer.tokenizeString(source).toVector
+    val widgetCode = WidgetParser.parseWidgets(interface.lines.toArray).mkString("\n")
+    val codeTokens = tokenize(code)
+    val previewCommandsTokens = tokenize(previewCommands)
+    val widgetTokens = tokenize(widgetCode)
+    val allTokens = codeTokens ++ previewCommandsTokens ++ widgetTokens
+    (codeTokens, previewCommandsTokens, widgetTokens, allTokens)
+  }
   def primitiveTokenNames: Seq[String] = tokens
     .filter(t => t.tpe == Reporter || t.tpe == Command || t.tpe == Ident)
     .map(_.text)
