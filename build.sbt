@@ -6,7 +6,7 @@ resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/"
 
 javaOptions ++= Seq(
   "-Dorg.nlogo.is3d=" + Option(System.getProperty("org.nlogo.is3d")).getOrElse("false"),
-  "-Dnetlogo.extensions.dir=" + (baseDirectory in netLogo).value.getPath + "/extensions/",
+  "-Dnetlogo.extensions.dir=" + (baseDirectory in netLogo).value.getParentFile.getPath + "/extensions/",
   "-Dcom.sun.media.jai.disableMediaLib=true", // see https://github.com/NetLogo/GIS-Extension/issues/4
   "-Xmx2G" // extra memory to work around https://github.com/travis-ci/travis-ci/issues/3775
 )
