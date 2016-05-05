@@ -18,7 +18,11 @@ class ButtonTests extends TestModels {
   val models = Model.libraryModels.filter { model =>
     (model.is3D == Version.is3D) &&
       (model.isCompilable) &&
-      (!Set("GoGoMonitor", "GoGoMonitorSimple").contains(model.name)) // won't work without a GoGo board
+      (!Set(
+        "GoGoMonitor", // won't work without a GoGo board
+        "GoGoMonitorSimple",
+        "Arduino Example" // and the arduino extension makes the tests crash when running in parallel
+      ).contains(model.name))
   }.par
 
   case class Button(
