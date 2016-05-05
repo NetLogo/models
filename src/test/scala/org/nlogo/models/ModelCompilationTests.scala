@@ -1,15 +1,12 @@
 package org.nlogo.models
 
-import scala.collection.JavaConverters.asScalaBufferConverter
-import scala.collection.JavaConverters.asScalaSetConverter
 import scala.collection.JavaConverters.mapAsScalaMapConverter
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
-import org.nlogo.api.Version
-import org.nlogo.headless.HeadlessWorkspace
 import org.nlogo.core.Breed
+import org.nlogo.headless.HeadlessWorkspace
 
 class ModelCompilationTests extends TestModels {
 

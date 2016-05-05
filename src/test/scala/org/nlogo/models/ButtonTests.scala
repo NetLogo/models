@@ -1,17 +1,15 @@
 package org.nlogo.models
 
-import scala.Left
-import scala.Right
 import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.collection.parallel.ParMap
 import scala.util.Try
 
-import org.nlogo.core.CompilerException
-import org.nlogo.core.AgentKind.Observer
 import org.nlogo.api.ModelReader
 import org.nlogo.api.SimpleJobOwner
 import org.nlogo.api.Version
 import org.nlogo.api.World
+import org.nlogo.core.AgentKind.Observer
+import org.nlogo.core.CompilerException
 
 class ButtonTests extends TestModels {
 

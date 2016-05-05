@@ -13,9 +13,6 @@ import org.apache.commons.io.FileUtils.listFiles
 import org.apache.commons.io.FileUtils.readFileToString
 import org.apache.commons.io.FilenameUtils.getExtension
 import org.apache.commons.io.FilenameUtils.removeExtension
-import org.nlogo.api.NetLogoLegacyDialect
-import org.nlogo.api.NetLogoThreeDDialect
-import org.nlogo.compiler.Compiler
 import org.nlogo.core.TokenType.Command
 import org.nlogo.core.TokenType.Ident
 import org.nlogo.core.TokenType.Reporter

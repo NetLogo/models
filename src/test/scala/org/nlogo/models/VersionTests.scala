@@ -3,6 +3,7 @@ package org.nlogo.models
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 import scala.util.Failure
 import scala.util.Try
+
 import org.apache.commons.io.FileUtils.listFiles
 import org.nlogo.api.Version
 

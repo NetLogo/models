@@ -1,7 +1,7 @@
 package org.nlogo.models
 
 import org.nlogo.core.TokenType
-import org.nlogo.core.TokenType._
+import org.nlogo.core.TokenType.Command
 
 class CodeTests extends TestModels {
 
