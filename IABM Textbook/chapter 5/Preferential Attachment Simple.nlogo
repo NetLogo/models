@@ -15,7 +15,7 @@ to go
   ;; choose a partner attached to a random link
   ;; this gives a node a chance to be a partner based on how many links it has
   ;; this is the heart of the preferential attachment mechanism
-  let partner one-of [both-ends] of one-of links
+  let partner one-of [ both-ends ] of one-of links
   ;; create new node, link to partner
   create-turtles 1 [
     set color red
@@ -37,14 +37,14 @@ to layout
   ]
   ;; layout-spring makes all the links act like springs.
   ;; 0.2 - spring constant; how hard the spring pushes or pulls to get to its ideal length
-  ;; 2   - ideal spring length
+  ;; 2.0 - ideal spring length
   ;; 0.5 - repulsion; how hard all turtles push against each other to space things out
-  layout-spring turtles links 0.2 2 0.5
+  layout-spring turtles links 0.2 2.0 0.5
 
   ;; the layout doesn't look good if nodes get squeezed up against edges of the world
   ask turtles [
-    ;; stay away from the edges of the world; the closer I get to the edge, the more I try
-    ;; to get away from it.
+    ;; stay away from the edges of the world; the closer I
+    ;; get to the edge, the more I try to get away from it.
     facexy 0 0
     fd (distancexy 0 0) / 100
   ]
