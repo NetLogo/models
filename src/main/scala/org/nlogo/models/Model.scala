@@ -132,5 +132,5 @@ case class Model(
     )
     !(neverCompilable.contains(name) || (onTravis && notCompilableOnTravis.contains(name)))
   }
-
+  override def toString = name
 }
