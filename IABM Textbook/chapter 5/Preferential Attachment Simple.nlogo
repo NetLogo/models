@@ -115,23 +115,6 @@ NIL
 NIL
 0
 
-BUTTON
-5
-105
-75
-138
-layout
-layout display
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-0
-
 SLIDER
 5
 65
@@ -205,7 +188,7 @@ PENS
 "default" 1.0 1 -16777216 true "" "histogram [ count my-links ] of turtles"
 
 SWITCH
-80
+5
 105
 230
 138
