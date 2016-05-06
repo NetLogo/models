@@ -33,9 +33,8 @@ class ViewTests extends TestModels {
     val minx = if (graphics.size > 17) graphics(17).toInt else -maxx
     val miny = if (graphics.size > 19) graphics(19).toInt else -maxy
     val (worldWidth, worldHeight) = (maxx - minx + 1, maxy - miny + 1)
-    val (extraWidth, extraHeight) =
-      // take control strip and gray border into account
-      if (List("1.3", "2.", "3.", "4.", "5.").exists(version.startsWith(_))) (10, 31) else (0, 0)
+    // take control strip and gray border into account
+    val (extraWidth, extraHeight) = (10, 31)
     val computedWidth = extraWidth + patchSize * worldWidth
     val computedHeight = extraHeight + patchSize * worldHeight
     var problems = Seq[String]()

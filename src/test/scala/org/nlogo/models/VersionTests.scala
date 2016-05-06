@@ -3,6 +3,7 @@ package org.nlogo.models
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 import scala.util.Failure
 import scala.util.Try
+
 import org.apache.commons.io.FileUtils.listFiles
 import org.nlogo.api.Version
 
@@ -27,7 +28,7 @@ class VersionTests extends TestModels {
   }
 
   val acceptedVersions =
-    Set("6.0-M4")
+    Set("6.0-M4", "6.0-M6")
       .map { "NetLogo " + (if (Version.is3D) "3D " else "") + _ }
   testModels("Version should be one of " + acceptedVersions.mkString(", ")) {
     Option(_).map(_.version.trim).filterNot(acceptedVersions.contains)

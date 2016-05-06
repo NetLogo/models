@@ -1,4 +1,4 @@
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.8"
 
 scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
 
@@ -6,9 +6,9 @@ resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/"
 
 javaOptions ++= Seq(
   "-Dorg.nlogo.is3d=" + Option(System.getProperty("org.nlogo.is3d")).getOrElse("false"),
-  "-Dnetlogo.extensions.dir=" + (baseDirectory in netLogo).value.getPath + "/extensions/",
+  "-Dnetlogo.extensions.dir=" + (baseDirectory in netLogo).value.getParentFile.getPath + "/extensions/",
   "-Dcom.sun.media.jai.disableMediaLib=true", // see https://github.com/NetLogo/GIS-Extension/issues/4
-  "-Xmx2G" // extra memory to work around https://github.com/travis-ci/travis-ci/issues/3775
+  "-Xmx4G" // extra memory to work around https://github.com/travis-ci/travis-ci/issues/3775
 )
 
 fork := true
@@ -29,7 +29,7 @@ libraryDependencies ++= Seq(
       buildStructure.value,
       extensionsKey,
       state.value,
-      buildStructure.value.allProjectRefs.find(_.project.contains("NetLogo")).get
+      buildStructure.value.allProjectRefs.find(_.project.contains("netlogo")).get
     )
   }
 }

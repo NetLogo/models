@@ -3,6 +3,7 @@ package org.nlogo.models
 import java.io.File
 import java.util.regex.Pattern.quote
 
+import scala.Boolean
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 import scala.util.Try
 import scala.xml.XML
@@ -12,12 +13,10 @@ import org.apache.commons.io.FileUtils.listFiles
 import org.apache.commons.io.FileUtils.readFileToString
 import org.apache.commons.io.FilenameUtils.getExtension
 import org.apache.commons.io.FilenameUtils.removeExtension
-import org.nlogo.api.Token
-import org.nlogo.api.TokenType.COMMAND
-import org.nlogo.api.TokenType.REPORTER
-import org.nlogo.api.TokenType.VARIABLE
-import org.nlogo.lex.Tokenizer2D
-import org.nlogo.lex.Tokenizer3D
+import org.nlogo.core.TokenType.Command
+import org.nlogo.core.TokenType.Ident
+import org.nlogo.core.TokenType.Reporter
+import org.nlogo.lex.Tokenizer
 
 object Model {
   sealed abstract trait UpdateMode
@@ -98,27 +97,21 @@ case class Model(
       name.replaceFirst(" 3D$", "")
     else name
   def behaviorSpaceXML = XML.loadString(behaviorSpace)
+
   lazy val (codeTokens, previewCommandsTokens, widgetTokens, tokens) = {
+    def tokenize(source: String) = Tokenizer.tokenizeString(source).toVector
     val widgetCode = WidgetParser.parseWidgets(interface.lines.toArray).mkString("\n")
-    val tokenizer = if (is3D) Tokenizer3D else Tokenizer2D
-    val codeTokens = tokenizer.tokenize(code)
-    val previewCommandsTokens = tokenizer.tokenize(previewCommands)
-    val widgetTokens = tokenizer.tokenize(widgetCode)
+    val codeTokens = tokenize(code)
+    val previewCommandsTokens = tokenize(previewCommands)
+    val widgetTokens = tokenize(widgetCode)
     val allTokens = codeTokens ++ previewCommandsTokens ++ widgetTokens
     (codeTokens, previewCommandsTokens, widgetTokens, allTokens)
   }
   def primitiveTokenNames: Seq[String] = tokens
-    .filter(t => t.tyype == REPORTER || t.tyype == COMMAND || t.tyype == VARIABLE)
-    .map(_.name)
+    .filter(t => t.tpe == Reporter || t.tpe == Command || t.tpe == Ident)
+    .map(_.text)
 
   lazy val isCompilable: Boolean = {
-    val neverCompilable = Set(
-      "GoGoMonitorSerial",
-      "GoGoMonitorSimpleSerial",
-      "QuickTime Movie Example",
-      "QuickTime Camera Example",
-      "Arduino Example"
-    ) // because they use extensions unbundled in hexy
     val notCompilableOnTravis = Set(
       "Beatbox",
       "Composer",
@@ -130,7 +123,11 @@ case class Model(
       "Frogger",
       "Sound Machines"
     ) // because MIDI is not available on Travis
+    val neverCompilable = Set(
+      "GoGoMonitor",
+      "GoGoMonitorSimple"
+    )
     !(neverCompilable.contains(name) || (onTravis && notCompilableOnTravis.contains(name)))
   }
-
+  override def toString = name
 }
