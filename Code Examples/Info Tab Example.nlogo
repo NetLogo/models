@@ -329,7 +329,7 @@ WWW<sup>[1]</sup>
 
  * To prevent a special character from being treated as markup, put a backslash (`\`) before it.
 
- * We use GitHub flavored newlines (http://github.github.com/github-flavored-markdown/) instead of traditional Markdown handling of newlines. This means that newlines are treated as real line breaks, instead of being being combined with the previous line into a single paragraph.
+ * We use GitHub flavored newlines (https://github.github.com/github-flavored-markdown/) instead of traditional Markdown handling of newlines. This means that newlines are treated as real line breaks, instead of being combined with the previous line into a single paragraph.
 
 ## Other features
 
