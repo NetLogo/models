@@ -327,6 +327,14 @@ Run it with a small number of nodes (like 10) and watch the plot.  How does it d
 
 Right now the probability of any two nodes getting connected to each other is the same. Can you think of ways to make some nodes more attractive to connect to than others?  How would that impact the formation of the giant component?
 
+When creating new links in the `add-edge` procedure, you might be wondering why we don't do something like this:
+
+    ask one-of turtles [
+      create-link-with one-of other turtles with [ not link-neighbor? myself ]
+    ]
+
+Imagine that we have one node in the network that is already connected to most of the other nodes. In the original version of `add-edge`, if that node is picked as one of the two nodes between which we try to create an edge, it will probably get rejected because it is likely that it's already linked with the other node picked. In this alternate version of `add-edge`, however, we tell NetLogo to explicitly go looking for a node that is not already connected to the first one (even if there are very few of those). That makes a big difference. Try it and see how it impacts the formation of the giant component.
+
 ## NETWORK CONCEPTS
 
 Identification of the connected components is done using a standard search algorithm called "depth first search."  "Depth first" means that the algorithm first goes deep into a branch of connections, tracing them out all the way to the end.  For a given node it explores its neighbor's neighbors (and then their neighbors, etc) before moving on to its own next neighbor.  The algorithm is recursive so eventually all reachable nodes from a particular starting node will be explored.  Since we need to find every reachable node, and since it doesn't matter what order we find them in, another algorithm such as "breadth first search" would have worked equally well.  We chose depth first search because it is the simplest to code.
