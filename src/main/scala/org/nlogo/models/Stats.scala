@@ -22,7 +22,16 @@ object Stats {
   def exportPrimitivesUsagePlot(): Unit = {
 
     val data = Model.libraryModels
-      .flatMap(model => model.primitiveTokenNames.distinct.map(_ -> model))
+      .filterNot(_.is3D) // TODO: make it work for 3D models - NP 2016-05-04
+      .flatMap(model =>
+        try model.primitiveTokenNames.distinct.map(_ -> model)
+        catch {
+          case e: java.lang.RuntimeException =>
+            Console.err.println(model.file.getPath)
+            e.printStackTrace()
+            Seq.empty
+        }
+      )
       .groupBy(_._1).mapValues(_.size)
       .toSeq
       .sortBy(t => (0 - t._2, t._1))

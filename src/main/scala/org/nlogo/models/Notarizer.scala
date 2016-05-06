@@ -1,7 +1,7 @@
 package org.nlogo.models
 
-import scala.util.Try
 import scala.collection.immutable.ListMap
+import scala.util.Try
 
 object Notarizer {
 

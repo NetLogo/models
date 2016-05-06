@@ -2,11 +2,13 @@ package org.nlogo.models
 
 import scala.collection.GenIterable
 import scala.collection.GenSeq
+import scala.util.Try
+
 import org.nlogo.api.Version
 import org.scalatest.FunSuite
+
 import Model.allModels
 import Model.libraryModels
-import scala.util.Try
 
 trait TestModels extends FunSuite {
 

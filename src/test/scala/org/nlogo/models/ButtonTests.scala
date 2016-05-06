@@ -1,24 +1,26 @@
 package org.nlogo.models
 
-import scala.Left
-import scala.Right
 import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.collection.parallel.ParMap
 import scala.util.Try
 
-import org.nlogo.api.CompilerException
 import org.nlogo.api.ModelReader
-import org.nlogo.api.Observer
 import org.nlogo.api.SimpleJobOwner
 import org.nlogo.api.Version
 import org.nlogo.api.World
+import org.nlogo.core.AgentKind.Observer
+import org.nlogo.core.CompilerException
 
 class ButtonTests extends TestModels {
 
   val models = Model.libraryModels.filter { model =>
     (model.is3D == Version.is3D) &&
       (model.isCompilable) &&
-      (!Set("GoGoMonitor", "GoGoMonitorSimple").contains(model.name)) // won't work without a GoGo board
+      (!Set(
+        "GoGoMonitor", // won't work without a GoGo board
+        "GoGoMonitorSimple",
+        "Arduino Example" // and the arduino extension makes the tests crash when running in parallel
+      ).contains(model.name))
   }.par
 
   case class Button(
@@ -28,7 +30,7 @@ class ButtonTests extends TestModels {
     val disabledUntilTicksStart: Boolean) {
     def run(): Try[World] = Try {
       withWorkspace(model) { ws =>
-        val jobOwner = new SimpleJobOwner(displayName, ws.mainRNG, classOf[Observer])
+        val jobOwner = new SimpleJobOwner(displayName, ws.mainRNG, Observer)
         try
           ws.evaluateCommands(jobOwner, "startup", ws.world.observers, true)
         catch {
@@ -36,7 +38,7 @@ class ButtonTests extends TestModels {
         }
         ws.evaluateCommands(jobOwner, code, ws.world.observers, true)
         Option(ws.lastLogoException)
-          .filterNot(_.getMessage == "You can't get user input headless.")
+          .filterNot(_.getMessage.endsWith("You can't get user input headless."))
           .foreach(throw _)
         ws.world
       }

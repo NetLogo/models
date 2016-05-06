@@ -1,6 +1,9 @@
 package org.nlogo
 
+import scala.Boolean
+
 import org.nlogo.headless.HeadlessWorkspace
+import org.nlogo.models.Model
 
 package object models {
 

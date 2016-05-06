@@ -21,7 +21,6 @@ to setup
         user-message (word
           "Communication Established.\n"
           "If your Arduino has the appropriate sketch loaded, you are ready to communicate.")
-        reset-ticks
       ]
       [
         user-message (word
