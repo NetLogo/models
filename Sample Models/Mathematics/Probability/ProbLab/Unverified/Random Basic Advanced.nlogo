@@ -793,7 +793,8 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
 NetLogo 6.0-M6
 @#$#@#$#@
-random-seed 0 set sample-space 50 set height 35 setup repeat 100 [ go ]
+setup
+repeat 500 [ go ]
 place-messengers-and-choose-random-values
 @#$#@#$#@
 @#$#@#$#@

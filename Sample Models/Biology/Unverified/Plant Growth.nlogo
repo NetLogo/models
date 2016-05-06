@@ -675,10 +675,11 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
 NetLogo 6.0-M6
 @#$#@#$#@
-set nutrient-density 3
+resize-world -40 40 -40 40
+set nutrient-density 5
 setup-patches
 setup-plant
-repeat 5000 [ grow ]
+repeat 1000 [ grow ]
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
