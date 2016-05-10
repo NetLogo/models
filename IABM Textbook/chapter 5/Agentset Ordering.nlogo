@@ -123,9 +123,9 @@ This model is in the IABM Textbook folder of the NetLogo Models Library. The mod
 
 ## WHAT IS IT?
 
-NetLogo has two different kinds of agentsets: constructed agentsets, that act as a 'snapshot' of a particular set of turtles at a particular point in time, and special agentets that always contain the most updated list of turtles.
+NetLogo has two different kinds of agentsets: constructed agentsets, that act as a 'snapshot' of a particular set of turtles at a particular point in time, and special agentsets that always contain the most updated list of turtles.
 
-This model explores the order with which constructed agent sets follow their commands.  In particular, this model explores how an agentset constructed by collecting agents with a certain property do not automatically update even if the properties of the agents change during a run of the model. The agentset  continues to consist of the agents that had that property at the time of agentset construction.  In other words, even though you ASK agents that have a particular criterion to take an action, not all agents after the ASK that satisfy that criterion will necessarily take that action, since some of the agent properties may have changed during the ASK execution.
+This model explores the order with which constructed agentsets follow their commands.  In particular, this model explores how an agentset constructed by collecting agents with a certain property do not automatically update even if the properties of the agents change during a run of the model. The agentset continues to consist of the agents that had that property at the time of agentset construction. In other words, even though you ASK agents that have a particular criterion to take an action, not all agents after the ASK that satisfy that criterion will necessarily take that action, since some of the agent properties may have changed during the ASK execution.
 
 ## HOW IT WORKS
 
