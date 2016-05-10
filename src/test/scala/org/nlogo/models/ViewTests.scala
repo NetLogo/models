@@ -26,6 +26,7 @@ class ViewTests extends TestModels {
      * rate is not changed by mistake to a non-standard value.
      */
     Option(_)
+      .filterNot(_.is3D)
       .filterNot(m => nonStandardFrameRateModels.contains(m.name))
       .map(_.interface.lines.dropWhile(_ != "GRAPHICS-WINDOW").drop(25).next.toDouble)
       .filterNot(_ == 30)
