@@ -8,6 +8,29 @@ class ViewTests extends TestModels {
       .map(_.patchSize.toString)
   }
 
+  val nonStandardFrameRateModels = Set(
+    "Mouse Example", "Label Position Example", "Shape Animation Example", "3D Shapes Example",
+    "Movie Example", "Connected Chemistry Atmosphere", "Connected Chemistry Rusting Reaction",
+    "Particle System Basic", "Particle System Fountain", "Particle System Waterfall",
+    "Particle System Flame", "Brian's Brain", "Life Turtle-Based", "Life", "Robby the Robot",
+    "Sample Stalagmite", "Binomial Rabbits", "Birthdays", "Random Walk 360", "Pursuit", "Lightning",
+    "Sound Machines", "Flocking Vee Formations", "BeeSmart Hive Finding", "Disease Solo", "Peppered Moths",
+    "Honeycomb", "Preferential Attachment", "Sandpile", "Raindrops", "Doppler", "Ising", "MaterialSim Grain Growth",
+    "Gravitation", "B-Z Reaction", "Reactor X-Section", "Lunar Lander", "El Farol Network Congestion",
+    "PD N-Person Iterated", "PD Basic Evolutionary", "Sandpile Simple", "Heroes and Cowards"
+  )
+  testModels("Most models should have a frame rate of 30") {
+    /* It can be OK to have a non-standard frame rate (though I'm
+     * not sure all the exceptions listed here are justified --
+     * I didn't check -- but this tests make sure that the frame
+     * rate is not changed by mistake to a non-standard value.
+     */
+    Option(_)
+      .filterNot(m => nonStandardFrameRateModels.contains(m.name))
+      .map(_.interface.lines.dropWhile(_ != "GRAPHICS-WINDOW").drop(25).next.toDouble)
+      .filterNot(_ == 30)
+  }
+
   testModels("Saved view size must match size computed from the saved patch size and screen-edge-x/y") {
     // finds models whose graphics windows' saved sizes don't match the size you should get if you
     // compute from the saved patch size and screen-edge-x/y
