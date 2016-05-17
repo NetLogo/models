@@ -1,17 +1,23 @@
 package org.nlogo.models
 
-import scala.collection.JavaConverters.collectionAsScalaIterableConverter
-import scala.util.Failure
+import java.io.File
+
 import scala.util.Try
 
-import org.apache.commons.io.FileUtils.listFiles
 import org.nlogo.api.Version
 
 class VersionTests extends TestModels {
 
-  val allModelTries = listFiles(Model.modelDir, Model.extensions, true).asScala
-    .map(f => f -> Try(Model.apply(f)))
-  def allModelFailures = allModelTries.collect { case (f, Failure(e)) => (f, e) }
+  // Turn both failures from reading the model into a case class
+  // and the failures from reading the model file content into
+  // a single sequence of pairs. Not the most elegant, but eh...
+  // NP 2016-05-16
+  def allModelFailures: Iterable[(File, Throwable)] =
+    modelTries.flatMap {
+      case (file, modelTry, contentTry) =>
+        def failureSeq = (_: Try[_]).failed.toOption.toSeq.map(file -> _)
+        failureSeq(modelTry) ++ failureSeq(contentTry)
+    }
 
   test("All models are readable") {
     if (allModelFailures.nonEmpty) fail(

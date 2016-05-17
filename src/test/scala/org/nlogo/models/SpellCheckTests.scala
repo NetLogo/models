@@ -38,14 +38,14 @@ class SpellCheckTests extends TestModels with BeforeAndAfterAll {
   val escapes = Set("\\n", "\\t")
 
   testModels("Models must not contain typos") { model =>
-    val content = escapes.foldLeft(model.content)(_.replace(_, " "))
-    val inputStream = new ByteArrayInputStream(content.getBytes("UTF-8"))
+    val contentWithoutEscapes = escapes.foldLeft(model.content)(_.replace(_, " "))
+    val inputStream = new ByteArrayInputStream(contentWithoutEscapes.getBytes("UTF-8"))
     val lines = model.content.lines.zipWithIndex.toStream
     (aspell #< inputStream)
       .lineStream
       .distinct
       .map(typo => typo -> lines.filter(_._1 contains typo).map(_._2 + 1))
-      .sortBy(_._2.head) // sort line number of first occurence
+      .sortBy(_._2.head) // sort by line number of first occurrence
       .map { case (t, ns) => s"  $t (${ns.mkString(", ")})" }
   }
 }

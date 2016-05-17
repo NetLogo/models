@@ -4,7 +4,7 @@ import scala.collection.immutable.ListMap
 
 import org.apache.commons.lang3.StringUtils.stripEnd
 
-object Info {
+object InfoTabParts {
 
   sealed abstract class Section(val name: String)
   case object Acknowledgment extends Section("ACKNOWLEDGMENT")
@@ -41,20 +41,20 @@ object Info {
     loop(contentLines, Vector.empty, None, Vector.empty)
       .map { case (title, lines) => title -> clean(lines.mkString("\n")) }
   }
-  def fromContent(content: String): Info = {
+  def fromContent(content: String): InfoTabParts = {
     val contentLines = clean(content).lines.toSeq
     val legalSnippet = contentLines.lastOption
     fromSections(contentToSections(contentLines.dropRight(1)), legalSnippet)
   }
-  def fromSections(sections: Iterable[(String, String)], legalSnippet: Option[String]): Info = {
+  def fromSections(sections: Iterable[(String, String)], legalSnippet: Option[String]): InfoTabParts = {
     val content = sections
       .map { case (title, text) => s"## $title\n\n$text" }
       .mkString("", "\n\n", "\n\n") +
       legalSnippet.getOrElse("") + "\n"
-    Info(content, sections, legalSnippet)
+    InfoTabParts(content, sections, legalSnippet)
   }
 }
-case class Info(
+case class InfoTabParts(
   val content: String,
   val sections: Iterable[(String, String)],
   val legalSnippet: Option[String]) {

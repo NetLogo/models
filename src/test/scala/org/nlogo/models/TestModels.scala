@@ -5,10 +5,8 @@ import scala.collection.GenSeq
 import scala.util.Try
 
 import org.nlogo.api.Version
+import org.nlogo.core.Model
 import org.scalatest.FunSuite
-
-import Model.allModels
-import Model.libraryModels
 
 trait TestModels extends FunSuite {
 

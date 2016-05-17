@@ -1,11 +1,14 @@
 package org.nlogo.models
 
+import scala.annotation.migration
 import scala.collection.JavaConverters.mapAsScalaMapConverter
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
 import org.nlogo.core.Breed
+import org.nlogo.core.Model
+import org.nlogo.headless.BehaviorSpaceCoordinator
 import org.nlogo.headless.HeadlessWorkspace
 
 class ModelCompilationTests extends TestModels {
@@ -13,7 +16,7 @@ class ModelCompilationTests extends TestModels {
   def compilationTests(model: Model)(ws: HeadlessWorkspace): Iterable[String] =
     breedNamesUsedAsArgsOrVars(ws) ++
       breedsWithNoSingularName(ws) ++
-      uncompilableExperiments(ws) ++
+      uncompilableExperiments(model, ws) ++
       (if (model.isTestModel) Nil else {
         uncompilablePreviewCommands(ws) ++
           proceduresUsingResetTicksMoreThanOnce(ws)
@@ -58,10 +61,10 @@ class ModelCompilationTests extends TestModels {
     } yield s"Preview commands do not compile:\n$error\n$source"
   }
 
-  def uncompilableExperiments(ws: HeadlessWorkspace): Iterable[String] = {
+  def uncompilableExperiments(model: Model, ws: HeadlessWorkspace): Iterable[String] = {
     val lab = HeadlessWorkspace.newLab
     for {
-      experiment <- lab.names
+      experiment <- BehaviorSpaceCoordinator.protocolsFromModel(model.file.getPath)
       error <- Try(lab.newWorker(experiment).compile(ws)).failed.toOption
     } yield s"BehaviorSpace experiment '$experiment' does not compile: $error"
   }

@@ -139,7 +139,7 @@ class CodeTests extends TestModels {
   )
 
   testModels("Forbidden primitives are not used") { model =>
-    val tokenNames = model.primitiveTokenNames.toSet
+    val tokenNames = new Tokens(model).primitiveTokenNames.toSet
     for {
       (prim, exceptions) <- forbiddenPrimitives
       if !exceptions.contains(model.baseName)
@@ -237,7 +237,7 @@ class CodeTests extends TestModels {
   testModels("All identifiers should be lowercase") { model =>
     val allowed = nonLowercaseExceptions.getOrElse(model.baseName, Set.empty)
     (for {
-      token <- model.tokens
+      token <- new Tokens(model).allTokens
       if typesToCheck.contains(token.tpe)
       if !allowed.contains(token.text)
       if token.text != token.text.toLowerCase
@@ -305,7 +305,7 @@ class CodeTests extends TestModels {
       model.name.contains("HubNet")) // give a pass to HubNet models for now
       Seq.empty
     else (for {
-      token <- model.codeTokens
+      token <- new Tokens(model).codeTokens
       if token.tpe == Command
       if Set("plot", "plotxy") contains token.text.toLowerCase
     } yield token.text).toSet

@@ -12,6 +12,7 @@ import scala.util.Try
 import org.apache.commons.validator.routines.UrlValidator
 import org.apache.commons.validator.routines.UrlValidator.ALLOW_2_SLASHES
 import org.nlogo.api.Version
+import org.nlogo.core.Model
 import org.pegdown.Extensions.AUTOLINKS
 import org.pegdown.LinkRenderer
 import org.pegdown.PegDownProcessor
@@ -22,7 +23,6 @@ import org.scalatest.concurrent.ScalaFutures
 
 import com.ning.http.client.AsyncHttpClientConfig
 
-import Model.libraryModels
 import play.api.libs.ws.WSRequestHolder
 import play.api.libs.ws.WSResponse
 import play.api.libs.ws.ning.NingWSClient
@@ -45,7 +45,7 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
 
   val links: Map[String, Iterable[Model]] = libraryModels
     .filter(_.is3D == Version.is3D)
-    .flatMap(m => linksInMarkdown(m.info.content).map(_ -> m)) // (link, model) pairs
+    .flatMap(m => linksInMarkdown(m.info).map(_ -> m)) // (link, model) pairs
     .groupBy(_._1) // group by links
     .mapValues(_.unzip._2) // keep only models in the map's values
 
