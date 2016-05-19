@@ -1431,8 +1431,8 @@ GRAPHICS-WINDOW
 142
 600
 446
-10
-10
+-1
+-1
 13.0
 1
 10
@@ -1683,7 +1683,7 @@ auto-save-every
 auto-save-every
 5
 100
-5
+5.0
 5
 1
 votes
@@ -2478,9 +2478,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M4
+NetLogo 6.0-M7
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
@@ -2541,10 +2540,10 @@ SLIDER
 338
 Choice
 Choice
-0
-50
+0.0
+50.0
 25
-1
+1.0
 1
 NIL
 HORIZONTAL
@@ -2615,7 +2614,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

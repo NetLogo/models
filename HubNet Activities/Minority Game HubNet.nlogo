@@ -516,8 +516,8 @@ GRAPHICS-WINDOW
 96
 964
 652
-17
-17
+-1
+-1
 15.0
 1
 10
@@ -581,7 +581,7 @@ number-of-participants
 number-of-participants
 3
 501
-229
+229.0
 2
 1
 NIL
@@ -596,7 +596,7 @@ player-memory
 player-memory
 1
 12
-5
+5.0
 1
 1
 NIL
@@ -611,7 +611,7 @@ android-memory
 android-memory
 1
 12
-3
+3.0
 1
 1
 NIL
@@ -713,7 +713,7 @@ strategies-per-android
 strategies-per-android
 1
 15
-5
+5.0
 1
 1
 NIL
@@ -1368,9 +1368,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M4
+NetLogo 6.0-M7
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
@@ -1507,7 +1506,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

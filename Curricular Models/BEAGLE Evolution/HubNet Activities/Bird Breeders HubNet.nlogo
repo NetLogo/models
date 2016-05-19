@@ -1319,7 +1319,7 @@ max-#-of-DNA-tests
 max-#-of-DNA-tests
 0
 36
-16
+16.0
 1
 1
 NIL
@@ -1400,7 +1400,7 @@ SLIDER
 #-of-required-goal-birds
 1
 24
-12
+12.0
 1
 1
 NIL
@@ -1471,7 +1471,7 @@ SLIDER
 #-of-players
 1
 4
-4
+4.0
 1
 1
 NIL
@@ -2272,9 +2272,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M4
+NetLogo 6.0-M7
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
@@ -2398,10 +2397,10 @@ true
 true
 "" ""
 PENS
-"a" 1.0 0 -8990512 true
-"b" 1.0 0 -2674135 true
-"c" 1.0 0 -1664597 true
-"d" 1.0 0 -7858858 true
+"a" 1.0 0 -8990512 true "" ""
+"b" 1.0 0 -2674135 true "" ""
+"c" 1.0 0 -1664597 true "" ""
+"d" 1.0 0 -7858858 true "" ""
 
 PLOT
 10
@@ -2419,10 +2418,10 @@ true
 true
 "" ""
 PENS
-"A" 1.0 0 -16777216 true
-"B" 1.0 0 -3026479 true
-"C" 1.0 0 -3889007 true
-"D" 1.0 0 -9276814 true
+"A" 1.0 0 -16777216 true "" ""
+"B" 1.0 0 -3026479 true "" ""
+"C" 1.0 0 -3889007 true "" ""
+"D" 1.0 0 -9276814 true "" ""
 
 PLOT
 10
@@ -2440,10 +2439,10 @@ true
 true
 "" ""
 PENS
-"1 variation" 1.0 0 -4079321 true
-"2 variations" 1.0 0 -8330359 true
-"3 variations" 1.0 0 -12087248 true
-"4 variations" 1.0 0 -14333415 true
+"1 variation" 1.0 0 -4079321 true "" ""
+"2 variations" 1.0 0 -8330359 true "" ""
+"3 variations" 1.0 0 -12087248 true "" ""
+"4 variations" 1.0 0 -14333415 true "" ""
 
 @#$#@#$#@
 default
@@ -2456,7 +2455,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@

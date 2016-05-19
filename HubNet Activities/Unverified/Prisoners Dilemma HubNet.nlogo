@@ -597,8 +597,8 @@ GRAPHICS-WINDOW
 10
 941
 431
-7
-7
+-1
+-1
 26.0
 1
 12
@@ -717,7 +717,7 @@ C-C
 C-C
 -5
 5
-1
+1.0
 1
 1
 NIL
@@ -732,7 +732,7 @@ C-D
 C-D
 -5
 5
--4
+-4.0
 1
 1
 NIL
@@ -747,7 +747,7 @@ D-C
 D-C
 -5
 5
-5
+5.0
 1
 1
 NIL
@@ -762,7 +762,7 @@ D-D
 D-D
 -5
 5
--3
+-3.0
 1
 1
 NIL
@@ -1579,12 +1579,10 @@ Line -7500403 true 216 40 79 269
 Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
-
 @#$#@#$#@
-NetLogo 6.0-M4
+NetLogo 6.0-M7
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
-; setup
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1666,7 +1664,7 @@ CHOOSER
 179
 strategy-choice
 strategy-choice
-"random" "cooperate" "defect" "go-by-majority" "tit-for-tat" "suspicious-tit-for-tat" "tit-for-two-tats" "pavlov" "unforgiving"
+\"random\" \"cooperate\" \"defect\" \"go-by-majority\" \"tit-for-tat\" \"suspicious-tit-for-tat\" \"tit-for-two-tats\" \"pavlov\" \"unforgiving\"
 0
 
 MONITOR
@@ -1822,7 +1820,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

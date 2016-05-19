@@ -470,8 +470,8 @@ GRAPHICS-WINDOW
 41
 973
 597
-10
-10
+-1
+-1
 25.0
 1
 10
@@ -614,7 +614,7 @@ predator-gain-from-food
 predator-gain-from-food
 0
 20
-10
+10.0
 1
 1
 energy
@@ -629,7 +629,7 @@ prey-gain-from-food
 prey-gain-from-food
 0
 10
-2
+2.0
 1
 1
 energy
@@ -644,7 +644,7 @@ plant-regrowth-rate
 plant-regrowth-rate
 0
 100
-5
+5.0
 1
 1
 patches
@@ -734,7 +734,7 @@ predator-reproduce
 predator-reproduce
 0
 100
-5
+5.0
 0.1
 1
 %
@@ -749,7 +749,7 @@ prey-reproduce
 prey-reproduce
 0
 100
-4
+4.0
 0.1
 1
 %
@@ -1035,9 +1035,8 @@ Rectangle -16777216 true false 210 214 232 270
 Rectangle -16777216 true false 189 260 210 270
 Line -16777216 false 263 127 281 155
 Line -16777216 false 281 155 281 192
-
 @#$#@#$#@
-NetLogo 6.0-M4
+NetLogo 6.0-M7
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
@@ -1128,10 +1127,10 @@ SLIDER
 225
 step-size
 step-size
+1.0
+5.0
 1
-5
-1
-1
+1.0
 1
 NIL
 HORIZONTAL
@@ -1239,7 +1238,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

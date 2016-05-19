@@ -717,8 +717,8 @@ GRAPHICS-WINDOW
 15
 907
 446
-12
-12
+-1
+-1
 16.0
 1
 10
@@ -786,7 +786,7 @@ ideal-quantity
 ideal-quantity
 0
 100
-30
+30.0
 10
 1
 NIL
@@ -917,7 +917,7 @@ num-buyers
 num-buyers
 30
 300
-200
+200.0
 10
 1
 NIL
@@ -1373,9 +1373,8 @@ Line -16777216 false 58 211 67 192
 Polygon -6459832 true true 38 138 66 149
 Polygon -6459832 true true 46 128 33 120 21 118 11 123 3 138 5 160 13 178 9 192 0 199 20 196 25 179 24 161 25 148 45 140
 Polygon -6459832 true true 67 122 96 126 63 144
-
 @#$#@#$#@
-NetLogo 6.0-M4
+NetLogo 6.0-M7
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
@@ -1457,7 +1456,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -13345367 true
+"default" 1.0 0 -13345367 true "" ""
 
 MONITOR
 18
@@ -1486,7 +1485,7 @@ CHOOSER
 296
 Strategy
 Strategy
-"Price >= MC" "Agreement" "Quota-Plus" "Quota-Minus" "Flood Market"
+\"Price >= MC\" \"Agreement\" \"Quota-Plus\" \"Quota-Minus\" \"Flood Market\"
 0
 
 SLIDER
@@ -1496,10 +1495,10 @@ SLIDER
 359
 extra-output
 extra-output
+0.0
+2000.0
 0
-2000
-0
-10
+10.0
 1
 NIL
 HORIZONTAL
@@ -1531,10 +1530,10 @@ SLIDER
 422
 reduced-output
 reduced-output
+0.0
+2000.0
 0
-2000
-0
-10
+10.0
 1
 NIL
 HORIZONTAL
@@ -1590,7 +1589,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@
