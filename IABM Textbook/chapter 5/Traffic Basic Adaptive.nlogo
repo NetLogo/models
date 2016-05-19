@@ -95,8 +95,12 @@ to adaptive-go
       set best-acceleration-so-far acceleration
       set speed-to-beat mean [ speed ] of turtles
     ] [
-      ;; In case the speed threshold was set during instability (a spike), we slowly
-      ;; lower it over time to give us a chance to learn a better acceleration.
+      ;; We don’t to use only one data point as a measure of the
+      ;; speed to beat, because it’s possible that this measure
+      ;; was taken during a time of instability (a spike). Instead,
+      ;; we use a weighted average of the measured speed to beat
+      ;; and the current speed, slowly lowering it over time to
+      ;; give us a chance to learn a better acceleration.
       set speed-to-beat 0.1 * mean [ speed ] of turtles + 0.9 * speed-to-beat
       set acceleration best-acceleration-so-far
     ]
