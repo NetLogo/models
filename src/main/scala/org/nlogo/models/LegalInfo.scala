@@ -3,6 +3,8 @@ package org.nlogo.models
 import java.io.File
 import java.util.Calendar
 
+import org.nlogo.core.Model
+
 /*
  * See https://github.com/NetLogo/models/wiki/%22Notarizing%22-models
  * for info on notarizing models.
@@ -25,8 +27,10 @@ case class LegalInfo(model: Model) {
 
   import LegalInfo._
 
+  val infoTabParts = model.infoTabParts
+
   val (year: Int, year2: Option[Int], keywords: List[String], cite: String) = {
-    val Some(pattern(y1, y2, keys, _, cite)) = model.info.legalSnippet
+    val Some(pattern(y1, y2, keys, _, cite)) = infoTabParts.legalSnippet
     (y1.toInt,
       if (y2 == null) None else Some(y2.trim.toInt),
       if (keys == null) List() else keys.split("""\s""").map(_.trim).filter(!_.isEmpty).toList,
@@ -73,7 +77,7 @@ case class LegalInfo(model: Model) {
         "; copyright and related or neighboring rights to this model.\n"
     } else
       "; " + copyrightString + "\n" + "; See Info tab for full copyright and license.\n"
-    Info.clean(result)
+    InfoTabParts.clean(result)
   }
 
   val code = model.code.lines.toSeq
@@ -88,9 +92,9 @@ case class LegalInfo(model: Model) {
     val authors = cite match {
       case "" if keywords.contains("Stroup") =>
         "Wilensky, U. and Stroup, W."
-      case "" => "Wilensky, U."
+      case ""                            => "Wilensky, U."
       case _ if cite contains "Wilensky" => cite
-      case _ => cite + " and Wilensky, U."
+      case _                             => cite + " and Wilensky, U."
     }
     builder.append(authors)
     builder.append(" (" + year + ").  " + netlogohubnet + " " + model.name + " model.  ")
@@ -124,7 +128,7 @@ case class LegalInfo(model: Model) {
             builder.result()
           }
       case altViz(original) =>
-        val originalFolder = Model.libraryModels
+        val originalFolder = libraryModels
           .find(_.name == original).get
           .file.getPath.split(File.separator)
           .dropWhile(_ != "Sample Models").drop(1).head
@@ -143,19 +147,19 @@ case class LegalInfo(model: Model) {
   }
 
   val creditsAndReferences: Option[String] = {
-    val current = model.info.sectionMap.get(Info.CreditsAndReferences.name)
+    val current = infoTabParts.sectionMap.get(InfoTabParts.CreditsAndReferences.name)
     if (model.isIABM && model.name.contains("Simple")) {
       val thisModelIs = "This model is a simplified version of:\n\n"
       val originalName =
         if (model.name.startsWith("Wolf Sheep")) "Wolf Sheep Predation"
         else model.name.split("Simple").head.trim
-      Model.libraryModels.find(_.name == originalName).map { m =>
+      libraryModels.find(_.name == originalName).map { m =>
         val rest = current.map { s =>
           (if (s.startsWith(thisModelIs)) s.lines.drop(4).mkString("\n") else s)
         }.map(s => if (s.nonEmpty) s"\n\n$s" else s).getOrElse("")
-        thisModelIs + "* " + m.legalInfo.modelCitation + rest
+        thisModelIs + "* " + LegalInfo(m).modelCitation + rest
       }
-    } else model.info.sectionMap.get(Info.CreditsAndReferences.name)
+    } else infoTabParts.sectionMap.get(InfoTabParts.CreditsAndReferences.name)
   }
   val howToCite: String = {
     val builder = new StringBuilder
@@ -199,7 +203,7 @@ case class LegalInfo(model: Model) {
         builder.append("Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.\n")
       }
     }
-    Info.clean(builder.toString)
+    InfoTabParts.clean(builder.toString)
   }
 
   val copyrightAndLicence: String = {
@@ -317,6 +321,6 @@ case class LegalInfo(model: Model) {
         builder.append("Wilensky at <uri@northwestern.edu> for a mutual agreement prior to usage.\n\n")
       }
     }
-    Info.clean(builder.toString)
+    InfoTabParts.clean(builder.toString)
   }
 }

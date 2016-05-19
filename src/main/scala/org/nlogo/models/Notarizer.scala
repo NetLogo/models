@@ -1,30 +1,46 @@
 package org.nlogo.models
 
+import java.util.regex.Pattern.quote
+
 import scala.collection.immutable.ListMap
-import scala.util.Try
+
+import org.apache.commons.io.FileUtils
+import org.nlogo.core.Model
 
 object Notarizer {
 
-  def notarize(model: Model): Model = {
-    val legal = model.legalInfo
+  def notarize(model: Model): String = {
+    val legal = LegalInfo(model)
+    val infoTabParts = model.infoTabParts
     val newSections = (
       ListMap() ++
-      legal.acknowledgment.map(Info.Acknowledgment.name -> _) ++
-      (model.info.sectionMap - Info.Acknowledgment.name) ++
-      legal.creditsAndReferences.map(Info.CreditsAndReferences.name -> _)
+      legal.acknowledgment.map(InfoTabParts.Acknowledgment.name -> _) ++
+      (infoTabParts.sectionMap - InfoTabParts.Acknowledgment.name) ++
+      legal.creditsAndReferences.map(InfoTabParts.CreditsAndReferences.name -> _)
       ++ Seq(
-        Info.HowToCite.name -> legal.howToCite,
-        Info.CopyrightAndLicense.name -> legal.copyrightAndLicence
+        InfoTabParts.HowToCite.name -> legal.howToCite,
+        InfoTabParts.CopyrightAndLicense.name -> legal.copyrightAndLicence
       )
     ).filter(_._2.nonEmpty)
-    val newInfo = Info.fromSections(newSections, model.info.legalSnippet)
+    val newInfo = InfoTabParts.fromSections(newSections, infoTabParts.legalSnippet)
     val newCode = legal.code
-    model.copy(info = newInfo, code = newCode)
+    val sectionSeparator = "@#$#@#$#@"
+    val originalContent = FileUtils.readFileToString(model.file, "UTF-8")
+    val sections = (originalContent + sectionSeparator + "\n").split(quote(sectionSeparator) + "\\n")
+    val Array(
+      code, interface, infoString, turtleShapes, version,
+      previewCommands, systemDynamics, behaviorSpace,
+      hubNetClient, linkShapes, modelSettings) = sections
+    Seq(
+      newCode, interface, newInfo.content, turtleShapes, version,
+      previewCommands, systemDynamics, behaviorSpace,
+      hubNetClient, linkShapes, modelSettings)
+      .mkString("", sectionSeparator + "\n", sectionSeparator + "\n")
   }
 
   def main(args: Array[String]): Unit =
     for {
-      model <- Model.libraryModels
-      notarizedModel <- Try(notarize(model)).toOption
-    } notarizedModel.save()
+      model <- libraryModels
+      newContent = notarize(model)
+    } FileUtils.write(model.file, newContent, "UTF-8")
 }

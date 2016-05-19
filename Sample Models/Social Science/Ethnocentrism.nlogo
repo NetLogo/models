@@ -356,7 +356,7 @@ mutation-rate
 mutation-rate
 0.0
 1.0
-0.0050
+0.005
 0.0010
 1
 NIL
@@ -944,7 +944,7 @@ setup-full repeat 150 [ go ]
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="experiment104" repetitions="10" runMetricsEveryStep="false">
+  <experiment name="Experiment 104" repetitions="10" runMetricsEveryStep="false">
     <setup>setup-empty</setup>
     <go>go</go>
     <timeLimit steps="2000"/>
@@ -975,7 +975,7 @@ setup-full repeat 150 [ go ]
       <value value="0.5"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="mutation-rate">
-      <value value="0.0050"/>
+      <value value="0.005"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="cost-of-giving">
       <value value="0.01"/>
@@ -993,7 +993,7 @@ setup-full repeat 150 [ go ]
       <value value="50"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="experiment105" repetitions="10" runMetricsEveryStep="false">
+  <experiment name="Experiment 105" repetitions="10" runMetricsEveryStep="false">
     <setup>setup-empty</setup>
     <go>go</go>
     <timeLimit steps="2000"/>
@@ -1024,7 +1024,7 @@ setup-full repeat 150 [ go ]
       <value value="0.5"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="mutation-rate">
-      <value value="0.0050"/>
+      <value value="0.005"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="cost-of-giving">
       <value value="0.01"/>
@@ -1042,7 +1042,7 @@ setup-full repeat 150 [ go ]
       <value value="100"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="experiment106" repetitions="10" runMetricsEveryStep="false">
+  <experiment name="Experiment 106" repetitions="10" runMetricsEveryStep="false">
     <setup>setup-empty</setup>
     <go>go</go>
     <timeLimit steps="4000"/>
@@ -1073,7 +1073,7 @@ setup-full repeat 150 [ go ]
       <value value="0.5"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="mutation-rate">
-      <value value="0.0050"/>
+      <value value="0.005"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="cost-of-giving">
       <value value="0.01"/>
@@ -1091,7 +1091,7 @@ setup-full repeat 150 [ go ]
       <value value="50"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="experiment107" repetitions="10" runMetricsEveryStep="false">
+  <experiment name="Experiment 107" repetitions="10" runMetricsEveryStep="false">
     <setup>setup-empty</setup>
     <go>go</go>
     <timeLimit steps="1000"/>
@@ -1122,7 +1122,7 @@ setup-full repeat 150 [ go ]
       <value value="0.5"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="mutation-rate">
-      <value value="0.0050"/>
+      <value value="0.005"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="cost-of-giving">
       <value value="0.01"/>
@@ -1140,7 +1140,7 @@ setup-full repeat 150 [ go ]
       <value value="50"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="experiment108" repetitions="10" runMetricsEveryStep="false">
+  <experiment name="Experiment 108" repetitions="10" runMetricsEveryStep="false">
     <setup>setup-empty</setup>
     <go>go</go>
     <timeLimit steps="2000"/>
@@ -1171,7 +1171,7 @@ setup-full repeat 150 [ go ]
       <value value="0.5"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="mutation-rate">
-      <value value="0.0050"/>
+      <value value="0.005"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="cost-of-giving">
       <value value="0.01"/>
@@ -1189,7 +1189,7 @@ setup-full repeat 150 [ go ]
       <value value="25"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="experiment109" repetitions="10" runMetricsEveryStep="false">
+  <experiment name="Experiment 109" repetitions="10" runMetricsEveryStep="false">
     <setup>setup-empty</setup>
     <go>go</go>
     <timeLimit steps="2000"/>
@@ -1220,7 +1220,7 @@ setup-full repeat 150 [ go ]
       <value value="0.5"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="mutation-rate">
-      <value value="0.0050"/>
+      <value value="0.005"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="cost-of-giving">
       <value value="0.02"/>
@@ -1238,7 +1238,7 @@ setup-full repeat 150 [ go ]
       <value value="50"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="experiment110" repetitions="10" runMetricsEveryStep="false">
+  <experiment name="Experiment 110" repetitions="10" runMetricsEveryStep="false">
     <setup>setup-empty</setup>
     <go>go</go>
     <timeLimit steps="2000"/>
@@ -1287,7 +1287,7 @@ setup-full repeat 150 [ go ]
       <value value="50"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="experiment111" repetitions="10" runMetricsEveryStep="false">
+  <experiment name="Experiment 111" repetitions="10" runMetricsEveryStep="false">
     <setup>setup-empty</setup>
     <go>go</go>
     <timeLimit steps="2000"/>
@@ -1336,7 +1336,7 @@ setup-full repeat 150 [ go ]
       <value value="50"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="experiment113" repetitions="10" runMetricsEveryStep="false">
+  <experiment name="Experiment 113" repetitions="10" runMetricsEveryStep="false">
     <setup>setup-empty</setup>
     <go>go</go>
     <timeLimit steps="2000"/>
@@ -1367,7 +1367,7 @@ setup-full repeat 150 [ go ]
       <value value="0.5"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="mutation-rate">
-      <value value="0.0050"/>
+      <value value="0.005"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="cost-of-giving">
       <value value="0.01"/>

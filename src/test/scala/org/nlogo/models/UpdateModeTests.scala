@@ -1,5 +1,8 @@
 package org.nlogo.models
 
+import org.nlogo.core.UpdateMode.Continuous
+import org.nlogo.core.UpdateMode.TickBased
+
 class UpdateModeTests extends TestModels {
   val continuousUpdateModels = Set(
     "Shapes Example 3D",
@@ -29,9 +32,8 @@ class UpdateModeTests extends TestModels {
   testModels("Models should use tick-based updates unless otherwise specified") { model =>
     for {
       m <- Option(model)
-      excluded = continuousUpdateModels(m.name)
-      targetMode = if (excluded) Model.Continuous else Model.OnTicks
-      if model.updateMode != targetMode
+      targetMode = if (continuousUpdateModels(m.name)) Continuous else TickBased
+      if model.view.updateMode != targetMode
     } yield s"update mode should be $targetMode"
   }
 }

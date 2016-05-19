@@ -21,10 +21,9 @@ object Stats {
 
   def exportPrimitivesUsagePlot(): Unit = {
 
-    val data = Model.libraryModels
-      .filterNot(_.is3D) // TODO: make it work for 3D models - NP 2016-05-04
+    val data = libraryModels
       .flatMap(model =>
-        try model.primitiveTokenNames.distinct.map(_ -> model)
+        try new Tokens(model).primitiveTokenNames.distinct.map(_ -> model)
         catch {
           case e: java.lang.RuntimeException =>
             Console.err.println(model.file.getPath)

@@ -1,11 +1,13 @@
 package org.nlogo.models
 
+import org.nlogo.core.Model
+
 class ViewTests extends TestModels {
 
   testModels("Models should have integer patch sizes") {
     Option(_)
-      .filterNot(m => m.patchSize.toInt == m.patchSize)
-      .map(_.patchSize.toString)
+      .filterNot(m => m.view.patchSize.toInt == m.view.patchSize)
+      .map(_.view.patchSize.toString)
   }
 
   val nonStandardFrameRateModels = Set(
@@ -26,10 +28,8 @@ class ViewTests extends TestModels {
      * rate is not changed by mistake to a non-standard value.
      */
     Option(_)
-      .filterNot(_.is3D)
       .filterNot(m => nonStandardFrameRateModels.contains(m.name))
-      .map(_.interface.lines.dropWhile(_ != "GRAPHICS-WINDOW").drop(25).next.toDouble)
-      .filterNot(_ == 30)
+      .filterNot(_.view.frameRate == 30)
   }
 
   testModels("Saved view size must match size computed from the saved patch size and screen-edge-x/y") {
@@ -47,29 +47,26 @@ class ViewTests extends TestModels {
   def checkModel(model: Model): Option[String] = {
     // Note: I'm converting this to scalatest with as little fiddling as possible,
     // since I don't fully understand how this calculation is made. NP 2015-05-25.
-    val lines = model.content.lines.toSeq
-    val version = lines.find(_.matches("""NetLogo [0-9]\..*""")).get.drop("NetLogo ".size)
-    val graphics = lines.dropWhile(_ != "GRAPHICS-WINDOW").takeWhile(_ != "")
-    val (x1, y1, x2, y2) = (graphics(1).toInt, graphics(2).toInt, graphics(3).toInt, graphics(4).toInt)
-    val patchSize = graphics(7).toDouble
-    val maxx = if (graphics.size > 18) graphics(18).toInt else graphics(5).toInt
-    val maxy = if (graphics.size > 20) graphics(20).toInt else graphics(6).toInt
-    val minx = if (graphics.size > 17) graphics(17).toInt else -maxx
-    val miny = if (graphics.size > 19) graphics(19).toInt else -maxy
+    val maxx = model.view.maxPxcor
+    val maxy = model.view.maxPycor
+    val minx = model.view.minPxcor
+    val miny = model.view.minPycor
     val (worldWidth, worldHeight) = (maxx - minx + 1, maxy - miny + 1)
     // take control strip and gray border into account
     val (extraWidth, extraHeight) = (10, 31)
-    val computedWidth = extraWidth + patchSize * worldWidth
-    val computedHeight = extraHeight + patchSize * worldHeight
     var problems = Seq[String]()
     if (maxx < 0 || minx > 0 || maxy < 0 || miny > 0)
       problems +:= "bad world dimensions: " + (maxx, minx, maxy, miny)
-    if (computedWidth != x2 - x1)
-      problems +:= "computed width: " + computedWidth + ", actual width: " + (x2 - x1)
-    if (computedHeight != y2 - y1)
-      problems +:= "computed height: " + computedHeight + ", actual height: " + (y2 - y1)
+    val computedWidth = extraWidth + model.view.patchSize * worldWidth
+    val actualWidth = model.view.right - model.view.left
+    if (computedWidth != actualWidth)
+      problems +:= "computed width: " + computedWidth + ", actual width: " + actualWidth
+    val computedHeight = extraHeight + model.view.patchSize * worldHeight
+    val actualHeight = model.view.bottom - model.view.top
+    if (computedHeight != actualHeight)
+      problems +:= "computed height: " + computedHeight + ", actual height: " + actualHeight
     if (problems.nonEmpty)
-      Some(model.quotedPath + " (" + version + "):\n" + problems.mkString("\n"))
+      Some(model.quotedPath+ ":\n" + problems.mkString("\n"))
     else None
   }
 }

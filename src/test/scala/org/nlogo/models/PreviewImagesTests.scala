@@ -4,10 +4,12 @@ import java.io.File
 
 import org.apache.commons.io.FileUtils.readFileToString
 import org.apache.commons.io.FilenameUtils.removeExtension
+import org.nlogo.api.PreviewCommands.Manual
+import org.nlogo.core.Model
 
 class PreviewImagesTests extends TestModels {
 
-  def needsPreviewFile(m: Model) = m.is3D || m.needsManualPreview
+  def needsPreviewFile(m: Model) = m.is3D || m.previewCommands == Manual
 
   val ignoredLines = readFileToString(new File(".gitignore"), "UTF-8").lines.toSeq
   val ignored = ignoredLines.toSet
@@ -50,13 +52,13 @@ class PreviewImagesTests extends TestModels {
     "Partition Perms Distrib"
   )
   testModels("Models should have manual previews only if needed or permitted") { m =>
-    if (manualPreviewNeeded.exists(m.quotedPath.contains))
-      if (m.needsManualPreview)
-        None
+    if (manualPreviewNeeded.exists(m.file.getPath.contains) || m.is3D)
+      if (m.previewCommands != Manual)
+        Some("should need manual preview")
       else
-        Some("Should need manual preview")
-    else if (m.needsManualPreview && !manualPreviewPermitted.contains(m.name))
-      Some("\"" + m.name + "\" should NOT need manual preview")
+        None
+    else if (m.previewCommands == Manual && !manualPreviewPermitted.contains(m.name))
+      Some("should NOT need manual preview")
     else
       None
   }
@@ -91,7 +93,7 @@ class PreviewImagesTests extends TestModels {
   }
 
   test(".gitignore should not contain preview entries for non-existing models") {
-    val modelNames = Model.libraryModels.map(_.name).toSet
+    val modelNames = libraryModels.map(_.name).toSet
     val unneededEntries =
       ignoredLines.filter(_.endsWith(".png"))
         .filterNot(path => modelNames.contains(removeExtension(new File(path).getName)))
