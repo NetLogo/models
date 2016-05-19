@@ -434,8 +434,8 @@ GRAPHICS-WINDOW
 27
 1131
 533
-12
-12
+-1
+-1
 19.0
 1
 10
@@ -499,7 +499,7 @@ initial-people
 initial-people
 50
 400
-250
+250.0
 10
 1
 NIL
@@ -514,7 +514,7 @@ average-isolation-tendency
 average-isolation-tendency
 0
 50
-5
+5.0
 5
 1
 NIL
@@ -548,7 +548,7 @@ inoculation-chance
 inoculation-chance
 0
 50
-10
+10.0
 5
 1
 NIL
@@ -563,7 +563,7 @@ initial-ambulance
 initial-ambulance
 0
 4
-2
+2.0
 1
 1
 NIL
@@ -578,7 +578,7 @@ average-hospital-going-tendency
 average-hospital-going-tendency
 0
 50
-5
+5.0
 5
 1
 NIL
@@ -612,7 +612,7 @@ infection-chance
 infection-chance
 10
 100
-55
+55.0
 5
 1
 NIL
@@ -627,7 +627,7 @@ recovery-chance
 recovery-chance
 10
 100
-45
+45.0
 5
 1
 NIL
@@ -690,7 +690,7 @@ travel-tendency
 travel-tendency
 0
 1
-1
+1.0
 .1
 1
 NIL
@@ -705,7 +705,7 @@ average-recovery-time
 average-recovery-time
 50
 300
-110
+110.0
 10
 1
 NIL
@@ -1145,9 +1145,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1163,7 +1162,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@

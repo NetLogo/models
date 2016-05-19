@@ -576,8 +576,8 @@ GRAPHICS-WINDOW
 10
 935
 580
-32
-24
+-1
+-1
 11.0
 1
 10
@@ -641,7 +641,7 @@ hive-number
 hive-number
 4
 10
-10
+10.0
 1
 1
 NIL
@@ -656,7 +656,7 @@ initial-percentage
 initial-percentage
 5
 25
-12
+12.0
 1
 1
 NIL
@@ -742,7 +742,7 @@ initial-explore-time
 initial-explore-time
 100
 300
-200
+200.0
 10
 1
 NIL
@@ -791,7 +791,7 @@ quorum
 quorum
 0
 50
-33
+33.0
 1
 1
 NIL
@@ -1225,9 +1225,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1243,7 +1242,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@

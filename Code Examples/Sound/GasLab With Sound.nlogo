@@ -506,8 +506,8 @@ GRAPHICS-WINDOW
 10
 548
 309
-33
-33
+-1
+-1
 4.0
 1
 10
@@ -589,7 +589,7 @@ number-to-add
 number-to-add
 0
 100
-25
+25.0
 1
 1
 NIL
@@ -621,7 +621,7 @@ initial-number
 initial-number
 0
 100
-25
+25.0
 1
 1
 NIL
@@ -820,7 +820,7 @@ collisions-loudness
 collisions-loudness
 0
 100
-30
+30.0
 5
 1
 NIL
@@ -835,7 +835,7 @@ wall-hits-loudness
 wall-hits-loudness
 0
 100
-30
+30.0
 5
 1
 NIL
@@ -850,7 +850,7 @@ pressure-loudness
 pressure-loudness
 0
 120
-60
+60.0
 5
 1
 NIL
@@ -899,7 +899,7 @@ single-particle-loudness
 single-particle-loudness
 0
 80
-30
+30.0
 5
 1
 NIL
@@ -1299,9 +1299,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
@@ -1318,7 +1317,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@

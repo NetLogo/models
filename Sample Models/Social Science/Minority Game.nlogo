@@ -170,8 +170,8 @@ GRAPHICS-WINDOW
 10
 727
 356
-17
-17
+-1
+-1
 9.0
 1
 10
@@ -235,7 +235,7 @@ number
 number
 1
 1501
-501
+501.0
 2
 1
 NIL
@@ -250,7 +250,7 @@ memory
 memory
 1
 12
-6
+6.0
 1
 1
 NIL
@@ -265,7 +265,7 @@ strategies-per-agent
 strategies-per-agent
 1
 10
-5
+5.0
 1
 1
 NIL
@@ -749,9 +749,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 setup
 repeat max-pxcor [ go ]
@@ -769,7 +768,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

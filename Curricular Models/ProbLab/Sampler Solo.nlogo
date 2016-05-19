@@ -466,7 +466,7 @@ sample-block-side
 sample-block-side
 1
 11
-3
+3.0
 2
 1
 NIL
@@ -541,7 +541,7 @@ SLIDER
 %-target-color
 0
 100
-0
+0.0
 1
 1
 NIL
@@ -573,7 +573,7 @@ cluster-guesses
 cluster-guesses
 1
 10
-3
+3.0
 1
 1
 NIL
@@ -633,7 +633,7 @@ abnormality
 abnormality
 0
 10
-4
+4.0
 1
 1
 NIL
@@ -987,9 +987,8 @@ Line -16777216 false 58 211 67 192
 Polygon -6459832 true true 38 138 66 149
 Polygon -6459832 true true 46 128 33 120 21 118 11 123 3 138 5 160 13 178 9 192 0 199 20 196 25 179 24 161 25 148 45 140
 Polygon -6459832 true true 67 122 96 126 63 144
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 set %-target-color 20
 setup
@@ -1008,7 +1007,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@

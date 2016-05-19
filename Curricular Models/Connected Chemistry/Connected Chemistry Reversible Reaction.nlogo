@@ -604,8 +604,8 @@ GRAPHICS-WINDOW
 10
 1015
 449
-32
-25
+-1
+-1
 8.0
 1
 10
@@ -669,7 +669,7 @@ init-wall-position
 init-wall-position
 5
 60
-6
+6.0
 1
 1
 NIL
@@ -755,7 +755,7 @@ SLIDER
 #-N2
 0
 200
-0
+0.0
 1
 1
 NIL
@@ -770,7 +770,7 @@ SLIDER
 #-H2
 0
 200
-0
+0.0
 5
 1
 NIL
@@ -785,7 +785,7 @@ initial-gas-temp
 initial-gas-temp
 0
 400
-90
+90.0
 5
 1
 NIL
@@ -917,7 +917,7 @@ SLIDER
 #-NH3
 0
 200
-200
+200.0
 1
 1
 NIL
@@ -1149,9 +1149,8 @@ square
 false
 0
 Rectangle -7500403 true true 0 0 297 299
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1167,7 +1166,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@

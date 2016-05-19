@@ -86,8 +86,8 @@ GRAPHICS-WINDOW
 10
 721
 543
-125
-125
+-1
+-1
 2.0
 1
 10
@@ -128,7 +128,7 @@ density
 density
 0.0
 100.0
-72
+72.0
 1.0
 1
 %
@@ -177,7 +177,7 @@ probability-of-spread
 probability-of-spread
 0
 100
-39
+39.0
 1
 1
 %
@@ -192,7 +192,7 @@ south-wind-speed
 south-wind-speed
 -25
 25
-25
+25.0
 1
 1
 NIL
@@ -207,7 +207,7 @@ west-wind-speed
 west-wind-speed
 -25
 25
-25
+25.0
 1
 1
 NIL
@@ -590,9 +590,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 set density 60.0
 setup
@@ -611,7 +610,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@

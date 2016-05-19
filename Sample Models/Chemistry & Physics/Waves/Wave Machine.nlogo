@@ -102,8 +102,8 @@ GRAPHICS-WINDOW
 10
 795
 527
-40
-40
+-1
+-1
 6.0
 1
 10
@@ -167,7 +167,7 @@ stiffness
 stiffness
 0
 50
-50
+50.0
 1
 1
 NIL
@@ -182,7 +182,7 @@ driver-x
 driver-x
 -11
 11
--11
+-11.0
 1
 1
 NIL
@@ -197,7 +197,7 @@ driver-y
 driver-y
 -11
 11
-0
+0.0
 1
 1
 NIL
@@ -223,7 +223,7 @@ driver-size
 driver-size
 0
 10
-2
+2.0
 1
 1
 NIL
@@ -238,7 +238,7 @@ driver-amplitude
 driver-amplitude
 0
 30
-9
+9.0
 1
 1
 NIL
@@ -253,7 +253,7 @@ driver-frequency
 driver-frequency
 0
 100
-100
+100.0
 1
 1
 NIL
@@ -268,7 +268,7 @@ friction
 friction
 0
 99
-10
+10.0
 1
 1
 NIL
@@ -283,7 +283,7 @@ view-angle
 view-angle
 0
 90
-45
+45.0
 1
 1
 NIL
@@ -693,9 +693,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -711,7 +710,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

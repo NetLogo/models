@@ -330,8 +330,8 @@ GRAPHICS-WINDOW
 11
 659
 366
-40
-40
+-1
+-1
 4.0
 1
 10
@@ -395,7 +395,7 @@ number-of-particles
 number-of-particles
 1
 1000
-1000
+1000.0
 1
 1
 NIL
@@ -421,7 +421,7 @@ init-particle-speed
 init-particle-speed
 1
 20
-10
+10.0
 1
 1
 NIL
@@ -436,7 +436,7 @@ particle-mass
 particle-mass
 1
 20
-20
+20.0
 1
 1
 NIL
@@ -462,7 +462,7 @@ threshold
 threshold
 1
 5
-1
+1.0
 0.1
 1
 NIL
@@ -567,7 +567,7 @@ time-display-particles
 time-display-particles
 0
 100
-16
+16.0
 1
 1
 NIL
@@ -976,9 +976,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -994,7 +993,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

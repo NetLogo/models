@@ -225,7 +225,7 @@ GRAPHICS-WINDOW
 12
 866
 384
-24
+-1
 -1
 11.0
 1
@@ -290,7 +290,7 @@ sun-brightness
 sun-brightness
 0
 5
-1
+1.0
 0.2
 1
 NIL
@@ -845,9 +845,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 setup add-cloud add-cloud add-cloud repeat 800 [ go ]
 @#$#@#$#@
@@ -864,7 +863,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

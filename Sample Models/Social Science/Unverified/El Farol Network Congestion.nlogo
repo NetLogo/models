@@ -186,8 +186,8 @@ GRAPHICS-WINDOW
 10
 792
 524
-11
-11
+-1
+-1
 21.0
 1
 10
@@ -251,7 +251,7 @@ population
 population
 0
 200
-200
+200.0
 1
 1
 patrons
@@ -266,7 +266,7 @@ equilibrium
 equilibrium
 0
 100
-40
+40.0
 1
 1
 patrons
@@ -281,7 +281,7 @@ dead-zone
 dead-zone
 0
 7
-2
+2.0
 1
 1
 patrons
@@ -315,7 +315,7 @@ frequency-update
 frequency-update
 0
 50
-1
+1.0
 1
 1
 NIL
@@ -815,9 +815,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -833,7 +832,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

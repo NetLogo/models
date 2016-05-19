@@ -108,8 +108,8 @@ GRAPHICS-WINDOW
 10
 733
 461
-17
-17
+-1
+-1
 12.0
 1
 10
@@ -191,7 +191,7 @@ number-of-sheep
 number-of-sheep
 0
 1000
-700
+700.0
 1
 1
 NIL
@@ -206,7 +206,7 @@ movement-cost
 movement-cost
 0
 2.0
-1
+1.0
 0.1
 1
 NIL
@@ -221,7 +221,7 @@ grass-regrowth-rate
 grass-regrowth-rate
 0
 2.0
-1
+1.0
 0.1
 1
 NIL
@@ -236,7 +236,7 @@ energy-gain-from-grass
 energy-gain-from-grass
 0
 2.0
-2
+2.0
 0.1
 1
 NIL
@@ -678,9 +678,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -696,7 +695,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@

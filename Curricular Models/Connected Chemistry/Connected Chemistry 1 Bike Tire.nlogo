@@ -257,8 +257,8 @@ GRAPHICS-WINDOW
 10
 511
 306
-26
-26
+-1
+-1
 5.0
 1
 10
@@ -288,7 +288,7 @@ number-of-particles-to-add
 number-of-particles-to-add
 1
 50
-50
+50.0
 1
 1
 NIL
@@ -522,9 +522,8 @@ Rectangle -7500403 true true 100 12 197 284
 nothing
 true
 0
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 setup
 set box-x 18
@@ -549,7 +548,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

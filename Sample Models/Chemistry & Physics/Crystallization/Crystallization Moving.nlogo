@@ -122,8 +122,8 @@ GRAPHICS-WINDOW
 10
 769
 461
-17
-17
+-1
+-1
 12.0
 1
 10
@@ -187,7 +187,7 @@ room-temp
 room-temp
 -20
 100
-20
+20.0
 1
 1
 NIL
@@ -202,7 +202,7 @@ init-metal-temp
 init-metal-temp
 1550
 2500
-1550
+1550.0
 10
 1
 NIL
@@ -217,7 +217,7 @@ melting-temp
 melting-temp
 500
 1500
-551
+551.0
 1
 1
 NIL
@@ -243,7 +243,7 @@ fill-percentage
 fill-percentage
 1
 100
-85
+85.0
 1
 1
 %
@@ -258,7 +258,7 @@ box-width
 box-width
 3
 33
-33
+33.0
 2
 1
 atoms
@@ -726,9 +726,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -744,7 +743,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

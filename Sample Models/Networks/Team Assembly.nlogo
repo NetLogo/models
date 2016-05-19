@@ -219,8 +219,8 @@ GRAPHICS-WINDOW
 10
 761
 445
-50
-50
+-1
+-1
 4.0
 1
 10
@@ -329,7 +329,7 @@ p
 p
 0.0
 100.0
-40
+40.0
 1.0
 1
 %
@@ -344,7 +344,7 @@ q
 q
 0.0
 100.0
-65
+65.0
 1.0
 1
 %
@@ -359,7 +359,7 @@ team-size
 team-size
 3
 8
-4
+4.0
 1
 1
 NIL
@@ -426,7 +426,7 @@ max-downtime
 max-downtime
 7
 100
-40
+40.0
 1
 1
 NIL
@@ -856,9 +856,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 set layout? false
 setup repeat 175 [ go ]
@@ -877,7 +876,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

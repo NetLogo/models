@@ -306,8 +306,8 @@ GRAPHICS-WINDOW
 64
 728
 560
-7
-7
+-1
+-1
 31.0
 1
 20
@@ -424,7 +424,7 @@ ratio-1-units
 ratio-1-units
 0
 10
-1
+1.0
 1
 1
 NIL
@@ -439,7 +439,7 @@ ratio-2-units
 ratio-2-units
 0
 10
-6
+6.0
 1
 1
 NIL
@@ -454,7 +454,7 @@ ratio-3-units
 ratio-3-units
 0
 10
-5
+5.0
 1
 1
 NIL
@@ -469,7 +469,7 @@ ratio-4-units
 ratio-4-units
 0
 10
-0
+0.0
 1
 1
 NIL
@@ -484,7 +484,7 @@ ratio-5-units
 ratio-5-units
 0
 10
-4
+4.0
 1
 1
 NIL
@@ -609,7 +609,7 @@ sample-size
 sample-size
 1
 20
-10
+10.0
 1
 1
 NIL
@@ -718,7 +718,7 @@ ratio-0-units
 ratio-0-units
 0
 10
-0
+0.0
 1
 1
 NIL
@@ -744,7 +744,7 @@ ratio-6-units
 ratio-6-units
 0
 10
-0
+0.0
 1
 1
 NIL
@@ -1301,9 +1301,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 setup go
 @#$#@#$#@
@@ -1320,7 +1319,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

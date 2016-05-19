@@ -296,8 +296,8 @@ GRAPHICS-WINDOW
 15
 833
 423
-20
-14
+-1
+-1
 13.0
 1
 20
@@ -327,7 +327,7 @@ number-of-states
 number-of-states
 2
 8
-2
+2.0
 1
 1
 NIL
@@ -451,7 +451,7 @@ number-of-signals
 number-of-signals
 2
 8
-2
+2.0
 1
 1
 NIL
@@ -904,9 +904,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 resize-world -14 14 -14 14
 setup repeat 75 [ go ]
@@ -933,7 +932,6 @@ empty
 link direction
 true
 0
-
 @#$#@#$#@
 1
 @#$#@#$#@

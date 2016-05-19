@@ -224,8 +224,8 @@ GRAPHICS-WINDOW
 10
 689
 209
-25
-10
+-1
+-1
 8.0
 1
 10
@@ -334,7 +334,7 @@ number
 number
 0
 134
-54
+54.0
 1
 1
 NIL
@@ -349,7 +349,7 @@ slow-down
 slow-down
 0
 100
-77
+77.0
 1
 1
 NIL
@@ -364,7 +364,7 @@ speed-up
 speed-up
 0
 100
-38
+38.0
 1
 1
 NIL
@@ -379,7 +379,7 @@ look-ahead
 look-ahead
 1
 2
-1
+1.0
 1
 1
 NIL
@@ -774,9 +774,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 setup
 repeat 50 [ drive ]
@@ -794,7 +793,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

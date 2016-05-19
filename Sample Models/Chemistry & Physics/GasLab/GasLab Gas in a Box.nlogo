@@ -330,8 +330,8 @@ GRAPHICS-WINDOW
 10
 659
 365
-40
-40
+-1
+-1
 4.0
 1
 10
@@ -395,7 +395,7 @@ number-of-particles
 number-of-particles
 1
 1000
-100
+100.0
 1
 1
 NIL
@@ -540,7 +540,7 @@ box-size
 box-size
 5
 100
-95
+95.0
 1
 1
 %
@@ -555,7 +555,7 @@ init-particle-speed
 init-particle-speed
 1
 20
-10
+10.0
 1
 1
 NIL
@@ -570,7 +570,7 @@ particle-mass
 particle-mass
 1
 20
-1
+1.0
 1
 1
 NIL
@@ -1036,9 +1036,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1054,7 +1053,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

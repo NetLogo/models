@@ -312,8 +312,8 @@ GRAPHICS-WINDOW
 10
 805
 486
-44
-44
+-1
+-1
 5.0
 1
 10
@@ -377,7 +377,7 @@ number-of-tests
 number-of-tests
 0
 30
-15
+15.0
 1
 1
 NIL
@@ -462,7 +462,7 @@ residents-per-job
 residents-per-job
 0
 500
-100
+100.0
 10
 1
 NIL
@@ -477,7 +477,7 @@ poor-per-step
 poor-per-step
 0
 15
-5
+5.0
 1
 1
 NIL
@@ -492,7 +492,7 @@ rich-per-step
 rich-per-step
 0
 15
-5
+5.0
 1
 1
 NIL
@@ -524,7 +524,7 @@ poor-price-priority
 poor-price-priority
 -1
 1
-0
+0.0
 .1
 1
 NIL
@@ -539,7 +539,7 @@ rich-quality-priority
 rich-quality-priority
 -1
 1
-0
+0.0
 0.1
 1
 NIL
@@ -554,7 +554,7 @@ max-jobs
 max-jobs
 5
 20
-10
+10.0
 1
 1
 NIL
@@ -569,7 +569,7 @@ death-rate
 death-rate
 0
 15
-4
+4.0
 1
 1
 NIL
@@ -1022,9 +1022,8 @@ Line -16777216 false 58 211 67 192
 Polygon -6459832 true true 38 138 66 149
 Polygon -6459832 true true 46 128 33 120 21 118 11 123 3 138 5 160 13 178 9 192 0 199 20 196 25 179 24 161 25 148 45 140
 Polygon -6459832 true true 67 122 96 126 63 144
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1040,7 +1039,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@

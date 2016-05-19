@@ -446,8 +446,8 @@ GRAPHICS-WINDOW
 20
 744
 570
-86
-86
+-1
+-1
 3.0
 1
 10
@@ -511,7 +511,7 @@ dust
 dust
 0
 5000
-2000
+2000.0
 10
 1
 NIL
@@ -526,7 +526,7 @@ strength-of-field
 strength-of-field
 1
 10
-8
+8.0
 1
 1
 NIL
@@ -541,7 +541,7 @@ size-of-cloud
 size-of-cloud
 2
 8
-8
+8.0
 1
 1
 NIL
@@ -556,7 +556,7 @@ number-of-trees
 number-of-trees
 0
 10
-2
+2.0
 1
 1
 NIL
@@ -1037,9 +1037,8 @@ Line -7500403 true 216 40 79 269
 Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 setup
 repeat 50 [ go ]
@@ -1057,7 +1056,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@

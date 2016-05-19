@@ -245,8 +245,8 @@ GRAPHICS-WINDOW
 13
 932
 561
-23
-23
+-1
+-1
 11.0
 1
 10
@@ -340,7 +340,7 @@ initial-number-bugs
 initial-number-bugs
 1
 300
-30
+30.0
 1
 1
 NIL
@@ -355,7 +355,7 @@ amount-of-grassland
 amount-of-grassland
 0
 100
-100
+100.0
 1
 1
 %
@@ -370,7 +370,7 @@ amount-of-food-bugs-eat
 amount-of-food-bugs-eat
 0
 8
-4
+4.0
 .1
 1
 NIL
@@ -430,7 +430,7 @@ grass-to-burn-down
 grass-to-burn-down
 1
 100
-75
+75.0
 1
 1
 %
@@ -445,7 +445,7 @@ bugs-to-remove
 bugs-to-remove
 1
 100
-50
+50.0
 1
 1
 %
@@ -890,9 +890,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -908,7 +907,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

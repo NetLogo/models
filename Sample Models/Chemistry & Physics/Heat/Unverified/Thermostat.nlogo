@@ -102,8 +102,8 @@ GRAPHICS-WINDOW
 11
 816
 539
-35
-35
+-1
+-1
 7.0
 1
 10
@@ -167,7 +167,7 @@ initial-temp
 initial-temp
 0.0
 99.0
-53
+53.0
 1.0
 1
 NIL
@@ -182,7 +182,7 @@ goal-temp
 goal-temp
 0.0
 99.0
-67
+67.0
 1.0
 1
 NIL
@@ -197,7 +197,7 @@ heater-strength
 heater-strength
 1
 10
-4
+4.0
 1
 1
 NIL
@@ -212,7 +212,7 @@ insulation
 insulation
 0.0
 100.0
-50
+50.0
 1.0
 1
 NIL
@@ -604,9 +604,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -622,7 +621,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

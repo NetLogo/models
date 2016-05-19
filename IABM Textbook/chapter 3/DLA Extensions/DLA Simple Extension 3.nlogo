@@ -43,8 +43,8 @@ GRAPHICS-WINDOW
 10
 824
 644
-100
-100
+-1
+-1
 3.0
 1
 10
@@ -108,7 +108,7 @@ wiggle-angle
 wiggle-angle
 0
 100
-60
+60.0
 1.0
 1
 degrees
@@ -123,7 +123,7 @@ num-particles
 num-particles
 0
 5000
-2500
+2500.0
 1
 1
 NIL
@@ -138,7 +138,7 @@ probability-of-sticking
 probability-of-sticking
 0
 1
-1
+1.0
 .01
 1
 NIL
@@ -164,7 +164,7 @@ num-seeds
 num-seeds
 1
 10
-10
+10.0
 1
 1
 NIL
@@ -541,9 +541,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 setup
 repeat 450 [ go ]
@@ -561,7 +560,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@
