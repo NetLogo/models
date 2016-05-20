@@ -9,6 +9,13 @@ import org.nlogo.core.Model
 
 class PreviewImagesTests extends TestModels {
 
+  /*
+   * A note about the 3D models: all 3D models should have a manual preview committed in
+   * the repository, but some of them still have "custom preview commands" saved in the
+   * model file: those are not used for generating the model previews but they *are* used
+   * for generating the model checksums and should *not* be removed from the model files.
+   * NP 2016-05-19
+   */
   def needsPreviewFile(m: Model) = m.is3D || m.previewCommands == Manual
 
   val ignoredLines = readFileToString(new File(".gitignore"), "UTF-8").lines.toSeq
@@ -52,7 +59,7 @@ class PreviewImagesTests extends TestModels {
     "Partition Perms Distrib"
   )
   testModels("Models should have manual previews only if needed or permitted") { m =>
-    if (manualPreviewNeeded.exists(m.file.getPath.contains) || m.is3D)
+    if (manualPreviewNeeded.exists(m.file.getPath.contains))
       if (m.previewCommands != Manual)
         Some("should need manual preview")
       else
