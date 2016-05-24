@@ -1,213 +1,178 @@
-globals
-[
-  selected-car   ;; the currently selected car
+globals [
+  selected-car   ; the currently selected car
+  lanes          ; a list of the y coordinates of different lanes
 ]
 
-turtles-own
-[
-  speed         ;; the current speed of the car
-  speed-limit   ;; the maximum speed of the car (different for all cars)
-  lane          ;; the current lane of the car
-  target-lane   ;; the desired lane of the car
-  patience      ;; the driver's current patience
-  max-patience  ;; the driver's maximum patience
-  change?       ;; true if the car wants to change lanes
+turtles-own [
+  speed         ; the current speed of the car
+  top-speed     ; the maximum speed of the car (different for all cars)
+  target-lane   ; the desired lane of the car
+  patience      ; the driver's current level of patience
 ]
 
 to setup
   clear-all
-  draw-road
   set-default-shape turtles "car"
-  create-turtles number [ setup-cars ]
+  draw-road
+  create-or-remove-cars
   set selected-car one-of turtles
-  ;; color the selected car red so that it is easy to watch
   ask selected-car [ set color red ]
   reset-ticks
 end
 
+to create-or-remove-cars
+
+  ; make sure we don't have too many cars for the room we have on the road
+  let road-patches patches with [ member? pycor lanes ]
+  if number-of-cars > count road-patches [
+    set number-of-cars count road-patches
+  ]
+
+  create-turtles (number-of-cars - count turtles) [
+    set color car-color
+    move-to one-of free road-patches
+    set target-lane pycor
+    set heading 90
+    set top-speed 0.5 + random-float 0.5
+    set speed 0.5
+    set patience max-patience
+  ]
+
+  if count turtles > number-of-cars [
+    let n count turtles - number-of-cars
+    ask n-of n [ other turtles ] of selected-car [ die ]
+  ]
+
+end
+
+to-report free [ road-patches ] ; turtle procedure
+  let this-car self
+  report road-patches with [
+    not any? turtles-here with [ self != this-car ]
+  ]
+end
+
 to draw-road
   ask patches [
-    set pcolor green
-    if ((pycor > -4) and (pycor < 4)) [ set pcolor gray ]
-    if ((pycor = 0) and ((pxcor mod 3) = 0)) [ set pcolor yellow ]
-    if ((pycor = 4) or (pycor = -4)) [ set pcolor black ]
+    ; the road is surrounded by green grass of varying shades
+    set pcolor green - random-float 0.5
+  ]
+  set lanes n-values number-of-lanes [
+    number-of-lanes - (? * 2) - 1
+  ]
+  ask patches with [ abs pycor <= number-of-lanes ] [
+    ; the road itself is varying shades of grey
+    set pcolor grey - 2.5 + random-float 0.25
+  ]
+  draw-road-lines
+end
+
+to draw-road-lines
+  let y (last lanes) - 1 ; start below the "lowest" lane
+  while [ y <= first lanes + 1 ] [
+    if not member? y lanes [
+      ; draw lines on road patches that are not part of a lane
+      ifelse abs y = number-of-lanes
+        [ draw-line y yellow 0 ]  ; yellow for the sides of the road
+        [ draw-line y white 0.5 ] ; dashed white between lanes
+    ]
+    set y y + 1 ; move up one patch
   ]
 end
 
-to setup-cars
-  set color black
-  set lane (random 2)
-  set target-lane lane
-  ifelse (lane = 0) [
-    setxy random-xcor -2
-  ]
-  [
-    setxy random-xcor  2
-  ]
-  set heading 90
-  set speed 0.1 + random 9.9
-  set speed-limit (((random 11) / 10) + 1)
-  set change? false
-  set max-patience ((random 50) + 10)
-  set patience (max-patience - (random 10))
-
-  ;; make sure no two cars are on the same patch
-  loop [
-    ifelse any? other turtles-here [ fd 1 ] [ stop ]
+to draw-line [ y line-color gap ]
+  ; We use a temporary turtle to draw the line:
+  ; - with a gap of zero, we get a continuous line;
+  ; - with a gap greater than zero, we get a dasshed line.
+  create-turtles 1 [
+    setxy (min-pxcor - 0.5) y
+    hide-turtle
+    set color line-color
+    set heading 90
+    repeat world-width [
+      pen-up
+      forward gap
+      pen-down
+      forward (1 - gap)
+    ]
+    die
   ]
 end
 
-;; All turtles look first to see if there is a turtle directly in front of it,
-;; if so, set own speed to front turtle's speed and decelerate.  Otherwise, if
-;; look-ahead is set for 2, look ahead one more patch and do the same.  If no front
-;; turtles are found, accelerate towards speed-limit
-
-to drive
-  ask turtles [
-    ifelse (any? turtles-at 1 0) [
-      set speed ([speed] of (one-of (turtles-at 1 0)))
-      decelerate
-    ]
-    [
-      ifelse (look-ahead = 2) [
-        ifelse (any? turtles-at 2 0) [
-          set speed ([speed] of (one-of turtles-at 2 0))
-          decelerate
-        ]
-        [
-          accelerate
-        ]
-      ]
-      [
-        accelerate
-      ]
-    ]
-    if (speed < 0.01) [ set speed 0.01 ]
-    if (speed > speed-limit) [ set speed speed-limit ]
-  ]
-  ; Now that all speeds are adjusted, give turtles a chance to change lanes
-  ask turtles [
-    ifelse (change? = false) [ signal ] [ change-lanes ]
-    ;; Control for making sure no one crashes.
-    ifelse (any? turtles-at 1 0) and (xcor != min-pxcor - .5) [
-      set speed [speed] of (one-of turtles-at 1 0)
-    ]
-    [
-      ifelse ((any? turtles-at 2 0) and (speed > 1.0)) [
-        set speed ([speed] of (one-of turtles-at 2 0))
-        fd 1
-      ]
-      [
-        jump speed
-      ]
-    ]
-  ]
+to go
+  create-or-remove-cars
+  ask turtles [ adjust-speed ]
+  ask turtles [ forward speed ]
+  ask turtles with [ patience <= 0 ] [ choose-new-lane ]
+  ask turtles with [ ycor != target-lane ] [ move-to-target-lane ]
   tick
 end
 
-;; increase speed of cars
-to accelerate  ;; turtle procedure
-  set speed (speed + (speed-up / 1000))
+to adjust-speed ; turtle procedure
+  set heading 90
+  speed-up-car ; we tentatively speed up, but might have to slow down
+  let other-car car-ahead speed
+  if other-car != nobody [
+    ; match the speed of the car ahead of you and then slow
+    ; down so you are driving a bit slower than that car.
+    set speed [ speed ] of other-car
+    slow-down-car
+    ; every time you hit the brakes, you loose a little patience
+    set patience patience - 1
+  ]
 end
 
-;; reduce speed of cars
-to decelerate  ;; turtle procedure
-  set speed (speed - (slow-down / 1000))
+to slow-down-car ; turtle procedure
+  set speed (speed - slow-down)
+  if speed < 0 [ set speed slow-down ]
 end
 
-;; undergoes search algorithms
-to change-lanes  ;; turtle procedure
-  ifelse (patience <= 0) [
-    ifelse (max-patience <= 1) [
-      set max-patience (random 10) + 1
-    ]
-    [
-      set max-patience (max-patience - (random 5))
-    ]
+to speed-up-car ; turtle procedure
+  set speed (speed + speed-up)
+  if speed > top-speed [ set speed top-speed ]
+end
+
+to choose-new-lane ; turtle procedure
+  let other-lanes remove ycor lanes
+  ; The lanes next to you are the other lanes with a distance
+  ; to your current lane (i.e., your ycor) of no more than two.
+  let adjacent-lanes filter [ abs (? - ycor) <= 2 ] other-lanes
+  if not empty? adjacent-lanes [
+    set target-lane one-of adjacent-lanes
     set patience max-patience
-    ifelse (target-lane = 0) [
-      set target-lane 1
-      set lane 0
-    ]
-    [
-      set target-lane 0
-      set lane 1
-    ]
-  ]
-  [
-    set patience (patience - 1)
-  ]
-  ifelse (target-lane = lane) [
-    ifelse (target-lane = 0) [
-      set target-lane 1
-      set change? false
-    ]
-    [
-      set target-lane 0
-      set change? false
-    ]
-  ]
-  [
-    ifelse (target-lane = 1) [
-      ifelse (pycor = 2) [
-        set lane 1
-        set change? false
-      ]
-      [
-        ifelse (not any? turtles-at 0 1) [
-          set ycor (ycor + 1)
-        ]
-        [
-          ifelse (not any? turtles-at 1 0) [
-            set xcor (xcor + 1)
-          ]
-          [
-            decelerate
-            if (speed <= 0) [ set speed 0.1 ]
-          ]
-        ]
-      ]
-    ]
-    [
-      ifelse (pycor = -2) [
-        set lane 0
-        set change? false
-      ]
-      [
-        ifelse (not any? turtles-at 0 -1) [
-          set ycor (ycor - 1)
-        ]
-        [
-          ifelse (not any? turtles-at 1 0) [
-            set xcor (xcor + 1)
-          ]
-          [
-            decelerate
-            if (speed <= 0) [ set speed 0.1 ]
-          ]
-        ]
-      ]
-    ]
   ]
 end
 
-to signal
-  ifelse (any? turtles-at 1 0) [
-    if ([speed] of (one-of (turtles-at 1 0))) < (speed) [
-      set change? true
-    ]
+to move-to-target-lane ; turtle procedure
+  set heading ifelse-value (target-lane < ycor) [ 180 ] [ 0 ]
+  let dist 0.4 ; a good distance to never end up exactly between two lanes
+  let other-car car-ahead dist
+  ifelse other-car = nobody [
+    forward dist
+    set ycor precision ycor 1 ; to avoid floating point errors
+  ] [
+    ; slow down if the car blocking us is behind, otherwise speed up
+    ifelse towards other-car <= 180 [ slow-down-car ] [ speed-up-car ]
   ]
-  [
-    set change? false
-  ]
+end
+
+to-report car-ahead [ dist ] ; turtle reporter
+  ; To check if there is a car ahead, we temporarily
+  ; move our turtle forward, check for cars in the
+  ; cone in front of it, and then back it up.
+  forward dist
+  let cars-ahead other turtles in-cone 1 180
+  back dist
+  report min-one-of cars-ahead [ distance myself ]
 end
 
 to select-car
+  ; allow the user to select a different car by clicking on it with the mouse
   if mouse-down? [
     let mx mouse-xcor
     let my mouse-ycor
     if any? turtles-on patch mx my [
-      ask selected-car [ set color black ]
+      ask selected-car [ set color car-color ]
       set selected-car one-of turtles-on patch mx my
       ask selected-car [ set color red ]
       display
@@ -215,18 +180,29 @@ to select-car
   ]
 end
 
+to-report car-color
+  ; give all cars a blueish color, but still make them distinguishable
+  report one-of [ blue cyan sky ] + 1.5 + random-float 1.0
+end
+
+to-report number-of-lanes
+  ; To make the number of easily lanes adjustable, remove this
+  ; reporter and create a slider on the interface with the same
+  ; name. 8 lanes is the maximum that currently fit in the view.
+  report 2
+end
 
 ; Copyright 1998 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-271
+225
 10
-687
-187
+973
+347
 -1
 -1
-8.0
+18.0
 1
 10
 1
@@ -236,10 +212,10 @@ GRAPHICS-WINDOW
 1
 0
 1
--25
-25
--10
-10
+-20
+20
+-8
+8
 1
 1
 1
@@ -247,10 +223,10 @@ ticks
 30.0
 
 BUTTON
-9
-36
-84
-69
+10
+10
+75
+45
 NIL
 setup
 NIL
@@ -264,12 +240,12 @@ NIL
 1
 
 BUTTON
-11
-121
-86
-154
+150
+10
+215
+45
 go
-drive
+go
 T
 1
 T
@@ -281,12 +257,12 @@ NIL
 0
 
 BUTTON
-5
-77
-92
-110
+80
+10
+145
+45
 go once
-drive
+go
 NIL
 1
 T
@@ -298,10 +274,10 @@ NIL
 0
 
 BUTTON
-1
-181
-98
-214
+10
+210
+215
+243
 select car
 select-car
 T
@@ -312,148 +288,268 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 MONITOR
-152
-279
-266
-324
-average speed
+130
+355
+215
+400
+mean speed
 mean [speed] of turtles
 2
 1
 11
 
 SLIDER
-104
-36
-266
-69
-number
-number
-0
-134
-54.0
+10
+50
+215
+83
+number-of-cars
+number-of-cars
 1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-104
-184
-266
-217
-slow-down
-slow-down
-0
-100
-77.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-104
-136
-266
-169
-speed-up
-speed-up
-0
-100
-38.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-102
-84
-264
-117
-look-ahead
-look-ahead
-1
-2
-1.0
+number-of-lanes * world-width
+50.0
 1
 1
 NIL
 HORIZONTAL
 
 PLOT
-271
-211
-637
-387
+225
+355
+595
+530
 Car Speeds
 Time
 Speed
 0.0
 300.0
 0.0
-2.5
+0.5
 true
 true
-"set-plot-y-range 0 ((max [speed-limit] of turtles) + .5)" ""
+"" ""
 PENS
-"average" 1.0 0 -10899396 true "" "plot mean [speed] of turtles"
-"max" 1.0 0 -11221820 true "" "plot max [speed] of turtles"
-"min" 1.0 0 -13345367 true "" "plot min [speed] of turtles"
-"selected-car" 1.0 0 -2674135 true "" "plot [speed] of selected-car"
+"average" 1.0 0 -10899396 true "" "plot mean [ speed ] of turtles"
+"max" 1.0 0 -11221820 true "" "plot max [ speed ] of turtles"
+"min" 1.0 0 -13345367 true "" "plot min [ speed ] of turtles"
+"selected-car" 1.0 0 -2674135 true "" "plot [ speed ] of selected-car"
+
+SLIDER
+10
+85
+215
+118
+speed-up
+speed-up
+0.001
+0.01
+0.005
+0.001
+1
+NIL
+HORIZONTAL
+
+SLIDER
+10
+120
+215
+153
+slow-down
+slow-down
+0.01
+0.1
+0.02
+0.01
+1
+NIL
+HORIZONTAL
+
+PLOT
+605
+355
+975
+530
+Driver Patience
+Time
+Patience
+0.0
+10.0
+0.0
+10.0
+true
+true
+"" ""
+PENS
+"average" 1.0 0 -10899396 true "" "plot mean [ patience ] of turtles"
+"max" 1.0 0 -11221820 true "" "plot max [ patience ] of turtles"
+"min" 1.0 0 -13345367 true "" "plot min [ patience ] of turtles"
+"selected car" 1.0 0 -2674135 true "" "plot [patience] of selected-car"
+
+BUTTON
+10
+245
+215
+278
+follow selected car
+follow selected-car
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+10
+280
+215
+313
+watch selected car
+watch selected-car
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+10
+315
+215
+348
+reset perspective
+reset-perspective
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+MONITOR
+10
+355
+130
+400
+selected car speed
+[ speed ] of selected-car
+2
+1
+11
+
+PLOT
+10
+411
+216
+531
+ycor of cars
+NIL
+NIL
+0.0
+0.0
+0.0
+10.0
+true
+false
+"set-plot-x-range (min lanes - 1.5) (max lanes + 1.5)" ""
+PENS
+"default" 1.0 1 -16777216 true "" "histogram [ ycor ] of turtles"
+
+SLIDER
+10
+155
+215
+188
+max-patience
+max-patience
+1
+100
+50.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
 
 This project is a more sophisticated two-lane version of the "Traffic Basic" model.  Much like the simpler model, this model demonstrates how traffic jams can form. In the two-lane version, drivers have a new option; they can react by changing lanes, although this often does little to solve their problem.
 
-As in the traffic model, traffic may slow down and jam without any centralized cause.
+As in the Traffic Basic model, traffic may slow down and jam without any centralized cause.
 
 ## HOW TO USE IT
 
-Click on the SETUP button to set up the cars. Click on DRIVE to start the cars moving. The STEP button drives the car for just one tick of the clock.
+Click on the SETUP button to set up the cars. Click on GO to start the cars moving. The GO ONCE button drives the cars for just one tick of the clock.
 
-The NUMBER slider controls the number of cars on the road. The LOOK-AHEAD slider controls the distance that drivers look ahead (in deciding whether to slow down or change lanes). The SPEED-UP slider controls the rate at which cars accelerate when there are no cars ahead. The SLOW-DOWN slider controls the rate at which cars decelerate when there is a car close ahead.
+The NUMBER-OF-CARS slider controls the number of cars on the road. If you change the value of this slider while the model is running, cars will be added or removed "on the fly", so you can see the impact on traffic right away.
+
+The SPEED-UP slider controls the rate at which cars accelerate when there are no cars ahead.
+
+The SLOW-DOWN slider controls the rate at which cars decelerate when there is a car close ahead.
+
+The MAX-PATIENCE slider controls how many times a car can slow down before a driver looses their patience and tries to change lanes.
 
 You may wish to slow down the model with the speed slider to watch the behavior of certain cars more closely.
 
-The SELECT-CAR button allows you to pick a car to watch. It turns the car red, so that it is easier to keep track of it. SELECT-CAR is best used while DRIVE is turned off. If the user does not select a car manually, a car is chosen at random to be the "selected car".
+The SELECT CAR button allows you to highlight a particular car. It turns that car red, so that it is easier to keep track of it. SELECT CAR is easier to use while GO is turned off. If the user does not select a car manually, a car is chosen at random to be the "selected car".
 
-The AVERAGE-SPEED monitor displays the average speed of all the cars.
+You can either [`watch`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#watch) or [`follow`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#follow) the selected car using the WATCH SELECTED CAR and FOLLOW SELECTED CAR buttons. The RESET PERSPECTIVE button brings the view back to its normal state.
+
+The SELECTED CAR SPEED monitor displays the speed of the selected car. The MEAN-SPEED monitor displays the average speed of all the cars.
+
+The YCOR OF CARS plot shows a histogram of how many cars are in each lane, as determined by their y-coordinate. The histogram also displays the amount of cars that are in between lanes while they are trying to change lanes.
 
 The CAR SPEEDS plot displays four quantities over time:
+
 - the maximum speed of any car - CYAN
 - the minimum speed of any car - BLUE
 - the average speed of all cars - GREEN
 - the speed of the selected car - RED
 
+The DRIVER PATIENCE plot shows four quantities for the current patience of drivers: the max, the min, the average and the current patience of the driver of the selected car.
+
 ## THINGS TO NOTICE
 
-Traffic jams can start from small "seeds." Cars start with random positions and random speeds. If some cars are clustered together, they will move slowly, causing cars behind them to slow down, and a traffic jam forms.
+Traffic jams can start from small "seeds." Cars start with random positions. If some cars are clustered together, they will move slowly, causing cars behind them to slow down, and a traffic jam forms.
 
 Even though all of the cars are moving forward, the traffic jams tend to move backwards. This behavior is common in wave phenomena: the behavior of the group is often very different from the behavior of the individuals that make up the group.
 
-Just as each car has a current speed and a maximum speed, each driver has a current patience and a maximum patience. When a driver decides to change lanes, he may not always find an opening in the lane. When his patience expires, he tries to get back in the lane he was first in. If this fails, back he goes... As he gets more 'frustrated', his patience gradually decreases over time. When the number of cars in the model is high, watch to find cars that weave in and out of lanes in this manner. This phenomenon is called "snaking" and is common in congested highways.
+Just as each car has a current speed, each driver has a current patience. Each time the driver has to hit the brakes to avoid hitting the car in front of them, they loose a little patience. When a driver's patience expires, the driver tries to change lane. The driver's patience gets reset to the maximum patience. When the number of cars in the model is high, drivers loose their patience quickly and start weaving in and out of lanes. This phenomenon is called "snaking" and is common in congested highways.
 
-Watch the AVERAGE-SPEED monitor, which computes the average speed of the cars. What happens to the speed over time? What is the relation between the speed of the cars and the presence (or absence) of traffic jams?
+Watch the MEAN-SPEED monitor, which computes the average speed of the cars. What happens to the speed over time? What is the relation between the speed of the cars and the presence (or absence) of traffic jams?
 
 Look at the two plots. Can you detect discernible patterns in the plots?
+
+The grass patches on each side of the road are all a slightly different shade of green. The road patches, to a lesser extent, are different shades of grey. This is not just about making the model look nice: it also helps create an impression of movement when using the FOLLOW SELECTED CAR button.
 
 ## THINGS TO TRY
 
 What could you change to minimize the chances of traffic jams forming, besides just the number of cars? What is the relationship between number of cars, number of lanes, and (in this case) the length of each lane?
 
-Explore changes to the sliders SLOW-DOWN, SPEED-UP, and LOOK-AHEAD. How do these affect the flow of traffic? Can you set them so as to create maximal snaking?
+Explore changes to the sliders SLOW-DOWN and SPEED-UP. How do these affect the flow of traffic? Can you set them so as to create maximal snaking?
+
+Change the code so that all cars always start on the same lane. Does the proportion of cars on each lane eventually balance out? How long does it take?
 
 ## EXTENDING THE MODEL
 
-Try to create a 'traffic-3 lanes', 'traffic-4 lanes', 'traffic-crossroads' (where two sets of cars might meet at a traffic light), or 'traffic-bottleneck' model (where two lanes might merge to form one lane).
+The way this model is written makes it easy to add more lanes. Look for the `number-of-lanes` reporter in the code and play around with it.
 
-Note that the cars never crash into each other- a car will never enter a patch or pass through a patch containing another car. Remove this feature, and have the turtles that collide die upon collision. What will happen to such a model over time?
+Try to create a "Traffic Crossroads" (where two sets of cars might meet at a traffic light), or "Traffic Bottleneck" model (where two lanes might merge to form one lane).
+
+Note that the cars never crash into each other: a car will never enter a patch or pass through a patch containing another car. Remove this feature, and have the turtles that collide die upon collision. What will happen to such a model over time?
 
 ## NETLOGO FEATURES
 
@@ -463,7 +559,13 @@ Each turtle has a shape, unlike in some other models. NetLogo uses `set shape` t
 
 ## RELATED MODELS
 
-Traffic Basic
+- Traffic Basic
+- Traffic Basic Adaptive
+- Traffic Basic Adaptive Individuals
+- Traffic Basic Utility
+- Traffic Grid
+- Traffic Grid Goal
+- Traffic Intersection
 
 ## HOW TO CITE
 
@@ -794,5 +896,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
