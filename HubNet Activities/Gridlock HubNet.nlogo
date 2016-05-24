@@ -925,7 +925,7 @@ Challenge the students to develop strategies to improve traffic and discuss the 
 
 The coordinates for the traffic lights are based on the first quadrant of the Cartesian plane.  Therefore, the traffic light with the coordinates (0,0) is in the lowest row and the left-most column.  The traffic light above it has coordinates (0,1) and the traffic light to the right of it has (1,0).
 
-For further documentation, see the Participatory Simulations Guide found at http://ccl.northwestern.edu/ps/
+For further documentation, see the Participatory Simulations Guide found at http://ccl.northwestern.edu/rp/ps/index.shtml.
 
 ## HOW TO USE IT
 

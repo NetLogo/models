@@ -1350,7 +1350,7 @@ Challenge the students to develop strategies to improve traffic and discuss the 
 
 The coordinates for the traffic lights are based on the first quadrant of the Cartesian plane.  Therefore, the traffic light with the coordinates (0,0) is in the lowest row and the left-most column.  The traffic light above it has coordinates (0,1) and the traffic light to the right of it has (1,0).
 
-For further documentation, see the Participatory Simulations Guide found at http://ccl.northwestern.edu/ps/
+For further documentation, see the Participatory Simulations Guide found at http://ccl.northwestern.edu/rp/ps/index.shtml.
 
 Notice: Gridlock Alternate uses features in NetLogo that are considered experimental.  The model may stop running if a student enters a metric in the client that is incorrect, such as dividing by 0, and causes a NetLogo error.  Further, we have not yet tested this alternate version of the model in real classrooms. If you use it in a classroom, we'd like to hear how it goes; contact us at feedback@ccl.northwestern.edu.
 

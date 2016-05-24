@@ -648,7 +648,7 @@ NIL
 
 This model can be used to poll data from a set of students using HubNet Clients.  The teacher can input questions to ask and then the students can input their choice in response to the question.  The collective data can then be plotted.
 
-For further documentation, see the Participatory Simulations Guide found at http://ccl.northwestern.edu/ps/
+For further documentation, see the Participatory Simulations Guide found at http://ccl.northwestern.edu/rp/ps/index.shtml.
 
 ## HOW TO USE IT
 

@@ -738,7 +738,7 @@ NIL
 
 Each student defines the motion of a walking character by setting its velocity on their client over time intervals.  The students have 9 different intervals for which they can set the velocity.  They can then send these velocities to their characters, where they see the character walking its route over the 9 intervals.  This is designed to help students understand the accumulation of distance as a function of time. This can serve as a jumping off point for advanced concepts ranging from derivatives and integrals to wave mechanics.
 
-For further documentation, see the Participatory Simulations Guide found at http://ccl.northwestern.edu/ps/
+For further documentation, see the Participatory Simulations Guide found at http://ccl.northwestern.edu/rp/ps/index.shtml.
 
 ## HOW IT WORKS
 
