@@ -752,21 +752,6 @@ NetLogo 6.0-M7
       <value value="150"/>
     </enumeratedValueSet>
   </experiment>
-  <experiment name="experiment" repetitions="10" runMetricsEveryStep="false">
-    <setup>setup</setup>
-    <go>go</go>
-    <metric>count turtles</metric>
-    <enumeratedValueSet variable="initial-number-frogs">
-      <value value="150"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="initial-resistance-mean">
-      <value value="25"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="initial-number-snakes">
-      <value value="150"/>
-    </enumeratedValueSet>
-    <steppedValueSet variable="initial-poison-mean" first="0" step="5" last="50"/>
-  </experiment>
   <experiment name="Final Counts" repetitions="10" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
