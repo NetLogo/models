@@ -853,7 +853,7 @@ NIL
 
 This model is a modified version of the Disease activity which, simulates the spread of a disease through a population.  In this version the population can consist of students, which are turtles controlled by individual students via the HubNet Client, androids, infectable turtles controlled by the computer and doctors, un-infectable turtles that can heal other turtles.  Doctors do not exist in the Disease activity.
 
-For further documentation on the original Disease activity, see the Participatory Simulations Guide found at http://ccl.northwestern.edu/ps/
+For further documentation on the original Disease activity, see the Participatory Simulations Guide found at http://ccl.northwestern.edu/rp/ps/index.shtml.
 
 ## HOW IT WORKS
 

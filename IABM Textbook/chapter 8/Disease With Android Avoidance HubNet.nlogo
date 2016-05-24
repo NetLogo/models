@@ -802,7 +802,7 @@ Turtles move around, possibly catching an infection.  Healthy turtles on the sam
 
 Initially, all turtles are healthy.  A number of turtles equal to INITIAL-NUMBER-SICK become ill when the INFECT button is depressed.
 
-For further documentation, see the Participatory Simulations Guide found at http://ccl.northwestern.edu/ps/
+For further documentation, see the Participatory Simulations Guide found at http://ccl.northwestern.edu/rp/ps/index.shtml.
 
 ## HOW TO USE IT
 
