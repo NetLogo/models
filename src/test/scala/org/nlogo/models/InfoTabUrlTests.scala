@@ -60,7 +60,7 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
     val failures = for {
       (link, models) <- links.par
       if link.startsWith("http")
-      duration = 60.seconds
+      duration = 20.seconds
       failure <- Try(Await.result(request(link, head), duration))
         .getOrElse(Some(s"Timed out after ${duration}!"))
       message = (failure + "\nUsed in:\n" +
