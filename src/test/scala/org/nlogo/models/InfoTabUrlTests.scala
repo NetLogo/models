@@ -62,7 +62,11 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
       if link.startsWith("http")
       duration = 20.seconds
       failure <- Try(Await.result(request(link, head), duration))
-        .getOrElse(Some(s"Timed out after ${duration}!"))
+        .getOrElse {
+          // tolerate time outs from the CCL server
+          if (link.contains("://ccl")) None
+          else Some(s"Timed out after ${duration}!")
+        }
       message = (failure + "\nUsed in:\n" +
         models.map(_.quotedPath).mkString("\n")).indent(2)
     } yield link + "\n" + message
