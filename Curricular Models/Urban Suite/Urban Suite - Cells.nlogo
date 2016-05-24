@@ -109,8 +109,8 @@ GRAPHICS-WINDOW
 10
 735
 446
-40
-40
+-1
+-1
 5.0
 1
 10
@@ -201,7 +201,7 @@ probability
 probability
 0
 100
-100
+100.0
 1
 1
 percent
@@ -298,7 +298,7 @@ age-limit
 age-limit
 0
 100
-55
+55.0
 1
 1
 NIL
@@ -689,9 +689,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -729,7 +728,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

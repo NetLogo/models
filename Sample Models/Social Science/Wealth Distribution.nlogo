@@ -218,8 +218,8 @@ GRAPHICS-WINDOW
 10
 602
 449
-25
-25
+-1
+-1
 8.0
 1
 10
@@ -283,7 +283,7 @@ max-vision
 max-vision
 1
 15
-5
+5.0
 1
 1
 NIL
@@ -298,7 +298,7 @@ grain-growth-interval
 grain-growth-interval
 1
 10
-1
+1.0
 1
 1
 NIL
@@ -313,7 +313,7 @@ metabolism-max
 metabolism-max
 1
 25
-15
+15.0
 1
 1
 NIL
@@ -328,7 +328,7 @@ num-people
 num-people
 2
 1000
-250
+250.0
 1
 1
 NIL
@@ -343,7 +343,7 @@ percent-best-land
 percent-best-land
 5
 25
-10
+10.0
 1
 1
 %
@@ -358,7 +358,7 @@ life-expectancy-max
 life-expectancy-max
 1
 100
-83
+83.0
 1
 1
 NIL
@@ -393,7 +393,7 @@ num-grain-grown
 num-grain-grown
 1
 10
-4
+4.0
 1
 1
 NIL
@@ -408,7 +408,7 @@ life-expectancy-min
 life-expectancy-min
 1
 100
-1
+1.0
 1
 1
 NIL
@@ -875,9 +875,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -893,7 +892,6 @@ true
 0
 Line -7500403 true 150 150 30 225
 Line -7500403 true 150 150 270 225
-
 @#$#@#$#@
 0
 @#$#@#$#@

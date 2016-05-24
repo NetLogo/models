@@ -104,8 +104,8 @@ GRAPHICS-WINDOW
 10
 661
 356
-10
-10
+-1
+-1
 15.0
 1
 10
@@ -184,7 +184,7 @@ initial-cows
 initial-cows
 0
 100
-20
+20.0
 1
 1
 NIL
@@ -199,7 +199,7 @@ low-high-threshold
 low-high-threshold
 0.0
 99.0
-5
+5.0
 1.0
 1
 NIL
@@ -214,7 +214,7 @@ high-growth-chance
 high-growth-chance
 0.0
 99.0
-77
+77.0
 1.0
 1
 NIL
@@ -244,7 +244,7 @@ max-grass-height
 max-grass-height
 1
 40
-10
+10.0
 1
 1
 NIL
@@ -259,7 +259,7 @@ reproduction-threshold
 reproduction-threshold
 0.0
 200.0
-102
+102.0
 1.0
 1
 NIL
@@ -274,7 +274,7 @@ grass-energy
 grass-energy
 0.0
 200.0
-51
+51.0
 1.0
 1
 NIL
@@ -289,7 +289,7 @@ metabolism
 metabolism
 0.0
 99.0
-6
+6.0
 1.0
 1
 NIL
@@ -304,7 +304,7 @@ low-growth-chance
 low-growth-chance
 0.0
 99.0
-30
+30.0
 1.0
 1
 NIL
@@ -319,7 +319,7 @@ reproduction-cost
 reproduction-cost
 0.0
 99.0
-54
+54.0
 1.0
 1
 NIL
@@ -774,9 +774,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -792,7 +791,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

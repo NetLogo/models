@@ -133,8 +133,8 @@ GRAPHICS-WINDOW
 10
 706
 543
-125
-125
+-1
+-1
 2.0
 1
 18
@@ -181,7 +181,7 @@ charge
 charge
 -8
 8.0
--4
+-4.0
 4
 1
 units
@@ -213,7 +213,7 @@ fade-rate
 fade-rate
 0
 100
-40
+40.0
 5
 1
 %
@@ -256,7 +256,7 @@ permittivity
 permittivity
 1
 9
-9
+9.0
 2
 1
 units
@@ -723,9 +723,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
@@ -742,7 +741,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

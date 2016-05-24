@@ -428,8 +428,8 @@ GRAPHICS-WINDOW
 10
 705
 531
-17
-17
+-1
+-1
 14.0
 1
 12
@@ -459,7 +459,7 @@ number-of-leaves
 number-of-leaves
 1
 2500
-278
+278.0
 1
 1
 NIL
@@ -491,7 +491,7 @@ wind-factor
 wind-factor
 0
 10
-3
+3.0
 1
 1
 NIL
@@ -523,7 +523,7 @@ temperature
 temperature
 0
 40
-11
+11.0
 1
 1
 °C
@@ -538,7 +538,7 @@ rain-intensity
 rain-intensity
 0
 30
-19
+19.0
 1
 1
 NIL
@@ -553,7 +553,7 @@ sun-intensity
 sun-intensity
 0
 100
-97
+97.0
 1
 1
 %
@@ -631,7 +631,7 @@ start-sugar-mean
 start-sugar-mean
 0
 100
-50
+50.0
 1
 1
 NIL
@@ -646,7 +646,7 @@ start-sugar-stddev
 start-sugar-stddev
 0
 50
-25
+25.0
 1
 1
 NIL
@@ -1101,9 +1101,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 setup
 repeat 30 [ go ]
@@ -1121,7 +1120,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@

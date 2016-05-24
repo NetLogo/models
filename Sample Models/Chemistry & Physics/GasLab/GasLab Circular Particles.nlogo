@@ -484,8 +484,8 @@ GRAPHICS-WINDOW
 10
 687
 446
-40
-40
+-1
+-1
 5.0
 1
 20
@@ -532,7 +532,7 @@ initial-number-particles
 initial-number-particles
 1
 250
-60
+60.0
 1
 1
 NIL
@@ -564,7 +564,7 @@ largest-particle-size
 largest-particle-size
 1
 10
-6
+6.0
 0.5
 1
 NIL
@@ -579,7 +579,7 @@ smallest-particle-size
 smallest-particle-size
 1
 5
-2
+2.0
 0.5
 1
 NIL
@@ -1085,9 +1085,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1103,7 +1102,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@

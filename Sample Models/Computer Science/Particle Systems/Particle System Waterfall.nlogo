@@ -110,8 +110,8 @@ GRAPHICS-WINDOW
 10
 722
 461
-17
-17
+-1
+-1
 12.0
 1
 10
@@ -190,7 +190,7 @@ initial-velocity-y
 initial-velocity-y
 0
 40
-0
+0.0
 0.1
 1
 NIL
@@ -220,7 +220,7 @@ max-number-of-particles
 max-number-of-particles
 1
 500
-300
+300.0
 1
 1
 NIL
@@ -235,7 +235,7 @@ rate
 rate
 0
 100
-50
+50.0
 1
 1
 NIL
@@ -265,7 +265,7 @@ wind-constant-x
 wind-constant-x
 0
 20
-6
+6.0
 0.1
 1
 NIL
@@ -280,7 +280,7 @@ initial-range-x
 initial-range-x
 0
 5
-1
+1.0
 0.1
 1
 NIL
@@ -295,7 +295,7 @@ viscosity-constant
 viscosity-constant
 0
 10
-1
+1.0
 0.1
 1
 NIL
@@ -310,7 +310,7 @@ wind-constant-y
 wind-constant-y
 -10
 10
-0
+0.0
 0.1
 1
 NIL
@@ -898,9 +898,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 setup repeat 650 [ go ]
 @#$#@#$#@
@@ -917,7 +916,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

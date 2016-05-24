@@ -117,8 +117,8 @@ GRAPHICS-WINDOW
 10
 729
 410
-20
-20
+-1
+-1
 9.0
 1
 14
@@ -148,7 +148,7 @@ initial-number-sheep
 initial-number-sheep
 0.0
 250.0
-148
+148.0
 1.0
 1
 NIL
@@ -163,7 +163,7 @@ sheep-max-initial-energy
 sheep-max-initial-energy
 0.0
 50.0
-4
+4.0
 1.0
 1
 NIL
@@ -178,7 +178,7 @@ sheep-reproduce
 sheep-reproduce
 1.0
 20.0
-4
+4.0
 1.0
 1
 %
@@ -193,7 +193,7 @@ initial-number-wolves
 initial-number-wolves
 0.0
 250.0
-30
+30.0
 1.0
 1
 NIL
@@ -208,7 +208,7 @@ wolf-gain-from-food
 wolf-gain-from-food
 0.0
 100.0
-13
+13.0
 1.0
 1
 NIL
@@ -223,7 +223,7 @@ wolf-reproduce
 wolf-reproduce
 0.0
 20.0
-5
+5.0
 1.0
 1
 %
@@ -451,7 +451,7 @@ predatorEfficiency
 predatorEfficiency
 0.0
 10.0
-1
+1.0
 0.1
 1
 NIL
@@ -984,15 +984,14 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 setup
 setup-aggregate
 repeat 75 [ go step-aggregate ]
 @#$#@#$#@
-0.0010
+0.001
     org.nlogo.sdm.gui.AggregateDrawing 25
         org.nlogo.sdm.gui.StockFigure "attributes" "attributes" 1 "FillColor" "Color" 225 225 175 270 100 60 40
             org.nlogo.sdm.gui.WrappedStock "sheepStock" "initial-number-sheep ;; taken from agent model's slider" 1
@@ -1076,7 +1075,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

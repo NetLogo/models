@@ -113,8 +113,8 @@ GRAPHICS-WINDOW
 10
 655
 461
-17
-17
+-1
+-1
 12.0
 1
 10
@@ -161,7 +161,7 @@ smoothness
 smoothness
 1
 20
-15
+15.0
 1
 1
 NIL
@@ -193,7 +193,7 @@ max-attraction
 max-attraction
 0
 30
-15
+15.0
 1
 1
 NIL
@@ -208,7 +208,7 @@ seeker-search-angle
 seeker-search-angle
 1
 360
-84
+84.0
 1
 1
 NIL
@@ -223,7 +223,7 @@ population
 population
 1
 750
-200
+200.0
 1
 1
 NIL
@@ -238,7 +238,7 @@ seeker-patience
 seeker-patience
 0
 120
-60
+60.0
 1
 1
 NIL
@@ -253,7 +253,7 @@ wait-between-seeking
 wait-between-seeking
 5
 60
-15
+15.0
 1
 1
 NIL
@@ -655,9 +655,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -673,7 +672,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

@@ -674,8 +674,8 @@ GRAPHICS-WINDOW
 10
 1070
 536
-18
-16
+-1
+-1
 15.0
 1
 10
@@ -722,7 +722,7 @@ minimum-random-species
 minimum-random-species
 0
 25
-0
+0.0
 1
 1
 NIL
@@ -754,7 +754,7 @@ max-grass
 max-grass
 10
 100
-42
+42.0
 5
 1
 NIL
@@ -769,7 +769,7 @@ grass-growth
 grass-growth
 1
 100
-31
+31.0
 1
 1
 NIL
@@ -813,7 +813,7 @@ SLIDER
 #-placements-per-client
 0
 25
-10
+10.0
 1
 1
 NIL
@@ -1274,9 +1274,8 @@ Line -7500403 true 40 84 255 210
 Line -7500403 true 40 216 255 90
 Line -7500403 true 84 40 210 255
 Circle -7500403 true true 120 0 60
-
 @#$#@#$#@
-NetLogo 6.0-M4
+NetLogo 6.0-M7
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
@@ -1311,8 +1310,8 @@ SLIDER
 190
 speed
 speed
-0
-2
+0.0
+2.0
 1
 0.01
 1
@@ -1415,10 +1414,10 @@ SLIDER
 232
 birthing-level
 birthing-level
-5
-50
+5.0
+50.0
 25
-1
+1.0
 1
 NIL
 HORIZONTAL
@@ -1512,7 +1511,7 @@ true
 true
 "" ""
 PENS
-"-players-" 1.0 0 -16777216 true
+"-players-" 1.0 0 -16777216 true "" ""
 
 MONITOR
 10
@@ -1616,7 +1615,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@

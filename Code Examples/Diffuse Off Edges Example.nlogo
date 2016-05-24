@@ -46,8 +46,8 @@ GRAPHICS-WINDOW
 10
 576
 396
-35
-35
+-1
+-1
 5.0
 1
 10
@@ -407,9 +407,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 setup
 repeat 10 [ go ]
@@ -427,7 +426,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@

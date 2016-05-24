@@ -226,8 +226,8 @@ GRAPHICS-WINDOW
 12
 753
 301
-128
-64
+-1
+-1
 2.0
 1
 10
@@ -399,7 +399,7 @@ rule
 rule
 0.0
 255.0
-105
+105.0
 1.0
 1
 NIL
@@ -414,7 +414,7 @@ density
 density
 0.0
 100.0
-10
+10.0
 1.0
 1
 %
@@ -471,7 +471,7 @@ INPUTBOX
 134
 466
 foreground
-55
+55.0
 1
 0
 Color
@@ -482,7 +482,7 @@ INPUTBOX
 255
 466
 background
-0
+0.0
 1
 0
 Color
@@ -893,9 +893,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 setup-random repeat world-height - 1 [ go ]
 @#$#@#$#@
@@ -912,7 +911,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

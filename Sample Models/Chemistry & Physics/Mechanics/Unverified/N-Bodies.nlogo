@@ -247,8 +247,8 @@ GRAPHICS-WINDOW
 10
 606
 443
-100
-100
+-1
+-1
 2.0
 1
 10
@@ -295,7 +295,7 @@ number
 number
 0
 50
-0
+0.0
 2
 1
 particles
@@ -321,7 +321,7 @@ max-initial-speed
 max-initial-speed
 0
 10
-10
+10.0
 0.1
 1
 NIL
@@ -336,7 +336,7 @@ max-initial-mass
 max-initial-mass
 0.1
 50
-50
+50.0
 0.1
 1
 NIL
@@ -385,7 +385,7 @@ initial-velocity-x
 initial-velocity-x
 -10
 10
-0
+0.0
 0.1
 1
 NIL
@@ -400,7 +400,7 @@ initial-velocity-y
 initial-velocity-y
 -10
 10
-0
+0.0
 0.1
 1
 NIL
@@ -415,7 +415,7 @@ initial-mass
 initial-mass
 0.1
 50
-10
+10.0
 0.1
 1
 NIL
@@ -430,7 +430,7 @@ particle-color
 particle-color
 5
 135
-45
+45.0
 10
 1
 NIL
@@ -874,9 +874,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 setup-two-planet
 repeat 125 [ go ]
@@ -894,7 +893,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

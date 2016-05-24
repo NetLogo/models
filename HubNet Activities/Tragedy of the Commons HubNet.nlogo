@@ -522,8 +522,8 @@ GRAPHICS-WINDOW
 96
 1018
 673
-10
-10
+-1
+-1
 26.0
 1
 10
@@ -570,7 +570,7 @@ init-num-goats/farmer
 init-num-goats/farmer
 0
 10
-5
+5.0
 1
 1
 goats
@@ -600,7 +600,7 @@ cost/goat
 cost/goat
 1
 2000
-893
+893.0
 1
 1
 $
@@ -720,7 +720,7 @@ grazing-period
 grazing-period
 2
 50
-34
+34.0
 1
 1
 NIL
@@ -1262,9 +1262,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M4
+NetLogo 6.0-M7
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
@@ -1389,10 +1388,10 @@ SLIDER
 128
 num-goats-to-buy
 num-goats-to-buy
--5
-5
+-5.0
+5.0
 0
-1
+1.0
 1
 NIL
 HORIZONTAL
@@ -1438,7 +1437,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

@@ -726,8 +726,8 @@ GRAPHICS-WINDOW
 122
 415
 277
-50
-15
+-1
+-1
 4.0
 1
 10
@@ -791,7 +791,7 @@ initial-number
 initial-number
 1
 200
-100
+100.0
 1
 1
 NIL
@@ -890,7 +890,7 @@ number-to-add
 number-to-add
 0
 200
-50
+50.0
 5
 1
 NIL
@@ -966,7 +966,7 @@ init-wall-position
 init-wall-position
 4
 96
-20
+20.0
 1
 1
 NIL
@@ -1243,9 +1243,8 @@ square
 false
 0
 Rectangle -7500403 true true 0 0 297 299
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1261,7 +1260,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

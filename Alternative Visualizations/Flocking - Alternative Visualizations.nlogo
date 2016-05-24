@@ -170,8 +170,8 @@ GRAPHICS-WINDOW
 10
 757
 538
-35
-35
+-1
+-1
 7.0
 1
 10
@@ -235,7 +235,7 @@ population
 population
 1
 1000
-300
+300.0
 1
 1
 NIL
@@ -250,7 +250,7 @@ max-align-turn
 max-align-turn
 0.0
 20.0
-5
+5.0
 0.25
 1
 degrees
@@ -265,7 +265,7 @@ max-cohere-turn
 max-cohere-turn
 0
 20
-3
+3.0
 0.25
 1
 degrees
@@ -295,7 +295,7 @@ vision
 vision
 0
 10
-3
+3.0
 0.5
 1
 patches
@@ -310,7 +310,7 @@ minimum-separation
 minimum-separation
 0
 5
-1
+1.0
 0.25
 1
 patches
@@ -774,9 +774,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 set population 200
 setup
@@ -795,7 +794,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

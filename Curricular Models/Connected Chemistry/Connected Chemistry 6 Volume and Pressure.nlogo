@@ -558,8 +558,8 @@ GRAPHICS-WINDOW
 10
 490
 277
-33
-29
+-1
+-1
 4.0
 1
 10
@@ -623,7 +623,7 @@ initial-number
 initial-number
 0
 400
-100
+100.0
 1
 1
 NIL
@@ -685,7 +685,7 @@ initial-wall-position
 initial-wall-position
 6
 56
-38
+38.0
 1
 1
 NIL
@@ -914,9 +914,8 @@ Polygon -5825686 true false 150 30 105 195 135 180 135 270 165 270 165 180 195 1
 nothing
 true
 0
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -932,7 +931,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@

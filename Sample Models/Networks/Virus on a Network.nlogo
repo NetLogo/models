@@ -105,8 +105,8 @@ GRAPHICS-WINDOW
 10
 726
 492
-20
-20
+-1
+-1
 11.0
 1
 10
@@ -136,7 +136,7 @@ gain-resistance-chance
 gain-resistance-chance
 0.0
 100
-5
+5.0
 1
 1
 %
@@ -151,7 +151,7 @@ recovery-chance
 recovery-chance
 0.0
 10.0
-5
+5.0
 0.1
 1
 %
@@ -235,7 +235,7 @@ number-of-nodes
 number-of-nodes
 10
 300
-150
+150.0
 5
 1
 NIL
@@ -250,7 +250,7 @@ virus-check-frequency
 virus-check-frequency
 1
 20
-1
+1.0
 1
 1
 ticks
@@ -265,7 +265,7 @@ initial-outbreak-size
 initial-outbreak-size
 1
 number-of-nodes
-3
+3.0
 1
 1
 NIL
@@ -280,7 +280,7 @@ average-node-degree
 average-node-degree
 1
 number-of-nodes - 1
-6
+6.0
 1
 1
 NIL
@@ -649,9 +649,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -667,7 +666,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

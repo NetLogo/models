@@ -118,8 +118,8 @@ GRAPHICS-WINDOW
 10
 657
 461
-17
-17
+-1
+-1
 12.0
 1
 10
@@ -183,7 +183,7 @@ initial-number-frogs
 initial-number-frogs
 1
 150
-150
+150.0
 1
 1
 NIL
@@ -198,7 +198,7 @@ initial-number-snakes
 initial-number-snakes
 1
 150
-150
+150.0
 1
 1
 NIL
@@ -322,7 +322,7 @@ initial-poison-mean
 initial-poison-mean
 0
 50
-25
+25.0
 1
 1
 NIL
@@ -337,7 +337,7 @@ initial-resistance-mean
 initial-resistance-mean
 0
 50
-25
+25.0
 1
 1
 NIL
@@ -352,7 +352,7 @@ max-population
 max-population
 0
 500
-500
+500.0
 1
 1
 NIL
@@ -727,9 +727,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -798,7 +797,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

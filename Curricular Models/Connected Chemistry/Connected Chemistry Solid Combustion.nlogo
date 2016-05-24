@@ -388,8 +388,8 @@ GRAPHICS-WINDOW
 10
 665
 391
-12
-12
+-1
+-1
 14.0
 1
 10
@@ -453,7 +453,7 @@ initial-O2-molecules
 initial-O2-molecules
 1
 100
-22
+22.0
 1
 1
 NIL
@@ -489,7 +489,7 @@ initial-gas-temp
 initial-gas-temp
 10
 500
-300
+300.0
 10
 1
 NIL
@@ -504,7 +504,7 @@ energy-released
 energy-released
 0
 5000
-1000
+1000.0
 100
 1
 NIL
@@ -547,7 +547,7 @@ initial-N2-molecules
 initial-N2-molecules
 0
 100
-76
+76.0
 1
 1
 NIL
@@ -991,9 +991,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1009,7 +1008,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@

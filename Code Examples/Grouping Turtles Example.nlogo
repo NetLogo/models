@@ -165,8 +165,8 @@ GRAPHICS-WINDOW
 10
 650
 426
-17
-17
+-1
+-1
 11.0
 1
 10
@@ -267,7 +267,7 @@ group-size
 group-size
 1
 100
-16
+16.0
 1
 1
 NIL
@@ -299,7 +299,7 @@ number-of-groups
 number-of-groups
 1
 100
-16
+16.0
 1
 1
 NIL
@@ -314,7 +314,7 @@ number-of-turtles
 number-of-turtles
 0
 100
-50
+50.0
 1
 1
 NIL
@@ -610,9 +610,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 set number-of-groups 25
 setup
@@ -632,7 +631,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

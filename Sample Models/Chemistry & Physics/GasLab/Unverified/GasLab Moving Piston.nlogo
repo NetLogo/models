@@ -349,8 +349,8 @@ GRAPHICS-WINDOW
 10
 767
 365
-40
-40
+-1
+-1
 4.0
 1
 10
@@ -447,7 +447,7 @@ box-height
 box-height
 30
 100
-95
+95.0
 1
 1
 NIL
@@ -462,7 +462,7 @@ box-width
 box-width
 20
 80
-75
+75.0
 1
 1
 NIL
@@ -477,7 +477,7 @@ number
 number
 1
 4000
-500
+500.0
 1
 1
 particles
@@ -570,7 +570,7 @@ piston-speed
 piston-speed
 0
 10
-1
+1.0
 0.05
 1
 NIL
@@ -661,7 +661,7 @@ scale
 scale
 1
 10
-1
+1.0
 1
 1
 NIL
@@ -1076,9 +1076,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1094,7 +1093,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

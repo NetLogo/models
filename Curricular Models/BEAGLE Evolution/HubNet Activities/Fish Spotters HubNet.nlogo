@@ -737,8 +737,8 @@ GRAPHICS-WINDOW
 10
 1013
 581
-13
-13
+-1
+-1
 20.0
 1
 10
@@ -802,7 +802,7 @@ tank-capacity
 tank-capacity
 2
 30
-15
+15.0
 1
 1
 fish
@@ -844,7 +844,7 @@ amount-of-debris
 amount-of-debris
 0
 100
-100
+100.0
 5
 1
 %
@@ -1685,9 +1685,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M4
+NetLogo 6.0-M7
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
@@ -1826,7 +1825,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@

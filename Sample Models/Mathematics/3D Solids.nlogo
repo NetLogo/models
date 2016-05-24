@@ -214,8 +214,8 @@ GRAPHICS-WINDOW
 10
 671
 404
-60
-60
+-1
+-1
 3.0
 1
 10
@@ -262,7 +262,7 @@ num-turtles
 num-turtles
 0
 2000
-800
+800.0
 1
 1
 NIL
@@ -277,7 +277,7 @@ theta-velocity
 theta-velocity
 -10.0
 10.0
-2
+2.0
 1.0
 1
 NIL
@@ -426,7 +426,7 @@ display-color
 display-color
 5.0
 135.0
-25
+25.0
 10.0
 1
 NIL
@@ -812,9 +812,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M4
+NetLogo 6.0-M7
 @#$#@#$#@
 setup-sphere
 @#$#@#$#@
@@ -831,7 +830,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

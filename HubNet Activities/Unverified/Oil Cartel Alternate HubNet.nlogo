@@ -594,8 +594,8 @@ GRAPHICS-WINDOW
 101
 864
 468
-10
-10
+-1
+-1
 16.0
 1
 10
@@ -709,7 +709,7 @@ base-demand
 base-demand
 0
 1000
-130
+130.0
 10
 1
 NIL
@@ -878,7 +878,7 @@ penalty-severity
 penalty-severity
 0
 25
-7
+7.0
 1
 1
 x
@@ -1457,9 +1457,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M4
+NetLogo 6.0-M7
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
@@ -1494,10 +1493,10 @@ SLIDER
 200
 amount-to-cheat
 amount-to-cheat
+0.0
+100.0
 0
-100
-0
-1
+1.0
 1
 NIL
 HORIZONTAL
@@ -1549,10 +1548,10 @@ SLIDER
 238
 anti-cheat-investment
 anti-cheat-investment
+0.0
+100.0
 0
-100
-0
-1
+1.0
 1
 %
 HORIZONTAL
@@ -1643,9 +1642,9 @@ true
 true
 "" ""
 PENS
-"Demand" 1.0 0 -2674135 true
-"Marginal Revenue" 1.0 0 -13345367 true
-"Marginal Cost" 1.0 0 -10899396 true
+"Demand" 1.0 0 -2674135 true "" ""
+"Marginal Revenue" 1.0 0 -13345367 true "" ""
+"Marginal Cost" 1.0 0 -10899396 true "" ""
 
 MONITOR
 517
@@ -1668,7 +1667,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

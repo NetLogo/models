@@ -227,8 +227,8 @@ GRAPHICS-WINDOW
 10
 963
 481
-5
-5
+-1
+-1
 40.0
 1
 10
@@ -258,7 +258,7 @@ init-num-creatures
 init-num-creatures
 25
 1000
-400
+400.0
 25
 1
 NIL
@@ -307,7 +307,7 @@ replenish-speed
 replenish-speed
 0
 5
-1
+1.0
 0.1
 1
 NIL
@@ -322,7 +322,7 @@ replicate-chance
 replicate-chance
 0
 10
-0
+0.0
 0.1
 1
 %
@@ -375,7 +375,7 @@ mutation-rate
 mutation-rate
 0
 10
-0
+0.0
 0.1
 1
 %
@@ -456,7 +456,7 @@ mating-selectivity
 mating-selectivity
 -6
 6
-0
+0.0
 1
 1
 NIL
@@ -908,9 +908,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -926,7 +925,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

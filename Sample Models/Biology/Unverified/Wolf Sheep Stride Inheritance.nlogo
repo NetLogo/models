@@ -168,8 +168,8 @@ GRAPHICS-WINDOW
 12
 806
 409
-30
-30
+-1
+-1
 6.0
 1
 20
@@ -199,7 +199,7 @@ initial-number-sheep
 initial-number-sheep
 0
 250
-64
+64.0
 1
 1
 NIL
@@ -214,7 +214,7 @@ initial-number-wolves
 initial-number-wolves
 0
 250
-30
+30.0
 1
 1
 NIL
@@ -848,9 +848,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 setup
 repeat 75 [ go ]
@@ -868,7 +867,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

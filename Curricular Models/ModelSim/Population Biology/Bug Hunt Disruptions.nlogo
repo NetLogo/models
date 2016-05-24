@@ -480,8 +480,8 @@ GRAPHICS-WINDOW
 90
 1237
 544
-46
-23
+-1
+-1
 9.0
 1
 10
@@ -565,7 +565,7 @@ right-bugs-to-add
 right-bugs-to-add
 0
 300
-0
+0.0
 1
 1
 NIL
@@ -625,7 +625,7 @@ left-bugs-to-infect
 left-bugs-to-infect
 1
 90
-50
+50.0
 1
 1
 %
@@ -640,7 +640,7 @@ left-bugs-to-add
 left-bugs-to-add
 0
 300
-30
+30.0
 1
 1
 NIL
@@ -746,7 +746,7 @@ right-bugs-to-infect
 right-bugs-to-infect
 0
 90
-50
+50.0
 1
 1
 %
@@ -1232,9 +1232,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1250,7 +1249,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@

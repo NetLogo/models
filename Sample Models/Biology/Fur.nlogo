@@ -101,8 +101,8 @@ GRAPHICS-WINDOW
 10
 624
 346
-30
-30
+-1
+-1
 5.0
 1
 10
@@ -166,7 +166,7 @@ initial-density
 initial-density
 0
 100
-50
+50.0
 1
 1
 %
@@ -230,7 +230,7 @@ inner-radius-x
 inner-radius-x
 0
 10
-3
+3.0
 1
 1
 cells
@@ -245,7 +245,7 @@ inner-radius-y
 inner-radius-y
 0
 10
-3
+3.0
 1
 1
 cells
@@ -260,7 +260,7 @@ outer-radius-x
 outer-radius-x
 0
 10
-6
+6.0
 1
 1
 cells
@@ -275,7 +275,7 @@ outer-radius-y
 outer-radius-y
 0
 10
-6
+6.0
 1
 1
 cells
@@ -691,9 +691,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -709,7 +708,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

@@ -397,8 +397,8 @@ GRAPHICS-WINDOW
 10
 833
 543
-125
-125
+-1
+-1
 2.0
 1
 10
@@ -445,7 +445,7 @@ nturtles
 nturtles
 1
 36
-10
+10.0
 1
 1
 NIL
@@ -460,7 +460,7 @@ color-sep
 color-sep
 0.0
 30.0
-2
+2.0
 0.1
 1
 NIL
@@ -537,7 +537,7 @@ expander
 expander
 0.0
 90.0
-90
+90.0
 1.0
 1
 NIL
@@ -552,7 +552,7 @@ direction
 direction
 0.0
 10.0
-10
+10.0
 0.1
 1
 NIL
@@ -691,7 +691,7 @@ max-num
 max-num
 256
 8192
-4096
+4096.0
 256
 1
 NIL
@@ -1161,9 +1161,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 setup
 ask turtles [ repeat 50 [ pattern-1 ] ]
@@ -1182,7 +1181,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

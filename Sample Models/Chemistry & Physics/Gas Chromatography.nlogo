@@ -114,8 +114,8 @@ GRAPHICS-WINDOW
 10
 779
 554
-85
-85
+-1
+-1
 3.0
 1
 10
@@ -164,7 +164,7 @@ thickness-of-medium
 thickness-of-medium
 1.0
 40.0
-16
+16.0
 1.0
 1
 NIL
@@ -179,7 +179,7 @@ number-of-pores
 number-of-pores
 0.0
 120.0
-70
+70.0
 1.0
 1
 NIL
@@ -194,7 +194,7 @@ stickiness
 stickiness
 0.0
 10.0
-5
+5.0
 1.0
 1
 NIL
@@ -595,9 +595,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 setup
 repeat 125 [ go ]
@@ -615,7 +614,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

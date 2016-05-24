@@ -587,8 +587,8 @@ GRAPHICS-WINDOW
 95
 1010
 536
-40
-20
+-1
+-1
 10.0
 1
 10
@@ -652,7 +652,7 @@ carrying-capacity-environment-left
 carrying-capacity-environment-left
 0
 100
-2
+2.0
 1
 1
 NIL
@@ -743,7 +743,7 @@ max-color-mutation
 max-color-mutation
 0
 50
-20
+20.0
 1
 1
 NIL
@@ -822,7 +822,7 @@ carrying-capacity-environment-right
 carrying-capacity-environment-right
 0
 100
-0
+0.0
 1
 1
 NIL
@@ -847,7 +847,7 @@ offspring-distance
 offspring-distance
 2
 40
-40
+40.0
 2
 1
 NIL
@@ -1408,9 +1408,8 @@ false
 0
 Polygon -7500403 true true 75 30 30 75 105 150 30 225 75 270 150 195 225 270 270 225 195 150 270 75 225 30 150 105
 Polygon -16777216 false false 30 75 105 150 30 225 75 270 150 195 225 270 270 225 195 150 270 75 225 30 150 105 75 30
-
 @#$#@#$#@
-NetLogo 6.0-M4
+NetLogo 6.0-M7
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
@@ -1489,7 +1488,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@

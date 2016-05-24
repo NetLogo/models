@@ -471,8 +471,8 @@ GRAPHICS-WINDOW
 61
 632
 466
-5
-5
+-1
+-1
 34.0
 1
 10
@@ -586,7 +586,7 @@ $1-fish
 $1-fish
 0
 10
-7
+7.0
 1
 1
 ratio-units
@@ -601,7 +601,7 @@ $2-fish
 $2-fish
 0
 10
-6
+6.0
 1
 1
 ratio-units
@@ -616,7 +616,7 @@ $3-fish
 $3-fish
 0
 10
-5
+5.0
 1
 1
 ratio-units
@@ -631,7 +631,7 @@ $4-fish
 $4-fish
 0
 10
-0
+0.0
 1
 1
 ratio-units
@@ -646,7 +646,7 @@ $5-fish
 $5-fish
 0
 10
-4
+4.0
 1
 1
 ratio-units
@@ -761,7 +761,7 @@ height-of-sample
 height-of-sample
 1
 6
-2
+2.0
 1
 1
 NIL
@@ -776,7 +776,7 @@ width-of-sample
 width-of-sample
 1
 6
-3
+3.0
 1
 1
 NIL
@@ -1416,9 +1416,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 ;; this model was tickling some weird Oracle renderer bug that was making
 ;; a few pixels in the preview a little different between Mac and Linux
@@ -1441,7 +1440,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

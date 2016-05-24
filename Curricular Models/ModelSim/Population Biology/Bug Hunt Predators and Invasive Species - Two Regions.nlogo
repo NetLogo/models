@@ -539,8 +539,8 @@ GRAPHICS-WINDOW
 185
 1211
 639
-46
-23
+-1
+-1
 9.0
 1
 10
@@ -625,7 +625,7 @@ right-initial-bugs
 right-initial-bugs
 0
 300
-100
+100.0
 1
 1
 NIL
@@ -651,7 +651,7 @@ left-initial-bugs
 left-initial-bugs
 0
 300
-100
+100.0
 1
 1
 NIL
@@ -749,7 +749,7 @@ food-left-bugs-eat
 food-left-bugs-eat
 .1
 8
-4
+4.0
 .1
 1
 NIL
@@ -764,7 +764,7 @@ food-right-bugs-eat
 food-right-bugs-eat
 0.1
 8.0
-4
+4.0
 .1
 1
 NIL
@@ -779,7 +779,7 @@ left-region-%-grassland
 left-region-%-grassland
 0
 100
-100
+100.0
 1
 1
 NIL
@@ -794,7 +794,7 @@ right-region-%-grassland
 right-region-%-grassland
 0
 100
-100
+100.0
 1
 1
 NIL
@@ -831,7 +831,7 @@ left-invaders-to-add
 left-invaders-to-add
 0
 300
-150
+150.0
 1
 1
 NIL
@@ -846,7 +846,7 @@ food-left-invaders-eat
 food-left-invaders-eat
 0.1
 8
-4
+4.0
 .1
 1
 NIL
@@ -900,7 +900,7 @@ food-right-invaders-eat
 food-right-invaders-eat
 0.1
 8
-4
+4.0
 0.1
 1
 NIL
@@ -915,7 +915,7 @@ right-invaders-to-add
 right-invaders-to-add
 0
 300
-150
+150.0
 1
 1
 NIL
@@ -947,7 +947,7 @@ right-initial-birds
 right-initial-birds
 0
 100
-0
+0.0
 1
 1
 NIL
@@ -962,7 +962,7 @@ left-initial-birds
 left-initial-birds
 0
 100
-29
+29.0
 1
 1
 NIL
@@ -1480,9 +1480,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1498,7 +1497,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@

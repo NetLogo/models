@@ -400,7 +400,7 @@ chance-tolerance-mutation
 chance-tolerance-mutation
 0
 100
-10
+10.0
 1
 1
 %
@@ -415,7 +415,7 @@ tolerance-mutation-stdev
 tolerance-mutation-stdev
 0
 50
-20
+20.0
 1
 1
 NIL
@@ -449,7 +449,7 @@ plants-per-patch
 plants-per-patch
 1
 5
-2
+2.0
 1
 1
 NIL
@@ -464,7 +464,7 @@ frontier-sharpness
 frontier-sharpness
 .1
 2
-1
+1.0
 .1
 1
 NIL
@@ -498,7 +498,7 @@ chance-flower-time-mutation
 chance-flower-time-mutation
 0
 100
-10
+10.0
 1
 1
 %
@@ -513,7 +513,7 @@ flower-time-mutation-stdev
 flower-time-mutation-stdev
 0
 100
-10
+10.0
 1
 1
 NIL
@@ -528,7 +528,7 @@ pollen-radius
 pollen-radius
 0
 50
-30
+30.0
 1
 1
 NIL
@@ -580,7 +580,7 @@ flower-duration
 flower-duration
 0
 30
-20
+20.0
 1
 1
 days
@@ -1076,9 +1076,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1228,7 +1227,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

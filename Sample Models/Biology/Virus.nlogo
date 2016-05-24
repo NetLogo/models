@@ -146,8 +146,8 @@ GRAPHICS-WINDOW
 10
 780
 531
-17
-17
+-1
+-1
 14.0
 1
 10
@@ -177,7 +177,7 @@ duration
 duration
 0.0
 99.0
-20
+20.0
 1.0
 1
 weeks
@@ -192,7 +192,7 @@ chance-recover
 chance-recover
 0.0
 99.0
-75
+75.0
 1.0
 1
 %
@@ -207,7 +207,7 @@ infectiousness
 infectiousness
 0.0
 99.0
-65
+65.0
 1.0
 1
 %
@@ -277,7 +277,7 @@ number-people
 number-people
 10
 carrying-capacity
-150
+150.0
 1
 1
 NIL
@@ -733,9 +733,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -751,7 +750,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@

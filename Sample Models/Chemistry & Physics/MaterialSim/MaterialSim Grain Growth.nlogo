@@ -259,8 +259,8 @@ GRAPHICS-WINDOW
 30
 1137
 453
-24
-24
+-1
+-1
 8.0
 1
 10
@@ -300,7 +300,7 @@ annealing-temperature
 annealing-temperature
 0.0
 100.0
-0
+0.0
 1.0
 1
 %
@@ -360,7 +360,7 @@ percent-element2
 percent-element2
 0
 99
-0
+0.0
 1
 1
 %
@@ -489,7 +489,7 @@ brush-size
 brush-size
 1.0
 6.0
-3
+3.0
 1.0
 1
 NIL
@@ -688,7 +688,7 @@ ticks-per-measurement
 ticks-per-measurement
 1
 200
-50
+50.0
 1
 1
 NIL
@@ -1188,9 +1188,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1206,7 +1205,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@

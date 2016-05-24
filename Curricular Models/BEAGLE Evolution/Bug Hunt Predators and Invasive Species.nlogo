@@ -375,8 +375,8 @@ GRAPHICS-WINDOW
 10
 931
 551
-25
-25
+-1
+-1
 10.0
 1
 10
@@ -406,7 +406,7 @@ initial-number-birds
 initial-number-birds
 0
 200
-30
+30.0
 1
 1
 NIL
@@ -498,7 +498,7 @@ initial-number-bugs
 initial-number-bugs
 0
 200
-100
+100.0
 1
 1
 NIL
@@ -513,7 +513,7 @@ amount-of-grassland
 amount-of-grassland
 0
 100
-100
+100.0
 1
 1
 %
@@ -528,7 +528,7 @@ number-invaders-to-add
 number-invaders-to-add
 0
 100
-100
+100.0
 1
 1
 NIL
@@ -571,7 +571,7 @@ amount-of-food-invaders-eat
 amount-of-food-invaders-eat
 0
 8
-4
+4.0
 .1
 1
 NIL
@@ -586,7 +586,7 @@ amount-of-food-bugs-eat
 amount-of-food-bugs-eat
 0.1
 8
-4
+4.0
 .1
 1
 NIL
@@ -646,7 +646,7 @@ min-reproduce-energy-birds
 min-reproduce-energy-birds
 1
 100
-30
+30.0
 1
 1
 NIL
@@ -661,7 +661,7 @@ SLIDER
 %-of-bugs-to-remove
 1
 100
-54
+54.0
 1
 1
 %
@@ -676,7 +676,7 @@ SLIDER
 %-of-grass-to-burn
 1
 100
-50
+50.0
 1
 1
 %
@@ -915,9 +915,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -933,7 +932,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

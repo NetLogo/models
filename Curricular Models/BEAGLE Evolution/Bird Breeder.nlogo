@@ -868,7 +868,7 @@ cost-for-breeding
 cost-for-breeding
 0
 20
-10
+10.0
 5
 1
 NIL
@@ -883,7 +883,7 @@ reward-for-goal-bird
 reward-for-goal-bird
 200
 1000
-1000
+1000.0
 100
 1
 NIL
@@ -915,7 +915,7 @@ cost-contribution
 cost-contribution
 0
 20
-10
+10.0
 5
 1
 NIL
@@ -1653,9 +1653,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1671,7 +1670,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

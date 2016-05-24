@@ -202,7 +202,7 @@ GRAPHICS-WINDOW
 10
 571
 275
-8
+-1
 -1
 18.0
 1
@@ -348,7 +348,7 @@ examples-per-epoch
 examples-per-epoch
 1.0
 1000.0
-500
+500.0
 1.0
 1
 NIL
@@ -842,9 +842,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 resize-world -7 7 -7 7 ; for square aspect ratio
 setup repeat 100 [ train ]
@@ -871,7 +870,6 @@ true
 0
 Line -7500403 true 150 150 135 180
 Line -7500403 true 150 150 165 180
-
 @#$#@#$#@
 1
 @#$#@#$#@

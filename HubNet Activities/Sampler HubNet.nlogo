@@ -392,7 +392,7 @@ SLIDER
 %-green
 0
 100
-50
+50.0
 1
 1
 NIL
@@ -490,7 +490,7 @@ abnormality
 abnormality
 0
 10
-0
+0.0
 1
 1
 NIL
@@ -505,7 +505,7 @@ sample-size
 sample-size
 1
 11
-3
+3.0
 2
 1
 NIL
@@ -570,7 +570,7 @@ sampling-allowance
 sampling-allowance
 0
 500
-200
+200.0
 25
 1
 NIL
@@ -619,7 +619,7 @@ margin-of-error
 margin-of-error
 0
 10
-1
+1.0
 1
 1
 NIL
@@ -713,7 +713,7 @@ ranks-per-bin
 ranks-per-bin
 1
 100
-2
+2.0
 1
 1
 NIL
@@ -1266,9 +1266,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M4
+NetLogo 6.0-M7
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
@@ -1303,10 +1302,10 @@ SLIDER
 636
 my-sample-size
 my-sample-size
-1
-11
+1.0
+11.0
 5
-2
+2.0
 1
 NIL
 HORIZONTAL
@@ -1328,10 +1327,10 @@ SLIDER
 546
 %-green
 %-green
-0
-100
+0.0
+100.0
 50
-1
+1.0
 1
 NIL
 HORIZONTAL
@@ -1395,7 +1394,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

@@ -55,8 +55,8 @@ GRAPHICS-WINDOW
 10
 825
 590
-30
-30
+-1
+-1
 9.0
 1
 10
@@ -103,7 +103,7 @@ radius
 radius
 0.0
 30.0
-20
+20.0
 1.0
 1
 NIL
@@ -118,7 +118,7 @@ speed
 speed
 0.0
 100.0
-25
+25.0
 1.0
 1
 NIL
@@ -133,7 +133,7 @@ number
 number
 1.0
 300.0
-40
+40.0
 1.0
 1
 NIL
@@ -182,7 +182,7 @@ draw-radius
 draw-radius
 0.0
 30.0
-15
+15.0
 1.0
 1
 NIL
@@ -683,9 +683,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 setup
 repeat 400 [ all-circle ]
@@ -706,7 +705,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

@@ -468,8 +468,8 @@ GRAPHICS-WINDOW
 10
 487
 306
-26
-26
+-1
+-1
 5.0
 1
 10
@@ -551,7 +551,7 @@ number-to-add
 number-to-add
 0
 100
-50
+50.0
 1
 1
 NIL
@@ -583,7 +583,7 @@ initial-number
 initial-number
 0
 100
-50
+50.0
 1
 1
 NIL
@@ -800,9 +800,8 @@ square
 false
 0
 Rectangle -7500403 true true 0 0 300 300
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -818,7 +817,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

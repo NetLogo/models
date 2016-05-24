@@ -147,8 +147,8 @@ GRAPHICS-WINDOW
 10
 625
 461
-17
-17
+-1
+-1
 12.0
 1
 10
@@ -212,7 +212,7 @@ num-recyclers
 num-recyclers
 0
 50
-25
+25.0
 1
 1
 NIL
@@ -227,7 +227,7 @@ num-wastefuls
 num-wastefuls
 0
 50
-25
+25.0
 1
 1
 NIL
@@ -268,7 +268,7 @@ resource-regeneration
 resource-regeneration
 0
 100
-25
+25.0
 1
 1
 NIL
@@ -283,7 +283,7 @@ max-stored-energy
 max-stored-energy
 10
 100
-50
+50.0
 5
 1
 NIL
@@ -768,9 +768,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -786,7 +785,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

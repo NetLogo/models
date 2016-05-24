@@ -180,8 +180,8 @@ GRAPHICS-WINDOW
 10
 636
 451
-16
-20
+-1
+-1
 10.0
 1
 10
@@ -211,7 +211,7 @@ num-moths
 num-moths
 0
 200
-100
+100.0
 1
 1
 NIL
@@ -314,7 +314,7 @@ mutation
 mutation
 0.0
 100.0
-15
+15.0
 1.0
 1
 NIL
@@ -329,7 +329,7 @@ selection
 selection
 0.0
 100.0
-50
+50.0
 1.0
 1
 NIL
@@ -400,7 +400,7 @@ speed
 speed
 1.0
 100.0
-10
+10.0
 1.0
 1
 NIL
@@ -866,9 +866,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 resize-world -16 16 -16 16
 setup repeat 75 [ go ]
@@ -886,7 +885,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

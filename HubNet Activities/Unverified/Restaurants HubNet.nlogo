@@ -618,8 +618,8 @@ GRAPHICS-WINDOW
 100
 820
 509
-10
-10
+-1
+-1
 18.0
 1
 10
@@ -649,7 +649,7 @@ num-consumer
 num-consumer
 0
 500
-350
+350.0
 1
 1
 NIL
@@ -664,7 +664,7 @@ consumer-energy
 consumer-energy
 25
 50
-50
+50.0
 1
 1
 NIL
@@ -898,7 +898,7 @@ consumer-threshold
 consumer-threshold
 10
 30
-30
+30.0
 1
 1
 NIL
@@ -943,7 +943,7 @@ rent-cost
 rent-cost
 0
 200
-100
+100.0
 10
 1
 $
@@ -958,7 +958,7 @@ SLIDER
 #auto-restaurants
 1
 5
-5
+5.0
 1
 1
 NIL
@@ -1051,7 +1051,7 @@ day-length
 day-length
 1
 50
-5
+5.0
 1
 1
 NIL
@@ -1552,9 +1552,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M4
+NetLogo 6.0-M7
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
@@ -1589,10 +1588,10 @@ SLIDER
 200
 Service
 Service
-1
-100
+1.0
+100.0
 50
-1
+1.0
 1
 NIL
 HORIZONTAL
@@ -1604,10 +1603,10 @@ SLIDER
 270
 Price
 Price
-1
-100
+1.0
+100.0
 50
-1
+1.0
 1
 NIL
 HORIZONTAL
@@ -1619,10 +1618,10 @@ SLIDER
 235
 Quality
 Quality
-1
-100
+1.0
+100.0
 50
-1
+1.0
 1
 NIL
 HORIZONTAL
@@ -1634,7 +1633,7 @@ CHOOSER
 165
 Cuisine
 Cuisine
-"American" "Asian" "European"
+\"American\" \"Asian\" \"European\"
 0
 
 MONITOR
@@ -1723,7 +1722,7 @@ true
 false
 "" ""
 PENS
-"avg-profit" 1.0 0 -16777216 true
+"avg-profit" 1.0 0 -16777216 true "" ""
 
 MONITOR
 284
@@ -1751,7 +1750,7 @@ true
 false
 "" ""
 PENS
-"avg-custs" 1.0 0 -16777216 true
+"avg-custs" 1.0 0 -16777216 true "" ""
 
 MONITOR
 86
@@ -1784,7 +1783,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

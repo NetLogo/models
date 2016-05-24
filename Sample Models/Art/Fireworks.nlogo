@@ -111,8 +111,8 @@ GRAPHICS-WINDOW
 10
 797
 584
-90
-90
+-1
+-1
 3.0
 1
 10
@@ -187,7 +187,7 @@ fireworks
 fireworks
 1
 40
-20
+20.0
 1
 1
 NIL
@@ -202,7 +202,7 @@ fragments
 fragments
 5
 50
-30
+30.0
 1
 1
 NIL
@@ -217,7 +217,7 @@ initial-x-vel
 initial-x-vel
 0.0
 5.0
-2
+2.0
 0.1
 1
 NIL
@@ -232,7 +232,7 @@ initial-y-vel
 initial-y-vel
 0.0
 5.0
-2
+2.0
 0.1
 1
 NIL
@@ -628,9 +628,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 set trails? true
 set fireworks 30
@@ -651,7 +650,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

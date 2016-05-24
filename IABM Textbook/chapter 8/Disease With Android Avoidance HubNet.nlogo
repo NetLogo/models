@@ -465,8 +465,8 @@ GRAPHICS-WINDOW
 94
 717
 545
-10
-10
+-1
+-1
 20.0
 1
 10
@@ -513,7 +513,7 @@ infection-chance
 infection-chance
 0
 100
-100
+100.0
 1
 1
 %
@@ -595,7 +595,7 @@ number
 number
 1
 200
-5
+5.0
 1
 1
 androids
@@ -643,7 +643,7 @@ initial-number-sick
 initial-number-sick
 1
 20
-1
+1.0
 1
 1
 NIL
@@ -1333,9 +1333,8 @@ Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
 Circle -2674135 true false 156 156 108
-
 @#$#@#$#@
-NetLogo 6.0-M4
+NetLogo 6.0-M7
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
@@ -1426,10 +1425,10 @@ SLIDER
 128
 step-size
 step-size
+1.0
+5.0
 1
-5
-1
-1
+1.0
 1
 NIL
 HORIZONTAL
@@ -1489,7 +1488,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

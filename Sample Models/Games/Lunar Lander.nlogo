@@ -144,8 +144,8 @@ GRAPHICS-WINDOW
 10
 763
 546
-50
-50
+-1
+-1
 5.0
 1
 10
@@ -270,7 +270,7 @@ platform-width
 platform-width
 4.0
 20.0
-10
+10.0
 2.0
 1
 NIL
@@ -285,7 +285,7 @@ terrain-bumpiness
 terrain-bumpiness
 0.0
 10.0
-2
+2.0
 1.0
 1
 NIL
@@ -692,9 +692,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 random-seed 1
 setup
@@ -712,7 +711,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

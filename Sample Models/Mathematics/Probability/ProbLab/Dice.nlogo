@@ -176,8 +176,8 @@ GRAPHICS-WINDOW
 65
 803
 503
-16
-18
+-1
+-1
 11.0
 1
 12
@@ -386,7 +386,7 @@ sample-size
 sample-size
 10
 1000
-1000
+1000.0
 10
 1
 NIL
@@ -401,7 +401,7 @@ total-samples
 total-samples
 0
 10000
-5000
+5000.0
 10
 1
 NIL
@@ -973,9 +973,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M7
 @#$#@#$#@
 setup search
 @#$#@#$#@
@@ -992,7 +991,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@
