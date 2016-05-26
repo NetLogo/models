@@ -1,4 +1,4 @@
-breed [agents agent]
+breed [agents an-agent]
 breed [cops cop]
 
 globals [
