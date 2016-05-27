@@ -123,12 +123,12 @@ to adjust-speed ; turtle procedure
 end
 
 to slow-down-car ; turtle procedure
-  set speed (speed - slow-down)
-  if speed < 0 [ set speed slow-down ]
+  set speed (speed - deceleration)
+  if speed < 0 [ set speed deceleration ]
 end
 
 to speed-up-car ; turtle procedure
-  set speed (speed + speed-up)
+  set speed (speed + acceleration)
   if speed > top-speed [ set speed top-speed ]
 end
 
@@ -342,9 +342,9 @@ SLIDER
 10
 85
 215
-118
-speed-up
-speed-up
+119
+acceleration
+acceleration
 0.001
 0.01
 0.005
@@ -358,8 +358,8 @@ SLIDER
 120
 215
 153
-slow-down
-slow-down
+deceleration
+deceleration
 0.01
 0.1
 0.02
