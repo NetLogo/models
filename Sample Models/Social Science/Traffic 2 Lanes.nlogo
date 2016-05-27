@@ -199,11 +199,11 @@ end
 GRAPHICS-WINDOW
 225
 10
-973
-347
+1055
+381
 -1
 -1
-18.0
+20.0
 1
 10
 1
@@ -276,9 +276,9 @@ NIL
 
 BUTTON
 10
-210
+190
 215
-243
+223
 select car
 select-car
 T
@@ -293,9 +293,9 @@ NIL
 
 MONITOR
 130
-355
+335
 215
-400
+380
 mean speed
 mean [speed] of turtles
 2
@@ -318,10 +318,10 @@ NIL
 HORIZONTAL
 
 PLOT
-225
-355
-595
-530
+305
+385
+675
+560
 Car Speeds
 Time
 Speed
@@ -342,7 +342,7 @@ SLIDER
 10
 85
 215
-119
+118
 acceleration
 acceleration
 0.001
@@ -369,10 +369,10 @@ NIL
 HORIZONTAL
 
 PLOT
-605
-355
-975
-530
+685
+385
+1055
+560
 Driver Patience
 Time
 Patience
@@ -391,9 +391,9 @@ PENS
 
 BUTTON
 10
-245
+225
 215
-278
+258
 follow selected car
 follow selected-car
 NIL
@@ -408,9 +408,9 @@ NIL
 
 BUTTON
 10
-280
+260
 215
-313
+293
 watch selected car
 watch selected-car
 NIL
@@ -425,9 +425,9 @@ NIL
 
 BUTTON
 10
-315
+295
 215
-348
+328
 reset perspective
 reset-perspective
 NIL
@@ -442,9 +442,9 @@ NIL
 
 MONITOR
 10
-355
+335
 130
-400
+380
 selected car speed
 [ speed ] of selected-car
 2
@@ -453,19 +453,19 @@ selected car speed
 
 PLOT
 10
-411
-216
-531
+386
+300
+561
 Cars Per Lane
 Time
 Cars
 0.0
 0.0
 0.0
-10.0
+0.0
 true
 true
-"foreach n-values length lanes [ ? ] [\n  create-temporary-plot-pen (word (? + 1))\n  set-plot-pen-color item ? base-colors\n]" "foreach n-values length lanes [ ? ] [\n  set-current-plot-pen (word (? + 1))\n  plot count turtles with [ round ycor = item ? lanes ]\n]"
+"set-plot-y-range (count turtles * 0.25) (count turtles * 0.75)\nforeach n-values length lanes [ ? ] [\n  create-temporary-plot-pen (word (? + 1))\n  set-plot-pen-color item ? base-colors\n]" "foreach n-values length lanes [ ? ] [\n  set-current-plot-pen (word (? + 1))\n  plot count turtles with [ round ycor = item ? lanes ]\n]"
 PENS
 
 SLIDER
