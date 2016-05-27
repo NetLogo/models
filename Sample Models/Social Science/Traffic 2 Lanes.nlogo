@@ -456,18 +456,17 @@ PLOT
 411
 216
 531
-ycor of cars
-NIL
-NIL
+Cars Per Lane
+Time
+Cars
 0.0
 0.0
 0.0
 10.0
 true
-false
-"set-plot-x-range (min lanes - 1.5) (max lanes + 1.5)" ""
+true
+"foreach n-values length lanes [ ? ] [\n  create-temporary-plot-pen (word (? + 1))\n  set-plot-pen-color item ? base-colors\n]" "foreach n-values length lanes [ ? ] [\n  set-current-plot-pen (word (? + 1))\n  plot count turtles with [ round ycor = item ? lanes ]\n]"
 PENS
-"default" 1.0 1 -16777216 true "" "histogram [ ycor ] of turtles"
 
 SLIDER
 10
