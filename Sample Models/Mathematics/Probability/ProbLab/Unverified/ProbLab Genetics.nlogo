@@ -212,7 +212,7 @@ to reveal-genes
   ; changes state to normal
   [
     ask fish with [ hidden? = true ] [ set hidden? false ]
-    if count fish with [ shape != res-shape and shape != dom-shape ] > 0 [
+    if any? fish with [ shape != res-shape and shape != dom-shape ] [
       ask fish with [ read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1 ] [
         set shape dom-shape
       ]
@@ -220,7 +220,7 @@ to reveal-genes
         set shape res-shape
       ]
     ]
-    if count output-shapes != 0 [ ask output-shapes [ die ] ]
+    if any? output-shapes [ ask output-shapes [ die ] ]
     ask patches with [ family != [] and pcolor != yellow ] [ set pcolor yellow ]
   ]
   display
@@ -368,7 +368,7 @@ to update-graphs [ just-histogram? ]
 
   if not just-histogram? [
     set-current-plot "Percent Fish by Properties"
-    ifelse count fish != 0 [
+    ifelse any? fish [
       set-current-plot-pen "G-body G-fin"
       plot 100 * count fish with [ color = green and shape = dom-shape ] / count fish
       set-current-plot-pen "G-body B-fin"
