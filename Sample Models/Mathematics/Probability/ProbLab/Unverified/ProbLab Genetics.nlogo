@@ -693,7 +693,7 @@ This model demonstrates some connections between probability and the natural sci
 
 Fish vary by body and fin color, each of which can be either green or blue, so there are four different phenotypes.  Underlying this variation are dominant and recessive genes, expressed in "4-blocks."  A 4-block is a 2-by-2 array of squares, each of which can be either green or blue.  Initially, fish are randomly distributed by 4-block genotype. Then, fish seek mates and reproduce, and the genetic distribution changes.
 
-This model is a part of the ProbLab curriculum.  The ProbLab curriculum is currently under development at the CCL. For more information about the ProbLab curriculum please refer to http://ccl.northwestern.edu/curriculum/ProbLab/.
+This model is a part of the ProbLab curriculum. For more information about the ProbLab curriculum please refer to http://ccl.northwestern.edu/curriculum/ProbLab/.
 
 ## PEDAGOGICAL NOTE
 
@@ -825,7 +825,7 @@ In Expected Value Advanced, a model of the ProbLab Curriculum, the same metaphor
 
 ## CREDITS AND REFERENCES
 
-This model is a part of the ProbLab curriculum. The ProbLab Curriculum is currently under development at Northwestern's Center for Connected Learning and Computer-Based Modeling. . For more information about the ProbLab Curriculum please refer to http://ccl.northwestern.edu/curriculum/ProbLab/.
+This model is a part of the ProbLab curriculum. For more information about the ProbLab Curriculum please refer to http://ccl.northwestern.edu/curriculum/ProbLab/.
 
 Thanks to Steve Gorodetskiy for his design and programming work.
 
