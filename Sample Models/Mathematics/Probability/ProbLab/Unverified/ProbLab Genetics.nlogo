@@ -337,16 +337,14 @@ to output-genetics [ yellow-patch ]
 end
 
 to wander-around
-  every .1 [
-    ; moves one
-    forward 1
-    ; checks so doesn't go out of bounds next move
-    right random 360
-    let p patch-ahead 1
-    while [ p = nobody or [ pycor ] of p > (max-pycor - 1) ] [
-      right random 360
-      set p patch-ahead 1
-    ]
+  ; moves one
+  forward 1
+  ; checks so doesn't go out of bounds next move
+  set heading random 360
+  let p patch-ahead 1
+  while [ p = nobody or [ pycor ] of p > (max-pycor - 1) ] [
+    set heading random 360
+    set p patch-ahead 1
   ]
 end
 
