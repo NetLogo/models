@@ -106,7 +106,7 @@ to go
     ]
   ]
 
-  ;collides the fish, 2 at a time
+  ; collides the fish, 2 at a time
   foreach to-collide [
     ; make sure the first parent has a lower
     ; who number than the second parent
@@ -232,9 +232,9 @@ end
 
 to output-genetics [ yellow-patch ]
   ; genes: "shape1" "shape2" "child" top-left top-right bottom-left bottom-right
-  let shape1  [ my-genes ] of item 0 [ family] of yellow-patch
-  let shape2  [ my-genes ] of item 1 [family] of yellow-patch
-  let child   [ my-genes ] of item 2 [family] of yellow-patch
+  let shape1 [ my-genes ] of item 0 [ family ] of yellow-patch
+  let shape2 [ my-genes ] of item 1 [ family ] of yellow-patch
+  let child  [ my-genes ] of item 2 [ family ] of yellow-patch
   let t-left  item 3 [ family ] of yellow-patch
   let t-right item 4 [ family ] of yellow-patch
   let b-left  item 5 [ family ] of yellow-patch
