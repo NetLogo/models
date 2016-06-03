@@ -39,14 +39,13 @@ to setup
     set family []
   ]
   reset-ticks
-  update-graphs false
 end
 
 to add-fish [ x ]
   repeat x [
     let k add-custom-fish choose-random-n-z
   ]
-  update-graphs true
+  update-histogram
 end
 
 ; returns the who of the addition
@@ -113,7 +112,6 @@ to go
     collide (first sort ?) (last sort ?)
   ]
   tick
-  update-graphs false
 end
 
 to collide [ parent1 parent2 ]
@@ -348,10 +346,10 @@ to wander-around
   ]
 end
 
-to update-graphs [ just-histogram? ]
+to update-histogram
+  set-current-plot "4-Block Distribution"
   set z-distr []
   ask fish [ set z-distr lput read-from-string item 1 my-genes z-distr ]
-  set-current-plot "4-Block Distribution"
   set-current-plot-pen "Count"
   plot-pen-reset
   histogram z-distr
@@ -366,30 +364,6 @@ to update-graphs [ just-histogram? ]
     plot-pen-down
     plotxy mean z-distr plot-y-max
     plot-pen-up
-  ]
-
-  if not just-histogram? [
-    set-current-plot "Percent Fish by Properties"
-    ifelse any? fish [
-      set-current-plot-pen "G-body G-fin"
-      plot 100 * count fish with [ color = green and shape = dom-shape ] / count fish
-      set-current-plot-pen "G-body B-fin"
-      plot 100 * count fish with [ color = green and shape = res-shape ] / count fish
-      set-current-plot-pen "B-body G-fin"
-      plot 100 * count fish with [ color = blue and shape = dom-shape ] / count fish
-      set-current-plot-pen "B-body B-fin"
-      plot 100 * count fish with [ color = blue and shape = res-shape ] / count fish
-    ]
-    [
-      set-current-plot-pen "G-body G-fin"
-      plot 0
-      set-current-plot-pen "G-body B-fin"
-      plot 0
-      set-current-plot-pen "B-body G-fin"
-      plot 0
-      set-current-plot-pen "B-body B-fin"
-      plot 0
-    ]
   ]
 end
 
@@ -506,7 +480,7 @@ occurrences
 10.0
 true
 true
-"" ""
+"" "update-histogram"
 PENS
 "Count" 1.0 1 -16777216 true "" ""
 "Average" 1.0 0 -2674135 true "" ""
@@ -570,10 +544,10 @@ true
 true
 "" ""
 PENS
-"G-body G-fin" 1.0 0 -10899396 true "" ""
-"G-body B-fin" 1.0 0 -6459832 true "" ""
-"B-body G-fin" 1.0 0 -13312 true "" ""
-"B-body B-fin" 1.0 0 -13345367 true "" ""
+"G-body G-fin" 1.0 0 -10899396 true "" "plotxy ticks ifelse-value any? fish [ 100 * count fish with [ color = green and shape = dom-shape ] / count fish ] [ 0 ] "
+"G-body B-fin" 1.0 0 -6459832 true "" "plotxy ticks ifelse-value any? fish [ 100 * count fish with [ color = green and shape = res-shape ] / count fish ] [ 0 ] "
+"B-body G-fin" 1.0 0 -13312 true "" "plotxy ticks ifelse-value any? fish [ 100 * count fish with [ color = blue and shape = dom-shape ] / count fish ] [ 0 ] "
+"B-body B-fin" 1.0 0 -13345367 true "" "plotxy ticks ifelse-value any? fish [ 100 * count fish with [ color = blue and shape = res-shape ] / count fish ] [ 0 ] "
 
 CHOOSER
 7
