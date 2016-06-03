@@ -35,7 +35,7 @@ to create-or-remove-cars
     set heading 90
     set top-speed 0.5 + random-float 0.5
     set speed 0.5
-    set patience max-patience
+    set patience random max-patience
   ]
 
   if count turtles > number-of-cars [
@@ -311,7 +311,7 @@ number-of-cars
 number-of-cars
 1
 number-of-lanes * world-width
-50.0
+40.0
 1
 1
 NIL
