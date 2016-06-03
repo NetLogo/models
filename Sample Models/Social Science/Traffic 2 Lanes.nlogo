@@ -465,7 +465,7 @@ Cars
 0.0
 true
 true
-"set-plot-y-range (count turtles * 0.25) (count turtles * 0.75)\nforeach n-values length lanes [ ? ] [\n  create-temporary-plot-pen (word (? + 1))\n  set-plot-pen-color item ? base-colors\n]" "foreach n-values length lanes [ ? ] [\n  set-current-plot-pen (word (? + 1))\n  plot count turtles with [ round ycor = item ? lanes ]\n]"
+"set-plot-y-range (count turtles * 0.4) (count turtles * 0.6)\nforeach n-values length lanes [ ? ] [\n  create-temporary-plot-pen (word (? + 1))\n  set-plot-pen-color item ? base-colors\n]" "foreach n-values length lanes [ ? ] [\n  set-current-plot-pen (word (? + 1))\n  plot count turtles with [ round ycor = item ? lanes ]\n]"
 PENS
 
 SLIDER
