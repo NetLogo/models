@@ -1,18 +1,25 @@
-globals [ z-distr
-          dom-color ;; dominant gene color
-          res-color ;; recessive gene color
-          dom-shape
-          res-shape
-          prev-x
-          prev-y
-        ]
+globals [
+  z-distr
+  dom-color ; dominant gene color
+  res-color ; recessive gene color
+  dom-shape
+  res-shape
+  prev-x
+  prev-y
+]
 
 breed [ output-shapes outer-shape ]
 breed [ fish a-fish ]
 
-fish-own [ age my-genes  ]
+fish-own [
+  age
+  my-genes
+]
 
-patches-own [ orig-color family ]
+patches-own [
+  orig-color
+  family
+]
 
 to setup
   clear-all
@@ -20,44 +27,46 @@ to setup
   set res-color blue
   set dom-shape "fish-green-fin"
   set res-shape "fish-blue-fin"
-  ;;prepares the patch colors
+  ; prepares the patch colors
   ask patches [ set pcolor red + random 3 ]
-  ;; the origin is moved toward the top of the view so
-  ;; the single row of patches with positive pycors
-  ;; can easily be used to display genetic information
-  ;; when a fish is selected in "reveal genes" mode
+  ; the origin is moved toward the top of the view so
+  ; the single row of patches with positive pycors
+  ; can easily be used to display genetic information
+  ; when a fish is selected in "reveal genes" mode
   ask patches with [ pycor > 0 ] [ set pcolor white ]
-  ask patches [ set orig-color pcolor  set family [] ]
+  ask patches [
+    set orig-color pcolor
+    set family []
+  ]
   reset-ticks
   update-graphs false
 end
 
 to add-fish [ x ]
-  repeat x [ let k add-custom-fish choose-random-n-z ]
+  repeat x [
+    let k add-custom-fish choose-random-n-z
+  ]
   update-graphs true
 end
 
-;;returns the who of the addition
+; returns the who of the addition
 to-report add-custom-fish [ child ]
   let who-child 0
-  create-fish 1
-  [
+  create-fish 1 [
     set my-genes child
     ifelse read-from-string (item 3 my-genes) = 1 or read-from-string (item 4 my-genes) = 1
-    [ set color dom-color ]
-    [ set color res-color ]
+      [ set color dom-color ]
+      [ set color res-color ]
     ifelse read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1
-    [ set shape dom-shape ]
-    [ set shape res-shape ]
+      [ set shape dom-shape ]
+      [ set shape res-shape ]
 
-    setxy random-xcor
-          random-float min-pycor
+    setxy random-xcor (random-float min-pycor)
 
-    ;;checks, so stays in-bounds next move
+    ; checks, so stays in-bounds next move
     let p patch-ahead 1
-    while [ p = nobody or [pycor] of p > (max-pycor - 1)]
-    [
-      rt random 360
+    while [ p = nobody or [ pycor ] of p > (max-pycor - 1) ] [
+      right random 360
       set p patch-ahead 1
     ]
     set who-child who
@@ -67,8 +76,7 @@ end
 
 to-report choose-random-n-z
   let combination []
-  repeat 4
-  [
+  repeat 4 [
     set combination lput random 2 combination
   ]
   let name ""
@@ -80,25 +88,28 @@ end
 to go
   ask fish with [ age >= life-span ] [ die ]
   ask fish [ set age age + 1 ]
-  ask patches with [ pcolor = yellow or pcolor = white ] [ set pcolor orig-color  set family [] ]
+  ask patches with [ pcolor = yellow or pcolor = white ] [
+    set pcolor orig-color
+    set family []
+  ]
 
   let to-collide []
   ask patches [ set family [] ]
 
   ask fish [ wander-around ]
 
-  ;;collects agents that are on the same patch
-  ;;and chooses 2 of them randomly (if more than 2)
-  ask patches
-  [
-    if (count fish-here > 1) [ set to-collide lput (n-of 2 fish-here) to-collide ]
+  ; collects agents that are on the same patch
+  ; and chooses 2 of them randomly (if more than 2)
+  ask patches [
+    if (count fish-here > 1) [
+      set to-collide lput (n-of 2 fish-here) to-collide
+    ]
   ]
 
-  ;;collides the fish, 2 at a time
-  foreach to-collide
-  [
-    ;; make sure the first parent has a lower who number than the
-    ;; second parent
+  ;collides the fish, 2 at a time
+  foreach to-collide [
+    ; make sure the first parent has a lower
+    ; who number than the second parent
     collide (first sort ?) (last sort ?)
   ]
   tick
@@ -106,111 +117,108 @@ to go
 end
 
 to collide [ parent1 parent2 ]
-  if mating-rules-check parent1 parent2
-  [
-    ;;makes a child
-    let child create-child ([patch-here] of parent1) [my-genes] of parent1 [my-genes] of parent2
-    ask [patch-here] of parent1 [ set pcolor yellow ]
+  if mating-rules-check parent1 parent2 [
+    ; makes a child
+    let child create-child ([patch-here] of parent1) [ my-genes ] of parent1 [ my-genes ] of parent2
+    ask [ patch-here ] of parent1 [ set pcolor yellow ]
     let who-child add-custom-fish child
 
-    ask [patch-here] of parent1 [ set family fput turtle who-child family ]
-    ask [patch-here] of parent1 [ set family fput parent2 family ]
-    ask [patch-here] of parent1 [ set family fput parent1 family ]
+    ask [ patch-here ] of parent1 [ set family fput turtle who-child family ]
+    ask [ patch-here ] of parent1 [ set family fput parent2 family ]
+    ask [ patch-here ] of parent1 [ set family fput parent1 family ]
   ]
 end
 
 to-report mating-rules-check [ parent1 parent2 ]
-  if mate-with = "Any Fish"
-    [ report true ]
-  if mate-with = "Same Body"
-    [ report ([color] of parent1 = [color] of parent2) ]
-  if mate-with = "Same Fin"
-    [ report ([shape] of parent1 = [shape] of parent2) ]
-  if mate-with = "Same Both"
-    [ report (([color] of parent1 = [color] of parent2) and ([shape] of parent1 = [shape] of parent2)) ]
+  if mate-with = "Any Fish" [
+    report true
+  ]
+  if mate-with = "Same Body" [
+    report ([ color ] of parent1 = [ color ] of parent2)
+  ]
+  if mate-with = "Same Fin" [
+    report ([ shape ] of parent1 = [ shape ] of parent2)
+  ]
+  if mate-with = "Same Both" [
+    report (([ color ] of parent1 = [ color ] of parent2) and ([ shape ] of parent1 = [ shape ] of parent2))
+  ]
   report false
 end
 
 to-report create-child [ yellow-patch genes1 genes2 ]
-  ;;makes the child
+  ; makes the child
   let c-list []
   let new-genes []
-  ;;top left
+  ; top left
   let rand random 2
   set new-genes lput rand new-genes
   set c-list lput item (3 + rand) genes1 c-list
-  ;;top right
+  ; top right
   set rand random 2
   set new-genes lput rand new-genes
   set c-list lput item (3 + rand) genes2 c-list
-  ;;bottom left
+  ; bottom left
   set rand random 2
   set new-genes lput rand new-genes
   set c-list lput item (5 + rand) genes1 c-list
-  ;;bottom right
+  ; bottom right
   set rand random 2
   set new-genes lput rand new-genes
   set c-list lput item (5 + rand) genes2 c-list
 
   let child ""
-  set child (word "f"
-                  length filter [ ? = "1" ] c-list
-                  "-")
+  set child (word "f" (length filter [ ? = "1" ] c-list) "-")
   foreach c-list [ set child word child ? ]
   ask yellow-patch [ set family new-genes ]
   report child
 end
 
 to reveal-genes
-  ifelse mouse-down?
-  [
-    ;;checks so not looking at same patch again
-    if not (prev-x = mouse-xcor and prev-y = mouse-ycor)
-    [
+  ifelse mouse-down? [
+    ; checks so not looking at same patch again
+    if not (prev-x = mouse-xcor and prev-y = mouse-ycor) [
       set prev-x mouse-xcor
       set prev-y mouse-ycor
-      ;;reveals genes -- with two fish mating, if patch is yellow
-      ifelse [pcolor] of patch mouse-xcor mouse-ycor = yellow
-      [
-        ;;hides all fish, other than the ones related to the patch
+      ; reveals genes -- with two fish mating, if patch is yellow
+      ifelse [ pcolor ] of patch mouse-xcor mouse-ycor = yellow [
+        ; hides all fish, other than the ones related to the patch
         ask fish [ set hidden? true ]
-        foreach (filter [is-turtle? ? ] [family] of (patch mouse-xcor mouse-ycor)) [ ask ? [ set hidden? false ] ]
+        foreach (filter [ is-turtle? ? ] [ family ] of (patch mouse-xcor mouse-ycor)) [
+          ask ? [ set hidden? false ]
+        ]
         ask patches [ set pcolor orig-color ]
         ask patch mouse-xcor mouse-ycor [ set pcolor yellow ]
         output-genetics (patch mouse-xcor mouse-ycor)
       ]
-      ;;finds closest turtle if patch not yellow
+      ; finds closest turtle if patch not yellow
       [
         let min-d -1
         let dist 3
-        ask fish-on patch round mouse-xcor round mouse-ycor
-        [
-          if dist > distancexy mouse-xcor mouse-ycor
-          [
+        ask fish-on patch round mouse-xcor round mouse-ycor [
+          if dist > distancexy mouse-xcor mouse-ycor [
             set dist distancexy mouse-xcor mouse-ycor
             set min-d who
           ]
         ]
-        ;;reveals shape, if there is a turtle
-        if min-d != -1
-        [
-          ask fish with [ who = min-d ]
-          [
+        ;reveals shape, if there is a turtle
+        if min-d != -1 [
+          ask fish with [ who = min-d ] [
             set shape my-genes
           ]
         ]
       ]
     ]
   ]
-  ;;changes state to normal
+  ; changes state to normal
   [
     ask fish with [ hidden? = true ] [ set hidden? false ]
-    if count fish with [ shape != res-shape and shape != dom-shape ] > 0
-    [
-      ask fish with [ read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1 ]
-        [ set shape dom-shape ]
-      ask fish with [ not (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1) ]
-        [ set shape res-shape ]
+    if count fish with [ shape != res-shape and shape != dom-shape ] > 0 [
+      ask fish with [ read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1 ] [
+        set shape dom-shape
+      ]
+      ask fish with [ not (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1) ] [
+        set shape res-shape
+      ]
     ]
     if count output-shapes != 0 [ ask output-shapes [ die ] ]
     ask patches with [ family != [] and pcolor != yellow ] [ set pcolor yellow ]
@@ -219,58 +227,120 @@ to reveal-genes
 end
 
 to output-genetics [ yellow-patch ]
-  ;;genes: "shape1" "shape2" "child" top-left top-right bottom-left bottom-right
-  let shape1  [my-genes] of item 0 [family] of yellow-patch
-  let shape2  [my-genes] of item 1 [family] of yellow-patch
-  let child   [my-genes] of item 2 [family] of yellow-patch
-  let t-left  item 3 [family] of yellow-patch
-  let t-right item 4 [family] of yellow-patch
-  let b-left  item 5 [family] of yellow-patch
-  let b-right item 6 [family] of yellow-patch
+  ; genes: "shape1" "shape2" "child" top-left top-right bottom-left bottom-right
+  let shape1  [ my-genes ] of item 0 [ family] of yellow-patch
+  let shape2  [ my-genes ] of item 1 [family] of yellow-patch
+  let child   [ my-genes ] of item 2 [family] of yellow-patch
+  let t-left  item 3 [ family ] of yellow-patch
+  let t-right item 4 [ family ] of yellow-patch
+  let b-left  item 5 [ family ] of yellow-patch
+  let b-right item 6 [ family ] of yellow-patch
 
-  ;;makes the parents and children
-  create-output-shapes 1 [ set shape shape1 setxy min-pxcor max-pycor ]
-  create-output-shapes 1 [ set shape shape2 setxy (min-pxcor + 1.5) (max-pycor) ]
-  create-output-shapes 1 [ set shape "arrow" setxy (min-pxcor + 2.5) (max-pycor) set heading 90 ]
-  create-output-shapes 1 [ set shape child setxy (min-pxcor + 3.5) (max-pycor) ]
+  ; makes the parents and children
+  create-output-shapes 1 [
+    set shape shape1
+    setxy min-pxcor max-pycor
+  ]
+  create-output-shapes 1 [
+    set shape shape2
+    setxy (min-pxcor + 1.5) (max-pycor)
+  ]
+  create-output-shapes 1 [
+    set shape "arrow"
+    setxy (min-pxcor + 2.5) (max-pycor)
+    set heading 90
+  ]
+  create-output-shapes 1 [
+    set shape child
+    setxy (min-pxcor + 3.5) (max-pycor)
+  ]
 
-  ;;makes the frames
-  ;;top left
-  if t-left = 0
-    [ create-output-shapes 1 [ set shape "frame-thicker" set size .5 setxy (- 5.25) 1.25 set color orange ] ]
-  if t-left = 1
-    [ create-output-shapes 1 [ set shape "frame-thicker" set size .5 setxy (- 4.75) 1.25 set color orange ] ]
-  ;;top right
-  if t-right = 0
-    [ create-output-shapes 1 [ set shape "frame-thicker" set size .5 setxy (- 3.75) 1.25 set color orange ] ]
-  if t-right = 1
-    [ create-output-shapes 1 [ set shape "frame-thicker" set size .5 setxy (- 3.25) 1.25 set color orange ] ]
-  ;;bottom left
-  if b-left = 0
-    [ create-output-shapes 1 [ set shape "frame-thicker" set size .5 setxy (- 5.25) 0.75 set color 74 ] ]
-  if b-left = 1
-    [ create-output-shapes 1 [ set shape "frame-thicker" set size .5 setxy (- 4.75) 0.75 set color 74 ] ]
-  ;;bottom right
-  if b-right = 0
-    [ create-output-shapes 1 [ set shape "frame-thicker" set size .5 setxy (- 3.75) 0.75 set color 74 ] ]
-  if b-right = 1
-    [ create-output-shapes 1 [ set shape "frame-thicker" set size .5 setxy (- 3.25) 0.75 set color 74 ] ]
-  ;;shows the plus
-  create-output-shapes 1 [ set shape "plus"  setxy (min-pxcor + .75) (max-pycor)  set size .5 ]
+  ;makes the frames
+  ;top left
+  if t-left = 0 [
+    create-output-shapes 1 [
+      set shape "frame-thicker"
+      set size .5
+      setxy (- 5.25) 1.25
+      set color orange
+    ]
+  ]
+  if t-left = 1 [
+    create-output-shapes 1 [
+      set shape "frame-thicker"
+      set size .5
+      setxy (- 4.75) 1.25
+      set color orange
+    ]
+  ]
+  ; top right
+  if t-right = 0 [
+    create-output-shapes 1 [
+      set shape "frame-thicker"
+      set size .5
+      setxy (- 3.75) 1.25
+      set color orange
+    ]
+  ]
+  if t-right = 1 [
+    create-output-shapes 1 [
+      set shape "frame-thicker"
+      set size .5
+      setxy (- 3.25) 1.25
+      set color orange
+    ]
+  ]
+  ;bottom left
+  if b-left = 0 [
+    create-output-shapes 1 [
+      set shape "frame-thicker"
+      set size .5
+      setxy (- 5.25) 0.75
+      set color 74
+    ]
+  ]
+  if b-left = 1 [
+    create-output-shapes 1 [
+      set shape "frame-thicker"
+      set size .5
+      setxy (- 4.75) 0.75
+      set color 74
+    ]
+  ]
+  ; bottom right
+  if b-right = 0 [
+    create-output-shapes 1 [
+      set shape "frame-thicker"
+      set size .5
+      setxy (- 3.75) 0.75
+      set color 74
+    ]
+  ]
+  if b-right = 1 [
+    create-output-shapes 1 [
+      set shape "frame-thicker"
+      set size .5
+      setxy (- 3.25) 0.75
+      set color 74
+    ]
+  ]
+  ; shows the plus
+  create-output-shapes 1 [
+    set shape "plus"
+    setxy (min-pxcor + .75) (max-pycor)
+    set size .5
+  ]
 end
 
 to wander-around
-  every .1
-  [
-    ;;moves one
-    fd 1
-
-    ;;checks so doesn't go out of bounds next move
-    rt random 360
+  every .1 [
+    ; moves one
+    forward 1
+    ; checks so doesn't go out of bounds next move
+    right random 360
     let p patch-ahead 1
-    while [ p = nobody or [pycor] of p > (max-pycor - 1)]
-    [
-      rt random 360
+    while [ p = nobody or [ pycor ] of p > (max-pycor - 1) ] [
+      right random 360
       set p patch-ahead 1
     ]
   ]
@@ -286,22 +356,19 @@ to update-graphs [ just-histogram? ]
   let maxbar modes z-distr
   let maxrange length ( filter [ ? = item 0 maxbar ] z-distr )
   set-plot-y-range 0 max list 10 maxrange
-  ;;plots a vertical line at mean
+  ; plots a vertical line at mean
   set-current-plot-pen "Average"
   plot-pen-reset
-  if z-distr != []
-  [
+  if z-distr != [] [
     plotxy mean z-distr plot-y-min
     plot-pen-down
     plotxy mean z-distr plot-y-max
     plot-pen-up
   ]
 
-  if not just-histogram?
-  [
+  if not just-histogram? [
     set-current-plot "Percent Fish by Properties"
-    ifelse count fish != 0
-    [
+    ifelse count fish != 0 [
       set-current-plot-pen "G-body G-fin"
       plot 100 * count fish with [ color = green and shape = dom-shape ] / count fish
       set-current-plot-pen "G-body B-fin"
