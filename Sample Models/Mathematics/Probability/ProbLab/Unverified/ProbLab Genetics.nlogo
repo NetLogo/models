@@ -699,8 +699,8 @@ This model is a part of the ProbLab curriculum. For more information about the P
 
 Fishes' Mendel-type dominant/recessive genetic combinations are shown as "4-Blocks," such as the following:
 
-[B][G] = Blue in the top left corner, Green in the top right corner
-[B][B] = Blue in the bottom left corner, Blue in the bottom right corner
+`[B][G]` = Blue in the top left corner, Green in the top right corner
+`[B][B]` = Blue in the bottom left corner, Blue in the bottom right corner
 
 The top row of the 4-block, e.g., "B G," is the fish's genetic code for body color, and the bottom row, e.g., "B B," is for fin color. Green is the dominant gene both for body and fin color, whereas blue is the recessive gene for those attributes.  Thus, a green-green top row makes for a green body color and so does green-blue and blue-green.  Only a blue-blue top row would give a blue body color.  The same applies to the bottom row, with respect to fin color.  For example, the fish with the genes in the 4-block above, has a green body and a blue fin.
 
@@ -717,9 +717,11 @@ When the fish mate, the offspring's genotype, both for the body color and the fi
 Press SETUP, and then add as many fish as you'd like, in increments of 10, by pressing ADD FISH.  Change the mating rules in the MATE-WITH chooser and the LIFE-SPAN of a fish.  Then, press GO ONCE or GO to see the fish interact.  Below are more features that will let you take full advantage of the model's capabilities.
 
 Sliders:
+
 LIFE-SPAN -- sets the number of "years," or time-steps, a fish will live.
 
 Buttons:
+
 SETUP -- initializes variables, re-colors the tiles, and resets the monitors and the graphs.
 
 ADD FISH -- adds 10 fish to the display, updating the 4-BLOCK DISTRIBUTION histogram.
@@ -731,6 +733,7 @@ GO -- forever button that keeps running through the 'go' procedure (GO ONCE runs
 REVEAL GENES -- when the button is pressed, click on specific fish on the display to view their 4-Block Genotype. If you click on a mating fish (it's on a yellow patch), the genes of both of the parents and the child are revealed at the top of the display, and all other fish are temporarily hidden.
 
 Monitors:
+
 G-BODY G-FIN -- displays the number of fish with a green body and a green fin.
 
 G-BODY B-FIN -- displays the number of fish with a green body and a blue fin.
@@ -752,12 +755,15 @@ TOTAL B- FIN -- displays the number of fish with a blue fin (G-BODY B-FIN + B-BO
 AVE BLOCK -- gives the mean number of green squares in the genetic material (4-Blocks) of the entire fish population.
 
 Plots:
+
 PERCENT FISH BY PROPERTIES -- keeps track of the trends of the different sub-populations over multiple time-steps.
 
 4-BLOCK DISTRIBUTION -- histogram of fish genotype, grouped by the number of green squares in the 4-Blocks.  The vertical red line represents the AVE BLOCK.
 
 Choosers:
+
 MATE-WITH -- Represents the four different mating-rule choices:
+
 1. "Any Fish" -- Any fish with another fish.
 2. "Same Body" -- Only fish with the same body color.
 3. "Same Fin" -- Only fish with the same fin color.
