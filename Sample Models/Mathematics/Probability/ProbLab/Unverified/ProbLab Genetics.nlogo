@@ -49,10 +49,10 @@ to add-fish [ x ]
 end
 
 ; returns the who of the addition
-to-report add-custom-fish [ child ]
-  let who-child 0
+to-report add-custom-fish [ child-genes ]
+  let child nobody
   create-fish 1 [
-    set my-genes child
+    set my-genes child-genes
     ifelse read-from-string (item 3 my-genes) = 1 or read-from-string (item 4 my-genes) = 1
       [ set color dom-color ]
       [ set color res-color ]
@@ -68,9 +68,9 @@ to-report add-custom-fish [ child ]
       right random 360
       set p patch-ahead 1
     ]
-    set who-child who
+    set child self
   ]
-  report who-child
+  report child
 end
 
 to-report choose-random-n-z
@@ -117,14 +117,14 @@ end
 to collide [ parent1 parent2 ]
   if mating-rules-check parent1 parent2 [
     ; makes a child
-    let child create-child [ patch-here ] of parent1 [ my-genes ] of parent1 [ my-genes ] of parent2
+    let child-genes create-child [ patch-here ] of parent1 [ my-genes ] of parent1 [ my-genes ] of parent2
     ask [ patch-here ] of parent1 [
       set pcolor yellow
     ]
-    let who-child add-custom-fish child
+    let child add-custom-fish child-genes
 
     ask [ patch-here ] of parent1 [
-      set family fput turtle who-child family
+      set family fput child family
       set family fput parent2 family
       set family fput parent1 family
     ]
