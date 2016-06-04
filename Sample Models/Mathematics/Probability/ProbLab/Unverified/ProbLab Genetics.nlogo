@@ -67,11 +67,11 @@ to-report add-custom-fish [ child-genes ]
 end
 
 to-report choose-random-n-z
-  let combination n-values 4 [ random 2 ]
-  let name ""
-  set name (word name length filter [ ? = 1 ] combination "-")
-  foreach combination [ set name word name ? ]
-  report word "f" name
+  report combination-to-string n-values 4 [ random 2 ]
+end
+
+to-report combination-to-string [ combination ]
+  report reduce word (sentence "f" (sum combination) "-" combination)
 end
 
 to go
@@ -148,12 +148,8 @@ to-report create-child [ yellow-patch genes1 genes2 ]
   set rand random 2
   set new-genes lput rand new-genes
   set c-list lput item (5 + rand) genes2 c-list
-
-  let child ""
-  set child (word "f" (length filter [ ? = "1" ] c-list) "-")
-  foreach c-list [ set child word child ? ]
   ask yellow-patch [ set family new-genes ]
-  report child
+  report combination-to-string c-list
 end
 
 to reveal-genes
