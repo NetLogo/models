@@ -61,13 +61,7 @@ to-report add-custom-fish [ child-genes ]
       [ set shape res-shape ]
 
     setxy random-xcor (random-float min-pycor)
-
-    ; checks, so stays in-bounds next move
-    let p patch-ahead 1
-    while [ p = nobody or [ pycor ] of p > (max-pycor - 1) ] [
-      right random 360
-      set p patch-ahead 1
-    ]
+    set-next-heading
     set child self
   ]
   report child
@@ -325,10 +319,14 @@ to output-genetics [ yellow-patch ]
   ]
 end
 
-to wander-around
-  ; moves one
-  forward 1
-  ; checks so doesn't go out of bounds next move
+to wander-around ; fish procedure
+  forward 1 ; moves one
+  set-next-heading
+end
+
+to set-next-heading ; fish procedure
+  ; choose a random heading, making sure it
+  ; doesn't go out of bounds next move
   set heading random 360
   let p patch-ahead 1
   while [ p = nobody or [ pycor ] of p > (max-pycor - 1) ] [
