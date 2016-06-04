@@ -43,7 +43,7 @@ end
 
 to add-fish [ x ]
   repeat x [
-    let k add-custom-fish choose-random-n-z
+    let dummy add-custom-fish choose-random-n-z
   ]
   update-histogram
 end
