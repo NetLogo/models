@@ -132,18 +132,12 @@ to collide [ parent1 parent2 ]
 end
 
 to-report mating-rules-check [ parent1 parent2 ]
-  if mate-with = "Any Fish" [
-    report true
-  ]
-  if mate-with = "Same Body" [
-    report ([ color ] of parent1 = [ color ] of parent2)
-  ]
-  if mate-with = "Same Fin" [
-    report ([ shape ] of parent1 = [ shape ] of parent2)
-  ]
-  if mate-with = "Same Both" [
-    report (([ color ] of parent1 = [ color ] of parent2) and ([ shape ] of parent1 = [ shape ] of parent2))
-  ]
+  let same-body ([ color ] of parent1 = [ color ] of parent2)
+  let same-fin  ([ shape ] of parent1 = [ shape ] of parent2)
+  if mate-with = "Any Fish"  [ report true ]
+  if mate-with = "Same Body" [ report same-body ]
+  if mate-with = "Same Fin"  [ report same-fin ]
+  if mate-with = "Same Both" [ report same-body and same-fin ]
   report false
 end
 
