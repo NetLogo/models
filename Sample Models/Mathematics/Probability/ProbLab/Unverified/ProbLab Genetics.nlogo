@@ -213,7 +213,7 @@ to reveal-genes
   ]
   ; changes state to normal
   [
-    ask fish with [ hidden? = true ] [ set hidden? false ]
+    ask fish with [ hidden? ] [ show-turtle ]
     if any? fish with [ shape != res-shape and shape != dom-shape ] [
       ask fish with [ read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1 ] [
         set shape dom-shape
