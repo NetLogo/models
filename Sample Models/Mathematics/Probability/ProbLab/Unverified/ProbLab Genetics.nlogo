@@ -17,7 +17,7 @@ fish-own [
 ]
 
 patches-own [
-  orig-color
+  original-color
   family
 ]
 
@@ -35,7 +35,7 @@ to setup
   ; when a fish is selected in "reveal genes" mode
   ask patches with [ pycor > 0 ] [ set pcolor white ]
   ask patches [
-    set orig-color pcolor
+    set original-color pcolor
     set family []
   ]
   reset-ticks
@@ -88,7 +88,7 @@ to go
   ask fish with [ age >= life-span ] [ die ]
   ask fish [ set age age + 1 ]
   ask patches with [ pcolor = yellow or pcolor = white ] [
-    set pcolor orig-color
+    set pcolor original-color
     set family []
   ]
 
@@ -179,7 +179,7 @@ to reveal-genes
         foreach (filter [ is-turtle? ? ] [ family ] of (patch mouse-xcor mouse-ycor)) [
           ask ? [ set hidden? false ]
         ]
-        ask patches [ set pcolor orig-color ]
+        ask patches [ set pcolor original-color ]
         ask patch mouse-xcor mouse-ycor [ set pcolor yellow ]
         output-genetics (patch mouse-xcor mouse-ycor)
       ]
