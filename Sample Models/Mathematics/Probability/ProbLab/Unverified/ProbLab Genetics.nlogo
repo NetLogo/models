@@ -67,10 +67,7 @@ to-report add-custom-fish [ child-genes ]
 end
 
 to-report choose-random-n-z
-  let combination []
-  repeat 4 [
-    set combination lput random 2 combination
-  ]
+  let combination n-values 4 [ random 2 ]
   let name ""
   set name (word name length filter [ ? = 1 ] combination "-")
   foreach combination [ set name word name ? ]
