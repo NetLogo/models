@@ -117,16 +117,13 @@ end
 to collide [ parent1 parent2 ]
   if mating-rules-check parent1 parent2 [
     ; makes a child
-    let child-genes create-child [ patch-here ] of parent1 [ my-genes ] of parent1 [ my-genes ] of parent2
+    let genes1 [ my-genes ] of parent1
+    let genes2 [ my-genes ] of parent2
+    let child-genes create-child ([ patch-here ] of parent1) genes1 genes2
+    let child add-custom-fish child-genes
     ask [ patch-here ] of parent1 [
       set pcolor yellow
-    ]
-    let child add-custom-fish child-genes
-
-    ask [ patch-here ] of parent1 [
-      set family fput child family
-      set family fput parent2 family
-      set family fput parent1 family
+      set family (sentence parent1 parent2 child family)
     ]
   ]
 end
