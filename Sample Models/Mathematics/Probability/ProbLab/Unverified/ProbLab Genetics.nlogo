@@ -53,13 +53,12 @@ to-report add-custom-fish [ child-genes ]
   let child nobody
   create-fish 1 [
     set my-genes child-genes
-    ifelse read-from-string (item 3 my-genes) = 1 or read-from-string (item 4 my-genes) = 1
+    ifelse item 3 my-genes = "1" or item 4 my-genes = "1"
       [ set color dom-color ]
       [ set color res-color ]
-    ifelse read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1
+    ifelse item 5 my-genes = "1" or item 6 my-genes = "1"
       [ set shape dom-shape ]
       [ set shape res-shape ]
-
     setxy random-xcor (random-float min-pycor)
     set-next-heading
     set child self
