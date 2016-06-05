@@ -130,26 +130,11 @@ end
 
 to-report create-child [ yellow-patch genes1 genes2 ]
   ; makes the child
-  let c-list []
-  let new-genes []
-  ; top left
-  let rand random 2
-  set new-genes lput rand new-genes
-  set c-list lput item (3 + rand) genes1 c-list
-  ; top right
-  set rand random 2
-  set new-genes lput rand new-genes
-  set c-list lput item (3 + rand) genes2 c-list
-  ; bottom left
-  set rand random 2
-  set new-genes lput rand new-genes
-  set c-list lput item (5 + rand) genes1 c-list
-  ; bottom right
-  set rand random 2
-  set new-genes lput rand new-genes
-  set c-list lput item (5 + rand) genes2 c-list
+  let new-genes n-values 4 [ random 2 ]
   ask yellow-patch [ set family new-genes ]
-  report combination-to-string c-list
+  report combination-to-string (map
+    [ read-from-string item (?1 + ?2) ?3 ]
+    [ 3 3 5 5 ] new-genes (list genes1 genes2 genes1 genes2))
 end
 
 to reveal-genes
