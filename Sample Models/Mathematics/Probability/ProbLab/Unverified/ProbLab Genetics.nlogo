@@ -48,7 +48,7 @@ to add-fish [ x ]
   update-histogram
 end
 
-; returns the who of the addition
+; add a fish with the given genes and report a reference to it
 to-report add-custom-fish [ child-genes ]
   let child nobody
   create-fish 1 [
