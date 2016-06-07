@@ -296,7 +296,7 @@ In this model there are three variables that can affect the tendency to create t
 
 Set DECELERATION to zero.  What happens to the flow?  Gradually increase DECELERATION while the model runs.  At what point does the flow "break down"?
 
-Try very low and very high values of EFFICIENT-SPEED-SPEED. Are there values where the model behavior changes qualitatively?
+Try very low and very high values of EFFICIENT-SPEED. Are there values where the model behavior changes qualitatively?
 
 ## EXTENDING THE MODEL
 
