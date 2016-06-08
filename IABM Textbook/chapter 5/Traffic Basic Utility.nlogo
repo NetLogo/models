@@ -292,7 +292,7 @@ How does the model's behavior change with different values of EFFICIENT-SPEED?
 
 ## THINGS TO TRY
 
-In this model there are three variables that can affect the tendency to create traffic jams: the initial NUMBER of cars, ACCELERATION, and DECELERATION. Look for patterns in how the three settings affect the traffic flow.  Which variable has the greatest effect?  Do the patterns make sense?  Do they seem to be consistent with your driving experiences?
+In this model there are three variables that can affect the tendency to create traffic jams: the initial NUMBER of cars, ACCELERATION, and DECELERATION. Look for patterns in how these settings affect the traffic flow.  Which variable has the greatest effect?  Do the patterns make sense?  Do they seem to be consistent with your driving experiences?
 
 Set DECELERATION to zero.  What happens to the flow?  Gradually increase DECELERATION while the model runs.  At what point does the flow "break down"?
 

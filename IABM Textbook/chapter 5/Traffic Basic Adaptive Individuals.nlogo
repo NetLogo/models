@@ -408,7 +408,7 @@ In Traffic Basic changing the Acceleration and Deceleration could affect the mod
 
 ## THINGS TO TRY
 
-In this model there are five sliders that can affect the tendency to create traffic jams: the initial NUMBER of cars, INIT-ACCELERATION,  DECELERATION, SPEED-LIMIT, and TICKS-BETWEEN-TESTS. Look for patterns in how the three settings affect the traffic flow.  Which variable has the greatest effect?  Do the patterns make sense?  Do they seem to be consistent with your driving experiences?
+In this model there are five sliders that can affect the tendency to create traffic jams: the initial NUMBER of cars, INIT-ACCELERATION,  DECELERATION, SPEED-LIMIT, and TICKS-BETWEEN-TESTS. Look for patterns in how these settings affect the traffic flow.  Which variable has the greatest effect?  Do the patterns make sense?  Do they seem to be consistent with your driving experiences?
 
 Set DECELERATION to zero.  What happens to the flow?  Gradually increase DECELERATION while the model runs.  At what point does the flow "break down"?
 
