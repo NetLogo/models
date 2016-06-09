@@ -333,8 +333,8 @@ to go
     tick
   ]
   if (cell-divided? and not cell-message-shown?) [
-    calculate-mutations
     if final-time = 0 [ set final-time timer ]  ;; record final time
+    calculate-mutations
     user-message (word "You have cued the cell division.  Let's see how you did in replicating "
       "an exact copy of the DNA.")
     user-message user-message-string-for-mutations
