@@ -1024,7 +1024,7 @@ MONITOR
 305
 342
 # substitutions
-total-substitution-mutations-top-strand
+total-substitution-mutations-bottom-strand
 17
 1
 11
