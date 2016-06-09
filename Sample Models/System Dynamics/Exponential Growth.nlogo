@@ -20,8 +20,8 @@ end
 GRAPHICS-WINDOW
 423
 14
-795
-407
+805
+417
 -1
 -1
 12.0
@@ -48,7 +48,7 @@ MONITOR
 185
 60
 352
-100
+105
 Stock
 stock
 4
@@ -59,7 +59,7 @@ BUTTON
 31
 27
 146
-55
+60
 NIL
 setup\n
 NIL
@@ -76,7 +76,7 @@ BUTTON
 31
 64
 146
-92
+97
 NIL
 go\n
 T
@@ -111,7 +111,7 @@ SLIDER
 184
 18
 351
-46
+51
 growth-rate-slider
 growth-rate-slider
 0

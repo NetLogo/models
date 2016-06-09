@@ -20,8 +20,8 @@ end
 GRAPHICS-WINDOW
 448
 23
-798
-394
+808
+404
 -1
 -1
 10.0
@@ -48,7 +48,7 @@ MONITOR
 290
 57
 354
-97
+102
 Stock
 stock
 4
@@ -59,7 +59,7 @@ BUTTON
 31
 48
 133
-76
+81
 NIL
 setup
 NIL
@@ -76,7 +76,7 @@ BUTTON
 31
 93
 133
-121
+126
 NIL
 go
 T

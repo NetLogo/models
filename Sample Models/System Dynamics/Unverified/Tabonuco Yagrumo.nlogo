@@ -57,8 +57,8 @@ end
 GRAPHICS-WINDOW
 575
 347
-827
-380
+837
+390
 -1
 -1
 12.0
@@ -122,7 +122,7 @@ BUTTON
 655
 17
 716
-45
+50
 setup
 setup
 NIL
@@ -139,7 +139,7 @@ BUTTON
 732
 17
 790
-45
+50
 go
 go
 T
@@ -156,7 +156,7 @@ SLIDER
 655
 102
 867
-130
+135
 user-hurricane-interval
 user-hurricane-interval
 0
@@ -171,7 +171,7 @@ BUTTON
 654
 61
 821
-89
+94
 NIL
 setup repeat 250 [ go ]
 NIL
@@ -188,7 +188,7 @@ MONITOR
 523
 190
 664
-230
+235
 NIL
 amount-of-tabonuco
 3
@@ -199,7 +199,7 @@ MONITOR
 523
 244
 665
-284
+289
 NIL
 amount-of-yagrumo
 3
@@ -210,7 +210,7 @@ SLIDER
 655
 142
 861
-170
+175
 user-hurricane-strength
 user-hurricane-strength
 0
@@ -225,7 +225,7 @@ BUTTON
 808
 17
 866
-45
+50
 step
 go
 NIL
@@ -242,7 +242,7 @@ MONITOR
 524
 64
 607
-104
+109
 NIL
 productivity
 3

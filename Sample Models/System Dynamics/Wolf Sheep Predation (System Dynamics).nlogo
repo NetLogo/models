@@ -20,8 +20,8 @@ end
 GRAPHICS-WINDOW
 195
 290
-475
-319
+485
+329
 -1
 -1
 8.0
@@ -48,7 +48,7 @@ BUTTON
 14
 13
 120
-41
+46
 NIL
 setup
 NIL
@@ -65,7 +65,7 @@ BUTTON
 15
 56
 120
-84
+89
 NIL
 go
 T
@@ -101,7 +101,7 @@ MONITOR
 194
 15
 290
-55
+60
 NIL
 sheep
 3
@@ -112,7 +112,7 @@ MONITOR
 194
 83
 289
-123
+128
 NIL
 wolves
 3
