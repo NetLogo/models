@@ -341,6 +341,7 @@ to go
     set cell-message-shown? true
   ]
   if ((using-time-limit and time-remaining <= 0) and not timer-message-shown?) [
+    if final-time = 0 [ set final-time length-of-simulation ]  ;; record final time
     calculate-mutations
     user-message (word "The timer has expired.  Let's see how you did in replicating "
       "an exact copy of it.")
