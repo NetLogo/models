@@ -18,10 +18,10 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-189
-286
-479
-325
+195
+290
+475
+319
 -1
 -1
 8.0
@@ -45,10 +45,10 @@ ticks
 30.0
 
 BUTTON
-11
-10
-122
-43
+14
+13
+120
+41
 NIL
 setup
 NIL
@@ -62,10 +62,10 @@ NIL
 1
 
 BUTTON
-12
-53
-122
-86
+15
+56
+120
+84
 NIL
 go
 T
@@ -79,10 +79,10 @@ NIL
 0
 
 PLOT
-12
-141
-693
-451
+15
+144
+691
+449
 populations
 NIL
 NIL
@@ -98,10 +98,10 @@ PENS
 "sheep" 1.0 0 -2674135 true "" ""
 
 MONITOR
-191
-12
-292
-57
+194
+15
+290
+55
 NIL
 sheep
 3
@@ -109,10 +109,10 @@ sheep
 11
 
 MONITOR
-191
-80
-291
-125
+194
+83
+289
+123
 NIL
 wolves
 3
@@ -468,7 +468,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M7
+NetLogo 6.0-M8
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

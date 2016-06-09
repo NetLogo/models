@@ -18,10 +18,10 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-442
-19
-802
-400
+448
+23
+798
+394
 -1
 -1
 10.0
@@ -45,10 +45,10 @@ ticks
 30.0
 
 MONITOR
-287
-54
-356
-99
+290
+57
+354
+97
 Stock
 stock
 4
@@ -56,10 +56,10 @@ stock
 11
 
 BUTTON
-28
-45
-135
-78
+31
+48
+133
+76
 NIL
 setup
 NIL
@@ -73,10 +73,10 @@ NIL
 1
 
 BUTTON
-28
-90
-135
-123
+31
+93
+133
+121
 NIL
 go
 T
@@ -90,10 +90,10 @@ NIL
 0
 
 PLOT
-28
-181
-400
-395
+31
+184
+398
+393
 populations
 NIL
 NIL
@@ -444,7 +444,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M7
+NetLogo 6.0-M8
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

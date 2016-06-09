@@ -801,7 +801,7 @@ false
 0
 Rectangle -7500403 true true 0 0 300 300
 @#$#@#$#@
-NetLogo 6.0-M7
+NetLogo 6.0-M8
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

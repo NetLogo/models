@@ -18,10 +18,10 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-417
-10
-799
-413
+423
+14
+795
+407
 -1
 -1
 12.0
@@ -45,10 +45,10 @@ ticks
 30.0
 
 MONITOR
-182
-57
-354
-102
+185
+60
+352
+100
 Stock
 stock
 4
@@ -56,10 +56,10 @@ stock
 11
 
 BUTTON
-28
-24
-148
-57
+31
+27
+146
+55
 NIL
 setup\n
 NIL
@@ -73,10 +73,10 @@ NIL
 1
 
 BUTTON
-28
-61
-148
-94
+31
+64
+146
+92
 NIL
 go\n
 T
@@ -90,10 +90,10 @@ NIL
 0
 
 PLOT
-23
-152
-378
-413
+26
+155
+376
+411
 populations
 NIL
 NIL
@@ -108,10 +108,10 @@ PENS
 "Stock" 1.0 0 -16777216 true "" ""
 
 SLIDER
-181
-15
-353
-48
+184
+18
+351
+46
 growth-rate-slider
 growth-rate-slider
 0
@@ -465,7 +465,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M7
+NetLogo 6.0-M8
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
