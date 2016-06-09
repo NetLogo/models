@@ -43,8 +43,8 @@ to-report eighth  report  30 / bpm end
 GRAPHICS-WINDOW
 265
 10
-704
-470
+702
+448
 -1
 -1
 13.0
