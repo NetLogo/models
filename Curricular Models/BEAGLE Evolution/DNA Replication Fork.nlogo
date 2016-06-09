@@ -333,14 +333,15 @@ to go
     tick
   ]
   if (cell-divided? and not cell-message-shown?) [
-    calculate-mutations
     if final-time = 0 [ set final-time timer ]  ;; record final time
+    calculate-mutations
     user-message (word "You have cued the cell division.  Let's see how you did in replicating "
       "an exact copy of the DNA.")
     user-message user-message-string-for-mutations
     set cell-message-shown? true
   ]
   if ((using-time-limit and time-remaining <= 0) and not timer-message-shown?) [
+    if final-time = 0 [ set final-time length-of-simulation ]  ;; record final time
     calculate-mutations
     user-message (word "The timer has expired.  Let's see how you did in replicating "
       "an exact copy of it.")
@@ -1024,7 +1025,7 @@ MONITOR
 305
 342
 # substitutions
-total-substitution-mutations-top-strand
+total-substitution-mutations-bottom-strand
 17
 1
 11
