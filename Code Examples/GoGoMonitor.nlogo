@@ -8,8 +8,8 @@ extensions [gogo]
 GRAPHICS-WINDOW
 485
 525
-795
-656
+793
+634
 -1
 -1
 100.0
