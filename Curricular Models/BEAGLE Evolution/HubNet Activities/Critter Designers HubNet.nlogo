@@ -672,8 +672,8 @@ end
 GRAPHICS-WINDOW
 505
 10
-1070
-536
+1068
+514
 -1
 -1
 15.0
@@ -1332,7 +1332,7 @@ BUTTON
 144
 10
 239
-59
+43
 Change Shape
 NIL
 NIL
@@ -1356,7 +1356,7 @@ BUTTON
 114
 303
 241
-355
+336
 Place New Species
 NIL
 NIL
