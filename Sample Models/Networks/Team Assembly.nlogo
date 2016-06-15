@@ -242,9 +242,9 @@ ticks
 30.0
 
 BUTTON
-8
+9
 20
-113
+114
 53
 NIL
 setup
@@ -259,10 +259,10 @@ NIL
 1
 
 BUTTON
-121
-67
-219
-100
+119
+20
+224
+53
 NIL
 go
 T
@@ -276,10 +276,10 @@ NIL
 0
 
 BUTTON
-8
-67
-113
-100
+227
+20
+332
+53
 go once
 go\nrepeat 3 [layout]
 NIL
@@ -293,10 +293,10 @@ NIL
 0
 
 SWITCH
-229
-22
-330
-55
+9
+65
+171
+98
 layout?
 layout?
 0
@@ -304,10 +304,10 @@ layout?
 -1000
 
 BUTTON
-229
-67
-331
-100
+175
+65
+335
+98
 redo layout
 layout
 T
