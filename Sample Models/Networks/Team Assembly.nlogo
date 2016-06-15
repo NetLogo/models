@@ -406,17 +406,6 @@ PENS
 "incumbent-incumbent" 1.0 0 -1184463 true "" ""
 "previous collaborators" 1.0 0 -2674135 true "" ""
 
-SWITCH
-122
-21
-222
-54
-plot?
-plot?
-0
-1
--1000
-
 SLIDER
 8
 110
@@ -487,7 +476,6 @@ Click the SETUP button to start with a single team.  Click GO ONCE to assemble a
 
 ### Visualization Controls
 - LAYOUT?: controls whether or not the spring layout algorithm runs at each tick.  This procedure attempts to move the nodes around to make the structure of the network easier to see.  Switching off LAYOUT? will significantly increase the speed of the model.
-- PLOT?: switches on and off the plots. Again, off speeds up the model.
 
 The REDO LAYOUT button lets you run the layout algorithm without assembling new teams.
 
