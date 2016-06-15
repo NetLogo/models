@@ -242,9 +242,9 @@ ticks
 30.0
 
 BUTTON
-8
+9
 20
-113
+114
 53
 NIL
 setup
@@ -259,10 +259,10 @@ NIL
 1
 
 BUTTON
-121
-67
-219
-100
+119
+20
+224
+53
 NIL
 go
 T
@@ -276,10 +276,10 @@ NIL
 0
 
 BUTTON
-8
-67
-113
-100
+227
+20
+332
+53
 go once
 go\nrepeat 3 [layout]
 NIL
@@ -293,10 +293,10 @@ NIL
 0
 
 SWITCH
-229
-22
-330
-55
+9
+65
+171
+98
 layout?
 layout?
 0
@@ -304,10 +304,10 @@ layout?
 -1000
 
 BUTTON
-229
-67
-331
-100
+175
+65
+335
+98
 redo layout
 layout
 T
@@ -406,17 +406,6 @@ PENS
 "incumbent-incumbent" 1.0 0 -1184463 true "" ""
 "previous collaborators" 1.0 0 -2674135 true "" ""
 
-SWITCH
-122
-21
-222
-54
-plot?
-plot?
-0
-1
--1000
-
 SLIDER
 8
 110
@@ -487,7 +476,6 @@ Click the SETUP button to start with a single team.  Click GO ONCE to assemble a
 
 ### Visualization Controls
 - LAYOUT?: controls whether or not the spring layout algorithm runs at each tick.  This procedure attempts to move the nodes around to make the structure of the network easier to see.  Switching off LAYOUT? will significantly increase the speed of the model.
-- PLOT?: switches on and off the plots. Again, off speeds up the model.
 
 The REDO LAYOUT button lets you run the layout algorithm without assembling new teams.
 
