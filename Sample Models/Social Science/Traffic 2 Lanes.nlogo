@@ -199,8 +199,8 @@ end
 GRAPHICS-WINDOW
 225
 10
-1055
-381
+1053
+359
 -1
 -1
 20.0
@@ -561,13 +561,23 @@ Each turtle has a shape, unlike in some other models. NetLogo uses `set shape` t
 
 ## RELATED MODELS
 
-- Traffic Basic
-- Traffic Basic Adaptive
-- Traffic Basic Adaptive Individuals
-- Traffic Basic Utility
-- Traffic Grid
-- Traffic Grid Goal
-- Traffic Intersection
+- "Traffic Basic": a simple model of the movement of cars on a highway.
+
+- "Traffic Basic Utility": a version of "Traffic Basic" including a utility function for the cars.
+
+- "Traffic Basic Adaptive": a version of "Traffic Basic" where cars adapt their acceleration to try and maintain a smooth flow of traffic.
+
+- "Traffic Basic Adaptive Individuals": a version of "Traffic Basic Adaptive" where each car adapts individually, instead of all cars adapting in unison.
+
+- "Traffic Intersection": a model of cars traveling through a single intersection.
+
+- "Traffic Grid": a model of traffic moving in a city grid, with stoplights at the intersections.
+
+- "Traffic Grid Goal": a version of "Traffic Grid" where the cars have goals, namely to drive to and from work.
+
+- "Gridlock HubNet": a version of "Traffic Grid" where students control traffic lights in real-time.
+
+- "Gridlock Alternate HubNet": a version of "Gridlock HubNet" where students can enter NetLogo code to plot custom metrics.
 
 ## HOW TO CITE
 
