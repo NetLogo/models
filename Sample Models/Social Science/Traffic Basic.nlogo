@@ -1,5 +1,12 @@
-globals [ sample-car ]
-turtles-own [ speed speed-limit speed-min ]
+globals [
+  sample-car
+]
+
+turtles-own [
+  speed
+  speed-limit
+  speed-min
+]
 
 to setup
   clear-all
@@ -10,14 +17,16 @@ to setup
 end
 
 to setup-road ;; patch procedure
-  if (pycor < 2) and (pycor > -2) [ set pcolor white ]
+  if pycor < 2 and pycor > -2 [ set pcolor white ]
 end
 
 to setup-cars
   if number-of-cars > world-width [
     user-message (word
-      "There are too many cars for the amount of road.  Please decrease the NUMBER-OF-CARS slider to below "
-      (world-width + 1) " and press the SETUP button again.  The setup has stopped.")
+      "There are too many cars for the amount of road. "
+      "Please decrease the NUMBER-OF-CARS slider to below "
+      (world-width + 1) " and press the SETUP button again. "
+      "The setup has stopped.")
     stop
   ]
   set-default-shape turtles "car"
@@ -59,14 +68,12 @@ to go
   tick
 end
 
-;; turtle (car) procedure
-to slow-down-car [ car-ahead ]
+to slow-down-car [ car-ahead ] ;; turtle procedure
   ;; slow down so you are driving more slowly than the car ahead of you
   set speed [ speed ] of car-ahead - deceleration
 end
 
-;; turtle (car) procedure
-to speed-up-car
+to speed-up-car ;; turtle procedure
   set speed speed + acceleration
 end
 

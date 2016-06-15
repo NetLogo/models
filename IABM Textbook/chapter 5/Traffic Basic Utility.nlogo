@@ -1,5 +1,11 @@
-globals [ sample-car ]
-turtles-own [ speed speed-min ]
+globals [
+  sample-car
+]
+
+turtles-own [
+  speed
+  speed-min
+]
 
 to setup
   clear-all
@@ -10,23 +16,25 @@ to setup
 end
 
 to setup-road ;; patch procedure
-  if (pycor < 2) and (pycor > -2) [ set pcolor white ]
+  if pycor < 2 and pycor > -2 [ set pcolor white ]
 end
 
 to setup-cars
   if number-of-cars > world-width [
     user-message (word
-      "There are too many cars for the amount of road. Please decrease the NUMBER-OF-CARS slider to below "
-      (world-width + 1) " and press the SETUP button again. The setup has stopped.")
+      "There are too many cars for the amount of road. "
+      "Please decrease the NUMBER-OF-CARS slider to below "
+      (world-width + 1) " and press the SETUP button again. "
+      "The setup has stopped.")
     stop
   ]
   set-default-shape turtles "car"
   create-turtles number-of-cars [
     set color blue
     set xcor random-xcor
-    set heading  90
+    set heading 90
     ;; set initial speed to be in range 0.1 to 1.0
-    set speed  0.1 + random-float 0.9
+    set speed 0.1 + random-float 0.9
     set speed-min 0
     separate-cars
   ]
@@ -53,15 +61,14 @@ to go
       ;; otherwise, adjust speed to find ideal fuel efficiency
       [ adjust-speed-for-efficiency ]
     ;; don't slow down below speed minimum or speed up beyond speed limit
-    if speed < speed-min  [ set speed speed-min ]
+    if speed < speed-min [ set speed speed-min ]
     fd speed
   ]
   tick
 end
 
-;; turtle (car) procedure
-;; slow down so your speed is lower than the speed of the car ahead
-to slow-down-car [ car-ahead ]
+to slow-down-car [ car-ahead ] ;; turtle procedure
+  ;; slow down so you are driving more slowly than the car ahead of you
   set speed [ speed ] of car-ahead - deceleration
 end
 
