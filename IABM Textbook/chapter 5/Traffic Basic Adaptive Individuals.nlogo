@@ -453,6 +453,8 @@ The `watch` command is used to make it easier to focus on the red car.
 
 - "Gridlock Alternate HubNet": a version of "Gridlock HubNet" where students can enter NetLogo code to plot custom metrics.
 
+The traffic models from chapter 5 of the IABM textbook demonstrate different types of cognitive agents: "Traffic Basic Utility" demonstrates _utility-based agents_, "Traffic Grid Goal" demonstrates _goal-based agents_, and "Traffic Basic Adaptive" and "Traffic Basic Adaptive Individuals" demonstrate _adaptive agents_.
+
 ## CREDITS AND REFERENCES
 
 This model is an extension of the NetLogo Traffic Basic Adaptive model (Rand and Wilensky, 2008). This extension is based on exploration 20 from chapter 5 of the "Introduction to Agent-Based Modeling" textbook.
