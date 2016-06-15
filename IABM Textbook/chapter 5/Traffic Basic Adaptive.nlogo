@@ -441,11 +441,23 @@ The `speed-limit` and `speed-min` variables are set to constant values. Since th
 
 ## RELATED MODELS
 
-"Traffic Basic"
+- "Traffic Basic": a simple model of the movement of cars on a highway.
 
-"Traffic Grid" adds a street grid with stoplights at the intersections.
+- "Traffic Basic Utility": a version of "Traffic Basic" including a utility function for the cars.
 
-"Gridlock" (a HubNet model) is a participatory simulation version of Traffic Grid
+- "Traffic Basic Adaptive Individuals": a version of "Traffic Basic Adaptive" where each car adapts individually, instead of all cars adapting in unison.
+
+- "Traffic 2 Lanes": a more sophisticated two-lane version of the "Traffic Basic" model.
+
+- "Traffic Intersection": a model of cars traveling through a single intersection.
+
+- "Traffic Grid": a model of traffic moving in a city grid, with stoplights at the intersections.
+
+- "Traffic Grid Goal": a version of "Traffic Grid" where the cars have goals, namely to drive to and from work.
+
+- "Gridlock HubNet": a version of "Traffic Grid" where students control traffic lights in real-time.
+
+- "Gridlock Alternate HubNet": a version of "Gridlock HubNet" where students can enter NetLogo code to plot custom metrics.
 
 ## HOW TO CITE
 

@@ -814,9 +814,23 @@ At the moment, only two of the four arms of each intersection have traffic light
 
 ## RELATED MODELS
 
-This model is an adaptation of the TRAFFIC GRID model from the Social Sciences section of the NetLogo models library.
+- "Traffic Basic": a simple model of the movement of cars on a highway.
 
-It is also related to the TRAFFIC-BASIC-UTILITY and TRAFFIC-BASIC-ADAPTIVE models in the chapter 5 folder of the IABM TEXTBOOK folder. Each of the three traffic models from chapter five of the textbook demonstrates a different kind of agent cognition.
+- "Traffic Basic Utility": a version of "Traffic Basic" including a utility function for the cars.
+
+- "Traffic Basic Adaptive": a version of "Traffic Basic" where cars adapt their acceleration to try and maintain a smooth flow of traffic.
+
+- "Traffic Basic Adaptive Individuals": a version of "Traffic Basic Adaptive" where each car adapts individually, instead of all cars adapting in unison.
+
+- "Traffic 2 Lanes": a more sophisticated two-lane version of the "Traffic Basic" model.
+
+- "Traffic Intersection": a model of cars traveling through a single intersection.
+
+- "Traffic Grid": a model of traffic moving in a city grid, with stoplights at the intersections.
+
+- "Gridlock HubNet": a version of "Traffic Grid" where students control traffic lights in real-time.
+
+- "Gridlock Alternate HubNet": a version of "Gridlock HubNet" where students can enter NetLogo code to plot custom metrics.
 
 ## HOW TO CITE
 
