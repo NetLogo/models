@@ -221,9 +221,7 @@ red car speed
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model models the movement of cars on a highway. Each car follows a simple set of rules: it slows down (decelerates) if it sees a car close ahead, and speeds up (accelerates) if it doesn't see a car ahead.
-
-The model demonstrates how traffic jams can form even without any accidents, broken bridges, or overturned trucks.  No "centralized cause" is needed for a traffic jam to form.
+This model models the movement of cars on a highway. Each car follows a simple set of rules: it slows down (decelerates) if it sees a car close ahead, and speeds up (accelerates) if it doesn't see a car ahead. The model demonstrates how traffic jams can form even without any accidents, broken bridges, or overturned trucks.  No "centralized cause" is needed for a traffic jam to form.
 
 ## HOW TO USE IT
 
@@ -245,9 +243,11 @@ Even though all of the cars are moving forward, the traffic jams tend to move ba
 
 The plot shows three values as the model runs:
 
- * the fastest speed of any car (this doesn't exceed the speed limit!)
- * the slowest speed of any car
- * the speed of a single car (turtle 0), painted red so it can be watched.
+* the fastest speed of any car (this doesn't exceed the speed limit!)
+
+* the slowest speed of any car
+
+* the speed of a single car (turtle 0), painted red so it can be watched.
 
 Notice not only the maximum and minimum, but also the variability -- the "jerkiness" of one vehicle.
 
@@ -257,7 +257,9 @@ Even though both ACCELERATION and DECELERATION are very small, the cars can achi
 
 ## THINGS TO TRY
 
-In this model there are three variables that can affect the tendency to create traffic jams: the initial NUMBER of cars, ACCELERATION, and DECELERATION. Look for patterns in how these settings affect the traffic flow.  Which variable has the greatest effect?  Do the patterns make sense?  Do they seem to be consistent with your driving experiences?
+In this model there are three sliders that can affect the tendency to create traffic jams: the initial NUMBER-OF-CARS, ACCELERATION, and DECELERATION.
+
+Look for patterns in how these settings affect the traffic flow.  Which variable has the greatest effect?  Do the patterns make sense?  Do they seem to be consistent with your driving experiences?
 
 Set DECELERATION to zero.  What happens to the flow?  Gradually increase DECELERATION while the model runs.  At what point does the flow "break down"?
 
@@ -277,7 +279,7 @@ Make a model of two-lane traffic.
 
 ## NETLOGO FEATURES
 
-The plot shows both global values and the value for a single turtle, which helps one watch overall patterns and individual behavior at the same time.
+The plot shows both global values and the value for a single car, which helps one watch overall patterns and individual behavior at the same time.
 
 The `watch` command is used to make it easier to focus on the red car.
 

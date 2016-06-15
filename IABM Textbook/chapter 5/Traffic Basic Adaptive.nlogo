@@ -375,7 +375,7 @@ This model models the movement of cars on a highway. Each car follows a simple s
 
 Click on the SETUP button to set up the cars.
 
-Set the NUMBER slider to change the number of cars on the road.
+Set the NUMBER-OF-CARS slider to change the number of cars on the road.
 
 Click on GO to start the cars moving.  Note that they wrap around the world as they move, so the road is like a continuous loop.
 
@@ -411,7 +411,9 @@ In Traffic Basic changing the Acceleration and Deceleration could affect the mod
 
 ## THINGS TO TRY
 
-In this model there are four sliders that can affect the tendency to create traffic jams: the initial NUMBER of cars, INIT-ACCELERATION,  DECELERATION and TICKS-BETWEEN-TESTS. Look for patterns in how these settings affect the traffic flow.  Which variable has the greatest effect?  Do the patterns make sense?  Do they seem to be consistent with your driving experiences?
+In this model there are four sliders that can affect the tendency to create traffic jams: the initial NUMBER of cars, INIT-ACCELERATION,  DECELERATION and TICKS-BETWEEN-TESTS.
+
+Look for patterns in how these settings affect the traffic flow.  Which variable has the greatest effect?  Do the patterns make sense?  Do they seem to be consistent with your driving experiences?
 
 Set DECELERATION to zero.  What happens to the flow?  Gradually increase DECELERATION while the model runs.  At what point does the flow "break down"?
 

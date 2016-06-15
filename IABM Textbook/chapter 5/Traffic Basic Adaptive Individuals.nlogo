@@ -377,7 +377,7 @@ In other words, in this model, each car has its own acceleration rate and is try
 
 Click on the SETUP button to set up the cars.
 
-Set the NUMBER slider to change the number of cars on the road.
+Set the NUMBER-OF-CARS slider to change the number of cars on the road.
 
 Click on GO to start the cars moving.  Note that they wrap around the world as they move, so the road is like a continuous loop.
 
