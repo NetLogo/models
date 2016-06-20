@@ -79,7 +79,7 @@ to adjust-speed-for-efficiency
     if (speed + acceleration < efficient-speed) [
       set speed speed + acceleration
     ]
-    ;; if decelerating will still put you below the efficient speed, then decelerate
+    ;; if decelerating will still put you above the efficient speed, then decelerate
     if (speed - deceleration > efficient-speed) [
       set speed speed - deceleration
     ]
