@@ -281,7 +281,7 @@ The EFFICIENT-SPEED slider is the basis of the utility function for the cars. Ca
 
 ## THINGS TO NOTICE
 
-<b>From the Traffic Basic Model:</b>
+### From the Traffic Basic model
 
 Traffic jams can start from small "seeds."  These cars start with random positions and random speeds. If some cars are clustered together, they will move slowly, causing cars behind them to slow down, and a traffic jam forms.
 
@@ -301,7 +301,7 @@ Notice that the default settings have cars decelerating much faster than they ac
 
 Even though both ACCELERATION and DECELERATION are very small, the cars can achieve high speeds as these values are added or subtracted at each tick.
 
-<b>For this extended model that uses a utility function:</b>
+### For this extended model that uses a utility function
 
 How are the results different form the Traffic Basic model?
 
