@@ -281,9 +281,11 @@ Even though all of the cars are moving forward, the traffic jams tend to move ba
 
 The plot shows three values as the model runs:
 
- * the fastest speed of any car (this doesn't exceed the speed limit!)
- * the slowest speed of any car
- * the speed of a single car (turtle 0), painted red so it can be watched.
+* the fastest speed of any car (this doesn't exceed the speed limit!)
+
+* the slowest speed of any car
+
+* the speed of a single car (turtle 0), painted red so it can be watched.
 
 Notice not only the maximum and minimum, but also the variability -- the "jerkiness" of one vehicle.
 
@@ -321,7 +323,7 @@ Make a model of two-lane traffic.
 
 ## NETLOGO FEATURES
 
-The plot shows both global values and the value for a single turtle, which helps one watch overall patterns and individual behavior at the same time.
+The plot shows both global values and the value for a single car, which helps one watch overall patterns and individual behavior at the same time.
 
 The `watch` command is used to make it easier to focus on the red car.
 
