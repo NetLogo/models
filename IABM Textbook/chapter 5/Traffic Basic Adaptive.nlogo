@@ -417,6 +417,10 @@ In Traffic Basic changing the Acceleration and Deceleration could affect the mod
 
 ## EXTENDING THE MODEL
 
+In this version of the model, the `acceleration` is the same for all agents, and agents are trying to maximize the average speed of all cars. Without look at the "Traffic Basic Adpative Indivuals" model, can you modify the model so all cars have their own acceleration and are trying to maximize their individual speed?
+
+In the `adaptive-go` procedure, we compare the `speed-to-beat` with the `mean [ speed ] of turtles`. That gives us the mean speed at current tick, but what if we looked instead at the mean speed for all ticks since the previous test? Would that help the cars achieve faster speed?
+
 ## NETLOGO FEATURES
 
 ## RELATED MODELS
