@@ -255,6 +255,14 @@ This model is in the IABM Textbook folder of the NetLogo Models Library. The mod
 
 This model models the movement of cars on a highway. Each car follows a simple set of rules: it slows down (decelerates) if it sees a car close ahead, and speeds up (accelerates) if it doesn't see a car ahead. Cars start at a random speed between 0.1 and 1. This model extends the Traffic Basic model, from the social science section of the NetLogo models library, to include a utility function for the cars.
 
+In this version of the model, we have the cars change their speeds in order to improve their fuel efficiencies. As a result, the agents have to speed up and slow down at different times than they do in the Traffic Basic model in order to minimize their gas usage while still not causing accidents. Giving the agents this type of decision-making process gives them a utility-based form of agent cognition in which they attempt to maximize a utility function—namely, their fuel efficiency.
+
+In the language of utility functions, each car agent is minimizing a function _f_, defined by:
+
+<i>f</i>(<i>v</i>) = |<i>v</i> − <i>v</i>*|
+
+where _v_ is the current velocity of the car and <i>v</i>* is the most efficient velocity.
+
 The model sets the optimal speed for the cars (best fuel efficiency) to be 0.45. If the acceleration rule speeds the car past the optimal speed, the car decelerates instead of accelerating.
 
 ## HOW TO USE IT
