@@ -303,7 +303,7 @@ Even though both ACCELERATION and DECELERATION are very small, the cars can achi
 
 ### For this extended model that uses a utility function
 
-How are the results different form the Traffic Basic model?
+How are the results different from the Traffic Basic model?
 
 How does the model's behavior change with different values of EFFICIENT-SPEED?
 
