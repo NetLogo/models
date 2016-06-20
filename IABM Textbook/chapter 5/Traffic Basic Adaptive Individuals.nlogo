@@ -371,7 +371,7 @@ This model is in the IABM Textbook folder of the NetLogo Models Library. The mod
 
 This model models the movement of cars on a highway. Each car follows a simple set of rules: it slows down (decelerates) if it sees a car close ahead, and speeds up (accelerates) if it doesn't see a car ahead. The model extends the Traffic Basic model, from the social science section of the NetLogo models library, by having cars adapt their acceleration to try and maintain a smooth flow of traffic. It differs from the Traffic Basic Adaptive model in that this model has each car adapting individually, whereas that model has all cars adapting in unison.
 
-In other words, in this model, each car has its own acceleration rate and is trying to maximize its own average speed, whereas in Traffic Basic Adaptive, all cars share the same acceleration rate and the model is trying to maximize the average speed of all cars.
+An agent that can change its strategy based on prior experience is an adaptive agent. In the Traffic Basic Adaptive model, the agents _collectively_ adapted their behavior, using their experience to find a common strategy (i.e., an `acceleration`) that maximized the average speed of all cars. In this version of the model, the agents _individually_ adapt: each car can choose a different strategy (i.e., a different `acceleration`) in order to maximize its own speed. Instead of looking at the mean speed of all cars to evaluate the effectiveness of their current strategy, the cars look at their own mean speed since their last evaluation.
 
 ## HOW TO USE IT
 
