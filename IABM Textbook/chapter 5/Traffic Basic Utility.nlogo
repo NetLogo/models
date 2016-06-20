@@ -281,53 +281,16 @@ The EFFICIENT-SPEED slider is the basis of the utility function for the cars. Ca
 
 ## THINGS TO NOTICE
 
-### From the Traffic Basic model
-
-Traffic jams can start from small "seeds."  These cars start with random positions and random speeds. If some cars are clustered together, they will move slowly, causing cars behind them to slow down, and a traffic jam forms.
-
-Even though all of the cars are moving forward, the traffic jams tend to move backwards. This behavior is common in wave phenomena: the behavior of the group is often very different from the behavior of the individuals that make up the group.
-
-The plot shows three values as the model runs:
-
-* the fastest speed of any car (this doesn't exceed the speed limit!)
-
-* the slowest speed of any car
-
-* the speed of a single car (turtle 0), painted red so it can be watched.
-
-Notice not only the maximum and minimum, but also the variability -- the "jerkiness" of one vehicle.
-
-Notice that the default settings have cars decelerating much faster than they accelerate. This is typical of traffic flow models.
-
-Even though both ACCELERATION and DECELERATION are very small, the cars can achieve high speeds as these values are added or subtracted at each tick.
-
-### For this extended model that uses a utility function
-
 How are the results different from the Traffic Basic model?
 
 How does the model's behavior change with different values of EFFICIENT-SPEED?
 
 ## THINGS TO TRY
 
-In this model there are three variables that can affect the tendency to create traffic jams: the initial NUMBER of cars, ACCELERATION, and DECELERATION. Look for patterns in how these settings affect the traffic flow.  Which variable has the greatest effect?  Do the patterns make sense?  Do they seem to be consistent with your driving experiences?
-
-Set DECELERATION to zero.  What happens to the flow?  Gradually increase DECELERATION while the model runs.  At what point does the flow "break down"?
-
 Try very low and very high values of EFFICIENT-SPEED. Are there values where the model behavior changes qualitatively?
 
 ## EXTENDING THE MODEL
 
-Try other rules for speeding up and slowing down.  Is the rule presented here realistic? Are there other rules that are more accurate or represent better driving strategies?
-
-In reality, different vehicles may follow different rules. Try giving different rules or ACCELERATION/DECELERATION values to some of the cars.  Can one bad driver mess things up?
-
-The asymmetry between acceleration and deceleration is a simplified representation of different driving habits and response times. Can you explicitly encode these into the model?
-
-What could you change to minimize the chances of traffic jams forming?
-
-What could you change to make traffic jams move forward rather than backward?
-
-Make a model of two-lane traffic.
 
 ## NETLOGO FEATURES
 

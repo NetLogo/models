@@ -411,33 +411,9 @@ In Traffic Basic changing the Acceleration and Deceleration could affect the mod
 
 ## THINGS TO TRY
 
-In this model there are four sliders that can affect the tendency to create traffic jams: the initial NUMBER of cars, INIT-ACCELERATION,  DECELERATION and TICKS-BETWEEN-TESTS.
-
-Look for patterns in how these settings affect the traffic flow.  Which variable has the greatest effect?  Do the patterns make sense?  Do they seem to be consistent with your driving experiences?
-
-Set DECELERATION to zero.  What happens to the flow?  Gradually increase DECELERATION while the model runs.  At what point does the flow "break down"?
-
 ## EXTENDING THE MODEL
 
-Try other rules for speeding up and slowing down.  Is the rule presented here realistic? Are there other rules that are more accurate or represent better driving strategies?
-
-In reality, different vehicles may follow different rules. Try giving different rules or ACCELERATION/DECELERATION values to some of the cars.  Can one bad driver mess things up?
-
-The asymmetry between acceleration and deceleration is a simplified representation of different driving habits and response times. Can you explicitly encode these into the model?
-
-What could you change to minimize the chances of traffic jams forming?
-
-What could you change to make traffic jams move forward rather than backward?
-
-Make a model of two-lane traffic.
-
 ## NETLOGO FEATURES
-
-The plot shows both global values and the value for a single car, which helps one watch overall patterns and individual behavior at the same time.
-
-The `watch` command is used to make it easier to focus on the red car.
-
-The `speed-limit` and `speed-min` variables are set to constant values. Since they are the same for every car, these variables could have been defined as globals rather than turtle variables. We have specified them as turtle variables since modifications or extensions to this model might well have every car with its own speed-limit values.
 
 ## RELATED MODELS
 

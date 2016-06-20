@@ -403,35 +403,16 @@ The ACCELERATION plot shows the distribution of the cars' accelerations over tim
 
 ## THINGS TO NOTICE
 
-Traffic Basic explored how traffic jams can start from small disturbances and Traffic Basic Adaptive examines how this changes when the cars are actively trying to avoid traffic jams.  In this model, cars are trying to maximize their own average speed, rather than necessarily trying to eliminate traffic jams. Does the behavior of the cars and jams visibly change when they are adapting? Is there a difference in the plot of the fastest, slowest, average and red cars, compared to the Traffic Basic and Traffic Basic Adaptive model plot?
-
-In Traffic Basic changing the Acceleration and Deceleration could affect the model dramatically. What role does the INIT-ACCELERATION slider in this model play versus the ACCELERATION slider in the original model?  Does it affect the results as much?  How about the DECELERATION slider?  Has its effect changed?
-
 ## THINGS TO TRY
-
-In this model there are five sliders that can affect the tendency to create traffic jams: the initial NUMBER of cars, INIT-ACCELERATION,  DECELERATION, SPEED-LIMIT, and TICKS-BETWEEN-TESTS. Look for patterns in how these settings affect the traffic flow.  Which variable has the greatest effect?  Do the patterns make sense?  Do they seem to be consistent with your driving experiences?
-
-Set DECELERATION to zero.  What happens to the flow?  Gradually increase DECELERATION while the model runs.  At what point does the flow "break down"?
 
 ## EXTENDING THE MODEL
 
-Try other rules for speeding up and slowing down.  Is the rule presented here realistic? Are there other rules that are more accurate or represent better driving strategies?
-
-The asymmetry between acceleration and deceleration is a simplified representation of different driving habits and response times. Can you explicitly encode these into the model?
-
-What could you change to minimize the chances of traffic jams forming?
-
-What could you change to make traffic jams move forward rather than backward?
-
-Make a model of two-lane traffic.
 
 ## NETLOGO FEATURES
 
 The CAR SPEEDS plot shows both global values and the value for a single car, which helps one watch overall patterns and individual behavior at the same time.
 
 The UPPER-QUARTILE and LOWER-QUARTILE reporters show how to easily calculate quartiles.
-
-The `watch` command is used to make it easier to focus on the red car.
 
 ## RELATED MODELS
 
