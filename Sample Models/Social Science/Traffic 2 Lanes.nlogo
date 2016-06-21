@@ -137,9 +137,9 @@ to choose-new-lane ; turtle procedure
   ; Choose a new lane among those with the minimum
   ; distance to your current lane (i.e., your ycor).
   let other-lanes remove ycor lanes
-  let min-dist min map [ abs (? - ycor) ] other-lanes
-  let closest-lanes filter [ abs (? - ycor) = min-dist ] other-lanes
-  if not empty? closest-lanes [
+  if not empty? other-lanes [
+    let min-dist min map [ abs (? - ycor) ] other-lanes
+    let closest-lanes filter [ abs (? - ycor) = min-dist ] other-lanes
     set target-lane one-of closest-lanes
     set patience max-patience
   ]
