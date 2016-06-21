@@ -289,6 +289,10 @@ How does the model's behavior change with different values of EFFICIENT-SPEED?
 
 Try very low and very high values of EFFICIENT-SPEED. Are there values where the model behavior changes qualitatively?
 
+Can you think of a strategy for finding the EFFICIENT-SPEED that leads to the highest overall average speed for cars?
+
+What happens when you start with a very low EFFICIENT-SPEED and gradually increase it?
+
 ## EXTENDING THE MODEL
 
 The value of EFFICIENT-SPEED is currently the same for every car. What if each car had a different efficient speed? Use [`random-normal`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#random-reporters) to give each car a different efficient speed while keeping the average close to the value of the EFFICIENT-SPEED slider. But be careful, as `random-normal` is unbounded: it has a small probability of giving very high or very low values. Make sure that you also set a minimum and a maximum for efficient speed.
