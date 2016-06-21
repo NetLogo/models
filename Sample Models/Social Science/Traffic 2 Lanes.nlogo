@@ -111,11 +111,12 @@ end
 to adjust-speed ; turtle procedure
   set heading 90
   speed-up-car ; we tentatively speed up, but might have to slow down
-  let other-car car-ahead speed
-  if other-car != nobody [
+  let blocking-cars other turtles in-cone (1 + speed) 180 with [ y-distance <= 1 ]
+  let blocking-car min-one-of blocking-cars [ distance myself ]
+  if blocking-car != nobody [
     ; match the speed of the car ahead of you and then slow
     ; down so you are driving a bit slower than that car.
-    set speed [ speed ] of other-car
+    set speed [ speed ] of blocking-car
     slow-down-car
     ; every time you hit the brakes, you loose a little patience
     set patience patience - 1
@@ -146,24 +147,23 @@ end
 to move-to-target-lane ; turtle procedure
   set heading ifelse-value (target-lane < ycor) [ 180 ] [ 0 ]
   let dist 0.4 ; a good distance to never end up exactly between two lanes
-  let other-car car-ahead dist
-  ifelse other-car = nobody [
+  let blocking-cars other turtles in-cone (1 + abs (ycor - target-lane)) 180 with [ x-distance <= 1 ]
+  let blocking-car min-one-of blocking-cars [ distance myself ]
+  ifelse blocking-car = nobody [
     forward dist
     set ycor precision ycor 1 ; to avoid floating point errors
   ] [
     ; slow down if the car blocking us is behind, otherwise speed up
-    ifelse towards other-car <= 180 [ slow-down-car ] [ speed-up-car ]
+    ifelse towards blocking-car <= 180 [ slow-down-car ] [ speed-up-car ]
   ]
 end
 
-to-report car-ahead [ dist ] ; turtle reporter
-  ; To check if there is a car ahead, we temporarily
-  ; move our turtle forward, check for cars in the
-  ; cone in front of it, and then back it up.
-  forward dist
-  let cars-ahead other turtles in-cone 1 180
-  back dist
-  report min-one-of cars-ahead [ distance myself ]
+to-report x-distance
+  report distancexy [ xcor ] of myself ycor
+end
+
+to-report y-distance
+  report distancexy xcor [ ycor ] of myself
 end
 
 to select-car
