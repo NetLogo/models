@@ -294,11 +294,6 @@ Try very low and very high values of EFFICIENT-SPEED. Are there values where the
 
 ## NETLOGO FEATURES
 
-The plot shows both global values and the value for a single car, which helps one watch overall patterns and individual behavior at the same time.
-
-The `watch` command is used to make it easier to focus on the red car.
-
-The `speed-limit` and `speed-min` variables are set to constant values. Since they are the same for every car, these variables could have been defined as globals rather than turtle variables. We have specified them as turtle variables since modifications or extensions to this model might well have every car with its own speed-limit values.
 
 ## RELATED MODELS
 
