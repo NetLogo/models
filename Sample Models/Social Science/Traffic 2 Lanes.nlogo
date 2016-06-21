@@ -550,6 +550,8 @@ Explore changes to the sliders SLOW-DOWN and SPEED-UP. How do these affect the f
 
 Change the code so that all cars always start on the same lane. Does the proportion of cars on each lane eventually balance out? How long does it take?
 
+Try using the `"default"` turtle shape instead of the car shape, either by changing the code or by typing `ask turtles [ set shape "default" ]` in the command center after clicking SETUP. This will allow you to quickly spot the cars trying to change lanes. What happens to them when there is a lot of traffic?
+
 ## EXTENDING THE MODEL
 
 The way this model is written makes it easy to add more lanes. Look for the `number-of-lanes` reporter in the code and play around with it.
