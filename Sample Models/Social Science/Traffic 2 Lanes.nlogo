@@ -118,14 +118,14 @@ to adjust-speed ; turtle procedure
     ; down so you are driving a bit slower than that car.
     set speed [ speed ] of blocking-car
     slow-down-car
-    ; every time you hit the brakes, you loose a little patience
-    set patience patience - 1
   ]
 end
 
 to slow-down-car ; turtle procedure
   set speed (speed - deceleration)
   if speed < 0 [ set speed deceleration ]
+  ; every time you hit the brakes, you loose a little patience
+  set patience patience - 1
 end
 
 to speed-up-car ; turtle procedure
@@ -134,14 +134,20 @@ to speed-up-car ; turtle procedure
 end
 
 to choose-new-lane ; turtle procedure
+  ; Choose a new lane among those with the minimum
+  ; distance to your current lane (i.e., your ycor).
   let other-lanes remove ycor lanes
-  ; The lanes next to you are the other lanes with a distance
-  ; to your current lane (i.e., your ycor) of no more than two.
-  let adjacent-lanes filter [ abs (? - ycor) <= 2 ] other-lanes
-  if not empty? adjacent-lanes [
-    set target-lane one-of adjacent-lanes
+  let min-dist min map [ abs (? - ycor) ] other-lanes
+  let closest-lanes filter [ abs (? - ycor) = min-dist ] other-lanes
+  if not empty? closest-lanes [
+    set target-lane one-of closest-lanes
     set patience max-patience
   ]
+end
+
+to-report min-one-of-list [ xs f ]
+  let min-value min map f xs
+  report one-of filter [ (runresult f ?) = min-value ] xs
 end
 
 to move-to-target-lane ; turtle procedure
