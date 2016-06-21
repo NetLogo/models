@@ -152,11 +152,10 @@ end
 
 to move-to-target-lane ; turtle procedure
   set heading ifelse-value (target-lane < ycor) [ 180 ] [ 0 ]
-  let dist 0.4 ; a good distance to never end up exactly between two lanes
   let blocking-cars other turtles in-cone (1 + abs (ycor - target-lane)) 180 with [ x-distance <= 1 ]
   let blocking-car min-one-of blocking-cars [ distance myself ]
   ifelse blocking-car = nobody [
-    forward dist
+    forward 0.2
     set ycor precision ycor 1 ; to avoid floating point errors
   ] [
     ; slow down if the car blocking us is behind, otherwise speed up
