@@ -101,14 +101,13 @@ end
 
 to go
   create-or-remove-cars
-  ask turtles [ adjust-speed ]
-  ask turtles [ forward speed ]
+  ask turtles [ move-forward ]
   ask turtles with [ patience <= 0 ] [ choose-new-lane ]
   ask turtles with [ ycor != target-lane ] [ move-to-target-lane ]
   tick
 end
 
-to adjust-speed ; turtle procedure
+to move-forward ; turtle procedure
   set heading 90
   speed-up-car ; we tentatively speed up, but might have to slow down
   let blocking-cars other turtles in-cone (1 + speed) 180 with [ y-distance <= 1 ]
@@ -119,6 +118,7 @@ to adjust-speed ; turtle procedure
     set speed [ speed ] of blocking-car
     slow-down-car
   ]
+  forward speed
 end
 
 to slow-down-car ; turtle procedure
