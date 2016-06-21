@@ -236,7 +236,7 @@ true
 true
 "" ""
 PENS
-"red car" 1.0 0 -2674135 true "" "if plot-red-car? [plotxy ticks  [speed] of sample-car]"
+"red car" 1.0 0 -2674135 true "" "if plot-red-car? [ plotxy ticks [ speed ] of sample-car ]"
 "min speed" 1.0 0 -13345367 true "" "plot min [speed] of turtles"
 "max speed" 1.0 0 -10899396 true "" "plot max [speed] of turtles"
 "avg speed" 1.0 0 -7500403 true "" "plot mean [speed] of turtles"
@@ -422,6 +422,12 @@ In this version of the model, the `acceleration` is the same for all agents, and
 In the `adaptive-go` procedure, we compare the `speed-to-beat` with the `mean [ speed ] of turtles`. That gives us the mean speed at current tick, but what if we looked instead at the mean speed for all ticks since the previous test? Would that help the cars achieve faster speed?
 
 ## NETLOGO FEATURES
+
+The behavior of the CAR SPEEDS plot is conditional on the value of the PLOT-RED-CAR? switch. This is achieved by using a simple `if`-condition in the update commands of the `"red car"` plot pen:
+
+    if plot-red-car? [ plotxy ticks [ speed ] of sample-car ]
+
+Notice the use of `plotxy ticks ...` instead of just `plot ...`. Since the plot pen may not be updated right from the start, we need to make sure we plot the right _x_ value, namely `ticks`.
 
 ## RELATED MODELS
 
