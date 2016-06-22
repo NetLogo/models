@@ -405,6 +405,9 @@ The ACCELERATION plot shows the distribution of the cars' accelerations over tim
 
 ## EXTENDING THE MODEL
 
+The cars currently adapt by changing their acceleration. What if they could also change their deceleration? You would need to add `deceleration` and `best-deceleration-so-far` as turtle variables, rename the `deceleration` slider to `init-deceleration` and make a the related changes in the `setup-cars` and `adapt` procedures. Try it out! Does it help the cars to maximize their speed?
+
+The amount by which acceleration varies is currently `random-float 0.002 - 0.001`. Make a slider called `variation-range` and have the acceleration vary instead by `random-float variation-range - (variation-range / 2)`. Now see what happens when you use a higher variation range. Can the model still stabilize? Now try a very low one. Are the cars still able to adapt?
 
 ## NETLOGO FEATURES
 
