@@ -9,8 +9,6 @@ turtles-own [
   speed
   speed-limit
   speed-min
-  trip-time-start
-  trip-time
 ]
 
 to setup

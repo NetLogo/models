@@ -5,8 +5,6 @@ globals [
 turtles-own [
   speed
   speed-min
-  trip-time-start
-  trip-time
   speed-to-beat
   acceleration
   best-acceleration-so-far
