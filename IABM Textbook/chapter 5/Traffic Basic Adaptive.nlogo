@@ -413,7 +413,9 @@ In Traffic Basic changing the Acceleration and Deceleration could affect the mod
 
 ## THINGS TO TRY
 
+The purpose of the TICKS-BETWEEN-TESTS slider is to allow the speed to stabilize between changes to acceleration. What happens if you set TICKS-BETWEEN-TESTS to `1`, thereby _not_ giving the speed a chance to stabilize?
 
+Can you find a better value for TICKS-BETWEEN-TESTS than the default value for the model? A good way to do that would be to design a BehaviorSpace experiment that tries many possible values of TICKS-BETWEEN-TESTS and checks how long it takes (if ever) for the cars to reach an average speed of `1.0`. You would need to have multiple repetitions for each value, however, because the randomness in the model can lead to different results from one run to another.
 
 ## EXTENDING THE MODEL
 
