@@ -281,7 +281,7 @@ The EFFICIENT-SPEED slider is the basis of the utility function for the cars. Ca
 
 ## THINGS TO NOTICE
 
-How are the results different from the Traffic Basic model?
+How are the results different from the Traffic Basic model? Are traffic jams more or less likely than in the Traffic Basic model? If so, why? If not, why not?
 
 How does the model's behavior change with different values of EFFICIENT-SPEED?
 
