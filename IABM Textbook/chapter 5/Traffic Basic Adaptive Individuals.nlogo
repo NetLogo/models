@@ -401,7 +401,15 @@ The ACCELERATION plot shows the distribution of the cars' accelerations over tim
 
 ## THINGS TO NOTICE
 
+First run the model using the GO button for a few hundred ticks. Then stop the model by pressing GO again and restart it by pressing ADAPTIVE-GO instead. Can you notice the change in behavior?
+
+Notice how the ACCELERATION plot shows a single line when using GO, but multiple lines when using ADAPTIVE-GO. Do you understand why? If you switch from ADAPTIVE-GO to GO during the same run, you will still have multiple lines, but they won't change anymore. Can you explain what happens?
+
 ## THINGS TO TRY
+
+Run the model using ADAPTIVE-GO until all the cars reach a speed of `1.0`. (You can temporarily uncheck "view updates" in the toolbar to make the model run faster.) All the cars now have the same speed but do they have the same acceleration? How do you explain the range of different accelerations once all the cars have had a chance to adapt?
+
+When the `plot-red-car?` switch is turned on, we plot the speed of the red car in the CAR SPEEDS plot, but we don't plot its acceleration in the ACCELERATION plot. Add a (red!) pen to that plot to show the acceleration of the red car. How does the red car's compare to that if its peers? Run the model a few times. Are you getting the same result? What did you expect?
 
 ## EXTENDING THE MODEL
 
