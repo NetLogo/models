@@ -297,9 +297,6 @@ What happens when you start with a very low EFFICIENT-SPEED and gradually increa
 
 The value of EFFICIENT-SPEED is currently the same for every car. What if each car had a different efficient speed? Use [`random-normal`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#random-reporters) to give each car a different efficient speed while keeping the average close to the value of the EFFICIENT-SPEED slider. But be careful, as `random-normal` is unbounded: it has a small probability of giving very high or very low values. Make sure that you also set a minimum and a maximum for efficient speed.
 
-## NETLOGO FEATURES
-
-
 ## RELATED MODELS
 
 - "Traffic Basic": a simple model of the movement of cars on a highway.
