@@ -8,7 +8,7 @@ globals [
   prev-y
 ]
 
-breed [ output-shapes outer-shape ]
+breed [ output-shapes output-shape ]
 breed [ fish a-fish ]
 
 fish-own [
@@ -152,7 +152,7 @@ to reveal-genes
         ]
         ask patches [ set pcolor original-color ]
         ask patch mouse-xcor mouse-ycor [ set pcolor yellow ]
-        output-genetics (patch mouse-xcor mouse-ycor)
+        output-genetics [ family ] of patch mouse-xcor mouse-ycor
       ]
       ; finds closest turtle if patch not yellow
       [
@@ -184,115 +184,46 @@ to reveal-genes
         set shape res-shape
       ]
     ]
-    if any? output-shapes [ ask output-shapes [ die ] ]
+    ask output-shapes [ die ]
     ask patches with [ family != [] and pcolor != yellow ] [ set pcolor yellow ]
   ]
   display
 end
 
-to output-genetics [ yellow-patch ]
-  ; genes: "shape1" "shape2" "child" top-left top-right bottom-left bottom-right
-  let shape1 [ my-genes ] of item 0 [ family ] of yellow-patch
-  let shape2 [ my-genes ] of item 1 [ family ] of yellow-patch
-  let child  [ my-genes ] of item 2 [ family ] of yellow-patch
-  let t-left  item 3 [ family ] of yellow-patch
-  let t-right item 4 [ family ] of yellow-patch
-  let b-left  item 5 [ family ] of yellow-patch
-  let b-right item 6 [ family ] of yellow-patch
+to output-genetics [ this-family ]
 
-  ; makes the parents and children
-  create-output-shapes 1 [
-    set shape shape1
-    setxy min-pxcor max-pycor
-  ]
-  create-output-shapes 1 [
-    set shape shape2
-    setxy (min-pxcor + 1.5) (max-pycor)
-  ]
-  create-output-shapes 1 [
-    set shape "arrow"
-    setxy (min-pxcor + 2.5) (max-pycor)
-    set heading 90
-  ]
-  create-output-shapes 1 [
-    set shape child
-    setxy (min-pxcor + 3.5) (max-pycor)
-  ]
+  ask output-shapes [ die ]
 
-  ;makes the frames
-  ;top left
-  if t-left = 0 [
+  let genes1      [ my-genes ] of item 0 this-family
+  let genes2      [ my-genes ] of item 1 this-family
+  let child-genes [ my-genes ] of item 2 this-family
+  let top-left                    item 3 this-family
+  let top-right                   item 4 this-family
+  let bottom-left                 item 5 this-family
+  let bottom-right                item 6 this-family
+
+  (foreach (list genes1 "small plus" genes2 "right arrow" child-genes) [ 0 0.75 1.5 2.5 3.5 ] [
     create-output-shapes 1 [
-      set shape "frame-thicker"
-      set size .5
-      setxy (- 5.25) 1.25
-      set color orange
+      set shape ?1
+      setxy (min-pxcor + ?2) max-pycor
     ]
-  ]
-  if t-left = 1 [
-    create-output-shapes 1 [
-      set shape "frame-thicker"
-      set size .5
-      setxy (- 4.75) 1.25
-      set color orange
-    ]
-  ]
-  ; top right
-  if t-right = 0 [
-    create-output-shapes 1 [
-      set shape "frame-thicker"
-      set size .5
-      setxy (- 3.75) 1.25
-      set color orange
-    ]
-  ]
-  if t-right = 1 [
-    create-output-shapes 1 [
-      set shape "frame-thicker"
-      set size .5
-      setxy (- 3.25) 1.25
-      set color orange
-    ]
-  ]
-  ;bottom left
-  if b-left = 0 [
-    create-output-shapes 1 [
-      set shape "frame-thicker"
-      set size .5
-      setxy (- 5.25) 0.75
-      set color 74
-    ]
-  ]
-  if b-left = 1 [
-    create-output-shapes 1 [
-      set shape "frame-thicker"
-      set size .5
-      setxy (- 4.75) 0.75
-      set color 74
-    ]
-  ]
-  ; bottom right
-  if b-right = 0 [
-    create-output-shapes 1 [
-      set shape "frame-thicker"
-      set size .5
-      setxy (- 3.75) 0.75
-      set color 74
-    ]
-  ]
-  if b-right = 1 [
-    create-output-shapes 1 [
-      set shape "frame-thicker"
-      set size .5
-      setxy (- 3.25) 0.75
-      set color 74
-    ]
-  ]
-  ; shows the plus
+  ])
+
+  let left-xs  (list (- 5.25) (- 4.75))
+  let right-xs (list (- 3.75) (- 3.25))
+  make-frame (item top-left     left-xs ) 1.25 orange
+  make-frame (item top-right    right-xs) 1.25 orange
+  make-frame (item bottom-left  left-xs ) 0.75 turquoise - 1
+  make-frame (item bottom-right right-xs) 0.75 turquoise - 1
+
+end
+
+to make-frame [ x y frame-color ]
   create-output-shapes 1 [
-    set shape "plus"
-    setxy (min-pxcor + .75) (max-pycor)
+    set shape "frame-thicker"
     set size .5
+    setxy x y
+    set color frame-color
   ]
 end
 
@@ -1279,6 +1210,17 @@ false
 0
 Rectangle -7500403 true true 120 45 180 255
 Rectangle -7500403 true true 45 120 255 180
+
+right arrow
+false
+15
+Polygon -7500403 true false 285 150 135 90 135 135 15 135 15 165 135 165 135 210
+
+small plus
+false
+15
+Rectangle -7500403 true false 135 90 165 210
+Rectangle -7500403 true false 90 135 210 165
 
 square
 false
