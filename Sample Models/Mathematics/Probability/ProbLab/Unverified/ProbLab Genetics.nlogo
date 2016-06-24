@@ -4,8 +4,6 @@ globals [
   res-color ; recessive gene color
   dom-shape
   res-shape
-  prev-x
-  prev-y
 ]
 
 breed [ output-shapes output-shape ]
@@ -53,17 +51,21 @@ to-report add-custom-fish [ child-genes ]
   let child nobody
   create-fish 1 [
     set my-genes child-genes
-    ifelse item 3 my-genes = "1" or item 4 my-genes = "1"
-      [ set color dom-color ]
-      [ set color res-color ]
-    ifelse item 5 my-genes = "1" or item 6 my-genes = "1"
-      [ set shape dom-shape ]
-      [ set shape res-shape ]
+    express-genes
     setxy random-xcor (random-float min-pycor)
     set-next-heading
     set child self
   ]
   report child
+end
+
+to express-genes ; fish procedure
+  ifelse item 3 my-genes = "1" or item 4 my-genes = "1"
+    [ set color dom-color ]
+    [ set color res-color ]
+  ifelse item 5 my-genes = "1" or item 6 my-genes = "1"
+    [ set shape dom-shape ]
+    [ set shape res-shape ]
 end
 
 to-report choose-random-n-z
@@ -131,55 +133,38 @@ end
 
 to reveal-genes
   ifelse mouse-down? [
-    ; checks so not looking at same patch again
-    if not (prev-x = mouse-xcor and prev-y = mouse-ycor) [
-      set prev-x mouse-xcor
-      set prev-y mouse-ycor
+    let x mouse-xcor
+    let y mouse-ycor
+    ifelse [ pcolor ] of patch x y = yellow [
       ; reveals genes -- with two fish mating, if patch is yellow
-      ifelse [ pcolor ] of patch mouse-xcor mouse-ycor = yellow [
-        ; hides all fish, other than the ones related to the patch
-        ask fish [ set hidden? true ]
-        foreach (filter [ is-turtle? ? ] [ family ] of (patch mouse-xcor mouse-ycor)) [
-          ask ? [ set hidden? false ]
-        ]
+      if not any? output-shapes [
+        output-genetics [ family ] of patch x y
+        let fish-family turtle-set filter is-turtle? [ family ] of patch x y
+        ask fish-family [ express-genes ]
+        ask fish [ set hidden? (not member? self fish-family) ]
         ask patches [ set pcolor original-color ]
-        ask patch mouse-xcor mouse-ycor [ set pcolor yellow ]
-        output-genetics [ family ] of patch mouse-xcor mouse-ycor
+        ask patch x y [ set pcolor yellow ]
       ]
+    ]
+    [
       ; finds closest turtle if patch not yellow
-      [
-        let min-d -1
-        let dist 3
-        ask fish-on patch round mouse-xcor round mouse-ycor [
-          if dist > distancexy mouse-xcor mouse-ycor [
-            set dist distancexy mouse-xcor mouse-ycor
-            set min-d who
-          ]
-        ]
-        ;reveals shape, if there is a turtle
-        if min-d != -1 [
-          ask fish with [ who = min-d ] [
-            set shape my-genes
-          ]
-        ]
+      reset-display
+      ask min-one-of [ fish in-radius 2 ] of patch x y [ distancexy x y ] [
+        set shape my-genes
       ]
     ]
   ]
-  ; changes state to normal
-  [
-    ask fish with [ hidden? ] [ show-turtle ]
-    if any? fish with [ shape != res-shape and shape != dom-shape ] [
-      ask fish with [ read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1 ] [
-        set shape dom-shape
-      ]
-      ask fish with [ not (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1) ] [
-        set shape res-shape
-      ]
-    ]
-    ask output-shapes [ die ]
-    ask patches with [ family != [] and pcolor != yellow ] [ set pcolor yellow ]
-  ]
+  [ reset-display ]
   display
+end
+
+to reset-display
+  ask output-shapes [ die ]
+  ask patches with [ not empty? family ] [ set pcolor yellow ]
+  ask fish [
+    express-genes
+    show-turtle
+  ]
 end
 
 to output-genetics [ this-family ]
