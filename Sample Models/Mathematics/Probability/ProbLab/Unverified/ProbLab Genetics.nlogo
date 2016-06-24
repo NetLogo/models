@@ -1,11 +1,3 @@
-globals [
-  z-distr
-  dom-color ; dominant gene color
-  res-color ; recessive gene color
-  dom-shape
-  res-shape
-]
-
 breed [ output-shapes output-shape ]
 breed [ fish a-fish ]
 
@@ -21,10 +13,6 @@ patches-own [
 
 to setup
   clear-all
-  set dom-color green
-  set res-color blue
-  set dom-shape "fish-green-fin"
-  set res-shape "fish-blue-fin"
   ; prepares the patch colors
   ask patches [ set pcolor red + random 3 ]
   ; the origin is moved toward the top of the view so
@@ -220,9 +208,25 @@ to set-next-heading ; fish procedure
   ]
 end
 
+to-report dom-color ; dominant gene color
+  report green
+end
+
+to-report res-color ; recessive gene color
+  report blue
+end
+
+to-report dom-shape
+  report "fish-green-fin"
+end
+
+to-report res-shape
+  report "fish-blue-fin"
+end
+
 to update-histogram
   set-current-plot "4-Block Distribution"
-  set z-distr []
+  let z-distr []
   ask fish [ set z-distr lput read-from-string item 1 my-genes z-distr ]
   set-current-plot-pen "Count"
   plot-pen-reset
