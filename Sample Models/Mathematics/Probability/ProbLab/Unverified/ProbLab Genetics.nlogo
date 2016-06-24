@@ -97,7 +97,7 @@ to go
 end
 
 to collide [ parent1 parent2 ]
-  if mating-rules-check parent1 parent2 [
+  if can-mate? parent1 parent2 [
     ; makes a child
     let genes1 [ my-genes ] of parent1
     let genes2 [ my-genes ] of parent2
@@ -110,13 +110,13 @@ to collide [ parent1 parent2 ]
   ]
 end
 
-to-report mating-rules-check [ parent1 parent2 ]
-  let same-body ([ color ] of parent1 = [ color ] of parent2)
-  let same-fin  ([ shape ] of parent1 = [ shape ] of parent2)
+to-report can-mate? [ parent1 parent2 ]
+  let same-body? ([ color ] of parent1 = [ color ] of parent2)
+  let same-fin?  ([ shape ] of parent1 = [ shape ] of parent2)
   if mate-with = "Any Fish"  [ report true ]
-  if mate-with = "Same Body" [ report same-body ]
-  if mate-with = "Same Fin"  [ report same-fin ]
-  if mate-with = "Same Both" [ report same-body and same-fin ]
+  if mate-with = "Same Body" [ report same-body? ]
+  if mate-with = "Same Fin"  [ report same-fin? ]
+  if mate-with = "Same Both" [ report same-body? and same-fin? ]
   report false
 end
 
