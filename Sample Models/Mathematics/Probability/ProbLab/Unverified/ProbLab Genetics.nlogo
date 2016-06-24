@@ -356,10 +356,10 @@ NIL
 0
 
 PLOT
-577
-326
-880
-481
+580
+325
+910
+480
 4-Block Distribution
 # green squares in block
 occurrences
@@ -375,10 +375,10 @@ PENS
 "Average" 1.0 0 -2674135 true "" ""
 
 SLIDER
-7
-395
-116
-428
+5
+375
+114
+408
 life-span
 life-span
 1
@@ -390,10 +390,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-815
-381
-880
-426
+840
+380
+905
+425
 Ave Block
 mean z-distr
 2
@@ -420,7 +420,7 @@ NIL
 PLOT
 577
 174
-880
+907
 322
 Percent Fish by Properties
 # of iterations
@@ -439,20 +439,20 @@ PENS
 "B-body B-fin" 1.0 0 -13345367 true "" "plotxy ticks ifelse-value any? fish [ 100 * count fish with [ color = blue and shape = res-shape ] / count fish ] [ 0 ] "
 
 CHOOSER
-7
-434
-116
-479
+5
+414
+114
+459
 mate-with
 mate-with
 "Any Fish" "Same Body" "Same Fin" "Same Both"
 0
 
 MONITOR
-597
-11
-683
-56
+610
+10
+696
+55
 G-body G-fin
 count fish with [ color = green and (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1)]
 0
@@ -460,10 +460,10 @@ count fish with [ color = green and (read-from-string (item 5 my-genes) = 1 or r
 11
 
 MONITOR
-687
-11
-771
-56
+700
+10
+784
+55
 G-body B-fin
 count fish with [ color = green and not (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1)]
 3
@@ -471,10 +471,10 @@ count fish with [ color = green and not (read-from-string (item 5 my-genes) = 1 
 11
 
 MONITOR
-597
-63
-683
-108
+610
+62
+696
+107
 B-body G-fin
 count fish with [ color = blue and (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1)]
 0
@@ -482,10 +482,10 @@ count fish with [ color = blue and (read-from-string (item 5 my-genes) = 1 or re
 11
 
 MONITOR
-687
-63
-771
-108
+700
+62
+784
+107
 B-body B-fin
 count fish with [ color = blue and not (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1)]
 0
@@ -493,10 +493,10 @@ count fish with [ color = blue and not (read-from-string (item 5 my-genes) = 1 o
 11
 
 MONITOR
-597
-121
-683
-166
+610
+120
+696
+165
 Total     G-fin
 count fish with [ read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1 ]
 0
@@ -504,10 +504,10 @@ count fish with [ read-from-string (item 5 my-genes) = 1 or read-from-string (it
 11
 
 MONITOR
-687
-121
-772
-166
+700
+120
+785
+165
 Total     B-fin
 count fish with [ not (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1) ]
 0
@@ -515,10 +515,10 @@ count fish with [ not (read-from-string (item 5 my-genes) = 1 or read-from-strin
 11
 
 MONITOR
-780
-63
-860
-108
+793
+62
+873
+107
 B-body Total
 count fish with [ color = blue ]
 0
@@ -526,10 +526,10 @@ count fish with [ color = blue ]
 11
 
 MONITOR
-780
-11
-860
-56
+793
+10
+873
+55
 G-body Total
 count fish with [ color = green ]
 0
@@ -537,10 +537,10 @@ count fish with [ color = green ]
 11
 
 MONITOR
-780
-121
-860
-166
+793
+120
+873
+165
 Total fish
 count fish
 0
@@ -1322,5 +1322,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
