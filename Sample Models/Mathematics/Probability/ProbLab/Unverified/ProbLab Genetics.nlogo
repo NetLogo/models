@@ -41,8 +41,8 @@ to setup
   reset-ticks
 end
 
-to add-fish [ x ]
-  repeat x [
+to add-fish [ n ]
+  repeat n [
     let dummy add-custom-fish choose-random-n-z
   ]
   update-histogram
