@@ -75,28 +75,20 @@ to-report combination-to-string [ combination ]
 end
 
 to go
-  ask fish with [ age >= life-span ] [ die ]
-  ask fish [ set age age + 1 ]
-  ask patches with [ pcolor = yellow or pcolor = white ] [
+
+  ask patches [
     set pcolor original-color
     set family []
   ]
 
-  let to-collide []
-  ask patches [ set family [] ]
-
-  ask fish [ wander-around ]
-
-  ; collects agents that are on the same patch
-  ; and chooses 2 of them randomly (if more than 2)
-  ask patches [
-    if (count fish-here > 1) [
-      set to-collide lput (n-of 2 fish-here) to-collide
-    ]
+  ask fish [
+    if age >= life-span [ die ]
+    set age age + 1
+    wander-around
   ]
 
-  ; collides the fish, 2 at a time
-  foreach to-collide [
+  ; collides pairs of fish that are on the same patch
+  foreach [ n-of 2 fish-here ] of patches with [ count fish-here > 1 ] [
     ; make sure the first parent has a lower
     ; who number than the second parent
     collide (first sort ?) (last sort ?)
