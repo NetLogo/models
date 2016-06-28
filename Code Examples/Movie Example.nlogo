@@ -124,10 +124,10 @@ ticks
 1000.0
 
 BUTTON
-12
-54
-78
-87
+25
+100
+100
+133
 NIL
 setup
 NIL
@@ -141,10 +141,10 @@ NIL
 1
 
 BUTTON
-91
-54
-154
-87
+106
+100
+176
+133
 NIL
 go
 T
@@ -158,10 +158,10 @@ NIL
 0
 
 BUTTON
-20
-315
-295
-348
+25
+310
+300
+343
 save recording
 save-recording
 NIL
@@ -175,10 +175,10 @@ NIL
 1
 
 MONITOR
-166
-54
-279
-99
+184
+100
+297
+145
 NIL
 count birds
 3
@@ -186,10 +186,10 @@ count birds
 11
 
 MONITOR
-21
-265
-296
-310
+26
+260
+301
+305
 NIL
 vid:recorder-status
 3
@@ -197,10 +197,10 @@ vid:recorder-status
 11
 
 BUTTON
-160
-225
-296
-258
+165
+220
+301
+253
 reset recorder
 reset-recorder
 NIL
@@ -214,10 +214,10 @@ NIL
 1
 
 BUTTON
-20
-225
-153
-258
+25
+220
+158
+253
 start recorder
 start-recorder
 NIL
