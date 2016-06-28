@@ -1,8 +1,12 @@
 extensions [vid]
+
 globals [_recording-save-file-name]
+
 breed [ birds bird ]
 breed [ spinners spinner ]
+
 turtles-own [ age ]
+
 ;; makes a movie of the model; stops when there are 3000 turtles
 ;; and exports movie to a file
 to make-movie
@@ -22,12 +26,14 @@ to make-movie
   vid:save-recording _recording-save-file-name
   user-message (word "Exported movie to " path)
 end
+
 to setup
   clear-all
-  create-birds 1[]
+  create-birds 1
   create-spinner
   reset-ticks
 end
+
 to go
   ask birds
   [ wander
@@ -36,13 +42,16 @@ to go
   tick
   update-spinner
 end
+
 to grow-old
   set age age + 1
 end
+
 to wander
   rt random-float 90
   fd 1
 end
+
 to reproduce
   if (age > 10 and random 10 > 7)
       [ hatch 2
@@ -50,6 +59,7 @@ to reproduce
           set age 0 ]
         die ]
 end
+
 ;; make the spinner for the upper right hand corner
 to create-spinner
   create-spinners 1
@@ -60,6 +70,7 @@ to create-spinner
     set heading 0
     set label 0 ]
 end
+
 to update-spinner
   ask spinners
   [ set heading ticks * 30
