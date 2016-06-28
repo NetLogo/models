@@ -1,37 +1,33 @@
+extensions [vid]
+globals [_recording-save-file-name]
 breed [ birds bird ]
 breed [ spinners spinner ]
-
 turtles-own [ age ]
-
 ;; makes a movie of the model; stops when there are 3000 turtles
 ;; and exports movie to a file
 to make-movie
-
   ;; prompt user for movie location
   user-message "First, save your new movie file (choose a name ending with .mov)"
   let path user-new-file
   if not is-string? path [ stop ]  ;; stop if user canceled
-
   ;; run the model
   setup
-  movie-start path
-  movie-grab-view
+  set _recording-save-file-name path
+  vid:start-recorder
+  vid:record-view
   while [ count turtles < 3000 ]
     [ go
-      movie-grab-view ]
-
+      vid:record-view ]
   ;; export the movie
-  movie-close
+  vid:save-recording _recording-save-file-name
   user-message (word "Exported movie to " path)
 end
-
 to setup
   clear-all
-  create-birds 1
+  create-birds 1[]
   create-spinner
   reset-ticks
 end
-
 to go
   ask birds
   [ wander
@@ -40,16 +36,13 @@ to go
   tick
   update-spinner
 end
-
 to grow-old
   set age age + 1
 end
-
 to wander
   rt random-float 90
   fd 1
 end
-
 to reproduce
   if (age > 10 and random 10 > 7)
       [ hatch 2
@@ -57,7 +50,6 @@ to reproduce
           set age 0 ]
         die ]
 end
-
 ;; make the spinner for the upper right hand corner
 to create-spinner
   create-spinners 1
@@ -68,17 +60,11 @@ to create-spinner
     set heading 0
     set label 0 ]
 end
-
 to update-spinner
   ask spinners
   [ set heading ticks * 30
     set label ticks ]
 end
-
-
-; Public Domain:
-; To the extent possible under law, Uri Wilensky has waived all
-; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 321
@@ -175,7 +161,7 @@ MONITOR
 308
 365
 NIL
-movie-status
+vid:recorder-status
 3
 1
 11
@@ -518,13 +504,14 @@ setup repeat 175 [ go ]
 <experiments>
   <experiment name="make movies" repetitions="3" runMetricsEveryStep="false">
     <setup>setup
-movie-start
+set _recording-save-file-name
   word behaviorspace-run-number
        ".mov"
-movie-grab-view</setup>
+(vid:start-recorder)
+vid:record-view</setup>
     <go>go
-movie-grab-view</go>
-    <final>movie-close</final>
+vid:record-view</go>
+    <final>vid:save-recording _recording-save-file-name</final>
     <exitCondition>count turtles &gt;= 3000</exitCondition>
   </experiment>
 </experiments>
