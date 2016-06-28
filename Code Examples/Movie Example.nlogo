@@ -232,17 +232,23 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This shows how to capture a movie of your model.
+This shows how to capture a movie of your model with the `vid` extension.
 
 The model is of a population of birds.  Once a bird is 10 ticks old, it can hatch two offspring and die.  The number of birds, of course, increases exponentially.
 
-The procedure `make-movie` runs the model, captures the view to a movie, and exports the movie to a file.
+The model provides buttons to start the movie recorder and then save your recording or reset the movie recorder if you don't like what you have recorded so far. The code for these buttons can easily be copied to any user model.
 
 ## HOW TO USE IT
 
-Click `make-movie` to capture a movie.  NetLogo will prompt you for the location of the movie file.
+The model can be used like most NetLogo models: click SETUP to initialize the model and then GO to run it.
 
-If you want to make a movie of your own model, you can copy and paste the `make-movie` procedure into your model.
+If you want to make a movie of the model, click START RECORDER at any time. You will notice that the VID:RECORDER-STATUS monitor changes from "inactive" to "recording". Once recording is active, the recorder will capture a frame of the model each time SETUP or GO is executed.
+
+Once you have a movie that you think you will like, you can use the SAVE RECORDING button to save it. NetLogo will prompt you for a file name and automatically add the `.mp4` extension to it if you don't add it yourself.
+
+If you don't want to save your movie and prefer to start over, click RESET RECORDING. The recorder will "forget" everything that it has recorded so far.
+
+If you want to add recording capabilities to your own model, copy the code for `start-recorder`, `reset-recorder` and `save-recording` to the code tab of your model and create the corresponding buttons in your interface tab. You can also add a `vid:recorder-status` monitor if you like.
 
 ## THINGS TO NOTICE
 
