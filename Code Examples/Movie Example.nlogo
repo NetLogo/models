@@ -1,6 +1,4 @@
-extensions [vid]
-
-globals [_recording-save-file-name]
+extensions [ vid ]
 
 breed [ birds bird ]
 breed [ spinners spinner ]
@@ -10,21 +8,30 @@ turtles-own [ age ]
 ;; makes a movie of the model; stops when there are 3000 turtles
 ;; and exports movie to a file
 to make-movie
+
   ;; prompt user for movie location
-  user-message "First, save your new movie file (choose a name ending with .mov)"
+  user-message "First, choose a name for your new movie file (the .mp4 extension will be automatically added)."
   let path user-new-file
   if not is-string? path [ stop ]  ;; stop if user canceled
+
   ;; run the model
   setup
-  set _recording-save-file-name path
+  vid:reset-recorder
   vid:start-recorder
   vid:record-view
   while [ count turtles < 3000 ]
     [ go
       vid:record-view ]
+
   ;; export the movie
-  vid:save-recording _recording-save-file-name
-  user-message (word "Exported movie to " path)
+  carefully [
+    vid:save-recording path
+    user-message (word "Exported movie to " path ".")
+  ] [
+    user-message error-message
+  ]
+  vid:reset-recorder
+
 end
 
 to setup
