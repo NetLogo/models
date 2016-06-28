@@ -5,25 +5,26 @@ breed [ spinners spinner ]
 
 turtles-own [ age ]
 
-;; makes a movie of the model; stops when there are 3000 turtles
-;; and exports movie to a file
+; Makes a movie of the model: stops when there
+; are 3000 turtles and exports movie to a file.
 to make-movie
 
-  ;; prompt user for movie location
+  ; prompt user for movie location
   user-message "First, choose a name for your new movie file (the .mp4 extension will be automatically added)."
   let path user-new-file
-  if not is-string? path [ stop ]  ;; stop if user canceled
+  if not is-string? path [ stop ]  ; stop if user canceled
 
-  ;; run the model
+  ; run the model
   setup
   vid:reset-recorder
   vid:start-recorder
   vid:record-view
-  while [ count turtles < 3000 ]
-    [ go
-      vid:record-view ]
+  while [ count turtles < 3000 ] [
+    go
+    vid:record-view
+  ]
 
-  ;; export the movie
+  ; export the movie
   carefully [
     vid:save-recording path
     user-message (word "Exported movie to " path ".")
@@ -42,10 +43,11 @@ to setup
 end
 
 to go
-  ask birds
-  [ wander
+  ask birds [
+    wander
     grow-old
-    reproduce ]
+    reproduce
+  ]
   tick
   update-spinner
 end
@@ -55,33 +57,37 @@ to grow-old
 end
 
 to wander
-  rt random-float 90
-  fd 1
+  right random-float 90
+  forward 1
 end
 
 to reproduce
-  if (age > 10 and random 10 > 7)
-      [ hatch 2
-        [ set color color - 4 + random 10
-          set age 0 ]
-        die ]
+  if age > 10 and random 10 > 7 [
+    hatch 2 [
+      set color color - 4 + random 10
+      set age 0
+    ]
+    die
+  ]
 end
 
-;; make the spinner for the upper right hand corner
+; make the spinner for the upper right hand corner
 to create-spinner
-  create-spinners 1
-  [ set shape "clock"
+  create-spinners 1 [
+    set shape "clock"
     setxy (max-pxcor - 3) (max-pycor - 3)
     set color gray - 1.5
     set size 6
     set heading 0
-    set label 0 ]
+    set label 0
+  ]
 end
 
 to update-spinner
-  ask spinners
-  [ set heading ticks * 30
-    set label ticks ]
+  ask spinners [
+    set heading ticks * 30
+    set label ticks
+  ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
