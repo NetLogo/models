@@ -10,6 +10,7 @@ to setup
   create-birds 1
   create-spinner
   reset-ticks
+  if vid:recorder-status = "recording" [ vid:record-view ]
 end
 
 to go
@@ -20,9 +21,7 @@ to go
   ]
   tick
   update-spinner
-  if vid:recorder-status = "recording" [
-    vid:record-view
-  ]
+  if vid:recorder-status = "recording" [ vid:record-view ]
 end
 
 to grow-old
