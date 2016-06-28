@@ -5,36 +5,6 @@ breed [ spinners spinner ]
 
 turtles-own [ age ]
 
-; Makes a movie of the model: stops when there
-; are 3000 turtles and exports movie to a file.
-to make-movie
-
-  ; prompt user for movie location
-  user-message "First, choose a name for your new movie file (the .mp4 extension will be automatically added)."
-  let path user-new-file
-  if not is-string? path [ stop ]  ; stop if user canceled
-
-  ; run the model
-  setup
-  vid:reset-recorder
-  vid:start-recorder
-  vid:record-view
-  while [ count turtles < 3000 ] [
-    go
-    vid:record-view
-  ]
-
-  ; export the movie
-  carefully [
-    vid:save-recording path
-    user-message (word "Exported movie to " path ".")
-  ] [
-    user-message error-message
-  ]
-  vid:reset-recorder
-
-end
-
 to setup
   clear-all
   create-birds 1
@@ -50,6 +20,9 @@ to go
   ]
   tick
   update-spinner
+  if vid:recorder-status = "recording" [
+    vid:record-view
+  ]
 end
 
 to grow-old
@@ -87,6 +60,39 @@ to update-spinner
   ask spinners [
     set heading ticks * 30
     set label ticks
+  ]
+end
+
+to start-recorder
+  carefully [ vid:start-recorder ] [ user-message error-message ]
+end
+
+to reset-recorder
+  let message (word
+    "If you reset the recorder, the current recording will be lost."
+    "Are you sure you want to reset the recorder?")
+  if vid:recorder-status = "inactive" or user-yes-or-no? message [
+    vid:reset-recorder
+  ]
+end
+
+to save-recording
+  if vid:recorder-status = "inactive" [
+    user-message "The recorder is inactive. There is nothing to save."
+    stop
+  ]
+  ; prompt user for movie location
+  user-message (word
+    "Choose a name for your movie file (the "
+    ".mp4 extension will be automatically added).")
+  let path user-new-file
+  if not is-string? path [ stop ]  ; stop if user canceled
+  ; export the movie
+  carefully [
+    vid:save-recording path
+    user-message (word "Exported movie to " path ".")
+  ] [
+    user-message error-message
   ]
 end
 @#$#@#$#@
@@ -152,12 +158,12 @@ NIL
 0
 
 BUTTON
-11
-270
-153
-303
-NIL
-make-movie
+20
+315
+295
+348
+save recording
+save-recording
 NIL
 1
 T
@@ -180,15 +186,49 @@ count birds
 11
 
 MONITOR
-11
-320
-308
-365
+21
+265
+296
+310
 NIL
 vid:recorder-status
 3
 1
 11
+
+BUTTON
+160
+225
+296
+258
+reset recorder
+reset-recorder
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+20
+225
+153
+258
+start recorder
+start-recorder
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -552,5 +592,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
