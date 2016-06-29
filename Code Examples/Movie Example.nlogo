@@ -256,7 +256,7 @@ Like any model with exponential population growth, this model slows down after e
 
 Creating a movie of the model solves the problem.  The movie allows us to observe the model while real time and model time progress at a consistent rate.  When we replay the movie, the spinner spins at a constant rate.
 
-Note that the model only shows what's happening in the view; it doesn't show monitors updating, and if the model had any plots in it, they wouldn't be shown either. That's because the code uses the `movie-grab-view` command, which only includes the view in the model.  You can substitute `movie-grab-interface`; then the whole interface tab is grabbed.
+Note that the model only shows what's happening in the view; it doesn't show monitors updating, and if the model had any plots in it, they wouldn't be shown either. That's because the code uses the `vid:record-view` command, which only includes the view in the model.  You can substitute `vid:record-interface`; then the whole interface tab is grabbed.
 
 ## THINGS TO TRY
 
