@@ -572,15 +572,10 @@ setup repeat 175 [ go ]
 @#$#@#$#@
 <experiments>
   <experiment name="make movies" repetitions="3" runMetricsEveryStep="false">
-    <setup>setup
-set _recording-save-file-name
-  word behaviorspace-run-number
-       ".mov"
-(vid:start-recorder)
-vid:record-view</setup>
-    <go>go
-vid:record-view</go>
-    <final>vid:save-recording _recording-save-file-name</final>
+    <setup>vid:start-recorder
+setup</setup>
+    <go>go</go>
+    <final>vid:save-recording (word behaviorspace-run-number)</final>
     <exitCondition>count turtles &gt;= 3000</exitCondition>
   </experiment>
 </experiments>
