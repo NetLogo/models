@@ -260,15 +260,16 @@ Note that the model only shows what's happening in the view; it doesn't show mon
 
 ## THINGS TO TRY
 
-A different way of making a movie, besides a procedure like `make-movie`, is to use BehaviorSpace.  BehaviorSpace is a tool built into NetLogo that lets you set up automated model runs.  Usually BehaviorSpace is used to do many model runs in which you experiment with different settings in a model, but it's also possible to use it to set up a single run in order to make a movie.
+A different way of making a movie is to use BehaviorSpace.  BehaviorSpace is a tool built into NetLogo that lets you set up automated model runs.  Usually BehaviorSpace is used to do many model runs in which you experiment with different settings in a model, but it's also possible to use it to set up a single run in order to make a movie.
 
-This model includes a sample BehaviorSpace "experiment setup" which makes a movie, just like the `make-movie` procedure.  To try it, choose BehaviorSpace on the Tools menu.  In the dialog that opens you'll see an experiment called "make movies".  Select that experiment and hit the "Run" button.  Background runs in parallel BehaviorSpace experiment can't make movies, so change the "Simultaneous number of runs" setting to 1, disabling background runs, and hit "OK".  The model will run three times and a movie files will be generated each time. The `behaviorspace-run-number` primitive is used to give each movie a different name.
+This model includes a sample BehaviorSpace "experiment setup" which makes a movie.  To try it, choose BehaviorSpace on the Tools menu.  In the dialog that opens you'll see an experiment called "make movies".  Select that experiment and hit the "Run" button. The model will run three times and a movie files will be generated each time. The `behaviorspace-run-number` primitive is used to give each movie a different name.
 
 If you want to see how the experiment was set up, select the experiment in the BehaviorSpace dialog and press the "Edit" button.  You'll notice that:
 
-- the setup commands include `movie-start` and `movie-grab-view`
-- the go commands include `movie-grab-view`
-- the final commands include `movie-close`
+- the "Setup commands" include `vid:start-recorder`
+- the "Final commands" include `vid:save-recording (word behaviorspace-run-number)`
+
+The current `setup` and `go` procedures in the model already include `if vid:recorder-status = "recording" [ vid:record-view ]`. If you were trying to record a movie for a model that didn't already have them, you could include calls to `vid:record-view` in the "Setup commands" and "Go commands" of the BehaviorSpace experiment.
 
 Together, those commands make a complete movie.
 
