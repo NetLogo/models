@@ -64,7 +64,7 @@ class ModelCompilationTests extends TestModels {
   def uncompilableExperiments(model: Model, ws: HeadlessWorkspace): Iterable[String] = {
     val lab = HeadlessWorkspace.newLab
     for {
-      experiment <- BehaviorSpaceCoordinator.protocolsFromModel(model.file.getPath)
+      experiment <- BehaviorSpaceCoordinator.protocolsFromModel(model.file.getPath, ws)
       error <- Try(lab.newWorker(experiment).compile(ws)).failed.toOption
     } yield s"BehaviorSpace experiment '$experiment' does not compile: $error"
   }

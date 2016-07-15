@@ -4,7 +4,6 @@ import java.io.File
 import java.util.regex.Pattern.quote
 
 import scala.Boolean
-import scala.annotation.migration
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 import scala.util.Try
 
@@ -17,7 +16,6 @@ import org.nlogo.api.PreviewCommands
 import org.nlogo.core.Model
 import org.nlogo.headless.HeadlessWorkspace
 import org.nlogo.models.InfoTabParts
-import org.nlogo.parse.CompilerUtilities
 
 package object models {
 
@@ -40,12 +38,19 @@ package object models {
   }
 
   val modelTries: Iterable[(File, Try[Model], Try[String])] = {
-    val loader = fileformat.standardLoader(CompilerUtilities, _ => identity)
-    val modelDir = new File(".")
-    val extensions = Array("nlogo", "nlogo3d")
-    listFiles(modelDir, extensions, true).asScala.map { f =>
-      (f, loader.readModel(f.toURI), Try(readFileToString(f)))
-    }
+    val workspace = HeadlessWorkspace.newInstance
+    try {
+      workspace.silent = true
+      val loader = fileformat.standardLoader(
+        workspace.compiler.compilerUtilities,
+        workspace.getExtensionManager,
+        workspace.getCompilationEnvironment)
+      val modelDir = new File(".")
+      val extensions = Array("nlogo", "nlogo3d")
+      listFiles(modelDir, extensions, true).asScala.map { f =>
+        (f, loader.readModel(f.toURI), Try(readFileToString(f)))
+      }
+    } finally workspace.dispose()
   }
 
   val modelFiles: Map[Model, File] =
