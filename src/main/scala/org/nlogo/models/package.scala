@@ -18,6 +18,8 @@ import org.nlogo.headless.HeadlessWorkspace
 import org.nlogo.models.InfoTabParts
 
 package object models {
+  
+  org.nlogo.headless.Main.setHeadlessProperty()
 
   lazy val onTravis: Boolean = sys.env.get("TRAVIS").filter(_.toBoolean).isDefined
 
