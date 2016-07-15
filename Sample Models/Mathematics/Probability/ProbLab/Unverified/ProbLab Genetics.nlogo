@@ -11,6 +11,8 @@ patches-own [
   family
 ]
 
+globals [ z-distr ]
+
 to setup
   clear-all
   ; prepares the patch colors
@@ -226,8 +228,7 @@ end
 
 to update-histogram
   set-current-plot "4-Block Distribution"
-  let z-distr []
-  ask fish [ set z-distr lput read-from-string item 1 my-genes z-distr ]
+  set z-distr [ read-from-string item 1 my-genes ] of fish
   set-current-plot-pen "Count"
   plot-pen-reset
   histogram z-distr
