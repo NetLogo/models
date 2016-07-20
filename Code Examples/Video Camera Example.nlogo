@@ -38,7 +38,7 @@ BUTTON
 185
 188
 copy to drawing layer
-let width world-width * patch-size\nlet height world-height * patch-size\nlet image (vid:capture-image width height)\nbitmap:copy-to-drawing image 0 0\ndisplay
+let width world-width * patch-size\nlet height world-height * patch-size\ncarefully [\n  let image (vid:capture-image width height)\n  bitmap:copy-to-drawing image 0 0\n  display\n] [ user-message error-message ]
 T
 1
 T
@@ -55,7 +55,7 @@ BUTTON
 185
 48
 select camera
-vid:camera-select\nvid:start
+carefully [\n  vid:camera-select\n  vid:start\n] [ user-message error-message ]
 NIL
 1
 T
@@ -89,7 +89,7 @@ BUTTON
 185
 223
 copy to pcolors
-clear-drawing ; in case we previously copied the camera input to the drawing layer\nbitmap:copy-to-pcolors (vid:capture-image world-width world-height) false\ndisplay
+clear-drawing ; in case we previously copied the camera input to the drawing layer\ncarefully [\n  bitmap:copy-to-pcolors (vid:capture-image world-width world-height) false\n  display\n] [ user-message error-message ]
 T
 1
 T
