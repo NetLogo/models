@@ -56,21 +56,29 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
   val head = (_: WSRequestHolder).head()
   val get = (_: WSRequestHolder).get()
 
-  test("URLs used in info tabs should be valid") {
-    val failures = for {
-      (link, models) <- links.par
-      if link.startsWith("http")
-      duration = 20.seconds
-      failure <- Try(Await.result(request(link, head), duration))
-        .getOrElse {
-          // tolerate time outs from the CCL server
-          if (link.contains("://ccl")) None
-          else Some(s"Timed out after ${duration}!")
-        }
-      message = (failure + "\nUsed in:\n" +
-        models.map(_.quotedPath).mkString("\n")).indent(2)
-    } yield link + "\n" + message
-    if (failures.nonEmpty) fail(failures.mkString("\n"))
+  if (!onTravis) {
+    /* Only run the URL tests locally: they take a long time to run on Travis
+     * and are an endless source of false positives (i.e., temporary failures),
+     * lowering ones sensitivity to _actual_ failures. My hope is that keeping
+     * the tests running locally will be enough to catch actual URL problems.
+     * NP 2016-07-20.
+     */
+    test("URLs used in info tabs should be valid") {
+      val failures = for {
+        (link, models) <- links.par
+        if link.startsWith("http")
+        duration = 20.seconds
+        failure <- Try(Await.result(request(link, head), duration))
+          .getOrElse {
+            // tolerate time outs from the CCL server
+            if (link.contains("://ccl")) None
+            else Some(s"Timed out after ${duration}!")
+          }
+        message = (failure + "\nUsed in:\n" +
+          models.map(_.quotedPath).mkString("\n")).indent(2)
+      } yield link + "\n" + message
+      if (failures.nonEmpty) fail(failures.mkString("\n"))
+    }
   }
 
   val exceptions: Map[Int, Seq[String]] = Map(
