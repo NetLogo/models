@@ -1465,6 +1465,26 @@ Together, these features allow the client to send NetLogo code to the model to b
 
 If the code that is executed is valid NetLogo syntax and doesn't produce any bad side-effects, such as clearing the View or having turtles die, everything should work fine.  However, there is no easy way of ensuring this currently.  As a result, code which may be unsafe to the model could be executed and may cause the model to stop unexpectedly or give a runtime error when trying to plot to the CLIENT PLOT.  We will be improving these features in future versions of NetLogo.
 
+## RELATED MODELS
+
+- "Traffic Basic": a simple model of the movement of cars on a highway.
+
+- "Traffic Basic Utility": a version of "Traffic Basic" including a utility function for the cars.
+
+- "Traffic Basic Adaptive": a version of "Traffic Basic" where cars adapt their acceleration to try and maintain a smooth flow of traffic.
+
+- "Traffic Basic Adaptive Individuals": a version of "Traffic Basic Adaptive" where each car adapts individually, instead of all cars adapting in unison.
+
+- "Traffic 2 Lanes": a more sophisticated two-lane version of the "Traffic Basic" model.
+
+- "Traffic Intersection": a model of cars traveling through a single intersection.
+
+- "Traffic Grid": a model of traffic moving in a city grid, with stoplights at the intersections.
+
+- "Traffic Grid Goal": a version of "Traffic Grid" where the cars have goals, namely to drive to and from work.
+
+- "Gridlock HubNet": a version of "Traffic Grid" where students control traffic lights in real-time.
+
 ## HOW TO CITE
 
 If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.

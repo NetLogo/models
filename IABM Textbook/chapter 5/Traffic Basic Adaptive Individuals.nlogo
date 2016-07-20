@@ -1,10 +1,10 @@
-globals [ sample-car ]
+globals [
+  sample-car
+]
 
 turtles-own [
   speed
   speed-min
-  trip-time-start
-  trip-time
   speed-to-beat
   acceleration
   best-acceleration-so-far
@@ -37,7 +37,7 @@ to setup-cars
     set color blue
     set xcor random-xcor
     set heading 90
-    ;;; set initial speed to be in range 0.1 to 1.0
+    ;; set initial speed to be in range 0.1 to 1.0
     set speed 0.1 + random-float 0.9
     set speed-min 0
     separate-cars
@@ -50,7 +50,7 @@ end
 
 ; this procedure is needed so when we click "Setup" we
 ; don't end up with any two cars on the same patch
-to separate-cars  ;; turtle procedure
+to separate-cars ;; turtle procedure
   if any? other turtles-here [
     fd 1
     separate-cars
@@ -63,9 +63,8 @@ to go
     let car-ahead one-of turtles-on patch-ahead 1
     ifelse car-ahead != nobody
       [ slow-down-car car-ahead ]
-      ;; otherwise, speed up
-      [ speed-up-car ]
-    ;;; don't slow down below speed minimum or speed up beyond speed limit
+      [ speed-up-car ] ;; otherwise, speed up
+    ;; don't slow down below speed minimum or speed up beyond speed limit
     if speed < speed-min [ set speed speed-min ]
     if speed > speed-limit [ set speed speed-limit ]
     fd speed
@@ -74,8 +73,8 @@ to go
 end
 
 to slow-down-car [ car-ahead ] ;; turtle procedure
-  set speed [ speed ] of car-ahead
-  set speed speed - deceleration
+  ;; slow down so you are driving more slowly than the car ahead of you
+  set speed [ speed ] of car-ahead - deceleration
 end
 
 to speed-up-car ;; turtle procedure
@@ -370,13 +369,13 @@ This model is in the IABM Textbook folder of the NetLogo Models Library. The mod
 
 This model models the movement of cars on a highway. Each car follows a simple set of rules: it slows down (decelerates) if it sees a car close ahead, and speeds up (accelerates) if it doesn't see a car ahead. The model extends the Traffic Basic model, from the social science section of the NetLogo models library, by having cars adapt their acceleration to try and maintain a smooth flow of traffic. It differs from the Traffic Basic Adaptive model in that this model has each car adapting individually, whereas that model has all cars adapting in unison.
 
-In other words, in this model, each car has its own acceleration rate and is trying to maximize its own average speed, whereas in Traffic Basic Adaptive, all cars share the same acceleration rate and the model is trying to maximize the average speed of all cars.
+An agent that can change its strategy based on prior experience is an adaptive agent. In the Traffic Basic Adaptive model, the agents _collectively_ adapted their behavior, using their experience to find a common strategy (i.e., an `acceleration`) that maximized the average speed of all cars. In this version of the model, the agents _individually_ adapt: each car can choose a different strategy (i.e., a different `acceleration`) in order to maximize its own speed. Instead of looking at the mean speed of all cars to evaluate the effectiveness of their current strategy, the cars look at their own mean speed since their last evaluation.
 
 ## HOW TO USE IT
 
 Click on the SETUP button to set up the cars.
 
-Set the NUMBER slider to change the number of cars on the road.
+Set the NUMBER-OF-CARS slider to change the number of cars on the road.
 
 Click on GO to start the cars moving.  Note that they wrap around the world as they move, so the road is like a continuous loop.
 
@@ -402,27 +401,21 @@ The ACCELERATION plot shows the distribution of the cars' accelerations over tim
 
 ## THINGS TO NOTICE
 
-Traffic Basic explored how traffic jams can start from small disturbances and Traffic Basic Adaptive examines how this changes when the cars are actively trying to avoid traffic jams.  In this model, cars are trying to maximize their own average speed, rather than necessarily trying to eliminate traffic jams. Does the behavior of the cars and jams visibly change when they are adapting? Is there a difference in the plot of the fastest, slowest, average and red cars, compared to the Traffic Basic and Traffic Basic Adaptive model plot?
+First run the model using the GO button for a few hundred ticks. Then stop the model by pressing GO again and restart it by pressing ADAPTIVE-GO instead. Can you notice the change in behavior?
 
-In Traffic Basic changing the Acceleration and Deceleration could affect the model dramatically. What role does the INIT-ACCELERATION slider in this model play versus the ACCELERATION slider in the original model?  Does it affect the results as much?  How about the DECELERATION slider?  Has its effect changed?
+Notice how the ACCELERATION plot shows a single line when using GO, but multiple lines when using ADAPTIVE-GO. Do you understand why? If you switch from ADAPTIVE-GO to GO during the same run, you will still have multiple lines, but they won't change anymore. Can you explain what happens?
 
 ## THINGS TO TRY
 
-In this model there are five sliders that can affect the tendency to create traffic jams: the initial NUMBER of cars, INIT-ACCELERATION,  DECELERATION, SPEED-LIMIT, and TICKS-BETWEEN-TESTS. Look for patterns in how the three settings affect the traffic flow.  Which variable has the greatest effect?  Do the patterns make sense?  Do they seem to be consistent with your driving experiences?
+Run the model using ADAPTIVE-GO until all the cars reach a speed of `1.0`. (You can temporarily uncheck "view updates" in the toolbar to make the model run faster.) All the cars now have the same speed but do they have the same acceleration? How do you explain the range of different accelerations once all the cars have had a chance to adapt?
 
-Set DECELERATION to zero.  What happens to the flow?  Gradually increase DECELERATION while the model runs.  At what point does the flow "break down"?
+When the `plot-red-car?` switch is turned on, we plot the speed of the red car in the CAR SPEEDS plot, but we don't plot its acceleration in the ACCELERATION plot. Add a (red!) pen to that plot to show the acceleration of the red car. How does the red car's compare to that if its peers? Run the model a few times. Are you getting the same result? What did you expect?
 
 ## EXTENDING THE MODEL
 
-Try other rules for speeding up and slowing down.  Is the rule presented here realistic? Are there other rules that are more accurate or represent better driving strategies?
+The cars currently adapt by changing their acceleration. What if they could also change their deceleration? You would need to add `deceleration` and `best-deceleration-so-far` as turtle variables, rename the `deceleration` slider to `init-deceleration` and make a the related changes in the `setup-cars` and `adapt` procedures. Try it out! Does it help the cars to maximize their speed?
 
-The asymmetry between acceleration and deceleration is a simplified representation of different driving habits and response times. Can you explicitly encode these into the model?
-
-What could you change to minimize the chances of traffic jams forming?
-
-What could you change to make traffic jams move forward rather than backward?
-
-Make a model of two-lane traffic.
+The amount by which acceleration varies is currently `random-float 0.002 - 0.001`. Make a slider called `variation-range` and have the acceleration vary instead by `random-float variation-range - (variation-range / 2)`. Now see what happens when you use a higher variation range. Can the model still stabilize? Now try a very low one. Are the cars still able to adapt?
 
 ## NETLOGO FEATURES
 
@@ -430,17 +423,27 @@ The CAR SPEEDS plot shows both global values and the value for a single car, whi
 
 The UPPER-QUARTILE and LOWER-QUARTILE reporters show how to easily calculate quartiles.
 
-The `watch` command is used to make it easier to focus on the red car.
-
 ## RELATED MODELS
 
-"Traffic Basic"
+- "Traffic Basic": a simple model of the movement of cars on a highway.
 
-"Traffic Basic Adaptive"
+- "Traffic Basic Utility": a version of "Traffic Basic" including a utility function for the cars.
 
-"Traffic Grid" adds a street grid with stoplights at the intersections.
+- "Traffic Basic Adaptive": a version of "Traffic Basic" where cars adapt their acceleration to try and maintain a smooth flow of traffic.
 
-"Gridlock" (a HubNet model) is a participatory simulation version of Traffic Grid
+- "Traffic 2 Lanes": a more sophisticated two-lane version of the "Traffic Basic" model.
+
+- "Traffic Intersection": a model of cars traveling through a single intersection.
+
+- "Traffic Grid": a model of traffic moving in a city grid, with stoplights at the intersections.
+
+- "Traffic Grid Goal": a version of "Traffic Grid" where the cars have goals, namely to drive to and from work.
+
+- "Gridlock HubNet": a version of "Traffic Grid" where students control traffic lights in real-time.
+
+- "Gridlock Alternate HubNet": a version of "Gridlock HubNet" where students can enter NetLogo code to plot custom metrics.
+
+The traffic models from chapter 5 of the IABM textbook demonstrate different types of cognitive agents: "Traffic Basic Utility" demonstrates _utility-based agents_, "Traffic Grid Goal" demonstrates _goal-based agents_, and "Traffic Basic Adaptive" and "Traffic Basic Adaptive Individuals" demonstrate _adaptive agents_.
 
 ## CREDITS AND REFERENCES
 

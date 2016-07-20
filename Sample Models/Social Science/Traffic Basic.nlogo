@@ -1,5 +1,12 @@
-globals [ sample-car ]
-turtles-own [ speed speed-limit speed-min ]
+globals [
+  sample-car
+]
+
+turtles-own [
+  speed
+  speed-limit
+  speed-min
+]
 
 to setup
   clear-all
@@ -10,14 +17,16 @@ to setup
 end
 
 to setup-road ;; patch procedure
-  if (pycor < 2) and (pycor > -2) [ set pcolor white ]
+  if pycor < 2 and pycor > -2 [ set pcolor white ]
 end
 
 to setup-cars
   if number-of-cars > world-width [
     user-message (word
-      "There are too many cars for the amount of road.  Please decrease the NUMBER-OF-CARS slider to below "
-      (world-width + 1) " and press the SETUP button again.  The setup has stopped.")
+      "There are too many cars for the amount of road. "
+      "Please decrease the NUMBER-OF-CARS slider to below "
+      (world-width + 1) " and press the SETUP button again. "
+      "The setup has stopped.")
     stop
   ]
   set-default-shape turtles "car"
@@ -59,14 +68,12 @@ to go
   tick
 end
 
-;; turtle (car) procedure
-to slow-down-car [ car-ahead ]
+to slow-down-car [ car-ahead ] ;; turtle procedure
   ;; slow down so you are driving more slowly than the car ahead of you
   set speed [ speed ] of car-ahead - deceleration
 end
 
-;; turtle (car) procedure
-to speed-up-car
+to speed-up-car ;; turtle procedure
   set speed speed + acceleration
 end
 
@@ -214,9 +221,7 @@ red car speed
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model models the movement of cars on a highway. Each car follows a simple set of rules: it slows down (decelerates) if it sees a car close ahead, and speeds up (accelerates) if it doesn't see a car ahead.
-
-The model demonstrates how traffic jams can form even without any accidents, broken bridges, or overturned trucks.  No "centralized cause" is needed for a traffic jam to form.
+This model models the movement of cars on a highway. Each car follows a simple set of rules: it slows down (decelerates) if it sees a car close ahead, and speeds up (accelerates) if it doesn't see a car ahead. The model demonstrates how traffic jams can form even without any accidents, broken bridges, or overturned trucks.  No "centralized cause" is needed for a traffic jam to form.
 
 ## HOW TO USE IT
 
@@ -238,9 +243,11 @@ Even though all of the cars are moving forward, the traffic jams tend to move ba
 
 The plot shows three values as the model runs:
 
- * the fastest speed of any car (this doesn't exceed the speed limit!)
- * the slowest speed of any car
- * the speed of a single car (turtle 0), painted red so it can be watched.
+* the fastest speed of any car (this doesn't exceed the speed limit!)
+
+* the slowest speed of any car
+
+* the speed of a single car (turtle 0), painted red so it can be watched.
 
 Notice not only the maximum and minimum, but also the variability -- the "jerkiness" of one vehicle.
 
@@ -250,7 +257,9 @@ Even though both ACCELERATION and DECELERATION are very small, the cars can achi
 
 ## THINGS TO TRY
 
-In this model there are three variables that can affect the tendency to create traffic jams: the initial NUMBER of cars, ACCELERATION, and DECELERATION. Look for patterns in how the three settings affect the traffic flow.  Which variable has the greatest effect?  Do the patterns make sense?  Do they seem to be consistent with your driving experiences?
+In this model there are three sliders that can affect the tendency to create traffic jams: the initial NUMBER-OF-CARS, ACCELERATION, and DECELERATION.
+
+Look for patterns in how these settings affect the traffic flow.  Which variable has the greatest effect?  Do the patterns make sense?  Do they seem to be consistent with your driving experiences?
 
 Set DECELERATION to zero.  What happens to the flow?  Gradually increase DECELERATION while the model runs.  At what point does the flow "break down"?
 
@@ -270,7 +279,7 @@ Make a model of two-lane traffic.
 
 ## NETLOGO FEATURES
 
-The plot shows both global values and the value for a single turtle, which helps one watch overall patterns and individual behavior at the same time.
+The plot shows both global values and the value for a single car, which helps one watch overall patterns and individual behavior at the same time.
 
 The `watch` command is used to make it easier to focus on the red car.
 
@@ -278,9 +287,23 @@ The `speed-limit` and `speed-min` variables are set to constant values. Since th
 
 ## RELATED MODELS
 
-"Traffic Grid" adds a street grid with stoplights at the intersections.
+- "Traffic Basic Utility": a version of "Traffic Basic" including a utility function for the cars.
 
-"Gridlock" (a HubNet model) is a participatory simulation version of Traffic Grid
+- "Traffic Basic Adaptive": a version of "Traffic Basic" where cars adapt their acceleration to try and maintain a smooth flow of traffic.
+
+- "Traffic Basic Adaptive Individuals": a version of "Traffic Basic Adaptive" where each car adapts individually, instead of all cars adapting in unison.
+
+- "Traffic 2 Lanes": a more sophisticated two-lane version of the "Traffic Basic" model.
+
+- "Traffic Intersection": a model of cars traveling through a single intersection.
+
+- "Traffic Grid": a model of traffic moving in a city grid, with stoplights at the intersections.
+
+- "Traffic Grid Goal": a version of "Traffic Grid" where the cars have goals, namely to drive to and from work.
+
+- "Gridlock HubNet": a version of "Traffic Grid" where students control traffic lights in real-time.
+
+- "Gridlock Alternate HubNet": a version of "Gridlock HubNet" where students can enter NetLogo code to plot custom metrics.
 
 ## HOW TO CITE
 

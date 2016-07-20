@@ -9,8 +9,6 @@ turtles-own [
   speed
   speed-limit
   speed-min
-  trip-time-start
-  trip-time
 ]
 
 to setup
@@ -40,8 +38,8 @@ to setup-cars
     set color blue
     set xcor random-xcor
     set heading 90
-    ;;; set initial speed to be in range 0.1 to 1.0
-    set speed  0.1 + random-float 0.9
+    ;; set initial speed to be in range 0.1 to 1.0
+    set speed 0.1 + random-float 0.9
     set speed-limit 1
     set speed-min 0
     separate-cars
@@ -52,7 +50,7 @@ end
 
 ; this procedure is needed so when we click "Setup" we
 ; don't end up with any two cars on the same patch
-to separate-cars  ;; turtle procedure
+to separate-cars ;; turtle procedure
   if any? other turtles-here [
     fd 1
     separate-cars
@@ -65,9 +63,8 @@ to go
     let car-ahead one-of turtles-on patch-ahead 1
     ifelse car-ahead != nobody
       [ slow-down-car car-ahead ]
-      ;; otherwise, speed up
-      [ speed-up-car ]
-    ;;; don't slow down below speed minimum or speed up beyond speed limit
+      [ speed-up-car ] ;; otherwise, speed up
+    ;; don't slow down below speed minimum or speed up beyond speed limit
     if speed < speed-min [ set speed speed-min ]
     if speed > speed-limit [ set speed speed-limit ]
     fd speed
@@ -76,8 +73,8 @@ to go
 end
 
 to slow-down-car [ car-ahead ] ;; turtle procedure
-  set speed [ speed ] of car-ahead
-  set speed speed - deceleration
+  ;; slow down so you are driving more slowly than the car ahead of you
+  set speed [ speed ] of car-ahead - deceleration
 end
 
 to speed-up-car ;; turtle procedure
@@ -237,7 +234,7 @@ true
 true
 "" ""
 PENS
-"red car" 1.0 0 -2674135 true "" "if plot-red-car? [plotxy ticks  [speed] of sample-car]"
+"red car" 1.0 0 -2674135 true "" "if plot-red-car? [ plotxy ticks [ speed ] of sample-car ]"
 "min speed" 1.0 0 -13345367 true "" "plot min [speed] of turtles"
 "max speed" 1.0 0 -10899396 true "" "plot max [speed] of turtles"
 "avg speed" 1.0 0 -7500403 true "" "plot mean [speed] of turtles"
@@ -372,11 +369,15 @@ This model is in the IABM Textbook folder of the NetLogo Models Library. The mod
 
 This model models the movement of cars on a highway. Each car follows a simple set of rules: it slows down (decelerates) if it sees a car close ahead, and speeds up (accelerates) if it doesn't see a car ahead. The model extends the Traffic Basic model, from the social science section of the NetLogo models library, by having cars adapt their acceleration to try and maintain a smooth flow of traffic.
 
+An agent that can change its strategy based on prior experience is an adaptive agent. Unlike conventional agents, which will always do the same thing when presented with the same circumstances, adaptive agents can make different decisions if given the same set of inputs. In the Traffic Basic model, cars do not always take the same action; they operate differently based on the cars around them by either slowing down or speeding up. However, regardless of what has happened to the cars in the past (i.e., whether they got stuck in traffic jams or not) they will continue to take the same actions in the same conditions in the future. To be truly adaptive, agents need to be able to change not only their actions in time, but also their strategies. They must be able to change how they act because they have encountered a similar situation in the past and can react differently this time based on their past experience. In other words, the agents learn from their past experience and change their behavior in the future to account for this learning.
+
+In this model, cars use the best acceleration they have found so far unless they are in a tick where they are exploring a new acceleration value, as specified by `ticks-between-tests`. Over time, the cars keep a weighted average of the speed they are able to maintain at the best acceleration; if the new acceleration allows for a faster speed, the cars will then switch to using that new acceleration. This average for the best acceleration weighs the past historical speeds higher (0.9) than the present speed (0.1), accounting for the fact that you can occasionally get spurious results (noise). Thus, it is better to rely on a large amount of data than one particular data point. However, the code still allows the best acceleration to change, which means even if the environment were to change (e.g., more cars on the road, longer road, etc.) the car could adapt to the new situation.
+
 ## HOW TO USE IT
 
 Click on the SETUP button to set up the cars.
 
-Set the NUMBER slider to change the number of cars on the road.
+Set the NUMBER-OF-CARS slider to change the number of cars on the road.
 
 Click on GO to start the cars moving.  Note that they wrap around the world as they move, so the road is like a continuous loop.
 
@@ -412,39 +413,45 @@ In Traffic Basic changing the Acceleration and Deceleration could affect the mod
 
 ## THINGS TO TRY
 
-In this model there are four sliders that can affect the tendency to create traffic jams: the initial NUMBER of cars, INIT-ACCELERATION,  DECELERATION and TICKS-BETWEEN-TESTS. Look for patterns in how the three settings affect the traffic flow.  Which variable has the greatest effect?  Do the patterns make sense?  Do they seem to be consistent with your driving experiences?
+The purpose of the TICKS-BETWEEN-TESTS slider is to allow the speed to stabilize between changes to acceleration. What happens if you set TICKS-BETWEEN-TESTS to `1`, thereby _not_ giving the speed a chance to stabilize?
 
-Set DECELERATION to zero.  What happens to the flow?  Gradually increase DECELERATION while the model runs.  At what point does the flow "break down"?
+Can you find a better value for TICKS-BETWEEN-TESTS than the default value for the model? A good way to do that would be to design a BehaviorSpace experiment that tries many possible values of TICKS-BETWEEN-TESTS and checks how long it takes (if ever) for the cars to reach an average speed of `1.0`. You would need to have multiple repetitions for each value, however, because the randomness in the model can lead to different results from one run to another.
 
 ## EXTENDING THE MODEL
 
-Try other rules for speeding up and slowing down.  Is the rule presented here realistic? Are there other rules that are more accurate or represent better driving strategies?
+In this version of the model, the `acceleration` is the same for all agents, and agents are trying to maximize the average speed of all cars. Without looking at the "Traffic Basic Adaptive Individuals" model, can you modify the model so all cars have their own acceleration and are trying to maximize their individual speed?
 
-In reality, different vehicles may follow different rules. Try giving different rules or ACCELERATION/DECELERATION values to some of the cars.  Can one bad driver mess things up?
-
-The asymmetry between acceleration and deceleration is a simplified representation of different driving habits and response times. Can you explicitly encode these into the model?
-
-What could you change to minimize the chances of traffic jams forming?
-
-What could you change to make traffic jams move forward rather than backward?
-
-Make a model of two-lane traffic.
+In the `adaptive-go` procedure, we compare the `speed-to-beat` with the `mean [ speed ] of turtles`. That gives us the mean speed at the current tick, but what if we looked instead at the mean speed for all ticks since the previous test? Would that help the cars achieve faster speed?
 
 ## NETLOGO FEATURES
 
-The plot shows both global values and the value for a single car, which helps one watch overall patterns and individual behavior at the same time.
+The behavior of the CAR SPEEDS plot is conditional on the value of the PLOT-RED-CAR? switch. This is achieved by using a simple `if`-condition in the update commands of the `"red car"` plot pen:
 
-The `watch` command is used to make it easier to focus on the red car.
+    if plot-red-car? [ plotxy ticks [ speed ] of sample-car ]
 
-The `speed-limit` and `speed-min` variables are set to constant values. Since they are the same for every car, these variables could have been defined as globals rather than turtle variables. We have specified them as turtle variables since modifications or extensions to this model might well have every car with its own speed-limit values.
+Notice the use of `plotxy ticks ...` instead of just `plot ...`. Since the plot pen may not be updated right from the start, we need to make sure we plot the right _x_ value, namely `ticks`.
 
 ## RELATED MODELS
 
-"Traffic Basic"
+- "Traffic Basic": a simple model of the movement of cars on a highway.
 
-"Traffic Grid" adds a street grid with stoplights at the intersections.
+- "Traffic Basic Utility": a version of "Traffic Basic" including a utility function for the cars.
 
-"Gridlock" (a HubNet model) is a participatory simulation version of Traffic Grid
+- "Traffic Basic Adaptive Individuals": a version of "Traffic Basic Adaptive" where each car adapts individually, instead of all cars adapting in unison.
+
+- "Traffic 2 Lanes": a more sophisticated two-lane version of the "Traffic Basic" model.
+
+- "Traffic Intersection": a model of cars traveling through a single intersection.
+
+- "Traffic Grid": a model of traffic moving in a city grid, with stoplights at the intersections.
+
+- "Traffic Grid Goal": a version of "Traffic Grid" where the cars have goals, namely to drive to and from work.
+
+- "Gridlock HubNet": a version of "Traffic Grid" where students control traffic lights in real-time.
+
+- "Gridlock Alternate HubNet": a version of "Gridlock HubNet" where students can enter NetLogo code to plot custom metrics.
+
+The traffic models from chapter 5 of the IABM textbook demonstrate different types of cognitive agents: "Traffic Basic Utility" demonstrates _utility-based agents_, "Traffic Grid Goal" demonstrates _goal-based agents_, and "Traffic Basic Adaptive" and "Traffic Basic Adaptive Individuals" demonstrate _adaptive agents_.
 
 ## HOW TO CITE
 
