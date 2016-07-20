@@ -203,9 +203,9 @@ to update-lorenz-and-gini
     set lorenz-points lput ((wealth-sum-so-far / total-wealth) * 100) lorenz-points
     set index (index + 1)
     set gini-index-reserve
-    gini-index-reserve +
-    (index / num-people) -
-    (wealth-sum-so-far / total-wealth)
+      gini-index-reserve +
+      (index / num-people) -
+      (wealth-sum-so-far / total-wealth)
   ]
 end
 
