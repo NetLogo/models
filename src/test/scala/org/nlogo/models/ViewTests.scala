@@ -12,7 +12,7 @@ class ViewTests extends TestModels {
 
   val nonStandardFrameRateModels = Set(
     "Mouse Example", "Label Position Example", "Shape Animation Example", "3D Shapes Example",
-    "Movie Example", "Connected Chemistry Atmosphere", "Connected Chemistry Rusting Reaction",
+    "Movie Recording Example", "Connected Chemistry Atmosphere", "Connected Chemistry Rusting Reaction",
     "Particle System Basic", "Particle System Fountain", "Particle System Waterfall",
     "Particle System Flame", "Brian's Brain", "Life Turtle-Based", "Life", "Robby the Robot",
     "Sample Stalagmite", "Binomial Rabbits", "Birthdays", "Random Walk 360", "Pursuit", "Lightning",

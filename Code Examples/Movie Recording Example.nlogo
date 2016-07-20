@@ -1,44 +1,27 @@
+extensions [ vid ]
+
 breed [ birds bird ]
 breed [ spinners spinner ]
 
 turtles-own [ age ]
-
-;; makes a movie of the model; stops when there are 3000 turtles
-;; and exports movie to a file
-to make-movie
-
-  ;; prompt user for movie location
-  user-message "First, save your new movie file (choose a name ending with .mov)"
-  let path user-new-file
-  if not is-string? path [ stop ]  ;; stop if user canceled
-
-  ;; run the model
-  setup
-  movie-start path
-  movie-grab-view
-  while [ count turtles < 3000 ]
-    [ go
-      movie-grab-view ]
-
-  ;; export the movie
-  movie-close
-  user-message (word "Exported movie to " path)
-end
 
 to setup
   clear-all
   create-birds 1
   create-spinner
   reset-ticks
+  if vid:recorder-status = "recording" [ vid:record-view ]
 end
 
 to go
-  ask birds
-  [ wander
+  ask birds [
+    wander
     grow-old
-    reproduce ]
+    reproduce
+  ]
   tick
   update-spinner
+  if vid:recorder-status = "recording" [ vid:record-view ]
 end
 
 to grow-old
@@ -46,33 +29,70 @@ to grow-old
 end
 
 to wander
-  rt random-float 90
-  fd 1
+  right random-float 90
+  forward 1
 end
 
 to reproduce
-  if (age > 10 and random 10 > 7)
-      [ hatch 2
-        [ set color color - 4 + random 10
-          set age 0 ]
-        die ]
+  if age > 10 and random 10 > 7 [
+    hatch 2 [
+      set color color - 4 + random 10
+      set age 0
+    ]
+    die
+  ]
 end
 
-;; make the spinner for the upper right hand corner
+; make the spinner for the upper right hand corner
 to create-spinner
-  create-spinners 1
-  [ set shape "clock"
+  create-spinners 1 [
+    set shape "clock"
     setxy (max-pxcor - 3) (max-pycor - 3)
     set color gray - 1.5
     set size 6
     set heading 0
-    set label 0 ]
+    set label 0
+  ]
 end
 
 to update-spinner
-  ask spinners
-  [ set heading ticks * 30
-    set label ticks ]
+  ask spinners [
+    set heading ticks * 30
+    set label ticks
+  ]
+end
+
+to start-recorder
+  carefully [ vid:start-recorder ] [ user-message error-message ]
+end
+
+to reset-recorder
+  let message (word
+    "If you reset the recorder, the current recording will be lost."
+    "Are you sure you want to reset the recorder?")
+  if vid:recorder-status = "inactive" or user-yes-or-no? message [
+    vid:reset-recorder
+  ]
+end
+
+to save-recording
+  if vid:recorder-status = "inactive" [
+    user-message "The recorder is inactive. There is nothing to save."
+    stop
+  ]
+  ; prompt user for movie location
+  user-message (word
+    "Choose a name for your movie file (the "
+    ".mp4 extension will be automatically added).")
+  let path user-new-file
+  if not is-string? path [ stop ]  ; stop if user canceled
+  ; export the movie
+  carefully [
+    vid:save-recording path
+    user-message (word "Exported movie to " path ".")
+  ] [
+    user-message error-message
+  ]
 end
 
 
@@ -108,10 +128,10 @@ ticks
 1000.0
 
 BUTTON
-12
-54
-78
-87
+25
+100
+100
+133
 NIL
 setup
 NIL
@@ -125,10 +145,10 @@ NIL
 1
 
 BUTTON
-91
-54
-154
-87
+106
+100
+176
+133
 NIL
 go
 T
@@ -142,12 +162,12 @@ NIL
 0
 
 BUTTON
-11
-270
-153
-303
-NIL
-make-movie
+25
+310
+300
+343
+save recording
+save-recording
 NIL
 1
 T
@@ -159,10 +179,10 @@ NIL
 1
 
 MONITOR
-166
-54
-279
-99
+184
+100
+297
+145
 NIL
 count birds
 3
@@ -170,30 +190,70 @@ count birds
 11
 
 MONITOR
-11
-320
-308
-365
+26
+260
+301
+305
 NIL
-movie-status
+vid:recorder-status
 3
 1
 11
 
+BUTTON
+165
+220
+301
+253
+reset recorder
+reset-recorder
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+25
+220
+158
+253
+start recorder
+start-recorder
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
 @#$#@#$#@
 ## WHAT IS IT?
 
-This shows how to capture a movie of your model.
+This shows how to capture a movie of your model with the `vid` extension.
 
 The model is of a population of birds.  Once a bird is 10 ticks old, it can hatch two offspring and die.  The number of birds, of course, increases exponentially.
 
-The procedure `make-movie` runs the model, captures the view to a movie, and exports the movie to a file.
+The model provides buttons to start the movie recorder and then save your recording or reset the movie recorder if you don't like what you have recorded so far. The code for these buttons can easily be copied to any user model.
 
 ## HOW TO USE IT
 
-Click `make-movie` to capture a movie.  NetLogo will prompt you for the location of the movie file.
+The model can be used like most NetLogo models: click SETUP to initialize the model and then GO to run it.
 
-If you want to make a movie of your own model, you can copy and paste the `make-movie` procedure into your model.
+If you want to make a movie of the model, click START RECORDER at any time. You will notice that the VID:RECORDER-STATUS monitor changes from "inactive" to "recording". Once recording is active, the recorder will capture a frame of the model each time SETUP or GO is executed.
+
+Once you have a movie that you think you will like, you can use the SAVE RECORDING button to save it. NetLogo will prompt you for a file name and automatically add the `.mp4` extension to it if you don't add it yourself.
+
+If you don't want to save your movie and prefer to start over, click RESET RECORDING. The recorder will "forget" everything that it has recorded so far.
+
+If you want to add recording capabilities to your own model, copy the code for `start-recorder`, `reset-recorder` and `save-recording` to the code tab of your model and create the corresponding buttons in your interface tab. You can also add a `vid:recorder-status` monitor if you like.
 
 ## THINGS TO NOTICE
 
@@ -201,19 +261,20 @@ Like any model with exponential population growth, this model slows down after e
 
 Creating a movie of the model solves the problem.  The movie allows us to observe the model while real time and model time progress at a consistent rate.  When we replay the movie, the spinner spins at a constant rate.
 
-Note that the model only shows what's happening in the view; it doesn't show monitors updating, and if the model had any plots in it, they wouldn't be shown either. That's because the code uses the `movie-grab-view` command, which only includes the view in the model.  You can substitute `movie-grab-interface`; then the whole interface tab is grabbed.
+Note that the model only shows what's happening in the view; it doesn't show monitors updating, and if the model had any plots in it, they wouldn't be shown either. That's because the code uses the `vid:record-view` command, which only includes the view in the model.  You can substitute `vid:record-interface`; then the whole interface tab is grabbed.
 
 ## THINGS TO TRY
 
-A different way of making a movie, besides a procedure like `make-movie`, is to use BehaviorSpace.  BehaviorSpace is a tool built into NetLogo that lets you set up automated model runs.  Usually BehaviorSpace is used to do many model runs in which you experiment with different settings in a model, but it's also possible to use it to set up a single run in order to make a movie.
+A different way of making a movie is to use BehaviorSpace.  BehaviorSpace is a tool built into NetLogo that lets you set up automated model runs.  Usually BehaviorSpace is used to do many model runs in which you experiment with different settings in a model, but it's also possible to use it to set up a single run in order to make a movie.
 
-This model includes a sample BehaviorSpace "experiment setup" which makes a movie, just like the `make-movie` procedure.  To try it, choose BehaviorSpace on the Tools menu.  In the dialog that opens you'll see an experiment called "make movies".  Select that experiment and hit the "Run" button.  Background runs in parallel BehaviorSpace experiment can't make movies, so change the "Simultaneous number of runs" setting to 1, disabling background runs, and hit "OK".  The model will run three times and a movie files will be generated each time. The `behaviorspace-run-number` primitive is used to give each movie a different name.
+This model includes a sample BehaviorSpace "experiment setup" which makes a movie.  To try it, choose BehaviorSpace on the Tools menu.  In the dialog that opens you'll see an experiment called "make movies".  Select that experiment and hit the "Run" button. The model will run three times and a movie files will be generated each time. The `behaviorspace-run-number` primitive is used to give each movie a different name.
 
 If you want to see how the experiment was set up, select the experiment in the BehaviorSpace dialog and press the "Edit" button.  You'll notice that:
 
-- the setup commands include `movie-start` and `movie-grab-view`
-- the go commands include `movie-grab-view`
-- the final commands include `movie-close`
+- the "Setup commands" include `vid:start-recorder`
+- the "Final commands" include `vid:save-recording (word behaviorspace-run-number)`
+
+The current `setup` and `go` procedures in the model already include `if vid:recorder-status = "recording" [ vid:record-view ]`. If you were trying to record a movie for a model that didn't already have them, you could include calls to `vid:record-view` in the "Setup commands" and "Go commands" of the BehaviorSpace experiment.
 
 Together, those commands make a complete movie.
 
@@ -517,14 +578,10 @@ setup repeat 175 [ go ]
 @#$#@#$#@
 <experiments>
   <experiment name="make movies" repetitions="3" runMetricsEveryStep="false">
-    <setup>setup
-movie-start
-  word behaviorspace-run-number
-       ".mov"
-movie-grab-view</setup>
-    <go>go
-movie-grab-view</go>
-    <final>movie-close</final>
+    <setup>vid:start-recorder
+setup</setup>
+    <go>go</go>
+    <final>vid:save-recording (word behaviorspace-run-number)</final>
     <exitCondition>count turtles &gt;= 3000</exitCondition>
   </experiment>
 </experiments>
@@ -541,5 +598,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
