@@ -280,7 +280,6 @@ class CodeTests extends TestModels {
     "Histo Blocks",
     "Minority Game",
     "Prob Graphs Basic",
-    "ProbLab Genetics",
     "Robby the Robot",
     "Sample Stalagmite",
     "Sampler Solo",

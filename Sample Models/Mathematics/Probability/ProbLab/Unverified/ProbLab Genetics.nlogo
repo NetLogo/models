@@ -33,7 +33,7 @@ to add-fish [ n ]
   repeat n [
     let dummy add-custom-fish choose-random-n-z
   ]
-  update-histogram
+  update-plots
 end
 
 ; add a fish with the given genes and report a reference to it
@@ -226,26 +226,6 @@ to-report res-shape
   report "fish-blue-fin"
 end
 
-to update-histogram
-  set-current-plot "4-Block Distribution"
-  set z-distr [ read-from-string item 1 my-genes ] of fish
-  set-current-plot-pen "Count"
-  plot-pen-reset
-  histogram z-distr
-  let maxbar modes z-distr
-  let maxrange length ( filter [ ? = item 0 maxbar ] z-distr )
-  set-plot-y-range 0 max list 10 maxrange
-  ; plots a vertical line at mean
-  set-current-plot-pen "Average"
-  plot-pen-reset
-  if z-distr != [] [
-    plotxy mean z-distr plot-y-min
-    plot-pen-down
-    plotxy mean z-distr plot-y-max
-    plot-pen-up
-  ]
-end
-
 
 ; Copyright 2004 Uri Wilensky.
 ; See Info tab for full copyright and license.
@@ -359,10 +339,10 @@ occurrences
 10.0
 true
 true
-"" "update-histogram"
+"" "set z-distr [ read-from-string item 1 my-genes ] of fish"
 PENS
-"Count" 1.0 1 -16777216 true "" ""
-"Average" 1.0 0 -2674135 true "" ""
+"Count" 1.0 1 -16777216 true "" "let maxbar modes z-distr\nlet maxrange length (filter [ ? = item 0 maxbar ] z-distr )\nset-plot-y-range 0 max list 10 maxrange\nhistogram z-distr\n"
+"Average" 1.0 0 -2674135 true "" "; plots a vertical line at mean\nplot-pen-reset\nif z-distr != [] [\n  plotxy mean z-distr plot-y-min\n  plot-pen-down\n  plotxy mean z-distr plot-y-max\n  plot-pen-up\n]"
 
 SLIDER
 5
