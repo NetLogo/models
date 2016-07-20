@@ -1,327 +1,229 @@
-globals [ z-distr
-          dom-color ;; dominant gene color
-          res-color ;; recessive gene color
-          dom-shape
-          res-shape
-          prev-x
-          prev-y
-        ]
-
-breed [ output-shapes outer-shape ]
+breed [ output-shapes output-shape ]
 breed [ fish a-fish ]
 
-fish-own [ age my-genes  ]
+fish-own [
+  age
+  my-genes
+]
 
-patches-own [ orig-color family ]
+patches-own [
+  original-color
+  family
+]
+
+globals [ z-distr ]
 
 to setup
   clear-all
-  set dom-color green
-  set res-color blue
-  set dom-shape "fish-green-fin"
-  set res-shape "fish-blue-fin"
-  ;;prepares the patch colors
+  ; prepares the patch colors
   ask patches [ set pcolor red + random 3 ]
-  ;; the origin is moved toward the top of the view so
-  ;; the single row of patches with positive pycors
-  ;; can easily be used to display genetic information
-  ;; when a fish is selected in "reveal genes" mode
+  ; the origin is moved toward the top of the view so
+  ; the single row of patches with positive pycors
+  ; can easily be used to display genetic information
+  ; when a fish is selected in "reveal genes" mode
   ask patches with [ pycor > 0 ] [ set pcolor white ]
-  ask patches [ set orig-color pcolor  set family [] ]
+  ask patches [
+    set original-color pcolor
+    set family []
+  ]
   reset-ticks
-  update-graphs false
 end
 
-to add-fish [ x ]
-  repeat x [ let k add-custom-fish choose-random-n-z ]
-  update-graphs true
+to add-fish [ n ]
+  repeat n [
+    let dummy add-custom-fish choose-random-n-z
+  ]
+  update-plots
 end
 
-;;returns the who of the addition
-to-report add-custom-fish [ child ]
-  let who-child 0
-  create-fish 1
-  [
-    set my-genes child
-    ifelse read-from-string (item 3 my-genes) = 1 or read-from-string (item 4 my-genes) = 1
+; add a fish with the given genes and report a reference to it
+to-report add-custom-fish [ child-genes ]
+  let child nobody
+  create-fish 1 [
+    set my-genes child-genes
+    express-genes
+    setxy random-xcor (random-float min-pycor)
+    set-next-heading
+    set child self
+  ]
+  report child
+end
+
+to express-genes ; fish procedure
+  ifelse item 3 my-genes = "1" or item 4 my-genes = "1"
     [ set color dom-color ]
     [ set color res-color ]
-    ifelse read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1
+  ifelse item 5 my-genes = "1" or item 6 my-genes = "1"
     [ set shape dom-shape ]
     [ set shape res-shape ]
-
-    setxy random-xcor
-          random-float min-pycor
-
-    ;;checks, so stays in-bounds next move
-    let p patch-ahead 1
-    while [ p = nobody or [pycor] of p > (max-pycor - 1)]
-    [
-      rt random 360
-      set p patch-ahead 1
-    ]
-    set who-child who
-  ]
-  report who-child
 end
 
 to-report choose-random-n-z
-  let combination []
-  repeat 4
-  [
-    set combination lput random 2 combination
-  ]
-  let name ""
-  set name (word name length filter [ ? = 1 ] combination "-")
-  foreach combination [ set name word name ? ]
-  report word "f" name
+  report combination-to-string n-values 4 [ random 2 ]
+end
+
+to-report combination-to-string [ combination ]
+  report reduce word (sentence "f" (sum combination) "-" combination)
 end
 
 to go
-  ask fish with [ age >= life-span ] [ die ]
-  ask fish [ set age age + 1 ]
-  ask patches with [ pcolor = yellow or pcolor = white ] [ set pcolor orig-color  set family [] ]
 
-  let to-collide []
-  ask patches [ set family [] ]
-
-  ask fish [ wander-around ]
-
-  ;;collects agents that are on the same patch
-  ;;and chooses 2 of them randomly (if more than 2)
-  ask patches
-  [
-    if (count fish-here > 1) [ set to-collide lput (n-of 2 fish-here) to-collide ]
+  ask patches [
+    set pcolor original-color
+    set family []
   ]
 
-  ;;collides the fish, 2 at a time
-  foreach to-collide
-  [
-    ;; make sure the first parent has a lower who number than the
-    ;; second parent
+  ask fish [
+    if age >= life-span [ die ]
+    set age age + 1
+    wander-around
+  ]
+
+  ; collides pairs of fish that are on the same patch
+  foreach [ n-of 2 fish-here ] of patches with [ count fish-here > 1 ] [
+    ; make sure the first parent has a lower
+    ; who number than the second parent
     collide (first sort ?) (last sort ?)
   ]
   tick
-  update-graphs false
 end
 
 to collide [ parent1 parent2 ]
-  if mating-rules-check parent1 parent2
-  [
-    ;;makes a child
-    let child create-child ([patch-here] of parent1) [my-genes] of parent1 [my-genes] of parent2
-    ask [patch-here] of parent1 [ set pcolor yellow ]
-    let who-child add-custom-fish child
-
-    ask [patch-here] of parent1 [ set family fput turtle who-child family ]
-    ask [patch-here] of parent1 [ set family fput parent2 family ]
-    ask [patch-here] of parent1 [ set family fput parent1 family ]
+  if can-mate? parent1 parent2 [
+    ; makes a child
+    let genes1 [ my-genes ] of parent1
+    let genes2 [ my-genes ] of parent2
+    let child-genes create-child ([ patch-here ] of parent1) genes1 genes2
+    let child add-custom-fish child-genes
+    ask [ patch-here ] of parent1 [
+      set pcolor yellow
+      set family (sentence parent1 parent2 child family)
+    ]
   ]
 end
 
-to-report mating-rules-check [ parent1 parent2 ]
-  if mate-with = "Any Fish"
-    [ report true ]
-  if mate-with = "Same Body"
-    [ report ([color] of parent1 = [color] of parent2) ]
-  if mate-with = "Same Fin"
-    [ report ([shape] of parent1 = [shape] of parent2) ]
-  if mate-with = "Same Both"
-    [ report (([color] of parent1 = [color] of parent2) and ([shape] of parent1 = [shape] of parent2)) ]
+to-report can-mate? [ parent1 parent2 ]
+  let same-body? ([ color ] of parent1 = [ color ] of parent2)
+  let same-fin?  ([ shape ] of parent1 = [ shape ] of parent2)
+  if mate-with = "Any Fish"  [ report true ]
+  if mate-with = "Same Body" [ report same-body? ]
+  if mate-with = "Same Fin"  [ report same-fin? ]
+  if mate-with = "Same Both" [ report same-body? and same-fin? ]
   report false
 end
 
 to-report create-child [ yellow-patch genes1 genes2 ]
-  ;;makes the child
-  let c-list []
-  let new-genes []
-  ;;top left
-  let rand random 2
-  set new-genes lput rand new-genes
-  set c-list lput item (3 + rand) genes1 c-list
-  ;;top right
-  set rand random 2
-  set new-genes lput rand new-genes
-  set c-list lput item (3 + rand) genes2 c-list
-  ;;bottom left
-  set rand random 2
-  set new-genes lput rand new-genes
-  set c-list lput item (5 + rand) genes1 c-list
-  ;;bottom right
-  set rand random 2
-  set new-genes lput rand new-genes
-  set c-list lput item (5 + rand) genes2 c-list
-
-  let child ""
-  set child (word "f"
-                  length filter [ ? = "1" ] c-list
-                  "-")
-  foreach c-list [ set child word child ? ]
+  ; makes the child
+  let new-genes n-values 4 [ random 2 ]
   ask yellow-patch [ set family new-genes ]
-  report child
+  report combination-to-string (map
+    [ read-from-string item (?1 + ?2) ?3 ]
+    [ 3 3 5 5 ] new-genes (list genes1 genes2 genes1 genes2))
 end
 
 to reveal-genes
-  ifelse mouse-down?
-  [
-    ;;checks so not looking at same patch again
-    if not (prev-x = mouse-xcor and prev-y = mouse-ycor)
-    [
-      set prev-x mouse-xcor
-      set prev-y mouse-ycor
-      ;;reveals genes -- with two fish mating, if patch is yellow
-      ifelse [pcolor] of patch mouse-xcor mouse-ycor = yellow
-      [
-        ;;hides all fish, other than the ones related to the patch
-        ask fish [ set hidden? true ]
-        foreach (filter [is-turtle? ? ] [family] of (patch mouse-xcor mouse-ycor)) [ ask ? [ set hidden? false ] ]
-        ask patches [ set pcolor orig-color ]
-        ask patch mouse-xcor mouse-ycor [ set pcolor yellow ]
-        output-genetics (patch mouse-xcor mouse-ycor)
+  ifelse mouse-down? [
+    let x mouse-xcor
+    let y mouse-ycor
+    ifelse [ pcolor ] of patch x y = yellow [
+      ; reveals genes -- with two fish mating, if patch is yellow
+      if not any? output-shapes [
+        output-genetics [ family ] of patch x y
+        let fish-family turtle-set filter is-turtle? [ family ] of patch x y
+        ask fish-family [ express-genes ]
+        ask fish [ set hidden? (not member? self fish-family) ]
+        ask patches [ set pcolor original-color ]
+        ask patch x y [ set pcolor yellow ]
       ]
-      ;;finds closest turtle if patch not yellow
-      [
-        let min-d -1
-        let dist 3
-        ask fish-on patch round mouse-xcor round mouse-ycor
-        [
-          if dist > distancexy mouse-xcor mouse-ycor
-          [
-            set dist distancexy mouse-xcor mouse-ycor
-            set min-d who
-          ]
-        ]
-        ;;reveals shape, if there is a turtle
-        if min-d != -1
-        [
-          ask fish with [ who = min-d ]
-          [
-            set shape my-genes
-          ]
-        ]
+    ]
+    [
+      ; finds closest turtle if patch not yellow
+      reset-display
+      ask min-one-of [ fish in-radius 2 ] of patch x y [ distancexy x y ] [
+        set shape my-genes
       ]
     ]
   ]
-  ;;changes state to normal
-  [
-    ask fish with [ hidden? = true ] [ set hidden? false ]
-    if count fish with [ shape != res-shape and shape != dom-shape ] > 0
-    [
-      ask fish with [ read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1 ]
-        [ set shape dom-shape ]
-      ask fish with [ not (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1) ]
-        [ set shape res-shape ]
-    ]
-    if count output-shapes != 0 [ ask output-shapes [ die ] ]
-    ask patches with [ family != [] and pcolor != yellow ] [ set pcolor yellow ]
-  ]
+  [ reset-display ]
   display
 end
 
-to output-genetics [ yellow-patch ]
-  ;;genes: "shape1" "shape2" "child" top-left top-right bottom-left bottom-right
-  let shape1  [my-genes] of item 0 [family] of yellow-patch
-  let shape2  [my-genes] of item 1 [family] of yellow-patch
-  let child   [my-genes] of item 2 [family] of yellow-patch
-  let t-left  item 3 [family] of yellow-patch
-  let t-right item 4 [family] of yellow-patch
-  let b-left  item 5 [family] of yellow-patch
-  let b-right item 6 [family] of yellow-patch
-
-  ;;makes the parents and children
-  create-output-shapes 1 [ set shape shape1 setxy min-pxcor max-pycor ]
-  create-output-shapes 1 [ set shape shape2 setxy (min-pxcor + 1.5) (max-pycor) ]
-  create-output-shapes 1 [ set shape "arrow" setxy (min-pxcor + 2.5) (max-pycor) set heading 90 ]
-  create-output-shapes 1 [ set shape child setxy (min-pxcor + 3.5) (max-pycor) ]
-
-  ;;makes the frames
-  ;;top left
-  if t-left = 0
-    [ create-output-shapes 1 [ set shape "frame-thicker" set size .5 setxy (- 5.25) 1.25 set color orange ] ]
-  if t-left = 1
-    [ create-output-shapes 1 [ set shape "frame-thicker" set size .5 setxy (- 4.75) 1.25 set color orange ] ]
-  ;;top right
-  if t-right = 0
-    [ create-output-shapes 1 [ set shape "frame-thicker" set size .5 setxy (- 3.75) 1.25 set color orange ] ]
-  if t-right = 1
-    [ create-output-shapes 1 [ set shape "frame-thicker" set size .5 setxy (- 3.25) 1.25 set color orange ] ]
-  ;;bottom left
-  if b-left = 0
-    [ create-output-shapes 1 [ set shape "frame-thicker" set size .5 setxy (- 5.25) 0.75 set color 74 ] ]
-  if b-left = 1
-    [ create-output-shapes 1 [ set shape "frame-thicker" set size .5 setxy (- 4.75) 0.75 set color 74 ] ]
-  ;;bottom right
-  if b-right = 0
-    [ create-output-shapes 1 [ set shape "frame-thicker" set size .5 setxy (- 3.75) 0.75 set color 74 ] ]
-  if b-right = 1
-    [ create-output-shapes 1 [ set shape "frame-thicker" set size .5 setxy (- 3.25) 0.75 set color 74 ] ]
-  ;;shows the plus
-  create-output-shapes 1 [ set shape "plus"  setxy (min-pxcor + .75) (max-pycor)  set size .5 ]
-end
-
-to wander-around
-  every .1
-  [
-    ;;moves one
-    fd 1
-
-    ;;checks so doesn't go out of bounds next move
-    rt random 360
-    let p patch-ahead 1
-    while [ p = nobody or [pycor] of p > (max-pycor - 1)]
-    [
-      rt random 360
-      set p patch-ahead 1
-    ]
+to reset-display
+  ask output-shapes [ die ]
+  ask patches with [ not empty? family ] [ set pcolor yellow ]
+  ask fish [
+    express-genes
+    show-turtle
   ]
 end
 
-to update-graphs [ just-histogram? ]
-  set z-distr []
-  ask fish [ set z-distr lput read-from-string item 1 my-genes z-distr ]
-  set-current-plot "4-Block Distribution"
-  set-current-plot-pen "Count"
-  plot-pen-reset
-  histogram z-distr
-  let maxbar modes z-distr
-  let maxrange length ( filter [ ? = item 0 maxbar ] z-distr )
-  set-plot-y-range 0 max list 10 maxrange
-  ;;plots a vertical line at mean
-  set-current-plot-pen "Average"
-  plot-pen-reset
-  if z-distr != []
-  [
-    plotxy mean z-distr plot-y-min
-    plot-pen-down
-    plotxy mean z-distr plot-y-max
-    plot-pen-up
-  ]
+to output-genetics [ this-family ]
 
-  if not just-histogram?
-  [
-    set-current-plot "Percent Fish by Properties"
-    ifelse count fish != 0
-    [
-      set-current-plot-pen "G-body G-fin"
-      plot 100 * count fish with [ color = green and shape = dom-shape ] / count fish
-      set-current-plot-pen "G-body B-fin"
-      plot 100 * count fish with [ color = green and shape = res-shape ] / count fish
-      set-current-plot-pen "B-body G-fin"
-      plot 100 * count fish with [ color = blue and shape = dom-shape ] / count fish
-      set-current-plot-pen "B-body B-fin"
-      plot 100 * count fish with [ color = blue and shape = res-shape ] / count fish
+  ask output-shapes [ die ]
+
+  let genes1      [ my-genes ] of item 0 this-family
+  let genes2      [ my-genes ] of item 1 this-family
+  let child-genes [ my-genes ] of item 2 this-family
+  let top-left                    item 3 this-family
+  let top-right                   item 4 this-family
+  let bottom-left                 item 5 this-family
+  let bottom-right                item 6 this-family
+
+  (foreach (list genes1 "small plus" genes2 "right arrow" child-genes) [ 0 0.75 1.5 2.5 3.5 ] [
+    create-output-shapes 1 [
+      set shape ?1
+      setxy (min-pxcor + ?2) max-pycor
     ]
-    [
-      set-current-plot-pen "G-body G-fin"
-      plot 0
-      set-current-plot-pen "G-body B-fin"
-      plot 0
-      set-current-plot-pen "B-body G-fin"
-      plot 0
-      set-current-plot-pen "B-body B-fin"
-      plot 0
-    ]
+  ])
+
+  let left-xs  (list (- 5.25) (- 4.75))
+  let right-xs (list (- 3.75) (- 3.25))
+  make-frame (item top-left     left-xs ) 1.25 orange
+  make-frame (item top-right    right-xs) 1.25 orange
+  make-frame (item bottom-left  left-xs ) 0.75 turquoise - 1
+  make-frame (item bottom-right right-xs) 0.75 turquoise - 1
+
+end
+
+to make-frame [ x y frame-color ]
+  create-output-shapes 1 [
+    set shape "frame-thicker"
+    set size .5
+    setxy x y
+    set color frame-color
   ]
+end
+
+to wander-around ; fish procedure
+  forward 1 ; moves one
+  set-next-heading
+end
+
+to set-next-heading ; fish procedure
+  ; choose a random heading, making sure it
+  ; doesn't go out of bounds next move
+  set heading random 360
+  let p patch-ahead 1
+  while [ p = nobody or [ pycor ] of p > (max-pycor - 1) ] [
+    set heading random 360
+    set p patch-ahead 1
+  ]
+end
+
+to-report dom-color ; dominant gene color
+  report green
+end
+
+to-report res-color ; recessive gene color
+  report blue
+end
+
+to-report dom-shape
+  report "fish-green-fin"
+end
+
+to-report res-shape
+  report "fish-blue-fin"
 end
 
 
@@ -424,10 +326,10 @@ NIL
 0
 
 PLOT
-577
-326
-880
-481
+580
+325
+910
+480
 4-Block Distribution
 # green squares in block
 occurrences
@@ -437,16 +339,16 @@ occurrences
 10.0
 true
 true
-"" ""
+"" "set z-distr [ read-from-string item 1 my-genes ] of fish"
 PENS
-"Count" 1.0 1 -16777216 true "" ""
-"Average" 1.0 0 -2674135 true "" ""
+"Count" 1.0 1 -16777216 true "" "let maxbar modes z-distr\nlet maxrange length (filter [ ? = item 0 maxbar ] z-distr )\nset-plot-y-range 0 max list 10 maxrange\nhistogram z-distr\n"
+"Average" 1.0 0 -2674135 true "" "; plots a vertical line at mean\nplot-pen-reset\nif z-distr != [] [\n  plotxy mean z-distr plot-y-min\n  plot-pen-down\n  plotxy mean z-distr plot-y-max\n  plot-pen-up\n]"
 
 SLIDER
-7
-395
-116
-428
+5
+375
+114
+408
 life-span
 life-span
 1
@@ -458,10 +360,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-815
-381
-880
-426
+840
+380
+905
+425
 Ave Block
 mean z-distr
 2
@@ -488,7 +390,7 @@ NIL
 PLOT
 577
 174
-880
+907
 322
 Percent Fish by Properties
 # of iterations
@@ -501,26 +403,26 @@ true
 true
 "" ""
 PENS
-"G-body G-fin" 1.0 0 -10899396 true "" ""
-"G-body B-fin" 1.0 0 -6459832 true "" ""
-"B-body G-fin" 1.0 0 -13312 true "" ""
-"B-body B-fin" 1.0 0 -13345367 true "" ""
+"G-body G-fin" 1.0 0 -10899396 true "" "plotxy ticks ifelse-value any? fish [ 100 * count fish with [ color = green and shape = dom-shape ] / count fish ] [ 0 ] "
+"G-body B-fin" 1.0 0 -6459832 true "" "plotxy ticks ifelse-value any? fish [ 100 * count fish with [ color = green and shape = res-shape ] / count fish ] [ 0 ] "
+"B-body G-fin" 1.0 0 -13312 true "" "plotxy ticks ifelse-value any? fish [ 100 * count fish with [ color = blue and shape = dom-shape ] / count fish ] [ 0 ] "
+"B-body B-fin" 1.0 0 -13345367 true "" "plotxy ticks ifelse-value any? fish [ 100 * count fish with [ color = blue and shape = res-shape ] / count fish ] [ 0 ] "
 
 CHOOSER
-7
-434
-116
-479
+5
+414
+114
+459
 mate-with
 mate-with
 "Any Fish" "Same Body" "Same Fin" "Same Both"
 0
 
 MONITOR
-597
-11
-683
-56
+610
+10
+696
+55
 G-body G-fin
 count fish with [ color = green and (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1)]
 0
@@ -528,10 +430,10 @@ count fish with [ color = green and (read-from-string (item 5 my-genes) = 1 or r
 11
 
 MONITOR
-687
-11
-771
-56
+700
+10
+784
+55
 G-body B-fin
 count fish with [ color = green and not (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1)]
 3
@@ -539,10 +441,10 @@ count fish with [ color = green and not (read-from-string (item 5 my-genes) = 1 
 11
 
 MONITOR
-597
-63
-683
-108
+610
+62
+696
+107
 B-body G-fin
 count fish with [ color = blue and (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1)]
 0
@@ -550,10 +452,10 @@ count fish with [ color = blue and (read-from-string (item 5 my-genes) = 1 or re
 11
 
 MONITOR
-687
-63
-771
-108
+700
+62
+784
+107
 B-body B-fin
 count fish with [ color = blue and not (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1)]
 0
@@ -561,10 +463,10 @@ count fish with [ color = blue and not (read-from-string (item 5 my-genes) = 1 o
 11
 
 MONITOR
-597
-121
-683
-166
+610
+120
+696
+165
 Total     G-fin
 count fish with [ read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1 ]
 0
@@ -572,10 +474,10 @@ count fish with [ read-from-string (item 5 my-genes) = 1 or read-from-string (it
 11
 
 MONITOR
-687
-121
-772
-166
+700
+120
+785
+165
 Total     B-fin
 count fish with [ not (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1) ]
 0
@@ -583,10 +485,10 @@ count fish with [ not (read-from-string (item 5 my-genes) = 1 or read-from-strin
 11
 
 MONITOR
-780
-63
-860
-108
+793
+62
+873
+107
 B-body Total
 count fish with [ color = blue ]
 0
@@ -594,10 +496,10 @@ count fish with [ color = blue ]
 11
 
 MONITOR
-780
-11
-860
-56
+793
+10
+873
+55
 G-body Total
 count fish with [ color = green ]
 0
@@ -605,10 +507,10 @@ count fish with [ color = green ]
 11
 
 MONITOR
-780
-121
-860
-166
+793
+120
+873
+165
 Total fish
 count fish
 0
@@ -622,14 +524,14 @@ This model demonstrates some connections between probability and the natural sci
 
 Fish vary by body and fin color, each of which can be either green or blue, so there are four different phenotypes.  Underlying this variation are dominant and recessive genes, expressed in "4-blocks."  A 4-block is a 2-by-2 array of squares, each of which can be either green or blue.  Initially, fish are randomly distributed by 4-block genotype. Then, fish seek mates and reproduce, and the genetic distribution changes.
 
-This model is a part of the ProbLab curriculum.  The ProbLab curriculum is currently under development at the CCL. For more information about the ProbLab curriculum please refer to http://ccl.northwestern.edu/curriculum/ProbLab/.
+This model is a part of the ProbLab curriculum. For more information about the ProbLab curriculum please refer to http://ccl.northwestern.edu/curriculum/ProbLab/.
 
 ## PEDAGOGICAL NOTE
 
 Fishes' Mendel-type dominant/recessive genetic combinations are shown as "4-Blocks," such as the following:
 
-[B][G] = Blue in the top left corner, Green in the top right corner
-[B][B] = Blue in the bottom left corner, Blue in the bottom right corner
+`[B][G]` = Blue in the top left corner, Green in the top right corner
+`[B][B]` = Blue in the bottom left corner, Blue in the bottom right corner
 
 The top row of the 4-block, e.g., "B G," is the fish's genetic code for body color, and the bottom row, e.g., "B B," is for fin color. Green is the dominant gene both for body and fin color, whereas blue is the recessive gene for those attributes.  Thus, a green-green top row makes for a green body color and so does green-blue and blue-green.  Only a blue-blue top row would give a blue body color.  The same applies to the bottom row, with respect to fin color.  For example, the fish with the genes in the 4-block above, has a green body and a blue fin.
 
@@ -646,9 +548,11 @@ When the fish mate, the offspring's genotype, both for the body color and the fi
 Press SETUP, and then add as many fish as you'd like, in increments of 10, by pressing ADD FISH.  Change the mating rules in the MATE-WITH chooser and the LIFE-SPAN of a fish.  Then, press GO ONCE or GO to see the fish interact.  Below are more features that will let you take full advantage of the model's capabilities.
 
 Sliders:
+
 LIFE-SPAN -- sets the number of "years," or time-steps, a fish will live.
 
 Buttons:
+
 SETUP -- initializes variables, re-colors the tiles, and resets the monitors and the graphs.
 
 ADD FISH -- adds 10 fish to the display, updating the 4-BLOCK DISTRIBUTION histogram.
@@ -660,6 +564,7 @@ GO -- forever button that keeps running through the 'go' procedure (GO ONCE runs
 REVEAL GENES -- when the button is pressed, click on specific fish on the display to view their 4-Block Genotype. If you click on a mating fish (it's on a yellow patch), the genes of both of the parents and the child are revealed at the top of the display, and all other fish are temporarily hidden.
 
 Monitors:
+
 G-BODY G-FIN -- displays the number of fish with a green body and a green fin.
 
 G-BODY B-FIN -- displays the number of fish with a green body and a blue fin.
@@ -681,12 +586,15 @@ TOTAL B- FIN -- displays the number of fish with a blue fin (G-BODY B-FIN + B-BO
 AVE BLOCK -- gives the mean number of green squares in the genetic material (4-Blocks) of the entire fish population.
 
 Plots:
+
 PERCENT FISH BY PROPERTIES -- keeps track of the trends of the different sub-populations over multiple time-steps.
 
 4-BLOCK DISTRIBUTION -- histogram of fish genotype, grouped by the number of green squares in the 4-Blocks.  The vertical red line represents the AVE BLOCK.
 
 Choosers:
+
 MATE-WITH -- Represents the four different mating-rule choices:
+
 1. "Any Fish" -- Any fish with another fish.
 2. "Same Body" -- Only fish with the same body color.
 3. "Same Fin" -- Only fish with the same fin color.
@@ -754,7 +662,7 @@ In Expected Value Advanced, a model of the ProbLab Curriculum, the same metaphor
 
 ## CREDITS AND REFERENCES
 
-This model is a part of the ProbLab curriculum. The ProbLab Curriculum is currently under development at Northwestern's Center for Connected Learning and Computer-Based Modeling. . For more information about the ProbLab Curriculum please refer to http://ccl.northwestern.edu/curriculum/ProbLab/.
+This model is a part of the ProbLab curriculum. For more information about the ProbLab Curriculum please refer to http://ccl.northwestern.edu/curriculum/ProbLab/.
 
 Thanks to Steve Gorodetskiy for his design and programming work.
 
@@ -1265,6 +1173,17 @@ false
 Rectangle -7500403 true true 120 45 180 255
 Rectangle -7500403 true true 45 120 255 180
 
+right arrow
+false
+15
+Polygon -7500403 true false 285 150 135 90 135 135 15 135 15 165 135 165 135 210
+
+small plus
+false
+15
+Rectangle -7500403 true false 135 90 165 210
+Rectangle -7500403 true false 90 135 210 165
+
 square
 false
 0
@@ -1373,5 +1292,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
