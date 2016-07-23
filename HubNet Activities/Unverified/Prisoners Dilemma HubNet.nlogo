@@ -1580,7 +1580,7 @@ Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
 @#$#@#$#@
-NetLogo 6.0-M8
+NetLogo 6.0-M9
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
