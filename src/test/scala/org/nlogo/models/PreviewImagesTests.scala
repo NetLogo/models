@@ -23,7 +23,7 @@ class PreviewImagesTests extends TestModels {
   def isInGitIgnore(m: Model) = ignored.contains(m.previewFile.getPath.drop(1))
 
   val manualPreviewNeeded = Set(
-    "HubNet", "/Sound/", "GoGo", "Arduino"
+    "HubNet", "/sound/", "GoGo", "Arduino"
   )
   val manualPreviewPermitted = Set(
     "Table Example",
