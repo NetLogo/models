@@ -57,7 +57,8 @@ class PreviewImagesTests extends TestModels {
     "Prob Graphs Basic",
     "Equidistant Probability",
     "Partition Perms Distrib",
-    "Video Camera Example"
+    "Video Camera Example",
+    "Movie Playing Example"
   )
   testModels("Models should have manual previews only if needed or permitted") { m =>
     if (manualPreviewNeeded.exists(m.file.getPath.contains))
