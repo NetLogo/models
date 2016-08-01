@@ -133,7 +133,7 @@ vid:status
 
 This example demonstrates how to use the `bitmap` and `vid` extensions to capture frames from a video camera into NetLogo.
 
-<!-- 2011 -->
+<!-- 2016 -->
 @#$#@#$#@
 default
 true
