@@ -6,13 +6,13 @@ extensions [ bitmap vid ]
 ; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
-205
+260
 10
-518
-324
+697
+448
 -1
 -1
-5.0
+13.0
 1
 10
 1
@@ -22,40 +22,23 @@ GRAPHICS-WINDOW
 1
 1
 1
--30
-30
--30
-30
+-16
+16
+-16
+16
 1
 1
-0
+1
 ticks
 30.0
 
 BUTTON
-20
-155
-185
-188
-copy to drawing layer
-let width world-width * patch-size\nlet height world-height * patch-size\ncarefully [\n  let image (vid:capture-image width height)\n  bitmap:copy-to-drawing image 0 0\n  display\n] [\n  user-message error-message\n  stop\n]
-T
-1
-T
-OBSERVER
+10
+10
+245
+43
 NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-20
-15
-185
-48
-select camera
-carefully [\n  vid:camera-select\n  vid:start\n] [ user-message error-message ]
+vid:movie-select
 NIL
 1
 T
@@ -66,12 +49,95 @@ NIL
 NIL
 1
 
+SLIDER
+10
+115
+245
+148
+time
+time
+0
+100
+0.0
+1
+1
+seconds
+HORIZONTAL
+
 BUTTON
-20
-50
-185
-83
-close camera
+10
+150
+245
+183
+vid:set-time time
+carefully [ vid:set-time time ] [\n  user-message error-message\n]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+10
+45
+125
+78
+NIL
+vid:show-player
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+10
+80
+125
+113
+vid:start
+carefully [ vid:start ] [\n  user-message error-message\n]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+130
+80
+245
+113
+NIL
+vid:stop
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+10
+220
+245
+253
+NIL
 vid:close
 NIL
 1
@@ -84,29 +150,12 @@ NIL
 1
 
 BUTTON
-20
-190
+10
 185
-223
-copy to pcolors
-clear-drawing ; in case we previously copied the camera input to the drawing layer\ncarefully [\n  bitmap:copy-to-pcolors (vid:capture-image world-width world-height) false\n  display\n] [\n  user-message error-message\n  stop\n]
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-20
-225
-185
-258
-clear all
-clear-all
+245
+218
+Copy current frame to drawing layer
+carefully [\n  let w world-width * patch-size\n  let h world-height * patch-size\n  bitmap:copy-to-drawing (vid:capture-image w h) 0 0\n] [\n  user-message error-message\n]
 NIL
 1
 T
@@ -118,20 +167,37 @@ NIL
 1
 
 MONITOR
-20
-85
-185
-130
+90
+270
+168
+315
 NIL
 vid:status
 17
 1
 11
 
+BUTTON
+130
+45
+245
+78
+vid:hide-player
+NIL
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
 @#$#@#$#@
 ## WHAT IS IT?
 
-This example demonstrates how to use the `bitmap` and `vid` extensions to capture frames from a video camera into NetLogo.
+This example demonstrates how to use the `bitmap` and `vid` extensions to view video files and import frames into NetLogo.
 
 <!-- 2016 -->
 @#$#@#$#@
