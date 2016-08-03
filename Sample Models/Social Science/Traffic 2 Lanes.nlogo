@@ -491,7 +491,7 @@ HORIZONTAL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This project is a more sophisticated two-lane version of the "Traffic Basic" model.  Much like the simpler model, this model demonstrates how traffic jams can form. In the two-lane version, drivers have a new option; they can react by changing lanes, although this often does little to solve their problem.
+This model is a more sophisticated two-lane version of the "Traffic Basic" model.  Much like the simpler model, this model demonstrates how traffic jams can form. In the two-lane version, drivers have a new option; they can react by changing lanes, although this often does little to solve their problem.
 
 As in the Traffic Basic model, traffic may slow down and jam without any centralized cause.
 
@@ -505,7 +505,7 @@ The SPEED-UP slider controls the rate at which cars accelerate when there are no
 
 The SLOW-DOWN slider controls the rate at which cars decelerate when there is a car close ahead.
 
-The MAX-PATIENCE slider controls how many times a car can slow down before a driver looses their patience and tries to change lanes.
+The MAX-PATIENCE slider controls how many times a car can slow down before a driver loses their patience and tries to change lanes.
 
 You may wish to slow down the model with the speed slider to watch the behavior of certain cars more closely.
 
@@ -534,7 +534,7 @@ Even though all of the cars are moving forward, the traffic jams tend to move ba
 
 Just as each car has a current speed, each driver has a current patience. Each time the driver has to hit the brakes to avoid hitting the car in front of them, they loose a little patience. When a driver's patience expires, the driver tries to change lane. The driver's patience gets reset to the maximum patience.
 
-When the number of cars in the model is high, drivers loose their patience quickly and start weaving in and out of lanes. This phenomenon is called "snaking" and is common in congested highways. And if the number of cars is high enough, almost every car ends up trying to change lanes and the traffic slows to a crawl, making the situation even worse, with cars getting momentarily stuck between lanes because they are unable to change. Does that look like a real life situation to you?
+When the number of cars in the model is high, drivers lose their patience quickly and start weaving in and out of lanes. This phenomenon is called "snaking" and is common in congested highways. And if the number of cars is high enough, almost every car ends up trying to change lanes and the traffic slows to a crawl, making the situation even worse, with cars getting momentarily stuck between lanes because they are unable to change. Does that look like a real life situation to you?
 
 Watch the MEAN-SPEED monitor, which computes the average speed of the cars. What happens to the speed over time? What is the relation between the speed of the cars and the presence (or absence) of traffic jams?
 
@@ -592,7 +592,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Wilensky, U. (1998).  NetLogo Traffic 2 Lanes model.  http://ccl.northwestern.edu/netlogo/models/Traffic2Lanes.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. & Payette, N. (1998).  NetLogo Traffic 2 Lanes model.  http://ccl.northwestern.edu/netlogo/models/Traffic2Lanes.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
@@ -612,7 +612,7 @@ This model was created as part of the project: CONNECTED MATHEMATICS: MAKING SEN
 
 This model was converted to NetLogo as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227. Converted from StarLogoT to NetLogo, 2001.
 
-<!-- 1998 2001 -->
+<!-- 1998 2001 Cite: Wilensky, U. & Payette, N. -->
 @#$#@#$#@
 default
 true
