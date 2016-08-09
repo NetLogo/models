@@ -231,7 +231,7 @@ Use the NUM-ROTATORS and KICK-STRENGTH sliders to determine the number of rotato
 
 Clicking the ADD-ROTATOR button will add another rotator to the simulation. NetLogo will automaticallly run this rotator for the same number of ticks that your model has run.
 
-Clicking the INSPECT-ROTATOR button and then clicking any point in the view will open a kicked rotator model with the intial momentum and angular position corresponding to the point in the view you clicked. This rotator will be opened in the exact state it would be if it had been run the same number of ticks as your model.
+Clicking the INSPECT-ROTATOR button and then clicking any point in the view will open a kicked rotator model with the initial momentum and angular position corresponding to the point in the view you clicked. This rotator will be opened in the exact state it would be if it had been run the same number of ticks as your model.
 
 ## THINGS TO NOTICE
 
@@ -251,7 +251,7 @@ Inspect a rotator that has a circular phase portrait. Now inspect one that has a
 
 Try and restrict the initial conditions (momentum and angular position) of each rotator to a different domain (e.g., [0, pi]). How does that affect the phase portrait?
 
-Inspect two rotators next to each other in the chaotic sea (if clicking two neigbors is hard, you can manually adjust the angular positions and momenta so the two rotators are very close. Now run each of the two rotators simultaneously. What do you notice about the trajectories of these rotators that start with nearly identical locations and velocities?
+Inspect two rotators next to each other in the chaotic sea (if clicking two neighbors is hard, you can manually adjust the angular positions and momenta so the two rotators are very close. Now run each of the two rotators simultaneously. What do you notice about the trajectories of these rotators that start with nearly identical locations and velocities?
 
 ## EXTENDING THE MODEL
 
