@@ -48,7 +48,7 @@ to add-rotator
   set num-rotators num-rotators + 1
 end
 
-; procedure to display a separate Kicked Rotator model for any given intial conditions
+; procedure to display a separate Kicked Rotator model for any given initial conditions
 to inspect-rotator
   if mouse-inside? and mouse-down? [
 
@@ -229,7 +229,7 @@ For more info on how each individual rotator (turtle) works,  checkout the Kicke
 
 Use the NUM-ROTATORS and KICK-STRENGTH sliders to determine the number of rotators to simulate and the kick strength. Then, SETUP will generate the necessary turtles and GO will start simulating and graphing the particle trajectory for each of the rotators.
 
-Clicking the ADD-ROTATOR button will add another rotator to the simulation. NetLogo will automaticallly run this rotator for the same number of ticks that your model has run.
+Clicking the ADD-ROTATOR button will add another rotator to the simulation. NetLogo will automatically run this rotator for the same number of ticks that your model has run.
 
 Clicking the INSPECT-ROTATOR button and then clicking any point in the view will open a kicked rotator model with the initial momentum and angular position corresponding to the point in the view you clicked. This rotator will be opened in the exact state it would be if it had been run the same number of ticks as your model.
 
