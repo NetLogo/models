@@ -306,13 +306,13 @@ See if you can create a plot that tracks the particle's centripetal force over t
 
 ## NETLOGO FEATURES
 
-The kicked rotator is a continuous phenomenon in that between kicks the particle is still in motion. However, in this mode the particle is kicked at every tick meaning we just calculate the new position and move the particle there. In essence, the particle is 'transporting' from one location to another. In order to emulate continous motion, when the CONTINUOUS-MOTION? option is on, we ask NetLogo to break down a tick into 10 separate frames. The kick occurs only in the 1st frame but the motion of the particle is split evenly amongst all 10 frames. This way, we simulate continous motion while still using 'discrete' time.
+The kicked rotator is a continuous phenomenon in that between kicks the particle is still in motion. However, in this mode the particle is kicked at every tick meaning we just calculate the new position and move the particle there. In essence, the particle is 'transporting' from one location to another. In order to emulate continuous motion, when the CONTINUOUS-MOTION? option is on, we ask NetLogo to break down a tick into 10 separate frames. The kick occurs only in the 1st frame but the motion of the particle is split evenly amongst all 10 frames. This way, we simulate continuous motion while still using 'discrete' time.
 
 Instead of manually drawing the string constricting the particle to the ring, we instead create a hidden 'pivot-point' turtle and then create a link between the particle and pivot-point. That way, NetLogo draws this connection for us!
 
 NetLogo's built in primitives for sine and cosine only accept degrees. The `rad-sin` and `rad-cos` reporters first convert a parameter from radians (the unit of choice for physics) to degrees and then uses `sin` and `cos`.
 
-Trigonometry in NetLogo is a little different from the mathematical standard. Imagine the four quadrants in the Cartesian plane. In NetLogo, quadrants 1 and 3 are the same, but quadrants 2 and 4 are switched. This is because, in NetLogo, the quadrants are considered clockwise oriented. In addition, a heading of 0 in NetLogo points the turtle due north, but in standard trig, that corresponds to  pi / 2 radians, whereas a heading of 0 in trig points due east. For this model, we don't use NetLogo trig, and instead use regular trig by explictly calculating Cartesian coordinates instead of the usual turtle-based movements.
+Trigonometry in NetLogo is a little different from the mathematical standard. Imagine the four quadrants in the Cartesian plane. In NetLogo, quadrants 1 and 3 are the same, but quadrants 2 and 4 are switched. This is because, in NetLogo, the quadrants are considered clockwise oriented. In addition, a heading of 0 in NetLogo points the turtle due north, but in standard trig, that corresponds to  pi / 2 radians, whereas a heading of 0 in trig points due east. For this model, we don't use NetLogo trig, and instead use regular trig by explicitly calculating Cartesian coordinates instead of the usual turtle-based movements.
 
 ## RELATED MODELS
 
