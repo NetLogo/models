@@ -228,7 +228,7 @@ This model uses the [Arduino extension](https://github.com/NetLogo/Arduino-Exten
 
 ## RELATED MODELS
 
-The GoGoMonitor, GoGoMonitorSerial, GoGoMonitorSimple and GoGoMonitorSimpleSerial models, in the Code Examples section of the library, are somewhat related to the present model, as they show how to use NetLogo to control a GoGo board (a device similar to an Arduino).
+The GoGoMonitor and GoGoMonitorSimple models, in the Code Examples section of the library, are somewhat related to the present model, as they show how to use NetLogo to control a GoGo board (a device similar to an Arduino).
 
 ## CREDITS AND REFERENCES
 
