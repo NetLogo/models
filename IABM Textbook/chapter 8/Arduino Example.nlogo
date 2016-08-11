@@ -201,11 +201,6 @@ This model should give a sense for the process of controlling an Arduino board w
 
 ## HOW IT WORKS
 
-The model requires installing the Arduino extension for NetLogo.
-You can download the Arduino extension at: https://github.com/NetLogo/Arduino-Extension.
-
-To install the extension, simply unzip the `arduino.zip` file under NetLogo's `extensions` subfolder. For more information about NetLogo extensions, see: http://ccl.northwestern.edu/netlogo/docs/extensions.html.
-
 The Arduino requires a custom program, or “sketch,” to run on the board for every new situation. The sketch required by this example is included in a "`data`" folder under the same folder of the NetLogo model library. It is named "`Arduino Example Sketch File.ino`".
 
 To compile your sketch file and upload it to your Arduino board, you will need to download and install the Arduino Software IDE, available from https://www.arduino.cc/en/main/software. You can learn how to use it by following the guide available at https://www.arduino.cc/en/Guide/HomePage.
