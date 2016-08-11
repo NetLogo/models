@@ -1,24 +1,37 @@
-
-int LED_PIN = 13;
+int counter = 0;    //we'll send this counter value over the Serial port to be read by NetLogo
 
 void setup() {
-  Serial.begin(9600);
-  pinMode(LED_PIN, OUTPUT);
+  Serial.begin (9600);          //baud rate -- this needs to be 9600 or you need to edit the extension source
+  pinMode(13, OUTPUT);          //set pin 13 (which has an associated onboard LED) to be an OUTPUT pin
 }
 
 void loop() {
-  //If we get a valid byte....
-  if (Serial.available() > 0) {
-    //Read the available byte
-    int inByte = Serial.read();
-    //Then, turn the LED on or off:
-    //off if the byte is a 0; on otherwise
-    if (inByte == 0) {
-      digitalWrite(LED_PIN, LOW);
-    } else {
-      digitalWrite(LED_PIN, HIGH);
-    }
+
+  if ( counter >= 100 ) {
+    counter = 0;
   }
-  //Wait 100 milliseconds before checking again.
-  delay(100);
+  counter++; 
+  
+  //Write out our counter value
+  Serial.print("C,");       
+  Serial.print(counter);  
+  Serial.print(";");
+    
+  //Create and write out a random number from 0 to 10, with two digits of decimals.
+  double rnum = random(1000) / 100.0;
+  Serial.print("R,");       
+  Serial.print(rnum, 2);        //sending 2 digit accuracy
+  Serial.print(";");
+  
+
+  if (Serial.available() > 0) {
+      int cmd = Serial.read();
+      if (cmd == 48 || cmd == 0) {  //0 or ascii "0" sent with write-string
+        digitalWrite(13, LOW);      //turn the onboard LED associated with pin 13 off
+      } else if (cmd == 49 || cmd == 1) { //1 or ascii "1" sent with write-string
+        digitalWrite( 13, HIGH);    //turn the onboard LED associated with pin 13 on
+      } 
+  }
+  
+  delay(200);  //1/5 second delay --> this could be removed or adjusted for more or less frequent cycles.
 }
