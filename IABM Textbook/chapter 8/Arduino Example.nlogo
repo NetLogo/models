@@ -10,7 +10,7 @@ to setup
       "A communication port to Arduino is already open.\n"
       "You can choose to work with this one (Choose YES)\n"
       "or you can close it (Choose NO).\n"
-      "If you choose NO, set up again to select a new port.")
+      "If you choose NO, click SETUP again to select a new port.")
     if not setup-yet? [ arduino:close ]
   ]
   [
