@@ -10,19 +10,19 @@ void loop() {
   if ( counter >= 100 ) {
     counter = 0;
   }
-  counter++; 
-  
+  counter++;
+
   //Write out our counter value
-  Serial.print("C,");       
-  Serial.print(counter);  
+  Serial.print("C,");
+  Serial.print(counter);
   Serial.print(";");
-    
+
   //Create and write out a random number from 0 to 10, with two digits of decimals.
   double rnum = random(1000) / 100.0;
-  Serial.print("R,");       
+  Serial.print("R,");
   Serial.print(rnum, 2);        //sending 2 digit accuracy
   Serial.print(";");
-  
+
 
   if (Serial.available() > 0) {
       int cmd = Serial.read();
@@ -30,8 +30,8 @@ void loop() {
         digitalWrite(13, LOW);      //turn the onboard LED associated with pin 13 off
       } else if (cmd == 49 || cmd == 1) { //1 or ascii "1" sent with write-string
         digitalWrite( 13, HIGH);    //turn the onboard LED associated with pin 13 on
-      } 
+      }
   }
-  
+
   delay(200);  //1/5 second delay --> this could be removed or adjusted for more or less frequent cycles.
 }
