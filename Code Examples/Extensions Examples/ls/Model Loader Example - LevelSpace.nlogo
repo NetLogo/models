@@ -1,23 +1,23 @@
-extensions [ls]
+extensions [ ls ]
 
 to setup
   ls:reset
-  ca
+  clear-all
 end
 
 to go
-  ls:ask ls:models [go] ; calls go in all models in LevelSpace
+  ls:ask ls:models [ go ] ; calls go in all models in LevelSpace
 end
 
 to setup-models
-ls:ask ls:models [setup]   ; calls setup in all models in LevelSpace
+  ls:ask ls:models [ setup ]   ; calls setup in all models in LevelSpace
 end
 
-to make-model [a-model-path]
+to open-a-model [ a-model-path ]
   carefully [
     ls:load-gui-model a-model-path ; takes a string and opens the model path
   ]
-  [ ;; print out a warning if there is a problem with the model path
+  [ ; print out a warning if there is a problem with the model path
     show (word "No valid NetLogo model for this version of NetLogo was found at path: " a-model-path)
   ]
 end
@@ -55,7 +55,7 @@ BUTTON
 130
 78
 open a model
-let the-file user-file\nifelse the-file != false [make-model the-file]\n[show \"Choose a NetLogo model!\"]
+let the-file user-file\nifelse the-file != false [ \n  open-a-model the-file\n][\n  show \"Choose a NetLogo model!\"\n]
 NIL
 1
 T
