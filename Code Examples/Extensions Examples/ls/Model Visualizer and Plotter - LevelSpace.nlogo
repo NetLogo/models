@@ -17,11 +17,11 @@ to setup
 end
 
 to go
-    ask turtles [
-      ls:ask model-id [ go ]                            ; turtles call go in their model
-      move-to-new-position                              ; then move to the new position
-    ]
-    tick
+  ask turtles [
+    ls:ask model-id [ go ]                            ; turtles call go in their model
+    move-to-new-position                              ; then move to the new position
+  ]
+  tick
 end
 
 to move-to-new-position ; turtle procedure, moves turtles
