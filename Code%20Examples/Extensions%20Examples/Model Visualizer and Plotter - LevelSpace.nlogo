@@ -132,14 +132,14 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This code example shows two different ways of visualizing LevelSpace model data with another model:
+This code example shows two different ways of visualizing LevelSpace child models' data with a parent model:
 
 1. Through the use of plots and reporters
 2. Through drawing a phase diagram with turtles
 
 ## HOW IT WORKS
 
-The model creates the specified number of turtles who each open a Wolf Sheep Predation model. For each GO, turtles call go in their model, and then move to XY coordinates that reflect the counts of wolves and sheep in their model.
+The model creates the specified number of turtles who each open a Wolf Sheep Predation model. For each GO, turtles call GO in their child model, and then move to XY coordinates that reflect the counts of wolves and sheep in their model.
 
 ## HOW TO USE IT
 
@@ -157,7 +157,7 @@ Try to change the code so that, upon setup, all models are created with the same
 
 ## NETLOGO FEATURES
 
-This model uses the LevelSpace extension to load many models programmatically from inside NetLogo.
+This model uses the LevelSpace extension to load many models programmatically from inside NetLogo. It uses Headless models, but you can view the state of each model by using the `ls:show <model-id>` command. If you want to view all models at the same time, try `ls:show ls:models`. But if you have lots of models open, this may slow down your machine considerably.
 
 ## RELATED MODELS
 
