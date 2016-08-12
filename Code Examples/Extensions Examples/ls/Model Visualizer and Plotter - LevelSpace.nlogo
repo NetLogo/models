@@ -5,13 +5,13 @@ to setup
   ls:reset
   clear-all
   create-turtles num-models [                           ; create a turtle for each created model
-    ls:load-headless-model "Wolf Sheep Predation.nlogo" ; load Wolf Sheep Predation
+    ls:load-headless-model "../../../Sample Models/Biology/Wolf Sheep Predation.nlogo" ; load Wolf Sheep Predation
     set model-id last ls:models                         ; and assign model-id to the turtle
     ls:ask model-id [
       set grass? true setup                             ; setup their models
     ]
     move-to-new-position                                ; move to its model's values
-    pd                                                  ; set pen down
+    pen-down                                            ; set pen down
   ]
   reset-ticks
 end
@@ -31,13 +31,13 @@ to move-to-new-position ; turtle procedure, moves turtles
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-330
+340
 10
-698
-229
+744
+250
 -1
 -1
-10.0
+11.0
 1
 10
 1
@@ -166,6 +166,8 @@ Model Loader Example - LevelSpace
 ## CREDITS AND REFERENCES
 
 (a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+
+<!-- 2016 Cite: Hjorth, A. & Wilensky, U. -->
 @#$#@#$#@
 default
 true
