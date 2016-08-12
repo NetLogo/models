@@ -23,9 +23,9 @@ to make-model [a-model-path]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-130
+140
 10
-567
+577
 448
 -1
 -1
@@ -50,11 +50,11 @@ ticks
 30.0
 
 BUTTON
-5
+10
 45
-125
+130
 78
-Open a Model!
+open a model
 let the-file user-file\nifelse the-file != false [make-model the-file]\n[show \"Choose a NetLogo model!\"]
 NIL
 1
@@ -67,11 +67,11 @@ NIL
 1
 
 BUTTON
-5
+10
 80
-125
+130
 113
-Setup Models
+NIL
 setup-models
 NIL
 1
@@ -84,11 +84,11 @@ NIL
 1
 
 BUTTON
-5
+10
 115
-125
+130
 148
-Models Go
+go
 ls:ask ls:models [go]
 T
 1
@@ -98,14 +98,14 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
-5
 10
-125
+10
+130
 43
-Reset LevelSpace
+NIL
 setup
 NIL
 1
