@@ -151,7 +151,7 @@ All models start with the same number of wolves and sheep, and roughly the same 
 
 ## EXTENDING THE MODEL
 
-Try to add a heatmat functionality to the model. We suggest adding a patch variable that turtles add to whenever they are on a patch, and then use the `palette:scale` primitive to show the spatial distribution over time.
+Try to add a heatmap functionality to the model. We suggest adding a patch variable that turtles add to whenever they are on a patch, and then use the `palette:scale` primitive to show the spatial distribution over time.
 
 Try to change the code so that, upon setup, all models are created with the same random seed. This will ensure that all models run in the exact same way, and all turtles will keep moving to the same places. Then create a button that sets a new random seed in each model. See how long it takes before your models are so different that you can't even tell that they were exactly the same at some point in their past.
 
@@ -161,11 +161,7 @@ This model uses the LevelSpace extension to load many models programmatically fr
 
 ## RELATED MODELS
 
-Model Loader Example - LevelSpace
-
-## CREDITS AND REFERENCES
-
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+Model Loader Example
 
 <!-- 2016 Cite: Hjorth, A. & Wilensky, U. -->
 @#$#@#$#@
