@@ -1,47 +1,63 @@
-extensions [ls]
+extensions [ ls ]
 
 globals [
-  wsp ;; for referencing the ecosystem model
-  cc  ;; for referencing the climate chantge model
+  wolf-sheep-predation-model ; for referencing the wolf sheep predation model
+  climate-change-model       ; for referencing the climate change model
 ]
 
 to setup
-  ls:reset ;; reset LevelSpace
-  ca
-  ls:load-gui-model "Wolf Sheep Predation"
-  set wsp last ls:models
-  ls:load-gui-model "Climate Change"
-  set cc last ls:models
+  ls:reset ; reset LevelSpace
+  clear-all
+
+  ; load the two models
+  ls:load-gui-model "../../../Sample Models/Biology/Wolf Sheep Predation.nlogo"
+  set wolf-sheep-predation-model last ls:models
+  ls:load-gui-model "../../../Sample Models/Earth Science/Climate Change.nlogo"
+  set climate-change-model last ls:models
+
+  ; ask both models to run setup
   ls:ask ls:models [setup]
-  ;; the cc model requires time to run before it stabilizes,
-  ;; so we turn off display to make it run faster, add some
-  ;; clouds and co2, and then run it for 7,000 ticks.
-  ls:ask cc [
+
+  ; the climate change model requires time to run before it stabilizes,
+  ; so we turn off display to make it run faster, add some
+  ; clouds and co2, and then run it for 7,000 ticks.
+  ls:ask climate-change-model [
     no-display
-    repeat 2 [ add-clouds ]
-    repeat 10 [ add-co2s ]
+    repeat 2 [ add-cloud ]
+    repeat 10 [ add-co2 ]
     repeat 7000 [ go ]
+    display
   ]
+
+  reset-ticks
 end
 
-
-
 to go
-  ;; We assume here that 25 is the fastest regrowth time,
-  ;; and that 55 is the ideal temperature for grass to grow at,
-  ;; and that it slows down linearly by half the difference.
-  ls:let new-regrowth-time 25 + ( abs [ temperature - 55 ] ls:of cc ) / 2 ;; save new regrowth time in a levelspace let-variable
-  ls:ask wsp [ set grass-regrowth-time round new-regrowth-time ]          ;; remove decimals, pass it to the WSP model and change the time
-  ls:ask ls:models [go]                                                   ;; finally call GO
+  ; We assume here that 25 is the fastest regrowth time,
+  ; and that 55 is the ideal temperature for grass to grow at,
+  ; and that it slows down linearly by half the difference.
+
+  ; save new regrowth time in a levelspace let-variable
+  ls:let new-regrowth-time 25 + ( abs [ temperature - 55 ] ls:of climate-change-model ) / 2
+
+  ; remove decimals, pass it to the wolf sheep predation model and change the time
+  ls:ask wolf-sheep-predation-model [
+    set grass-regrowth-time round new-regrowth-time
+  ]
+
+  ; finally ask both models to go
+  ls:ask ls:models [ go ]
+
+  tick
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
 15
 10
-260
-210
-6
-6
+192
+188
+-1
+-1
 13.0
 1
 10
@@ -56,8 +72,8 @@ GRAPHICS-WINDOW
 6
 -6
 6
-0
-0
+1
+1
 1
 ticks
 30.0
@@ -77,7 +93,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 15
@@ -99,11 +115,11 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This is a code example for showing interactions between models in a LevelSpace model system. It shows how the temperature in the Climate Change (CC) model can be programmed to influence the grass regrowth time in the Wolf Sheep Predation (WSP) model.
+This is a code example for showing interactions between models in a LevelSpace model system. It shows how the temperature in the Climate Change model can be programmed to influence the grass regrowth time in the Wolf Sheep Predation model.
 
 ## HOW IT WORKS
 
-The model opens up the WSP and the CC models. It then sets up the CC model and runs it until it is stable. Finally, during GO, this model runs both the WSP and CC model, and changes the speed at which grass regrows in the WSP model to reflect the current temperature in the CC model.
+The model opens up the Wolf Sheep Predation and the Climate Change models. It then sets up the Climate Change model and runs it until it is stable. Finally, during GO, this model runs both the Wolf Sheep Predation and Climate Change model, and changes the speed at which grass regrows in the Wolf Sheep Predation model to reflect the current temperature in the Climate Change model.
 
 ## HOW TO USE IT
 
@@ -126,6 +142,12 @@ The amount of grass in the WSP model could affect the albedo in the Climate Chan
 ## NETLOGO FEATURES
 
 This model uses LevelSpace to build a small model-system of two models, and then have them affect each other.
+
+## RELATED MODELS
+
+See Model Visualizer and Plotter Example and the Model Loader Example.
+
+<!-- 2016 Cite: Hjorth, A. & Wilensky, U. -->
 @#$#@#$#@
 default
 true
@@ -431,9 +453,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M6
+NetLogo 6.0-M9
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -449,7 +470,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@
