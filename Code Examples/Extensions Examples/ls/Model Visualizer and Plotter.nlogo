@@ -165,7 +165,7 @@ This model uses the LevelSpace extension to load many models programmatically fr
 
 Model Loader Example
 
-<!-- 2016 Cite: Hjorth, A. & Wilensky, U. -->
+<!-- 2016 Cite: Hjorth, A. -->
 @#$#@#$#@
 default
 true
