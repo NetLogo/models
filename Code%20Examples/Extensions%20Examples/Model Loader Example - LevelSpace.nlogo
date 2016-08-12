@@ -124,9 +124,11 @@ This is an example of how to use LevelSpace to run many concurrent models.
 
 ## HOW IT WORKS
 
-By pressing the "Load Model" button, users can load GUI-models in LevelSpace.
+By pressing the LOAD MODEL button, users can load any number of GUI-models in LevelSpace. Click the button once for each model.
 
 The model can call SETUP or GO (continuously) in the models with the two respective buttons.
+
+By pressing the RESET LEVELSPACE button, all loaded models are unloaded, and the model system resets.
 
 ## THINGS TO TRY: Extending the Model
 
