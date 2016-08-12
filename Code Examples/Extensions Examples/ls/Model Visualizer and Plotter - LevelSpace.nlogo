@@ -4,28 +4,30 @@ turtles-own [ model-id ]
 to setup
   ls:reset
   clear-all
-  create-turtles num-models [                           ; create a turtle for each created model
-    ls:load-headless-model "../../../Sample Models/Biology/Wolf Sheep Predation.nlogo" ; load Wolf Sheep Predation
-    set model-id last ls:models                         ; and assign model-id to the turtle
+  create-turtles num-models [    ; create a turtle for each created model
+
+    ; load Wolf Sheep Predation
+    ls:load-headless-model "../../../Sample Models/Biology/Wolf Sheep Predation.nlogo"
+
+    set model-id last ls:models  ; and assign model-id to the turtle
     ls:ask model-id [
-      set grass? true setup                             ; setup their models
+      set grass? true setup      ; setup their models
     ]
-    move-to-new-position                                ; move to its model's values
-    pen-down                                            ; set pen down
+    move-to-new-position         ; move to its model's values
+    pen-down                     ; set pen down
   ]
   reset-ticks
 end
 
 to go
   ask turtles [
-    ls:ask model-id [ go ]                            ; turtles call go in their model
-    move-to-new-position                              ; then move to the new position
+    ls:ask model-id [ go ]   ; turtles call go in their model
+    move-to-new-position     ; then move to the new position
   ]
   tick
 end
 
 to move-to-new-position ; turtle procedure, moves turtles
-  ; face is not really necessary, but it looks better
   facexy (([count sheep] ls:of model-id) / 10) (([count wolves] ls:of model-id) / 10)
   setxy (([count sheep] ls:of model-id) / 10) (([count wolves] ls:of model-id) / 10)
 end
