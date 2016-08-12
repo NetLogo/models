@@ -37,7 +37,7 @@ to go
   ; and that 55 is the ideal temperature for grass to grow at,
   ; and that it slows down linearly by half the difference.
 
-  ; save new regrowth time in a levelspace let-variable
+  ; save new regrowth time in a LevelSpace let-variable
   ls:let new-regrowth-time 25 + ( abs [ temperature - 55 ] ls:of climate-change-model ) / 2
 
   ; remove decimals, pass it to the wolf sheep predation model and change the time
@@ -135,7 +135,7 @@ Try to slowly change the temperature in the CC model. Are there any critical thr
 
 ## EXTENDING THE MODEL
 
-Animals produce greenhouse gases. Try to modify the model so the animals in the ecosystm somehow introduce greenhouse gases in the Climate Change model.
+Animals produce greenhouse gases. Try to modify the model so the animals in the ecosystem somehow introduce greenhouse gases in the Climate Change model.
 
 The amount of grass in the Wolf Sheep Predation model could affect the albedo in the Climate Change model. Try to implement that in the code.
 
