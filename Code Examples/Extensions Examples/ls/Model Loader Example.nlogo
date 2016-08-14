@@ -18,7 +18,7 @@ to open-a-model [ a-model-path ]
     ls:load-gui-model a-model-path ; takes a string and opens the model path
   ]
   [ ; print out a warning if there is a problem with the model path
-    show (word "No valid NetLogo model for this version of NetLogo was found at path: " a-model-path)
+    user-message (word "No valid NetLogo model for this version of NetLogo was found at path: " a-model-path)
   ]
 end
 @#$#@#$#@
