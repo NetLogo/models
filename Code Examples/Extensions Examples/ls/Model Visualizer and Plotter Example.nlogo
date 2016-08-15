@@ -170,7 +170,7 @@ This model uses the LevelSpace extension to load many models programmatically fr
 
 See the Model Loader Example and the Model Interactions Example.
 
-<!-- 2016 Cite: Hjorth, A. -->
+<!-- 2016 -->
 @#$#@#$#@
 default
 true

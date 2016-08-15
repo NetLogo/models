@@ -155,7 +155,7 @@ This model uses LevelSpace, an extension that comes bundled with NetLogo 6.0+.
 
 See the Model Visualizer and Plotter Example and the Model Interactions Example.
 
-<!-- 2016 Cite: Hjorth, A. -->
+<!-- 2016 -->
 @#$#@#$#@
 default
 true

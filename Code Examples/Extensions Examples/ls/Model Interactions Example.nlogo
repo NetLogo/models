@@ -152,7 +152,7 @@ This model uses LevelSpace to build a small model-system of two models, and then
 
 See the Model Visualizer and Plotter Example and the Model Loader Example.
 
-<!-- 2016 Cite: Hjorth, A. -->
+<!-- 2016 -->
 @#$#@#$#@
 default
 true
