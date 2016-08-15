@@ -1,14 +1,18 @@
 int counter = 0;    //we'll send this counter value over the Serial port to be read by NetLogo
-int ledPin = 13;
+int ledPin = 13;    //pin 13, which has an associated onboard LED
 
 void setup() {
-  Serial.begin (9600);          //baud rate -- this needs to be 9600 or you need to edit the extension source
-  pinMode(ledPin, OUTPUT);      //set pin 13 (which has an associated onboard LED) to be an OUTPUT pin
+  //start listening to the serial port at 9600 bps,
+  //the baud rate expected by NetLogo's Arduino extension
+  Serial.begin(9600);
+
+  //set up the LED pin to act as an output
+  pinMode(ledPin, OUTPUT);
 }
 
 void loop() {
 
-  if ( counter >= 100 ) {
+  if (counter >= 100) {
     counter = 0;
   }
   counter++;
@@ -24,14 +28,13 @@ void loop() {
   Serial.print(rnum, 2);        //sending 2 digit accuracy
   Serial.print(";");
 
-
   if (Serial.available() > 0) {
-      int cmd = Serial.read();
-      if (cmd == 48 || cmd == 0) {        //0 or ascii "0" sent with write-string
-        digitalWrite(ledPin, LOW);        //turn the onboard LED associated with pin 13 off
-      } else if (cmd == 49 || cmd == 1) { //1 or ascii "1" sent with write-string
-        digitalWrite(ledPin, HIGH);       //turn the onboard LED associated with pin 13 on
-      }
+    int cmd = Serial.read();
+    if (cmd == 48 || cmd == 0) {        //0 or ascii "0" sent with write-string
+      digitalWrite(ledPin, LOW);        //turn the onboard LED associated with pin 13 off
+    } else if (cmd == 49 || cmd == 1) { //1 or ascii "1" sent with write-string
+      digitalWrite(ledPin, HIGH);       //turn the onboard LED associated with pin 13 on
+    }
   }
 
   delay(200);  //1/5 second delay --> this could be removed or adjusted for more or less frequent cycles.
