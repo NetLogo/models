@@ -3,10 +3,12 @@ extensions [ ls ]
 to setup
   ls:reset
   clear-all
+  reset-ticks
 end
 
 to go
   ls:ask ls:models [ go ] ; calls go in all models in LevelSpace
+  tick
 end
 
 to setup-models
