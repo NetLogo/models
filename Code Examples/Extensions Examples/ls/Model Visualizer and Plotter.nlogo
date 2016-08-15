@@ -134,7 +134,7 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This code example shows two different ways of visualizing LevelSpace child models' data with a parent model:
+This code example shows two different ways of visualizing data from LevelSpace child models with a parent model:
 
 1. Through the use of plots and reporters
 2. Through drawing a phase diagram with turtles
@@ -163,7 +163,7 @@ This model uses the LevelSpace extension to load many models programmatically fr
 
 ## RELATED MODELS
 
-Model Loader Example
+See the Model Loader Example and the Model Interactions Example.
 
 <!-- 2016 Cite: Hjorth, A. -->
 @#$#@#$#@

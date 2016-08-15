@@ -122,25 +122,25 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This is an example of how to use LevelSpace to run many concurrent models.
+This is an example of how to use LevelSpace to run many models concurrently.
 
 ## HOW IT WORKS
 
-This example allows a user to open up any number of GUI models as LevelSpace models. LevelSpace can then be used to run these models concurrently.
+This example allows a user to open up any number of GUI models as LevelSpace 'child' models. LevelSpace can then be used to run these models concurrently.
 
 ## HOW TO USE IT
 
-By pressing the OPEN A MODEL button, users can load any number of GUI models in LevelSpace. Click the button once for each model.
+The SETUP button calls `ls:reset` which causes all loaded models to be unloaded.
 
-Use the MODEL-SETUP button to ask each model loaded via LevelSpace to call their setup procedure.
+By pressing the OPEN A MODEL button, users can load any number of GUI models in LevelSpace. Click the button once for each model and select the model you'd like to load.
+
+Use the SETUP-MODELS button to ask each model loaded via LevelSpace to call their setup procedure.
 
 The GO button will ask each model loaded via LevelSpace to call their go procedure.
 
-The SETUP button calls `ls:reset` which causes all loaded models to be unloaded.
-
 ## THINGS TO TRY: Extending the Model
 
-This model provides a flexible template for opening up many different models, but they do not interact in any way. Think of ways that they could interact using the `ls`-primitives, and put that in this model's GO procedure.
+This model provides a flexible template for opening up many different models, but they do not interact in any way. Think of ways that they could interact using the `ls` primitives, and put that in this model's GO procedure.
 
 ## NETLOGO FEATURES
 
@@ -148,7 +148,7 @@ This model uses LevelSpace, an extension that comes bundled with NetLogo 6.0+.
 
 ## RELATED MODELS
 
-See Model Visualizer and Plotter Example and the Model Interactions Example.
+See the Model Visualizer and Plotter Example and the Model Interactions Example.
 
 <!-- 2016 Cite: Hjorth, A. -->
 @#$#@#$#@

@@ -119,7 +119,7 @@ This is a code example for showing interactions between models in a LevelSpace m
 
 ## HOW IT WORKS
 
-The model opens up the Wolf Sheep Predation and the Climate Change models. It then sets up the Climate Change model and runs it until it is stable. Finally, this model runs both the Wolf Sheep Predation and Climate Change model, and changes the speed at which grass regrows in the Wolf Sheep Predation model based on the current temperature in the Climate Change model.
+The model opens up the Wolf Sheep Predation and Climate Change models. It then sets up the Climate Change model and runs it until it is stable. Finally, this model runs both the Wolf Sheep Predation and Climate Change model, and changes the speed at which grass regrows in the Wolf Sheep Predation model based on the current temperature in the Climate Change model.
 
 ## HOW TO USE IT
 
@@ -129,9 +129,9 @@ You can now modify the various values in the Climate Change model's window, and 
 
 ## THINGS TO TRY
 
-Try to dramatically change the temperature in the CC model. How quickly do you see a change in the ecosystem?
+Try to dramatically change the temperature in the Climate Change model. How quickly do you see a change in the ecosystem?
 
-Try to slowly change the temperature in the CC model. Are there any critical thresholds for the amount of CO2 in the model system?
+Try to slowly change the temperature in the Climate Change model. Are there any critical thresholds for the amount of CO2 in the model system?
 
 ## EXTENDING THE MODEL
 
