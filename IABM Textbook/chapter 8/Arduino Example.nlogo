@@ -195,6 +195,10 @@ This model is from Chapter Eight of the book "Introduction to Agent-Based Modeli
 
 This model is in the IABM Textbook folder of the NetLogo Models Library. The model, as well as any updates to the model, can also be found on the textbook website: http://www.intro-to-abm.com/.
 
+## UPDATES TO THE MODEL SINCE TEXTBOOK PUBLICATION
+
+The example described in the textbook only demonstrated communications from NetLogo to the Arduino. The current example shows both directions of communications flow.
+
 ## WHAT IS IT?
 
 This model should give a sense for the process of controlling an Arduino board with NetLogo. It demonstrates how to read numbers from the Arduino board and how to use NetLogo to turn the Arduino's onboard LED on or off. The LED is located next to pin 13 and connected to that pin.
