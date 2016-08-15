@@ -10,24 +10,29 @@ to setup
   clear-all
 
   ; load the two models
-  ls:load-gui-model "../../../Sample Models/Biology/Wolf Sheep Predation.nlogo"
-  set wolf-sheep-predation-model last ls:models
   ls:load-gui-model "../../../Sample Models/Earth Science/Climate Change.nlogo"
   set climate-change-model last ls:models
+
+  ls:load-gui-model "../../../Sample Models/Biology/Wolf Sheep Predation.nlogo"
+  set wolf-sheep-predation-model last ls:models
+
+  ; the climate change model requires time to run before it stabilizes,
+  ; so we hide it for now so it runs faster.
+  ls:hide climate-change-model
 
   ; ask both models to run setup
   ls:ask ls:models [setup]
 
-  ; the climate change model requires time to run before it stabilizes,
-  ; so we turn off display to make it run faster, add some
-  ; clouds and co2, and then run it for 7,000 ticks.
+  ; Now we'll run the climate change model so it stabilizes
+  ; add some clouds and co2, and then run it for 7,000 ticks
   ls:ask climate-change-model [
-    no-display
     repeat 2 [ add-cloud ]
     repeat 10 [ add-co2 ]
     repeat 7000 [ go ]
-    display
   ]
+
+  ; now show the climate change model
+  ls:show climate-change-model
 
   reset-ticks
 end
