@@ -23,6 +23,11 @@ to open-a-model [ a-model-path ]
     user-message (word "No valid NetLogo model for this version of NetLogo was found at path: " a-model-path)
   ]
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 140

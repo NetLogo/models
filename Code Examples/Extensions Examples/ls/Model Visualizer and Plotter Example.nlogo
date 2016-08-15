@@ -31,6 +31,11 @@ to move-to-new-position ; turtle procedure, moves turtles
   facexy (([count sheep] ls:of model-id) / 10) (([count wolves] ls:of model-id) / 10)
   setxy (([count sheep] ls:of model-id) / 10) (([count wolves] ls:of model-id) / 10)
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 340
