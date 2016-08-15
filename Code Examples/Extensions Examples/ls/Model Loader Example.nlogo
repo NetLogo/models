@@ -62,7 +62,7 @@ BUTTON
 130
 78
 open a model
-let the-file user-file\nifelse the-file != false [ \n  open-a-model the-file\n][\n  show \"Choose a NetLogo model!\"\n]
+let the-file user-file\nifelse the-file != false [ \n  open-a-model the-file\n][\n  user-message \"Choose a NetLogo model!\"\n]
 NIL
 1
 T
