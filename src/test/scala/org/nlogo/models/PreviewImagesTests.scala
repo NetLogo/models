@@ -23,7 +23,7 @@ class PreviewImagesTests extends TestModels {
   def isInGitIgnore(m: Model) = ignored.contains(m.previewFile.getPath.drop(1))
 
   val manualPreviewNeeded = Set(
-    "HubNet", "/sound/", "GoGo", "Arduino"
+    "HubNet", "/sound/", "/ls/", "GoGo", "Arduino"
   )
   val manualPreviewPermitted = Set(
     "Table Example",
@@ -58,10 +58,7 @@ class PreviewImagesTests extends TestModels {
     "Equidistant Probability",
     "Partition Perms Distrib",
     "Video Camera Example",
-    "Movie Playing Example",
-    "Model Loader Example",
-    "Model Visualizer and Plotter Example",
-    "Model Interactions Example"
+    "Movie Playing Example"
   )
   testModels("Models should have manual previews only if needed or permitted") { m =>
     if (manualPreviewNeeded.exists(m.file.getPath.contains))
