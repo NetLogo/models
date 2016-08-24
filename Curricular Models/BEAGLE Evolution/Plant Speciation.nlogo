@@ -143,7 +143,7 @@ to do-reproduction
                                        set potential-mates (fput self potential-mates)]
 
     ;; pick mate randomly weighted by compatibility
-    let compatibilities map [compatibility self ?] potential-mates
+    let compatibilities map [ [potential-mate] -> compatibility self potential-mate] potential-mates
     let mate (pick-weighted (potential-mates) (compatibilities))
 
     ;; spawn children
@@ -293,14 +293,14 @@ end
 ;; where highly weighted choices are more likely to be selected than others
 to-report pick-weighted [ options weights ]
   let wsum 0
-  foreach weights [
-    set wsum (wsum + ?)
+  foreach weights [ [weight] ->
+    set wsum (wsum + weight)
   ]
   let wret wsum * (random-float 1)
   let ret 0
   set wsum 0
-  foreach weights [
-    set wsum (wsum + ?)
+  foreach weights [ [weight] ->
+    set wsum (wsum + weight)
     if wsum > wret [ report (item ret options) ]
     set ret (ret + 1)
   ]
@@ -1077,7 +1077,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

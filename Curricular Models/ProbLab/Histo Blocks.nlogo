@@ -33,8 +33,8 @@ to setup-view
   let active-y round min-pycor
   let delta-y round (world-height / 5)
   let possibility-index 0
-  foreach n-values 5 [?] [
-    foreach n-values item ? num-orderings [?] [
+  foreach n-values 5 [ [n] -> n ] [ [i] ->
+    foreach n-values item i num-orderings [ [n] -> n ] [
       ask patch active-x active-y [
         let current-4-block item possibility-index all-possibilities
         ask patch-at 0 1 [
@@ -96,7 +96,7 @@ to go
   ]
   update-unordered-probabilities
   update-num-orderings
-  set expected-results (map [?1 * ?2] unordered-probabilities num-orderings)
+  set expected-results (map [[a b] -> a * b] unordered-probabilities num-orderings)
   update-plot
   ask turtles [
     ifelse color = green [
@@ -133,14 +133,14 @@ to handle-mouse
 end
 
 to update-unordered-probabilities
-  set unordered-probabilities n-values 5 [
-    column-prob 4 ?
+  set unordered-probabilities n-values 5 [ [n] ->
+    column-prob 4 n
   ]
 end
 
 to update-num-orderings
-  set num-orderings n-values 5 [
-    choose 4 ?
+  set num-orderings n-values 5 [ [n] ->
+    choose 4 n
   ]
 end
 
@@ -177,18 +177,18 @@ to update-plot
   ]
   ifelse plot-individual-blocks? [
     let greenness 0
-    (foreach expected-results num-orderings [
-      let per-block ?1 / ?2
+    (foreach expected-results num-orderings [ [a b] ->
+      let per-block a / b
       let value-to-plot per-block
-      repeat ?2 [
+      repeat b [
         plotxy greenness value-to-plot
         set value-to-plot value-to-plot + per-block
       ]
       set greenness greenness + 1
     ])
   ] [
-    foreach expected-results [
-      plot ?
+    foreach expected-results [ [result] ->
+      plot result
     ]
   ]
 end
@@ -203,11 +203,11 @@ end
 
 to-report chance-of-each-item-in-column [index]
   let result ""
-  foreach n-values 4 [?] [
-    if ? > 0 [
+  foreach n-values 4 [ [n] -> n] [ [the-item] ->
+    if the-item > 0 [
       set result word result " * "
     ]
-    ifelse ? < index [
+    ifelse the-item < index [
       set result (word result precision p 2)
     ] [
       set result (word result precision (1 - p) 2)
@@ -828,7 +828,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
