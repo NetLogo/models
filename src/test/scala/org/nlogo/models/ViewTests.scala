@@ -18,7 +18,7 @@ class ViewTests extends TestModels {
     "Sample Stalagmite", "Binomial Rabbits", "Birthdays", "Random Walk 360", "Pursuit", "Lightning",
     "Sound Machines", "Flocking Vee Formations", "BeeSmart Hive Finding", "Disease Solo", "Peppered Moths",
     "Honeycomb", "Preferential Attachment", "Sandpile", "Raindrops", "Doppler", "Ising", "MaterialSim Grain Growth",
-    "Gravitation", "B-Z Reaction", "Reactor X-Section", "Lunar Lander", "El Farol Network Congestion",
+    "Gravitation", "B-Z Reaction", "Reactor X-Section", "Lunar Lander",
     "PD N-Person Iterated", "PD Basic Evolutionary", "Sandpile Simple", "Heroes and Cowards"
   )
   testModels("Most models should have a frame rate of 30") {

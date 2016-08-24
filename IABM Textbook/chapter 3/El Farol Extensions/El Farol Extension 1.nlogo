@@ -323,11 +323,6 @@ Lists are used to represent strategies and attendance histories.
 
 ## RELATED MODELS
 
-In the NetLogo models library:
-
-There is a model called El Farol Network Congestion that uses the El Farol Bar Problem as a model of how to choose the best path in a network.
-Wilensky, U. (2003). NetLogo El Farol Congestion model.  http://ccl.northwestern.edu/netlogo/models/ElFarolCongestion.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-
 Arthur's original model has been generalized as the Minority Game and is included in the models library.
 Wilensky, U. (2004).  NetLogo Minority Game model.  http://ccl.northwestern.edu/netlogo/models/MinorityGame.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
