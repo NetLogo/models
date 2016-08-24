@@ -824,12 +824,12 @@ end
 
 to do-one-item-histogram
   clear-plot
-  if length filter [is-number? ?] [item current-question my-choices] of turtles > 0
+  if length filter [ [n] -> is-number? n] [item current-question my-choices] of turtles > 0
   [ if max [item current-question my-choices] of turtles > 10
     [ set-plot-x-range plot-x-min (ceiling max [item current-question my-choices] of turtles + 1) ]
     if min [item current-question my-choices] of turtles < 0
     [ set-plot-x-range (floor min [item current-question my-choices] of turtles) plot-x-max]
-    let current-data map [item current-question [my-choices] of ? ] sort turtles
+    let current-data map [ [t] -> item current-question [my-choices] of t ] sort turtles
     if not empty? remove false current-data
     [
       set-current-plot-pen "data"
@@ -2479,7 +2479,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
