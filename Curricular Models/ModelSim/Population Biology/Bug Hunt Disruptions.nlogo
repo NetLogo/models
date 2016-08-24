@@ -25,7 +25,7 @@ globals [
   disease-age
   disease-color
 
-  regions
+  region-boundaries
 ]
 
 breed [disease-markers disease-marker]   ;; visual cue, red "X" that bug has a disease and will die
@@ -427,10 +427,15 @@ end
 ;; REGION MANAGEMENT CODE
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-to setup-regions [ n ]
-  set regions region-definitions n
-  (foreach regions (n-values n [ ? + 1 ]) [
-    ask patches with [ pxcor >= first ?1 and pxcor <= last ?1 ] [ set region ?2 ]
+to setup-regions [ num-regions ]
+  ; Store our region definitions globally for faster access:
+  set region-boundaries calculate-region-boundaries num-regions
+  ; Set the `region` variable for all patches included in regions:
+  let region-numbers n-values num-regions [ [n] -> n + 1 ]
+  (foreach region-boundaries region-numbers [ [boundaries region-number] ->
+    ask patches with [ pxcor >= first boundaries and pxcor <= last boundaries ] [
+      set region region-number
+    ]
   ])
   add-dividers
 end
@@ -445,27 +450,38 @@ to add-dividers
   ]
 end
 
-to-report region-definitions [ n ]
-  let divisions region-divisions n
-  report (map [ list (?1 + 1) (?2 - 1) ] (but-last divisions) (but-first divisions))
+to-report calculate-region-boundaries [ num-regions ]
+  ; The region definitions are built from the region divisions:
+  let divisions region-divisions num-regions
+  ; Each region definition lists the min-pxcor and max-pxcor of the region.
+  ; To get those, we use `map` on two "shifted" copies of the division list,
+  ; which allow us to scan through all pairs of dividers
+  ; and built our list of definitions from those pairs:
+  report (map [ [d1 d2] -> list (d1 + 1) (d2 - 1) ] (but-last divisions) (but-first divisions))
 end
 
-to-report region-divisions [ n ]
-  report n-values (n + 1) [
-    [ pxcor ] of patch (min-pxcor + (? * ((max-pxcor - min-pxcor) / n))) 0
+to-report region-divisions [ num-regions ]
+  ; This procedure reports a list of pxcor that should be outside every region.
+  ; Patches with these pxcor will act as "dividers" between regions.
+  report n-values (num-regions + 1) [ [n] ->
+    [ pxcor ] of patch (min-pxcor + (n * ((max-pxcor - min-pxcor) / num-regions))) 0
   ]
 end
 
 to keep-in-region [ which-region ] ; turtle procedure
+  ; This is the procedure that make sure that turtles don't leave the region they're
+  ; supposed to be in. It is your responsability to call this whenever a turtle moves.
   if region != which-region [
-    let region-min-pxcor first item (which-region - 1) regions
-    let region-max-pxcor last item (which-region - 1) regions
+    ; Get our region boundaries from the global region list:
+    let region-min-pxcor first item (which-region - 1) region-boundaries
+    let region-max-pxcor last item (which-region - 1) region-boundaries
+    ; The total width is (min - max) + 1 because `pxcor`s are in the middle of patches:
     let region-width (region-max-pxcor - region-min-pxcor) + 1
-    ifelse xcor < region-min-pxcor [
-      set xcor xcor + region-width
+    ifelse xcor < region-min-pxcor [ ; if we crossed to the left,
+      set xcor xcor + region-width   ; jump to the right boundary
     ] [
-      if xcor > region-max-pxcor [
-        set xcor xcor - region-width
+      if xcor > region-max-pxcor [   ; if we crossed to the right,
+        set xcor xcor - region-width ; jump to the left boundary
       ]
     ]
   ]
@@ -1233,7 +1249,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
