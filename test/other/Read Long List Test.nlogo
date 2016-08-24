@@ -218,8 +218,8 @@ to go
   let coords file-read
   output-print word "done reading file: " timer
   file-close
-  foreach coords [
-    crt 1 [ set breed runresult item 0 ? setxy item 1 ? item 2 ? ]
+  foreach coords [ [coord] ->
+    crt 1 [ set breed runresult item 0 coord setxy item 1 coord item 2 coord ]
   ]
   output-print word "done: " timer
   output-print word "count turtles: " count turtles
@@ -235,10 +235,10 @@ end
 GRAPHICS-WINDOW
 282
 10
-721
-470
-16
-16
+719
+448
+-1
+-1
 13.0
 1
 10
@@ -576,9 +576,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M4
+NetLogo 6.0-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -594,7 +593,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

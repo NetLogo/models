@@ -58,7 +58,7 @@ to setup-continue
   let on?-list []
   if not gone?  ;; make sure go has already been called
     [ stop ]
-  set on?-list map [[on?] of ?] sort patches with [pycor = row]  ;; copy cell states from the
+  set on?-list map [[p] -> [on?] of p] sort patches with [pycor = row]  ;; copy cell states from the
                                                                  ;; current row to a list
   setup-general
   ask patches with [ pycor = row ]
@@ -232,10 +232,10 @@ end
 GRAPHICS-WINDOW
 244
 11
-1055
-643
-400
-300
+1053
+621
+-1
+-1
 1.0
 1
 10
@@ -397,7 +397,7 @@ foreground
 foreground
 0
 139
-55
+55.0
 1
 1
 NIL
@@ -412,7 +412,7 @@ background
 background
 0
 139
-0
+0.0
 1
 1
 NIL
@@ -437,7 +437,7 @@ rule
 rule
 0
 255
-105
+105.0
 1
 1
 NIL
@@ -452,7 +452,7 @@ density
 density
 0
 100
-10
+10.0
 1
 1
 %
@@ -816,9 +816,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M4
+NetLogo 6.0-RC1
 @#$#@#$#@
 benchmark set result 0
 @#$#@#$#@
@@ -835,7 +834,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@
