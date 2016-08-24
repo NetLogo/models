@@ -51,7 +51,7 @@ to setup-continue
   if not done?  ;; make sure go has already been called
     [ stop ]
 
-  set value-list map [[value] of ?] sort patches with [pycor = row]  ;; copy cell states from bottom row to a list
+  set value-list map [ [p] -> [value] of p ] sort patches with [pycor = row]  ;; copy cell states from bottom row to a list
   setup-general
   ask patches with [pycor = row]  ;; copy states from list to top row
   [
@@ -656,7 +656,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup-random
 repeat world-height - 1

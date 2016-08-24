@@ -140,8 +140,8 @@ to spread-light
     ask water [ set light 0 ]
     ;; we sort the water patches top to bottom and then ask them in turn
     ;; to grab some light from above
-    foreach sort water [
-      ask ? [
+    foreach sort water [ [the-water] ->
+      ask the-water [
         let light-gained light-spreadiness * [light] of patch-at 0 1
         set light light + light-gained
       ]
@@ -732,7 +732,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 resize-world -12 12 -12 12
 setup

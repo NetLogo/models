@@ -29,7 +29,7 @@ to go
   ;; greens are very close together.  SORT reports a list and
   ;; not an agentset (since agentsets are always in random
   ;; order), so we use FOREACH to iterate over the sorted list
-  foreach sort movers [ ask ? [ move ] ]
+  foreach sort movers [ [the-mover] -> ask the-mover [ move ] ]
   tick
 end
 
@@ -558,7 +558,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup
 repeat 750 [ go ]
