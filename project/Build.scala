@@ -2,7 +2,7 @@ import sbt._
 
 object MyBuild extends Build {
 
-  lazy val netLogo = ProjectRef(uri("git://github.com/NetLogo/NetLogo.git"), "netlogo")
+  lazy val netLogo = ProjectRef(uri("git://github.com/NetLogo/NetLogo.git#wip-lambda-prep"), "netlogo")
 
   lazy val root = Project("root", file("."))
     .dependsOn(netLogo)
