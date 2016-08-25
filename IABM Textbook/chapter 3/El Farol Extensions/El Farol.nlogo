@@ -288,7 +288,7 @@ El Farol is a bar in Santa Fe, New Mexico.  The bar is popular --- especially on
 
 El Farol was originally put forth by Brian Arthur (1994) as an example of how one might model economic systems of boundedly rational agents who use inductive reasoning.
 
-This is a verison of the El Farol model in the Social Science Section of the NetLogo Models Library. This version is intended for use with the IABM textbook. It is NOT intended for textbook users to understand all the code in this model as the point in this section of the textbook is to extend the model by adding new output measures to the model, and not to alter the fundamental algorithm of the model.
+This is a version of the El Farol model in the Social Science Section of the NetLogo Models Library. This version is intended for use with the IABM textbook. It is NOT intended for textbook users to understand all the code in this model as the point in this section of the textbook is to extend the model by adding new output measures to the model, and not to alter the fundamental algorithm of the model.
 
 ## HOW IT WORKS
 

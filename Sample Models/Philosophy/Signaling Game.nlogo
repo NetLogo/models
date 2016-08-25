@@ -509,7 +509,7 @@ In the middle of the view, there is a "sender" and a "receiver".
 
 The sender perceives the active world state and is trying to communicate it to the receiver (who cannot perceive the world state directly) using one of the possible signals.
 
-If the communication is successful, then both players are happy and the connexion between that state and that signal is reinforced for the both the sender and the receiver.
+If the communication is successful, then both players are happy and the connection between that state and that signal is reinforced for the both the sender and the receiver.
 
 Here is the detailed sequence of actions happening in the model at each tick:
 
@@ -533,7 +533,7 @@ The TIMES WRONG, TIMES CORRECT and SUCCESS RATE monitors show what happened so f
 
 The OUTPUT WINDOW to the right of the view displays two probability tables: one for the sender and one for the receiver. For the sender, those are the probabilities of using a particular signal when observing a given state. For the receiver, those are the probabilities of interpreting a given signal to mean a particular state. Those probabilities are rounded to the nearest integer, so it's possible that a column or a row doesn't add up to exactly 100.
 
-The display of probabilies in the OUTPUT WINDOW can be switched on and off using the PRINT-PROBABILITIES? slider.
+The display of probabilities in the OUTPUT WINDOW can be switched on and off using the PRINT-PROBABILITIES? slider.
 
 ## THINGS TO NOTICE
 
@@ -557,7 +557,7 @@ Can you use the model to answer these two questions?
 
 What if both players could take turns acting as senders and receivers? Would it converge faster?
 
-Can you change the model to accomodate more than two players? Each player could be paired with another at each tick and send a signal to that partner. If that was the case, do you think that a consensual signaling system would emerge in the community?
+Can you change the model to accommodate more than two players? Each player could be paired with another at each tick and send a signal to that partner. If that was the case, do you think that a consensual signaling system would emerge in the community?
 
 ## NETLOGO FEATURES
 

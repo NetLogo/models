@@ -58,8 +58,8 @@ to make-particles
   ]
   ;; When space is tight, placing the big particles first improves
   ;; our chances of eventually finding places for all of them.
-  foreach sort-by [ [a b] -> [ size ] of a > [ size ] of b ] particles [ [the-particule] ->
-    ask the-particule [
+  foreach sort-by [ [a b] -> [ size ] of a > [ size ] of b ] particles [ [the-particle] ->
+    ask the-particle [
       position-randomly
       while [ overlapping? ] [ position-randomly ]
     ]

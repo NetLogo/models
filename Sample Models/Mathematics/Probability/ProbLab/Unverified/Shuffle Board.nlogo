@@ -231,7 +231,7 @@ to-report relative-heights [ listerama ]
   set list-of-dividends but-first list-of-dividends
   if empty? list-of-divisors  ;; if there are no divisors (or similarly, dividends)
     [ report "N/A" ]            ;; it is not possible to calculate relative-heights
-  report mean ( map [ [divident divisor] -> divident / divisor ] list-of-dividends list-of-divisors )
+  report mean ( map [ [dividend divisor] -> dividend / divisor ] list-of-dividends list-of-divisors )
 end
 
 to-report first-n [index full-list]

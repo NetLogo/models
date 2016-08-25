@@ -313,7 +313,7 @@ The BAR ATTENDANCE plot shows the average attendance at the bar over time.
 
 ## THINGS TO NOTICE
 
-Does the color scaling visualization help you identify itneresting patterns of behavior in the model?
+Does the color scaling visualization help you identify interesting patterns of behavior in the model?
 
 ## NETLOGO FEATURES
 

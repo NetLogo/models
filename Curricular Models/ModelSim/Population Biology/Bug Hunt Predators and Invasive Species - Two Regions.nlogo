@@ -525,7 +525,7 @@ end
 
 to keep-in-region [ which-region ] ; turtle procedure
   ; This is the procedure that make sure that turtles don't leave the region they're
-  ; supposed to be in. It is your responsability to call this whenever a turtle moves.
+  ; supposed to be in. It is your responsibility to call this whenever a turtle moves.
   if region != which-region [
     ; Get our region boundaries from the global region list:
     let region-min-pxcor first item (which-region - 1) region-boundaries

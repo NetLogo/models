@@ -360,14 +360,14 @@ The number of potential strategies an agent has is given by NUMBER-STRATEGIES, a
 The NUMBER-STRATEGIES slider controls how many strategies each agent keeps in its memory. The OVERCROWDING-THRESHOLD slider controls when the bar is considered overcrowded. The MEMORY slider controls how far back, in the history of attendance, agents remember. To run the model, set the NUMBER-STRATEGIES, OVERCROWDING-THRESHOLD and MEMORY size, press SETUP, and then GO.
 
 The BAR ATTENDANCE plot shows the average attendance at the bar over time.
-The REWARD DISTRUBUTION histogram shows the number of turtles with each reward value.
+The REWARD DISTRIBUTION histogram shows the number of turtles with each reward value.
 The MAX REWARD monitor shows the highest reward for any agent.
 The MIN REWARD monitor shows the lowest reward for any agent.
 The AVG REWARD monitor shows the mean reward for all agents.
 
 ## THINGS TO NOTICE
 
-Does the histogram give you more useful informaton for understanding the agents' behavior than the monitors did in the second extension?
+Does the histogram give you more useful information for understanding the agents' behavior than the monitors did in the second extension?
 
 How do different numbers of strategies, or memory-size affect the distribution of reward?
 

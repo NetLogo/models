@@ -355,7 +355,7 @@ Does looking at the min, max, and average reward help you to understand how the 
 
 How do different numbers of strategies, or memory-size affect the distribution of reward?
 
-Does the color scaling visualization help you identify itneresting patterns of behavior in the model?
+Does the color scaling visualization help you identify interesting patterns of behavior in the model?
 
 ## NETLOGO FEATURES
 
