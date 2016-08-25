@@ -581,7 +581,7 @@ end
 
 to go
   visualize-all-genes
-  ;; these ? variables keep track of button press events being cued by the user
+  ;; these boolean variables keep track of button press events being cued by the user
   if event-1-triggered? [
     show-next-mrna "original"
     set event-1-triggered? false

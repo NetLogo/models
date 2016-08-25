@@ -93,7 +93,7 @@ to-report bad-intersections [t1 t2]
   let i intersection t1 t2
   if length i = 0
     [ report  false ]
-  set i map [ [?] -> precision ? 1 ] i
+  set i map [ [n] -> precision n 1 ] i
   if i = [list precision xcor 1 precision ycor 1] of end1
     [ report false ]
   if i = [list precision xcor 1 precision ycor 1] of end2
