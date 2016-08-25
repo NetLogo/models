@@ -181,14 +181,13 @@ end
 
 ;; make all the initial variations of the bacteria in each region
 to setup-bacteria
-  foreach [1 2 3 4 5 6] [
-    let this-variation ?
-    foreach [1 2] [
+  foreach [1 2 3 4 5 6] [ [this-variation] ->
+    foreach [1 2] [ [this-region] ->
       create-bacteria initial-#-bacteria-per-variation [
         set variation this-variation
         set energy (min-reproduce-energy-bacteria / 2)
         make-flagella
-        move-to one-of patches with [ region = ? ]
+        move-to one-of patches with [ region = this-region ]
       ]
     ]
   ]
@@ -551,7 +550,7 @@ Bacteria Population in Left Region
 10.0
 true
 false
-"" ";; the HISTOGRAM primitive can't make a multi-colored histogram,\n;; so instead we plot each bar individually\nclear-plot\nforeach [1 2 3 4 5 6] [\n  set-current-plot-pen word ?  \" \"\n  plotxy ? count bacteria with [variation = ? and region = 1]\n]\nif  ( plot-y-max - floor plot-y-max) != 0 [set-plot-y-range 0 floor plot-y-max + 1]"
+"" ";; the HISTOGRAM primitive can't make a multi-colored histogram,\n;; so instead we plot each bar individually\nclear-plot\nforeach [1 2 3 4 5 6] [ [this-variation] ->\n  set-current-plot-pen word this-variation  \" \"\n  plotxy this-variation count bacteria with [variation = this-variation and region = 1]\n]\nif  ( plot-y-max - floor plot-y-max) != 0 [set-plot-y-range 0 floor plot-y-max + 1]"
 PENS
 "1 " 1.0 1 -8630108 true "" "plotxy 1 count bacteria with [variation = 1 and region = 1]"
 "2 " 1.0 1 -13345367 true "" "plotxy 2 count bacteria with [variation = 2 and region = 1]"
@@ -619,7 +618,7 @@ Bacteria Population in Right Region
 10.0
 true
 false
-"" ";; the HISTOGRAM primitive can't make a multi-colored histogram,\n;; so instead we plot each bar individually\nclear-plot\nforeach [1 2 3 4 5 6] [\n  set-current-plot-pen word ? \" \"\n  plotxy ? count bacteria with [variation = ? and region = 2]\n]\nif  ( plot-y-max - floor plot-y-max) != 0 [set-plot-y-range 0 floor plot-y-max + 1]"
+"" ";; the HISTOGRAM primitive can't make a multi-colored histogram,\n;; so instead we plot each bar individually\nclear-plot\nforeach [1 2 3 4 5 6] [ [this-variation] ->\n  set-current-plot-pen word this-variation \" \"\n  plotxy this-variation count bacteria with [variation = this-variation and region = 2]\n]\nif  ( plot-y-max - floor plot-y-max) != 0 [set-plot-y-range 0 floor plot-y-max + 1]"
 PENS
 "1 " 1.0 1 -8630108 true "set-histogram-num-bars 8" "plotxy 1 count bacteria with [variation = 1 and region = 2]"
 "2 " 1.0 1 -13345367 true "set-histogram-num-bars 8" "plotxy 2 count bacteria with [variation = 2 and region = 2]"
@@ -1329,7 +1328,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

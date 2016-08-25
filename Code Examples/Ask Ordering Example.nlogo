@@ -21,8 +21,8 @@ to go-random
 end
 
 to go-by-who-number
-  foreach sort turtles [
-    ask ? [
+  foreach sort turtles [ [t] ->
+    ask t [
       fd 1
       display
     ]
@@ -31,8 +31,8 @@ to go-by-who-number
 end
 
 to go-by-size
-  foreach sort-by [ [ size ] of ?1 > [ size ] of ?2 ] turtles [
-    ask ? [
+  foreach sort-by [ [a b] -> [ size ] of a > [ size ] of b ] turtles [ [t] ->
+    ask t [
       fd 1
       display
     ]
@@ -428,7 +428,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup
 @#$#@#$#@

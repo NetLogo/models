@@ -523,7 +523,7 @@ nothing
 true
 0
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup
 set box-x 18

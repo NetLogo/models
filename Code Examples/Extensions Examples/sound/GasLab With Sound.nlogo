@@ -137,7 +137,7 @@ to calculate-pressure
   ;; the wall's total momentum change is calculated
   set pressure 15 * sum [momentum-difference] of particles
   set pressure-history lput pressure pressure-history
-  set zero-pressure-count length filter [? = 0] pressure-history
+  set zero-pressure-count length filter [ [n] -> n = 0] pressure-history
   ask particles
     [ set momentum-difference 0 ]  ;; once the contribution to momentum has been calculated
                                    ;; this value is reset to zero till the next wall hit
@@ -1300,7 +1300,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
