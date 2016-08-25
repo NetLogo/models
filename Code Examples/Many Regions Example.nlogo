@@ -36,11 +36,11 @@ to color-regions
 end
 
 to setup-turtles
-  ; This procedure simply creates turtles in the different.
+  ; This procedure simply creates turtles in the different regions.
   ; The `foreach` pattern shown can be used whenever you
   ; need to do something for each different region.
-  foreach n-values length regions [ ? + 1 ] [
-    let region-patches patches with [ region = ? ]
+  foreach n-values length regions [ [n] -> n + 1 ] [ [the-region] ->
+    let region-patches patches with [ region = the-region ]
     create-turtles number-of-turtles-per-region [
       move-to one-of region-patches
       set color pcolor + 3
@@ -71,15 +71,15 @@ to move ; turtle procedure
 
 end
 
-to setup-regions [ n ]
+to setup-regions [ num-regions ]
   ; First, draw some dividers at the intervals reported by `region-divisions`:
-  foreach region-divisions n draw-region-division
+  foreach region-divisions num-regions draw-region-division
   ; Store our region definitions globally for faster access:
-  set regions region-definitions n
+  set regions region-definitions num-regions
   ; Set the `region` variable for all patches included in regions:
-  (foreach regions (n-values n [ ? + 1 ]) [
-    ; We're looping through region definitions (?1) and region numbers (?2)
-    ask patches with [ pxcor >= first ?1 and pxcor <= last ?1 ] [ set region ?2 ]
+  (foreach regions (n-values num-regions [ [n] -> n + 1 ]) [ [region-a region-b] ->
+    ; We're looping through region definitions (region-a) and region numbers (region-b)
+    ask patches with [ pxcor >= first region-a and pxcor <= last region-a ] [ set region region-b ]
   ])
 end
 
@@ -90,14 +90,14 @@ to-report region-definitions [ n ]
   ; To get those, we use `map` on two "shifted" copies of the division list,
   ; which allow us to scan through all pairs of dividers
   ; and built our list of definitions from those pairs:
-  report (map [ list (?1 + 1) (?2 - 1) ] (but-last divisions) (but-first divisions))
+  report (map [ [a b] -> list (a + 1) (b - 1) ] (but-last divisions) (but-first divisions))
 end
 
-to-report region-divisions [ n ]
+to-report region-divisions [ num-divisions ]
   ; This procedure reports a list of pxcor that should be outside every region.
   ; Patches with these pxcor will act as "dividers" between regions.
-  report n-values (n + 1) [
-    [ pxcor ] of patch (min-pxcor + (? * ((max-pxcor - min-pxcor) / n))) 0
+  report n-values (num-divisions + 1) [ [n] ->
+    [ pxcor ] of patch (min-pxcor + (n * ((max-pxcor - min-pxcor) / num-divisions))) 0
   ]
 end
 
@@ -126,7 +126,7 @@ end
 to keep-in-region [ which-region ] ; turtle procedure
 
   ; This is the procedure that make sure that turtles don't leave the region they're
-  ; supposed to be in. It is your responsability to call this whenever a turtle moves.
+  ; supposed to be in. It is your responsibility to call this whenever a turtle moves.
   if region != which-region [
     ; Get our region boundaries from the global region list:
     let region-min-pxcor first item (which-region - 1) regions
@@ -609,7 +609,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

@@ -137,7 +137,7 @@ to calculate-pressure
   ;; the wall's total momentum change is calculated
   set pressure 15 * sum [momentum-difference] of particles
   set pressure-history lput pressure pressure-history
-  set zero-pressure-count length filter [? = 0] pressure-history
+  set zero-pressure-count length filter [ [n] -> n = 0] pressure-history
   ask particles
     [ set momentum-difference 0 ]  ;; once the contribution to momentum has been calculated
                                    ;; this value is reset to zero till the next wall hit
