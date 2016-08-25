@@ -28,13 +28,13 @@ end
 
 ;; For example, "setup-uniform 2" gives every patch a task which reports 2.
 to setup-uniform [initial-value]
-  setup task [initial-value]
+  setup [ [] -> initial-value ]
 end
 
 ;; Every patch uses a task which reports a random value.
 to setup-random
   ;; this creates a nameless procedure that, when executed, run "random 4"
-  setup task [random 4]
+  setup [ [] -> random 4 ]
 end
 
 ;; patch procedure; the colors are like a stoplight
@@ -262,7 +262,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 2 -16777216 true "" "if ticks mod 100 = 0 and not empty? sizes [\n  plot-pen-reset\n  let counts n-values (1 + max sizes) [0]\n  foreach sizes [\n    set counts replace-item ? counts (1 + item ? counts)\n  ]\n  let avalanche-size 0\n  foreach counts [\n    let num-avalanches ?\n    if (avalanche-size > 0 and num-avalanches > 0) [\n      plotxy (log avalanche-size 10) (log num-avalanches 10)\n    ]\n    set avalanche-size avalanche-size + 1\n  ]\n]"
+"default" 1.0 2 -16777216 true "" "if ticks mod 100 = 0 and not empty? sizes [\n  plot-pen-reset\n  let counts n-values (1 + max sizes) [0]\n  foreach sizes [ [i] ->\n    set counts replace-item i counts (1 + item i counts)\n  ]\n  let avalanche-size 0\n  foreach counts [ [num-avalanches] ->\n    if (avalanche-size > 0 and num-avalanches > 0) [\n      plotxy (log avalanche-size 10) (log num-avalanches 10)\n    ]\n    set avalanche-size avalanche-size + 1\n  ]\n]"
 
 BUTTON
 820
@@ -415,7 +415,7 @@ true
 0
 Polygon -7500403 true true 150 5 40 250 150 205 260 250
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup-random repeat 50 [ go ]
 @#$#@#$#@
