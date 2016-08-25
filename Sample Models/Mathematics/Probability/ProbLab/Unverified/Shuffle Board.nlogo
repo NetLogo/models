@@ -231,7 +231,7 @@ to-report relative-heights [ listerama ]
   set list-of-dividends but-first list-of-dividends
   if empty? list-of-divisors  ;; if there are no divisors (or similarly, dividends)
     [ report "N/A" ]            ;; it is not possible to calculate relative-heights
-  report mean ( map [ ?1 / ?2 ] list-of-dividends list-of-divisors )
+  report mean ( map [ [divident divisor] -> divident / divisor ] list-of-dividends list-of-divisors )
 end
 
 to-report first-n [index full-list]
@@ -244,9 +244,9 @@ to-report bin-list [input-list]
   if input-list = [] [ report [] ]
   let result []
   let bin 0
-  foreach n-values ( max input-list + 1 ) [?] [
-    set bin ?
-    set result lput ( length filter [ ? = bin ] input-list ) result
+  foreach n-values ( max input-list + 1 ) [ [n] -> n ] [ [n] ->
+    set bin n
+    set result lput ( length filter [ [input] -> input = bin ] input-list ) result
   ]
   report result
 end
@@ -278,13 +278,13 @@ to do-plot
   set-current-plot "Frequency of Distances to Prizes"
   histogram target-color-differences-list
   let maxbar modes target-color-differences-list
-  let maxrange length ( filter [ ? = item 0 maxbar ] target-color-differences-list )
+  let maxrange length ( filter [ [difference] -> difference = item 0 maxbar ] target-color-differences-list )
   set-plot-y-range 0 max list 10 maxrange
 
   set-current-plot "Frequency of Streaks by Length"
   histogram target-color-successive-list
   set maxbar modes target-color-successive-list
-  set maxrange length ( filter [ ? = item 0 maxbar ] target-color-successive-list )
+  set maxrange length ( filter [ [successive] -> successive = item 0 maxbar ] target-color-successive-list )
   set-plot-y-range 0 max list 10 maxrange
 end
 
@@ -1206,7 +1206,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
