@@ -226,12 +226,13 @@ to create-next-generation ;[best-individual]
     let child-chromosomes crossover ([chromosome] of parent1) ([chromosome] of parent2)
 
     ; create the two children, with their new genetic material
+    let actions ["move-north" "move-east" "move-south" "move-west" "move-random" "stay-put" "pick-up-can"]
     ask parent1 [
       hatch 1 [
         rt random 360 fd random-float 3.0
         set chromosome item 0 child-chromosomes
         ;; record the distribution of basic actions (or "alleles") for each individual
-        set allele-distribution map [ [action] -> occurrences action chromosome ] ["move-north" "move-east" "move-south" "move-west" "move-random" "stay-put" "pick-up-can"]
+        set allele-distribution map [ [action] -> occurrences action chromosome ] actions
       ]
     ]
     ask parent2 [
@@ -239,7 +240,7 @@ to create-next-generation ;[best-individual]
         rt random 360 fd random-float 3.0
         set chromosome item 1 child-chromosomes
         ;; record the distribution of basic actions (or "alleles") for each individual
-        set allele-distribution map [ [action] -> occurrences action chromosome ] ["move-north" "move-east" "move-south" "move-west" "move-random" "stay-put" "pick-up-can"]
+        set allele-distribution map [ [action] -> occurrences action chromosome ] actions
        ]
     ]
   ]
