@@ -33,11 +33,11 @@ end
 
 to setup-stores
   ; We choose as many random colors as the number of stores we want to create
-  foreach n-of number-of-stores base-colors [
+  foreach n-of number-of-stores base-colors [ [c] ->
     ; ...and we create a store of each of these colors on random consumer patches
     ask one-of consumers [
       sprout 1 [
-        set color ? ; use the color from the list that we are looping through
+        set color c ; use the color from the list that we are looping through
         set shape "Circle (2)"
         set size 2
         set price 10
@@ -96,14 +96,14 @@ to-report new-location-task
 
   ; pair the potential moves with their market shares, and sort these pairs by market share
   let moves-with-market-shares
-    sort-by [ last ?1 > last ?2 ]
-    map [ list ? (market-share-if-move-to ?) ] possible-moves
+    sort-by [ [a b] -> last a > last b ]
+    map [ [move] -> list move (market-share-if-move-to move) ] possible-moves
 
   ; report the first item of the first pair, i.e., the move with the best market share
   let chosen-location first first moves-with-market-shares
 
   let store self ; put self in a local variable so that it can be "captured" by the task
-  report task [
+  report [ [] ->
     ask store [
       pen-down
       move-to chosen-location
@@ -137,16 +137,16 @@ to-report new-price-task
   ; pair each potential price change with its potential revenue
   ; and sort them in decreasing order of revenue
   let prices-with-revenues
-    sort-by [ last ?1 > last ?2 ]
-    map [ list ? (potential-revenue ?) ] possible-prices
+    sort-by [ [a b] -> last a > last b ]
+    map [ [the-price] -> list the-price (potential-revenue the-price) ] possible-prices
 
-  let all-zeros? (not member? false map [ last ? = 0 ] prices-with-revenues)
+  let all-zeros? (not member? false map [ [pair] -> last pair = 0 ] prices-with-revenues)
   let chosen-price ifelse-value (all-zeros? and price > 1)
     [ price - 1 ] ; if all potential revenues are zero, the store lowers its price as an emergency procedure if it can
     [ first first prices-with-revenues ] ; in any other case, we pick the price with the best potential revenues
 
   let store self ; put self in a local variable so that it can be "captured" by the task
-  report task [
+  report [ [] ->
     ask store [
       set price chosen-price
     ]
@@ -723,7 +723,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 set number-of-stores 6
 setup
