@@ -123,7 +123,7 @@ to-report center-urge ;; bird reporter
   [ report (list 0 0 0) ]
   report
     (map
-      [ ?2 - ?1 ]
+      [ [a b] -> b - a ]
       (list xcor ycor zcor)
       (list
         mean [ xcor ] of flockmates
@@ -138,7 +138,7 @@ to-report velocity-urge ;; bird reporter
   [ report (list 0 0 0) ]
   report
     ( map
-      [ ?1 - ?2 ]
+      [ [a b] -> a - b ]
       (list
         mean [ item 0 velocity ] of flockmates
         mean [ item 1 velocity ] of flockmates
@@ -221,25 +221,25 @@ end
 ;; vector operations
 ;;
 to-report add [ v1 v2 ]
-  report (map [ ?1 + ?2 ] v1 v2)
+  report (map [ [a b] -> a + b ] v1 v2)
 end
 
 to-report subtract [ v1 v2 ]
-  report (map [ ?1 - ?2 ] v1 v2)
+  report (map [ [a b] -> a - b ] v1 v2)
 end
 
 to-report scale [ scalar vector ]
-  report map [ scalar * ? ] vector
+  report map [ [n] -> scalar * n ] vector
 end
 
 to-report magnitude [ vector ]
-  report sqrt sum map [ ? * ? ] vector
+  report sqrt sum map [ [n] -> n * n ] vector
 end
 
 to-report normalize [ vector ]
   let m magnitude vector
   if m = 0 [ report vector ]
-  report map [ ? / m ] vector
+  report map [ [n] -> n / m ] vector
 end
 
 
@@ -922,7 +922,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 3D 6.0-M9
+NetLogo 3D 6.0-RC1
 @#$#@#$#@
 setup
 watch turtle 0
