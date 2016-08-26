@@ -1,9 +1,9 @@
 extensions [ nw ]
 
-; we have two different kinf of link breeds, one directed and one undirected, just
+; we have two different kinds of link breeds, one directed and one undirected, just
 ; to show what the different networks look like with directed vs. undirected links
-directed-link-breed [ dirlinks dirlink ]
-undirected-link-breed [ unlinks unlink ]
+directed-link-breed [ directed-edges directed-edge ]
+undirected-link-breed [ undirected-edges undirected-edge ]
 
 globals [
   highlighted-node                ; used for the "highlight mode" buttons to keep track of the currently highlighted node
@@ -22,8 +22,8 @@ end
 ;; Reports the link set corresponding to the value of the links-to-use combo box
 to-report get-links-to-use
   report ifelse-value (links-to-use = "directed")
-    [ dirlinks ]
-    [ unlinks ]
+    [ directed-edges ]
+    [ undirected-edges ]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -120,7 +120,7 @@ to highlight-maximal-cliques
   ]
 
   if mouse-inside? [
-    nw:set-context turtles unlinks
+    nw:set-context turtles undirected-edges
     highlight-clusters nw:maximal-cliques
   ]
   display
@@ -132,7 +132,7 @@ to find-biggest-cliques
     user-message "Maximal cliques only work with undirected links."
     stop
   ]
-  nw:set-context turtles unlinks
+  nw:set-context turtles undirected-edges
   color-clusters nw:biggest-maximal-cliques
 end
 
@@ -170,9 +170,9 @@ to color-clusters [ clusters ]
         set color cluster-color
         ; colorize the links from the node to other nodes in the same cluster
         ; link color is slightly darker...
-        ask my-unlinks [ if member? other-end cluster [ set color cluster-color - 1 ] ]
-        ask my-in-dirlinks [ if member? other-end cluster [ set color cluster-color - 1 ] ]
-        ask my-out-dirlinks [ if member? other-end cluster [ set color cluster-color - 1 ] ]
+        ask my-undirected-edges [ if member? other-end cluster [ set color cluster-color - 1 ] ]
+        ask my-in-directed-edges [ if member? other-end cluster [ set color cluster-color - 1 ] ]
+        ask my-out-directed-edges [ if member? other-end cluster [ set color cluster-color - 1 ] ]
       ]
     ])
 end
@@ -234,7 +234,7 @@ end
 
 to generate [ generator-task ]
   ; we have a general "generate" procedure that basically just takes a task
-  ; parameter and run it, but takes care of calling layout and update stuff
+  ; parameter and runs it, but takes care of calling layout and update stuff
   set-default-shape turtles "circle"
   run generator-task
   layout-once
@@ -280,7 +280,7 @@ to small-world-lattice
 end
 
 to generate-random
-  generate  [ [] -> nw:generate-random turtles get-links-to-use nb-nodes connexion-prob ]
+  generate  [ [] -> nw:generate-random turtles get-links-to-use nb-nodes connection-prob ]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -368,7 +368,7 @@ Clusterers & Cliques
 SLIDER
 10
 85
-225
+230
 118
 nb-nodes
 nb-nodes
@@ -410,7 +410,7 @@ NIL
 BUTTON
 10
 135
-225
+230
 168
 preferential attachment
 preferential-attachment
@@ -425,9 +425,9 @@ NIL
 1
 
 BUTTON
-120
+125
 500
-225
+230
 535
 lattice 2D
 lattice-2d
@@ -444,7 +444,7 @@ NIL
 SLIDER
 120
 425
-225
+230
 458
 nb-rows
 nb-rows
@@ -474,7 +474,7 @@ HORIZONTAL
 SWITCH
 10
 460
-225
+230
 493
 wrap
 wrap
@@ -512,7 +512,7 @@ NIL
 BUTTON
 10
 290
-75
+70
 323
 random
 generate-random
@@ -527,12 +527,12 @@ NIL
 1
 
 SLIDER
-80
+75
 290
-225
+230
 323
-connexion-prob
-connexion-prob
+connection-prob
+connection-prob
 0
 1
 0.2
@@ -561,7 +561,7 @@ NIL
 SLIDER
 10
 537
-225
+230
 570
 clustering-exponent
 clustering-exponent
@@ -610,7 +610,7 @@ NIL
 CHOOSER
 125
 10
-225
+230
 55
 links-to-use
 links-to-use
@@ -711,7 +711,7 @@ NIL
 BUTTON
 10
 170
-225
+230
 203
 NIL
 ring
@@ -728,7 +728,7 @@ NIL
 BUTTON
 10
 240
-75
+70
 285
 NIL
 wheel
@@ -745,7 +745,7 @@ NIL
 BUTTON
 10
 205
-225
+230
 238
 NIL
 star
@@ -849,9 +849,9 @@ NIL
 1
 
 CHOOSER
-80
+75
 240
-225
+230
 285
 spokes-direction
 spokes-direction
@@ -939,7 +939,7 @@ NIL
 SLIDER
 10
 340
-225
+230
 373
 neighborhood-size
 neighborhood-size
@@ -954,7 +954,7 @@ HORIZONTAL
 SLIDER
 100
 375
-225
+230
 408
 rewire-prob
 rewire-prob
@@ -1019,7 +1019,7 @@ Generates a new random network of _nb-nodes_ turtles in which each one has a  co
 
 #### lattice 2D
 
-Generates a new 2D [lattice network](http://en.wikipedia.org/wiki/Lattice_graph) (basically, a grid) of **nb-rows** rows and **nb-cols** columns. The grid will wrap around itsef if the **wrap** switch is set to on.
+Generates a new 2D [lattice network](http://en.wikipedia.org/wiki/Lattice_graph) (basically, a grid) of **nb-rows** rows and **nb-cols** columns. The grid will wrap around itself if the **wrap** switch is set to on.
 
 #### small world
 
@@ -1049,7 +1049,7 @@ A [clique](http://en.wikipedia.org/wiki/Clique_%28graph_theory%29) is a subset o
 
 #### biggest maximal cliques
 
-This simply highlights the biggests of all the maximal cliques in the networks. If there are multiple cliques that are equally big (as is often the case), it will highlight them with different colors.
+This simply highlights the biggest of all the maximal cliques in the networks. If there are multiple cliques that are equally big (as is often the case), it will highlight them with different colors.
 
 ### Centrality measures
 
@@ -1057,7 +1057,7 @@ Besides all the clusterers and the clique finder, you can also calculate some ce
 
 #### betweenness
 
-To calculate the [betweenness centrality](http://en.wikipedia.org/wiki/Betweenness_centrality) of a turtle, you take every other possible pairs of turtles and, for each pair, you calculate the proportion of shortest paths between members of the pair that passes through the current turtle. The betweeness centrality of a turtle is the sum of these.
+To calculate the [betweenness centrality](http://en.wikipedia.org/wiki/Betweenness_centrality) of a turtle, you take every other possible pairs of turtles and, for each pair, you calculate the proportion of shortest paths between members of the pair that passes through the current turtle. The betweenness centrality of a turtle is the sum of these.
 
 #### eigenvector
 
@@ -1112,7 +1112,7 @@ Another nice tidbit is how the `foreach` command is used in the `color-clusters`
 
 ## RELATED MODELS
 
-A couple of models already in the model library, namely the "Giant Component" model and the "Small World" model could be build much more easily by using the primitives in the network extension. Such versions of these two models are included in the "demo" folder of the extension, but trying to make the modifications yourself would be an excellent exercice.
+A couple of models already in the model library, namely the "Giant Component" model and the "Small World" model could be build much more easily by using the primitives in the network extension. Such versions of these two models are included in the "demo" folder of the extension, but trying to make the modifications yourself would be an excellent exercise.
 
 <!-- 2012 -->
 @#$#@#$#@
