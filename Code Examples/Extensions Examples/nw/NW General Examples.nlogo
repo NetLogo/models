@@ -315,8 +315,9 @@ to-report mean-path-length
 end
 
 
-;; Copyright 2012 Uri Wilensky.
-;; See Info tab for full copyright and license.
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 570
@@ -1030,7 +1031,7 @@ Generates a new 2D [lattice network](http://en.wikipedia.org/wiki/Lattice_graph)
 
 #### small world
 
-Generates a new [small-world network](http://en.wikipedia.org/wiki/Small-world_network) using the [Kleinberg Model](http://en.wikipedia.org/wiki/Small_world_routing#The_Kleinberg_Model). 
+Generates a new [small-world network](http://en.wikipedia.org/wiki/Small-world_network) using the [Kleinberg Model](http://en.wikipedia.org/wiki/Small_world_routing#The_Kleinberg_Model).
 
 The generator uses the same sliders and switch as the lattice 2D generator, namely, **nb-rows**, **nb-cols** and **wrap**. The algorithm proceeds by generating a lattice of the given number of rows and columns (the lattice will wrap around itself if **wrap** is on). The "small world effect" is created by adding additional links between the nodes in the lattice. The higher the **clustering-exponent**, the more the algorithm will favor already close-by nodes when adding new links. A clustering exponent of `2.0` is typically used.
 
@@ -1091,7 +1092,6 @@ The model currently always save the network to your NetLogo directory in a file 
 
 You can also save and load GraphML files. Please see the [extension's documentation](https://github.com/NetLogo/NW-Extension#save-graphml) for more detail on handling GraphML files. The demo simply saves the current network to (and can load from) the file `demo.graphml` in your default directory.
 
-
 ## THINGS TO NOTICE
 
 - When you generate preferential attachment networks, notice the distribution of node degrees in the histogram. What does it look like? What happens if you generate a network with more nodes, or multiple preferential attachment networks?
@@ -1122,15 +1122,7 @@ Another nice tidbit is how the `foreach` command is used in the `color-clusters`
 
 A couple of models already in the model library, namely the "Giant Component" model and the "Small World" model could be build much more easily by using the primitives in the network extension. Such versions of these two models are included in the "demo" folder of the extension, but trying to make the modifications yourself would be an excellent exercice.
 
-## CREDITS AND REFERENCES
-
-Copyright 2012 Uri Wilensky.
-
-![CC BY-NC-SA 3.0](http://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png)
-
-This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
-
-Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+<!-- 2012 -->
 @#$#@#$#@
 default
 true
