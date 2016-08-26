@@ -30,7 +30,7 @@ to get-kicked ; turtle procedure
   set angular-position (angular-position + momentum) mod (2 * pi)
 
   ; graph the current momentum and angular-position by normalizing each measure to the view
-  setxy (min-pxcor + angular-position * (world-width - 1) / (2 * pi)) (momentum * (world-height - 1) / (2 * pi))
+  setxy (min-pxcor + angular-position * world-width / (2 * pi)) (min-pycor + momentum  * world-height / (2 * pi))
 
   ; ask the turtle to mark its current trajectory on the graph
   stamp
@@ -61,9 +61,8 @@ to inspect-rotator
     ls:let parent-position (mouse-xcor - min-pxcor) / (world-width - 1) * (2 * pi)
 
     ; open a new Kicked Rotator model with the appropriate initial conditions
-    let model-id 0
-    (ls:load-gui-model "Kicked Rotator.nlogo" [ set model-id ? ])
-    ls:ask model-id [
+    ls:load-gui-model "Kicked Rotator.nlogo"
+    ls:ask last ls:models [
       ; ask the model to start with the given conditions
       set continuous-motion? false
       set kick-strength precision parent-kick-strength 3
