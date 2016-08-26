@@ -32,7 +32,7 @@ end
 
 to redo-layout [ forever? ]
   if layout = "radial" and count turtles > 1 [
-    layout-radial turtles links ( max-one-of turtles [ count my-links + count my-out-links + count my-in-links ] )
+    layout-radial turtles links (max-one-of turtles [ count my-links + count my-out-links + count my-in-links ])
   ]
   if layout = "spring" [
     let factor sqrt count turtles
@@ -67,19 +67,19 @@ end
 ;; Clusterers
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Colorizes each node according to which component it is part of
+; Colorizes each node according to which component it is part of
 to weak-component
   nw:set-context turtles get-links-to-use
   color-clusters nw:weak-component-clusters
 end
 
-;; Colorizes each node according to the community it is part of
+; Colorizes each node according to the community it is part of
 to community-detection
   nw:set-context turtles get-links-to-use
   color-clusters nw:louvain-communities
 end
 
-;; Allows the user to mouse over and highlight all bicomponents
+; Allows the user to mouse over and highlight all bicomponents
 to highlight-bicomponents
 
   if stop-highlight-bicomponents = true [
@@ -101,7 +101,7 @@ to highlight-bicomponents
   display
 end
 
-;; Allows the user to mouse over and highlight all maximal cliques
+; Allows the user to mouse over and highlight all maximal cliques
 to highlight-maximal-cliques
   if (links-to-use != "undirected") [
     user-message "Maximal cliques only work with undirected links."
@@ -126,9 +126,9 @@ to highlight-maximal-cliques
   display
 end
 
-;; Colorizes the biggest maximal clique in the graph, or a random one if there is more than one
+; Colorizes the biggest maximal clique in the graph, or a random one if there is more than one
 to find-biggest-cliques
-  if (links-to-use != "undirected") [
+  if links-to-use != "undirected" [
     user-message "Maximal cliques only work with undirected links."
     stop
   ]
@@ -140,22 +140,22 @@ end
 ;; Highlighting and coloring of clusters
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Allows the user to mouse over different nodes and
-;; highlight all the clusters that this node is a part of
+; Allows the user to mouse over different nodes and
+; highlight all the clusters that this node is a part of
 to highlight-clusters [ clusters ]
-  ;; get the node with neighbors that is closest to the mouse
+  ; get the node with neighbors that is closest to the mouse
   let node min-one-of turtles [ distancexy mouse-xcor mouse-ycor ]
   if node != nobody and node != highlighted-node [
     set highlighted-node node
-    ;; find all clusters the node is in and assign them different colors
+    ; find all clusters the node is in and assign them different colors
     color-clusters filter [ [cluster] -> member? node cluster ] clusters
-    ;; highlight target node
+    ; highlight target node
     ask node [ set color white ]
   ]
 end
 
 to color-clusters [ clusters ]
-  ;; reset all colors
+  ; reset all colors
   ask turtles [ set color gray - 3 ]
   ask links [ set color gray - 3 ]
   let n length clusters
@@ -163,13 +163,13 @@ to color-clusters [ clusters ]
     [ n-of n remove gray remove white base-colors ] ;; choose base colors other than white and gray
     [ n-values n [ approximate-hsb (random 255) (255) (100 + random 100) ] ] ; too many colors - pick random ones
 
-    ;; loop through the clusters and colors zipped together
+    ; loop through the clusters and colors zipped together
     (foreach clusters colors [ [cluster cluster-color] ->
-      ask cluster [ ;; for each node in the cluster
-        ;; give the node the color of its cluster
+      ask cluster [ ; for each node in the cluster
+        ; give the node the color of its cluster
         set color cluster-color
-        ;; colorize the links from the node to other nodes in the same cluster
-        ;; link color is slightly darker...
+        ; colorize the links from the node to other nodes in the same cluster
+        ; link color is slightly darker...
         ask my-unlinks [ if member? other-end cluster [ set color cluster-color - 1 ] ]
         ask my-in-dirlinks [ if member? other-end cluster [ set color cluster-color - 1 ] ]
         ask my-out-dirlinks [ if member? other-end cluster [ set color cluster-color - 1 ] ]
@@ -193,17 +193,17 @@ to closeness
   centrality [ [] -> nw:closeness-centrality ]
 end
 
-;; Takes a centrality measure as a reporter task, runs it for all nodes
-;; and set labels, sizes and colors of turtles to illustrate result
+; Takes a centrality measure as a reporter task, runs it for all nodes
+; and set labels, sizes and colors of turtles to illustrate result
 to centrality [ measure ]
   nw:set-context turtles get-links-to-use
   ask turtles [
-    let res (runresult measure) ;; run the task for the turtle
+    let res (runresult measure) ; run the task for the turtle
     ifelse is-number? res [
       set label precision res 2
-      set size res ;; this will be normalized later
+      set size res ; this will be normalized later
     ]
-    [ ;; if the result is not a number, it is because eigenvector returned false (in the case of disconnected graphs
+    [ ; if the result is not a number, it is because eigenvector returned false (in the case of disconnected graphs
       set label res
       set size 1
     ]
@@ -211,17 +211,17 @@ to centrality [ measure ]
   normalize-sizes-and-colors
 end
 
-;; We want the size of the turtles to reflect their centrality, but different measures
-;; give different ranges of size, so we normalize the sizes according to the formula
-;; below. We then use the normalized sizes to pick an appropriate color.
+; We want the size of the turtles to reflect their centrality, but different measures
+; give different ranges of size, so we normalize the sizes according to the formula
+; below. We then use the normalized sizes to pick an appropriate color.
 to normalize-sizes-and-colors
   if count turtles > 0 [
-    let sizes sort [ size ] of turtles ;; initial sizes in increasing order
-    let delta last sizes - first sizes ;; difference between biggest and smallest
-    ifelse delta = 0 [ ;; if they are all the same size
+    let sizes sort [ size ] of turtles ; initial sizes in increasing order
+    let delta last sizes - first sizes ; difference between biggest and smallest
+    ifelse delta = 0 [ ; if they are all the same size
       ask turtles [ set size 1 ]
     ]
-    [ ;; remap the size to a range between 0.5 and 2.5
+    [ ; remap the size to a range between 0.5 and 2.5
       ask turtles [ set size ((size - first sizes) / delta) * 2 + 0.5 ]
     ]
     ask turtles [ set color scale-color red size 0 5 ] ; using a higher range max not to get too white...
@@ -254,7 +254,7 @@ to star
 end
 
 to wheel
-  ifelse (links-to-use = "directed") [
+  ifelse links-to-use = "directed" [
     ifelse spokes-direction = "inward" [
       generate [ [] -> nw:generate-wheel-inward turtles get-links-to-use nb-nodes ]
     ]
