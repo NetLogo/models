@@ -13,10 +13,11 @@ globals [
   stop-highlight-maximal-cliques  ; indicates highlight-maximal-cliques mode needs to stop
 ]
 
-to clear
+to setup
   clear-all
   set-current-plot "Degree distribution"
   set-default-shape turtles "circle"
+  reset-ticks
 end
 
 ;; Reports the link set corresponding to the value of the links-to-use combo box
@@ -30,37 +31,24 @@ end
 ;; Layouts
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-to redo-layout [ forever? ]
+to layout-turtles
   if layout = "radial" and count turtles > 1 [
-    layout-radial turtles links (max-one-of turtles [ count my-links + count my-out-links + count my-in-links ])
+    let root-agent max-one-of turtles [ count my-links + count my-out-links + count my-in-links ]
+    layout-radial turtles links root-agent
   ]
   if layout = "spring" [
     let factor sqrt count turtles
     if factor = 0 [ set factor 1 ]
-    repeat ifelse-value forever? [ 1 ] [ 50 ] [
-      layout-spring turtles links (1 / factor) (14 / factor) (1.5 / factor)
-      display
-      if not forever? [ wait 0.005 ]
-    ]
+    layout-spring turtles links (1 / factor) (14 / factor) (1.5 / factor)
+    display
   ]
   if layout = "circle" [
     layout-circle sort turtles max-pxcor * 0.9
   ]
   if layout = "tutte" [
     layout-circle sort turtles max-pxcor * 0.9
-    repeat 10 [
-      layout-tutte max-n-of (count turtles * 0.5) turtles [ count my-links ] links 12
-    ]
+    layout-tutte max-n-of (count turtles * 0.5) turtles [ count my-links ] links 12
   ]
-end
-
-to layout-once
-  redo-layout false
-end
-
-to spring-forever
-  set layout "spring"
-  redo-layout true
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -234,10 +222,9 @@ end
 
 to generate [ generator-task ]
   ; we have a general "generate" procedure that basically just takes a task
-  ; parameter and runs it, but takes care of calling layout and update stuff
-  set-default-shape turtles "circle"
+  ; parameter and runs it, but takes care of calling layout and update plots
   run generator-task
-  layout-once
+  layout-turtles
   update-plots
 end
 
@@ -312,13 +299,13 @@ end
 ; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
-570
+630
 10
-1116
-557
+1133
+514
 -1
 -1
-16.30303030303031
+15.0
 1
 10
 1
@@ -332,17 +319,17 @@ GRAPHICS-WINDOW
 16
 -16
 16
-0
-0
 1
+1
+0
 ticks
 30.0
 
 BUTTON
-450
-90
-560
-123
+510
+30
+620
+63
 NIL
 betweenness
 NIL
@@ -353,13 +340,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 TEXTBOX
-245
-60
-395
-78
+305
+10
+455
+28
 Clusterers & Cliques
 12
 0.0
@@ -367,24 +354,24 @@ Clusterers & Cliques
 
 SLIDER
 10
-85
-230
-118
+150
+290
+183
 nb-nodes
 nb-nodes
 0
 1000
-1000.0
+100.0
 1
 1
 NIL
 HORIZONTAL
 
 TEXTBOX
-450
-65
-600
-83
+510
+10
+660
+28
 Centrality
 12
 0.0
@@ -393,10 +380,10 @@ Centrality
 BUTTON
 10
 10
-120
+95
 55
-NIL
-clear
+setup/clear
+setup
 NIL
 1
 T
@@ -409,9 +396,9 @@ NIL
 
 BUTTON
 10
-135
-230
-168
+185
+170
+218
 preferential attachment
 preferential-attachment
 NIL
@@ -422,13 +409,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
-125
-500
-230
-535
+10
+445
+115
+478
 lattice 2D
 lattice-2d
 NIL
@@ -439,33 +426,33 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 120
-425
-230
-458
+410
+290
+443
 nb-rows
 nb-rows
 0
 20
-11.0
+8.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-10
-425
-115
-458
+120
+445
+290
+478
 nb-cols
 nb-cols
 0
 20
-10.0
+8.0
 1
 1
 NIL
@@ -473,9 +460,9 @@ HORIZONTAL
 
 SWITCH
 10
-460
-230
-493
+410
+115
+443
 wrap
 wrap
 1
@@ -484,19 +471,19 @@ wrap
 
 TEXTBOX
 15
-65
+125
 165
-83
+143
 Generators
 12
 0.0
 1
 
 BUTTON
-450
-125
-560
-158
+510
+65
+620
+98
 NIL
 eigenvector
 NIL
@@ -507,13 +494,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 10
-290
-70
-323
+275
+95
+308
 random
 generate-random
 NIL
@@ -524,13 +511,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
-75
+100
+275
 290
-230
-323
+308
 connection-prob
 connection-prob
 0
@@ -543,9 +530,9 @@ HORIZONTAL
 
 BUTTON
 10
-500
+480
 115
-535
+513
 kleinberg
 small-world-lattice
 NIL
@@ -556,13 +543,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
-10
-537
-230
-570
+120
+480
+290
+513
 clustering-exponent
 clustering-exponent
 0
@@ -574,10 +561,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-450
-160
-560
-193
+510
+100
+620
+133
 NIL
 closeness
 NIL
@@ -588,13 +575,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
-245
-80
-425
-113
+305
+30
+495
+63
 weak component clusters
 weak-component
 NIL
@@ -605,12 +592,12 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 CHOOSER
-125
+100
 10
-230
+290
 55
 links-to-use
 links-to-use
@@ -618,10 +605,10 @@ links-to-use
 0
 
 PLOT
-245
-355
-560
-515
+305
+305
+620
+465
 Degree distribution
 Degrees
 Nb nodes
@@ -636,10 +623,10 @@ PENS
 "default" 1.0 1 -16777216 true "" "histogram [ count my-links ] of turtles"
 
 BUTTON
-245
-275
-355
-308
+305
+225
+390
+258
 save matrix
 save-matrix
 NIL
@@ -650,13 +637,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
-245
-310
-355
-343
+305
+260
+390
+293
 load matrix
 load-matrix
 NIL
@@ -667,13 +654,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 MONITOR
-330
-530
-415
-575
+390
+470
+475
+515
 NIL
 count turtles
 17
@@ -681,10 +668,10 @@ count turtles
 11
 
 MONITOR
-245
-530
-325
-575
+305
+470
+385
+515
 NIL
 count links
 17
@@ -692,10 +679,10 @@ count links
 11
 
 BUTTON
-245
-220
-425
-253
+305
+170
+495
+203
 biggest maximal cliques
 find-biggest-cliques
 NIL
@@ -706,13 +693,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
-10
-170
+175
+185
 230
-203
+218
 NIL
 ring
 NIL
@@ -723,13 +710,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 10
-240
-70
-285
+225
+95
+270
 NIL
 wheel
 NIL
@@ -740,13 +727,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
-10
-205
-230
-238
+235
+185
+290
+218
 NIL
 star
 NIL
@@ -757,13 +744,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 MONITOR
-420
-530
-560
-575
+480
+470
+620
+515
 Mean path length
 nw:mean-path-length
 3
@@ -771,39 +758,39 @@ nw:mean-path-length
 11
 
 CHOOSER
-355
-10
-447
-55
+190
+60
+290
+105
 layout
 layout
 "spring" "circle" "radial" "tutte"
 0
 
 BUTTON
-245
+100
+60
+185
+105
+layout once
+layout-turtles
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+BUTTON
 10
-347
-55
+60
+95
+105
 layout
-layout-once
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-455
-10
-560
-55
-spring
-spring-forever
+layout-turtles
 T
 1
 T
@@ -815,10 +802,10 @@ NIL
 1
 
 BUTTON
-245
-150
-425
-183
+305
+100
+495
+133
 highlight bicomponents
 highlight-bicomponents
 T
@@ -829,13 +816,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
-245
-185
-425
-218
+305
+135
+495
+168
 highlight maximal cliques
 highlight-maximal-cliques
 T
@@ -846,33 +833,33 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 CHOOSER
-75
-240
-230
-285
+100
+225
+290
+270
 spokes-direction
 spokes-direction
 "inward" "outward"
 1
 
 TEXTBOX
-250
-255
-400
-273
+310
+205
+460
+223
 Files
 12
 0.0
 1
 
 BUTTON
-360
-275
-470
-308
+395
+225
+495
+258
 save GraphML
 save-graphml
 NIL
@@ -883,13 +870,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
-360
-310
-470
-343
+395
+260
+495
+293
 load GraphML
 load-graphml
 NIL
@@ -900,13 +887,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
-245
-115
-425
-148
+305
+65
+495
+98
 detect communities
 community-detection
 NIL
@@ -917,13 +904,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 10
-375
+360
 95
-408
+393
 small-world
 small-world-ring
 NIL
@@ -934,13 +921,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 10
-340
-230
-373
+325
+290
+358
 neighborhood-size
 neighborhood-size
 0
@@ -953,9 +940,9 @@ HORIZONTAL
 
 SLIDER
 100
-375
-230
-408
+360
+290
+393
 rewire-prob
 rewire-prob
 0
@@ -1418,6 +1405,12 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
 NetLogo 6.0-RC1
 @#$#@#$#@
+setup
+nw:generate-watts-strogatz
+  turtles undirected-edges 200 3 0.1
+community-detection
+set layout "spring"
+repeat 300 [ layout-turtles ]
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
