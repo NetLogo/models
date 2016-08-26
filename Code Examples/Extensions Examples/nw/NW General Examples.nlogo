@@ -306,14 +306,6 @@ to load-graphml
   nw:load-graphml "demo.graphml"
 end
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Reporters for monitors
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-to-report mean-path-length
-  report nw:mean-path-length
-end
-
 
 ; Public Domain:
 ; To the extent possible under law, Uri Wilensky has waived all
@@ -773,7 +765,7 @@ MONITOR
 560
 575
 Mean path length
-mean-path-length
+nw:mean-path-length
 3
 1
 11
