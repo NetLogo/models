@@ -40,7 +40,6 @@ to layout-turtles
     let factor sqrt count turtles
     if factor = 0 [ set factor 1 ]
     layout-spring turtles links (1 / factor) (14 / factor) (1.5 / factor)
-    display
   ]
   if layout = "circle" [
     layout-circle sort turtles max-pxcor * 0.9
@@ -49,6 +48,7 @@ to layout-turtles
     layout-circle sort turtles max-pxcor * 0.9
     layout-tutte max-n-of (count turtles * 0.5) turtles [ count my-links ] links 12
   ]
+  display
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -221,6 +221,7 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to generate [ generator-task ]
+  if clear-before-generating? [ setup ]
   ; we have a general "generate" procedure that basically just takes a task
   ; parameter and runs it, but takes care of calling layout and update plots
   run generator-task
@@ -953,6 +954,17 @@ rewire-prob
 NIL
 HORIZONTAL
 
+SWITCH
+95
+115
+290
+148
+clear-before-generating?
+clear-before-generating?
+0
+1
+-1000
+
 @#$#@#$#@
 ## WHAT IS IT?
 
@@ -982,7 +994,7 @@ Clicking the LAYOUT forever button will ensure that the chosen layout is applied
 
 The first thing that you will see in the **Generators** section of the model is a slider labeled NB-NODES. It allows you to specify the number of nodes you want to have in your network. The first six generator buttons (PREFERENTIAL ATTACHMENT, RING, STAR, WHEEL, RANDOM, and SMALL WORLD) will take the value of that slider into account.
 
-Note that at any time, you can press the SETUP/CLEAR button to erase everything and start over.
+By default, using one of the generators will clear the current network first. You can disable this using the CLEAR-BEFORE-GENERATING? switch. Note that at any time, you can press the SETUP/CLEAR button to erase everything and start over.
 
 Here is a description of each of generator.
 
@@ -1420,8 +1432,10 @@ NetLogo 6.0-RC1
 @#$#@#$#@
 setup
 nw:generate-watts-strogatz
-  turtles undirected-edges 200 3 0.1
+  turtles undirected-edges 200 4 0.1
 community-detection
+set layout "circle"
+layout-turtles
 set layout "spring"
 repeat 300 [ layout-turtles ]
 @#$#@#$#@
