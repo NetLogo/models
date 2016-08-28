@@ -15,7 +15,7 @@ object LegalInfo {
     """<!-- (\d\d\d\d)( \d\d\d\d)?(( \w+)*)( Cite: .*)? -->""".r
   val validKeywords = List(
     "MIT", "Wilensky", "specialCE", "MAC", "Steiner",
-    "Stroup", "3D", "NIELS", "ConChem", "CC0", "BYSA", "GenEvo", "LatticeLand")
+    "Stroup", "3D", "NIELS", "ConChem", "CC0", "BYSA", "GenEvo")
   val textbookCitation =
     "* Wilensky, U. & Rand, W. (2015). Introduction " +
       "to Agent-Based Modeling: Modeling Natural, Social " +
@@ -205,17 +205,9 @@ case class LegalInfo(model: Model) {
       if (keywords.contains("GenEvo")) {
         builder.append("\n")
         builder.append("To cite the GenEvo Systems Biology curriculum as a whole, please use:\n\n")
-        builder.append("* Dabholkar, S. & Wilensky, U. (2016). ")
+        builder.append("* Dabholkar S. & Wilensky, U. (2016). ")
         builder.append("GenEvo curriculum. ")
         builder.append("http://ccl.northwestern.edu/curriculum/genevo/. ")
-        builder.append("Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.\n")
-      }
-      if (keywords.contains("LatticeLand")) {
-        builder.append("\n")
-        builder.append("To cite the Lattice Land curriculum as a whole, please use:\n\n")
-        builder.append("* Pei, C. & Wilensky, U. (2016). ")
-        builder.append("Lattice Land curriculum. ")
-        builder.append("http://ccl.northwestern.edu/curriculum/latticeland/. ")
         builder.append("Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.\n")
       }
     }
