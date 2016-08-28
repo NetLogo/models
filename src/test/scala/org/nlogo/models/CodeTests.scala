@@ -229,6 +229,7 @@ class CodeTests extends TestModels {
       "ZPD"
    ),
    "GenEvo 1 Genetic Switch" -> Set(
+     "go-lacY", "lacI", "lacZs", "lacIs-own", "create-RNAPs", "RNAP", "on-DNA?",
      "lacZ-production-num", "lacYs", "lacZ-production-cost",
      "LevelSpace?", "lacY-degradation-chance", "lacI-number",
      "create-lacIs", "RNAPs-own", "lacZ", "go-lacI",
