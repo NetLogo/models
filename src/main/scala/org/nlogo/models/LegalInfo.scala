@@ -205,8 +205,8 @@ case class LegalInfo(model: Model) {
       if (keywords.contains("GenEvo")) {
         builder.append("\n")
         builder.append("To cite the GenEvo Systems Biology curriculum as a whole, please use:\n\n")
-        builder.append("* Dabholkar S. & Wilensky, U. (2016). ")
-        builder.append("GenEvo curriculum. ")
+        builder.append("* Dabholkar, S. & Wilensky, U. (2016). ")
+        builder.append("GenEvo Systems Biology curriculum. ")
         builder.append("http://ccl.northwestern.edu/curriculum/genevo/. ")
         builder.append("Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.\n")
       }
