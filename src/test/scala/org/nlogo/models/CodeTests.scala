@@ -227,7 +227,21 @@ class CodeTests extends TestModels {
     ),
     "Piaget-Vygotsky Game" -> Set(
       "ZPD"
-    )
+   ),
+   "GenEvo 1 Genetic Switch" -> Set(
+     "lacZ-production-num", "lacYs", "lacZ-production-cost",
+     "LevelSpace?", "lacY-degradation-chance", "lacI-number",
+     "create-lacIs", "RNAPs-own", "lacZ", "go-lacI",
+     "lacI-bond-leakage", "go-lacZ", "lacI-lactose-binding-chance",
+     "RNAP-number", "lacI-lactose-binding-chance", "lacY-production-num",
+     "lacI-bond-leakage", "hatch-lacYs", "lacY", "lacIs",
+     "lacI-lactose-separation-chance", "hatch-lacZs", "RNAPs", "go-RNAP",
+     "lacY-production-cost", "lacZ-degradation-chance", "lacI-lactose-separation-chance",
+     "create-lacZs", "create-lacYs", "go-lacZ", "lacZs", "lacI-number", "lacY-degradation-chance"
+   ),
+   "GenEvo 4 Competition" -> Set(
+     "LevelSpace?", "lacZ-inside", "lacI-lactose-complex", "lacY-inserted", "lacY-inside"
+  )
   )
 
   val typesToCheck = Set[TokenType](
