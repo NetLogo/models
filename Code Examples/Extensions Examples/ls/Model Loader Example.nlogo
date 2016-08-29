@@ -3,7 +3,9 @@ extensions [ ls ]
 to setup
   ls:reset
   clear-all
-  reset-ticks
+  ; notice that we don't call `reset-ticks` in our setup method
+  ; instead we wait until each child model has run their setup
+  ; method and then call `reset-ticks`
 end
 
 to go
@@ -13,6 +15,7 @@ end
 
 to setup-models
   ls:ask ls:models [ setup ]   ; calls setup in all models in LevelSpace
+  reset-ticks ; now we're ready to go, so reset ticks
 end
 
 to open-a-model [ a-model-path ]
