@@ -174,7 +174,7 @@ HORIZONTAL
 TEXTBOX
 20
 190
-346
+410
 232
 Each trait is represented by a different color in the model.
 11
