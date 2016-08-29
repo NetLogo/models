@@ -44,6 +44,11 @@ to write-turtles-to-csv
   ; is use th
   csv:to-file "turtles.csv" [(list xcor ycor size color)] of turtles
 end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -207,9 +212,9 @@ csv:to-string [(list xcor ycor size color)] of one-of turtles
 
 ## EXTENDING THE MODEL
 
-Extend the model so that you can both output the contents of the view to a CSV file. In other words, you'll need to output each of the turtles and their variables as well as each of the patches and their variables. 
+Extend the model so that you can both output the contents of the view to a CSV file. In other words, you'll need to output each of the turtles and their variables as well as each of the patches and their variables.
 
-<!-- 2016 Bain, C. -->
+<!-- 2016 -->
 @#$#@#$#@
 default
 true
