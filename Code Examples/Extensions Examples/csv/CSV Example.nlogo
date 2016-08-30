@@ -26,12 +26,12 @@ end
 to read-turtles-from-csv
   file-close-all ; close all open files
 
-  ifelse (file-exists? "turtles.csv") [
-    file-open "turtles.csv" ; open the file with the turtle data
-  ] [
+  if not file-exists? "turtles.csv" [
     user-message "No file 'turtles.csv' exists! Try pressing WRITE-TURTLES-TO-CSV."
     stop
   ]
+
+  file-open "turtles.csv" ; open the file with the turtle data
 
   ; We'll read all the data in a single loop
   while [ not file-at-end? ] [
@@ -506,7 +506,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup
 generate-turtles
