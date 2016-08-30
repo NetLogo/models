@@ -20,14 +20,17 @@ to setup
       pen-down
     ]
   ]
-  view2.5d:patch-view "Hill Climbing 2.5d" [ [the-patch] -> [ pcolor ] of the-patch ]
+  view2.5d:patch-view window-name [ [the-patch] -> [ pcolor ] of the-patch ]
+  view2.5d:decorate-patch-view window-name
+  view2.5d:set-observer-angles window-name 32 24
+  view2.5d:set-z-scale window-name 5
   reset-ticks
 end
 
 to go
-  view2.5d:decorate-patch-view "Hill Climbing 2.5d"
   ; stop when all turtles are on peak
   if all? turtles [ peak? ] [ stop ]
+
   ask turtles [
     ; remember where we started
     let old-patch patch-here
@@ -37,10 +40,14 @@ to go
     ; move, so we must be on a peak
     if old-patch = patch-here [ set peak? true ]
   ]
-  view2.5d:update-patch-view "Hill Climbing 2.5d"
+  view2.5d:update-patch-view window-name
   tick
 end
 
+
+to-report window-name
+  report "Hill Climbing 2.5d"
+end
 
 ; Public Domain:
 ; To the extent possible under law, Uri Wilensky has waived all
