@@ -60,7 +60,7 @@ to show-patch-data
   clear-patches
   clear-turtles
   ifelse ( is-list? patch-data )
-    [ foreach patch-data [ ask patch first ? item 1 ? [ set pcolor last ? ] ] ]
+    [ foreach patch-data [ [three-tuple] -> ask patch first three-tuple item 1 three-tuple [ set pcolor last three-tuple ] ] ]
     [ user-message "You need to load in patch data first!" ]
   display
 end
@@ -474,7 +474,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

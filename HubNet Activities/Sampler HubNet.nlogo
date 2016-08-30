@@ -220,12 +220,11 @@ to plot-guesses
 
   ;; plot the average history as lines
   set-current-plot-pen "means"
-  foreach guess-averages
-  [
+  foreach guess-averages [ [guess-average] ->
     plot-pen-up
-    plotxy ?  0
+    plotxy guess-average  0
     plot-pen-down
-    plotxy ? 25
+    plotxy guess-average 25
   ]
 
   ;; draw a vertical line for the historical mean
@@ -348,8 +347,8 @@ end
 to-report sample-patches [x y width]
   let radius ( width - 1 ) / 2
   report [patches at-points n-values (width ^ 2)
-          [list (? mod width - radius)
-           (floor (? / width) - radius)]] of patch x y
+          [ [n] -> list (n mod width - radius)
+           (floor (n / width) - radius)]] of patch x y
 end
 
 
@@ -1267,7 +1266,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

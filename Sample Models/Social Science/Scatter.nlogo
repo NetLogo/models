@@ -326,7 +326,7 @@ average distance
 100.0
 true
 false
-"set-plot-x-range 0 30\nset-plot-y-range  0 5 ; set initial y range to half of height" "foreach [ \"random-min\" \"random-away\" \"random\" \"open-min\" \"open-min-max\" ] [\n  ;; if there are any turtles with turtle-rule as their rule,\n  ;; plot the mean distance from the origin\n  if any? turtles with [ rule = ? ] [\n    set-current-plot-pen ?\n    plot mean [ distance origin ] of turtles with [ rule = ? ]\n  ]\n]"
+"set-plot-x-range 0 30\nset-plot-y-range  0 5 ; set initial y range to half of height" "foreach [ \"random-min\" \"random-away\" \"random\" \"open-min\" \"open-min-max\" ] [ [r] ->\n  ;; if there are any turtles with turtle-rule as their rule,\n  ;; plot the mean distance from the origin\n  if any? turtles with [ rule = r ] [\n    set-current-plot-pen r\n    plot mean [ distance origin ] of turtles with [ rule = r ]\n  ]\n]"
 PENS
 "random-min" 1.0 0 -8630108 true "" ""
 "random-away" 1.0 0 -2064490 true "" ""
@@ -860,7 +860,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 set too-close 1.5
 set too-far 2.0

@@ -36,8 +36,8 @@ to startup
   ;; adjust the color-min a little so patches don't end up black
   set color-min min-elevation - ((color-max - min-elevation) / 10)
   ;; transfer the data from the file into the sorted patches
-  (foreach sort patches patch-elevations [
-    ask ?1 [ set elevation ?2 ]
+  (foreach sort patches patch-elevations [ [the-patch the-elevation] ->
+    ask the-patch [ set elevation the-elevation ]
   ])
   set-default-shape turtles "circle"
   setup
@@ -637,7 +637,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 startup
 set draw? true

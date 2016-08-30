@@ -21,8 +21,9 @@ to setup
   clear-all
   ;; too dark and too light are hard to distinguish from each other,
   ;; so only use 13-17, 23-27, ..., 133-137
-  set available-colors shuffle filter [(? mod 10 >= 3) and (? mod 10 <= 7)]
-                                      n-values 140 [?]
+  set available-colors shuffle filter [ [c] ->
+    (c mod 10 >= 3) and (c mod 10 <= 7)
+  ] n-values 140 [ [n] -> n ]
   set-default-shape points "circle 3"
   ask n-of number patches [ make-point ]
   ask patches [ recolor ]
@@ -594,7 +595,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup
 @#$#@#$#@

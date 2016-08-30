@@ -35,7 +35,7 @@ trait TestModels extends FunSuite {
         } yield (model.quotedPath +: descriptions.toSeq).mkString("\n"))(collection.breakOut)
 
       if (allFailures.nonEmpty)
-        fail((allFailures :+ s"(${allFailures.size} failing models)").mkString("\n"))
+        fail(allFailures.toArray.sorted.mkString("", "\n", s"\n(${allFailures.size} failing models)"))
     }
 
   def testLines(

@@ -7,7 +7,7 @@ end
 to test
   let g 0
   reset-timer
-    repeat 10 [ set g n-values 100000 [?] ]
+    repeat 10 [ set g n-values 100000 [ [n] -> n ] ]
   output-print timer
   reset-timer
     repeat 1000 [ __ignore one-of g ]
@@ -17,9 +17,9 @@ end
 to test2
   clear-output
   output-print netlogo-version
-  foreach n-values 100 [2 ^ ?] [
-    let result test3 ? 1000000
-    output-print (word "n = " ? ", time = " result)
+  foreach n-values 100 [ [n] -> 2 ^ n ] [ [n] ->
+    let result test3 n 1000000
+    output-print (word "n = " n ", time = " result)
   ]
 end
 
@@ -45,10 +45,10 @@ end
 GRAPHICS-WINDOW
 210
 10
-649
-80
-16
-1
+647
+58
+-1
+-1
 13.0
 1
 10
@@ -402,9 +402,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M4
+NetLogo 6.0-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -420,7 +419,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

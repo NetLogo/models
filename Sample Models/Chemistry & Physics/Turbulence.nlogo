@@ -39,12 +39,10 @@ to setup-continue
     [ stop ]
 
   ;; copy values from bottom row of patches to top row
-  set value-list map [[value] of ?] sort patches with [pycor = row]
+  set value-list map [ [p] -> [ value ] of p ] sort patches with [ pycor = row ]
   setup-general
-  foreach sort patches with [pycor = row]
-  [
-    ask ?
-    [
+  foreach sort patches with [ pycor = row ] [ [p] ->
+    ask p [
       set value item (pxcor + max-pxcor) value-list
       color-patch
     ]
@@ -682,7 +680,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 set roughness 0.002
 setup-random

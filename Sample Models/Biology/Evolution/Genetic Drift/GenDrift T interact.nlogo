@@ -42,8 +42,8 @@ end
 
 to find-top-species  ;;find the percentage of the most populous species
   let winning-amount 0
-  foreach base-colors [
-    let how-many count turtles with [color = ?]
+  foreach base-colors [ [c] ->
+    let how-many count turtles with [color = c]
     if how-many > winning-amount
       [ set winning-amount how-many ]
   ]
@@ -635,7 +635,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

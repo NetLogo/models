@@ -93,7 +93,7 @@ to plot-color-distribution
   set-current-plot-pen "%-target-color"
   histogram %-target-color-list
   let maxbar modes %-target-color-list
-  let maxrange filter [ ? = item 0 maxbar ] %-target-color-list
+  let maxrange filter [ [c] -> c = item 0 maxbar ] %-target-color-list
   set-plot-y-range 0 length maxrange
 end
 
@@ -605,7 +605,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 set block-side 7
 setup

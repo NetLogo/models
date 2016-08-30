@@ -61,12 +61,12 @@ to label-beats
   ;; when we hit a number, we turn that whole column
   ;; dark gray.
   let n 0
-  foreach text [
+  foreach text [ [s] ->
     let x (-1 * max-pxcor + n + 1)
-    ;; "?" is used inside foreach to refer to the
+    ;; "s" is used inside foreach to refer to the
     ;; current item of the list we're looping through
-    ask patch x max-pycor [ set plabel ? ]
-    if member? ? ["1" "2" "3" "4"]
+    ask patch x max-pycor [ set plabel s ]
+    if member? s ["1" "2" "3" "4"]
       [ ask patches with [pxcor = x]
           ;; subtracting from a color makes it darker
           [ set pcolor gray - 4.8 ] ]
@@ -669,7 +669,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

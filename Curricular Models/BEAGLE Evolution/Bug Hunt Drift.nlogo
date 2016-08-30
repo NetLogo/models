@@ -35,8 +35,8 @@ to setup
   set-default-shape predators "x"
 
   ask patches [ set pcolor white ]   ;; white background
-  foreach [1 2 3 4 5 6] [
-    create-bugs initial-bugs-each-variation [ set color-variation ? ]
+  foreach [1 2 3 4 5 6] [ [this-variation] ->
+    create-bugs initial-bugs-each-variation [ set color-variation this-variation ]
   ]
   ask bugs [
     setxy random-xcor random-ycor

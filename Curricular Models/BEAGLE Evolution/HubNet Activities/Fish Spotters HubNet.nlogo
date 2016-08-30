@@ -431,14 +431,14 @@ to check-debris-count
   let floating-debris nobody
   let tank-patches nobody
   let target-debris 0
-  foreach [1 2] [
-   set floating-debris debris with [tank = ?]
-   set tank-patches patches with [tank = ?]
+  foreach [1 2] [ [this-tank] ->
+   set floating-debris debris with [tank = this-tank]
+   set tank-patches patches with [tank = this-tank]
    set target-debris round ((amount-of-debris / 100) * count tank-patches)
    if target-debris > count floating-debris  ;; need more debris
      [ ask n-of (target-debris - count floating-debris) tank-patches [setup-debris-at-this-patch] ]
    if target-debris < count floating-debris  ;; need less debris
-     [  ask n-of (count floating-debris - target-debris) floating-debris [ die]  ]
+     [  ask n-of (count floating-debris - target-debris) floating-debris [ die ]  ]
   ]
 end
 
@@ -1686,7 +1686,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

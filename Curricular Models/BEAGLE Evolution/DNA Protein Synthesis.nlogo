@@ -560,7 +560,9 @@ to make-protein [strand-type]
   let this-protein-value ""
   let these-amino-acids amino-acids with [breed = amino-acids and strand-type = strand and gene-number = this-gene-number]
   let ordered-amino-acids sort-on [who] these-amino-acids
-  foreach ordered-amino-acids [set this-protein-value (word   this-protein-value "-" ([value] of ?))]
+  foreach ordered-amino-acids [ [the-amino-acid] ->
+    set this-protein-value (word   this-protein-value "-" ([value] of the-amino-acid))
+  ]
   if not any? proteins with [strand = strand-type and value = this-protein-value] [
       hatch 1 [set breed proteins set value this-protein-value set hidden? true setxy 0 0]
   ]
@@ -579,7 +581,7 @@ end
 
 to go
   visualize-all-genes
-  ;; these ? variables keep track of button press events being cued by the user
+  ;; these boolean variables keep track of button press events being cued by the user
   if event-1-triggered? [
     show-next-mrna "original"
     set event-1-triggered? false
@@ -765,7 +767,7 @@ end
 
 ;;;;;; returns values such as "Gly" for "GGA" or "Tyr" for "UAC" using the codon-to-amino-acid-key
 to-report which-protein-for-this-codon [this-codon]
- report item 1 (item 0 filter [first ? = this-codon] codon-to-amino-acid-key )
+ report item 1 (item 0 filter [ [pair] -> first pair = this-codon] codon-to-amino-acid-key )
 end
 
 ;;; reports a random base for a nucleotide in DNA
@@ -2290,7 +2292,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

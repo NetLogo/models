@@ -54,7 +54,7 @@ to setup-continue
   if not gone? [stop]
 
   let value-list []
-  set value-list map [[value] of ?] sort patches with [pycor = current-row]  ;; copy cell states from the current row to a list
+  set value-list map [ [p] -> [value] of p ] sort patches with [pycor = current-row]  ;; copy cell states from the current row to a list
   clear-patches
   clear-turtles
   set current-row max-pycor  ;; reset current row to top
@@ -852,7 +852,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup-random
 repeat world-height - 1 [ go ]

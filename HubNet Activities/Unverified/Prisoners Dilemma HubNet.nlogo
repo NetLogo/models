@@ -389,9 +389,8 @@ to plot-strategies  ;;plots the average scores for each of the given strategies
   set-current-plot "Strategies"
 
   let i 0
-  foreach (but-last strategy-list)
-  [
-    set-current-plot-pen ?
+  foreach (but-last strategy-list) [ [strategy] ->
+    set-current-plot-pen strategy
     if ((item i strategy-totals-count) != 0)
     [
       plot-pen-reset
@@ -540,14 +539,14 @@ to send-info-to-clients
   ifelse partner != nobody
   [
     hubnet-send user-id "Partner's Score:" ([score] of partner)
-    hubnet-send user-id "Partner's History:" (map [ ifelse-value (? = true) ["D "] ["C "] ] play-partner-history)
-    hubnet-send user-id "Your History:" ( map [ ifelse-value (? = true) ["D "] ["C "] ] play-history)
-    hubnet-send user-id "Points:" (map [
-      ifelse-value ((?1 = false) and (?2 = false))
+    hubnet-send user-id "Partner's History:" (map [ [b] -> ifelse-value (b = true) ["D "] ["C "] ] play-partner-history)
+    hubnet-send user-id "Your History:" ( map [ [b] -> ifelse-value (b = true) ["D "] ["C "] ] play-history)
+    hubnet-send user-id "Points:" (map [ [b1 b2] ->
+      ifelse-value ((b1 = false) and (b2 = false))
         [ C-C ]
-        [ ifelse-value ((?1 = false) and (?2 = true))
+        [ ifelse-value ((b1 = false) and (b2 = true))
             [ C-D ]
-            [ ifelse-value ((?1 = true) and (?2 = false))
+            [ ifelse-value ((b1 = true) and (b2 = false))
                 [ D-C ]
                 [ D-D ]
             ]
@@ -1580,7 +1579,7 @@ Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

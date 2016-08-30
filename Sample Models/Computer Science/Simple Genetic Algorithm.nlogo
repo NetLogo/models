@@ -133,8 +133,11 @@ end
 ;; The probability that each bit will be flipped is controlled by the
 ;; MUTATION-RATE slider.
 to mutate   ;; turtle procedure
-  set bits map [ifelse-value (random-float 100.0 < mutation-rate) [1 - ?] [?]]
-               bits
+  set bits map [ [b] ->
+    ifelse-value (random-float 100.0 < mutation-rate)
+      [ 1 - b ]
+      [ b ]
+  ] bits
 end
 
 ;; ===== Diversity Measures
@@ -170,7 +173,7 @@ end
 ;; We use MAP to run down the lists comparing for equality, then
 ;; we use LENGTH and REMOVE to count the number of inequalities.
 to-report hamming-distance [bits1 bits2]
-  report (length remove true (map [?1 = ?2] bits1 bits2)) / world-width
+  report (length remove true (map [ [b1 b2] -> b1 = b2 ] bits1 bits2)) / world-width
 end
 
 
@@ -299,7 +302,7 @@ mutation-rate
 mutation-rate
 0
 10
-0.5
+0.01
 0.1
 1
 NIL
@@ -744,7 +747,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

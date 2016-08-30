@@ -164,7 +164,7 @@ to histogram-labels
   set-current-plot "All Values From Messengers"
   histogram list-of-labels
   let maxbar modes list-of-labels
-  let maxrange length ( filter [ ? = item 0 maxbar ] list-of-labels )
+  let maxrange length ( filter [ [the-label] -> the-label = item 0 maxbar ] list-of-labels )
   set-plot-y-range 0 max list 10 maxrange
 end
 
@@ -790,7 +790,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup
 repeat 500 [ go ]

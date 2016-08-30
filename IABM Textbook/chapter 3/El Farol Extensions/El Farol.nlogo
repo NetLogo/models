@@ -95,17 +95,17 @@ end
 to update-strategies
   ;; initialize best-score to a maximum, which is the lowest possible score
   let best-score memory-size * 100 + 1
-  foreach strategies [
+  foreach strategies [ [the-strategy] ->
     let score 0
     let week 1
     repeat memory-size [
-      set prediction predict-attendance ? sublist history week (week + memory-size)
+      set prediction predict-attendance the-strategy sublist history week (week + memory-size)
       set score score + abs (item (week - 1) history - prediction)
       set week week + 1
     ]
     if (score <= best-score) [
       set best-score score
-      set best-strategy ?
+      set best-strategy the-strategy
     ]
   ]
 end
@@ -129,7 +129,7 @@ to-report predict-attendance [strategy subhistory]
   ;; one can think of it as the the agent's prediction of the bar's attendance
   ;; in the absence of any other data
   ;; then we multiply each week in the history by its respective weight
-  report 100 * first strategy + sum (map [?1 * ?2] butfirst strategy subhistory)
+  report 100 * first strategy + sum (map [ [weight week] -> weight * week ] butfirst strategy subhistory)
 end
 
 ;; In this model it doesn't really matter exactly which patch
@@ -288,7 +288,7 @@ El Farol is a bar in Santa Fe, New Mexico.  The bar is popular --- especially on
 
 El Farol was originally put forth by Brian Arthur (1994) as an example of how one might model economic systems of boundedly rational agents who use inductive reasoning.
 
-This is a verison of the El Farol model in the Social Science Section of the NetLogo Models Library. This version is intended for use with the IABM textbook. It is NOT intended for textbook users to understand all the code in this model as the point in this section of the textbook is to extend the model by adding new output measures to the model, and not to alter the fundamental algorithm of the model.
+This is a version of the El Farol model in the Social Science Section of the NetLogo Models Library. This version is intended for use with the IABM textbook. It is NOT intended for textbook users to understand all the code in this model as the point in this section of the textbook is to extend the model by adding new output measures to the model, and not to alter the fundamental algorithm of the model.
 
 ## HOW IT WORKS
 
@@ -664,7 +664,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

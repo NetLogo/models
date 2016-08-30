@@ -258,21 +258,19 @@ to plot-learned-line ;; observer procedure
   run word "plot-" target-function
 
   ;; cycle through all the x-values and plot the corresponding x-values
-  let x1 -2
   let edge1 [out-link-to perceptron] of input-node-1
   let edge2 [out-link-to perceptron] of input-node-2
 
-  foreach n-values 5 [? - 2]
-  [
+  foreach n-values 5 [ [n] -> n - 2 ] [ [x1] ->
     ;; calculate w0 (the bias weight)
     let w0 sum [[weight] of out-link-to perceptron] of bias-nodes
 
     ;; put it all together
-    let x2 ( (- w0 - [weight] of edge1 * ?) / [weight] of edge2 )
+    let x2 ( (- w0 - [weight] of edge1 * x1) / [weight] of edge2 )
 
     ;; plot x1, x2
     set-current-plot-pen "rule"
-    plotxy ? x2
+    plotxy x1 x2
   ]
 end
 
@@ -443,7 +441,7 @@ learning-rate
 learning-rate
 0.0
 1.0
-0.005
+0.5
 1.0E-4
 1
 NIL
@@ -476,7 +474,7 @@ examples-per-epoch
 examples-per-epoch
 1.0
 1000.0
-100.0
+500.0
 1.0
 1
 NIL
@@ -510,7 +508,7 @@ CHOOSER
 target-function
 target-function
 "or" "xor" "and" "nor" "nand"
-4
+1
 
 SWITCH
 220
@@ -957,7 +955,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 resize-world -9 9 -9 9
 setup

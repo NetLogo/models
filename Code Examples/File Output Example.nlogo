@@ -44,8 +44,8 @@ to write-to-file
   file-print (word "---------- Tick Number: " ticks "-----------")
   ;; use SORT so the turtles print their data in order by who number,
   ;; rather than in random order
-  foreach sort turtles [
-    ask ? [
+  foreach sort turtles [ [t] ->
+    ask t [
       file-print (word self ": pxcor: " pxcor " pycor: " pycor " value: " value)
     ]
   ]
@@ -450,7 +450,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 create-turtles 15 [
   setxy random-xcor random-ycor

@@ -19,16 +19,16 @@ end
 to-report diff3 [A B]
   let list-A sort A
   let list-B sort B
-  report turtle-set filter [not member? ? list-B] list-A
+  report turtle-set filter [ [t] -> not member? t list-B ] list-A
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
 205
 10
-644
-470
-16
-16
+642
+448
+-1
+-1
 13.0
 1
 10
@@ -349,9 +349,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M4
+NetLogo 6.0-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -367,7 +366,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

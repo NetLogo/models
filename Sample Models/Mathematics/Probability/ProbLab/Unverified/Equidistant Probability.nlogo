@@ -158,7 +158,7 @@ to do-plots
   set-current-plot-pen "attempts until success"
   histogram attempts-list
   let maxbar modes attempts-list
-  let maxrange filter [ ? = item 0 maxbar ] attempts-list
+  let maxrange filter [ [attempt] -> attempt = item 0 maxbar ] attempts-list
   set-plot-y-range 0 length maxrange
   set-current-plot-pen "mean attempts"
   plot-pen-reset
@@ -182,7 +182,7 @@ to update-sampling-data
     set-current-plot-pen "#Successes Per Sample"
     histogram successes-per-sample-list
     let maxbar modes successes-per-sample-list
-    let maxrange filter [ ? = item 0 maxbar ] successes-per-sample-list
+    let maxrange filter [ [successes] -> successes = item 0 maxbar ] successes-per-sample-list
     set-plot-y-range 0 length maxrange
     set-current-plot-pen "mean-successes-per-sample"
     plot-pen-reset
@@ -956,7 +956,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

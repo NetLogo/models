@@ -119,7 +119,7 @@ to generate-cityscape
   ]
 
   ask builders [
-    let ticks-list map [ ? * block-size ] [ 1 3 7 10 ]
+    let ticks-list map [ [n] -> n * block-size ] [ 1 3 7 10 ]
     if member? ticks ticks-list [ generate-second-order ]
     if patch-ahead 2 = nobody [ die ]
     if [ transport ] of patch-ahead 2 = .75 [
@@ -1630,7 +1630,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 ask patches [ set pcolor white ]
 reset-ticks

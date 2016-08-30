@@ -31,14 +31,14 @@ end
 ; data into turtles, if label-cities is true
 to display-cities
   ask city-labels [ die ]
-  foreach gis:feature-list-of cities-dataset
-  [ gis:set-drawing-color scale-color red (gis:property-value ? "POPULATION") 5000000 1000
-    gis:fill ? 2.0
+  foreach gis:feature-list-of cities-dataset [ [vector-feature] ->
+    gis:set-drawing-color scale-color red (gis:property-value vector-feature "POPULATION") 5000000 1000
+    gis:fill vector-feature 2.0
     if label-cities
     [ ; a feature in a point dataset may have multiple points, so we
       ; have a list of lists of points, which is why we need to use
       ; first twice here
-      let location gis:location-of (first (first (gis:vertex-lists-of ?)))
+      let location gis:location-of (first (first (gis:vertex-lists-of vector-feature)))
       ; location will be an empty list if the point lies outside the
       ; bounds of the current NetLogo world, as defined by our current
       ; coordinate transformation
@@ -47,7 +47,11 @@ to display-cities
         [ set xcor item 0 location
           set ycor item 1 location
           set size 0
-          set label gis:property-value ? "NAME" ] ] ] ]
+          set label gis:property-value vector-feature "NAME"
+        ]
+      ]
+    ]
+  ]
 end
 
 ; Drawing polyline data from a shapefile, and optionally loading some
@@ -57,8 +61,8 @@ to display-rivers
   gis:set-drawing-color blue
   gis:draw rivers-dataset 1
   if label-rivers
-  [ foreach gis:feature-list-of rivers-dataset
-    [ let centroid gis:location-of gis:centroid-of ?
+  [ foreach gis:feature-list-of rivers-dataset [ [vector-feature] ->
+      let centroid gis:location-of gis:centroid-of vector-feature
       ; centroid will be an empty list if it lies outside the bounds
       ; of the current NetLogo world, as defined by our current GIS
       ; coordinate transformation
@@ -67,7 +71,11 @@ to display-rivers
           [ set xcor item 0 centroid
             set ycor item 1 centroid
             set size 0
-            set label gis:property-value ? "NAME" ] ] ] ]
+            set label gis:property-value vector-feature "NAME"
+          ]
+      ]
+    ]
+  ]
 end
 
 ; Drawing polygon data from a shapefile, and optionally loading some
@@ -77,8 +85,8 @@ to display-countries
   gis:set-drawing-color white
   gis:draw countries-dataset 1
   if label-countries
-  [ foreach gis:feature-list-of countries-dataset
-    [ let centroid gis:location-of gis:centroid-of ?
+  [ foreach gis:feature-list-of countries-dataset [ [vector-feature] ->
+      let centroid gis:location-of gis:centroid-of vector-feature
       ; centroid will be an empty list if it lies outside the bounds
       ; of the current NetLogo world, as defined by our current GIS
       ; coordinate transformation
@@ -87,21 +95,25 @@ to display-countries
         [ set xcor item 0 centroid
           set ycor item 1 centroid
           set size 0
-          set label gis:property-value ? "CNTRY_NAME" ] ] ] ]
+          set label gis:property-value vector-feature "CNTRY_NAME"
+        ]
+      ]
+    ]
+  ]
 end
 
 ; Loading polygon data into turtles connected by links
 to display-countries-using-links
   ask country-vertices [ die ]
-  foreach gis:feature-list-of countries-dataset
-  [ foreach gis:vertex-lists-of ?
-    [ let previous-turtle nobody
+  foreach gis:feature-list-of countries-dataset [ [vector-feature] ->
+    foreach gis:vertex-lists-of vector-feature [ [vertex] ->
+      let previous-turtle nobody
       let first-turtle nobody
       ; By convention, the first and last coordinates of polygons
       ; in a shapefile are the same, so we don't create a turtle
       ; on the last vertex of the polygon
-      foreach but-last ?
-      [ let location gis:location-of ?
+      foreach but-last vertex [ [point] ->
+        let location gis:location-of point
         ; location will be an empty list if it lies outside the
         ; bounds of the current NetLogo world, as defined by our
         ; current GIS coordinate transformation
@@ -144,16 +156,17 @@ end
 to draw-us-rivers-in-green
   let united-states gis:find-one-feature countries-dataset "CNTRY_NAME" "United States"
   gis:set-drawing-color green
-  foreach gis:feature-list-of rivers-dataset
-  [ if gis:intersects? ? united-states
-    [ gis:draw ? 1 ] ]
+  foreach gis:feature-list-of rivers-dataset [ [vector-feature] ->
+    if gis:intersects? vector-feature united-states
+    [ gis:draw vector-feature 1 ] ]
 end
 
 ; Using find-greater-than to find a list of VectorFeatures by value.
 to highlight-large-cities
   gis:set-drawing-color yellow
-  foreach gis:find-greater-than cities-dataset "POPULATION" 10000000
-  [ gis:draw ? 3 ]
+  foreach gis:find-greater-than cities-dataset "POPULATION" 10000000 [ [vector-feature] ->
+    gis:draw vector-feature 3
+  ]
 end
 
 ; Drawing a raster dataset to the NetLogo drawing layer, which sits
@@ -872,7 +885,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup
 display-cities

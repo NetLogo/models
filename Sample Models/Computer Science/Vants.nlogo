@@ -14,20 +14,22 @@ end
 ;; we use SORT to get the turtles in order by who number.
 
 to go-forward
-  foreach sort turtles [
-    ask ? [
+  foreach sort turtles [ [t] ->
+    ask t [
       fd 1
       turn
-    ] ]
+    ]
+  ]
   tick
 end
 
 to go-reverse
-  foreach reverse sort turtles [
-    ask ? [
+  foreach reverse sort turtles [ [t] ->
+    ask t [
       turn
       bk 1
-    ] ]
+    ]
+  ]
   tick
 end
 
@@ -505,7 +507,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup
 repeat 60000 [ go-forward ]

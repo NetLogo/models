@@ -31,19 +31,16 @@ to turtle-setup ;; turtle procedure
   ;; turtles can look horizontally and vertically up to vision patches
   ;; but cannot look diagonally at all
   set vision-points []
-  foreach n-values vision [? + 1]
-  [
-    set vision-points sentence vision-points (list (list 0 ?) (list ? 0) (list 0 (- ?)) (list (- ?) 0))
+  foreach n-values vision [ [n] -> n + 1 ] [ [n] ->
+    set vision-points sentence vision-points (list (list 0 n) (list n 0) (list 0 (- n)) (list (- n) 0))
   ]
   run visualization
 end
 
 to setup-patches
   file-open "sugar-map.txt"
-  foreach sort patches
-  [
-    ask ?
-    [
+  foreach sort patches [ [p] ->
+    ask p [
       set max-psugar file-read
       set psugar max-psugar
       patch-recolor
@@ -670,7 +667,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

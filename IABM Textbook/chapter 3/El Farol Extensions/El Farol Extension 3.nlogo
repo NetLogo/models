@@ -102,18 +102,18 @@ end
 ;; weeks (going back MEMORY-SIZE weeks)
 to update-strategies
   let best-score memory-size * 100 + 1
-  foreach strategies [
+  foreach strategies [ [the-strategy] ->
     let score 0
     let week 1
     repeat memory-size [
-      set prediction predict-attendance ? sublist history week (week + memory-size)
+      set prediction predict-attendance the-strategy sublist history week (week + memory-size)
       ;; increment the score by the difference between this week's attendance and your prediction for this week
       set score score + abs (item (week - 1) history - prediction)
       set week week + 1
     ]
     if (score <= best-score) [
       set best-score score
-      set best-strategy ?
+      set best-strategy the-strategy
     ]
   ]
 end
@@ -137,7 +137,7 @@ to-report predict-attendance [strategy subhistory]
   ;; one can think of it as the the agent's prediction of the bar's attendance
   ;; in the absence of any other data
   ;; then we multiply each week in the history by its respective weight
-  report 100 * first strategy + sum (map [?1 * ?2] butfirst strategy subhistory)
+  report 100 * first strategy + sum (map [ [weight week] -> week * weight ] butfirst strategy subhistory)
 end
 
 ;; In this model it doesn't really matter exactly which patch
@@ -360,14 +360,14 @@ The number of potential strategies an agent has is given by NUMBER-STRATEGIES, a
 The NUMBER-STRATEGIES slider controls how many strategies each agent keeps in its memory. The OVERCROWDING-THRESHOLD slider controls when the bar is considered overcrowded. The MEMORY slider controls how far back, in the history of attendance, agents remember. To run the model, set the NUMBER-STRATEGIES, OVERCROWDING-THRESHOLD and MEMORY size, press SETUP, and then GO.
 
 The BAR ATTENDANCE plot shows the average attendance at the bar over time.
-The REWARD DISTRUBUTION histogram shows the number of turtles with each reward value.
+The REWARD DISTRIBUTION histogram shows the number of turtles with each reward value.
 The MAX REWARD monitor shows the highest reward for any agent.
 The MIN REWARD monitor shows the lowest reward for any agent.
 The AVG REWARD monitor shows the mean reward for all agents.
 
 ## THINGS TO NOTICE
 
-Does the histogram give you more useful informaton for understanding the agents' behavior than the monitors did in the second extension?
+Does the histogram give you more useful information for understanding the agents' behavior than the monitors did in the second extension?
 
 How do different numbers of strategies, or memory-size affect the distribution of reward?
 
@@ -710,7 +710,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

@@ -84,7 +84,7 @@ to update-plot
   set-current-plot "Addends"
   histogram the-long-list
   let maxbar modes the-long-list
-  let maxrange length filter [ ? = item 0 maxbar ] the-long-list
+  let maxrange length filter [ [the-item] -> the-item = item 0 maxbar ] the-long-list
   set-plot-y-range 0 max list 10 maxrange
 end
 
@@ -112,7 +112,7 @@ to finish-up
     set-plot-x-range 1 ( 1 + max partition-series-list )
     histogram partition-series-list
     let maxbar modes partition-series-list
-    let maxrange length filter [ ? = item 0 maxbar ] partition-series-list
+    let maxrange length filter [ [partition] -> partition = item 0 maxbar ] partition-series-list
     set-plot-y-range 0 max list 10 maxrange
     set #addends-so-far-in-this-series 0
     set previous-short-list the-short-list
@@ -766,7 +766,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

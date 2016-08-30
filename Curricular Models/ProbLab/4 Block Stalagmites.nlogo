@@ -79,8 +79,8 @@ end
 to-report sample-summary-value ; sample-organizers reporter
   let result 0
   let power-of-two 3
-  foreach sample-values [
-    if ? = 1 [
+  foreach sample-values [ [sample-value] ->
+    if sample-value = 1 [
       set result result + 2 ^ power-of-two
     ]
     set power-of-two power-of-two - 1
@@ -90,10 +90,9 @@ end
 
 to-report sample-patches ; sample-organizers procedure
   let result []
-  foreach n-values side [ ? ] [
-    let i ?
-    foreach n-values side [ ? ] [
-      set result lput patch-at ? (- i) result
+  foreach n-values side [ [n] -> n ] [ [side-length-1] ->
+    foreach n-values side [ [n] -> n ] [ [side-length-2] ->
+      set result lput patch-at side-length-2 (- side-length-1) result
     ]
   ]
   report result
@@ -101,12 +100,12 @@ end
 
 to display-sample ; sample-organizers procedure
   let patch-popping-color popping-color
-  (foreach sample-values sample-patches [
-    ask ?2 [
+  (foreach sample-values sample-patches [ [sample-value the-patch] ->
+    ask the-patch [
       ifelse popping? [
         set pcolor patch-popping-color
       ] [
-        ifelse ?1 = 1 [
+        ifelse sample-value = 1 [
           set pcolor target-color
         ] [
           set pcolor other-color
@@ -137,8 +136,8 @@ end
 to make-a-sample-organizer ; sample-dudes procedure
   hatch-sample-organizers 1 [
     hide-turtle
-    set sample-values map [
-      ifelse-value ([ color ] of ? = target-color) [ 1 ] [ 0 ]
+    set sample-values map [ [the-sample-dude] ->
+      ifelse-value ([ color ] of the-sample-dude = target-color) [ 1 ] [ 0 ]
     ] sorted-sample-dudes
     display-sample
   ]
@@ -160,12 +159,12 @@ to organize-column ; column-kids procedure
   let column-organizers sample-organizers with [
     pxcor + 1 = [pxcor] of myself
   ]
-  let organizers sort-by
-    [ [ sample-summary-value ] of ?1 < [ sample-summary-value ] of ?2 ]
-    [ self ] of column-organizers
+  let organizers sort-by [ [organizer-1 organizer-2] ->
+    [ sample-summary-value ] of organizer-1 < [ sample-summary-value ] of organizer-2
+  ] [ self ] of column-organizers
   let ycors sort [ pycor ] of column-organizers
-  (foreach organizers ycors [
-    ask ?1 [set ycor ?2]
+  (foreach organizers ycors [ [the-organizer the-ycor] ->
+    ask the-organizer [set ycor the-ycor]
   ])
 end
 
@@ -281,8 +280,8 @@ to sample
     (pycor > (max-pycor - side))
   ]
 
-  foreach sort sample-location-patch-agentset [
-    ask ? [
+  foreach sort sample-location-patch-agentset [ [the-patch-agentset] ->
+    ask the-patch-agentset [
       sprout 1 [
         hide-turtle
         set breed sample-dudes
@@ -395,9 +394,9 @@ to descend
 end
 
 to-report sorted-sample-dudes
-  report sort-by [
-    (([ pxcor ] of ?1 < [ pxcor ] of ?2) and ([ pycor ] of ?1 = [ pycor ] of ?2)) or
-    (([ pycor ] of ?1 > [ pycor ] of ?2))
+  report sort-by [ [sample-dude-1 sample-dude-2] ->
+    (([ pxcor ] of sample-dude-1 < [ pxcor ] of sample-dude-2) and ([ pycor ] of sample-dude-1 = [ pycor ] of sample-dude-2)) or
+    (([ pycor ] of sample-dude-1 > [ pycor ] of sample-dude-2))
   ] sample-dudes
 end
 
@@ -407,7 +406,7 @@ to finish-off
   ;; beginning from its top-left corner and running to the
   ;; right and then taking the next row and so on
   ;; might be "green green red green red green"
-  let sample-color-combination map [ [ color ] of ? ] sorted-sample-dudes
+  let sample-color-combination map [ [the-sample-dude] -> [ color ] of the-sample-dude ] sorted-sample-dudes
 
   ;; determines which turtle lives at the bottom of the column where the sample is
   let this-column-kid one-of column-kids with [
@@ -445,7 +444,7 @@ end
 to-report binomrow [ n ]
   if n = 0 [ report [ 1 ] ]
   let prevrow binomrow (n - 1)
-  report (map [ ?1 + ?2 ] (fput 0 prevrow) (lput 0 prevrow))
+  report (map [ [a b] -> a + b ] (fput 0 prevrow) (lput 0 prevrow))
 end
 
 ;; if the model has been run, report the number of patches
@@ -719,7 +718,7 @@ Number of Outcomes per Event
 15.0
 true
 false
-"" "if plot? [\n  let sample-value-summaries [ sample-summary-value ] of sample-organizers\n  let possible-values n-values (2 ^ (side * side)) [ ? ]\n  let results []\n  foreach possible-values [\n    let i ?\n    set results lput length filter [ ? = i ] sample-value-summaries results\n  ]\n\n  let max-results max results\n  if mean results > 0 [ set-plot-x-range 0 (max-results + 1) ]\n  set-current-plot-pen \"Histogram\"\n  histogram results\n  set-current-plot-pen \"Mean\"\n  let mean-results mean results\n  plot-pen-reset\n  plotxy mean-results 0\n  plotxy mean-results plot-y-max\n]"
+"" "if plot? [\n  let sample-value-summaries [ sample-summary-value ] of sample-organizers\n  let possible-values n-values (2 ^ (side * side)) [ [n] -> n ]\n  let results []\n  foreach possible-values [ [i]->\n    set results lput length filter [ [j] -> j = i ] sample-value-summaries results\n  ]\n\n  let max-results max results\n  if mean results > 0 [ set-plot-x-range 0 (max-results + 1) ]\n  set-current-plot-pen \"Histogram\"\n  histogram results\n  set-current-plot-pen \"Mean\"\n  let mean-results mean results\n  plot-pen-reset\n  plotxy mean-results 0\n  plotxy mean-results plot-y-max\n]"
 PENS
 "histogram" 1.0 1 -16777216 true "" ""
 "Mean" 1.0 0 -2674135 true "" ""
@@ -1135,7 +1134,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup
 repeat 150 [ go ]
