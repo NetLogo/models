@@ -3,9 +3,7 @@ extensions [ csv ]
 to setup
   clear-all
   file-close-all ; Close any files open from last run
-
   file-open "data.csv"
-
   reset-ticks
 end
 
@@ -42,7 +40,7 @@ end
 to write-turtles-to-csv
   ; we use the `of` primitive to make a list of lists. What we do here
   ; is use th
-  csv:to-file "turtles.csv" [(list xcor ycor size color)] of turtles
+  csv:to-file "turtles.csv" [ (list xcor ycor size color) ] of turtles
 end
 
 
@@ -207,7 +205,7 @@ The GENERATE-TURTLES button just creates 100 random turtles. The user can then u
 If you were interested in generating just one line of this CSV file at a time, you could use the `csv:to-string` primitive:
 
 ```
-csv:to-string [(list xcor ycor size color)] of one-of turtles
+csv:to-string [ (list xcor ycor size color) ] of one-of turtles
 ```
 
 ## EXTENDING THE MODEL
@@ -521,7 +519,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
