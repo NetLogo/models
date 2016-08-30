@@ -97,18 +97,17 @@ to setup-patches
 
   ;;finds the number of patches of each type that need to be printed:
   ;;makes the percentages, multiplies them by the number of patches
-  let list-of-nums map [? / (sum ratio-list) * #patches] ratio-list
+  let list-of-nums map [ [ratio] -> ratio / (sum ratio-list) * #patches] ratio-list
   ;;rounds the numbers of patches with a specific value
-  let r-list-of-nums map [round ?] list-of-nums
+  let r-list-of-nums map round list-of-nums
 
   ;;tweaks the values, either in the positive or in the negative direction,
   ;;for the sum to equal to the number of patches on the display
   let nums setup-patches-polish list-of-nums r-list-of-nums
 
   ;;prints out the values on random patches that are not already taken
-  foreach nums
-  [
-    ask n-of ? patches with [ value = -1 ]
+  foreach nums [ [n] ->
+    ask n-of n patches with [ value = -1 ]
     [ set value cur-val ]
     set cur-val cur-val + 1
   ]
@@ -137,7 +136,7 @@ to-report setup-patches-polish [ list-of-nums r-list-of-nums ]
   ;;if the sum is below the number of patches, then searches for the highest remainder to round up
   while [sum r-list-of-nums < #patches]
   [
-    let remainders map [remainder (? * #patches) #patches] list-of-nums
+    let remainders map [ [n] -> remainder (n * #patches) #patches] list-of-nums
     ;;finds the position of the maximum remainder
     let pos-of-max position (max remainders) remainders
     ;;updates the list of numbers of each type of patch
@@ -149,15 +148,14 @@ to-report setup-patches-polish [ list-of-nums r-list-of-nums ]
   ;;to large numbers, for them to not become negative
   while [sum r-list-of-nums > #patches]
   [
-    let remainders map [remainder (? * #patches) #patches ] list-of-nums
+    let remainders map [ [n] -> remainder (n * #patches) #patches ] list-of-nums
     ;;remainders1 makes sure that the 0 is not deemed the minimum remainder, but
     ;;looks for minimum remainder above 0
     let remainders1 []
-    foreach remainders
-    [
-      ifelse ? = 0
+    foreach remainders [ [the-remainder] ->
+      ifelse the-remainder = 0
       [ set remainders1 (lput #patches remainders1) ]
-      [ set remainders1 (lput ? remainders1) ]
+      [ set remainders1 (lput the-remainder remainders1) ]
     ]
     ;;finds the position of the minimum remainder
     let pos-of-min position (min remainders1) remainders1
@@ -176,9 +174,8 @@ to print-out [ list-of-nums ]
   ;;shows the separated populations
   let patch-now 0
   let temp 0
-  foreach list-of-nums
-  [
-    repeat ?
+  foreach list-of-nums [ [n] ->
+    repeat n
     [
       ask patches with [index = patch-now] [ set pcolor item temp colors ]
       set patch-now patch-now + 1
@@ -219,16 +216,18 @@ end
 ;; sets the global variables the monitors display
 to setup-monitors
   ;; the "% in Population" monitors pick items from ratio-monitor-list
-  set ratio-monitor-list map [(word ? "/" (sum ratio-list) " = "
-                                    precision (100 * ? / (sum ratio-list)) 1
-                                    "%")]
-                             ratio-list
-  set expected-value  my-sample-size * sum map [ ? * item ? ratio-list / (sum ratio-list) ]
-                                           [ 0 1 2 3 4 5 6 ]
+  set ratio-monitor-list map [ [ratio] ->
+    (word ratio "/" (sum ratio-list) " = "
+      precision (100 * ratio / (sum ratio-list)) 1
+  "%")
+  ] ratio-list
+  set expected-value my-sample-size * sum map [ [i] ->
+    i * item i ratio-list / (sum ratio-list)
+  ] [ 0 1 2 3 4 5 6 ]
   set expected-value-calculation word my-sample-size " * ("
-  foreach [ 0 1 2 3 4 5 ] [
+  foreach [ 0 1 2 3 4 5 ] [ [i] ->
     set expected-value-calculation (word expected-value-calculation
-                                         ? " * " item ? ratio-list "/" (sum ratio-list) " + ")
+      i " * " item i ratio-list "/" (sum ratio-list) " + ")
   ]
   ;; we separated out the "6 case" because we don't add a "+", but we do add a ") ="
   set expected-value-calculation (word expected-value-calculation
@@ -675,7 +674,7 @@ true
 false
 "" ";; changes range\nif length all-totals > 0 and length all-totals mod 20 = 0 [\n  set-plot-x-range min all-totals max all-totals + 1\n]"
 PENS
-"Sample Count" 1.0 1 -16777216 true "" "plot-pen-reset\nhistogram all-totals\nlet maxbar modes all-totals\nlet maxrange filter [ ? = item 0 maxbar ] all-totals\nset-plot-y-range 0 length maxrange"
+"Sample Count" 1.0 1 -16777216 true "" "plot-pen-reset\nhistogram all-totals\nlet maxbar modes all-totals\nlet maxrange filter [ [total] -> total = item 0 maxbar ] all-totals\nset-plot-y-range 0 length maxrange"
 "Expected Value" 1.0 0 -2674135 true "plot-vert-line expected-value" "plot-pen-reset\nplot-vert-line expected-value"
 "Mean" 1.0 0 -10899396 true "" "plot-pen-reset\nplot-vert-line ((sum all-totals) / (length all-totals))"
 
@@ -1302,7 +1301,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup go
 @#$#@#$#@

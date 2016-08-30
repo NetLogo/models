@@ -93,7 +93,7 @@ to-report bad-intersections [t1 t2]
   let i intersection t1 t2
   if length i = 0
     [ report  false ]
-  set i map [ precision ? 1 ] i
+  set i map [ [n] -> precision n 1 ] i
   if i = [list precision xcor 1 precision ycor 1] of end1
     [ report false ]
   if i = [list precision xcor 1 precision ycor 1] of end2
@@ -158,11 +158,11 @@ end
 GRAPHICS-WINDOW
 345
 10
-810
-496
-45
-45
-5.0
+1146
+812
+-1
+-1
+8.7143
 1
 10
 1
@@ -300,9 +300,8 @@ circle
 false
 0
 Circle -7500403 true true 0 0 300
-
 @#$#@#$#@
-NetLogo 6.0-M4
+NetLogo 6.0-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -318,7 +317,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

@@ -47,8 +47,8 @@ end
 to spread-out-turtles-evenly
   let d (world-height / count turtles)
   let y (min-pycor - 0.5 + (d / 2))
-  foreach sort turtles [
-    ask ? [ set ycor round y ]
+  foreach sort turtles [ [t] ->
+    ask t [ set ycor round y ]
     set y (y + d)
   ]
 end
@@ -828,7 +828,7 @@ Polygon -6459832 true true 38 138 66 149
 Polygon -6459832 true true 46 128 33 120 21 118 11 123 3 138 5 160 13 178 9 192 0 199 20 196 25 179 24 161 25 148 45 140
 Polygon -6459832 true true 67 122 96 126 63 144
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

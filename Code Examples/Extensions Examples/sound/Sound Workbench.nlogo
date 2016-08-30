@@ -28,7 +28,7 @@ end
 
 ;; returns a list of tones comprising a middle-C major scale
 to-report c-major-scale
-  report map [? + 60] [0 2 4 5 7 9 11 12]
+  report map [ [note] -> note + 60] [0 2 4 5 7 9 11 12]
 end
 
 ;; arrow keys to scroll through the instrument list
@@ -482,7 +482,7 @@ BUTTON
 534
 423
 Play all
-foreach memory [ run ? ]
+foreach memory [ [s] -> run s ]
 NIL
 1
 T
@@ -516,7 +516,7 @@ BUTTON
 533
 379
 Play C-major chord
-let tmp tone\nforeach [ 60 64 67 ] [\nset tone ? play ]\nset tone tmp
+let tmp tone\nforeach [ 60 64 67 ] [ [n] ->\nset tone n play ]\nset tone tmp
 NIL
 1
 T
@@ -533,7 +533,7 @@ BUTTON
 390
 379
 Play C-major scale
-let tmp tone\nforeach c-major-scale\n[ set tone ?\nplay\nwait duration\n]\nset tone tmp
+let tmp tone\nforeach c-major-scale [ [note] ->\nset tone note\nplay\nwait duration\n]\nset tone tmp
 NIL
 1
 T
@@ -898,7 +898,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

@@ -143,7 +143,7 @@ mean # of wins
 10.0
 true
 false
-"" "clear-plot\nforeach sort remove-duplicates [ size ] of turtles [\n  plotxy ? mean [ label ] of turtles with [ size = ? ]\n]"
+"" "clear-plot\nforeach sort remove-duplicates [ size ] of turtles [[the-size] ->\n  plotxy the-size mean [ label ] of turtles with [ size = the-size ]\n]"
 PENS
 "default" 1.0 1 -16777216 true "" ""
 
@@ -446,7 +446,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

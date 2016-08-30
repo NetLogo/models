@@ -32,7 +32,7 @@ to go
   set results fput result results
   histogram results
   let maxbar modes results
-  let maxrange length ( filter [ ? = item 0 maxbar ] results )
+  let maxrange length ( filter [ [the-result] -> the-result = item 0 maxbar ] results )
   set-plot-y-range 0 max list 100 maxrange
   if one-by-one-choices? [ wait 0.5 ]
 end
@@ -541,7 +541,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 set one-by-one-choices? false
 setup

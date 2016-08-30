@@ -317,13 +317,13 @@ patches
 HORIZONTAL
 
 CHOOSER
-283
-560
-725
-605
+249
+538
+756
+583
 question
 question
-"0 None" "1 Are the boids aligned?" "2 Are the boids in separation or cohesion mode?" "3 Do all of the boids end up following the same leader?" "4 Are the boids aligned ? Are the boids in separation or cohesion mode?"
+"0 None" "1 Are the boids aligned?" "2 Are the boids in separation or cohesion mode?" "3 Do all of the boids end up following the same leader?" "4 Are the boids aligned? Are the boids in separation or cohesion mode?"
 0
 
 SLIDER
@@ -398,7 +398,7 @@ Value of 0 = "NONE". This gives the same behavior as the standard flocking model
 Value of 1 = "Are the boids aligned". Boids with the same direction have the same color. Clusters with the same heading can be easily distinguished.
 Value of 2 = "Are the boids in separation or cohesion mode?". This colors the boids red when they are separating and green when they are cohering.
 Value of 3 = "Do all of the boids end up following the same leader?". Each flock gets a different color.
-Value of 4 = "Are the boids aligned ? Are the boids in separation or cohesion mode?". Boids with the same direction have the same color. Boids in separation mode have the default shape, Boids in cohesion mode have a "line" shape.
+Value of 4 = "Are the boids aligned? Are the boids in separation or cohesion mode?". Boids with the same direction have the same color. Boids in separation mode have the default shape, Boids in cohesion mode have a "line" shape.
 
 ## THINGS TO NOTICE
 
@@ -775,7 +775,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 set population 200
 setup

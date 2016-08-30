@@ -309,8 +309,8 @@ to-report determine-best-farm
   ; the agent likes to go to the potential farm which is closest nearby existing farm
   let existing-farm patch farm-x farm-y
   let distance-to-best 1000
-  foreach potential-farms [
-    ask ? [
+  foreach potential-farms [ [farm] ->
+    ask farm [
       if distance existing-farm < distance-to-best [
         set best-farm self
         set distance-to-best distance existing-farm
@@ -356,8 +356,8 @@ to load-map-data
   ;; which is accomplished by manipulating the yy and xx variables each time through the loop.
   let yy 119
   let xx 0
-  foreach map-data [
-    let map-value first ?
+  foreach map-data [ [map-values] ->
+    let map-value first map-values
     if map-value = 0  [ ask patch xx yy [ set zone-pcolor black set zone "General"     set maize-zone "Yield_2"   ] ] ; General Valley
     if map-value = 10 [ ask patch xx yy [ set zone-pcolor red   set zone "North"       set maize-zone "Yield_1"   ] ] ; North Valley
     if map-value = 15 [ ask patch xx yy [ set zone-pcolor white set zone "North Dunes" set maize-zone "Sand_dune" ] ] ; North Valley ; Dunes
@@ -390,20 +390,20 @@ to load-map-data
   ]
   [ user-message "There is no settlements.txt file in the data directory!" ]
 
-  foreach settlements-data [
+  foreach settlements-data [ [settlement-data] ->
     create-historical-settlements 1 [
-      set sarg item 0 ?
-      set meter-north item 1 ?
-      set meter-east item 2 ?
-      set start-date item 3 ?
-      set end-date item 4 ?
-      set median-date (1950 - item 5 ?)
-      set settlement-type item 6 ?
-      set settlement-size item 7 ?
-      set description item 8 ?
-      set room-count item 9 ?
-      set elevation item 10 ?
-      set baseline-households item 11 ?
+      set sarg item 0 settlement-data
+      set meter-north item 1 settlement-data
+      set meter-east item 2 settlement-data
+      set start-date item 3 settlement-data
+      set end-date item 4 settlement-data
+      set median-date (1950 - item 5 settlement-data)
+      set settlement-type item 6 settlement-data
+      set settlement-size item 7 settlement-data
+      set description item 8 settlement-data
+      set room-count item 9 settlement-data
+      set elevation item 10 settlement-data
+      set baseline-households item 11 settlement-data
     ]
   ]
 
@@ -418,14 +418,14 @@ to load-map-data
   ]
   [ user-message "There is no water.txt file in the data directory!" ]
 
-  foreach water-data [
+  foreach water-data [ [data] ->
     create-water-points 1 [
-      set sarg item 0 ?
-      set meter-north item 1 ?
-      set meter-east item 2 ?
-      set water-type item 3 ?
-      set start-date item 4 ?
-      set end-date item 5 ?
+      set sarg item 0 data
+      set meter-north item 1 data
+      set meter-east item 2 data
+      set water-type item 3 data
+      set start-date item 4 data
+      set end-date item 5 data
     ]
   ]
 
@@ -1268,7 +1268,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

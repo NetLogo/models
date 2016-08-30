@@ -5218,7 +5218,7 @@ to-report new-octave [instrument this-agent-no]
   ]
   ;(1) - other player . . . . . . . . . . . . .. . . . . . . . . . . . . . . .
   if length this-list > 1 [
-     set this-list sort-by [?1 < ?2] this-list
+     set this-list sort-by [ [a b] -> a < b ] this-list
   ]
 
 let mylist this-list
@@ -5249,7 +5249,7 @@ ifelse length mylist = 1
    ;(2) - other players . . . . . . . . . . . . .. . . . . . . . . . . . . . . .
    ifelse length mylist = 2
    [
-      set mylist sort-by [?1 < ?2] mylist
+      set mylist sort-by [ [a b] -> a < b ] mylist
       ifelse item 1 mylist - item 0 mylist > 1
          ;there's a gap
          [set val-to-add item 1 mylist - 1]
@@ -5276,7 +5276,7 @@ ifelse length mylist = 1
 ;(3) - other players . . . . . . . . . . . . .. . . . . . . . . . . . . . . .
 if length mylist = 3 [
 
-set mylist sort-by [?1 < ?2] mylist
+set mylist sort-by [ [a b] -> a < b ] mylist
 ifelse item 2 mylist - item 1 mylist > 1
    [
       set val-to-add item 2 mylist - 1
@@ -5346,7 +5346,7 @@ ifelse item 2 mylist - item 1 mylist > 1
 ]
 
 if is-number? val-to-add [set mylist lput val-to-add mylist]
-set mylist sort-by [?1 < ?2] mylist
+set mylist sort-by [ [a b] -> a < b ] mylist
 
    ifelse is-string? val-to-add
       [report 0]
@@ -5444,7 +5444,7 @@ to-report get-loudest
 
       if length volume-list > 0 [
          set volume-list remove-duplicates volume-list
-         set volume-list sort-by [?1 < ?2] volume-list
+         set volume-list sort-by [ [a b] -> a < b ] volume-list
          set loudest-volume item (length volume-list - 1) volume-list
       ]
 
@@ -5474,7 +5474,7 @@ to-report get-softest
       if length volume-list > 0 [
 
          set volume-list remove-duplicates volume-list
-         set volume-list sort-by [?1 < ?2] volume-list
+         set volume-list sort-by [ [a b] -> a < b ] volume-list
          set softest-volume item 0 volume-list
       ]
    report softest-volume
@@ -5703,7 +5703,7 @@ to-report harmonic-content
 
    set this-phrase-list remove-item 0 this-phrase-list
    set this-phrase-list remove-duplicates this-phrase-list
-   set this-phrase-list sort-by [?1 < ?2] this-phrase-list
+   set this-phrase-list sort-by [ [a b] -> a < b ] this-phrase-list
 
    let current-phrase [""]
 
@@ -5734,7 +5734,7 @@ to-report harmonic-content
    ]
 
    set this-note-list remove-duplicates this-note-list
-   set this-note-list sort-by [?1 < ?2] this-note-list
+   set this-note-list sort-by [ [a b] -> a < b ] this-note-list
 
    let additional-notes get-additional-transformation-notes
 
@@ -5748,7 +5748,7 @@ to-report harmonic-content
    ]
 
    set this-note-list remove-duplicates this-note-list
-   set this-note-list sort-by [?1 < ?2] this-note-list
+   set this-note-list sort-by [ [a b] -> a < b ] this-note-list
 
    report this-note-list
 end
@@ -5903,7 +5903,7 @@ to-report expand-by-octaves [initial-note]
       ]
 
 
-   set octaves-list sort-by [?1 < ?2] octaves-list
+   set octaves-list sort-by [ [a b] -> a < b ] octaves-list
 
    report octaves-list
 end
@@ -6034,7 +6034,7 @@ to-report start-doing-stuff
    ]
 
    set expanded-best-scale remove-item 0 expanded-best-scale
-   set expanded-best-scale sort-by [?1 < ?2] expanded-best-scale
+   set expanded-best-scale sort-by [ [a b] -> a < b ] expanded-best-scale
 
    report expanded-best-scale
 end
@@ -6086,7 +6086,7 @@ to-report evaluate-transformation [this-phrase this-player this-type]
                [
                   let best-fit-scale-plus best-fit-scale
                   set best-fit-scale-plus lput item i inverted-phrase best-fit-scale-plus
-                  set best-fit-scale-plus sort-by [?1 < ?2] best-fit-scale-plus
+                  set best-fit-scale-plus sort-by [ [a b] -> a < b ] best-fit-scale-plus
 
                   let k 0
                   let bfound-k false
@@ -6151,7 +6151,7 @@ to-report evaluate-transformation [this-phrase this-player this-type]
       ]
 
       set new-pitch-list remove-item 0 new-pitch-list
-      set new-pitch-list sort-by [?1 < ?2] new-pitch-list
+      set new-pitch-list sort-by [ [a b] -> a < b ] new-pitch-list
       set new-pitch-list remove-duplicates new-pitch-list
 
       ifelse this-player = 1 [set player1-transformed-pitchlist new-pitch-list]
@@ -6186,7 +6186,7 @@ to-report get-hindmost
 
    set phrases remove-item 0 phrases
    set phrases remove-duplicates phrases
-   set phrases sort-by [?1 < ?2] phrases
+   set phrases sort-by [ [a b] -> a < b ] phrases
 
    let first-phrase item 0 phrases
 
@@ -6210,7 +6210,7 @@ to-report get-foremost
 
    set phrases remove-item 0 phrases
    set phrases remove-duplicates phrases
-   set phrases sort-by [?1 < ?2] phrases
+   set phrases sort-by [ [a b] -> a < b ] phrases
 
    let last-phrase item ((length phrases) - 1) phrases
 

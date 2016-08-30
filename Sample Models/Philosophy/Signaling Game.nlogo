@@ -94,9 +94,9 @@ end
 
 to setup-states
   set-default-shape states "circle 2"
-  foreach state-labels number-of-states [
+  foreach state-labels number-of-states [ [the-label] ->
     create-states 1 [
-      set label ?
+      set label the-label
       set color sky
       look-inactive
     ]
@@ -107,9 +107,9 @@ end
 
 to setup-signals
   set-default-shape signals "square 2"
-  foreach signal-labels number-of-signals [
+  foreach signal-labels number-of-signals [ [the-label] ->
     create-signals 1 [
-      set label ?
+      set label the-label
       set color magenta
       look-inactive
     ]
@@ -181,10 +181,9 @@ to look-inactive ; states and signals procedure
 end
 
 to spread-x [ y agents ] ; observer procedure
-  let n count agents
-  let d world-width / (n + 1)
-  let xs n-values n [ (min-pxcor - 0.5) + d + (d * ?) ]
-  (foreach sort agents xs [ ask ?1 [ setxy ?2 y ] ])
+  let d world-width / (count agents + 1)
+  let xs n-values count agents [ [n] -> (min-pxcor - 0.5) + d + (d * n) ]
+  (foreach sort agents xs [ [a x] -> ask a [ setxy x y ] ])
 end
 
 to-report state-labels [ n ]
@@ -192,7 +191,7 @@ to-report state-labels [ n ]
 end
 
 to-report signal-labels [ n ]
-  report n-values n [ ? ]
+  report n-values n [ [the-label] -> the-label ]
 end
 
 to-report base-shade-of [ some-color ]
@@ -225,22 +224,22 @@ to print-probabilities
 end
 
 to-report probability-table [ ys xs this-player ]
-  let columns-labels fput "" map [ [ label ] of ? ] sort xs
+  let columns-labels fput "" map [ [x] -> [ label ] of x ] sort xs
   let separators fput "" n-values count xs [ "---" ]
-  let rows map [ [ make-row urn-with ? ] of this-player ] sort ys
+  let rows map [ [y] -> [ make-row urn-with y ] of this-player ] sort ys
   let formatted-rows map format-list (fput columns-labels fput separators rows)
-  report reduce [ (word ?1 "\n" ?2) ] formatted-rows
+  report reduce [ [a b] -> (word a "\n" b) ] formatted-rows
 end
 
 to-report make-row [ this-urn ]
   let header-column word ([ label ] of [ end1 ] of this-urn) " :"
-  let other-columns map [ ? * 100 ] probabilities this-urn
+  let other-columns map [ [p] -> p * 100 ] probabilities this-urn
   report fput header-column other-columns
 end
 
 to-report format-list [ this-list ]
-  let formatted-values map [ format-value ? 4 ] this-list
-  report reduce [ (word ?1 "  " ?2) ] formatted-values
+  let formatted-values map [ [value] -> format-value value 4 ] this-list
+  report reduce [ [a b] -> (word a "  " b) ] formatted-values
 end
 
 to-report format-value [ x width ]
@@ -253,17 +252,17 @@ end
 
 to-report probabilities [ this-urn ]
   let this-breed [ breed ] of first [ balls ] of this-urn
-  report normalize map [ instances ? [ balls ] of this-urn ] sort this-breed
+  report normalize map [ [a] -> instances a [ balls ] of this-urn ] sort this-breed
 end
 
 to-report instances [ x this-list ]
   ; report the number of instances of x in this-list
-  report reduce [ ?1 + ifelse-value (?2 = x) [ 1 ] [ 0 ] ] fput 0 this-list
+  report reduce [ [a b] -> a + ifelse-value (b = x) [ 1 ] [ 0 ] ] fput 0 this-list
 end
 
 to-report normalize [ this-list ]
   let total sum this-list
-  report map [ ? / total ] this-list
+  report map [ [n] -> n / total ] this-list
 end
 
 to-report probability-of-success
@@ -510,7 +509,7 @@ In the middle of the view, there is a "sender" and a "receiver".
 
 The sender perceives the active world state and is trying to communicate it to the receiver (who cannot perceive the world state directly) using one of the possible signals.
 
-If the communication is successful, then both players are happy and the connexion between that state and that signal is reinforced for the both the sender and the receiver.
+If the communication is successful, then both players are happy and the connection between that state and that signal is reinforced for the both the sender and the receiver.
 
 Here is the detailed sequence of actions happening in the model at each tick:
 
@@ -534,7 +533,7 @@ The TIMES WRONG, TIMES CORRECT and SUCCESS RATE monitors show what happened so f
 
 The OUTPUT WINDOW to the right of the view displays two probability tables: one for the sender and one for the receiver. For the sender, those are the probabilities of using a particular signal when observing a given state. For the receiver, those are the probabilities of interpreting a given signal to mean a particular state. Those probabilities are rounded to the nearest integer, so it's possible that a column or a row doesn't add up to exactly 100.
 
-The display of probabilies in the OUTPUT WINDOW can be switched on and off using the PRINT-PROBABILITIES? slider.
+The display of probabilities in the OUTPUT WINDOW can be switched on and off using the PRINT-PROBABILITIES? slider.
 
 ## THINGS TO NOTICE
 
@@ -558,7 +557,7 @@ Can you use the model to answer these two questions?
 
 What if both players could take turns acting as senders and receivers? Would it converge faster?
 
-Can you change the model to accomodate more than two players? Each player could be paired with another at each tick and send a signal to that partner. If that was the case, do you think that a consensual signaling system would emerge in the community?
+Can you change the model to accommodate more than two players? Each player could be paired with another at each tick and send a signal to that partner. If that was the case, do you think that a consensual signaling system would emerge in the community?
 
 ## NETLOGO FEATURES
 
@@ -905,7 +904,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 resize-world -14 14 -14 14
 setup repeat 75 [ go ]

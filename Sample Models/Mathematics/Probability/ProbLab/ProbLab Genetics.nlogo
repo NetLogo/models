@@ -80,10 +80,10 @@ to go
   ]
 
   ; collides pairs of fish that are on the same patch
-  foreach [ n-of 2 fish-here ] of patches with [ count fish-here > 1 ] [
+  foreach [ n-of 2 fish-here ] of patches with [ count fish-here > 1 ] [ [parents] ->
     ; make sure the first parent has a lower
     ; who number than the second parent
-    collide (first sort ?) (last sort ?)
+    collide (first sort parents) (last sort parents)
   ]
   tick
 end
@@ -117,7 +117,7 @@ to-report create-child [ yellow-patch genes1 genes2 ]
   let new-genes n-values 4 [ random 2 ]
   ask yellow-patch [ set family new-genes ]
   report combination-to-string (map
-    [ read-from-string item (?1 + ?2) ?3 ]
+    [ [i new-gene parent-genes] -> read-from-string item (i + new-gene) parent-genes ]
     [ 3 3 5 5 ] new-genes (list genes1 genes2 genes1 genes2))
 end
 
@@ -169,10 +169,10 @@ to output-genetics [ this-family ]
   let bottom-left                 item 5 this-family
   let bottom-right                item 6 this-family
 
-  (foreach (list genes1 "small plus" genes2 "right arrow" child-genes) [ 0 0.75 1.5 2.5 3.5 ] [
+  (foreach (list genes1 "small plus" genes2 "right arrow" child-genes) [ 0 0.75 1.5 2.5 3.5 ] [ [the-shape offset] ->
     create-output-shapes 1 [
-      set shape ?1
-      setxy (min-pxcor + ?2) max-pycor
+      set shape the-shape
+      setxy (min-pxcor + offset) max-pycor
     ]
   ])
 
@@ -341,7 +341,7 @@ true
 true
 "" "set z-distr [ read-from-string item 1 my-genes ] of fish"
 PENS
-"Count" 1.0 1 -16777216 true "" "let maxbar modes z-distr\nlet maxrange length (filter [ ? = item 0 maxbar ] z-distr )\nset-plot-y-range 0 max list 10 maxrange\nhistogram z-distr\n"
+"Count" 1.0 1 -16777216 true "" "let maxbar modes z-distr\nlet maxrange length (filter [ [z] -> z = item 0 maxbar ] z-distr )\nset-plot-y-range 0 max list 10 maxrange\nhistogram z-distr\n"
 "Average" 1.0 0 -2674135 true "" "; plots a vertical line at mean\nplot-pen-reset\nif z-distr != [] [\n  plotxy mean z-distr plot-y-min\n  plot-pen-down\n  plotxy mean z-distr plot-y-max\n  plot-pen-up\n]"
 
 SLIDER
@@ -1274,7 +1274,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup add-fish 50 repeat 10 [ go ]
 @#$#@#$#@

@@ -37,11 +37,11 @@ to setup
 
   ; distribute the dice evenly along the x axis
   let spacing ((max-pxcor - min-pxcor) / 3)
-  foreach n-values 2 [ min-pxcor + (? + 1) * spacing ] [
+  foreach n-values 2 [ [n] -> min-pxcor + (n + 1) * spacing ] [ [x] ->
     create-user-dice 1 [
       set size spacing
       set ycor max-pycor / 2 ; middle of top half
-      set xcor ?
+      set xcor x
       set color white
       set heading 0
       hatch-model-dice 1 [
@@ -103,8 +103,8 @@ to search
   if single-success? [ display ] ; this would slow down the model too much in the global search
 
   ; Make lists of user dice shapes and model dice shapes, ordered from left to right
-  let user-dice-shapes  map [ [ shape ] of ? ] sort-on [ xcor ] user-dice
-  let model-dice-shapes map [ [ shape ] of ? ] sort-on [ xcor ] model-dice
+  let user-dice-shapes  map [ [dice] -> [ shape ] of dice ] sort-on [ xcor ] user-dice
+  let model-dice-shapes map [ [dice] -> [ shape ] of dice ] sort-on [ xcor ] model-dice
 
   let combination-found? (model-dice-shapes = user-dice-shapes)
   let permutation-found? (sort model-dice-shapes = sort user-dice-shapes)
@@ -386,7 +386,7 @@ sample-size
 sample-size
 10
 1000
-1000.0
+10.0
 10
 1
 NIL
@@ -974,7 +974,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup search
 @#$#@#$#@

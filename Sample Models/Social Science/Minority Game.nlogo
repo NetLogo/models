@@ -95,10 +95,12 @@ to update-scores-and-strategy  ;; turtles procedure
   let max-strategies []
   let counter 0
   ;; this picks a strategy with the largest virtual score
-  foreach strategies-scores
-    [ if (? = max-score)
-        [ set max-strategies lput counter max-strategies ]
-      set counter counter + 1 ]
+  foreach strategies-scores [ [the-score] ->
+    if (the-score = max-score) [
+      set max-strategies lput counter max-strategies
+    ]
+    set counter counter + 1
+  ]
   set current-strategy one-of max-strategies
   if (choice = minority)
     [ set score score + 1 ]
@@ -109,14 +111,12 @@ end
 to increment-scores  ;; turtles procedure
   ;; here we use MAP to simultaneously walk down both the list
   ;; of strategies, and the list of those strategies' scores.
-  ;; ?1 is the current strategy, and ?2 is the current score.
   ;; For each strategy, we check to see if that strategy selected
   ;; the minority.  If it did, we increase its score by one,
   ;; otherwise we leave the score alone.
-  set strategies-scores
-      (map [ifelse-value (item history ?1 = minority)
-              [?2 + 1] [?2]]
-           strategies strategies-scores)
+  set strategies-scores (map [ [the-strategy the-score] ->
+    ifelse-value (item history the-strategy = minority) [ the-score + 1] [ the-score ]
+  ] strategies strategies-scores)
 end
 
 ;; updates turtle's choice and re-colors them
@@ -158,7 +158,7 @@ end
 
 ;; converts a binary number (stored in a list of 0's and 1's) to a decimal number
 to-report decimal [binary-num]
-  report reduce [(2 * ?1) + ?2] binary-num
+  report reduce [ [a b] -> (2 * a) + b ] binary-num
 end
 
 
@@ -750,7 +750,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup
 repeat max-pxcor [ go ]

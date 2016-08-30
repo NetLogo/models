@@ -248,11 +248,11 @@ to distribute-gene-pool-to-somatic-cells
 
   ask somatic-cells [
     set this-somatic-cell self
-    foreach [1 2 3 4 ] [
+    foreach [ 1 2 3 4 ] [ [n] ->
       ;; assign one of the alleles to appear on the left side of the chromosome pair
-      position-and-link-alleles self  ? "left"
+      position-and-link-alleles self n "left"
       ;; assign the other allele to appear on the right side
-      position-and-link-alleles self  ? "right"
+      position-and-link-alleles self n "right"
     ]
 
     ;; now assign the sex chromosome pair, putting one of the Xs on the left,
@@ -432,16 +432,16 @@ to align-alleles-for-this-somatic-cell [this-zygote]
   ;; (for each matching pair) or both on the left
   ;; this procedure moves one of them over if that is the case
   let all-alleles alleles with [in-link-neighbor? this-zygote]
-  foreach [1 2 3 4 5] [
-    if count all-alleles with [gene = ? and side = "left"]  > 1 [
-      ask one-of all-alleles with [gene = ?] [
+  foreach [1 2 3 4 5] [ [this-gene] ->
+    if count all-alleles with [gene = this-gene and side = "left"]  > 1 [
+      ask one-of all-alleles with [gene = this-gene] [
         set heading 90
         forward intra-chromosome-pair-spacing
         set side "right"
       ]
     ]
-    if count all-alleles with [gene = ? and side = "right"] > 1 [
-      ask one-of all-alleles with [gene = ?] [
+    if count all-alleles with [gene = this-gene and side = "right"] > 1 [
+      ask one-of all-alleles with [gene = this-gene] [
         set heading 90
         back
         intra-chromosome-pair-spacing
@@ -519,8 +519,8 @@ to link-alleles-to-gametes-and-gametes-to-zygote [child]
        set this-new-gamete-cell self
     ]
 
-  foreach [1 2 3 4 5] [
-    ask n-of 1 alleles with [in-link-neighbor? myself and  gene = ?]
+  foreach [1 2 3 4 5] [ [this-gene] ->
+    ask n-of 1 alleles with [in-link-neighbor? myself and  gene = this-gene]
     [hatch 1 [set owned-by-fish? false
        create-link-from this-new-gamete-cell  [set hidden? true  set tie-mode "fixed" tie]
       ]

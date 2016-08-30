@@ -113,13 +113,13 @@ end
 
 to-report upper-quartile [ xs ]
   let med median xs
-  let upper filter [ ? > med ] xs
+  let upper filter [ [x] -> x > med ] xs
   report ifelse-value (empty? upper) [ med ] [ median upper ]
 end
 
 to-report lower-quartile [ xs ]
   let med median xs
-  let lower filter [ ? < med ] xs
+  let lower filter [ [x] -> x < med ] xs
   report ifelse-value (empty? lower) [ med ] [ median lower ]
 end
 
@@ -761,7 +761,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup
 repeat 180 [ go ]

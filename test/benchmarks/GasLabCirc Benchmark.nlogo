@@ -67,18 +67,20 @@ to go
   ;;collisions are still valid.
   ifelse is-turtle? colliding-particle-2
   [
-    set colliding-particles filter [item 1 ? != colliding-particle-1 and
-                                    item 2 ? != colliding-particle-1 and
-                                    item 1 ? != colliding-particle-2 and
-                                    item 2 ? != colliding-particle-2]
-                              colliding-particles
+    set colliding-particles filter [ [collision] ->
+      item 1 collision != colliding-particle-1 and
+      item 2 collision != colliding-particle-1 and
+      item 1 collision != colliding-particle-2 and
+      item 2 collision != colliding-particle-2]
+    colliding-particles
     ask colliding-particle-2 [check-for-wall-collision]
     ask colliding-particle-2 [check-for-particle-collision]
   ]
   [
-    set colliding-particles filter [item 1 ? != colliding-particle-1 and
-                                    item 2 ? != colliding-particle-1]
-                              colliding-particles
+    set colliding-particles filter [ [collision] ->
+      item 1 collision != colliding-particle-1 and
+      item 2 collision != colliding-particle-1]
+    colliding-particles
   ]
   if colliding-particle-1 != nobody [ask colliding-particle-1 [check-for-wall-collision]]
   if colliding-particle-1 != nobody [ask colliding-particle-1 [check-for-particle-collision]]
@@ -317,9 +319,10 @@ to sort-collisions
   ;; happened to be calculated as happening again a very tiny amount of
   ;; time into the future, so we remove any collisions that involves
   ;; the same two particles (or particle and wall) as last time.
-  set colliding-particles filter [item 1 ? != colliding-particle-1 or
-                                  item 2 ? != colliding-particle-2]
-                                 colliding-particles
+  set colliding-particles filter [ [collision] ->
+    item 1 collision != colliding-particle-1 or
+    item 2 collision != colliding-particle-2]
+  colliding-particles
   set colliding-particle-1 nobody
   set colliding-particle-2 nobody
   set tick-length original-tick-length
@@ -328,7 +331,7 @@ to sort-collisions
   ;; Take the smallest time-step from the list (which represents the next collision that will
   ;; happen in time).  Use this time step as the tick-length for all the particles to move through
   let winner first colliding-particles
-  foreach colliding-particles [if first ? < first winner [set winner ?]]
+  foreach colliding-particles [ [collision] -> if first collision < first winner [set winner collision]]
   ;;winner is now the collision that will occur next
   let dt item 0 winner
   if dt > 0
@@ -563,10 +566,10 @@ end
 GRAPHICS-WINDOW
 212
 10
-708
-527
-40
-40
+706
+505
+-1
+-1
 6.0
 1
 20
@@ -613,7 +616,7 @@ number
 number
 1
 200
-200
+200.0
 1
 1
 NIL
@@ -645,7 +648,7 @@ largest-particle-size
 largest-particle-size
 1
 10
-4
+4.0
 0.5
 1
 NIL
@@ -670,7 +673,7 @@ smallest-particle-size
 smallest-particle-size
 1
 5
-1
+1.0
 0.5
 1
 NIL
@@ -993,9 +996,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M4
+NetLogo 6.0-RC1
 @#$#@#$#@
 benchmark set result 0
 @#$#@#$#@
@@ -1012,7 +1014,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

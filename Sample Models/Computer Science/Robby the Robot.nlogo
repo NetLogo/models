@@ -55,7 +55,7 @@ to setup
     ;; So 243 (3^5) is the chromosome length allowing any possible situation to be represented.
     set chromosome n-values 243 [random-action]
     ;; calculate the frequency of the 7 basic actions (or "alleles") in each chromosome
-    set allele-distribution map [occurrences ? chromosome] ["move-north" "move-east" "move-south" "move-west" "move-random" "stay-put" "pick-up-can"]
+    set allele-distribution map [ [action] -> occurrences action chromosome ] ["move-north" "move-east" "move-south" "move-west" "move-random" "stay-put" "pick-up-can"]
   ]
   calculate-population-fitnesses
   let best-individual max-one-of individuals [fitness]
@@ -226,12 +226,13 @@ to create-next-generation ;[best-individual]
     let child-chromosomes crossover ([chromosome] of parent1) ([chromosome] of parent2)
 
     ; create the two children, with their new genetic material
+    let actions ["move-north" "move-east" "move-south" "move-west" "move-random" "stay-put" "pick-up-can"]
     ask parent1 [
       hatch 1 [
         rt random 360 fd random-float 3.0
         set chromosome item 0 child-chromosomes
         ;; record the distribution of basic actions (or "alleles") for each individual
-        set allele-distribution map [occurrences ? chromosome] ["move-north" "move-east" "move-south" "move-west" "move-random" "stay-put" "pick-up-can"]
+        set allele-distribution map [ [action] -> occurrences action chromosome ] actions
       ]
     ]
     ask parent2 [
@@ -239,7 +240,7 @@ to create-next-generation ;[best-individual]
         rt random 360 fd random-float 3.0
         set chromosome item 1 child-chromosomes
         ;; record the distribution of basic actions (or "alleles") for each individual
-        set allele-distribution map [occurrences ? chromosome] ["move-north" "move-east" "move-south" "move-west" "move-random" "stay-put" "pick-up-can"]
+        set allele-distribution map [ [action] -> occurrences action chromosome ] actions
        ]
     ]
   ]
@@ -250,8 +251,7 @@ end
 
 ;; each individual takes NUM-ACTIONS-PER-ENVIRONMENT actions according to its strategy on NUM-ENVIRONMENTS-FOR-FITNESS random environments
 to calculate-population-fitnesses
-  foreach sort individuals [
-    let current-individual ?
+  foreach sort individuals [ [current-individual] ->
     let score-sum 0
     repeat num-environments-for-fitness [
       initialize-robot [chromosome] of current-individual
@@ -293,9 +293,11 @@ end
 ;; MUTATION-RATE slider.  In the MAP, "[?]" means "return the same value".
 
 to mutate   ;; individual procedure
-  set chromosome map [ifelse-value (random-float 1 < mutation-rate)
-                        [random-action] [?]]
-                     chromosome
+  set chromosome map [ [action] ->
+    ifelse-value (random-float 1 < mutation-rate)
+      [random-action]
+      [action]
+  ] chromosome
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -404,8 +406,7 @@ end
 
 ;; count the number of occurrences of an item in a list
 to-report occurrences [x a-list]
-  report reduce
-    [ifelse-value (?2 = x) [?1 + 1] [?1]] (fput 0 a-list)
+  report reduce [ [n the-item] -> ifelse-value (the-item = x) [ n + 1 ] [ n ] ] (fput 0 a-list)
 end
 
 ;; measure distance between two chromosomes
@@ -413,7 +414,7 @@ end
 to-report chromosome-distance [individual1 individual2]
   let max-dist  273 * sqrt 2
   ;; compute the euclidean distance between allele distributions
-  let dist2 reduce + (map [(?1  - ?2) ^ 2] [allele-distribution] of individual1 [allele-distribution] of individual2)
+  let dist2 sum (map [ [a1 a2] -> (a1  - a2) ^ 2 ] [allele-distribution] of individual1 [allele-distribution] of individual2)
   ;; scale the distance to fit in the view
   let dist-candidate max-pxcor * sqrt dist2 / ( max-dist / 10)
   ;; if distance is too large, report the edge of the view
@@ -1175,7 +1176,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup repeat 5 [ go ]
 @#$#@#$#@

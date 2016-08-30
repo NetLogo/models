@@ -68,17 +68,16 @@ to setup
 
   ifelse full-setup?
   [
-    let users map [[user-id] of ?] sort patches with [is-string? user-id]
-    let phases map [[my-phase] of ?] sort patches with [is-string? user-id]
+    let users  map [ [p] -> [user-id] of p] sort patches with [is-string? user-id]
+    let phases map [ [p] -> [my-phase] of p] sort patches with [is-string? user-id]
     clear-patches
     setup-patches
     setup-intersections
     ;; reassign the clients to intersections
-    (foreach users phases
-    [
-      get-free-intersection ?1
-      ask intersections with [ user-id = ?1 ]
-        [ set my-phase ?2 ]
+    (foreach users phases [ [the-user the-phase] ->
+      get-free-intersection the-user
+      ask intersections with [ user-id = the-user ]
+        [ set my-phase the-phase ]
     ])
   ]
   [ setup-intersections ]
@@ -1355,7 +1354,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

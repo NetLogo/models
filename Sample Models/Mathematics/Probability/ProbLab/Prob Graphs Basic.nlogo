@@ -68,7 +68,7 @@ to update-and-plot-attempts
   set-plot-x-range 0 ( (max counter-list) + 5)
   histogram counter-list
   let maxbar modes counter-list
-  let maxrange length filter [ ? = item 0 maxbar ] counter-list
+  let maxrange length filter [ [the-counter] -> the-counter = item 0 maxbar ] counter-list
   set-plot-y-range 0 max list 10 maxrange
 end
 
@@ -86,7 +86,7 @@ to update-and-plot-successes
                                     ( 3 + ( ceiling ( 2 * mean successes-per-sample-list ) ) ) ) )
     histogram successes-per-sample-list
     let maxbar modes successes-per-sample-list
-    let maxrange length filter [ ? = item 0 maxbar ] successes-per-sample-list
+    let maxrange length filter [ [successes] -> successes = item 0 maxbar ] successes-per-sample-list
     set-plot-y-range 0 max list 25 maxrange
     set attempts-this-sample 0
     set successes-this-sample 0
@@ -827,7 +827,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

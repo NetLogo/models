@@ -18,11 +18,10 @@ to setup
   let month-lengths [31 28 31 30 31 30 31 31 30 31 30 31]
   ;; now build up the list of all the day names in the year
   set days []
-  ;; sets ?1 equal each month name and ?2 to the number of days in that month
-  (foreach months month-lengths
-  [ ;; use "sentence" to repeatedly glue lists together, so we wind
+  (foreach months month-lengths [ [month month-length] ->
+    ;; use "sentence" to repeatedly glue lists together, so we wind
     ;; up with one big list
-    set days (sentence days make-month ?1 ?2)
+    set days (sentence days make-month month month-length)
   ])
   reset-ticks
 end
@@ -31,9 +30,9 @@ end
 to-report make-month [month month-length]
   ;; use n-values to generate a list of the numbers from 1 to
   ;; the end of the month
-  let day-numbers n-values month-length [? + 1]
+  let day-numbers n-values month-length [ [n] -> n + 1]
   ;; now glue onto the month name each number
-  report map [(word month " " ?)] day-numbers
+  report map [ [day] -> (word month " " day) ] day-numbers
 end
 
 to go
@@ -536,7 +535,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup
 go

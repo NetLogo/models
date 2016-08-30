@@ -58,41 +58,42 @@ end
 
 to go
   clear-output
-  set table n-values 1400 [extract-rgb (? / 10)]
+  set table n-values 1400 [ [n] -> extract-rgb (n / 10) ]
   let index 0
-  foreach table
-    [ if position ? sublist table (index + 1) (length table) != false
-        [ output-print index / 10
-          output-print bytes extract-rgb (index / 10)
-          let match (1 + index + position ? sublist table (index + 1) (length table)) / 10
-          output-print match
-          output-print bytes extract-rgb match ]
-      set index index + 1 ]
+  foreach table [ [c] ->
+    if position c sublist table (index + 1) (length table) != false [
+      output-print index / 10
+      output-print bytes extract-rgb (index / 10)
+      let match (1 + index + position c sublist table (index + 1) (length table)) / 10
+      output-print match
+      output-print bytes extract-rgb match
+    ]
+    set index index + 1 ]
 end
 
 to-report bytes [rgblist]
-  report map [round (? * 255)] rgblist
+  report map [ [c] -> round (c * 255) ] rgblist
 end
 
 to whites
   clear-output
-  foreach n-values 14 [? * 10 + 9.9]
-    [ output-print (word ? " " bytes extract-rgb ?) ]
+  foreach n-values 14 [ [n] -> n * 10 + 9.9]
+    [ [c] -> output-print (word c " " bytes extract-rgb c) ]
 end
 
 to blacks
   clear-output
-  foreach n-values 14 [? * 10]
-    [ output-print (word ? " " bytes extract-rgb ?) ]
+  foreach n-values 14 [ [n] -> n * 10 ]
+    [ [c] -> output-print (word c " " bytes extract-rgb c) ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
 134
 10
-654
-491
-8
-7
+652
+469
+-1
+-1
 30.0
 1
 10
@@ -464,9 +465,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M4
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup
 @#$#@#$#@
@@ -483,7 +483,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@

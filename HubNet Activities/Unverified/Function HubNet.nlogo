@@ -126,12 +126,12 @@ to graph-student-equation
   let s current-student true
   if s = nobody
   [ stop ]
-  let graphed-colors map [ item 1 ? ] graphed-equation-list
+  let graphed-colors map [ [equation] -> item 1 equation ] graphed-equation-list
   if member? [color] of s graphed-colors
   [
     set graphed-equation-list remove-item (position [color] of s graphed-colors) graphed-equation-list
     ask grid [ set pcolor black ]
-    foreach graphed-equation-list [ graph-equation item 0 ? false item 1 ? ]
+    foreach graphed-equation-list [ [equation] -> graph-equation item 0 equation false item 1 equation ]
   ]
   graph-equation [my-equation] of s true [color] of s
 end
@@ -374,7 +374,7 @@ to clear-last-equation
   [
     set graphed-equation-list butlast graphed-equation-list
     ask grid [ set pcolor black ]
-    foreach graphed-equation-list [ graph-equation item 0 ? false item 1 ? ]
+    foreach graphed-equation-list [ [equation] -> graph-equation item 0 equation false item 1 equation ]
   ]
 
   if reveal-legend?
@@ -597,12 +597,11 @@ to draw-legend
   let x-coord max-pxcor - (margin * 2)
   let y-coord min-pycor + margin + 4
   let i 0
-  foreach graphed-equation-list
-    [
+  foreach graphed-equation-list [ [equation] ->
       ask patch x-coord y-coord
       [
-        set plabel item 0 ?
-        set plabel-color item 1 ?
+        set plabel item 0 equation
+        set plabel-color item 1 equation
       ]
       set y-coord y-coord + 5
       set i i + 1
@@ -1508,7 +1507,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

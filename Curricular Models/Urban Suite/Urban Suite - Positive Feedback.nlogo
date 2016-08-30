@@ -119,7 +119,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot-pen-reset\nforeach reverse sort [ activity ] of patches [ plot ? ]"
+"default" 1.0 0 -16777216 true "" "plot-pen-reset\nforeach reverse sort [ activity ] of patches [ [the-activity] -> plot the-activity ]"
 
 BUTTON
 94
@@ -520,7 +520,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup repeat 20 [ go ]
 @#$#@#$#@

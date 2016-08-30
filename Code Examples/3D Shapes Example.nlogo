@@ -1,13 +1,13 @@
 to setup
   clear-all
   let threedshapes [ "default" "circle" "dot" "square" "triangle" "cylinder" "line" "line half" "car" ]
-  foreach threedshapes [
+  foreach threedshapes [ [the-shape] ->
     create-turtles 1
-    [ set shape ?
+    [ set shape the-shape
       set size 2
       set xcor (5 * who) + min-pxcor + 6
       ask patch xcor min-pycor
-      [ set plabel ?
+      [ set plabel the-shape
         set plabel-color blue - 2 ]
       set color red
     ]
@@ -21,7 +21,7 @@ to setup
 end
 
 to demo
-  foreach sort turtles [ show-off ? ]
+  foreach sort turtles [ [t] -> show-off t ]
 end
 
 to show-off [ t ]
@@ -498,7 +498,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

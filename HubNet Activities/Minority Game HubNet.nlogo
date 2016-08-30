@@ -82,7 +82,7 @@ to setup
     clear-my-data
     set ycor 0
   ]
-  set score-list map [ [score] of ? ] sort turtles
+  set score-list map [ [the-score] -> [ score ] of the-score ] sort turtles
   update-success-list
   clear-all-plots
   reset-ticks
@@ -148,7 +148,7 @@ end
 
 ;; converts a binary number (stored in a list of 0's and 1's) to a decimal number
 to-report decimal [ binary-num ]
-  report reduce [(2 * ?1) + ?2] binary-num
+  report reduce [ [a b] -> (2 * a) + b] binary-num
 end
 
 ;; remove existing turtles and create number-of-androids androids
@@ -171,7 +171,7 @@ to initialize-androids
   ifelse (num-picked-zero <= (count turtles - 1) / 2)
     [ set minority 0 ]
     [ set minority 1 ]
-  set score-list map [ [score] of ? ] sort turtles
+  set score-list map [ [t] -> [ score ] of t ] sort turtles
   setup-plots
 end
 
@@ -224,7 +224,7 @@ to go
        advance-system
        update-choices
        update-success-list
-       set score-list map [ [score] of ? ] sort turtles
+       set score-list map [ [t] -> [score] of t ] sort turtles
        update-plots
        let scores [score] of turtles
        ask turtles [ move max scores min scores ]
@@ -239,9 +239,9 @@ to go
 end
 
 to update-success-list
-  set success-list map [ [ score / choices-made ] of ? ] sort players with [ choices-made > 0 ]
+  set success-list map [ [the-player] -> [ score / choices-made ] of the-player] sort players with [ choices-made > 0 ]
   if ticks > 0
-  [ set success-list sentence success-list map [ [score / ticks] of ? ] sort androids ]
+  [ set success-list sentence success-list map [ [the-android] -> [score / ticks] of the-android ] sort androids ]
 end
 
 ;; updates system variables such as minority, avg-score, and stdev-score globals
@@ -270,22 +270,20 @@ end
 to update-androids-scores-and-strategies  ;; androids procedure
   ;; here we use MAP to simultaneously walk down both the list
   ;; of strategies, and the list of those strategies' scores.
-  ;; ?1 is the current strategy, and ?2 is the current score.
   ;; For each strategy, we check to see if that strategy selected
   ;; the minority.  If it did, we increase its score by one,
   ;; otherwise we leave the score alone.
-  set strategies-scores (map
-    [ ifelse-value (item android-history ?1 = minority)
-        [?2 + 1]
-        [?2] ]
-    strategies strategies-scores)
+  set strategies-scores (map [ [the-strategy the-score] ->
+    ifelse-value (item android-history the-strategy = minority)
+        [ the-score + 1 ]
+        [ the-score ]
+    ] strategies strategies-scores)
   let max-score max strategies-scores
   let max-strategies []
   let counter 0
   ;; this picks a strategy with the largest virtual score
-  foreach strategies-scores
-  [
-    if ? = max-score
+  foreach strategies-scores [ [the-score] ->
+    if the-score = max-score
     [ set max-strategies lput counter max-strategies ]
     set counter counter + 1
   ]
@@ -1369,7 +1367,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

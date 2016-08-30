@@ -119,22 +119,22 @@ to update-plot
     let log-histogram n-values (max cascade-list + 1) [-1]
 
     ;; foreach element of the list calculate the frequency with which it occurred
-    foreach cascade-list [
-      let old-value item ?1 log-histogram
+    foreach cascade-list [ [n] ->
+      let old-value item n log-histogram
       if old-value = -1 [
         set old-value 0
       ]
-      set log-histogram replace-item ?1 log-histogram (old-value + 1)
+      set log-histogram replace-item n log-histogram (old-value + 1)
     ]
 
     ;; take the log of that frequency
-    set log-histogram map [safe-log ?] log-histogram
+    set log-histogram map [ [n] -> safe-log n] log-histogram
 
     ;; now determine the log of that value and plot the relationship
     let counter 1
-    foreach log-histogram [
-      if (?1 >= 0) [
-        plotxy (log (counter - 1) 10) ?1
+    foreach log-histogram [ [n] ->
+      if (n >= 0) [
+        plotxy (log (counter - 1) 10) n
       ]
       set counter counter + 1
     ]
@@ -613,7 +613,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 3D 6.0-M9
+NetLogo 3D 6.0-RC1
 @#$#@#$#@
 setup
 fill-world

@@ -13,21 +13,24 @@ to go
   let n numerator
   ;; go through every patch one at a time in order,
   ;; (left to right, top to bottom)
-  foreach sort patches
-    [ ask ?
-        [ ifelse column-number >= width
-            ;; patches outside the given width are black
-            [ set plabel ""
-              set pcolor black ]
-            ;; other patches get a color and label
-            [ ;; perform the division
-              set plabel floor (n / denominator)
-              ifelse plabel = 0
-                [ set pcolor gray + 1.5 ]          ;; 0 is gray
-                [ set pcolor plabel * 10 + 6 ]     ;; other digits get colors
-              ;; compute the new numerator
-              set n 10 * remainder n denominator
-            ] ] ]
+  foreach sort patches [ [p] ->
+    ask p [
+      ifelse column-number >= width [
+        ;; patches outside the given width are black
+        set plabel ""
+        set pcolor black
+      ] [
+        ;; other patches get a color and label
+        ;; perform the division
+        set plabel floor (n / denominator)
+        ifelse plabel = 0
+          [ set pcolor gray + 1.5 ]          ;; 0 is gray
+          [ set pcolor plabel * 10 + 6 ]     ;; other digits get colors
+                                             ;; compute the new numerator
+        set n 10 * remainder n denominator
+      ]
+    ]
+  ]
   ;; put a decimal point after the number in the
   ;; upper left corner patch
   ask patch min-pxcor max-pycor
@@ -541,7 +544,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup
 @#$#@#$#@
