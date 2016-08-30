@@ -20,10 +20,15 @@ to setup
       pen-down
     ]
   ]
+
+  ; show the 2.5 patch view, with the patch height corresponding the patch color:
+  ; light patches are higher, dark patches are lower
   view2.5d:patch-view window-name [ [the-patch] -> [ pcolor ] of the-patch ]
-  view2.5d:decorate-patch-view window-name
-  view2.5d:set-observer-angles window-name 32 24
-  view2.5d:set-z-scale window-name 5
+
+  view2.5d:decorate-patch-view window-name ; add turtles to the patch-view
+  view2.5d:set-observer-angles window-name 32 24 ; change the camera angle
+  view2.5d:set-z-scale window-name 5 ; change the z-scale so that the peaks are higher
+
   reset-ticks
 end
 
