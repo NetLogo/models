@@ -15,7 +15,7 @@ object LegalInfo {
     """<!-- (\d\d\d\d)( \d\d\d\d)?(( \w+)*)( Cite: .*)? -->""".r
   val validKeywords = List(
     "MIT", "Wilensky", "specialCE", "MAC", "Steiner",
-    "Stroup", "3D", "NIELS", "ConChem", "CC0", "BYSA")
+    "Stroup", "3D", "NIELS", "ConChem", "CC0", "BYSA", "GenEvo")
   val textbookCitation =
     "* Wilensky, U. & Rand, W. (2015). Introduction " +
       "to Agent-Based Modeling: Modeling Natural, Social " +
@@ -200,6 +200,14 @@ case class LegalInfo(model: Model) {
         builder.append("* Wilensky, U., Levy, S. T., & Novak, M. (2004). ")
         builder.append("Connected Chemistry curriculum. ")
         builder.append("http://ccl.northwestern.edu/curriculum/chemistry/. ")
+        builder.append("Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.\n")
+      }
+      if (keywords.contains("GenEvo")) {
+        builder.append("\n")
+        builder.append("To cite the GenEvo Systems Biology curriculum as a whole, please use:\n\n")
+        builder.append("* Dabholkar, S. & Wilensky, U. (2016). ")
+        builder.append("GenEvo Systems Biology curriculum. ")
+        builder.append("http://ccl.northwestern.edu/curriculum/genevo/. ")
         builder.append("Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.\n")
       }
     }
