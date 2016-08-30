@@ -190,7 +190,6 @@ csv:to-string [ (list xcor ycor size color) ] of one-of turtles
 
 The READ-TURTLES-FROM-CSV button does just the opposite: reads this data from `turtles.csv` and creates turtles with those properties.
 
-
 ## EXTENDING THE MODEL
 
 Extend the model so that you can both output the contents of the view to a CSV file. In other words, you'll need to output each of the turtles and their variables as well as each of the patches and their variables.
@@ -502,7 +501,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup
 generate-turtles
