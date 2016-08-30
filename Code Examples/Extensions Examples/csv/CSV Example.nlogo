@@ -194,6 +194,8 @@ csv:to-string [ (list xcor ycor size color heading) ] of one-of turtles
 
 The READ-TURTLES-FROM-CSV button does just the opposite: reads this data from `turtles.csv` and creates turtles with those properties.
 
+Pressing ASK TURTLES [ DIE ] before READ-TURTLES-FROM-CSV will allow to remove the originally generated turtles and see that they are re-created with their original attributes.
+
 ## EXTENDING THE MODEL
 
 Extend the model so that you can both output the contents of the view to a CSV file. In other words, you'll need to output each of the turtles and their variables as well as each of the patches and their variables.
