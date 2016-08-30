@@ -122,27 +122,21 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This example shows how to make turtles climb hills -- or descend into valleys -- using the `uphill`, `uphill4`, `downhill`, and `downhill4` commands.  The same technique is useful for modeling any kind of creature that follows a gradient in its environment.
+This example demontrates the use of the `view2.5d` extension. It is based on the **Hill Climbing Example** model, which shows how to make turtles climb hills using the `uphill` command. The `view2.5d` extension allows much better visualisation of the "hills" generated in the example.
 
-## THINGS TO NOTICE
+The model opens a separate "patch view" window by calling:
 
-These commands always make the turtle move to the center of a patch.
+```
+view2.5d:patch-view "Hill Climbing 2.5d" [ [the-patch] -> [ pcolor ] of the-patch ]
+```
 
-`uphill` and `downhill` make the turtle look at all eight neighboring patches (including diagonal neighbors).  `uphill4` and `downhill4` only look at the four neighboring patches (to the north, south, east, and west).
+The anonymous reporter supplied to the `view2.5d:patch-view` primitive is used by the extension to set the height of each patch.
 
-With the `uphill` and `downhill` commands, diagonal moves are longer (1.414...) than vertical or horizontal moves (1.0).  If you use the `uphill4` and `downhill4` commands, all moves are the same length (1.0).
+`view2.5d:decorate-patch-view "Hill Climbing 2.5d"` tells the extension to also show the turtles in the patch view window and `view2.5d:update-patch-view "Hill Climbing 2.5d"` refreshes the patch view using the current state of the model.
 
-If there is a tie between neighboring patches, NetLogo breaks the tie randomly.
+For more information, please refer to the `view2.5d` extension documentation.
 
-## THINGS TO TRY
-
-In the `go` procedure in the Code tab, change `uphill` to `uphill4`, `downhill`, or `downhill4` and observe the results.
-
-## NETLOGO FEATURES
-
-If you look at the entry for `uphill` in the NetLogo Dictionary, it shows some code that does the exact same thing as the primitive does. If you need to do something that is similar to the primitive, but different in so way, you could use that code as a starting point.
-
-<!-- 2007 -->
+<!-- 2016 -->
 @#$#@#$#@
 default
 true
