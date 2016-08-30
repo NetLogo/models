@@ -19,7 +19,7 @@ end
 to write-turtles-to-csv
   ; we use the `of` primitive to make a list of lists and then
   ; use the csv extension to write that list of lists to a file.
-  csv:to-file "turtles.csv" [ (list xcor ycor size color) ] of turtles
+  csv:to-file "turtles.csv" [ (list xcor ycor size color heading) ] of turtles
 end
 
 ; procedure to read some turtle properties from a file
@@ -39,10 +39,11 @@ to read-turtles-from-csv
     let data csv:from-row file-read-line
     ; now we can use that list to create a turtle with the saved properties
     create-turtles 1 [
-      set xcor  item 0 data
-      set ycor  item 1 data
-      set size  item 2 data
-      set color item 3 data
+      set xcor    item 0 data
+      set ycor    item 1 data
+      set size    item 2 data
+      set color   item 3 data
+      set heading item 4 data
     ]
   ]
 
