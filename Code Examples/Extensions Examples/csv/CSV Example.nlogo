@@ -186,12 +186,12 @@ This model shows how to use NetLogo's `csv` extension to load data from and writ
 
 The GO method demonstrates reading data from a CSV file one line per tick. All it does is read in a line and then ask the corresponding patch to set its color.
 
-The GENERATE-TURTLES button just creates 100 random turtles. The user can then use the WRITE-TURTLES-TO-CSV button to save the `xcor`, `ycor`, `size`, and `color` of each turtle into a CSV file called `turtles.csv`.
+The GENERATE-TURTLES button just creates 100 random turtles. The user can then use the WRITE-TURTLES-TO-CSV button to save the `xcor`, `ycor`, `size`, `color` and `heading` of each turtle into a CSV file called `turtles.csv`.
 
 If you were interested in generating just one line of this CSV file at a time, you could use the `csv:to-string` primitive:
 
 ```
-csv:to-string [ (list xcor ycor size color) ] of one-of turtles
+csv:to-string [ (list xcor ycor size color heading) ] of one-of turtles
 ```
 
 The READ-TURTLES-FROM-CSV button does just the opposite: reads this data from `turtles.csv` and creates turtles with those properties.
