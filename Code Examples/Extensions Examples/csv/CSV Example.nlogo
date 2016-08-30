@@ -32,7 +32,7 @@ to generate-turtles
   create-turtles 100 [
     set xcor random-xcor
     set ycor random-ycor
-    set size random 5
+    set size 1 + random 5
   ]
 end
 
