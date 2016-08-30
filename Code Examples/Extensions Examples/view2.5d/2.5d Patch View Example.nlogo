@@ -122,7 +122,7 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This example demontrates the use of the `view2.5d` extension. It is based on the **Hill Climbing Example** model, which shows how to make turtles climb hills using the `uphill` command. The `view2.5d` extension allows much better visualisation of the "hills" generated in the example.
+This example demonstrates the use of the `view2.5d` extension. It is based on the **Hill Climbing Example** model, which shows how to make turtles climb hills using the `uphill` command. The `view2.5d` extension allows much better visualization of the "hills" generated in the example.
 
 The model opens a separate "patch view" window by calling:
 
