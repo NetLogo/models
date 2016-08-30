@@ -3,28 +3,7 @@ extensions [ csv ]
 to setup
   clear-all
   file-close-all ; Close any files open from last run
-  file-open "data.csv"
   reset-ticks
-end
-
-to go
-  ; if there is no more data in the file, we need to stop
-  if file-at-end? [
-    file-close
-    stop
-  ]
-
-  ; in this case, data will be a list containing three things:
-  ; [ xcor ycor pcolor ]
-  let data csv:from-row file-read-line
-
-  ; so we take this data, and ask the corresponding patch to set
-  ; its pcolor
-  ask patch (item 0 data) (item 1 data) [
-    set pcolor item 2 data
-  ]
-
-  tick
 end
 
 ; procedure to generate 100 random turtles
@@ -38,9 +17,31 @@ end
 
 ; procedure to write some turtle properties to a file
 to write-turtles-to-csv
-  ; we use the `of` primitive to make a list of lists. What we do here
-  ; is use th
+  ; we use the `of` primitive to make a list of lists and then
+  ; use the csv extension to write that list of lists to a file.
   csv:to-file "turtles.csv" [ (list xcor ycor size color) ] of turtles
+end
+
+; procedure to read some turtle properties from a file
+to read-turtles-from-csv
+  file-close-all ; close all open files
+
+  file-open "turtles.csv" ; open the file with the turtle data
+
+  ; We'll read all the data in a single loop
+  while [ not file-at-end? ] [
+    ; here the CSV extension grabs a single line and puts the read data in a list
+    let data csv:from-row file-read-line
+    ; now we can use that list to create a turtle with the saved properties
+    create-turtles 1 [
+      set xcor  item 0 data
+      set ycor  item 1 data
+      set size  item 2 data
+      set color item 3 data
+    ]
+  ]
+
+  file-close ; make sure to close the file
 end
 
 
@@ -94,9 +95,9 @@ NIL
 
 BUTTON
 10
-245
+135
 200
-278
+168
 NIL
 write-turtles-to-csv
 NIL
@@ -111,43 +112,9 @@ NIL
 
 BUTTON
 10
-105
-115
-138
-go-once
-go
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-0
-
-BUTTON
-125
-105
+100
 200
-138
-NIL
-go
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-0
-
-BUTTON
-10
-205
-200
-238
+133
 NIL
 generate-turtles
 NIL
@@ -161,24 +128,48 @@ NIL
 0
 
 TEXTBOX
-40
-75
-190
-93
-Reading from CSV
+50
+55
+250
+86
+Reading/Writing\nTurtle Data\n
 14
 0.0
 1
 
-TEXTBOX
-55
-175
+BUTTON
+10
 205
-193
-Writing to CSV
-14
-0.0
+200
+238
+NIL
+read-turtles-from-csv
+NIL
 1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+BUTTON
+10
+170
+200
+203
+NIL
+ask turtles [ die ]
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -189,17 +180,6 @@ This model shows how to use NetLogo's `csv` extension to load data from and writ
 
 The GO method demonstrates reading data from a CSV file one line per tick. All it does is read in a line and then ask the corresponding patch to set its color.
 
-This method could easily be rewritten to read in all of the file in a single tick:
-
-```
-while [ not file-at-end? ] [
-  let data csv:from-row file-read-line
-  ask patch (item 0 data) (item 1 data) [
-    set pcolor item 2 data
-  ]
-]
-```
-
 The GENERATE-TURTLES button just creates 100 random turtles. The user can then use the WRITE-TURTLES-TO-CSV button to save the `xcor`, `ycor`, `size`, and `color` of each turtle into a CSV file called `turtles.csv`.
 
 If you were interested in generating just one line of this CSV file at a time, you could use the `csv:to-string` primitive:
@@ -207,6 +187,9 @@ If you were interested in generating just one line of this CSV file at a time, y
 ```
 csv:to-string [ (list xcor ycor size color) ] of one-of turtles
 ```
+
+The READ-TURTLES-FROM-CSV button does just the opposite: reads this data from `turtles.csv` and creates turtles with those properties.
+
 
 ## EXTENDING THE MODEL
 
@@ -519,7 +502,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-RC1
+NetLogo 6.0-M9
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
