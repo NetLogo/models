@@ -1,19 +1,18 @@
 extensions [ view2.5d ]
 
-turtles-own
-[
-  peak? ;; indicates whether a turtle has reached a "peak",
-        ;; that is, it can no longer go "uphill" from where it stands
+turtles-own [
+  peak? ; indicates whether a turtle has reached a "peak",
+        ; that is, it can no longer go "uphill" from where it stands
 ]
 
 to setup
   clear-all
   view2.5d:remove-all-patch-views
-  ;; make a landscape with hills and valleys
+  ; make a landscape with hills and valleys
   ask n-of 100 patches [ set pcolor 120 ]
-  ;; slightly smooth out the landscape
+  ; slightly smooth out the landscape
   repeat 20 [ diffuse pcolor 1 ]
-  ;; put some turtles on patch centers in the landscape
+  ; put some turtles on patch centers in the landscape
   ask n-of 800 patches [
     sprout 1 [
       set peak? false
@@ -27,16 +26,15 @@ end
 
 to go
   view2.5d:decorate-patch-view "Hill Climbing 2.5d"
-  ;; stop when all turtles are on peak
-  if all? turtles [peak?]
-    [ stop ]
+  ; stop when all turtles are on peak
+  if all? turtles [ peak? ] [ stop ]
   ask turtles [
-    ;; remember where we started
+    ; remember where we started
     let old-patch patch-here
-    ;; to use UPHILL, the turtles specify a patch variable
+    ; to use `uphill`, the turtles specify a patch variable
     uphill pcolor
-    ;; are we still where we started? if so, we didn't
-    ;; move, so we must be on a peak
+    ; are we still where we started? if so, we didn't
+    ; move, so we must be on a peak
     if old-patch = patch-here [ set peak? true ]
   ]
   view2.5d:update-patch-view "Hill Climbing 2.5d"
