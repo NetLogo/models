@@ -127,12 +127,21 @@ This example demontrates the use of the `view2.5d` extension. It is based on the
 The model opens a separate "patch view" window by calling:
 
 ```
-view2.5d:patch-view "Hill Climbing 2.5d" [ [the-patch] -> [ pcolor ] of the-patch ]
+view2.5d:patch-view window-name [ [the-patch] -> [ pcolor ] of the-patch ]
 ```
 
 The anonymous reporter supplied to the `view2.5d:patch-view` primitive is used by the extension to set the height of each patch.
 
-`view2.5d:decorate-patch-view "Hill Climbing 2.5d"` tells the extension to also show the turtles in the patch view window and `view2.5d:update-patch-view "Hill Climbing 2.5d"` refreshes the patch view using the current state of the model.
+At the end of the `setup` procedure, you'll see a few other customizations of this `patch-view`:
+
+1. `view2.5d:decorate-patch-view`
+This tells the extension to also show the turtles in the patch view window
+2. `view2.5d:set-observer-angles`
+This tells the extension to change the position (on an imaginary sphere) of the observer in the view (the two numbers are heading and pitch measured in degrees)
+3. `view2.5d:set-z-scale`
+This tells the extension to change the scale of the z-axis, in this case making our peaks "taller"
+
+In the `go` procedure, we use `view2.5d:update-patch-view` to refresh the patch view using the current state of the model.
 
 For more information, please refer to the `view2.5d` extension documentation.
 
