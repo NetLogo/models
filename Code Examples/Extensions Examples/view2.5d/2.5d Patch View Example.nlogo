@@ -20,6 +20,8 @@ to setup
       pen-down
     ]
   ]
+  ; show the 2.5 patch view, with the patch height corresponding the patch color:
+  ; light patches are higher, dark patches are lower
   view2.5d:patch-view "Hill Climbing 2.5d" [ [the-patch] -> [ pcolor ] of the-patch ]
   reset-ticks
 end
