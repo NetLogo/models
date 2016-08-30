@@ -49,10 +49,10 @@ to go
   tick
 end
 
-
 to-report window-name
   report "Hill Climbing 2.5d"
 end
+
 
 ; Public Domain:
 ; To the extent possible under law, Uri Wilensky has waived all
