@@ -7,7 +7,7 @@ to setup
   create-turtles num-models [    ; create a turtle for each created model
 
     ; load Wolf Sheep Predation
-    ls:load-headless-model "../../../Sample Models/Biology/Wolf Sheep Predation.nlogo"
+    ls:create-models 1 "../../../Sample Models/Biology/Wolf Sheep Predation.nlogo"
 
     set model-id last ls:models  ; and assign model-id to the turtle
     ls:ask model-id [
@@ -150,7 +150,7 @@ The model creates the specified number of turtles who each open a Wolf Sheep Pre
 
 ## HOW TO USE IT
 
-Use NUM-MODELS to decide how many models you want. Press SETUP to load the models, and GO to run the models and visualize them.
+Use NUM-MODELS to decide how many models you want. Press SETUP to create the child models, and GO to run the models and visualize them.
 
 ## THINGS TO NOTICE
 
@@ -164,11 +164,11 @@ Try to change the code so that, upon setup, all models are created with the same
 
 ## NETLOGO FEATURES
 
-This model uses the LevelSpace extension to load many models programmatically from inside NetLogo. It uses Headless models, but you can view the state of each model by using the `ls:show <model-id>` command. If you want to view all models at the same time, try `ls:show ls:models`. But if you have lots of models open, this may slow down your machine considerably.
+This model uses the LevelSpace extension to create many child models programmatically from inside NetLogo. It uses Headless models, but you can view the state of each model by using the `ls:show <model-id>` command. If you want to view all models at the same time, try `ls:show ls:models`. But if you have lots of models open, this may slow down your machine considerably.
 
 ## RELATED MODELS
 
-See the Model Loader Example and the Model Interactions Example.
+See the Parent Model Example and the Model Interactions Example.
 
 <!-- 2016 -->
 @#$#@#$#@

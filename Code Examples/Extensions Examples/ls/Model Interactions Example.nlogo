@@ -9,12 +9,13 @@ to setup
   ls:reset ; reset LevelSpace
   clear-all
 
-  ; load the two models
-  ls:load-gui-model "../../../Sample Models/Earth Science/Climate Change.nlogo"
+  ; create the two models
+  ls:create-interactive-models 1 "../../../Sample Models/Earth Science/Climate Change.nlogo"
   set climate-change-model last ls:models
 
-  ls:load-gui-model "../../../Sample Models/Biology/Wolf Sheep Predation.nlogo"
+  ls:create-interactive-models 1 "../../../Sample Models/Biology/Wolf Sheep Predation.nlogo"
   set wolf-sheep-predation-model last ls:models
+  ls:ask wolf-sheep-predation-model [ set grass? true ]
 
   ; the climate change model requires time to run before it stabilizes,
   ; so we hide it for now so it runs faster.
@@ -133,7 +134,7 @@ The model opens up the Wolf Sheep Predation and Climate Change models. It then s
 
 ## HOW TO USE IT
 
-Click SETUP to load the two models, and GO to run the models.
+Click SETUP to create the two models, and GO to run the models.
 
 You can now modify the various values in the Climate Change model's window, and observe how they affect the dynamics of the ecosystem.
 
@@ -155,7 +156,7 @@ This model uses LevelSpace to build a small model-system of two models, and then
 
 ## RELATED MODELS
 
-See the Model Visualizer and Plotter Example and the Model Loader Example.
+See the Model Visualizer and Plotter Example and the Parent Model Example.
 
 <!-- 2016 -->
 @#$#@#$#@

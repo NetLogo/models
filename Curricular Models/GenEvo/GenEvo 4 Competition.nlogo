@@ -54,22 +54,22 @@ to generate-cells
       set my-model-path "GenEvo 1 Genetic Switch.nlogo"
     ]
 
-    load-my-model
+    create-my-model
     while [ test-if-switch my-model ] [
       user-message "The model must be a Genetic Switch model! Please select a Genetic Switch model again."
       ls:close my-model
       set my-model-path user-file
-      load-my-model
+      create-my-model
     ]
     set i i + 1
   ]
 end
 
-to load-my-model ; turtle procedure
+to create-my-model ; turtle procedure
   ; If my-model-path is False, it means the user didn't select a file.
   ; In that case, we kill the E. coli so we this doesn't mess anything up.
   ifelse my-model-path != False [
-    ls:load-gui-model my-model-path
+    ls:create-interactive-models 1 my-model-path
     set my-model last ls:models
     ls:hide my-model
 
@@ -143,7 +143,7 @@ to maybe-reproduce
     extract-cell-model-variables
     hatch 1 [
       rt random-float 360 fd 1 ; move it forward so they don't overlap
-      load-my-model  ; Now load and setup the cell model that will simulate this new daughter cell
+      create-my-model  ; Now load and setup the cell model that will simulate this new daughter cell
     ]
   ]
 end
