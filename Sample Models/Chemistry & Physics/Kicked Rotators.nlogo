@@ -52,7 +52,7 @@ end
 to inspect-rotator
   if mouse-inside? and mouse-down? [
 
-    ; ls:let variables can be seen by the Kicked Rotator model that we open
+    ; ls:let variables can be seen by the Kicked Rotator model that we create
     ls:let parent-ticks ticks
     ls:let parent-kick-strength kick-strength
 
@@ -60,8 +60,8 @@ to inspect-rotator
     ls:let parent-momentum ((mouse-ycor) / (world-height - 1) * (2 * pi))
     ls:let parent-position (mouse-xcor - min-pxcor) / (world-width - 1) * (2 * pi)
 
-    ; open a new Kicked Rotator model with the appropriate initial conditions
-    ls:load-gui-model "Kicked Rotator.nlogo"
+    ; create a new Kicked Rotator model with the appropriate initial conditions
+    ls:create-interactive-models 1 "Kicked Rotator.nlogo"
     ls:ask last ls:models [
       ; ask the model to start with the given conditions
       set continuous-motion? false
@@ -230,7 +230,7 @@ Use the NUM-ROTATORS and KICK-STRENGTH sliders to determine the number of rotato
 
 Clicking the ADD-ROTATOR button will add another rotator to the simulation. NetLogo will automatically run this rotator for the same number of ticks that your model has run.
 
-Clicking the INSPECT-ROTATOR button and then clicking any point in the view will open a kicked rotator model with the initial momentum and angular position corresponding to the point in the view you clicked. This rotator will be opened in the exact state it would be if it had been run the same number of ticks as your model.
+Clicking the INSPECT-ROTATOR button and then clicking any point in the view will create a kicked rotator model with the initial momentum and angular position corresponding to the point in the view you clicked. This rotator will be created in the exact state it would be if it had been run the same number of ticks as your model.
 
 ## THINGS TO NOTICE
 
@@ -256,11 +256,11 @@ Inspect two rotators next to each other in the chaotic sea (if clicking two neig
 
 See if you can change the model to use a different random kick strength for each pendulum.
 
-Using LevelSpace, try to add a procedure that allows you to open a child Kicked Rotator, tweak the initial conditions, and then add that rotator into the parent model.
+Using LevelSpace, try to add a procedure that allows you to create a child Kicked Rotator, tweak the initial conditions, and then add that rotator into the parent model.
 
 ## NETLOGO FEATURES
 
-This model uses the LevelSpace extension to open an individual kicked rotator model (using the INSPECT-ROTATOR button) given an initial momentum and angular position. This is different than a typical LevelSpace model since the model that gets opened has no effect on the 'parent model'.
+This model uses the LevelSpace extension to create an individual kicked rotator model (using the INSPECT-ROTATOR button) given an initial momentum and angular position. This is different than a typical LevelSpace model since the model that gets created has no effect on the 'parent model'.
 
 ## RELATED MODELS
 
