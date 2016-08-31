@@ -100,7 +100,7 @@ to check-survivability ;; turtle procedure
   set age (age + 1)
   ifelse age < max-age
   [
-     set seed-threshold ((0.1457 * temperature) - (0.0032 * (temperature ^ 2)) - (0.6443))
+     set seed-threshold ((0.1457 * temperature) - (0.0032 * (temperature ^ 2)) - 0.6443)
      ;; This equation may look complex, but it is just a parabola.
      ;; This parabola has a peak value of 1 -- the maximum growth factor possible at an optimum
      ;; temperature of 22.5 degrees C
@@ -846,7 +846,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

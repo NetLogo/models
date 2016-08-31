@@ -175,7 +175,7 @@ BUTTON
 334
 152
 Manual
-if not any? neutrons\n[ stop ]\nreact\n
+if not any? neutrons\n[ stop ]\nreact
 T
 1
 T
@@ -725,7 +725,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup
 repeat 60 [ auto-react ]

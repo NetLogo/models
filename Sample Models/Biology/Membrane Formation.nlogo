@@ -253,7 +253,7 @@ true
 true
 "" ""
 PENS
-"ratio" 1.0 0 -16777216 true "" "plot mean [\ncount oils in-radius interaction-distance \n/ count turtles in-radius interaction-distance with [not (link-neighbor? myself)]\n] of oils"
+"ratio" 1.0 0 -16777216 true "" "plot mean [\ncount oils in-radius interaction-distance\n/ count turtles in-radius interaction-distance with [not (link-neighbor? myself)]\n] of oils"
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -638,7 +638,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup
 repeat 250 [ go ]

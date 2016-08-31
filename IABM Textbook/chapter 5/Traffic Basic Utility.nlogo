@@ -222,7 +222,7 @@ MONITOR
 114
 190
 red car speed
-  ifelse-value any? turtles\n  [   [speed] of sample-car  ]\n  [  0 ]
+ifelse-value any? turtles\n  [   [speed] of sample-car  ]\n  [  0 ]
 3
 1
 11
@@ -631,7 +631,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup
 repeat 180 [ go ]
