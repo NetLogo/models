@@ -22,7 +22,7 @@ to setup
   ls:hide climate-change-model
 
   ; ask both models to run setup
-  ls:ask ls:models [setup]
+  ls:ask ls:models [ setup ]
 
   ; Now we'll run the climate change model so it stabilizes
   ; add some clouds and co2, and then run it for 7,000 ticks
@@ -130,7 +130,7 @@ This is a code example for showing interactions between models in a LevelSpace m
 
 ## HOW IT WORKS
 
-The model opens up the Wolf Sheep Predation and Climate Change models. It then sets up the Climate Change model and runs it until it is stable. Finally, this model runs both the Wolf Sheep Predation and Climate Change model, and changes the speed at which grass regrows in the Wolf Sheep Predation model based on the current temperature in the Climate Change model.
+The model creates a Wolf Sheep Predation child model and a Climate Change child model. It then sets up the Climate Change model and runs it until it is stable. Finally, this model runs both the Wolf Sheep Predation and Climate Change model, and changes the speed at which grass regrows in the Wolf Sheep Predation model based on the current temperature in the Climate Change model.
 
 ## HOW TO USE IT
 
