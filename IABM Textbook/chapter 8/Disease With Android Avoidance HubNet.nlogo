@@ -567,7 +567,7 @@ sick
 6.0
 true
 false
-";; create a temporary plot pen for the current run\ncreate-temporary-plot-pen word \"run \" run-number\n;; cycle through a few colors so it is easy to\n;; differentiate the runs.\nset-plot-pen-color item (run-number mod 5) [blue red green orange violet]\n;; each run starts with zero infected.\nset num-infected-last-plotted 0" "let n count turtles with [infected?] \n;; only plot if someone has been infected since the last time we plotted. \n;; this smoothes out the plot a bit.\nif n > num-infected-last-plotted [\n  plotxy ticks - 1 n\n  set num-infected-last-plotted n \n]"
+";; create a temporary plot pen for the current run\ncreate-temporary-plot-pen word \"run \" run-number\n;; cycle through a few colors so it is easy to\n;; differentiate the runs.\nset-plot-pen-color item (run-number mod 5) [blue red green orange violet]\n;; each run starts with zero infected.\nset num-infected-last-plotted 0" "let n count turtles with [infected?]\n;; only plot if someone has been infected since the last time we plotted.\n;; this smoothes out the plot a bit.\nif n > num-infected-last-plotted [\n  plotxy ticks - 1 n\n  set num-infected-last-plotted n\n]"
 PENS
 "not-used" 1.0 0 -16777216 false "" ""
 
@@ -1334,7 +1334,7 @@ Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
 Circle -2674135 true false 156 156 108
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

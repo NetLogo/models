@@ -389,7 +389,7 @@ true
 "" ""
 PENS
 "wolves" 1.0 0 -2674135 true "" "if any? wolves\n[ plot mean [stride-length] of wolves ]"
-"sheep" 1.0 0 -13345367 true "" "if any? sheep \n[ plot mean [stride-length] of sheep ]"
+"sheep" 1.0 0 -13345367 true "" "if any? sheep\n[ plot mean [stride-length] of sheep ]"
 
 SLIDER
 202
@@ -849,7 +849,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-M9
+NetLogo 6.0-RC1
 @#$#@#$#@
 setup
 repeat 75 [ go ]
