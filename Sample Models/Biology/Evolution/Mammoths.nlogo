@@ -198,7 +198,7 @@ human-birth-rate
 human-birth-rate
 0
 20
-5.0
+10.0
 1
 1
 %
@@ -341,7 +341,7 @@ mammoth-speed
 mammoth-speed
 0
 1
-0.5
+0.2
 0.05
 1
 patches
@@ -376,10 +376,10 @@ SLIDER
 343
 climate-change-decay-chance
 climate-change-decay-chance
-0.00001
+0.001
 0.1
-0.00411
-0.0001
+0.003
+0.001
 1
 %
 HORIZONTAL
