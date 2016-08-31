@@ -6,7 +6,7 @@ to setup
   clear-all
   create-turtles num-models [    ; create a turtle for each created model
 
-    ; load Wolf Sheep Predation
+    ; create a Wolf Sheep Predation child model
     ls:create-models 1 "../../../Sample Models/Biology/Wolf Sheep Predation.nlogo"
 
     set model-id last ls:models  ; and assign model-id to the turtle
@@ -146,7 +146,7 @@ This code example shows two different ways of visualizing data from LevelSpace c
 
 ## HOW IT WORKS
 
-The model creates the specified number of turtles who each open a Wolf Sheep Predation model. For each GO, turtles call GO in their child model, and then move to XY coordinates that reflect the counts of wolves and sheep in their model.
+The model creates the specified number of turtles who each create a Wolf Sheep Predation child model. For each GO, turtles call GO in their child model, and then move to XY coordinates that reflect the counts of wolves and sheep in their model.
 
 ## HOW TO USE IT
 
