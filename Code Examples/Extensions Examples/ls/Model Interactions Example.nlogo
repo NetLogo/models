@@ -9,19 +9,20 @@ to setup
   ls:reset ; reset LevelSpace
   clear-all
 
-  ; load the two models
-  ls:load-gui-model "../../../Sample Models/Earth Science/Climate Change.nlogo"
+  ; create the two models
+  ls:create-interactive-models 1 "../../../Sample Models/Earth Science/Climate Change.nlogo"
   set climate-change-model last ls:models
 
-  ls:load-gui-model "../../../Sample Models/Biology/Wolf Sheep Predation.nlogo"
+  ls:create-interactive-models 1 "../../../Sample Models/Biology/Wolf Sheep Predation.nlogo"
   set wolf-sheep-predation-model last ls:models
+  ls:ask wolf-sheep-predation-model [ set grass? true ]
 
   ; the climate change model requires time to run before it stabilizes,
   ; so we hide it for now so it runs faster.
   ls:hide climate-change-model
 
   ; ask both models to run setup
-  ls:ask ls:models [setup]
+  ls:ask ls:models [ setup ]
 
   ; Now we'll run the climate change model so it stabilizes
   ; add some clouds and co2, and then run it for 7,000 ticks
@@ -129,11 +130,11 @@ This is a code example for showing interactions between models in a LevelSpace m
 
 ## HOW IT WORKS
 
-The model opens up the Wolf Sheep Predation and Climate Change models. It then sets up the Climate Change model and runs it until it is stable. Finally, this model runs both the Wolf Sheep Predation and Climate Change model, and changes the speed at which grass regrows in the Wolf Sheep Predation model based on the current temperature in the Climate Change model.
+The model creates a Wolf Sheep Predation child model and a Climate Change child model. It then sets up the Climate Change model and runs it until it is stable. Finally, this model runs both the Wolf Sheep Predation and Climate Change model, and changes the speed at which grass regrows in the Wolf Sheep Predation model based on the current temperature in the Climate Change model.
 
 ## HOW TO USE IT
 
-Click SETUP to load the two models, and GO to run the models.
+Click SETUP to create the two models, and GO to run the models.
 
 You can now modify the various values in the Climate Change model's window, and observe how they affect the dynamics of the ecosystem.
 
@@ -155,7 +156,7 @@ This model uses LevelSpace to build a small model-system of two models, and then
 
 ## RELATED MODELS
 
-See the Model Visualizer and Plotter Example and the Model Loader Example.
+See the Model Visualizer and Plotter Example and the Parent Model Example.
 
 <!-- 2016 -->
 @#$#@#$#@

@@ -10,7 +10,7 @@ breed [ ecolis ecoli ]
 
 ecolis-own [
   my-model              ; cell model (LevelSpace child model) associated with an E. coli cell
-  my-model-path         ; path to locate the file to be loaded as a cell model (LevelSpace child model)
+  my-model-path         ; path to locate the file to be used for creating a cell model (LevelSpace child model)
 
   ; these variables are used to store the corresponding statistics from the cell models
   energy                ; energy of the cell
@@ -37,7 +37,7 @@ to setup
   reset-ticks
 end
 
-; procedure to generate E. coli cells. If choose-models is OFF, default cell model is loaded for all the cells.
+; procedure to generate E. coli cells. If choose-models is OFF, default cell model is created for all the cells.
 to generate-cells
   let color-list [ gray red brown yellow green cyan violet magenta ]
 
@@ -48,28 +48,28 @@ to generate-cells
     set shape "ecoli"
 
     ifelse choose-models? [
-      user-message "Select a Genetic Switch model to load..."
+      user-message "Select a Genetic Switch model to use..."
       set my-model-path user-file
     ][
       set my-model-path "GenEvo 1 Genetic Switch.nlogo"
     ]
 
-    load-my-model
+    create-my-model
     while [ test-if-switch my-model ] [
       user-message "The model must be a Genetic Switch model! Please select a Genetic Switch model again."
       ls:close my-model
       set my-model-path user-file
-      load-my-model
+      create-my-model
     ]
     set i i + 1
   ]
 end
 
-to load-my-model ; turtle procedure
+to create-my-model ; turtle procedure
   ; If my-model-path is False, it means the user didn't select a file.
   ; In that case, we kill the E. coli so we this doesn't mess anything up.
   ifelse my-model-path != False [
-    ls:load-gui-model my-model-path
+    ls:create-interactive-models 1 my-model-path
     set my-model last ls:models
     ls:hide my-model
 
@@ -135,7 +135,7 @@ to distribute-lactose
   ]
 end
 
-; procedure for E. coli cells to reproduce. A new cell is added in the population model and a new individual cell model is loaded.
+; procedure for E. coli cells to reproduce. A new cell is added in the population model and a new individual cell model is created.
 to maybe-reproduce
   ; if there's enough energy, reproduce
   if ( [ energy ] ls:of my-model > 2 * initial-energy ) [
@@ -143,7 +143,7 @@ to maybe-reproduce
     extract-cell-model-variables
     hatch 1 [
       rt random-float 360 fd 1 ; move it forward so they don't overlap
-      load-my-model  ; Now load and setup the cell model that will simulate this new daughter cell
+      create-my-model  ; Now create and setup the cell model that will simulate this new daughter cell
     ]
   ]
 end
@@ -389,9 +389,9 @@ Because the molecular interactions in each cell model are stochastic, the popula
 
 You can use this model in two ways.
 
-1. The simplest way to use this model is to set CHOOSE-MODELS? to OFF. In this mode, the default Genetic Switch model is loaded for each cell. This method simulates genetic drift as a mechanism of evolution since each cell starts off identical.
+1. The simplest way to use this model is to set CHOOSE-MODELS? to OFF. In this mode, the default Genetic Switch model is created for each cell. This method simulates genetic drift as a mechanism of evolution since each cell starts off identical.
 
-2. If CHOOSE-MODELS? is ON, a user can manually select the NetLogo models (`.nlogo` files) to be loaded for each cell, allowing each cell to have a different genetic switch. This allows for variability in the population. This method simulates natural selection as well as genetic drift.
+2. If CHOOSE-MODELS? is ON, a user can manually select the NetLogo models (`.nlogo` files) to be used for each cell, allowing each cell to have a different genetic switch. This allows for variability in the population. This method simulates natural selection as well as genetic drift.
 
 In both ways, the SETUP button sets up the population of E. coli cells (each type represented by a unique color) and randomly distributes them across the world.
 
@@ -409,7 +409,7 @@ SETUP - Sets up the population model and cell models
 
 GO - Makes the simulation in the population model (and consequently the cell models) begin to tick
 
-INSPECT-CELLS - This button allows you to open the cell model of any cell in the population model. Click the button first and then click on a cell to see its cell model. When you close an individual cell model, always select the 'run in the background' option.
+INSPECT-CELLS - This button allows you to inspect the cell model of any cell in the population model. Click the button first and then click on a cell to see its cell model. When you close an individual cell model, always select the 'run in the background' option.
 
 ### Switches
 

@@ -18,9 +18,9 @@ to setup-models
   reset-ticks ; now we're ready to go, so reset ticks
 end
 
-to open-a-model [ a-model-path ]
+to create-a-child-model [ a-model-path ]
   carefully [
-    ls:load-gui-model a-model-path ; takes a string and opens the model path
+    ls:create-interactive-models 1 a-model-path ; takes a string and creates a child model from that path
   ]
   [ ; print out a warning if there is a problem with the model path
     user-message (word "No valid NetLogo model for this version of NetLogo was found at path: " a-model-path)
@@ -33,9 +33,9 @@ end
 ; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
-140
+200
 10
-577
+637
 448
 -1
 -1
@@ -62,10 +62,10 @@ ticks
 BUTTON
 10
 45
-130
+190
 78
-open a model
-let the-file user-file\nifelse the-file != false [ \n  open-a-model the-file\n][\n  user-message \"Choose a NetLogo model!\"\n]
+create a child model
+let the-file user-file\nifelse the-file != false [ \n  create-a-child-model the-file\n][\n  user-message \"Choose a NetLogo model!\"\n]
 NIL
 1
 T
@@ -79,7 +79,7 @@ NIL
 BUTTON
 10
 80
-130
+190
 113
 NIL
 setup-models
@@ -96,7 +96,7 @@ NIL
 BUTTON
 10
 115
-130
+190
 148
 go
 ls:ask ls:models [go]
@@ -113,7 +113,7 @@ NIL
 BUTTON
 10
 10
-130
+190
 43
 NIL
 setup
