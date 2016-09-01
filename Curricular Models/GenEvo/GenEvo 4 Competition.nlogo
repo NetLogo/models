@@ -10,7 +10,7 @@ breed [ ecolis ecoli ]
 
 ecolis-own [
   my-model              ; cell model (LevelSpace child model) associated with an E. coli cell
-  my-model-path         ; path to locate the file to be created as a cell model (LevelSpace child model)
+  my-model-path         ; path to locate the file to be used for creating a cell model (LevelSpace child model)
 
   ; these variables are used to store the corresponding statistics from the cell models
   energy                ; energy of the cell
