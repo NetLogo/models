@@ -48,7 +48,7 @@ to generate-cells
     set shape "ecoli"
 
     ifelse choose-models? [
-      user-message "Select a Genetic Switch model to create..."
+      user-message "Select a Genetic Switch model to use..."
       set my-model-path user-file
     ][
       set my-model-path "GenEvo 1 Genetic Switch.nlogo"
