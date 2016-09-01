@@ -391,7 +391,7 @@ You can use this model in two ways.
 
 1. The simplest way to use this model is to set CHOOSE-MODELS? to OFF. In this mode, the default Genetic Switch model is created for each cell. This method simulates genetic drift as a mechanism of evolution since each cell starts off identical.
 
-2. If CHOOSE-MODELS? is ON, a user can manually select the NetLogo models (`.nlogo` files) to be created for each cell, allowing each cell to have a different genetic switch. This allows for variability in the population. This method simulates natural selection as well as genetic drift.
+2. If CHOOSE-MODELS? is ON, a user can manually select the NetLogo models (`.nlogo` files) to be used for each cell, allowing each cell to have a different genetic switch. This allows for variability in the population. This method simulates natural selection as well as genetic drift.
 
 In both ways, the SETUP button sets up the population of E. coli cells (each type represented by a unique color) and randomly distributes them across the world.
 
