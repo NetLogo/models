@@ -145,11 +145,6 @@ to choose-new-lane ; turtle procedure
   ]
 end
 
-to-report min-one-of-list [ xs f ]
-  let min-value min map f xs
-  report one-of filter [ [x] -> (runresult f x) = min-value ] xs
-end
-
 to move-to-target-lane ; turtle procedure
   set heading ifelse-value (target-lane < ycor) [ 180 ] [ 0 ]
   let blocking-cars other turtles in-cone (1 + abs (ycor - target-lane)) 180 with [ x-distance <= 1 ]
