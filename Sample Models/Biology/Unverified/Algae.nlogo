@@ -33,6 +33,7 @@ to setup-globals
 end
 
 to setup-environment
+  if change-day-length? [ set day-length 12 ]
   ask air [ set light 1 ]
   ask ground [ set light 0 ]
   ask water [ set light 0 ]
@@ -85,13 +86,13 @@ end
 
 to go
   if not any? algae [ stop ]
-  ;; 24 hour days
-  let day ticks / 24
-  ;; assume all months are the same length
-  let month day / 10
-  ;; day length cycles up and down based on the time of year
   if change-day-length? [
-    set day-length 12 + 4 * sin ( month * 180 / 12 )
+    ;; 24 hour days
+    let day ticks / 24
+    ;; assume all months are the same length
+    let month day / 10
+    ;; day length cycles up and down based on the time of year
+    set day-length precision (12 + 4 * sin (month * 180 / 12)) 2
   ]
   if day-and-night? [
     spread-light
@@ -298,15 +299,15 @@ PENS
 "default" 1.0 1 -16777216 true "" "histogram [ ycor ] of algae"
 
 SLIDER
-14
-500
-197
-533
+15
+502
+199
+535
 day-length
 day-length
 8
 16
-12.143958568001993
+12.0
 0.1
 1
 hours
@@ -336,19 +337,19 @@ day-and-night?
 
 TEXTBOX
 205
-504
-322
-531
+510
+330
+530
 light hours per 24
 11
 0.0
 0
 
 TEXTBOX
-207
+205
 415
-334
-462
+331
+445
 change light\nthroughout the day
 11
 0.0
@@ -356,9 +357,9 @@ change light\nthroughout the day
 
 TEXTBOX
 205
-460
+455
 330
-502
+490
 change duration of\nlight from day to day
 11
 0.0
@@ -752,5 +753,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
