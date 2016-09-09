@@ -57,8 +57,8 @@ GRAPHICS-WINDOW
 27
 -2
 2
-1
-1
+0
+0
 1
 ticks
 100.0
