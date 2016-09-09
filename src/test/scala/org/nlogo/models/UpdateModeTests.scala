@@ -5,6 +5,7 @@ import org.nlogo.core.UpdateMode.TickBased
 
 class UpdateModeTests extends TestModels {
   val continuousUpdateModels = Set(
+    "3D Shapes Example",
     "Shapes Example 3D",
     "Ask-Concurrent Example",
     "GIS General Examples",
