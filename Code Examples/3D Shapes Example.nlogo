@@ -103,7 +103,7 @@ BUTTON
 315
 256
 bigger
-every 0.01 [ set size size + 0.01 ]
+every 0.01 [\n  set size min list world-height size + 0.01\n]\n
 T
 1
 T
@@ -120,7 +120,7 @@ BUTTON
 316
 292
 smaller
-every 0.01 [ set size size - 0.01 ]
+every 0.01 [\n  set size max list 0 size - 0.01\n]
 T
 1
 T
