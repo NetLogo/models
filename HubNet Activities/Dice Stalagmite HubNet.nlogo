@@ -484,12 +484,14 @@ As the dice stack up, you begin to notice different typical distributions in eac
 
 This triangle of pairs emerges as a result of the probabilities of rolling each sum with a pair of dice.  These probabilities can be found by examining the number of ways there are to roll each sum, as shown below.
 
-                               61
-                            51 52 62
-                         41 42 43 53 63
-                      31 32 33 34 44 54 64
-                   21 22 23 24 25 35 45 55 65
-                11 12 13 14 15 16 26 36 46 56 66
+```text
+                           61
+                        51 52 62
+                     41 42 43 53 63
+                  31 32 33 34 44 54 64
+               21 22 23 24 25 35 45 55 65
+            11 12 13 14 15 16 26 36 46 56 66
+```
 
 For example, there are four ways to roll a 5 (14, 23, 32 and 41), and thus the probability of rolling a 5 is 4/36, or 1/9.
 

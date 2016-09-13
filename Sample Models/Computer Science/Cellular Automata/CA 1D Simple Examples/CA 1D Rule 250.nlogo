@@ -163,11 +163,13 @@ In his book, "A New Kind of Science", Stephen Wolfram argues that simple computa
 
 As the CA computes, each patch checks the color of itself and the patches directly to the left and right of it, and then paints the patch below it according to Rule 250:
 
-    B B B      B B Y       B Y B       B Y Y
-      B          Y           B           Y
+```text
+B B B      B B Y       B Y B       B Y Y
+  B          Y           B           Y
 
-    Y B B      Y B Y       Y Y B       Y Y Y
-      Y          Y           Y           Y
+Y B B      Y B Y       Y Y B       Y Y Y
+  Y          Y           Y           Y
+```
 
 For example, if we have a Rule 250 CA, and the current cell is yellow and its left neighbor is black and its right neighbor is black, the cell below it is painted black.
 

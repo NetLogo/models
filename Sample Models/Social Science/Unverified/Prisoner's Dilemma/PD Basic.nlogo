@@ -207,12 +207,14 @@ You and your partner have been arrested for robbing a bank and find yourselves i
 
 Should you remain silent or should you confess? How much jail time you will receive depends on your answer and also on your partner's answer to the same question. The following table summarizes the results of the four different situations:
 
-     Your Action | Partner's Action | Your Jail Time | Partner's Jail Time
-    ----------------------------------------------------------------------
-       Silent          Silent               1                  1
-       Silent          Confess              5                  0
-       Confess         Silent               0                  5
-       Confess         Confess              3                  3
+```text
+ Your Action | Partner's Action | Your Jail Time | Partner's Jail Time
+----------------------------------------------------------------------
+   Silent          Silent               1                  1
+   Silent          Confess              5                  0
+   Confess         Silent               0                  5
+   Confess         Confess              3                  3
+```
 
 ## HOW TO USE IT
 

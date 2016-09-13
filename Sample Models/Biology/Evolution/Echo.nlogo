@@ -558,9 +558,11 @@ Holland describes several additional extensions in some detail in Chapter 3 of _
 
 Holland discusses an interesting example from nature that can be imitated in Echo -- the Caterpillar-Fly-Ant triangle.  The triangle refers to the stable, triangular relation between the three different species: Species 1 --  Flies lay eggs on caterpillars and become prey through their larva.  Species 2 -- Ants are aggressive predators on the flies, but not of caterpillars.  Species 3 -- Caterpillars produce nectar on their skin which ants find very attractive.  The more ants around a caterpillar the less likely it is to be attacked by a predatory fly.  This can be represented in Echo with the following tags:
 
-     ant - offense: aaa, defense: cb
-     fly - offense: aab, defense: aaa
-     caterpillar - offense: c, defense: aab
+```text
+ ant - offense: aaa, defense: cb
+ fly - offense: aab, defense: aaa
+ caterpillar - offense: c, defense: aab
+```
 
 Notice that the ants' offense tag matches perfectly with the fly's defense tag, making it a perfect predatory on the fly.  Likewise, the fly's offense tag matches perfectly on the caterpillar making it a perfect predator on the caterpillar.  The ant consumes the nectar of the caterpillar but does not prey on the caterpillar; thus, the ant and caterpillar have tags that result in an exchange of resources.
 

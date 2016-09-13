@@ -425,7 +425,9 @@ The top graph, "m/n convergence to limiting value," shows how the rate settles d
 
 For instance, using "H" for hit and "N" for no-hit, a baseball player's at-bat events may look like this, over 20 attempts:
 
-    N N N H H N N N N H N H N N H H H N N H
+```text
+N N N H H N N N N H N H N N H H H N N H
+```
 
 'Hits' are called 'favored events' because when we do the statistics, what we care about, count, and calculate is all about how often 'hits' occurred out of all the at-bat events. The m/n interpretation (favored events / total events) would interpret this string of events as 8 hits / 20 at bats, .4 probability (the same as .400), or a score of 400 (out of 1000).
 
@@ -433,13 +435,17 @@ You may be familiar with the fact that as the baseball season progresses, it is 
 
 The middle graph, "Attempts-until-Success Distribution" counts how many trials it takes for the favored event to occur. For instance, if you're tossing a coin, it takes on average 2 tosses to get "heads," and if you're rolling a die it takes on average 6 rolls to get a "5." This graph is tracking the exact same experiment as the top graph; only it is "parsing" the events differently, that is, it is using a different rule to divide up the sequence of events over time. (We will continue using "N" and "H" but you can think of the coin with 2 sides or of the die with as many sides as you want.)
 
-    N N N H    H    N N N N H    N H    N N H    H    H    N N H
+```text
+N N N H    H    N N N N H    N H    N N H    H    H    N N H
+```
 
 So the unit of analysis in this interpretation of the experiment's results is the number of events leading up to and including a hit. As you see, the number of events per unit changes. In this example the string of numbers is [4; 1; 5; 2; 3; 1; 1; 3]. Note that in this string the numeral "1" appears 3 times, the numeral "2" appears 1 time, the numeral "3" appears 2 times, the numeral "4" appears 1 time, and the numeral "5" appears 1 time. The histogram of this string would peak over '1' (this peak will be of height 3), then go down to '2' (frequency of 1), etc.  Perhaps this interpretation is a bit like what a batter's fans feel -- their suspense grows over failed hits until there is a hit, they are relieved and happy, and then they start counting again. So according to the context you are in -- what you're interested in finding, how you're feeling -- the world can appear different.
 
 The bottom graph, "Successes-per-Sample distribution," takes yet another perspective on the experiment, namely a sampling perspective. The sampling perspective is used in statistics. Lets analyze the same string of events from our experiment, this time chopping it up into samples of equal size, say size 5.
 
-    N N N H H   N N N N H   N H N N H   H H N N H
+```text
+N N N H H   N N N N H   N H N N H   H H N N H
+```
 
 See that in the first sample there are 2 hits, in the second sample there is 1 hit, in the third sample there are 2 hits, and in the last sample there are 3 hits. This observation could be summed up as [2; 1; 2; 3]. A histogram of this result would show a frequency of 0 (y axis) over the 0 (x axis), because all samples had at least a single 'H.' Then over the '1' there will be a column of height 1, over the '2' there will be a column of height 2, and over the '3' there will be a column of height 1.
 

@@ -201,11 +201,13 @@ The model is implemented using a Margolus neighborhood of 2x2 cell squares in wh
 
 The CA can be summarized with the following core rules:
 
-      W W  ->  W W                B W  ->  W W            B W  ->  W B
-      W W      W W                W W      W B            W B      B W
+```text
+  W W  ->  W W                B W  ->  W W            B W  ->  W B
+  W W      W W                W W      W B            W B      B W
 
-      B W  ->  W B                W B  ->  B B            B B  ->  B B
-      B W      W B                B B      B W            B B      B B
+  B W  ->  W B                W B  ->  B B            B B  ->  B B
+  B W      W B                B B      B W            B B      B B
+```
 
 It applies these rules to the even lattice of 2x2 squares followed by the odd lattice of 2x2 squares.  Specifically, this means that the top left patch of four applies one of the above rules, then the bottom right patch of four does the same.  To run the model in reverse, we simply switch the order of those two operations.  No patch gets changed more then twice per tick.  That means that each patch sees only one possible even rule and one possible odd rule each iteration.
 

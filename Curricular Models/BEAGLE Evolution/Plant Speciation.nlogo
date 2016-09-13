@@ -681,9 +681,9 @@ The key mechanism that drives speciation to emerge in this model is a fitness fu
 
 Fitness is a hyperbolic paraboloid function that can be visualized as a linear function dependent on tolerance whose slope and y-intercept also vary linearly with respect to increases in metal in the soil.  This linear function would have the following slopes in various metal levels:
 
-    - negative slope in clean ground -> high tolerance is bad
-    - positive slope in dirty ground -> high tolerance is good
-    - slope of zero: in between -> no benefit or disadvantage to any tolerance level
+  - negative slope in clean ground -> high tolerance is bad
+  - positive slope in dirty ground -> high tolerance is good
+  - slope of zero: in between -> no benefit or disadvantage to any tolerance level
 
 This is a model of a "tradeoff", where specializing in one variation of a trait is advantageous in one environmental extreme, but specializing in another variation of the trait is advantageous in a different environmental extreme. Intermediate "hybridization," or averaging between both variations, is disadvantageous in both environments or at least not advantageous in any.  Such tradeoff models can lead to speciation when other traits permit a population to reproductively fragment and isolate itself into non-interbreeding sub populations.
 

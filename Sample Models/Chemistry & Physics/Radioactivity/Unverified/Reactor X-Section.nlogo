@@ -430,11 +430,13 @@ The manual controls are very simple.  The ROD-DEPTH slider controls how deep the
 
 The automatic controller is basically an ON and OFF controller. It is based on 1) comparison of power generated and power rated and 2) the power change. The mechanism is described in the following table:
 
-                         Power > Power Rated   Power < Power Rated
-                         -------------------   -------------------
-      Power Change > 0:    Increase Length         Do Nothing
+```text
+                     Power > Power Rated   Power < Power Rated
+                     -------------------   -------------------
+  Power Change > 0:    Increase Length         Do Nothing
 
-      Power Change < 0:      Do nothing          Decrease Length
+  Power Change < 0:      Do nothing          Decrease Length
+```
 
 The controller should be fine-tuned, and the length to increase and decrease varies.
 

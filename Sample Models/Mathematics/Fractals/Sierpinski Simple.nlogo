@@ -137,27 +137,29 @@ The fractal that this model produces was discovered by the great Polish mathemat
 
 The basic geometric construction of the Sierpinski tree goes as follows.  We begin with a single point on the plane and then apply a repetitive scheme of operations to it.  Grow a "spider" centered at this point by drawing three equal line segments directed to the vertices of an equilateral triangle.  Then at each vertex of the triangle repeat the construction --- grow a similar "spider" only scale it down by the factor of two.
 
-             .               Step 0: Start with a point
+```text
+         .               Step 0: Start with a point
 
 
-             |
-             |
-             |               Step 1: Grow a spider
-            / \
-           /   \
-          /     \
+         |
+         |
+         |               Step 1: Grow a spider
+        / \
+       /   \
+      /     \
 
 
-             |
-             |
-            /|\
-           / | \
-             |               Step 2: Repeat step 1
-            / \
-         | /   \ |
-         |/     \|
-        / \     / \
-       /   \   /   \
+         |
+         |
+        /|\
+       / | \
+         |               Step 2: Repeat step 1
+        / \
+     | /   \ |
+     |/     \|
+    / \     / \
+   /   \   /   \
+```
 
 The Sierpinski tree is closely related to the class of fractals called Sierpinski Carpets which includes the famous Sierpinski Triangle or as it is usually called The Sierpinski Gasket.
 
@@ -175,28 +177,30 @@ Notice the use of `hatch` primitive which makes it so simple to generate fractal
 
 Try to write a program that draws other self-similar shapes.  For instance try the rule below
 
-                    .               Step 0
+```text
+                .               Step 0
 
 
 
-                    |
-                    |
-                    |
-             ______________         Step 1
-                    |
-                    |
-                    |
+                |
+                |
+                |
+         ______________         Step 1
+                |
+                |
+                |
 
 
-                    |
-                  __|__
-                    |
-                    |
-            __|___________|__       Step 2
-              |     |     |
-                    |
-                  __|__
-                    |
+                |
+              __|__
+                |
+                |
+        __|___________|__       Step 2
+          |     |     |
+                |
+              __|__
+                |
+```
 
 The resulting fractal is known in Algebraic Topology as a Universal Covering of the Figure Eight.
 

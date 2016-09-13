@@ -169,20 +169,21 @@ Koch's motivation for finding this curve was to provide another example for the 
 
 Here is a simple geometric construction of the Koch curve.  Begin with a straight line.  This initial object is also called the "initiator."  Partition it into three equal parts.  Then replace the middle third by an equilateral triangle and take away its base.  This completes the basic construction step.  A reduction of this figure, made of four parts, will be used in the following stages.  It is called the "generator."  Thus, we now repeat, taking each of the resulting line segments and partitioning them into three equal parts, and so on.  The figure below illustrates this iterative process.
 
+```text
+  ________________________     Step 0: "Initiator"
 
-      ________________________     Step 0: "Initiator"
+             /\
+            /  \
+           /    \
+          /      \
+  _______/        \_______     Step 1: "Generator"
 
-                 /\
-                /  \
-               /    \
-              /      \
-      _______/        \_______     Step 1: "Generator"
-
-                 /\
-              __/  \__
-              \      /
-              /      \
-      ___/\__/        \__/\___     Step 2
+             /\
+          __/  \__
+          \      /
+          /      \
+  ___/\__/        \__/\___     Step 2
+```
 
 Self-similarity is built into the construction process.  Each part of the four parts in the k-th step is again a version scaled down by the factor of 3 of the entire curve in the previous (k-1)-st step.
 

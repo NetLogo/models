@@ -492,10 +492,11 @@ This is the fourth model of the Acid-Base subsection of the Connected Chemistry 
 
 The value of pH, like many other chemical measurements, emerges from the interactions and relative ratios of the composite molecules within a solution. Specifically, pH is a measurement of the amount of hydronium ions (H+ or H3O+) that are present in a solution. Hydronium ions are generated when an acid molecule donates a proton to a water molecule. Bases have the opposite effect on water -- they take a hydrogen atom from a water molecule and generate hydroxide ions (OH-). The chemical reaction is shown below (for more detailed explanations about pH and acid-base reactions, please check the three aforementioned models).
 
-                  Ka1      +      -  Ka2      +    2-
-    H A  +  2H O  -->   H O  + H-A   -->  2H O  + A
-     2        2          3                  3
-
+```text
+              Ka1      +      -  Ka2      +    2-
+H A  +  2H O  -->   H O  + H-A   -->  2H O  + A
+ 2        2          3                  3
+```
 We can see that the first proton is donated to water to make a hydronium ion. After the initial acid is consumed, the second proton is donated to form a second molecule of hydronium ion. It is important to note that the Ka of the first proton is much greater than the second Ka. This is because the loss of the first proton generates a negatively charged anion. It is very difficult for bases which have a negative charge or a high electron density to come in close proximity to this anion and pull off the second proton. Because of this, the first proton is most often consumed before the second proton can be donated. The pH for the reaction is determined using the Henderson-Hasselbach equation in two separate instances. While the original acid (H2A) is present, the pH is determined by:
 
 > pH = pK1 + log ([H-A<sup>-</sup>] / [H<sub>2</sub>A])

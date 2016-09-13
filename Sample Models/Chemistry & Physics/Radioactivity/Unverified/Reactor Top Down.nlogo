@@ -381,11 +381,13 @@ The manual controls are very simple.  The ADD-RODS and REMOVE-RODS buttons contr
 
 The automatic controller is basically an ON and OFF controller. It is based on 1) comparison of power generated and power rated and 2) the power change. The mechanism is described in the following table:
 
-                         Power > Power Rated   Power < Power Rated
-                         -------------------   -------------------
-      Power Change > 0:       Add Rods            Do Nothing
+```text
+                     Power > Power Rated   Power < Power Rated
+                     -------------------   -------------------
+  Power Change > 0:       Add Rods            Do Nothing
 
-      Power Change < 0:      Do nothing           Remove Rods
+  Power Change < 0:      Do nothing           Remove Rods
+```
 
 The controller should be fine-tuned.
 

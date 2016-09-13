@@ -276,9 +276,11 @@ The rules of the game are as follows.  Each cell checks the state of itself and 
 
 There are certain recurring shapes in Life, for example, the "glider" and the "blinker". The glider is composed of 5 cells which form a small arrow-headed shape, like this:
 
-      O
-       O
-     OOO
+```text
+  O
+   O
+ OOO
+```
 
 This glider will wiggle across the world, retaining its shape.  A blinker is a group of three cells (either up and down or left and right) that rotates between horizontal and vertical orientations.
 
