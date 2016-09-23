@@ -313,7 +313,7 @@ You can create a single turtle with the `crt 1` command.
 
 ## Code blocks
 
-It is also possible to have blocks of code. To create a code block, indent every line of the block by 4 spaces. Another way is to sorround it with a three back-ticks before and after the block. (If you don't want your code to be colored as NetLogo code, add `text` after the first three back-ticks.)
+It is also possible to have blocks of code. To create a code block, indent every line of the block by 4 spaces. Another way is to surround it with a three backticks line before and after the block. (If you don't want your code to be colored as NetLogo code, add `text` after the first three backticks.)
 
 #### Example
 
