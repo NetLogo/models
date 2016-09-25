@@ -210,12 +210,12 @@ Can you predict what the color of the nth cell on that line will be?
 
 What if you wanted to observe the behavior of a CA over many iterations without having to click continue every time it reaches the bottom of the view? Simply replace the `stop` with `setup-continue` in the go procedure:
 
-      if (not any turtles)
+      if (not any? turtles)
         [ stop ]
 
 with
 
-      if (not any turtles)
+      if (not any? turtles)
         [ setup-continue ]
 
 What if a cell's neighborhood was five --- two to the left, itself, and two to the right?
