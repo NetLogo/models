@@ -83,7 +83,7 @@ PENS
 "Min Count Wolves" 1.0 0 -2674135 true "" "plot min [count wolves] ls:of ls:models"
 "Max Count Wolves" 1.0 0 -2674135 true "" "plot max [count wolves] ls:of ls:models"
 "Min Count Sheep" 1.0 0 -13345367 true "" "plot min [count sheep] ls:of ls:models"
-"Max Count Sheep" 1.0 0 -13345367 true "" "plot min [count sheep] ls:of ls:models"
+"Max Count Sheep" 1.0 0 -13345367 true "" "plot max [count sheep] ls:of ls:models"
 "Max Count Grass" 1.0 0 -13840069 true "" "plot max [count patches with [pcolor = green] / 4] ls:of ls:models"
 "Min Count Grass" 1.0 0 -13840069 true "" "plot min [count patches with [pcolor = green] / 4] ls:of ls:models"
 
