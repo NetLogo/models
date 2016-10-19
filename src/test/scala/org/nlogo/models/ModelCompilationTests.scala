@@ -37,7 +37,7 @@ class ModelCompilationTests extends TestModels {
       Set() ++ singularNames(ws.world.program.breeds) ++ singularNames(ws.world.program.linkBreeds)
     }
     for {
-      (procedureName, p) <- ws.getProcedures.asScala.toSeq
+      (procedureName, p) <- ws.procedures
       localName <- (p.args ++ p.lets.map(_.name))
       if singularBreedNames contains localName
     } yield s"Singular breed name $localName if used as variable or argument name in $procedureName"
@@ -52,7 +52,7 @@ class ModelCompilationTests extends TestModels {
   def uncompilablePreviewCommands(ws: HeadlessWorkspace): Iterable[String] = {
     def compile(source: String) =
       ws.compiler.compileMoreCode(source, None, ws.world.program,
-        ws.getProcedures, ws.getExtensionManager, ws.getCompilationEnvironment)
+        ws.procedures, ws.getExtensionManager, ws.getCompilationEnvironment)
     for {
       commands <- Seq(ws.previewCommands)
       source = s"to __custom-preview-commands\n${commands.source}\nend"
@@ -76,7 +76,7 @@ class ModelCompilationTests extends TestModels {
     // branch (and it doesn't seem worth it to mess around
     // with reflection just for this) -- NP 2015-09-01
     for {
-      (procedureName, procedure) <- ws.getProcedures.asScala
+      (procedureName, procedure) <- ws.procedures
       commandNames = procedure.code.flatMap(cmd => Option(cmd.token).map(_.text))
       if commandNames.count(_ == "reset-ticks") > 1
     } yield s"Procedure $procedureName uses `reset-ticks` more than once"
