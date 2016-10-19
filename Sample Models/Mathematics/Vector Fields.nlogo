@@ -216,7 +216,9 @@ The vectors show you in what direction and how forcefully an appropriate specime
 
 Even though behavior of particles can be interesting and possibly unanticipated, owing to forces not being distributed uniformly in the field, or some other factor, we have chosen, for clarity, a vector field with a logical and consistent relation between location in space and size/orientation of the force.  The vector field chosen for this particular model is
 
-    - y d/dx  +  x d/dy
+```text
+- y d/dx  +  x d/dy
+```
 
 Ideally, in the particular force field modeled here, the particle trajectories should be concentric circles (that is, the particle should go round and round along the same circular trajectory).
 
@@ -240,7 +242,9 @@ Place particles in different parts of the world.  Does the particle's position h
 
 Try a different vector field by changing it in the `setup-vector`, `force-x`, and `force-y` procedures.  For instance, if you choose
 
-    x d/dx - y d/dy
+```text
+x d/dx - y d/dy
+```
 
 the integral curves will be hyperbolas.
 

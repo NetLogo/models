@@ -212,33 +212,35 @@ Each suspect may reason as follows: "Either my partner confesses or not.  If he 
 
 In a non-iterated prisoner's dilemma, the two partners will never have to work together again.  Both partners are thinking in the above manner and decide to confess.  Consequently, they both receive 5 years in prison.  If neither would have confessed, they would have only gotten 6 months each.  The rational behavior paradoxically leads to a socially unbeneficial outcome.
 
+```text
+                             Payoff Matrix
+                             -------------
+                             YOUR PARTNER
+                     Cooperate            Defect
+                    -----------------------------
+       Cooperate |   (0.5, 0.5)           (0, 10)
+  YOU            |
+       Defect    |(10, 0)              (5, 5)
 
-                                 Payoff Matrix
-                                 -------------
-                                  YOUR PARTNER
-                         Cooperate            Defect
-                        -----------------------------
-           Cooperate |   (0.5, 0.5)           (0, 10)
-      YOU            |
-           Defect    |(10, 0)              (5, 5)
-
-            (x, y) = x: your score, y: your partner's score
-            Note: lower the score (number of years in prison), the better.
-
+        (x, y) = x: your score, y: your partner's score
+        Note: lower the score (number of years in prison), the better.
+```
 
 In an Iterated Prisoner's Dilemma where you have more than two players and multiple rounds, such as this one, the scoring is different.  In this model, it is assumed that an increase in the number of people who cooperate will increase proportionately the benefit for each cooperating player (which would be a fine assumption, for example, in the sharing of knowledge).  For those who do not cooperate, assume that their benefit is some factor (alpha) multiplied by the number of people who cooperate (that is, to continue the previous example, the non-cooperating players take knowledge from others but do not share any knowledge themselves).  How much cooperation is incited is dependent on the factor multiple for not cooperating.  Consequently, in an iterated prisoner's dilemma with multiple players, the dynamics of the evolution in cooperation may be observed.
 
-                                 Payoff Matrix
-                                 -------------
-                                    OPPONENT
-                         Cooperate            Defect
-                        -----------------------------
-           Cooperate |(1, 1)            (0, alpha)
-      YOU            |
-           Defect    |(alpha, 0)        (0, 0)
+```text
+                             Payoff Matrix
+                             -------------
+                                OPPONENT
+                     Cooperate            Defect
+                    -----------------------------
+       Cooperate |(1, 1)            (0, alpha)
+  YOU            |
+       Defect    |(alpha, 0)        (0, 0)
 
-            (x, y) = x: your score, y: your partner's score
-            Note: higher the score (amount of the benefit), the better.
+        (x, y) = x: your score, y: your partner's score
+        Note: higher the score (amount of the benefit), the better.
+```
 
 ## HOW TO USE IT
 

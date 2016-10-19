@@ -250,23 +250,29 @@ This model explains kinetics of radical polymerization.  Radical polymerization 
 
 An example of radical polymerization would be industrial polymerization of ethylene into polyethylene (PET):
 
-    n C H  --------> ~C  H~
-      2 4           2n 4n
+```text
+n C H  --------> ~C  H~
+  2 4           2n 4n
+```
 
 A gaseous mixture of ethylene and oxygen (used as a catalyst), is pumped through a mile-long heated pipe.  As the mixture moves along the pipe, the molecules of ethylene polymerize into chains.  At the end of the pipe, the polymer is collected and co-products with low molecular mass are recycled.
 
 Molecules of oxygen turn into bi-radicals under the influence of high temperature:
 
-    O --------> *O-O*
-     2
+```text
+O --------> *O-O*
+ 2
+```
 
 here the asterisk denotes a free electron.  These bi-radicals react with pi-bonds in ethylene and start the process of chain growth according to the scheme:
 
-     *O-O* + C H --------> *O-O-CH-CH*
-              2 4                 2  2
+```text
+ *O-O* + C H --------> *O-O-CH-CH*
+          2 4                 2  2
 
-     *O-O-CH-CH* + CH-CH --------> *O-O-CH-CH-CH-CH*
-            2  2     2  2                 2  2  2  2
+ *O-O-CH-CH* + CH-CH --------> *O-O-CH-CH-CH-CH*
+        2  2     2  2                 2  2  2  2
+```
 
 We can thus think of radical polymerization as interaction between (bi-) radicals and monomers.
 
@@ -281,11 +287,13 @@ Let us assume that we run polymerization using AIBN as an initiator which we den
 
 A radical can react with a monomer, in which case it absorbs the monomer and increases its chain-length by 1.  Alternatively, a radical can react with another radical forming a "dead" molecule which does not react with other particles.  Let us denote by R(n) radicals which have reacted n times with monomers.  Let M stand for monomers and C(k) for "dead" chains of length k.  Then schematically we can describe the reactions by the following system of equations:
 
-            I --------> 2 R(1)              (initiation)
+```text
+        I --------> 2 R(1)              (initiation)
 
-            R(n) + M --------> R(n+1)       (growth)
+        R(n) + M --------> R(n+1)       (growth)
 
-         R(n) + R(m) --------> C(n+m)       (termination)
+     R(n) + R(m) --------> C(n+m)       (termination)
+```
 
 In this model, there are four breeds of turtles:
 - initiators (yellow turtles);
@@ -333,24 +341,26 @@ Note that in real polymerization reactions, the outcomes are affected by the pos
 
 Although oxygen is widely used in industry as initiator of radical polymerization, scientists prefer to use other initiators in the lab, especially when the reaction has to be performed under conditions of atmospheric pressure and room temperature.  Two of the most frequently used lab initiators are benzoyl peroxide and 2-2'-azo-bis-isobutyrylnitrile (AIBN):
 
-        C H-C(O)O-O(O)C-H C
-     6 5             5 6
+```text
+    C H-C(O)O-O(O)C-H C
+ 6 5             5 6
 
-                CH     CH
-            | 3    | 3
-            CH -C--N=N-C- CH
-          3 |      |    3
-            CN     CN
-
+            CH     CH
+        | 3    | 3
+        CH -C--N=N-C- CH
+      3 |      |    3
+        CN     CN
+```
 
 Peroxydes and azo-compounds are extremely unstable and tend to break up into radicals very easily if exposed to moderate heat or light.  Here is the reaction of decomposition of AIBN:
 
-                CH     CH                     CH
-            | 3    | 3                    | 3     ^
-            CH -C--N=N-C- CH  --------> 2 CH -C* + N  |
-          3 |      |    3               3 |     2
-            CN     CN                     CN
-
+```text
+            CH     CH                     CH
+        | 3    | 3                    | 3     ^
+        CH -C--N=N-C- CH  --------> 2 CH -C* + N  |
+      3 |      |    3               3 |     2
+        CN     CN                     CN
+```
 
 This reaction is irreversible because of the escape of nitrogen.
 

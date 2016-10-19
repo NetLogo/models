@@ -175,11 +175,13 @@ In his book, "A New Kind of Science", Stephen Wolfram argues that simple computa
 
 As the turtles move forward, each turtle checks the color of its current patch and the patches directly to the left and right of it, and then paints the patch below it according to Rule 30:
 
-    Y Y Y     Y Y B     Y B Y     Y B B
-      B         B         B         Y
+```text
+Y Y Y     Y Y B     Y B Y     Y B B
+  B         B         B         Y
 
-    B Y Y     B Y B     B B Y     B B B
-      Y         Y         Y         B
+B Y Y     B Y B     B B Y     B B B
+  Y         Y         Y         B
+```
 
 For example, if we have a Rule 30 CA, and the current cell is black and its left neighbor is yellow and its right neighbor is yellow, the cell below it is painted black.
 
@@ -208,12 +210,12 @@ Can you predict what the color of the nth cell on that line will be?
 
 What if you wanted to observe the behavior of a CA over many iterations without having to click continue every time it reaches the bottom of the view? Simply replace the `stop` with `setup-continue` in the go procedure:
 
-      if (not any turtles)
+      if (not any? turtles)
         [ stop ]
 
 with
 
-      if (not any turtles)
+      if (not any? turtles)
         [ setup-continue ]
 
 What if a cell's neighborhood was five --- two to the left, itself, and two to the right?

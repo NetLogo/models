@@ -178,85 +178,102 @@ In this model there are two kinds of molecules, green and red.  Green turtles tu
 
 The reaction here is a reversible reaction of the type:
 
-                             Kb
-            A + A <=======> B
-                             Ku
+```text
+                         Kb
+        A + A <=======> B
+                         Ku
+```
 
 An example of such a reaction would be dimerization of acetic acid:
 
-                                      Kb
-            2 H C-COOH <=======> H C-COOH~...~HOOC-C H
-           3           Ku     3                 3
-
+```text
+                                  Kb
+        2 H C-COOH <=======> H C-COOH~...~HOOC-C H
+       3           Ku     3                 3
+```
 
 This reaction is an example of a complex reaction which consists of two elementary reactions.  The forward bimolecular reaction
 
-                            Kb
-            A + A --------> B
-
+```text
+                        Kb
+        A + A --------> B
+```
 
 is characterized by the constant Kb and the reverse unimolecular reaction
 
-                 Ku
-            B ---------> A + A
-
+```text
+             Ku
+        B ---------> A + A
+```
 
 is characterized by the constant Ku.
 
 The system of ordinary differential equations (ODE) that describes the concentrations of A and B is given below:
 
+```text
+        dA           2
+        -- = -2Kb * A  + 2Ku * B        (1)
+        dt
 
-            dA           2
-            -- = -2Kb * A  + 2Ku * B        (1)
-            dt
 
-
-            dB         2
-            -- = Kb * A  - Ku * B           (2)
-            dt
-
+        dB         2
+        -- = Kb * A  - Ku * B           (2)
+        dt
+```
 
 The usual initial conditions are A(0) = Ao and B(0) = 0.  While it is possible to solve this system of ODE analytically, chemists usually apply the Principle of Stationary Concentrations when they investigate the kinetics of reactions of this type.  The Principle says that one can assume that the concentrations of the species stop changing from some point on after the system reaches equilibrium.  If concentrations are stationary, the derivatives
 
-            dA               dB
-            --  and  --
-            dt               dt
+```text
+        dA               dB
+        --  and  --
+        dt               dt
+```
 
 are zero.  Hence one can replace the system of ODE above with the system of algebraic equations below:
 
-                        2
-            0 = -2Kb * A*   + 2Ku * B*              (1')
+```text
+                    2
+        0 = -2Kb * A*   + 2Ku * B*              (1')
 
-                      2
-            0 = Kb * A*  - Ku * B*                  (2')
+                  2
+        0 = Kb * A*  - Ku * B*                  (2')
+```
 
 where concentrations marked with * are stationary concentrations.  The second equation (2') is linearly dependent on the first equation (1').  Luckily we also have another equation coming from the law of the conservation of mass:
 
-            A* + 2 * B* = Ao                        (3)
+```text
+        A* + 2 * B* = Ao                        (3)
+```
 
 From equation (2') we can express B* in terms of A* :
 
-                      Kb    2
-            B*  = --  A*                    (4)
-                      Ku
+```text
+                  Kb    2
+        B*  = --  A*                    (4)
+                  Ku
+```
 
 We can now plug in expression (4) into (3) and then we will have a quadratic equation in terms of A*:
 
-                      Kb   2
-            A*  + -- A*  = Ao               (5)
-              Ku
+```text
+                  Kb   2
+        A*  + -- A*  = Ao               (5)
+          Ku
+```
 
 whose solution is:
 
-                 _____________
-                 |
-                 |             Kb
-                 |  1 + 4 * --  - 1
-                \|          Ku
-               --------------------         (6)
-                      Kb
-                             2 * --
-                                     Ku
+```text
+             _____________
+             |
+             |             Kb
+             |  1 + 4 * --  - 1
+            \|          Ku
+           --------------------         (6)
+                  Kb
+                         2 * --
+                                 Ku
+```
 
 One can now find the stationary concentration of B using equation (4).
 
@@ -282,17 +299,21 @@ How do the stationary concentrations depend on the values of Kb and Ku?   You ca
 
 Try to implement the following reaction:
 
-                     Kb         K2
-            A + A <======> B -------> C
-                     Ku
+```text
+                 Kb         K2
+        A + A <======> B -------> C
+                 Ku
+```
 
 This reaction underlines a vast number of microbiological processes (e.g. fermentation).  You can read about its kinetics in any book on Biochemistry.  Look up the so-called Michaeles-Menten equation.  Does it check numerically?
 
 Try to implement the following reaction:
 
-                     Kb         K2
-            A + B <======> C -------> D
-                     Ku
+```text
+                 Kb         K2
+        A + B <======> C -------> D
+                 Ku
+```
 
 ## RELATED MODELS
 

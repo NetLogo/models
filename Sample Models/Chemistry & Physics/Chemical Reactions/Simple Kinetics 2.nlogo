@@ -398,25 +398,33 @@ This model demonstrates the properties of LeChatelier's Principle. This chemical
 
 Below is a generic equation which depicts two molecules of reactant A combining to form one molecule or product B. The reaction is reversible, meaning that the one molecule of B can break down into two molecules of A.
 
-                      Kb
-            A + A <=======> B
-                      Ku
+```text
+                  Kb
+        A + A <=======> B
+                  Ku
+```
 
 An example of such a reaction would be dimerization of the gas nitrous oxide:
 
-                      Kb
-            2 NO  <=======> N O
-                2     Ku     2 4
+```text
+                  Kb
+        2 NO  <=======> N O
+            2     Ku     2 4
+```
 
 This reaction is an example of a complex reaction which consists of two elementary reactions.  The forward bimolecular reaction
 
-                     Kb
-            A + A --------> B
+```text
+                 Kb
+        A + A --------> B
+```
 
 is characterized by the constant Kb and the reverse unimolecular reaction
 
-                  Ku
-            B ---------> A + A
+```text
+              Ku
+        B ---------> A + A
+```
 
 The equilibrium rate constant for the entire reaction (Keq) is equal to [B] / [A] ^ 2. Each of the rate constants in the equations above has units of s^-1. They are empirically derived constants that when combined with the reaction concentrations tell you how fast the reaction proceeds according to the reaction rate law. The rate law ultimately tells you how many Molar units of a molecule react per second. For the reaction above the forward rate law is RATE = Kb[A]^2 and the reverse rate law is RATE = Ku[B].
 

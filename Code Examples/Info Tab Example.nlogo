@@ -60,23 +60,27 @@ A heading begins with one or more hash marks (`#`). First level headings get one
 
 #### Input
 
-    # First-level heading
-    ## Second-level heading
-    ### Third-level heading
-    #### Fourth-level heading
+```text
+# First-level heading
+## Second-level heading
+### Third-level heading
+#### Fourth-level heading
+```
 
 ## Paragraphs
 
 #### Example
 
-    This is a paragraph. There are no spaces before the word 'This'.
+```text
+This is a paragraph. There are no spaces before the word 'This'.
 
-    This is another paragraph. The first line has two sentences.
-    The entire paragraph has two lines and three sentences.
+This is another paragraph. The first line has two sentences.
+The entire paragraph has two lines and three sentences.
 
-    Line breaks in the input,
-    Make line breaks in the output,
-    Like this.
+Line breaks in the input,
+Make line breaks in the output,
+Like this.
+```
 
 #### Formatted
 
@@ -92,18 +96,20 @@ Like this.
 
 #### Example
 
-    For italics, surround  text with underscores:
-    _hello, world_.
+```text
+For italics, surround text with underscores:
+_hello, world_.
 
-    For bold, surround text with two asterisks:
-    **hello, world**.
+For bold, surround text with two asterisks:
+**hello, world**.
 
-    You can also combine them:
-    _**hello**_ and **_goodbye_**
+You can also combine them:
+_**hello**_ and **_goodbye_**
+```
 
 #### Formatted
 
-For italics, surround  text with underscores:
+For italics, surround text with underscores:
 _hello, world_.
 
 For bold, surround text with two asterisks:
@@ -116,12 +122,13 @@ _**hello**_ and **_goodbye_**
 
 #### Example
 
-    We are about to start an ordered list.
+```text
+We are about to start an ordered list.
 
-      1. Ordered lists are indented 2 spaces.
-        1. Subitems are indented 2 more spaces (4 in all).
-      2. The next item in the list starts with the next number.
-      3. And so on...
+  1. Ordered lists are indented 2 spaces.
+    1. Subitems are indented 2 more spaces (4 in all).
+  2. The next item in the list starts with the next number.
+  3. And so on...
 
 #### Formatted
 
@@ -136,12 +143,13 @@ We are about to start an ordered list.
 
 #### Example
 
-    We are about to start an unordered list.
+```text
+We are about to start an unordered list.
 
-      * Like ordered lists, unordered lists are also indented 2 spaces.
-      * Unlike ordered lists, unordered lists use stars instead of numbers.
-        * Sub items are indented 2 more spaces.
-        * Here's another sub item.
+  * Like ordered lists, unordered lists are also indented 2 spaces.
+  * Unlike ordered lists, unordered lists use stars instead of numbers.
+    * Sub items are indented 2 more spaces.
+    * Here's another sub item.
 
 #### Formatted
 
@@ -160,7 +168,9 @@ The simplest way to create a link is to just type it in:
 
 #### Example
 
-    http://ccl.northwestern.edu/netlogo/
+```text
+http://ccl.northwestern.edu/netlogo/
+```
 
 #### Formatted
 
@@ -170,11 +180,15 @@ http://ccl.northwestern.edu/netlogo/
 
 If you want to use your own text for the link, here's how:
 
-    [link text here](link.address.here)
+```text
+[link text here](link.address.here)
+```
 
 #### Example
 
-    [NetLogo](http://ccl.northwestern.edu/netlogo/)
+```text
+[NetLogo](http://ccl.northwestern.edu/netlogo/)
+```
 
 #### Formatted
 
@@ -186,15 +200,21 @@ It is also possible to link to a page on your computer, instead of a page somewh
 
 Local links have this form:
 
-    [alt text](file:path)
+```text
+[alt text](file:path)
+```
 
 Any spaces in the path must be converted to %20. For example, this:
 
-    file:my page.html
+```text
+file:my page.html
+```
 
 must be written as:
 
-    file:my%20page.html
+```text
+file:my%20page.html
+```
 
 The path is relative to the directory that the model file is in.
 
@@ -202,25 +222,33 @@ The path is relative to the directory that the model file is in.
 
 The easiest way to link to files on your computer is to put them into the same directory as your model. Assuming you have a file named `index.html` in the same directory as your model, the link would look like this:
 
-    [Home](file:index.html)
+```text
+[Home](file:index.html)
+```
 
 #### Example
 
 Here is another example where the file lives in a directory called docs, and docs is in the same directory as your model:
 
-    [Home](file:docs/index.html)
+```text
+[Home](file:docs/index.html)
+```
 
 ## Images
 
 Images are very similar to links, but have an exclamation point in front:
 
-    ![alt text](http://location/of/image)
+```text
+![alt text](http://location/of/image)
+```
 
 (The alternate text is the text that gets displayed if the image is not found.)
 
 #### Example
 
-    ![NetLogo](http://ccl.northwestern.edu/netlogo/images/netlogo-title-new.jpg)
+```text
+![NetLogo](http://ccl.northwestern.edu/netlogo/images/netlogo-title-new.jpg)
+```
 
 #### Formatted
 
@@ -230,7 +258,9 @@ Images are very similar to links, but have an exclamation point in front:
 
 Also very similar to links, it is possible to display an image on your computer instead of an image somewhere on the Internet. Assuming you have an image named `image.jpg`, local images look like this:
 
-    ![alt text](file:path)
+```text
+![alt text](file:path)
+```
 
 The path is relative to the directory that the model file is in.
 
@@ -240,7 +270,9 @@ As with local links, any spaces in the name of the file or the path must be conv
 
 Like local links, the easiest way to display images on your computer is to put them into the same directory as your model. This example displays the image "Perspective Example.png", which resides in the same directory as this model (Info Tab Example).
 
-    ![Example](file:Perspective%20Example.png)
+```text
+![Example](file:Perspective%20Example.png)
+```
 
 #### Formatted
 
@@ -253,9 +285,11 @@ You can put whatever text you like inside of it and you can also style it.
 
 #### Example
 
-    > Let me see: four times five is twelve, and four times six is thirteen,
-    > and four times seven is --- _oh dear!_
-    > I shall never get to twenty at that rate!
+```text
+> Let me see: four times five is twelve, and four times six is thirteen,
+> and four times seven is --- _oh dear!_
+> I shall never get to twenty at that rate!
+```
 
 #### Formatted
 
@@ -269,7 +303,9 @@ To include a short piece of code in a sentence, surround it with backticks (`).
 
 #### Example
 
-    You can create a single turtle with the `crt 1` command.
+```text
+You can create a single turtle with the `crt 1` command.
+```
 
 #### Formatted
 
@@ -277,24 +313,42 @@ You can create a single turtle with the `crt 1` command.
 
 ## Code blocks
 
-It is also possible to have blocks of code. To create a code block, indent every line of the block by 4 spaces.
+It is also possible to have blocks of code. To create a code block, indent every line of the block by 4 spaces. Another way is to surround it with a three backticks line before and after the block. (If you don't want your code to be colored as NetLogo code, add `text` after the first three backticks.)
 
 #### Example
 
-    About to start the code block.
-    Leave a blank line after this one, and then indent four spaces:
+```text
+About to start the code block.
+Leave a blank line after this one, and then put the code block:
 
-        ; a typical go procedure
-        to go
-          ask turtles
-            [ fd 1 ]
-          tick
-        end
+    ; a typical go procedure
+    to go
+      ask turtles
+        [ fd 1 ]
+      tick
+    end
+```
+
+or:
+
+````text
+About to start the code block.
+Leave a blank line after this one, and then put the code block:
+
+```
+; a typical go procedure
+to go
+  ask turtles
+    [ fd 1 ]
+  tick
+end
+```
+````
 
 #### Formatted
 
 About to start the code block.
-Leave a blank line after this one, and then indent four spaces:
+Leave a blank line after this one, and then put the code block:
 
     ; a typical go procedure
     to go
@@ -309,11 +363,13 @@ Superscripts and subscripts are useful for writing formulas, equations, footnote
 
 #### Example
 
-    H<sub>2</sub>O
+```text
+H<sub>2</sub>O
 
-    2x<sup>4</sup> + x<sup>2</sup>
+2x<sup>4</sup> + x<sup>2</sup>
 
-    WWW<sup>[1]</sup>
+WWW<sup>[1]</sup>
+```
 
 #### Formatted
 
