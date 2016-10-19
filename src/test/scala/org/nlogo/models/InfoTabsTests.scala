@@ -66,7 +66,9 @@ class InfoTabsTests extends TestModels {
     testLines(_.info, pattern.matcher(_).matches)
   }
 
-  val codeTestsExceptions = Set("Example HubNet")
+  val codeTestsExceptions = Set(
+    "Example HubNet" // because the code block in it uses procedure names that don't exist
+  )
   testModels("Code blocks should only include NetLogo code") { model =>
     if (!model.isCompilable || codeTestsExceptions.contains(model.name))
       Seq.empty
