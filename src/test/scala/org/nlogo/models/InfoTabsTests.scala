@@ -74,8 +74,8 @@ class InfoTabsTests extends TestModels {
       withWorkspace(model) { ws =>
         val program = ws.world.program
         val alreadyDefined =
-          program.globals ++ program.turtlesOwn ++ program.patchesOwn ++ program.linksOwn ++ 
-          ws.getProcedures.keySet.asScala ++ program.breeds.keys ++ program.linkBreeds.keys ++
+          program.globals ++ program.turtlesOwn ++ program.patchesOwn ++ program.linksOwn ++
+          ws.procedures.keySet ++ program.breeds.keys ++ program.linkBreeds.keys ++
           program.breeds.values.flatMap(_.owns) ++ program.linkBreeds.values.flatMap(_.owns)
 
         def getErrors(node: Node): Seq[(String, String)] = node match {
@@ -86,7 +86,7 @@ class InfoTabsTests extends TestModels {
 
         def check(code: String) = {
           def compileProc(header: String, body: String) =
-            Try(ws.compiler.compileMoreCode(s"$header $body end", None, ws.world.program, ws.getProcedures, ws.getExtensionManager, ws.getCompilationEnvironment))
+            Try(ws.compiler.compileMoreCode(s"$header $body end", None, ws.world.program, ws.procedures, ws.getExtensionManager, ws.getCompilationEnvironment))
 
           val blocks = code.split("""\n\s*\n""")
           val errors = blocks map { block =>
