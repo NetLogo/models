@@ -62,8 +62,11 @@ A heading begins with one or more hash marks (`#`). First level headings get one
 
 ```text
 # First-level heading
+
 ## Second-level heading
+
 ### Third-level heading
+
 #### Fourth-level heading
 ```
 
