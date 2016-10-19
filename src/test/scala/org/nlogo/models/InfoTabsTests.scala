@@ -75,8 +75,8 @@ class InfoTabsTests extends TestModels {
         val program = ws.world.program
         val alreadyDefined =
           program.globals ++ program.turtlesOwn ++ program.patchesOwn ++ program.linksOwn ++
-          ws.procedures.keySet ++ program.breeds.keys ++ program.linkBreeds.keys ++
-          program.breeds.values.flatMap(_.owns) ++ program.linkBreeds.values.flatMap(_.owns)
+            ws.procedures.keySet ++ program.breeds.keys ++ program.linkBreeds.keys ++
+            program.breeds.values.flatMap(_.owns) ++ program.linkBreeds.values.flatMap(_.owns)
 
         def getErrors(node: Node): Seq[(String, String)] = node match {
           case code: VerbatimNode if code.getType != "text" => check(code.getText)
@@ -90,13 +90,19 @@ class InfoTabsTests extends TestModels {
 
           val blocks = code.split("""\n\s*\n""")
           val errors = blocks map { block =>
-            val idents = ws.tokenizeForColorization(block) filter (_.tpe == TokenType.Ident) map (_.text.toUpperCase) distinct
+            val idents = ws
+              .tokenizeForColorization(block)
+              .filter(_.tpe == TokenType.Ident)
+              .map(_.text.toUpperCase)
+              .distinct
             val unknownIdents = idents.diff(alreadyDefined.map(_.toUpperCase) :+ "->")
 
-            val body = block.
-              replaceAll(""";[^\n]*""", "").trim.
-              replaceFirst("""^to(-report)?\s+[-A-Za-z]+""", "").replaceFirst("""^\s*\[\s*[-A-Za-z]+(\s+[-A-Za-z]+)*\s*\]""", "").stripSuffix("end").
-              replaceAll("""\blet\b""", "set")
+            val body = block
+              .replaceAll(""";[^\n]*""", "").trim
+              .replaceFirst("""^to(-report)?\s+[-A-Za-z]+""", "")
+              .replaceFirst("""^\s*\[\s*[-A-Za-z]+(\s+[-A-Za-z]+)*\s*\]""", "")
+              .stripSuffix("end")
+              .replaceAll("""\blet\b""", "set")
 
             compileProc(s"to __proc [${unknownIdents.mkString(" ")}]", body) recoverWith {
               case ex: CompilerException if ex.getMessage == "Expected command." =>
