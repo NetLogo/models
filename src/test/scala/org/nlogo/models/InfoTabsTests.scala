@@ -68,7 +68,7 @@ class InfoTabsTests extends TestModels {
 
   val codeTestsExceptions = Set("Example HubNet")
   testModels("Code blocks should only include NetLogo code") { model =>
-    if (codeTestsExceptions.contains(model.name))
+    if (!model.isCompilable || codeTestsExceptions.contains(model.name))
       Seq.empty
     else
       withWorkspace(model) { ws =>
