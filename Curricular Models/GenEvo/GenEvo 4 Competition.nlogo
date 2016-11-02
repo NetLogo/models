@@ -4,6 +4,7 @@ globals [
   ; These are constant variables used to specify simulation restrictions
   global-lactose-limit         ; variable to specify lactose quantity
   initial-energy               ; variable to specify initial energy of bacterial cells
+  old-models-list                  ; list of ls:models to identify newly created model
 ]
 
 breed [ ecolis ecoli ]
@@ -39,7 +40,7 @@ end
 
 ; procedure to generate E. coli cells. If choose-models is OFF, default cell model is created for all the cells.
 to generate-cells
-  let color-list [ gray red brown yellow green cyan violet magenta ]
+  let color-list [ red orange brown yellow green cyan violet magenta ]
 
   let i 0
   create-ecolis initial-number-of-cells [
@@ -70,7 +71,7 @@ to create-my-model ; turtle procedure
   ; In that case, we kill the E. coli so we this doesn't mess anything up.
   ifelse my-model-path != False [
     ls:create-interactive-models 1 my-model-path
-    set my-model last ls:models
+    set my-model max ls:models
     ls:hide my-model
 
     ls:let initial-variables-list generate-initial-variables-list
@@ -269,8 +270,8 @@ true
 true
 "" ""
 PENS
-"gray" 1.0 0 -7500403 true "" "plot count ecolis with [ color = gray ]"
-"red" 1.0 0 -2674135 true "" "if initial-number-of-cells > 1 [ plot count ecolis with [ color = red ] ]"
+"red" 1.0 0 -2674135 true "" "plot count ecolis with [ color = red ]"
+"orange" 1.0 0 -955883 true "" "if initial-number-of-cells > 1 [ plot count ecolis with [ color = orange ] ]"
 "brown" 1.0 0 -6459832 true "" "if initial-number-of-cells > 2 [ plot count ecolis with [ color = brown ] ]"
 "yellow" 1.0 0 -1184463 true "" "if initial-number-of-cells > 3 [ plot count ecolis with [ color = yellow ] ]"
 "green" 1.0 0 -10899396 true "" "if initial-number-of-cells > 4 [ plot count ecolis with [ color = green ] ]"
@@ -298,7 +299,7 @@ initial-number-of-cells
 initial-number-of-cells
 1
 8
-3.0
+7.0
 1
 1
 NIL
@@ -311,7 +312,7 @@ SWITCH
 83
 glucose?
 glucose?
-1
+0
 1
 -1000
 
@@ -348,8 +349,8 @@ true
 false
 "" ""
 PENS
-"gray" 1.0 1 -7500403 true "" "histogram [ 1 ] of ecolis with [ color = gray ]"
-"red" 1.0 1 -2674135 true "" "histogram [ 2 ] of ecolis with [ color = red ]"
+"red" 1.0 1 -2674135 true "" "histogram [ 1 ] of ecolis with [ color = red ]"
+"orange" 1.0 1 -955883 true "" "histogram [ 2 ] of ecolis with [ color = orange ]"
 "brown" 1.0 1 -6459832 true "" "histogram [ 3 ] of ecolis with [ color = brown ]"
 "yellow" 1.0 1 -1184463 true "" "histogram [ 4 ] of ecolis with [ color = yellow ]"
 "green" 1.0 1 -10899396 true "" "histogram [ 4 ] of ecolis with [ color = green ]"
@@ -786,6 +787,7 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
 NetLogo 6.0-BETA1
 @#$#@#$#@
+need-to-manually-make-preview-for-this-model
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
