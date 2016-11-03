@@ -229,20 +229,31 @@ class CodeTests extends TestModels {
       "ZPD"
    ),
    "GenEvo 1 Genetic Switch" -> Set(
-     "go-lacY", "lacI", "lacZs", "lacIs-own", "create-RNAPs", "RNAP", "on-DNA?",
-     "lacZ-production-num", "lacYs", "lacZ-production-cost",
-     "LevelSpace?", "lacY-degradation-chance", "lacI-number",
-     "create-lacIs", "RNAPs-own", "lacZ", "go-lacI",
-     "lacI-bond-leakage", "go-lacZ", "lacI-lactose-binding-chance",
-     "RNAP-number", "lacI-lactose-binding-chance", "lacY-production-num",
-     "lacI-bond-leakage", "hatch-lacYs", "lacY", "lacIs",
-     "lacI-lactose-separation-chance", "hatch-lacZs", "RNAPs", "go-RNAP",
-     "lacY-production-cost", "lacZ-degradation-chance", "lacI-lactose-separation-chance",
-     "create-lacZs", "create-lacYs", "go-lacZ", "lacZs", "lacI-number", "lacY-degradation-chance"
+     "go-LacYs", "LacI", "LacZs", "LacIs-own", "create-RNAPs", "RNAP", "on-DNA?",
+     "LacZ-production-num", "LacYs", "LacZ-production-cost",
+     "LevelSpace?", "LacY-degradation-chance", "LacI-number",
+     "create-LacIs", "RNAPs-own", "LacZ", "go-LacI",
+     "LacI-bond-leakage", "go-LacZ", "LacI-lactose-binding-chance",
+     "RNAP-number", "LacI-lactose-binding-chance", "LacY-production-num",
+     "LacI-bond-leakage", "hatch-LacYs", "LacY", "LacIs",
+     "LacI-lactose-separation-chance", "hatch-lacZs", "RNAPs", "go-RNAP",
+     "LacY-production-cost", "LacZ-degradation-chance", "LacI-lactose-separation-chance",
+     "create-LacZs", "create-LacYs", "go-LacZs", "LacZs", "LacI-number", "LacY-degradation-chance",
+     "go-LacIs", "go-RNAPs", "hatch-LacZs"
    ),
    "GenEvo 4 Competition" -> Set(
      "LevelSpace?", "lacZ-inside", "lacI-lactose-complex", "lacY-inserted", "lacY-inside"
-  )
+   ),
+   "Genetic Switch - Synthetic Biology" -> Set(
+      "go-LacIs", "set-DNA-patches", "create-LacIs", "LacZ-gene", "RNAPs-own", "create-ONPGs",
+      "degrade-LacZ", "LacZ", "ONPG-degradation-count", "LacI", "ONPGs-own", "update-ONPG",
+      "RNAP-number", "go-LacIs", "create-LacZs", "LacZs", "LacZ-production-num-list", "ONPGs-here",
+      "LacI-bond-leakage", "ONPG", "go-RNAPs", "LacIs", "go-LacZs", "ONPG-degradation-chance",
+      "LacI-ONPG-separation-chance", "RNAPs", "create-RNAPs", "RNAPS", "go-LacZs", "LacI-ONPG-binding-chance",
+      "LacZ-degradation-chance", "add-ONPG", "ONPGs", "go-ONPG", "LacIs-own", "ONPG?", "ONPG-quantity",
+      "ONPG-number", "RNAP", "LacZ-degradation-chance", "LacI-ONPG-binding-chance", "LacZs", "LacZ-production-num",
+      "degrade-LacZ", "go-ONPGs", "LacI-number"
+   )
   )
 
   val typesToCheck = Set[TokenType](
