@@ -1,7 +1,7 @@
 breed [ ecolis ecoli ]
-globals [sugar-color] ; a global veriable to set color of patches with sugar
-patches-own [sugar?]  ; a boolean to track if a patch has a sugar or not
-ecolis-own [energy]   ; a veriable to track energy of E. coli cells
+globals [ sugar-color ] ; a global variable to set color of patches with sugar
+patches-own [ sugar? ]  ; a boolean to track if a patch has a sugar or not
+ecolis-own [ energy ]   ; a variable to track energy of E. coli cells
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;SETUP PROCEDURES ;;;;;;;;;;
@@ -32,7 +32,7 @@ to setup     ; Sets up the population of bacteria (E. coli) randomly across the 
     set sugar? False
   ]
 
-  ask n-of round (count patches * 0.4) patches [    ; initally sugar is added to 40% of patches
+  ask n-of round (count patches * 0.4) patches [    ; initially sugar is added to 40% of patches
     set pcolor sugar-color
     set sugar? True
   ]
@@ -72,7 +72,7 @@ to move   ; E. coli cells move randomly across the world.
 end
 
 to eat-sugar ; E.coli cells eat sugar if they are at a patch that has sugar. Their energy increases by 100 arbitrary energy units.
-  if natural-selection? [    ; In case of natural selection only cells with 'selective advantage' gain more enegy from sugar
+  if natural-selection? [    ; In case of natural selection only cells with 'selective advantage' gain more energy from sugar
     ifelse color = runresult ecoli-with-selective-advantage [
       if sugar? [
         set energy energy +  100 + %-advantage
@@ -101,7 +101,7 @@ to reproduce  ; E. coli cells reproduce if their energy doubles.
   ]
 end
 
-to death   ; E. coli cells die if thiir energy drop below zero.
+to death   ; E. coli cells die if their energy drops below zero.
   if energy < 0 [
     die
   ]
@@ -142,7 +142,7 @@ BUTTON
 30
 10
 121
-68
+43
 NIL
 setup
 NIL
@@ -159,7 +159,7 @@ BUTTON
 130
 10
 220
-70
+43
 NIL
 go
 T
@@ -173,10 +173,10 @@ NIL
 0
 
 PLOT
-35
-225
-435
-485
+30
+235
+430
+495
 Population Dynamics Graph
 Time
 Frequency
@@ -199,9 +199,9 @@ PENS
 
 SLIDER
 30
-75
+50
 435
-108
+83
 number-of-traits
 number-of-traits
 1
@@ -214,19 +214,19 @@ HORIZONTAL
 
 TEXTBOX
 30
-190
-450
-246
-Each trait is represented by a different color in the model.\nThe cells with trait that has selective advantage are represnted by blue outline.
+180
+490
+236
+Each trait is represented by a different color in the model.\nThe cells with the trait that has a selective advantage are represented\nby a blue outline.
 11
 0.0
 1
 
 CHOOSER
 30
-115
+90
 220
-160
+135
 ecoli-with-selective-advantage
 ecoli-with-selective-advantage
 "red" "orange" "brown" "yellow" "green" "cyan" "violet" "magenta"
@@ -234,9 +234,9 @@ ecoli-with-selective-advantage
 
 SLIDER
 225
-115
+90
 435
-148
+123
 %-advantage
 %-advantage
 0
@@ -249,9 +249,9 @@ HORIZONTAL
 
 SWITCH
 230
-25
+10
 435
-58
+43
 natural-selection?
 natural-selection?
 0
@@ -260,10 +260,10 @@ natural-selection?
 
 TEXTBOX
 230
-155
-435
-196
-%-advantage is because of increase in sugar eating efficiency.
+135
+440
+176
+%-advantage is really just an increase\nin sugar eating efficiency.
 11
 0.0
 1

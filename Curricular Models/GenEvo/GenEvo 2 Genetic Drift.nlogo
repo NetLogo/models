@@ -1,7 +1,7 @@
 breed [ ecolis ecoli ]
-globals [sugar-color] ; a global veriable to set color of patches with sugar
-patches-own [sugar?]  ; a boolean to track if a patch has a sugar or not
-ecolis-own [energy]   ; a veriable to track energy of E. coli cells
+globals [ sugar-color ] ; a global variable to set color of patches with sugar
+patches-own [ sugar? ]  ; a boolean to track if a patch has a sugar or not
+ecolis-own [ energy ]   ; a variable to track energy of E. coli cells
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;SETUP PROCEDURES ;;;;;;;;;;
@@ -20,11 +20,12 @@ to setup     ; Sets up the population of bacteria (E. coli) randomly across the 
     set color first color-list
     set color-list but-first color-list ; each type has a unique color so we remove this color form our list
   ]
+
   ask patches [
     set sugar? False
   ]
 
-  ask n-of round (count patches * 0.4) patches [    ; initally sugar is added to 40% of patches
+  ask n-of round (count patches * 0.4) patches [    ; initially sugar is added to 40% of patches
     set pcolor sugar-color
     set sugar? True
   ]
@@ -82,7 +83,7 @@ to reproduce  ; E. coli cells reproduce if their energy doubles.
   ]
 end
 
-to death   ; E. coli cells die if thiir energy drop below zero.
+to death   ; E. coli cells die if their energy drops below zero.
   if energy < 0 [
     die
   ]

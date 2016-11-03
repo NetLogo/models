@@ -96,7 +96,7 @@ to go
   ; if glucose? is ON, we get a steady stream of energy
   if glucose? [ set energy energy + 10 ]
   ; but it takes energy to maintain all of the proteins so consume some energy
-  set energy (energy - (count RNAPs + count LacIs + count lacZs) / 100 )
+  set energy (energy - (count RNAPs + count LacIs + count LacZs) / 100 )
 
   ; If we're in LevelSpace, then let the population model control division and lactose distribution.
   if not LevelSpace? [
@@ -344,6 +344,7 @@ end
 
 to animate-cell-division
   let random-heading 60 + random 60
+
   ask cell-wall [
     sprout-daughter-cell-turtles 1 [
       set color cell-color + 2
@@ -352,6 +353,7 @@ to animate-cell-division
       set heading random-heading
     ]
   ]
+
   ask cell-patches [
     sprout-daughter-cell-turtles 1 [
       set color white
@@ -361,41 +363,15 @@ to animate-cell-division
     ]
   ]
 
-  ask operon [
+  ask (patch-set operator terminator promoter operon) [
     sprout-daughter-cell-turtles 1 [
-      set color blue + 2
+      set color [ pcolor ] of myself + 2
       set shape "square"
       set size 2
       set heading random-heading
     ]
   ]
 
-  ask promoter [
-    sprout-daughter-cell-turtles 1 [
-      set color green + 2
-      set shape "square"
-      set size 2
-      set heading random-heading
-    ]
-  ]
-
-  ask terminator [
-    sprout-daughter-cell-turtles 1 [
-      set color gray + 2
-      set shape "square"
-      set size 2
-      set heading random-heading
-    ]
-  ]
-
-  ask operator [
-    sprout-daughter-cell-turtles 1 [
-      set color orange + 2
-      set shape "square"
-      set size 2
-      set heading random-heading
-    ]
-  ]
 
   ask (turtle-set LacYs LacZs RNAPs LacIs lactoses with [inside?]) [
     hatch 1 [
@@ -408,15 +384,10 @@ to animate-cell-division
   ]
 
   repeat 16 [
-    ask daughter-cell-turtles [
-      fd 1
-    ]
+    ask daughter-cell-turtles [ fd 1 ]
     display
-    wait 0.1
   ]
-  ask daughter-cell-turtles [
-    die
-  ]
+  ask daughter-cell-turtles [ die ]
 end
 
 
@@ -765,7 +736,7 @@ PLOT
 360
 635
 555
-lacZ Number
+LacZ Number
 Time
 Frequency
 0.0
@@ -776,7 +747,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot count lacZs"
+"default" 1.0 0 -16777216 true "" "plot count LacZs"
 
 SWITCH
 50

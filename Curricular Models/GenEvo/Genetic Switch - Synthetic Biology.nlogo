@@ -3,41 +3,40 @@ globals [
   rbs-color-list            ; color list to set rbs colors based on their strengths
   gene-color                ; color of the gene
   operon-transcribed?       ; a boolean to see if the operon is transcribed
-  lacZ-production-num       ; number of lacZ molecules produced per transcription (this number depends on the rbs strength)
-  lacZ-production-num-list  ; list of numbers to set lacZ molecules produced based on the rbs strength
+  LacZ-production-num       ; number of LacZ molecules produced per transcription (this number depends on the rbs strength)
+  LacZ-production-num-list  ; list of numbers to set LacZ molecules produced based on the rbs strength
   ONPG-degradation-count    ; a variable to keep track of number of ONPG molecules degraded
   energy-value              ; keeps track of the energy value of the cell
-  lacI-number               ; number of lacI molecules
-  RNAP-number               ; number of RNA Polemerase molecules
+  LacI-number               ; number of LacI molecules
+  RNAP-number               ; number of RNA polymerase molecules
   inhibited?                ; boolean for whether or not the operator is inhibited
   dna                       ; agentset containing the patches that are DNA
   non-dna                   ; agentset excluding the patches that are DNA
-  lacZ-gene                 ; agentset containing the patches that are LacZ gene
+  LacZ-gene                 ; agentset containing the patches that are LacZ gene
   promoter                  ; agentset containing the patches that are for the promoter
   operator                  ; agentset containing the patches that are for the operator
   rbs                       ; agentset containing the patches that are for the rbs
   terminator                ; agentset containing the patches that are for the terminator
-  total-transcripts         ; a variable to keep track of the number of transciption events
-  total-proteins            ; a veriable to keep track of the number of proteins produced
-  ONPG-quantity             ; a veriable to set ONPG quantity. This number is set to 200 in the setup procedure.
+  total-transcripts         ; a variable to keep track of the number of transcription events
+  total-proteins            ; a variable to keep track of the number of proteins produced
+  ONPG-quantity             ; a variable to set ONPG quantity. This number is set to 200 in the setup procedure.
 ]
 
-breed [ LacIs LacI ]  ; LacI repressior protein (violet proteins)
-breed [ LacZs LacZ ]  ; LacZ beta-galactosidase emzyme (red proteins)
+breed [ LacIs LacI ]  ; LacI repressor protein (violet proteins)
+breed [ LacZs LacZ ]  ; LacZ beta-galactosidase enzyme (red proteins)
 breed [ ONPGs ONPG ]  ; ortho-Nitrophenyl-beta-galactoside (ONPG) molecule (gray molecules) that is cleaved by beta-galactosidase to produce an intensely yellow compound.
 breed [ RNAPs RNAP ]  ; RNA Polymerases (brown proteins) that bind to promoter part of DNA and synthesize mRNA from the downstream DNA
 
 LacIs-own [
   partner                ; a partner is an ONPG molecule with which a LacI molecule binds to form a complex
-  bound-to-operator?     ; a boolean to track if a LacI is bound to DNA as an inhibitor of transciption
+  bound-to-operator?     ; a boolean to track if a LacI is bound to DNA as an inhibitor of transcription
 ]
 
-RNAPs-own [           ; a boolean to track if a RNAP is trascribing on DNA
-
+RNAPs-own [           ; a boolean to track if a RNAP is transcribing on the DNA
   on-dna?
 ]
 ONPGs-own [
-  partner             ; a partner is a lacI molecule with which an ONPG forms a complex
+  partner             ; a partner is a LacI molecule with which an ONPG forms a complex
 ]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -58,9 +57,9 @@ to set-global-variables
   set promoter-color-list [ 62 64 65 68 ]
   set rbs-color-list [ 12 14 15 17 ]
   set gene-color 95
-  set lacI-number 30
+  set LacI-number 30
   set RNAP-number 30
-  set lacZ-production-num-list [ 2 3 4 6 ]
+  set LacZ-production-num-list [ 2 3 4 6 ]
   set inhibited? false
   set ONPG-degradation-count 0
   set total-transcripts 0
@@ -85,7 +84,7 @@ to set-DNA-patches   ; a procedure to set the DNA patches in the cell and assign
   set rbs patches with [
     pxcor >= -20 and pxcor < -15 and pycor > 3 and pycor < 6
   ]
-  set lacZ-gene patches with [
+  set LacZ-gene patches with [
     pxcor >= -15 and pxcor < 25 and pycor > 3 and pycor < 6
   ]
   set terminator patches with [
@@ -95,7 +94,7 @@ to set-DNA-patches   ; a procedure to set the DNA patches in the cell and assign
   ask promoter [ set pcolor lime ]
   ask operator [ set pcolor orange ]
   ask rbs [ set pcolor red ]
-  ask lacZ-gene [ set pcolor blue ]
+  ask LacZ-gene [ set pcolor blue ]
   ask terminator [ set pcolor gray ]
 
   set non-dna patches with [ pcolor = white ]
@@ -103,22 +102,22 @@ end
 
 to set-rbs-effect        ; sets number of LacZ molecules produced per transcription event depedning on the rbs strength
    if rbs-strength = "weak" [
-    set lacZ-production-num item 0 lacZ-production-num-list
+    set LacZ-production-num item 0 LacZ-production-num-list
   ]
   if rbs-strength = "reference" [
-    set lacZ-production-num item 1 lacZ-production-num-list
+    set LacZ-production-num item 1 LacZ-production-num-list
   ]
   if rbs-strength = "medium" [
-    set lacZ-production-num item 2 lacZ-production-num-list
+    set LacZ-production-num item 2 LacZ-production-num-list
   ]
   if rbs-strength = "strong" [
-    set lacZ-production-num item 3 lacZ-production-num-list
+    set LacZ-production-num item 3 LacZ-production-num-list
   ]
 end
 
 ; part of the setup procedure to create and randomly place proteins inside the cell
 to add-proteins
-  create-lacIs lacI-number [
+  create-LacIs LacI-number [
     setxy random-xcor random-ycor
     set bound-to-operator? false
     set partner nobody
@@ -136,12 +135,12 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to go
-  go-lacIs
+  go-LacIs
   go-RNAPs
   go-LacZs
   go-ONPGs
   check-transcription
-  degrade-lacZ
+  degrade-LacZ
   dissociate-complex
   recolor-patches
   update-ONPG
@@ -184,7 +183,7 @@ end
 to go-LacIs
   ask LacIs [
     ifelse bound-to-operator? [
-       if (random-float 1 < lacI-bond-leakage) [ dissociate-from-operator ]
+       if (random-float 1 < LacI-bond-leakage) [ dissociate-from-operator ]
        if (count ONPGs-here with [partner = nobody] > 0 ) [ bind-to-lactose ]
     ]
     [
@@ -210,7 +209,7 @@ to dissociate-from-operator
 end
 
 to bind-to-lactose
-  if (random-float 1 < lacI-ONPG-binding-chance) [
+  if (random-float 1 < LacI-ONPG-binding-chance) [
     set partner one-of ONPGs-here with [partner = nobody]
     setshape
     ask partner [
@@ -276,8 +275,8 @@ to start-transcription
   set on-dna? true
 end
 
-to go-lacZs
-  ask lacZs [
+to go-LacZs
+  ask LacZs [
     move
     if count ONPGs-here != 0 [
       if random-float 1 < ONPG-degradation-chance
@@ -296,11 +295,11 @@ end
 
 to check-transcription
   if operon-transcribed? [
-    create-lacZs lacZ-production-num [
+    create-LacZs LacZ-production-num [
       setxy random-xcor random-ycor
       setshape
     ]
-    set total-proteins total-proteins + lacZ-production-num
+    set total-proteins total-proteins + LacZ-production-num
     set operon-transcribed? false
   ]
 end
@@ -454,8 +453,8 @@ SLIDER
 430
 350
 463
-lacI-bond-leakage
-lacI-bond-leakage
+LacI-bond-leakage
+LacI-bond-leakage
 0
 1
 0.05
@@ -513,60 +512,60 @@ PENS
 "default" 1.0 0 -16777216 true "" "plot ONPG-degradation-count"
 
 TEXTBOX
-420
-355
-937
-421
-Promoter                Operator                  RBS\n\nlacZ Gene               Terminator
+435
+360
+1030
+426
+Promoter                           Operator                                    RBS\n\nlacZ Gene                          Terminator
 14
 0.0
 1
 
 TEXTBOX
-360
-295
-428
-437
+370
+300
+500
+442
 -
 100
 65.0
 1
 
 TEXTBOX
-510
-295
-535
-437
+545
+305
+655
+447
 -
 100
 25.0
 1
 
 TEXTBOX
-650
-294
-674
-438
+735
+300
+875
+444
 -
 100
 15.0
 1
 
 TEXTBOX
-360
-330
-427
-420
+370
+335
+500
+425
 -
 100
 105.0
 1
 
 TEXTBOX
-510
-330
-535
-472
+545
+335
+640
+477
 -
 100
 5.0
@@ -636,11 +635,11 @@ SLIDER
 430
 916
 463
-lacZ-degradation-chance
-lacZ-degradation-chance
+LacZ-degradation-chance
+LacZ-degradation-chance
 0
 1
-0.006
+0.007
 0.001
 1
 NIL
@@ -661,7 +660,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -1088,7 +1087,7 @@ need-to-manually-make-preview-for-this-model
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="experiment" repetitions="5" runMetricsEveryStep="false">
+  <experiment name="Sample-Experiment" repetitions="5" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="2500"/>
