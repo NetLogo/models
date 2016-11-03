@@ -261,7 +261,7 @@ natural-selection?
 TEXTBOX
 230
 135
-440
+470
 176
 %-advantage is really just an increase\nin sugar eating efficiency.
 11
