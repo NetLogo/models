@@ -67,7 +67,7 @@ end
 to become-susceptible  ;; turtle procedure
   set infected? false
   set resistant? false
-  set color green
+  set color blue
 end
 
 to become-resistant  ;; turtle procedure
@@ -222,7 +222,7 @@ true
 true
 "" ""
 PENS
-"susceptible" 1.0 0 -10899396 true "" "plot (count turtles with [not infected? and not resistant?]) / (count turtles) * 100"
+"susceptible" 1.0 0 -13345367 true "" "plot (count turtles with [not infected? and not resistant?]) / (count turtles) * 100"
 "infected" 1.0 0 -2674135 true "" "plot (count turtles with [infected?]) / (count turtles) * 100"
 "resistant" 1.0 0 -7500403 true "" "plot (count turtles with [resistant?]) / (count turtles) * 100"
 
