@@ -477,7 +477,7 @@ end
 
 to refill-or-remove-nucleosides
   if count nucleosides < free-nucleosides [make-a-nucleoside]
-  if count nucleosides > free-nucleosides [ask one-of nucleosides [ask link-neighbors [die] die]]  ;; get rid of label tags too
+  if count nucleosides > free-nucleosides [ask one-of nucleosides [ask tagline-neighbors [die] die]]  ;; get rid of label tags too
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
