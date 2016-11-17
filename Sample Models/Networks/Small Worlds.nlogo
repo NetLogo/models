@@ -457,8 +457,8 @@ true
 true
 "" "if not rewire-one? [ stop ]"
 PENS
-"apl" 1.0 2 -65485 true "" "plotxy number-rewired / count links\n       average-path-length / average-path-length-of-lattice"
-"cc" 1.0 2 -10899396 true "" ";; note: dividing by initial value to normalize the plot\nplotxy number-rewired / count links\n       clustering-coefficient / clustering-coefficient-of-lattice"
+"apl" 1.0 2 -2674135 true "" "plotxy number-rewired / count links\n       average-path-length / average-path-length-of-lattice"
+"cc" 1.0 2 -13345367 true "" ";; note: dividing by initial value to normalize the plot\nplotxy number-rewired / count links\n       clustering-coefficient / clustering-coefficient-of-lattice"
 
 BUTTON
 283
@@ -576,7 +576,7 @@ true
 "" "if not rewire-all? [ stop ]"
 PENS
 "apl" 1.0 2 -2674135 true "" ";; note: dividing by value at initial value to normalize the plot\nplotxy rewiring-probability\n       average-path-length / average-path-length-of-lattice"
-"cc" 1.0 2 -10899396 true "" ";; note: dividing by initial value to normalize the plot\nplotxy rewiring-probability\n       clustering-coefficient / clustering-coefficient-of-lattice"
+"cc" 1.0 2 -13345367 true "" ";; note: dividing by initial value to normalize the plot\nplotxy rewiring-probability\n       clustering-coefficient / clustering-coefficient-of-lattice"
 
 BUTTON
 398
