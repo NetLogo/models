@@ -116,9 +116,9 @@ end
 
 to recolor-patches
   ifelse show-popularity? [
-    let range (minimum-route-popularity * 3)
+    let max-value (minimum-route-popularity * 3)
     ask patches with [ pcolor != gray ] [
-      set pcolor scale-color green popularity (- range) range
+      set pcolor scale-color green popularity (- max-value) max-value
     ]
   ] [
     ask patches with [ pcolor != gray ] [
