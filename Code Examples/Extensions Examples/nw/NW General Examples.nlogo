@@ -33,7 +33,7 @@ end
 
 to layout-turtles
   if layout = "radial" and count turtles > 1 [
-    let root-agent max-one-of turtles [ count my-links + count my-out-links + count my-in-links ]
+    let root-agent max-one-of turtles [ count my-links ]
     layout-radial turtles links root-agent
   ]
   if layout = "spring" [

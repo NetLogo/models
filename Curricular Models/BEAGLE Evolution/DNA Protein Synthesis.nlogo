@@ -470,12 +470,12 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to visualize-all-genes
-   ask (turtle-set promoters terminators)[ask link-neighbors [set hidden? not show-genes?] set hidden? not show-genes?]
+   ask (turtle-set promoters terminators)[ask tagline-neighbors [set hidden? not show-genes?] set hidden? not show-genes?]
 end
 
 
 to hide-genes  [strand-type]
-   ask (turtle-set promoters terminators)  with [strand = strand-type] [ask link-neighbors [set hidden? true] set hidden? true]
+   ask (turtle-set promoters terminators)  with [strand = strand-type] [ask tagline-neighbors [set hidden? true] set hidden? true]
 end
 
 
