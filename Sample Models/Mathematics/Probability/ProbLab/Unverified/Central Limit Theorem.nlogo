@@ -3,7 +3,7 @@ globals [
   sample-sum-list   ;; list of sums of sample totals
   regular-color     ;; color of specimens in the population
   chosen-color      ;; color of sampled specimens
-  ranger            ;; holds value of range so that the range slider can be used for guessing
+  ranger            ;; holds value of max-value so that the max-value slider can be used for guessing
 ]
 
 to setup
@@ -29,9 +29,9 @@ end
 
 to create-population ;; CREATE-RANDOM-PEOPLE
   setup
-  set ranger range + 1
+  set ranger max-value + 1
 
-  ;; colors patches in the range white, others gray
+  ;; colors patches in the range 0 to MAX-VALUE white, others gray
   ask patches
   [
     ifelse pxcor <= ranger + min-pxcor - 1
@@ -67,7 +67,7 @@ end
 to draw-your-own-people  ;; CREATE-MY-OWN-PEOPLE button
   ask patches [ set pcolor white]
   create-x-line-labels
-  set ranger range + 1
+  set ranger max-value + 1
 
   ;; we use a temp-mouse-xcor to avoid confusion when the user moves the mouse rapidly
   let temp-mouse-xcor "N/A"
@@ -173,8 +173,8 @@ end
 ;; the presets are suggested population distributions
 to preset-setup
   setup
-  set range 30
-  set ranger range + 1
+  set max-value 30
+  set ranger max-value + 1
   ask patches [ set pcolor white]
 end
 
@@ -276,11 +276,11 @@ SLIDER
 411
 553
 444
-range
-range
+max-value
+max-value
 0
 30
-30.0
+28.0
 1
 1
 NIL
@@ -603,7 +603,7 @@ GO -- repeats GO ONCE indefinitely.
 
 Sliders:
 SAMPLER SIZE -- determines the number of specimens sampled at each run through the Go procedure
-RANGE -- determines the range of values the members of the population can take.
+MAX-VALUE -- determines the range of values the members of the population can take (a number on the interval 0 to MAX-VALUE)
 
 Switches:
 ALSO-SUMS? -- if set to "On," the sums of the samples (and the means of these sums) is plotted as well as the means of the samples (and the mean of these means). If set to "Off," only the means are plotted.

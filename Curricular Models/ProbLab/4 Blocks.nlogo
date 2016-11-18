@@ -108,7 +108,7 @@ to make-histogram
     clear-plot
     plotxy 0 0
     plotxy 4 0
-    let range 0 ;; keeps track of the highest column
+    let max-column-height 0 ;; keeps track of the highest column
     let col-height 0 ;; keeps track of total height of a given histogram column
     let perm-category 0 ;; keeps track of which segment of a given histogram column
                         ;; corresponds to a specific block permutation
@@ -123,10 +123,10 @@ to make-histogram
         set col-height col-height + item perm-category stratified-list
         plotxy column col-height
         set perm-category perm-category + 1
-        set range max list range col-height
+        set max-column-height max list max-column-height col-height
       ]
     ]
-    if range > 9 [set-plot-y-range 0 range + 1]
+    if max-column-height > 9 [set-plot-y-range 0 max-column-height + 1]
   ] [
     histogram target-color-list
     let maxbar modes target-color-list
