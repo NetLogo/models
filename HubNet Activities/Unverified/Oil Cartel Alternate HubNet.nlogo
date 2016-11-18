@@ -411,10 +411,10 @@ end
 ;; ---------------------------------------------------------
 ;; UTILITY PROCEDURES - useful stuff
 ;; ---------------------------------------------------------
-to-report buyers-in-the-way? [ range ]  ;; buyer procedure
+to-report buyers-in-the-way? [ max-distance ]  ;; buyer procedure
   let counter 0
 
-  while [ counter < range ] [
+  while [ counter < max-distance ] [
     set counter (counter + 1)
 
     ;; Check if there's a red buyer there
