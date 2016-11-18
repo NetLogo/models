@@ -1,4 +1,4 @@
-scalaVersion := "2.11.8"
+scalaVersion := "2.12.0"
 
 scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
 
@@ -14,13 +14,13 @@ javaOptions ++= Seq(
 fork := true
 
 libraryDependencies ++= Seq(
-  "org.scalatest" %% "scalatest" % "2.2.6" % Test,
+  "org.scalatest" %% "scalatest" % "3.0.0" % Test,
   "commons-io" % "commons-io" % "2.4",
   "commons-validator" % "commons-validator" % "1.4.1",
-  "com.typesafe.play" %% "play-ws" % "2.3.8",
-  "com.github.wookietreiber" %% "scala-chart" % "0.4.2",
-  "org.jfree" % "jfreesvg" % "3.0",
-  "org.scalactic" % "scalactic_2.11" % "2.2.6"
+  "org.apache.commons" % "commons-lang3" % "3.5",
+  "org.asynchttpclient" % "async-http-client" % "2.0.24",
+  "com.github.wookietreiber" %% "scala-chart" % "0.5.1",
+  "org.jfree" % "jfreesvg" % "3.0"
 )
 
 (test in Test) <<= (test in Test) dependsOn {

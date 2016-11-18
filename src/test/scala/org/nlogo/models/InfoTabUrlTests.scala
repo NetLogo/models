@@ -7,6 +7,7 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
+import scala.collection.JavaConverters._
 import scala.util.Try
 
 import org.apache.commons.validator.routines.UrlValidator
@@ -21,11 +22,7 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.FunSuite
 import org.scalatest.concurrent.ScalaFutures
 
-import com.ning.http.client.AsyncHttpClientConfig
-
-import play.api.libs.ws.WSRequestHolder
-import play.api.libs.ws.WSResponse
-import play.api.libs.ws.ning.NingWSClient
+import org.asynchttpclient.{ DefaultAsyncHttpClient, DefaultAsyncHttpClientConfig, Response }
 
 class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll {
 
@@ -49,12 +46,9 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
     .groupBy(_._1) // group by links
     .mapValues(_.unzip._2) // keep only models in the map's values
 
-  val builder = new AsyncHttpClientConfig.Builder()
-  val client = new NingWSClient(builder.build())
+  val builder = new DefaultAsyncHttpClientConfig.Builder()
+  val client = new DefaultAsyncHttpClient(builder.build())
   val urlValidator = new UrlValidator(ALLOW_2_SLASHES)
-
-  val head = (_: WSRequestHolder).head()
-  val get = (_: WSRequestHolder).get()
 
   if (!onTravis) {
     /* Only run the URL tests locally: they take a long time to run on Travis
@@ -68,7 +62,7 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
         (link, models) <- links.par
         if link.startsWith("http")
         duration = 20.seconds
-        failure <- Try(Await.result(request(link, head), duration))
+        failure <- Try(Await.result(request(link), duration))
           .getOrElse {
             // tolerate time outs from the CCL server
             if (link.contains("://ccl")) None
@@ -95,44 +89,44 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
     )
   )
 
-  def redirectTolerated(link: String, response: WSResponse) =
-    Set(302, 207).contains(response.status) ||
-      (response.header("Location") match {
-        case Some("/")            => true
-        case Some(l) if l == link => true
-        case _                    => false
+  def redirectTolerated(link: String, response: Response) =
+    Set(302, 207).contains(response.getStatusCode) ||
+      (response.getHeader("Location") match {
+        case "/"            => true
+        case l if l == link => true
+        case _              => false
       })
 
   def request(
     link: String,
-    method: WSRequestHolder => Future[WSResponse],
     timeout: Int = 1000): Future[Option[String]] = {
-    def success = Future.successful(None)
-    def failure(msg: String) = Future.successful(Option(msg))
-    if (!urlValidator.isValid(link)) failure("Invalid URL!") else {
-      val requestHolder = client.url(link).withRequestTimeout(timeout)
-      method(requestHolder).flatMap { response =>
-        response.status match {
-          case sc if sc >= 200 && sc < 300 =>
-            success
-          case sc if sc >= 300 && sc < 400 && redirectTolerated(link, response) =>
-            success
-          case sc if (sc == 403 || sc == 404) && method == head =>
-            request(link, get) // sometimes HEAD is forbidden, retry with a GET
-          case sc if sc >= 500 && sc < 600 =>
-            request(link, method)
-          case sc if exceptions.get(sc).filter(_.exists(link startsWith _)).isDefined =>
-            success
-          case sc => failure(
-            "Got response status code " + sc + ". Headers:\n" +
-              response.allHeaders.mkString("\n")
-          )
+      def success = Future.successful(None)
+      def failure(msg: String) = Future.successful(Option(msg))
+
+      if (!urlValidator.isValid(link)) failure("Invalid URL!") else {
+        Future {
+          val future = client.prepareGet(link).execute()
+          future.get(timeout, java.util.concurrent.TimeUnit.MILLISECONDS)
+        }.flatMap { response =>
+          response.getStatusCode match {
+            case sc if sc >= 200 && sc < 300 =>
+              success
+            case sc if sc >= 300 && sc < 400 && redirectTolerated(link, response) =>
+              success
+            case sc if sc >= 500 && sc < 600 =>
+              request(link, timeout)
+            case sc if exceptions.get(sc).filter(_.exists(link startsWith _)).isDefined =>
+              success
+            case sc => failure(
+              "Got response status code " + sc + ". Headers:\n" +
+              response.getHeaders.asScala.mkString("\n")
+            )
+          }
+        }.recoverWith {
+          case e: ConnectException => request(link, timeout * 2)
+          case e: TimeoutException => request(link, timeout * 2)
         }
-      }.recoverWith {
-        case e: ConnectException => request(link, method, timeout * 2)
-        case e: TimeoutException => request(link, method, timeout * 2)
       }
-    }
   }
 
   override def afterAll(): Unit = client.close()

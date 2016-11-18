@@ -35,10 +35,9 @@ object Stats {
       .toSeq
       .sortBy(t => (0 - t._2, t._1))
 
-    val chart = BarChart(data,
-      title = "Usage of primitives in the Models Library",
-      legend = false
-    )
+    val chart   = BarChart(data)
+    chart.title = "Usage of primitives in the Models Library"
+    chart.peer.removeLegend()
     chart.peer.addSubtitle(new TextTitle(new Date().toString))
 
     val renderer = new BarRenderer
