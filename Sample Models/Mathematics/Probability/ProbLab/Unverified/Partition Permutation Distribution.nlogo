@@ -464,7 +464,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Abrahamson, D. and Wilensky, U. (2004).  NetLogo Partition Perms Distrib model.  http://ccl.northwestern.edu/netlogo/models/PartitionPermsDistrib.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Abrahamson, D. and Wilensky, U. (2004).  NetLogo Partition Permutation Distribution model.  http://ccl.northwestern.edu/netlogo/models/PartitionPermutationDistribution.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 

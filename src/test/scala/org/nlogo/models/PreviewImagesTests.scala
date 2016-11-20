@@ -56,7 +56,7 @@ class PreviewImagesTests extends TestModels {
     "Logistic Growth",
     "Prob Graphs Basic",
     "Equidistant Probability",
-    "Partition Perms Distrib",
+    "Partition Permutation Distribution",
     "Video Camera Example",
     "Movie Playing Example",
     "GenEvo 1 Genetic Switch",
