@@ -1,38 +1,39 @@
-globals [grass]  ;; keep track of how much grass there is
-;; Sheep and wolves are both breeds of turtle.
-breed [sheep a-sheep]  ;; sheep is its own plural, so we use "a-sheep" as the singular.
-breed [wolves wolf]
-turtles-own [energy]       ;; both wolves and sheep have energy
-patches-own [countdown]
+globals [ grass max-sheep ]  ; keep track of how much grass there is
+; Sheep and wolves are both breeds of turtle.
+breed [ sheep a-sheep ]  ; sheep is its own plural, so we use "a-sheep" as the singular.
+breed [ wolves wolf ]
+turtles-own [ energy ]       ; both wolves and sheep have energy
+patches-own [ countdown ]
 
 to setup
   clear-all
+  set max-sheep 100000
   ask patches [ set pcolor green ]
-  ;; check GRASS? switch.
-  ;; if it is true, then grass grows and the sheep eat it
-  ;; if it false, then the sheep don't need to eat
+  ; check GRASS? switch.
+  ; if it is true, then grass grows and the sheep eat it
+  ; if it false, then the sheep don't need to eat
   if grass? [
     ask patches [
-      set pcolor one-of [green brown]
+      set pcolor one-of [ green brown ]
       if-else pcolor = green
         [ set countdown grass-regrowth-time ]
-        [ set countdown random grass-regrowth-time ] ;; initialize grass grow clocks randomly for brown patches
+        [ set countdown random grass-regrowth-time ] ; initialize grass grow clocks randomly for brown patches
     ]
   ]
   set-default-shape sheep "sheep"
-  create-sheep initial-number-sheep  ;; create the sheep, then initialize their variables
+  create-sheep initial-number-sheep  ; create the sheep, then initialize their variables
   [
     set color white
-    set size 1.5  ;; easier to see
+    set size 1.5  ; easier to see
     set label-color blue - 2
     set energy random (2 * sheep-gain-from-food)
     setxy random-xcor random-ycor
   ]
   set-default-shape wolves "wolf"
-  create-wolves initial-number-wolves  ;; create the wolves, then initialize their variables
+  create-wolves initial-number-wolves  ; create the wolves, then initialize their variables
   [
     set color black
-    set size 2  ;; easier to see
+    set size 2  ; easier to see
     set energy random (2 * wolf-gain-from-food)
     setxy random-xcor random-ycor
   ]
@@ -43,10 +44,11 @@ end
 
 to go
   if not any? turtles [ stop ]
+  if not any? wolves and count sheep > max-sheep [ user-message "The sheep have inherited the earth" stop ]
   ask sheep [
     move
     if grass? [
-      set energy energy - 1  ;; deduct energy for sheep only if grass? switch is on
+      set energy energy - 1  ; deduct energy for sheep only if grass? switch is on
       eat-grass
     ]
     death
@@ -54,7 +56,7 @@ to go
   ]
   ask wolves [
     move
-    set energy energy - 1  ;; wolves lose energy as they move
+    set energy energy - 1  ; wolves lose energy as they move
     catch-sheep
     death
     reproduce-wolves
@@ -65,48 +67,48 @@ to go
   display-labels
 end
 
-to move  ;; turtle procedure
+to move  ; turtle procedure
   rt random 50
   lt random 50
   fd 1
 end
 
-to eat-grass  ;; sheep procedure
-  ;; sheep eat grass, turn the patch brown
+to eat-grass  ; sheep procedure
+  ; sheep eat grass, turn the patch brown
   if pcolor = green [
     set pcolor brown
-    set energy energy + sheep-gain-from-food  ;; sheep gain energy by eating
+    set energy energy + sheep-gain-from-food  ; sheep gain energy by eating
   ]
 end
 
-to reproduce-sheep  ;; sheep procedure
-  if random-float 100 < sheep-reproduce [  ;; throw "dice" to see if you will reproduce
-    set energy (energy / 2)                ;; divide energy between parent and offspring
-    hatch 1 [ rt random-float 360 fd 1 ]   ;; hatch an offspring and move it forward 1 step
+to reproduce-sheep  ; sheep procedure
+  if random-float 100 < sheep-reproduce [  ; throw "dice" to see if you will reproduce
+    set energy (energy / 2)                ; divide energy between parent and offspring
+    hatch 1 [ rt random-float 360 fd 1 ]   ; hatch an offspring and move it forward 1 step
   ]
 end
 
-to reproduce-wolves  ;; wolf procedure
-  if random-float 100 < wolf-reproduce [  ;; throw "dice" to see if you will reproduce
-    set energy (energy / 2)               ;; divide energy between parent and offspring
-    hatch 1 [ rt random-float 360 fd 1 ]  ;; hatch an offspring and move it forward 1 step
+to reproduce-wolves  ; wolf procedure
+  if random-float 100 < wolf-reproduce [  ; throw "dice" to see if you will reproduce
+    set energy (energy / 2)               ; divide energy between parent and offspring
+    hatch 1 [ rt random-float 360 fd 1 ]  ; hatch an offspring and move it forward 1 step
   ]
 end
 
-to catch-sheep  ;; wolf procedure
-  let prey one-of sheep-here                    ;; grab a random sheep
-  if prey != nobody                             ;; did we get one?  if so,
-    [ ask prey [ die ]                          ;; kill it
-      set energy energy + wolf-gain-from-food ] ;; get energy from eating
+to catch-sheep  ; wolf procedure
+  let prey one-of sheep-here                    ; grab a random sheep
+  if prey != nobody                             ; did we get one?  if so,
+    [ ask prey [ die ]                          ; kill it
+      set energy energy + wolf-gain-from-food ] ; get energy from eating
 end
 
-to death  ;; turtle procedure
-  ;; when energy dips below zero, die
+to death  ; turtle procedure
+  ; when energy dips below zero, die
   if energy < 0 [ die ]
 end
 
-to grow-grass  ;; patch procedure
-  ;; countdown on brown patches: if reach 0, grow some grass
+to grow-grass  ; patch procedure
+  ; countdown on brown patches: if reach 0, grow some grass
   if pcolor = brown [
     ifelse countdown <= 0
       [ set pcolor green
