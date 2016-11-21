@@ -341,7 +341,7 @@ true
 true
 "" "set z-distr [ read-from-string item 1 my-genes ] of fish"
 PENS
-"Count" 1.0 1 -16777216 true "" "let maxbar modes z-distr\nlet maxrange length (filter [ [z] -> z = item 0 maxbar ] z-distr )\nset-plot-y-range 0 max list 10 maxrange\nhistogram z-distr\n"
+"Count" 1.0 1 -16777216 true "" "let maxbar modes z-distr\nlet maxrange length (filter [ [z] -> z = item 0 maxbar ] z-distr )\nset-plot-y-range 0 max list 10 maxrange\nhistogram z-distr"
 "Average" 1.0 0 -2674135 true "" "; plots a vertical line at mean\nplot-pen-reset\nif z-distr != [] [\n  plotxy mean z-distr plot-y-min\n  plot-pen-down\n  plotxy mean z-distr plot-y-max\n  plot-pen-up\n]"
 
 SLIDER
@@ -403,10 +403,10 @@ true
 true
 "" ""
 PENS
-"G-body G-fin" 1.0 0 -10899396 true "" "plotxy ticks ifelse-value any? fish [ 100 * count fish with [ color = green and shape = dom-shape ] / count fish ] [ 0 ] "
-"G-body B-fin" 1.0 0 -6459832 true "" "plotxy ticks ifelse-value any? fish [ 100 * count fish with [ color = green and shape = res-shape ] / count fish ] [ 0 ] "
-"B-body G-fin" 1.0 0 -13312 true "" "plotxy ticks ifelse-value any? fish [ 100 * count fish with [ color = blue and shape = dom-shape ] / count fish ] [ 0 ] "
-"B-body B-fin" 1.0 0 -13345367 true "" "plotxy ticks ifelse-value any? fish [ 100 * count fish with [ color = blue and shape = res-shape ] / count fish ] [ 0 ] "
+"G-body G-fin" 1.0 0 -10899396 true "" "plotxy ticks ifelse-value any? fish [ 100 * count fish with [ color = green and shape = dom-shape ] / count fish ] [ 0 ]"
+"G-body B-fin" 1.0 0 -6459832 true "" "plotxy ticks ifelse-value any? fish [ 100 * count fish with [ color = green and shape = res-shape ] / count fish ] [ 0 ]"
+"B-body G-fin" 1.0 0 -13312 true "" "plotxy ticks ifelse-value any? fish [ 100 * count fish with [ color = blue and shape = dom-shape ] / count fish ] [ 0 ]"
+"B-body B-fin" 1.0 0 -13345367 true "" "plotxy ticks ifelse-value any? fish [ 100 * count fish with [ color = blue and shape = res-shape ] / count fish ] [ 0 ]"
 
 CHOOSER
 5
@@ -1274,7 +1274,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-BETA1
+NetLogo 6.0-BETA2
 @#$#@#$#@
 setup add-fish 50 repeat 10 [ go ]
 @#$#@#$#@
