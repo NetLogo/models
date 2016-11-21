@@ -4,7 +4,7 @@ turtles-own [ angular-position momentum ]
 to setup
   clear-all
   ls:reset ; clears all LevelSpace child models
-  ask patches [set pcolor white]
+  ask patches [ set pcolor white ]
 
   ; make a bunch of turtles, each representing a different rotator in an initial random state
   create-turtles num-rotators [
@@ -70,7 +70,7 @@ to inspect-rotator
       set initial-momentum precision parent-momentum 3
 
       setup
-      repeat parent-ticks [go]    ; then asks it catch up to the current ticks
+      repeat parent-ticks [ go ]    ; then asks it catch up to the current ticks
       set continuous-motion? true
     ]
 
@@ -214,13 +214,13 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model simulates a bunch of <a href="https://en.wikipedia.org/wiki/Kicked_rotator">kicked rotators</a> operating simultaneously and graphs their trajectories. This graph shows a divided phase space where integrable islands of stability are surrounded by a chaotic component (aka "chaotic sea"). This is what's called the <a href="http://www.scholarpedia.org/article/Chirikov_standard_map">Chirikov standard map</a>, a tool in physics that can be used to describe many different dynamical systems from the motion of particles in accelerators to comet dynamics in solar systems.
+This model simulates a collection of <a href="https://en.wikipedia.org/wiki/Kicked_rotator">kicked rotators</a> operating simultaneously and graphs their trajectories. This graph shows a divided phase space where integrable islands of stability are surrounded by a chaotic component (aka "chaotic sea"). This is what's called the <a href="http://www.scholarpedia.org/article/Chirikov_standard_map">Chirikov standard map</a>, a tool in physics that can be used to describe many different dynamical systems from the motion of particles in accelerators to comet dynamics in solar systems.
 
 For more info on what a kicked rotator is, check out the Kicked Rotator model in the models library.
 
 ## HOW IT WORKS
 
-The model generates a number of turtles, each representing a kicked rotator with a unique starting angular position and momentum. Then, at each tick, the model 'kicks' each rotator, changing both its momentum and angular position. The turtle then 'stamps' a copy of itself onto the view in order to create the display (creating a <a href="http://mathworld.wolfram.com/PhasePortrait.html">phase portrait</a> via a <a href="https://en.wikipedia.org/wiki/Poincaré_map">Poincare return map</a>). This continues for as long as the model is run.
+The model generates a number of turtles, each representing a kicked rotator with a unique starting angular position and momentum. Then, at each tick, the model 'kicks' each rotator, changing both its momentum and angular position. The turtle then 'stamps' a copy of itself onto the view with the location representing its current momentum and angular position. Each turtle repeats this process at each tick, creating an overall <a href="http://mathworld.wolfram.com/PhasePortrait.html">phase portrait</a> via a <a href="https://en.wikipedia.org/wiki/Poincaré_map">Poincare return map</a>. This continues for as long as the model is run.
 
 For more info on how each individual rotator (turtle) works,  checkout the Kicked Rotator model.
 
@@ -230,7 +230,7 @@ Use the NUM-ROTATORS and KICK-STRENGTH sliders to determine the number of rotato
 
 Clicking the ADD-ROTATOR button will add another rotator to the simulation. NetLogo will automatically run this rotator for the same number of ticks that your model has run.
 
-Clicking the INSPECT-ROTATOR button and then clicking any point in the view will create a kicked rotator model with the initial momentum and angular position corresponding to the point in the view you clicked. This rotator will be created in the exact state it would be if it had been run the same number of ticks as your model.
+Clicking the INSPECT-ROTATOR button and then clicking any point in the view will create a kicked rotator model with the initial momentum and angular position corresponding to the point in the view you clicked. This rotator will then 'run' until the it reaches the same number of ticks that the parent model has run for.
 
 ## THINGS TO NOTICE
 
