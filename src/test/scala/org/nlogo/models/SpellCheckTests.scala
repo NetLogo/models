@@ -2,7 +2,10 @@ package org.nlogo.models
 
 import java.io.ByteArrayInputStream
 import java.io.File
+import java.lang.{ ProcessBuilder => JProcessBuilder }
+import java.nio.file.{ Files, Path, Paths }
 
+import scala.collection.JavaConverters._
 import scala.sys.process.ProcessBuilder
 import scala.sys.process.ProcessLogger
 import scala.sys.process.stringSeqToProcess
@@ -27,22 +30,31 @@ class SpellCheckTests extends TestModels with BeforeAndAfterAll {
       throw new Exception("aspell not installed!")
 
   val dictPath = new File(getClass.getResource("/modelwords.txt").toURI).getPath
-  val aspell: ProcessBuilder = Seq(
-    "aspell",
-    "--encoding=UTF-8",
-    "--lang=en_US",
-    "--mode=html",
-    "--ignore-case",
-    "--personal", dictPath,
-    "list")
+  def aspell(inPath: Path): (JProcessBuilder, Path) = {
+    val tmpPath = Files.createTempFile("out", ".txt")
+    (new JProcessBuilder("aspell",
+      "--encoding=UTF-8",
+      "--lang=en_US",
+      "--mode=html",
+      "--ignore-case",
+      "--personal", dictPath,
+      "list")
+        .redirectInput(inPath.toFile)
+        .redirectOutput(tmpPath.toFile), tmpPath)
+  }
   val escapes = Set("\\n", "\\t")
 
+  // using tmpPath and java's ProcessBuilder as a workaround for
+  // https://issues.scala-lang.org/browse/SI-10055
   testModels("Models must not contain typos") { model =>
+    val tmpPath = Files.createTempFile(model.file.getName, ".txt")
     val contentWithoutEscapes = escapes.foldLeft(model.content)(_.replace(_, " "))
-    val inputStream = new ByteArrayInputStream(contentWithoutEscapes.getBytes("UTF-8"))
+    Files.write(tmpPath, contentWithoutEscapes.getBytes("UTF-8"))
     val lines = model.content.lines.zipWithIndex.toStream
-    (aspell #< inputStream)
-      .lineStream
+    val (runCheck, outFile) = aspell(tmpPath)
+    runCheck.start().waitFor()
+    Files.readAllLines(outFile)
+      .asScala
       .distinct
       .map(typo => typo -> lines.filter(_._1 contains typo).map(_._2 + 1))
       .sortBy(_._2.head) // sort by line number of first occurrence
