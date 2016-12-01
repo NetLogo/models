@@ -175,7 +175,7 @@ Try changing the size of the lattice (`max-pxcor` and `max-pycor` in the Model S
 
 ## EXTENDING THE MODEL
 
-What if the fire could spread in eight directions (including diagonals)? To do that, use "neighbors" instead of "neighbors4". How would that change the fire's chances of reaching the right edge? In this model, what "critical density" of trees is needed for the fire to propagate?
+What if the fire could spread in eight directions (including diagonals)? To do that, use `neighbors` instead of `neighbors4`. How would that change the fire's chances of reaching the right edge? In this model, what "critical density" of trees is needed for the fire to propagate?
 
 Add wind to the model so that the fire can "jump" greater distances in certain directions.
 
