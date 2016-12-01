@@ -171,8 +171,7 @@ Set the density of trees to 55%. At this setting, there is virtually no chance t
 
 Try setting up and running a BehaviorSpace experiment (see Tools menu) to analyze the percent burned at different tree density levels. Plot the burn-percentage against the density. What kind of curve do you get?
 
-Try changing the size of the lattice (max-pxcor and max-pycor). Does it change the burn behavior of the fire? 
-
+Try changing the size of the lattice (`max-pxcor` and `max-pycor`). Does it change the burn behavior of the fire?
 
 ## EXTENDING THE MODEL
 
