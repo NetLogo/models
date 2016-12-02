@@ -482,7 +482,7 @@ Note the use of a patch variable to store precomputed neighborhood agentsets.  T
 ## CREDITS AND REFERENCES
 
 This model, and the preceding explanation, is adapted from Joshua M. Epstein, "Modeling civil violence: An agent-based computational approach", Proceedings of the National Academy of Sciences, Vol. 99, Suppl. 3, May 14, 2002, and is available at
-http://www.ncbi.nlm.nih.gov/pmc/articles/PMC128592/.
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC128592/.
 
 ## HOW TO CITE
 

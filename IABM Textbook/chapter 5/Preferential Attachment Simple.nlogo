@@ -294,7 +294,7 @@ For a more technical treatment, see:
 
 Barabási's webpage has additional information at: http://www.barabasi.com/
 
-The layout algorithm is based on the Fruchterman-Reingold layout algorithm.  More information about this algorithm can be obtained at: http://emr.cs.iit.edu/~reingold/force-directed.pdf.
+The layout algorithm is based on the Fruchterman-Reingold layout algorithm.  More information about this algorithm can be obtained at: https://cs.brown.edu/~rt/gdhandbook/chapters/force-directed.pdf.
 
 For a model similar to the one described in the suggested extension, please consult:
 

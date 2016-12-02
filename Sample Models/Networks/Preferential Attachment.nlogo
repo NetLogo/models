@@ -352,7 +352,7 @@ Albert-László Barabási & Reka Albert. Emergence of Scaling in Random Networks
 
 Barabási's webpage has additional information at: http://www.barabasi.com/
 
-The layout algorithm is based on the Fruchterman-Reingold layout algorithm.  More information about this algorithm can be obtained at: http://emr.cs.iit.edu/~reingold/force-directed.pdf.
+The layout algorithm is based on the Fruchterman-Reingold layout algorithm.  More information about this algorithm can be obtained at: https://cs.brown.edu/~rt/gdhandbook/chapters/force-directed.pdf.
 
 For a model similar to the one described in the first suggested extension, please consult:
 W. Brian Arthur, "Urban Systems and Historical Path-Dependence", Chapt. 4 in Urban systems and Infrastructure, J. Ausubel and R. Herman (eds.), National Academy of Sciences, Washington, D.C., 1988.

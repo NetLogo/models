@@ -339,7 +339,7 @@ We use the `in-radius` command to figure out if any of the seeds are too close t
 
 For more information on Voronoi diagrams, see https://en.wikipedia.org/wiki/Voronoi.  (There are also many other sites on this topic on the web.)
 
-This model was inspired by a Processing implementation of a Voronoi diagram, available here: http://www.openprocessing.org/sketch/7571
+This model was inspired by a Processing implementation of a Voronoi diagram, available here: https://www.openprocessing.org/sketch/7571
 
 ## HOW TO CITE
 
