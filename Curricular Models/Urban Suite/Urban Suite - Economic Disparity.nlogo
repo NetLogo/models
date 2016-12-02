@@ -748,7 +748,7 @@ It might also be interesting to compare it to the models "Wealth Distribution" a
 
 ## CREDITS AND REFERENCES
 
-This model was loosely based on a model originally written by William Rand and Derek Robinson as part of the Sluce Project at the University of Michigan ([http://vserver1.cscs.lsa.umich.edu/sluce/](http://vserver1.cscs.lsa.umich.edu/sluce/)).  For more about the original model (SOME) that was the basis for this model, please see:
+This model was loosely based on a model originally written by William Rand and Derek Robinson as part of the Sluce Project at the University of Michigan.  For more about the original model (SOME) that was the basis for this model, please see:
 
 Brown D.G., Robinson D.T., Nassauer J.I., An L., Page S.E., Low B., Rand W., Zellner M., and R. Riolo (In Press) "Exurbia from the Bottom-Up: Agent-Based Modeling and Empirical Requirements." Geoforum.
 
