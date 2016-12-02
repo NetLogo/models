@@ -2,7 +2,10 @@ package org.nlogo.models
 
 import java.io.ByteArrayInputStream
 
-import scala.sys.process.stringSeqToProcess
+import difflib.DiffUtils
+
+import scala.collection.JavaConverters._
+import scala.io.Source
 import scala.util.Try
 
 class LegalInformationTests extends TestModels {
@@ -23,13 +26,12 @@ class LegalInformationTests extends TestModels {
   }
 
   testModels("Model file should be identical to output of Notarizer") { model =>
+    val savedLines = Source.fromFile(model.file.getPath).getLines.toSeq.asJava
     for {
       notarizedModel <- Try(Notarizer.notarize(model)).toOption
-      inputStream = new ByteArrayInputStream(notarizedModel.getBytes("UTF-8"))
-      diffCommand = Seq("diff", "-u", "-", model.file.getPath)
-      diffs = (diffCommand #< inputStream).lineStream_!.mkString("\n")
-      if diffs.nonEmpty
-    } yield diffs
+      patch = DiffUtils.diff(savedLines, notarizedModel.lines.toSeq.asJava)
+      if ! patch.getDeltas.isEmpty
+    } yield DiffUtils.generateUnifiedDiff(model.file.getPath, model.file.getPath, savedLines, patch, 3).asScala.mkString("\n")
   }
 
 }
