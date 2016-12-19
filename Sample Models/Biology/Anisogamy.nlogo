@@ -230,15 +230,19 @@ to follow-a-gamete [col]
     user-message "There are no more gametes to follow!"
   ]
 end
+
+
+; Copyright 2016 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 280
 10
-758
-489
+750
+481
 -1
 -1
-14.242424242424242
+14.0
 1
 8
 1
@@ -514,25 +518,23 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model is a thought experiment related to the evolution of the two sexes as we know them: males producing numerous small sperm cells and females producing only a handful of big egg cells. 
+This model is a thought experiment related to the evolution of the two sexes as we know them: males producing numerous small sperm cells and females producing only a handful of big egg cells.
 
-The model has two pseudo-sexes (red and yellow). The adult organisms of each  pseduo-sex begin with the same reproductive strategy: produce medium sized gametes in approximately the same quantities. As new generations spawn random mutations in the size of gametes that adults produce results in many different reproductive strategies, resulting in competition amongst the strategies. The model shows however, how this competition ultimately results in the emergence of two evolutionarily stable reproductive strategies: 1. produce numerous small gametes and 2. produce a handfulof big gametes.
+The model has two pseudo-sexes (red and yellow). The adult organisms of each pseudo-sex begin with the same reproductive strategy: produce medium sized gametes in approximately the same quantities. As new generations spawn random mutations in the size of gametes that adults produce results in many different reproductive strategies, resulting in competition amongst the strategies. The model shows however, how this competition ultimately results in the emergence of two evolutionarily stable reproductive strategies: 1. produce numerous small gametes and 2. produce a handful of big gametes.
 
-The model also allows you to test many different assumptions related to the evolution of the sperm-egg dichotomy (anisogamy) from a uniform gamete size strategy by changing the various parameters. 
-
+The model also allows you to test many different assumptions related to the evolution of the sperm-egg dichotomy (anisogamy) from a uniform gamete size strategy by changing the various parameters.
 
 ## HOW IT WORKS
 
 Adults move around randomly and produce gametes after random time intervals. The number of gametes produced by an adult in a given reproduction cycle depends on its reproduction budget and its gamete size strategy. The smaller the gamete size, the more gametes an adult can produce in a cycle. The larger the gamete size, the fewer gametes an adult can produce in a cycle.
 
-The gametes also move around randomly. When two gametes touch each other, they initiate a fusion process to form a zygote. One of the zygote's parents is selected randomly to pass on both its sex and its gamete size strategy to the zygote. However, the gamete size strategy is subject to small mutations that make the target gamete size smaller or bigger. 
+The gametes also move around randomly. When two gametes touch each other, they initiate a fusion process to form a zygote. One of the zygote's parents is selected randomly to pass on both its sex and its gamete size strategy to the zygote. However, the gamete size strategy is subject to small mutations that make the target gamete size smaller or bigger.
 
-These new zygotes are non-mobile agents. They stay put and incubate. When they reach the end of their incubation period, they become adults if their mass is equal to or larger than the critical mass. If a zygote cannot reach the critical mass, it turns black and slowly dies off. 
-
+These new zygotes are non-mobile agents. They stay put and incubate. When they reach the end of their incubation period, they become adults if their mass is equal to or larger than the critical mass. If a zygote cannot reach the critical mass, it turns black and slowly dies off.
 
 ## HOW TO USE IT
 
-The SETUP button creates the initial adult population. Each adult in the initial population is assigned one of the mating types (red or yellow) randomly. They all start with the same gamete size strategy, which is half of the fixed reproduction budged. 
+The SETUP button creates the initial adult population. Each adult in the initial population is assigned one of the mating types (red or yellow) randomly. They all start with the same gamete size strategy, which is half of the fixed reproduction budged.
 
 Once the model has been set up, you are now ready to run it by pushing the GO button. The GO button starts the simulation and runs it continuously until it is pushed again.
 
@@ -540,7 +542,7 @@ The POPULATION-SIZE slider determines both the initial number of adults and the 
 
 The GAMETE-PRODUCTION-BUDGET slider controls the total mass an adult can use to produce gametes.
 
-The ZYGOTE-CRITICAL-MASS slider controls the critical mass a zygote needs to achieve in order to survive. 
+The ZYGOTE-CRITICAL-MASS slider controls the critical mass a zygote needs to achieve in order to survive.
 
 The MUTATION-STDEV slider controls the standard deviation of the random mutation in the gamete size strategy. A standard deviation is used because the mutation algorithm is based on a normal distribution with an expected value of the gamete size of the adult.
 
@@ -554,19 +556,17 @@ The ENFORCE-CRITICAL-MASS? switch lets you override the critical mass assumption
 
 Because the some of the gametes in the model can be very very small, it is sometimes hard to observe them. Clicking the FOLLOW A RED GAMETE or FOLLOW A YELLOW GAMETE button picks a randomly chosen gamete of that color and lets you follow it until it dies or fuses with another gamete.
 
-
 ## THINGS TO NOTICE
 
-It takes quite some time to see any meaningful changes in the adults’ gamete size strategies. Even if it seems like the system is stable, let the model run at least for 5000 to 10000 ticks. 
+It takes quite some time to see any meaningful changes in the adults’ gamete size strategies. Even if it seems like the system is stable, let the model run at least for 5000 to 10000 ticks.
 
 Notice that even if the gamete size strategies of the red adults and the yellow adults may evolve to be dramatically different, this does not disrupt the overall population balance. The number of the red adults and the number of yellow adults stay relatively stable no matter what.
 
 The number of adults and the of the zygotes stay relatively constant in the model, regardless of the changes in the gamete size strategies. However, the number of gametes may dramatically change. Keep an eye out for spikes in the number of gametes and see how these spikes correspond to changes in the distribution of the gamete size strategies.
- 
 
 ## THINGS TO TRY
 
-Try changing the mutation rate (MUTATION-STDEV) and see if it makes any difference in terms of the eventual outcome of the model. Is there a scenario where anisogamy does not evolve? Is there a scenario where it evolves even faster? 
+Try changing the mutation rate (MUTATION-STDEV) and see if it makes any difference in terms of the eventual outcome of the model. Is there a scenario where anisogamy does not evolve? Is there a scenario where it evolves even faster?
 
 Would anisogamy still evolve even if gametes of the same color can fuse? Try turning on the SAME-TYPE-MATING-ALLOWED? switch and see how it affects the eventual outcome of the model.
 
@@ -576,36 +576,55 @@ The ZYGOTE-CRITICAL-MASS value defaults to 0.45, which is just 0.05 less than th
 
 Initially, the adults in the model move around randomly. Try removing this ability by turning the ADULTS-MOVE? switch OFF. Does this make a difference in the model?
 
-
 ## EXTENDING THE MODEL
 
 There might be scenarios where a population might have more than 2 mating types. Try increasing the number of mating types in this model to explore if it will still evolve to an anisogamous state.
 
-In the model, it is assumed that all gametes have relatively similar lifetimes. However, this is not the case for many organisms: often sperm have brief lives while eggs survive for a much longer period of time. What would happen if the smaller gametes in this model had a shorter lifetime and the larger gametes had longer lifetimes? Try to implement this in the model by creating an algorithm that calculates the lifetime of each gamete based on its size. 
-
+In the model, it is assumed that all gametes have relatively similar lifetimes. However, this is not the case for many organisms: often sperm have brief lives while eggs survive for a much longer period of time. What would happen if the smaller gametes in this model had a shorter lifetime and the larger gametes had longer lifetimes? Try to implement this in the model by creating an algorithm that calculates the lifetime of each gamete based on its size.
 
 ## NETLOGO FEATURES
 
 The RANDOM-NORMAL primitive is used to simulate the random mutations in gamete size strategy between the generations of adults through a normal distribution. The lifetime of adults and gametes, as well as the incubation time of zygotes, are also randomly selected from a normal distribution.
 
-The DIFFUSE primitive is used to create a background that transitions from darker to lighter tones of cyan fluidly. This background represents a marine environment. 
+The DIFFUSE primitive is used to create a background that transitions from darker to lighter tones of cyan fluidly. This background represents a marine environment.
 
-The PRECISION primitive is used to limit the number of floating point numbers in the size of gametes. This is a synthetic measure to prevent the model from evolving to a state where too many gametes are produced and the performance of the simulation is negatively affected. 
+The PRECISION primitive is used to limit the number of floating point numbers in the size of gametes. This is a synthetic measure to prevent the model from evolving to a state where too many gametes are produced and the performance of the simulation is negatively affected.
 
-The INSPECT and the STOP-INSPECTING-DEAD-AGENTS primitives are used to allow users to follow randomly selected gametes so that they can better observe gametes’ behavior at the individual level since the gametes are often hard to see in this model. 
-
+The INSPECT and the STOP-INSPECTING-DEAD-AGENTS primitives are used to allow users to follow randomly selected gametes so that they can better observe gametes’ behavior at the individual level since the gametes are often hard to see in this model.
 
 ## RELATED MODELS
+
 * Genetic drift models
 * BEAGLE Evolution curricular models
 * EACH curricular models
 
-
 ## CREDITS AND REFERENCES
 
-Bulmer, M. G., & Parker, G. A. (2002). The evolution of anisogamy: a game-theoretic approach. Proceedings of the Royal Society B: Biological Sciences, 269(1507), 2381–2388. http://doi.org/10.1098/rspb.2002.2161
+Bulmer, M. G., & Parker, G. A. (2002). The evolution of anisogamy: a game-theoretic approach. Proceedings of the Royal Society B: Biological Sciences, 269(1507), 2381–2388. http://rspb.royalsocietypublishing.org/content/269/1507/2381
 
 Togashi, T., & Cox, P. A. (Eds.). (2011). The evolution of anisogamy: a fundamental phenomenon underlying sexual selection. Cambridge University Press.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Aslan, U., Dabholkar, S. and Wilensky, U. (2016).  NetLogo Anisogamy model.  http://ccl.northwestern.edu/netlogo/models/Anisogamy.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2016 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 
 <!-- 2016 Cite: Aslan, U., Dabholkar, S. -->
 @#$#@#$#@
@@ -930,7 +949,6 @@ Polygon -7500403 true true 221 149 195 101 106 99 80 148
 @#$#@#$#@
 NetLogo 6.0-BETA2
 @#$#@#$#@
-need-to-manually-make-preview-for-this-model
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
