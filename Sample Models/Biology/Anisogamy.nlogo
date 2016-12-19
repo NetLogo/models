@@ -502,8 +502,8 @@ BUTTON
 910
 60
 1100
-105
-follow a yellow gamete 
+101
+follow a yellow gamete
 follow-a-gamete yellow
 NIL
 1
@@ -513,7 +513,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
