@@ -107,11 +107,11 @@ to enforce
   if any? (agents-on neighborhood) with [ active? ] [
     ; arrest suspect
     let suspect one-of (agents-on neighborhood) with [ active? ]
+    move-to suspect  ; move to patch of the jailed agent
     ask suspect [
       set active? false
       set jail-term random max-jail-term
     ]
-    move-to suspect  ; move to patch of the jailed agent
   ]
 end
 
