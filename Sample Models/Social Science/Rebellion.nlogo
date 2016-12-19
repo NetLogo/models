@@ -31,6 +31,13 @@ to setup
     set neighborhood patches in-radius vision
   ]
 
+  if initial-cop-density + initial-agent-density > 100 [
+    user-message (word
+      "The sum of INITIAL-COP-DENSITY and INITIAL-AGENT-DENSITY "
+      "should not be greater than 100.")
+    stop
+  ]
+
   ; create cops
   create-cops round (initial-cop-density * .01 * count patches) [
     move-to one-of patches with [ not any? turtles-here ]
