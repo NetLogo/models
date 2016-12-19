@@ -13,13 +13,13 @@ adults-own [
   remaining-lifetime ; adults have limited lifetimes
 ]
 
-zygotes-own[
+zygotes-own [
   mating-type
   gamete-size
   remaining-incubation-time  ; zygotes have to incubate (approximately adult life / 5) before turning into adults or dying
 ]
 
-gametes-own[
+gametes-own [
   mating-type
   remaining-lifetime   ; gametes have limited lifetime, too (approximately adult life / 10)
 ]
