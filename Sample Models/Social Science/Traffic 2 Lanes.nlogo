@@ -186,7 +186,7 @@ to-report car-color
 end
 
 to-report number-of-lanes
-  ; To make the number of easily lanes adjustable, remove this
+  ; To make the number of lanes easily adjustable, remove this
   ; reporter and create a slider on the interface with the same
   ; name. 8 lanes is the maximum that currently fit in the view.
   report 2
