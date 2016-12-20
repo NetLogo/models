@@ -5,12 +5,17 @@ to setup
   ls:reset
   clear-all
   create-turtles num-models [    ; create a turtle for each created model
-
     ; create a Wolf Sheep Predation child model
     ls:create-models 1 "../../../Sample Models/Biology/Wolf Sheep Predation.nlogo"
 
     set model-id last ls:models  ; and assign model-id to the turtle
+    ; In order for the model to behave deterministically for a given random seed
+    ; we must set the random seed of it's children.
+    ; See https://ccl.northwestern.edu/netlogo/docs/programming.html#random for
+    ; more information on random seeds.
+    ls:let seed random (2 ^ 31)
     ls:ask model-id [
+      random-seed seed
       set grass? true setup      ; setup their models
     ]
     move-to-new-position         ; move to its model's values
