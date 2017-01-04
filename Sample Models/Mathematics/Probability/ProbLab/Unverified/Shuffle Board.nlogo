@@ -244,7 +244,7 @@ to-report bin-list [input-list]
   if input-list = [] [ report [] ]
   let result []
   let bin 0
-  foreach n-values ( max input-list + 1 ) [ [n] -> n ] [ [n] ->
+  foreach range ( max input-list + 1 ) [ [n] ->
     set bin n
     set result lput ( length filter [ [input] -> input = bin ] input-list ) result
   ]
@@ -1206,7 +1206,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-BETA2
+NetLogo 6.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
