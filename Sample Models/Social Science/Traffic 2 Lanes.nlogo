@@ -57,9 +57,7 @@ to draw-road
     ; the road is surrounded by green grass of varying shades
     set pcolor green - random-float 0.5
   ]
-  set lanes n-values number-of-lanes [ [n] ->
-    number-of-lanes - (n * 2) - 1
-  ]
+  set lanes n-values number-of-lanes [ [n] -> number-of-lanes - (n * 2) - 1 ]
   ask patches with [ abs pycor <= number-of-lanes ] [
     ; the road itself is varying shades of grey
     set pcolor grey - 2.5 + random-float 0.25
@@ -465,7 +463,7 @@ Cars
 0.0
 true
 true
-"set-plot-y-range (floor (count turtles * 0.4)) (ceiling (count turtles * 0.6))\nforeach n-values length lanes [ [i] -> i ] [ [i] ->\n  create-temporary-plot-pen (word (i + 1))\n  set-plot-pen-color item i base-colors\n]" "foreach n-values length lanes [ [i] -> i ] [ [i] ->\n  set-current-plot-pen (word (i + 1))\n  plot count turtles with [ round ycor = item i lanes ]\n]"
+"set-plot-y-range (floor (count turtles * 0.4)) (ceiling (count turtles * 0.6))\nforeach range length lanes [ [i] ->\n  create-temporary-plot-pen (word (i + 1))\n  set-plot-pen-color item i base-colors\n]" "foreach range length lanes [ [i] ->\n  set-current-plot-pen (word (i + 1))\n  plot count turtles with [ round ycor = item i lanes ]\n]"
 PENS
 
 SLIDER
@@ -891,7 +889,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-BETA2
+NetLogo 6.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
