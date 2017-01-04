@@ -31,7 +31,7 @@ to turtle-setup ;; turtle procedure
   ;; turtles can look horizontally and vertically up to vision patches
   ;; but cannot look diagonally at all
   set vision-points []
-  foreach n-values vision [ [n] -> n + 1 ] [ [n] ->
+  foreach (range 1 (vision + 1)) [ [n] ->
     set vision-points sentence vision-points (list (list 0 n) (list n 0) (list 0 (- n)) (list (- n) 0))
   ]
   run visualization
@@ -671,7 +671,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-BETA2
+NetLogo 6.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
