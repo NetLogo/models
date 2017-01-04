@@ -39,7 +39,7 @@ to setup-turtles
   ; This procedure simply creates turtles in the different regions.
   ; The `foreach` pattern shown can be used whenever you
   ; need to do something for each different region.
-  foreach n-values length region-boundaries [ [n] -> n + 1 ] [ [region-number] ->
+  foreach (range 1 length region-boundaries) [ [region-number] ->
     let region-patches patches with [ region = region-number ]
     create-turtles number-of-turtles-per-region [
       move-to one-of region-patches
@@ -611,7 +611,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-BETA2
+NetLogo 6.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
