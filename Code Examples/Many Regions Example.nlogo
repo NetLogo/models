@@ -39,7 +39,7 @@ to setup-turtles
   ; This procedure simply creates turtles in the different regions.
   ; The `foreach` pattern shown can be used whenever you
   ; need to do something for each different region.
-  foreach (range 1 length region-boundaries) [ [region-number] ->
+  foreach (range 1 (length region-boundaries + 1)) [ [region-number] ->
     let region-patches patches with [ region = region-number ]
     create-turtles number-of-turtles-per-region [
       move-to one-of region-patches
@@ -77,8 +77,8 @@ to setup-regions [ num-regions ]
   ; Store our region definitions globally for faster access:
   set region-boundaries calculate-region-boundaries num-regions
   ; Set the `region` variable for all patches included in regions:
-  let region-numbers n-values num-regions [ [n] -> n + 1 ]
-  (foreach region-boundaries region-numbers [ [boundaries region-number] ->
+  let region-numbers (range 1 (num-regions + 1))
+    (foreach region-boundaries region-numbers [ [boundaries region-number] ->
     ask patches with [ pxcor >= first boundaries and pxcor <= last boundaries ] [
       set region region-number
     ]
