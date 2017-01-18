@@ -298,7 +298,7 @@ SWITCH
 283
 display-history?
 display-history?
-1
+0
 1
 -1000
 
