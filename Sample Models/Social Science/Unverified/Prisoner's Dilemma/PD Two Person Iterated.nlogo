@@ -94,12 +94,10 @@ end
 ;;;;;;;;;;;;;;;;;;
 
 to act-randomly ; Turtle Procedure
-  ifelse random 2 = 0
-    [ set defect-now? false ]
-    [ set defect-now? true ]
+  set defect-now? one-of [ true false ]
 end
 
-to cooperate  ; Turtle Procedure
+to cooperate ; Turtle Procedure
   set defect-now? false
 end
 
