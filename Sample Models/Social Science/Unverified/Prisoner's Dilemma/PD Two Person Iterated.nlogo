@@ -8,30 +8,30 @@ globals [
 ]
 
 turtles-own [
-  score                  ;;my current score
-  defect-now?            ;;what will I do this round?
-  partner                ;;the who of my partner
-  partner-defected?      ;;did my partner defect last round?
-  partner-defected-past? ;;did my partner defect two rounds ago?
+  score                  ; my current score
+  defect-now?            ; what will I do this round?
+  partner                ; the who of my partner
+  partner-defected?      ; did my partner defect last round?
+  partner-defected-past? ; did my partner defect two rounds ago?
 ]
 
 to setup
   clear-all
-  ;;place the computer
+  ; place the computer
   create-computers 1 [
     set partner 1
     set shape "computer"
     set heading 90
     fd max-pxcor / 2
   ]
-  ;;place the human
+  ; place the human
   create-users 1 [
     set partner 0
     set shape "person"
     set heading 270
     fd abs min-pxcor / 2
   ]
-  ;;initially assume you and your partner have always cooperated
+  ; initially assume you and your partner have always cooperated
   ask turtles [
     set defect-now? false
     set partner-defected? false
@@ -40,120 +40,118 @@ to setup
     set label 3.0
   ]
   prepare-next-round
-  ;;choose the secret strategy the computer will play if select-computer-strategy? is off
+  ; choose the secret strategy the computer will play if select-computer-strategy? is off
   set hidden-strategy random 6
   reset-ticks
 end
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Runtime Procedures;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to play
-  ;;choose strategy
+  ; choose strategy
   ask users [ set-action human-strategy ]
   play-a-round
   tick
-  ;;update the displayed score in the view
-  ask turtles [ set label precision (score / ticks) 3]
+  ; update the displayed score in the view
+  ask turtles [ set label precision (score / ticks) 3 ]
   tick
   prepare-next-round
 end
 
 to play-a-round
-  ;ask each turtle to select its strategy
+  ; ask each turtle to select its strategy
   ifelse select-computer-strategy?
-    [ask computers [ set-action computer-strategy ]]
-    [ask computers [ set-action hidden-strategy ]]
-  ;based upon the strategy each agent has chosen, determine this round's payoffs
+    [ ask computers [ set-action computer-strategy ] ]
+    [ ask computers [ set-action hidden-strategy ] ]
+  ; based upon the strategy each agent has chosen, determine this round's payoffs
   ask turtles [ get-payoff ]
 end
 
 to prepare-next-round
-  set computer-score [score] of turtle 0
-  set human-score [score] of turtle 1
-  ;;display the computer's action in the last round
+  set computer-score [ score ] of turtle 0
+  set human-score [ score ] of turtle 1
+  ; display the computer's action in the last round
   if display-history? [
     ask users [
       ifelse partner-defected?
-        [output-print "Last turn your partner defected"]
-        [output-print "Last turn your partner cooperated"]
+        [ output-print "Last turn your partner defected" ]
+        [ output-print "Last turn your partner cooperated" ]
     ]
     output-print "Choose your action"
   ]
 end
 
-to set-action [strategy ] ;;Turtle Procedure
-  ;;call the strategy based on the number passed through
-  if (strategy = "random") [ act-randomly ]
-  if (strategy = "cooperate") [ cooperate ]
-  if (strategy = "defect") [ defect ]
-  if (strategy = "tit-for-tat") [ tit-for-tat ]
-  if (strategy = "tit-for-two-tats") [ tit-for-two-tats ]
-  if (strategy = "unforgiving") [ unforgiving ]
-  if (strategy = "custom-strategy") [ custom-strategy ]
+to set-action [ strategy ] ; Turtle Procedure
+  ; call the strategy based on the number passed through
+  if strategy = "random" [ act-randomly ]
+  if strategy = "cooperate" [ cooperate ]
+  if strategy = "defect" [ defect ]
+  if strategy = "tit-for-tat" [ tit-for-tat ]
+  if strategy = "tit-for-two-tats" [ tit-for-two-tats ]
+  if strategy = "unforgiving" [ unforgiving ]
+  if strategy = "custom-strategy" [ custom-strategy ]
 end
-
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Strategies ;;;
 ;;;;;;;;;;;;;;;;;;
 
-to act-randomly ;;Turtle Procedure
-  ifelse (random 2 = 0)
-    [set defect-now? false]
-    [set defect-now? true]
+to act-randomly ; Turtle Procedure
+  ifelse random 2 = 0
+    [ set defect-now? false ]
+    [ set defect-now? true ]
 end
 
-to cooperate  ;;Turtle Procedure
+to cooperate  ; Turtle Procedure
   set defect-now? false
 end
 
-to defect ;;Turtle Procedure
+to defect ; Turtle Procedure
   set defect-now? true
 end
 
-to tit-for-tat ;;Turtle Procedure
+to tit-for-tat ; Turtle Procedure
   ifelse partner-defected?
     [ set defect-now? true ]
     [ set defect-now? false ]
 end
 
-to tit-for-two-tats ;;Turtle Procedure
-  ifelse (partner-defected? and partner-defected-past?)
-    [set defect-now? true]
-    [set defect-now? false]
+to tit-for-two-tats ; Turtle Procedure
+  ifelse partner-defected? and partner-defected-past?
+    [ set defect-now? true ]
+    [ set defect-now? false ]
 end
 
-to unforgiving ;;Turtle Procedure
-  ifelse (partner-defected? or defect-now?)
-    [set defect-now? true]
-    [set defect-now? false]
+to unforgiving ; Turtle Procedure
+  ifelse partner-defected? or defect-now?
+    [ set defect-now? true ]
+    [ set defect-now? false ]
 end
 
-to custom-strategy ;;Turtle Procedure
-  ;;Currently defaults to tit-for-tat.  Can you do better?
-  ifelse partner-defected? ;;partner defected stores your partner's action last round
-    [set defect-now? true]
-    [set defect-now? false]
+to custom-strategy ; Turtle Procedure
+  ; Currently defaults to tit-for-tat.  Can you do better?
+  ifelse partner-defected? ; partner defected stores your partner's action last round
+    [ set defect-now? true ]
+    [ set defect-now? false ]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;;; End Strategies ;;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-to get-payoff ;;Turtle Procedure
+to get-payoff ; Turtle Procedure
   set partner-defected-past? partner-defected?
-  set partner-defected? [defect-now?] of turtle partner
+  set partner-defected? [ defect-now? ] of turtle partner
   ifelse partner-defected?
-    [ifelse defect-now?
-      [set score score + 1]
-      [set score score + 0]
+    [ ifelse defect-now?
+      [ set score score + 1 ]
+      [ set score score + 0 ]
     ]
-    [ifelse defect-now?
-      [set score score + 5]
-      [set score score + 3]
+    [ ifelse defect-now?
+      [ set score score + 5 ]
+      [ set score score + 3 ]
     ]
 end
 
@@ -760,7 +758,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-BETA2
+NetLogo 6.0
 @#$#@#$#@
 setup
 @#$#@#$#@
