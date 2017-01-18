@@ -37,8 +37,12 @@ to setup
     set label 3.0
   ]
   prepare-next-round
-  ; choose the secret strategy the computer will play if select-computer-strategy? is off
-  set hidden-strategy random 6
+  ; choose the secret strategy the computer will
+  ; play if select-computer-strategy? is off
+  set hidden-strategy one-of [
+    "act-randomly" "cooperate" "defect" "tit-for-tat"
+    "tit-for-two-tats" "unforgiving" "custom-strategy"
+  ]
   reset-ticks
 end
 
