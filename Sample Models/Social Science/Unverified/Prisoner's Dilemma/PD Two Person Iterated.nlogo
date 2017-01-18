@@ -530,13 +530,30 @@ Circle -16777216 true false 30 30 240
 computer
 false
 0
-Rectangle -7500403 true true -55 -45 297 296
-Rectangle -16777216 true false 43 27 264 263
+Rectangle -7500403 true true 15 15 285 210
+Rectangle -16777216 true false 28 27 270 195
 Rectangle -10899396 true false 50 46 255 52
-Rectangle -10899396 true false 53 238 250 246
+Rectangle -10899396 true false 53 163 250 171
 Circle -10899396 true false 166 117 9
 Rectangle -10899396 true false 153 70 205 76
-Rectangle -10899396 true false 84 220 147 228
+Rectangle -10899396 true false 84 145 147 153
+Rectangle -7500403 true true 135 210 165 240
+Polygon -7500403 true true 30 285 45 240 255 240 270 285 30 285 30 285
+Line -16777216 false 45 270 255 270
+Line -16777216 false 51 255 246 255
+Line -16777216 false 75 270 75 255
+Line -16777216 false 90 270 90 255
+Line -16777216 false 105 270 105 255
+Line -16777216 false 120 270 120 255
+Line -16777216 false 135 270 135 255
+Line -16777216 false 150 270 150 255
+Line -16777216 false 165 270 165 255
+Line -16777216 false 180 270 180 255
+Line -16777216 false 195 270 195 255
+Line -16777216 false 210 270 210 255
+Line -16777216 false 225 270 225 255
+Line -16777216 false 240 270 240 255
+Line -16777216 false 60 270 60 255
 
 cow
 false
