@@ -16,14 +16,14 @@ turtles-own [
 to setup
   clear-all
   ; place the computer
+  set-default-shape computers "computer"
   create-computers 1 [
-    set shape "computer"
     set heading 90
     fd max-pxcor / 2
   ]
   ; place the human
+  set-default-shape users "person"
   create-users 1 [
-    set shape "person"
     set heading 270
     fd abs min-pxcor / 2
   ]
