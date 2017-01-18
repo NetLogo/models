@@ -32,7 +32,7 @@ to setup
   ls:reset
   ; set the constant values
   set initial-energy 1000
-  set global-lactose-limit (initial-number-of-cells * 5000)
+  set global-lactose-limit (initial-number-of-types * 5000)
   generate-cells ; create the cells
   if lactose? [ distribute-lactose ] ; distribute lactose if the option is selected
   reset-ticks
@@ -43,7 +43,7 @@ to generate-cells
   let color-list [ red orange brown yellow green cyan violet magenta ]
 
   let i 0
-  create-ecolis initial-number-of-cells [
+  create-ecolis initial-number-of-types [
     set color (item i color-list)
     setxy random-xcor random-ycor
     set shape "ecoli"
@@ -295,8 +295,8 @@ SLIDER
 50
 460
 83
-initial-number-of-cells
-initial-number-of-cells
+initial-number-of-types
+initial-number-of-types
 1
 8
 7.0
@@ -338,7 +338,7 @@ PLOT
 320
 460
 514
-Trait Distribution Histogram
+Type Frequency Distribution Histogram
 Trait
 Frequency
 0.0
@@ -785,7 +785,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-BETA2
+NetLogo 6.0
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
