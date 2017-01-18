@@ -75,6 +75,9 @@ to prepare-next-round
   ; display the computer's action in the last round
   if display-history? [
     ask users [
+      ifelse defect-now?
+        [ output-print "Last turn you defected" ]
+        [ output-print "Last turn you cooperated" ]
       ifelse partner-defected?
         [ output-print "Last turn your partner defected" ]
         [ output-print "Last turn your partner cooperated" ]
