@@ -392,8 +392,6 @@ HUMAN-SCORE - The total points you have earned
 
 COMPUTER-SCORE - The total points the computer has earned
 
-ITERATION - The number of rounds that have been played
-
 Plots:
 
 AVERAGE SCORE: The average scores of you and the computer each round vs. the number of iterations.  This is a good indicator of how well you are doing relative to the maximum possible average of $5 per round.
