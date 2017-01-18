@@ -2,8 +2,6 @@ breed [ users user ]
 breed [ computers computer ]
 
 globals [
-  human-score
-  computer-score
   hidden-strategy
 ]
 
@@ -69,8 +67,6 @@ to play-a-round
 end
 
 to prepare-next-round
-  set computer-score [ score ] of turtle 0
-  set human-score [ score ] of turtle 1
   ; display the computer's action in the last round
   if display-history? [
     ask users [
@@ -205,21 +201,21 @@ NIL
 MONITOR
 22
 200
-120
+112
 245
-NIL
-human-score
+human score
+[ score ] of one-of users
 3
 1
 11
 
 MONITOR
-120
+115
 200
-233
+220
 245
-NIL
-computer-score
+computer score
+[ score ] of one-of computers
 3
 1
 11
@@ -775,5 +771,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
