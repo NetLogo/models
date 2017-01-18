@@ -395,11 +395,11 @@ AVERAGE SCORE: The average scores of you and the computer each round vs. the num
 
 ## THINGS TO NOTICE
 
-Should the computer always plays strategy #1 (cooperate), then which strategy for the user results in the highest score?
+Should the computer always play the "Cooperate" strategy, then which strategy for the user results in the highest score?
 
-If the computer always plays strategy #2 (defect), then what is the nature of the average score plot when the user plays strategy #3 - #6 (Tit-for-Tat, Tit-for-Two-Tat, Unforgiving, and Custom Strategy, respectively)?  Why does such a nature arise for these combination of strategies?
+If the computer always plays "Defect", then what is the nature of the average score plot when the user plays "Tit-for-Tat", "Tit-for-Two-Tat", "Unforgiving", and "Custom Strategy"?  Why does such a nature arise for these combination of strategies?
 
-What is the nature of the plot for average score when the computer always plays strategy #3 and the user plays every strategy except strategy #2 (defect) and strategy #0 (Act-Randomly)?  Why does such a curve arise?
+What is the nature of the plot for average score when the computer always plays "Tit-for-Tat" and the user plays every strategy except "Defect" and "Act-Randomly"?  Why does such a curve arise?
 
 ## THINGS TO TRY
 
