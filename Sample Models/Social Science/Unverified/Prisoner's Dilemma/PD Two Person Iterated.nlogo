@@ -34,9 +34,8 @@ to setup
     set partner-defected? false
     set partner-defected-past? false
     set size 10
-    set label 3.0
+    set score 3.0
   ]
-  prepare-next-round
   ; choose the secret strategy the computer will
   ; play if select-computer-strategy? is off
   set hidden-strategy one-of [
@@ -44,6 +43,7 @@ to setup
     "tit-for-two-tats" "unforgiving" "custom-strategy"
   ]
   reset-ticks
+  prepare-next-round
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -52,9 +52,6 @@ end
 
 to play
   play-a-round
-  tick
-  ; update the displayed score in the view
-  ask turtles [ set label precision (score / ticks) 3 ]
   tick
   prepare-next-round
 end
@@ -72,6 +69,8 @@ to play-a-round
 end
 
 to prepare-next-round
+  ; update the displayed score in the view
+  ask turtles [ set label average-score ]
   ; display the computer's action in the last round
   if display-history? [
     ask users [
@@ -84,6 +83,10 @@ to prepare-next-round
     ]
     output-print "Choose your action"
   ]
+end
+
+to-report average-score ; Turtle reporter
+  report precision (score / (ticks + 1)) 3
 end
 
 ;;;;;;;;;;;;;;;;;;
@@ -233,8 +236,8 @@ true
 true
 "" ""
 PENS
-"human" 1.0 0 -16777216 true "" "plot [label] of turtle 1"
-"computer" 1.0 0 -13345367 true "" "plot [label] of turtle 0"
+"human" 1.0 0 -16777216 true "" "plot [ average-score ] of one-of users"
+"computer" 1.0 0 -13345367 true "" "plot [ average-score ] of one-of computers"
 
 BUTTON
 87
@@ -348,6 +351,8 @@ The researchers separate you and your friend into separate rooms allowing commun
 (Note: This way of determining your payoff is the opposite of the PD Basic model. In PD Basic, you were "awarded" something bad --- jail time. In this model, you are awarded something good --- money.)
 
 Your partner has an identical payoff matrix.
+
+To get things started, the model assumes that the user and the computer already played a round where they cooperated with each other, so both players start with a score of 3.
 
 ## HOW TO USE IT
 
