@@ -413,7 +413,7 @@ Examine the PD N-PERSON ITERATED model
 
 ## NETLOGO FEATURES
 
-Note the use of the turtle variable `label` to display each turtle's average score in the view.
+The model uses the turtle variable [`label`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#label) to display each turtle's average score in the view.
 
 The model uses the [`run`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#run) primitive to execute the procedure whose name corresponds to the chosen strategy.
 
