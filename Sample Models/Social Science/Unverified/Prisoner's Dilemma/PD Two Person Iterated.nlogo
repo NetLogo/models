@@ -27,13 +27,13 @@ to setup
     set heading 270
     fd abs min-pxcor / 2
   ]
-  ; initially assume you and your partner have always cooperated
   ask turtles [
+    set size 10
     set partner one-of other turtles
+    ; initially assume you and your partner have always cooperated
     set defect-now? false
     set partner-defected? false
     set partner-defected-past? false
-    set size 10
     set score 3.0
   ]
   ; choose the secret strategy the computer will
