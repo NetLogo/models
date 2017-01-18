@@ -10,7 +10,7 @@ globals [
 turtles-own [
   score                  ; my current score
   defect-now?            ; what will I do this round?
-  partner                ; the who of my partner
+  partner                ; my partner
   partner-defected?      ; did my partner defect last round?
   partner-defected-past? ; did my partner defect two rounds ago?
 ]
@@ -19,20 +19,19 @@ to setup
   clear-all
   ; place the computer
   create-computers 1 [
-    set partner 1
     set shape "computer"
     set heading 90
     fd max-pxcor / 2
   ]
   ; place the human
   create-users 1 [
-    set partner 0
     set shape "person"
     set heading 270
     fd abs min-pxcor / 2
   ]
   ; initially assume you and your partner have always cooperated
   ask turtles [
+    set partner one-of other turtles
     set defect-now? false
     set partner-defected? false
     set partner-defected-past? false
@@ -143,7 +142,7 @@ end
 
 to get-payoff ; Turtle Procedure
   set partner-defected-past? partner-defected?
-  set partner-defected? [ defect-now? ] of turtle partner
+  set partner-defected? [ defect-now? ] of partner
   ifelse partner-defected?
     [ ifelse defect-now?
       [ set score score + 1 ]
