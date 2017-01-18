@@ -142,10 +142,10 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-260
-10
-678
-574
+275
+15
+693
+579
 -1
 -1
 5.0
@@ -169,10 +169,10 @@ ticks
 30.0
 
 BUTTON
-15
-110
-83
-143
+25
+75
+93
+108
 setup
 setup
 NIL
@@ -186,10 +186,10 @@ NIL
 1
 
 BUTTON
-166
-110
-234
-143
+176
+75
+244
+108
 go
 go
 T
@@ -203,10 +203,10 @@ NIL
 0
 
 BUTTON
-84
-110
-165
-143
+94
+75
+175
+108
 go once
 go
 NIL
@@ -220,10 +220,10 @@ NIL
 0
 
 SLIDER
-15
-157
-234
-190
+25
+115
+244
+148
 tolerance
 tolerance
 0.0
@@ -235,10 +235,10 @@ tolerance
 HORIZONTAL
 
 SLIDER
-50
-38
-201
-71
+60
+3
+211
+36
 number
 number
 0
@@ -251,9 +251,9 @@ HORIZONTAL
 
 PLOT
 10
-206
-253
-371
+203
+260
+368
 Number Happy
 clock
 NIL
@@ -268,10 +268,10 @@ PENS
 "Happy" 1.0 0 -10899396 true "" "plot count turtles with [happy?]"
 
 PLOT
-11
-371
-254
-541
+10
+428
+260
+598
 Single Sex Groups
 clock
 NIL
@@ -286,10 +286,10 @@ PENS
 "Single Sex" 1.0 0 -2674135 true "" "plot boring-groups"
 
 SLIDER
-50
-72
-201
-105
+60
+37
+211
+70
 num-groups
 num-groups
 5
@@ -301,22 +301,22 @@ NIL
 HORIZONTAL
 
 MONITOR
-196
-304
-253
-349
-happy?
+75
+153
+200
+198
+number happy
 count turtles with [happy?]
 3
 1
 11
 
 MONITOR
-192
-474
-254
-519
-groups
+70
+378
+195
+423
+single sex groups
 boring-groups
 3
 1
@@ -701,7 +701,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-BETA2
+NetLogo 6.0
 @#$#@#$#@
 setup
 repeat 20 [ go ]
@@ -720,5 +720,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
