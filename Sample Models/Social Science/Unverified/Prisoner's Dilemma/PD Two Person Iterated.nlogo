@@ -48,7 +48,7 @@ end
 
 to play
   ; choose strategy
-  ask users [ set-action human-strategy ]
+  ask users [ run human-strategy ]
   play-a-round
   tick
   ; update the displayed score in the view
@@ -60,8 +60,8 @@ end
 to play-a-round
   ; ask each turtle to select its strategy
   ifelse select-computer-strategy?
-    [ ask computers [ set-action computer-strategy ] ]
-    [ ask computers [ set-action hidden-strategy ] ]
+    [ ask computers [ run computer-strategy ] ]
+    [ ask computers [ run hidden-strategy ] ]
   ; based upon the strategy each agent has chosen, determine this round's payoffs
   ask turtles [ get-payoff ]
 end
@@ -76,17 +76,6 @@ to prepare-next-round
     ]
     output-print "Choose your action"
   ]
-end
-
-to set-action [ strategy ] ; Turtle Procedure
-  ; call the strategy based on the number passed through
-  if strategy = "random" [ act-randomly ]
-  if strategy = "cooperate" [ cooperate ]
-  if strategy = "defect" [ defect ]
-  if strategy = "tit-for-tat" [ tit-for-tat ]
-  if strategy = "tit-for-two-tats" [ tit-for-two-tats ]
-  if strategy = "unforgiving" [ unforgiving ]
-  if strategy = "custom-strategy" [ custom-strategy ]
 end
 
 ;;;;;;;;;;;;;;;;;;
@@ -302,7 +291,7 @@ CHOOSER
 108
 human-strategy
 human-strategy
-"random" "cooperate" "defect" "tit-for-tat" "tit-for-two-tats" "unforgiving" "custom-strategy"
+"act-randomly" "cooperate" "defect" "tit-for-tat" "tit-for-two-tats" "unforgiving" "custom-strategy"
 0
 
 CHOOSER
@@ -312,7 +301,7 @@ CHOOSER
 186
 computer-strategy
 computer-strategy
-"random" "cooperate" "defect" "tit-for-tat" "tit-for-two-tats" "unforgiving" "custom-strategy"
+"act-randomly" "cooperate" "defect" "tit-for-tat" "tit-for-two-tats" "unforgiving" "custom-strategy"
 3
 
 OUTPUT
@@ -378,7 +367,7 @@ COMPUTER STRATEGY - Select the computer's strategy from the list below.
 
 Strategies:
 
-- **Random** - randomly cooperate or defect
+- **Act-Randomly** - randomly cooperate or defect
 - **Cooperate** - cooperate always
 - **Defect** - defect always
 - **Tit-for-Tat** - If the opponent cooperates this round cooperate next round.  If the opponent defects this round, defect next round.  Initially cooperate.
@@ -402,7 +391,7 @@ Should the computer always plays strategy #1 (cooperate), then which strategy fo
 
 If the computer always plays strategy #2 (defect), then what is the nature of the average score plot when the user plays strategy #3 - #6 (Tit-for-Tat, Tit-for-Two-Tat, Unforgiving, and Custom Strategy, respectively)?  Why does such a nature arise for these combination of strategies?
 
-What is the nature of the plot for average score when the computer always plays strategy #3 and the user plays every strategy except strategy #2 (defect) and strategy #0 (random)?  Why does such a curve arise?
+What is the nature of the plot for average score when the computer always plays strategy #3 and the user plays every strategy except strategy #2 (defect) and strategy #0 (Act-Randomly)?  Why does such a curve arise?
 
 ## THINGS TO TRY
 
@@ -426,7 +415,7 @@ Examine the PD N-PERSON ITERATED model
 
 Note the use of the turtle variable `label` to display each turtle's average score in the view.
 
-Note that the `set-action` procedure takes an input that must be supplied when the procedure is called.
+The model uses the [`run`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#run) primitive to execute the procedure whose name corresponds to the chosen strategy.
 
 ## RELATED MODELS
 
