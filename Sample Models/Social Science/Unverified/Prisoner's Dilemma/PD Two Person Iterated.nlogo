@@ -51,8 +51,6 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to play
-  ; choose strategy
-  ask users [ run human-strategy ]
   play-a-round
   tick
   ; update the displayed score in the view
@@ -62,11 +60,14 @@ to play
 end
 
 to play-a-round
-  ; ask each turtle to select its strategy
+  ; run the strategy selected by the human
+  ask users [ run human-strategy ]
+  ; run the strategy selected for the computer, or the
+  ; hidden strategy if `select-computer-strategy?` is off
   ifelse select-computer-strategy?
     [ ask computers [ run computer-strategy ] ]
     [ ask computers [ run hidden-strategy ] ]
-  ; based upon the strategy each agent has chosen, determine this round's payoffs
+  ; determine this round's payoffs based on the action each agent has chosen
   ask turtles [ get-payoff ]
 end
 
