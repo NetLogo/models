@@ -2,158 +2,149 @@ breed [ users user ]
 breed [ computers computer ]
 
 globals [
-  human-score
-  computer-score
   hidden-strategy
 ]
 
 turtles-own [
-  score                  ;;my current score
-  defect-now?            ;;what will I do this round?
-  partner                ;;the who of my partner
-  partner-defected?      ;;did my partner defect last round?
-  partner-defected-past? ;;did my partner defect two rounds ago?
+  score                  ; my current score
+  defect-now?            ; what will I do this round?
+  partner                ; my partner
+  partner-defected?      ; did my partner defect last round?
+  partner-defected-past? ; did my partner defect two rounds ago?
 ]
 
 to setup
   clear-all
-  ;;place the computer
+  ; place the computer
+  set-default-shape computers "computer"
   create-computers 1 [
-    set partner 1
-    set shape "computer"
     set heading 90
     fd max-pxcor / 2
   ]
-  ;;place the human
+  ; place the human
+  set-default-shape users "person"
   create-users 1 [
-    set partner 0
-    set shape "person"
     set heading 270
     fd abs min-pxcor / 2
   ]
-  ;;initially assume you and your partner have always cooperated
   ask turtles [
+    set size 10
+    set partner one-of other turtles
+    ; initially assume you and your partner have always cooperated
     set defect-now? false
     set partner-defected? false
     set partner-defected-past? false
-    set size 10
-    set label 3.0
+    set score 3.0
   ]
-  prepare-next-round
-  ;;choose the secret strategy the computer will play if select-computer-strategy? is off
-  set hidden-strategy random 6
+  ; choose the secret strategy the computer will
+  ; play if select-computer-strategy? is off
+  set hidden-strategy one-of [
+    "act-randomly" "cooperate" "defect" "tit-for-tat"
+    "tit-for-two-tats" "unforgiving" "custom-strategy"
+  ]
   reset-ticks
+  prepare-next-round
 end
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Runtime Procedures;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to play
-  ;;choose strategy
-  ask users [ set-action human-strategy ]
   play-a-round
-  tick
-  ;;update the displayed score in the view
-  ask turtles [ set label precision (score / ticks) 3]
   tick
   prepare-next-round
 end
 
 to play-a-round
-  ;ask each turtle to select its strategy
+  ; run the strategy selected by the human
+  ask users [ run human-strategy ]
+  ; run the strategy selected for the computer, or the
+  ; hidden strategy if `select-computer-strategy?` is off
   ifelse select-computer-strategy?
-    [ask computers [ set-action computer-strategy ]]
-    [ask computers [ set-action hidden-strategy ]]
-  ;based upon the strategy each agent has chosen, determine this round's payoffs
+    [ ask computers [ run computer-strategy ] ]
+    [ ask computers [ run hidden-strategy ] ]
+  ; determine this round's payoffs based on the action each agent has chosen
   ask turtles [ get-payoff ]
 end
 
 to prepare-next-round
-  set computer-score [score] of turtle 0
-  set human-score [score] of turtle 1
-  ;;display the computer's action in the last round
+  ; update the displayed score in the view
+  ask turtles [ set label average-score ]
+  ; display the computer's action in the last round
   if display-history? [
     ask users [
+      ifelse defect-now?
+        [ output-print "Last turn you defected." ]
+        [ output-print "Last turn you cooperated." ]
       ifelse partner-defected?
-        [output-print "Last turn your partner defected"]
-        [output-print "Last turn your partner cooperated"]
+        [ output-print "Last turn your partner defected." ]
+        [ output-print "Last turn your partner cooperated." ]
     ]
-    output-print "Choose your action"
+    output-print "Choose your action!"
   ]
 end
 
-to set-action [strategy ] ;;Turtle Procedure
-  ;;call the strategy based on the number passed through
-  if (strategy = "random") [ act-randomly ]
-  if (strategy = "cooperate") [ cooperate ]
-  if (strategy = "defect") [ defect ]
-  if (strategy = "tit-for-tat") [ tit-for-tat ]
-  if (strategy = "tit-for-two-tats") [ tit-for-two-tats ]
-  if (strategy = "unforgiving") [ unforgiving ]
-  if (strategy = "custom-strategy") [ custom-strategy ]
+to-report average-score ; Turtle reporter
+  report precision (score / (ticks + 1)) 3
 end
-
 
 ;;;;;;;;;;;;;;;;;;
 ;;; Strategies ;;;
 ;;;;;;;;;;;;;;;;;;
 
-to act-randomly ;;Turtle Procedure
-  ifelse (random 2 = 0)
-    [set defect-now? false]
-    [set defect-now? true]
+to act-randomly ; Turtle Procedure
+  set defect-now? one-of [ true false ]
 end
 
-to cooperate  ;;Turtle Procedure
+to cooperate ; Turtle Procedure
   set defect-now? false
 end
 
-to defect ;;Turtle Procedure
+to defect ; Turtle Procedure
   set defect-now? true
 end
 
-to tit-for-tat ;;Turtle Procedure
+to tit-for-tat ; Turtle Procedure
   ifelse partner-defected?
     [ set defect-now? true ]
     [ set defect-now? false ]
 end
 
-to tit-for-two-tats ;;Turtle Procedure
-  ifelse (partner-defected? and partner-defected-past?)
-    [set defect-now? true]
-    [set defect-now? false]
+to tit-for-two-tats ; Turtle Procedure
+  ifelse partner-defected? and partner-defected-past?
+    [ set defect-now? true ]
+    [ set defect-now? false ]
 end
 
-to unforgiving ;;Turtle Procedure
-  ifelse (partner-defected? or defect-now?)
-    [set defect-now? true]
-    [set defect-now? false]
+to unforgiving ; Turtle Procedure
+  ifelse partner-defected? or defect-now?
+    [ set defect-now? true ]
+    [ set defect-now? false ]
 end
 
-to custom-strategy ;;Turtle Procedure
-  ;;Currently defaults to tit-for-tat.  Can you do better?
-  ifelse partner-defected? ;;partner defected stores your partner's action last round
-    [set defect-now? true]
-    [set defect-now? false]
+to custom-strategy ; Turtle Procedure
+  ; Currently defaults to tit-for-tat.  Can you do better?
+  ifelse partner-defected? ; partner defected stores your partner's action last round
+    [ set defect-now? true ]
+    [ set defect-now? false ]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;
 ;;; End Strategies ;;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
-to get-payoff ;;Turtle Procedure
+to get-payoff ; Turtle Procedure
   set partner-defected-past? partner-defected?
-  set partner-defected? [defect-now?] of turtle partner
+  set partner-defected? [ defect-now? ] of partner
   ifelse partner-defected?
-    [ifelse defect-now?
-      [set score score + 1]
-      [set score score + 0]
+    [ ifelse defect-now?
+      [ set score score + 1 ]
+      [ set score score + 0 ]
     ]
-    [ifelse defect-now?
-      [set score score + 5]
-      [set score score + 3]
+    [ ifelse defect-now?
+      [ set score score + 5 ]
+      [ set score score + 3 ]
     ]
 end
 
@@ -208,21 +199,21 @@ NIL
 MONITOR
 22
 200
-120
+112
 245
-NIL
-human-score
+human score
+[ score ] of one-of users
 3
 1
 11
 
 MONITOR
-120
+115
 200
-233
+220
 245
-NIL
-computer-score
+computer score
+[ score ] of one-of computers
 3
 1
 11
@@ -243,8 +234,8 @@ true
 true
 "" ""
 PENS
-"human" 1.0 0 -16777216 true "" "plot [label] of turtle 1"
-"computer" 1.0 0 -13345367 true "" "plot [label] of turtle 0"
+"human" 1.0 0 -16777216 true "" "plot [ average-score ] of one-of users"
+"computer" 1.0 0 -13345367 true "" "plot [ average-score ] of one-of computers"
 
 BUTTON
 87
@@ -298,7 +289,7 @@ SWITCH
 283
 display-history?
 display-history?
-1
+0
 1
 -1000
 
@@ -309,7 +300,7 @@ CHOOSER
 108
 human-strategy
 human-strategy
-"random" "cooperate" "defect" "tit-for-tat" "tit-for-two-tats" "unforgiving" "custom-strategy"
+"act-randomly" "cooperate" "defect" "tit-for-tat" "tit-for-two-tats" "unforgiving" "custom-strategy"
 0
 
 CHOOSER
@@ -319,7 +310,7 @@ CHOOSER
 186
 computer-strategy
 computer-strategy
-"random" "cooperate" "defect" "tit-for-tat" "tit-for-two-tats" "unforgiving" "custom-strategy"
+"act-randomly" "cooperate" "defect" "tit-for-tat" "tit-for-two-tats" "unforgiving" "custom-strategy"
 3
 
 OUTPUT
@@ -359,6 +350,8 @@ The researchers separate you and your friend into separate rooms allowing commun
 
 Your partner has an identical payoff matrix.
 
+To get things started, the model assumes that the user and the computer already played a round where they cooperated with each other, so both players start with a score of 3.
+
 ## HOW TO USE IT
 
 Buttons:
@@ -385,21 +378,19 @@ COMPUTER STRATEGY - Select the computer's strategy from the list below.
 
 Strategies:
 
-Random - randomly cooperate or defect
-Cooperate - cooperate always
-Defect - defect always
-Tit-for-Tat - If the opponent cooperates this round cooperate next round.  If the opponent defects this round, defect next round.  Initially cooperate.
-Tit-for-Two-Tats - If the opponent cooperates this round cooperate next round.  If the opponent defects two rounds in a row, defect the next round.  Initially cooperate.
-Unforgiving - Cooperate always unless the opponent defects once.  Upon opponent defection retaliate by defecting always.
-Custom-Strategy - This strategy is intended to be written by you.  It currently defaults to Tit-for-Tat.
+- **Act-Randomly** - randomly cooperate or defect
+- **Cooperate** - cooperate always
+- **Defect** - defect always
+- **Tit-for-Tat** - If the opponent cooperates this round cooperate next round.  If the opponent defects this round, defect next round.  Initially cooperate.
+- **Tit-for-Two-Tats** - If the opponent cooperates this round cooperate next round.  If the opponent defects two rounds in a row, defect the next round.  Initially cooperate.
+- **Unforgiving** - Cooperate always unless the opponent defects once.  Upon opponent defection retaliate by defecting always.
+- **Custom-Strategy** - This strategy is intended to be written by you.  It currently defaults to Tit-for-Tat.
 
 Monitors:
 
-HUMAN-SCORE - The total points you have earned
+HUMAN SCORE - The total points you have earned
 
-COMPUTER-SCORE - The total points the computer has earned
-
-ITERATION - The number of rounds that have been played
+COMPUTER SCORE - The total points the computer has earned
 
 Plots:
 
@@ -407,11 +398,11 @@ AVERAGE SCORE: The average scores of you and the computer each round vs. the num
 
 ## THINGS TO NOTICE
 
-Should the computer always plays strategy #1 (cooperate), then which strategy for the user results in the highest score?
+Should the computer always play the "Cooperate" strategy, then which strategy for the user results in the highest score?
 
-If the computer always plays strategy #2 (defect), then what is the nature of the average score plot when the user plays strategy #3 - #6 (Tit-for-Tat, Tit-for-Two-Tat, Unforgiving, and Custom Strategy, respectively)?  Why does such a nature arise for these combination of strategies?
+If the computer always plays "Defect", then what is the nature of the average score plot when the user plays "Tit-for-Tat", "Tit-for-Two-Tat", "Unforgiving", and "Custom Strategy"?  Why does such a nature arise for these combination of strategies?
 
-What is the nature of the plot for average score when the computer always plays strategy #3 and the user plays every strategy except strategy #2 (defect) and strategy #0 (random)?  Why does such a curve arise?
+What is the nature of the plot for average score when the computer always plays "Tit-for-Tat" and the user plays every strategy except "Defect" and "Act-Randomly"?  Why does such a curve arise?
 
 ## THINGS TO TRY
 
@@ -433,9 +424,9 @@ Examine the PD N-PERSON ITERATED model
 
 ## NETLOGO FEATURES
 
-Note the use of the turtle variable `label` to display each turtle's average score in the view.
+The model uses the turtle variable [`label`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#label) to display each turtle's average score in the view.
 
-Note that the `set-action` procedure takes an input that must be supplied when the procedure is called.
+The model uses the [`run`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#run) primitive to execute the procedure whose name corresponds to the chosen strategy.
 
 ## RELATED MODELS
 
@@ -537,13 +528,30 @@ Circle -16777216 true false 30 30 240
 computer
 false
 0
-Rectangle -7500403 true true -55 -45 297 296
-Rectangle -16777216 true false 43 27 264 263
+Rectangle -7500403 true true 15 15 285 210
+Rectangle -16777216 true false 28 27 270 195
 Rectangle -10899396 true false 50 46 255 52
-Rectangle -10899396 true false 53 238 250 246
+Rectangle -10899396 true false 53 163 250 171
 Circle -10899396 true false 166 117 9
 Rectangle -10899396 true false 153 70 205 76
-Rectangle -10899396 true false 84 220 147 228
+Rectangle -10899396 true false 84 145 147 153
+Rectangle -7500403 true true 135 210 165 240
+Polygon -7500403 true true 30 285 45 240 255 240 270 285 30 285 30 285
+Line -16777216 false 45 270 255 270
+Line -16777216 false 51 255 246 255
+Line -16777216 false 75 270 75 255
+Line -16777216 false 90 270 90 255
+Line -16777216 false 105 270 105 255
+Line -16777216 false 120 270 120 255
+Line -16777216 false 135 270 135 255
+Line -16777216 false 150 270 150 255
+Line -16777216 false 165 270 165 255
+Line -16777216 false 180 270 180 255
+Line -16777216 false 195 270 195 255
+Line -16777216 false 210 270 210 255
+Line -16777216 false 225 270 225 255
+Line -16777216 false 240 270 240 255
+Line -16777216 false 60 270 60 255
 
 cow
 false
@@ -760,7 +768,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-BETA2
+NetLogo 6.0
 @#$#@#$#@
 setup
 @#$#@#$#@
@@ -778,5 +786,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
