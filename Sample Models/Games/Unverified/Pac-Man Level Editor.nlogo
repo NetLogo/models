@@ -50,12 +50,12 @@ to new
       setxy 10 10
     ]
 
-    foreach n-values 4 [ [i] -> i ] [ [i] ->
+    foreach range 4 [ [n] ->
       create-ghosts 1
       [
         set shape "ghost"
-        set color item i ghost-colors
-        setxy 10 (9 - i)
+        set color item n ghost-colors
+        setxy 10 (9 - n)
         set heading 0
         set eaten? false
       ]
@@ -985,7 +985,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-BETA2
+NetLogo 6.0
 @#$#@#$#@
 import-world "../pacmap4.csv"
 @#$#@#$#@
