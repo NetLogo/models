@@ -491,7 +491,7 @@ Signaling games were discussed by the philosopher David Lewis in his book _Conve
 
 This is just one example. Signals are everywhere. Airport marshallers use hand signals to direct planes on a runway. Boats use flags to warn the crew of other boats about certain situations ("there has been a mutiny on board", "we're carrying explosives", etc.)
 
-Communication systems work even if the signals used to represent world states have nothing in common with the state they represent. You don't need something a signal that looks like a boat to represent the fact that the British troops are coming by boat. All that is needed is for everyone involved to agree that a particular signal represents a particular state of the world: when that happens, we say that everyone shares the same "convention".
+Communication systems work even if the signals used to represent world states have nothing in common with the state they represent. You don't need something that looks like a boat to represent the fact that the British troops are coming by boat. All that is needed is for everyone involved to agree that a particular signal represents a particular state of the world: when that happens, we say that everyone shares the same "convention".
 
 David Lewis' signaling game assumes that agents already have an agreed upon convention and that they are rational enough to follow it. Another philosopher, Brian Skyrms showed that it was possible for a convention to emerge even if agents have not agreed in advance about which signal to use for which state.
 
