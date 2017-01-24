@@ -271,13 +271,13 @@ true
 "" ""
 PENS
 "red" 1.0 0 -2674135 true "" "plot count ecolis with [ color = red ]"
-"orange" 1.0 0 -955883 true "" "if initial-number-of-cells > 1 [ plot count ecolis with [ color = orange ] ]"
-"brown" 1.0 0 -6459832 true "" "if initial-number-of-cells > 2 [ plot count ecolis with [ color = brown ] ]"
-"yellow" 1.0 0 -1184463 true "" "if initial-number-of-cells > 3 [ plot count ecolis with [ color = yellow ] ]"
-"green" 1.0 0 -10899396 true "" "if initial-number-of-cells > 4 [ plot count ecolis with [ color = green ] ]"
-"cyan" 1.0 0 -11221820 true "" "if initial-number-of-cells > 5 [ plot count ecolis with [ color = cyan ] ]"
-"violet" 1.0 0 -8630108 true "" "if initial-number-of-cells > 6 [ plot count ecolis with [ color = violet ] ]"
-"magenta" 1.0 0 -5825686 true "" "if initial-number-of-cells > 7 [ plot count ecolis with [ color = magenta ] ]"
+"orange" 1.0 0 -955883 true "" "if initial-number-of-types > 1 [ plot count ecolis with [ color = orange ] ]"
+"brown" 1.0 0 -6459832 true "" "if initial-number-of-types > 2 [ plot count ecolis with [ color = brown ] ]"
+"yellow" 1.0 0 -1184463 true "" "if initial-number-of-types > 3 [ plot count ecolis with [ color = yellow ] ]"
+"green" 1.0 0 -10899396 true "" "if initial-number-of-types > 4 [ plot count ecolis with [ color = green ] ]"
+"cyan" 1.0 0 -11221820 true "" "if initial-number-of-types > 5 [ plot count ecolis with [ color = cyan ] ]"
+"violet" 1.0 0 -8630108 true "" "if initial-number-of-types > 6 [ plot count ecolis with [ color = violet ] ]"
+"magenta" 1.0 0 -5825686 true "" "if initial-number-of-types > 7 [ plot count ecolis with [ color = magenta ] ]"
 
 SWITCH
 140
