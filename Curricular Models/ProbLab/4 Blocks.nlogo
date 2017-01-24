@@ -22,10 +22,10 @@ to initialize
   reset-ticks
   set-colors
   set target-color-list []
-  ask patches [ set pcolor white - 1]
+  ask patches [ set pcolor white - 1 ]
 
   ;; counts the frequency of each of the 16 permutations:
-  set stratified-list n-values 16 [0]
+  set stratified-list n-values 16 [ 0 ]
 
   ;; This list indexes the positions of the 16 permutations
   ;; in the CT by the bitmask of the four patches.
@@ -57,7 +57,7 @@ end
 ;;;;;;;;;;;;;;;;;;
 
 to go
-  if one-by-one-choices? [ask patches [set pcolor white - 1 ] display wait .3]
+  if one-by-one-choices? [ ask patches [ set pcolor white - 1 ] display wait .3 ]
   ask patches
   [
     ifelse random-float 100 < probability-to-be-target-color [
@@ -116,7 +116,7 @@ to make-histogram
     ;; foreach histogram column, which represents the number
     ;; of blocks that are the target-color
       set col-height 0 ; since it's a new column, start at the bottom
-      foreach n-values (choose 4 column) [[n] -> n] [
+      foreach range (choose 4 column) [
       ;; foreach possible permutation
       ;; of blocks in this column, add
       ;; a piece of the histogram
@@ -126,7 +126,7 @@ to make-histogram
         set max-column-height max list max-column-height col-height
       ]
     ]
-    if max-column-height > 9 [set-plot-y-range 0 max-column-height + 1]
+    if max-column-height > 9 [ set-plot-y-range 0 max-column-height + 1 ]
   ] [
     histogram target-color-list
     let maxbar modes target-color-list
@@ -652,7 +652,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-BETA2
+NetLogo 6.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

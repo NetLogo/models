@@ -90,8 +90,8 @@ end
 
 to-report sample-patches ; sample-organizers procedure
   let result []
-  foreach n-values side [ [n] -> n ] [ [side-length-1] ->
-    foreach n-values side [ [n] -> n ] [ [side-length-2] ->
+  foreach range side [ [side-length-1] ->
+    foreach range side [ [side-length-2] ->
       set result lput patch-at side-length-2 (- side-length-1) result
     ]
   ]
@@ -1134,7 +1134,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-BETA2
+NetLogo 6.0
 @#$#@#$#@
 setup
 repeat 150 [ go ]

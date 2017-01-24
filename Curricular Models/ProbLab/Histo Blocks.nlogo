@@ -33,8 +33,8 @@ to setup-view
   let active-y round min-pycor
   let delta-y round (world-height / 5)
   let possibility-index 0
-  foreach n-values 5 [ [n] -> n ] [ [i] ->
-    foreach n-values item i num-orderings [ [n] -> n ] [
+  foreach range 5 [ [i] ->
+    foreach range item i num-orderings [
       ask patch active-x active-y [
         let current-4-block item possibility-index all-possibilities
         ask patch-at 0 1 [
@@ -203,7 +203,7 @@ end
 
 to-report chance-of-each-item-in-column [index]
   let result ""
-  foreach n-values 4 [ [n] -> n] [ [the-item] ->
+  foreach range 4 [ [the-item] ->
     if the-item > 0 [
       set result word result " * "
     ]
@@ -828,7 +828,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-BETA2
+NetLogo 6.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

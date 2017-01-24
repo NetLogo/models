@@ -261,7 +261,7 @@ to plot-learned-line ;; observer procedure
   let edge1 [out-link-to perceptron] of input-node-1
   let edge2 [out-link-to perceptron] of input-node-2
 
-  foreach n-values 5 [ [n] -> n - 2 ] [ [x1] ->
+  foreach (range -2 3) [ [x1] ->
     ;; calculate w0 (the bias weight)
     let w0 sum [[weight] of out-link-to perceptron] of bias-nodes
 
@@ -955,7 +955,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0-BETA2
+NetLogo 6.0
 @#$#@#$#@
 resize-world -9 9 -9 9
 setup
