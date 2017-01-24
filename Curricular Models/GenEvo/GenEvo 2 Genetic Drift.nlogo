@@ -12,7 +12,7 @@ to setup     ; Sets up the population of bacteria (E. coli) randomly across the 
   set sugar-color 2
   let color-list [ red orange brown yellow green cyan violet magenta ]
 
-  create-ecolis number-of-traits [
+  create-ecolis number-of-types [
     set shape "ecoli"
     set size 2
     set energy 1000
@@ -184,8 +184,8 @@ SLIDER
 95
 210
 128
-number-of-traits
-number-of-traits
+number-of-types
+number-of-types
 1
 8
 8.0
@@ -199,7 +199,7 @@ TEXTBOX
 155
 410
 173
-Each trait is represented by a different color in the model.
+Each type is represented by a different color in the model.
 11
 0.0
 1

@@ -12,7 +12,7 @@ to setup     ; Sets up the population of bacteria (E. coli) randomly across the 
   set sugar-color 2
   let color-list [ red orange brown yellow green cyan violet magenta ]
 
-  create-ecolis number-of-traits [
+  create-ecolis number-of-types [
     set shape "ecoli"
     set size 2
     set energy 1000
@@ -202,8 +202,8 @@ SLIDER
 50
 435
 83
-number-of-traits
-number-of-traits
+number-of-types
+number-of-types
 1
 8
 8.0
@@ -217,7 +217,7 @@ TEXTBOX
 180
 490
 236
-Each trait is represented by a different color in the model.\nThe cells with the trait that has a selective advantage are represented\nby a blue outline.
+Each type is represented by a different color in the model.\nThe cells with the trait that has a selective advantage are represented\nby a blue outline.
 11
 0.0
 1

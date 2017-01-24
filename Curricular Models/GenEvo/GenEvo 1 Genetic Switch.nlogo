@@ -120,6 +120,7 @@ end
 
 ; procedure for movement and molecular interactions of LacI proteins
 to go-LacIs
+
   ; a LacI bound with the operator might dissociate from the operator
   ask LacIs with [ bound-to-operator? ] [
     if (random-float 1 < LacI-bond-leakage) [
@@ -137,6 +138,7 @@ to go-LacIs
         forward 1
       ]
       set partner nobody
+      set-shape
       forward -1
     ]
   ]
@@ -271,15 +273,11 @@ end
 ; procedure to simulate cell division; each type of turtle (except RNAPs and LacIs) population is halved
 to divide-cell
   animate-cell-division
-  ask n-of (count LacIs with [ partner != nobody ] / 2) LacIs with [ partner != nobody ] [
-    ask partner [ die ]
-    set partner nobody
-    set-shape
-  ]
+
   ask n-of (count lactoses with [ inside? and partner = nobody ] / 2) lactoses with [ inside? and partner = nobody ] [ die ]
   ask n-of (count LacYs / 2) LacYs [ die ]
-  ask n-of (count patches with [ pcolor = (red + 2) ] / 2) patches with [ pcolor = (red + 2) ] [ set pcolor cell-color ]
   ask n-of (count LacZs / 2) LacZs [ die ]
+  ask n-of (count patches with [pcolor = (red + 2) ] / 2)patches with [pcolor = (red + 2)] [set pcolor cell-color]
 
   set energy energy / 2
   set division-number division-number + 1
