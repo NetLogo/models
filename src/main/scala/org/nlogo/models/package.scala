@@ -46,9 +46,9 @@ package object models {
       val loader = fileformat.standardLoader(workspace.compiler.utilities)
       val modelDir = new File(".")
       val extensions = Array("nlogo", "nlogo3d")
-      listFiles(modelDir, extensions, true).asScala.map { f =>
-        (f, loader.readModel(f.toURI), Try(readFileToString(f)))
-      }
+      listFiles(modelDir, extensions, true).asScala
+        .filterNot { f => extensions.map(".tmp." + _).exists(f.getName.endsWith) }
+        .map { f => (f, loader.readModel(f.toURI), Try(readFileToString(f))) }
     } finally workspace.dispose()
   }
 
