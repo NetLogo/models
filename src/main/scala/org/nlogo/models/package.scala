@@ -13,7 +13,10 @@ import org.apache.commons.io.FilenameUtils.getExtension
 import org.apache.commons.io.FilenameUtils.removeExtension
 import org.nlogo.api.LabProtocol
 import org.nlogo.api.PreviewCommands
+import org.nlogo.core.Button
 import org.nlogo.core.Model
+import org.nlogo.core.Monitor
+import org.nlogo.core.Slider
 import org.nlogo.headless.HeadlessWorkspace
 import org.nlogo.models.InfoTabParts
 
@@ -99,6 +102,21 @@ package object models {
       val sectionSeparator = "@#$#@#$#@"
       (content + sectionSeparator + "\n").split(quote(sectionSeparator) + "\\n")
     }
+    def widgetSources: Seq[String] =
+      model.widgets.collect {
+        case Button(Some(source), _, _, _, _, _, _, _, _, _)   => Seq(source)
+        case Slider(_, _, _, _, _, _, min, max, _, step, _, _) => Seq(min, max, step)
+        case Monitor(Some(source), _, _, _, _, _, _, _)        => Seq(source)
+      }.flatten
+    def plotSources: Seq[String] =
+      model.plots.flatMap { plot =>
+        Seq(plot.setupCode, plot.updateCode) ++
+          plot.pens.flatMap { pen =>
+            Seq(pen.setupCode, pen.updateCode)
+          }
+      }
+    def allSources: Seq[String] =
+      Seq(model.code, model.previewCommands.source) ++ widgetSources ++ plotSources
   }
 
 }
