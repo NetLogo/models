@@ -93,7 +93,7 @@ to plot-color-distribution
   set-current-plot-pen "%-target-color"
   histogram %-target-color-list
   let maxbar modes %-target-color-list
-  let maxrange filter [ [c] -> c = item 0 maxbar ] %-target-color-list
+  let maxrange filter [ c -> c = item 0 maxbar ] %-target-color-list
   set-plot-y-range 0 length maxrange
 end
 

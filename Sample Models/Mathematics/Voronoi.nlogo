@@ -21,9 +21,9 @@ to setup
   clear-all
   ;; too dark and too light are hard to distinguish from each other,
   ;; so only use 13-17, 23-27, ..., 133-137
-  set available-colors shuffle filter [ [c] ->
+  set available-colors shuffle filter [ c ->
     (c mod 10 >= 3) and (c mod 10 <= 7)
-  ] n-values 140 [ [n] -> n ]
+  ] n-values 140 [ n -> n ]
   set-default-shape points "circle 3"
   ask n-of number patches [ make-point ]
   ask patches [ recolor ]

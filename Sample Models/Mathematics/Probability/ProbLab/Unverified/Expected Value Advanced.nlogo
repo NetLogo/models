@@ -216,7 +216,7 @@ to setup-fish-color
 
   ;;finds the number of fish of each type that need to be colored:
   ;;makes the percentages, multiplies them by the number of fish
-  let list-of-nums map [ [ratio] -> ratio / (sum ratio-list) * #fish ] ratio-list
+  let list-of-nums map [ ratio -> ratio / (sum ratio-list) * #fish ] ratio-list
   ;;rounds the numbers of fish with a specific value
   let r-list-of-nums map round list-of-nums
 
@@ -227,7 +227,7 @@ to setup-fish-color
   ifelse not setup-apart?
   [
     ;;prints out the values on random fish that are not already taken
-    foreach nums [ [n] ->
+    foreach nums [ n ->
       ask n-of n fish with [ orig-color = -1 ]
       [ set orig-color item cur-val colors ]
       set cur-val cur-val + 1
@@ -262,7 +262,7 @@ to-report setup-fish-color-polish [ list-of-nums r-list-of-nums ]
   ;;if the sum is below the number of fish, then searches for the highest remainder to round up
   while [sum r-list-of-nums < #fish]
   [
-    let remainders map [ [n] -> remainder (n * #fish) #fish ] list-of-nums
+    let remainders map [ n -> remainder (n * #fish) #fish ] list-of-nums
     ;;finds the position of the maximum remainder
     let pos-of-max position (max remainders) remainders
     ;;updates the list of numbers of each type of fish
@@ -274,11 +274,11 @@ to-report setup-fish-color-polish [ list-of-nums r-list-of-nums ]
   ;;to large numbers, for them to not become negative
   while [sum r-list-of-nums > #fish]
   [
-    let remainders map [ [n] -> remainder (n * #fish) #fish ] list-of-nums
+    let remainders map [ n -> remainder (n * #fish) #fish ] list-of-nums
     ;;remainders1 makes sure that the 0 is not deemed the minimum remainder, but
     ;;looks for minimum remainder above 0
     let remainders1 []
-    foreach remainders [ [the-remainder] ->
+    foreach remainders [ the-remainder ->
       ifelse the-remainder = 0
       [ set remainders1 (lput #fish remainders1) ]
       [ set remainders1 (lput the-remainder remainders1) ]
@@ -328,7 +328,7 @@ to plot-graphs
   plot-pen-reset
   histogram all-totals
   let maxbar modes all-totals
-  let maxrange length filter [ [total] -> total = item 0 maxbar ] all-totals
+  let maxrange length filter [ total -> total = item 0 maxbar ] all-totals
   set-plot-y-range 0 max list 10 maxrange
   ;;plots the "average" line
   set-current-plot-pen "Mean"
@@ -346,7 +346,7 @@ to plot-graphs
   plot-pen-reset
   histogram all-numbers
   set maxbar modes all-numbers
-  set maxrange length filter [ [n] -> n = item 0 maxbar ] all-numbers
+  set maxrange length filter [ n -> n = item 0 maxbar ] all-numbers
   set-plot-y-range 0 max list 10 maxrange
   ;;plots the "average" line
   set-current-plot-pen "Mean"
@@ -372,12 +372,12 @@ to-report monitor-exp-val-calculation
   set my-ratio-list ratio-list
 
   ;; the "% in Population" monitors pick items from ratio-monitor-list
-  let ratio-monitor-list map [ [ratio] ->
+  let ratio-monitor-list map [ ratio ->
     (word ratio "/" (sum my-ratio-list) " = "
       precision (100 * ratio / (sum my-ratio-list)) 1 "%")
   ] my-ratio-list
   let exp-val-calc word (width-of-sample * height-of-sample) " * ("
-  foreach [ 1 2 3 4 ] [ [i] ->
+  foreach [ 1 2 3 4 ] [ i ->
     set exp-val-calc (word exp-val-calc
                            i " * "
                            item (i - 1) my-ratio-list
@@ -400,7 +400,7 @@ to-report monitor-exp-val
   set my-ratio-list ratio-list
 
   report (width-of-sample * height-of-sample)
-         * sum map [ [i] -> i * item (i - 1) my-ratio-list / (sum my-ratio-list) ] [ 1 2 3 4 5 ]
+         * sum map [ i -> i * item (i - 1) my-ratio-list / (sum my-ratio-list) ] [ 1 2 3 4 5 ]
 end
 
 ;;shows the populations separately
@@ -411,7 +411,7 @@ to histogram-patches [ list-of-nums ]
   ;;shows the separated populations
   let patch-now 0
   let temp 0
-  foreach list-of-nums [ [n] ->
+  foreach list-of-nums [ n ->
     repeat n
     [
       ask patches with [index = patch-now] [ set pcolor item temp colors ]
@@ -434,7 +434,7 @@ to swim-to-new
   ]
   ;;moves the fish
   repeat steps [
-    foreach list-of-moves [ [pair] -> ask first pair [ fd last pair ] ]
+    foreach list-of-moves [ pair -> ask first pair [ fd last pair ] ]
     display
   ]
 end

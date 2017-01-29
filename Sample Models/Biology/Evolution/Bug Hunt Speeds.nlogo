@@ -15,7 +15,7 @@ to setup
   set-default-shape predators "bird"
   ask patches [ set pcolor white ]   ;; white background
   set catches-by-speed n-values 6 [ 0 ]
-  foreach [ 1 2 3 4 5 6 ] [ [the-speed] ->
+  foreach [ 1 2 3 4 5 6 ] [ the-speed ->
     create-bugs initial-bugs-each-speed [ set speed the-speed ]
   ]
   ask bugs [
@@ -193,7 +193,7 @@ frequency
 50.0
 true
 false
-"" ";; the HISTOGRAM primitive can't make a multi-colored histogram,\n;; so instead we plot each bar individually\nclear-plot\nforeach [ 1 2 3 4 5 6 ] [ [the-speed] ->\n  create-temporary-plot-pen (word the-speed)\n  set-plot-pen-mode 1 ; bar mode\n  set-plot-pen-color item (the-speed - 1) colors-by-speed\n  plotxy the-speed count bugs with [ speed = the-speed ]\n]"
+"" ";; the HISTOGRAM primitive can't make a multi-colored histogram,\n;; so instead we plot each bar individually\nclear-plot\nforeach [ 1 2 3 4 5 6 ] [ the-speed ->\n  create-temporary-plot-pen (word the-speed)\n  set-plot-pen-mode 1 ; bar mode\n  set-plot-pen-color item (the-speed - 1) colors-by-speed\n  plotxy the-speed count bugs with [ speed = the-speed ]\n]"
 PENS
 
 PLOT
@@ -254,7 +254,7 @@ number
 10.0
 true
 false
-"" ";; the HISTOGRAM primitive can't make a multi-colored histogram,\n;; so instead we plot each bar individually\nclear-plot\nforeach [ 1 2 3 4 5 6 ] [ [the-speed] ->\n  create-temporary-plot-pen (word the-speed)\n  set-plot-pen-mode 1 ; bar mode\n  set-plot-pen-color item (the-speed - 1) colors-by-speed\n  plotxy the-speed item (the-speed - 1) catches-by-speed\n]"
+"" ";; the HISTOGRAM primitive can't make a multi-colored histogram,\n;; so instead we plot each bar individually\nclear-plot\nforeach [ 1 2 3 4 5 6 ] [ the-speed ->\n  create-temporary-plot-pen (word the-speed)\n  set-plot-pen-mode 1 ; bar mode\n  set-plot-pen-color item (the-speed - 1) colors-by-speed\n  plotxy the-speed item (the-speed - 1) catches-by-speed\n]"
 PENS
 
 SWITCH

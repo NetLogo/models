@@ -85,7 +85,7 @@ to link-preferentially [nodeset k]
   [
     ;; to make a link either to or from each preceding
     ;; node in the sorted list.
-    foreach neighbor-choice-list [ [neighbor] ->
+    foreach neighbor-choice-list [ neighbor ->
       ifelse random 2 = 0
         [ create-link-to neighbor ]
         [ create-link-from neighbor ]
@@ -95,7 +95,7 @@ to link-preferentially [nodeset k]
   ]
 
   ;; ask each node after the kth node in order...
-  foreach sublist node-list (k + 1) (length node-list) [ [node] ->
+  foreach sublist node-list (k + 1) (length node-list) [ node ->
     ask node [
       ;; ...to make k links
       let temp-neighbor-list neighbor-choice-list

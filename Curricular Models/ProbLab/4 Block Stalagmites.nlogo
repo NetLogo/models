@@ -79,7 +79,7 @@ end
 to-report sample-summary-value ; sample-organizers reporter
   let result 0
   let power-of-two 3
-  foreach sample-values [ [sample-value] ->
+  foreach sample-values [ sample-value ->
     if sample-value = 1 [
       set result result + 2 ^ power-of-two
     ]
@@ -90,8 +90,8 @@ end
 
 to-report sample-patches ; sample-organizers procedure
   let result []
-  foreach range side [ [side-length-1] ->
-    foreach range side [ [side-length-2] ->
+  foreach range side [ side-length-1 ->
+    foreach range side [ side-length-2 ->
       set result lput patch-at side-length-2 (- side-length-1) result
     ]
   ]
@@ -136,7 +136,7 @@ end
 to make-a-sample-organizer ; sample-dudes procedure
   hatch-sample-organizers 1 [
     hide-turtle
-    set sample-values map [ [the-sample-dude] ->
+    set sample-values map [ the-sample-dude ->
       ifelse-value ([ color ] of the-sample-dude = target-color) [ 1 ] [ 0 ]
     ] sorted-sample-dudes
     display-sample
@@ -280,7 +280,7 @@ to sample
     (pycor > (max-pycor - side))
   ]
 
-  foreach sort sample-location-patch-agentset [ [the-patch-agentset] ->
+  foreach sort sample-location-patch-agentset [ the-patch-agentset ->
     ask the-patch-agentset [
       sprout 1 [
         hide-turtle
@@ -406,7 +406,7 @@ to finish-off
   ;; beginning from its top-left corner and running to the
   ;; right and then taking the next row and so on
   ;; might be "green green red green red green"
-  let sample-color-combination map [ [the-sample-dude] -> [ color ] of the-sample-dude ] sorted-sample-dudes
+  let sample-color-combination map [ the-sample-dude -> [ color ] of the-sample-dude ] sorted-sample-dudes
 
   ;; determines which turtle lives at the bottom of the column where the sample is
   let this-column-kid one-of column-kids with [
@@ -718,7 +718,7 @@ Number of Outcomes per Event
 15.0
 true
 false
-"" "if plot? [\n  let sample-value-summaries [ sample-summary-value ] of sample-organizers\n  let possible-values n-values (2 ^ (side * side)) [ [n] -> n ]\n  let results []\n  foreach possible-values [ [i]->\n    set results lput length filter [ [j] -> j = i ] sample-value-summaries results\n  ]\n\n  let max-results max results\n  if mean results > 0 [ set-plot-x-range 0 (max-results + 1) ]\n  set-current-plot-pen \"Histogram\"\n  histogram results\n  set-current-plot-pen \"Mean\"\n  let mean-results mean results\n  plot-pen-reset\n  plotxy mean-results 0\n  plotxy mean-results plot-y-max\n]"
+"" "if plot? [\n  let sample-value-summaries [ sample-summary-value ] of sample-organizers\n  let possible-values n-values (2 ^ (side * side)) [ n -> n ]\n  let results []\n  foreach possible-values [ i ->\n    set results lput length filter [ j -> j = i ] sample-value-summaries results\n  ]\n\n  let max-results max results\n  if mean results > 0 [ set-plot-x-range 0 (max-results + 1) ]\n  set-current-plot-pen \"Histogram\"\n  histogram results\n  set-current-plot-pen \"Mean\"\n  let mean-results mean results\n  plot-pen-reset\n  plotxy mean-results 0\n  plotxy mean-results plot-y-max\n]"
 PENS
 "histogram" 1.0 1 -16777216 true "" ""
 "Mean" 1.0 0 -2674135 true "" ""

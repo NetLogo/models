@@ -50,7 +50,7 @@ to new
       setxy 10 10
     ]
 
-    foreach range 4 [ [n] ->
+    foreach range 4 [ n ->
       create-ghosts 1
       [
         set shape "ghost"

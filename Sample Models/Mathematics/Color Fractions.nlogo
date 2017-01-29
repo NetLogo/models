@@ -13,7 +13,7 @@ to go
   let n numerator
   ;; go through every patch one at a time in order,
   ;; (left to right, top to bottom)
-  foreach sort patches [ [p] ->
+  foreach sort patches [ p ->
     ask p [
       ifelse column-number >= width [
         ;; patches outside the given width are black

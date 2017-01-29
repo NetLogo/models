@@ -60,7 +60,7 @@ to show-patch-data
   clear-patches
   clear-turtles
   ifelse ( is-list? patch-data )
-    [ foreach patch-data [ [three-tuple] -> ask patch first three-tuple item 1 three-tuple [ set pcolor last three-tuple ] ] ]
+    [ foreach patch-data [ three-tuple -> ask patch first three-tuple item 1 three-tuple [ set pcolor last three-tuple ] ] ]
     [ user-message "You need to load in patch data first!" ]
   display
 end

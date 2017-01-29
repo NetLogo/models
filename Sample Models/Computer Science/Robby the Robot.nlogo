@@ -55,7 +55,7 @@ to setup
     ;; So 243 (3^5) is the chromosome length allowing any possible situation to be represented.
     set chromosome n-values 243 [random-action]
     ;; calculate the frequency of the 7 basic actions (or "alleles") in each chromosome
-    set allele-distribution map [ [action] -> occurrences action chromosome ] ["move-north" "move-east" "move-south" "move-west" "move-random" "stay-put" "pick-up-can"]
+    set allele-distribution map [ action -> occurrences action chromosome ] ["move-north" "move-east" "move-south" "move-west" "move-random" "stay-put" "pick-up-can"]
   ]
   calculate-population-fitnesses
   let best-individual max-one-of individuals [fitness]
@@ -232,7 +232,7 @@ to create-next-generation ;[best-individual]
         rt random 360 fd random-float 3.0
         set chromosome item 0 child-chromosomes
         ;; record the distribution of basic actions (or "alleles") for each individual
-        set allele-distribution map [ [action] -> occurrences action chromosome ] actions
+        set allele-distribution map [ action -> occurrences action chromosome ] actions
       ]
     ]
     ask parent2 [
@@ -240,7 +240,7 @@ to create-next-generation ;[best-individual]
         rt random 360 fd random-float 3.0
         set chromosome item 1 child-chromosomes
         ;; record the distribution of basic actions (or "alleles") for each individual
-        set allele-distribution map [ [action] -> occurrences action chromosome ] actions
+        set allele-distribution map [ action -> occurrences action chromosome ] actions
        ]
     ]
   ]
@@ -251,7 +251,7 @@ end
 
 ;; each individual takes NUM-ACTIONS-PER-ENVIRONMENT actions according to its strategy on NUM-ENVIRONMENTS-FOR-FITNESS random environments
 to calculate-population-fitnesses
-  foreach sort individuals [ [current-individual] ->
+  foreach sort individuals [ current-individual ->
     let score-sum 0
     repeat num-environments-for-fitness [
       initialize-robot [chromosome] of current-individual
@@ -293,7 +293,7 @@ end
 ;; MUTATION-RATE slider.  In the MAP, "[?]" means "return the same value".
 
 to mutate   ;; individual procedure
-  set chromosome map [ [action] ->
+  set chromosome map [ action ->
     ifelse-value (random-float 1 < mutation-rate)
       [random-action]
       [action]

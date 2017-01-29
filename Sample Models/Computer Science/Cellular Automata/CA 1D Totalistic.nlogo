@@ -54,7 +54,7 @@ to setup-continue
   if not gone? [stop]
 
   let value-list []
-  set value-list map [ [p] -> [value] of p ] sort patches with [pycor = current-row]  ;; copy cell states from the current row to a list
+  set value-list map [ p -> [value] of p ] sort patches with [pycor = current-row]  ;; copy cell states from the current row to a list
   clear-patches
   clear-turtles
   set current-row max-pycor  ;; reset current row to top

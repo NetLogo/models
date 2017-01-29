@@ -16,7 +16,7 @@ to setup
   create-turtles number [
     set color white
     setxy random-xcor random-ycor
-    set next-task [ [] -> search-for-chip ]
+    set next-task [ -> search-for-chip ]
     set size 5  ;; easier to see
   ]
   reset-ticks
@@ -42,13 +42,13 @@ to search-for-chip   ;; turtle procedure -- "picks up chip" by turning orange
     [ set pcolor black
       set color orange
       set steps 20
-      set next-task [ [] -> find-new-pile ]
+      set next-task [ -> find-new-pile ]
     ]
 end
 
 to find-new-pile  ;; turtle procedure -- look for yellow patches
   if pcolor = yellow
-    [ set next-task [ [] -> put-down-chip ] ]
+    [ set next-task [ -> put-down-chip ] ]
 end
 
 to put-down-chip  ;; turtle procedure -- finds empty spot & drops chip
@@ -56,12 +56,12 @@ to put-down-chip  ;; turtle procedure -- finds empty spot & drops chip
    [ set pcolor yellow
      set color white
      set steps 20
-     set next-task [ [] -> get-away ] ]
+     set next-task [ -> get-away ] ]
 end
 
 to get-away  ;; turtle procedure -- get out of yellow pile
   if pcolor = black
-    [ set next-task [ [] -> search-for-chip ] ]
+    [ set next-task [ -> search-for-chip ] ]
 end
 
 

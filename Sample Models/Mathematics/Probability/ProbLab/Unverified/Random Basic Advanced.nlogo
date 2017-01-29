@@ -164,7 +164,7 @@ to histogram-labels
   set-current-plot "All Values From Messengers"
   histogram list-of-labels
   let maxbar modes list-of-labels
-  let maxrange length ( filter [ [the-label] -> the-label = item 0 maxbar ] list-of-labels )
+  let maxrange length ( filter [ the-label -> the-label = item 0 maxbar ] list-of-labels )
   set-plot-y-range 0 max list 10 maxrange
 end
 

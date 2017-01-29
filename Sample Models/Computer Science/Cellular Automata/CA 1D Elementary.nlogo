@@ -52,7 +52,7 @@ to setup-continue
   if not gone?  ;; make sure go has already been called
     [ stop ]
   ;; copy cell states from the current row to a list
-  set on?-list map [ [p] -> [ on? ] of p ] sort patches with [ pycor = row ]
+  set on?-list map [ p -> [ on? ] of p ] sort patches with [ pycor = row ]
   setup-general
   ask patches with [ pycor = row ]
   [
@@ -174,7 +174,7 @@ to show-rules  ;; preview cell state transitions
   ask patches with [pycor > max-pycor - 12]
     [ set pcolor gray - 1 ]
   let i 0
-  foreach list-rules [ [the-rule] ->
+  foreach list-rules [ the-rule ->
     let px (min-pxcor + i * floor (world-width / 8) + floor (world-width / 16)) - 4
     ask patch px (max-pycor - 4)
     [

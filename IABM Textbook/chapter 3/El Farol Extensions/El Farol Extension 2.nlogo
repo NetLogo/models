@@ -103,7 +103,7 @@ end
 ;; currently being used and updates the performance of all strategies
 to update-strategies
   let best-score memory-size * 100 + 1
-  foreach strategies [ [the-strategy] ->
+  foreach strategies [ the-strategy ->
     let score 0
     let week 1
     repeat memory-size [

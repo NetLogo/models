@@ -145,8 +145,8 @@ end
 to single-die-check-visible  ;; single-die procedure
   if single-outcomes = [] [ stop ]
   let mode first modes single-outcomes
-  let height-of-tallest-column length filter [ [outcome] -> outcome = mode] single-outcomes
-  let height-of-my-column length filter [ [outcome] -> outcome = die-value] single-outcomes
+  let height-of-tallest-column length filter [ outcome -> outcome = mode] single-outcomes
+  let height-of-my-column length filter [ outcome -> outcome = die-value] single-outcomes
   if (height-of-tallest-column - height-of-my-column) >= world-height - 2 [ die ]
 end
 
@@ -154,8 +154,8 @@ end
 to paired-die-check-visible  ;; paired-die procedure
   if pair-outcomes = [] [ stop ]
   let mode first modes pair-outcomes
-  let height-of-tallest-column length filter [ [outcome] -> outcome = mode ] pair-outcomes
-  let height-of-my-column length filter [ [outcome] -> outcome = pair-sum ] pair-outcomes
+  let height-of-tallest-column length filter [ outcome -> outcome = mode ] pair-outcomes
+  let height-of-my-column length filter [ outcome -> outcome = pair-sum ] pair-outcomes
   if (height-of-tallest-column - height-of-my-column) >= world-height - 2 [ die ]
 end
 
@@ -249,7 +249,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 1 -16777216 true "" "histogram single-outcomes\nlet maxbar modes single-outcomes\nlet maxrange length filter [ [outcome] -> outcome = item 0 maxbar ] single-outcomes\nset-plot-y-range 0 max list 51 maxrange"
+"default" 1.0 1 -16777216 true "" "histogram single-outcomes\nlet maxbar modes single-outcomes\nlet maxrange length filter [ outcome -> outcome = item 0 maxbar ] single-outcomes\nset-plot-y-range 0 max list 51 maxrange"
 
 PLOT
 562
@@ -267,7 +267,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 1 -16777216 true "" "histogram pair-outcomes\nlet maxbar modes pair-outcomes\nlet maxrange length filter [ [outcome] -> outcome = item 0 maxbar ] pair-outcomes\nset-plot-y-range 0 max list 51 maxrange"
+"default" 1.0 1 -16777216 true "" "histogram pair-outcomes\nlet maxbar modes pair-outcomes\nlet maxrange length filter [ outcome -> outcome = item 0 maxbar ] pair-outcomes\nset-plot-y-range 0 max list 51 maxrange"
 
 SWITCH
 374

@@ -1,56 +1,26 @@
-extensions [ view2.5d ]
-
-turtles-own [
-  peak? ; indicates whether a turtle has reached a "peak",
-        ; that is, it can no longer go "uphill" from where it stands
-]
-
 to setup
   clear-all
-  view2.5d:remove-all-patch-views
-  ; make a landscape with hills and valleys
-  ask n-of 100 patches [ set pcolor 120 ]
-  ; slightly smooth out the landscape
-  repeat 20 [ diffuse pcolor 1 ]
-  ; put some turtles on patch centers in the landscape
-  ask n-of 800 patches [
-    sprout 1 [
-      set peak? false
-      set color red
-      pen-down
-    ]
+  let threedshapes [ "default" "square" "circle" "triangle" "cylinder" "line" ]
+  let positions [ "rt 60" "rt 120" "tilt-up 60" "tilt-up 120" "tilt-up 180" ]
+  foreach threedshapes [ the-shape] ->
+    create-turtles 1
+    [ set shape the-shape
+      set size 2
+      set xcor (5 * who) + min-pxcor + 6
+      set ycor max-pycor - 6
+      set zcor 0
+      ask patch xcor (max-pycor - 3) 0 [ set plabel the-shape ]
+      set color red ]
   ]
 
-  ; show the 2.5 patch view, with the patch height corresponding the patch color:
-  ; light patches are higher, dark patches are lower
-  view2.5d:patch-view window-name [ the-patch -> [ pcolor ] of the-patch ]
-
-  view2.5d:decorate-patch-view window-name ; add turtles to the patch-view
-  view2.5d:set-observer-angles window-name 32 24 ; change the camera angle
-  view2.5d:set-z-scale window-name 5 ; change the z-scale so that the peaks are higher
-
-  reset-ticks
-end
-
-to go
-  ; stop when all turtles are on peak
-  if all? turtles [ peak? ] [ stop ]
-
-  ask turtles [
-    ; remember where we started
-    let old-patch patch-here
-    ; to use `uphill`, the turtles specify a patch variable
-    uphill pcolor
-    ; are we still where we started? if so, we didn't
-    ; move, so we must be on a peak
-    if old-patch = patch-here [ set peak? true ]
+  ask turtles
+  [ let n 0
+    repeat 5
+    [ hatch 1
+        [ set ycor ycor - 4 * (n + 1)
+          run item n positions
+          set n n + 1 ] ]
   ]
-  view2.5d:update-patch-view window-name
-  tick
-end
-
-to-report window-name
-  report "Hill Climbing 2.5d"
 end
 
 
@@ -59,39 +29,41 @@ end
 ; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
-138
-11
-533
-407
+0
+0
+502
+427
 -1
 -1
-3.0
+12.0
 1
 10
 1
 1
 1
 0
+1
+1
+1
+-20
+20
+-16
+16
+-2
+2
+1
 0
 0
-1
--64
-64
--64
-64
-1
-1
-1
 ticks
 30.0
 
 BUTTON
-24
-51
-115
-84
+105
+45
+187
+78
 NIL
-setup
+setup\n
 NIL
 1
 T
@@ -103,48 +75,147 @@ NIL
 1
 
 BUTTON
-24
-90
-115
-123
+32
+160
+144
+193
 NIL
-go
+roll-right 0.1
 T
 1
 T
-OBSERVER
+TURTLE
 NIL
 NIL
 NIL
 NIL
-0
+1
+
+BUTTON
+71
+204
+237
+237
+NIL
+set size size + 0.0001
+T
+1
+T
+TURTLE
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+71
+238
+237
+271
+NIL
+set size size - 0.0001
+T
+1
+T
+TURTLE
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+147
+93
+254
+126
+NIL
+set color red
+NIL
+1
+T
+TURTLE
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+147
+127
+254
+160
+NIL
+set color green
+NIL
+1
+T
+TURTLE
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+147
+161
+254
+194
+NIL
+set color white
+NIL
+1
+T
+TURTLE
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+32
+92
+140
+125
+NIL
+right 0.1
+T
+1
+T
+TURTLE
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+32
+126
+140
+159
+NIL
+tilt-up 0.1
+T
+1
+T
+TURTLE
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-This example demonstrates the use of the `view2.5d` extension. It is based on the **Hill Climbing Example** model, which shows how to make turtles climb hills using the `uphill` command. The `view2.5d` extension allows much better visualization of the "hills" generated in the example.
+This code example shows all of the 3D shapes currently available in NetLogo 3D.
 
-The model opens a separate "patch view" window by calling:
-
-```
-view2.5d:patch-view window-name [ [the-patch] -> [ pcolor ] of the-patch ]
-```
-
-The anonymous reporter supplied to the `view2.5d:patch-view` primitive is used by the extension to set the height of each patch.
-
-At the end of the `setup` procedure, you'll see a few other customizations of this "patch view":
-
-- `view2.5d:decorate-patch-view` tells the extension to also show the turtles in the patch view window.
-
-- `view2.5d:set-observer-angles` tells the extension to change the position (on an imaginary sphere) of the observer in the view (the two numbers are heading and pitch measured in degrees)
-
-- `view2.5d:set-z-scale` tells the extension to change the scale of the z-axis, in this case making our peaks "taller".
-
-In the `go` procedure, we use `view2.5d:update-patch-view` to refresh the patch view using the current state of the model.
-
-For more information, please refer to the `view2.5d` extension documentation.
-
-<!-- 2016 -->
+<!-- 2005 -->
 @#$#@#$#@
 default
 true
@@ -312,6 +383,17 @@ true
 0
 Line -7500403 true 150 0 150 150
 
+link
+true
+0
+Line -7500403 true 150 0 150 300
+
+link direction
+true
+0
+Line -7500403 true 150 150 30 225
+Line -7500403 true 150 150 270 225
+
 pentagon
 false
 0
@@ -428,8 +510,9 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0
+NetLogo 3D 6.0
 @#$#@#$#@
+setup
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

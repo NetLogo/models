@@ -44,7 +44,7 @@ to write-to-file
   file-print (word "---------- Tick Number: " ticks "-----------")
   ;; use SORT so the turtles print their data in order by who number,
   ;; rather than in random order
-  foreach sort turtles [ [t] ->
+  foreach sort turtles [ t ->
     ask t [
       file-print (word self ": pxcor: " pxcor " pycor: " pycor " value: " value)
     ]

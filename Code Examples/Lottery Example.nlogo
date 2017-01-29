@@ -143,7 +143,7 @@ mean # of wins
 10.0
 true
 false
-"" "clear-plot\nforeach sort remove-duplicates [ size ] of turtles [[the-size] ->\n  plotxy the-size mean [ label ] of turtles with [ size = the-size ]\n]"
+"" "clear-plot\nforeach sort remove-duplicates [ size ] of turtles [ the-size  ->\n  plotxy the-size mean [ label ] of turtles with [ size = the-size ]\n]"
 PENS
 "default" 1.0 1 -16777216 true "" ""
 

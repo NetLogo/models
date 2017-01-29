@@ -143,7 +143,7 @@ to setup
   ; this is what happens inside matrix:forecast-linear-growth.
   output-print "long way to do the linear forecast using regress"
   let data-list [20 25 28 32 35 39]
-  let indep-var (n-values length data-list [ [n] -> n ]) ; 0,1,2...,5
+  let indep-var (n-values length data-list [ n -> n ]) ; 0,1,2...,5
   let lin-output matrix:regress matrix:from-column-list (list data-list indep-var)
   let lincnst item 0 (item 0 lin-output)
   let linslpe item 1 (item 0 lin-output)
@@ -152,8 +152,8 @@ to setup
 
   ; this is what happens inside matrix:forecast-compound-growth.
   output-print "long way to do the compound-growth forecast using regress"
-  let com-log-data-list  (map [ [n] -> ln n ] [20 25 28 32 35 39])
-  let com-indep-var2 (n-values length com-log-data-list [ [n] -> n ]) ; 0,1,2...,5
+  let com-log-data-list  (map [ n -> ln n ] [20 25 28 32 35 39])
+  let com-indep-var2 (n-values length com-log-data-list [ n -> n ]) ; 0,1,2...,5
   let com-output matrix:regress matrix:from-column-list (list com-log-data-list com-indep-var2)
   let comcnst exp item 0 (item 0 com-output)
   let comrate exp item 1 (item 0 com-output)
@@ -162,8 +162,8 @@ to setup
 
   ; this is what happens inside matrix:forecast-continuous-growth.
   output-print "long way to do the continuous-growth forecast using regress"
-  let con-log-data-list  (map [ [n] -> ln n ] [20 25 28 32 35 39])
-  let con-indep-var2 (n-values length con-log-data-list [ [n] -> n ]) ; 0,1,2...,5
+  let con-log-data-list  (map [ n -> ln n ] [20 25 28 32 35 39])
+  let con-indep-var2 (n-values length con-log-data-list [ n -> n ]) ; 0,1,2...,5
   let con-output matrix:regress matrix:from-column-list (list con-log-data-list con-indep-var2)
   let concnst exp item 0 (item 0 con-output)
   let conrate     item 1 (item 0 con-output)

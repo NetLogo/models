@@ -142,7 +142,7 @@ end
 ;;;;;;;;;;;;watch-dance;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 to watch-dance
-  set watch-dance-task [ [] ->
+  set watch-dance-task [ ->
     if count scouts with [piping?] in-radius 3 > 0 [
       ; if detecting any piping scouts in the swarm, pipe too
       set target [target] of one-of scouts with [piping?]
@@ -212,7 +212,7 @@ end
 ;;;;;;;;;;;;;;discover;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 to discover
-  set discover-task [ [] ->
+  set discover-task [ ->
     ifelse bee-timer < 0 [
       ; if run out of time (a bee has limited time to make initial
       ; discovery), go home, and admit no discovery was made
@@ -259,7 +259,7 @@ end
 ;;;;;;;;;;;;;;inspect-hive;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 to inspect-hive
-  set inspect-hive-task [ [] ->
+  set inspect-hive-task [ ->
     ; after spending certain time (as specified in bee-timer, see the
     ; last comment of this task) on inspecting hives, they fly home.
     ifelse bee-timer < 0 [
@@ -298,7 +298,7 @@ end
 ;;;;;;;;;;;;;;;go-home;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 to go-home
-  set go-home-task [ [] ->
+  set go-home-task [ ->
     ifelse distance my-home < 1 [ ; if back at home
       ifelse no-discovery? [
         ; if the bee is an initial scout that failed to discover a hive site
@@ -349,7 +349,7 @@ end
 ; Assuming it declined to 85, when the bee dances for the hive a second time, it
 ; would only dance between 60 to 70 ticks: 85 - (2 - 1) * (15 + random 5) = [70, 66]
 to dance
-  set dance-task [ [] ->
+  set dance-task [ ->
     ifelse count scouts with [piping?] in-radius 3 > 0 [
       ; while dancing, if detecting any piping bee, start piping too
       pen-up
@@ -404,7 +404,7 @@ end
 ;;;;;;;;;;;;;;;;;re-visit;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 to re-visit
-  set re-visit-task [ [] ->
+  set re-visit-task [ ->
     ifelse bee-timer > 0 [
       ; wait a bit after the previous trip
       set bee-timer bee-timer - 1
@@ -432,7 +432,7 @@ end
 ;;;;;;;;;;;;;;;;;;pipe;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 to pipe
-  set pipe-task [ [] ->
+  set pipe-task [ ->
     move-around
     if count scouts with [ piping? ] in-radius 5 = count scouts in-radius 5 [
       ; if every surrounding bee is piping, wait a bit (20 ticks as
@@ -451,7 +451,7 @@ end
 ;;;;;;;;;;;;;;;take-off;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 to take-off
-  set take-off-task [ [] ->
+  set take-off-task [ ->
     ifelse distance target > 1 [
       face target fd 1
     ] [

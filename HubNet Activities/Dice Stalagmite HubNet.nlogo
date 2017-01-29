@@ -152,8 +152,8 @@ end
 to single-die-check-visible  ;; single-die procedure
   if single-outcomes = [] [ stop ]
   let mode first modes single-outcomes
-  let height-of-tallest-column length filter [ [n] -> n = mode] single-outcomes
-  let height-of-my-column length filter [ [n] -> n = die-value] single-outcomes
+  let height-of-tallest-column length filter [ n -> n = mode ] single-outcomes
+  let height-of-my-column length filter [ n -> n = die-value ] single-outcomes
   if (height-of-tallest-column - height-of-my-column) >= world-height - 2 [ die ]
 end
 
@@ -161,8 +161,8 @@ end
 to paired-die-check-visible  ;; paired-die procedure
   if pair-outcomes = [] [ stop ]
   let mode first modes pair-outcomes
-  let height-of-tallest-column length filter [ [n] -> n = mode] pair-outcomes
-  let height-of-my-column length filter [ [n] -> n = pair-sum] pair-outcomes
+  let height-of-tallest-column length filter [ n -> n = mode ] pair-outcomes
+  let height-of-my-column length filter [ n -> n = pair-sum ] pair-outcomes
   if (height-of-tallest-column - height-of-my-column) >= world-height - 2 [ die ]
 end
 

@@ -220,7 +220,7 @@ to plot-guesses
 
   ;; plot the average history as lines
   set-current-plot-pen "means"
-  foreach guess-averages [ [guess-average] ->
+  foreach guess-averages [ guess-average ->
     plot-pen-up
     plotxy guess-average  0
     plot-pen-down
@@ -347,7 +347,7 @@ end
 to-report sample-patches [x y width]
   let radius ( width - 1 ) / 2
   report [patches at-points n-values (width ^ 2)
-          [ [n] -> list (n mod width - radius)
+          [ n -> list (n mod width - radius)
            (floor (n / width) - radius)]] of patch x y
 end
 

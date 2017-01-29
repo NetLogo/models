@@ -136,7 +136,7 @@ to highlight-clusters [ clusters ]
   if node != nobody and node != highlighted-node [
     set highlighted-node node
     ; find all clusters the node is in and assign them different colors
-    color-clusters filter [ [cluster] -> member? node cluster ] clusters
+    color-clusters filter [ cluster -> member? node cluster ] clusters
     ; highlight target node
     ask node [ set color white ]
   ]
@@ -170,15 +170,15 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to betweenness
-  centrality [ [] -> nw:betweenness-centrality ]
+  centrality [ -> nw:betweenness-centrality ]
 end
 
 to eigenvector
-  centrality [ [] -> nw:eigenvector-centrality ]
+  centrality [ -> nw:eigenvector-centrality ]
 end
 
 to closeness
-  centrality [ [] -> nw:closeness-centrality ]
+  centrality [ -> nw:closeness-centrality ]
 end
 
 ; Takes a centrality measure as a reporter task, runs it for all nodes
@@ -230,45 +230,45 @@ to generate [ generator-task ]
 end
 
 to preferential-attachment
-  generate [ [] -> nw:generate-preferential-attachment turtles get-links-to-use nb-nodes ]
+  generate [ -> nw:generate-preferential-attachment turtles get-links-to-use nb-nodes ]
 end
 
 to ring
-  generate [ [] -> nw:generate-ring turtles get-links-to-use nb-nodes ]
+  generate [ -> nw:generate-ring turtles get-links-to-use nb-nodes ]
 end
 
 to star
-  generate [ [] -> nw:generate-star turtles get-links-to-use nb-nodes ]
+  generate [ -> nw:generate-star turtles get-links-to-use nb-nodes ]
 end
 
 to wheel
   ifelse links-to-use = "directed" [
     ifelse spokes-direction = "inward" [
-      generate [ [] -> nw:generate-wheel-inward turtles get-links-to-use nb-nodes ]
+      generate [ -> nw:generate-wheel-inward turtles get-links-to-use nb-nodes ]
     ]
     [ ; if it's not inward, it's outward
-      generate [ [] -> nw:generate-wheel-outward turtles get-links-to-use nb-nodes ]
+      generate [ -> nw:generate-wheel-outward turtles get-links-to-use nb-nodes ]
     ]
   ]
   [ ; for an undirected network, we don't care about spokes
-    generate [ [] -> nw:generate-wheel turtles get-links-to-use nb-nodes ]
+    generate [ -> nw:generate-wheel turtles get-links-to-use nb-nodes ]
   ]
 end
 
 to lattice-2d
-  generate [ [] -> nw:generate-lattice-2d turtles get-links-to-use nb-rows nb-cols wrap ]
+  generate [ -> nw:generate-lattice-2d turtles get-links-to-use nb-rows nb-cols wrap ]
 end
 
 to small-world-ring
-  generate [ [] -> nw:generate-watts-strogatz turtles get-links-to-use nb-nodes neighborhood-size rewire-prob ]
+  generate [ -> nw:generate-watts-strogatz turtles get-links-to-use nb-nodes neighborhood-size rewire-prob ]
 end
 
 to small-world-lattice
-  generate [ [] -> nw:generate-small-world turtles get-links-to-use nb-rows nb-cols clustering-exponent wrap ]
+  generate [ -> nw:generate-small-world turtles get-links-to-use nb-rows nb-cols clustering-exponent wrap ]
 end
 
 to generate-random
-  generate  [ [] -> nw:generate-random turtles get-links-to-use nb-nodes connection-prob ]
+  generate  [ -> nw:generate-random turtles get-links-to-use nb-nodes connection-prob ]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -281,7 +281,7 @@ to save-matrix
 end
 
 to load-matrix
-  generate [ [] -> nw:load-matrix "matrix.txt" turtles get-links-to-use ]
+  generate [ -> nw:load-matrix "matrix.txt" turtles get-links-to-use ]
 end
 
 to save-graphml

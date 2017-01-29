@@ -119,7 +119,7 @@ to generate-cityscape
   ]
 
   ask builders [
-    let ticks-list map [ [n] -> n * block-size ] [ 1 3 7 10 ]
+    let ticks-list map [ n -> n * block-size ] [ 1 3 7 10 ]
     if member? ticks ticks-list [ generate-second-order ]
     if patch-ahead 2 = nobody [ die ]
     if [ transport ] of patch-ahead 2 = .75 [
