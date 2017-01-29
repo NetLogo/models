@@ -5,10 +5,10 @@
 
 set -o pipefail
 
-declare -r sbt_release_version="0.13.12"
-declare -r sbt_unreleased_version="0.13.12"
+declare -r sbt_release_version="0.13.13"
+declare -r sbt_unreleased_version="0.13.13"
 
-declare -r latest_212="2.12.0"
+declare -r latest_212="2.12.1"
 declare -r latest_211="2.11.8"
 declare -r latest_210="2.10.6"
 declare -r latest_29="2.9.3"
@@ -24,7 +24,7 @@ declare -r sbt_launch_mvn_snapshot_repo="http://repo.scala-sbt.org/scalasbt/mave
 declare -r default_jvm_opts_common="-Xms512m -Xmx1536m -Xss2m"
 declare -r noshare_opts="-Dsbt.global.base=project/.sbtboot -Dsbt.boot.directory=project/.boot -Dsbt.ivy.home=project/.ivy"
 
-declare sbt_jar sbt_dir sbt_create sbt_version sbt_script
+declare sbt_jar sbt_dir sbt_create sbt_version sbt_script sbt_new
 declare sbt_explicit_version
 declare verbose noshare batch trace_level
 declare sbt_saved_stty debugUs
@@ -168,21 +168,29 @@ setJavaHome () {
   export JDK_HOME="$1"
   export PATH="$JAVA_HOME/bin:$PATH"
 }
-setJavaHomeQuietly () {
-  addSbt warn
-  setJavaHome "$1"
-  addSbt info
+
+getJavaVersion() { "$1" -version 2>&1 | grep -E -e '(java|openjdk) version' | awk '{ print $3 }' | tr -d \"; }
+
+checkJava() {
+  # Warn if there is a Java version mismatch between PATH and JAVA_HOME/JDK_HOME
+
+  [[ -n "$JAVA_HOME" && -e "$JAVA_HOME/bin/java"     ]] && java="$JAVA_HOME/bin/java"
+  [[ -n "$JDK_HOME"  && -e "$JDK_HOME/lib/tools.jar" ]] && java="$JDK_HOME/bin/java"
+
+  if [[ -n "$java" ]]; then
+    pathJavaVersion=$(getJavaVersion java)
+    homeJavaVersion=$(getJavaVersion "$java")
+    if [[ "$pathJavaVersion" != "$homeJavaVersion" ]]; then
+      echoerr "Warning: Java version mismatch between PATH and JAVA_HOME/JDK_HOME, sbt will use the one in PATH"
+      echoerr "  Either: fix your PATH, remove JAVA_HOME/JDK_HOME or use -java-home"
+      echoerr "  java version from PATH:               $pathJavaVersion"
+      echoerr "  java version from JAVA_HOME/JDK_HOME: $homeJavaVersion"
+    fi
+  fi
 }
 
-# if set, use JDK_HOME/JAVA_HOME over java found in path
-if [[ -n "$JDK_HOME" && -e "$JDK_HOME/lib/tools.jar" ]]; then
-  setJavaHomeQuietly "$JDK_HOME"
-elif [[ -n "$JAVA_HOME" && -e "$JAVA_HOME/bin/java" ]]; then
-  setJavaHomeQuietly "$JAVA_HOME"
-fi
-
 java_version () {
-  local version=$("$java_cmd" -version 2>&1 | grep -E -e '(java|openjdk) version' | awk '{ print $3 }' | tr -d \")
+  local version=$(getJavaVersion "$java_cmd")
   vlog "Detected Java version: $version"
   echo "${version:2:1}"
 }
@@ -225,7 +233,14 @@ execRunner () {
 }
 
 jar_url ()  { make_url "$1"; }
-jar_file () { echo "$sbt_launch_dir/$1/sbt-launch.jar"; }
+
+is_cygwin () [[ "$(uname -a)" == "CYGWIN"* ]]
+
+jar_file () {
+  is_cygwin \
+  && echo "$(cygpath -w $sbt_launch_dir/"$1"/sbt-launch.jar)" \
+  || echo "$sbt_launch_dir/$1/sbt-launch.jar"
+}
 
 download_url () {
   local url="$1"
@@ -245,10 +260,16 @@ download_url () {
 }
 
 acquire_sbt_jar () {
-  local sbt_url="$(jar_url "$sbt_version")"
-  sbt_jar="$(jar_file "$sbt_version")"
-
-  [[ -r "$sbt_jar" ]] || download_url "$sbt_url" "$sbt_jar"
+  {
+    sbt_jar="$(jar_file "$sbt_version")"
+    [[ -r "$sbt_jar" ]]
+  } || {
+    sbt_jar="$HOME/.ivy2/local/org.scala-sbt/sbt-launch/$sbt_version/jars/sbt-launch.jar"
+    [[ -r "$sbt_jar" ]]
+  } || {
+    sbt_jar="$(jar_file "$sbt_version")"
+    download_url "$(make_url "$sbt_version")" "$sbt_jar"
+  }
 }
 
 usage () {
@@ -339,9 +360,9 @@ process_args () {
     case "$1" in
           -h|-help) usage; exit 1 ;;
                 -v) verbose=true && shift ;;
-                -d) addSbt "--debug" && addSbt debug && shift ;;
-                -w) addSbt "--warn"  && addSbt warn  && shift ;;
-                -q) addSbt "--error" && addSbt error && shift ;;
+                -d) addSbt "--debug" && shift ;;
+                -w) addSbt "--warn"  && shift ;;
+                -q) addSbt "--error" && shift ;;
                 -x) debugUs=true && shift ;;
             -trace) require_arg integer "$1" "$2" && trace_level="$2" && shift 2 ;;
               -ivy) require_arg path "$1" "$2" && addJava "-Dsbt.ivy.home=$2" && shift 2 ;;
@@ -378,10 +399,7 @@ process_args () {
               -210) setScalaVersion "$latest_210" && shift ;;
               -211) setScalaVersion "$latest_211" && shift ;;
               -212) setScalaVersion "$latest_212" && shift ;;
-
-           --debug) addSbt debug && addResidual "$1" && shift ;;
-            --warn) addSbt warn  && addResidual "$1" && shift ;;
-           --error) addSbt error && addResidual "$1" && shift ;;
+               new) sbt_new=true && sbt_explicit_version="$sbt_release_version"  && addResidual "$1" && shift ;;
                  *) addResidual "$1" && shift ;;
     esac
   done
@@ -420,6 +438,8 @@ argumentCount=$#
 # set sbt version
 set_sbt_version
 
+checkJava
+
 # only exists in 0.12+
 setTraceLevel() {
   case "$sbt_version" in
@@ -432,7 +452,7 @@ setTraceLevel() {
 [[ ${#scalac_args[@]} -eq 0 ]] || addSbt "set scalacOptions in ThisBuild += \"${scalac_args[@]}\""
 
 # Update build.properties on disk to set explicit version - sbt gives us no choice
-[[ -n "$sbt_explicit_version" ]] && update_build_props_sbt "$sbt_explicit_version"
+[[ -n "$sbt_explicit_version" && -z "$sbt_new" ]] && update_build_props_sbt "$sbt_explicit_version"
 vlog "Detected sbt version $sbt_version"
 
 if [[ -n "$sbt_script" ]]; then
@@ -446,7 +466,7 @@ else
 fi
 
 # verify this is an sbt dir, -create was given or user attempts to run a scala script
-[[ -r ./build.sbt || -d ./project || -n "$sbt_create" || -n "$sbt_script" ]] || {
+[[ -r ./build.sbt || -d ./project || -n "$sbt_create" || -n "$sbt_script" || -n "$sbt_new" ]] || {
   cat <<EOM
 $(pwd) doesn't appear to be an sbt project.
 If you want to start sbt anyway, run:

@@ -57,7 +57,7 @@ to draw-road
     ; the road is surrounded by green grass of varying shades
     set pcolor green - random-float 0.5
   ]
-  set lanes n-values number-of-lanes [ [n] -> number-of-lanes - (n * 2) - 1 ]
+  set lanes n-values number-of-lanes [ n -> number-of-lanes - (n * 2) - 1 ]
   ask patches with [ abs pycor <= number-of-lanes ] [
     ; the road itself is varying shades of grey
     set pcolor grey - 2.5 + random-float 0.25
@@ -136,8 +136,8 @@ to choose-new-lane ; turtle procedure
   ; distance to your current lane (i.e., your ycor).
   let other-lanes remove ycor lanes
   if not empty? other-lanes [
-    let min-dist min map [ [y] -> abs (y - ycor) ] other-lanes
-    let closest-lanes filter [ [y] -> abs (y - ycor) = min-dist ] other-lanes
+    let min-dist min map [ y -> abs (y - ycor) ] other-lanes
+    let closest-lanes filter [ y -> abs (y - ycor) = min-dist ] other-lanes
     set target-lane one-of closest-lanes
     set patience max-patience
   ]
@@ -463,7 +463,7 @@ Cars
 0.0
 true
 true
-"set-plot-y-range (floor (count turtles * 0.4)) (ceiling (count turtles * 0.6))\nforeach range length lanes [ [i] ->\n  create-temporary-plot-pen (word (i + 1))\n  set-plot-pen-color item i base-colors\n]" "foreach range length lanes [ [i] ->\n  set-current-plot-pen (word (i + 1))\n  plot count turtles with [ round ycor = item i lanes ]\n]"
+"set-plot-y-range (floor (count turtles * 0.4)) (ceiling (count turtles * 0.6))\nforeach range length lanes [ i ->\n  create-temporary-plot-pen (word (i + 1))\n  set-plot-pen-color item i base-colors\n]" "foreach range length lanes [ i ->\n  set-current-plot-pen (word (i + 1))\n  plot count turtles with [ round ycor = item i lanes ]\n]"
 PENS
 
 SLIDER

@@ -14,7 +14,7 @@ end
 ;; we use SORT to get the turtles in order by who number.
 
 to go-forward
-  foreach sort turtles [ [t] ->
+  foreach sort turtles [ t ->
     ask t [
       fd 1
       turn
@@ -24,7 +24,7 @@ to go-forward
 end
 
 to go-reverse
-  foreach reverse sort turtles [ [t] ->
+  foreach reverse sort turtles [ t ->
     ask t [
       turn
       bk 1

@@ -431,7 +431,7 @@ BUTTON
 534
 334
 Play all
-foreach memory [ [s] -> run s ]
+foreach memory run
 NIL
 1
 T

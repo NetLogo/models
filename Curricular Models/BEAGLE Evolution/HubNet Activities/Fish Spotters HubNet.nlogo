@@ -431,7 +431,7 @@ to check-debris-count
   let floating-debris nobody
   let tank-patches nobody
   let target-debris 0
-  foreach [1 2] [ [this-tank] ->
+  foreach [1 2] [ this-tank ->
    set floating-debris debris with [tank = this-tank]
    set tank-patches patches with [tank = this-tank]
    set target-debris round ((amount-of-debris / 100) * count tank-patches)

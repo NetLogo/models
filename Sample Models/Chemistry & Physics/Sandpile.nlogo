@@ -60,12 +60,12 @@ end
 
 ;; For example, "setup-uniform 2" gives every patch a task which reports 2.
 to setup-uniform [initial]
-  setup [ [] -> initial ]
+  setup [ -> initial ]
 end
 
 ;; Every patch uses a task which reports a random value.
 to setup-random
-  setup [ [] -> random 4 ]
+  setup [ -> random 4 ]
 end
 
 ;; patch procedure; the colors are like a stoplight
@@ -336,7 +336,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "if ticks mod 100 = 0 and not empty? sizes [\n  plot-pen-reset\n  let counts n-values (1 + max sizes) [0]\n  foreach sizes [ [the-size] ->\n    set counts replace-item the-size counts (1 + item the-size counts)\n  ]\n  let s 0\n  foreach counts [ [c] ->\n    ; We only care about plotting avalanches (s > 0), but dropping s = 0\n    ; from the counts list is actually more awkward than just ignoring it\n    if (s > 0 and c > 0) [\n      plotxy (log s 10) (log c 10)\n    ]\n    set s s + 1\n  ]\n]"
+"default" 1.0 0 -16777216 true "" "if ticks mod 100 = 0 and not empty? sizes [\n  plot-pen-reset\n  let counts n-values (1 + max sizes) [0]\n  foreach sizes [ the-size ->\n    set counts replace-item the-size counts (1 + item the-size counts)\n  ]\n  let s 0\n  foreach counts [ c ->\n    ; We only care about plotting avalanches (s > 0), but dropping s = 0\n    ; from the counts list is actually more awkward than just ignoring it\n    if (s > 0 and c > 0) [\n      plotxy (log s 10) (log c 10)\n    ]\n    set s s + 1\n  ]\n]"
 
 BUTTON
 755
@@ -371,7 +371,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "if ticks mod 100 = 0 and not empty? lifetimes [\n  plot-pen-reset\n  let counts n-values (1 + max lifetimes) [0]\n  foreach lifetimes [ [lifetime] ->\n    set counts replace-item lifetime counts (1 + item lifetime counts)\n  ]\n  let l 0\n  foreach counts [ [c] ->\n    ; We only care about plotting avalanches (l > 0), but dropping l = 0\n    ; from the counts list is actually more awkward than just ignoring it\n    if (l > 0 and c > 0) [\n      plotxy (log l 10) (log c 10)\n    ]\n    set l l + 1\n  ]\n]"
+"default" 1.0 0 -16777216 true "" "if ticks mod 100 = 0 and not empty? lifetimes [\n  plot-pen-reset\n  let counts n-values (1 + max lifetimes) [0]\n  foreach lifetimes [ lifetime ->\n    set counts replace-item lifetime counts (1 + item lifetime counts)\n  ]\n  let l 0\n  foreach counts [ c ->\n    ; We only care about plotting avalanches (l > 0), but dropping l = 0\n    ; from the counts list is actually more awkward than just ignoring it\n    if (l > 0 and c > 0) [\n      plotxy (log l 10) (log c 10)\n    ]\n    set l l + 1\n  ]\n]"
 
 BUTTON
 5

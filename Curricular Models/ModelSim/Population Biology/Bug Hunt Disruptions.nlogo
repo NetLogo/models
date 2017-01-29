@@ -431,7 +431,7 @@ to setup-regions [ num-regions ]
   ; Store our region definitions globally for faster access:
   set region-boundaries calculate-region-boundaries num-regions
   ; Set the `region` variable for all patches included in regions:
-  let region-numbers n-values num-regions [ [n] -> n + 1 ]
+  let region-numbers n-values num-regions [ n -> n + 1 ]
   (foreach region-boundaries region-numbers [ [boundaries region-number] ->
     ask patches with [ pxcor >= first boundaries and pxcor <= last boundaries ] [
       set region region-number
@@ -463,7 +463,7 @@ end
 to-report region-divisions [ num-regions ]
   ; This procedure reports a list of pxcor that should be outside every region.
   ; Patches with these pxcor will act as "dividers" between regions.
-  report n-values (num-regions + 1) [ [n] ->
+  report n-values (num-regions + 1) [ n ->
     [ pxcor ] of patch (min-pxcor + (n * ((max-pxcor - min-pxcor) / num-regions))) 0
   ]
 end

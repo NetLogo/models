@@ -560,7 +560,7 @@ to make-protein [strand-type]
   let this-protein-value ""
   let these-amino-acids amino-acids with [breed = amino-acids and strand-type = strand and gene-number = this-gene-number]
   let ordered-amino-acids sort-on [who] these-amino-acids
-  foreach ordered-amino-acids [ [the-amino-acid] ->
+  foreach ordered-amino-acids [ the-amino-acid ->
     set this-protein-value (word   this-protein-value "-" ([value] of the-amino-acid))
   ]
   if not any? proteins with [strand = strand-type and value = this-protein-value] [
@@ -767,7 +767,7 @@ end
 
 ;;;;;; returns values such as "Gly" for "GGA" or "Tyr" for "UAC" using the codon-to-amino-acid-key
 to-report which-protein-for-this-codon [this-codon]
- report item 1 (item 0 filter [ [pair] -> first pair = this-codon] codon-to-amino-acid-key )
+ report item 1 (item 0 filter [ pair -> first pair = this-codon] codon-to-amino-acid-key )
 end
 
 ;;; reports a random base for a nucleotide in DNA

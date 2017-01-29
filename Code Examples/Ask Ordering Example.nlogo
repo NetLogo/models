@@ -21,7 +21,7 @@ to go-random
 end
 
 to go-by-who-number
-  foreach sort turtles [ [t] ->
+  foreach sort turtles [ t ->
     ask t [
       fd 1
       display
@@ -31,7 +31,7 @@ to go-by-who-number
 end
 
 to go-by-size
-  foreach sort-by [ [a b] -> [ size ] of a > [ size ] of b ] turtles [ [t] ->
+  foreach sort-by [ [a b] -> [ size ] of a > [ size ] of b ] turtles [ t ->
     ask t [
       fd 1
       display

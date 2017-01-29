@@ -39,7 +39,7 @@ to setup-turtles
   ; This procedure simply creates turtles in the different regions.
   ; The `foreach` pattern shown can be used whenever you
   ; need to do something for each different region.
-  foreach (range 1 (length region-boundaries + 1)) [ [region-number] ->
+  foreach (range 1 (length region-boundaries + 1)) [ region-number ->
     let region-patches patches with [ region = region-number ]
     create-turtles number-of-turtles-per-region [
       move-to one-of region-patches
@@ -78,7 +78,7 @@ to setup-regions [ num-regions ]
   set region-boundaries calculate-region-boundaries num-regions
   ; Set the `region` variable for all patches included in regions:
   let region-numbers (range 1 (num-regions + 1))
-    (foreach region-boundaries region-numbers [ [boundaries region-number] ->
+  (foreach region-boundaries region-numbers [ [boundaries region-number] ->
     ask patches with [ pxcor >= first boundaries and pxcor <= last boundaries ] [
       set region region-number
     ]
@@ -98,7 +98,7 @@ end
 to-report region-divisions [ num-regions ]
   ; This procedure reports a list of pxcor that should be outside every region.
   ; Patches with these pxcor will act as "dividers" between regions.
-  report n-values (num-regions + 1) [ [n] ->
+  report n-values (num-regions + 1) [ n ->
     [ pxcor ] of patch (min-pxcor + (n * ((max-pxcor - min-pxcor) / num-regions))) 0
   ]
 end

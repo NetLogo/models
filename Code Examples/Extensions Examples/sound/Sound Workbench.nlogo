@@ -28,7 +28,7 @@ end
 
 ;; returns a list of tones comprising a middle-C major scale
 to-report c-major-scale
-  report map [ [note] -> note + 60] [0 2 4 5 7 9 11 12]
+  report map [ note -> note + 60] [0 2 4 5 7 9 11 12]
 end
 
 ;; arrow keys to scroll through the instrument list
@@ -482,7 +482,7 @@ BUTTON
 534
 423
 Play all
-foreach memory [ [s] -> run s ]
+foreach memory run
 NIL
 1
 T
@@ -516,7 +516,7 @@ BUTTON
 533
 379
 Play C-major chord
-let tmp tone\nforeach [ 60 64 67 ] [ [n] ->\nset tone n play ]\nset tone tmp
+let tmp tone\nforeach [ 60 64 67 ] [ n -> set tone n play ]\nset tone tmp
 NIL
 1
 T
@@ -533,7 +533,7 @@ BUTTON
 390
 379
 Play C-major scale
-let tmp tone\nforeach c-major-scale [ [note] ->\nset tone note\nplay\nwait duration\n]\nset tone tmp
+let tmp tone\nforeach c-major-scale [ note ->\n  set tone note\n  play\n  wait duration\n]\nset tone tmp
 NIL
 1
 T

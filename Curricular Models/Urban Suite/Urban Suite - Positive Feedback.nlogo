@@ -119,7 +119,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "plot-pen-reset\nforeach reverse sort [ activity ] of patches [ [the-activity] -> plot the-activity ]"
+"default" 1.0 0 -16777216 true "" "plot-pen-reset\nforeach reverse sort [ activity ] of patches [ the-activity -> plot the-activity ]"
 
 BUTTON
 94

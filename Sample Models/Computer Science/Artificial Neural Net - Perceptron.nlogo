@@ -261,7 +261,7 @@ to plot-learned-line ;; observer procedure
   let edge1 [out-link-to perceptron] of input-node-1
   let edge2 [out-link-to perceptron] of input-node-2
 
-  foreach (range -2 3) [ [x1] ->
+  foreach (range -2 3) [ x1 ->
     ;; calculate w0 (the bias weight)
     let w0 sum [[weight] of out-link-to perceptron] of bias-nodes
 

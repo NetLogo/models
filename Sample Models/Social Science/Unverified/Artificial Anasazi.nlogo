@@ -309,7 +309,7 @@ to-report determine-best-farm
   ; the agent likes to go to the potential farm which is closest nearby existing farm
   let existing-farm patch farm-x farm-y
   let distance-to-best 1000
-  foreach potential-farms [ [farm] ->
+  foreach potential-farms [ farm ->
     ask farm [
       if distance existing-farm < distance-to-best [
         set best-farm self
@@ -356,7 +356,7 @@ to load-map-data
   ;; which is accomplished by manipulating the yy and xx variables each time through the loop.
   let yy 119
   let xx 0
-  foreach map-data [ [map-values] ->
+  foreach map-data [ map-values ->
     let map-value first map-values
     if map-value = 0  [ ask patch xx yy [ set zone-pcolor black set zone "General"     set maize-zone "Yield_2"   ] ] ; General Valley
     if map-value = 10 [ ask patch xx yy [ set zone-pcolor red   set zone "North"       set maize-zone "Yield_1"   ] ] ; North Valley
@@ -390,7 +390,7 @@ to load-map-data
   ]
   [ user-message "There is no settlements.txt file in the data directory!" ]
 
-  foreach settlements-data [ [settlement-data] ->
+  foreach settlements-data [ settlement-data ->
     create-historical-settlements 1 [
       set sarg item 0 settlement-data
       set meter-north item 1 settlement-data
@@ -418,7 +418,7 @@ to load-map-data
   ]
   [ user-message "There is no water.txt file in the data directory!" ]
 
-  foreach water-data [ [data] ->
+  foreach water-data [ data ->
     create-water-points 1 [
       set sarg item 0 data
       set meter-north item 1 data

@@ -42,7 +42,7 @@ end
 
 to find-top-species  ;;find the percentage of the most populous species
   let winning-amount 0
-  foreach base-colors [ [c] ->
+  foreach base-colors [ c ->
     let how-many count turtles with [color = c]
     if how-many > winning-amount
       [ set winning-amount how-many ]

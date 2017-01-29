@@ -29,7 +29,7 @@ to go
   ;; greens are very close together.  SORT reports a list and
   ;; not an agentset (since agentsets are always in random
   ;; order), so we use FOREACH to iterate over the sorted list
-  foreach sort movers [ [the-mover] -> ask the-mover [ move ] ]
+  foreach sort movers [ the-mover -> ask the-mover [ move ] ]
   tick
 end
 

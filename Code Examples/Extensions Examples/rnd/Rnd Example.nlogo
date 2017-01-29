@@ -20,7 +20,7 @@ end
 
 to align-turtles
   let x 0 - sum [ size ] of turtles / 2
-  foreach sort turtles [ [t] ->
+  foreach sort turtles [ t ->
     ask t [
       set xcor x + (size / 2)
       set x x + size
@@ -110,7 +110,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 1 -16777216 true "set-plot-x-range 1 count turtles + 1" "plot-pen-reset\nset-plot-y-range 0 max [ size ] of turtles + 1\nlet turtles-by-size reverse sort-on [ size ] turtles\n(foreach turtles-by-size n-values count turtles [ [n] -> n + 1 ] [ [t n] ->\n  ask t [\n    set-plot-pen-color color - 1\n    plotxy n size\n  ]\n])"
+"default" 1.0 1 -16777216 true "set-plot-x-range 1 count turtles + 1" "plot-pen-reset\nset-plot-y-range 0 max [ size ] of turtles + 1\nlet turtles-by-size reverse sort-on [ size ] turtles\n(foreach turtles-by-size n-values count turtles [ n -> n + 1 ] [ [t n] ->\n  ask t [\n    set-plot-pen-color color - 1\n    plotxy n size\n  ]\n])"
 
 SWITCH
 45

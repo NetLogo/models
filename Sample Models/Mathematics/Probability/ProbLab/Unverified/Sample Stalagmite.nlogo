@@ -124,7 +124,7 @@ to sample
     ( pxcor > sample-right-xcor - side ) and
     ( pycor > ( max-pycor - side ) ) ]
   ;; has to be in a sorted order because of how the finish-off procedure works
-  foreach sort sample-location-patch-agentset [ [p] ->
+  foreach sort sample-location-patch-agentset [ p ->
     ask p
     [
       sprout-a-sample-dude
@@ -238,7 +238,7 @@ to finish-off
   ;; beginning from its top-left corner and running to the right and then taking the next row and so on
   ;; might be "green green red green red green"
   ;; depends on the sample-dudes being created in a specific order inside of the sample procedure
-  let sample-color-combination map [ [dude] -> [ color ] of dude ] sort sample-dudes
+  let sample-color-combination map [ dude -> [ color ] of dude ] sort sample-dudes
 
   ;; determines which turtle lives at the bottom of the column where the sample is
   let this-column-kid one-of column-kids with [ column = [column] of token-sample-dude]

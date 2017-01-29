@@ -297,7 +297,7 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to make-variation-pens [ plot-pen-mode ]
-  foreach [ 3 4 5 6 ] [ [v] ->
+  foreach [ 3 4 5 6 ] [ v ->
     create-temporary-plot-pen (word v)
     set-plot-pen-mode plot-pen-mode ; bar mode
     set-plot-pen-color variation-color v
@@ -410,7 +410,7 @@ Patient A
 16.0
 true
 false
-"make-variation-pens 1 ; 1 means use bar mode" ";; the `histogram` primitive can't make a multi-colored histogram,\n;; so instead we plot each bar individually\nforeach [ 3 4 5 6 ] [ [v] ->\n  set-current-plot-pen (word v)\n  plot-pen-reset\n  plotxy v item (v - 3) bacteria-counts-region-a\n]\nif (plot-y-max - floor plot-y-max) != 0 [\n  set-plot-y-range 0 floor plot-y-max + 1\n]"
+"make-variation-pens 1 ; 1 means use bar mode" ";; the `histogram` primitive can't make a multi-colored histogram,\n;; so instead we plot each bar individually\nforeach [ 3 4 5 6 ] [ v ->\n  set-current-plot-pen (word v)\n  plot-pen-reset\n  plotxy v item (v - 3) bacteria-counts-region-a\n]\nif (plot-y-max - floor plot-y-max) != 0 [\n  set-plot-y-range 0 floor plot-y-max + 1\n]"
 PENS
 
 PLOT
@@ -427,7 +427,7 @@ Patient B
 16.0
 true
 false
-"make-variation-pens 1 ; 1 means use bar mode" ";; the `histogram` primitive can't make a multi-colored histogram,\n;; so instead we plot each bar individually\nforeach [ 3 4 5 6 ] [ [v] ->\n  set-current-plot-pen (word v)\n  plot-pen-reset\n  plotxy v item (v - 3) bacteria-counts-region-b\n]\nif (plot-y-max - floor plot-y-max) != 0 [\n  set-plot-y-range 0 floor plot-y-max + 1\n]"
+"make-variation-pens 1 ; 1 means use bar mode" ";; the `histogram` primitive can't make a multi-colored histogram,\n;; so instead we plot each bar individually\nforeach [ 3 4 5 6 ] [ v ->\n  set-current-plot-pen (word v)\n  plot-pen-reset\n  plotxy v item (v - 3) bacteria-counts-region-b\n]\nif (plot-y-max - floor plot-y-max) != 0 [\n  set-plot-y-range 0 floor plot-y-max + 1\n]"
 PENS
 
 TEXTBOX
@@ -518,7 +518,7 @@ time (min.)
 16.0
 true
 false
-"make-variation-pens 0 ; 0 means use line mode" "foreach [ 3 4 5 6 ] [ [v] ->\n  set-current-plot-pen (word v)\n  plotxy ticks item (v - 3) bacteria-counts-region-a\n]"
+"make-variation-pens 0 ; 0 means use line mode" "foreach [ 3 4 5 6 ] [ v ->\n  set-current-plot-pen (word v)\n  plotxy ticks item (v - 3) bacteria-counts-region-a\n]"
 PENS
 
 BUTTON
@@ -785,7 +785,7 @@ time (min).
 16.0
 true
 false
-"make-variation-pens 0 ; 0 means use line mode" "foreach [ 3 4 5 6 ] [ [v] ->\n  set-current-plot-pen (word v)\n  plotxy ticks item (v - 3) bacteria-counts-region-b\n]"
+"make-variation-pens 0 ; 0 means use line mode" "foreach [ 3 4 5 6 ] [ v ->\n  set-current-plot-pen (word v)\n  plotxy ticks item (v - 3) bacteria-counts-region-b\n]"
 PENS
 
 @#$#@#$#@

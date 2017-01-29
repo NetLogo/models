@@ -113,13 +113,13 @@ end
 
 to-report upper-quartile [ xs ]
   let med median xs
-  let upper filter [ [x] -> x > med ] xs
+  let upper filter [ x -> x > med ] xs
   report ifelse-value (empty? upper) [ med ] [ median upper ]
 end
 
 to-report lower-quartile [ xs ]
   let med median xs
-  let lower filter [ [x] -> x < med ] xs
+  let lower filter [ x -> x < med ] xs
   report ifelse-value (empty? lower) [ med ] [ median lower ]
 end
 

@@ -348,4 +348,9 @@ class CodeTests extends TestModels {
       testLines(_.code, _.length > lineLengthLimit, l => "%4d for ".format(l.length))
     }
 
+  val pattern = """\[\s*[^\s]*\s*\]\s*->""".r
+  testModels("Anonymous procedures with zero or one argument should not use brackets") {
+    testLines(_.allSources.mkString("\n"), l => pattern.findFirstIn(l).isDefined)
+  }
+
 }
