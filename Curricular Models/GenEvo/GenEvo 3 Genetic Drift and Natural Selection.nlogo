@@ -1,5 +1,8 @@
 breed [ ecolis ecoli ]
-globals [ sugar-color ] ; a global variable to set color of patches with sugar
+globals [
+  sugar-color ; a global variable to set color of patches with sugar
+  carrying-capacity-multiplier
+]
 patches-own [ sugar? ]  ; a boolean to track if a patch has a sugar or not
 ecolis-own [ energy ]   ; a variable to track energy of E. coli cells
 
@@ -10,8 +13,9 @@ ecolis-own [ energy ]   ; a variable to track energy of E. coli cells
 to setup     ; Sets up the population of bacteria (E. coli) randomly across the world.
   clear-all
   set sugar-color 2
-  let color-list [ red orange brown yellow green cyan violet magenta ]
 
+repeat round (max-initial-population / number-of-types)[
+  let color-list [ red orange brown yellow green cyan violet magenta ]
   create-ecolis number-of-types [
     set shape "ecoli"
     set size 2
@@ -20,6 +24,9 @@ to setup     ; Sets up the population of bacteria (E. coli) randomly across the 
     set color first color-list
     set color-list but-first color-list ; each type has a unique color so we remove this color form our list
   ]
+]
+
+set-carrying-capacity-multiplier
 
   ask ecolis [
     if color = runresult ecoli-with-selective-advantage [
@@ -32,7 +39,7 @@ to setup     ; Sets up the population of bacteria (E. coli) randomly across the 
     set sugar? False
   ]
 
-  ask n-of round (count patches * 0.4) patches [    ; initially sugar is added to 40% of patches
+  ask n-of round (count patches * 0.1) patches [    ; initially sugar is added to 10% of patches
     set pcolor sugar-color
     set sugar? True
   ]
@@ -56,8 +63,8 @@ to go
 end
 
 to add-sugar  ; sugar is added to the environment, using a boolean sugar? for each patch
-  if count patches with [pcolor = black] > round (count patches * 0.01) [    ; at each tick sugar is added to maximum of 1% of patches
-    ask n-of round (count patches * 0.01) patches [
+  if count patches with [pcolor = black] > round (count patches * carrying-capacity-multiplier) [    ; at each tick sugar is added to maximum of carrying-capacity-multiplier% of patches
+    ask n-of round (count patches * carrying-capacity-multiplier) patches [
       set pcolor sugar-color
       set sugar? True
     ]
@@ -72,7 +79,7 @@ to move   ; E. coli cells move randomly across the world.
 end
 
 to eat-sugar ; E.coli cells eat sugar if they are at a patch that has sugar. Their energy increases by 100 arbitrary energy units.
-  if natural-selection? [    ; In case of natural selection only cells with 'selective advantage' gain more energy from sugar
+  ifelse natural-selection? [    ; In case of natural selection only cells with 'selective advantage' gain more energy from sugar
     ifelse color = runresult ecoli-with-selective-advantage [
       if sugar? [
         set energy energy +  100 + %-advantage
@@ -87,6 +94,13 @@ to eat-sugar ; E.coli cells eat sugar if they are at a patch that has sugar. The
         set sugar? False
       ]
     ]
+  ]
+  [
+    if sugar? [
+    set energy energy + 100
+    set pcolor black
+    set sugar? False
+  ]
   ]
 end
 
@@ -104,6 +118,24 @@ end
 to death   ; E. coli cells die if their energy drops below zero.
   if energy < 0 [
     die
+  ]
+end
+
+to set-carrying-capacity-multiplier
+  if carrying-capacity = "very high" [
+    set carrying-capacity-multiplier 0.01
+  ]
+  if carrying-capacity = "high" [
+    set carrying-capacity-multiplier 0.008
+  ]
+  if carrying-capacity = "medium" [
+    set carrying-capacity-multiplier 0.006
+  ]
+  if carrying-capacity = "low" [
+    set carrying-capacity-multiplier 0.004
+  ]
+  if carrying-capacity = "very low" [
+    set carrying-capacity-multiplier 0.002
   ]
 end
 
@@ -200,13 +232,13 @@ PENS
 SLIDER
 30
 50
-435
+220
 83
 number-of-types
 number-of-types
 1
 8
-8.0
+4.0
 1
 1
 NIL
@@ -214,9 +246,9 @@ HORIZONTAL
 
 TEXTBOX
 30
-180
+185
 490
-236
+241
 Each type is represented by a different color in the model.\nThe cells with the trait that has a selective advantage are represented\nby a blue outline.
 11
 0.0
@@ -224,19 +256,19 @@ Each type is represented by a different color in the model.\nThe cells with the 
 
 CHOOSER
 30
-90
+95
 220
-135
+140
 ecoli-with-selective-advantage
 ecoli-with-selective-advantage
 "red" "orange" "brown" "yellow" "green" "cyan" "violet" "magenta"
-7
+2
 
 SLIDER
 225
-90
+95
 435
-123
+128
 %-advantage
 %-advantage
 0
@@ -267,6 +299,31 @@ TEXTBOX
 11
 0.0
 1
+
+SLIDER
+30
+145
+222
+178
+max-initial-population
+max-initial-population
+number-of-types
+10 * number-of-types
+12.0
+number-of-types
+1
+NIL
+HORIZONTAL
+
+CHOOSER
+230
+45
+435
+90
+carrying-capacity
+carrying-capacity
+"very high" "high" "medium" "low" "very low"
+2
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -304,9 +361,15 @@ Use the ECOLI-WITH-SELECTIVE-ADVANTAGE chooser to select the color (type) of E. 
 
 Use the %-ADVANTAGE slider to set % increase in energy gain of "Faster reproducing E. coli" as compared to others.
 
+Use the MAX-INITIAL-POPULATION to set maximum population of all types of E. coli bacteria at the begining of the simulation.
+
+Use the CARRYING-CAPACITY chooser to chose the carrying capacity that is the maximum number of individuals that survive in the given environment. This chooser changes sugar avalability (rate of addition of sugar per tick) in the model.
+
 ## THINGS TO NOTICE
 
 Notice that the E. coli cells with selective advantage often wins the race when the % selective advantage is high. When the % selective advantage is low, statistical advantage in favor of any of the other colors might result in different outcomes. Check if there is any tipping point above which % selective advantage always makes the color win.
+
+Notice the effect of change in the carrying capacity on the natural selection process.
 
 ## THINGS TO TRY
 

@@ -1,5 +1,8 @@
 breed [ ecolis ecoli ]
-globals [ sugar-color ] ; a global variable to set color of patches with sugar
+globals [
+  sugar-color ; a global variable to set color of patches with sugar
+  carrying-capacity-multiplier
+]
 patches-own [ sugar? ]  ; a boolean to track if a patch has a sugar or not
 ecolis-own [ energy ]   ; a variable to track energy of E. coli cells
 
@@ -10,8 +13,9 @@ ecolis-own [ energy ]   ; a variable to track energy of E. coli cells
 to setup     ; Sets up the population of bacteria (E. coli) randomly across the world.
   clear-all
   set sugar-color 2
-  let color-list [ red orange brown yellow green cyan violet magenta ]
 
+repeat round (max-initial-population / number-of-types)[
+  let color-list [ red orange brown yellow green cyan violet magenta ]
   create-ecolis number-of-types [
     set shape "ecoli"
     set size 2
@@ -20,12 +24,15 @@ to setup     ; Sets up the population of bacteria (E. coli) randomly across the 
     set color first color-list
     set color-list but-first color-list ; each type has a unique color so we remove this color form our list
   ]
+]
+
+set-carrying-capacity-multiplier
 
   ask patches [
     set sugar? False
   ]
 
-  ask n-of round (count patches * 0.4) patches [    ; initially sugar is added to 40% of patches
+  ask n-of round (count patches * 0.1) patches [    ; initially sugar is added to 10 % of patches
     set pcolor sugar-color
     set sugar? True
   ]
@@ -49,8 +56,8 @@ to go
 end
 
 to add-sugar  ; sugar is added to the environment, using a boolean sugar? for each patch
-  if count patches with [pcolor = black] > round (count patches * 0.01) [    ; at each tick sugar is added to maximum of 1% of patches
-    ask n-of round (count patches * 0.01) patches [
+  if count patches with [pcolor = black] > round (count patches * carrying-capacity-multiplier) [    ; at each tick sugar is added to maximum of carrying-capacity-multiplier% of patches
+    ask n-of round (count patches * carrying-capacity-multiplier) patches [
       set pcolor sugar-color
       set sugar? True
     ]
@@ -61,7 +68,7 @@ to move   ; E. coli cells move randomly across the world.
   rt random-float 60
   lt random-float 60
   fd 1
-  set energy energy - 20
+  set energy energy - 20     ; movement and metabolism reduces energy
 end
 
 to eat-sugar  ; E.coli cells eat sugar if they are at a patch that has sugar. Their energy increases by 100 arbitrary energy units.
@@ -86,6 +93,24 @@ end
 to death   ; E. coli cells die if their energy drops below zero.
   if energy < 0 [
     die
+  ]
+end
+
+to set-carrying-capacity-multiplier
+  if carrying-capacity = "very high" [
+    set carrying-capacity-multiplier 0.01
+  ]
+  if carrying-capacity = "high" [
+    set carrying-capacity-multiplier 0.008
+  ]
+  if carrying-capacity = "medium" [
+    set carrying-capacity-multiplier 0.006
+  ]
+  if carrying-capacity = "low" [
+    set carrying-capacity-multiplier 0.004
+  ]
+  if carrying-capacity = "very low" [
+    set carrying-capacity-multiplier 0.002
   ]
 end
 
@@ -181,14 +206,14 @@ PENS
 
 SLIDER
 20
-95
+80
 210
-128
+113
 number-of-types
 number-of-types
 1
 8
-8.0
+7.0
 1
 1
 NIL
@@ -196,12 +221,37 @@ HORIZONTAL
 
 TEXTBOX
 20
-155
+180
 410
-173
+198
 Each type is represented by a different color in the model.
 11
 0.0
+1
+
+SLIDER
+20
+130
+212
+163
+max-initial-population
+max-initial-population
+number-of-types
+10 * number-of-types
+21.0
+number-of-types
+1
+NIL
+HORIZONTAL
+
+CHOOSER
+225
+80
+440
+125
+carrying-capacity
+carrying-capacity
+"very high" "high" "medium" "low" "very low"
 1
 
 @#$#@#$#@
