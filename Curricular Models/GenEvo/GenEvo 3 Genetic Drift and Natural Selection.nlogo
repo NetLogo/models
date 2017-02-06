@@ -86,21 +86,19 @@ to eat-sugar ; E.coli cells eat sugar if they are at a patch that has sugar. The
         set pcolor black
         set sugar? False
       ]
-    ]
-    [
+    ][
       if sugar? [
         set energy energy + 100
         set pcolor black
         set sugar? False
       ]
     ]
-  ]
-  [
+  ][
     if sugar? [
-    set energy energy + 100
-    set pcolor black
-    set sugar? False
-  ]
+      set energy energy + 100
+      set pcolor black
+      set sugar? False
+    ]
   ]
 end
 
@@ -138,7 +136,6 @@ to set-carrying-capacity-multiplier
     set carrying-capacity-multiplier 0.002
   ]
 end
-
 
 ; Copyright 2016 Uri Wilensky.
 ; See Info tab for full copyright and license.
@@ -256,19 +253,19 @@ Each type is represented by a different color in the model.\nThe cells with the 
 
 CHOOSER
 30
-95
+90
 220
-140
+135
 ecoli-with-selective-advantage
 ecoli-with-selective-advantage
 "red" "orange" "brown" "yellow" "green" "cyan" "violet" "magenta"
 2
 
 SLIDER
-225
-95
+230
+100
 435
-128
+133
 %-advantage
 %-advantage
 0
@@ -291,10 +288,10 @@ natural-selection?
 -1000
 
 TEXTBOX
-230
-135
-470
-176
+235
+140
+480
+181
 %-advantage is really just an increase\nin sugar eating efficiency.
 11
 0.0
@@ -302,9 +299,9 @@ TEXTBOX
 
 SLIDER
 30
-145
-222
-178
+140
+220
+173
 max-initial-population
 max-initial-population
 number-of-types
@@ -317,9 +314,9 @@ HORIZONTAL
 
 CHOOSER
 230
-45
+50
 435
-90
+95
 carrying-capacity
 carrying-capacity
 "very high" "high" "medium" "low" "very low"

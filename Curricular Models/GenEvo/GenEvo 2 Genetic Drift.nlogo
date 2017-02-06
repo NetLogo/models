@@ -114,7 +114,6 @@ to set-carrying-capacity-multiplier
   ]
 end
 
-
 ; Copyright 2016 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@
@@ -149,7 +148,7 @@ BUTTON
 20
 10
 111
-68
+70
 NIL
 setup
 NIL
@@ -166,7 +165,7 @@ BUTTON
 125
 10
 213
-66
+70
 NIL
 go
 T
@@ -183,7 +182,7 @@ PLOT
 20
 205
 440
-484
+480
 Population Dynamics Graph
 Time
 Frequency
@@ -232,7 +231,7 @@ Each type is represented by a different color in the model.
 SLIDER
 20
 130
-212
+210
 163
 max-initial-population
 max-initial-population
