@@ -63,7 +63,8 @@ to go
 end
 
 to add-sugar  ; sugar is added to the environment, using a boolean sugar? for each patch
-  if count patches with [pcolor = black] > round (count patches * carrying-capacity-multiplier) [    ; at each tick sugar is added to maximum of carrying-capacity-multiplier% of patches
+  if count patches with [pcolor = black] > round (count patches * carrying-capacity-multiplier) [
+    ; at each tick sugar is added to maximum of carrying-capacity-multiplier% of patches
     ask n-of round (count patches * carrying-capacity-multiplier) patches [
       set pcolor sugar-color
       set sugar? True
