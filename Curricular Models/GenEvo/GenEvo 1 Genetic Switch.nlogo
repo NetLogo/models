@@ -543,7 +543,7 @@ BUTTON
 10
 10
 90
-80
+43
 NIL
 setup
 NIL
@@ -560,7 +560,7 @@ BUTTON
 95
 10
 175
-80
+43
 NIL
 go
 T
@@ -718,17 +718,6 @@ glucose?
 1
 -1000
 
-MONITOR
-810
-385
-932
-430
-Cell Division Time
-ifelse-value (division-number > 0) [\n  precision (ticks / division-number) 0\n][\n \"n/a\"\n]
-17
-1
-11
-
 PLOT
 330
 360
@@ -775,6 +764,23 @@ false
 "" ""
 PENS
 "default" 1.0 0 -16777216 true "" "plot energy"
+
+BUTTON
+10
+45
+175
+78
+save screenshot
+export-interface (word \"GenEvo 1 Genetic Switch\" date-and-time \".png\")
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
