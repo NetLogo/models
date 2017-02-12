@@ -17,9 +17,12 @@ globals [
   lactose-upper-limit        ; a variable to set the lactose quantity in the external environment
 
   ; Global (cellular) properties
-  energy                     ; keeps track of the energy of the cell
-  division-number            ; a counter to keep track of number of cell division events
-  inhibited?                 ; boolean for whether or not the operator is inhibited
+  energy                           ; keeps track of the energy of the cell
+  ticks-at-start-of-cell-division  ; to keep track of cell division time
+  ticks-at-end-of-cell-division    ; to keep track of cell division time
+  cell-division-time               ; time taken for the cell to divide
+  division-number                  ; a counter to keep track of number of cell division events
+  inhibited?                       ; boolean for whether or not the operator is inhibited
 ]
 
 breed [ LacIs LacI ]         ; the LacI repressor protein (purple proteins)
@@ -59,6 +62,7 @@ to setup
 
   ; Initialize all of our global property variables
   set energy initial-energy
+  set ticks-at-start-of-cell-division 0
   set division-number 0
   set inhibited? false
 
@@ -281,6 +285,9 @@ to divide-cell
 
   set energy energy / 2
   set division-number division-number + 1
+  set ticks-at-end-of-cell-division ticks
+  set cell-division-time (ticks-at-end-of-cell-division - ticks-at-start-of-cell-division)
+  set ticks-at-start-of-cell-division ticks
 end
 
 
@@ -627,7 +634,7 @@ LacI-number
 LacI-number
 1
 50
-15.0
+6.0
 1
 1
 NIL
@@ -642,7 +649,7 @@ RNAP-number
 RNAP-number
 0
 50
-20.0
+41.0
 1
 1
 NIL
@@ -694,7 +701,7 @@ PLOT
 360
 945
 555
-Average Cell Division Time
+Cell Division Time
 Time
 Number of Ticks
 0.0
@@ -705,7 +712,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "if division-number > 0 [ plotxy ticks (ticks / division-number) ]"
+"default" 1.0 0 -16777216 true "" "if division-number > 0 [ plot cell-division-time ]"
 
 SWITCH
 180
