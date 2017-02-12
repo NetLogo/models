@@ -882,7 +882,7 @@ Energy – Plots the amount of energy in the cell over time
 
 lacZ Number – Plots the number of LacZ molecules inside a cell
 
-Average Cell Division Time – Plots the average number of ticks between two cell division events. It can be used as a growth rate indicator.
+Cell Division Time – Plots the number of ticks between two cell division events. It can be used as a growth rate indicator. Shorter cell division time indicates higher growth rate.
 
 ## THINGS TO NOTICE
 
