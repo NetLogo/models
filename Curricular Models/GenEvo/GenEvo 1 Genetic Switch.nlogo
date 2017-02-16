@@ -29,7 +29,7 @@ breed [ LacIs LacI ]         ; the LacI repressor protein (purple proteins)
 breed [ LacZs LacZ ]         ; the LacZ beta-galactosidase enzyme (light red proteins)
 breed [ LacYs LacY ]         ; the LacY lactose permease enzyme (light red rectangles)
 breed [ RNAPs RNAP ]         ; RNA Polymerase (brown proteins) that binds to the DNA and synthesizes mRNA
-breed [ lactoses lactose ]   ; lactose molecules (grey)
+breed [ lactoses lactose ]   ; lactose molecules (gray)
 
 breed [daughter-cell-turtles daughter-cell-turtle]
 
@@ -200,7 +200,7 @@ end
 to go-LacZs
   ; LacZs near lactose can digest that lactose and produce energy
   ask LacZs with [ any? lactoses in-radius 1 with [ partner = nobody ] ] [
-    ask lactoses in-radius 1 with [ partner = nobody ] [
+    ask lactoses in-radius 2 with [ partner = nobody ] [
       set energy energy + 10
       die
     ]
@@ -427,7 +427,7 @@ to set-shape ; turtle procedure
     set size 3
   ]
   if breed = LacZs [
-    set shape "protein"
+    set shape "protein2"
     set color (red + 2)
     set size 4
   ]
@@ -589,7 +589,7 @@ LacI-bond-leakage
 LacI-bond-leakage
 0
 0.1
-0.1
+0.06
 0.0001
 1
 NIL
@@ -634,7 +634,7 @@ LacI-number
 LacI-number
 1
 50
-6.0
+20.0
 1
 1
 NIL
@@ -649,7 +649,7 @@ RNAP-number
 RNAP-number
 0
 50
-41.0
+10.0
 1
 1
 NIL
@@ -788,6 +788,17 @@ NIL
 NIL
 NIL
 1
+
+MONITOR
+755
+490
+932
+535
+average-cell-division-time
+ifelse-value (division-number > 0) [\n  precision (ticks-at-end-of-cell-division / division-number) 0\n][\n \"n/a\"\n]
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -1129,8 +1140,8 @@ Line -7500403 true 150 0 150 150
 
 pentagon
 false
-15
-Polygon -7500403 true false 150 90 90 135 120 195 180 195 210 135
+0
+Polygon -7500403 true true 150 90 90 135 120 195 180 195 210 135
 
 person
 false
@@ -1159,6 +1170,11 @@ true
 Polygon -7500403 false true 165 75 135 75 135 90 165 105 165 75 165 60 135 105 165 120 180 120 180 90 150 75 150 105 180 135 165 135 165 120 180 120 195 135 195 105 195 105 165 105 150 105 165 90 180 75 165 75 150 90 165 105 150 120 135 150 120 150 120 165 150 165 180 165 165 135 165 135
 Polygon -7500403 false true 165 150 165 165 150 180 135 165 120 195 150 210 165 180 180 165 150 165 135 150 135 165 120 165 120 210 150 195 180 195 180 180 195 165 165 150 165 150 210 165 180 210 150 180 135 210 120 225 150 225
 Polygon -7500403 false true 135 120 120 120 150 135 150 150 180 150 150 120 120 135 135 105 105 105 180 135 210 150 105 120 105 135 210 195
+
+protein2
+true
+0
+Polygon -7500403 true true 150 60 60 210 240 210 150 60 150 60
 
 pump
 true
