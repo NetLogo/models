@@ -1140,8 +1140,8 @@ Line -7500403 true 150 0 150 150
 
 pentagon
 false
-0
-Polygon -7500403 true true 150 90 90 135 120 195 180 195 210 135
+1
+Polygon -7500403 true false 150 90 90 135 120 195 180 195 210 135
 
 person
 false
