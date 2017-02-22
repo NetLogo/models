@@ -112,6 +112,7 @@ to go
     ; if we're out of energy, die
     if (energy < 0) [ user-message "The cell has run out of energy. It's dead!" stop ]
   ]
+  show-switch-color
   tick
 end
 
@@ -361,7 +362,7 @@ to animate-cell-division
 
   ask cell-patches [
     sprout-daughter-cell-turtles 1 [
-      set color white
+      set color pcolor
       set shape "square"
       set size 2
       set heading random-heading
@@ -469,6 +470,23 @@ end
 to set-cell-color [ the-color ]
   set cell-color the-color
   ask cell-wall [ set pcolor the-color ]
+end
+
+to show-switch-color
+  ifelse count lacZs > 20 [
+    ask cell-patches [ set pcolor 98 ]
+    ask operon [ set pcolor blue ]
+    ask promoter [ set pcolor green ]
+    ask operator [ set pcolor orange ]
+    ask terminator [ set pcolor gray ]
+  ]
+  [
+    ask cell-patches [ set pcolor white ]
+    ask operon [ set pcolor blue ]
+    ask promoter [ set pcolor green ]
+    ask operator [ set pcolor orange ]
+    ask terminator [ set pcolor gray ]
+  ]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -634,7 +652,7 @@ LacI-number
 LacI-number
 1
 50
-20.0
+30.0
 1
 1
 NIL
@@ -649,7 +667,7 @@ RNAP-number
 RNAP-number
 0
 50
-10.0
+30.0
 1
 1
 NIL
@@ -721,7 +739,7 @@ SWITCH
 78
 glucose?
 glucose?
-0
+1
 1
 -1000
 
