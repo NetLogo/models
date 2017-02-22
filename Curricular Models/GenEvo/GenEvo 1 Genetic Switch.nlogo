@@ -475,18 +475,13 @@ end
 to show-switch-color
   ifelse count lacZs > 20 [
     ask cell-patches [ set pcolor 98 ]
-    ask operon [ set pcolor blue ]
-    ask promoter [ set pcolor green ]
-    ask operator [ set pcolor orange ]
-    ask terminator [ set pcolor gray ]
-  ]
-  [
+  ][
     ask cell-patches [ set pcolor white ]
-    ask operon [ set pcolor blue ]
-    ask promoter [ set pcolor green ]
-    ask operator [ set pcolor orange ]
-    ask terminator [ set pcolor gray ]
   ]
+  ask operon [ set pcolor blue ]
+  ask promoter [ set pcolor green ]
+  ask operator [ set pcolor orange ]
+  ask terminator [ set pcolor gray ]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
