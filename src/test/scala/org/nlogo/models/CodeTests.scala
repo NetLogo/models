@@ -232,7 +232,7 @@ class CodeTests extends TestModels {
      "go-LacYs", "LacI", "LacZs", "LacIs-own", "create-RNAPs", "RNAP", "on-DNA?",
      "LacZ-production-num", "LacYs", "LacZ-production-cost",
      "LevelSpace?", "LacY-degradation-chance", "LacI-number",
-     "create-LacIs", "RNAPs-own", "LacZ", "go-LacI",
+     "create-LacIs", "RNAPs-own", "LacZ", "lacZs", "go-LacI",
      "LacI-bond-leakage", "go-LacZ", "LacI-lactose-binding-chance",
      "RNAP-number", "LacI-lactose-binding-chance", "LacY-production-num",
      "LacI-bond-leakage", "hatch-LacYs", "LacY", "LacIs",
