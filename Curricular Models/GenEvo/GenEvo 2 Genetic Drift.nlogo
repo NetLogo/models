@@ -1,7 +1,9 @@
 breed [ ecolis ecoli ]
 globals [
   sugar-color ; a global variable to set color of patches with sugar
-  carrying-capacity-multiplier
+  carrying-capacity-multiplier  ;a veriable to set sugar addition rate that determines carrying capacity
+  color-list ; list of colors of e colis
+  color-types  ; types of ecolis (of different colors) in the population
 ]
 patches-own [ sugar? ]  ; a boolean to track if a patch has a sugar or not
 ecolis-own [ energy ]   ; a variable to track energy of E. coli cells
@@ -15,14 +17,15 @@ to setup     ; Sets up the population of bacteria (E. coli) randomly across the 
   set sugar-color 2
 
 repeat round (max-initial-population / number-of-types)[
-  let color-list [ red orange brown yellow green cyan violet magenta ]
+  set color-list [ red orange brown yellow green cyan violet magenta ]
+  let assign-colors-list color-list
   create-ecolis number-of-types [
     set shape "ecoli"
     set size 2
     set energy 1000
     setxy random-xcor random-ycor
-    set color first color-list
-    set color-list but-first color-list ; each type has a unique color so we remove this color form our list
+    set color first  assign-colors-list
+    set  assign-colors-list but-first  assign-colors-list ; each type has a unique color so we remove this color form our list
   ]
 ]
 
@@ -52,6 +55,7 @@ to go
     reproduce
     death
   ]
+
   tick
 end
 
@@ -115,6 +119,18 @@ to set-carrying-capacity-multiplier
   ]
 end
 
+to-report types
+  set color-types 0
+  let i 0
+  repeat length color-list [
+    if count ecolis with [color = item i color-list] > 0 [set color-types color-types + 1]
+    set i i + 1
+  ]
+  report color-types
+
+end
+
+;;if count ecolis with [color = red] > 0 [set types types + 1]
 
 ; Copyright 2016 Uri Wilensky.
 ; See Info tab for full copyright and license.
@@ -214,7 +230,7 @@ number-of-types
 number-of-types
 1
 8
-7.0
+5.0
 1
 1
 NIL
@@ -239,7 +255,7 @@ max-initial-population
 max-initial-population
 number-of-types
 10 * number-of-types
-21.0
+30.0
 number-of-types
 1
 NIL
@@ -253,7 +269,18 @@ CHOOSER
 carrying-capacity
 carrying-capacity
 "very high" "high" "medium" "low" "very low"
+2
+
+MONITOR
+225
+130
+440
+175
+Number of surviving types
+types
+17
 1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
