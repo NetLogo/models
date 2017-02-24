@@ -1,9 +1,9 @@
 breed [ ecolis ecoli ]
 globals [
   sugar-color ; a global variable to set color of patches with sugar
-  carrying-capacity-multiplier  ;a veriable to set sugar addition rate that determines carrying capacity
-  color-list ; list of colors of e colis
-  color-types  ; types of ecolis (of different colors) in the population
+  carrying-capacity-multiplier  ; a veriable to set sugar addition rate that determines carrying capacity
+  color-list    ; list of colors of e colis
+  color-types   ; types of ecolis (of different colors) in the population
 ]
 patches-own [ sugar? ]  ; a boolean to track if a patch has a sugar or not
 ecolis-own [ energy ]   ; a variable to track energy of E. coli cells
@@ -130,7 +130,6 @@ to-report types
 
 end
 
-;;if count ecolis with [color = red] > 0 [set types types + 1]
 
 ; Copyright 2016 Uri Wilensky.
 ; See Info tab for full copyright and license.
