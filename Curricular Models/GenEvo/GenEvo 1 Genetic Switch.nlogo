@@ -473,10 +473,17 @@ to set-cell-color [ the-color ]
 end
 
 to show-switch-color
-  ifelse count lacZs > 20 [
-    ask cell-patches [ set pcolor 98 ]
-  ][
+  if count lacZs <= 10 [
     ask cell-patches [ set pcolor white ]
+  ]
+  if count lacZs > 10 and count lacZs <= 20 [
+    ask cell-patches [ set pcolor 99 ]
+  ]
+  if count lacZs > 20 and count lacZs <= 30 [
+    ask cell-patches [ set pcolor 98 ]
+  ]
+  if count lacZs > 30 [
+    ask cell-patches [ set pcolor 97 ]
   ]
   ask operon [ set pcolor blue ]
   ask promoter [ set pcolor green ]
@@ -602,8 +609,8 @@ LacI-bond-leakage
 LacI-bond-leakage
 0
 0.1
-0.06
-0.0001
+0.02
+0.001
 1
 NIL
 HORIZONTAL
@@ -632,7 +639,7 @@ LacY-degradation-chance
 LacY-degradation-chance
 0
 0.01
-1.0E-4
+4.0E-4
 0.0001
 1
 NIL
@@ -647,7 +654,7 @@ LacI-number
 LacI-number
 1
 50
-30.0
+25.0
 1
 1
 NIL
@@ -662,7 +669,7 @@ RNAP-number
 RNAP-number
 0
 50
-30.0
+25.0
 1
 1
 NIL
@@ -677,7 +684,7 @@ LacI-lactose-separation-chance
 LacI-lactose-separation-chance
 0
 0.01
-0.00377
+0.001
 0.00001
 1
 NIL
