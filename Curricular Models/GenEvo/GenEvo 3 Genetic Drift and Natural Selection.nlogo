@@ -1,7 +1,9 @@
 breed [ ecolis ecoli ]
 globals [
   sugar-color ; a global variable to set color of patches with sugar
-  carrying-capacity-multiplier
+  carrying-capacity-multiplier  ; a veriable to set sugar addition rate that determines carrying capacity
+  color-list    ; list of colors of e colis
+  color-types   ; types of ecolis (of different colors) in the population
 ]
 patches-own [ sugar? ]  ; a boolean to track if a patch has a sugar or not
 ecolis-own [ energy ]   ; a variable to track energy of E. coli cells
@@ -15,14 +17,15 @@ to setup     ; Sets up the population of bacteria (E. coli) randomly across the 
   set sugar-color 2
 
 repeat round (max-initial-population / number-of-types)[
-  let color-list [ red orange brown yellow green cyan violet magenta ]
+  set color-list [ red orange brown yellow green cyan violet magenta ]
+  let assign-colors-list color-list
   create-ecolis number-of-types [
     set shape "ecoli"
     set size 2
     set energy 1000
     setxy random-xcor random-ycor
-    set color first color-list
-    set color-list but-first color-list ; each type has a unique color so we remove this color form our list
+    set color first  assign-colors-list
+    set  assign-colors-list but-first  assign-colors-list ; each type has a unique color so we remove this color form our list
   ]
 ]
 
@@ -138,18 +141,29 @@ to set-carrying-capacity-multiplier
   ]
 end
 
+to-report types
+  set color-types 0
+  let i 0
+  repeat length color-list [
+    if count ecolis with [color = item i color-list] > 0 [set color-types color-types + 1]
+    set i i + 1
+  ]
+  report color-types
+
+end
+
 
 ; Copyright 2016 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-460
-20
-923
-484
+430
+10
+929
+510
 -1
 -1
-7.0
+7.554
 1
 10
 1
@@ -170,10 +184,10 @@ ticks
 30.0
 
 BUTTON
-30
+15
 10
-121
-43
+106
+70
 NIL
 setup
 NIL
@@ -187,10 +201,10 @@ NIL
 1
 
 BUTTON
-130
+115
 10
-220
-43
+205
+70
 NIL
 go
 T
@@ -204,10 +218,10 @@ NIL
 0
 
 PLOT
-30
-235
-430
-495
+15
+250
+415
+510
 Population Dynamics Graph
 Time
 Frequency
@@ -229,10 +243,10 @@ PENS
 "magenta" 1.0 0 -5825686 true "" "plot count ecolis with [ color = magenta ]"
 
 SLIDER
-30
-50
-220
-83
+15
+75
+205
+108
 number-of-types
 number-of-types
 1
@@ -244,29 +258,29 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-30
-185
-490
-241
-Each type is represented by a different color in the model.\nThe cells with the trait that has a selective advantage are represented\nby a blue outline.
+15
+215
+430
+271
+Each type is represented by a different color in the model. The cells that have a selective advantage are represented by a blue outline.
 11
 0.0
 1
 
 CHOOSER
-30
-90
-220
-135
+15
+115
+205
+160
 ecoli-with-selective-advantage
 ecoli-with-selective-advantage
 "red" "orange" "brown" "yellow" "green" "cyan" "violet" "magenta"
 2
 
 SLIDER
-230
+215
 100
-435
+420
 133
 %-advantage
 %-advantage
@@ -279,9 +293,9 @@ NIL
 HORIZONTAL
 
 SWITCH
-230
+215
 10
-435
+420
 43
 natural-selection?
 natural-selection?
@@ -290,20 +304,20 @@ natural-selection?
 -1000
 
 TEXTBOX
-235
-140
-480
-181
+220
+135
+465
+176
 %-advantage is really just an increase\nin sugar eating efficiency.
 11
 0.0
 1
 
 SLIDER
-30
-140
-220
-173
+15
+170
+205
+203
 max-initial-population
 max-initial-population
 number-of-types
@@ -315,14 +329,25 @@ NIL
 HORIZONTAL
 
 CHOOSER
-230
+215
 50
-435
+420
 95
 carrying-capacity
 carrying-capacity
 "very high" "high" "medium" "low" "very low"
 2
+
+MONITOR
+215
+165
+420
+210
+Number of surviving types
+types
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
