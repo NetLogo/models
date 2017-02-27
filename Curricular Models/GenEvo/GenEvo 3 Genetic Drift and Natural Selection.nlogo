@@ -260,9 +260,9 @@ HORIZONTAL
 TEXTBOX
 30
 245
-390
-270
-Each type is represented by a different color in the model. The cells that have a selective advantage are represented by a blue outline.
+465
+271
+Each type is represented by a different color in the model. The cells\nthat have a selective advantage are represented by a blue outline.
 11
 0.0
 1
@@ -364,7 +364,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
