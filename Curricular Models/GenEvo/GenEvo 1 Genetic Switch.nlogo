@@ -862,7 +862,7 @@ In this model, there are in fact two sugars: glucose and lactose. Glucose is "pr
 
 When lactose is introduced to the outside environment, the lactose molecules enter into the bacterial cell through permease proteins (LacYs). Some lactose molecules that enter the cell bind to LacIs, preventing LacIs from binding to the operator site of the DNA. This, in turn, causes more LacYs to be produced. The LacYs get inserted into the cell-wall, which causes more lactose to enter the cell, thus creating a positive feedback loop. The LacZs, meanwhile digest lactose molecules inside the cell to produce energy.
 
-The genetic switch is turned on, when there is lactose and no glucose in the environment. Turning on of the switch is represented by changing the color of the cell to shades of blue color. 
+The genetic switch is turned on, when there is lactose and no glucose in the environment. Turning on of the switch is represented by changing the color of the cell to shades of blue color.
 
 The effect of glucose (through [cAMP](https://en.wikipedia.org/wiki/Cyclic_adenosine_monophosphate)) is only implicitly modelled. The rate at which LacZ and LacI are produced reduces significantly when glucose is present.
 
