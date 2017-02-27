@@ -284,7 +284,7 @@ types
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model is an example of genetic drift in a population of asexually reproducing bacteria E. coli. It starts with several types of E. coli, each with a different trait (which we represent with unique colors). The model shows that competing types of E. coli, each reproducing with equal likelihood on each turn, will ultimately converge on one type without any selection pressure forcing this convergence.  The idea, explained in more detail in Dennett's _Darwin's Dangerous Idea_, is that trait drifts can occur without any particular purpose or 'selection pressure'.
+This model is an example of genetic drift in a population of asexually reproducing bacteria E. coli. It starts with several types of E. coli, each with a different type (which we represent with unique colors). The model shows that competing types of E. coli, each reproducing with equal likelihood on each turn, will ultimately converge on one type without any selection pressure forcing this convergence.  The idea, explained in more detail in Dennett's _Darwin's Dangerous Idea_, is that genetic drifts can occur without any particular purpose or 'selection pressure'.
 
 ## HOW IT WORKS
 
@@ -300,17 +300,23 @@ The SETUP button initializes the model.
 
 The GO button runs the model.
 
-Use the TRAITS slider to select the number of competing types of E. coli.
+Use the TYPES slider to select the number of competing types of E. coli.
+
+Use MAX-INITIAL-POPULATION slider to set the maximum initial population in the world. Each type (color) has the same number of organisms to begin with.
+
+Set CARRYING CAPACITY to very high, high, medium, low or very low.
 
 ## THINGS TO NOTICE
 
-Notice that colors can achieve a high population count, but still fail to win the race.
-
 Notice that in each simulation, the time required for a single type to become dominant varies. Check to see if an increase or decrease in the carrying capacity has any effect on how fast a color wins.
+
+You can observe number of surviving types as time progresses. Notice how fast the number of surviving types reduce is dependent on the carrying capacity of the environment.
+
+Notice that at high carrying capacity colors can achieve a high population count, but still fail to win the race.
 
 ## THINGS TO TRY
 
-Try and modify the carrying capacity and number of traits to create a somewhat 'balanced' population (every trait has roughly the same population size). Is it even possible?
+Try and modify the carrying capacity and number of types to create a somewhat 'balanced' population (every type has roughly the same population size). Is it even possible?
 
 ## EXTENDING THE MODEL
 
