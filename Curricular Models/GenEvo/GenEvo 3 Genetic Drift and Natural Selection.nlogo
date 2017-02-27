@@ -187,7 +187,7 @@ BUTTON
 15
 10
 106
-70
+50
 NIL
 setup
 NIL
@@ -204,7 +204,7 @@ BUTTON
 115
 10
 205
-70
+50
 NIL
 go
 T
@@ -218,10 +218,10 @@ NIL
 0
 
 PLOT
-15
-250
-415
-510
+30
+285
+395
+505
 Population Dynamics Graph
 Time
 Frequency
@@ -244,9 +244,9 @@ PENS
 
 SLIDER
 15
-75
+100
 205
-108
+133
 number-of-types
 number-of-types
 1
@@ -258,10 +258,10 @@ NIL
 HORIZONTAL
 
 TEXTBOX
-15
-215
-430
-271
+30
+245
+390
+270
 Each type is represented by a different color in the model. The cells that have a selective advantage are represented by a blue outline.
 11
 0.0
@@ -269,9 +269,9 @@ Each type is represented by a different color in the model. The cells that have 
 
 CHOOSER
 15
-115
+140
 205
-160
+185
 ecoli-with-selective-advantage
 ecoli-with-selective-advantage
 "red" "orange" "brown" "yellow" "green" "cyan" "violet" "magenta"
@@ -279,9 +279,9 @@ ecoli-with-selective-advantage
 
 SLIDER
 215
-100
+105
 420
-133
+138
 %-advantage
 %-advantage
 0
@@ -305,9 +305,9 @@ natural-selection?
 
 TEXTBOX
 220
-135
+140
 465
-176
+181
 %-advantage is really just an increase\nin sugar eating efficiency.
 11
 0.0
@@ -315,9 +315,9 @@ TEXTBOX
 
 SLIDER
 15
-170
+190
 205
-203
+223
 max-initial-population
 max-initial-population
 number-of-types
@@ -340,21 +340,38 @@ carrying-capacity
 
 MONITOR
 215
-165
+180
 420
-210
+225
 Number of surviving types
 types
 17
 1
 11
 
+BUTTON
+15
+60
+205
+93
+save screenshot
+export-interface (word \"GenEvo 3 GD and NS \" date-and-time \".png\")
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
 @#$#@#$#@
 ## WHAT IS IT?
 
 This model allows for the exploration and comparison of two different mechanisms of evolution: natural selection and genetic drift. It models evolution in a population of asexually reproducing bacteria, E. coli.
 
-It starts with different types of E. coli, each with a different trait represented by different colors. When ‘natural selection’ is off, the model shows that competing types of E. coli, each reproducing with equal likelihood on each turn, will ultimately converge on one type without any selection pressure forcing this convergence. This is called genetic drift, an idea explained in more detail in Dennett's _Darwin's Dangerous Idea_ that explains that trait drifts can occur without any particular purpose or 'selecting pressure'. When ‘natural selection’ is on, one of the type of E. coli cells has a selective advantage. It gains more energy from sugar in a given time unit. This results in faster reproduction by that type of cells. An important thing to note is this model includes one mechanism of natural selection called _r-selection_.
+It starts with different types of E. coli, each with a different types (trait values) represented by different colors. When ‘natural selection’ is off, the model shows that competing types of E. coli, each reproducing with equal likelihood on each turn, will ultimately converge on one type without any selection pressure forcing this convergence. This is called genetic drift, an idea explained in more detail in Dennett's _Darwin's Dangerous Idea_ that explains that genetic drifts can occur without any particular purpose or 'selecting pressure'. When ‘natural selection’ is on, one of the type of E. coli cells has a selective advantage. It gains more energy from sugar in a given time unit. This results in faster reproduction by that type of cells. An important thing to note is this model includes one mechanism of natural selection called _r-selection_.
 
 ## HOW IT WORKS
 
@@ -367,7 +384,7 @@ The increase in energy by eating sugar is identical for each type (color) of E. 
 
 When Natural Selection is ON:
 
-A user can select which trait (color) has a selective advantage in this world, causing it to gain more efficiently digest sugar and gain more energy from sugar at each time step. The cells with selective advantage are represented as cells with blue outline in the model.
+A user can select which type (color) has a selective advantage in this world, causing it to gain more efficiently digest sugar and gain more energy from sugar at each time step. The cells with selective advantage are represented as cells with blue outline in the model.
 
 This in terns causes that particular type of E. coli reproduce faster. The % advantage slider sets the percentage increase in energy gain by the cells with selective advantage. Through this selective advantage, a dominant color becomes more likely to 'win. However, if the selective advantage is low, statistical advantage might still cause another color to 'win.
 
@@ -379,15 +396,15 @@ The SETUP button initializes the model.
 
 The GO button runs the model.
 
-Use the NUMBER-OF-TRAITS slider to select the number of competing colors.
+Use the NUMBER-OF-TYPES slider to select the number of competing colors.
 
 Use the ECOLI-WITH-SELECTIVE-ADVANTAGE chooser to select the color (type) of E. coli that has a selective advantage.
 
 Use the %-ADVANTAGE slider to set % increase in energy gain of "Faster reproducing E. coli" as compared to others.
 
-Use the MAX-INITIAL-POPULATION to set maximum population of all types of E. coli bacteria at the begining of the simulation.
+Use the MAX-INITIAL-POPULATION to set maximum population of all types of E. coli bacteria at the beginning of the simulation.
 
-Use the CARRYING-CAPACITY chooser to chose the carrying capacity that is the maximum number of individuals that survive in the given environment. This chooser changes sugar avalability (rate of addition of sugar per tick) in the model.
+Use the CARRYING-CAPACITY chooser to chose the carrying capacity that is the maximum number of individuals that survive in the given environment. This chooser changes sugar availability (rate of addition of sugar per tick) in the model.
 
 ## THINGS TO NOTICE
 
