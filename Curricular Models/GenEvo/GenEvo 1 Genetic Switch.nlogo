@@ -722,7 +722,7 @@ SWITCH
 43
 lactose?
 lactose?
-0
+1
 1
 -1000
 
@@ -751,7 +751,7 @@ SWITCH
 78
 glucose?
 glucose?
-1
+0
 1
 -1000
 
@@ -808,7 +808,7 @@ BUTTON
 175
 78
 save screenshot
-export-interface (word \"GenEvo 1 Genetic Switch\" date-and-time \".png\")
+export-interface (word \"GenEvo 1 Genetic Switch \" date-and-time \".png\")
 NIL
 1
 T
