@@ -281,6 +281,23 @@ types
 1
 11
 
+BUTTON
+225
+25
+440
+58
+save screenshot
+export-interface (word \"GenEvo 2 Genetic Drift \" date-and-time \".png\")
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
 @#$#@#$#@
 ## WHAT IS IT?
 
