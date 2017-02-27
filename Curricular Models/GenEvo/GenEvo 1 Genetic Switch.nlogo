@@ -829,11 +829,13 @@ Specifically, it is a model of the [lac-operon](https://en.wikipedia.org/wiki/La
 
 ## HOW IT WORKS
 
-This genetic switch is in essence, a positive feedback loop. It is responsible for regulating the synthesis of proteins required to conduct the uptake and digestion of lactose.
+This genetic switch is in essence, a positive feedback loop. It is responsible for regulating the synthesis of proteins (LacZ and LacY in this model) required to conduct the uptake and digestion of lactose.
 
 In this model, there are in fact two sugars: glucose and lactose. Glucose is "preferred" as an energy source over lactose. When there is glucose and/or no lactose in the surrounding environment, the genetic switch is at an _off steady-state_. This is because the repressor protein [LacI](https://en.wikipedia.org/wiki/Lac_repressor) prevents (mostly) the bacteria from producing the proteins, by binding to the <a href="https://en.wikipedia.org/wiki/Operator_(biology)">operator site</a> of the DNA. In this steady state, relatively little permease (LacY) and beta-galactosidase (LacZ) are produced.
 
 When lactose is introduced to the outside environment, the lactose molecules enter into the bacterial cell through permease proteins (LacYs). Some lactose molecules that enter the cell bind to LacIs, preventing LacIs from binding to the operator site of the DNA. This, in turn, causes more LacYs to be produced. The LacYs get inserted into the cell-wall, which causes more lactose to enter the cell, thus creating a positive feedback loop. The LacZs, meanwhile digest lactose molecules inside the cell to produce energy.
+
+The genetic switch is turned on, when there is lactose and no glucose in the environment. Turning on of the switch is represented by changing the color of the cell to shades of blue color. 
 
 The effect of glucose (through [cAMP](https://en.wikipedia.org/wiki/Cyclic_adenosine_monophosphate)) is only implicitly modelled. The rate at which LacZ and LacI are produced reduces significantly when glucose is present.
 
@@ -881,9 +883,9 @@ While molecular interactions (micro) are best observed through running the simul
 
 ### Buttons
 
-The SETUP button initializes the model
+The SETUP button initializes the model.
 
-The GO button runs the simulation until the cell dies
+The GO button runs the simulation until the cell dies.
 
 ### Switches
 
