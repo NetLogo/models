@@ -1,8 +1,8 @@
 breed [ ecolis ecoli ]
 globals [
   sugar-color ; a global variable to set color of patches with sugar
-  carrying-capacity-multiplier  ; a veriable to set sugar addition rate that determines carrying capacity
-  color-list    ; list of colors of e colis
+  carrying-capacity-multiplier  ; a variable to set sugar addition rate that determines carrying capacity
+  color-list    ; list of colors of ecolis
   color-types   ; types of ecolis (of different colors) in the population
 ]
 patches-own [ sugar? ]  ; a boolean to track if a patch has a sugar or not
@@ -159,11 +159,11 @@ end
 GRAPHICS-WINDOW
 430
 10
-929
-510
+958
+539
 -1
 -1
-7.554
+8.0
 1
 10
 1
@@ -218,10 +218,10 @@ NIL
 0
 
 PLOT
-30
+15
 285
-395
-505
+420
+540
 Population Dynamics Graph
 Time
 Frequency
