@@ -87,6 +87,16 @@ to setup
   reset-ticks
 end
 
+to reset   ;; to reset the parameters to default setting
+  set LacI-number 25
+  set RNAP-number 25
+  set LacI-bond-leakage 0.02
+  set LacI-lactose-binding-chance 0.99991
+  set LacI-lactose-separation-chance 0.001
+  set LacY-degradation-chance 4.0E-4
+  set LacZ-degradation-chance 1.0E-4
+end
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;  Runtime Procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -603,7 +613,7 @@ NIL
 SLIDER
 10
 360
-325
+165
 393
 LacI-bond-leakage
 LacI-bond-leakage
@@ -624,7 +634,7 @@ LacI-lactose-binding-chance
 LacI-lactose-binding-chance
 0.99990
 1
-0.9999
+0.99991
 0.00001
 1
 NIL
@@ -646,9 +656,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-10
+170
 320
-165
+325
 353
 LacI-number
 LacI-number
@@ -662,9 +672,9 @@ HORIZONTAL
 
 SLIDER
 170
-320
+360
 325
-353
+393
 RNAP-number
 RNAP-number
 0
@@ -685,7 +695,7 @@ LacI-lactose-separation-chance
 0
 0.01
 0.001
-0.00001
+0.001
 1
 NIL
 HORIZONTAL
@@ -819,6 +829,23 @@ ifelse-value (division-number > 0) [\n  precision (ticks-at-end-of-cell-division
 17
 1
 11
+
+BUTTON
+10
+320
+165
+353
+reset
+reset
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
