@@ -175,7 +175,7 @@ to setshape        ;; a procedure to set shapes of the molecules
       ]
   ]
   if breed = LacZs [
-    set shape "protein"
+    set shape "protein 2"
     set color red
     set size 6]
 end
@@ -724,7 +724,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Dabholkar, S. and Wilensky, U. (2016).  NetLogo Genetic Switch - Synthetic Biology model.  http://ccl.northwestern.edu/netlogo/models/GeneticSwitch-SyntheticBiology.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Dabholkar, S. and Wilensky, U. (2016).  NetLogo Synthetic Biology - Genetic Switch model.  http://ccl.northwestern.edu/netlogo/models/SyntheticBiology-GeneticSwitch.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
@@ -961,6 +961,11 @@ true
 Polygon -7500403 false true 165 75 135 75 135 90 165 105 165 75 165 60 135 105 165 120 180 120 180 90 150 75 150 105 180 135 165 135 165 120 180 120 195 135 195 105 195 105 165 105 150 105 165 90 180 75 165 75 150 90 165 105 150 120 135 150 120 150 120 165 150 165 180 165 165 135 165 135
 Polygon -7500403 false true 165 150 165 165 150 180 135 165 120 195 150 210 165 180 180 165 150 165 135 150 135 165 120 165 120 210 150 195 180 195 180 180 195 165 165 150 165 150 210 165 180 210 150 180 135 210 120 225 150 225
 Polygon -7500403 false true 135 120 120 120 150 135 150 150 180 150 150 120 120 135 135 105 105 105 180 135 210 150 105 120 105 135 210 195
+
+protein 2
+true
+0
+Polygon -7500403 true true 150 60 60 195 240 195 150 60
 
 rnapol
 true

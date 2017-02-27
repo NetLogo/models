@@ -1,5 +1,10 @@
 breed [ ecolis ecoli ]
-globals [ sugar-color ] ; a global variable to set color of patches with sugar
+globals [
+  sugar-color ; a global variable to set color of patches with sugar
+  carrying-capacity-multiplier  ; a variable to set sugar addition rate that determines carrying capacity
+  color-list    ; list of colors of ecolis
+  color-types   ; types of ecolis (of different colors) in the population
+]
 patches-own [ sugar? ]  ; a boolean to track if a patch has a sugar or not
 ecolis-own [ energy ]   ; a variable to track energy of E. coli cells
 
@@ -10,16 +15,21 @@ ecolis-own [ energy ]   ; a variable to track energy of E. coli cells
 to setup     ; Sets up the population of bacteria (E. coli) randomly across the world.
   clear-all
   set sugar-color 2
-  let color-list [ red orange brown yellow green cyan violet magenta ]
 
-  create-ecolis number-of-traits [
+repeat round (max-initial-population / number-of-types)[
+  set color-list [ red orange brown yellow green cyan violet magenta ]
+  let assign-colors-list color-list
+  create-ecolis number-of-types [
     set shape "ecoli"
     set size 2
     set energy 1000
     setxy random-xcor random-ycor
-    set color first color-list
-    set color-list but-first color-list ; each type has a unique color so we remove this color form our list
+    set color first  assign-colors-list
+    set  assign-colors-list but-first  assign-colors-list ; each type has a unique color so we remove this color form our list
   ]
+]
+
+set-carrying-capacity-multiplier
 
   ask ecolis [
     if color = runresult ecoli-with-selective-advantage [
@@ -32,7 +42,7 @@ to setup     ; Sets up the population of bacteria (E. coli) randomly across the 
     set sugar? False
   ]
 
-  ask n-of round (count patches * 0.4) patches [    ; initially sugar is added to 40% of patches
+  ask n-of round (count patches * 0.1) patches [    ; initially sugar is added to 10% of patches
     set pcolor sugar-color
     set sugar? True
   ]
@@ -56,8 +66,9 @@ to go
 end
 
 to add-sugar  ; sugar is added to the environment, using a boolean sugar? for each patch
-  if count patches with [pcolor = black] > round (count patches * 0.01) [    ; at each tick sugar is added to maximum of 1% of patches
-    ask n-of round (count patches * 0.01) patches [
+  if count patches with [pcolor = black] > round (count patches * carrying-capacity-multiplier) [
+    ; at each tick sugar is added to maximum of carrying-capacity-multiplier% of patches
+    ask n-of round (count patches * carrying-capacity-multiplier) patches [
       set pcolor sugar-color
       set sugar? True
     ]
@@ -72,20 +83,25 @@ to move   ; E. coli cells move randomly across the world.
 end
 
 to eat-sugar ; E.coli cells eat sugar if they are at a patch that has sugar. Their energy increases by 100 arbitrary energy units.
-  if natural-selection? [    ; In case of natural selection only cells with 'selective advantage' gain more energy from sugar
+  ifelse natural-selection? [    ; In case of natural selection only cells with 'selective advantage' gain more energy from sugar
     ifelse color = runresult ecoli-with-selective-advantage [
       if sugar? [
         set energy energy +  100 + %-advantage
         set pcolor black
         set sugar? False
       ]
-    ]
-    [
+    ][
       if sugar? [
         set energy energy + 100
         set pcolor black
         set sugar? False
       ]
+    ]
+  ][
+    if sugar? [
+      set energy energy + 100
+      set pcolor black
+      set sugar? False
     ]
   ]
 end
@@ -107,18 +123,47 @@ to death   ; E. coli cells die if their energy drops below zero.
   ]
 end
 
+to set-carrying-capacity-multiplier
+  if carrying-capacity = "very high" [
+    set carrying-capacity-multiplier 0.01
+  ]
+  if carrying-capacity = "high" [
+    set carrying-capacity-multiplier 0.008
+  ]
+  if carrying-capacity = "medium" [
+    set carrying-capacity-multiplier 0.006
+  ]
+  if carrying-capacity = "low" [
+    set carrying-capacity-multiplier 0.004
+  ]
+  if carrying-capacity = "very low" [
+    set carrying-capacity-multiplier 0.002
+  ]
+end
+
+to-report types
+  set color-types 0
+  let i 0
+  repeat length color-list [
+    if count ecolis with [color = item i color-list] > 0 [set color-types color-types + 1]
+    set i i + 1
+  ]
+  report color-types
+
+end
+
 
 ; Copyright 2016 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-460
-20
-923
-484
+430
+10
+958
+539
 -1
 -1
-7.0
+8.0
 1
 10
 1
@@ -139,10 +184,10 @@ ticks
 30.0
 
 BUTTON
-30
+15
 10
-121
-43
+106
+50
 NIL
 setup
 NIL
@@ -156,10 +201,10 @@ NIL
 1
 
 BUTTON
-130
+115
 10
-220
-43
+205
+50
 NIL
 go
 T
@@ -173,10 +218,10 @@ NIL
 0
 
 PLOT
-30
-235
-430
-495
+15
+285
+420
+540
 Population Dynamics Graph
 Time
 Frequency
@@ -198,15 +243,15 @@ PENS
 "magenta" 1.0 0 -5825686 true "" "plot count ecolis with [ color = magenta ]"
 
 SLIDER
-30
-50
-435
-83
-number-of-traits
-number-of-traits
+15
+100
+205
+133
+number-of-types
+number-of-types
 1
 8
-8.0
+4.0
 1
 1
 NIL
@@ -214,29 +259,29 @@ HORIZONTAL
 
 TEXTBOX
 30
-180
-490
-236
-Each trait is represented by a different color in the model.\nThe cells with the trait that has a selective advantage are represented\nby a blue outline.
+245
+465
+271
+Each type is represented by a different color in the model. The cells\nthat have a selective advantage are represented by a blue outline.
 11
 0.0
 1
 
 CHOOSER
-30
-90
-220
-135
+15
+140
+205
+185
 ecoli-with-selective-advantage
 ecoli-with-selective-advantage
 "red" "orange" "brown" "yellow" "green" "cyan" "violet" "magenta"
-7
+2
 
 SLIDER
-225
-90
-435
-123
+215
+105
+420
+138
 %-advantage
 %-advantage
 0
@@ -248,9 +293,9 @@ NIL
 HORIZONTAL
 
 SWITCH
-230
+215
 10
-435
+420
 43
 natural-selection?
 natural-selection?
@@ -259,21 +304,74 @@ natural-selection?
 -1000
 
 TEXTBOX
-230
-135
-470
-176
+220
+140
+465
+181
 %-advantage is really just an increase\nin sugar eating efficiency.
 11
 0.0
 1
+
+SLIDER
+15
+190
+205
+223
+max-initial-population
+max-initial-population
+number-of-types
+10 * number-of-types
+12.0
+number-of-types
+1
+NIL
+HORIZONTAL
+
+CHOOSER
+215
+50
+420
+95
+carrying-capacity
+carrying-capacity
+"very high" "high" "medium" "low" "very low"
+2
+
+MONITOR
+215
+180
+420
+225
+Number of surviving types
+types
+17
+1
+11
+
+BUTTON
+15
+60
+205
+93
+save screenshot
+export-interface (word \"GenEvo 3 GD and NS \" date-and-time \".png\")
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
 
 This model allows for the exploration and comparison of two different mechanisms of evolution: natural selection and genetic drift. It models evolution in a population of asexually reproducing bacteria, E. coli.
 
-It starts with different types of E. coli, each with a different trait represented by different colors. When ‘natural selection’ is off, the model shows that competing types of E. coli, each reproducing with equal likelihood on each turn, will ultimately converge on one type without any selection pressure forcing this convergence. This is called genetic drift, an idea explained in more detail in Dennett's _Darwin's Dangerous Idea_ that explains that trait drifts can occur without any particular purpose or 'selecting pressure'. When ‘natural selection’ is on, one of the type of E. coli cells has a selective advantage. It gains more energy from sugar in a given time unit. This results in faster reproduction by that type of cells. An important thing to note is this model includes one mechanism of natural selection called _r-selection_.
+It starts with different types of E. coli, each with a different types (trait values) represented by different colors. When ‘natural selection’ is off, the model shows that competing types of E. coli, each reproducing with equal likelihood on each turn, will ultimately converge on one type without any selection pressure forcing this convergence. This is called genetic drift, an idea explained in more detail in Dennett's _Darwin's Dangerous Idea_ that explains that genetic drifts can occur without any particular purpose or 'selecting pressure'. When ‘natural selection’ is on, one of the type of E. coli cells has a selective advantage. It gains more energy from sugar in a given time unit. This results in faster reproduction by that type of cells. An important thing to note is this model includes one mechanism of natural selection called _r-selection_.
 
 ## HOW IT WORKS
 
@@ -286,7 +384,7 @@ The increase in energy by eating sugar is identical for each type (color) of E. 
 
 When Natural Selection is ON:
 
-A user can select which trait (color) has a selective advantage in this world, causing it to gain more efficiently digest sugar and gain more energy from sugar at each time step. The cells with selective advantage are represented as cells with blue outline in the model.
+A user can select which type (color) has a selective advantage in this world, causing it to gain more efficiently digest sugar and gain more energy from sugar at each time step. The cells with selective advantage are represented as cells with blue outline in the model.
 
 This in terns causes that particular type of E. coli reproduce faster. The % advantage slider sets the percentage increase in energy gain by the cells with selective advantage. Through this selective advantage, a dominant color becomes more likely to 'win. However, if the selective advantage is low, statistical advantage might still cause another color to 'win.
 
@@ -298,15 +396,21 @@ The SETUP button initializes the model.
 
 The GO button runs the model.
 
-Use the NUMBER-OF-TRAITS slider to select the number of competing colors.
+Use the NUMBER-OF-TYPES slider to select the number of competing colors.
 
 Use the ECOLI-WITH-SELECTIVE-ADVANTAGE chooser to select the color (type) of E. coli that has a selective advantage.
 
 Use the %-ADVANTAGE slider to set % increase in energy gain of "Faster reproducing E. coli" as compared to others.
 
+Use the MAX-INITIAL-POPULATION to set maximum population of all types of E. coli bacteria at the beginning of the simulation.
+
+Use the CARRYING-CAPACITY chooser to chose the carrying capacity that is the maximum number of individuals that survive in the given environment. This chooser changes sugar availability (rate of addition of sugar per tick) in the model.
+
 ## THINGS TO NOTICE
 
 Notice that the E. coli cells with selective advantage often wins the race when the % selective advantage is high. When the % selective advantage is low, statistical advantage in favor of any of the other colors might result in different outcomes. Check if there is any tipping point above which % selective advantage always makes the color win.
+
+Notice the effect of change in the carrying capacity on the natural selection process.
 
 ## THINGS TO TRY
 

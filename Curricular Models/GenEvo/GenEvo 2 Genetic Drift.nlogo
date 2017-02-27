@@ -1,5 +1,10 @@
 breed [ ecolis ecoli ]
-globals [ sugar-color ] ; a global variable to set color of patches with sugar
+globals [
+  sugar-color ; a global variable to set color of patches with sugar
+  carrying-capacity-multiplier  ; a variable to set sugar addition rate that determines carrying capacity
+  color-list    ; list of colors of ecolis
+  color-types   ; types of ecolis (of different colors) in the population
+]
 patches-own [ sugar? ]  ; a boolean to track if a patch has a sugar or not
 ecolis-own [ energy ]   ; a variable to track energy of E. coli cells
 
@@ -10,22 +15,27 @@ ecolis-own [ energy ]   ; a variable to track energy of E. coli cells
 to setup     ; Sets up the population of bacteria (E. coli) randomly across the world.
   clear-all
   set sugar-color 2
-  let color-list [ red orange brown yellow green cyan violet magenta ]
 
-  create-ecolis number-of-traits [
+repeat round (max-initial-population / number-of-types)[
+  set color-list [ red orange brown yellow green cyan violet magenta ]
+  let assign-colors-list color-list
+  create-ecolis number-of-types [
     set shape "ecoli"
     set size 2
     set energy 1000
     setxy random-xcor random-ycor
-    set color first color-list
-    set color-list but-first color-list ; each type has a unique color so we remove this color form our list
+    set color first  assign-colors-list
+    set  assign-colors-list but-first  assign-colors-list ; each type has a unique color so we remove this color form our list
   ]
+]
+
+set-carrying-capacity-multiplier
 
   ask patches [
     set sugar? False
   ]
 
-  ask n-of round (count patches * 0.4) patches [    ; initially sugar is added to 40% of patches
+  ask n-of round (count patches * 0.1) patches [    ; initially sugar is added to 10 % of patches
     set pcolor sugar-color
     set sugar? True
   ]
@@ -45,12 +55,14 @@ to go
     reproduce
     death
   ]
+
   tick
 end
 
 to add-sugar  ; sugar is added to the environment, using a boolean sugar? for each patch
-  if count patches with [pcolor = black] > round (count patches * 0.01) [    ; at each tick sugar is added to maximum of 1% of patches
-    ask n-of round (count patches * 0.01) patches [
+  if count patches with [pcolor = black] > round (count patches * carrying-capacity-multiplier) [
+    ; at each tick sugar is added to maximum of carrying-capacity-multiplier% of patches
+    ask n-of round (count patches * carrying-capacity-multiplier) patches [
       set pcolor sugar-color
       set sugar? True
     ]
@@ -61,7 +73,7 @@ to move   ; E. coli cells move randomly across the world.
   rt random-float 60
   lt random-float 60
   fd 1
-  set energy energy - 20
+  set energy energy - 20     ; movement and metabolism reduces energy
 end
 
 to eat-sugar  ; E.coli cells eat sugar if they are at a patch that has sugar. Their energy increases by 100 arbitrary energy units.
@@ -87,6 +99,35 @@ to death   ; E. coli cells die if their energy drops below zero.
   if energy < 0 [
     die
   ]
+end
+
+to set-carrying-capacity-multiplier
+  if carrying-capacity = "very high" [
+    set carrying-capacity-multiplier 0.01
+  ]
+  if carrying-capacity = "high" [
+    set carrying-capacity-multiplier 0.008
+  ]
+  if carrying-capacity = "medium" [
+    set carrying-capacity-multiplier 0.006
+  ]
+  if carrying-capacity = "low" [
+    set carrying-capacity-multiplier 0.004
+  ]
+  if carrying-capacity = "very low" [
+    set carrying-capacity-multiplier 0.002
+  ]
+end
+
+to-report types
+  set color-types 0
+  let i 0
+  repeat length color-list [
+    if count ecolis with [color = item i color-list] > 0 [set color-types color-types + 1]
+    set i i + 1
+  ]
+  report color-types
+
 end
 
 
@@ -124,7 +165,7 @@ BUTTON
 20
 10
 111
-68
+70
 NIL
 setup
 NIL
@@ -141,7 +182,7 @@ BUTTON
 125
 10
 213
-66
+70
 NIL
 go
 T
@@ -158,7 +199,7 @@ PLOT
 20
 205
 440
-484
+480
 Population Dynamics Graph
 Time
 Frequency
@@ -181,14 +222,14 @@ PENS
 
 SLIDER
 20
-95
+80
 210
-128
-number-of-traits
-number-of-traits
+113
+number-of-types
+number-of-types
 1
 8
-8.0
+5.0
 1
 1
 NIL
@@ -196,18 +237,71 @@ HORIZONTAL
 
 TEXTBOX
 20
-155
+180
 410
-173
-Each trait is represented by a different color in the model.
+198
+Each type is represented by a different color in the model.
 11
 0.0
 1
 
+SLIDER
+20
+130
+210
+163
+max-initial-population
+max-initial-population
+number-of-types
+10 * number-of-types
+30.0
+number-of-types
+1
+NIL
+HORIZONTAL
+
+CHOOSER
+225
+80
+440
+125
+carrying-capacity
+carrying-capacity
+"very high" "high" "medium" "low" "very low"
+2
+
+MONITOR
+225
+130
+440
+175
+Number of surviving types
+types
+17
+1
+11
+
+BUTTON
+225
+25
+440
+58
+save screenshot
+export-interface (word \"GenEvo 2 Genetic Drift \" date-and-time \".png\")
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model is an example of genetic drift in a population of asexually reproducing bacteria E. coli. It starts with several types of E. coli, each with a different trait (which we represent with unique colors). The model shows that competing types of E. coli, each reproducing with equal likelihood on each turn, will ultimately converge on one type without any selection pressure forcing this convergence.  The idea, explained in more detail in Dennett's _Darwin's Dangerous Idea_, is that trait drifts can occur without any particular purpose or 'selection pressure'.
+This model is an example of genetic drift in a population of asexually reproducing bacteria E. coli. It starts with several types of E. coli, each with a different type (which we represent with unique colors). The model shows that competing types of E. coli, each reproducing with equal likelihood on each turn, will ultimately converge on one type without any selection pressure forcing this convergence.  The idea, explained in more detail in Dennett's _Darwin's Dangerous Idea_, is that genetic drifts can occur without any particular purpose or 'selection pressure'.
 
 ## HOW IT WORKS
 
@@ -223,17 +317,23 @@ The SETUP button initializes the model.
 
 The GO button runs the model.
 
-Use the TRAITS slider to select the number of competing types of E. coli.
+Use the TYPES slider to select the number of competing types of E. coli.
+
+Use MAX-INITIAL-POPULATION slider to set the maximum initial population in the world. Each type (color) has the same number of organisms to begin with.
+
+Set CARRYING CAPACITY to very high, high, medium, low or very low.
 
 ## THINGS TO NOTICE
 
-Notice that colors can achieve a high population count, but still fail to win the race.
-
 Notice that in each simulation, the time required for a single type to become dominant varies. Check to see if an increase or decrease in the carrying capacity has any effect on how fast a color wins.
+
+You can observe number of surviving types as time progresses. Notice how fast the number of surviving types reduce is dependent on the carrying capacity of the environment.
+
+Notice that at high carrying capacity colors can achieve a high population count, but still fail to win the race.
 
 ## THINGS TO TRY
 
-Try and modify the carrying capacity and number of traits to create a somewhat 'balanced' population (every trait has roughly the same population size). Is it even possible?
+Try and modify the carrying capacity and number of types to create a somewhat 'balanced' population (every type has roughly the same population size). Is it even possible?
 
 ## EXTENDING THE MODEL
 

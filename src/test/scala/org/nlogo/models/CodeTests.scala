@@ -232,7 +232,7 @@ class CodeTests extends TestModels {
      "go-LacYs", "LacI", "LacZs", "LacIs-own", "create-RNAPs", "RNAP", "on-DNA?",
      "LacZ-production-num", "LacYs", "LacZ-production-cost",
      "LevelSpace?", "LacY-degradation-chance", "LacI-number",
-     "create-LacIs", "RNAPs-own", "LacZ", "go-LacI",
+     "create-LacIs", "RNAPs-own", "LacZ", "lacZs", "go-LacI",
      "LacI-bond-leakage", "go-LacZ", "LacI-lactose-binding-chance",
      "RNAP-number", "LacI-lactose-binding-chance", "LacY-production-num",
      "LacI-bond-leakage", "hatch-LacYs", "LacY", "LacIs",
@@ -244,7 +244,7 @@ class CodeTests extends TestModels {
    "GenEvo 4 Competition" -> Set(
      "LevelSpace?", "lacZ-inside", "lacI-lactose-complex", "lacY-inserted", "lacY-inside"
    ),
-   "Genetic Switch - Synthetic Biology" -> Set(
+   "Synthetic Biology - Genetic Switch" -> Set(
       "go-LacIs", "set-DNA-patches", "create-LacIs", "LacZ-gene", "RNAPs-own", "create-ONPGs",
       "degrade-LacZ", "LacZ", "ONPG-degradation-count", "LacI", "ONPGs-own", "update-ONPG",
       "RNAP-number", "go-LacIs", "create-LacZs", "LacZs", "LacZ-production-num-list", "ONPGs-here",

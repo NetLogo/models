@@ -44,6 +44,9 @@ class SpellCheckTests extends TestModels with BeforeAndAfterAll {
   }
   val escapes = Set("\\n", "\\t")
 
+  // This method will return *any* matches of the typo, even if they are partial matches
+  // e.g. if you spell `ecolis` once as `e colis`, this method will return all instances
+  // of `colis` as typos.
   // using tmpPath and java's ProcessBuilder as a workaround for
   // https://issues.scala-lang.org/browse/SI-10055
   testModels("Models must not contain typos") { model =>

@@ -17,16 +17,19 @@ globals [
   lactose-upper-limit        ; a variable to set the lactose quantity in the external environment
 
   ; Global (cellular) properties
-  energy                     ; keeps track of the energy of the cell
-  division-number            ; a counter to keep track of number of cell division events
-  inhibited?                 ; boolean for whether or not the operator is inhibited
+  energy                           ; keeps track of the energy of the cell
+  ticks-at-start-of-cell-division  ; to keep track of cell division time
+  ticks-at-end-of-cell-division    ; to keep track of cell division time
+  cell-division-time               ; time taken for the cell to divide
+  division-number                  ; a counter to keep track of number of cell division events
+  inhibited?                       ; boolean for whether or not the operator is inhibited
 ]
 
 breed [ LacIs LacI ]         ; the LacI repressor protein (purple proteins)
 breed [ LacZs LacZ ]         ; the LacZ beta-galactosidase enzyme (light red proteins)
 breed [ LacYs LacY ]         ; the LacY lactose permease enzyme (light red rectangles)
 breed [ RNAPs RNAP ]         ; RNA Polymerase (brown proteins) that binds to the DNA and synthesizes mRNA
-breed [ lactoses lactose ]   ; lactose molecules (grey)
+breed [ lactoses lactose ]   ; lactose molecules (gray)
 
 breed [daughter-cell-turtles daughter-cell-turtle]
 
@@ -59,6 +62,7 @@ to setup
 
   ; Initialize all of our global property variables
   set energy initial-energy
+  set ticks-at-start-of-cell-division 0
   set division-number 0
   set inhibited? false
 
@@ -81,6 +85,16 @@ to setup
     if lactose? [ update-lactose lactose-upper-limit ] ; add lactose if ON
   ]
   reset-ticks
+end
+
+to reset   ;; to reset the parameters to default setting
+  set LacI-number 25
+  set RNAP-number 25
+  set LacI-bond-leakage 0.02
+  set LacI-lactose-binding-chance 0.99991
+  set LacI-lactose-separation-chance 0.001
+  set LacY-degradation-chance 4.0E-4
+  set LacZ-degradation-chance 1.0E-4
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -108,6 +122,7 @@ to go
     ; if we're out of energy, die
     if (energy < 0) [ user-message "The cell has run out of energy. It's dead!" stop ]
   ]
+  show-switch-color
   tick
 end
 
@@ -120,6 +135,7 @@ end
 
 ; procedure for movement and molecular interactions of LacI proteins
 to go-LacIs
+
   ; a LacI bound with the operator might dissociate from the operator
   ask LacIs with [ bound-to-operator? ] [
     if (random-float 1 < LacI-bond-leakage) [
@@ -137,6 +153,7 @@ to go-LacIs
         forward 1
       ]
       set partner nobody
+      set-shape
       forward -1
     ]
   ]
@@ -194,7 +211,7 @@ end
 to go-LacZs
   ; LacZs near lactose can digest that lactose and produce energy
   ask LacZs with [ any? lactoses in-radius 1 with [ partner = nobody ] ] [
-    ask lactoses in-radius 1 with [ partner = nobody ] [
+    ask lactoses in-radius 2 with [ partner = nobody ] [
       set energy energy + 10
       die
     ]
@@ -271,18 +288,17 @@ end
 ; procedure to simulate cell division; each type of turtle (except RNAPs and LacIs) population is halved
 to divide-cell
   animate-cell-division
-  ask n-of (count LacIs with [ partner != nobody ] / 2) LacIs with [ partner != nobody ] [
-    ask partner [ die ]
-    set partner nobody
-    set-shape
-  ]
+
   ask n-of (count lactoses with [ inside? and partner = nobody ] / 2) lactoses with [ inside? and partner = nobody ] [ die ]
   ask n-of (count LacYs / 2) LacYs [ die ]
-  ask n-of (count patches with [ pcolor = (red + 2) ] / 2) patches with [ pcolor = (red + 2) ] [ set pcolor cell-color ]
   ask n-of (count LacZs / 2) LacZs [ die ]
+  ask n-of (count patches with [pcolor = (red + 2) ] / 2)patches with [pcolor = (red + 2)] [set pcolor cell-color]
 
   set energy energy / 2
   set division-number division-number + 1
+  set ticks-at-end-of-cell-division ticks
+  set cell-division-time (ticks-at-end-of-cell-division - ticks-at-start-of-cell-division)
+  set ticks-at-start-of-cell-division ticks
 end
 
 
@@ -356,7 +372,7 @@ to animate-cell-division
 
   ask cell-patches [
     sprout-daughter-cell-turtles 1 [
-      set color white
+      set color pcolor
       set shape "square"
       set size 2
       set heading random-heading
@@ -422,7 +438,7 @@ to set-shape ; turtle procedure
     set size 3
   ]
   if breed = LacZs [
-    set shape "protein"
+    set shape "protein2"
     set color (red + 2)
     set size 4
   ]
@@ -464,6 +480,25 @@ end
 to set-cell-color [ the-color ]
   set cell-color the-color
   ask cell-wall [ set pcolor the-color ]
+end
+
+to show-switch-color
+  if count lacZs <= 10 [
+    ask cell-patches [ set pcolor white ]
+  ]
+  if count lacZs > 10 and count lacZs <= 20 [
+    ask cell-patches [ set pcolor 99 ]
+  ]
+  if count lacZs > 20 and count lacZs <= 30 [
+    ask cell-patches [ set pcolor 98 ]
+  ]
+  if count lacZs > 30 [
+    ask cell-patches [ set pcolor 97 ]
+  ]
+  ask operon [ set pcolor blue ]
+  ask promoter [ set pcolor green ]
+  ask operator [ set pcolor orange ]
+  ask terminator [ set pcolor gray ]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -545,7 +580,7 @@ BUTTON
 10
 10
 90
-80
+43
 NIL
 setup
 NIL
@@ -562,7 +597,7 @@ BUTTON
 95
 10
 175
-80
+43
 NIL
 go
 T
@@ -578,14 +613,14 @@ NIL
 SLIDER
 10
 360
-325
+165
 393
 LacI-bond-leakage
 LacI-bond-leakage
 0
 0.1
-0.1
-0.0001
+0.02
+0.001
 1
 NIL
 HORIZONTAL
@@ -599,7 +634,7 @@ LacI-lactose-binding-chance
 LacI-lactose-binding-chance
 0.99990
 1
-0.9999
+0.99991
 0.00001
 1
 NIL
@@ -614,23 +649,8 @@ LacY-degradation-chance
 LacY-degradation-chance
 0
 0.01
-1.0E-4
+4.0E-4
 0.0001
-1
-NIL
-HORIZONTAL
-
-SLIDER
-10
-320
-165
-353
-LacI-number
-LacI-number
-1
-50
-15.0
-1
 1
 NIL
 HORIZONTAL
@@ -640,11 +660,26 @@ SLIDER
 320
 325
 353
+LacI-number
+LacI-number
+1
+50
+25.0
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+170
+360
+325
+393
 RNAP-number
 RNAP-number
 0
 50
-20.0
+25.0
 1
 1
 NIL
@@ -659,8 +694,8 @@ LacI-lactose-separation-chance
 LacI-lactose-separation-chance
 0
 0.01
-0.00377
-0.00001
+0.001
+0.001
 1
 NIL
 HORIZONTAL
@@ -687,7 +722,7 @@ SWITCH
 43
 lactose?
 lactose?
-0
+1
 1
 -1000
 
@@ -696,7 +731,7 @@ PLOT
 360
 945
 555
-Average Cell Division Time
+Cell Division Time
 Time
 Number of Ticks
 0.0
@@ -707,7 +742,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "if division-number > 0 [ plotxy ticks (ticks / division-number) ]"
+"default" 1.0 0 -16777216 true "" "if division-number > 0 [ plot cell-division-time ]"
 
 SWITCH
 180
@@ -719,17 +754,6 @@ glucose?
 0
 1
 -1000
-
-MONITOR
-810
-385
-932
-430
-Cell Division Time
-ifelse-value (division-number > 0) [\n  precision (ticks / division-number) 0\n][\n \"n/a\"\n]
-17
-1
-11
 
 PLOT
 330
@@ -778,6 +802,51 @@ false
 PENS
 "default" 1.0 0 -16777216 true "" "plot energy"
 
+BUTTON
+10
+45
+175
+78
+save screenshot
+export-interface (word \"GenEvo 1 Genetic Switch \" date-and-time \".png\")
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+MONITOR
+755
+490
+932
+535
+average-cell-division-time
+ifelse-value (division-number > 0) [\n  precision (ticks-at-end-of-cell-division / division-number) 0\n][\n \"n/a\"\n]
+17
+1
+11
+
+BUTTON
+10
+320
+165
+353
+reset
+reset
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
 @#$#@#$#@
 ## WHAT IS IT?
 
@@ -787,11 +856,13 @@ Specifically, it is a model of the [lac-operon](https://en.wikipedia.org/wiki/La
 
 ## HOW IT WORKS
 
-This genetic switch is in essence, a positive feedback loop. It is responsible for regulating the synthesis of proteins required to conduct the uptake and digestion of lactose.
+This genetic switch is in essence, a positive feedback loop. It is responsible for regulating the synthesis of proteins (LacZ and LacY in this model) required to conduct the uptake and digestion of lactose.
 
 In this model, there are in fact two sugars: glucose and lactose. Glucose is "preferred" as an energy source over lactose. When there is glucose and/or no lactose in the surrounding environment, the genetic switch is at an _off steady-state_. This is because the repressor protein [LacI](https://en.wikipedia.org/wiki/Lac_repressor) prevents (mostly) the bacteria from producing the proteins, by binding to the <a href="https://en.wikipedia.org/wiki/Operator_(biology)">operator site</a> of the DNA. In this steady state, relatively little permease (LacY) and beta-galactosidase (LacZ) are produced.
 
 When lactose is introduced to the outside environment, the lactose molecules enter into the bacterial cell through permease proteins (LacYs). Some lactose molecules that enter the cell bind to LacIs, preventing LacIs from binding to the operator site of the DNA. This, in turn, causes more LacYs to be produced. The LacYs get inserted into the cell-wall, which causes more lactose to enter the cell, thus creating a positive feedback loop. The LacZs, meanwhile digest lactose molecules inside the cell to produce energy.
+
+The genetic switch is turned on, when there is lactose and no glucose in the environment. Turning on of the switch is represented by changing the color of the cell to shades of blue color.
 
 The effect of glucose (through [cAMP](https://en.wikipedia.org/wiki/Cyclic_adenosine_monophosphate)) is only implicitly modelled. The rate at which LacZ and LacI are produced reduces significantly when glucose is present.
 
@@ -839,9 +910,9 @@ While molecular interactions (micro) are best observed through running the simul
 
 ### Buttons
 
-The SETUP button initializes the model
+The SETUP button initializes the model.
 
-The GO button runs the simulation until the cell dies
+The GO button runs the simulation until the cell dies.
 
 ### Switches
 
@@ -871,7 +942,7 @@ Energy – Plots the amount of energy in the cell over time
 
 lacZ Number – Plots the number of LacZ molecules inside a cell
 
-Average Cell Division Time – Plots the average number of ticks between two cell division events. It can be used as a growth rate indicator.
+Cell Division Time – Plots the number of ticks between two cell division events. It can be used as a growth rate indicator. Shorter cell division time indicates higher growth rate.
 
 ## THINGS TO NOTICE
 
@@ -1118,7 +1189,7 @@ Line -7500403 true 150 0 150 150
 
 pentagon
 false
-15
+1
 Polygon -7500403 true false 150 90 90 135 120 195 180 195 210 135
 
 person
@@ -1148,6 +1219,11 @@ true
 Polygon -7500403 false true 165 75 135 75 135 90 165 105 165 75 165 60 135 105 165 120 180 120 180 90 150 75 150 105 180 135 165 135 165 120 180 120 195 135 195 105 195 105 165 105 150 105 165 90 180 75 165 75 150 90 165 105 150 120 135 150 120 150 120 165 150 165 180 165 165 135 165 135
 Polygon -7500403 false true 165 150 165 165 150 180 135 165 120 195 150 210 165 180 180 165 150 165 135 150 135 165 120 165 120 210 150 195 180 195 180 180 195 165 165 150 165 150 210 165 180 210 150 180 135 210 120 225 150 225
 Polygon -7500403 false true 135 120 120 120 150 135 150 150 180 150 150 120 120 135 135 105 105 105 180 135 210 150 105 120 105 135 210 195
+
+protein2
+true
+0
+Polygon -7500403 true true 150 60 60 210 240 210 150 60 150 60
 
 pump
 true
