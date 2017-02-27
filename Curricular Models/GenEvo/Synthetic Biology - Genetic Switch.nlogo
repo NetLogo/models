@@ -724,7 +724,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Dabholkar, S. and Wilensky, U. (2016).  NetLogo Genetic Switch - Synthetic Biology model.  http://ccl.northwestern.edu/netlogo/models/GeneticSwitch-SyntheticBiology.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Dabholkar, S. and Wilensky, U. (2016).  NetLogo Synthetic Biology - Genetic Switch model.  http://ccl.northwestern.edu/netlogo/models/SyntheticBiology-GeneticSwitch.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 

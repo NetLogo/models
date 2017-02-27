@@ -244,7 +244,7 @@ class CodeTests extends TestModels {
    "GenEvo 4 Competition" -> Set(
      "LevelSpace?", "lacZ-inside", "lacI-lactose-complex", "lacY-inserted", "lacY-inside"
    ),
-   "Genetic Switch - Synthetic Biology" -> Set(
+   "Synthetic Biology - Genetic Switch" -> Set(
       "go-LacIs", "set-DNA-patches", "create-LacIs", "LacZ-gene", "RNAPs-own", "create-ONPGs",
       "degrade-LacZ", "LacZ", "ONPG-degradation-count", "LacI", "ONPGs-own", "update-ONPG",
       "RNAP-number", "go-LacIs", "create-LacZs", "LacZs", "LacZ-production-num-list", "ONPGs-here",
