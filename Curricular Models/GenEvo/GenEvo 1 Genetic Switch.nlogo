@@ -31,7 +31,8 @@ breed [ LacYs LacY ]         ; the LacY lactose permease enzyme (light red recta
 breed [ RNAPs RNAP ]         ; RNA Polymerase (brown proteins) that binds to the DNA and synthesizes mRNA
 breed [ lactoses lactose ]   ; lactose molecules (gray)
 
-breed [daughter-cell-turtles daughter-cell-turtle]
+breed [ mask-turtles mask-turtle ]   ; turtles to mask the background during animation of cell division
+breed [ daughter-cell-turtles daughter-cell-turtle ]  ; turtles to animate cell division process
 
 LacIs-own [
   partner                ; if it's a LacI complex, then partner is a lactose molecule
@@ -358,51 +359,85 @@ to draw-cell
   ask terminator [ set pcolor gray ]
 end
 
+; procedure to animate the process of cell division
 to animate-cell-division
-  let random-heading 60 + random 60
 
+  ; turtle to hide the original cell
+  create-mask-turtles 1 [
+    set size 1000
+    set color black
+    set shape "square"
+  ]
+
+  ; make a copy of the cell structure
   ask cell-wall [
+    ; for daughter 1
     sprout-daughter-cell-turtles 1 [
       set color cell-color + 2
       set shape "square"
       set size 2
-      set heading random-heading
+      set heading 45
+    ]
+
+    ; for daughter 2
+    sprout-daughter-cell-turtles 1 [
+      set color cell-color + 2
+      set shape "square"
+      set size 2
+      set heading 225
     ]
   ]
 
+  ; make a copy of all patches inside the cell
   ask cell-patches [
+
+    ; for daughter 1
     sprout-daughter-cell-turtles 1 [
       set color pcolor
       set shape "square"
       set size 2
-      set heading random-heading
+      set heading 45
     ]
-  ]
 
-  ask (patch-set operator terminator promoter operon) [
+    ; for daughter 2
     sprout-daughter-cell-turtles 1 [
-      set color [ pcolor ] of myself + 2
+      set color pcolor
       set shape "square"
       set size 2
-      set heading random-heading
+      set heading 225
     ]
   ]
 
-
+  ; make a copy of all turtles inside the cell
   ask (turtle-set LacYs LacZs RNAPs LacIs lactoses with [inside?]) [
+
+    ; for daughter 1
     hatch 1 [
       gen-xy-inside-inside
       set breed daughter-cell-turtles
       set shape [shape] of myself
       set color [color] of myself + 2
-      set heading random-heading
+      set heading 45
+    ]
+
+    ; turtles for daughter 2
+    hatch 1 [
+      gen-xy-inside-inside
+      set breed daughter-cell-turtles
+      set shape [shape] of myself
+      set color [color] of myself + 2
+      set heading 225
     ]
   ]
 
-  repeat 16 [
+  ; make the turtles move away from the center
+  repeat 23 [
     ask daughter-cell-turtles [ fd 1 ]
     display
   ]
+
+  ; make sure the turtles used for animation are removed
+  ask mask-turtles [ die ]
   ask daughter-cell-turtles [ die ]
 end
 
