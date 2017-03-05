@@ -80,7 +80,7 @@ to go
   ]
 
   ; collides pairs of fish that are on the same patch
-  foreach [ n-of 2 fish-here ] of patches with [ count fish-here > 1 ] [ [parents] ->
+  foreach [ n-of 2 fish-here ] of patches with [ count fish-here > 1 ] [ parents ->
     ; make sure the first parent has a lower
     ; who number than the second parent
     collide (first sort parents) (last sort parents)
@@ -169,7 +169,7 @@ to output-genetics [ this-family ]
   let bottom-left                 item 5 this-family
   let bottom-right                item 6 this-family
 
-  (foreach (list genes1 "small plus" genes2 "right arrow" child-genes) [ 0 0.75 1.5 2.5 3.5 ] [ [the-shape offset] ->
+(foreach (list genes1 "small plus" genes2 "right arrow" child-genes) [ 0 0.75 1.5 2.5 3.5 ] [ [the-shape offset] ->
     create-output-shapes 1 [
       set shape the-shape
       setxy (min-pxcor + offset) max-pycor
@@ -341,7 +341,7 @@ true
 true
 "" "set z-distr [ read-from-string item 1 my-genes ] of fish"
 PENS
-"Count" 1.0 1 -16777216 true "" "let maxbar modes z-distr\nlet maxrange length (filter [ [z] -> z = item 0 maxbar ] z-distr )\nset-plot-y-range 0 max list 10 maxrange\nhistogram z-distr"
+"Count" 1.0 1 -16777216 true "" "let maxbar modes z-distr\nlet maxrange length (filter [ z -> z = item 0 maxbar ] z-distr )\nset-plot-y-range 0 max list 10 maxrange\nhistogram z-distr"
 "Average" 1.0 0 -2674135 true "" "; plots a vertical line at mean\nplot-pen-reset\nif z-distr != [] [\n  plotxy mean z-distr plot-y-min\n  plot-pen-down\n  plotxy mean z-distr plot-y-max\n  plot-pen-up\n]"
 
 SLIDER

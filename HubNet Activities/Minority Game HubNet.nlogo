@@ -82,7 +82,7 @@ to setup
     clear-my-data
     set ycor 0
   ]
-  set score-list map [ [the-score] -> [ score ] of the-score ] sort turtles
+  set score-list map [ the-score -> [ score ] of the-score ] sort turtles
   update-success-list
   clear-all-plots
   reset-ticks
@@ -171,7 +171,7 @@ to initialize-androids
   ifelse (num-picked-zero <= (count turtles - 1) / 2)
     [ set minority 0 ]
     [ set minority 1 ]
-  set score-list map [ [t] -> [ score ] of t ] sort turtles
+  set score-list map [ t -> [ score ] of t ] sort turtles
   setup-plots
 end
 
@@ -224,7 +224,7 @@ to go
        advance-system
        update-choices
        update-success-list
-       set score-list map [ [t] -> [score] of t ] sort turtles
+       set score-list map [ t -> [score] of t ] sort turtles
        update-plots
        let scores [score] of turtles
        ask turtles [ move max scores min scores ]
@@ -239,9 +239,9 @@ to go
 end
 
 to update-success-list
-  set success-list map [ [the-player] -> [ score / choices-made ] of the-player] sort players with [ choices-made > 0 ]
+  set success-list map [ the-player -> [ score / choices-made ] of the-player] sort players with [ choices-made > 0 ]
   if ticks > 0
-  [ set success-list sentence success-list map [ [the-android] -> [score / ticks] of the-android ] sort androids ]
+  [ set success-list sentence success-list map [ the-android -> [score / ticks] of the-android ] sort androids ]
 end
 
 ;; updates system variables such as minority, avg-score, and stdev-score globals
@@ -282,7 +282,7 @@ to update-androids-scores-and-strategies  ;; androids procedure
   let max-strategies []
   let counter 0
   ;; this picks a strategy with the largest virtual score
-  foreach strategies-scores [ [the-score] ->
+  foreach strategies-scores [ the-score ->
     if the-score = max-score
     [ set max-strategies lput counter max-strategies ]
     set counter counter + 1

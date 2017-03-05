@@ -197,7 +197,7 @@ initial-radius
 initial-radius
 0
 20
-10.0
+10.5
 0.5
 1
 NIL
@@ -326,7 +326,7 @@ average distance
 100.0
 true
 false
-"set-plot-x-range 0 30\nset-plot-y-range  0 5 ; set initial y range to half of height" "foreach [ \"random-min\" \"random-away\" \"random\" \"open-min\" \"open-min-max\" ] [ [r] ->\n  ;; if there are any turtles with turtle-rule as their rule,\n  ;; plot the mean distance from the origin\n  if any? turtles with [ rule = r ] [\n    set-current-plot-pen r\n    plot mean [ distance origin ] of turtles with [ rule = r ]\n  ]\n]"
+"set-plot-x-range 0 30\nset-plot-y-range  0 5 ; set initial y range to half of height" "foreach [ \"random-min\" \"random-away\" \"random\" \"open-min\" \"open-min-max\" ] [ r ->\n  ;; if there are any turtles with turtle-rule as their rule,\n  ;; plot the mean distance from the origin\n  if any? turtles with [ rule = r ] [\n    set-current-plot-pen r\n    plot mean [ distance origin ] of turtles with [ rule = r ]\n  ]\n]"
 PENS
 "random-min" 1.0 0 -8630108 true "" ""
 "random-away" 1.0 0 -2064490 true "" ""

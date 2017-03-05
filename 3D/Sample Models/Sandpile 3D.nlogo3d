@@ -119,7 +119,7 @@ to update-plot
     let log-histogram n-values (max cascade-list + 1) [-1]
 
     ;; foreach element of the list calculate the frequency with which it occurred
-    foreach cascade-list [ [n] ->
+    foreach cascade-list [ n ->
       let old-value item n log-histogram
       if old-value = -1 [
         set old-value 0
@@ -128,11 +128,11 @@ to update-plot
     ]
 
     ;; take the log of that frequency
-    set log-histogram map [ [n] -> safe-log n] log-histogram
+    set log-histogram map [ n -> safe-log n ] log-histogram
 
     ;; now determine the log of that value and plot the relationship
     let counter 1
-    foreach log-histogram [ [n] ->
+    foreach log-histogram [ n ->
       if (n >= 0) [
         plotxy (log (counter - 1) 10) n
       ]

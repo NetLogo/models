@@ -58,7 +58,7 @@ to make-particles
   ]
   ;; When space is tight, placing the big particles first improves
   ;; our chances of eventually finding places for all of them.
-  foreach sort-by [ [a b] -> [ size ] of a > [ size ] of b ] particles [ [the-particle] ->
+  foreach sort-by [ [a b] -> [ size ] of a > [ size ] of b ] particles [ the-particle ->
     ask the-particle [
       position-randomly
       while [ overlapping? ] [ position-randomly ]
@@ -118,7 +118,7 @@ to recalculate-particles-that-just-collided
   ;; position wasn't affected, those collisions are still valid.
   ifelse is-turtle? particle2
     [
-      set collisions filter [ [the-collision] ->
+      set collisions filter [ the-collision ->
         item 1 the-collision != particle1 and
         item 2 the-collision != particle1 and
         item 1 the-collision != particle2 and
@@ -128,7 +128,7 @@ to recalculate-particles-that-just-collided
       ask particle2 [ check-for-particle-collision ]
     ]
     [
-      set collisions filter [ [the-collision] ->
+      set collisions filter [ the-collision ->
         item 1 the-collision != particle1 and
         item 2 the-collision != particle1
       ] collisions
@@ -139,7 +139,7 @@ to recalculate-particles-that-just-collided
   ;; happened to be calculated as happening again a very tiny amount of
   ;; time into the future, so we remove any collisions that involves
   ;; the same two particles (or particle and wall) as last time.
-  set collisions filter [ [the-collision] ->
+  set collisions filter [ the-collision ->
     item 1 the-collision != particle1 or
     item 2 the-collision != particle2
   ] collisions
@@ -302,7 +302,7 @@ to choose-next-collision
   ;; Take the smallest time-step from the list (which represents the next collision that will
   ;; happen in time).  Use this time step as the tick-delta for all the particles to move through
   let winner first collisions
-  foreach collisions [ [the-collision] ->
+  foreach collisions [ the-collision ->
     if first the-collision < first winner [ set winner the-collision ]
   ]
   ;; winner is now the collision that will occur next

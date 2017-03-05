@@ -95,7 +95,7 @@ to update-scores-and-strategy  ;; turtles procedure
   let max-strategies []
   let counter 0
   ;; this picks a strategy with the largest virtual score
-  foreach strategies-scores [ [the-score] ->
+  foreach strategies-scores [ the-score ->
     if (the-score = max-score) [
       set max-strategies lput counter max-strategies
     ]

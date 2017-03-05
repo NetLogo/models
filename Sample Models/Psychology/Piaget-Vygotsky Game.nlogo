@@ -47,7 +47,7 @@ end
 to spread-out-turtles-evenly
   let d (world-height / count turtles)
   let y (min-pycor - 0.5 + (d / 2))
-  foreach sort turtles [ [t] ->
+  foreach sort turtles [ t ->
     ask t [ set ycor round y ]
     set y (y + d)
   ]

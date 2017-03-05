@@ -824,12 +824,12 @@ end
 
 to do-one-item-histogram
   clear-plot
-  if length filter [ [n] -> is-number? n] [item current-question my-choices] of turtles > 0
+  if length filter is-number? [item current-question my-choices] of turtles > 0
   [ if max [item current-question my-choices] of turtles > 10
     [ set-plot-x-range plot-x-min (ceiling max [item current-question my-choices] of turtles + 1) ]
     if min [item current-question my-choices] of turtles < 0
     [ set-plot-x-range (floor min [item current-question my-choices] of turtles) plot-x-max]
-    let current-data map [ [t] -> item current-question [my-choices] of t ] sort turtles
+    let current-data map [ t -> item current-question [my-choices] of t ] sort turtles
     if not empty? remove false current-data
     [
       set-current-plot-pen "data"

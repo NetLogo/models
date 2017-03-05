@@ -1,7 +1,7 @@
 to setup
   clear-all
   let threedshapes [ "default" "circle" "dot" "square" "triangle" "cylinder" "line" "line half" "car" ]
-  foreach threedshapes [ [the-shape] ->
+  foreach threedshapes [ the-shape ->
     create-turtles 1
     [ set shape the-shape
       set size 2
@@ -21,7 +21,7 @@ to setup
 end
 
 to demo
-  foreach sort turtles [ [t] -> show-off t ]
+  foreach sort turtles show-off
 end
 
 to show-off [ t ]

@@ -33,7 +33,7 @@ end
 
 to setup-stores
   ; We choose as many random colors as the number of stores we want to create
-  foreach n-of number-of-stores base-colors [ [c] ->
+  foreach n-of number-of-stores base-colors [ c ->
     ; ...and we create a store of each of these colors on random consumer patches
     ask one-of consumers [
       sprout 1 [
@@ -97,13 +97,13 @@ to-report new-location-task
   ; pair the potential moves with their market shares, and sort these pairs by market share
   let moves-with-market-shares
     sort-by [ [a b] -> last a > last b ]
-    map [ [move] -> list move (market-share-if-move-to move) ] possible-moves
+    map [ move -> list move (market-share-if-move-to move) ] possible-moves
 
   ; report the first item of the first pair, i.e., the move with the best market share
   let chosen-location first first moves-with-market-shares
 
   let store self ; put self in a local variable so that it can be "captured" by the task
-  report [ [] ->
+  report [ ->
     ask store [
       pen-down
       move-to chosen-location
@@ -138,15 +138,15 @@ to-report new-price-task
   ; and sort them in decreasing order of revenue
   let prices-with-revenues
     sort-by [ [a b] -> last a > last b ]
-    map [ [the-price] -> list the-price (potential-revenue the-price) ] possible-prices
+    map [ the-price -> list the-price (potential-revenue the-price) ] possible-prices
 
-  let all-zeros? (not member? false map [ [pair] -> last pair = 0 ] prices-with-revenues)
+  let all-zeros? (not member? false map [ pair -> last pair = 0 ] prices-with-revenues)
   let chosen-price ifelse-value (all-zeros? and price > 1)
     [ price - 1 ] ; if all potential revenues are zero, the store lowers its price as an emergency procedure if it can
     [ first first prices-with-revenues ] ; in any other case, we pick the price with the best potential revenues
 
   let store self ; put self in a local variable so that it can be "captured" by the task
-  report [ [] ->
+  report [ ->
     ask store [
       set price chosen-price
     ]

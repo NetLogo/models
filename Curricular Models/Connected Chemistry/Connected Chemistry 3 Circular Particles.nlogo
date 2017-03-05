@@ -71,7 +71,7 @@ to go
   ;;collisions are still valid.
   ifelse is-turtle? colliding-particle-2
   [
-    set colliding-particles filter [ [pair] ->
+    set colliding-particles filter [ pair ->
                                     item 1 pair != colliding-particle-1 and
                                     item 2 pair != colliding-particle-1 and
                                     item 1 pair != colliding-particle-2 and
@@ -81,7 +81,7 @@ to go
     ask colliding-particle-2 [check-for-particle-collision]
   ]
   [
-    set colliding-particles filter [ [pair] ->
+    set colliding-particles filter [ pair ->
                                     item 1 pair != colliding-particle-1 and
                                     item 2 pair != colliding-particle-1]
                               colliding-particles
@@ -360,7 +360,7 @@ to sort-collisions
   ifelse colliding-particles != []
    [
     set winners first colliding-particles
-    foreach colliding-particles [ [pair] ->
+    foreach colliding-particles [ pair ->
       if first pair < first winners [set winners pair]
     ]
     ;;winners is now the collision that will occur next

@@ -244,9 +244,9 @@ to-report bin-list [input-list]
   if input-list = [] [ report [] ]
   let result []
   let bin 0
-  foreach range ( max input-list + 1 ) [ [n] ->
+  foreach range (max input-list + 1) [ n ->
     set bin n
-    set result lput ( length filter [ [input] -> input = bin ] input-list ) result
+    set result lput ( length filter [ input -> input = bin ] input-list ) result
   ]
   report result
 end
@@ -278,13 +278,13 @@ to do-plot
   set-current-plot "Frequency of Distances to Prizes"
   histogram target-color-differences-list
   let maxbar modes target-color-differences-list
-  let maxrange length ( filter [ [difference] -> difference = item 0 maxbar ] target-color-differences-list )
+  let maxrange length ( filter [ difference -> difference = item 0 maxbar ] target-color-differences-list )
   set-plot-y-range 0 max list 10 maxrange
 
   set-current-plot "Frequency of Streaks by Length"
   histogram target-color-successive-list
   set maxbar modes target-color-successive-list
-  set maxrange length ( filter [ [successive] -> successive = item 0 maxbar ] target-color-successive-list )
+  set maxrange length ( filter [ successive -> successive = item 0 maxbar ] target-color-successive-list )
   set-plot-y-range 0 max list 10 maxrange
 end
 

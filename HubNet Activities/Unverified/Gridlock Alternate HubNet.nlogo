@@ -90,9 +90,9 @@ to setup
   [
     ;; if we have clients logged in we want to make sure to
     ;; keep the appropriate info around
-    let users map [ [p] -> [user-id] of p] sort patches with [is-string? user-id]
-    let plot-metrics map [ [p] -> [my-plot-metric] of p] sort patches with [is-string? user-id]
-    let phases map [ [p] -> [my-phase] of p] sort patches with [is-string? user-id]
+    let users map [ p -> [user-id] of p] sort patches with [is-string? user-id]
+    let plot-metrics map [ p -> [my-plot-metric] of p] sort patches with [is-string? user-id]
+    let phases map [ p -> [my-phase] of p] sort patches with [is-string? user-id]
     clear-patches
     setup-patches
     setup-intersections

@@ -39,9 +39,9 @@ to setup-continue
     [ stop ]
 
   ;; copy values from bottom row of patches to top row
-  set value-list map [ [p] -> [ value ] of p ] sort patches with [ pycor = row ]
+  set value-list map [ p -> [ value ] of p ] sort patches with [ pycor = row ]
   setup-general
-  foreach sort patches with [ pycor = row ] [ [p] ->
+  foreach sort patches with [ pycor = row ] [ p ->
     ask p [
       set value item (pxcor + max-pxcor) value-list
       color-patch

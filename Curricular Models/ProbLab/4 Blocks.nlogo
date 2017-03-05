@@ -112,9 +112,9 @@ to make-histogram
     let col-height 0 ;; keeps track of total height of a given histogram column
     let perm-category 0 ;; keeps track of which segment of a given histogram column
                         ;; corresponds to a specific block permutation
-    foreach [0 1 2 3 4] [ [column] ->
-    ;; foreach histogram column, which represents the number
-    ;; of blocks that are the target-color
+    foreach [0 1 2 3 4] [ column ->
+      ;; foreach histogram column, which represents the number
+      ;; of blocks that are the target-color
       set col-height 0 ; since it's a new column, start at the bottom
       foreach range (choose 4 column) [
       ;; foreach possible permutation
@@ -130,7 +130,7 @@ to make-histogram
   ] [
     histogram target-color-list
     let maxbar modes target-color-list
-    let maxrange filter [ [the-target-color] -> the-target-color = item 0 maxbar ] target-color-list
+    let maxrange filter [ the-target-color -> the-target-color = item 0 maxbar ] target-color-list
     set-plot-y-range 0 length maxrange
   ]
 end

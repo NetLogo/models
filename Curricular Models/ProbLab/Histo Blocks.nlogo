@@ -33,7 +33,7 @@ to setup-view
   let active-y round min-pycor
   let delta-y round (world-height / 5)
   let possibility-index 0
-  foreach range 5 [ [i] ->
+  foreach range 5 [ i ->
     foreach range item i num-orderings [
       ask patch active-x active-y [
         let current-4-block item possibility-index all-possibilities
@@ -133,13 +133,13 @@ to handle-mouse
 end
 
 to update-unordered-probabilities
-  set unordered-probabilities n-values 5 [ [n] ->
+  set unordered-probabilities n-values 5 [ n ->
     column-prob 4 n
   ]
 end
 
 to update-num-orderings
-  set num-orderings n-values 5 [ [n] ->
+  set num-orderings n-values 5 [ n ->
     choose 4 n
   ]
 end
@@ -187,7 +187,7 @@ to update-plot
       set greenness greenness + 1
     ])
   ] [
-    foreach expected-results [ [result] ->
+    foreach expected-results [ result ->
       plot result
     ]
   ]
@@ -203,7 +203,7 @@ end
 
 to-report chance-of-each-item-in-column [index]
   let result ""
-  foreach range 4 [ [the-item] ->
+  foreach range 4 [ the-item ->
     if the-item > 0 [
       set result word result " * "
     ]

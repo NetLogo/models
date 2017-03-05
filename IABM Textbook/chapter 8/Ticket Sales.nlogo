@@ -123,7 +123,7 @@ to setup-maps
   display-tracts ;; display the tract borders
 
   ;; locate whether a patch intersects a tract, if it does assign it that tract
-  foreach gis:feature-list-of nyc-tracts-dataset [ [feature] ->
+  foreach gis:feature-list-of nyc-tracts-dataset [ feature ->
     ask patches gis:intersecting feature [
       set tract-id gis:property-value feature "STFID"
     ]

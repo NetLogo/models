@@ -61,7 +61,7 @@ to label-beats
   ;; when we hit a number, we turn that whole column
   ;; dark gray.
   let n 0
-  foreach text [ [s] ->
+  foreach text [ s ->
     let x (-1 * max-pxcor + n + 1)
     ;; "s" is used inside foreach to refer to the
     ;; current item of the list we're looping through

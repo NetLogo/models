@@ -45,7 +45,7 @@ to setup-continue
     set-plot-x-range ticks (ticks + world-height)
   ]
 
-  set on?-list map [ [p] -> [on?] of p ] sort patches with [ pycor = row ]  ;; copy states from bottom row to list
+  set on?-list map [ p -> [on?] of p ] sort patches with [ pycor = row ]  ;; copy states from bottom row to list
   setup-general
   ask patches with [ pycor = row ]
   [
@@ -155,7 +155,7 @@ to build-prob-list
   ]
 
   ;; make a list of the probabilities of each pattern occurring
-  set prob-list map [ [counter] -> counter / (sum counter-list)] counter-list
+  set prob-list map [ counter -> counter / (sum counter-list)] counter-list
 end
 
 
@@ -510,8 +510,8 @@ true
 true
 "" "if not plot? [ stop ]"
 PENS
-"topologic" 1.0 0 -8630108 true "" ";; X = 4 (correlation length): size of subsequences analyzed\n;; topological entropy = 1/X * the log of the sum of the probabilities rounded up\nplotxy ticks 1 / 4 * (log (sum (map [1] (filter [ [prob] -> prob > 0] prob-list))) 2)"
-"metric" 1.0 0 -955883 true "" ";; metric entropy = -1/X * the sum of the products of each probability and its log\nplotxy ticks -1 / 4 * sum ( map [ [prob] -> prob * log prob 2 ] (filter [ [prob] -> prob > 0 ] prob-list))"
+"topologic" 1.0 0 -8630108 true "" ";; X = 4 (correlation length): size of subsequences analyzed\n;; topological entropy = 1/X * the log of the sum of the probabilities rounded up\nplotxy ticks 1 / 4 * (log (sum (map [1] (filter [ prob -> prob > 0] prob-list))) 2)"
+"metric" 1.0 0 -955883 true "" ";; metric entropy = -1/X * the sum of the products of each probability and its log\nplotxy ticks -1 / 4 * sum ( map [ prob -> prob * log prob 2 ] (filter [ prob -> prob > 0 ] prob-list))"
 
 SWITCH
 225

@@ -126,12 +126,12 @@ to graph-student-equation
   let s current-student true
   if s = nobody
   [ stop ]
-  let graphed-colors map [ [equation] -> item 1 equation ] graphed-equation-list
+  let graphed-colors map [ equation -> item 1 equation ] graphed-equation-list
   if member? [color] of s graphed-colors
   [
     set graphed-equation-list remove-item (position [color] of s graphed-colors) graphed-equation-list
     ask grid [ set pcolor black ]
-    foreach graphed-equation-list [ [equation] -> graph-equation item 0 equation false item 1 equation ]
+    foreach graphed-equation-list [ equation -> graph-equation item 0 equation false item 1 equation ]
   ]
   graph-equation [my-equation] of s true [color] of s
 end
@@ -374,7 +374,7 @@ to clear-last-equation
   [
     set graphed-equation-list butlast graphed-equation-list
     ask grid [ set pcolor black ]
-    foreach graphed-equation-list [ [equation] -> graph-equation item 0 equation false item 1 equation ]
+    foreach graphed-equation-list [ equation -> graph-equation item 0 equation false item 1 equation ]
   ]
 
   if reveal-legend?
@@ -597,7 +597,7 @@ to draw-legend
   let x-coord max-pxcor - (margin * 2)
   let y-coord min-pycor + margin + 4
   let i 0
-  foreach graphed-equation-list [ [equation] ->
+  foreach graphed-equation-list [ equation ->
       ask patch x-coord y-coord
       [
         set plabel item 0 equation

@@ -104,7 +104,7 @@ end
 to-report sample-summary-value ;; sample-organizers reporter
   let result 0
   let power-of-two 3
-  foreach sample-values [ [sample-value] ->
+  foreach sample-values [ sample-value ->
     if sample-value = 1 [
       set result result + 2 ^ power-of-two
     ]
@@ -115,8 +115,8 @@ end
 
 to-report sample-patches ; sample-organizers procedure
   let result []
-  foreach range 2 [ [i] ->
-    foreach range 2 [ [j] ->
+  foreach [0 1] [ i ->
+    foreach [0 1] [ j ->
       set result lput patch-at j (- i) result
     ]
   ]
@@ -161,7 +161,7 @@ end
 to make-a-sample-organizer ; sample-dudes procedure
   hatch-sample-organizers 1 [
     hide-turtle
-    set sample-values map [ [the-sample-dude] ->
+    set sample-values map [ the-sample-dude ->
       ifelse-value ([ color ] of the-sample-dude = target-color) [ 1 ] [ 0 ]
     ] sorted-sample-dudes
     display-sample
@@ -346,7 +346,7 @@ to sample
     (pxcor > sample-right-xcor - 2) and
     (pycor > (max-pycor - 2))
   ]
-  foreach sort sample-location-patch-agentset [ [the-patch-agentset] ->
+  foreach sort sample-location-patch-agentset [ the-patch-agentset ->
     ask the-patch-agentset [
       sprout 1 [
         hide-turtle
@@ -507,12 +507,12 @@ to-report calculate-left-sample-summary-value
     (([pxcor] of sample-dude-1 < [pxcor] of sample-dude-2) and ([pycor] of sample-dude-1 = [pycor] of sample-dude-2)) or
     (([pycor] of sample-dude-1 > [pycor] of sample-dude-2))
   ] left-sample-dudes
-  let left-sample-values map [ [the-sample-dude] ->
+  let left-sample-values map [ the-sample-dude ->
     ifelse-value ([color] of the-sample-dude = target-color) [1] [0]
   ] sorted-left-sample-dudes
   let result 0
   let power-of-two 3
-  foreach left-sample-values [ [sample-value] ->
+  foreach left-sample-values [ sample-value ->
     if sample-value = 1 [
       set result result + 2 ^ power-of-two
     ]
@@ -529,7 +529,7 @@ to finish-off
   ;; might be "green green red green red green"
   ;; need to use map and sort instead of values-from cause of
   ;; the new randomized agentsets in 3.1pre2
-  let sample-color-combination map [ [the-sample-dude] -> [color] of the-sample-dude ] sorted-sample-dudes
+  let sample-color-combination map [ the-sample-dude -> [color] of the-sample-dude ] sorted-sample-dudes
 
   ;; determines which turtle lives at the bottom of the column where the sample is
   let this-column-kid one-of column-kids with [
@@ -592,7 +592,7 @@ to plot-it
   set-current-plot-pen "default"
   plot-pen-reset
   ; have to go through instead of calling histogram, because of the averaging pen
-  foreach individual-4-blocks-list [ [individual-4-block] ->
+  foreach individual-4-blocks-list [ individual-4-block ->
     plot individual-4-block
   ]
   set-plot-y-range 0 max individual-4-blocks-list
@@ -600,7 +600,7 @@ to plot-it
   set-current-plot "Categorized 4-Blocks"
   histogram categorized-4-blocks-list
   let maxbar modes categorized-4-blocks-list
-  let maxrange filter [ [categorized-4-block] -> categorized-4-block = item 0 maxbar ] categorized-4-blocks-list
+  let maxrange filter [ categorized-4-block -> categorized-4-block = item 0 maxbar ] categorized-4-blocks-list
   set-plot-y-range 0 length maxrange
 end
 

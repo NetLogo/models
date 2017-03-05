@@ -110,7 +110,7 @@ end
 ;; helper procedure that determines whether the given
 ;; color is in a bird's memory
 to-report color-in-memory? [c] ;; bird procedure
-  foreach memory [ [i] -> if item 0 i = c [ report true ] ]
+  foreach memory [ i -> if item 0 i = c [ report true ] ]
   report false
 end
 
@@ -132,9 +132,9 @@ end
 ;; they forget. They remember colors for MEMORY-LENGTH
 to birds-forget ;; bird procedure
   ;; first increment all of the times in memory
-  set memory map [ [i] -> list (item 0 i) (1 + item 1 i)] memory
+  set memory map [ i -> list (item 0 i) (1 + item 1 i) ] memory
   ;; then remove any entries whose times have hit memory-duration
-  set memory filter [ [i] -> item 1 i <= memory-duration] memory
+  set memory filter [ i -> item 1 i <= memory-duration ] memory
 end
 
 ;; Each butterfly has an equal chance of reproducing

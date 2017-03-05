@@ -28,11 +28,11 @@ end
 to setup-all-tags-list
   set all-tags []
   let tag-elements ["a" "b" "c"]
-  foreach tag-elements [ [i] ->
+  foreach tag-elements [ i ->
     set all-tags lput (list i) all-tags
-    foreach tag-elements [ [j] ->
+    foreach tag-elements [ j ->
       set all-tags fput (list i j) all-tags
-      foreach tag-elements [ [k] ->
+      foreach tag-elements [ k ->
         set all-tags fput (list i j k) all-tags
       ]
     ]
@@ -171,7 +171,7 @@ end
 
 ;; Mutates a given string
 to-report mutate [tag]
-  report map [ [letter] ->
+  report map [ letter ->
     ifelse-value (random-float 100 >= mutation-rate)
       [ letter ]
       [ one-of remove letter ["a" "b" "c"] ]
@@ -366,7 +366,7 @@ true
 false
 "set-plot-x-range 0 length all-tags" ""
 PENS
-"default" 1.0 1 -16777216 true "" ";; The HISTOGRAM primitive doesn't support giving different bars\n;; different colors, so we roll our own histogramming code here.\nplot-pen-reset\nforeach all-tags [ [the-tag] ->\n  set-plot-pen-color tag-color the-tag\n  plot count turtles with [ mating = the-tag ]\n]"
+"default" 1.0 1 -16777216 true "" ";; The HISTOGRAM primitive doesn't support giving different bars\n;; different colors, so we roll our own histogramming code here.\nplot-pen-reset\nforeach all-tags [ the-tag ->\n  set-plot-pen-color tag-color the-tag\n  plot count turtles with [ mating = the-tag ]\n]"
 
 SLIDER
 329

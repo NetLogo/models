@@ -342,9 +342,9 @@ quantity
 625.0
 false
 true
-"set-plot-y-range 0 count turtles\nset-histogram-num-bars 1 + (length colors)\n\nlet bottom (round room-temp)\nlet top (round melting-temp)\nlet index 0\nforeach colors [ [c] ->\n  create-temporary-plot-pen (word bottom \" - \" top)\n  set-plot-pen-mode 1\n  set-plot-pen-color c\n  set pens lput (word bottom \" - \" top) pens\n\n  set index index + 1\n  set bottom top\n  set top (round ((index * temp-range) + melting-temp))\n]" ""
+"set-plot-y-range 0 count turtles\nset-histogram-num-bars 1 + (length colors)\n\nlet bottom (round room-temp)\nlet top (round melting-temp)\nlet index 0\nforeach colors [ c ->\n  create-temporary-plot-pen (word bottom \" - \" top)\n  set-plot-pen-mode 1\n  set-plot-pen-color c\n  set pens lput (word bottom \" - \" top) pens\n\n  set index index + 1\n  set bottom top\n  set top (round ((index * temp-range) + melting-temp))\n]" ""
 PENS
-"quantity" 1.0 1 -2674135 false "" "if not histogram? [ stop ]\nlet index 0\nforeach colors [ [c] ->\n  set-current-plot-pen (item index pens)\n  plot-pen-reset\n  if any? turtles with [ color = c ] [\n    plotxy index count turtles with [ color = c ]\n  ]\n  set index index + 1\n]"
+"quantity" 1.0 1 -2674135 false "" "if not histogram? [ stop ]\nlet index 0\nforeach colors [ c ->\n  set-current-plot-pen (item index pens)\n  plot-pen-reset\n  if any? turtles with [ color = c ] [\n    plotxy index count turtles with [ color = c ]\n  ]\n  set index index + 1\n]"
 
 @#$#@#$#@
 ## WHAT IS IT?

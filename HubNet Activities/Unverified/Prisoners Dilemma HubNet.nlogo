@@ -389,7 +389,7 @@ to plot-strategies  ;;plots the average scores for each of the given strategies
   set-current-plot "Strategies"
 
   let i 0
-  foreach (but-last strategy-list) [ [strategy] ->
+  foreach (but-last strategy-list) [ strategy ->
     set-current-plot-pen strategy
     if ((item i strategy-totals-count) != 0)
     [
@@ -539,8 +539,8 @@ to send-info-to-clients
   ifelse partner != nobody
   [
     hubnet-send user-id "Partner's Score:" ([score] of partner)
-    hubnet-send user-id "Partner's History:" (map [ [b] -> ifelse-value (b = true) ["D "] ["C "] ] play-partner-history)
-    hubnet-send user-id "Your History:" ( map [ [b] -> ifelse-value (b = true) ["D "] ["C "] ] play-history)
+    hubnet-send user-id "Partner's History:" (map [ b -> ifelse-value (b = true) ["D "] ["C "] ] play-partner-history)
+    hubnet-send user-id "Your History:" ( map [ b -> ifelse-value (b = true) ["D "] ["C "] ] play-history)
     hubnet-send user-id "Points:" (map [ [b1 b2] ->
       ifelse-value ((b1 = false) and (b2 = false))
         [ C-C ]

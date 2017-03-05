@@ -141,7 +141,7 @@ to spread-light
     ask water [ set light 0 ]
     ;; we sort the water patches top to bottom and then ask them in turn
     ;; to grab some light from above
-    foreach sort water [ [the-water] ->
+    foreach sort water [ the-water ->
       ask the-water [
         let light-gained light-spreadiness * [light] of patch-at 0 1
         set light light + light-gained

@@ -51,7 +51,7 @@ to setup-continue
   if not done?  ;; make sure go has already been called
     [ stop ]
 
-  set value-list map [ [p] -> [value] of p ] sort patches with [pycor = row]  ;; copy cell states from bottom row to a list
+  set value-list map [ p -> [value] of p ] sort patches with [pycor = row]  ;; copy cell states from bottom row to a list
   setup-general
   ask patches with [pycor = row]  ;; copy states from list to top row
   [

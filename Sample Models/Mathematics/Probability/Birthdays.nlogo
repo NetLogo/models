@@ -30,9 +30,9 @@ end
 to-report make-month [month month-length]
   ;; use n-values to generate a list of the numbers from 1 to
   ;; the end of the month
-  let day-numbers n-values month-length [ [n] -> n + 1]
+  let day-numbers n-values month-length [ n -> n + 1]
   ;; now glue onto the month name each number
-  report map [ [day] -> (word month " " day) ] day-numbers
+  report map [ day -> (word month " " day) ] day-numbers
 end
 
 to go

@@ -102,7 +102,7 @@ end
 ;; weeks (going back MEMORY-SIZE weeks)
 to update-strategies
   let best-score memory-size * 100 + 1
-  foreach strategies [ [the-strategy] ->
+  foreach strategies [ the-strategy ->
     let score 0
     let week 1
     repeat memory-size [
