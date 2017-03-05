@@ -362,24 +362,22 @@ end
 ; procedure to animate the process of cell division
 to animate-cell-division
 
-  ; turtle to hide the original cell
   create-mask-turtles 1 [
     set size 1000
     set color black
     set shape "square"
   ]
 
-  ; make a copy of the cell structure
   ask cell-wall [
-    ; for daughter 1
     sprout-daughter-cell-turtles 1 [
       set color cell-color + 2
       set shape "square"
       set size 2
       set heading 45
     ]
+  ]
 
-    ; for daughter 2
+  ask cell-wall [
     sprout-daughter-cell-turtles 1 [
       set color cell-color + 2
       set shape "square"
@@ -388,18 +386,16 @@ to animate-cell-division
     ]
   ]
 
-  ; make a copy of all patches inside the cell
   ask cell-patches [
-
-    ; for daughter 1
     sprout-daughter-cell-turtles 1 [
       set color pcolor
       set shape "square"
       set size 2
       set heading 45
     ]
+  ]
 
-    ; for daughter 2
+  ask cell-patches [
     sprout-daughter-cell-turtles 1 [
       set color pcolor
       set shape "square"
@@ -408,10 +404,25 @@ to animate-cell-division
     ]
   ]
 
-  ; make a copy of all turtles inside the cell
+  ask (patch-set operator terminator promoter operon) [
+    sprout-daughter-cell-turtles 1 [
+      set color [ pcolor ] of myself + 2
+      set shape "square"
+      set size 2
+      set heading 45
+    ]
+  ]
+
+  ask cell-patches [
+    sprout-daughter-cell-turtles 1 [
+      set color pcolor
+      set shape "square"
+      set size 2
+      set heading 225
+    ]
+  ]
+
   ask (turtle-set LacYs LacZs RNAPs LacIs lactoses with [inside?]) [
-
-    ; for daughter 1
     hatch 1 [
       gen-xy-inside-inside
       set breed daughter-cell-turtles
@@ -419,8 +430,9 @@ to animate-cell-division
       set color [color] of myself + 2
       set heading 45
     ]
+  ]
 
-    ; turtles for daughter 2
+  ask (turtle-set LacYs LacZs RNAPs LacIs lactoses with [inside?]) [
     hatch 1 [
       gen-xy-inside-inside
       set breed daughter-cell-turtles
@@ -430,13 +442,11 @@ to animate-cell-division
     ]
   ]
 
-  ; make the turtles move away from the center
   repeat 23 [
     ask daughter-cell-turtles [ fd 1 ]
     display
   ]
 
-  ; make sure the turtles used for animation are removed
   ask mask-turtles [ die ]
   ask daughter-cell-turtles [ die ]
 end
