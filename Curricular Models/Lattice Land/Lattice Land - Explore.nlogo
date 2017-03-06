@@ -74,8 +74,8 @@ to draw-segment
     ask first-point [ set size 0.5  set color 87 ]   ; Make selected dot bigger & green
   ])
   ; Create segment between first and second dot selected
-  ([ first-point second-point -> add-segment first-point second-point ])
-  ([ first-point second-point -> second-point != nobody ])
+  ([ [first-point second-point] -> add-segment first-point second-point ])
+  ([ [first-point second-point] -> second-point != nobody ])
 
 
 end
@@ -340,6 +340,10 @@ end
 to-report link-ycor
   report ([ ycor ] of end1 + [ ycor ] of end2) / 2
 end
+
+
+; Copyright 2017 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 245
@@ -581,8 +585,8 @@ Polygons will always be white. This is meant to help distinguish them from segme
 
 You can draw some shapes using DRAW POLYGON that are not polygons. This will generate an error message. What types of lattice shapes are not lattice polygons?
 
-
 ## THINGS TO TRY
+
   *  Create as many different shapes as you can that have only 1 square unit area.
   *  Create as many different shapes as you can that have 1.5 square unit area.
   *  Create as many different shapes as you can that have 2 square units area.
@@ -619,7 +623,29 @@ http://mathworld.wolfram.com/PolygonArea.html
 
 Area = 1/2 * (the determinant of the matrices formed by each consecutive pair of coordinates)
 
-<!-- 2016 Cite: Pei, C. -->
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Pei, C. and Wilensky, U. (2017).  NetLogo Lattice Land - Explore model.  http://ccl.northwestern.edu/netlogo/models/LatticeLand-Explore.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2017 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2017 Cite: Pei, C. -->
 @#$#@#$#@
 default
 true
