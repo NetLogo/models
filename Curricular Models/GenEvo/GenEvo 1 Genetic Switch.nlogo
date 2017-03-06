@@ -404,7 +404,7 @@ to animate-cell-division
     ]
   ]
 
-  ask (patch-set operator terminator promoter operon) [
+  ask (patch-set operon promoter operator terminator) [
     sprout-daughter-cell-turtles 1 [
       set color [ pcolor ] of myself + 2
       set shape "square"
@@ -413,9 +413,9 @@ to animate-cell-division
     ]
   ]
 
-  ask cell-patches [
+  ask (patch-set operon promoter operator terminator) [
     sprout-daughter-cell-turtles 1 [
-      set color pcolor
+      set color [ pcolor ] of myself + 2
       set shape "square"
       set size 2
       set heading 225
