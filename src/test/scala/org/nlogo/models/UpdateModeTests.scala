@@ -24,7 +24,8 @@ class UpdateModeTests extends TestModels {
     "Piaget-Vygotsky Game",
     "Equidistant Probability",
     "Random Combinations and Permutations",
-    "Voronoi"
+    "Voronoi",
+    "Lattice Land - Explore"
   )
 
   testModels("Models should use tick-based updates unless otherwise specified") { model =>
