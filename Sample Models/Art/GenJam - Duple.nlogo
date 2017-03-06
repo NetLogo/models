@@ -378,6 +378,10 @@ to-report select-random-weighted-fitness [ theList ]
  ]
  report item (random length weighted-list) weighted-list
 end
+
+
+; Copyright 2017 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 290
@@ -839,7 +843,30 @@ In addition, the sound extension isn't particularly robust. In fact, the turtles
 NetLogo does not provide a random select (based on weights) so we use a rather slow work around that is only possible because the world is slowed down in order to maintain a "steady" tempo.
 
 ## RELATED MODELS
+
 Check out the Sound Machines and Drum Machine models in the Models Library!
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Bain, C. and Wilensky, U. (2017).  NetLogo GenJam - Duple model.  http://ccl.northwestern.edu/netlogo/models/GenJam-Duple.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2017 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 
 <!-- 2017 Cite: Bain, C. -->
 @#$#@#$#@
