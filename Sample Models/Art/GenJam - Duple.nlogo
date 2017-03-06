@@ -2,14 +2,14 @@ extensions [ sound ]
 
 globals [
  chromosomes ; list of all possible chromosomes
- random-whos ; keeps a shuffled list for pretty-ness
+ random-who-list ; keeps a shuffled list for pretty-ness
  generations ; number of generations we've seen
 ]
 
 turtles-own [
   my-chromosomes ; list to hold the chromosomes of a drummer
   my-velocity ; the (int) velocity value of a drummer
-  my-instrument ; the (string) MIDI instrument for that turtle
+  my-instrument ; the (string) instrument for that turtle
   mutation-rate ; variable to control "reproduction"
   hits ; counts the number of drum hits for a turtle across its lifespan
   hits-since-evolve ; the number of hits since a mutation or evolution
@@ -39,7 +39,7 @@ to go
   ]
   update-view
   tick
-  wait 60 / TEMPO-BPM / 4   ; This roughly sets tempo
+  wait 60 / tempo-bpm / 4   ; This roughly sets tempo
 end
 
 ; Method to play a pattern without any evolution
@@ -47,17 +47,17 @@ to go-no-evolve
   ask turtles [ play ]
   update-view
   tick
-  wait 60 / TEMPO-BPM / 4
+  wait 60 / tempo-bpm / 4
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; PLAY FUNCTIONS ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-to play-my-drum ; turtle proceudre
+to play-my-drum ; turtle procedure
   let temp my-velocity
   if sound? [
-    if solo? [ ; If you're a soloer, play out! Otherwise, SHHHH.
+    if solo? [ ; If you're a soloer, play out! Otherwise, be quiet!
       ifelse who = soloer [
         set temp my-velocity + 50
       ][
@@ -152,7 +152,7 @@ end
 
 ; This is where the basic genetic algorithm comes in
 to-report reproduce-with [ mate ] ; turtle procedure
-  ; ASKER IS 1st Parent MATE is 2nd parent
+  ; The asker is 1st Parent while mate is 2nd parent
   let her-chromosomes [ my-chromosomes ] of mate
 
   ; Pick a random cross-over point
@@ -184,7 +184,7 @@ end
 ; FITNESS FUNCTIONS ;;;;;;;;;;;;;;;;;;;;;;;;
 ; Dependent on breed, because you can lose fitness or gain fitness by fitting to your particular proclivities
 to-report fitness ; turtle procedure
-  ; Arbirtrary 10% window around target density
+  ; Arbitrary 10% window around target density
   let my-fitness 0
 
   ; Want to be under the hit-density and be on the downbeats
@@ -294,11 +294,11 @@ end
 
 to set-globals
   set generations 0
-  set random-whos n-values 16 [ n -> n ]
+  set random-who-list n-values 16 [ n -> n ]
   ; this is just for looks. we keep a map of who to random-who
   if shuffle-parts? [
-    set random-whos shuffle random-whos
-    set random-whos shuffle random-whos
+    set random-who-list shuffle random-who-list
+    set random-who-list shuffle random-who-list
   ]
   set chromosomes []
   ; CHROMOSOME LIBRARY
@@ -344,7 +344,7 @@ end
 to update-view
   ask turtles [
     let column 0
-    let row item who random-whos
+    let row item who random-who-list
     foreach my-pattern [ n ->
       ifelse n = 1 [
         ifelse solo? and (soloer = who) [
@@ -368,11 +368,11 @@ to-report get-chromosome [ index ]
 end
 
 ; This is my version of picking a weighted random turtle
-to-report select-random-weighted-fitness [ theList ]
+to-report select-random-weighted-fitness [ the-list ]
  let weighted-list []
- foreach theList [ x ->
+ foreach the-list [ x ->
    ; add one smoothing
-   foreach n-values round ((x / sum theList * 100) + 1) [ n -> n ] [
+   foreach n-values round ((x / sum the-list * 100) + 1) [ n -> n ] [
      set weighted-list fput x weighted-list
    ]
  ]
@@ -442,7 +442,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 5
@@ -603,7 +603,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 75
@@ -620,7 +620,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 215
@@ -637,7 +637,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SWITCH
 135
@@ -714,15 +714,15 @@ HORIZONTAL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model aims to demonstrate the concept of a genetic algorithm in the context of rhythm production. Using the rhythmic "rules" from Ghanian drum circles, low, medium, and high-drum patterns work in concert with evolution to create jamming beats. This is the 'duple' version, where there are 4 'beats' per chromosome.
+This model aims to demonstrate the concept of a genetic algorithm in the context of rhythm production. Using the rhythmic "rules" from Ghanaian drum circles, low, medium, and high-drum patterns work in concert with evolution to create jamming beats. This is the 'duple' version, where there are 4 'beats' per chromosome.
 
-A <a href="https://en.wikipedia.org/wiki/Genetic_algorithm">genetic algorithm</a> is a tool used in computer science to produce solutions to optimization and search problems. It relies on biologically inspired techniques in order to "search" a parameter space for an "optimal solution." The key lies in representing the given problem using "genetic material" like chromosomes. Then, the algorithm uses the techniuqes of <a href="https://en.wikipedia.org/wiki/Selection_(genetic_algorithm)">selection</a>, <a href="https://en.wikipedia.org/wiki/Crossover_(genetic_algorithm)">crossover</a>, and <a href="https://en.wikipedia.org/wiki/Mutation_(genetic_algorithm)">mutation</a> to "evolve" the solution.
+A <a href="https://en.wikipedia.org/wiki/Genetic_algorithm">genetic algorithm</a> is a tool used in computer science to produce solutions to optimization and search problems. It relies on biologically inspired techniques in order to "search" a parameter space for an "optimal solution." The key lies in representing the given problem using "genetic material" like chromosomes. Then, the algorithm uses the techniques of <a href="https://en.wikipedia.org/wiki/Selection_(genetic_algorithm)">selection</a>, <a href="https://en.wikipedia.org/wiki/Crossover_(genetic_algorithm)">crossover</a>, and <a href="https://en.wikipedia.org/wiki/Mutation_(genetic_algorithm)">mutation</a> to "evolve" the solution.
 
 ## HOW IT WORKS
 
 ### What makes these rhythms evolve?
 
-There are 16 drums, 5 high drummers, 5 medium drummers, and 6 low drummers. Here we are using "low", "medium", and "high" to describe the pitch and tembre of a drum. Each drummer (an invisible turtle) has a set of "rhythm chromosomes" which dictate what drum pattern it plays.
+There are 16 drums, 5 high drummers, 5 medium drummers, and 6 low drummers. Here we are using "low", "medium", and "high" to describe the pitch and timbre of a drum. Each drummer (an invisible turtle) has a set of "rhythm chromosomes" which dictate what drum pattern it plays.
 
 In this model, each rhythmic chromosome is represented by a list of 4 binary digits. A '0' indicates a rest while a '1' indicates a hit. In this model, you can think of each of these digits as 'sixteenth-notes' such that each chromosome represents a 'beat'. This means there are 2^4 = 16 different types of chromosomes.
 
@@ -836,9 +836,9 @@ Try to add the ability for turtles to play triplets! This would make the rhythms
 
 ## NETLOGO FEATURES
 
-Notice that this model purposefully slows down the NetLogo world. That's because music doesn't happen as fast as possible! Unfortunately, this doesn't work for the first tick, so the space between the "first beat" and "second beat" is not equal to the space betwen the rest of the beats.
+Notice that this model purposefully slows down the NetLogo world. That's because music doesn't happen as fast as possible! Unfortunately, this doesn't work for the first tick, so the space between the "first beat" and "second beat" is not equal to the space between the rest of the beats.
 
-In addition, the sound extension isn't particularly robust. In fact, the turtles aren't actually playing in parallel, they're playing one right after the other but close enough to where you can't hear the difference. Unfortunately, the way that the Java MIDI synthesizer works, if a particular channel is overwhelmed, it drops notes, so occasionally, you won't actually hear every note.
+In addition, the sound extension isn't particularly robust. In fact, the turtles aren't actually playing in parallel, they're playing one right after the other but close enough to where you can't hear the difference. Unfortunately, the way that the Java synthesizer works, if a particular channel is overwhelmed, it drops notes, so occasionally, you won't actually hear every note.
 
 NetLogo does not provide a random select (based on weights) so we use a rather slow work around that is only possible because the world is slowed down in order to maintain a "steady" tempo.
 
