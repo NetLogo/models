@@ -70,12 +70,12 @@ to go
 end
 
 to draw-segment
-  with-candidate ([ [first-point] ->                 ; Run with-candidate task procedure
+  with-candidate ([ first-point ->                   ; Run with-candidate task procedure
     ask first-point [ set size 0.5  set color 87 ]   ; Make selected dot bigger & green
   ])
   ; Create segment between first and second dot selected
-  ([ [first-point second-point] -> add-segment first-point second-point ])
-  ([ [first-point second-point] -> second-point != nobody ])
+  ([ first-point second-point -> add-segment first-point second-point ])
+  ([ first-point second-point -> second-point != nobody ])
 
 
 end
@@ -96,7 +96,7 @@ to add-segment [ candidate prev ]
 end
 
 to draw-polygon
-  with-candidate ([ [first-point] ->                          ; Run with-candidate task procedure
+  with-candidate ([ first-point ->                          ; Run with-candidate task procedure
     ask first-point [ set size 0.5  set color 87 ]            ; Make first dot selected bigger & green
     set polygon-completed? false                              ; Notes that the polygon has not been completed
     set polygon-vertices (list first-point)                   ; Reset polygon-vertices list to first dot selected
@@ -106,7 +106,7 @@ to draw-polygon
   ([ [first-point second-point] -> add-polygon-edge first-point second-point ])
 
   ; End task when the polygon is completed
-  ([ [] -> polygon-completed? ])
+  ([ -> polygon-completed? ])
 end
 
 to add-polygon-edge [ candidate prev ]                        ; Creates edge between selected dot (candidate) and previously selected dot (prev)
@@ -134,33 +134,42 @@ to add-polygon-edge [ candidate prev ]                        ; Creates edge bet
 end
 
 to with-candidate [ start-task continue-task is-finished?-task ]
-  ifelse mouse-down? [                                                                     ; If user clicks somewhere
-    if (mouse-has-gotten-air?) [                                                           ; and then releases the mouse,
-      let candidate (one-of turtles with [ distancexy mouse-xcor mouse-ycor < 0.3 ])       ; choose the dot that is at most 0.3 units from the user click
+  ; If user clicks somewhere
+  ifelse mouse-down? [
+    ; and then releases the mouse,
+    if (mouse-has-gotten-air?) [
+       ; choose the dot that is at most 0.3 units from the user click
+      let candidate (one-of turtles with [ distancexy mouse-xcor mouse-ycor < 0.3 ])
 
-      if (candidate != nobody) and (candidate != previous-click) [                         ; If a candidate is selected and is not the previously chosen dot,
+      ; If a candidate is selected and is not the previously chosen dot,
+      if (candidate != nobody) and (candidate != previous-click) [
         set last-action action
 
-        ifelse previous-click = nobody [                                                   ; then run start-task if the candidate is the first dot chosen,
+        ; then run start-task if the candidate is the first dot chosen,
+        ifelse previous-click = nobody [
           (run start-task candidate)
         ][
-          (run continue-task candidate previous-click)                                     ; or run continue-task if candidate is not the first dot chosen.
+          ; or run continue-task if THE candidate is not the first dot chosen.
+          (run continue-task candidate previous-click)
         ]
 
-        ifelse (runresult is-finished?-task candidate previous-click) [                    ; If the task is finished, reset variables
+        ; If the task is finished, reset variables
+        ifelse (runresult is-finished?-task candidate previous-click) [
           reset-previous-click
           if action = "Draw Polygon" [
-            set current-polygon-id current-polygon-id + 1                                  ; and assign the polygon a unique identifier
+            ; and assign the polygon a unique identifier
+            set current-polygon-id current-polygon-id + 1
           ]
           set last-action "none"
         ][
-          set previous-click candidate                                                     ; Otherwise, set the current candidate to previous candidate and run continue-task
+           ; Otherwise, set the current candidate to previous candidate and run continue-task
+          set previous-click candidate
         ]
       ]
     ]
-    set mouse-has-gotten-air? false                                                        ; If mouse is down, set mouse-has-gotten-air? to false
-  ] [
-    set mouse-has-gotten-air? true                                                         ; If mouse not down, set mouse-has-gotten-air? to true
+    set mouse-has-gotten-air? false  ; If mouse is down, set mouse-has-gotten-air? to false
+  ][
+    set mouse-has-gotten-air? true   ; If mouse not down, set mouse-has-gotten-air? to true
   ]
 end
 
@@ -193,11 +202,12 @@ end
 ;  Area calculation based on formula from: http://mathworld.wolfram.com/PolygonArea.html
 ;  Area = 1/2 * (the determinant of the matrices formed by each consecutive pair of coordinates)
 to-report area  ; Calls on area-helper for list of polygon-vertices
-    let vertex (first polygon-vertices)
-    report area-helper polygon-vertices (list 0 ([ xcor ] of vertex) ([ ycor ] of vertex))
+  let vertex (first polygon-vertices)
+  report area-helper polygon-vertices (list 0 ([ xcor ] of vertex) ([ ycor ] of vertex))
 end
 
-to-report area-helper [ vertices-list accumulator ] ; A recursive procedure that sweeps from each vertex to the next, until vertices-list is empty.
+; A recursive procedure that sweeps from each vertex to the next, until vertices-list is empty.
+to-report area-helper [ vertices-list accumulator ]
   ; If finished with area sweep of all vertices, report the absolute value of area.
   ifelse empty? vertices-list [
     report abs first accumulator
@@ -220,15 +230,18 @@ to-report area-helper [ vertices-list accumulator ] ; A recursive procedure that
   ]
 end
 
-to-report perimeter                                                  ; Keeps a sum of all active polygon-edges (does not measure segments)
+; Keeps a sum of all active polygon-edges (does not measure segments)
+to-report perimeter
   report sum ([ link-length ] of (link-set polygon-edges))
 end
 
-to-report polygon-edges                                              ; Reports all the edges of the active polygon
+; Reports all the edges of the active polygon
+to-report polygon-edges
   report edges-helper polygon-vertices []
 end
 
-to-report edges-helper [ vertices-list end-list ]                    ; Creates a list of all edges of a polygon by taking link made by each consecutive pair of dots in vertices-list
+; Creates a list of all edges of a polygon by taking link made by each consecutive pair of dots in vertices-list
+to-report edges-helper [ vertices-list end-list ]
   let vertex (first vertices-list)
   let tail (but-first vertices-list)
   report ifelse-value (empty? tail) [ end-list ] [ edges-helper tail (lput ([link-with (first tail)] of vertex) end-list) ]
@@ -238,11 +251,11 @@ end
 to assess-for-polygonality
 
   let edgeset             (link-set polygon-edges)
-  let self-others-pairs   ([(list self ([self] of (other edgeset)))] of edgeset)
-  let all-intersections   (map [ [?1] -> find-intersections (item 0 ?1) (item 1 ?1) ] self-others-pairs)
-  let valid-intersections (map [ [?1] -> filter [ [??1] -> ??1 != [] ] ?1 ] all-intersections)
+  let self-others-pairs   ([(list self ([ self ] of (other edgeset)))] of edgeset)
+  let all-intersections   (map [ an-intersection -> find-intersections (item 0 an-intersection) (item 1 an-intersection) ] self-others-pairs)
+  let valid-intersections (map [ an-intersection -> filter [ x -> x != [] ] an-intersection ] all-intersections)
 
-  ifelse forall ([ [an-intersection] -> length an-intersection = 2 ]) valid-intersections [
+  ifelse for-all ([ an-intersection -> length an-intersection = 2 ]) valid-intersections [
     set polygon-completed? true
   ] [
     user-message "This shape is not a polygon."
@@ -251,10 +264,10 @@ to assess-for-polygonality
 end
 
 to-report find-intersections [ s others ]
-  report map [ [?1] -> intersection s ?1 ] others
+  report map [ an-edge -> intersection s an-edge ] others
 end
 
-to-report forall [ t xs ]
+to-report for-all [ t xs ]
   report (length filter t xs) = (length xs)
 end
 
@@ -303,7 +316,7 @@ end
 to-report shared-link-ends [a b]
   let a-ends [ (list end1 end2) ] of a
   let b-ends [ (list end1 end2) ] of b
-  let shared-ends filter [ [a-end] -> member? a-end b-ends ] a-ends
+  let shared-ends filter [ a-end -> member? a-end b-ends ] a-ends
   report ifelse-value (empty? shared-ends) [
     (list)
   ] [
@@ -471,7 +484,7 @@ INPUTBOX
 200
 355
 segment-color
-136.0
+55.0
 1
 0
 Color
@@ -606,7 +619,7 @@ http://mathworld.wolfram.com/PolygonArea.html
 
 Area = 1/2 * (the determinant of the matrices formed by each consecutive pair of coordinates)
 
-<!-- 2016 Pei, C. -->
+<!-- 2016 Cite: Pei, C. -->
 @#$#@#$#@
 default
 true
@@ -913,8 +926,9 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0
+NetLogo 6.0.1-RC1
 @#$#@#$#@
+need-to-manually-make-preview-for-this-model
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
