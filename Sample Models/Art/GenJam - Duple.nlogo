@@ -732,7 +732,7 @@ At the beginning, every player starts with the exact same chromosomes (each play
 
 The basic idea here is stolen from the concept of genetic algorithms in computer science. After each play through of their genetic rhythms, two of each type of drummer (high, medium, and low drummers) are selected to 'reproduce' and 'evolve.' Each turtle selects a mate based on a fitness function (different for each breed). Turtles with higher fitness are more likely to be selected as mates.
 
-In Ghanian drumming, low drummers are considered the base of the rhythm. Therefore, their fitness is determined by the number of strong-beats (i.e. the 0th and 2nd entries in each chromosome) that they play on.
+In Ghanaian drumming, low drummers are considered the base of the rhythm. Therefore, their fitness is determined by the number of strong-beats (i.e. the 0th and 2nd entries in each chromosome) that they play on.
 
 Medium drummers are typically a little bit more soloistic than low drummers, but often emphasize off-beats. So their fitness is evaluated on the number of off-beats (i.e. the 1st and 3rd entries in each chromosome) that they play on.
 
