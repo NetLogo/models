@@ -104,7 +104,7 @@ class CodeTests extends TestModels {
       "Gridlock HubNet", "Gridlock Alternate HubNet", "Polling Advanced HubNet",
       "Public Good HubNet", "4 Blocks", "9-Blocks", "Expected Value",
       "Expected Value Advanced", "Random Combinations and Permutations",
-      "Partition Permutation Distribution"
+      "Partition Permutation Distribution", "GenJam - Duple"
     ),
     "who" -> Seq(
       // Some of the following models may make justifiable use of `who`, but most
@@ -133,7 +133,7 @@ class CodeTests extends TestModels {
       "Connected Chemistry 3 Circular Particles", "Connected Chemistry 4 Number and Pressure",
       "Connected Chemistry Atmosphere", "Connected Chemistry 2 Changing Pressure",
       "Connected Chemistry 8 Gas Particle Sandbox", "DNA Protein Synthesis",
-      "Hotelling's Law", "Tie System Example", "Piaget-Vygotsky Game"
+      "Hotelling's Law", "Tie System Example", "Piaget-Vygotsky Game", "GenJam - Duple"
     ),
     "write" -> Seq.empty
   )
