@@ -3,7 +3,7 @@ globals [
   mouse-has-gotten-air? ; a boolean representing whether the mouse has been released
   polygon-completed? ; a boolean representing whether the polygon is completed
   polygon-vertices ; a list of vertices for a polygon
-  previous-click ; used to store the previous click
+  previous-click ; used to store the previous user click
   current-polygon-id ; stores the current polygon id
 ]
 
@@ -35,7 +35,6 @@ to setup
       set shape "circle"
     ]
   ]
-
   reset-ticks
 end
 
@@ -70,24 +69,22 @@ to go
 end
 
 to draw-segment
-  with-candidate ([ first-point ->                   ; Run with-candidate task procedure
+  with-candidate ([ first-point ->                 ; Run with-candidate anonymous procedure
     ask first-point [ set size 0.5  set color 87 ]   ; Make selected dot bigger & green
   ])
   ; Create segment between first and second dot selected
   ([ [first-point second-point] -> add-segment first-point second-point ])
   ([ [first-point second-point] -> second-point != nobody ])
-
-
 end
 
 
-to add-segment [ candidate prev ]
+to add-segment [ candidate previous ]
   ; Reset the size of previous dot and color
-  ask prev [ reset ]
+  ask previous [ reset ]
 
-  if not [ segment-neighbor? prev ] of candidate [            ; Checks to make sure selected candidate is not the same as prev
-    ask candidate [                                           ; If not, create segment between candidate and prev
-      create-segment-with prev [
+  if not [ segment-neighbor? previous ] of candidate [            ; Checks to make sure selected candidate is not the same as previous
+    ask candidate [                                               ; If not, create segment between candidate and previous
+      create-segment-with previous [
         set color segment-color
         set thickness 0.15
       ]
@@ -106,17 +103,18 @@ to draw-polygon
   ([ [first-point second-point] -> add-polygon-edge first-point second-point ])
 
   ; End task when the polygon is completed
-  ([ -> polygon-completed? ])
+([ -> polygon-completed? ])
 end
 
-to add-polygon-edge [ candidate prev ]                        ; Creates edge between selected dot (candidate) and previously selected dot (prev)
+to add-polygon-edge [ candidate previous ]                    ; Creates edge between selected dot (candidate) and previously selected dot (prev)
   set polygon-vertices (lput candidate polygon-vertices)      ; Adds new dot to polygon-vertices list
 
   ; Reset dot size and color of prev
-  ask prev [ reset ]
+  ask previous [ reset ]
 
-  ask candidate [                                             ; Draw an edge from candidate to prev
-    create-edge-with prev [
+  ; Draw an edge from candidate to prev
+  ask candidate [
+    create-edge-with previous [
       set color white
       set thickness 0.15
       set polygon-id current-polygon-id
@@ -199,8 +197,8 @@ to reset ; turtle procedure
   set color yellow
 end
 
-;  Area calculation based on formula from: http://mathworld.wolfram.com/PolygonArea.html
-;  Area = 1/2 * (the determinant of the matrices formed by each consecutive pair of coordinates)
+; Area calculation based on formula from: http://mathworld.wolfram.com/PolygonArea.html
+; Area = 1/2 * (the determinant of the matrices formed by each consecutive pair of coordinates)
 to-report area  ; Calls on area-helper for list of polygon-vertices
   let vertex (first polygon-vertices)
   report area-helper polygon-vertices (list 0 ([ xcor ] of vertex) ([ ycor ] of vertex))
@@ -247,7 +245,7 @@ to-report edges-helper [ vertices-list end-list ]
   report ifelse-value (empty? tail) [ end-list ] [ edges-helper tail (lput ([link-with (first tail)] of vertex) end-list) ]
 end
 
-;  Polygonality code: Checks all edges and its intersections with other edges. In order to be a polygon, each edge must intersect with exactly two other edges.
+; Polygonality code: Checks all edges and its intersections with other edges. In order to be a polygon, each edge must intersect with exactly two other edges.
 to assess-for-polygonality
 
   let edgeset             (link-set polygon-edges)
@@ -255,7 +253,7 @@ to assess-for-polygonality
   let all-intersections   (map [ an-intersection -> find-intersections (item 0 an-intersection) (item 1 an-intersection) ] self-others-pairs)
   let valid-intersections (map [ an-intersection -> filter [ x -> x != [] ] an-intersection ] all-intersections)
 
-  ifelse for-all ([ an-intersection -> length an-intersection = 2 ]) valid-intersections [
+ifelse for-all ([ an-intersection -> length an-intersection = 2 ]) valid-intersections [
     set polygon-completed? true
   ] [
     user-message "This shape is not a polygon."
@@ -263,15 +261,17 @@ to assess-for-polygonality
   ]
 end
 
+; reports intersections of one edge with others
 to-report find-intersections [ s others ]
   report map [ an-edge -> intersection s an-edge ] others
 end
 
+; reports the number of intersections
 to-report for-all [ t xs ]
   report (length filter t xs) = (length xs)
 end
 
-;  reports a two-item list of x and y coordinates, or an empty list if no intersection is found
+; reports a two-item list of x and y coordinates, or an empty list if no intersection is found
 to-report intersection [ t1 t2 ]
 
   let shared-ends (shared-link-ends t1 t2)
@@ -279,40 +279,41 @@ to-report intersection [ t1 t2 ]
 
   let m1 [tan (90 - link-heading)] of t1
   let m2 [tan (90 - link-heading)] of t2
-  ;  treat parallel/collinear lines as non-intersecting
+  ; treat parallel/collinear lines as non-intersecting
   if m1 = m2 [ report [] ]
-  ;  is t1 vertical? if so, swap the two turtles
+  ; is t1 vertical? if so, swap the two turtles
   if abs m1 = tan 90 [
     ifelse abs m2 = tan 90
       [ report [] ]
       [ report intersection t2 t1 ]
   ]
-  ;  is t2 vertical? if so, handle specially
+  ; is t2 vertical? if so, handle specially
   if abs m2 = tan 90 [
-      ;  represent t1 line in slope-intercept form (y=mx+c)
+      ; represent t1 line in slope-intercept form (y=mx+c)
       let c1 [ link-ycor - link-xcor * m1 ] of t1
-      ;  t2 is vertical so we know x already
+      ; t2 is vertical so we know x already
       let x [ link-xcor ] of t2
-      ;  solve for y
+      ; solve for y
       let y m1 * x + c1
-      ;  check if intersection point lies on both segments
+      ; check if intersection point lies on both segments
       if not [ x-within? x ] of t1 [ report [] ]
       if not [ y-within? y ] of t2 [ report [] ]
       report list x y
   ]
-  ;  now handle the normal case where neither turtle is vertical;
-  ;  start by representing lines in slope-intercept form (y=mx+c)
+  ; now handle the normal case where neither turtle is vertical;
+  ; start by representing lines in slope-intercept form (y=mx+c)
   let c1 [ link-ycor - link-xcor * m1 ] of t1
   let c2 [ link-ycor - link-xcor * m2 ] of t2
-  ;  now solve for x
+  ; now solve for x
   let x (c2 - c1) / (m1 - m2)
-  ;  check if intersection point lies on both segments
+  ; check if intersection point lies on both segments
   if not [ x-within? x ] of t1 [ report [] ]
   if not [ x-within? x ] of t2 [ report [] ]
 
   report list x (m1 * x + c1)
 end
 
+; reports a list of the intersection of two links if they intersect at their endpoints, otherwise reports an empty list
 to-report shared-link-ends [a b]
   let a-ends [ (list end1 end2) ] of a
   let b-ends [ (list end1 end2) ] of b
@@ -325,22 +326,25 @@ to-report shared-link-ends [a b]
 end
 
 
-to-report x-within? [ x ]  ;  turtle procedure
+; turtle procedure: reports a boolean that helps check for intersections (x-coordinate)
+to-report x-within? [ x ]
   report abs (link-xcor - x) <= abs (link-length / 2 * sin link-heading)
 end
 
-to-report y-within? [ y ]  ;  turtle procedure
+; turtle procedure: reports a boolean that helps check for intersections (y-coordinate)
+to-report y-within? [ y ]
   report abs (link-ycor - y) <= abs (link-length / 2 * cos link-heading)
 end
 
+; reports the x-coordinate of the midpoint of a link
 to-report link-xcor
   report ([ xcor ] of end1 + [ xcor ] of end2) / 2
 end
 
+; reports the y-coordinate of the midpoint of a link
 to-report link-ycor
   report ([ ycor ] of end1 + [ ycor ] of end2) / 2
 end
-
 
 ; Copyright 2017 Uri Wilensky.
 ; See Info tab for full copyright and license.
@@ -547,7 +551,7 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-Lattice Land - Explore is one of several models in the Lattice Land software suite. Lattice Land is an interactive MathLand, a microworld in which students can uncover advanced mathematical thinking through play, conjecture, and experimentation. There is no one right answer and no pre-determined pathway you must travel. However, even seemingly trivial exercises can quickly become complicated endeavors.
+<i>Lattice Land - Explore</i> is one of several models in the Lattice Land software suite. Lattice Land is an interactive MathLand, a microworld in which students can uncover advanced mathematical thinking through play, conjecture, and experimentation. It provides another entryway into geometry through the investigation of the geometry of a discrete lattice of points. In Lattice Land, there is no one right answer and no pre-determined pathway you must travel. However, even seemingly trivial exercises can quickly become rich explorations.
 
 A lattice is an array of dots on a plane such that there is one dot at each coordinate (x,y), where x and y are integers. Thus each dot on the lattice is one unit away from each of its four closest neighbors (one above, one below, one to the left, and one to the right). A lattice polygon is a polygon whose vertices fall on dots of the lattice.
 
@@ -557,9 +561,9 @@ In this exploratory model, you can draw multiple polygons and segments, change t
 
 Using Lattice Land, students can draw any lattice polygon in addition to drawing simple line segments. Polygons do not need to be limited to just rectangles or triangles.
 
-We've implemented a lattice in NetLogo by using agents called DOTS sprouted at the center of each patch. The segments between the dots are simply edges or links. The envrionment then responds to mouse clicks inside of the world and performs the specified action (either draw a side of a polygon or draw a single line segment).
+We've implemented a lattice in NetLogo by using agents called DOTS sprouted at the center of each patch. The segments between the dots are simply edges or links. The environment then responds to mouse clicks inside of the world and performs the specified action (either draw a side of a polygon or draw a single line segment).
 
-In order to analyze the polygons in question, we use an algorithmic method of calculating the perimeter and area of the polygon based on iterating over the edges of the polygon. However, students are also expected to calculate these different properties by hand and then compare them to the algorithmic results.  For instance, students should appky the distance formula to calculate perimiter, or apply the idea of dissection to calculate area. Students should also be encouraged to come up with new ways of calculating these properties.
+In order to analyze the polygons in question, we use an algorithmic method of calculating the perimeter and area of the polygon based on iterating over the edges of the polygon. However, students are also expected to calculate these different properties by hand and then compare them to the algorithmic results.  For instance, students should apply the distance formula to calculate perimeter, or apply the idea of dissection to calculate area. Students should also be encouraged to come up with new ways of calculating these properties.
 
 ## HOW TO USE IT
 
@@ -575,9 +579,9 @@ SEGMENT-COLOR allows you to select different colors for your segments.
 
 Press the GO button to run an ACTION.
 
-Press CHECK-AREA to verify the area of a polygon you've just drawn.
+Press CHECK-AREA to verify the area of the last polygon you've just drawn. (Note that check-area will not work on apparent polygons created with segments, only explicit polygons).
 
-Use the PERIMETER montior to see the perimeter of the polygon you've drawn.
+Look at the PERIMETER monitor to see the perimeter of the polygon you've drawn.
 
 ## THINGS TO NOTICE
 
@@ -591,8 +595,8 @@ You can draw some shapes using DRAW POLYGON that are not polygons. This will gen
   *  Create as many different shapes as you can that have 1.5 square unit area.
   *  Create as many different shapes as you can that have 2 square units area.
   *  Keep going until you've generated a number of interesting shapes with 8 square units area.
-  *  For each polygon and count and record the number of dots that are strictly inside the polygon.  Also count and record the number of dots that fall on an edge of the polygon.  Do you see a pattern?
-  *  If not, just look at polygons which have no dots on the inside.  Do you see a pattern now?  Can you write a formula to describe it.
+  *  For each polygon, count and record the number of dots that are strictly inside the polygon.  Also count and record the number of dots that fall on an edge of the polygon.  Do you see a pattern?
+  *  If not, just look at polygons which have no dots on the inside.  Do you see a pattern now?  Can you write a formula to describe it?
   *  Try to generalize an area formula for a lattice polygon using only the number of dots on its Boundary (B) and the number of dots on the Inside (I).
 
 
@@ -604,13 +608,15 @@ Make sure to try dissecting a polygon in different ways. For example:
 
 ## EXTENDING THE MODEL
 
-Notice that the DRAW-POLYGON procedure deletes non-polygons. But what if you change the definition of what it means to be a polygon? Change the code to reflect this new definition. How does this alter or break the rules we currently use to understand polygons (e.g. area formulas)?
+Notice that the DRAW-POLYGON procedure deletes closed figures that aren't polygons. But what if you change the definition of what it means to be a polygon? Change the code to reflect this new definition. How does this alter or break the rules we currently use to understand polygons (e.g., area formulas)?
 
 ## NETLOGO FEATURES
 
-The DRAW-SEGMENT and DRAW-POLYGON actions are prggrammed similarly and each call on two tasks two actually draw on the screen. However, DRAW-POLYGON has to keep a list of past vertices drawn.
+The DRAW-SEGMENT and DRAW-POLYGON actions are prggrammed similarly and each call on two anonymous procedures two actually draw on the screen. However, DRAW-POLYGON has to keep a list of past vertices drawn.
 
 The INTERSECTION reporter checks for intersections between links by converting the links into slope-intercept form and then checking for line intersections.
+
+This model uses continuous updates, rather than tick-based updates. This means that the model does not update at regular time intervals (ticks) dictated by the code. Instead, this model updates whenever a user performs an action. Thus, the depth of inquiry into the mathematics of Lattice Land is dictated by the user: nothing (other than the lattice) is generated until the user draws something. However, at the end of the `setup` procedure we still call `reset-ticks` in order to enable the buttons in the interface that are disabled "until ticks start". Otherwise, these buttons would cause the model to crash if they were clicked before clicking SETUP.
 
 ## RELATED MODELS
 
