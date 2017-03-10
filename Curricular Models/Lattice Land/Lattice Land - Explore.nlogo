@@ -69,14 +69,11 @@ to go
 end
 
 to draw-segment
-  with-candidate ([ first-point ->                 ; Run with-candidate anonymous procedure
-    ask first-point [ set size 0.5  set color 87 ]   ; Make selected dot bigger & green
-  ])
-  ; Create segment between first and second dot selected
-  ([ [first-point second-point] -> add-segment first-point second-point ])
-  ([ [first-point second-point] -> second-point != nobody ])
+  with-candidate ; Run with-candidate and pass three different anonymous proecdures
+    ([ first-point -> ask first-point [ set size 0.5  set color 87 ] ])
+    ([ [first-point second-point] -> add-segment first-point second-point ])
+    ([ [first-point second-point] -> second-point != nobody ])
 end
-
 
 to add-segment [ candidate previous ]
   ; Reset the size of previous dot and color
@@ -93,17 +90,16 @@ to add-segment [ candidate previous ]
 end
 
 to draw-polygon
-  with-candidate ([ first-point ->                          ; Run with-candidate task procedure
-    ask first-point [ set size 0.5  set color 87 ]            ; Make first dot selected bigger & green
-    set polygon-completed? false                              ; Notes that the polygon has not been completed
-    set polygon-vertices (list first-point)                   ; Reset polygon-vertices list to first dot selected
-  ])
-
-  ; Create polygon-edge between previous and current dot selected
-  ([ [first-point second-point] -> add-polygon-edge first-point second-point ])
-
-  ; End task when the polygon is completed
-([ -> polygon-completed? ])
+  with-candidate  ; Call with-candidate with three anonymous procedures
+    ([ first-point ->
+      ask first-point [ set size 0.5  set color 87 ]            ; Make first dot selected bigger & green
+      set polygon-completed? false                              ; Notes that the polygon has not been completed
+      set polygon-vertices (list first-point)                   ; Reset polygon-vertices list to first dot selected
+    ])
+    ; Create polygon-edge between previous and current dot selected
+    ([ [first-point second-point] -> add-polygon-edge first-point second-point ])
+    ; End task when the polygon is completed
+    ([ -> polygon-completed? ])
 end
 
 to add-polygon-edge [ candidate previous ]                    ; Creates edge between selected dot (candidate) and previously selected dot (prev)
@@ -136,7 +132,7 @@ to with-candidate [ start-task continue-task is-finished?-task ]
   ifelse mouse-down? [
     ; and then releases the mouse,
     if (mouse-has-gotten-air?) [
-       ; choose the dot that is at most 0.3 units from the user click
+      ; choose the dot that is at most 0.3 units from the user click
       let candidate (one-of turtles with [ distancexy mouse-xcor mouse-ycor < 0.3 ])
 
       ; If a candidate is selected and is not the previously chosen dot,
@@ -253,7 +249,7 @@ to assess-for-polygonality
   let all-intersections   (map [ an-intersection -> find-intersections (item 0 an-intersection) (item 1 an-intersection) ] self-others-pairs)
   let valid-intersections (map [ an-intersection -> filter [ x -> x != [] ] an-intersection ] all-intersections)
 
-ifelse for-all ([ an-intersection -> length an-intersection = 2 ]) valid-intersections [
+  ifelse for-all ([ an-intersection -> length an-intersection = 2 ]) valid-intersections [
     set polygon-completed? true
   ] [
     user-message "This shape is not a polygon."
@@ -289,16 +285,16 @@ to-report intersection [ t1 t2 ]
   ]
   ; is t2 vertical? if so, handle specially
   if abs m2 = tan 90 [
-      ; represent t1 line in slope-intercept form (y=mx+c)
-      let c1 [ link-ycor - link-xcor * m1 ] of t1
-      ; t2 is vertical so we know x already
-      let x [ link-xcor ] of t2
-      ; solve for y
-      let y m1 * x + c1
-      ; check if intersection point lies on both segments
-      if not [ x-within? x ] of t1 [ report [] ]
-      if not [ y-within? y ] of t2 [ report [] ]
-      report list x y
+    ; represent t1 line in slope-intercept form (y=mx+c)
+    let c1 [ link-ycor - link-xcor * m1 ] of t1
+    ; t2 is vertical so we know x already
+    let x [ link-xcor ] of t2
+    ; solve for y
+    let y m1 * x + c1
+    ; check if intersection point lies on both segments
+    if not [ x-within? x ] of t1 [ report [] ]
+    if not [ y-within? y ] of t2 [ report [] ]
+    report list x y
   ]
   ; now handle the normal case where neither turtle is vertical;
   ; start by representing lines in slope-intercept form (y=mx+c)
@@ -320,7 +316,7 @@ to-report shared-link-ends [a b]
   let shared-ends filter [ a-end -> member? a-end b-ends ] a-ends
   report ifelse-value (empty? shared-ends) [
     (list)
-  ] [
+  ][
     (list (first shared-ends) (first shared-ends))
   ]
 end
@@ -618,6 +614,8 @@ The DRAW-SEGMENT and DRAW-POLYGON actions are programmed similarly and each call
 The INTERSECTION reporter checks for intersections between links by converting the links into slope-intercept form and then checking for line intersections.
 
 This model uses continuous updates, rather than tick-based updates. This means that the model does not update at regular time intervals (ticks) dictated by the code. Instead, this model updates whenever a user performs an action. Thus, the depth of inquiry into the mathematics of Lattice Land is dictated by the user: nothing (other than the lattice) is generated until the user draws something. However, at the end of the `setup` procedure we still call `reset-ticks` in order to enable the buttons in the interface that are disabled "until ticks start". Otherwise, these buttons would cause the model to crash if they were clicked before clicking SETUP.
+
+This model also uses anonymous procedures extensively. This is because between user actions, LatticeLand is not updating. In fact, much of this model follows what's called a <a href="https://en.wikipedia.org/wiki/Functional_programming">functional programming paradigm</a>.
 
 ## RELATED MODELS
 
