@@ -346,6 +346,7 @@ to-report link-ycor
   report ([ ycor ] of end1 + [ ycor ] of end2) / 2
 end
 
+
 ; Copyright 2017 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@
@@ -612,7 +613,7 @@ Notice that the DRAW-POLYGON procedure deletes closed figures that aren't polygo
 
 ## NETLOGO FEATURES
 
-The DRAW-SEGMENT and DRAW-POLYGON actions are prggrammed similarly and each call on two anonymous procedures two actually draw on the screen. However, DRAW-POLYGON has to keep a list of past vertices drawn.
+The DRAW-SEGMENT and DRAW-POLYGON actions are programmed similarly and each call on two anonymous procedures two actually draw on the screen. However, DRAW-POLYGON has to keep a list of past vertices drawn.
 
 The INTERSECTION reporter checks for intersections between links by converting the links into slope-intercept form and then checking for line intersections.
 
