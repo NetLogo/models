@@ -29,7 +29,7 @@ to setup
   update-view
 end
 
-; Method to play a pattern with evolution
+; Procedure to play a pattern with evolution
 to go
   ask turtles [ play ]
   ; If we've reached the end of a pattern, do some evolution!
@@ -42,7 +42,7 @@ to go
   wait 60 / tempo-bpm / 4   ; This roughly sets tempo
 end
 
-; Method to play a pattern without any evolution
+; Procedure to play a pattern without any evolution
 to go-no-evolve
   ask turtles [ play ]
   update-view
@@ -120,34 +120,34 @@ to go-evolve
 end
 
 to evolve ; turtle procedure
- let mate nobody
- let list-of-fitnesses []
- let search-fitness 0
+  let mate nobody
+  let list-of-fitnesses []
+  let search-fitness 0
 
- if is-low-drummer? self [
-   set list-of-fitnesses [ fitness ] of other breed
-   set search-fitness select-random-weighted-fitness list-of-fitnesses
-   set mate one-of other breed with [ fitness = search-fitness ]
- ]
+  if is-low-drummer? self [
+    set list-of-fitnesses [ fitness ] of other breed
+    set search-fitness select-random-weighted-fitness list-of-fitnesses
+    set mate one-of other breed with [ fitness = search-fitness ]
+  ]
 
- if is-med-drummer? self [
-   set list-of-fitnesses [ fitness ] of turtles with [ breed != [ breed ] of myself ]
-   set search-fitness select-random-weighted-fitness list-of-fitnesses
-   set mate one-of turtles with [ (breed != [breed] of myself) and (fitness = search-fitness)]
- ]
+  if is-med-drummer? self [
+    set list-of-fitnesses [ fitness ] of turtles with [ breed != [ breed ] of myself ]
+    set search-fitness select-random-weighted-fitness list-of-fitnesses
+    set mate one-of turtles with [ (breed != [breed] of myself) and (fitness = search-fitness)]
+  ]
 
- if is-high-drummer? self [
-   set list-of-fitnesses [fitness] of other breed
-   set search-fitness select-random-weighted-fitness list-of-fitnesses
-   set mate one-of other breed with [fitness = search-fitness]
- ]
+  if is-high-drummer? self [
+    set list-of-fitnesses [fitness] of other breed
+    set search-fitness select-random-weighted-fitness list-of-fitnesses
+    set mate one-of other breed with [fitness = search-fitness]
+  ]
 
- let offspring-chromosomes reproduce-with mate
+  let offspring-chromosomes reproduce-with mate
 
- ask min-one-of other breed with [who != soloer] [fitness] [
-   set my-chromosomes offspring-chromosomes
-   set hits-since-evolve 0
- ]
+  ask min-one-of other breed with [who != soloer] [fitness] [
+    set my-chromosomes offspring-chromosomes
+    set hits-since-evolve 0
+  ]
 end
 
 ; This is where the basic genetic algorithm comes in
@@ -233,7 +233,7 @@ end
 
 to-report offbeat-fitness ; turtle procedure
   let offbeat-count 0
-  foreach n-values length my-pattern [ i -> i ] [ i ->
+  foreach range length my-pattern [ i ->
     if i mod 2 != 0 [
       if item i my-pattern = 1 [
         set offbeat-count offbeat-count + 1
@@ -247,7 +247,7 @@ end
 
 to-report downbeat-fitness ; turtle procedure
   let downbeat-count 0
-  foreach n-values length my-pattern [ i -> i ] [ i ->
+  foreach range length my-pattern [ i ->
     if i mod 2 = 0 [
       if item i my-pattern = 1 [
         set downbeat-count downbeat-count + 1
@@ -264,7 +264,7 @@ to mutate ; turtle procedure
   set my-chromosomes mutate-chromosomes my-chromosomes
 end
 
-; Method to mutate a chromosome
+; Procedure to mutate a chromosome
 to-report mutate-chromosomes [the-chromosomes]
   ; basically picks a chromosome, mutates it, returns a new set
   let new-chromosomes the-chromosomes
@@ -284,7 +284,7 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; Converts a set of chromosomes into a binary rhythm pattern
-to-report my-pattern ; turtle method
+to-report my-pattern ; turtle Procedure
   let pattern []
   foreach my-chromosomes [ n ->
    set pattern sentence pattern (get-chromosome n)
@@ -294,7 +294,7 @@ end
 
 to set-globals
   set generations 0
-  set random-who-list n-values 16 [ n -> n ]
+  set random-who-list range 16
   ; this is just for looks. we keep a map of who to random-who
   if shuffle-parts? [
     set random-who-list shuffle random-who-list
@@ -340,7 +340,7 @@ to set-initial-turtle-variables
   ]
 end
 
-; Method to update the view (simplified music notation)
+; Procedure to update the view (simplified music notation)
 to update-view
   ask turtles [
     let column 0
@@ -362,21 +362,21 @@ to update-view
   ask patches with [ pxcor = (ticks mod (num-chromosomes * 4)) ] [ set pcolor yellow ]
 end
 
-; Method to get a chromosomes pattern from the library
+; Procedure to get a chromosomes pattern from the library
 to-report get-chromosome [ index ]
   report item index chromosomes
 end
 
 ; This is my version of picking a weighted random turtle
 to-report select-random-weighted-fitness [ the-list ]
- let weighted-list []
- foreach the-list [ x ->
-   ; add one smoothing
-   foreach n-values round ((x / sum the-list * 100) + 1) [ n -> n ] [
-     set weighted-list fput x weighted-list
-   ]
- ]
- report item (random length weighted-list) weighted-list
+  let weighted-list []
+  foreach the-list [ x ->
+    ; add one smoothing
+    foreach range round ((x / sum the-list * 100) + 1) [
+      set weighted-list fput x weighted-list
+    ]
+  ]
+  report item (random length weighted-list) weighted-list
 end
 
 
@@ -714,7 +714,11 @@ HORIZONTAL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model aims to demonstrate the concept of a genetic algorithm in the context of rhythm production. Using the rhythmic "rules" from Ghanaian drum circles, low, medium, and high-drum patterns work in concert with evolution to create jamming beats. This is the 'duple' version, where there are 4 'beats' per chromosome.
+This model aims to demonstrate the concept of a genetic algorithm in the context of rhythm production. Using the rhythmic "rules" from West African drum circles, low, medium, and high-drum patterns work in concert with evolution to create jamming beats. This is the 'duple' version, where there are 4 'beats' per chromosome.
+
+In many West African countries, music serves as an integral part of culture. In Senegal in particular, drums and percussion instruments serve as both focal points of performance as well as features in ceremonial contexts. West African drum ensemble performances are grand affairs featuring costumes of loud colors, drums of all different shapes and sizes, and colorful and rhythmically intricate music. These performances are stages for rich, cross and poly-rhythmic development because many of the "songs" are simply improvisatory frameworks. In Senegal, three distinct drums make up the typical ensemble: a low drum called the dundun, a middle timbre drum called the sabar, and high timbre drum called a djembe.
+
+During a performance, the drummers listen to and blend with their fellow performers in order to create the rich sound the audience hears. The rhythm is constantly evolving based on solos, clusters, and the attenuation of the "strong-weak beat feel." This model shows one way of attempting to generate pleasing drum rhythms automatically in the style of West African Drumming. While most attempts to automatically generate music depend on having a human select rhythms they like, this model tries to generate rhythms without explictly asking a human whether or not they like a particular rhythm.
 
 A <a href="https://en.wikipedia.org/wiki/Genetic_algorithm">genetic algorithm</a> is a tool used in computer science to produce solutions to optimization and search problems. It relies on biologically inspired techniques in order to "search" a parameter space for an "optimal solution." The key lies in representing the given problem using "genetic material" like chromosomes. Then, the algorithm uses the techniques of <a href="https://en.wikipedia.org/wiki/Selection_(genetic_algorithm)">selection</a>, <a href="https://en.wikipedia.org/wiki/Crossover_(genetic_algorithm)">crossover</a>, and <a href="https://en.wikipedia.org/wiki/Mutation_(genetic_algorithm)">mutation</a> to "evolve" the solution.
 
@@ -732,7 +736,7 @@ At the beginning, every player starts with the exact same chromosomes (each play
 
 The basic idea here is stolen from the concept of genetic algorithms in computer science. After each play through of their genetic rhythms, two of each type of drummer (high, medium, and low drummers) are selected to 'reproduce' and 'evolve.' Each turtle selects a mate based on a fitness function (different for each breed). Turtles with higher fitness are more likely to be selected as mates.
 
-In Ghanaian drumming, low drummers are considered the base of the rhythm. Therefore, their fitness is determined by the number of strong-beats (i.e. the 0th and 2nd entries in each chromosome) that they play on.
+In West African drumming, low drummers are considered the base of the rhythm. Therefore, their fitness is determined by the number of strong-beats (i.e. the 0th and 2nd entries in each chromosome) that they play on.
 
 Medium drummers are typically a little bit more soloistic than low drummers, but often emphasize off-beats. So their fitness is evaluated on the number of off-beats (i.e. the 1st and 3rd entries in each chromosome) that they play on.
 
@@ -746,9 +750,9 @@ This differs from a "pure" genetic algorithm in a few ways. Firstly, turtles tha
 
 ### What in the world is the view showing?
 
-This model uses the NetLogo view in a non-standard way. Instead of showing agent interactions, what this model uses the view display properties of the agents. Each row of patches represents a single drummer's pattern. A colored patch represents a hit while a black patch represents a rest. This way, the user can simultaneously view the patterns of all 16 drummers.
+This model uses the NetLogo view in a non-standard way. Instead of showing agent interactions, this model uses the view to display properties of the agents. Each row of patches represents a single drummer's pattern. A colored patch represents a hit while a black patch represents a rest. This way, the user can simultaneously view the patterns of all 16 drummers.
 
-When a user clicks the GO button, a vertical yellow bar moves across the view and indicates where in the rhythm each turtle is.
+When a user clicks any of the GO buttons, a vertical yellow bar moves across the view and indicates where in the rhythm each turtle is.
 
 ## HOW TO USE IT
 
@@ -777,8 +781,7 @@ TEMPO-BPM changes how fast each pattern is played (measured in beats (or chromos
 
 ### Evolution Parameters
 
-HIT-LIMIT defines how long a turtle can go without being forced to evolve in someway
-(Note: again, this is a deviation from the traditional genetic algorithm but can be used to escape 'stale' rhythms)
+HIT-LIMIT defines how long a turtle can go without being forced to evolve in some way. Again, this differs slightly from a traditional genetic algorithm but can be used to escape "stale" rhythms.
 
 HIT-DENSITY-MODIFIER is a modifier to specify how "dense" a pattern should be (hits vs rests)
 
@@ -786,9 +789,9 @@ NUM-MUTATIONS is how many mutations are applied to an off-springs chromosomes
 
 MUTATION-STRENGTH dictates how much a particular chromosome can mutate
 
-SOLOER is a chooser that allows you to single out a player
+SOLOER is a chooser that allows you to single out one drummer for a solo.
 
-SOLO? dictates whether or not to allow the SOLOER to solo
+SOLO? dictates whether or not to allow the SOLOER to solo. This means that the SOLOER plays its drum louder and the other turtles play their drums softer. In addition, the SOLOER will have maximum fitness.
 
 ### Model Outputs
 
@@ -810,9 +813,9 @@ When you first start the model, everyone starts with the same chromosomes. So if
 
 Notice that sometimes, a single turtle sticks around for a really long time (because it's super fit!)
 
-Checkout the Hits per Drummer graph. Do you see any general trends over the course of running the model? Why might that trend be taking place?
+Checkout the Hits per Drummer plot. Do you see any general trends over the course of running the model? Why might that trend be taking place?
 
-Notice that the SOLO function doesn't just make one player louder, it makes it so that player doesn't evolve or mutate. How does that affect the model?
+Notice that the SOLO function doesn't just make one player louder, it makes it so that the player doesn't evolve or mutate. How does that affect the model?
 
 ## THINGS TO TRY
 
@@ -836,11 +839,7 @@ Try to add the ability for turtles to play triplets! This would make the rhythms
 
 ## NETLOGO FEATURES
 
-Notice that this model purposefully slows down the NetLogo world. That's because music doesn't happen as fast as possible! Unfortunately, this doesn't work for the first tick, so the space between the "first beat" and "second beat" is not equal to the space between the rest of the beats.
-
-In addition, the sound extension isn't particularly robust. In fact, the turtles aren't actually playing in parallel, they're playing one right after the other but close enough to where you can't hear the difference. Unfortunately, the way that the Java synthesizer works, if a particular channel is overwhelmed, it drops notes, so occasionally, you won't actually hear every note.
-
-NetLogo does not provide a random select (based on weights) so we use a rather slow work around that is only possible because the world is slowed down in order to maintain a "steady" tempo.
+Notice that this model purposefully slows down the NetLogo world by using the `wait` primitive. That's because music doesn't happen as fast as possible! Unfortunately, this doesn't work for the first tick, so the space between the "first beat" and "second beat" is not equal to the space between the rest of the beats.
 
 ## RELATED MODELS
 
