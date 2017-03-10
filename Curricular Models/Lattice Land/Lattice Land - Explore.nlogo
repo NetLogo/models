@@ -615,7 +615,7 @@ The INTERSECTION reporter checks for intersections between links by converting t
 
 This model uses continuous updates, rather than tick-based updates. This means that the model does not update at regular time intervals (ticks) dictated by the code. Instead, this model updates whenever a user performs an action. Thus, the depth of inquiry into the mathematics of Lattice Land is dictated by the user: nothing (other than the lattice) is generated until the user draws something. However, at the end of the `setup` procedure we still call `reset-ticks` in order to enable the buttons in the interface that are disabled "until ticks start". Otherwise, these buttons would cause the model to crash if they were clicked before clicking SETUP.
 
-This model also uses anonymous procedures extensively. This is because between user actions, LatticeLand is not updating. In fact, much of this model follows what's called a <a href="https://en.wikipedia.org/wiki/Functional_programming">functional programming paradigm</a>.
+This model also uses anonymous procedures extensively. This is because between user actions, Lattice Land is not updating. In fact, much of this model follows what's called a <a href="https://en.wikipedia.org/wiki/Functional_programming">functional programming paradigm</a>.
 
 ## RELATED MODELS
 
