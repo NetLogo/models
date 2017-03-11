@@ -31,7 +31,8 @@ breed [ LacYs LacY ]         ; the LacY lactose permease enzyme (light red recta
 breed [ RNAPs RNAP ]         ; RNA Polymerase (brown proteins) that binds to the DNA and synthesizes mRNA
 breed [ lactoses lactose ]   ; lactose molecules (gray)
 
-breed [daughter-cell-turtles daughter-cell-turtle]
+breed [ mask-turtles mask-turtle ]   ; turtles to mask the background during animation of cell division
+breed [ daughter-cell-turtles daughter-cell-turtle ]  ; turtles to animate cell division process
 
 LacIs-own [
   partner                ; if it's a LacI complex, then partner is a lactose molecule
@@ -358,15 +359,30 @@ to draw-cell
   ask terminator [ set pcolor gray ]
 end
 
+; procedure to animate the process of cell division
 to animate-cell-division
-  let random-heading 60 + random 60
+
+  create-mask-turtles 1 [
+    set size 1000
+    set color black
+    set shape "square"
+  ]
 
   ask cell-wall [
     sprout-daughter-cell-turtles 1 [
       set color cell-color + 2
       set shape "square"
       set size 2
-      set heading random-heading
+      set heading 45
+    ]
+  ]
+
+  ask cell-wall [
+    sprout-daughter-cell-turtles 1 [
+      set color cell-color + 2
+      set shape "square"
+      set size 2
+      set heading 225
     ]
   ]
 
@@ -375,19 +391,36 @@ to animate-cell-division
       set color pcolor
       set shape "square"
       set size 2
-      set heading random-heading
+      set heading 45
     ]
   ]
 
-  ask (patch-set operator terminator promoter operon) [
+  ask cell-patches [
+    sprout-daughter-cell-turtles 1 [
+      set color pcolor
+      set shape "square"
+      set size 2
+      set heading 225
+    ]
+  ]
+
+  ask (patch-set operon promoter operator terminator) [
     sprout-daughter-cell-turtles 1 [
       set color [ pcolor ] of myself + 2
       set shape "square"
       set size 2
-      set heading random-heading
+      set heading 45
     ]
   ]
 
+  ask (patch-set operon promoter operator terminator) [
+    sprout-daughter-cell-turtles 1 [
+      set color [ pcolor ] of myself + 2
+      set shape "square"
+      set size 2
+      set heading 225
+    ]
+  ]
 
   ask (turtle-set LacYs LacZs RNAPs LacIs lactoses with [inside?]) [
     hatch 1 [
@@ -395,14 +428,26 @@ to animate-cell-division
       set breed daughter-cell-turtles
       set shape [shape] of myself
       set color [color] of myself + 2
-      set heading random-heading
+      set heading 45
     ]
   ]
 
-  repeat 16 [
+  ask (turtle-set LacYs LacZs RNAPs LacIs lactoses with [inside?]) [
+    hatch 1 [
+      gen-xy-inside-inside
+      set breed daughter-cell-turtles
+      set shape [shape] of myself
+      set color [color] of myself + 2
+      set heading 225
+    ]
+  ]
+
+  repeat 23 [
     ask daughter-cell-turtles [ fd 1 ]
     display
   ]
+
+  ask mask-turtles [ die ]
   ask daughter-cell-turtles [ die ]
 end
 
