@@ -714,7 +714,7 @@ HORIZONTAL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model aims to demonstrate the concept of a genetic algorithm in the context of rhythm production. Using the rhythmic "rules" from West African drum circles, low, medium, and high-drum patterns work in concert with evolution to create jamming beats. This is the 'duple' version, where there are 4 'beats' per chromosome.
+This model generates drum rhythms using a genetic algorithm. Using the rhythmic "rules" from West African drum circles, low, medium, and high-drum patterns work in concert with evolution to create jamming beats. This is the 'duple' version of the model, where there are 4 'beats' per chromosome.
 
 In many West African countries, music serves as an integral part of culture. In Senegal in particular, drums and percussion instruments serve as both focal points of performance as well as features in ceremonial contexts. West African drum ensemble performances are grand affairs featuring costumes of loud colors, drums of all different shapes and sizes, and colorful and rhythmically intricate music. These performances are stages for rich, cross and poly-rhythmic development because many of the "songs" are simply improvisatory frameworks. In Senegal, three distinct drums make up the typical ensemble: a low drum called the dundun, a middle timbre drum called the sabar, and high timbre drum called a djembe.
 
@@ -726,6 +726,8 @@ A <a href="https://en.wikipedia.org/wiki/Genetic_algorithm">genetic algorithm</a
 
 ### What makes these rhythms evolve?
 
+The basic idea uses the concept of genetic algorithms in computer science. A genetic algorithm is meant to take "organisms" with "chromosomes" and simulate their evolution toward some sort of objective (so over time, organisms have higher "fitness"). In this example, drummers are our organisms and each has a set chromosomes composed hits and rests that represent the rhythm they play.
+
 There are 16 drums, 5 high drummers, 5 medium drummers, and 6 low drummers. Here we are using "low", "medium", and "high" to describe the pitch and timbre of a drum. Each drummer (an invisible turtle) has a set of "rhythm chromosomes" which dictate what drum pattern it plays.
 
 In this model, each rhythmic chromosome is represented by a list of 4 binary digits. A '0' indicates a rest while a '1' indicates a hit. In this model, you can think of each of these digits as 'sixteenth-notes' such that each chromosome represents a 'beat'. This means there are 2^4 = 16 different types of chromosomes.
@@ -734,7 +736,7 @@ The number of chromosomes that make up a drummer's genetic code is specified by 
 
 At the beginning, every player starts with the exact same chromosomes (each player only plays on the downbeat). Each player plays through its chromosomes in sync with the other players (i.e. all turtles play note 0 of chromosome 0, then note 1 of chromosome 0, etc...). After the turtles have finished playing through their chromosomic rhythms, the turtles "evolve."
 
-The basic idea here is stolen from the concept of genetic algorithms in computer science. After each play through of their genetic rhythms, two of each type of drummer (high, medium, and low drummers) are selected to 'reproduce' and 'evolve.' Each turtle selects a mate based on a fitness function (different for each breed). Turtles with higher fitness are more likely to be selected as mates.
+After each play through of their genetic rhythms, two of each type of drummer (high, medium, and low drummers) are selected to 'reproduce' and 'evolve.' Each turtle selects a mate based on a fitness function (different for each breed). Turtles with higher fitness are more likely to be selected as mates.
 
 In West African drumming, low drummers are considered the base of the rhythm. Therefore, their fitness is determined by the number of strong-beats (i.e. the 0th and 2nd entries in each chromosome) that they play on.
 
