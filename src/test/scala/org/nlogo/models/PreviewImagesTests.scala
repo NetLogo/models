@@ -63,7 +63,8 @@ class PreviewImagesTests extends TestModels {
     "GenEvo 2 Genetic Drift",
     "GenEvo 3 Genetic Drift and Natural Selection",
     "GenEvo 4 Competition",
-    "Synthetic Biology - Genetic Switch"
+    "Synthetic Biology - Genetic Switch",
+    "Lattice Land - Explore"
   )
   testModels("Models should have manual previews only if needed or permitted") { m =>
     if (manualPreviewNeeded.exists(m.file.getPath.contains))

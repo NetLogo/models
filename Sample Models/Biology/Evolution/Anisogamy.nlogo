@@ -520,9 +520,9 @@ NIL
 
 This model is a thought experiment related to the evolution of the two sexes as we know them: males producing numerous small sperm cells and females producing only a handful of big egg cells.
 
-The model has two pseudo-sexes (red and yellow). The adult organisms of each pseudo-sex begin with the same reproductive strategy: produce medium sized gametes in approximately the same quantities. As new generations spawn random mutations in the size of gametes that adults produce results in many different reproductive strategies, resulting in competition amongst the strategies. The model shows however, how this competition ultimately results in the emergence of two evolutionarily stable reproductive strategies: 1. produce numerous small gametes and 2. produce a handful of big gametes.
+The model has two pseudo-sexes (red and yellow). The adult organisms of each pseudo-sex begin with the same reproductive strategy: produce medium sized gametes in approximately the same quantities. Every time an adult produces new gametes, there is a chance of a small, random mutation in the gamete size strategy. These mutations introduce a competition among multiple reproductive strategies. The model explores the conditions that may lead to this competition resulting in the emergence of two evolutionarily stable reproductive strategies: 1. produce numerous small gametes and 2. produce a handful of big gametes.
 
-The model also allows you to test many different assumptions related to the evolution of the sperm-egg dichotomy (anisogamy) from a uniform gamete size strategy by changing the various parameters.
+This model also allows you to test many different assumptions related to the evolution of the sperm-egg dichotomy (anisogamy) from a uniform gamete size strategy by changing the various parameters.
 
 ## HOW IT WORKS
 
@@ -947,7 +947,7 @@ Circle -7500403 true true 96 76 108
 Circle -7500403 true true 72 104 156
 Polygon -7500403 true true 221 149 195 101 106 99 80 148
 @#$#@#$#@
-NetLogo 6.0
+NetLogo 6.0.1-RC1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
