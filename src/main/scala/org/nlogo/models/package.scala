@@ -88,7 +88,7 @@ package object models {
       val notCompilableOnTravis = Set(
         "Beatbox", "Composer", "GasLab With Sound", "Musical Phrase Example",
         "Percussion Workbench", "Sound Workbench", "Sound Machines", "Frogger",
-        "Sound Machines") // because MIDI is not available on Travis
+        "Sound Machines", "GenJam - Duple") // because MIDI is not available on Travis
       val neverCompilable = Set("GoGoMonitor", "GoGoMonitorSimple")
       !(neverCompilable.contains(name) || (onTravis && notCompilableOnTravis.contains(name)))
     }
