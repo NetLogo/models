@@ -14,8 +14,7 @@ import org.nlogo.headless.HeadlessWorkspace
 class ModelCompilationTests extends TestModels {
 
   def compilationTests(model: Model)(ws: HeadlessWorkspace): Iterable[String] =
-    breedNamesUsedAsArgsOrVars(ws) ++
-      breedsWithNoSingularName(ws) ++
+    breedsWithNoSingularName(ws) ++
       uncompilableExperiments(model, ws) ++
       (if (model.isTestModel) Nil else {
         uncompilablePreviewCommands(ws) ++
@@ -29,18 +28,6 @@ class ModelCompilationTests extends TestModels {
         case Success(errors) => errors
       }
     } else Seq.empty
-  }
-
-  def breedNamesUsedAsArgsOrVars(ws: HeadlessWorkspace): Iterable[String] = {
-    val singularBreedNames: Set[String] = {
-      def singularNames(breeds: Map[String, Breed]) = breeds.values.map(_.singular)
-      Set() ++ singularNames(ws.world.program.breeds) ++ singularNames(ws.world.program.linkBreeds)
-    }
-    for {
-      (procedureName, p) <- ws.procedures
-      localName <- (p.args ++ p.lets.map(_.name))
-      if singularBreedNames contains localName
-    } yield s"Singular breed name $localName if used as variable or argument name in $procedureName"
   }
 
   def breedsWithNoSingularName(ws: HeadlessWorkspace): Iterable[String] =
