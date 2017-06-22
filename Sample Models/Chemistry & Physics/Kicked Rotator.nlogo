@@ -260,9 +260,9 @@ current angular position
 @#$#@#$#@
 ## WHAT IS IT?
 
-A <a href="https://en.wikipedia.org/wiki/Kicked_rotator">Kicked Rotator</a> is usually imagined as a particle constrained to move on a circle in a system with no friction or gravity that is periodically kicked. You can also think of it as a pendulum swinging with no gravity. The motion of this particle can be used to generate what is called the <a href="http://www.scholarpedia.org/article/Chirikov_standard_map">Chirikov standard map</a>, a tool in physics that can be used to describe many different dynamical systems from the motion of particles in accelerators to comet dynamics in solar systems.
+A [kicked rotator](https://en.wikipedia.org/wiki/Kicked_rotator) is usually imagined as a particle constrained to move on a circle in a system with no friction or gravity that is periodically kicked. You can also think of it as a pendulum swinging with no gravity. The motion of this particle can be used to generate what is called the [Chirikov standard map](http://www.scholarpedia.org/article/Chirikov_standard_map), a tool in physics that can be used to describe many different dynamical systems from the motion of particles in accelerators to comet dynamics in solar systems.
 
-The particle starts out at a random position on the circle with a random initial momentum and is periodically kicked by a "homogeneous field". Think of it as gravity being turned on for just an instant. Depending on where on the circle the particle is located, the kick affects the motion of the particle differently. For low kick strengths, the particle motion is fairly regular. However at higher kick strengths, this seemingly simple system quickly becomes chaotic, making it a perfect candidate for studying <a href="https://en.wikipedia.org/wiki/Dynamical_systems_theory#Chaos_theory">dynamical chaos</a>.
+The particle starts out at a random position on the circle with a random initial momentum and is periodically kicked by a "homogeneous field". Think of it as gravity being turned on for just an instant. Depending on where on the circle the particle is located, the kick affects the motion of the particle differently. For low kick strengths, the particle motion is fairly regular. However at higher kick strengths, this seemingly simple system quickly becomes chaotic, making it a perfect candidate for studying [dynamical chaos](https://en.wikipedia.org/wiki/Dynamical_systems_theory#Chaos_theory).
 
 ## HOW IT WORKS
 
@@ -344,7 +344,7 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-Share
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 
-<!-- 2016 Cite: Brockmann, D., Bain, C. & Wilensky, U. -->
+<!-- 2016 Cite: Brockmann, D., Bain, C., Hjorth, A. & Wilensky, U. -->
 @#$#@#$#@
 default
 true
