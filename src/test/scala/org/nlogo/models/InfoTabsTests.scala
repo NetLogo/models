@@ -61,6 +61,11 @@ class InfoTabsTests extends TestModels {
     }
   }
 
+  testModels("Info tabs shouldn't contain HTML links.") {
+    val pattern = """<a\s[^>]*>""".r.pattern
+    testLines(_.info, pattern.matcher(_).find)
+  }
+
   testModels("Bullet list using dashes should have space after dash") {
     val pattern = """^-\w.+""".r.pattern
     testLines(_.info, pattern.matcher(_).matches)
