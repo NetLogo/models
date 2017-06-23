@@ -548,7 +548,7 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-<i>Lattice Land - Explore</i> is one of several models in the Lattice Land software suite. Lattice Land is an interactive MathLand, a microworld in which students can uncover advanced mathematical thinking through play, conjecture, and experimentation. It provides another entryway into geometry through the investigation of the geometry of a discrete lattice of points. In Lattice Land, there is no one right answer and no pre-determined pathway you must travel. However, even seemingly trivial exercises can quickly become rich explorations.
+*Lattice Land - Explore* is one of several models in the Lattice Land software suite. Lattice Land is an interactive MathLand, a microworld in which students can uncover advanced mathematical thinking through play, conjecture, and experimentation. It provides another entryway into geometry through the investigation of the geometry of a discrete lattice of points. In Lattice Land, there is no one right answer and no pre-determined pathway you must travel. However, even seemingly trivial exercises can quickly become rich explorations.
 
 A lattice is an array of dots on a plane such that there is one dot at each coordinate (x,y), where x and y are integers. Thus each dot on the lattice is one unit away from each of its four closest neighbors (one above, one below, one to the left, and one to the right). A lattice polygon is a polygon whose vertices fall on dots of the lattice.
 
@@ -615,7 +615,7 @@ The INTERSECTION reporter checks for intersections between links by converting t
 
 This model uses continuous updates, rather than tick-based updates. This means that the model does not update at regular time intervals (ticks) dictated by the code. Instead, this model updates whenever a user performs an action. Thus, the depth of inquiry into the mathematics of Lattice Land is dictated by the user: nothing (other than the lattice) is generated until the user draws something. However, at the end of the `setup` procedure we still call `reset-ticks` in order to enable the buttons in the interface that are disabled "until ticks start". Otherwise, these buttons would cause the model to crash if they were clicked before clicking SETUP.
 
-This model also uses anonymous procedures extensively. This is because between user actions, Lattice Land is not updating. In fact, much of this model follows what's called a <a href="https://en.wikipedia.org/wiki/Functional_programming">functional programming paradigm</a>.
+This model also uses anonymous procedures extensively. This is because between user actions, Lattice Land is not updating. In fact, much of this model follows what's called a [functional programming paradigm](https://en.wikipedia.org/wiki/Functional_programming).
 
 ## RELATED MODELS
 
