@@ -37,8 +37,8 @@ to setup [ obstacle-placement ball-placement ]
   ]
 
   set collision-precision 64 ;; Collisions will be within speed / (2 ^ 64) of the correct position
-  set angle-precision 100000 ;; Round to 100000th of a degree
-  set speed 0.1
+  set angle-precision 1000 ;; Round to 1000th of a degree
+  set speed 0.05
 
   reset-dragging
 
@@ -48,14 +48,15 @@ end
 to setup-random
   setup [-> place-randomly-inside-walls] [->
     place-randomly-inside-walls
-    while [ any? obstacles with [ colliding-with? myself] ] [
+    while [ any? obstacles with [ overlap myself > 0 ] ] [
       place-randomly-inside-walls
     ]
   ]
 end
 
 
-to setup-periodic
+to setup-periodic-x
+  set num-obstacles 1
   setup [->
     setxy 0 0
     set size 3
@@ -63,6 +64,11 @@ to setup-periodic
     setxy 6 8
     facexy 0 2
   ]
+end
+
+to setup-periodic-quilt
+  set num-obstacles 1
+  setup [-> setxy 0 8 set size 1 ] [-> setxy 0 7 facexy -8 -6 ]
 end
 
 to add-ball
@@ -83,32 +89,48 @@ to go
     set pen-mode ifelse-value trace-path? [ "down" ] [ "up" ]
     fd speed
 
+    ;; We don't want to change `heading` until all collisions have been
+    ;; factored in. This is because the ball's `heading` affects the
+    ;; adjustments made to the ball's position to find the exact spot
+    ;; a collision took place. See `correct-collision-position`.
+    let new-heading heading
+
     if colliding-with-floor-or-ceiling? [
       correct-collision-position [-> colliding-with-floor-or-ceiling?]
-      set heading 180 - heading
+      set new-heading 180 - new-heading
     ]
 
     if colliding-with-walls? [
       correct-collision-position [-> colliding-with-walls?]
-      set heading 360 - heading
+      set new-heading 360 - new-heading
     ]
 
-    ;; Get the obstacle that the ball has the worst collision with.
-    ;; Things can get weird if we deal with multiple obstacles that the ball is colliding
-    ;; with simultaneously, so we only deal with one each tick.
-    let obst min-one-of (obstacles with [ colliding-with? myself]) [ overlap myself ]
-    if obst != nobody [
-      correct-collision-position [-> colliding-with? obst]
+    ask obstacles with [ [colliding-with? myself] of myself ] [
+      let x xcor
+      let y ycor
+      ask myself [
+        correct-collision-position [-> colliding-with? myself]
 
-      let rx xcor - [xcor] of obst
-      let ry ycor - [ycor] of obst
+        ;; We can't just use `dx` and `dy` here as we want to base these
+        ;; on `new-heading` rather than `heading`.
+        let d-x sin new-heading
+        let d-y cos new-heading
 
-      let v-dot-r rx * dx + ry * dy
-      let nx dx - 2 * v-dot-r * rx / (rx * rx + ry * ry)
-      let ny dy - 2 * v-dot-r * ry / (rx * rx + ry * ry)
+        ;; These are the components of the vector pointing from the
+        ;; obstacle to the ball.
+        let rx xcor - x
+        let ry ycor - y
 
-      set heading round-to (atan nx ny) angle-precision
+        ;; This code reflects the vector of the ball's new heading around
+        ;; the vector pointing from the obstacle to the ball.
+        let v-dot-r rx * dx + ry * dy
+        let new-dx d-x - 2 * v-dot-r * rx / (rx * rx + ry * ry)
+        let new-dy d-y - 2 * v-dot-r * ry / (rx * rx + ry * ry)
+
+        set new-heading round-to (atan new-dx new-dy) angle-precision
+      ]
     ]
+    set heading new-heading
     pu
   ]
   tick
@@ -121,7 +143,7 @@ end
 ;; to the exact position of collision. This technique is called a
 ;; "binary search".
 to correct-collision-position [ colliding? ]
-  refine-collision-position colliding? (size / 2) collision-precision
+  refine-collision-position colliding? speed collision-precision
 end
 
 ;; This is helper procedure for `correct-collision-position`.
@@ -136,20 +158,31 @@ to refine-collision-position [ colliding? dist n ]
   ]
 end
 
+
+;; Ball procedures
+;; These do collision detection. They ensure that the ball is facing the
+;; object being collided with, otherwise you can get into weird situations
+;; when the ball is very close or colliding with two objects.
+
 to-report colliding-with-floor-or-ceiling?
-  report ycor > max-pycor or ycor < min-pycor
+  report (dy > 0 and ycor > max-pycor) or (dy < 0 and ycor < min-pycor)
 end
 
 to-report colliding-with-walls?
-  report xcor > max-pxcor or xcor < min-pxcor
-end
-
-to-report overlap [ agent ]
-  report (size + [ size ] of agent) / 2 - distance agent
+  report (dx > 0 and xcor > max-pxcor) or (dx < 0 and xcor < min-pxcor)
 end
 
 to-report colliding-with? [ agent ]
-  report overlap agent > 0
+  ;; Gets the ball's heading as an angle between -180 and 180.
+  ;; We only consider the ball to be colliding with an obstacle if it's
+  ;; generally facing that obstacle.
+  let h abs ((heading - towards agent + 180) mod 360 - 180)
+  report h < 90 and overlap agent > 0
+end
+
+;; Ball or obstacle procedure
+to-report overlap [ agent ]
+  report (size + [ size ] of agent) / 2 - distance agent
 end
 
 to place-randomly-inside-walls
@@ -220,6 +253,49 @@ to reset-dragging
   set get-target-attribute [ -> 0 ]
   set target-attribute-value ""
 end
+
+
+;; Additional periodic configurations
+
+to setup-two-walls
+  set num-obstacles 1
+  setup [-> setxy 0 0 set size 3 ] [->  setxy 8 8 facexy 0 0]
+end
+
+to setup-corner-obst
+  set num-obstacles 1
+  setup [-> setxy -8.5 -8.5 set size 0.4] [-> setxy 8 8 facexy 0 0]
+end
+
+to setup-two-corners
+  set num-obstacles 1
+  setup [-> setxy 0 0 set size 8] [-> setxy 8 8 facexy 0 (0.5 + [ size / 2 ] of one-of obstacles)]
+end
+
+to setup-two-obstacles
+  set num-obstacles 2
+  setup [-> set size 1] [-> setxy 8 8 facexy 0 0]
+  ask obstacle 0 [ setxy -.1 0 ]
+  ask obstacle 1 [ setxy 0 -.1 ]
+end
+
+to setup-wall-obst
+  set num-obstacles 3
+  setup [-> set size 1 setxy -8 -8] [-> setxy 1 0 facexy -7 -8]
+  ask obstacle 1 [ setxy 2 0 ]
+  ask obstacle 2 [ setxy -8 8 ]
+end
+
+;; Currently failing because it uses angles that don't round evenly.
+to setup-triangle
+  set num-obstacles 1
+  setup [-> setxy 0 8 set size 1 ] [-> setxy 0 7 facexy -8 -8]
+end
+
+to setup-simple-triangle
+  set num-obstacles 1
+  setup [-> setxy 0 1 set size 1 ] [-> setxy 0 0 facexy -8 -8]
+end
 @#$#@#$#@
 GRAPHICS-WINDOW
 135
@@ -267,9 +343,9 @@ NIL
 
 BUTTON
 5
-115
+155
 130
-148
+188
 NIL
 go
 T
@@ -284,9 +360,9 @@ NIL
 
 SWITCH
 5
-185
+225
 130
-218
+258
 trace-path?
 trace-path?
 0
@@ -295,9 +371,9 @@ trace-path?
 
 BUTTON
 5
-220
+260
 130
-253
+293
 NIL
 clear-drawing
 NIL
@@ -316,7 +392,7 @@ BUTTON
 130
 113
 NIL
-setup-periodic
+setup-periodic-x
 NIL
 1
 T
@@ -344,9 +420,9 @@ HORIZONTAL
 
 BUTTON
 5
-265
+300
 130
-298
+333
 NIL
 drag
 T
@@ -361,9 +437,9 @@ NIL
 
 MONITOR
 5
-300
+335
 130
-345
+380
 value
 target-attribute-value
 17
@@ -372,11 +448,28 @@ target-attribute-value
 
 BUTTON
 5
-150
+190
 130
-183
+223
 NIL
 add-ball
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+5
+115
+130
+148
+NIL
+setup-periodic-quilt
 NIL
 1
 T
@@ -402,7 +495,9 @@ The ball bouncing off the walls and obstacles. The collisions are all perfectly 
 
 Use the SETUP-RANDOM button to initialize the system in a configuration that will most likely be chaotic.
 
-Use the SETUP-PERIODIC button to see an example of the kind of periodic behavior the system can exhibit.
+Use the SETUP-PERIODIC-X button to see an example of the kind of periodic behavior the system can exhibit.
+
+Use the SETUP-PERIODIC-QUILT button to see another example of periodic behavior that has a very long period.
 
 Use the NUM-OBSTACLES slider to adjust the number of obstacles. With 0 obstacles, the system will *always* be periodic. Can you figure out why?
 
@@ -420,7 +515,9 @@ Notice how the bouncing of the balls is fairly predictable until they hit the ci
 
 ## THINGS TO TRY
 
-Try SETUP-PERIODIC with TWO-BALLS? on. How do the red and blue balls behave differently?
+Try SETUP-PERIODIC-X with TWO-BALLS? on. How do the red and blue balls behave differently?
+
+Try SETUP-PERIODIC-QUILT with TWO-BALLS? on. When do the red and blue balls begin to diverge?
 
 Can you find other configurations that result in periodic behavior?
 
