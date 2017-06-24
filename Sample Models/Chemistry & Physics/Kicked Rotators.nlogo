@@ -214,13 +214,13 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model simulates a collection of <a href="https://en.wikipedia.org/wiki/Kicked_rotator">kicked rotators</a> operating simultaneously and graphs their trajectories. This graph shows a divided phase space where integrable islands of stability are surrounded by a chaotic component (aka "chaotic sea"). This is what's called the <a href="http://www.scholarpedia.org/article/Chirikov_standard_map">Chirikov standard map</a>, a tool in physics that can be used to describe many different dynamical systems from the motion of particles in accelerators to comet dynamics in solar systems.
+This model simulates a collection of [kicked rotators](https://en.wikipedia.org/wiki/Kicked_rotator) operating simultaneously and graphs their trajectories. This graph shows a divided phase space where integrable islands of stability are surrounded by a chaotic component (aka "chaotic sea"). This is what's called the [Chirikov standard](http://www.scholarpedia.org/article/Chirikov_standard_map) map, a tool in physics that can be used to describe many different dynamical systems from the motion of particles in accelerators to comet dynamics in solar systems.
 
 For more info on what a kicked rotator is, check out the Kicked Rotator model in the models library.
 
 ## HOW IT WORKS
 
-The model generates a number of turtles, each representing a kicked rotator with a unique starting angular position and momentum. Then, at each tick, the model 'kicks' each rotator, changing both its momentum and angular position. The turtle then 'stamps' a copy of itself onto the view with the location representing its current momentum and angular position. Each turtle repeats this process at each tick, creating an overall <a href="http://mathworld.wolfram.com/PhasePortrait.html">phase portrait</a> via a <a href="https://en.wikipedia.org/wiki/Poincaré_map">Poincare return map</a>. This continues for as long as the model is run.
+The model generates a number of turtles, each representing a kicked rotator with a unique starting angular position and momentum. Then, at each tick, the model 'kicks' each rotator, changing both its momentum and angular position. The turtle then 'stamps' a copy of itself onto the view with the location representing its current momentum and angular position. Each turtle repeats this process at each tick, creating an overall [phase portrait](http://mathworld.wolfram.com/PhasePortrait.html) via a [Poincare return map](https://en.wikipedia.org/wiki/Poincaré_map). This continues for as long as the model is run.
 
 For more info on how each individual rotator (turtle) works,  checkout the Kicked Rotator model.
 
