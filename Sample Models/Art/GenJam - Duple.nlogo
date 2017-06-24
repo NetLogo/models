@@ -726,9 +726,9 @@ A [genetic algorithm](https://en.wikipedia.org/wiki/Genetic_algorithm#) is a too
 
 ### What makes these rhythms evolve?
 
-The basic idea uses the concept of genetic algorithms in computer science. A genetic algorithm is meant to take "organisms" with "chromosomes" and simulate their evolution toward some sort of objective (so over time, organisms have higher "fitness"). In this example, drummers are our organisms and each has a set chromosomes composed hits and rests that represent the rhythm they play.
+The basic idea uses the concept of genetic algorithms in computer science. A genetic algorithm is meant to take "organisms" with "chromosomes" and simulate their evolution toward some sort of objective (so over time, organisms have higher "fitness"). In this example, drummers are our organisms and each has a set chromosomes composed of hits and rests that represent the rhythm they play.
 
-There are 16 drums, 5 high drummers, 5 medium drummers, and 6 low drummers. Here we are using "low", "medium", and "high" to describe the pitch and timbre of a drum. Each drummer (an invisible turtle) has a set of "rhythm chromosomes" which dictate what drum pattern it plays.
+There are 16 drums: 5 high drummers, 5 medium drummers, and 6 low drummers. Here we are using "low", "medium", and "high" to describe the pitch and timbre of a drum. Each drummer (an invisible turtle) has a set of "rhythm chromosomes" which dictate what drum pattern it plays.
 
 In this model, each rhythmic chromosome is represented by a list of 4 binary digits. A '0' indicates a rest while a '1' indicates a hit. In this model, you can think of each of these digits as 'sixteenth-notes' such that each chromosome represents a 'beat'. This means there are 2^4 = 16 different types of chromosomes.
 
@@ -760,14 +760,13 @@ When a user clicks any of the GO buttons, a vertical yellow bar moves across the
 
 The whole idea of this model is to experiment with the parameters in order to build a "great" rhythm. What makes a great rhythm is entirely up to you.
 
-
 ### Interface Elements
 There are two interface elements that must be set before pressing the SETUP button:
 
 1. NUM-CHROMOSOMES - This specifies the number of rhythmic chromosomes each player has
 2. SHUFFLE-PARTS? - This is simply a GUI change that shuffles around the player's lines on the view (just to make things look cooler)
 
-The SETUP button is used to create the agents and update the display. It will also cause a test tone to be played to make sure the sound extension is working and your speakers are not muted.
+The SETUP button is used to create the agents and update the display. It will also cause a test tone to be played to make sure the sound extension is working and your speakers are not muted
 
 GO-ONCE is used to ask all the turtles to play their pattern exactly once and then evolve
 
@@ -783,7 +782,7 @@ TEMPO-BPM changes how fast each pattern is played (measured in beats (or chromos
 
 ### Evolution Parameters
 
-HIT-LIMIT defines how long a turtle can go without being forced to evolve in some way. Again, this differs slightly from a traditional genetic algorithm but can be used to escape "stale" rhythms.
+HIT-LIMIT defines how long a turtle can go without being forced to evolve in some way. Again, this differs slightly from a traditional genetic algorithm but can be used to escape "stale" rhythms
 
 HIT-DENSITY-MODIFIER is a modifier to specify how "dense" a pattern should be (hits vs rests)
 
@@ -791,9 +790,9 @@ NUM-MUTATIONS is how many mutations are applied to an off-springs chromosomes
 
 MUTATION-STRENGTH dictates how much a particular chromosome can mutate
 
-SOLOER is a chooser that allows you to single out one drummer for a solo.
+SOLOER is a chooser that allows you to single out one drummer for a solo
 
-SOLO? dictates whether or not to allow the SOLOER to solo. This means that the SOLOER plays its drum louder and the other turtles play their drums softer. In addition, the SOLOER will have maximum fitness.
+SOLO? dictates whether or not to allow the SOLOER to solo. This means that the SOLOER plays its drum louder and the other turtles play their drums softer. In addition, the SOLOER will have maximum fitness
 
 ### Model Outputs
 
