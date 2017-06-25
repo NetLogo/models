@@ -1,14 +1,14 @@
 globals [
-  collision-precision ;; Determines how accurate the location of collisions will be
+  collision-precision ; Determines how accurate the location of collisions will be
 
-  ;; Determines how much we round the angles when bouncing off the obstacle.
-  ;; This is necessary, because small errors in angle should be ignored.
+  ; Determines how much we round the angles when bouncing off the obstacle.
+  ; This is necessary, because small errors in angle should be ignored.
   angle-precision
 
-  speed ;; All balls have the same speed
+  speed ; All balls have the same speed
 
-  ;; These are used to track which agent is being dragged and what part of that agent
-  ;; is being dragged.
+  ; These are used to track which agent is being dragged and what part of that agent
+  ; is being dragged.
   target-agent
   set-target-attribute
   get-target-attribute
@@ -19,13 +19,13 @@ breed [ obstacles obstacle ]
 breed [ balls ball ]
 
 to setup [ obstacle-placement ball-placement ]
-  ca
+  clear-all
   set-default-shape obstacles "circle"
 
-  ;; Create obstacle so that it's completely inside the world
+  ; Create obstacle so that it's completely inside the world
   create-obstacles num-obstacles [
     set color grey
-    ;; First, set the size of the obstacle so that it fits in the world and doesn't take up all the space
+    ; First, set the size of the obstacle so that it fits in the world and doesn't take up all the space
     set size max list 1 random-float (0.75 * min list world-width world-height)
     run obstacle-placement
   ]
@@ -36,8 +36,8 @@ to setup [ obstacle-placement ball-placement ]
     run ball-placement
   ]
 
-  set collision-precision 64 ;; Collisions will be within speed / (2 ^ 64) of the correct position
-  set angle-precision 1000 ;; Round to 1000th of a degree
+  set collision-precision 64 ; Collisions will be within speed / (2 ^ 64) of the correct position
+  set angle-precision 1000 ; Round to 1000th of a degree
   set speed 0.05
 
   reset-dragging
@@ -73,7 +73,7 @@ end
 
 to add-ball
   ask balls with [ color = red ] [
-    ;; Place the second ball at almost, but not quite, the same position as the first
+    ; Place the second ball at almost, but not quite, the same position as the first
     let new-color [ color ] of max-one-of balls [ who ] + 90
     hatch-balls 1 [
       set heading random 360
@@ -89,10 +89,10 @@ to go
     set pen-mode ifelse-value trace-path? [ "down" ] [ "up" ]
     fd speed
 
-    ;; We don't want to change `heading` until all collisions have been
-    ;; factored in. This is because the ball's `heading` affects the
-    ;; adjustments made to the ball's position to find the exact spot
-    ;; a collision took place. See `correct-collision-position`.
+    ; We don't want to change `heading` until all collisions have been
+    ; factored in. This is because the ball's `heading` affects the
+    ; adjustments made to the ball's position to find the exact spot
+    ; a collision took place. See `correct-collision-position`.
     let new-heading heading
 
     if colliding-with-floor-or-ceiling? [
@@ -111,18 +111,18 @@ to go
       ask myself [
         correct-collision-position [-> colliding-with? myself]
 
-        ;; We can't just use `dx` and `dy` here as we want to base these
-        ;; on `new-heading` rather than `heading`.
+        ; We can't just use `dx` and `dy` here as we want to base these
+        ; on `new-heading` rather than `heading`.
         let d-x sin new-heading
         let d-y cos new-heading
 
-        ;; These are the components of the vector pointing from the
-        ;; obstacle to the ball.
+        ; These are the components of the vector pointing from the
+        ; obstacle to the ball.
         let rx xcor - x
         let ry ycor - y
 
-        ;; This code reflects the vector of the ball's new heading around
-        ;; the vector pointing from the obstacle to the ball.
+        ; This code reflects the vector of the ball's new heading around
+        ; the vector pointing from the obstacle to the ball.
         let v-dot-r rx * dx + ry * dy
         let new-dx d-x - 2 * v-dot-r * rx / (rx * rx + ry * ry)
         let new-dy d-y - 2 * v-dot-r * ry / (rx * rx + ry * ry)
@@ -131,22 +131,22 @@ to go
       ]
     ]
     set heading new-heading
-    pu
+    pen-up
   ]
   tick
 end
 
-;; Turtle procedure
-;; Because the balls travel in steps of size `speed`, they won't detect
-;; a collision at the right location. This corrects that by moving the
-;; ball back and forth by ever smaller amounts to get as close as possible
-;; to the exact position of collision. This technique is called a
-;; "binary search".
+; Turtle procedure
+; Because the balls travel in steps of size `speed`, they won't detect
+; a collision at the right location. This corrects that by moving the
+; ball back and forth by ever smaller amounts to get as close as possible
+; to the exact position of collision. This technique is called a
+; "binary search".
 to correct-collision-position [ colliding? ]
   refine-collision-position colliding? speed collision-precision
 end
 
-;; This is helper procedure for `correct-collision-position`.
+; This is helper procedure for `correct-collision-position`.
 to refine-collision-position [ colliding? dist n ]
   ifelse runresult colliding? [
     bk dist
@@ -159,10 +159,10 @@ to refine-collision-position [ colliding? dist n ]
 end
 
 
-;; Ball procedures
-;; These do collision detection. They ensure that the ball is facing the
-;; object being collided with, otherwise you can get into weird situations
-;; when the ball is very close or colliding with two objects.
+; Ball procedures
+; These do collision detection. They ensure that the ball is facing the
+; object being collided with, otherwise you can get into weird situations
+; when the ball is very close or colliding with two objects.
 
 to-report colliding-with-floor-or-ceiling?
   report (dy > 0 and ycor > max-pycor) or (dy < 0 and ycor < min-pycor)
@@ -173,14 +173,14 @@ to-report colliding-with-walls?
 end
 
 to-report colliding-with? [ agent ]
-  ;; Gets the ball's heading as an angle between -180 and 180.
-  ;; We only consider the ball to be colliding with an obstacle if it's
-  ;; generally facing that obstacle.
+  ; Gets the ball's heading as an angle between -180 and 180.
+  ; We only consider the ball to be colliding with an obstacle if it's
+  ; generally facing that obstacle.
   let h abs ((heading - towards agent + 180) mod 360 - 180)
   report h < 90 and overlap agent > 0
 end
 
-;; Ball or obstacle procedure
+; Ball or obstacle procedure
 to-report overlap [ agent ]
   report (size + [ size ] of agent) / 2 - distance agent
 end
@@ -194,13 +194,13 @@ to-report round-to [ x p ]
   report round (x * p) / p
 end
 
-;; Observer procedure
-;; This handles all the dragging code. The logic flow is as follows:
-;; If nothing is selected, and pick the closest agent. If the mouse is close to
-;; the center of the agent, prepare to set the agent's position. If the mouse is
-;; close to the edge of the agent, prepare to set a differen attribute (size in
-;; the case of obstacles and direction in the case of balls).
-;; If something is already selected, set the selected attribute.
+; Observer procedure
+; This handles all the dragging code. The logic flow is as follows:
+; If nothing is selected, and pick the closest agent. If the mouse is close to
+; the center of the agent, prepare to set the agent's position. If the mouse is
+; close to the edge of the agent, prepare to set a different attribute (size in
+; the case of obstacles and direction in the case of balls).
+; If something is already selected, set the selected attribute.
 to drag
   ifelse mouse-down? [
     ifelse target-agent = nobody [
@@ -255,14 +255,14 @@ to reset-dragging
 end
 
 
-;; Additional periodic configurations
+; Additional periodic configurations
 
 to setup-two-walls
   set num-obstacles 1
   setup [-> setxy 0 0 set size 3 ] [->  setxy 8 8 facexy 0 0]
 end
 
-to setup-corner-obst
+to setup-corner-obstacle
   set num-obstacles 1
   setup [-> setxy -8.5 -8.5 set size 0.4] [-> setxy 8 8 facexy 0 0]
 end
@@ -279,14 +279,14 @@ to setup-two-obstacles
   ask obstacle 1 [ setxy 0 -.1 ]
 end
 
-to setup-wall-obst
+to setup-wall-obstacle
   set num-obstacles 3
   setup [-> set size 1 setxy -8 -8] [-> setxy 1 0 facexy -7 -8]
   ask obstacle 1 [ setxy 2 0 ]
   ask obstacle 2 [ setxy -8 8 ]
 end
 
-;; Currently failing because it uses angles that don't round evenly.
+; Currently failing because it uses angles that don't round evenly.
 to setup-triangle
   set num-obstacles 1
   setup [-> setxy 0 8 set size 1 ] [-> setxy 0 7 facexy -8 -8]
@@ -356,7 +356,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SWITCH
 5
@@ -384,7 +384,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 5
@@ -433,7 +433,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 MONITOR
 5
@@ -461,7 +461,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 5
@@ -531,9 +531,9 @@ This model uses a number of advanced techniques:
 
 First, anonymous procedures are used to make the SETUP procedure very flexible with respect to the placement of the balls and obstacles.
 
-Second, because of the chaotic nature of this system, the collisions between objects must be handled very precisely. Because the balls move by taking steps of size SPEED each tick, the location the ball is in when it hits another object won't be the same as if the ball had been moving continuously. This error can, for instance, make what should be periodic configurations chaotic. To correct for this, the model uses a technique called [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm) to get very close to the exact location of collision very quickly. In addition, because the ATAN reporter can introduce small imprecisions, this model rounds the heading of the ball after collisions with obstacles to the neareset 100,000th of a degree.
+Second, because of the chaotic nature of this system, the collisions between objects must be handled very precisely. Because the balls move by taking steps of size SPEED each tick, the location the ball is in when it hits another object won't be the same as if the ball had been moving continuously. This error can, for instance, make what should be periodic configurations chaotic. To correct for this, the model uses a technique called [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm) to get very close to the exact location of collision very quickly. In addition, because the ATAN reporter can introduce small imprecisions, this model rounds the heading of the ball after collisions with obstacles to the nearest 100,000th of a degree.
 
-Finally, the code for dragging the obstacles and balls around shows how fairly sophisticated manipulation of agents can be done with the mouse. 
+Finally, the code for dragging the obstacles and balls around shows how fairly sophisticated manipulation of agents can be done with the mouse.
 
 ## RELATED MODELS
 
@@ -543,17 +543,7 @@ Finally, the code for dragging the obstacles and balls around shows how fairly s
 
 (a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
 
-## HOW TO CITE
-
-If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
-
-For the model itself:
-
-* Head, B and Wilensky, U. (2017).  NetLogo Chaos in a Box.  http://ccl.northwestern.edu/netlogo/models/ChaosinaBox.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-
-Please cite the NetLogo software as:
-
-* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+<!-- 2017 Cite: Head, B. -->
 @#$#@#$#@
 default
 true
@@ -868,7 +858,7 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
 NetLogo 6.0.1
 @#$#@#$#@
-setup-periodic
+setup-periodic-quilt
 add-ball
 repeat 500 [ go ]
 @#$#@#$#@
