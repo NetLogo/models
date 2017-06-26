@@ -132,6 +132,7 @@ We are about to start an ordered list.
     1. Subitems are indented 2 more spaces (4 in all).
   2. The next item in the list starts with the next number.
   3. And so on...
+```
 
 #### Formatted
 
@@ -153,6 +154,7 @@ We are about to start an unordered list.
   * Unlike ordered lists, unordered lists use stars instead of numbers.
     * Sub items are indented 2 more spaces.
     * Here's another sub item.
+```
 
 #### Formatted
 
@@ -271,15 +273,15 @@ As with local links, any spaces in the name of the file or the path must be conv
 
 #### Example
 
-Like local links, the easiest way to display images on your computer is to put them into the same directory as your model. This example displays the image "Perspective Example.png", which resides in the same directory as this model (Info Tab Example).
+Like local links, the easiest way to display images on your computer is to put them into the same directory as your model. This example displays the image "weathermap.jpg", which resides in the same directory as this model (Info Tab Example).
 
 ```text
-![Example](file:Perspective%20Example.png)
+![Example](file:weathermap.jpg)
 ```
 
 #### Formatted
 
-![Example](file:Perspective%20Example.png)
+![Example](file:weathermap.jpg)
 
 ## Block quotations
 
