@@ -73,9 +73,9 @@ end
 
 to add-ball
   ask balls with [ color = red ] [
-    ; Place the second ball at almost, but not quite, the same position as the first
-    let new-color [ color ] of max-one-of balls [ who ] + 90
+    let new-color red + 90 * count balls
     hatch-balls 1 [
+      ; Place the second ball at almost, but not quite, the same position as the first
       set heading random 360
       fd 0.05
       set heading [ heading ] of myself
@@ -304,11 +304,11 @@ end
 GRAPHICS-WINDOW
 135
 10
-573
-449
+568
+444
 -1
 -1
-25.3
+25.0
 1
 10
 1
@@ -369,7 +369,7 @@ SWITCH
 258
 trace-path?
 trace-path?
-0
+1
 1
 -1000
 
@@ -416,7 +416,7 @@ num-obstacles
 num-obstacles
 0
 10
-1.0
+4.0
 1
 1
 NIL
@@ -438,17 +438,6 @@ NIL
 NIL
 NIL
 0
-
-MONITOR
-5
-335
-130
-380
-value
-target-attribute-value
-17
-1
-11
 
 BUTTON
 5
@@ -493,11 +482,13 @@ Chaotic behavior means that any tiny change in the initial conditions (in this c
 
 ## HOW IT WORKS
 
-The ball bouncing off the walls and obstacles. The collisions are all perfectly elastic and the obstacles remain stationary. This means that the balls never change speed, only direction.
+The ball bounces off the walls and obstacles. The collisions are all perfectly elastic and the obstacles remain stationary. Finally, there is no friction. This means that the balls never change speed, only direction. Note that balls do not bounce off each other; multiple balls are just to show what happens when there are very small differences in initial position.
+
+Collisions are detected when the ball overlaps an obstacle or the edge of the world. The position is then corrected (see the NetLogo Features section for a more detailed discussion). Finally, because the collisions are perfectly elastic, the ball's new angle is the angle of reflection of its heading around the surface its collidig with.
 
 ## HOW TO USE IT
 
-Use the SETUP-RANDOM button to initialize the system in a configuration that will most likely be chaotic.
+Use the SETUP-RANDOM button to initialize the system in a configuration that will most likely be chaotic. NUM-OBSTACLES obstacles of random sizes will be placed at random positions.
 
 Use the SETUP-PERIODIC-X button to see an example of the kind of periodic behavior the system can exhibit.
 
@@ -515,7 +506,11 @@ DRAG can be used to move the balls and obstacles around, as well as change the s
 
 ## THINGS TO NOTICE
 
-Notice how the bouncing of the balls is fairly predictable until they hit the circle.
+Notice how the bouncing of the balls is fairly predictable until they hit the circle. Why do you think that is?
+
+If you run the model without an obstacle, the behavior is always periodic, though that period might be very long. Why might that be?
+
+It's very unlikely that a random configuration in which the ball collides with an obstacle will be periodic.
 
 ## THINGS TO TRY
 
@@ -527,7 +522,11 @@ Can you find other configurations that result in periodic behavior?
 
 ## EXTENDING THE MODEL
 
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
+Add obstacles of different shapes. What shapes produce chaotic behavior?
+
+Try to change the shape of the box.
+
+Currently, balls do not collide against each other. Can you make it so they do? Can you find periodic configuration in which the balls collide against each other?
 
 ## NETLOGO FEATURES
 
@@ -541,7 +540,8 @@ Finally, the code for dragging the obstacles and balls around shows how fairly s
 
 ## RELATED MODELS
 
-(models in the NetLogo Models Library and elsewhere which are of related interest)
+- The GasLab models
+- Kicked Rotator is another example of a chaotic system
 
 ## CREDITS AND REFERENCES
 
