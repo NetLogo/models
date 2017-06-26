@@ -363,10 +363,10 @@ to clock-tick
   [ set phase 0 ]
 end
 
-to hide-or-show-pen [name-of-plot]
+to-report hide-or-show-pen [ name-of-plot ]
   ifelse plots-to-display = "All three plots" or plots-to-display = name-of-plot
-  [ __plot-pen-show ]
-  [ __plot-pen-hide ]
+  [ report True ]
+  [ report False ]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -620,7 +620,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -1893860 true "" "hide-or-show-pen  \"Average Wait Time of Cars\" \nplot mean [wait-time] of turtles"
+"default" 1.0 0 -1893860 true "" "if-else hide-or-show-pen \"Average Wait Time of Cars\" [ set-plot-pen-color red ] [ set-plot-pen-color white ]\nplot mean [wait-time] of turtles"
 
 PLOT
 283
@@ -638,7 +638,7 @@ true
 false
 "set-plot-y-range 0 speed-limit" ""
 PENS
-"default" 1.0 0 -1893860 true "" "hide-or-show-pen \"Average Speed of Cars\" \nplot  mean [speed] of turtles"
+"default" 1.0 0 -1893860 true "" "if-else hide-or-show-pen \"Average Speed of Cars\" [ set-plot-pen-color red ] [ set-plot-pen-color white ]\nplot mean [speed] of turtles"
 
 BUTTON
 288
@@ -796,7 +796,7 @@ true
 false
 "set-plot-y-range 0 number" ""
 PENS
-"default" 1.0 0 -1893860 true "" "hide-or-show-pen \"Stopped Cars\"\nplot num-cars-stopped"
+"default" 1.0 0 -1893860 true "" "ifelse hide-or-show-pen \"Stopped Cars\" [ set-plot-pen-color red ] [ set-plot-pen-color white ]\nplot num-cars-stopped"
 
 BUTTON
 177
@@ -882,7 +882,7 @@ ticks-per-cycle
 ticks-per-cycle
 1
 100
-20.0
+46.0
 1
 1
 NIL
