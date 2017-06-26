@@ -49,7 +49,7 @@ end
 ; slider FIREWORKS and sets all the initial values for each firework.
 to init-rockets
   clear-drawing
-  create-rockets (random fireworks) [
+  create-rockets (random max-fireworks) + 1 [
     setxy random-xcor min-pycor
     set x-vel ((random-float (2 * initial-x-vel)) - (initial-x-vel))
     set y-vel ((random-float initial-y-vel) + initial-y-vel * 2)
@@ -183,8 +183,8 @@ SLIDER
 38
 232
 71
-fireworks
-fireworks
+max-fireworks
+max-fireworks
 1
 40
 20.0
