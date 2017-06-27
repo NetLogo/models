@@ -353,4 +353,7 @@ class CodeTests extends TestModels {
     testLines(_.allSources.mkString("\n"), l => pattern.findFirstIn(l).isDefined)
   }
 
+  testModels("Code should not contain reviewer comments (e.g. `{{{` or `}}}`)") {
+    testLines(_.allSources.mkString("\n"), l => """\{\{\{|\}\}\}""".r.findFirstIn(l).isDefined)
+  }
 }

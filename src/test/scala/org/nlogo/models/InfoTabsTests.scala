@@ -71,6 +71,11 @@ class InfoTabsTests extends TestModels {
     testLines(_.info, pattern.matcher(_).matches)
   }
 
+  testModels("Info tab should not contain reviewer comments (e.g. `{{{` or `}}}`)") {
+    val pattern = """\{\{\{|\}\}\}""".r.pattern
+    testLines(_.info, pattern.matcher(_).find)
+  }
+
   val codeTestsExceptions = Set(
     "Example HubNet" // because the code block in it uses procedure names that don't exist
   )
