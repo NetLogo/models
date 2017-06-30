@@ -132,6 +132,7 @@ We are about to start an ordered list.
     1. Subitems are indented 2 more spaces (4 in all).
   2. The next item in the list starts with the next number.
   3. And so on...
+```
 
 #### Formatted
 
@@ -153,6 +154,7 @@ We are about to start an unordered list.
   * Unlike ordered lists, unordered lists use stars instead of numbers.
     * Sub items are indented 2 more spaces.
     * Here's another sub item.
+```
 
 #### Formatted
 
