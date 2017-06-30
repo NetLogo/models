@@ -21,7 +21,10 @@ libraryDependencies ++= Seq(
   "org.asynchttpclient" % "async-http-client" % "2.0.24",
   "com.github.wookietreiber" %% "scala-chart" % "0.5.1",
   "com.googlecode.java-diff-utils" % "diffutils" % "1.2" % "test",
-  "org.jfree" % "jfreesvg" % "3.0"
+  "org.jfree" % "jfreesvg" % "3.0",
+  "com.vladsch.flexmark" % "flexmark" % "0.20.0" % "test",
+  "com.vladsch.flexmark" % "flexmark-ext-autolink" % "0.20.0" % "test",
+  "com.vladsch.flexmark" % "flexmark-util" % "0.20.0" % "test"
 )
 
 (test in Test) <<= (test in Test) dependsOn {
