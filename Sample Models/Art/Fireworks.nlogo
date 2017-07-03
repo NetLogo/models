@@ -632,7 +632,7 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 NetLogo 6.0.1
 @#$#@#$#@
 set trails? true
-set fireworks 30
+set max-fireworks 30
 random-seed 3
 setup
 repeat 50 [ go ]
