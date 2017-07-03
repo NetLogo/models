@@ -545,7 +545,7 @@ Finally, the code for dragging the obstacles and balls around shows how fairly s
 
 ## CREDITS AND REFERENCES
 
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+Thanks for Dirk Brockman for sharing the ideas behind this model with us.
 
 ## HOW TO CITE
 
