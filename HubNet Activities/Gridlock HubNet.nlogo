@@ -1,48 +1,48 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Variable declarations ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;
+; Variable declarations ;
+;;;;;;;;;;;;;;;;;;;;;;;;;
 
 globals
 [
-  grid-x-inc  ;; the amount of patches in between two roads in the x direction
-  grid-y-inc  ;; the amount of patches in between two roads in the y direction
-  acceleration  ;; the constant that controls how much a car speeds up or slows down by if it is to accelerate or decelerate
-  phase  ;; keeps track of the phase
-  num-cars-stopped  ;; the number of cars that are stopped during a single pass thru the go procedure
-  old-display-which-metric  ;; holds the value of display-which-metric for the last time through the go procedure
+  grid-x-inc  ; the amount of patches in between two roads in the x direction
+  grid-y-inc  ; the amount of patches in between two roads in the y direction
+  acceleration  ; the constant that controls how much a car speeds up or slows down by if it is to accelerate or decelerate
+  phase  ; keeps track of the phase
+  num-cars-stopped  ; the number of cars that are stopped during a single pass thru the go procedure
+  old-display-which-metric  ; holds the value of display-which-metric for the last time through the go procedure
 
-  ;; patch agentsets
-  intersections  ;; agentset containing the patches that are intersections
-  roads  ;; agentset containing the patches that are roads
+  ; patch agentsets
+  intersections  ; agentset containing the patches that are intersections
+  roads  ; agentset containing the patches that are roads
 
-  ;;quick start instructions variables
-  quick-start  ;; the current quickstart instruction displayed in the quickstart monitor
-  qs-item  ;; the index of the current quickstart instruction
-  qs-items  ;; the list of quickstart instructions
+  ;quick start instructions variables
+  quick-start  ; the current quickstart instruction displayed in the quickstart monitor
+  qs-item  ; the index of the current quickstart instruction
+  qs-items  ; the list of quickstart instructions
 ]
 
 turtles-own
 [
-  speed  ;; the speed of the turtle
-  up-car?  ;; this will be true if the turtle moves downwards and false if it moves to the right
-  wait-time  ;; the amount of time since the last time a turtle has moved
+  speed  ; the speed of the turtle
+  up-car?  ; this will be true if the turtle moves downwards and false if it moves to the right
+  wait-time  ; the amount of time since the last time a turtle has moved
 ]
 
 patches-own
 [
-  intersection?  ;; this is true if the patch is at the intersection of two roads
-  accident?  ;; this is true if a crash has occurred at this intersection.  this will never be true for a non-intersection patch
-  green-light-up?  ;; this is true if the green light is above the intersection.  otherwise, it is false.  this is only true for patches that are intersections.
-  my-row  ;; this holds the row of the intersection counting from the upper left corner of the view.  it is -1 for patches that are not intersections.
-  my-column  ;; this holds the column of the intersection counting from the upper left corner of the view.  it is -1 for patches that are not intersections.
-  user-id  ;; this holds the user-id that corresponds to the intersection.  it is -1 for patches that are not intersections.
-  my-phase  ;; this holds the phase for the intersection.  it is -1 for patches that are not intersections.
+  intersection?  ; this is true if the patch is at the intersection of two roads
+  accident?  ; this is true if a crash has occurred at this intersection.  this will never be true for a non-intersection patch
+  green-light-up?  ; this is true if the green light is above the intersection.  otherwise, it is false.  this is only true for patches that are intersections.
+  my-row  ; this holds the row of the intersection counting from the upper left corner of the view.  it is -1 for patches that are not intersections.
+  my-column  ; this holds the column of the intersection counting from the upper left corner of the view.  it is -1 for patches that are not intersections.
+  user-id  ; this holds the user-id that corresponds to the intersection.  it is -1 for patches that are not intersections.
+  my-phase  ; this holds the phase for the intersection.  it is -1 for patches that are not intersections.
 ]
 
 
-;;;;;;;;;;;;;;;;;;;;;
-;; Setup Functions ;;
-;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;
+; Setup Functions ;
+;;;;;;;;;;;;;;;;;;;
 
 to startup
   setup
@@ -50,12 +50,12 @@ to startup
   hubnet-reset
 end
 
-;; Initialize the display by giving the global and patch variables initial values.
-;; Create num-cars of turtles if there are enough road patches for one turtle to be created per road patch.
-;; Setup the plots
-;; All code in setup is done if full-setup? is true.  If it is false, then it doesn't clear the information
-;; about the users; users still retain the same light that they had before.
-;; "setup false" is done by the re-run button.
+; Initialize the display by giving the global and patch variables initial values.
+; Create num-cars of turtles if there are enough road patches for one turtle to be created per road patch.
+; Setup the plots
+; All code in setup is done if full-setup? is true.  If it is false, then it doesn't clear the information
+; about the users; users still retain the same light that they had before.
+; "setup false" is done by the re-run button.
 to setup
   clear-output
   clear-turtles
@@ -73,7 +73,7 @@ to setup
     clear-patches
     setup-patches
     setup-intersections
-    ;; reassign the clients to intersections
+    ; reassign the clients to intersections
     (foreach users phases [ [the-user the-phase] ->
       get-free-intersection the-user
       ask intersections with [ user-id = the-user ]
@@ -92,7 +92,7 @@ to setup
     stop
   ]
 
-  ;; Now create the turtles and have each created turtle call the functions setup-cars and set-car-color
+  ; Now create the turtles and have each created turtle call the functions setup-cars and set-car-color
   create-turtles number
   [
     setup-cars
@@ -100,28 +100,28 @@ to setup
     record-data
   ]
 
-  ;; give the turtles an initial speed
+  ; give the turtles an initial speed
   ask turtles
   [ set-car-speed ]
 
   reset-ticks
 end
 
-;; Initialize the global variables to appropriate values
+; Initialize the global variables to appropriate values
 to setup-globals
   set phase 0
   set num-cars-stopped 0
   set grid-x-inc world-width / grid-size-x
   set grid-y-inc world-height / grid-size-y
 
-  ;; don't make acceleration 0.1 since we could get a rounding error and end up on a patch boundary
+  ; don't make acceleration 0.1 since we could get a rounding error and end up on a patch boundary
   set acceleration 0.099
 end
 
-;; Make the patches have appropriate colors, setup the roads and intersections agentsets,
-;; and initialize the traffic lights to one setting
+; Make the patches have appropriate colors, setup the roads and intersections agentsets,
+; and initialize the traffic lights to one setting
 to setup-patches
-  ;; initialize the patch-own variables and color the patches to a base-color
+  ; initialize the patch-own variables and color the patches to a base-color
   ask patches
   [
     set intersection? false
@@ -135,7 +135,7 @@ to setup-patches
     set pcolor brown + 3
   ]
 
-  ;; initialize the global variables that hold patch agentsets
+  ; initialize the global variables that hold patch agentsets
   set roads patches with [ (floor ((pxcor + max-pxcor - floor(grid-x-inc - 1)) mod grid-x-inc) = 0) or
                            (floor ((pycor + max-pycor) mod grid-y-inc) = 0) ]
   set intersections roads with [ (floor ((pxcor + max-pxcor - floor(grid-x-inc - 1)) mod grid-x-inc) = 0) and
@@ -145,9 +145,9 @@ to setup-patches
   [ set pcolor white ]
 end
 
-;; Give the intersections appropriate values for the intersection?, my-row, and my-column
-;; patch variables.  Make all the traffic lights start off so that the lights are red
-;; horizontally and green vertically.
+; Give the intersections appropriate values for the intersection?, my-row, and my-column
+; patch variables.  Make all the traffic lights start off so that the lights are red
+; horizontally and green vertically.
 to setup-intersections
   ask intersections
   [
@@ -160,8 +160,8 @@ to setup-intersections
   ]
 end
 
-;; Initialize the turtle variables to appropriate values and place the turtle on an empty road patch.
-to setup-cars  ;; turtle procedure
+; Initialize the turtle variables to appropriate values and place the turtle on an empty road patch.
+to setup-cars  ; turtle procedure
   set speed 0
   set wait-time 0
 
@@ -184,34 +184,34 @@ to setup-cars  ;; turtle procedure
   [ set heading 90 ]
 end
 
-;; Find a road patch without any turtles on it and place the turtle there.
-to put-on-empty-road  ;; turtle procedure
+; Find a road patch without any turtles on it and place the turtle there.
+to put-on-empty-road  ; turtle procedure
   move-to one-of roads
   if any? other turtles-here
   [ put-on-empty-road ]
 end
 
-;;;;;;;;;;;;;;;;;;;;;;;
-;; Runtime Functions ;;
-;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;
+; Runtime Functions ;
+;;;;;;;;;;;;;;;;;;;;;
 
-;; receives information from the clients and runs the simulation
+; receives information from the clients and runs the simulation
 to go
-  ;; get commands and data from the clients
+  ; get commands and data from the clients
   listen-clients
 
   every delay
   [
-    ;; clear any accidents from the last time thru the go procedure
+    ; clear any accidents from the last time thru the go procedure
     clear-accidents
 
-    ;; if there are any intersections that are to switch automatically, have them change their color
+    ; if there are any intersections that are to switch automatically, have them change their color
     set-signals
     set num-cars-stopped 0
 
-    ;; set the turtles speed for this time thru the procedure, move them forward their speed,
-    ;; record data for plotting, and set the color of the turtles
-    ;; to an appropriate color based on their speed
+    ; set the turtles speed for this time thru the procedure, move them forward their speed,
+    ; record data for plotting, and set the color of the turtles
+    ; to an appropriate color based on their speed
     ask turtles
     [
       set-car-speed
@@ -219,23 +219,23 @@ to go
       record-data
       set-car-color
     ]
-    ;; crash the cars if crash? is true
+    ; crash the cars if crash? is true
     if crash?
     [ crash-cars ]
 
-    ;; update the clock and the phase
+    ; update the clock and the phase
     clock-tick
   ]
 end
 
-;; reports the amount of seconds by which to slow the model down
+; reports the amount of seconds by which to slow the model down
 to-report delay
   ifelse simulation-speed <= 0
   [ report ln (10 / 0.001) ]
   [ report ln (10 / simulation-speed) ]
 end
 
-;; have the traffic lights change color if phase equals each intersections' my-phase
+; have the traffic lights change color if phase equals each intersections' my-phase
 to set-signals
   ask intersections with
   [ phase = floor ((my-phase * ticks-per-cycle) / 100) and ( auto? or user-id = -1 ) ]
@@ -245,9 +245,9 @@ to set-signals
   ]
 end
 
-;; This procedure checks the variable green-light-up? at each intersection and sets the
-;; traffic lights to have the green light up or the green light to the left.
-to set-signal-colors  ;; intersection (patch) procedure
+; This procedure checks the variable green-light-up? at each intersection and sets the
+; traffic lights to have the green light up or the green light to the left.
+to set-signal-colors  ; intersection (patch) procedure
   ifelse power?
   [
     ifelse green-light-up?
@@ -266,7 +266,7 @@ to set-signal-colors  ;; intersection (patch) procedure
   ]
 end
 
-;; set any intersection's color that had an accident back to white and make accident? false
+; set any intersection's color that had an accident back to white and make accident? false
 to clear-accidents
   if crash?
   [
@@ -278,9 +278,9 @@ to clear-accidents
   ]
 end
 
-;; set the turtles' speed based on whether they are at a red traffic light or the speed of the
-;; turtle (if any) on the patch in front of them
-to set-car-speed  ;; turtle procedure
+; set the turtles' speed based on whether they are at a red traffic light or the speed of the
+; turtle (if any) on the patch in front of them
+to set-car-speed  ; turtle procedure
   ifelse pcolor = red
   [ set speed 0 ]
   [
@@ -290,13 +290,13 @@ to set-car-speed  ;; turtle procedure
   ]
 end
 
-;; set the speed variable of the turtle to an appropriate value (not exceeding the
-;; speed limit) based on whether there are turtles on the patch in front of the turtle
-to set-speed [delta-x delta-y]  ;; turtle procedure
+; set the speed variable of the turtle to an appropriate value (not exceeding the
+; speed limit) based on whether there are turtles on the patch in front of the turtle
+to set-speed [delta-x delta-y]  ; turtle procedure
   let turtles-ahead turtles-on patch-at delta-x delta-y
 
-  ;; if there are turtles in front of the turtle, slow down
-  ;; otherwise, speed up
+  ; if there are turtles in front of the turtle, slow down
+  ; otherwise, speed up
   ifelse any? turtles-ahead
   [
     let up-cars?-ahead [up-car?] of turtles-ahead
@@ -313,30 +313,30 @@ to set-speed [delta-x delta-y]  ;; turtle procedure
   [ speed-up ]
 end
 
-;; decrease the speed of the turtle
-to slow-down  ;; turtle procedure
-  ifelse speed <= 0  ;;if speed < 0
+; decrease the speed of the turtle
+to slow-down  ; turtle procedure
+  ifelse speed <= 0  ;if speed < 0
   [ set speed 0 ]
   [ set speed speed - acceleration ]
 end
 
-;; increase the speed of the turtle
-to speed-up  ;; turtle procedure
+; increase the speed of the turtle
+to speed-up  ; turtle procedure
   ifelse speed > speed-limit
   [ set speed speed-limit ]
   [ set speed speed + acceleration ]
 end
 
-;; set the color of the turtle to a different color based on how fast the turtle is moving
-to set-car-color  ;; turtle procedure
+; set the color of the turtle to a different color based on how fast the turtle is moving
+to set-car-color  ; turtle procedure
   ifelse speed < (speed-limit / 2)
   [ set color blue ]
   [ set color cyan - 2 ]
 end
 
-;; keep track of the number of stopped turtles and the amount of time a turtle has been stopped
-;; if its speed is 0
-to record-data  ;; turtle procedure
+; keep track of the number of stopped turtles and the amount of time a turtle has been stopped
+; if its speed is 0
+to record-data  ; turtle procedure
   ifelse speed = 0
   [
     set num-cars-stopped num-cars-stopped + 1
@@ -345,7 +345,7 @@ to record-data  ;; turtle procedure
   [ set wait-time 0 ]
 end
 
-;; crash any turtles at the same intersection going in different directions
+; crash any turtles at the same intersection going in different directions
 to crash-cars
   ask intersections with [any? turtles-here with [up-car?] and any? turtles-here with [not up-car?]]
   [
@@ -354,26 +354,26 @@ to crash-cars
   ]
 end
 
-;; increases the clock by 1 and cycles phase to the next appropriate value
+; increases the clock by 1 and cycles phase to the next appropriate value
 to clock-tick
   tick
-  ;; The phase cycles from 0 to ticks-per-cycle, then starts over.
+  ; The phase cycles from 0 to ticks-per-cycle, then starts over.
   set phase phase + 1
   if phase mod ticks-per-cycle = 0
   [ set phase 0 ]
 end
 
-to hide-or-show-pen [name-of-plot]
+to-report hide-or-show-pen [ name-of-plot ]
   ifelse plots-to-display = "All three plots" or plots-to-display = name-of-plot
-  [ __plot-pen-show ]
-  [ __plot-pen-hide ]
+  [ report True ]
+  [ report False ]
 end
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Quick Start functions ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;
+; Quick Start functions ;
+;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; instructions to quickly setup the model, and clients to run this activity
+; instructions to quickly setup the model, and clients to run this activity
 to setup-quick-start
   set qs-item 0
   set qs-items
@@ -425,7 +425,7 @@ to setup-quick-start
   set quick-start (item qs-item qs-items)
 end
 
-;; view the next item in the quickstart monitor
+; view the next item in the quickstart monitor
 to view-next
   set qs-item qs-item + 1
   if qs-item >= length qs-items
@@ -433,7 +433,7 @@ to view-next
   set quick-start (item qs-item qs-items)
 end
 
-;; view the previous item in the quickstart monitor
+; view the previous item in the quickstart monitor
 to view-prev
   set qs-item qs-item - 1
   if qs-item < 0
@@ -442,11 +442,11 @@ to view-prev
 end
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Code for interacting with the clients ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Code for interacting with the clients ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; when a command is sent, find out which client sent it and then execute the command
+; when a command is sent, find out which client sent it and then execute the command
 to listen-clients
   while [hubnet-message-waiting?]
   [
@@ -454,7 +454,7 @@ to listen-clients
     ifelse hubnet-enter-message?
     [
       give-intersection-coords
-      wait 1  ;; we want to give some time for other clients to log in on this round
+      wait 1  ; we want to give some time for other clients to log in on this round
     ]
     [
       ifelse hubnet-exit-message?
@@ -473,26 +473,26 @@ to listen-clients
   ]
 end
 
-;; when a new client logs in, if there are free intersections,
-;; assign one of them to that client
-;; if this current-id already has an intersection, give the client that intersection.
+; when a new client logs in, if there are free intersections,
+; assign one of them to that client
+; if this current-id already has an intersection, give the client that intersection.
 to give-intersection-coords
   let current-id hubnet-message-source
   ifelse not any? intersections with [user-id = current-id]
   [
-      ;; the case where they tried logging in previously but there was no room for them
-      ;; or they haven't logged in before
+      ; the case where they tried logging in previously but there was no room for them
+      ; or they haven't logged in before
       get-free-intersection current-id
   ]
   [
-    ;; otherwise, we already have an intersection for the current-id.
-    ;; all we need to do is send where the light is located at
+    ; otherwise, we already have an intersection for the current-id.
+    ; all we need to do is send where the light is located at
     ask intersections with [user-id = current-id]
     [ hubnet-send current-id "Located At:" (word "(" my-column "," my-row ")") ]
   ]
 end
 
-;; when a client disconnects, free up its intersection
+; when a client disconnects, free up its intersection
 to abandon-intersection
   ask intersections with [user-id = hubnet-message-source]
   [
@@ -502,12 +502,12 @@ to abandon-intersection
   ]
 end
 
-;; if there are any free intersections, pick one of them at random and give it to the current-id.
-;; if there are not any free intersections, toss an error and put error values into the list
+; if there are any free intersections, pick one of them at random and give it to the current-id.
+; if there are not any free intersections, toss an error and put error values into the list
 to get-free-intersection [current-id]
   ifelse any? intersections with [user-id = -1]
   [
-    ;; pick a random intersection that hasn't been taken yet
+    ; pick a random intersection that hasn't been taken yet
     ask one-of intersections with [user-id = -1]
     [
       set user-id current-id
@@ -525,7 +525,7 @@ to get-free-intersection [current-id]
   ]
 end
 
-;; switch the traffic lights at the intersection for the client with user-id
+; switch the traffic lights at the intersection for the client with user-id
 to manual [current-id]
   if not auto?
   [
@@ -537,8 +537,8 @@ to manual [current-id]
   ]
 end
 
-;; change the value of the phase for the intersection at (xc,yc) to
-;; the value passed by the client
+; change the value of the phase for the intersection at (xc,yc) to
+; the value passed by the client
 to auto [current-id]
   ask intersections with [user-id = current-id]
   [
@@ -620,7 +620,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -1893860 true "" "hide-or-show-pen  \"Average Wait Time of Cars\" \nplot mean [wait-time] of turtles"
+"default" 1.0 0 -1893860 true "" "if-else hide-or-show-pen \"Average Wait Time of Cars\" [ set-plot-pen-color red ] [ set-plot-pen-color white ]\nplot mean [wait-time] of turtles"
 
 PLOT
 283
@@ -638,7 +638,7 @@ true
 false
 "set-plot-y-range 0 speed-limit" ""
 PENS
-"default" 1.0 0 -1893860 true "" "hide-or-show-pen \"Average Speed of Cars\" \nplot  mean [speed] of turtles"
+"default" 1.0 0 -1893860 true "" "if-else hide-or-show-pen \"Average Speed of Cars\" [ set-plot-pen-color red ] [ set-plot-pen-color white ]\nplot mean [speed] of turtles"
 
 BUTTON
 288
@@ -796,7 +796,7 @@ true
 false
 "set-plot-y-range 0 number" ""
 PENS
-"default" 1.0 0 -1893860 true "" "hide-or-show-pen \"Stopped Cars\"\nplot num-cars-stopped"
+"default" 1.0 0 -1893860 true "" "ifelse hide-or-show-pen \"Stopped Cars\" [ set-plot-pen-color red ] [ set-plot-pen-color white ]\nplot num-cars-stopped"
 
 BUTTON
 177
