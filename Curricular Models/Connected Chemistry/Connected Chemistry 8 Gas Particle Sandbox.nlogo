@@ -1,9 +1,8 @@
-globals
-[
-  tick-advance-amount                        ;; how much we advance the tick counter this time through
-  max-tick-advance-amount                    ;; the largest tick-advance-amount is allowed to be
-  init-avg-speed init-avg-energy    ;; initial averages
-  avg-speed avg-energy              ;; current average
+globals [
+  tick-advance-amount               ; how much we advance the tick counter this time through
+  max-tick-advance-amount           ; the largest tick-advance-amount is allowed to be
+  init-avg-speed init-avg-energy    ; initial averages
+  avg-speed avg-energy              ; current average
   avg-energy-green
   avg-energy-orange
   avg-energy-purple
@@ -19,22 +18,18 @@ breed [ particles particle ]
 breed [ walls wall ]
 breed [ flashes flash ]
 breed [ erasers eraser ]
-
 breed [ arrowheads arrowhead ]
 
-erasers-own [pressure?]
+erasers-own [ pressure? ]
+flashes-own [ birthday ]
 
-flashes-own [birthday]
-
-particles-own
-[
-  speed mass energy          ;; particles info
+particles-own [
+  speed mass energy          ; particles info
   last-collision
   color-type
 ]
 
-walls-own
-[
+walls-own [
   energy
   valve-1?
   valve-2?
@@ -56,14 +51,19 @@ to setup
   set-default-shape arrowheads "default"
 
   set min-particle-energy 0
-  set max-particle-energy 10000  ;;(.5 ) * ( max-dist-in-tick-advance-amount  / max-tick-advance-amount ) ^ 2
+  set max-particle-energy 10000  ;(.5 ) * ( max-dist-in-tick-advance-amount  / max-tick-advance-amount ) ^ 2
 
-  create-erasers 1 [set hidden? true set pressure? true set size 3 set color white]
+  create-erasers 1 [
+    set hidden? true
+    set pressure? true
+    set size 3
+    set color white
+  ]
 
   make-box
   make-particles
 
-  ask particles [ apply-speed-visualization]
+  ask particles [ apply-speed-visualization ]
 
   set init-avg-speed avg-speed
   set init-avg-energy avg-energy
@@ -76,17 +76,18 @@ end
 to go
   mouse-action
   if mouse-interaction = "none - let the particles interact"  [
-  ask particles [ bounce ]
-  ask particles [ move ]
-  ask particles [ check-for-collision ]
-  ask particles with [any? walls-here] [rewind-to-bounce]
-  ask particles with [any? walls-here] [remove-from-walls]
-]
+    ask particles [ bounce ]
+    ask particles [ move ]
+    ask particles [ check-for-collision ]
+    ask particles with [ any? walls-here ] [ rewind-to-bounce ]
+    ask particles with [ any? walls-here ] [ remove-from-walls ]
+  ]
+
   tick-advance tick-advance-amount
   calculate-tick-advance-amount
 
-  ask flashes [apply-flash-visualization]
-  ask particles [apply-speed-visualization]
+  ask flashes [ apply-flash-visualization ]
+  ask particles [ apply-speed-visualization ]
 
   update-variables
   do-plotting
@@ -96,18 +97,19 @@ end
 
 to update-variables
   if any? particles [
-    set avg-speed  mean [speed] of particles
-    set avg-energy mean [energy] of particles
+    set avg-speed  mean [ speed ] of particles
+    set avg-energy mean [ energy ] of particles
   ]
 
-  if any? particles with [color-type = 55]
-    [set avg-energy-green mean [energy] of particles with [color-type = 55]]
-  if any? particles with [color-type = 25]
-    [set avg-energy-orange mean [energy] of particles with [color-type = 25]]
- if any? particles with [color-type = 115]
-      [set avg-energy-purple mean [energy] of particles with [color-type = 115]]
-
-
+  if any? particles with [ color-type = 55 ] [
+    set avg-energy-green mean [ energy ] of particles with [ color-type = 55 ]
+  ]
+  if any? particles with [ color-type = 25 ] [
+    set avg-energy-orange mean [ energy ] of particles with [ color-type = 25 ]
+  ]
+  if any? particles with [ color-type = 115 ] [
+    set avg-energy-purple mean [ energy ] of particles with [ color-type = 115 ]
+  ]
 end
 
 
@@ -117,24 +119,38 @@ end
 
 
 to toggle-red-wall
-  ifelse toggle-red-state = "closed"
-     [ask walls with [valve-1?] [set hidden? true] set toggle-red-state "open"]
-     [ask walls with [valve-1?] [set hidden? false] set toggle-red-state "closed"]
+  ifelse toggle-red-state = "closed" [
+    ask walls with [ valve-1? ] [
+      set hidden? true
+    ]
+    set toggle-red-state "open"
+  ][
+    ask walls with [ valve-1? ] [
+      set hidden? false
+    ]
+    set toggle-red-state "closed"
+  ]
 end
 
 to toggle-green-wall
-  ifelse toggle-green-state = "closed"
-     [ask walls with [valve-2?] [set hidden? true] set toggle-green-state "open"]
-     [ask walls with [valve-2?] [set hidden? false] set toggle-green-state "closed"]
+  ifelse toggle-green-state = "closed" [
+    ask walls with [ valve-2? ] [
+      set hidden? true
+    ]
+    set toggle-green-state "open"
+  ][
+    ask walls with [ valve-2?] [
+      set hidden? false
+    ]
+    set toggle-green-state "closed"
+  ]
 end
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;GAS MOLECULES MOVEMENT;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-to bounce  ;; particles procedure
-  ;; get the coordinates of the patch we'll be on if we go forward 1
+to bounce  ; particles procedure
+  ; get the coordinates of the patch we'll be on if we go forward 1
   let bounce-patch nobody
   let bounce-patches nobody
   let hit-angle 0
@@ -143,41 +159,42 @@ to bounce  ;; particles procedure
   let new-py 0
   let visible-wall nobody
 
-  set bounce-patch  min-one-of walls in-cone ((sqrt (2)) / 2) 180 with [myself != this-patch] [distance myself ]
+  set bounce-patch  min-one-of walls in-cone ((sqrt (2)) / 2) 180 with [ myself != this-patch ] [ distance myself ]
 
   if bounce-patch != nobody [
-
-    set new-px [pxcor] of bounce-patch
-    set new-py [pycor] of bounce-patch
+    set new-px [ pxcor ] of bounce-patch
+    set new-py [ pycor ] of bounce-patch
     set visible-wall walls-on bounce-patch
 
-  if any? visible-wall with [not hidden?]  [
-     set hit-angle towards bounce-patch
-     ifelse (hit-angle <= 135 and hit-angle >= 45) or (hit-angle <= 315 and hit-angle >= 225)
-       [set heading (- heading) ]
-      [set heading (180 - heading) ]
-
-       if show-wall-hits? [
-    ask patch new-px new-py
-    [ sprout 1 [
-      set breed flashes
-      set color gray - 2
-      set birthday ticks
+    if any? visible-wall with [ not hidden? ]  [
+      set hit-angle towards bounce-patch
+      ifelse (hit-angle <= 135 and hit-angle >= 45) or (hit-angle <= 315 and hit-angle >= 225) [
+        set heading (- heading)
+      ][
+        set heading (180 - heading)
+      ]
+      if show-wall-hits? [
+        ask patch new-px new-py [
+          sprout 1 [
+            set breed flashes
+            set color gray - 2
+            set birthday ticks
+          ]
+        ]
       ]
     ]
-    ]
-    ]]
+  ]
 end
 
 
-to rewind-to-bounce  ;; particles procedure
-  ;; attempts to deal with particle penetration by rewinding the particle path back to a point
-  ;; where it is about to hit a wall
-  ;; the particle path is reversed 49% of the previous tick-advance-amount it made,
-  ;; then particle collision with the wall is detected again.
-  ;; and the particle bounces off the wall using the remaining 51% of the tick-advance-amount.
-  ;; this use of slightly more of the tick-advance-amount for forward motion off the wall, helps
-  ;; insure the particle doesn't get stuck inside the wall on the bounce.
+to rewind-to-bounce  ; particles procedure
+  ; attempts to deal with particle penetration by rewinding the particle path back to a point
+  ; where it is about to hit a wall
+  ; the particle path is reversed 49% of the previous tick-advance-amount it made,
+  ; then particle collision with the wall is detected again.
+  ; and the particle bounces off the wall using the remaining 51% of the tick-advance-amount.
+  ; this use of slightly more of the tick-advance-amount for forward motion off the wall, helps
+  ; insure the particle doesn't get stuck inside the wall on the bounce.
 
   let bounce-patch nobody
   let bounce-patches nobody
@@ -190,7 +207,7 @@ to rewind-to-bounce  ;; particles procedure
   bk (speed) * tick-advance-amount * .49
   set this-patch  patch-here
 
-  set bounce-patch  min-one-of walls in-cone ((sqrt (2)) / 2) 180 with [self != this-patch] [distance myself ]
+  set bounce-patch  min-one-of walls in-cone ((sqrt (2)) / 2) 180 with [ self != this-patch ] [ distance myself ]
 
   if bounce-patch != nobody [
 
@@ -198,31 +215,31 @@ to rewind-to-bounce  ;; particles procedure
     set new-py [pycor] of bounce-patch
     set visible-wall walls-on bounce-patch
 
-
     if any? visible-wall with [not hidden?] [
       set hit-angle towards bounce-patch
 
-      ifelse (hit-angle <= 135 and hit-angle >= 45) or (hit-angle <= 315 and hit-angle >= 225)
-        [set heading (- heading) ]
-        [set heading (180 - heading) ]
+      ifelse (hit-angle <= 135 and hit-angle >= 45) or (hit-angle <= 315 and hit-angle >= 225) [
+        set heading (- heading)
+      ][
+        set heading (180 - heading)
+      ]
 
       if show-wall-hits? [
-        ask patch new-px new-py
-        [ sprout 1 [
+        ask patch new-px new-py [
+          sprout 1 [
             set breed flashes
             set color gray - 2
             set birthday ticks
           ]
         ]
       ]
-    ]]
-    fd (speed) * tick-advance-amount * .51
+    ]
+  ]
+  fd (speed) * tick-advance-amount * .51
 end
 
-
-to move  ;; particles procedure
-  if patch-ahead (speed * tick-advance-amount) != patch-here
-    [ set last-collision nobody ]
+to move  ; particles procedure
+  if patch-ahead (speed * tick-advance-amount) != patch-here [ set last-collision nobody ]
   jump (speed * tick-advance-amount)
 end
 
@@ -232,66 +249,64 @@ end
 ;;from GasLab
 
 to calculate-tick-advance-amount
-  ;; tick-advance-amount is calculated in such way that even the fastest
-  ;; particles will jump at most 1 patch delta in a ticks tick. As
-  ;; particles jump (speed * tick-advance-amount) at every ticks tick, making
-  ;; tick delta the inverse of the speed of the fastest particles
-  ;; (1/max speed) assures that. Having each particles advance at most
-   ; one patch-delta is necessary for it not to "jump over" a wall
-   ; or another particles.
-  ifelse any? particles with [speed > 0]
-    [ set tick-advance-amount min list (1 / (ceiling max [speed] of particles )) max-tick-advance-amount ]
-    [ set tick-advance-amount max-tick-advance-amount ]
+  ; tick-advance-amount is calculated in such way that even the fastest
+  ; particles will jump at most 1 patch delta in a ticks tick. As
+  ; particles jump (speed * tick-advance-amount) at every ticks tick, making
+  ; tick delta the inverse of the speed of the fastest particles
+  ; (1/max speed) assures that. Having each particles advance at most
+  ; one patch-delta is necessary for it not to "jump over" a wall
+  ; or another particles.
+  ifelse any? particles with [ speed > 0 ] [
+    set tick-advance-amount min list (1 / (ceiling max [speed] of particles )) max-tick-advance-amount
+  ][
+    set tick-advance-amount max-tick-advance-amount
+  ]
 end
 
+to check-for-collision  ; particles procedure
+  ; Here we impose a rule that collisions only take place when there
+  ; are exactly two particles per patch.  We do this because when the
+  ; student introduces new particles from the side, we want them to
+  ; form a uniform wavefront.
+  ;
+  ; Why do we want a uniform wavefront?  Because it is actually more
+  ; realistic.  (And also because the curriculum uses the uniform
+  ; wavefront to help teach the relationship between particles collisions,
+  ; wall hits, and pressure.)
+  ;
+  ; Why is it realistic to assume a uniform wavefront?  Because in reality,
+  ; whether a collision takes place would depend on the actual headings
+  ; of the particles, not merely on their proximity.  Since the particles
+  ; in the wavefront have identical speeds and near-identical headings,
+  ; in reality they would not collide.  So even though the two-particles
+  ; rule is not itself realistic, it produces a realistic result.  Also,
+  ; unless the number of particles is extremely large, it is very rare
+  ; for three or  particles to land on the same patch (for example,
+  ; with 400 particles it happens less than 1% of the time).  So imposing
+  ; this additional rule should have only a negligible effect on the
+  ; aggregate behavior of the system.
+  ;
+  ; Why does this rule produce a uniform wavefront?  The particles all
+  ; start out on the same patch, which means that without the only-two
+  ; rule, they would all start colliding with each other immediately,
+  ; resulting in much random variation of speeds and headings.  With
+  ; the only-two rule, they are prevented from colliding with each other
+  ; until they have spread out a lot.  (And in fact, if you observe
+  ; the wavefront closely, you will see that it is not completely smooth,
+  ; because  collisions eventually do start occurring when it thins out while fanning.)
 
-to check-for-collision  ;; particles procedure
-  ;; Here we impose a rule that collisions only take place when there
-  ;; are exactly two particles per patch.  We do this because when the
-  ;; student introduces new particles from the side, we want them to
-  ;; form a uniform wavefront.
-  ;;
-  ;; Why do we want a uniform wavefront?  Because it is actually more
-  ;; realistic.  (And also because the curriculum uses the uniform
-  ;; wavefront to help teach the relationship between particles collisions,
-  ;; wall hits, and pressure.)
-  ;;
-  ;; Why is it realistic to assume a uniform wavefront?  Because in reality,
-  ;; whether a collision takes place would depend on the actual headings
-  ;; of the particles, not merely on their proximity.  Since the particles
-  ;; in the wavefront have identical speeds and near-identical headings,
-  ;; in reality they would not collide.  So even though the two-particles
-  ;; rule is not itself realistic, it produces a realistic result.  Also,
-  ;; unless the number of particles is extremely large, it is very rare
-  ;; for three or  particles to land on the same patch (for example,
-  ;; with 400 particles it happens less than 1% of the time).  So imposing
-  ;; this additional rule should have only a negligible effect on the
-  ;; aggregate behavior of the system.
-  ;;
-  ;; Why does this rule produce a uniform wavefront?  The particles all
-  ;; start out on the same patch, which means that without the only-two
-  ;; rule, they would all start colliding with each other immediately,
-  ;; resulting in much random variation of speeds and headings.  With
-  ;; the only-two rule, they are prevented from colliding with each other
-  ;; until they have spread out a lot.  (And in fact, if you observe
-  ;; the wavefront closely, you will see that it is not completely smooth,
-  ;; because  collisions eventually do start occurring when it thins out while fanning.)
-
-  if count  other particles-here  in-radius 1 = 1
-  [
-    ;; the following conditions are imposed on collision candidates:
-    ;;   1. they must have a lower who number than my own, because collision
-    ;;      code is asymmetrical: it must always happen from the point of view
-    ;;      of just one particles.
-    ;;   2. they must not be the same particles that we last collided with on
-    ;;      this patch, so that we have a chance to leave the patch after we've
-    ;;      collided with someone.
-    let candidate one-of other particles-here with
-      [who < [who] of myself and myself != last-collision]
+  if count other particles-here  in-radius 1 = 1 [
+    ; the following conditions are imposed on collision candidates:
+    ;   1. they must have a lower who number than my own, because collision
+    ;      code is asymmetrical: it must always happen from the point of view
+    ;      of just one particles.
+    ;   2. they must not be the same particles that we last collided with on
+    ;      this patch, so that we have a chance to leave the patch after we've
+    ;      collided with someone.
+    let candidate one-of other particles-here with [ who < [ who ] of myself and myself != last-collision ]
     ;; we also only collide if one of us has non-zero speed. It's useless
     ;; (and incorrect, actually) for two particles with zero speed to collide.
-    if (candidate != nobody) and (speed > 0 or [speed] of candidate > 0)
-    [
+    if (candidate != nobody) and (speed > 0 or [ speed ] of candidate > 0) [
       collide-with candidate
       set last-collision candidate
       ask candidate [ set last-collision myself ]
@@ -299,47 +314,45 @@ to check-for-collision  ;; particles procedure
   ]
 end
 
-;; implements a collision with another particles.
-;;
-;; THIS IS THE HEART OF THE particles SIMULATION, AND YOU ARE STRONGLY ADVISED
-;; NOT TO CHANGE IT UNLESS YOU REALLY UNDERSTAND WHAT YOU'RE DOING!
-;;
-;; The two particles colliding are self and other-particles, and while the
-;; collision is performed from the point of view of self, both particles are
-;; modified to reflect its effects. This is somewhat complicated, so I'll
-;; give a general outline here:
-;;   1. Do initial setup, and determine the heading between particles centers
-;;      (call it theta).
-;;   2. Convert the representation of the velocity of each particles from
-;;      speed/heading to a theta-based vector whose first component is the
-;;      particle's speed along theta, and whose second component is the speed
-;;      perpendicular to theta.
-;;   3. Modify the velocity vectors to reflect the effects of the collision.
-;;      This involves:
-;;        a. computing the velocity of the center of mass of the whole system
-;;           along direction theta
-;;        b. updating the along-theta components of the two velocity vectors.
-;;   4. Convert from the theta-based vector representation of velocity back to
-;;      the usual speed/heading representation for each particles.
-;;   5. Perform final cleanup and update derived quantities.
+; implements a collision with another particles.
+;
+; THIS IS THE HEART OF THE particles SIMULATION, AND YOU ARE STRONGLY ADVISED
+; NOT TO CHANGE IT UNLESS YOU REALLY UNDERSTAND WHAT YOU'RE DOING!
+;
+; The two particles colliding are self and other-particles, and while the
+; collision is performed from the point of view of self, both particles are
+; modified to reflect its effects. This is somewhat complicated, so I'll
+; give a general outline here:
+;   1. Do initial setup, and determine the heading between particles centers
+;      (call it theta).
+;   2. Convert the representation of the velocity of each particles from
+;      speed/heading to a theta-based vector whose first component is the
+;      particle's speed along theta, and whose second component is the speed
+;      perpendicular to theta.
+;   3. Modify the velocity vectors to reflect the effects of the collision.
+;      This involves:
+;        a. computing the velocity of the center of mass of the whole system
+;           along direction theta
+;        b. updating the along-theta components of the two velocity vectors.
+;   4. Convert from the theta-based vector representation of velocity back to
+;      the usual speed/heading representation for each particles.
+;   5. Perform final cleanup and update derived quantities.
 to collide-with [ other-particles ] ;; particles procedure
-  ;;; PHASE 1: initial setup
+  ; PHASE 1: initial setup
 
-  ;; for convenience, grab  quantities from other-particles
-  let mass2 [mass] of other-particles
-  let speed2 [speed] of other-particles
-  let heading2 [heading] of other-particles
+  ; for convenience, grab  quantities from other-particles
+  let mass2 [ mass ] of other-particles
+  let speed2 [ speed ] of other-particles
+  let heading2 [ heading ] of other-particles
 
-  ;; since particles are modeled as zero-size points, theta isn't meaningfully
-  ;; defined. we can assign it randomly without affecting the model's outcome.
+  ; since particles are modeled as zero-size points, theta isn't meaningfully
+  ; defined. we can assign it randomly without affecting the model's outcome.
   let theta (random-float 360)
 
+  ; PHASE 2: convert velocities to theta-based vector representation
 
-
-  ;;; PHASE 2: convert velocities to theta-based vector representation
-
-  ;; now convert my velocity from speed/heading representation to components
-  ;; along theta and perpendicular to theta
+  ; now convert my velocity from speed/heading representation to components
+  ; along theta and perpendicular to theta
   let v1t (speed * cos (theta - heading))
   let v1l (speed * sin (theta - heading))
 
@@ -347,40 +360,34 @@ to collide-with [ other-particles ] ;; particles procedure
   let v2t (speed2 * cos (theta - heading2))
   let v2l (speed2 * sin (theta - heading2))
 
+  ; PHASE 3: manipulate vectors to implement collision
 
-
-  ;;; PHASE 3: manipulate vectors to implement collision
-
-  ;; compute the velocity of the system's center of mass along theta
+  ; compute the velocity of the system's center of mass along theta
   let vcm (((mass * v1t) + (mass2 * v2t)) / (mass + mass2) )
 
-  ;; now compute the new velocity for each particles along direction theta.
-  ;; velocity perpendicular to theta is unaffected by a collision along theta,
-  ;; so the next two lines actually implement the collision itself, in the
-  ;; sense that the effects of the collision are exactly the following changes
-  ;; in particles velocity.
+  ; now compute the new velocity for each particles along direction theta.
+  ; velocity perpendicular to theta is unaffected by a collision along theta,
+  ; so the next two lines actually implement the collision itself, in the
+  ; sense that the effects of the collision are exactly the following changes
+  ; in particles velocity.
   set v1t (2 * vcm - v1t)
   set v2t (2 * vcm - v2t)
 
+  ; PHASE 4: convert back to normal speed/heading
 
-
-  ;;; PHASE 4: convert back to normal speed/heading
-
-  ;; now convert my velocity vector into my new speed and heading
+  ; now convert my velocity vector into my new speed and heading
   set speed sqrt ((v1t ^ 2) + (v1l ^ 2))
   set energy (0.5 * mass * speed ^ 2)
-  ;; if the magnitude of the velocity vector is 0, atan is undefined. but
-  ;; speed will be 0, so heading is irrelevant anyway. therefore, in that
-  ;; case we'll just leave it unmodified.
-  if v1l != 0 or v1t != 0
-    [ set heading (theta - (atan v1l v1t)) ]
+  ; if the magnitude of the velocity vector is 0, atan is undefined. but
+  ; speed will be 0, so heading is irrelevant anyway. therefore, in that
+  ; case we'll just leave it unmodified.
+  if v1l != 0 or v1t != 0 [ set heading (theta - (atan v1l v1t)) ]
 
   ;; and do the same for other-particle
   ask other-particles [
     set speed sqrt ((v2t ^ 2) + (v2l ^ 2))
     set energy (0.5 * mass * (speed ^ 2))
-    if v2l != 0 or v2t != 0
-      [ set heading (theta - (atan v2l v2t)) ]
+    if v2l != 0 or v2t != 0 [ set heading (theta - (atan v2l v2t)) ]
   ]
 end
 
@@ -390,27 +397,27 @@ end
 ;;  mouse interaction procedures
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
 to mouse-action
-   let snap-xcor 0
-   let snap-ycor 0
-   let orig-xcor 0
-   let orig-ycor 0
-   let eraser-window-walls nobody
-   let eraser-window-particles nobody
-   ifelse mouse-down? [
-      set orig-xcor mouse-xcor
-      set orig-ycor mouse-ycor
-      set snap-xcor round orig-xcor
-      set snap-ycor round orig-ycor
+ let snap-xcor 0
+ let snap-ycor 0
+ let orig-xcor 0
+ let orig-ycor 0
+ let eraser-window-walls nobody
+ let eraser-window-particles nobody
 
-    ask patches with [pxcor = snap-xcor and pycor = snap-ycor] [
+  ifelse mouse-down? [
+    set orig-xcor mouse-xcor
+    set orig-ycor mouse-ycor
+    set snap-xcor round orig-xcor
+    set snap-ycor round orig-ycor
+
+    ask patches with [ pxcor = snap-xcor and pycor = snap-ycor ] [
       set eraser-window-walls walls-on neighbors
-      set eraser-window-walls eraser-window-walls with [not pressure?]
+      set eraser-window-walls eraser-window-walls with [ not pressure? ]
       set eraser-window-particles particles-on neighbors
 
       if mouse-interaction = "draw basic wall" [
-        ask walls-here [die]
+        ask walls-here [ die ]
         sprout 1 [
           set breed walls set color gray
           initialize-this-wall
@@ -420,7 +427,7 @@ to mouse-action
       if mouse-interaction = "draw red removable wall"  [
         set toggle-red-state "open"
         toggle-red-wall
-        ask walls-here [die]
+        ask walls-here [ die ]
         sprout 1 [
           set breed walls set color red
           initialize-this-wall set valve-1? true
@@ -430,13 +437,12 @@ to mouse-action
       if mouse-interaction = "draw green removable wall" [
         set toggle-green-state "open"
         toggle-green-wall
-        ask walls-here [die]
+        ask walls-here [ die ]
         sprout 1 [
           set breed walls set color 55
           initialize-this-wall set valve-2? true
         ]
       ]
-
 
       if mouse-interaction = "big eraser" [
         ask erasers [
@@ -444,14 +450,12 @@ to mouse-action
           set shape "eraser"
           setxy orig-xcor orig-ycor
         ]
-        ask eraser-window-walls [die]
-        ask eraser-window-particles [die]
+        ask eraser-window-walls [ die ]
+        ask eraser-window-particles [ die ]
       ]
 
-
-      if mouse-interaction = "add purple particles"
-      or mouse-interaction = "add green particles"
-      or mouse-interaction = "add orange particles" [
+      if mouse-interaction = "add purple particles" or mouse-interaction = "add green particles"
+        or mouse-interaction = "add orange particles" [
 
         ask erasers [
           set hidden? false
@@ -462,18 +466,16 @@ to mouse-action
           set breed particles
           setup-particles
           jump random-float 2
-          if mouse-interaction = "add purple particles" [set color-type 115 color-particle-and-link]
-          if mouse-interaction = "add orange particles" [set color-type 25 color-particle-and-link]
-          if mouse-interaction = "add green particles" [set color-type 55  color-particle-and-link]
+          if mouse-interaction = "add purple particles" [ set color-type 115 color-particle-and-link ]
+          if mouse-interaction = "add orange particles" [ set color-type 25 color-particle-and-link ]
+          if mouse-interaction = "add green particles" [ set color-type 55  color-particle-and-link ]
           apply-speed-visualization
         ]
       ]
 
-
-
       if mouse-interaction = "paint particles purple"
-      or mouse-interaction = "paint particles orange"
-      or mouse-interaction = "paint particles green" [
+        or mouse-interaction = "paint particles orange"
+        or mouse-interaction = "paint particles green" [
 
         ask erasers [
           set hidden? false
@@ -481,13 +483,12 @@ to mouse-action
           setxy orig-xcor orig-ycor
         ]
         ask eraser-window-particles [
-          if mouse-interaction = "paint particles purple"  [set color-type 115 color-particle-and-link]
-          if mouse-interaction = "paint particles orange" [set color-type 25 color-particle-and-link]
-          if mouse-interaction = "paint particles green" [set  color-type 55 color-particle-and-link]
+          if mouse-interaction = "paint particles purple"  [ set color-type 115 color-particle-and-link ]
+          if mouse-interaction = "paint particles orange" [ set color-type 25 color-particle-and-link ]
+          if mouse-interaction = "paint particles green" [ set  color-type 55 color-particle-and-link ]
           apply-speed-visualization
         ]
       ]
-
 
       if mouse-interaction = "speed up particles"  [
 
@@ -504,9 +505,7 @@ to mouse-action
         ]
       ]
 
-
       if mouse-interaction = "slow down particles" [
-
         ask erasers [
           set hidden? false
           set shape "spray paint"
@@ -519,11 +518,11 @@ to mouse-action
           apply-speed-visualization
         ]
       ]
-
     ]
-    ask particles with [any? walls-here] [remove-from-walls] ;; deal with any walls drawn on top of particles
+    ask particles with [ any? walls-here ] [ remove-from-walls ] ; deal with any walls drawn on top of particles
+  ][
+    ask erasers [ set hidden? true ]
   ]
-  [ask erasers [set hidden? true]]
 end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -536,21 +535,17 @@ to apply-flash-visualization
 end
 
 to apply-speed-visualization
-  if visualize-speed? = "arrows" [ scale-arrowheads]
+  if visualize-speed? = "arrows" [ scale-arrowheads ]
   if visualize-speed? = "different shades" [ recolorshade ]
   if visualize-speed? = "none" [ recolornone ]
-
 end
 
-
 to color-particle-and-link
-
   let this-link my-out-links
   let this-color-type color-type
   set color this-color-type
-  ask this-link [set color this-color-type]
+  ask this-link [ set color this-color-type ]
 end
-
 
 to scale-arrowheads
   let this-xcor xcor
@@ -559,7 +554,7 @@ to scale-arrowheads
   let this-heading heading
   let this-arrowhead out-link-neighbors
   let this-link my-out-links
-  ask this-link [set hidden? false]
+  ask this-link [ set hidden? false ]
   ask this-arrowhead [
     set xcor this-xcor
     set ycor this-ycor
@@ -572,30 +567,31 @@ end
 
 to recolorshade
   let this-link my-out-links
-  ask this-link [set hidden? true]
-  ifelse speed < 27
-  [ set color color-type - 3 + speed / 3 ]
-  [ set color color-type + 4.999 ]
+  ask this-link [ set hidden? true ]
+  ifelse speed < 27 [
+    set color color-type - 3 + speed / 3
+  ][
+    set color color-type + 4.999
+  ]
 end
 
 to recolornone
   let this-link my-out-links
-  ask this-link [set hidden? true]
+  ask this-link [ set hidden? true ]
   set color color-type
 end
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;  initialization procedures
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-
 to make-box
-  ask patches with [(pycor = min-pycor or pycor = max-pycor or pxcor = min-pxcor or pxcor = max-pxcor) ]
-    [ sprout 1 [set breed walls set color yellow initialize-this-wall set pressure? true] ]
+  ask patches with [ (pycor = min-pycor or pycor = max-pycor or pxcor = min-pxcor or pxcor = max-pxcor) ] [
+    sprout 1 [
+      set breed walls set color yellow initialize-this-wall set pressure? true
+    ]
+  ]
 end
-
 
 to initialize-this-wall
   set valve-1? false
@@ -603,66 +599,64 @@ to initialize-this-wall
   set pressure? false
 end
 
-
 to make-particles
-  create-particles initial-#-particles
-  [
+  create-particles initial-#-particles [
     setup-particles
     random-position
   ]
-
 end
 
-to setup-particles  ;; particles procedure
+to setup-particles  ; particles procedure
   set shape "circle"
-   set size particle-size
+  set size particle-size
   set energy initial-gas-temperature
   set color-type 115
   set color color-type
-  set mass (10)  ;; atomic masses of oxygen atoms
-  hatch 1 [set breed arrowheads set hidden? true create-link-from myself [tie]]
+  set mass (10)  ; atomic masses of oxygen atoms
+  hatch 1 [
+    set breed arrowheads
+    set hidden? true
+    create-link-from myself [ tie ]
+  ]
   set speed speed-from-energy
   set last-collision nobody
 end
 
 
-;; Place particles at random, but they must not be placed on top of wall atoms.
-;; This procedure takes into account the fact that wall molecules could have two possible arrangements,
-;; i.e. high-surface area ot low-surface area.
+; Place particles at random, but they must not be placed on top of wall atoms.
+; This procedure takes into account the fact that wall molecules could have two possible arrangements,
+; i.e. high-surface area ot low-surface area.
 to random-position ;; particles procedure
   let open-patches nobody
   let open-patch nobody
   set open-patches patches with [not any? turtles-here and pxcor != max-pxcor and pxcor != min-pxcor and pycor != min-pycor and pycor != max-pycor]
   set open-patch one-of open-patches
 
-  ;; Reuven added the following "if" so that we can get through setup without a runtime error.
+  ; Reuven added the following "if" so that we can get through setup without a runtime error.
   if open-patch = nobody [
     user-message "No open patches found.  Exiting."
     stop
   ]
 
-  setxy ([pxcor] of open-patch) ([pycor] of open-patch)
+  setxy ([ pxcor ] of open-patch) ([ pycor ] of open-patch)
 end
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; wall penetration error handling procedure
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; if particles actually end up within the wall
-;;
+; if particles actually end up within the wall
 
 to remove-from-walls
-  let this-wall walls-here with [not hidden?]
+  let this-wall walls-here with [ not hidden? ]
 
   if count this-wall != 0 [
-
-    let available-patches patches with [not any? walls-here]
+    let available-patches patches with [ not any? walls-here ]
     let closest-patch nobody
     if (any? available-patches) [
-      set closest-patch min-one-of available-patches [distance myself]
+      set closest-patch min-one-of available-patches [ distance myself ]
       set heading towards closest-patch
-      setxy ([pxcor] of closest-patch)  ([pycor] of closest-patch)
-
+      setxy ([ pxcor ] of closest-patch)  ([ pycor ] of closest-patch)
     ]
   ]
 end
@@ -671,31 +665,22 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;GRAPHS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-
-
 to do-plotting
 
   set-current-plot "Temperature of gases"
 
-  if any? particles with [color-type = 55]
-    [
+  if any? particles with [ color-type = 55 ] [
     set-current-plot-pen "green"
     plotxy ticks avg-energy-green
   ]
-  if any? particles with [color-type = 25]
-  [
+  if any? particles with [ color-type = 25 ] [
     set-current-plot-pen "orange"
     plotxy ticks avg-energy-orange
   ]
-  if any? particles with [color-type = 115]
-  [
+  if any? particles with [color-type = 115] [
     set-current-plot-pen "purple"
     plotxy ticks avg-energy-purple
   ]
-
-
 end
 
 
@@ -704,18 +689,17 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to-report speed-from-energy
-   report sqrt (2 * energy / mass)
+  report sqrt (2 * energy / mass)
 end
 
 to-report energy-from-speed
-   report (mass * speed * speed / 2)
+  report (mass * speed * speed / 2)
 end
-
 
 to-report limited-particle-energy
   let limited-energy energy
-  if limited-energy > max-particle-energy [set limited-energy max-particle-energy]
-  if limited-energy < min-particle-energy [set limited-energy min-particle-energy]
+  if limited-energy > max-particle-energy [ set limited-energy max-particle-energy ]
+  if limited-energy < min-particle-energy [ set limited-energy min-particle-energy ]
   report limited-energy
 end
 
@@ -793,7 +777,7 @@ initial-#-particles
 initial-#-particles
 0
 100
-6.0
+20.0
 1
 1
 NIL
@@ -816,9 +800,9 @@ HORIZONTAL
 
 PLOT
 10
-200
+205
 315
-422
+427
 Temperature of gases
 time
 temp.
@@ -842,7 +826,7 @@ CHOOSER
 mouse-interaction
 mouse-interaction
 "none - let the particles interact" "draw basic wall" "draw red removable wall" "draw green removable wall" "big eraser" "slow down particles" "speed up particles" "paint particles purple" "paint particles green" "paint particles orange" "add green particles" "add purple particles" "add orange particles"
-7
+0
 
 BUTTON
 165

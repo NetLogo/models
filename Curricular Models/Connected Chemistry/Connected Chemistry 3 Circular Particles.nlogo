@@ -621,7 +621,7 @@ SLIDER
 43
 initial-number
 initial-number
-1
+2
 10
 10.0
 1
