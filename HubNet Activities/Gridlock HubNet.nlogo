@@ -882,7 +882,7 @@ ticks-per-cycle
 ticks-per-cycle
 1
 100
-46.0
+20.0
 1
 1
 NIL
