@@ -387,7 +387,7 @@ Grand Canyon
 
 ## CREDITS AND REFERENCES
 
-This model was inspired by Brian Hayes' article "Dividing the Continent" in American Scientist, Volume 88, Number 6, page 481.  An online version can be found here: http://www.americanscientist.org/template/AssetDetail/assetid/20828?&print=yes
+This model was inspired by Brian Hayes' article "Dividing the Continent" in American Scientist, Volume 88, Number 6, page 481.  An online version can be found here: http://www.jstor.org/stable/27858114
 
 Thanks to Josh Unterman for his work on this model.
 
