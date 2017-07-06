@@ -336,10 +336,6 @@ class CodeTests extends TestModels {
     } yield token.text).toSet
   }
 
-  /* Currently commented out because it generates far too much noise
-   * in the test reports. Will enable officially once the test passes.
-   * NP 2015-08-20
-   */
   val lineLengthLimit = 170
   testModels(s"Lines should not be longer than $lineLengthLimit characters", false, false,
     _.name != "Continental Divide") {
