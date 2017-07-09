@@ -465,7 +465,6 @@ Try running the sheep-wolves-grass model variation, but setting INITIAL-NUMBER-W
 
 Notice that under stable settings, the populations tend to fluctuate at a predictable pace. Can you find any parameters that will speed this up or slow it down?
 
-
 ## EXTENDING THE MODEL
 
 There are a number ways to alter the model so that it will be stable with only wolves and sheep (no grass). Some will require new elements to be coded in or existing behaviors to be changed. Can you develop such a version?
