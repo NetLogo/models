@@ -39,13 +39,13 @@ to setup [ obstacle-placement ball-placement ]
     set color grey - 3
     ; First, set the size of the obstacle so that it fits in the world and doesn't take up all the space
     set size max list 1 random-float (0.75 * min list world-width world-height)
-    run obstacle-placement ;; run the anonymous procedure to place the obstacle
+    run obstacle-placement ; run the anonymous procedure to place the obstacle
   ]
 
   set-default-shape balls "circled-default"
   create-balls 1 [
     set color red
-    run ball-placement ;; run the anonymous procedure to place the ball
+    run ball-placement ; run the anonymous procedure to place the ball
     if two-balls? [
       hatch 1 [
         set heading random 360
@@ -72,7 +72,7 @@ to setup-random
   ] [->
     ; Place the ball in the walls and then makes sure it's not overlapping with any obstacles.
     place-randomly-inside-walls
-    while [ any? obstacles with [ overlap myself > 0 ] ] [  ;; keep placing, checking for overlap, umtil there is none
+    while [ any? obstacles with [ overlap myself > 0 ] ] [  ; keep placing, checking for overlap, umtil there is none
       place-randomly-inside-walls
     ]
   ]
