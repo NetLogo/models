@@ -54,9 +54,9 @@ to go
   ask sheep [
     move
     if model-version = "sheep-wolves-grass" [ ; in this version, sheep eat grass, grass grows and it costs sheep energy to move
-      set energy energy - 1  ; deduct energy for sheep only if eunning sheep-wolf-grass model version
-      eat-grass  ; sheep eat grass only if eunning sheep-wolf-grass model version
-      death ; sheep die from starvation only if eunning sheep-wolf-grass model version
+      set energy energy - 1  ; deduct energy for sheep only if running sheep-wolf-grass model version
+      eat-grass  ; sheep eat grass only if running sheep-wolf-grass model version
+      death ; sheep die from starvation only if running sheep-wolf-grass model version
     ]
     reproduce-sheep  ; sheep reproduce at random rate governed by slider
   ]
@@ -834,7 +834,8 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
 NetLogo 6.0.1
 @#$#@#$#@
-set grass? true
+set model-version "sheep-wolves-grass"
+set show-energy? false
 setup
 repeat 75 [ go ]
 @#$#@#$#@
