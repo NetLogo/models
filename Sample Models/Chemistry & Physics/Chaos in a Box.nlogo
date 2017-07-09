@@ -72,7 +72,7 @@ to setup-random
   ] [->
     ; Place the ball in the walls and then makes sure it's not overlapping with any obstacles.
     place-randomly-inside-walls
-    while [ any? obstacles with [ overlap myself > 0 ] ] [  ; keep placing, checking for overlap, umtil there is none
+    while [ any? obstacles with [ overlap myself > 0 ] ] [  ; keep placing, checking for overlap, until there is none
       place-randomly-inside-walls
     ]
   ]
@@ -106,9 +106,9 @@ to go
         set new-heading 360 - new-heading
       ]
 
-      foreach-agent obstacles [ obst ->
-        if colliding-with? obst [
-          bounce-off obst
+      foreach-agent obstacles [ an-obstacle ->
+        if colliding-with? an-obstacle [
+          bounce-off an-obstacle
         ]
       ]
 
@@ -172,8 +172,8 @@ end
 
 ; Modifies the ball's NEW-HEADING in reaction to bouncing off the
 ; given obstacle.
-to bounce-off [ obst ]
-  correct-collision-position [-> colliding-with? obst ]
+to bounce-off [ an-obstacle ]
+  correct-collision-position [-> colliding-with? an-obstacle ]
 
   ; We can't just use `dx` and `dy` here as we want to base these
   ; on `new-heading` rather than `heading`.
@@ -182,8 +182,8 @@ to bounce-off [ obst ]
 
   ; These are the components of the vector pointing from the
   ; obstacle to the ball.
-  let rx xcor - [ xcor ] of obst
-  let ry ycor - [ ycor ] of obst
+  let rx xcor - [ xcor ] of an-obstacle
+  let ry ycor - [ ycor ] of an-obstacle
 
   ; This code reflects the vector of the ball's new heading around
   ; the vector pointing from the obstacle to the ball.
@@ -315,6 +315,7 @@ to setup-simple-triangle
   set num-obstacles 1
   setup [-> setxy 0 1 set size 1 ] [-> setxy 0 0 facexy -8 -8]
 end
+
 
 ; Copyright 2017 Uri Wilensky.
 ; See Info tab for full copyright and license.
@@ -917,8 +918,7 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 NetLogo 6.0.1
 @#$#@#$#@
 setup-periodic-quilt
-add-ball
-repeat 500 [ go ]
+repeat 1000 [ go ]
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
