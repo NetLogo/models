@@ -147,11 +147,11 @@ end
 GRAPHICS-WINDOW
 355
 10
-867
-523
+873
+529
 -1
 -1
-9.9
+10.0
 1
 14
 1
@@ -312,9 +312,9 @@ NIL
 
 PLOT
 10
-355
+360
 350
-525
+530
 populations
 time
 pop.
