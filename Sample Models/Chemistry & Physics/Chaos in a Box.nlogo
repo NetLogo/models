@@ -7,6 +7,14 @@ globals [
 
   speed ; All balls have the same speed
 
+  ; We don't want to change `heading` until all collisions have been
+  ; factored in. This is because the ball's `heading` affects the
+  ; adjustments made to the ball's position to find the exact spot
+  ; a collision took place. See `correct-collision-position`.
+  ; So, the ball's heading after collision is stored in NEW-HEADING
+  ; until after all collisions have been taken into account.
+  new-heading
+
   ; These are used to track which agent is being dragged and what part of that agent
   ; is being dragged.
   target-agent
@@ -18,22 +26,34 @@ globals [
 breed [ obstacles obstacle ]
 breed [ balls ball ]
 
+; General setup procedure
+; It takes two anonymous procedures: the first configures obstacles, the second configures the ball.
+; See SETUP-RANDOM, SETUP-PERIODIC-X, and SETUP-PERIODIC-QUILT for examples.
 to setup [ obstacle-placement ball-placement ]
   clear-all
-  set-default-shape obstacles "circle"
+
+  set-default-shape obstacles "circle-with-border"
 
   ; Create obstacle so that it's completely inside the world
   create-obstacles num-obstacles [
-    set color grey
+    set color grey - 3
     ; First, set the size of the obstacle so that it fits in the world and doesn't take up all the space
     set size max list 1 random-float (0.75 * min list world-width world-height)
-    run obstacle-placement
+    run obstacle-placement ;; run the anonymous procedure to place the obstacle
   ]
 
   set-default-shape balls "circled-default"
   create-balls 1 [
     set color red
-    run ball-placement
+    run ball-placement ;; run the anonymous procedure to place the ball
+    if two-balls? [
+      hatch 1 [
+        set heading random 360
+        fd 0.05
+        set heading [ heading ] of myself
+        set color blue
+      ]
+    ]
   ]
 
   set collision-precision 64 ; Collisions will be within speed / (2 ^ 64) of the correct position
@@ -46,24 +66,21 @@ to setup [ obstacle-placement ball-placement ]
 end
 
 to setup-random
-  setup [-> place-randomly-inside-walls] [->
+  setup [->
+    ; Place obstacles randomly so that they're completely inside the world
     place-randomly-inside-walls
-    while [ any? obstacles with [ overlap myself > 0 ] ] [
+  ] [->
+    ; Place the ball in the walls and then makes sure it's not overlapping with any obstacles.
+    place-randomly-inside-walls
+    while [ any? obstacles with [ overlap myself > 0 ] ] [  ;; keep placing, checking for overlap, umtil there is none
       place-randomly-inside-walls
     ]
   ]
 end
 
-
 to setup-periodic-x
   set num-obstacles 1
-  setup [->
-    setxy 0 0
-    set size 3
-  ] [ ->
-    setxy 6 8
-    facexy 0 2
-  ]
+  setup [-> setxy 0 0 set size 3 ] [-> setxy 6 8 facexy 0 2 ]
 end
 
 to setup-periodic-quilt
@@ -71,69 +88,43 @@ to setup-periodic-quilt
   setup [-> setxy 0 8 set size 1 ] [-> setxy 0 7 facexy -8 -6 ]
 end
 
-to add-ball
-  ask balls with [ color = red ] [
-    let new-color red + 90 * count balls
-    hatch-balls 1 [
-      ; Place the second ball at almost, but not quite, the same position as the first
-      set heading random 360
-      fd 0.05
-      set heading [ heading ] of myself
-      set color new-color
-    ]
-  ]
-end
-
 to go
-  ask balls [
-    set pen-mode ifelse-value trace-path? [ "down" ] [ "up" ]
-    fd speed
+  repeat 5 [
+    ask balls [
+      set pen-mode ifelse-value trace-path? [ "down" ] [ "up" ]
+      fd speed
 
-    ; We don't want to change `heading` until all collisions have been
-    ; factored in. This is because the ball's `heading` affects the
-    ; adjustments made to the ball's position to find the exact spot
-    ; a collision took place. See `correct-collision-position`.
-    let new-heading heading
+      set new-heading heading
 
-    if colliding-with-floor-or-ceiling? [
-      correct-collision-position [-> colliding-with-floor-or-ceiling?]
-      set new-heading 180 - new-heading
-    ]
-
-    if colliding-with-walls? [
-      correct-collision-position [-> colliding-with-walls?]
-      set new-heading 360 - new-heading
-    ]
-
-    ask obstacles with [ [colliding-with? myself] of myself ] [
-      let x xcor
-      let y ycor
-      ask myself [
-        correct-collision-position [-> colliding-with? myself]
-
-        ; We can't just use `dx` and `dy` here as we want to base these
-        ; on `new-heading` rather than `heading`.
-        let d-x sin new-heading
-        let d-y cos new-heading
-
-        ; These are the components of the vector pointing from the
-        ; obstacle to the ball.
-        let rx xcor - x
-        let ry ycor - y
-
-        ; This code reflects the vector of the ball's new heading around
-        ; the vector pointing from the obstacle to the ball.
-        let v-dot-r rx * dx + ry * dy
-        let new-dx d-x - 2 * v-dot-r * rx / (rx * rx + ry * ry)
-        let new-dy d-y - 2 * v-dot-r * ry / (rx * rx + ry * ry)
-
-        set new-heading round-to (atan new-dx new-dy) angle-precision
+      if colliding-with-floor-or-ceiling? [
+        correct-collision-position [-> colliding-with-floor-or-ceiling?]
+        set new-heading 180 - new-heading
       ]
+
+      if colliding-with-walls? [
+        correct-collision-position [-> colliding-with-walls?]
+        set new-heading 360 - new-heading
+      ]
+
+      foreach-agent obstacles [ obst ->
+        if colliding-with? obst [
+          bounce-off obst
+        ]
+      ]
+
+      set heading new-heading
+      pen-up
     ]
-    set heading new-heading
-    pen-up
   ]
   tick
+end
+
+; A custom control structure that works like FOREACH, but operates
+; on agentsets instead of lists.
+to foreach-agent [ agentset command ]
+  foreach [ self ] of agentset [ agent ->
+    (run command agent)
+  ]
 end
 
 ; Turtle procedure
@@ -150,14 +141,13 @@ end
 to refine-collision-position [ colliding? dist n ]
   ifelse runresult colliding? [
     bk dist
-  ] [
+  ][
     fd dist
   ]
   if n > 0 [
     refine-collision-position colliding? (dist / 2) (n - 1)
   ]
 end
-
 
 ; Ball procedures
 ; These do collision detection. They ensure that the ball is facing the
@@ -180,11 +170,37 @@ to-report colliding-with? [ agent ]
   report h < 90 and overlap agent > 0
 end
 
-; Ball or obstacle procedure
-to-report overlap [ agent ]
-  report (size + [ size ] of agent) / 2 - distance agent
+; Modifies the ball's NEW-HEADING in reaction to bouncing off the
+; given obstacle.
+to bounce-off [ obst ]
+  correct-collision-position [-> colliding-with? obst ]
+
+  ; We can't just use `dx` and `dy` here as we want to base these
+  ; on `new-heading` rather than `heading`.
+  let d-x sin new-heading
+  let d-y cos new-heading
+
+  ; These are the components of the vector pointing from the
+  ; obstacle to the ball.
+  let rx xcor - [ xcor ] of obst
+  let ry ycor - [ ycor ] of obst
+
+  ; This code reflects the vector of the ball's new heading around
+  ; the vector pointing from the obstacle to the ball.
+  let v-dot-r rx * dx + ry * dy
+  let new-dx d-x - 2 * v-dot-r * rx / (rx * rx + ry * ry)
+  let new-dy d-y - 2 * v-dot-r * ry / (rx * rx + ry * ry)
+
+  set new-heading round-to (atan new-dx new-dy) angle-precision
 end
 
+; Ball or obstacle procedure
+to-report overlap [ agent ]
+  report (size + [size] of agent) / 2 - distance agent
+end
+
+; Ball or obstacle procedure
+; Positions the agent randomly in the world such that
 to place-randomly-inside-walls
   set xcor min-pxcor - 0.5 + size / 2 + random-float (world-width - size)
   set ycor min-pycor - 0.5 + size / 2 + random-float (world-height - size)
@@ -210,9 +226,13 @@ to drag
         if edge-dist < 1 or center-dist < size / 2 [
           set target-agent self
           ifelse center-dist < edge-dist or edge-dist > 1 [
-            set set-target-attribute [[x y] -> setxy x y]
+            set set-target-attribute [[x y] ->
+              ; There's a chance of x and y being outside of the world bounds.
+              ; We just ignore the error if that's the case.
+              carefully [ setxy x y ] []
+            ]
             set get-target-attribute [[x y] -> (word "Position: " xcor ", " ycor)]
-          ] [
+          ][
             ifelse breed = balls [
               set set-target-attribute [[x y] -> set heading towardsxy x y]
               set get-target-attribute [[x y] -> (word "Facing: " x ", " y)]
@@ -223,7 +243,7 @@ to drag
           ]
         ]
       ]
-    ] [
+    ][
       if mouse-inside? [
         ask target-agent [
           (run set-target-attribute (round-to mouse-xcor 10) (round-to mouse-ycor 10))
@@ -233,7 +253,7 @@ to drag
         display
       ]
     ]
-  ] [
+  ][
     reset-dragging
   ]
 end
@@ -253,7 +273,6 @@ to reset-dragging
   set get-target-attribute [ -> 0 ]
   set target-attribute-value ""
 end
-
 
 ; Additional periodic configurations
 
@@ -297,7 +316,6 @@ to setup-simple-triangle
   setup [-> setxy 0 1 set size 1 ] [-> setxy 0 0 facexy -8 -8]
 end
 
-
 ; Copyright 2017 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@
@@ -330,9 +348,9 @@ ticks
 
 BUTTON
 5
-45
+85
 130
-78
+118
 NIL
 setup-random
 NIL
@@ -347,9 +365,9 @@ NIL
 
 BUTTON
 5
-155
+195
 130
-188
+228
 NIL
 go
 T
@@ -364,20 +382,20 @@ NIL
 
 SWITCH
 5
-225
+235
 130
-258
+268
 trace-path?
 trace-path?
-1
+0
 1
 -1000
 
 BUTTON
 5
-260
+270
 130
-293
+303
 NIL
 clear-drawing
 NIL
@@ -392,9 +410,9 @@ NIL
 
 BUTTON
 5
-80
+120
 130
-113
+153
 NIL
 setup-periodic-x
 NIL
@@ -416,7 +434,7 @@ num-obstacles
 num-obstacles
 0
 10
-4.0
+1.0
 1
 1
 NIL
@@ -424,9 +442,9 @@ HORIZONTAL
 
 BUTTON
 5
-300
+310
 130
-333
+343
 NIL
 drag
 T
@@ -441,26 +459,9 @@ NIL
 
 BUTTON
 5
-190
+155
 130
-223
-NIL
-add-ball
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-0
-
-BUTTON
-5
-115
-130
-148
+188
 NIL
 setup-periodic-quilt
 NIL
@@ -473,6 +474,17 @@ NIL
 NIL
 1
 
+SWITCH
+5
+45
+130
+78
+two-balls?
+two-balls?
+1
+1
+-1000
+
 @#$#@#$#@
 ## WHAT IS IT?
 
@@ -482,11 +494,15 @@ Chaotic behavior means that any tiny change in the initial conditions (in this c
 
 ## HOW IT WORKS
 
-The ball bounces off the walls and obstacles. The collisions are all perfectly elastic and the obstacles remain stationary. Finally, there is no friction. This means that the balls never change speed, only direction. Note that balls do not bounce off each other; multiple balls are just to show what happens when there are very small differences in initial position.
+The ball bounces off the walls and obstacles. The collisions are all perfectly elastic and the obstacles remain stationary. Finally, there is no friction. This means that the balls never change speed, only direction. Note that the balls do not bounce off each other; multiple balls are just to show what happens when there are very small differences in initial position.
 
-Collisions are detected when the ball overlaps an obstacle or the edge of the world. The position is then corrected (see the NetLogo Features section for a more detailed discussion). Finally, because the collisions are perfectly elastic, the ball's new angle is the angle of reflection of its heading around the surface its collidig with.
+Collisions are detected when the ball overlaps an obstacle or the edge of the world. The position is then corrected (see the NetLogo Features section below for a more detailed discussion). Finally, because the collisions are perfectly elastic, the ball's new angle is the angle of reflection of its heading around the surface it's colliding with.
 
 ## HOW TO USE IT
+
+Use the NUM-OBSTACLES slider to adjust the number of obstacles when using SETUP-RANDOM. With 0 obstacles, the system will *always* be periodic. Can you figure out why?
+
+If TWO-BALLS? is on, the setup buttons will create an additional ball that will be in almost, but not quite, the same position as the first ball. Running the system with two balls will show how dramatic of an effect slight changes in initial conditions can have in chaotic systems.
 
 Use the SETUP-RANDOM button to initialize the system in a configuration that will most likely be chaotic. NUM-OBSTACLES obstacles of random sizes will be placed at random positions.
 
@@ -494,13 +510,9 @@ Use the SETUP-PERIODIC-X button to see an example of the kind of periodic behavi
 
 Use the SETUP-PERIODIC-QUILT button to see another example of periodic behavior that has a very long period.
 
-Use the NUM-OBSTACLES slider to adjust the number of obstacles. With 0 obstacles, the system will *always* be periodic. Can you figure out why?
-
-ADD-BALL will create an additional ball that will be in almost, but not quite, the same position as the first ball. Running the system with multiple balls will show how dramatic of an effect slight changes in initial conditions can have.
-
 The GO button runs the simulation.
 
-If the TRACE-PATH? switch is on, the paths of the balls will be traced. CLEAR-DRAWING clears the paths
+If the TRACE-PATH? switch is on, the paths of the balls will be traced. CLEAR-DRAWING clears the paths.
 
 DRAG can be used to move the balls and obstacles around, as well as change the size of the obstacles and direction of the balls. Once pressed, clicking and dragging near the center of balls and obstacles will move them around. Clicking and dragging near the edge of balls will change their direction. Clicking and dragging near the edge of obstacles will change their size.
 
@@ -509,6 +521,8 @@ DRAG can be used to move the balls and obstacles around, as well as change the s
 Notice how the bouncing of the balls is fairly predictable until they hit the circle. Why do you think that is?
 
 If you run the model without an obstacle, the behavior is always periodic, though that period might be very long. Why might that be?
+
+If TWO-BALLS? is on, the setup buttons will create an additional ball that will be in almost, but not quite, the same position as the first ball. Running the system with two balls and an obstacle will show how dramatic of an effect slight changes in initial conditions can have in chaotic systems. This is the signature feature of a chaotic system.
 
 It's very unlikely that a random configuration in which the ball collides with an obstacle will be periodic.
 
@@ -524,17 +538,29 @@ Can you find other configurations that result in periodic behavior?
 
 Add obstacles of different shapes. What shapes produce chaotic behavior?
 
+Add a slider to control the number of balls, so that you can have more than two.
+
+Add a slider to control how far the balls start from the red ball. Does making the distance smaller or bigger change the behavior of the model?
+
 Try to change the shape of the box.
 
-Currently, balls do not collide against each other. Can you make it so they do? Can you find periodic configuration in which the balls collide against each other?
+Currently, balls do not collide against each other. Can you make it so they do? Can you find a periodic configuration in which the balls collide against each other?
 
 ## NETLOGO FEATURES
 
 This model uses a number of advanced techniques:
 
-First, anonymous procedures are used to make the SETUP procedure very flexible with respect to the placement of the balls and obstacles.
+First, anonymous procedures are used to make the SETUP procedure very flexible with respect to the placement of the balls and obstacles. For example, SETUP-PERIODIC-QUILT uses the following code:
 
-Second, because of the chaotic nature of this system, the collisions between objects must be handled very precisely. Because the balls move by taking steps of size SPEED each tick, the location the ball is in when it hits another object won't be the same as if the ball had been moving continuously. This error can, for instance, make what should be periodic configurations chaotic. To correct for this, the model uses a technique called [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm) to get very close to the exact location of collision very quickly. In addition, because the ATAN reporter can introduce small imprecisions, this model rounds the heading of the ball after collisions with obstacles to the nearest 100,000th of a degree.
+```
+setup [-> setxy 0 8 set size 1 ] [-> setxy 0 7 facexy -8 -6 ]
+```
+
+The first anonymous procedure configures the obstacle and the second configures the ball.
+
+The FOREACH-AGENT procedure shows how you can use anonymous procedures to create your own control structures in NetLogo. FOREACH-AGENT works like FOREACH, but operates on agentsets instead of lists.
+
+Second, because of the chaotic nature of this system, the collisions between objects must be handled very precisely. Because the balls move by taking steps of size SPEED each tick, the location the ball is in when it hits another object won't be the same as if the ball had been moving continuously. This error can, for instance, make what should be periodic configurations chaotic. To correct for this, the model uses a technique called [binary search](https://en.wikipedia.org/wiki/Binary_search_algorithm) to get very close to the exact location of collision very quickly. While binary search is a general algorithm, not a NetLogo feature, this model shows how you can implement a spatial binary search in NetLogo. In addition, because the ATAN reporter can introduce small imprecisions, this model rounds the heading of the ball after collisions with obstacles to the nearest 100,000th of a degree.
 
 Finally, the code for dragging the obstacles and balls around shows how fairly sophisticated manipulation of agents can be done with the mouse.
 
@@ -545,7 +571,7 @@ Finally, the code for dragging the obstacles and balls around shows how fairly s
 
 ## CREDITS AND REFERENCES
 
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+This model was inspired by a conversation with Dirk Brockmann who discusses this phenomenon in his Complex Systems in Biology course at the Humboldt University of Berlin.
 
 ## HOW TO CITE
 
@@ -637,6 +663,12 @@ false
 0
 Circle -7500403 true true 0 0 300
 Circle -16777216 true false 30 30 240
+
+circle-with-border
+false
+15
+Circle -7500403 true false 0 0 300
+Circle -1 true true 15 15 270
 
 circled-default
 true
