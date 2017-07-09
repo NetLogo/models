@@ -16,7 +16,8 @@ to setup
     ls:let seed random (2 ^ 31)
     ls:ask model-id [
       random-seed seed
-      set grass? true setup      ; setup their models
+      set model-version "sheep-wolves-grass"
+      setup      ; setup their models
     ]
     move-to-new-position         ; move to its model's values
     pen-down                     ; set pen down
