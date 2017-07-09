@@ -15,7 +15,7 @@ to setup
 
   ls:create-interactive-models 1 "../../../Sample Models/Biology/Wolf Sheep Predation.nlogo"
   set wolf-sheep-predation-model last ls:models
-  ls:ask wolf-sheep-predation-model [ set grass? true ]
+  ls:ask wolf-sheep-predation-model [ set model-version "sheep-wolves-grass" ]
 
   ; the climate change model requires time to run before it stabilizes,
   ; so we hide it for now so it runs faster.
