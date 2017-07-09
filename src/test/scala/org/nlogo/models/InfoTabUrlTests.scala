@@ -10,14 +10,16 @@ import scala.concurrent.duration.DurationInt
 import scala.collection.JavaConverters._
 import scala.util.Try
 
+import com.vladsch.flexmark.Extension
+import com.vladsch.flexmark.ast.{ AutoLink, Document, Link, NodeVisitor, VisitHandler, Visitor }
+import com.vladsch.flexmark.parser.{ Parser, ParserEmulationProfile }
+import com.vladsch.flexmark.util.options.MutableDataSet
+import com.vladsch.flexmark.ext.autolink.AutolinkExtension
+
 import org.apache.commons.validator.routines.UrlValidator
 import org.apache.commons.validator.routines.UrlValidator.ALLOW_2_SLASHES
 import org.nlogo.api.Version
 import org.nlogo.core.Model
-import org.pegdown.Extensions.AUTOLINKS
-import org.pegdown.LinkRenderer
-import org.pegdown.PegDownProcessor
-import org.pegdown.ToHtmlSerializer
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.FunSuite
 import org.scalatest.concurrent.ScalaFutures
@@ -26,17 +28,37 @@ import org.asynchttpclient.{ DefaultAsyncHttpClient, DefaultAsyncHttpClientConfi
 
 class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll {
 
+  private val parserBuilder = {
+    val options = new MutableDataSet()
+    options.setFrom(ParserEmulationProfile.PEGDOWN)
+    val extensions = new java.util.ArrayList[Extension]()
+    extensions.add(AutolinkExtension.create())
+    options.set(Parser.EXTENSIONS, extensions)
+    Parser.builder(options)
+  }
+
   def linksInMarkdown(md: String): Seq[String] = {
-    // use pegdown to grab the links, since that is
+    // use flexmark to grab the links, since that is
     // what is used to generate the info tab anyway
     val links = Seq.newBuilder[String]
-    val astRoot = new PegDownProcessor(AUTOLINKS).parseMarkdown(md.toCharArray)
-    val serializer = new ToHtmlSerializer(new LinkRenderer()) {
-      override def printLink(rendering: LinkRenderer.Rendering): Unit = {
-        links += rendering.href
+
+    val parser = parserBuilder.build()
+    val doc = parser.parse(md).asInstanceOf[Document]
+
+    val linkVisitor = new Visitor[Link] {
+      override def visit(l: Link): Unit = {
+        links += l.getUrl.toString
       }
     }
-    serializer.toHtml(astRoot)
+    val linkRefVisitor = new Visitor[AutoLink] {
+      override def visit(l: AutoLink): Unit = {
+        links += l.getText.toString
+      }
+    }
+    val visitHandler = new VisitHandler[Link](classOf[Link], linkVisitor)
+    val autoLinkHandler = new VisitHandler[AutoLink](classOf[AutoLink], linkRefVisitor)
+    val theVisitor = new NodeVisitor(visitHandler, autoLinkHandler)
+    theVisitor.visit(doc)
     links.result()
   }
 
