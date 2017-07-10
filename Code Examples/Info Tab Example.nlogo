@@ -132,6 +132,7 @@ We are about to start an ordered list.
     1. Subitems are indented 2 more spaces (4 in all).
   2. The next item in the list starts with the next number.
   3. And so on...
+```
 
 #### Formatted
 
@@ -153,6 +154,7 @@ We are about to start an unordered list.
   * Unlike ordered lists, unordered lists use stars instead of numbers.
     * Sub items are indented 2 more spaces.
     * Here's another sub item.
+```
 
 #### Formatted
 
@@ -398,7 +400,7 @@ We have tested the features shown above on a variety of systems.  If you use oth
 
 If you want all NetLogo users to be able to read your Info tab, use only the features shown above.
 
-More information about Markdown is at http://daringfireball.net/projects/markdown/. For rendering Markdown, NetLogo uses the [Pegdown](https://github.com/sirthias/pegdown) library.
+More information about Markdown is at http://daringfireball.net/projects/markdown/. For rendering Markdown, NetLogo uses the [Flexmark-java](https://github.com/vsch/flexmark-java) library.
 
 [netlogo-link]: http://ccl.northwestern.edu/netlogo
 
