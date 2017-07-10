@@ -1,5 +1,3 @@
-extensions [ profiler ]
-
 patches-own [
   inner-neighbors
   outer-neighbors
@@ -11,12 +9,13 @@ patches-own [
 ]
 
 to setup
-  ca
+  clear-all
+  visualize-transition
   ask patches [
-    ;; Store neighboring patches so that we don't have to calculate them each tick
+    ; Store neighboring patches so that we don't have to calculate them each tick
     set inner-neighbors patches in-radius inner-radius
     set outer-neighbors patches in-radius outer-radius with [ distance myself > inner-radius ]
-    ;; Store counts so we don't have to recalculate them each tick
+    ; Store counts so we don't have to recalculate them each tick
     set inner-count count inner-neighbors
     set outer-count count outer-neighbors
     set state random-float 0.75
@@ -26,22 +25,28 @@ to setup
 end
 
 to go
-  ;; The obvious way of implementing this is:
-  ;; ask patches [
-  ;;   set inner-filling mean [ state ] of inner-neighbors
-  ;;   set outer-filling mean [ state ] of outer-neighbors
-  ;; ]
-  ;; However, since the majority of patches have states very close to 0 for most of the simulation
-  ;; the obvious implementation is unnecessarily slow.
-  ;; Instead, we only go over the patches with significant states and have them add their state to
-  ;; their neighbors. This makes the simulation much faster in general. Can you see why flipping
-  ;; the logic in this way works?
+
+  ; Patches add their state to their neighbors.
   ask patches with [ state > 1e-4 ] [
     let s state
     ask inner-neighbors [ set inner-filling inner-filling + s ]
     ask outer-neighbors [ set outer-filling outer-filling + s ]
   ]
+  ; The obvious way of implementing the above code is:
+  ; ask patches [
+  ;   set inner-filling mean [ state ] of inner-neighbors
+  ;   set outer-filling mean [ state ] of outer-neighbors
+  ; ]
+  ; However, since the majority of patches have states very close to 0 for most of
+  ; the simulation the obvious implementation is unnecessarily slow. Instead, we
+  ; only go over the patches with sufficiently large states (greater than 0.0001)
+  ; and have them add their state to their neighbors. This makes the simulation much
+  ; faster in general. Can you see why flipping the logic in this way works?
+
   ask patches [
+    ; Since the patch behavior is made up entirely of updating their STATE variable
+    ; based on the STATEs of those around them, we can encapsulate this behavior in
+    ; reporter procedure. This makes the code much more flexible and easy to test.
     set state transition (outer-filling / outer-count) (inner-filling / inner-count)
     recolor
     set inner-filling 0
@@ -50,64 +55,81 @@ to go
   tick
 end
 
-to recolor
-  set pcolor scale-color white state 0 1
-end
 
+; Compute the next state of the patch based on state of the value of the "cell"
+; centered at that patch and the surrounding neighborhood.
 to-report transition [ outer inner ]
     report (sigmoid-outer outer
       (sigmoid-inner min-birth min-survive inner)
       (sigmoid-inner max-birth max-survive inner))
 end
 
-;; Calculates a sigmoid (s-shaped) function with a few parameters:
-;; a is the location of the center of the curve
-;; step-width controls how gradual the curve is
+
+; Calculates a sigmoid (s-shaped) function with a few parameters:
+; a is the location of the center of the curve
+; step-width controls how gradual the curve is
 to-report sigmoid [ x a step-width ]
   report 1 / (1 + exp (- (x - a) * 4 / step-width))
 end
 
 
-;; Connects two sigmoids together, with one of the them reversed.
-;; In other words, this function starts at 0, curves up to 1 at B
-;; and then curve back down to 0 at A (assuming A < B).
+; Connects two sigmoids together, with one of the them reversed.
+; In other words, this function starts at 0, curves up to 1 at B
+; and then curve back down to 0 at A (assuming A < B).
 to-report sigmoid-outer [ outer a b ]
   report (sigmoid outer a outer-step-width) * ( 1 - (sigmoid outer b outer-step-width))
 end
 
-;; Sigmoid curve (with inner being the input) starting at b and going to d
-to-report sigmoid-inner [ b d inner ]
-  report (b * ( 1 - (sigmoid inner 0.5 inner-step-width)) + d * (sigmoid inner 0.5 inner-step-width))
+; Sigmoid curve (with inner being the input) starting at STARTING-VALUE and going to
+; ENDING-VALUE
+to-report sigmoid-inner [ starting-value ending-value inner ]
+  report starting-value * ( 1 - (sigmoid inner 0.5 inner-step-width))
+       + ending-value   *       (sigmoid inner 0.5 inner-step-width)
+end
+
+to visualize-transition
+  set-current-plot-pen "transition"
+  clear-plot
+  foreach (range 0 1 0.01) [ x ->
+    foreach (range 0 1 0.01) [ y ->
+      set-plot-pen-color 10 * transition x y
+      plotxy x y
+    ]
+  ]
+end
+
+
+to recolor
+  set pcolor scale-color white state 0 1
+end
+
+to erase-all
+  ask patches [
+    set state 0
+    recolor
+  ]
 end
 
 to paint
   if mouse-inside? and mouse-down? [
     ask patch mouse-xcor mouse-ycor [
-      ask patches in-radius inner-radius [
-        ifelse erase? [
-          set state max list 0 (state - 0.1)
-        ] [
-          set state min list 1 (state + 0.1)
-        ]
+      ask patches in-radius paint-radius [
+        set state paint-value
         recolor
       ]
     ]
     display
   ]
 end
-
-to-report inner-radius
-  report outer-radius / radius-ratio
-end
 @#$#@#$#@
 GRAPHICS-WINDOW
 190
-10
-710
-531
+45
+734
+590
 -1
 -1
-4.0
+4.19
 1
 10
 1
@@ -129,21 +151,6 @@ ticks
 
 SLIDER
 5
-45
-185
-78
-radius-ratio
-radius-ratio
-0
-outer-radius + 1
-3.0
-0.5
-1
-NIL
-HORIZONTAL
-
-SLIDER
-5
 10
 185
 43
@@ -160,7 +167,7 @@ HORIZONTAL
 BUTTON
 5
 80
-75
+90
 113
 NIL
 setup
@@ -175,10 +182,10 @@ NIL
 1
 
 BUTTON
-5
-115
-75
-148
+100
+80
+185
+113
 NIL
 go
 T
@@ -189,13 +196,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
 5
-155
+115
 185
-188
+148
 min-birth
 min-birth
 0
@@ -208,9 +215,9 @@ HORIZONTAL
 
 SLIDER
 5
-190
+150
 185
-223
+183
 max-birth
 max-birth
 0
@@ -223,9 +230,9 @@ HORIZONTAL
 
 SLIDER
 5
-230
+190
 185
-263
+223
 min-survive
 min-survive
 0
@@ -238,9 +245,9 @@ HORIZONTAL
 
 SLIDER
 5
-265
+225
 185
-298
+258
 max-survive
 max-survive
 0
@@ -253,9 +260,9 @@ HORIZONTAL
 
 SLIDER
 5
-305
+265
 185
-338
+298
 inner-step-width
 inner-step-width
 0.001
@@ -268,9 +275,9 @@ HORIZONTAL
 
 SLIDER
 5
-340
+300
 185
-373
+333
 outer-step-width
 outer-step-width
 0.001
@@ -281,22 +288,11 @@ outer-step-width
 NIL
 HORIZONTAL
 
-SWITCH
-5
-395
-108
-428
-erase?
-erase?
-1
-1
--1000
-
 BUTTON
-120
-395
-183
-428
+670
+10
+735
+43
 NIL
 paint
 T
@@ -307,16 +303,96 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
-80
-80
+190
+10
+295
+43
+NIL
+erase-all
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+SLIDER
+300
+10
+480
+43
+paint-value
+paint-value
+0
+1
+1.0
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+485
+10
+665
+43
+paint-radius
+paint-radius
+1
+10
+3.0
+0.5
+1
+NIL
+HORIZONTAL
+
+SLIDER
+5
+45
 185
-113
+78
+inner-radius
+inner-radius
+0
+outer-radius
+3.0
+0.5
+1
 NIL
-clear-patches
-NIL
+HORIZONTAL
+
+PLOT
+5
+375
+185
+550
+Transition function
+outer-state
+inner-state
+0.0
+1.0
+0.0
+1.0
+true
+false
+"" ""
+PENS
+"transition" 1.0 2 -7500403 true "" ""
+
+BUTTON
+5
+340
+185
+373
+visualize-transition
+every 0.5 [ visualize-transition ]
+T
 1
 T
 OBSERVER
@@ -329,32 +405,58 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model attempts to create Game of Life-like dynamics in a continuous domain. The system is continuous in several ways. The system is spatially continuous in that every point in a continuous plane has as real-valued state between 0 and 1. There exists a circular "cell" of a particular radius at every point. The state of the cell is the mean of the values of the points within that cell. The neighborhood of each cell is a donut around that cell, and the state the neighborhood is the mean of the values of the points in the neighborhood. Thus, the cells and neighborhoods of the system also have continuous states. The system may also be made continuous in time, but this is not done so here. Of course, simulating a continuous plane is impossible. Instead, we approximate this plane with a discrete grid.
+This model attempts to create Game of Life-like dynamics in a continuous domain. It is recommended that you be familiar with the Life model (in the models library) before looking at this one. As a reminder, in the Game of Life, each patch can either be alive or dead. Patches then update each tick as follows:
+
+- If I am alive and I have 2 or 3 living neighbors, I stay alive.
+- If I am dead and I have exactly 3 living neighbors, I become alive.
+- Otherwise, I become dead.
+
+These simple rules then lead to a remarkable diversity of emergent structures: shapes that fly across the world, shapes that produce streams of other shapes, and so forth.
+
+The Game of Life is discrete in three ways:
+
+- Patches are discrete cells in a grid.
+- Patches have discrete states: alive or dead.
+- Patches update at discrete steps in time, rather than fluctuating continuously over time.
+
+Coming up with a continuous model that produces the rich emergent structures of the Game of Life is quite difficult. First, there are many more possible sets of rules for continuous models, and only a relatively small number are likely to produce interesting behavior. Second, continuous models are much more difficult to reason about, so it becomes harder to know which sets of rules are worth exploration.
+
+In SmoothLife, the first two of those become continuous. The system is spatially continuous in that every point in a continuous plane has as real-valued state between 0 and 1. There exists a circular "cell" of a particular radius at every point. The state of the cell is the mean of the values of the points within that cell. The neighborhood of each cell is a donut around that cell, and the state the neighborhood is the mean of the values of the points in the neighborhood. Thus, the cells and neighborhoods of the system also have continuous states. The system may also be made continuous in time, meaning that rather than state updating in discrete steps, the system changes smoothly through time. However, this is not done so here. Of course, simulating a continuous plane is impossible. Instead, we approximate this plane with a discrete grid.
 
 Points change value over time by updating based on the relationship between their cell's state and their neighborhood's state. This is roughly analagous with the Game of Life in that over or underpopulation can kill a cell, while being "just right" can give birth to a new cell.
 
-From these rules, clear gliders (like in the Game of Life) and other structures form.
+From these rules, clear gliders (like in the Game of Life) and other structures form. Furthermore, the structures that form have a much more organic appearance than in the original Life model.
+
+See https://www.youtube.com/playlist?list=PL69EDA11384365494 for many videos of SmoothLife and related models by the original creator.
 
 ## HOW IT WORKS
 
 Each patch has a number between 0 and 1 associated with it. The state of the cell centered at each patch (with a radius OUTER-RADIUS / RADIUS-RATIO) is the mean of the values of patches inside that cell. The neighborhood of the cell is the donut of patches between OUTER-RADIUS / RADIUS-RATIO and OUTER-RADIUS of the center patch. The state of the cell's neighborhood is the mean of the values of the patches in the neighborhood.
 
-A patch updates its value based on the state of the cell centered on it and the neighborhood of that cell. This update function is similar to the one in Life, except that it's fuzzy: when the state of the cell and neighborhood have the cell on the border between life and death, the patch takes on a value in the middle of 0 and 1. The math for the update is somewhat complicated, but makes extensive use of the sigmoid function as a kind of fuzzy step function.
+A patch updates its value based on the state of the cell centered on it and the neighborhood of that cell. This update function is similar to the one in Life, except that it's fuzzy: when the state of the cell and neighborhood have the cell on the border between life and death, the patch takes on a value in the middle of 0 and 1. Intuitively:
+
+- If the inner state of a patch is closer to 0, the patch will become alive (get closer to 1) if its neighborhood state is between MIN-BIRTH and MAX-BIRTH.
+- If the inner state of a patch is closer to 1, the patch will stay alive (remain close to 1) if its neighborhood state is between MIN-STAY-ALIVE and MAX-STAY-ALIVE. Otherwise it will die (become closer to 0).
+- If the inner state of a patch is closer to 0.5, the boundaries at which becomes closer to 0 or 1 are somewhere between MIN-BIRTH and MIN-STAY-ALIVE, and MAX-BIRTH and MAX-STAY-ALIVE.
+
+In order achieve the transition between dead and alive in a continunous fashion, the [sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function) is used. The sigmoid function is shaped like an "S", where the bottom of the "S" starts at 0 and the top ends at one. Thus, the sigmoid function is like a step function that jumps from 0 to 1, except that it takes on intermediate values between 0 and 1 near the place where it would otherwise jump. The sigmoid function is also used to transition between the amount that the MIN-BIRTH/MAX-BIRTH and MIN-STAY-ALIVE/MAX-STAY-ALIVE ranges are used. The actual transition function used can be visualized with VISUALIZE-TRANSITION. See HOW TO USE IT for details.
 
 ## HOW TO USE IT
 
-Press SETUP to initialize the world randomly and GO to run the model. CLEAR-PATCHES sets all patches to 0 if you want to paint your own initial state.
+Press SETUP to initialize the world randomly and GO to run the model.
 
-OUTER-RADIUS controls the raidius of each cell's neighborhood and RADIUS-RATIO determines how much that radius the cell itself takes up. Thus, the cells have radius OUTER-RADIUS / RADIUS-RATIO.
+OUTER-RADIUS controls the radius of each cell's neighborhood and RADIUS-RATIO determines how much that radius the cell itself takes up. Thus, the cells have radius OUTER-RADIUS / RADIUS-RATIO.
 
 The precise meaning of the various parameters is somewhat complicated, but intuitively:
 
 - MIN-BIRTH and MAX-BIRTH define the range of neighborhood states in which a dead cell (a cell with state less than 0.5) will become alive.
 - MIN-SURVIVE and MAX-SURVIVE define the range of neighborhood states in which a living cell (a cell with state more than 0.5) will remain alive.
-- INNER-STEP-WIDTH controls how "fuzzy" the transition function is with respect to the cell's state.
-- OUTER-STEP-WIDTH controls how "fuzzy" the transition function is with respect to the neighborhood's state.
+- INNER-STEP-WIDTH controls how "fuzzy" the transition function is with respect to the cell's state. The smaller the INNER-STEP-WIDTH, the closer to 0 or 1 the patches will be.
+- OUTER-STEP-WIDTH controls how "fuzzy" the transition function is with respect to the neighborhood's state. The smaller the OUTER-STEP-WIDTH, the closer to 0 or 1 the patches will be.
 
-PAINT allows you to change the state of cells using the mouse. If ERASE? is off, PAINT will increase the value of patches. If ERASE? is on, PAINT will decrease the value of patches.
+VISUALIZE-TRANSITION and the TRANSITION plot show the actual transition function being used. The plot will  be updated for the current settings when VISUALIZE-TRANSITION is running or when SETUP is pressed. This allows you to change the model settings and immediately see how the transition function changes. The plot shows what new patch state different combinations of inner and outer states result in. Black corresponds to 0 and white to 1, as in the model's view. The white band in the center shows what will result in the patch getting a state close to 1. Note that, because the band stretches from the top of the plot to the bottom, a patch can always become alive depending on the state of its neighborhood. The fact that the band is fat part of the band at the top is the range of values for which the patch will remain close to 1 (i.e. stay alive). The skinnier part of the band at the bottom is the range of values for which the patch will become 1 (i.e. be born).
+
+PAINT allows you to change the state of cells using the mouse. When you press the mouse button while in the view, all patches within PAINT-RADIUS will have their STATEs set to PAINT-VALUE. ERASE-ALL sets all patches to 0 if you want to paint your own state from scratch.
 
 ## THINGS TO NOTICE
 
@@ -374,13 +476,15 @@ Can you find parameters for the model that produce other types of emergent struc
 
 ## EXTENDING THE MODEL
 
-Can you add functionality to the model to visualize the state transitions? Hint: use the PXCOR of a patch to represent cell state and the PYCOR of a patch to represent neighborhood state. Color the patches on the corresponding output of TRANSITION. 
+While plot shows visualizes the state transitions, it's very small and computationally intensive. Can you figure out another way to visualize the state transitions? Hint: try using patches.
 
-The paper describing the SmoothLife model also included a way of making the model continuous in time as well as in space and value. See the CREDITS AND REFERENCES section. Can you make this model continuous in time?
+The paper describing the SmoothLife model also includes a way of making the model continuous in time as well as in space and value. See the CREDITS AND REFERENCES section. Can you make this model continuous in time?
 
 ## NETLOGO FEATURES
 
-This is a computationally intensive model. In order to keep things fast, the model stores the inner and outer neighborhoods of each patch at SETUP. Furthermore, the model only looks at patches with a significant STATE when computing the inner and outer neighborhood values.
+This is a computationally intensive model. In order to keep things fast, the model stores the inner and outer neighborhoods of each patch at SETUP. Furthermore, the model only looks at patches with a significantly large STATE when computing the inner and outer neighborhood values. That is, many patches will have STATE close to, but not quite at 0 (less than 0.0001). For performance, we treat those patches as though they have STATE 0.
+
+The plot in this model shows how to visualize a function that takes to inputs and outputs a single number. It does so by plotting a grid of tightly spaced points, where the color of the points corresponds to the output of the function. However, this is a very computationally intensive method and is not recommended for general use.
 
 ## RELATED MODELS
 
@@ -390,17 +494,7 @@ This is a computationally intensive model. In order to keep things fast, the mod
 
 Rafler, S. (2011). Generalization of Conway's "Game of Life" to a continuous domain-SmoothLife. arXiv preprint arXiv:1111.1567.
 
-## HOW TO CITE
-
-If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
-
-For the model itself:
-
-* Head, B and Wilensky, U. (2017).  NetLogo SmoothLife.  http://ccl.northwestern.edu/netlogo/models/SmoothLife.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-
-Please cite the NetLogo software as:
-
-* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+<!-- 2017 Cite: Head, B. -->
 @#$#@#$#@
 default
 true
@@ -709,6 +803,7 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
 NetLogo 6.0.1
 @#$#@#$#@
+setup repeat 25 [ go ]
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
