@@ -129,11 +129,11 @@ end
 GRAPHICS-WINDOW
 190
 45
-734
-590
+710
+566
 -1
 -1
-4.19
+4.0
 1
 10
 1
@@ -293,9 +293,9 @@ NIL
 HORIZONTAL
 
 BUTTON
-670
+645
 10
-735
+710
 43
 NIL
 paint
@@ -344,7 +344,7 @@ HORIZONTAL
 SLIDER
 485
 10
-665
+640
 43
 paint-radius
 paint-radius
