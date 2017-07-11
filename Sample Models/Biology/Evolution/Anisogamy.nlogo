@@ -1,5 +1,7 @@
 globals [
   average-lifetime       ; the average lifetime of adults, used to pick a random lifetime for each adult and gamete when they are born
+  total-red-pop       ; to calculate the running average of the proportion of the red gametes in the last 5000 ticks
+  total-blue-pop      ; to calculate the running average of the proportion of the blue gametes in the last 5000 ticks
 ]
 
 breed [adults adult]
@@ -28,8 +30,11 @@ gametes-own [
 to setup
   clear-all
 
+  set total-red-pop 0
+  set total-blue-pop 0
+
   ; create the blue background that represents a marine environment
-  ask patches [ set pcolor cyan + random 5 - random 5 ]
+  ask patches [ set pcolor 87 + random 5 - random 5 ]
   repeat 20 [ diffuse pcolor 0.25 ]
 
   ; initialize global variables
@@ -41,7 +46,7 @@ to setup
     setxy random-xcor random-ycor
 
     ; choose the mating type randomly and change the color accordingly
-    set mating-type one-of [ red yellow ]
+    set mating-type one-of [ red blue ]
     set color mating-type
 
     ; all adults begin with the same gamete size strategy, which is the reproduction budget / 2.
@@ -84,6 +89,22 @@ to go
   ]
 
   enforce-carrying-capacity
+
+  ; if behaviorspace is running, calculate the averages after 15000 ticks
+  if behaviorspace-run-number != 0 [
+    ifelse behaviorspace-experiment-name != "critical-mass200k" [
+      if ticks > 15000 [
+        set total-red-pop total-red-pop + (count gametes with [color = red])
+        set total-blue-pop total-blue-pop + (count gametes with [color = blue])
+      ]
+    ][
+      if ticks > 195000 [
+        set total-red-pop total-red-pop + (count gametes with [color = red])
+        set total-blue-pop total-blue-pop + (count gametes with [color = blue])
+      ]
+    ]
+  ]
+
   tick
 end
 
@@ -327,7 +348,7 @@ true
 true
 "" ""
 PENS
-"adults" 1.0 0 -16777216 true "" "plot count adults"
+"adults" 1.0 0 -9276814 true "" "plot count adults"
 "zygotes" 1.0 0 -11221820 true "" "plot count zygotes"
 "gametes" 1.0 0 -2064490 true "" "plot (count gametes)"
 
@@ -373,9 +394,9 @@ true
 true
 "" ""
 PENS
-"default" 0.05 1 -16777216 true "" "histogram [gamete-size] of adults"
+"total" 0.05 1 -9276814 true "" "histogram [gamete-size] of adults"
 "reds" 0.05 1 -2674135 true "" "histogram [gamete-size] of adults with [color = red]"
-"yellows" 0.05 1 -1184463 true "" "histogram [gamete-size] of adults with [color = yellow]"
+"blues" 0.05 1 -13345367 true "" "histogram [gamete-size] of adults with [color = blue]"
 
 SLIDER
 20
@@ -386,7 +407,7 @@ zygote-critical-mass
 zygote-critical-mass
 0
 1
-0.45
+0.4
 0.05
 1
 NIL
@@ -435,7 +456,7 @@ false
 "" ""
 PENS
 "red gametes" 1.0 0 -2674135 true "" "plot count gametes with [color = red]"
-"yellow gametes" 1.0 0 -987046 true "" "plot count gametes with [color = yellow]"
+"yellow gametes" 1.0 0 -13345367 true "" "plot count gametes with [color = blue]"
 
 MONITOR
 775
@@ -453,8 +474,8 @@ MONITOR
 60
 885
 105
-yellow adults
-count adults with [color = yellow]
+blue adults
+count adults with [color = blue]
 17
 1
 11
@@ -503,8 +524,8 @@ BUTTON
 60
 1100
 101
-follow a yellow gamete
-follow-a-gamete yellow
+follow a blue gamete
+follow-a-gamete blue
 NIL
 1
 T
@@ -520,7 +541,7 @@ NIL
 
 This model is a thought experiment related to the evolution of the two sexes as we know them: males producing numerous small sperm cells and females producing only a handful of big egg cells.
 
-The model has two pseudo-sexes (red and yellow). The adult organisms of each pseudo-sex begin with the same reproductive strategy: produce medium sized gametes in approximately the same quantities. Every time an adult produces new gametes, there is a chance of a small, random mutation in the gamete size strategy. These mutations introduce a competition among multiple reproductive strategies. The model explores the conditions that may lead to this competition resulting in the emergence of two evolutionarily stable reproductive strategies: 1. produce numerous small gametes and 2. produce a handful of big gametes.
+The model has two pseudo-sexes (red and blue). The adult organisms of each pseudo-sex begin with the same reproductive strategy: produce medium sized gametes in approximately the same quantities. Every time an adult produces new gametes, there is a chance of a small, random mutation in the gamete size strategy. These mutations introduce a competition among multiple reproductive strategies. The model explores the conditions that may lead to this competition resulting in the emergence of two evolutionarily stable reproductive strategies: 1. produce numerous small gametes and 2. produce a handful of big gametes.
 
 This model also allows you to test many different assumptions related to the evolution of the sperm-egg dichotomy (anisogamy) from a uniform gamete size strategy by changing the various parameters.
 
@@ -534,7 +555,7 @@ These new zygotes are non-mobile agents. They stay put and incubate. When they r
 
 ## HOW TO USE IT
 
-The SETUP button creates the initial adult population. Each adult in the initial population is assigned one of the mating types (red or yellow) randomly. They all start with the same gamete size strategy, which is half of the fixed reproduction budged.
+The SETUP button creates the initial adult population. Each adult in the initial population is assigned one of the mating types (red or blue) randomly. They all start with the same gamete size strategy, which is half of the fixed reproduction budged.
 
 Once the model has been set up, you are now ready to run it by pushing the GO button. The GO button starts the simulation and runs it continuously until it is pushed again.
 
@@ -554,13 +575,13 @@ The SAME-TYPE-MATING-ALLOWED? switch lets you choose whether or not gametes of t
 
 The ENFORCE-CRITICAL-MASS? switch lets you override the critical mass assumption. When ON, the undersized zygotes die. When OFF, all zygotes survive regardless of their total mass.
 
-Because the some of the gametes in the model can be very very small, it is sometimes hard to observe them. Clicking the FOLLOW A RED GAMETE or FOLLOW A YELLOW GAMETE button picks a randomly chosen gamete of that color and lets you follow it until it dies or fuses with another gamete.
+Because the some of the gametes in the model can be very very small, it is sometimes hard to observe them. Clicking the FOLLOW A RED GAMETE or FOLLOW A BLUE GAMETE button picks a randomly chosen gamete of that color and lets you follow it until it dies or fuses with another gamete.
 
 ## THINGS TO NOTICE
 
 It takes quite some time to see any meaningful changes in the adults’ gamete size strategies. Even if it seems like the system is stable, let the model run at least for 5000 to 10000 ticks.
 
-Notice that even if the gamete size strategies of the red adults and the yellow adults may evolve to be dramatically different, this does not disrupt the overall population balance. The number of the red adults and the number of yellow adults stay relatively stable no matter what.
+Notice that even if the gamete size strategies of the red adults and the blue adults may evolve to be dramatically different, this does not disrupt the overall population balance. The number of the red adults and the number of blue adults stay relatively stable no matter what.
 
 The number of adults and the of the zygotes stay relatively constant in the model, regardless of the changes in the gamete size strategies. However, the number of gametes may dramatically change. Keep an eye out for spikes in the number of gametes and see how these spikes correspond to changes in the distribution of the gamete size strategies.
 
@@ -570,7 +591,7 @@ Try changing the mutation rate (MUTATION-STDEV) and see if it makes any differen
 
 Would anisogamy still evolve even if gametes of the same color can fuse? Try turning on the SAME-TYPE-MATING-ALLOWED? switch and see how it affects the eventual outcome of the model.
 
-Does the initial distribution of mating types have an impact on the eventual outcome of the model? Try to run the model multiple times and see if the initial number of red adults versus the initial number of yellow adults has anything to do with the eventual outcome of the model.
+Does the initial distribution of mating types have an impact on the eventual outcome of the model? Try to run the model multiple times and see if the initial number of red adults versus the initial number of blue adults has anything to do with the eventual outcome of the model.
 
 The ZYGOTE-CRITICAL-MASS value defaults to 0.45, which is just 0.05 less than the total reproduction budget of adults (0.5 or 50% of the total mass). Try modifying this value to discover whether smaller and larger critical masses requirements still result in anisogamy.
 
@@ -951,6 +972,49 @@ NetLogo 6.0.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
+<experiments>
+  <experiment name="critical-mass200k" repetitions="3" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="200000"/>
+    <metric>total-red-pop / 5000</metric>
+    <metric>total-blue-pop / 5000</metric>
+    <metric>mean [gamete-size] of adults with [color = red]</metric>
+    <metric>mean [gamete-size] of adults with [color = blue]</metric>
+    <steppedValueSet variable="zygote-critical-mass" first="0.01" step="0.01" last="0.5"/>
+  </experiment>
+  <experiment name="default20k" repetitions="300" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="20000"/>
+    <metric>total-red-pop / 5000</metric>
+    <metric>total-blue-pop / 5000</metric>
+    <metric>mean [gamete-size] of adults with [color = red]</metric>
+    <metric>mean [gamete-size] of adults with [color = blue]</metric>
+  </experiment>
+  <experiment name="critical-mass20k" repetitions="3" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="20000"/>
+    <metric>total-red-pop / 5000</metric>
+    <metric>total-blue-pop / 5000</metric>
+    <metric>mean [gamete-size] of adults with [color = red]</metric>
+    <metric>mean [gamete-size] of adults with [color = blue]</metric>
+    <steppedValueSet variable="zygote-critical-mass" first="0.01" step="0.01" last="0.5"/>
+  </experiment>
+  <experiment name="alternativecricitalmass20k" repetitions="300" runMetricsEveryStep="false">
+    <setup>setup</setup>
+    <go>go</go>
+    <timeLimit steps="20000"/>
+    <metric>total-red-pop / 5000</metric>
+    <metric>total-blue-pop / 5000</metric>
+    <metric>mean [gamete-size] of adults with [color = red]</metric>
+    <metric>mean [gamete-size] of adults with [color = blue]</metric>
+    <enumeratedValueSet variable="zygote-critical-mass">
+      <value value="0.25"/>
+    </enumeratedValueSet>
+  </experiment>
+</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default
