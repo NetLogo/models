@@ -92,7 +92,7 @@ to go
 
   ; if behaviorspace is running, calculate the averages after 15000 ticks
   if behaviorspace-run-number != 0 [
-    ifelse behaviorspace-experiment-name != "criticalmass200k" [
+    ifelse behaviorspace-experiment-name != "critical-mass200k" [
       if ticks > 15000 [
         set total-red-pop total-red-pop + (count gametes with [color = red])
         set total-blue-pop total-blue-pop + (count gametes with [color = blue])
@@ -973,7 +973,7 @@ NetLogo 6.0.1
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="criticalmass200k" repetitions="3" runMetricsEveryStep="false">
+  <experiment name="critical-mass200k" repetitions="3" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="200000"/>
@@ -992,7 +992,7 @@ NetLogo 6.0.1
     <metric>mean [gamete-size] of adults with [color = red]</metric>
     <metric>mean [gamete-size] of adults with [color = blue]</metric>
   </experiment>
-  <experiment name="criticalmass20k" repetitions="3" runMetricsEveryStep="false">
+  <experiment name="critical-mass20k" repetitions="3" runMetricsEveryStep="false">
     <setup>setup</setup>
     <go>go</go>
     <timeLimit steps="20000"/>
