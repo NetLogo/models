@@ -10,6 +10,7 @@ patches-own [
 
 to setup
   clear-all
+  ; Plot the transition function for the current settings
   visualize-transition
   ask patches [
     ; Store neighboring patches so that we don't have to calculate them each tick
@@ -87,13 +88,18 @@ to-report sigmoid-inner [ starting-value ending-value inner ]
        + ending-value   *       (sigmoid inner 0.5 inner-step-width)
 end
 
+; Plots the transition function used by patches
 to visualize-transition
   set-current-plot-pen "transition"
   clear-plot
-  foreach (range 0 1 0.01) [ x ->
-    foreach (range 0 1 0.01) [ y ->
-      set-plot-pen-color 10 * transition x y
-      plotxy x y
+  ; Compute the resulting patch state for every combination of inner state and outer
+  ; state. NetLogo plots don't have built-in support for displaying two dimensional
+  ; images, so instead we plot an individual point for each such combination, and
+  ; color the points based on the resulting patch state.
+  foreach (range 0 1 0.01) [ outer-state ->
+    foreach (range 0 1 0.01) [ inner-state ->
+      set-plot-pen-color 10 * transition outer-state inner-state
+      plotxy outer-state inner-state
     ]
   ]
 end
@@ -423,9 +429,9 @@ The Game of Life is discrete in three ways:
 - Patches have discrete states: alive or dead.
 - Patches update at discrete steps in time, rather than fluctuating continuously over time.
 
-Coming up with a continuous model that produces the rich emergent structures of the Game of Life is quite difficult. First, there are many more possible sets of rules for continuous models, and only a relatively small number are likely to produce interesting behavior. Second, continuous models are much more difficult to reason about, so it becomes harder to know which sets of rules are worth exploration.
+Coming up with a continuous model that produces the rich emergent structures of the Game of Life is quite difficult. First, there are many more possible sets of rules for continuous models, and only a relatively small number are likely to produce interesting behavior. Second, continuous models are much more difficult to reason about, so it becomes harder to know which sets of rules are worth exploring.
 
-In SmoothLife, the first two of those become continuous. The system is spatially continuous in that every point in a continuous plane has as real-valued state between 0 and 1. There exists a circular "cell" of a particular radius at every point. The state of the cell is the mean of the values of the points within that cell. The neighborhood of each cell is a donut around that cell, and the state the neighborhood is the mean of the values of the points in the neighborhood. Thus, the cells and neighborhoods of the system also have continuous states. The system may also be made continuous in time, meaning that rather than state updating in discrete steps, the system changes smoothly through time. However, this is not done so here. Of course, simulating a continuous plane is impossible. Instead, we approximate this plane with a discrete grid.
+In SmoothLife, the first two discrete ways become continuous. The system is spatially continuous in that every point in a continuous plane has as real-valued state between 0 and 1. There exists a circular "cell" of a particular radius at every point. The state of the cell is the mean of the values of the points within that cell. The neighborhood of each cell is a donut around that cell, and the state the neighborhood is the mean of the values of the points in the neighborhood. Thus, the cells and neighborhoods of the system also have continuous states. The system may also be made continuous in time, meaning that rather than updating its state in discrete steps, the system changes smoothly through time. However, this third way of making the discrete continuous is not done here. Of course, simulating a continuous plane is impossible. Instead, we approximate this plane with a discrete grid.
 
 Points change value over time by updating based on the relationship between their cell's state and their neighborhood's state. This is roughly analogous with the Game of Life in that over or underpopulation can kill a cell, while being "just right" can give birth to a new cell.
 
@@ -458,7 +464,7 @@ The precise meaning of the various parameters is somewhat complicated, but intui
 - INNER-STEP-WIDTH controls how "fuzzy" the transition function is with respect to the cell's state. The smaller the INNER-STEP-WIDTH, the closer to 0 or 1 the patches will be.
 - OUTER-STEP-WIDTH controls how "fuzzy" the transition function is with respect to the neighborhood's state. The smaller the OUTER-STEP-WIDTH, the closer to 0 or 1 the patches will be.
 
-VISUALIZE-TRANSITION and the TRANSITION plot show the actual transition function being used. The plot will  be updated for the current settings when VISUALIZE-TRANSITION is running or when SETUP is pressed. This allows you to change the model settings and immediately see how the transition function changes. The plot shows what new patch state different combinations of inner and outer states result in. Black corresponds to 0 and white to 1, as in the model's view. The white band in the center shows what will result in the patch getting a state close to 1. Note that, because the band stretches from the top of the plot to the bottom, a patch can always become alive depending on the state of its neighborhood. The fact that the band is fat part of the band at the top is the range of values for which the patch will remain close to 1 (i.e. stay alive). The skinnier part of the band at the bottom is the range of values for which the patch will become 1 (i.e. be born).
+VISUALIZE-TRANSITION and the TRANSITION FUNCTION plot show the actual transition function being used. The plot shows which new patch state different combinations of inner and outer states result in. Black corresponds to 0 and white to 1, as in the model's View. The white band in the center shows what will result in the patch getting a state close to 1. Note that, because the band stretches from the top of the plot to the bottom, a patch can always become alive depending on the state of its neighborhood. The fat part of the band at the top is the range of values for which the patch will remain close to 1 (i.e. stay alive). The skinnier part of the band at the bottom is the range of values for which the patch will become 1 (i.e. be born). The plot will be updated for the current settings when SETUP is pressed. When VISUALIZE-TRANSITION is running, the plot updates in real-time, allowing you to change the model settings and immediately see how the transition function changes. This is very helpful for understanding the impact each setting has on the transition function.
 
 PAINT allows you to change the state of cells using the mouse. When you press the mouse button while in the view, all patches within PAINT-RADIUS will have their STATEs set to PAINT-VALUE. ERASE-ALL sets all patches to 0 if you want to paint your own state from scratch.
 
@@ -468,7 +474,7 @@ Objects that appear to glide across the screen will quickly appear when starting
 
 With small fluctuations, a glider object can either split into multiple gliders or die out.
 
-Much of the emergent structures in this model consist of a curved, organic looking membrane of living cells. Why might this be?
+Many of the emergent structures in this model consist of curved, organic-looking membranes of living cells. Why might this be?
 
 When you decrease OUTER-RADIUS, the gliders and other structures become smaller. Why might this be? At some point, the structures won't form anymore. Why not?
 
@@ -480,7 +486,7 @@ Can you find parameters for the model that produce other types of emergent struc
 
 ## EXTENDING THE MODEL
 
-While plot shows visualizes the state transitions, it's very small and computationally intensive. Can you figure out another way to visualize the state transitions? Hint: try using patches.
+While the TRANSITION FUNCTION plot visualizes the state transitions, it's very small and computationally intensive. Can you figure out another way to visualize the state transitions? Hint: try using patches.
 
 The paper describing the SmoothLife model also includes a way of making the model continuous in time as well as in space and value. See the CREDITS AND REFERENCES section. Can you make this model continuous in time?
 
@@ -488,7 +494,7 @@ The paper describing the SmoothLife model also includes a way of making the mode
 
 This is a computationally intensive model. In order to keep things fast, the model stores the inner and outer neighborhoods of each patch at SETUP. Furthermore, the model only looks at patches with a significantly large STATE when computing the inner and outer neighborhood values. That is, many patches will have STATE close to, but not quite at 0 (less than 0.0001). For performance, we treat those patches as though they have STATE 0.
 
-The plot in this model shows how to visualize a function that takes to inputs and outputs a single number. It does so by plotting a grid of tightly spaced points, where the color of the points corresponds to the output of the function. However, this is a very computationally intensive method and is not recommended for general use.
+The plot in this model shows how to visualize a function that takes two inputs and outputs a single number. It does so by plotting a grid of tightly spaced points, where the color of the points corresponds to the output of the function. However, this is a very computationally intensive method and is not recommended for general use.
 
 ## RELATED MODELS
 
