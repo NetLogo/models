@@ -382,7 +382,7 @@ PLOT
 375
 185
 550
-Transition function
+Transition Function
 outer-state
 inner-state
 0.0
@@ -437,7 +437,7 @@ Points change value over time by updating based on the relationship between thei
 
 From these rules, clear gliders (like in the Game of Life) and other structures form. Furthermore, the structures that form have a much more organic appearance than in the original Life model.
 
-See https://www.youtube.com/playlist?list=PL69EDA11384365494 for many videos of SmoothLife and related models by the original creator.
+See this [YouTube playlist](https://www.youtube.com/playlist?list=PL69EDA11384365494) for many videos of SmoothLife and related models by the original creator.
 
 ## HOW IT WORKS
 
@@ -449,7 +449,7 @@ A patch updates its value based on the state of the cell centered on it and the 
 - If the inner state of a patch is closer to 1, the patch will stay alive (remain close to 1) if its neighborhood state is between MIN-STAY-ALIVE and MAX-STAY-ALIVE. Otherwise it will die (become closer to 0).
 - If the inner state of a patch is closer to 0.5, the boundaries at which becomes closer to 0 or 1 are somewhere between MIN-BIRTH and MIN-STAY-ALIVE, and MAX-BIRTH and MAX-STAY-ALIVE.
 
-In order achieve the transition between dead and alive in a continuous fashion, the [sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function) is used. The sigmoid function is shaped like an "S", where the bottom of the "S" starts at 0 and the top ends at one. Thus, the sigmoid function is like a step function that jumps from 0 to 1, except that it takes on intermediate values between 0 and 1 near the place where it would otherwise jump. The sigmoid function is also used to transition between the amount that the MIN-BIRTH/MAX-BIRTH and MIN-STAY-ALIVE/MAX-STAY-ALIVE ranges are used. The actual transition function used can be visualized with VISUALIZE-TRANSITION. See HOW TO USE IT for details.
+In order achieve the transition between dead and alive in a continuous fashion, the [sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function) is used. The sigmoid function is shaped like an "S", where the bottom of the "S" starts at 0 and the top ends at 1. Thus, the sigmoid function is like a step function that jumps from 0 to 1, except that it takes on intermediate values between 0 and 1 near the place where it would otherwise jump. The sigmoid function is also used to transition between the amount that the MIN-BIRTH/MAX-BIRTH and MIN-STAY-ALIVE/MAX-STAY-ALIVE ranges are used. The actual transition function used can be visualized with VISUALIZE-TRANSITION. See HOW TO USE IT for details.
 
 ## HOW TO USE IT
 
@@ -464,7 +464,7 @@ The precise meaning of the various parameters is somewhat complicated, but intui
 - INNER-STEP-WIDTH controls how "fuzzy" the transition function is with respect to the cell's state. The smaller the INNER-STEP-WIDTH, the closer to 0 or 1 the patches will be.
 - OUTER-STEP-WIDTH controls how "fuzzy" the transition function is with respect to the neighborhood's state. The smaller the OUTER-STEP-WIDTH, the closer to 0 or 1 the patches will be.
 
-VISUALIZE-TRANSITION and the TRANSITION FUNCTION plot show the actual transition function being used. The plot shows which new patch state different combinations of inner and outer states result in. Black corresponds to 0 and white to 1, as in the model's View. The white band in the center shows what will result in the patch getting a state close to 1. Note that, because the band stretches from the top of the plot to the bottom, a patch can always become alive depending on the state of its neighborhood. The fat part of the band at the top is the range of values for which the patch will remain close to 1 (i.e. stay alive). The skinnier part of the band at the bottom is the range of values for which the patch will become 1 (i.e. be born). The plot will be updated for the current settings when SETUP is pressed. When VISUALIZE-TRANSITION is running, the plot updates in real-time, allowing you to change the model settings and immediately see how the transition function changes. This is very helpful for understanding the impact each setting has on the transition function.
+VISUALIZE-TRANSITION and the TRANSITION FUNCTION plot show the actual transition function being used. The plot shows which new patch state different combinations of inner and outer states result in. Black corresponds to 0 and white to 1, as in the model's View. The white band in the center shows what will result in the patch getting a state close to 1. Note that because the band stretches from the top of the plot to the bottom, a patch can always become alive depending on the state of its neighborhood. The fat part of the band at the top is the range of values for which the patch will remain close to 1 (i.e. stay alive). The skinnier part of the band at the bottom is the range of values for which the patch will become 1 (i.e. be born). The plot will be updated for the current settings when SETUP is pressed. When VISUALIZE-TRANSITION is running, the plot updates in real-time, allowing you to change the model settings and immediately see how the transition function changes. This is very helpful for understanding the impact each setting has on the transition function.
 
 PAINT allows you to change the state of cells using the mouse. When you press the mouse button while in the view, all patches within PAINT-RADIUS will have their STATEs set to PAINT-VALUE. ERASE-ALL sets all patches to 0 if you want to paint your own state from scratch.
 
@@ -476,7 +476,7 @@ With small fluctuations, a glider object can either split into multiple gliders 
 
 Many of the emergent structures in this model consist of curved, organic-looking membranes of living cells. Why might this be?
 
-When you decrease OUTER-RADIUS, the gliders and other structures become smaller. Why might this be? At some point, the structures won't form anymore. Why not?
+When you decrease OUTER-RADIUS, the gliders and other structures become smaller. Why might this be? If you decrease OUTER-RADIUS too much, the structures won't form anymore. Why not?
 
 ## THINGS TO TRY
 
