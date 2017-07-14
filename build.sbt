@@ -22,6 +22,7 @@ libraryDependencies ++= Seq(
   "com.github.wookietreiber" %% "scala-chart" % "0.5.1",
   "com.googlecode.java-diff-utils" % "diffutils" % "1.2" % "test",
   "org.jfree" % "jfreesvg" % "3.0",
+  "com.typesafe" % "config" % "1.3.1" % "test",
   "com.vladsch.flexmark" % "flexmark" % "0.20.0" % "test",
   "com.vladsch.flexmark" % "flexmark-ext-autolink" % "0.20.0" % "test",
   "com.vladsch.flexmark" % "flexmark-util" % "0.20.0" % "test"
