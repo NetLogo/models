@@ -17,7 +17,14 @@ class CrossReferenceTests extends FunSuite {
     val modelRefs = crossReference.getConfigList("org.nlogo.models.crossReference.singleModels").asScala
     modelRefs.foreach { ref =>
       val source = ref.getString("source")
-      assert(Files.isRegularFile(Paths.get(source)), s"expected to find a nlogo file at $source, but couldn't find it!")
+      val path = Paths.get(source)
+      val realPath = path.toRealPath()
+      val realSubpath =
+        realPath.subpath(realPath.getNameCount - path.getNameCount, realPath.getNameCount)
+      assert(
+        Files.exists(path) && Files.isRegularFile(path) &&
+        realSubpath.toString == path.toString,
+        s"expected to find a nlogo file at $source, but couldn't find it!")
     }
   }
 
@@ -25,7 +32,14 @@ class CrossReferenceTests extends FunSuite {
     val directoryRefs = crossReference.getConfigList("org.nlogo.models.crossReference.directories").asScala
     directoryRefs.foreach { ref =>
       val source = ref.getString("sourceDir")
-      assert(Files.isDirectory(Paths.get(source)), s"expected find a directory at $source, but couldn't find it!")
+      val path = Paths.get(source)
+      val realPath = path.toRealPath()
+      val realSubpath =
+        realPath.subpath(realPath.getNameCount - path.getNameCount, realPath.getNameCount)
+      assert(
+        Files.exists(path) && Files.isDirectory(path) &&
+        realSubpath.toString == path.toString,
+        s"expected find a directory at $source, but couldn't find it!")
     }
   }
 }
