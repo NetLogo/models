@@ -609,7 +609,7 @@ With this representation, the focus is on the aggregate level interactions betwe
 
 Can you identify when Fairy Circles emerge in the model?  Notice where dead patches emerge in the model versus where grasses stay alive. Where do you see the healthiest grasses with the longest roots? Is this related to how water is distributed across the patches?
 
-Why do some termite colonies appear better at gathering food around them? What termite or colony related paramters affects this?
+Why do some termite colonies appear better at gathering food around them? Which termite or colony related parameters affect this?
 
 Watch the patterns of termite colonies emerge.  When are new colonies successful and when do they fail?
 
@@ -627,7 +627,7 @@ Explore termite aggression in the world. How does termite aggression affect the 
 
 Can you find parameters that cause all termite colonies to die?
 
-This model simplifies the naturally observed phenomenon through assumptions like how termites fight, grasses grow, or how/when it rains in the model. Can you look through the code tab to fnd and modify one of these assumptions to reflect your understanding of the system?
+This model simplifies the naturally observed phenomenon through assumptions like how termites fight, grasses grow, or how/when it rains in the model. Can you look through the code tab to find and modify one of these assumptions to reflect your understanding of the system?
 
 ## EXTENDING THE MODEL
 
