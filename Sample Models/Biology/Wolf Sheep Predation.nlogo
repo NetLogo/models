@@ -390,7 +390,7 @@ SWITCH
 303
 show-energy?
 show-energy?
-0
+1
 1
 -1000
 
