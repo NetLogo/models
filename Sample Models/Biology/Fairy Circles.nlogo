@@ -577,7 +577,7 @@ Grasses increase their root depth as they grow. They need water to maintain thei
 5. Look at monitors to see the number of termites that are currently fighting or the number of grasses that have died.
 6.  Look at the plots to see the distribution of root depth and soil moisture, or the number of colonies in the world.
 
-###Parameters
+### Parameters
 INITIAL-NUMBER-OF-COLONIES: The initial number of termite colonies.
 ENERGY-GAIN-FROM-GRASS: The amount of energy termite colonies get from grass roots.
 POPULATION-NEEDED-TO-HATCH-NEW-COLONY: The amount of termites in a colony needed to create a new colony.
@@ -591,7 +591,7 @@ Notes:
 - Termites lose one unit of life at each tick.
 - In order for plants to survive and grow, they require a base amount of water plus a proportion of water based on their root depth.
 
-###Plots and Monitors
+### Plots and Monitors
 
 DEAD GRASSES: monitors the number of patches that have dead grasses
 COLONY COUNT: plots the number of termite colonies present
@@ -599,7 +599,7 @@ FIGHTING TERMITES: plots the number of termites that have seen a termite from an
 ROOT DEPTH DISTRIBUTION: plots the distribution of root depth across all patches
 SOIL MOISTURE DISTRIBUTION: plots the distribution of soil moisture across all patches
 
-###Visualization
+### Visualization
 
 In this world, termite colonies are represented as magenta circles. Each colony as an initial number of green termites, a population that increases over time. While each patch is associated with both grasses and accumulated soil moisture, patches are colored to reflect the state of grasses in the world. Brown patches are those with dead grass. Green patches are those with living grass. The shade of green reflects the size of grasses. Grasses that are lighter greed have longer roots than those that are darker green.
 
