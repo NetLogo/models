@@ -36,6 +36,7 @@ to setup
     ]
   ]
   reset-ticks
+
 end
 
 to go
@@ -62,18 +63,39 @@ to go
   ][ ; otherwise run draw-polygon procedure
     ifelse action = "Draw Polygon" [
       draw-polygon
-    ][
-      error "There is an error in this model"
+    ][ ; otherwise run delete-segment procedure
+      ifelse action = "Delete Segment" [
+        delete-segment
+      ][
+        error "There is an error in this model"
+      ]
     ]
   ]
 end
 
 to draw-segment
-  with-candidate ; Run with-candidate and pass three different anonymous proecdures
-    ([ first-point -> ask first-point [ set size 0.5  set color 87 ] ])
-    ([ [first-point second-point] -> add-segment first-point second-point ])
-    ([ [first-point second-point] -> second-point != nobody ])
+  join-candidate ([ first-point ->                 ; Run join-candidate anonymous procedure
+    ask first-point [ set size 0.5  set color 87 ]   ; Make selected dot bigger & green
+  ])
+  ; Create segment between first and second dot selected
+  ([ [first-point second-point] -> add-segment first-point second-point ])
+  ([ [first-point second-point] -> second-point != nobody ])
+
 end
+
+
+to delete-segment
+  if mouse-down? [
+    if mouse-has-gotten-air? [
+      let candidate (one-of dots with [ distancexy mouse-xcor mouse-ycor < 0.3 ])
+      ask segments [
+        if end1 = dot [who] of candidate [die]
+        if end2 = dot [who] of candidate [die]
+      ]
+    ]
+  ]
+end
+
 
 to add-segment [ candidate previous ]
   ; Reset the size of previous dot and color
@@ -90,26 +112,26 @@ to add-segment [ candidate previous ]
 end
 
 to draw-polygon
-  with-candidate  ; Call with-candidate with three anonymous procedures
-    ([ first-point ->
-      ask first-point [ set size 0.5  set color 87 ]            ; Make first dot selected bigger & green
-      set polygon-completed? false                              ; Notes that the polygon has not been completed
-      set polygon-vertices (list first-point)                   ; Reset polygon-vertices list to first dot selected
-    ])
-    ; Create polygon-edge between previous and current dot selected
-    ([ [first-point second-point] -> add-polygon-edge first-point second-point ])
-    ; End task when the polygon is completed
-    ([ -> polygon-completed? ])
+  join-candidate ([ first-point ->                          ; Run join-candidate task procedure
+    ask first-point [ set size 0.5  set color 87 ]            ; Make first dot selected bigger & green
+    set polygon-completed? false                              ; Notes that the polygon has not been completed
+    set polygon-vertices (list first-point)                   ; Reset polygon-vertices list to first dot selected
+  ])
+
+  ; Create polygon-edge between previous and current dot selected
+  ([ [first-point second-point] -> add-polygon-edge first-point second-point ])
+
+  ; End task when the polygon is completed
+([ [] -> polygon-completed? ])
 end
 
-to add-polygon-edge [ candidate previous ]                    ; Creates edge between selected dot (candidate) and previously selected dot (prev)
+to add-polygon-edge [ candidate previous ]                        ; Creates edge between selected dot (candidate) and previously selected dot (prev)
   set polygon-vertices (lput candidate polygon-vertices)      ; Adds new dot to polygon-vertices list
 
   ; Reset dot size and color of prev
   ask previous [ reset ]
 
-  ; Draw an edge from candidate to prev
-  ask candidate [
+  ask candidate [                                             ; Draw an edge from candidate to prev
     create-edge-with previous [
       set color white
       set thickness 0.15
@@ -127,12 +149,12 @@ to add-polygon-edge [ candidate previous ]                    ; Creates edge bet
   ]
 end
 
-to with-candidate [ start-task continue-task is-finished?-task ]
+to join-candidate [ start-task continue-task is-finished?-task ]
   ; If user clicks somewhere
   ifelse mouse-down? [
     ; and then releases the mouse,
     if (mouse-has-gotten-air?) [
-      ; choose the dot that is at most 0.3 units from the user click
+       ; choose the dot that is at most 0.3 units from the user click
       let candidate (one-of turtles with [ distancexy mouse-xcor mouse-ycor < 0.3 ])
 
       ; If a candidate is selected and is not the previously chosen dot,
@@ -183,7 +205,8 @@ to check-area ; Generates user message with area of current polygon when user cl
   ifelse polygon-completed? [
     user-message (word "The area of this polygon is " abs(area) " square units.")
   ][
-    user-message (word "I cannot determine area of non-polygons.")                 ; If no current polygon is recognized, generates this error message
+    ; If no current polygon is recognized, generates this error message
+    user-message (word "I can only determine the area of the last polygon constructed using the 'Draw Polygon' action. If you change actions, I automatically reset.")
   ]
 end
 
@@ -193,8 +216,8 @@ to reset ; turtle procedure
   set color yellow
 end
 
-; Area calculation based on formula from: http://mathworld.wolfram.com/PolygonArea.html
-; Area = 1/2 * (the determinant of the matrices formed by each consecutive pair of coordinates)
+;  Area calculation based on formula from: http://mathworld.wolfram.com/PolygonArea.html
+;  Area = 1/2 * (the determinant of the matrices formed by each consecutive pair of coordinates)
 to-report area  ; Calls on area-helper for list of polygon-vertices
   let vertex (first polygon-vertices)
   report area-helper polygon-vertices (list 0 ([ xcor ] of vertex) ([ ycor ] of vertex))
@@ -241,15 +264,15 @@ to-report edges-helper [ vertices-list end-list ]
   report ifelse-value (empty? tail) [ end-list ] [ edges-helper tail (lput ([link-with (first tail)] of vertex) end-list) ]
 end
 
-; Polygonality code: Checks all edges and its intersections with other edges. In order to be a polygon, each edge must intersect with exactly two other edges.
+;  Polygonality code: Checks all edges and its intersections with other edges. In order to be a polygon, each edge must intersect with exactly two other edges.
 to assess-for-polygonality
 
   let edgeset             (link-set polygon-edges)
   let self-others-pairs   ([(list self ([ self ] of (other edgeset)))] of edgeset)
-  let all-intersections   (map [ an-intersection -> find-intersections (item 0 an-intersection) (item 1 an-intersection) ] self-others-pairs)
-  let valid-intersections (map [ an-intersection -> filter [ x -> x != [] ] an-intersection ] all-intersections)
+  let all-intersections   (map [ [an-intersection] -> find-intersections (item 0 an-intersection) (item 1 an-intersection) ] self-others-pairs)
+  let valid-intersections (map [ [an-intersection] -> filter [ [x] -> x != [] ] an-intersection ] all-intersections)
 
-  ifelse for-all ([ an-intersection -> length an-intersection = 2 ]) valid-intersections [
+ifelse for-all ([ [an-intersection] -> length an-intersection = 2 ]) valid-intersections [
     set polygon-completed? true
   ] [
     user-message "This shape is not a polygon."
@@ -257,17 +280,17 @@ to assess-for-polygonality
   ]
 end
 
-; reports intersections of one edge with others
+;  reports intersections of one edge with others
 to-report find-intersections [ s others ]
-  report map [ an-edge -> intersection s an-edge ] others
+  report map [ [an-edge] -> intersection s an-edge ] others
 end
 
-; reports the number of intersections
+;  reports the number of intersections
 to-report for-all [ t xs ]
   report (length filter t xs) = (length xs)
 end
 
-; reports a two-item list of x and y coordinates, or an empty list if no intersection is found
+;  reports a two-item list of x and y coordinates, or an empty list if no intersection is found
 to-report intersection [ t1 t2 ]
 
   let shared-ends (shared-link-ends t1 t2)
@@ -275,69 +298,71 @@ to-report intersection [ t1 t2 ]
 
   let m1 [tan (90 - link-heading)] of t1
   let m2 [tan (90 - link-heading)] of t2
-  ; treat parallel/collinear lines as non-intersecting
+  ;  treat parallel/collinear lines as non-intersecting
   if m1 = m2 [ report [] ]
-  ; is t1 vertical? if so, swap the two turtles
+  ;  is t1 vertical? if so, swap the two turtles
   if abs m1 = tan 90 [
     ifelse abs m2 = tan 90
       [ report [] ]
       [ report intersection t2 t1 ]
   ]
-  ; is t2 vertical? if so, handle specially
+  ;  is t2 vertical? if so, handle specially
   if abs m2 = tan 90 [
-    ; represent t1 line in slope-intercept form (y=mx+c)
-    let c1 [ link-ycor - link-xcor * m1 ] of t1
-    ; t2 is vertical so we know x already
-    let x [ link-xcor ] of t2
-    ; solve for y
-    let y m1 * x + c1
-    ; check if intersection point lies on both segments
-    if not [ x-within? x ] of t1 [ report [] ]
-    if not [ y-within? y ] of t2 [ report [] ]
-    report list x y
+      ;  represent t1 line in slope-intercept form (y=mx+c)
+      let c1 [ link-ycor - link-xcor * m1 ] of t1
+      ;  t2 is vertical so we know x already
+      let x [ link-xcor ] of t2
+      ;  solve for y
+      let y m1 * x + c1
+      ;  check if intersection point lies on both segments
+      if not [ x-within? x ] of t1 [ report [] ]
+      if not [ y-within? y ] of t2 [ report [] ]
+      report list x y
   ]
-  ; now handle the normal case where neither turtle is vertical;
-  ; start by representing lines in slope-intercept form (y=mx+c)
+  ;  now handle the normal case where neither turtle is vertical;
+  ;  start by representing lines in slope-intercept form (y=mx+c)
   let c1 [ link-ycor - link-xcor * m1 ] of t1
   let c2 [ link-ycor - link-xcor * m2 ] of t2
-  ; now solve for x
+  ;  now solve for x
   let x (c2 - c1) / (m1 - m2)
-  ; check if intersection point lies on both segments
+  ;  check if intersection point lies on both segments
   if not [ x-within? x ] of t1 [ report [] ]
   if not [ x-within? x ] of t2 [ report [] ]
 
   report list x (m1 * x + c1)
 end
 
-; reports a list of the intersection of two links if they intersect at their endpoints, otherwise reports an empty list
+;  reports a list of the intersection of two links if they intersect at their endpoints, otherwise reports an empty list
 to-report shared-link-ends [a b]
   let a-ends [ (list end1 end2) ] of a
   let b-ends [ (list end1 end2) ] of b
-  let shared-ends filter [ a-end -> member? a-end b-ends ] a-ends
+  let shared-ends filter [ [a-end] -> member? a-end b-ends ] a-ends
   report ifelse-value (empty? shared-ends) [
     (list)
-  ][
+  ] [
     (list (first shared-ends) (first shared-ends))
   ]
 end
 
 
-; turtle procedure: reports a boolean that helps check for intersections (x-coordinate)
+;  turtle procedure
+;  reports a boolean that helps check for intersections (x-coordinate)
 to-report x-within? [ x ]
   report abs (link-xcor - x) <= abs (link-length / 2 * sin link-heading)
 end
 
-; turtle procedure: reports a boolean that helps check for intersections (y-coordinate)
+;  turtle procedure
+;  reports a boolean that helps check for intersections (y-coordinate)
 to-report y-within? [ y ]
   report abs (link-ycor - y) <= abs (link-length / 2 * cos link-heading)
 end
 
-; reports the x-coordinate of the midpoint of a link
+;  reports the x-coordinate of the midpoint of a link
 to-report link-xcor
   report ([ xcor ] of end1 + [ xcor ] of end2) / 2
 end
 
-; reports the y-coordinate of the midpoint of a link
+;  reports the y-coordinate of the midpoint of a link
 to-report link-ycor
   report ([ ycor ] of end1 + [ ycor ] of end2) / 2
 end
@@ -408,8 +433,8 @@ CHOOSER
 285
 action
 action
-"Draw Segment" "Draw Polygon"
-0
+"Draw Polygon" "Draw Segment" "Delete Segment"
+1
 
 BUTTON
 120
@@ -489,7 +514,7 @@ INPUTBOX
 200
 355
 segment-color
-55.0
+85.0
 1
 0
 Color
@@ -548,7 +573,7 @@ NIL
 @#$#@#$#@
 ## WHAT IS IT?
 
-*Lattice Land - Explore* is one of several models in the Lattice Land software suite. Lattice Land is an interactive MathLand, a microworld in which students can uncover advanced mathematical thinking through play, conjecture, and experimentation. It provides another entryway into geometry through the investigation of the geometry of a discrete lattice of points. In Lattice Land, there is no one right answer and no pre-determined pathway you must travel. However, even seemingly trivial exercises can quickly become rich explorations.
+<i>Lattice Land - Explore</i> is one of several models in the Lattice Land software suite. Lattice Land is an interactive MathLand, a microworld in which students can uncover advanced mathematical thinking through play, conjecture, and experimentation. It provides another entryway into geometry, investigating the geometry of a discrete lattice of points. In Lattice Land, there is no one right answer and no pre-determined pathway you must travel. However, even seemingly trivial exercises can quickly become rich explorations.
 
 A lattice is an array of dots on a plane such that there is one dot at each coordinate (x,y), where x and y are integers. Thus each dot on the lattice is one unit away from each of its four closest neighbors (one above, one below, one to the left, and one to the right). A lattice polygon is a polygon whose vertices fall on dots of the lattice.
 
@@ -571,6 +596,8 @@ Select an ACTION.
   * DRAW POLYGON traces a path from the first dot clicked to the next dot clicked. It continues to wait for clicks until the user clicks back on the first dot. (When using this action, Lattice Land will track the perimeter of each active polygon, and will calculate its area when it is complete)
 
   * DRAW SEGMENT allows you to join any two dots clicked consecutively by a line segment.
+
+  * DELETE SEGMENT allows you to delete any line segment you have drawn by selecting either endpoint of the segment. Note that this will delete ALL segments that share the selected endpoint. (This action only works on line segments, not edges of polygons.)
 
 SEGMENT-COLOR allows you to select different colors for your segments.
 
@@ -613,9 +640,7 @@ The DRAW-SEGMENT and DRAW-POLYGON actions are programmed similarly and each call
 
 The INTERSECTION reporter checks for intersections between links by converting the links into slope-intercept form and then checking for line intersections.
 
-This model uses continuous updates, rather than tick-based updates. This means that the model does not update at regular time intervals (ticks) dictated by the code. Instead, this model updates whenever a user performs an action. Thus, the depth of inquiry into the mathematics of Lattice Land is dictated by the user: nothing (other than the lattice) is generated until the user draws something. However, at the end of the `setup` procedure we still call `reset-ticks` in order to enable the buttons in the interface that are disabled "until ticks start". Otherwise, these buttons would cause the model to crash if they were clicked before clicking SETUP.
-
-This model also uses anonymous procedures extensively. This is because between user actions, Lattice Land is not updating. In fact, much of this model follows what's called a [functional programming paradigm](https://en.wikipedia.org/wiki/Functional_programming).
+This model uses continuous updates, rather than tick-based updates. This means that the model does not update at regular time intervals (ticks) dictated by the code. Instead, this model updates when the user performs an action. Thus, the depth of inquiry into the mathematics of Lattice Land is dictated by the user: nothing (other than the lattice) is generated until the user draws something.
 
 ## RELATED MODELS
 
@@ -957,7 +982,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0.2-RC2
+NetLogo 6.0.1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@

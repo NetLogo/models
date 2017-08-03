@@ -133,7 +133,8 @@ class CodeTests extends TestModels {
       "Connected Chemistry 3 Circular Particles", "Connected Chemistry 4 Number and Pressure",
       "Connected Chemistry Atmosphere", "Connected Chemistry 2 Changing Pressure",
       "Connected Chemistry 8 Gas Particle Sandbox", "DNA Protein Synthesis",
-      "Hotelling's Law", "Tie System Example", "Piaget-Vygotsky Game", "GenJam - Duple"
+      "Hotelling's Law", "Tie System Example", "Piaget-Vygotsky Game", "GenJam - Duple",
+      "Lattice Land - Triangles Dissection", "Lattice Land - Triangles Explore", "Lattice Land - Explore"
     ),
     "write" -> Seq.empty
   )

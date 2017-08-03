@@ -25,7 +25,9 @@ class UpdateModeTests extends TestModels {
     "Equidistant Probability",
     "Random Combinations and Permutations",
     "Voronoi",
-    "Lattice Land - Explore"
+    "Lattice Land - Explore",
+    "Lattice Land - Triangles Explore",
+    "Lattice Land - Triangles Dissection"
   )
 
   testModels("Models should use tick-based updates unless otherwise specified") { model =>
