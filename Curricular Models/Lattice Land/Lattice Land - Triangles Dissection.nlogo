@@ -260,6 +260,10 @@ end
 to clear-segments
   ask segments [die]
 end
+
+
+; Copyright 2017 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 185
@@ -479,7 +483,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Pei, C. and Wilensky, U. (2017).  NetLogo Lattice Land - Explore model.  http://ccl.northwestern.edu/netlogo/models/LatticeLand-Explore.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Pei, C. and Wilensky, U. (2017).  NetLogo Lattice Land - Triangles Dissection model.  http://ccl.northwestern.edu/netlogo/models/LatticeLand-TrianglesDissection.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 

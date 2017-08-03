@@ -135,6 +135,10 @@ to check-area
     (word "The area of the triangle is " area " square units.  Can you make a different triangle with the same area?  Can you make a triangle with area ")
     area-new " square units?")
 end
+
+
+; Copyright 2017 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 185
@@ -313,7 +317,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Pei, C. and Wilensky, U. (2017).  NetLogo Lattice Land - Explore model.  http://ccl.northwestern.edu/netlogo/models/LatticeLand-Explore.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Pei, C. and Wilensky, U. (2017).  NetLogo Lattice Land - Triangles Explore model.  http://ccl.northwestern.edu/netlogo/models/LatticeLand-TrianglesExplore.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
