@@ -122,7 +122,7 @@ to draw-polygon
   ([ [first-point second-point] -> add-polygon-edge first-point second-point ])
 
   ; End task when the polygon is completed
-([ [] -> polygon-completed? ])
+([ -> polygon-completed? ])
 end
 
 to add-polygon-edge [ candidate previous ]                        ; Creates edge between selected dot (candidate) and previously selected dot (prev)
@@ -269,10 +269,10 @@ to assess-for-polygonality
 
   let edgeset             (link-set polygon-edges)
   let self-others-pairs   ([(list self ([ self ] of (other edgeset)))] of edgeset)
-  let all-intersections   (map [ [an-intersection] -> find-intersections (item 0 an-intersection) (item 1 an-intersection) ] self-others-pairs)
-  let valid-intersections (map [ [an-intersection] -> filter [ [x] -> x != [] ] an-intersection ] all-intersections)
+  let all-intersections   (map [ an-intersection -> find-intersections (item 0 an-intersection) (item 1 an-intersection) ] self-others-pairs)
+  let valid-intersections (map [ an-intersection -> filter [ x -> x != [] ] an-intersection ] all-intersections)
 
-ifelse for-all ([ [an-intersection] -> length an-intersection = 2 ]) valid-intersections [
+ifelse for-all ([ an-intersection -> length an-intersection = 2 ]) valid-intersections [
     set polygon-completed? true
   ] [
     user-message "This shape is not a polygon."
@@ -282,7 +282,7 @@ end
 
 ;  reports intersections of one edge with others
 to-report find-intersections [ s others ]
-  report map [ [an-edge] -> intersection s an-edge ] others
+  report map [ an-edge -> intersection s an-edge ] others
 end
 
 ;  reports the number of intersections
@@ -336,7 +336,7 @@ end
 to-report shared-link-ends [a b]
   let a-ends [ (list end1 end2) ] of a
   let b-ends [ (list end1 end2) ] of b
-  let shared-ends filter [ [a-end] -> member? a-end b-ends ] a-ends
+  let shared-ends filter [ a-end -> member? a-end b-ends ] a-ends
   report ifelse-value (empty? shared-ends) [
     (list)
   ] [
@@ -982,7 +982,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.0.1
+NetLogo 6.0.2-RC2
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
