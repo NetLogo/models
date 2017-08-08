@@ -20,6 +20,7 @@ globals [
   total-transcripts         ; a variable to keep track of the number of transcription events
   total-proteins            ; a variable to keep track of the number of proteins produced
   ONPG-quantity             ; a variable to set ONPG quantity. This number is set to 200 in the setup procedure.
+  experiment?               ; a boolean for whether a timed-experiment is being run or not
 ]
 
 breed [ LacIs LacI ]  ; LacI repressor protein (violet proteins)
@@ -50,6 +51,7 @@ to setup
   add-proteins
   set-rbs-effect
   update-ONPG
+  set experiment? False
   reset-ticks
 end
 
@@ -397,7 +399,7 @@ ticks
 BUTTON
 10
 60
-82
+90
 95
 NIL
 setup
@@ -412,12 +414,12 @@ NIL
 1
 
 BUTTON
-85
+100
 60
-160
+185
 95
-NIL
 go
+if experiment? [ stop ]\ngo
 T
 1
 T
@@ -436,7 +438,7 @@ CHOOSER
 promoter-strength
 promoter-strength
 "reference" "strong" "medium" "weak"
-2
+0
 
 CHOOSER
 190
@@ -487,7 +489,7 @@ ONPG-degradation-chance
 ONPG-degradation-chance
 0
 1
-0.54
+0.95
 0.01
 1
 NIL
@@ -580,7 +582,7 @@ LacI-ONPG-separation-chance
 LacI-ONPG-separation-chance
 0
 0.01
-2.0E-4
+1.0E-4
 0.0001
 1
 NIL
@@ -620,7 +622,7 @@ ONPG-degradation-count
 11
 
 SWITCH
-165
+190
 60
 355
 93
@@ -639,7 +641,7 @@ LacZ-degradation-chance
 LacZ-degradation-chance
 0
 1
-0.007
+0.003
 0.001
 1
 NIL
@@ -651,8 +653,8 @@ BUTTON
 355
 138
 run experiment
-repeat 2500 [ go ]
-NIL
+if ticks >= 2500 [\nstop ] \ngo\nset experiment? True
+T
 1
 T
 OBSERVER
@@ -667,7 +669,7 @@ NIL
 
 This a multi-agent model of a genetic circuit in a bacterial cell and is an extension of the GenEvo 1 model. This model shows how biologists can use laboratory techniques to tweak certain aspects of a genetic circuit in order to affect the cell's behavior.
 
-Synethetic biology allows biologists to design and test their own genetic circuits. For example, a biologist could design a genetic circuit that caused a bacterium to glow when it was placed in water with a high lead content. This kind of biological engineering is a new fronteir being actively explored by scientists around the globe.
+Synthetic biology allows biologists to design and test their own genetic circuits. For example, a biologist could design a genetic circuit that caused a bacterium to glow when it was placed in water with a high lead content. This kind of biological engineering is a new frontier being actively explored by scientists around the globe.
 
 ## HOW IT WORKS
 
@@ -681,7 +683,7 @@ The genetic circuit modelled here has the following components:
 6. *LacI repressor proteins* - The purple-colored shapes in the model represent a repressor (LacI proteins). They bind to the operator region (see below) of the DNA and do not let RNAP to pass along the gene, thus stopping protein synthesis. When lactose binds to LacI, they form LacI-lactose complexes (shown by a purple shape with a grey dot attached to it). These complexes cannot bind to the operator region of the DNA.
 7. *ONPG molecules* – These are grey pentagons in the model. [ONPG]( https://en.wikipedia.org/wiki/IPTG) is a chemical that mimics lactose. It is normally colorless. ONPG is hydrolyzed by LacZ enzyme to produce yellow color which is used to check for enzyme activity.  Typically, [IPTG] (https://en.wikipedia.org/wiki/ONPG), another chemical that mimics lactose, is used with ONPG. For simplicity, we have not incorporated IPTG in this model. In this model, ONPG molecules bind to LacI repressor proteins that changes the shape of LacIs preventing them binding to the operator region of DNA.
 
-The model explicitly incorporates transcription by showing movement of RNA polymerases across DNA. We implicitly incorporates translation and do not incorporate mRNAs and ribosomes in the model.
+The model explicitly incorporates transcription by showing the movement of RNA polymerases across DNA. It implicitly incorporates translation and does not incorporate mRNAs or ribosomes.
 
 A user can select the promoter and RBS strengths, add ONPG (by making 'CONST-ONPG' ON) and run the model. The model simulates interactions between the components of the genetic circuit that results in an emergent cellular behavior. The cellular behavior of interest in this model is LacZ (beta-galactosidase) activity which can be observed in a graph and is also represented in the change in the color of the cell to yellow. Beta-galactosidase cleaves ONPG to produce an intensely yellow colored compound.
 
@@ -693,14 +695,14 @@ Press SETUP to initialize the components in the model.
 
 Press GO to run the model.
 
-‘TIMED-EXPT?’ is a switch that stops the model after the specified number of ticks. This switch can be used to compare behavior of the cell in different runs of the same condition or different initial conditions (e.g. differeing promoter and RBS strengths).
+You can use the RUN EXPERIMENT button to run experiments for a specified time duration (2500 ticks). This is useful for comparing the behavior of the cell in different simulations of the same conditions. You could also use this button to run a timed experiment for different initial conditions (e.g. different promoter and RBS strengths).
 
 ‘CONST-ONPG?’ is a switch which keeps ONPG concentration constant throughout the simulation. This switch can be used to emulate situations where ONPG concentration in the medium is excess and not a limiting factor.
 
 ## THINGS TO NOTICE
 
-Run the model with 'ONPG?' swith OFF. Notice the molecular interactions inside the cell
-- interaction of the LacI pretein with the operator
+Run the model with 'ONPG?' switch OFF. Notice the molecular interactions inside the cell
+- interaction of the LacI protein with the operator
 - RNAPs binding to promoter
 - RNAPs moving along the DNA
 - proteins being generated after an RNAP transcribes the DNA
@@ -716,7 +718,7 @@ Change the PROMOTER-STRENGTH and RBS-STRENGTH combination and observe the behavi
 
 See which combination has the most robust and optimum behavior.
 
-Change the parameter values of LACI-BOND-LEAKAGE, ONPG-DEGRADATION-CHANCE, COMPLEX-SEPARATION-CHANCE, COMPLEX-FORMATION-CHANCE, and LACZ-DEGRADATION-CHANCE. Notice how  these changes affects the behavior of the model.
+Change the parameter values of LACI-BOND-LEAKAGE, ONPG-DEGRADATION-CHANCE, COMPLEX-SEPARATION-CHANCE, COMPLEX-FORMATION-CHANCE, and LACZ-DEGRADATION-CHANCE. Notice how these changes affects the behavior of the model.
 
 ## HOW TO CITE
 
