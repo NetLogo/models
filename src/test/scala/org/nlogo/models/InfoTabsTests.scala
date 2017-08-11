@@ -61,18 +61,18 @@ class InfoTabsTests extends TestModels {
     }
   }
 
-  testModels("Info tabs shouldn't contain HTML links.") {
-    val pattern = """<a\s[^>]*>""".r.pattern
-    testLines(_.info, pattern.matcher(_).find)
-  }
-
   testModels("Bullet list using dashes should have space after dash") {
     val pattern = """^-\w.+""".r.pattern
     testLines(_.info, pattern.matcher(_).matches)
   }
 
-  testModels("Info tab should not contain reviewer comments (e.g. `{{{` or `}}}`)") {
+  testModels("Info tabs should not contain reviewer comments (e.g. `{{{` or `}}}`)") {
     val pattern = """\{\{\{|\}\}\}""".r.pattern
+    testLines(_.info, pattern.matcher(_).find)
+  }
+
+  testModels("Info tabs should not contain HTML tags (other than <sup> and <sub>)") {
+    val pattern = """(?i)<(?!sub|sup)([A-Z][A-Z0-9]*)\b[^>]*>(.*?)<\/\1>""".r.pattern
     testLines(_.info, pattern.matcher(_).find)
   }
 

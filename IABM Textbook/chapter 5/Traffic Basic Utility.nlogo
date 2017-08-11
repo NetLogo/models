@@ -259,9 +259,9 @@ In this version of the model, we have the cars change their speeds in order to i
 
 In the language of utility functions, each car agent is minimizing a function _f_, defined by:
 
-<i>f</i>(<i>v</i>) = |<i>v</i> − <i>v</i>*|
+_f_(_v_) = |_v_ − _v_*|
 
-where _v_ is the current velocity of the car and <i>v</i>* is the most efficient velocity.
+where _v_ is the current velocity of the car and _v_* is the most efficient velocity.
 
 The model sets the optimal speed for the cars (best fuel efficiency) to be 0.45. If the acceleration rule speeds the car past the optimal speed, the car decelerates instead of accelerating.
 
