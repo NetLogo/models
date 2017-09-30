@@ -764,7 +764,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Wilensky, U. (2005).  NetLogo Sound Machines model.  http://ccl.northwestern.edu/netlogo/models/SoundMachines.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Steiner, J., Tisue, S. and Wilensky, U. (2005).  NetLogo Sound Machines model.  http://ccl.northwestern.edu/netlogo/models/SoundMachines.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
@@ -776,7 +776,7 @@ Copyright 2005 Uri Wilensky. Includes code by James P. Steiner.
 
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 2.5 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/2.5/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
-<!-- 2005 Steiner -->
+<!-- 2005 Steiner Cite: Steiner, J., Tisue, S. -->
 @#$#@#$#@
 default
 true
