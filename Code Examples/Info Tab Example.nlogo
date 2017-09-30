@@ -400,7 +400,7 @@ We have tested the features shown above on a variety of systems.  If you use oth
 
 If you want all NetLogo users to be able to read your Info tab, use only the features shown above.
 
-More information about Markdown is at http://daringfireball.net/projects/markdown/. For rendering Markdown, NetLogo uses the [Flexmark-java](https://github.com/vsch/flexmark-java) library.
+More information about Markdown is at https://daringfireball.net/projects/markdown/. For rendering Markdown, NetLogo uses the [Flexmark-java](https://github.com/vsch/flexmark-java) library.
 
 [netlogo-link]: http://ccl.northwestern.edu/netlogo
 
