@@ -72,7 +72,7 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
   val client = new DefaultAsyncHttpClient(builder.build())
   val urlValidator = new UrlValidator(ALLOW_2_SLASHES)
 
-  if (false) {
+  if (!onTravis) {
     /* Only run the URL tests locally: they take a long time to run on Travis
      * and are an endless source of false positives (i.e., temporary failures),
      * lowering ones sensitivity to _actual_ failures. My hope is that keeping
@@ -99,16 +99,18 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
 
   val exceptions: Map[Int, Seq[String]] = Map(
     301 -> Seq(
+      "http://www.esri.com/software/arcgis",
+      "http://www.pixar.com/companyinfo/research/pbm2001/",
+      "http://environment.nationalgeographic.com/environment/natural-disasters/lightning-profile.html",
+      "http://link.springer.com/chapter/10.1007/978-3-540-74913-4_88#page-1",
       "http://www.the-scientist.com/?articles.view/articleNo/13750/title/Why-Leaves-Turn-Color-in-the-Fall/",
-      "https://www.wolframscience.com/nksonline/page-331"
+      "https://www.theatlantic.com/magazine/archive/2002/04/seeing-around-corners/302471/"
     ),
     403 -> Seq(
-      "http://www.ncbi.nlm.nih.gov/pmc/articles/PMC128592/",
-      "http://www.red3d.com/cwr/boids/"
     ),
     429 -> Seq(
       "https://www.youtube.com/watch"
-    )
+   )
   )
 
   def redirectTolerated(link: String, response: Response) =

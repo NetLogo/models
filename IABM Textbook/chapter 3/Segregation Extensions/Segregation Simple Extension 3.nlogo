@@ -325,7 +325,7 @@ This model is a simplified version of:
 
 Schelling, T. (1978). Micromotives and Macrobehavior. New York: Norton.
 
-See also: Rauch, J. (2002). Seeing Around Corners; The Atlantic Monthly; April 2002;Volume 289, No. 4; 35-48. http://www.theatlantic.com/magazine/archive/2002/04/seeing-around-corners/302471/
+See also: Rauch, J. (2002). Seeing Around Corners; The Atlantic Monthly; April 2002;Volume 289, No. 4; 35-48. https://www.theatlantic.com/magazine/archive/2002/04/seeing-around-corners/302471/
 
 ## HOW TO CITE
 

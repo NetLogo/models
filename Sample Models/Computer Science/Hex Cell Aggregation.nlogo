@@ -360,7 +360,7 @@ Hex Cells Example
 
 ## CREDITS AND REFERENCES
 
-This model was inspired by Stephen Wolfram's A New Kind of Science. A very similar model is discussed here: https://www.wolframscience.com/nksonline/page-331. In the notes at the end of the book, many extensions are suggested, although none on a hexagonal grid.
+This model was inspired by Stephen Wolfram's A New Kind of Science. A very similar model is discussed here: https://www.wolframscience.com/nks/p331--the-phenomenon-of-continuity/. In the notes at the end of the book, many extensions are suggested, although none on a hexagonal grid.
 
 Thanks to Josh Unterman and Seth Tisue for their work on this model.
 
