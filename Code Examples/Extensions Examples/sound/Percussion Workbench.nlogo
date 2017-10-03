@@ -130,10 +130,10 @@ NIL
 1
 
 SLIDER
-21
-103
-173
-136
+150
+80
+302
+113
 velocity
 velocity
 0
@@ -145,10 +145,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-82
-138
-175
-171
+350
+120
+410
+165
 NIL
 play
 NIL
@@ -196,10 +196,10 @@ NIL
 1
 
 BUTTON
-10
-341
-66
-389
+20
+330
+75
+378
 Save 1
 save 1
 NIL
@@ -213,10 +213,10 @@ NIL
 1
 
 MONITOR
-134
-341
-459
-386
+144
+330
+469
+375
 NIL
 item 1 memory
 3
@@ -224,10 +224,10 @@ item 1 memory
 11
 
 BUTTON
-12
-395
-67
-440
+20
+384
+75
+429
 Save 2
 save 2
 NIL
@@ -241,10 +241,10 @@ NIL
 1
 
 MONITOR
-135
-393
-459
-438
+145
+382
+469
+427
 NIL
 item 2 memory
 3
@@ -252,10 +252,10 @@ item 2 memory
 11
 
 BUTTON
-466
-338
-522
-386
+476
+327
+532
+375
 Play
 run item 1 memory
 NIL
@@ -269,10 +269,10 @@ NIL
 1
 
 BUTTON
-525
-338
-580
-386
+535
+327
+590
+375
 Print
 output-print item 1 memory
 NIL
@@ -286,10 +286,10 @@ NIL
 1
 
 BUTTON
-71
-341
-126
-389
+80
+329
+135
+377
 Clear
 set memory replace-item 1 memory \"\"
 NIL
@@ -303,10 +303,10 @@ NIL
 1
 
 BUTTON
-466
-392
-522
-440
+476
+381
+532
+429
 Play
 run item 2 memory
 NIL
@@ -320,10 +320,10 @@ NIL
 1
 
 BUTTON
-525
-392
-580
-440
+535
+381
+590
+429
 Print
 output-print item 2 memory
 NIL
@@ -337,10 +337,10 @@ NIL
 1
 
 BUTTON
-71
-394
-127
-440
+80
+384
+136
+430
 Clear
 set memory replace-item 2 memory \"\"
 NIL
@@ -354,20 +354,20 @@ NIL
 1
 
 TEXTBOX
-9
-316
-381
-339
+21
+299
+455
+322
 MEMORY BANK ---------------------------------------------
 12
 0.0
 0
 
 BUTTON
-12
-446
-67
-491
+20
+434
+75
+479
 Save 3
 save 3
 NIL
@@ -381,10 +381,10 @@ NIL
 1
 
 MONITOR
-135
-445
-459
-490
+145
+434
+469
+479
 NIL
 item 3 memory
 3
@@ -392,10 +392,10 @@ item 3 memory
 11
 
 BUTTON
-466
-446
-521
-491
+476
+435
+531
+480
 Play
 run item 3 memory
 NIL
@@ -409,10 +409,10 @@ NIL
 1
 
 BUTTON
-71
-446
-126
-491
+80
+434
+135
+479
 Clear
 set memory replace-item 3 memory \"\"
 NIL
@@ -426,10 +426,10 @@ NIL
 1
 
 BUTTON
-461
-301
-534
-334
+475
+289
+590
+322
 Play all
 foreach memory run
 NIL
@@ -443,10 +443,10 @@ NIL
 1
 
 BUTTON
-553
-226
-656
-264
+415
+120
+505
+165
 stop music
 sound:stop-music
 NIL
@@ -460,31 +460,21 @@ NIL
 1
 
 MONITOR
-180
-104
-501
-149
+20
+120
+341
+165
 NIL
 generate-command
 3
 1
 11
 
-TEXTBOX
-113
-79
-399
-97
----------------------------------------------
-11
-0.0
-0
-
 BUTTON
-524
-446
-579
-491
+535
+434
+590
+479
 Print
 output-print item 3 memory
 NIL
@@ -498,9 +488,9 @@ NIL
 1
 
 OUTPUT
-21
+20
 175
-493
+505
 281
 12
 
@@ -817,5 +807,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
