@@ -360,7 +360,7 @@ In this formula:
 - "Permittivity", the constant of proportionality here, is a property of the medium in which the two charges q1 and q2 are situated.
 - "r" is the distance between the centers of the two charges.
 
-This is a single force two body model, where we have a charge q1 (the blue particle that is created when you press SETUP) and a proton (q2) (the particle that appears when you press the mouse button in the view). If it is positively charged, it is colored blue. If it's negatively charged, it will be orange. The force is entirely one-way: only q1 is attracted towards (or repelled from) the proton (q2), while the proton (q2) remains unaffected.  Note that this is purely for purposes of simulation.  In the real world, Coulomb's force acts on all bodies around it.
+This is a single force two body model, where we have a charge q1 (the particle that is created when you press SETUP) and a proton (q2) (the blue particle that appears when you press the mouse button in the view).  If a particle is positively charged, it is colored blue. If it's negatively charged, it will be orange. The force is entirely one-way: only q1 is attracted towards (or repelled from) the proton (q2), while the proton (q2) remains unaffected.  Note that this is purely for purposes of simulation.  In the real world, Coulomb's force acts on all bodies around it.
 
 Gravity is another example of an inverse square force.  Roughly speaking, our solar system resembles a nucleus (sun) with electrons (planets) orbiting around it.
 
@@ -370,7 +370,7 @@ For certain values of q1 (which you can control by using the CHARGE slider), you
 
 When you press the SETUP button, the charge q1 is created in a medium determined by the permittivity value from the PERMITTIVITY slider. When you click and hold down the mouse anywhere within the view, the model creates a unit of positive charge (q2) at the position of the mouse.
 
-The CHARGE slider sets the value of the charge on q1.  First, select the value of CHARGE on q1. (For simulation ease, value of the Charge on q2 is set to be the absolute value of this charge. Thus, it also determines at what distances the particles can safely orbit before they get sucked in by an overwhelming force.)
+The CHARGE slider sets the value of the charge on q1.  First, select the value of CHARGE on q1. You will see that the color of q1 reflects its charge. (For simulation ease, value of the charge on q2 is set to be the absolute value of this charge. Thus, it also determines at what distances the particles can safely orbit before they get sucked in by an overwhelming force.)
 
 The FADE-RATE slider controls how fast the paths marked by the particles fade.  At 100% there won't be any paths as they fade immediately, and at 0% the paths won't fade at all.
 
@@ -380,7 +380,7 @@ When the sliders have been set to desirable levels, press the GO button to begin
 
 ## THINGS TO NOTICE
 
-The most important thing to observe is the behavior of the q1 (the blue charge).
+The most important thing to observe is the behavior of q1, the particle first placed in the world at SETUP.
 
 What is the initial velocity for q1?
 
