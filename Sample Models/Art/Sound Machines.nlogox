@@ -1,0 +1,953 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<model xmlns="http://ccl.northwestern.edu/netlogo/netlogox/1">
+  <version><![CDATA[NetLogo 6.1.0-M1]]></version>
+  <previewCommands>
+    <compiled><![CDATA[set scale 2.5
+random-seed 2
+setup-crazy-machine
+repeat 20 [ go ]]]></compiled>
+  </previewCommands>
+  <info><![CDATA[## WHAT IS IT?
+
+This model shows one way turtles can make interesting and varied sounds, or if you like, music.  It uses some simple physics to make "machines" that twist, spin, turn, twitch, and bounce.  When a part of the machine touches a wall, ceiling, or floor, it makes a sound.  The pitch of the sound depends on the location of the touch.
+
+You can start with a standard machine, or generate a random one.  You can change and build machines yourself, by changing the characteristics of each part.  You can sit back and let the machines play themselves, or you can use the mouse to move them around to control the sound yourself.
+
+## HOW IT WORKS
+
+The machines are made up of levers.  Levers can be different sizes and are pulled down by gravity (in proportion to their size) and subject to friction.
+
+Each lever has one or two "hooks" to connect it to adjacent levers.  Each lever rather simple-mindedly tries to move and rotate to keep its hooks attached (or at least pointing towards) its neighbors' hooks.
+
+Some levers have additional constraints.  A lever can be fixed in position so it can't move.  It can also rotate, as if powered by a motor.
+
+The rules aren't perfect; for example, sometimes the levers separate.  Nonetheless, the behavior is often surprisingly realistic, and is rich enough to generate interesting motion which generates interesting sounds.
+
+## HOW TO USE IT
+
+Press one of the SETUP... buttons to create a machine.  If you want, change NUM-LEVERS first to get more or fewer levers.
+
+Press GO to start the machine going.  You should start hearing sounds, although if your machine never touches the wall (or ceiling or floor), you won't hear anything.
+
+You can use the mouse to select a lever by clicking on it, or to move a lever by dragging it.  The selected lever has a circle around it.
+
+Once you have selected a lever, a variety of controls on the left let you change that lever's properties.  They are not described in detail here; play with him and see for yourself what they do.
+
+Some parameters affecting the entire system are on the bottom left and the right.  F is friction, G is gravity.  There are also controls for spin.
+
+You can use the INSTRUMENT slider to pick a different musical instrument for the levers to play.
+
+If you make a machine you especially like, you can use Export World and Import World on the File menu to save it out and load it back in again.
+
+## THINGS TO NOTICE
+
+The simple rules followed by the levers produce some quite realistic-looking behavior.
+
+Some machines don't do anything.  Other machines make simple, repetitive motions.  And others are wildly chaotic.
+
+## THINGS TO TRY
+
+Try all of the different SETUP buttons.
+
+Try all of the lever controls on the left.
+
+Explore the effect of the parameters on the right.
+
+See if you can make machines which are somewhat repetitive, but also somewhat unpredictable and chaotic.  Sometimes these make the most pleasing "music".
+
+Using the command center, tell the turtles to put their pens down (using the `pen-down` command, abbreviated `pd`).  This generates some pleasing patterns.  Use `clear-drawing` (abbreviated `cd`) to start a new drawing.
+
+## EXTENDING THE MODEL
+
+There are endless possibilities for how the same basic physics engine could be used to generate sound.  The levers could:
+
+- Play different instruments, instead of all the same one.
+- Make percussion sounds in addition pitched sounds.
+- Make sounds even when they don't hit the wall
+- Make sounds that depend on their characteristics
+
+And so on.
+
+How "normal" and "musical" can you make the model sound?  Currently the rules of the model aren't based on scales or tonality; by choosing pitches more carefully, you might be able to produce music which is less strange, more like music composed by humans.  You could also try to produce more regular rhythms by timing sounds to coincide with a regular beat.
+
+Or, you could take the opposite approach, and see how wild, different, and unusual can you make the sounds.  Make something that doesn't sound like anything you've ever heard before!
+
+## NETLOGO FEATURES
+
+The model uses NetLogo's sound extension.  The sound extension is described in the Sound section of the NetLogo User Manual.
+
+## RELATED MODELS
+
+- Beatbox
+- Composer
+- GasLab With Sound
+- Sound Workbench
+- Percussion Workbench
+
+## CREDITS AND REFERENCES
+
+This model is a streamlined variant of the Machines 2005 model created and submitted to the NetLogo User Community Models repository by James Steiner.  Machines 2005 is available from http://ccl.northwestern.edu/netlogo/models/community/machines-2005.
+
+Thanks to James for creating an earlier version which was silent; Seth Tisue for first adding sound to it; and James again for his further improvements, and for releasing the model under a Creative Commons License.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. (2005).  NetLogo Sound Machines model.  http://ccl.northwestern.edu/netlogo/models/SoundMachines.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2005 Uri Wilensky. Includes code by James P. Steiner.
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 2.5 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/2.5/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+<!-- 2005 Steiner -->]]></info>
+  <systemDynamics/>
+  <modelInfo>
+    <title/>
+    <subject/>
+  </modelInfo>
+  <linkShapes>
+    <linkShape curviness="0.0" name="default">
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="-0.2"/>
+      <line stroke-dasharray="1.0,0.0" isVisible="true" offset="0.0"/>
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="0.2"/>
+      <indicator editableColorIndex="0" rotatable="true" name="link direction">
+        <elements>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="90" y1="150" x1="150"/>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="210" y1="150" x1="150"/>
+        </elements>
+      </indicator>
+    </linkShape>
+  </linkShapes>
+  <widgets>
+    <view bottom="419" right="673" top="10" left="265" frameRate="60.0" showTickCounter="true" fontSize="11">
+      <dimensions maxPycor="12" minPycor="-12" maxPxcor="12" minPxcor="-12" wrapInY="false" wrapInX="false" patchSize="16.0"/>
+      <tickCounterLabel><![CDATA[ticks]]></tickCounterLabel>
+    </view>
+    <button bottom="99" right="112" top="66" left="11" ticksEnabled="false" forever="false">
+      <source><![CDATA[setup-dangle]]></source>
+    </button>
+    <slider bottom="83" right="868" top="50" left="696" direction="horizontal" default="0.98">
+      <maximum><![CDATA[0.9999]]></maximum>
+      <minimum><![CDATA[0.9]]></minimum>
+      <step><![CDATA[1.0E-4]]></step>
+      <variable><![CDATA[f]]></variable>
+    </slider>
+    <button bottom="229" right="178" top="173" left="20" ticksEnabled="true" forever="true">
+      <source><![CDATA[go]]></source>
+    </button>
+    <slider bottom="62" right="226" top="29" left="11" direction="horizontal" default="12.0">
+      <maximum><![CDATA[100.0]]></maximum>
+      <minimum><![CDATA[4.0]]></minimum>
+      <step><![CDATA[1.0]]></step>
+      <variable><![CDATA[num-levers]]></variable>
+    </slider>
+    <slider bottom="151" right="868" top="118" left="696" direction="horizontal" default="1.7">
+      <maximum><![CDATA[12.0]]></maximum>
+      <minimum><![CDATA[0.1]]></minimum>
+      <step><![CDATA[0.1]]></step>
+      <variable><![CDATA[scale]]></variable>
+    </slider>
+    <slider bottom="117" right="868" top="84" left="696" direction="horizontal" default="0.03">
+      <maximum><![CDATA[0.18]]></maximum>
+      <minimum><![CDATA[0.0]]></minimum>
+      <step><![CDATA[1.0E-4]]></step>
+      <variable><![CDATA[g]]></variable>
+    </slider>
+    <button bottom="315" right="73" top="282" left="11" ticksEnabled="true" forever="false">
+      <source><![CDATA[ask selected [ set fixed? not fixed? ]]]></source>
+      <display><![CDATA[fix/free]]></display>
+    </button>
+    <button bottom="298" right="136" top="265" left="74" ticksEnabled="true" forever="false">
+      <source><![CDATA[ask selected
+  [ set len precision (len + 0.1) 1 ]]]></source>
+      <display><![CDATA[arm +++]]></display>
+    </button>
+    <button bottom="332" right="136" top="299" left="74" ticksEnabled="true" forever="false">
+      <source><![CDATA[ask selected
+  [ if len > 0.1
+      [ set len precision (len - 0.1) 1 ] ]]]></source>
+      <display><![CDATA[arm ---]]></display>
+    </button>
+    <button bottom="298" right="260" top="265" left="205" ticksEnabled="true" forever="false">
+      <source><![CDATA[select-lever 1]]></source>
+      <display><![CDATA[next]]></display>
+    </button>
+    <slider bottom="396" right="243" top="363" left="20" direction="horizontal" default="0.0">
+      <maximum><![CDATA[25.0]]></maximum>
+      <minimum><![CDATA[-25.0]]></minimum>
+      <step><![CDATA[0.01]]></step>
+      <variable><![CDATA[spin-speed]]></variable>
+    </slider>
+    <button bottom="298" right="197" top="265" left="137" ticksEnabled="true" forever="false">
+      <source><![CDATA[ask selected
+  [ ifelse spin != 1
+      [ set spin 1 ]
+      [ set spin 0 ] ]]]></source>
+      <display><![CDATA[spin +1?]]></display>
+    </button>
+    <button bottom="99" right="255" top="66" left="113" ticksEnabled="false" forever="false">
+      <source><![CDATA[setup-crazy-machine]]></source>
+    </button>
+    <button bottom="430" right="167" top="397" left="96" ticksEnabled="false" forever="false">
+      <source><![CDATA[set spin-speed 0]]></source>
+      <display><![CDATA[0]]></display>
+    </button>
+    <textbox fontSize="11" bottom="267" right="147" top="249" left="11" transparent="true" color="#000000">
+      <display><![CDATA[modify selected lever:]]></display>
+    </textbox>
+    <button bottom="430" right="232" top="397" left="169" ticksEnabled="false" forever="false">
+      <source><![CDATA[set spin-speed
+      precision ((round (spin-speed * 2)) / 2.0 + 0.5)
+                1]]></source>
+      <display><![CDATA[-->]]></display>
+    </button>
+    <button bottom="430" right="102" top="397" left="39" ticksEnabled="false" forever="false">
+      <source><![CDATA[set spin-speed
+      precision ((round (spin-speed * 2)) / 2.0 - 0.5)
+                1]]></source>
+      <display><![CDATA[<--]]></display>
+    </button>
+    <button bottom="332" right="197" top="299" left="137" ticksEnabled="true" forever="false">
+      <source><![CDATA[ask selected
+  [ ifelse spin != -1
+      [ set spin -1 ]
+      [ set spin 0 ] ]]]></source>
+      <display><![CDATA[spin -1?]]></display>
+    </button>
+    <button bottom="332" right="260" top="299" left="205" ticksEnabled="true" forever="false">
+      <source><![CDATA[select-lever -1]]></source>
+      <display><![CDATA[prev]]></display>
+    </button>
+    <button bottom="133" right="209" top="100" left="56" ticksEnabled="false" forever="false">
+      <source><![CDATA[setup-chaos-tentacle]]></source>
+    </button>
+    <slider bottom="347" right="863" top="314" left="691" direction="horizontal" default="32.0">
+      <maximum><![CDATA[127.0]]></maximum>
+      <minimum><![CDATA[0.0]]></minimum>
+      <step><![CDATA[1.0]]></step>
+      <variable><![CDATA[instrument]]></variable>
+    </slider>
+    <monitor fontSize="11" bottom="392" right="863" top="347" left="691" precision="0">
+      <source><![CDATA[item instrument sound:instruments]]></source>
+      <display><![CDATA[First Instrument]]></display>
+    </monitor>
+    <monitor fontSize="11" bottom="440" right="863" top="395" left="691" precision="3">
+      <source><![CDATA[item
+  ((instrument + num-levers) mod length sound:instruments)
+  sound:instruments]]></source>
+      <display><![CDATA[Last Instrument]]></display>
+    </monitor>
+    <textbox fontSize="11" bottom="29" right="154" top="11" left="4" transparent="false" color="#000000">
+      <display><![CDATA[setup:]]></display>
+    </textbox>
+    <textbox fontSize="11" bottom="170" right="162" top="152" left="12" transparent="false" color="#000000">
+      <display><![CDATA[go:]]></display>
+    </textbox>
+    <textbox fontSize="11" bottom="50" right="844" top="32" left="694" transparent="false" color="#000000">
+      <display><![CDATA[behavior parameters:]]></display>
+    </textbox>
+    <textbox fontSize="11" bottom="313" right="838" top="295" left="688" transparent="false" color="#000000">
+      <display><![CDATA[sound parameters:]]></display>
+    </textbox>
+    <textbox fontSize="11" bottom="463" right="674" top="445" left="277" transparent="false" color="#000000">
+      <display><![CDATA[You may use the mouse to select levers and move them.]]></display>
+    </textbox>
+    <textbox fontSize="11" bottom="365" right="112" top="347" left="14" transparent="true" color="#000000">
+      <display><![CDATA[spin controls:]]></display>
+    </textbox>
+    <textbox fontSize="11" bottom="269" right="248" top="251" left="205" transparent="true" color="#000000">
+      <display><![CDATA[select:]]></display>
+    </textbox>
+  </widgets>
+  <experiments/>
+  <shapes>
+    <vectorShape editableColorIndex="0" rotatable="true" name="default">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,5 40,250 150,205 260,250"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="airplane">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,0 135,15 120,60 120,105 15,165 15,195 120,180 135,240 105,270 120,285 150,270 180,285 210,270 165,240 180,180 285,195 285,165 180,105 180,60 165,15"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="arrow">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,0 0,150 105,150 105,293 195,293 195,150 300,150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="10" rotatable="true" name="ball">
+      <elements>
+        <circle marked="true" filled="true" color="#345DA9" diameter="270" cy="15" cx="15"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="box">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,285 285,225 285,75 150,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,135 15,75 150,15 285,75"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="15,75 15,225 150,285 150,135"/>
+        <line marked="false" filled="false" color="#000000" y2="135" x2="150" y1="285" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="75" x2="15" y1="135" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="75" x2="285" y1="135" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="bug">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="182" cx="96"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="127" cx="110"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="75" cx="110"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="30" x2="80" y1="100" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="30" x2="220" y1="100" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="butterfly">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,165 209,199 225,225 225,255 195,270 165,255 150,240"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,165 89,198 75,225 75,255 105,270 135,255 150,240"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="139,148 100,105 55,90 25,90 10,105 10,135 25,180 40,195 85,194 139,163"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="162,150 200,105 245,90 275,90 290,105 290,135 275,180 260,195 215,195 162,165"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,255 135,225 120,150 135,120 150,105 165,120 180,150 165,225"/>
+        <circle marked="false" filled="true" color="#000000" diameter="30" cy="90" cx="135"/>
+        <line marked="false" filled="false" color="#000000" y2="60" x2="195" y1="105" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="60" x2="105" y1="105" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="car">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="300,180 279,164 261,144 240,135 226,132 213,106 203,84 185,63 159,50 135,50 75,60 0,150 0,165 0,225 300,225 300,180"/>
+        <circle marked="false" filled="true" color="#000000" diameter="90" cy="180" cx="180"/>
+        <circle marked="false" filled="true" color="#000000" diameter="90" cy="180" cx="30"/>
+        <polygon marked="false" filled="true" color="#000000" points="162,80 132,78 134,135 209,135 194,105 189,96 180,89"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="58" cy="195" cx="47"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="58" cy="195" cx="195"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="circle">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="circle 2">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="cow">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="200,193 197,249 179,249 177,196 166,187 140,189 93,191 78,179 72,211 49,209 48,181 37,149 25,120 25,89 45,72 103,84 179,75 198,76 252,64 272,81 293,103 285,121 255,121 242,118 224,167"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="73,210 86,251 62,249 48,208"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="25,114 16,195 9,204 23,213 25,200 39,123"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="cylinder">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="dot">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="120" cy="90" cx="90"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face happy">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="8" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,255 90,239 62,213 47,191 67,179 90,203 109,218 150,225 192,218 210,203 227,181 251,194 236,217 212,240"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face neutral">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="7" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <rect marked="false" filled="true" color="#000000" height="30" width="180" y="195" x="60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face sad">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="8" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,168 90,184 62,210 47,232 67,244 90,220 109,205 150,198 192,205 210,220 227,242 251,229 236,206 212,183"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="fish">
+      <elements>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="44,131 21,87 15,86 0,120 15,150 0,180 13,214 20,212 45,166"/>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="135,195 119,235 95,218 76,210 46,204 60,165"/>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="75,45 83,77 71,103 86,114 166,78 135,60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="30,136 151,77 226,81 280,119 292,146 292,160 287,170 270,195 195,210 151,212 30,166"/>
+        <circle marked="false" filled="true" color="#000000" diameter="30" cy="106" cx="215"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="flag">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="285" width="15" y="15" x="60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="90,150 270,90 90,30"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="135" x2="90" y1="135" x1="75"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="45" x2="90" y1="45" x1="75"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="flower">
+      <elements>
+        <polygon marked="false" filled="true" color="#59B03C" points="135,120 165,165 180,210 180,240 150,300 165,300 195,240 195,195 165,135"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="132" cx="85"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="147" cx="130"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="85" cx="192"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="40" cx="85"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="40" cx="177"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="132" cx="177"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="85" cx="70"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="25" cx="130"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="51" cx="96"/>
+        <circle marked="false" filled="true" color="#000000" diameter="74" cy="68" cx="113"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="189,233 219,188 249,173 279,188 234,218"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="180,255 150,210 105,210 75,240 135,240"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="house">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="165" width="210" y="120" x="45"/>
+        <rect marked="false" filled="true" color="#000000" height="75" width="60" y="210" x="120"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="15,120 150,15 285,120"/>
+        <line marked="false" filled="false" color="#000000" y2="120" x2="270" y1="120" x1="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="leaf">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,210 135,195 120,210 60,210 30,195 60,180 60,165 15,135 30,120 15,105 40,104 45,90 60,90 90,105 105,120 120,120 105,60 120,60 135,30 150,15 165,30 180,60 195,60 180,120 195,120 210,105 240,90 255,90 263,104 285,105 270,120 285,135 240,165 240,180 270,195 240,210 180,210 165,195"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,195 135,240 120,255 105,255 105,285 135,285 165,240 165,195"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="10" rotatable="true" name="lever">
+      <elements>
+        <circle marked="true" filled="true" color="#345DA9" diameter="60" cy="-30" cx="120"/>
+        <circle marked="true" filled="true" color="#345DA9" diameter="58" cy="270" cx="121"/>
+        <line marked="true" filled="false" color="#345DA9" y2="269" x2="150" y1="30" x1="150"/>
+        <polygon marked="true" filled="true" color="#345DA9" points="150,90 195,105 149,30 105,105"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="10" rotatable="true" name="lever-cw">
+      <elements>
+        <circle marked="true" filled="true" color="#345DA9" diameter="60" cy="-30" cx="120"/>
+        <circle marked="true" filled="true" color="#345DA9" diameter="58" cy="270" cx="121"/>
+        <line marked="true" filled="false" color="#345DA9" y2="269" x2="150" y1="30" x1="150"/>
+        <polygon marked="true" filled="true" color="#345DA9" points="150,90 195,105 149,30 105,105"/>
+        <line marked="true" filled="false" color="#345DA9" y2="30" x2="240" y1="30" x1="61"/>
+        <line marked="true" filled="false" color="#345DA9" y2="44" x2="195" y1="30" x1="240"/>
+        <line marked="true" filled="false" color="#345DA9" y2="15" x2="193" y1="29" x1="238"/>
+        <line marked="true" filled="false" color="#345DA9" y2="270" x2="61" y1="269" x1="239"/>
+        <line marked="true" filled="false" color="#345DA9" y2="255" x2="106" y1="270" x1="61"/>
+        <line marked="true" filled="false" color="#345DA9" y2="271" x2="61" y1="285" x1="104"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="10" rotatable="true" name="lever-cw-s">
+      <elements>
+        <circle marked="true" filled="true" color="#345DA9" diameter="60" cy="-30" cx="120"/>
+        <circle marked="true" filled="true" color="#345DA9" diameter="58" cy="270" cx="121"/>
+        <line marked="true" filled="false" color="#345DA9" y2="269" x2="150" y1="30" x1="150"/>
+        <polygon marked="true" filled="true" color="#345DA9" points="150,90 195,105 149,30 105,105"/>
+        <line marked="true" filled="false" color="#345DA9" y2="30" x2="240" y1="30" x1="61"/>
+        <line marked="true" filled="false" color="#345DA9" y2="44" x2="195" y1="30" x1="240"/>
+        <line marked="true" filled="false" color="#345DA9" y2="15" x2="193" y1="29" x1="238"/>
+        <line marked="true" filled="false" color="#345DA9" y2="270" x2="61" y1="269" x1="239"/>
+        <line marked="true" filled="false" color="#345DA9" y2="255" x2="106" y1="270" x1="61"/>
+        <line marked="true" filled="false" color="#345DA9" y2="271" x2="61" y1="285" x1="104"/>
+        <circle marked="true" filled="false" color="#345DA9" diameter="242" cy="29" cx="29"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="10" rotatable="true" name="lever-f">
+      <elements>
+        <circle marked="true" filled="true" color="#345DA9" diameter="60" cy="-30" cx="120"/>
+        <circle marked="true" filled="true" color="#345DA9" diameter="58" cy="270" cx="121"/>
+        <line marked="true" filled="false" color="#345DA9" y2="269" x2="150" y1="30" x1="150"/>
+        <polygon marked="true" filled="true" color="#345DA9" points="150,90 195,105 149,30 105,105"/>
+        <rect marked="true" filled="true" color="#345DA9" height="31" width="31" y="135" x="135"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="10" rotatable="true" name="lever-f-cw">
+      <elements>
+        <circle marked="true" filled="true" color="#345DA9" diameter="60" cy="-30" cx="120"/>
+        <circle marked="true" filled="true" color="#345DA9" diameter="58" cy="270" cx="121"/>
+        <line marked="true" filled="false" color="#345DA9" y2="269" x2="150" y1="30" x1="150"/>
+        <polygon marked="true" filled="true" color="#345DA9" points="150,90 195,105 149,30 105,105"/>
+        <line marked="true" filled="false" color="#345DA9" y2="30" x2="240" y1="30" x1="61"/>
+        <line marked="true" filled="false" color="#345DA9" y2="44" x2="195" y1="30" x1="240"/>
+        <line marked="true" filled="false" color="#345DA9" y2="15" x2="193" y1="29" x1="238"/>
+        <line marked="true" filled="false" color="#345DA9" y2="270" x2="61" y1="269" x1="239"/>
+        <line marked="true" filled="false" color="#345DA9" y2="255" x2="106" y1="270" x1="61"/>
+        <line marked="true" filled="false" color="#345DA9" y2="271" x2="61" y1="285" x1="104"/>
+        <rect marked="true" filled="true" color="#345DA9" height="30" width="30" y="135" x="135"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="10" rotatable="true" name="lever-f-cw-s">
+      <elements>
+        <circle marked="true" filled="true" color="#345DA9" diameter="60" cy="-30" cx="120"/>
+        <circle marked="true" filled="true" color="#345DA9" diameter="58" cy="270" cx="121"/>
+        <line marked="true" filled="false" color="#345DA9" y2="269" x2="150" y1="30" x1="150"/>
+        <polygon marked="true" filled="true" color="#345DA9" points="150,90 195,105 149,30 105,105"/>
+        <line marked="true" filled="false" color="#345DA9" y2="30" x2="240" y1="30" x1="61"/>
+        <line marked="true" filled="false" color="#345DA9" y2="44" x2="195" y1="30" x1="240"/>
+        <line marked="true" filled="false" color="#345DA9" y2="15" x2="193" y1="29" x1="238"/>
+        <line marked="true" filled="false" color="#345DA9" y2="270" x2="61" y1="269" x1="239"/>
+        <line marked="true" filled="false" color="#345DA9" y2="255" x2="106" y1="270" x1="61"/>
+        <line marked="true" filled="false" color="#345DA9" y2="271" x2="61" y1="285" x1="104"/>
+        <rect marked="true" filled="true" color="#345DA9" height="30" width="30" y="135" x="135"/>
+        <circle marked="true" filled="false" color="#345DA9" diameter="240" cy="30" cx="29"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="10" rotatable="true" name="lever-f-s">
+      <elements>
+        <circle marked="true" filled="true" color="#345DA9" diameter="60" cy="-30" cx="120"/>
+        <circle marked="true" filled="true" color="#345DA9" diameter="58" cy="270" cx="121"/>
+        <line marked="true" filled="false" color="#345DA9" y2="269" x2="150" y1="30" x1="150"/>
+        <polygon marked="true" filled="true" color="#345DA9" points="150,90 195,105 149,30 105,105"/>
+        <circle marked="true" filled="false" color="#345DA9" diameter="240" cy="30" cx="30"/>
+        <rect marked="true" filled="true" color="#345DA9" height="30" width="30" y="135" x="135"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="10" rotatable="true" name="lever-f-ws">
+      <elements>
+        <circle marked="true" filled="true" color="#345DA9" diameter="60" cy="-30" cx="120"/>
+        <circle marked="true" filled="true" color="#345DA9" diameter="58" cy="270" cx="121"/>
+        <line marked="true" filled="false" color="#345DA9" y2="269" x2="150" y1="30" x1="150"/>
+        <polygon marked="true" filled="true" color="#345DA9" points="150,90 195,105 149,30 105,105"/>
+        <line marked="true" filled="false" color="#345DA9" y2="30" x2="181" y1="30" x1="120"/>
+        <line marked="true" filled="false" color="#345DA9" y2="54" x2="233" y1="30" x1="181"/>
+        <line marked="true" filled="false" color="#345DA9" y2="52" x2="68" y1="30" x1="120"/>
+        <line marked="true" filled="false" color="#345DA9" y2="15" x2="91" y1="52" x1="68"/>
+        <line marked="true" filled="false" color="#345DA9" y2="60" x2="111" y1="53" x1="69"/>
+        <line marked="true" filled="false" color="#345DA9" y2="270" x2="180" y1="270" x1="120"/>
+        <line marked="true" filled="false" color="#345DA9" y2="246" x2="233" y1="271" x1="179"/>
+        <line marked="true" filled="false" color="#345DA9" y2="285" x2="210" y1="246" x1="233"/>
+        <line marked="true" filled="false" color="#345DA9" y2="241" x2="186" y1="245" x1="233"/>
+        <line marked="true" filled="false" color="#345DA9" y2="247" x2="68" y1="270" x1="120"/>
+        <rect marked="true" filled="true" color="#345DA9" height="31" width="31" y="135" x="135"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="10" rotatable="true" name="lever-f-ws-s">
+      <elements>
+        <circle marked="true" filled="true" color="#345DA9" diameter="60" cy="-30" cx="120"/>
+        <circle marked="true" filled="true" color="#345DA9" diameter="58" cy="270" cx="121"/>
+        <line marked="true" filled="false" color="#345DA9" y2="269" x2="150" y1="30" x1="150"/>
+        <polygon marked="true" filled="true" color="#345DA9" points="150,90 195,105 149,30 105,105"/>
+        <line marked="true" filled="false" color="#345DA9" y2="30" x2="181" y1="30" x1="120"/>
+        <line marked="true" filled="false" color="#345DA9" y2="54" x2="233" y1="30" x1="181"/>
+        <line marked="true" filled="false" color="#345DA9" y2="52" x2="68" y1="30" x1="120"/>
+        <line marked="true" filled="false" color="#345DA9" y2="15" x2="91" y1="52" x1="68"/>
+        <line marked="true" filled="false" color="#345DA9" y2="60" x2="111" y1="53" x1="69"/>
+        <line marked="true" filled="false" color="#345DA9" y2="270" x2="180" y1="270" x1="120"/>
+        <line marked="true" filled="false" color="#345DA9" y2="246" x2="233" y1="271" x1="179"/>
+        <line marked="true" filled="false" color="#345DA9" y2="285" x2="210" y1="246" x1="233"/>
+        <line marked="true" filled="false" color="#345DA9" y2="241" x2="186" y1="245" x1="233"/>
+        <line marked="true" filled="false" color="#345DA9" y2="247" x2="68" y1="270" x1="120"/>
+        <circle marked="true" filled="false" color="#345DA9" diameter="240" cy="30" cx="30"/>
+        <rect marked="true" filled="true" color="#345DA9" height="31" width="31" y="135" x="135"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="10" rotatable="true" name="lever-s">
+      <elements>
+        <circle marked="true" filled="true" color="#345DA9" diameter="60" cy="-30" cx="120"/>
+        <circle marked="true" filled="true" color="#345DA9" diameter="58" cy="270" cx="121"/>
+        <line marked="true" filled="false" color="#345DA9" y2="269" x2="150" y1="30" x1="150"/>
+        <polygon marked="true" filled="true" color="#345DA9" points="150,90 195,105 149,30 105,105"/>
+        <circle marked="true" filled="false" color="#345DA9" diameter="240" cy="30" cx="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="10" rotatable="true" name="lever-ws">
+      <elements>
+        <circle marked="true" filled="true" color="#345DA9" diameter="60" cy="-30" cx="120"/>
+        <circle marked="true" filled="true" color="#345DA9" diameter="58" cy="270" cx="121"/>
+        <line marked="true" filled="false" color="#345DA9" y2="269" x2="150" y1="30" x1="150"/>
+        <polygon marked="true" filled="true" color="#345DA9" points="150,90 195,105 149,30 105,105"/>
+        <line marked="true" filled="false" color="#345DA9" y2="30" x2="181" y1="30" x1="120"/>
+        <line marked="true" filled="false" color="#345DA9" y2="54" x2="233" y1="30" x1="181"/>
+        <line marked="true" filled="false" color="#345DA9" y2="52" x2="68" y1="30" x1="120"/>
+        <line marked="true" filled="false" color="#345DA9" y2="15" x2="91" y1="52" x1="68"/>
+        <line marked="true" filled="false" color="#345DA9" y2="60" x2="111" y1="53" x1="69"/>
+        <line marked="true" filled="false" color="#345DA9" y2="270" x2="180" y1="270" x1="120"/>
+        <line marked="true" filled="false" color="#345DA9" y2="246" x2="233" y1="271" x1="179"/>
+        <line marked="true" filled="false" color="#345DA9" y2="285" x2="210" y1="246" x1="233"/>
+        <line marked="true" filled="false" color="#345DA9" y2="241" x2="186" y1="245" x1="233"/>
+        <line marked="true" filled="false" color="#345DA9" y2="247" x2="68" y1="270" x1="120"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="10" rotatable="true" name="lever-ws-s">
+      <elements>
+        <circle marked="true" filled="true" color="#345DA9" diameter="60" cy="-30" cx="120"/>
+        <circle marked="true" filled="true" color="#345DA9" diameter="58" cy="270" cx="121"/>
+        <line marked="true" filled="false" color="#345DA9" y2="269" x2="150" y1="30" x1="150"/>
+        <polygon marked="true" filled="true" color="#345DA9" points="150,90 195,105 149,30 105,105"/>
+        <line marked="true" filled="false" color="#345DA9" y2="30" x2="181" y1="30" x1="120"/>
+        <line marked="true" filled="false" color="#345DA9" y2="54" x2="233" y1="30" x1="181"/>
+        <line marked="true" filled="false" color="#345DA9" y2="52" x2="68" y1="30" x1="120"/>
+        <line marked="true" filled="false" color="#345DA9" y2="15" x2="91" y1="52" x1="68"/>
+        <line marked="true" filled="false" color="#345DA9" y2="60" x2="111" y1="53" x1="69"/>
+        <line marked="true" filled="false" color="#345DA9" y2="270" x2="180" y1="270" x1="120"/>
+        <line marked="true" filled="false" color="#345DA9" y2="246" x2="233" y1="271" x1="179"/>
+        <line marked="true" filled="false" color="#345DA9" y2="285" x2="210" y1="246" x1="233"/>
+        <line marked="true" filled="false" color="#345DA9" y2="241" x2="186" y1="245" x1="233"/>
+        <line marked="true" filled="false" color="#345DA9" y2="247" x2="68" y1="270" x1="120"/>
+        <circle marked="true" filled="false" color="#345DA9" diameter="240" cy="30" cx="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="line">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="300" x2="150" y1="0" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="line half">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="150" y1="0" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="pentagon">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,15 15,120 60,285 240,285 285,120"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="person">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="5" cx="110"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="105,90 120,195 90,285 105,300 135,300 150,225 165,300 195,300 210,285 180,195 195,90"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="15" width="45" y="79" x="127"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="195,90 240,150 225,180 165,105"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="105,90 60,150 75,180 135,105"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="plant">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="210" width="30" y="90" x="135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,255 90,210 45,195 75,255 135,285"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,255 210,210 255,195 225,255 165,285"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,180 90,135 45,120 75,180 135,210"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,180 165,210 225,180 255,120 210,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,105 90,60 45,45 75,105 135,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,105 165,135 225,105 255,45 210,60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,90 120,45 150,15 180,45 165,90"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="square">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="240" width="240" y="30" x="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="square 2">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="240" width="240" y="30" x="30"/>
+        <rect marked="false" filled="true" color="#000000" height="180" width="180" y="60" x="60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="star">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="151,1 185,108 298,108 207,175 242,282 151,216 59,282 94,175 3,108 116,108"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="target">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="180" cy="60" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="120" cy="90" cx="90"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="60" cy="120" cx="120"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="tree">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="94" cy="3" cx="118"/>
+        <rect marked="false" filled="true" color="#9D6E48" height="105" width="60" y="195" x="120"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="21" cx="65"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="127" cy="41" cx="116"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="120" cy="90" cx="45"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="152" cy="74" cx="104"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="triangle">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,30 15,255 285,255"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="triangle 2">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,30 15,255 285,255"/>
+        <polygon marked="false" filled="true" color="#000000" points="151,99 225,223 75,224"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="truck">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="142" width="191" y="45" x="4"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="296,193 296,150 259,134 244,104 208,104 207,194"/>
+        <rect marked="false" filled="true" color="#FFFFFF" height="45" width="0" y="60" x="195"/>
+        <polygon marked="false" filled="true" color="#000000" points="238,112 252,141 219,141 218,112"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="234"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="9" width="33" y="185" x="181"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="144"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="24"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="24"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="144"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="234"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="turtle">
+      <elements>
+        <polygon marked="false" filled="true" color="#59B03C" points="215,204 240,233 246,254 228,266 215,252 193,210"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="195,90 225,75 245,75 260,89 269,108 261,124 240,105 225,105 210,105"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="105,90 75,75 55,75 40,89 31,108 39,124 60,105 75,105 90,105"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="132,85 134,64 107,51 108,17 150,2 192,18 192,52 169,65 172,87"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="85,204 60,233 54,254 72,266 85,252 107,210"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="119,75 179,75 209,101 224,135 220,225 175,261 128,261 81,224 74,135 88,99"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="wheel">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="294" cy="3" cx="3"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="15" x2="150" y1="285" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="285" y1="150" x1="15"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="60" cy="120" cx="120"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="269" x2="79" y1="40" x1="216"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="221" x2="269" y1="84" x1="40"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="79" x2="269" y1="216" x1="40"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="269" x2="221" y1="40" x1="84"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="x">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="270,75 225,30 30,225 75,270"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="30,75 75,30 270,225 225,270"/>
+      </elements>
+    </vectorShape>
+  </shapes>
+  <code><![CDATA[extensions [sound]
+
+globals [
+  selected    ;; lever that is currently selected
+  dragged     ;; lever that is currently being dragged
+]
+
+breed [levers lever]
+levers-own [
+  neighbor1 neighbor2  ;; each holds an adjacent lever (or nobody)
+  fixed?               ;; if true, lever only turns, never changes position
+  spin                 ;; -1, 0, or 1
+  len                  ;; this times SCALE slider equals size
+  new-xcor new-ycor    ;; next values for xcor and ycor
+  new-heading          ;; next value for heading
+  xvel yvel            ;; x and y velocities
+]
+
+;;;
+;;; SETUP PROCEDURES
+;;;
+
+to setup-begin
+  clear-all
+  set-default-shape levers "lever"
+  create-ordered-levers num-levers [
+    set heading 180
+    set new-xcor 0
+    set ycor ((who / num-levers) * world-height + min-pycor ) * -0.8
+    set new-ycor ycor
+    set fixed? false
+    set len 0.5
+    set neighbor1 turtle (who - 1)
+    set neighbor2 turtle (who + 1)
+  ]
+  ask lever 0 [ set fixed? true ]
+end
+
+to setup-dangle
+  setup-begin
+  ask turtle (num-levers - 4) [
+    set len len * 2
+    set spin 1
+  ]
+  setup-finish
+end
+
+to setup-finish
+  set selected last sort levers  ;; select last lever
+  ask levers [ lever-display ]
+  reset-ticks
+end
+
+to setup-chaos-tentacle
+  setup-begin
+  ask levers
+    [ set len (num-levers - who) * 0.1
+      set spin (who mod 2) * 2 - 1
+    ]
+  ask first sort levers
+    [ set new-xcor 0
+      set new-ycor 0
+      setxy 0 0
+      set fixed? true
+    ]
+  setup-finish
+end
+
+to setup-crazy-machine
+  setup-begin
+  ask levers
+    [ ; choose random location, in the inner area of the world
+      set new-xcor (random-float 1.6 - 0.8) * max-pxcor
+      set new-ycor (random-float 1.6 - 0.8) * max-pycor
+      setxy new-xcor new-ycor
+      set fixed? (random 5 = 0)
+      set spin one-of [-1 0 1]
+      set len precision (0.5 + 0.5 * random 4) 1
+      lever-display
+    ]
+  setup-finish
+end
+
+;;;
+;;; RUNTIME PROCEDURES
+;;;
+
+to go
+  ask levers [ monitor-mouse ]
+  ask levers [ lever! ]
+  ask levers [ lever-display ]
+  tick
+end
+
+to lever!
+  ifelse self = dragged
+  [ ; if being dragged, then go there the mouse tells you
+    set new-xcor mouse-xcor
+    set new-ycor mouse-ycor
+  ]
+  [
+    if not fixed?
+    [ set xvel (xvel * f) + ((n1x2 - x1) + (n2x1 - x2)) * 0.5
+      set yvel (yvel * f) + ((n1y2 - y1) + (n2y1 - y2)) * 0.5
+      set yvel yvel - g * len
+      set new-xcor xcor + xvel
+      set new-ycor ycor + yvel
+      if abs new-xcor > max-pxcor [ set xvel xvel * -0.99
+                                    set new-xcor max-pxcor * sign new-xcor + xvel
+                                    bonk! ycor ]
+      if abs new-ycor > max-pycor [ set yvel yvel * -0.99
+                                    set new-ycor max-pycor * sign new-ycor + yvel
+                                    bonk! xcor ]
+    ]
+  ]
+  ; calculate new heading of lever
+  ; if node2 of neighbor1 is overlapping center, keep same heading
+  ; otherwise, find heading to hook 2 of neighbor1
+  let a 180 + heading
+  let b heading
+  if distancexy n1x2 n1y2 > 0
+    [ set a 180 + towardsxy n1x2 n1y2 ]
+  ; likewise hook 1 of neighbor2
+  if distancexy n2x1 n2y1 > 0
+    [ set b towardsxy n2x1 n2y1 ]
+  ; use trig to take mean of a and b
+  set new-heading atan (sin a + sin b)
+                       (cos a + cos b)
+                  + spin * spin-speed
+end
+
+to lever-display
+  setxy new-xcor new-ycor
+  set heading new-heading
+  set size 2 * scale * len
+  let -s ""
+  ifelse self = selected
+  [ set -s "-s"
+    let new-label (word "selected: " who " - " (precision len 2) " ")
+    ask patch max-pxcor max-pycor [ set plabel new-label ]
+    set label (word who " - " (precision len 2) " "  " ---->     ")
+  ]
+  [ set label "" ]
+  set shape (word "lever"
+                  ifelse-value fixed? ["-f"] [""]
+                  item (spin + 1) ["-ws" "" "-cw"]
+                  -s)
+end
+
+;; lever procedures; these report the x and y coordinates
+;; of this lever's hooks
+to-report x1 report xcor - dx * scale * len end
+to-report y1 report ycor - dy * scale * len end
+to-report x2 report xcor + dx * scale * len end
+to-report y2 report ycor + dy * scale * len end
+
+;; lever procedures; these report the x and y coordinates
+;; of our neighbor's hooks. if no neighbor, use own hook.
+to-report n1x1 ifelse neighbor1 = nobody [ report x2 ] [ report [x1] of neighbor1 ] end
+to-report n1y1 ifelse neighbor1 = nobody [ report y2 ] [ report [y1] of neighbor1 ] end
+to-report n1x2 ifelse neighbor1 = nobody [ report x1 ] [ report [x2] of neighbor1 ] end
+to-report n1y2 ifelse neighbor1 = nobody [ report y1 ] [ report [y2] of neighbor1 ] end
+to-report n2x1 ifelse neighbor2 = nobody [ report x2 ] [ report [x1] of neighbor2 ] end
+to-report n2y1 ifelse neighbor2 = nobody [ report y2 ] [ report [y1] of neighbor2 ] end
+to-report n2x2 ifelse neighbor2 = nobody [ report x1 ] [ report [x2] of neighbor2 ] end
+to-report n2y2 ifelse neighbor2 = nobody [ report y1 ] [ report [y2] of neighbor2 ] end
+
+to-report sign [a]
+  ifelse a = 0
+    [ report 0 ]
+    [ ifelse a < 0 [ report -1 ]
+                   [ report 1 ] ]
+end
+
+;;;
+;;; SELECTION & DRAGGING PROCEDURES
+;;;
+
+to monitor-mouse
+  let mouse-here? abs (mouse-xcor - xcor) < scale / 2 and
+                  abs (mouse-ycor - ycor) < scale / 2
+  ifelse mouse-here?
+  [ if color != white [ set color white ] ]
+  [ if color = white  [ set color item (who mod 14) base-colors ] ]
+  ifelse mouse-down?
+  [ if dragged = nobody and mouse-here?
+    [ set dragged self
+      set selected self
+    ]
+  ]
+  [ set dragged nobody ]
+end
+
+to select-lever [which-lever]
+  let new lever (which-lever + [who] of selected)
+  if new != nobody [ set selected new ]
+end
+
+;;;
+;;; SOUND PROCEDURES
+;;;
+
+to bonk! [coordinate]
+  sound:play-note my-instrument (pitch coordinate) 90 0.05
+end
+
+to-report pitch [coordinate]  ;; lever procedure
+  report 16 + round (96 * (coordinate + max-pxcor) / world-width)
+end
+
+to-report my-instrument  ;; lever procedure
+  report item ((who + instrument) mod length sound:instruments)
+              sound:instruments
+end
+
+
+; Copyright 2005 Uri Wilensky. Includes code by James P. Steiner.
+; See Info tab for full copyright and license.]]></code>
+  <modelSettings/>
+  <hubnet/>
+</model>

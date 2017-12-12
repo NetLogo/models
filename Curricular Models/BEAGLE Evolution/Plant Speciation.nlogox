@@ -1,0 +1,975 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<model xmlns="http://ccl.northwestern.edu/netlogo/netlogox/1">
+  <version><![CDATA[NetLogo 6.1.0-M1]]></version>
+  <previewCommands>
+    <compiled><![CDATA[setup repeat 75 [ go ]]]></compiled>
+  </previewCommands>
+  <info><![CDATA[## WHAT IS IT?
+
+This is a model of parapatric speciation, where two subpopulations of a species split into two non-interbreeding species while still remaining in contact with each other. This is in contrast to allopatric speciation, where two geographically separated subpopulations of a species diverge into two separate species. The specific situation modeled is that of the speciation of a metal-tolerant variety of plant on the boundary between clean and contaminated ground.
+
+The model is inspired by a paper by Antonovics (2006) which describes a real-life example of a subpopulation of a species of grass on the boundary of a contaminated region that has developed an offset flowering time from the surrounding grass.
+
+For a short relevant background reading try https://en.wikipedia.org/wiki/Speciation
+
+## HOW IT WORKS
+
+The model simulates individual plant organisms that inhabit a rectangular grid of patches. Each tick, the model simulates either one day in a year of a plant or one year (a complete generation of plant life): the currently existing plants fertilize each other, produce offspring, and may die (depending if the plants are set to be annual or perennial plants).
+
+The environment the plants inhabited has two zones: the left zone (green) is normal earth, but the right zone (blue) is contaminated with metals from a nearby mine. The initial population can live there but has little tolerance for metals and prefers the clean zone on the left. Tolerance for metals is a heritable attribute that can change via mutation and recombination over the generations. Plants with a low tolerance for metals are best suited to live on the left side of the environment, and those with a high tolerance are best suited to live on the right side.
+
+Plants also have a flowering time, which determines which other plants the plant can fertilize and be fertilized by. Plants that do not flower during any of the same days of the year cannot fertilize each other.  Plants that flower on more of the same days have a better chance of fertilizing each other than plants that flower on less of the same days.  While plants can fertilize themselves, only plants within a certain radius can fertilize each other.
+
+Metal tolerance and flowering time are represented as real numbers; metal tolerance is always between 0.0 (very low tolerance) and 1.0 (very high tolerance).
+
+The key mechanism that drives speciation to emerge in this model is a fitness function. This fitness function (f) is dependent on metal in the ground (m) and tolerance of the plant to metal (t).  Metal tolerance slows plant growth down in healthy soil, but allows it to survive and grow in soil with heavy metal concentrations.
+
+Fitness is a hyperbolic paraboloid function that can be visualized as a linear function dependent on tolerance whose slope and y-intercept also vary linearly with respect to increases in metal in the soil.  This linear function would have the following slopes in various metal levels:
+
+  - negative slope in clean ground -> high tolerance is bad
+  - positive slope in dirty ground -> high tolerance is good
+  - slope of zero: in between -> no benefit or disadvantage to any tolerance level
+
+This is a model of a "tradeoff", where specializing in one variation of a trait is advantageous in one environmental extreme, but specializing in another variation of the trait is advantageous in a different environmental extreme. Intermediate "hybridization," or averaging between both variations, is disadvantageous in both environments or at least not advantageous in any.  Such tradeoff models can lead to speciation when other traits permit a population to reproductively fragment and isolate itself into non-interbreeding sub populations.
+
+The hyperbolic paraboloid or saddle shaped function that is used in the model is dependent on metal amount and tolerance.  A general form of this fitness function would be the following:
+  fitness =  (1 +  (A * t * m + B * t * m - C * t * m) - ( A * t + B * m) )
+
+  - where fitness is 1 at clean ground and no tolerance
+  - A is the penalty (0 to 1) for having tolerance in clean ground: so fitness is (1 - A)
+  - B is the penalty (0 to 1) for having the highest level of metal in the ground and no tolerance, so  fitness is (1 - B)
+  - C is the penalty (0 to 1) for having the highest tolerance in the highest level of metal, so fitness is (1 - C)
+
+As long as C is less than both B and A, then you will have a fitness function that may drive the emergence of speciation. The fitness function has been hard coded in the model to use A = .4 and B = .4 and C = 0 :
+
+       set fitness (1 - m) * (1 - .4 * t) + m * (1 - .4 * (1 - t))
+
+## HOW TO USE IT
+
+PLANT-TYPE: When set to "annual", all old plants die at the end of the year. "Perennial" allows some old plants to remain behind to re-flower the next year.
+
+VISUALIZE-TIME-STEPS: This can be set to "days" so that the flowering of the plants can be visualized during the year and the growth of seedlings and death of old plants can be visualized at the end of the year.  When set to "years" the model skips these visualizations and runs much quicker.
+
+GENETICS-MODEL: Allows you to change the recombination rules for sexual reproduction.  If set to "avg. genotype", the parent genotypes are averaged in the offspring.  This is a simplification of hybridization outcomes. Speciation should be more difficult to achieve at this setting since variation is removed more readily than using Mendelian genetics models (that retain variation in genotype over many generations through recessive alleles).  However, speciation can still emerge at this setting.  If set to "sex linked genes" the genotype is inherited from the male (pollen) only.
+
+SHOW-LABELS-AS: Shows the value for "metal in soil" for each patch, the "metal tolerance" for each plants", or the "flowering time" for each plant.
+
+FRONTIER-SHARPNESS: Controls the width of the gradient between the clean and contaminated sides of the environment.
+
+FLOWER-DURATION: This slider determines how long a flower is open--two plants whose flowering times are separated by more than this margin cannot fertilize each other. Even when two plants flower close enough together to fertilize each other, fertilization is less likely the larger the difference in flowering time.
+
+PLANTS-PER-PATCH: The maximum number of plants that can live on the same patch. If there are too many plants in a patch those least fitted to the local metal concentrations will die.
+
+CHANCE-TOLERANCE-MUTATION, CHANCE-FLOWER-TIME-MUTATION, FLOWER-TIME-MUTATION-STDEV, AND TOLERANCE-MUTATION-STDEV:  These sliders control the probability and magnitude of mutations in metal tolerance and flowering time.
+
+
+
+There are a variety of plots. The histograms show the distribution of metal tolerance and flowering time for plants on the left and right side of the environment. Graphs on the right show the mean tolerance and flowering time for the left and right sides of the environment over time. The "simultaneous flowering" graph shows the probability that a randomly chosen plant from the left flowers at the same time as a randomly chosen plant from the right--that is, the probability that they can fertilize each other. If this nears 0 speciation has occurred--the left and right sides are no longer interbreeding. Though the model only rarely reaches this value as 0, it does often achieve stable states very close to 0, showing that the first step in speciation has been achieved -- that a population has split into two sub-populations that are co-evolving behavior to reinforce sexual isolation from one another.
+
+## THINGS TO NOTICE
+
+The simplest case is to turn off all recombination and run the model with the default settings.  Notice that metal tolerance mutations will accumulate in a few individuals before simultaneous flower time begins to drop.  Speciation (sexual isolation) emerges after specialization of the population into two groups, to decrease gene flow between the groups and further increase odds of survival for offspring.
+
+When the whole population interbreeds there is a homogenizing force that keeps the plants on the right from becoming too metal tolerant--their genes are constantly diluted by genes from the intolerant left-side plants. Eventually, there will be a runaway effect where the left and right sides develop somewhat different flowering times (due to genetic drift), which decreases the flow of genes between the sides allowing the right to develop higher metal tolerance. This makes it increasingly disadvantageous to breed with left-side plants, creating selection pressure to increase the difference in flowering times further until the left and right are completely non-interbreeding and thus might be called separate species--this is called "reproductive isolation", the last step of speciation.
+
+## THINGS TO TRY
+
+If you decide to run the model with plants as annuals, decrease the DEATH-PER-YEAR (to around 10%) so that enough plants (including seedlings) are alive for the next generation, and increase the DEATH-PER-YEAR value if running with plants as perennials (so that old plants die off more readily and don't remain in ground blocking out new arrivals).
+
+If you change the FRONTIER-SHARPNESS to make a more gradual shift in metal concentrations between the left and right sides of the environment, speciation will still emerge.
+
+Sometimes flower-times for one population become isolated between two sub-groups in the other population, making for 3 effectively non-interbreeding sub-populations.  This shows how one speciation event can fragment the reproductive compatibility of the other population leading to even more possible species.
+
+Because of what is described above, parapatric speciation (in which two budding species continue to exchange genes as they diverge) is a rare form of speciation. More commonly accepted is the idea of allopatric speciation, which avoids these difficulties by positing that species arise when two subpopulations are separated completely, so that they cannot exchange genes and there is no homogenizing force preventing them from developing reproductive isolation. However, the process observed in the model where partial reproductive isolation allows increased differentiation due to selection, which in turn encourages more complete reproductive isolation, is often held to "reinforce" allopatric speciation when the two separated subpopulations come back into contact with each other.
+
+Playing with the other parameters of the model can alter the details of what happens; in particular the flow of genes between the sides is affected by fertilization-radius and flower-duration in proportion to the world size.
+
+## EXTENDING THE MODEL
+
+Allopatric speciation could be modeled by introducing physical barriers into the environment.
+
+## NETLOGO FEATURES
+
+Complex plotting procedures:  The histograms plot the populations of two regions each with a different color pen.
+
+## RELATED MODELS
+
+All the models from the BEAGLE curriculum.
+
+## CREDITS AND REFERENCES
+
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/rp/beagle/index.shtml)
+
+Antonovics, J. (2006). "Evolution in closely adjacent plant populations X: long-term persistence of reproductive isolation at a mine boundary". Heredity, 97(1), p33-37.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Novak, M., McGlynn, G. and Wilensky, U. (2012).  NetLogo Plant Speciation model.  http://ccl.northwestern.edu/netlogo/models/PlantSpeciation.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2012 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2012 Cite: Novak, M., McGlynn, G. -->]]></info>
+  <systemDynamics/>
+  <modelInfo>
+    <title/>
+    <subject/>
+  </modelInfo>
+  <linkShapes>
+    <linkShape curviness="0.0" name="default">
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="-0.2"/>
+      <line stroke-dasharray="1.0,0.0" isVisible="true" offset="0.0"/>
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="0.2"/>
+      <indicator editableColorIndex="0" rotatable="true" name="link direction">
+        <elements>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="90" y1="150" x1="150"/>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="210" y1="150" x1="150"/>
+        </elements>
+      </indicator>
+    </linkShape>
+  </linkShapes>
+  <widgets>
+    <view bottom="279" right="1196" top="10" left="512" frameRate="30.0" showTickCounter="true" fontSize="10">
+      <dimensions maxPycor="9" minPycor="0" maxPxcor="25" minPxcor="0" wrapInY="false" wrapInX="false" patchSize="26.0"/>
+      <tickCounterLabel><![CDATA[ticks]]></tickCounterLabel>
+    </view>
+    <button bottom="43" right="71" top="10" left="8" ticksEnabled="false" forever="false">
+      <source><![CDATA[setup]]></source>
+      <display><![CDATA[setup]]></display>
+    </button>
+    <button bottom="43" right="163" top="10" left="74" ticksEnabled="true" forever="true">
+      <source><![CDATA[go]]></source>
+      <display><![CDATA[go]]></display>
+    </button>
+    <slider bottom="341" right="587" top="308" left="385" direction="horizontal" default="10.0">
+      <maximum><![CDATA[100]]></maximum>
+      <minimum><![CDATA[0]]></minimum>
+      <step><![CDATA[1]]></step>
+      <units><![CDATA[%]]></units>
+      <variable><![CDATA[chance-tolerance-mutation]]></variable>
+    </slider>
+    <slider bottom="375" right="587" top="342" left="385" direction="horizontal" default="20.0">
+      <maximum><![CDATA[50]]></maximum>
+      <minimum><![CDATA[0]]></minimum>
+      <step><![CDATA[1]]></step>
+      <variable><![CDATA[tolerance-mutation-stdev]]></variable>
+    </slider>
+    <plot bottom="180" right="510" top="60" left="345" ymax="50.0" ymin="0.0" xmax="110.0" xmin="0.0" legendOn="false" autoPlotOn="true">
+      <display><![CDATA[tolerances]]></display>
+      <xAxis><![CDATA[metal tolerance]]></xAxis>
+      <yAxis><![CDATA[#]]></yAxis>
+      <setup/>
+      <update/>
+      <pens>
+        <pen inLegend="true" color="-10899396" mode="bar" interval="5.0">
+          <setup/>
+          <update><![CDATA[histogram [tolerance] of turtles with [xcor < (min-pxcor + max-pxcor) / 2]]]></update>
+          <display><![CDATA[left]]></display>
+        </pen>
+        <pen inLegend="true" color="-13345367" mode="bar" interval="5.0">
+          <setup/>
+          <update><![CDATA[histogram [tolerance] of turtles with [xcor > (min-pxcor + max-pxcor) / 2]]]></update>
+          <display><![CDATA[right]]></display>
+        </pen>
+      </pens>
+    </plot>
+    <slider bottom="306" right="161" top="273" left="9" direction="horizontal" default="2.0">
+      <maximum><![CDATA[5]]></maximum>
+      <minimum><![CDATA[1]]></minimum>
+      <step><![CDATA[1]]></step>
+      <variable><![CDATA[plants-per-patch]]></variable>
+    </slider>
+    <slider bottom="274" right="162" top="241" left="9" direction="horizontal" default="1.0">
+      <maximum><![CDATA[2]]></maximum>
+      <minimum><![CDATA[.1]]></minimum>
+      <step><![CDATA[.1]]></step>
+      <variable><![CDATA[frontier-sharpness]]></variable>
+    </slider>
+    <plot bottom="180" right="345" top="60" left="167" ymax="10.0" ymin="0.0" xmax="380.0" xmin="0.0" legendOn="false" autoPlotOn="true">
+      <display><![CDATA[flower-times]]></display>
+      <xAxis><![CDATA[flowering time]]></xAxis>
+      <yAxis><![CDATA[#]]></yAxis>
+      <setup/>
+      <update/>
+      <pens>
+        <pen inLegend="true" color="-10899396" mode="bar" interval="15.0">
+          <setup/>
+          <update><![CDATA[histogram [flower-time ] of turtles with [xcor < (min-pxcor + max-pxcor) / 2]]]></update>
+          <display><![CDATA[left]]></display>
+        </pen>
+        <pen inLegend="true" color="-13345367" mode="bar" interval="15.0">
+          <setup/>
+          <update><![CDATA[histogram [flower-time ] of turtles with [xcor > (min-pxcor + max-pxcor) / 2]]]></update>
+          <display><![CDATA[right]]></display>
+        </pen>
+      </pens>
+    </plot>
+    <slider bottom="340" right="381" top="307" left="167" direction="horizontal" default="10.0">
+      <maximum><![CDATA[100]]></maximum>
+      <minimum><![CDATA[0]]></minimum>
+      <step><![CDATA[1]]></step>
+      <units><![CDATA[%]]></units>
+      <variable><![CDATA[chance-flower-time-mutation]]></variable>
+    </slider>
+    <slider bottom="375" right="380" top="342" left="168" direction="horizontal" default="10.0">
+      <maximum><![CDATA[100]]></maximum>
+      <minimum><![CDATA[0]]></minimum>
+      <step><![CDATA[1]]></step>
+      <variable><![CDATA[flower-time-mutation-stdev]]></variable>
+    </slider>
+    <slider bottom="340" right="162" top="307" left="8" direction="horizontal" default="30.0">
+      <maximum><![CDATA[50]]></maximum>
+      <minimum><![CDATA[0]]></minimum>
+      <step><![CDATA[1]]></step>
+      <variable><![CDATA[pollen-radius]]></variable>
+    </slider>
+    <plot bottom="299" right="510" top="179" left="345" ymax="100.0" ymin="0.0" xmax="10.0" xmin="0.0" legendOn="false" autoPlotOn="true">
+      <display><![CDATA[avg. tolerance]]></display>
+      <xAxis><![CDATA[generations]]></xAxis>
+      <yAxis><![CDATA[tolerance]]></yAxis>
+      <setup/>
+      <update/>
+      <pens>
+        <pen inLegend="true" color="-10899396" mode="line" interval="1.0">
+          <setup/>
+          <update><![CDATA[if any? turtles with [ xcor < (min-pxcor + max-pxcor) / 2] [
+  plotxy year (mean [tolerance] of turtles with [xcor < (min-pxcor + max-pxcor) / 2])
+  ]]]></update>
+          <display><![CDATA[left]]></display>
+        </pen>
+        <pen inLegend="true" color="-13345367" mode="line" interval="1.0">
+          <setup/>
+          <update><![CDATA[if any? turtles with [ xcor > (min-pxcor + max-pxcor) / 2] [
+  plotxy year (mean [tolerance] of turtles with [xcor > (min-pxcor + max-pxcor) / 2])
+  ]]]></update>
+          <display><![CDATA[right]]></display>
+        </pen>
+      </pens>
+    </plot>
+    <plot bottom="300" right="346" top="180" left="167" ymax="100.0" ymin="0.0" xmax="10.0" xmin="0.0" legendOn="false" autoPlotOn="true">
+      <display><![CDATA[simultaneous flowering]]></display>
+      <xAxis><![CDATA[generations]]></xAxis>
+      <yAxis><![CDATA[%]]></yAxis>
+      <setup/>
+      <update/>
+      <pens>
+        <pen inLegend="true" color="-16777216" mode="line" interval="1.0">
+          <setup/>
+          <update><![CDATA[if any? turtles with [ xcor > (min-pxcor + max-pxcor) / 2] and any? turtles with [ xcor < (min-pxcor + max-pxcor) / 2]  [
+  let n 0
+  let m 0
+  let avg mean [tolerance] of turtles
+  repeat 500 [
+    let r one-of turtles with [xcor > (min-pxcor + max-pxcor) / 2]
+    let s one-of turtles with [xcor < (min-pxcor + max-pxcor) / 2]
+    if ( abs ([flower-time] of r - [flower-time] of s) < flower-duration ) [ set m (m + 1) ]
+    set n (n + 1)
+  ]
+  set percent-same-flowering-time precision ((m / n) * 100) 1
+  plotxy year (m / n) * 100
+]]]></update>
+          <display><![CDATA[default]]></display>
+        </pen>
+      </pens>
+    </plot>
+    <slider bottom="375" right="163" top="342" left="8" direction="horizontal" default="20.0">
+      <maximum><![CDATA[30]]></maximum>
+      <minimum><![CDATA[0]]></minimum>
+      <step><![CDATA[1]]></step>
+      <units><![CDATA[days]]></units>
+      <variable><![CDATA[flower-duration]]></variable>
+    </slider>
+    <monitor fontSize="11" bottom="55" right="375" top="10" left="318" precision="1">
+      <source><![CDATA[day]]></source>
+    </monitor>
+    <monitor fontSize="11" bottom="55" right="474" top="10" left="372" precision="17">
+      <source><![CDATA[year]]></source>
+      <display><![CDATA[years]]></display>
+    </monitor>
+    <chooser bottom="232" right="158" top="187" left="12" currentChoice="0">
+      <variable><![CDATA[show-labels-as]]></variable>
+      <choices>
+        <stringChoice><![CDATA[none]]></stringChoice>
+        <stringChoice><![CDATA[metal in soil]]></stringChoice>
+        <stringChoice><![CDATA[metal tolerance]]></stringChoice>
+        <stringChoice><![CDATA[flower time]]></stringChoice>
+      </choices>
+    </chooser>
+    <chooser bottom="55" right="315" top="10" left="164" currentChoice="1">
+      <variable><![CDATA[visualize-time-steps]]></variable>
+      <choices>
+        <stringChoice><![CDATA[days]]></stringChoice>
+        <stringChoice><![CDATA[years]]></stringChoice>
+      </choices>
+    </chooser>
+    <chooser bottom="94" right="157" top="49" left="11" currentChoice="1">
+      <variable><![CDATA[plant-type]]></variable>
+      <choices>
+        <stringChoice><![CDATA[perennial]]></stringChoice>
+        <stringChoice><![CDATA[annual]]></stringChoice>
+      </choices>
+    </chooser>
+    <chooser bottom="140" right="158" top="95" left="11" currentChoice="0">
+      <variable><![CDATA[initial-tolerance]]></variable>
+      <choices>
+        <stringChoice><![CDATA[all no tolerance]]></stringChoice>
+        <stringChoice><![CDATA[all full tolerance]]></stringChoice>
+        <stringChoice><![CDATA[random tolerances]]></stringChoice>
+      </choices>
+    </chooser>
+    <chooser bottom="186" right="158" top="141" left="11" currentChoice="0">
+      <variable><![CDATA[genetics-model]]></variable>
+      <choices>
+        <stringChoice><![CDATA[avg. genotype]]></stringChoice>
+        <stringChoice><![CDATA[sex linked genes]]></stringChoice>
+      </choices>
+    </chooser>
+  </widgets>
+  <experiments/>
+  <shapes>
+    <vectorShape editableColorIndex="0" rotatable="true" name="default">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,5 40,250 150,205 260,250"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="airplane">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,0 135,15 120,60 120,105 15,165 15,195 120,180 135,240 105,270 120,285 150,270 180,285 210,270 165,240 180,180 285,195 285,165 180,105 180,60 165,15"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="arrow">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,0 0,150 105,150 105,293 195,293 195,150 300,150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="box">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,285 285,225 285,75 150,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,135 15,75 150,15 285,75"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="15,75 15,225 150,285 150,135"/>
+        <line marked="false" filled="false" color="#000000" y2="135" x2="150" y1="285" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="75" x2="15" y1="135" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="75" x2="285" y1="135" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="bug">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="182" cx="96"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="127" cx="110"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="75" cx="110"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="30" x2="80" y1="100" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="30" x2="220" y1="100" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="butterfly">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,165 209,199 225,225 225,255 195,270 165,255 150,240"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,165 89,198 75,225 75,255 105,270 135,255 150,240"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="139,148 100,105 55,90 25,90 10,105 10,135 25,180 40,195 85,194 139,163"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="162,150 200,105 245,90 275,90 290,105 290,135 275,180 260,195 215,195 162,165"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,255 135,225 120,150 135,120 150,105 165,120 180,150 165,225"/>
+        <circle marked="false" filled="true" color="#000000" diameter="30" cy="90" cx="135"/>
+        <line marked="false" filled="false" color="#000000" y2="60" x2="195" y1="105" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="60" x2="105" y1="105" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="car">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="300,180 279,164 261,144 240,135 226,132 213,106 203,84 185,63 159,50 135,50 75,60 0,150 0,165 0,225 300,225 300,180"/>
+        <circle marked="false" filled="true" color="#000000" diameter="90" cy="180" cx="180"/>
+        <circle marked="false" filled="true" color="#000000" diameter="90" cy="180" cx="30"/>
+        <polygon marked="false" filled="true" color="#000000" points="162,80 132,78 134,135 209,135 194,105 189,96 180,89"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="58" cy="195" cx="47"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="58" cy="195" cx="195"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="circle">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="circle 2">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="cow">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="200,193 197,249 179,249 177,196 166,187 140,189 93,191 78,179 72,211 49,209 48,181 37,149 25,120 25,89 45,72 103,84 179,75 198,76 252,64 272,81 293,103 285,121 255,121 242,118 224,167"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="73,210 86,251 62,249 48,208"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="25,114 16,195 9,204 23,213 25,200 39,123"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="cylinder">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="dot">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="120" cy="90" cx="90"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face happy">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="8" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,255 90,239 62,213 47,191 67,179 90,203 109,218 150,225 192,218 210,203 227,181 251,194 236,217 212,240"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face neutral">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="7" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <rect marked="false" filled="true" color="#000000" height="30" width="180" y="195" x="60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face sad">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="8" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,168 90,184 62,210 47,232 67,244 90,220 109,205 150,198 192,205 210,220 227,242 251,229 236,206 212,183"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="fish">
+      <elements>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="44,131 21,87 15,86 0,120 15,150 0,180 13,214 20,212 45,166"/>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="135,195 119,235 95,218 76,210 46,204 60,165"/>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="75,45 83,77 71,103 86,114 166,78 135,60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="30,136 151,77 226,81 280,119 292,146 292,160 287,170 270,195 195,210 151,212 30,166"/>
+        <circle marked="false" filled="true" color="#000000" diameter="30" cy="106" cx="215"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="flag">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="285" width="15" y="15" x="60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="90,150 270,90 90,30"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="135" x2="90" y1="135" x1="75"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="45" x2="90" y1="45" x1="75"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="6" rotatable="false" name="flower">
+      <elements>
+        <line marked="true" filled="false" color="#2CD13B" y2="267" x2="146" y1="255" x1="84"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="264" x2="136" y1="241" x1="123"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="202" x2="152" y1="193" x1="121"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="210" x2="180" y1="225" x1="150"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="160" x2="204" y1="210" x1="180"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="196" x2="223" y1="199" x1="186"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="226" x2="224" y1="214" x1="171"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="254" x2="200" y1="277" x1="151"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="168" x2="85" y1="192" x1="122"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="147" x2="114" y1="199" x1="138"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="221" x2="94" y1="240" x1="122"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="228" x2="151" y1="303" x1="146"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="105" x2="150" y1="224" x1="152"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="32" cy="73" cx="103"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="32" cy="103" cx="133"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="32" cy="43" cx="133"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="32" cy="73" cx="163"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="32" cy="53" cx="116"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="32" cy="53" cx="152"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="32" cy="91" cx="153"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="32" cy="91" cx="115"/>
+        <circle marked="false" filled="true" color="#000000" diameter="30" cy="75" cx="135"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="house">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="165" width="210" y="120" x="45"/>
+        <rect marked="false" filled="true" color="#000000" height="75" width="60" y="210" x="120"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="15,120 150,15 285,120"/>
+        <line marked="false" filled="false" color="#000000" y2="120" x2="270" y1="120" x1="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="leaf">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,210 135,195 120,210 60,210 30,195 60,180 60,165 15,135 30,120 15,105 40,104 45,90 60,90 90,105 105,120 120,120 105,60 120,60 135,30 150,15 165,30 180,60 195,60 180,120 195,120 210,105 240,90 255,90 263,104 285,105 270,120 285,135 240,165 240,180 270,195 240,210 180,210 165,195"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,195 135,240 120,255 105,255 105,285 135,285 165,240 165,195"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="line">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="300" x2="150" y1="0" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="line half">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="150" y1="0" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="pentagon">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,15 15,120 60,285 240,285 285,120"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="person">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="5" cx="110"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="105,90 120,195 90,285 105,300 135,300 150,225 165,300 195,300 210,285 180,195 195,90"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="15" width="45" y="79" x="127"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="195,90 240,150 225,180 165,105"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="105,90 60,150 75,180 135,105"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="6" rotatable="false" name="plant">
+      <elements>
+        <line marked="true" filled="false" color="#2CD13B" y2="267" x2="146" y1="255" x1="84"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="264" x2="136" y1="241" x1="123"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="202" x2="152" y1="193" x1="121"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="210" x2="180" y1="225" x1="150"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="160" x2="204" y1="210" x1="180"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="196" x2="223" y1="199" x1="186"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="226" x2="224" y1="214" x1="171"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="254" x2="200" y1="277" x1="151"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="168" x2="85" y1="192" x1="122"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="147" x2="114" y1="199" x1="138"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="221" x2="94" y1="240" x1="122"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="228" x2="151" y1="303" x1="146"/>
+        <line marked="true" filled="false" color="#2CD13B" y2="105" x2="150" y1="224" x1="152"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="square">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="240" width="240" y="30" x="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="square 2">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="240" width="240" y="30" x="30"/>
+        <rect marked="false" filled="true" color="#000000" height="180" width="180" y="60" x="60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="star">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="151,1 185,108 298,108 207,175 242,282 151,216 59,282 94,175 3,108 116,108"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="target">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="180" cy="60" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="120" cy="90" cx="90"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="60" cy="120" cx="120"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="tree">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="94" cy="3" cx="118"/>
+        <rect marked="false" filled="true" color="#9D6E48" height="105" width="60" y="195" x="120"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="21" cx="65"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="127" cy="41" cx="116"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="120" cy="90" cx="45"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="152" cy="74" cx="104"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="triangle">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,30 15,255 285,255"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="triangle 2">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,30 15,255 285,255"/>
+        <polygon marked="false" filled="true" color="#000000" points="151,99 225,223 75,224"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="truck">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="142" width="191" y="45" x="4"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="296,193 296,150 259,134 244,104 208,104 207,194"/>
+        <rect marked="false" filled="true" color="#FFFFFF" height="45" width="0" y="60" x="195"/>
+        <polygon marked="false" filled="true" color="#000000" points="238,112 252,141 219,141 218,112"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="234"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="9" width="33" y="185" x="181"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="144"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="24"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="24"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="144"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="234"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="turtle">
+      <elements>
+        <polygon marked="false" filled="true" color="#59B03C" points="215,204 240,233 246,254 228,266 215,252 193,210"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="195,90 225,75 245,75 260,89 269,108 261,124 240,105 225,105 210,105"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="105,90 75,75 55,75 40,89 31,108 39,124 60,105 75,105 90,105"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="132,85 134,64 107,51 108,17 150,2 192,18 192,52 169,65 172,87"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="85,204 60,233 54,254 72,266 85,252 107,210"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="119,75 179,75 209,101 224,135 220,225 175,261 128,261 81,224 74,135 88,99"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="wheel">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="294" cy="3" cx="3"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="15" x2="150" y1="285" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="285" y1="150" x1="15"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="60" cy="120" cx="120"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="269" x2="79" y1="40" x1="216"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="221" x2="269" y1="84" x1="40"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="79" x2="269" y1="216" x1="40"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="269" x2="221" y1="40" x1="84"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="x">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="270,75 225,30 30,225 75,270"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="30,75 75,30 270,225 225,270"/>
+      </elements>
+    </vectorShape>
+  </shapes>
+  <code><![CDATA[turtles-own [ tolerance fitness flower-time seedling? will-die? ]
+patches-own [ metal barrier? ]
+
+globals [
+   day                             ;; monitor value
+   year                            ;; current year
+   old-year                        ;; previous year
+   end-of-days-counter             ;;
+   transition-time?                ;;
+   old-visualize-time-steps-state  ;; allows for switching between visualization modes during model run
+   chance-death-per-year           ;; the probability that the plant will die this year
+   chance-seed-dispersal           ;; the probability that a newborn plant grows in a patch adjacent to its parents', instead of in the same patch.
+   average-number-offspring        ;; avg. number of seeds dispersed by the plant when it does disperse them
+   percent-same-flowering-time
+]
+
+to setup
+  clear-all
+  ;; initialize globals
+  set day 0
+  set old-year 0
+  set year 0
+  set end-of-days-counter 0
+  set percent-same-flowering-time 0
+  set chance-death-per-year 10 ;; set to 10% by default
+  set chance-seed-dispersal 50 ;; set to 50% by default
+  set average-number-offspring 3
+  set transition-time? false
+  set old-visualize-time-steps-state visualize-time-steps
+
+  ;color the frontier
+  ask patches [
+    set barrier? false
+    setup-two-regions
+    set pcolor calc-patch-color metal
+  ]
+
+  ;spawn the initial population -- carrying-capacity-per-patch allows more than plant at this patch
+  ask patches with [pxcor = min-pxcor] [
+    sprout plants-per-patch [
+      if initial-tolerance = "all no tolerance" [set tolerance 0]
+      if initial-tolerance = "all full tolerance" [set tolerance 100]
+      if initial-tolerance = "random tolerances" [set tolerance random-float 100]
+      set flower-time (365 / 2)
+      set heading random 360
+      fd random-float .5
+      set fitness 1
+      set shape "plant"
+      set seedling? false
+      set will-die? false
+      set color calc-plant-color tolerance
+    ]
+  ]
+  reset-ticks
+end
+
+
+to setup-two-regions
+  ;; set the metal value based on the width designated by the frontier-sharpness slider value
+  set metal precision (100 / (1 + exp (frontier-sharpness * ((max-pxcor + min-pxcor) / 2 - pxcor)))) 0
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;; RUNTIME PROCEDURES ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to go
+   check-labels
+   ;; if visualization switched during model run, redraw plants
+   if old-visualize-time-steps-state != visualize-time-steps [
+     ask turtles [
+       redraw-plants-as-full-sized-plants
+     ]
+   ]
+
+  if visualize-time-steps = "years" [
+    set day 0 ;; always at day 0 in years mode
+    set year year + 1
+    ask turtles [ redraw-plants-as-full-sized-plants  ]
+    do-start-of-new-year-events
+  ]
+
+  if visualize-time-steps = "days" [
+    visualize-bloom
+    do-end-of-days-events
+  ]
+  tick
+end
+
+to do-start-of-new-year-events
+  if year > old-year [
+    do-reproduction
+    mark-turtles-to-kill
+    kill-marked-turtles
+    set old-year year
+  ]
+end
+
+to do-end-of-days-events
+  ifelse day = 365 [  ;; at end of year
+    if transition-time? = false  [
+      do-reproduction
+      mark-turtles-to-kill
+      set transition-time? true
+    ]
+    ;; 10 ticks of transition time will elapse between years when visualize-time-steps is in "day" mode
+    ;; this transition time is for animation events to show death and growth of new plants before the next
+    ;; year begins. It is done before day 0 of the new year so that these visualizations do not interfere
+    ;; with flower time speciation mechanisms in the model
+
+    if transition-time? [
+      set end-of-days-counter end-of-days-counter + 1
+      ;; grow the new plants to be visible for the next season
+      ask turtles with [seedling?] [visualize-seedling-growth]
+      ;; shrink and fade the plants that are going to die
+      ask turtles with [will-die?] [set size (1 - (end-of-days-counter / 10))]
+
+      if end-of-days-counter > 9 [  ;; start a new year
+        set year year + 1
+        set end-of-days-counter 0
+        set transition-time? false
+        set day 0
+        ask turtles [turn-seedlings-into-full-plants]
+        kill-marked-turtles
+      ]
+    ]
+  ]
+
+  ;; the else event
+  [set day day + 1]
+end
+
+;; make babies
+to do-reproduction
+  ask turtles [
+    ;; construct list of potential mates based on pollen-radius slider
+    let potential-mates []
+    let nearby-turtles turtles
+    if (pollen-radius < (max-pxcor - min-pxcor)) [set nearby-turtles turtles in-radius pollen-radius]
+    let num-candidates 10
+    ifelse count nearby-turtles < 10 [ set potential-mates (sort nearby-turtles) ]
+                                     [ set potential-mates (sort (n-of 10 nearby-turtles))
+                                       set potential-mates (fput self potential-mates)]
+
+    ;; pick mate randomly weighted by compatibility
+    let compatibilities map [ potential-mate -> compatibility self potential-mate] potential-mates
+    let mate (pick-weighted (potential-mates) (compatibilities))
+
+    ;; spawn children
+    hatch (random-poisson average-number-offspring) [
+      set seedling? true
+      set will-die? false
+      ifelse visualize-time-steps = "days" [ set size 0.0] [set size 1.0]
+
+      ;combine parents' genes and give average value of to the child
+      if genetics-model = "avg. genotype" [
+        set tolerance (tolerance + [tolerance] of mate) / 2
+        set flower-time (flower-time + [flower-time] of mate) / 2
+      ]
+
+      ;mutate tolerance gene
+      if (random-float 100) < chance-tolerance-mutation [
+        set tolerance (tolerance + (random-normal 0 tolerance-mutation-stdev))
+      ;; set tolerance (tolerance + random tolerance-mutation - random tolerance-mutation)
+      ]
+
+      ;mutate flowering time gene
+      if (random-float 100) < chance-flower-time-mutation [
+        set flower-time (flower-time + (random-normal 0 flower-time-mutation-stdev))
+      ]
+
+      ;; keeps values from going above a min and max
+      if tolerance < 0 [ set tolerance  0 ]
+      if tolerance > 100 [ set tolerance 100 ]
+      if flower-time < 0 [ set flower-time 0 ]
+      if flower-time > 365 [ set flower-time 365 ]
+
+      ;change color to reflect metal tolerance
+      set color calc-plant-color tolerance
+      migrate-this-plant
+    ]
+
+   if plant-type = "annual" [set will-die? true] ;end of the generation
+  ]
+end
+
+;kill ill-adapted turtles and fix solve overpopulation
+to mark-turtles-to-kill
+  ask turtles [
+    let t tolerance / 100
+    let m metal / 100
+    ;; Fitness is a linear function dependent on tolerance whose slope and y-intercept
+    ;; vary linearly with respect to an increases in metal amount.
+    ;; This linear function would have the following slopes in various metal levels:
+    ;; (i.e. negative slope in clean ground -> high tolerance is bad
+    ;;       positive slope in dirty ground -> high tolerance is good
+    ;;       zero     slope in between      -> no benefit or disadvantage to any level of tolerance )
+
+    ;; This is a model of a "tradeoff", where specializing in one variation of trait is advantageous
+    ;; in one environmental extreme, but specializing in another variation of the trait is advantageous in a different
+    ;; environmental extreme. Intermediate "hybridization" or averaging between both variations is disadvantageous
+    ;; in both environments or at the very least it is not advantageous in either extreme environment.
+    ;; Such tradeoff models can lead to speciation when other traits permit a population to reproductively
+    ;; fragment and isolate itself into non-interbreeding sub populations.
+
+    ;; This makes for a hyperbolic paraboloid or saddle shaped function that is dependent on metal amount and
+    ;; tolerance.  A general form of this fitness function would be the following:
+    ;; set fitness ((1 +  (A * t * m + B * t * m - C * t * m) - ( A * t + B * m) ) )
+    ;; where fitness is 1 at clean ground and no tolerance
+    ;; A is the penalty (0 to 1) for having tolerance in clean ground, therefore fitness is (1 - A)
+    ;; B is the penalty (0 to 1) for having the highest level of metal in the ground and no tolerance, therefore fitness is (1 - B)
+    ;; C is the penalty (0 to 1) for having the highest tolerance in the highest level of metal, therefore fitness is (1 - C)
+    ;; As long as C is less than both B and A, then you will have a fitness function that can be used in this section
+    ;; The fitness function has been hard coded here to use A = .4 and B = .4 and C = 0
+
+       set fitness (1 - m) * (1 - .4 * t) + m * (1 - .4 * (1 - t))
+
+    ;; survival probability based on fitness
+    if (random-float 1) > (fitness) [set will-die? true]
+    ;; survival probability based on fixed number of additional deaths-a-year
+    if random-float 100 < chance-death-per-year [set will-die? true]
+  ]
+
+  ;; In overpopulated patches, kill the least fit plant until we are down to the carrying capacity
+  ask patches [
+    let overpopulation ((count turtles-here) - plants-per-patch)
+    if overpopulation > 0 [
+      ask (min-n-of overpopulation turtles-here [fitness]) [
+        set will-die? true
+      ]
+    ]
+  ]
+end
+
+to migrate-this-plant ;; turtle procedure
+  ;; Some plants grow in patch adjacent to the parent plant. This represents migration from seed dispersal
+  if (random-float 100) < chance-seed-dispersal [
+    move-to one-of neighbors
+    rt random 360  fd random-float 0.45  ;;spread out plants that are on the same patch
+  ]
+end
+
+to kill-marked-turtles
+    ask turtles with [will-die?] [die]
+end
+
+to turn-seedlings-into-full-plants
+         if seedling? [set seedling? false]
+         redraw-plants-as-full-sized-plants
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;; visualization procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to check-labels
+  ask patches [
+  ifelse show-labels-as = "metal in soil"
+    [set plabel metal]
+    [set plabel ""]
+  ]
+  ask turtles [
+    if show-labels-as = "metal tolerance" [set label precision tolerance 0]
+    if show-labels-as = "flower time"  [set label precision flower-time 0 ]
+    if show-labels-as = "none" [set label ""]
+  ]
+end
+
+to redraw-plants-as-full-sized-plants ;; turtle procedure
+  set shape "plant"
+  set size 1
+end
+
+to visualize-seedling-growth ;; turtle procedure
+  if seedling? [set size (end-of-days-counter / 10) ]
+end
+
+to visualize-bloom
+  ask turtles [
+    ;; If day of the year is greater than this plants flower time and less than the flower time plus the length of flower time, then it is in the
+    ;; the flowering time window and a flower should be located here
+    ifelse day >= (flower-time  ) and day <= (flower-time + (flower-duration)  )
+       [ set shape "flower"]
+       [ set shape "plant" ]
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;; reporters  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; make a random choice from <options> weighted by <weights>
+;; where highly weighted choices are more likely to be selected than others
+to-report pick-weighted [ options weights ]
+  let wsum 0
+  foreach weights [ weight ->
+    set wsum (wsum + weight)
+  ]
+  let wret wsum * (random-float 1)
+  let ret 0
+  set wsum 0
+  foreach weights [ weight ->
+    set wsum (wsum + weight)
+    if wsum > wret [ report (item ret options) ]
+    set ret (ret + 1)
+  ]
+end
+
+;; compatibility is a decreasing function of the difference in flowering times
+;; since plants that have more of an overlap between flower-times are more likely
+;; they will pollinate one another
+to-report compatibility [ t1 t2 ]
+  let diff abs ([flower-time] of t1 - [flower-time] of t2)
+  ifelse diff < flower-duration [ report (flower-duration - diff) ] [ report 0 ]
+end
+
+;; calculate the patch color based on the presence of metal in the soil
+to-report calc-patch-color [ m ]
+  report rgb 0 (255 * (1 - (m / 100)) / 2) (255 * (m / 100) / 2)
+end
+
+to-report calc-plant-color [ t ]
+  let black-pcolor rgb 0 0 0
+  ifelse barrier?
+    [report black-pcolor]
+    [report rgb 0 (255 * (1 - (t / 100)) ) (255 * (t / 100) )]
+end
+
+
+; Copyright 2012 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <modelSettings/>
+  <hubnet/>
+</model>

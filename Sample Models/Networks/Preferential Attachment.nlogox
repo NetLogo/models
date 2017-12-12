@@ -1,0 +1,595 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<model xmlns="http://ccl.northwestern.edu/netlogo/netlogox/1">
+  <version><![CDATA[NetLogo 6.1.0-M1]]></version>
+  <previewCommands>
+    <compiled><![CDATA[set layout? false
+set plot? false
+setup repeat 300 [ go ]
+repeat 100 [ layout ]]]></compiled>
+  </previewCommands>
+  <info><![CDATA[## WHAT IS IT?
+
+In some networks, a few "hubs" have lots of connections, while everybody else only has a few.  This model shows one way such networks can arise.
+
+Such networks can be found in a surprisingly large range of real world situations, ranging from the connections between websites to the collaborations between actors.
+
+This model generates these networks by a process of "preferential attachment", in which new network members prefer to make a connection to the more popular existing members.
+
+## HOW IT WORKS
+
+The model starts with two nodes connected by an edge.
+
+At each step, a new node is added.  A new node picks an existing node to connect to randomly, but with some bias.  More specifically, a node's chance of being selected is directly proportional to the number of connections it already has, or its "degree." This is the mechanism which is called "preferential attachment."
+
+## HOW TO USE IT
+
+Pressing the GO ONCE button adds one new node.  To continuously add nodes, press GO.
+
+The LAYOUT? switch controls whether or not the layout procedure is run.  This procedure attempts to move the nodes around to make the structure of the network easier to see.
+
+The PLOT? switch turns off the plots which speeds up the model.
+
+The RESIZE-NODES button will make all of the nodes take on a size representative of their degree distribution.  If you press it again the nodes will return to equal size.
+
+If you want the model to run faster, you can turn off the LAYOUT? and PLOT? switches and/or freeze the view (using the on/off button in the control strip over the view). The LAYOUT? switch has the greatest effect on the speed of the model.
+
+If you have LAYOUT? switched off, and then want the network to have a more appealing layout, press the REDO-LAYOUT button which will run the layout-step procedure until you press the button again. You can press REDO-LAYOUT at any time even if you had LAYOUT? switched on and it will try to make the network easier to see.
+
+## THINGS TO NOTICE
+
+The networks that result from running this model are often called "scale-free" or "power law" networks. These are networks in which the distribution of the number of connections of each node is not a normal distribution --- instead it follows what is a called a power law distribution.  Power law distributions are different from normal distributions in that they do not have a peak at the average, and they are more likely to contain extreme values (see Albert & Barabási 2002 for a further description of the frequency and significance of scale-free networks).  Barabási and Albert originally described this mechanism for creating networks, but there are other mechanisms of creating scale-free networks and so the networks created by the mechanism implemented in this model are referred to as Barabási scale-free networks.
+
+You can see the degree distribution of the network in this model by looking at the plots. The top plot is a histogram of the degree of each node.  The bottom plot shows the same data, but both axes are on a logarithmic scale.  When degree distribution follows a power law, it appears as a straight line on the log-log plot.  One simple way to think about power laws is that if there is one node with a degree distribution of 1000, then there will be ten nodes with a degree distribution of 100, and 100 nodes with a degree distribution of 10.
+
+## THINGS TO TRY
+
+Let the model run a little while.  How many nodes are "hubs", that is, have many connections?  How many have only a few?  Does some low degree node ever become a hub?  How often?
+
+Turn off the LAYOUT? switch and freeze the view to speed up the model, then allow a large network to form.  What is the shape of the histogram in the top plot?  What do you see in log-log plot? Notice that the log-log plot is only a straight line for a limited range of values.  Why is this?  Does the degree to which the log-log plot resembles a straight line grow as you add more nodes to the network?
+
+## EXTENDING THE MODEL
+
+Assign an additional attribute to each node.  Make the probability of attachment depend on this new attribute as well as on degree.  (A bias slider could control how much the attribute influences the decision.)
+
+Can the layout algorithm be improved?  Perhaps nodes from different hubs could repel each other more strongly than nodes from the same hub, in order to encourage the hubs to be physically separate in the layout.
+
+## NETWORK CONCEPTS
+
+There are many ways to graphically display networks.  This model uses a common "spring" method where the movement of a node at each time step is the net result of "spring" forces that pulls connected nodes together and repulsion forces that push all the nodes away from each other.  This code is in the `layout-step` procedure. You can force this code to execute any time by pressing the REDO LAYOUT button, and pressing it again when you are happy with the layout.
+
+## NETLOGO FEATURES
+
+Nodes are turtle agents and edges are link agents. The model uses the ONE-OF primitive to chose a random link and the BOTH-ENDS primitive to select the two nodes attached to that link.
+
+The `layout-spring` primitive places the nodes, as if the edges are springs and the nodes are repelling each other.
+
+Though it is not used in this model, there exists a network extension for NetLogo that comes bundled with NetLogo, that has many more network primitives.
+
+## RELATED MODELS
+
+See other models in the Networks section of the Models Library, such as Giant Component.
+
+See also Network Example, in the Code Examples section.
+
+## CREDITS AND REFERENCES
+
+This model is based on:
+Albert-László Barabási. Linked: The New Science of Networks, Perseus Publishing, Cambridge, Massachusetts, pages 79-92.
+
+For a more technical treatment, see:
+Albert-László Barabási & Reka Albert. Emergence of Scaling in Random Networks, Science, Vol 286, Issue 5439, 15 October 1999, pages 509-512.
+
+Barabási's webpage has additional information at: http://www.barabasi.com/
+
+The layout algorithm is based on the Fruchterman-Reingold layout algorithm.  More information about this algorithm can be obtained at: https://cs.brown.edu/~rt/gdhandbook/chapters/force-directed.pdf.
+
+For a model similar to the one described in the first suggested extension, please consult:
+W. Brian Arthur, "Urban Systems and Historical Path-Dependence", Chapt. 4 in Urban systems and Infrastructure, J. Ausubel and R. Herman (eds.), National Academy of Sciences, Washington, D.C., 1988.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. (2005).  NetLogo Preferential Attachment model.  http://ccl.northwestern.edu/netlogo/models/PreferentialAttachment.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2005 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2005 -->]]></info>
+  <systemDynamics/>
+  <modelInfo>
+    <title/>
+    <subject/>
+  </modelInfo>
+  <linkShapes>
+    <linkShape curviness="0.0" name="default">
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="-0.2"/>
+      <line stroke-dasharray="1.0,0.0" isVisible="true" offset="0.0"/>
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="0.2"/>
+      <indicator editableColorIndex="0" rotatable="true" name="link direction">
+        <elements>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="90" y1="150" x1="150"/>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="210" y1="150" x1="150"/>
+        </elements>
+      </indicator>
+    </linkShape>
+  </linkShapes>
+  <widgets>
+    <view bottom="474" right="808" top="10" left="345" frameRate="60.0" showTickCounter="true" fontSize="10">
+      <dimensions maxPycor="45" minPycor="-45" maxPxcor="45" minPxcor="-45" wrapInY="false" wrapInX="false" patchSize="5.0"/>
+      <tickCounterLabel><![CDATA[ticks]]></tickCounterLabel>
+    </view>
+    <plot bottom="496" right="333" top="330" left="8" ymax="0.3" ymin="0.0" xmax="0.3" xmin="0.0" legendOn="false" autoPlotOn="true">
+      <display><![CDATA[Degree Distribution (log-log)]]></display>
+      <xAxis><![CDATA[log(degree)]]></xAxis>
+      <yAxis><![CDATA[log(# of nodes)]]></yAxis>
+      <setup/>
+      <update/>
+      <pens>
+        <pen inLegend="true" color="-16777216" mode="point" interval="1.0">
+          <setup/>
+          <update><![CDATA[if not plot? [ stop ]
+let max-degree max [count link-neighbors] of turtles
+;; for this plot, the axes are logarithmic, so we can't
+;; use "histogram-from"; we have to plot the points
+;; ourselves one at a time
+plot-pen-reset  ;; erase what we plotted before
+;; the way we create the network there is never a zero degree node,
+;; so start plotting at degree one
+let degree 1
+while [degree <= max-degree] [
+  let matches turtles with [count link-neighbors = degree]
+  if any? matches
+    [ plotxy log degree 10
+             log (count matches) 10 ]
+  set degree degree + 1
+]]]></update>
+          <display><![CDATA[default]]></display>
+        </pen>
+      </pens>
+    </plot>
+    <plot bottom="329" right="333" top="153" left="8" ymax="10.0" ymin="0.0" xmax="10.0" xmin="1.0" legendOn="false" autoPlotOn="true">
+      <display><![CDATA[Degree Distribution]]></display>
+      <xAxis><![CDATA[degree]]></xAxis>
+      <yAxis><![CDATA[# of nodes]]></yAxis>
+      <setup/>
+      <update/>
+      <pens>
+        <pen inLegend="true" color="-16777216" mode="bar" interval="1.0">
+          <setup/>
+          <update><![CDATA[if not plot? [ stop ]
+let max-degree max [count link-neighbors] of turtles
+plot-pen-reset  ;; erase what we plotted before
+set-plot-x-range 1 (max-degree + 1)  ;; + 1 to make room for the width of the last bar
+histogram [count link-neighbors] of turtles]]></update>
+          <display><![CDATA[default]]></display>
+        </pen>
+      </pens>
+    </plot>
+    <button bottom="58" right="72" top="25" left="6" ticksEnabled="false" forever="false">
+      <source><![CDATA[setup]]></source>
+    </button>
+    <button bottom="97" right="170" top="64" left="93" ticksEnabled="true" forever="true">
+      <source><![CDATA[go]]></source>
+    </button>
+    <button bottom="97" right="91" top="64" left="6" ticksEnabled="true" forever="false">
+      <source><![CDATA[go]]></source>
+      <display><![CDATA[go-once]]></display>
+    </button>
+    <switch bottom="63" right="333" top="30" left="187" isOn="true">
+      <variable><![CDATA[plot?]]></variable>
+    </switch>
+    <switch bottom="97" right="333" top="64" left="187" isOn="true">
+      <variable><![CDATA[layout?]]></variable>
+    </switch>
+    <monitor fontSize="11" bottom="145" right="316" top="100" left="237" precision="3">
+      <source><![CDATA[count turtles]]></source>
+      <display><![CDATA[# of nodes]]></display>
+    </monitor>
+    <button bottom="135" right="109" top="102" left="7" ticksEnabled="true" forever="true">
+      <source><![CDATA[layout]]></source>
+      <display><![CDATA[redo layout]]></display>
+    </button>
+    <button bottom="135" right="225" top="102" left="115" ticksEnabled="true" forever="false">
+      <source><![CDATA[resize-nodes]]></source>
+      <display><![CDATA[resize nodes]]></display>
+    </button>
+  </widgets>
+  <experiments/>
+  <shapes>
+    <vectorShape editableColorIndex="0" rotatable="true" name="default">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,5 40,250 150,205 260,250"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="airplane">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,0 135,15 120,60 120,105 15,165 15,195 120,180 135,240 105,270 120,285 150,270 180,285 210,270 165,240 180,180 285,195 285,165 180,105 180,60 165,15"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="arrow">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,0 0,150 105,150 105,293 195,293 195,150 300,150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="box">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,285 285,225 285,75 150,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,135 15,75 150,15 285,75"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="15,75 15,225 150,285 150,135"/>
+        <line marked="false" filled="false" color="#000000" y2="135" x2="150" y1="285" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="75" x2="15" y1="135" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="75" x2="285" y1="135" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="bug">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="182" cx="96"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="127" cx="110"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="75" cx="110"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="30" x2="80" y1="100" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="30" x2="220" y1="100" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="butterfly">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,165 209,199 225,225 225,255 195,270 165,255 150,240"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,165 89,198 75,225 75,255 105,270 135,255 150,240"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="139,148 100,105 55,90 25,90 10,105 10,135 25,180 40,195 85,194 139,163"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="162,150 200,105 245,90 275,90 290,105 290,135 275,180 260,195 215,195 162,165"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,255 135,225 120,150 135,120 150,105 165,120 180,150 165,225"/>
+        <circle marked="false" filled="true" color="#000000" diameter="30" cy="90" cx="135"/>
+        <line marked="false" filled="false" color="#000000" y2="60" x2="195" y1="105" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="60" x2="105" y1="105" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="car">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="300,180 279,164 261,144 240,135 226,132 213,106 203,84 185,63 159,50 135,50 75,60 0,150 0,165 0,225 300,225 300,180"/>
+        <circle marked="false" filled="true" color="#000000" diameter="90" cy="180" cx="180"/>
+        <circle marked="false" filled="true" color="#000000" diameter="90" cy="180" cx="30"/>
+        <polygon marked="false" filled="true" color="#000000" points="162,80 132,78 134,135 209,135 194,105 189,96 180,89"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="58" cy="195" cx="47"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="58" cy="195" cx="195"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="circle">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="circle 2">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="cow">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="200,193 197,249 179,249 177,196 166,187 140,189 93,191 78,179 72,211 49,209 48,181 37,149 25,120 25,89 45,72 103,84 179,75 198,76 252,64 272,81 293,103 285,121 255,121 242,118 224,167"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="73,210 86,251 62,249 48,208"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="25,114 16,195 9,204 23,213 25,200 39,123"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="cylinder">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="dot">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="120" cy="90" cx="90"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face happy">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="8" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,255 90,239 62,213 47,191 67,179 90,203 109,218 150,225 192,218 210,203 227,181 251,194 236,217 212,240"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face neutral">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="7" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <rect marked="false" filled="true" color="#000000" height="30" width="180" y="195" x="60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face sad">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="8" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,168 90,184 62,210 47,232 67,244 90,220 109,205 150,198 192,205 210,220 227,242 251,229 236,206 212,183"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="fish">
+      <elements>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="44,131 21,87 15,86 0,120 15,150 0,180 13,214 20,212 45,166"/>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="135,195 119,235 95,218 76,210 46,204 60,165"/>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="75,45 83,77 71,103 86,114 166,78 135,60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="30,136 151,77 226,81 280,119 292,146 292,160 287,170 270,195 195,210 151,212 30,166"/>
+        <circle marked="false" filled="true" color="#000000" diameter="30" cy="106" cx="215"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="flag">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="285" width="15" y="15" x="60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="90,150 270,90 90,30"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="135" x2="90" y1="135" x1="75"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="45" x2="90" y1="45" x1="75"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="flower">
+      <elements>
+        <polygon marked="false" filled="true" color="#59B03C" points="135,120 165,165 180,210 180,240 150,300 165,300 195,240 195,195 165,135"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="132" cx="85"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="147" cx="130"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="85" cx="192"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="40" cx="85"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="40" cx="177"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="132" cx="177"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="85" cx="70"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="25" cx="130"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="51" cx="96"/>
+        <circle marked="false" filled="true" color="#000000" diameter="74" cy="68" cx="113"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="189,233 219,188 249,173 279,188 234,218"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="180,255 150,210 105,210 75,240 135,240"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="house">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="165" width="210" y="120" x="45"/>
+        <rect marked="false" filled="true" color="#000000" height="75" width="60" y="210" x="120"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="15,120 150,15 285,120"/>
+        <line marked="false" filled="false" color="#000000" y2="120" x2="270" y1="120" x1="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="leaf">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,210 135,195 120,210 60,210 30,195 60,180 60,165 15,135 30,120 15,105 40,104 45,90 60,90 90,105 105,120 120,120 105,60 120,60 135,30 150,15 165,30 180,60 195,60 180,120 195,120 210,105 240,90 255,90 263,104 285,105 270,120 285,135 240,165 240,180 270,195 240,210 180,210 165,195"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,195 135,240 120,255 105,255 105,285 135,285 165,240 165,195"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="line">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="300" x2="150" y1="0" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="line half">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="150" y1="0" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="pentagon">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,15 15,120 60,285 240,285 285,120"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="person">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="5" cx="110"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="105,90 120,195 90,285 105,300 135,300 150,225 165,300 195,300 210,285 180,195 195,90"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="15" width="45" y="79" x="127"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="195,90 240,150 225,180 165,105"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="105,90 60,150 75,180 135,105"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="plant">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="210" width="30" y="90" x="135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,255 90,210 45,195 75,255 135,285"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,255 210,210 255,195 225,255 165,285"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,180 90,135 45,120 75,180 135,210"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,180 165,210 225,180 255,120 210,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,105 90,60 45,45 75,105 135,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,105 165,135 225,105 255,45 210,60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,90 120,45 150,15 180,45 165,90"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="square">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="240" width="240" y="30" x="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="square 2">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="240" width="240" y="30" x="30"/>
+        <rect marked="false" filled="true" color="#000000" height="180" width="180" y="60" x="60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="star">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="151,1 185,108 298,108 207,175 242,282 151,216 59,282 94,175 3,108 116,108"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="target">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="180" cy="60" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="120" cy="90" cx="90"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="60" cy="120" cx="120"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="tree">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="94" cy="3" cx="118"/>
+        <rect marked="false" filled="true" color="#9D6E48" height="105" width="60" y="195" x="120"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="21" cx="65"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="127" cy="41" cx="116"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="120" cy="90" cx="45"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="152" cy="74" cx="104"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="triangle">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,30 15,255 285,255"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="triangle 2">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,30 15,255 285,255"/>
+        <polygon marked="false" filled="true" color="#000000" points="151,99 225,223 75,224"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="truck">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="142" width="191" y="45" x="4"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="296,193 296,150 259,134 244,104 208,104 207,194"/>
+        <rect marked="false" filled="true" color="#FFFFFF" height="45" width="0" y="60" x="195"/>
+        <polygon marked="false" filled="true" color="#000000" points="238,112 252,141 219,141 218,112"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="234"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="9" width="33" y="185" x="181"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="144"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="24"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="24"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="144"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="234"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="turtle">
+      <elements>
+        <polygon marked="false" filled="true" color="#59B03C" points="215,204 240,233 246,254 228,266 215,252 193,210"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="195,90 225,75 245,75 260,89 269,108 261,124 240,105 225,105 210,105"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="105,90 75,75 55,75 40,89 31,108 39,124 60,105 75,105 90,105"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="132,85 134,64 107,51 108,17 150,2 192,18 192,52 169,65 172,87"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="85,204 60,233 54,254 72,266 85,252 107,210"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="119,75 179,75 209,101 224,135 220,225 175,261 128,261 81,224 74,135 88,99"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="wheel">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="294" cy="3" cx="3"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="15" x2="150" y1="285" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="285" y1="150" x1="15"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="60" cy="120" cx="120"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="269" x2="79" y1="40" x1="216"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="221" x2="269" y1="84" x1="40"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="79" x2="269" y1="216" x1="40"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="269" x2="221" y1="40" x1="84"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="x">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="270,75 225,30 30,225 75,270"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="30,75 75,30 270,225 225,270"/>
+      </elements>
+    </vectorShape>
+  </shapes>
+  <code><![CDATA[;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Setup Procedures ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+to setup
+  clear-all
+  set-default-shape turtles "circle"
+  ;; make the initial network of two turtles and an edge
+  make-node nobody        ;; first node, unattached
+  make-node turtle 0      ;; second node, attached to first node
+  reset-ticks
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;;; Main Procedures ;;;
+;;;;;;;;;;;;;;;;;;;;;;;
+
+to go
+  ;; new edge is green, old edges are gray
+  ask links [ set color gray ]
+  make-node find-partner         ;; find partner & use it as attachment
+                                 ;; point for new node
+  tick
+  if layout? [ layout ]
+end
+
+;; used for creating a new node
+to make-node [old-node]
+  create-turtles 1
+  [
+    set color red
+    if old-node != nobody
+      [ create-link-with old-node [ set color green ]
+        ;; position the new node near its partner
+        move-to old-node
+        fd 8
+      ]
+  ]
+end
+
+;; This code is the heart of the "preferential attachment" mechanism, and acts like
+;; a lottery where each node gets a ticket for every connection it already has.
+;; While the basic idea is the same as in the Lottery Example (in the Code Examples
+;; section of the Models Library), things are made simpler here by the fact that we
+;; can just use the links as if they were the "tickets": we first pick a random link,
+;; and than we pick one of the two ends of that link.
+to-report find-partner
+  report [one-of both-ends] of one-of links
+end
+
+;;;;;;;;;;;;;;
+;;; Layout ;;;
+;;;;;;;;;;;;;;
+
+;; resize-nodes, change back and forth from size based on degree to a size of 1
+to resize-nodes
+  ifelse all? turtles [size <= 1]
+  [
+    ;; a node is a circle with diameter determined by
+    ;; the SIZE variable; using SQRT makes the circle's
+    ;; area proportional to its degree
+    ask turtles [ set size sqrt count link-neighbors ]
+  ]
+  [
+    ask turtles [ set size 1 ]
+  ]
+end
+
+to layout
+  ;; the number 3 here is arbitrary; more repetitions slows down the
+  ;; model, but too few gives poor layouts
+  repeat 3 [
+    ;; the more turtles we have to fit into the same amount of space,
+    ;; the smaller the inputs to layout-spring we'll need to use
+    let factor sqrt count turtles
+    ;; numbers here are arbitrarily chosen for pleasing appearance
+    layout-spring turtles links (1 / factor) (7 / factor) (1 / factor)
+    display  ;; for smooth animation
+  ]
+  ;; don't bump the edges of the world
+  let x-offset max [xcor] of turtles + min [xcor] of turtles
+  let y-offset max [ycor] of turtles + min [ycor] of turtles
+  ;; big jumps look funny, so only adjust a little each time
+  set x-offset limit-magnitude x-offset 0.1
+  set y-offset limit-magnitude y-offset 0.1
+  ask turtles [ setxy (xcor - x-offset / 2) (ycor - y-offset / 2) ]
+end
+
+to-report limit-magnitude [number limit]
+  if number > limit [ report limit ]
+  if number < (- limit) [ report (- limit) ]
+  report number
+end
+
+
+; Copyright 2005 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <modelSettings/>
+  <hubnet/>
+</model>

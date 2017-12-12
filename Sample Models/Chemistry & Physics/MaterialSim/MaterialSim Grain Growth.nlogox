@@ -1,0 +1,944 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<model xmlns="http://ccl.northwestern.edu/netlogo/netlogox/1">
+  <version><![CDATA[NetLogo 6.1.0-M1]]></version>
+  <previewCommands>
+    <compiled><![CDATA[setup repeat 75 [ go ]]]></compiled>
+  </previewCommands>
+  <info><![CDATA[## WHAT IS IT?
+
+Most materials are not continuous arrangements of atoms. Rather, they are composed of thousands or millions of microscopic crystals, known as grains.  This model shows how the configuration and sizes of these grains change over time.  Grain size is a very important characteristic for evaluating the mechanical properties of materials; it is exhaustively studied in metallurgy and materials science.
+
+Usually this kind of study is made by careful analysis and comparison of pictures taken in microscopes, sometimes with the help of image analysis software.  Recently, as the processing power of computers has increased, a new and promising approach has been made possible: computer simulation of grain growth.
+
+Anderson, Srolovitz et al. proposed the most widely known and employed theory for computer modeling and simulation of grain growth, using the Monte Carlo method. Instead of considering the grains as spheres, and being obliged to make numerous geometrical approximations, Anderson proposed that the computer would simulate the behavior of each individual atom in the system. Each atom would follow a very simple rule: it will always try to have, in its immediate neighborhood, as many atoms as possible with the same orientation as it. It will do so by randomly (hence Monte Carlo) re-orienting itself and seeing if it is more stable than it was before. If it is, it will stay in its new orientation, and if not, it will revert back to its previous orientation.
+
+This model is part of the MaterialSim (Blikstein & Wilensky, 2004) curricular package. To learn more about MaterialSim, see http://ccl.northwestern.edu/rp/materialsim/index.shtml.
+
+## HOW IT WORKS
+
+The basic algorithm of the simulation is simple: each atom continuously tries to be as stable as possible.  Its stability is based on the number of neighbors with similar orientations: the more similar neighbors, the more stable it is. If it has only few similar neighbors, it will try to relocate to a more stable position.  The steps for each tick in the model are:
+
+1. Choose a random atom.
+2. Ask that atom to calculate its present energy (based on its stability).  The atom does this by counting how many similar neighbors it has.
+3. The atom then chooses at random one of its neighbors, and orients itself in the same direction as that neighbor.
+4. The same atom then calculates its energy, based on this new, tentative orientation.
+5. Finally the atom compares the energy levels in each of the two states: the lowest value "wins", i.e., the more similar neighbors, the more stable the atom is.
+6. Repeat steps 1-6.
+
+The **annealing-temperature** slider controls the probability of maintaining a reorientation that yields less stability.  The **percent-element2** slider defines the percentage of second-phase particles to be created when the user setups the simulation.  Those particles are not movable and are not subject to grain growth. Atoms with element2-particles as neighbors will see them as dissimilar.
+
+Note that the actual number of atoms is small compared to a real metal sample.  Also, real materials are three-dimensional, while this model is 2D.
+
+## HOW TO USE IT
+
+### (1) Simulation starting point.
+**starting-point**: You can start from a random arrangement or a picture from a microscope.  File formats accepted are: `.jpg`, `.png`, `.bmp`, and `.gif`. The image will be automatically resized to fit into the world, but maintaining its original aspect ratio. Note that the image MUST HAVE THE SAME ASPECT RATIO AS THE WORLD. In other words, if the world is square, the image should be square as well. Prior to importing the image, it is recommended to clean it up using an image editing software (increase contrast, remove noise).  Try to experiment various combinations of values for the view's size and the patch size to get the best results
+
+**percent-element2**: You can also determine if you want a certain percentage of a second element, sometimes called grain refiner.
+
+**setup**: Sets up the model as indicated.
+
+### (2) Change the shape of atoms.
+
+Different shapes might help visualize the atomic planes, or the proportion of different types of grains.
+
+**atom-shape**: Choose which shape you want.
+
+**apply-shape**: Re-draws all the atoms with the shape you chose.
+
+### (3) Draw/edit grains (optional)
+
+You can use this to "draw" new grain structures, or edit the grains at any point during the simulation.
+
+**draw**: When this button is pressed down, you can change the color (orientation) of atoms in the model.
+
+**brush-size**: This determines how many atoms’ orientation you change at a time.
+
+**erase-all**:  This changes the orientation of all atoms.
+
+**draw-color**: Here you can change the color (and orientation) that that you change atoms to, when you draw on them.
+
+### (4) Run Model.
+
+You can choose to have the model keep repeating the steps (as described above) or to run just one tick. Running just one tick will allow you to see more clearly what happens over time.
+
+**annealing-temperature**: changes the probability of non-favorable orientation flips to happen.  A 10% value, for instance, means that 10% of non-favorable flips will be maintained.  This mimics the effect of higher temperatures.
+
+### Grain size plot and calculations
+
+**ticks-per-measurement **: to increase the model's speed, the user can choose not to calculate grain size at every time step.  If grain size is calculated at every ten time units (20, 30, 40 etc.), the performance is slightly increased.  This only affects the plot and the monitors, but not the actual simulation.
+
+**measure grains now**: if the user feels there is too much time between each grain measurement, and wants to calculate it immediately, this button can be used.
+
+### Plots and monitors
+
+**Grain Size (log-log)**: Grain size vs. time, in a log-log scale.  Under normal conditions (**annealing-temperature** = 0 and **percent-element2** = 0), this plot should be a straight line with an angular coefficient of approximately 0.5.
+
+**Grain Size**: grain size
+
+**Log Time**: log of ticks in the simulation so far
+
+**Log Grain Size**: Log of the grain size
+
+**growth-exponent**: the angular coefficient of the **Grain Size (log-log)** plot.  This number should approach 0.5 with **annealing-temperature** = 0 and **percent-element2** = 0.
+
+## THINGS TO NOTICE
+
+When you setup with a random orientation and run the simulation, notice that the speed of growth decreases with time.  Toward the end of the simulation, you might see just two or three grains that fight with each other for along time.  One will eventually prevail, but this logarithmic decrease of speed is an important characteristic of grain growth.  That is why the **Grain Size (log-log) plot is a straight line in a "log-log" scale.
+Notice also that if you draw two grains, one concave and one convex, their boundary will tend to be a straight line, if you let the simulation run long enough.  Every curved boundary is unstable because many atoms at its interface will have more different than equal neighbors.
+
+## THINGS TO TRY
+
+Increase the value of the **annealing-temperature** slider. What happens to the **Grain Size (log-log)** plot, and to the boundaries' shapes?
+
+Try to increase the **percent-element2** slider to 5%.  Then choose “random arrangement” and click **setup**, and **go**. What happens to grain growth? Now try several values (1, 3, 5, 7, 9%), for instance.  What happens with the final grain size? What about the **Grain Size (log-log) plot and the **Growth Exponent**?
+
+One advanced use of this model would be to get a digital picture of a real metallic sample, reduce noise and increase contrast with image editing programs, and load into this model using the **Import Image** feature in the starting-point chooser.  Don't forget to update the width and height of the view's size to accommodate the picture, and also to change the patch size in order to be able to see the whole sample.
+
+## EXTENDING THE MODEL
+
+This model assumes that the misorientation between two grains has no effect on their growth rates.  Two grains with a very similar crystallographic orientation have the same growth rate as grains whose orientations differ by a lot.  Try to take the angular misorientation into consideration.
+
+When we insert second-phase particles, all of them have the same size.  Try to create a slider that changes the size of these particles.
+
+## NETLOGO FEATURES
+
+Rather than containing all of the code that updates variables used for plotting, the **Grain Size (log-log)** plot calls a procedure that does this. The reason is that there is quite a lot of code, and it would be difficult to work with inside the plot. Notice also that this code updates the global variables shown in the monitors to the right of the plot.
+
+The model uses a hexagonal grid as opposed to the usual, square one. It also uses different shapes for different visualization purposes. Finally, it uses the `import-pcolors` primitive for image import.
+
+## RELATED MODELS
+
+Crystallization Basic
+Crystallization Directed
+Crystallization Moving
+
+## CREDITS AND REFERENCES
+
+This model is part of the MaterialSim (Blikstein & Wilensky, 2004) curricular package. To learn more about MaterialSim, see http://ccl.northwestern.edu/rp/materialsim/index.shtml.
+
+Two papers describing the use of this model in education are:
+Blikstein, P. & Wilensky, U. (2005) Less is More: Agent-Based Simulation as a Powerful Learning Tool in Materials Science.  The IV International Conference on Autonomous Agents and Multiagent Systems. Utrecht, Netherlands.
+
+Blikstein, P. & Wilensky, U. (2004) MaterialSim: An agent-based simulation toolkit for Materials Science learning. (PDF, 1.5 MB) Proceedings of the International Conference on Engineering Education. Gainesville, Florida.
+
+The core algorithm of the model was developed at the University of Sao Paulo and published in:  Blikstein, P. and Tschiptschin, A. P. Monte Carlo simulation of grain growth (II). Materials Research, Sao Carlos, 2 (3), p. 133-138, jul. 1999.
+
+Available for download at: http://www.scielo.br/scielo.php?script=sci_arttext&pid=S1516-14391999000300004&lng=en&nrm=iso&tlng=en. See also http://www.pmt.usp.br/paulob/montecarlo/ for more information (in Portuguese).
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Blikstein, P. and Wilensky, U. (2005).  NetLogo MaterialSim Grain Growth model.  http://ccl.northwestern.edu/netlogo/models/MaterialSimGrainGrowth.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2005 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2005 Cite: Blikstein, P. -->]]></info>
+  <systemDynamics/>
+  <modelInfo>
+    <title/>
+    <subject/>
+  </modelInfo>
+  <linkShapes>
+    <linkShape curviness="0.0" name="default">
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="-0.2"/>
+      <line stroke-dasharray="1.0,0.0" isVisible="true" offset="0.0"/>
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="0.2"/>
+      <indicator editableColorIndex="0" rotatable="true" name="link direction">
+        <elements>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="90" y1="150" x1="150"/>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="210" y1="150" x1="150"/>
+        </elements>
+      </indicator>
+    </linkShape>
+  </linkShapes>
+  <widgets>
+    <view bottom="431" right="1135" top="30" left="735" frameRate="60.0" showTickCounter="true" fontSize="10">
+      <dimensions maxPycor="24" minPycor="-24" maxPxcor="24" minPxcor="-24" wrapInY="false" wrapInX="false" patchSize="8.0"/>
+      <tickCounterLabel><![CDATA[ticks]]></tickCounterLabel>
+    </view>
+    <textbox fontSize="11" bottom="80" right="320" top="10" left="35" transparent="false" color="#000000">
+      <display><![CDATA[Model starting point (you can start from a
+random arrangement or a picture from a
+microscope. You can also determine if you
+want a certain percentage of a second
+element, sometimes called grain refiner)]]></display>
+    </textbox>
+    <slider bottom="473" right="602" top="440" left="340" direction="horizontal" default="0.0">
+      <maximum><![CDATA[100.0]]></maximum>
+      <minimum><![CDATA[0.0]]></minimum>
+      <step><![CDATA[1.0]]></step>
+      <units><![CDATA[%]]></units>
+      <variable><![CDATA[annealing-temperature]]></variable>
+    </slider>
+    <button bottom="359" right="705" top="325" left="550" ticksEnabled="true" forever="false">
+      <source><![CDATA[count-grains-and-measure-grain-size
+set update-plots? true]]></source>
+      <display><![CDATA[measure grains now]]></display>
+    </button>
+    <monitor fontSize="11" bottom="95" right="705" top="50" left="605" precision="3">
+      <source><![CDATA[average-grain-size]]></source>
+      <display><![CDATA[Grain Size]]></display>
+    </monitor>
+    <button bottom="550" right="152" top="510" left="30" ticksEnabled="true" forever="true">
+      <source><![CDATA[go]]></source>
+      <display><![CDATA[go]]></display>
+    </button>
+    <slider bottom="168" right="215" top="135" left="30" direction="horizontal" default="0.0">
+      <maximum><![CDATA[99]]></maximum>
+      <minimum><![CDATA[0]]></minimum>
+      <step><![CDATA[1]]></step>
+      <units><![CDATA[%]]></units>
+      <variable><![CDATA[percent-element2]]></variable>
+    </slider>
+    <monitor fontSize="11" bottom="190" right="705" top="145" left="605" precision="2">
+      <source><![CDATA[logaverage-grain-size]]></source>
+      <display><![CDATA[Log Grain Size]]></display>
+    </monitor>
+    <monitor fontSize="11" bottom="143" right="705" top="98" left="605" precision="2">
+      <source><![CDATA[logtime]]></source>
+      <display><![CDATA[Log time]]></display>
+    </monitor>
+    <monitor fontSize="11" bottom="295" right="723" top="250" left="605" precision="2">
+      <source><![CDATA[grain-growth-exponent]]></source>
+      <display><![CDATA[Growth exponent]]></display>
+    </monitor>
+    <textbox fontSize="11" bottom="509" right="169" top="491" left="30" transparent="false" color="#000000">
+      <display><![CDATA[Run model]]></display>
+    </textbox>
+    <textbox fontSize="18" bottom="435" right="640" top="410" left="340" transparent="true" color="#AF2820">
+      <display><![CDATA[Annealing Temperature]]></display>
+    </textbox>
+    <chooser bottom="290" right="155" top="245" left="30" currentChoice="0">
+      <variable><![CDATA[atom-shape]]></variable>
+      <choices>
+        <stringChoice><![CDATA[hex]]></stringChoice>
+        <stringChoice><![CDATA[hexline]]></stringChoice>
+        <stringChoice><![CDATA[thin-line]]></stringChoice>
+        <stringChoice><![CDATA[line]]></stringChoice>
+        <stringChoice><![CDATA[spikes90]]></stringChoice>
+        <stringChoice><![CDATA[default]]></stringChoice>
+      </choices>
+    </chooser>
+    <button bottom="290" right="299" top="245" left="160" ticksEnabled="false" forever="false">
+      <source><![CDATA[ask element1s [set shape atom-shape]]]></source>
+      <display><![CDATA[apply shape]]></display>
+    </button>
+    <button bottom="403" right="152" top="370" left="30" ticksEnabled="false" forever="true">
+      <source><![CDATA[turtle-draw]]></source>
+      <display><![CDATA[draw]]></display>
+    </button>
+    <button bottom="454" right="153" top="409" left="30" ticksEnabled="false" forever="false">
+      <source><![CDATA[erase-all]]></source>
+      <display><![CDATA[erase all]]></display>
+    </button>
+    <slider bottom="403" right="295" top="370" left="156" direction="horizontal" default="3.0">
+      <maximum><![CDATA[6.0]]></maximum>
+      <minimum><![CDATA[1.0]]></minimum>
+      <step><![CDATA[1.0]]></step>
+      <variable><![CDATA[brush-size]]></variable>
+    </slider>
+    <textbox fontSize="11" bottom="361" right="315" top="320" left="30" transparent="false" color="#000000">
+      <display><![CDATA[Draw/edit grains (this is optional, you can use
+this to "draw" new grain structures, or edit
+the grains at any point during the simulation)]]></display>
+    </textbox>
+    <chooser bottom="454" right="295" top="409" left="156" currentChoice="0">
+      <variable><![CDATA[draw-color]]></variable>
+      <choices>
+        <stringChoice><![CDATA[yellow]]></stringChoice>
+        <stringChoice><![CDATA[green]]></stringChoice>
+        <stringChoice><![CDATA[cyan]]></stringChoice>
+        <stringChoice><![CDATA[blue]]></stringChoice>
+        <stringChoice><![CDATA[red]]></stringChoice>
+      </choices>
+    </chooser>
+    <textbox fontSize="11" bottom="325" right="478" top="307" left="346" transparent="false" color="#000000">
+      <display><![CDATA[Grain measurement]]></display>
+    </textbox>
+    <textbox fontSize="18" bottom="35" right="700" top="10" left="345" transparent="false" color="#AF2820">
+      <display><![CDATA[Grain size plot and calculations]]></display>
+    </textbox>
+    <textbox fontSize="11" bottom="245" right="324" top="200" left="34" transparent="false" color="#000000">
+      <display><![CDATA[Change the shape of atoms (different shapes
+might help visualize the atomic planes, or the
+proportion of different types of grains)]]></display>
+    </textbox>
+    <button bottom="550" right="292" top="510" left="157" ticksEnabled="true" forever="false">
+      <source><![CDATA[go]]></source>
+      <display><![CDATA[go once]]></display>
+    </button>
+    <chooser bottom="130" right="215" top="85" left="30" currentChoice="0">
+      <variable><![CDATA[starting-point]]></variable>
+      <choices>
+        <stringChoice><![CDATA[Random Arrangement]]></stringChoice>
+        <stringChoice><![CDATA[Import Image]]></stringChoice>
+      </choices>
+    </chooser>
+    <button bottom="168" right="298" top="85" left="218" ticksEnabled="false" forever="false">
+      <source><![CDATA[setup]]></source>
+    </button>
+    <textbox fontSize="11" bottom="406" right="555" top="365" left="345" transparent="true" color="#000000">
+      <display><![CDATA[This slider determines how often
+the grain size is measured]]></display>
+    </textbox>
+    <textbox fontSize="11" bottom="553" right="749" top="478" left="344" transparent="true" color="#000000">
+      <display><![CDATA[A high annealing temperature makes some atoms randomly jump
+to the next grain. When it is zero, only the energetically favorable
+jumps will happen. Temperature here is represented as a relative
+value -- a percentage of random jumps out of the possible jumps.
+100% means that all the jumps are random.]]></display>
+    </textbox>
+    <textbox fontSize="11" bottom="193" right="320" top="175" left="30" transparent="true" color="#000000">
+      <display><![CDATA[_____________________________________________]]></display>
+    </textbox>
+    <textbox fontSize="11" bottom="321" right="325" top="295" left="30" transparent="true" color="#000000">
+      <display><![CDATA[_____________________________________________]]></display>
+    </textbox>
+    <textbox fontSize="11" bottom="483" right="325" top="465" left="30" transparent="true" color="#000000">
+      <display><![CDATA[_____________________________________________]]></display>
+    </textbox>
+    <textbox fontSize="30" bottom="111" right="30" top="75" left="5" transparent="true" color="#AF2820">
+      <display><![CDATA[1]]></display>
+    </textbox>
+    <textbox fontSize="30" bottom="261" right="23" top="225" left="3" transparent="true" color="#AF2820">
+      <display><![CDATA[2]]></display>
+    </textbox>
+    <textbox fontSize="30" bottom="411" right="28" top="375" left="3" transparent="true" color="#AF2820">
+      <display><![CDATA[3]]></display>
+    </textbox>
+    <textbox fontSize="30" bottom="536" right="28" top="500" left="3" transparent="true" color="#AF2820">
+      <display><![CDATA[4]]></display>
+    </textbox>
+    <slider bottom="358" right="542" top="325" left="345" direction="horizontal" default="50.0">
+      <maximum><![CDATA[200]]></maximum>
+      <minimum><![CDATA[1]]></minimum>
+      <step><![CDATA[1]]></step>
+      <variable><![CDATA[ticks-per-measurement]]></variable>
+    </slider>
+    <plot bottom="295" right="595" top="50" left="345" ymax="1.0" ymin="0.0" xmax="1.0" xmin="0.0" legendOn="false" autoPlotOn="true">
+      <display><![CDATA[Grain Size (log-log)]]></display>
+      <xAxis><![CDATA[Log time]]></xAxis>
+      <yAxis><![CDATA[Log grain size]]></yAxis>
+      <setup/>
+      <update><![CDATA[;; only update this as often as we have specified below
+;; we have to subtract one because the tick command is always
+;; "one step ahead" of the rest of the go-procedure
+if remainder ticks ticks-per-measurement != 0 and not update-plots? [ stop ]
+count-grains-and-measure-grain-size
+set update-plots? false]]></update>
+      <pens>
+        <pen inLegend="true" color="-16777216" mode="line" interval="1.0">
+          <setup/>
+          <update><![CDATA[plotxy logtime logaverage-grain-size]]></update>
+          <display><![CDATA[default]]></display>
+        </pen>
+      </pens>
+    </plot>
+  </widgets>
+  <experiments/>
+  <shapes>
+    <vectorShape editableColorIndex="0" rotatable="true" name="default">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,5 40,250 150,205 260,250"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="airplane">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,0 135,15 120,60 120,105 15,165 15,195 120,180 135,240 105,270 120,285 150,270 180,285 210,270 165,240 180,180 285,195 285,165 180,105 180,60 165,15"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="arrow">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,0 0,150 105,150 105,293 195,293 195,150 300,150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="box">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,285 285,225 285,75 150,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,135 15,75 150,15 285,75"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="15,75 15,225 150,285 150,135"/>
+        <line marked="false" filled="false" color="#000000" y2="135" x2="150" y1="285" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="75" x2="15" y1="135" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="75" x2="285" y1="135" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="bug">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="182" cx="96"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="127" cx="110"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="75" cx="110"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="30" x2="80" y1="100" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="30" x2="220" y1="100" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="butterfly">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,165 209,199 225,225 225,255 195,270 165,255 150,240"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,165 89,198 75,225 75,255 105,270 135,255 150,240"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="139,148 100,105 55,90 25,90 10,105 10,135 25,180 40,195 85,194 139,163"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="162,150 200,105 245,90 275,90 290,105 290,135 275,180 260,195 215,195 162,165"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,255 135,225 120,150 135,120 150,105 165,120 180,150 165,225"/>
+        <circle marked="false" filled="true" color="#000000" diameter="30" cy="90" cx="135"/>
+        <line marked="false" filled="false" color="#000000" y2="60" x2="195" y1="105" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="60" x2="105" y1="105" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="car">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="300,180 279,164 261,144 240,135 226,132 213,106 203,84 185,63 159,50 135,50 75,60 0,150 0,165 0,225 300,225 300,180"/>
+        <circle marked="false" filled="true" color="#000000" diameter="90" cy="180" cx="180"/>
+        <circle marked="false" filled="true" color="#000000" diameter="90" cy="180" cx="30"/>
+        <polygon marked="false" filled="true" color="#000000" points="162,80 132,78 134,135 209,135 194,105 189,96 180,89"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="58" cy="195" cx="47"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="58" cy="195" cx="195"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="circ">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="278" cy="11" cx="10"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="circle">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="circle 2">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="cow">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="200,193 197,249 179,249 177,196 166,187 140,189 93,191 78,179 72,211 49,209 48,181 37,149 25,120 25,89 45,72 103,84 179,75 198,76 252,64 272,81 293,103 285,121 255,121 242,118 224,167"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="73,210 86,251 62,249 48,208"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="25,114 16,195 9,204 23,213 25,200 39,123"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="cylinder">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="dot">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="120" cy="90" cx="90"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face happy">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="8" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,255 90,239 62,213 47,191 67,179 90,203 109,218 150,225 192,218 210,203 227,181 251,194 236,217 212,240"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face neutral">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="7" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <rect marked="false" filled="true" color="#000000" height="30" width="180" y="195" x="60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face sad">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="8" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,168 90,184 62,210 47,232 67,244 90,220 109,205 150,198 192,205 210,220 227,242 251,229 236,206 212,183"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="fish">
+      <elements>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="44,131 21,87 15,86 0,120 15,150 0,180 13,214 20,212 45,166"/>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="135,195 119,235 95,218 76,210 46,204 60,165"/>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="75,45 83,77 71,103 86,114 166,78 135,60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="30,136 151,77 226,81 280,119 292,146 292,160 287,170 270,195 195,210 151,212 30,166"/>
+        <circle marked="false" filled="true" color="#000000" diameter="30" cy="106" cx="215"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="flag">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="285" width="15" y="15" x="60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="90,150 270,90 90,30"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="135" x2="90" y1="135" x1="75"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="45" x2="90" y1="45" x1="75"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="flower">
+      <elements>
+        <polygon marked="false" filled="true" color="#59B03C" points="135,120 165,165 180,210 180,240 150,300 165,300 195,240 195,195 165,135"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="132" cx="85"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="147" cx="130"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="85" cx="192"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="40" cx="85"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="40" cx="177"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="132" cx="177"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="85" cx="70"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="25" cx="130"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="51" cx="96"/>
+        <circle marked="false" filled="true" color="#000000" diameter="74" cy="68" cx="113"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="189,233 219,188 249,173 279,188 234,218"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="180,255 150,210 105,210 75,240 135,240"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="hex">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="0,150 75,30 225,30 300,150 225,270 75,270"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="hexline">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="0,150 75,30 225,30 300,150 225,270 75,270"/>
+        <rect marked="false" filled="true" color="#FFFFFF" height="205" width="61" y="47" x="121"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="house">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="165" width="210" y="120" x="45"/>
+        <rect marked="false" filled="true" color="#000000" height="75" width="60" y="210" x="120"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="15,120 150,15 285,120"/>
+        <line marked="false" filled="false" color="#000000" y2="120" x2="270" y1="120" x1="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="leaf">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,210 135,195 120,210 60,210 30,195 60,180 60,165 15,135 30,120 15,105 40,104 45,90 60,90 90,105 105,120 120,120 105,60 120,60 135,30 150,15 165,30 180,60 195,60 180,120 195,120 210,105 240,90 255,90 263,104 285,105 270,120 285,135 240,165 240,180 270,195 240,210 180,210 165,195"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,195 135,240 120,255 105,255 105,285 135,285 165,240 165,195"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="line">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="315" width="30" y="0" x="135"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="line half">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="150" y1="0" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="pentagon">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,15 15,120 60,285 240,285 285,120"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="person">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="5" cx="110"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="105,90 120,195 90,285 105,300 135,300 150,225 165,300 195,300 210,285 180,195 195,90"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="15" width="45" y="79" x="127"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="195,90 240,150 225,180 165,105"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="105,90 60,150 75,180 135,105"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="plant">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="210" width="30" y="90" x="135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,255 90,210 45,195 75,255 135,285"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,255 210,210 255,195 225,255 165,285"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,180 90,135 45,120 75,180 135,210"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,180 165,210 225,180 255,120 210,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,105 90,60 45,45 75,105 135,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,105 165,135 225,105 255,45 210,60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,90 120,45 150,15 180,45 165,90"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="rectangle">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="67,36 67,262 235,262 235,35"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="spikes90">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="177" cy="62" cx="61"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="154" x2="131" y1="66" x1="135"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="72" width="31" y="-4" x="135"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="2" width="77" y="132" x="142"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="29" width="108" y="136" x="196"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="31" width="77" y="135" x="-9"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="50" width="1" y="176" x="131"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="88" width="30" y="225" x="135"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="square">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="270" width="271" y="15" x="15"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="6" x2="293" y1="6" x1="6"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="293" x2="293" y1="6" x1="293"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="292" x2="8" y1="292" x1="293"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="6" x2="8" y1="292" x1="8"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="square 2">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="240" width="240" y="30" x="30"/>
+        <rect marked="false" filled="true" color="#000000" height="180" width="180" y="60" x="60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="star">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="151,1 185,108 298,108 207,175 242,282 151,216 59,282 94,175 3,108 116,108"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="t">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="28" width="210" y="47" x="46"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="221" width="32" y="76" x="135"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="target">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="180" cy="60" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="120" cy="90" cx="90"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="60" cy="120" cx="120"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="thin-line">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="300" x2="150" y1="0" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="tree">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="94" cy="3" cx="118"/>
+        <rect marked="false" filled="true" color="#9D6E48" height="105" width="60" y="195" x="120"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="21" cx="65"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="127" cy="41" cx="116"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="120" cy="90" cx="45"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="152" cy="74" cx="104"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="triangle">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,30 15,255 285,255"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="triangle 2">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,30 15,255 285,255"/>
+        <polygon marked="false" filled="true" color="#000000" points="151,99 225,223 75,224"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="truck">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="142" width="191" y="45" x="4"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="296,193 296,150 259,134 244,104 208,104 207,194"/>
+        <rect marked="false" filled="true" color="#FFFFFF" height="45" width="0" y="60" x="195"/>
+        <polygon marked="false" filled="true" color="#000000" points="238,112 252,141 219,141 218,112"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="234"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="9" width="33" y="185" x="181"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="144"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="24"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="24"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="144"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="234"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="turtle">
+      <elements>
+        <polygon marked="false" filled="true" color="#59B03C" points="215,204 240,233 246,254 228,266 215,252 193,210"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="195,90 225,75 245,75 260,89 269,108 261,124 240,105 225,105 210,105"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="105,90 75,75 55,75 40,89 31,108 39,124 60,105 75,105 90,105"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="132,85 134,64 107,51 108,17 150,2 192,18 192,52 169,65 172,87"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="85,204 60,233 54,254 72,266 85,252 107,210"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="119,75 179,75 209,101 224,135 220,225 175,261 128,261 81,224 74,135 88,99"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="wheel">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="294" cy="3" cx="3"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="15" x2="150" y1="285" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="285" y1="150" x1="15"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="60" cy="120" cx="120"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="269" x2="79" y1="40" x1="216"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="221" x2="269" y1="84" x1="40"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="79" x2="269" y1="216" x1="40"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="269" x2="221" y1="40" x1="84"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="x">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="270,75 225,30 30,225 75,270"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="30,75 75,30 270,225 225,270"/>
+      </elements>
+    </vectorShape>
+  </shapes>
+  <code><![CDATA[;; two different materials or phases
+breed [ element1s element1 ]  ;; element1 is the main material
+breed [ element2s element2 ]  ;; element2 is the materials which is
+                              ;; dispersed inside element1 (second-phase particles)
+
+element1s-own [
+  neighbors-6   ;; agentset of 6 neighboring cells
+]
+
+turtles-own [
+  neighboring-turtles  ;; agentset of surrounding atoms
+  sides-exposed        ;; number of sides exposed to walls  (between 0 and 4)
+]
+
+globals [
+  logtime                          ;; log of time
+  colors                           ;; used both to color turtles, and for histogram
+  xmax                             ;; max x size
+  ymax                             ;; max y size
+  average-grain-size               ;; average grain size
+  logaverage-grain-size            ;; log of average grain size (for plotting)
+  initial-loggrain-size            ;; For grain growth exponent calculation and graphing
+  initial-logtime                  ;; For grain growth exponent calculation and graphing
+  grain-growth-exponent            ;; Grain growth exponent
+  update-plots?                    ;; boolean for updating plots immediately
+]
+
+;; setup checks whether user has chosen "import image" or random in the chooser-widget
+to setup
+  if starting-point = "Random Arrangement" [
+    makes-initial-box-random
+  ]
+  if starting-point = "Import Image" [
+    import-image
+  ]
+  reset-ticks
+end
+
+to setup-hex-grid
+  ;; setup the hexagonal grid in which atoms will be placed
+  ;; and creates turtles
+  set-default-shape element2s "square 2"
+
+  ask patches [
+    sprout 1 [
+      ;; if there is a second element, create the corresponding atoms
+      ifelse (percent-element2 > random 100) [
+        ;; element2 is the fixed second-phase particle
+        set breed element2s
+        set color white
+        set heading 360
+      ]
+      [
+        ;; element1 is the main material which grows grains
+        set breed element1s
+        set shape atom-shape
+        set color random 139
+        ;; to ensure that the colors are distinct, we only let
+        ;; colors deviate from base color by plus or minus 3
+        set color one-of base-colors - 3 + random 6
+        set heading color
+      ]
+      ;; shift even columns down
+      if pxcor mod 2 = 0  [ set ycor ycor - 0.5 ]
+    ]
+  ]
+
+  ; the two lines below are for NetLogo 3D. Uncomment them, if you are using NetLogo 3D.
+  ; ask element1s [ set shape3d "sphere" ]
+  ; ask element2s [ set shape3d "cube" ]
+
+  ;; now set up the neighbors6 agentsets
+  ask element1s [
+    ;; define neighborhood of atoms
+    ifelse pxcor mod 2 = 0
+      [ set neighbors-6 element1s-on patches at-points [[0 1] [1 0] [1 -1] [0 -1] [-1 -1] [-1 0]] ]
+      [ set neighbors-6 element1s-on patches at-points [[0 1] [1 1] [1  0] [0 -1] [-1  0] [-1 1]] ]
+  ]
+end
+
+;; makes initial box for image import
+to makes-initial-box
+  setup-hex-grid
+end
+
+;; makes initial box for random arrangement
+to makes-initial-box-random
+  clear-all
+  setup-hex-grid
+end
+
+;; import image into turtles
+to import-image
+  clear-all
+  let file user-file
+  if file = false [ stop ]
+  ;; imports image into patches
+  import-pcolors file
+  ;; converts the square grid to an hex grid
+  makes-initial-box
+
+  ;; transfers the image to the turtles. Rounds the color values to be integers.
+  ask turtles [
+    set color round pcolor
+    set heading color
+  ]
+
+  ;; erases the patches (sets their color back to black),
+  ask patches [ set pcolor black ]
+  reset-ticks
+end
+
+
+to define-neighboring-turtles
+  ;; defines neighboring turtles. Some are "off" because atoms are in hexagons
+  ask turtles [
+    set neighboring-turtles (turtles at-points [
+      [-1  1] [ 0  1] [1  1]
+      [-1  0] [ 0  0] [1  0]
+      [-1 -1] [ 0 -1] [1 -1]
+    ])
+  ]
+end
+
+
+to go
+  ;;initiates grain growth
+  let total-atoms count turtles
+
+  ;; stops when there is just one grain
+  if average-grain-size >= total-atoms [ stop ]
+
+  ;;limits grain growth to element1, element2 represent the stationary second-phase particles
+  ask element1s [grain-growth]
+
+;  ;; calculates grain variables at a given frequency to save CPU processing
+;  ;; we + 1 to ticks to put it in sync with plots (that are updated in 'tick')
+;  if remainder (ticks + 1) ticks-per-measurement = 0 [
+;    count-grains-and-measure-grain-size
+;  ]
+
+  ;; advance Monte Carlo Steps (simulation time)
+  ;; one Monte Carlo Step represents 'n' reorientation attemps,
+  ;; where 'n' is the total number of atoms
+  tick
+end
+
+to count-grains-and-measure-grain-size
+  ;; we only do this for ticks > 0 since we can't take log of 0
+  if ticks > 0 [
+    set logtime log ticks 10
+  ]
+  grain-count
+  if average-grain-size != 0 [
+    set logaverage-grain-size (log (average-grain-size) 10)
+  ]
+  ;; we set the initial log time and grain size at 20 (we don't start
+  ;; calculating grain size until then to give the system a bit of time to stabilize
+  if ticks = 20 [
+    set initial-logtime logtime
+    set initial-loggrain-size logaverage-grain-size
+  ]
+  ;; only initiates grain size calculation after 20 ticks
+  if ticks > 20 [
+    ;; calculate the angular coefficient of the grain growth curve
+    ;; since it is a log-log plot, it's the grain growth exponent
+    set grain-growth-exponent (-1 * ((logaverage-grain-size - initial-loggrain-size) /
+      (initial-logtime - logtime)))
+  ]
+end
+
+
+to grain-count
+  ;; count number of grains based on the number of linear intercepts
+
+  let orientation-for-intercept-count 90 ;; direction of intercepts count
+  let intercepts 0
+  let total-atoms count turtles
+
+  ;; asking only elements1 with xcor less than 24
+  ;; those at 24 are on the 'edge of the world' which means
+  ;; that they will never have neighbors to their right.
+  ;; we therefore simply ignore them for this purpose.
+  ask element1s with [ xcor < 24 ] [
+    ;; checks if there is a turtle to the right for the intercept calculation
+    let target-patch patch-at-heading-and-distance orientation-for-intercept-count 1
+    ifelse target-patch != nobody and any? turtles-on target-patch [
+      ;; If there is a turtle, checks if the heading is different.
+      let right-neighbor one-of turtles-on target-patch
+      if heading != [ heading ] of right-neighbor [
+        ;; If heading is different, add 1 to 'intercepts'.
+        set intercepts (intercepts + 1)
+      ]
+    ]
+    [
+      ;; if there is no turtle, simply add 1 to 'intercepts'.
+      ;; A turtle/nothing interface is considered as grain boundary.
+      set intercepts (intercepts + 1)
+    ]
+  ]
+  ;; we add one to intercepts so that zero intercepts = one grain, one intercept = 2 grains, etc.
+  set average-grain-size total-atoms / (intercepts + 1)
+end
+
+
+;; Grain growth procedure - free energy minimization
+;; if another random crystallographic heading minimizes energy, switches headings, otherwise keeps the same.
+to grain-growth
+  ;; if atom has no neighbors, it is surrounded by element2s, and will not change its orientation
+  if not any? neighbors-6 [ stop ]
+
+  ;; calculates the PRESENT free energy
+  let present-heading (heading)
+  let present-free-energy count neighbors-6 with [ heading != present-heading ]
+
+  ;; chooses a random orientation
+  let future-heading ([heading] of (one-of neighbors-6))
+
+  ;; calculates the FUTURE free energy, with the random orientation just chosen
+  let future-free-energy count neighbors-6 with [ heading != future-heading ]
+
+  ;; compares PRESENT and FUTURE free-energies; the lower value "wins"
+  ifelse future-free-energy <= present-free-energy
+    [ set heading future-heading ]
+    [ if (annealing-temperature > random-float 100) [ set heading (future-heading) ] ]
+  ;; this last line simulates thermal agitation (adds more randomness to the simulation)
+
+  ;;update the color of the atoms
+  set color heading
+end
+
+;; drawing procedure
+to turtle-draw
+  if mouse-down? [    ;; reports true or false to indicate whether mouse button is down
+    ask patch mouse-xcor mouse-ycor [
+      ask element1s in-radius brush-size [
+        set color read-from-string draw-color
+        set heading color
+      ]
+    ]
+    display
+  ]
+end
+
+;; in the drawing mode, erases the whole "canvas" with red
+to erase-all
+  ask element1s [
+    set color red
+    set heading color
+  ]
+end
+
+
+; Copyright 2005 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <modelSettings snapToGrid="true"/>
+  <hubnet/>
+</model>

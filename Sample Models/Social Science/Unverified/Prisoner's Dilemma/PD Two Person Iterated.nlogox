@@ -1,0 +1,705 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<model xmlns="http://ccl.northwestern.edu/netlogo/netlogox/1">
+  <version><![CDATA[NetLogo 6.1.0-M1]]></version>
+  <previewCommands>
+    <compiled><![CDATA[setup]]></compiled>
+  </previewCommands>
+  <info><![CDATA[## WHAT IS IT?
+
+This model is an iterated version of the prisoner's dilemma.  If you are unfamiliar with the basic concepts of the prisoner's dilemma, please refer to the PD Basic model found in the Prisoner's Dilemma suite.
+
+## HOW IT WORKS
+
+The PD Basic model presents an interesting problem: In order to minimize the overall jail time you would cooperate with your partner and remain silent and not confess.  However, the rational choice is to defect against your partner by confessing.  If your partner does not confess you will go free.  If your partner confesses, you will go to jail for three years, much better than the five you would have earned had you refused to confess.  Unfortunately, your partner is in the same position.  Acting rationally, you will both be worse off.
+
+The dilemma is made more interesting when you know you will interact with the person again.  Let us consider the case where you and a friend are chosen for a research study to play the prisoner's dilemma game; only instead of the payoffs being years of jail time, they are money.
+
+The researchers separate you and your friend into separate rooms allowing communication to occur only through a computer.  They give you a sheet with the rules for the iterated prisoner's dilemma that reads as follows:
+
+1.  This game will consist of an unspecified number of rounds.  At the end of the game, you will receive $1 for each point you have earned.
+
+2.  Each round you and your partner will have the opportunity to earn points by choosing to either cooperate (C) or defect (D).  Communication will be done only through the computer.  The only message you will be able to pass is cooperate or defect.  Neither person will see the other's message until both have chosen their action.
+
+3.  Your payoff for each round will determined by the actions as follows:
+
+<table border>
+<tr><th><th colspan=2>partner's action
+<tr><th>your action<th>C<th>D
+<tr><td>C<td>3<td>0
+<tr><td>D<td>5<td>1
+</table>
+
+(Note: This way of determining your payoff is the opposite of the PD Basic model. In PD Basic, you were "awarded" something bad --- jail time. In this model, you are awarded something good --- money.)
+
+Your partner has an identical payoff matrix.
+
+To get things started, the model assumes that the user and the computer already played a round where they cooperated with each other, so both players start with a score of 3.
+
+## HOW TO USE IT
+
+Buttons:
+
+SETUP: Begin playing the iterated prisoner's dilemma.  If you choose to turn the SELECT-COMPUTER-STRATEGY? switch off before pressing this button, the computer's strategy will be randomly chosen at this time.
+
+PLAY ONCE: Play a single round of the prisoner's dilemma with the strategy you have selected.
+
+PLAY REPEATEDLY: Repeatedly play rounds of the prisoner's dilemma between you and the computer.  You can change your strategy at any time.  If the SELECT-COMPUTER-STRATEGY? switch is on you can also change the computer's strategy at any time.
+
+With both PLAY buttons, the computer's action each round will be displayed in the command center.
+
+Switches:
+
+SELECT-COMPUTER-STRATEGY?: If on, you may select the computer's strategy using the computer strategy slider.  If off, the computer's strategy will be randomly chosen from the strategy list found below, excluding the Custom Strategy.
+
+DISPLAY-HISTORY?: Turn on or off messaging in the command center.
+
+Sliders:
+
+HUMAN-STRATEGY - Select your strategy from the list below.
+
+COMPUTER STRATEGY - Select the computer's strategy from the list below.
+
+Strategies:
+
+- **Act-Randomly** - randomly cooperate or defect
+- **Cooperate** - cooperate always
+- **Defect** - defect always
+- **Tit-for-Tat** - If the opponent cooperates this round cooperate next round.  If the opponent defects this round, defect next round.  Initially cooperate.
+- **Tit-for-Two-Tats** - If the opponent cooperates this round cooperate next round.  If the opponent defects two rounds in a row, defect the next round.  Initially cooperate.
+- **Unforgiving** - Cooperate always unless the opponent defects once.  Upon opponent defection retaliate by defecting always.
+- **Custom-Strategy** - This strategy is intended to be written by you.  It currently defaults to Tit-for-Tat.
+
+Monitors:
+
+HUMAN SCORE - The total points you have earned
+
+COMPUTER SCORE - The total points the computer has earned
+
+Plots:
+
+AVERAGE SCORE: The average scores of you and the computer each round vs. the number of iterations.  This is a good indicator of how well you are doing relative to the maximum possible average of $5 per round.
+
+## THINGS TO NOTICE
+
+Should the computer always play the "Cooperate" strategy, then which strategy for the user results in the highest score?
+
+If the computer always plays "Defect", then what is the nature of the average score plot when the user plays "Tit-for-Tat", "Tit-for-Two-Tat", "Unforgiving", and "Custom Strategy"?  Why does such a nature arise for these combination of strategies?
+
+What is the nature of the plot for average score when the computer always plays "Tit-for-Tat" and the user plays every strategy except "Defect" and "Act-Randomly"?  Why does such a curve arise?
+
+## THINGS TO TRY
+
+1. Turn the SELECT-COMPUTER-STRATEGY? switch off.  Setup the model and play the iterated prisoner's dilemma against the computer.  You may choose between selecting your strategy each round using the PLAY ONCE button, or automating your choices each round using the PLAY REPEATEDLY button.  What approach wins you the most money?
+
+2. Turn the SELECT-COMPUTER-STRATEGY? switch on.  Experiment with playing different strategies against one another.  Which strategies do the best?  Which do the worst?  Why?
+
+3. Repeat task 1 several times.  How does the best strategy vary?  Based on you experience in task 2, why might this be so?
+
+4. The researchers now tell you that they will double the amount of money the person with the most points gets at the end, but the other person will get nothing.  In the event of a tie, each person still receives $1 per point.  How does this change your strategy?  Why?
+
+5. Describe a real life scenario that is similar to the iterated prisoner's dilemma, preferably one you have experienced.  How might the strategies examined here relate to actions taken in that scenario?
+
+## EXTENDING THE MODEL
+
+Even the most complex strategies in this model are relatively simple.  Surely you can do better.  Redefine the CUSTOM-STRATEGY procedure attempting to develop a strategy that can earn a higher score than those presented in the model or a human player.  Test it against the other strategies and yourself.  What are its strengths?  What are its weaknesses?  Try to keep improving it.
+
+Examine the PD N-PERSON ITERATED model
+
+## NETLOGO FEATURES
+
+The model uses the turtle variable [`label`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#label) to display each turtle's average score in the view.
+
+The model uses the [`run`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#run) primitive to execute the procedure whose name corresponds to the chosen strategy.
+
+## RELATED MODELS
+
+PD Basic, PD N-Person Iterated, PD Basic Evolutionary
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. (2002).  NetLogo PD Two Person Iterated model.  http://ccl.northwestern.edu/netlogo/models/PDTwoPersonIterated.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2002 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This model was created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
+
+<!-- 2002 -->]]></info>
+  <systemDynamics/>
+  <modelInfo>
+    <title/>
+    <subject/>
+  </modelInfo>
+  <linkShapes>
+    <linkShape curviness="0.0" name="default">
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="-0.2"/>
+      <line stroke-dasharray="1.0,0.0" isVisible="true" offset="0.0"/>
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="0.2"/>
+      <indicator editableColorIndex="0" rotatable="true" name="link direction">
+        <elements>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="90" y1="150" x1="150"/>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="210" y1="150" x1="150"/>
+        </elements>
+      </indicator>
+    </linkShape>
+  </linkShapes>
+  <widgets>
+    <view bottom="206" right="722" top="10" left="329" frameRate="30.0" showTickCounter="true" fontSize="24">
+      <dimensions maxPycor="8" minPycor="-8" maxPxcor="17" minPxcor="-17" wrapInY="false" wrapInX="false" patchSize="11.0"/>
+      <tickCounterLabel><![CDATA[ticks]]></tickCounterLabel>
+    </view>
+    <button bottom="56" right="87" top="23" left="6" ticksEnabled="false" forever="false">
+      <source><![CDATA[setup]]></source>
+      <display><![CDATA[Setup]]></display>
+    </button>
+    <monitor fontSize="11" bottom="245" right="112" top="200" left="22" precision="3">
+      <source><![CDATA[[ score ] of one-of users]]></source>
+      <display><![CDATA[human score]]></display>
+    </monitor>
+    <monitor fontSize="11" bottom="245" right="220" top="200" left="115" precision="3">
+      <source><![CDATA[[ score ] of one-of computers]]></source>
+      <display><![CDATA[computer score]]></display>
+    </monitor>
+    <plot bottom="418" right="305" top="249" left="22" ymax="5.0" ymin="0.0" xmax="10.0" xmin="0.0" legendOn="true" autoPlotOn="true">
+      <display><![CDATA[Average Score]]></display>
+      <xAxis><![CDATA[Iterations]]></xAxis>
+      <yAxis><![CDATA[Ave Score]]></yAxis>
+      <setup/>
+      <update/>
+      <pens>
+        <pen inLegend="true" color="-16777216" mode="line" interval="1.0">
+          <setup/>
+          <update><![CDATA[plot [ average-score ] of one-of users]]></update>
+          <display><![CDATA[human]]></display>
+        </pen>
+        <pen inLegend="true" color="-13345367" mode="line" interval="1.0">
+          <setup/>
+          <update><![CDATA[plot [ average-score ] of one-of computers]]></update>
+          <display><![CDATA[computer]]></display>
+        </pen>
+      </pens>
+    </plot>
+    <button bottom="56" right="183" top="23" left="87" ticksEnabled="true" forever="false">
+      <source><![CDATA[play]]></source>
+      <display><![CDATA[Play Once]]></display>
+    </button>
+    <button bottom="56" right="313" top="23" left="183" ticksEnabled="true" forever="true">
+      <source><![CDATA[play]]></source>
+      <display><![CDATA[Play Repeatedly]]></display>
+    </button>
+    <switch bottom="141" right="258" top="108" left="59" isOn="true">
+      <variable><![CDATA[select-computer-strategy?]]></variable>
+    </switch>
+    <switch bottom="283" right="502" top="250" left="330" isOn="true">
+      <variable><![CDATA[display-history?]]></variable>
+    </switch>
+    <chooser bottom="108" right="258" top="63" left="59" currentChoice="0">
+      <variable><![CDATA[human-strategy]]></variable>
+      <choices>
+        <stringChoice><![CDATA[act-randomly]]></stringChoice>
+        <stringChoice><![CDATA[cooperate]]></stringChoice>
+        <stringChoice><![CDATA[defect]]></stringChoice>
+        <stringChoice><![CDATA[tit-for-tat]]></stringChoice>
+        <stringChoice><![CDATA[tit-for-two-tats]]></stringChoice>
+        <stringChoice><![CDATA[unforgiving]]></stringChoice>
+        <stringChoice><![CDATA[custom-strategy]]></stringChoice>
+      </choices>
+    </chooser>
+    <chooser bottom="186" right="258" top="141" left="59" currentChoice="3">
+      <variable><![CDATA[computer-strategy]]></variable>
+      <choices>
+        <stringChoice><![CDATA[act-randomly]]></stringChoice>
+        <stringChoice><![CDATA[cooperate]]></stringChoice>
+        <stringChoice><![CDATA[defect]]></stringChoice>
+        <stringChoice><![CDATA[tit-for-tat]]></stringChoice>
+        <stringChoice><![CDATA[tit-for-two-tats]]></stringChoice>
+        <stringChoice><![CDATA[unforgiving]]></stringChoice>
+        <stringChoice><![CDATA[custom-strategy]]></stringChoice>
+      </choices>
+    </chooser>
+    <output fontSize="12" bottom="418" right="723" top="284" left="330"/>
+  </widgets>
+  <experiments/>
+  <shapes>
+    <vectorShape editableColorIndex="0" rotatable="true" name="default">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,5 40,250 150,205 260,250"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="airplane">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,0 135,15 120,60 120,105 15,165 15,195 120,180 135,240 105,270 120,285 150,270 180,285 210,270 165,240 180,180 285,195 285,165 180,105 180,60 165,15"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="arrow">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,0 0,150 105,150 105,293 195,293 195,150 300,150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="box">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,285 285,225 285,75 150,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,135 15,75 150,15 285,75"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="15,75 15,225 150,285 150,135"/>
+        <line marked="false" filled="false" color="#000000" y2="135" x2="150" y1="285" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="75" x2="15" y1="135" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="75" x2="285" y1="135" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="bug">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="182" cx="96"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="127" cx="110"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="75" cx="110"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="30" x2="80" y1="100" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="30" x2="220" y1="100" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="butterfly">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,165 209,199 225,225 225,255 195,270 165,255 150,240"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,165 89,198 75,225 75,255 105,270 135,255 150,240"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="139,148 100,105 55,90 25,90 10,105 10,135 25,180 40,195 85,194 139,163"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="162,150 200,105 245,90 275,90 290,105 290,135 275,180 260,195 215,195 162,165"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,255 135,225 120,150 135,120 150,105 165,120 180,150 165,225"/>
+        <circle marked="false" filled="true" color="#000000" diameter="30" cy="90" cx="135"/>
+        <line marked="false" filled="false" color="#000000" y2="60" x2="195" y1="105" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="60" x2="105" y1="105" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="car">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="300,180 279,164 261,144 240,135 226,132 213,106 203,84 185,63 159,50 135,50 75,60 0,150 0,165 0,225 300,225 300,180"/>
+        <circle marked="false" filled="true" color="#000000" diameter="90" cy="180" cx="180"/>
+        <circle marked="false" filled="true" color="#000000" diameter="90" cy="180" cx="30"/>
+        <polygon marked="false" filled="true" color="#000000" points="162,80 132,78 134,135 209,135 194,105 189,96 180,89"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="58" cy="195" cx="47"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="58" cy="195" cx="195"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="circle">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="circle 2">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="computer">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="195" width="270" y="15" x="15"/>
+        <rect marked="false" filled="true" color="#000000" height="168" width="242" y="27" x="28"/>
+        <rect marked="false" filled="true" color="#59B03C" height="6" width="205" y="46" x="50"/>
+        <rect marked="false" filled="true" color="#59B03C" height="8" width="197" y="163" x="53"/>
+        <circle marked="false" filled="true" color="#59B03C" diameter="9" cy="117" cx="166"/>
+        <rect marked="false" filled="true" color="#59B03C" height="6" width="52" y="70" x="153"/>
+        <rect marked="false" filled="true" color="#59B03C" height="8" width="63" y="145" x="84"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="30" width="30" y="210" x="135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="30,285 45,240 255,240 270,285 30,285 30,285"/>
+        <line marked="false" filled="false" color="#000000" y2="270" x2="255" y1="270" x1="45"/>
+        <line marked="false" filled="false" color="#000000" y2="255" x2="246" y1="255" x1="51"/>
+        <line marked="false" filled="false" color="#000000" y2="255" x2="75" y1="270" x1="75"/>
+        <line marked="false" filled="false" color="#000000" y2="255" x2="90" y1="270" x1="90"/>
+        <line marked="false" filled="false" color="#000000" y2="255" x2="105" y1="270" x1="105"/>
+        <line marked="false" filled="false" color="#000000" y2="255" x2="120" y1="270" x1="120"/>
+        <line marked="false" filled="false" color="#000000" y2="255" x2="135" y1="270" x1="135"/>
+        <line marked="false" filled="false" color="#000000" y2="255" x2="150" y1="270" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="255" x2="165" y1="270" x1="165"/>
+        <line marked="false" filled="false" color="#000000" y2="255" x2="180" y1="270" x1="180"/>
+        <line marked="false" filled="false" color="#000000" y2="255" x2="195" y1="270" x1="195"/>
+        <line marked="false" filled="false" color="#000000" y2="255" x2="210" y1="270" x1="210"/>
+        <line marked="false" filled="false" color="#000000" y2="255" x2="225" y1="270" x1="225"/>
+        <line marked="false" filled="false" color="#000000" y2="255" x2="240" y1="270" x1="240"/>
+        <line marked="false" filled="false" color="#000000" y2="255" x2="60" y1="270" x1="60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="cow">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="200,193 197,249 179,249 177,196 166,187 140,189 93,191 78,179 72,211 49,209 48,181 37,149 25,120 25,89 45,72 103,84 179,75 198,76 252,64 272,81 293,103 285,121 255,121 242,118 224,167"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="73,210 86,251 62,249 48,208"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="25,114 16,195 9,204 23,213 25,200 39,123"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="cylinder">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="dot">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="120" cy="90" cx="90"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face happy">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="8" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,255 90,239 62,213 47,191 67,179 90,203 109,218 150,225 192,218 210,203 227,181 251,194 236,217 212,240"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face neutral">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="7" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <rect marked="false" filled="true" color="#000000" height="30" width="180" y="195" x="60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face sad">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="8" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,168 90,184 62,210 47,232 67,244 90,220 109,205 150,198 192,205 210,220 227,242 251,229 236,206 212,183"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="fish">
+      <elements>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="44,131 21,87 15,86 0,120 15,150 0,180 13,214 20,212 45,166"/>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="135,195 119,235 95,218 76,210 46,204 60,165"/>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="75,45 83,77 71,103 86,114 166,78 135,60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="30,136 151,77 226,81 280,119 292,146 292,160 287,170 270,195 195,210 151,212 30,166"/>
+        <circle marked="false" filled="true" color="#000000" diameter="30" cy="106" cx="215"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="flag">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="285" width="15" y="15" x="60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="90,150 270,90 90,30"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="135" x2="90" y1="135" x1="75"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="45" x2="90" y1="45" x1="75"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="flower">
+      <elements>
+        <polygon marked="false" filled="true" color="#59B03C" points="135,120 165,165 180,210 180,240 150,300 165,300 195,240 195,195 165,135"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="132" cx="85"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="147" cx="130"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="85" cx="192"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="40" cx="85"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="40" cx="177"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="132" cx="177"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="85" cx="70"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="25" cx="130"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="51" cx="96"/>
+        <circle marked="false" filled="true" color="#000000" diameter="74" cy="68" cx="113"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="189,233 219,188 249,173 279,188 234,218"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="180,255 150,210 105,210 75,240 135,240"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="house">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="165" width="210" y="120" x="45"/>
+        <rect marked="false" filled="true" color="#000000" height="75" width="60" y="210" x="120"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="15,120 150,15 285,120"/>
+        <line marked="false" filled="false" color="#000000" y2="120" x2="270" y1="120" x1="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="leaf">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,210 135,195 120,210 60,210 30,195 60,180 60,165 15,135 30,120 15,105 40,104 45,90 60,90 90,105 105,120 120,120 105,60 120,60 135,30 150,15 165,30 180,60 195,60 180,120 195,120 210,105 240,90 255,90 263,104 285,105 270,120 285,135 240,165 240,180 270,195 240,210 180,210 165,195"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,195 135,240 120,255 105,255 105,285 135,285 165,240 165,195"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="line">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="300" x2="150" y1="0" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="line half">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="150" y1="0" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="pentagon">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,15 15,120 60,285 240,285 285,120"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="person">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="5" cx="110"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="105,90 120,195 90,285 105,300 135,300 150,225 165,300 195,300 210,285 180,195 195,90"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="15" width="45" y="79" x="127"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="195,90 240,150 225,180 165,105"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="105,90 60,150 75,180 135,105"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="plant">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="210" width="30" y="90" x="135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,255 90,210 45,195 75,255 135,285"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,255 210,210 255,195 225,255 165,285"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,180 90,135 45,120 75,180 135,210"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,180 165,210 225,180 255,120 210,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,105 90,60 45,45 75,105 135,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,105 165,135 225,105 255,45 210,60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,90 120,45 150,15 180,45 165,90"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="square">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="240" width="240" y="30" x="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="square 2">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="240" width="240" y="30" x="30"/>
+        <rect marked="false" filled="true" color="#000000" height="180" width="180" y="60" x="60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="star">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="151,1 185,108 298,108 207,175 242,282 151,216 59,282 94,175 3,108 116,108"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="target">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="180" cy="60" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="120" cy="90" cx="90"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="60" cy="120" cx="120"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="tree">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="94" cy="3" cx="118"/>
+        <rect marked="false" filled="true" color="#9D6E48" height="105" width="60" y="195" x="120"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="21" cx="65"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="127" cy="41" cx="116"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="120" cy="90" cx="45"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="152" cy="74" cx="104"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="triangle">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,30 15,255 285,255"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="triangle 2">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,30 15,255 285,255"/>
+        <polygon marked="false" filled="true" color="#000000" points="151,99 225,223 75,224"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="truck">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="142" width="191" y="45" x="4"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="296,193 296,150 259,134 244,104 208,104 207,194"/>
+        <rect marked="false" filled="true" color="#FFFFFF" height="45" width="0" y="60" x="195"/>
+        <polygon marked="false" filled="true" color="#000000" points="238,112 252,141 219,141 218,112"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="234"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="9" width="33" y="185" x="181"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="144"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="24"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="24"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="144"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="234"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="turtle">
+      <elements>
+        <polygon marked="false" filled="true" color="#59B03C" points="215,204 240,233 246,254 228,266 215,252 193,210"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="195,90 225,75 245,75 260,89 269,108 261,124 240,105 225,105 210,105"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="105,90 75,75 55,75 40,89 31,108 39,124 60,105 75,105 90,105"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="132,85 134,64 107,51 108,17 150,2 192,18 192,52 169,65 172,87"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="85,204 60,233 54,254 72,266 85,252 107,210"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="119,75 179,75 209,101 224,135 220,225 175,261 128,261 81,224 74,135 88,99"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="wheel">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="294" cy="3" cx="3"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="15" x2="150" y1="285" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="285" y1="150" x1="15"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="60" cy="120" cx="120"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="269" x2="79" y1="40" x1="216"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="221" x2="269" y1="84" x1="40"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="79" x2="269" y1="216" x1="40"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="269" x2="221" y1="40" x1="84"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="x">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="270,75 225,30 30,225 75,270"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="30,75 75,30 270,225 225,270"/>
+      </elements>
+    </vectorShape>
+  </shapes>
+  <code><![CDATA[breed [ users user ]
+breed [ computers computer ]
+
+globals [
+  hidden-strategy
+]
+
+turtles-own [
+  score                  ; my current score
+  defect-now?            ; what will I do this round?
+  partner                ; my partner
+  partner-defected?      ; did my partner defect last round?
+  partner-defected-past? ; did my partner defect two rounds ago?
+]
+
+to setup
+  clear-all
+  ; place the computer
+  set-default-shape computers "computer"
+  create-computers 1 [
+    set heading 90
+    fd max-pxcor / 2
+  ]
+  ; place the human
+  set-default-shape users "person"
+  create-users 1 [
+    set heading 270
+    fd abs min-pxcor / 2
+  ]
+  ask turtles [
+    set size 10
+    set partner one-of other turtles
+    ; initially assume you and your partner have always cooperated
+    set defect-now? false
+    set partner-defected? false
+    set partner-defected-past? false
+    set score 3.0
+  ]
+  ; choose the secret strategy the computer will
+  ; play if select-computer-strategy? is off
+  set hidden-strategy one-of [
+    "act-randomly" "cooperate" "defect" "tit-for-tat"
+    "tit-for-two-tats" "unforgiving" "custom-strategy"
+  ]
+  reset-ticks
+  prepare-next-round
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Runtime Procedures;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to play
+  play-a-round
+  tick
+  prepare-next-round
+end
+
+to play-a-round
+  ; run the strategy selected by the human
+  ask users [ run human-strategy ]
+  ; run the strategy selected for the computer, or the
+  ; hidden strategy if `select-computer-strategy?` is off
+  ifelse select-computer-strategy?
+    [ ask computers [ run computer-strategy ] ]
+    [ ask computers [ run hidden-strategy ] ]
+  ; determine this round's payoffs based on the action each agent has chosen
+  ask turtles [ get-payoff ]
+end
+
+to prepare-next-round
+  ; update the displayed score in the view
+  ask turtles [ set label average-score ]
+  ; display the computer's action in the last round
+  if display-history? [
+    ask users [
+      ifelse defect-now?
+        [ output-print "Last turn you defected." ]
+        [ output-print "Last turn you cooperated." ]
+      ifelse partner-defected?
+        [ output-print "Last turn your partner defected." ]
+        [ output-print "Last turn your partner cooperated." ]
+    ]
+    output-print "Choose your action!"
+  ]
+end
+
+to-report average-score ; Turtle reporter
+  report precision (score / (ticks + 1)) 3
+end
+
+;;;;;;;;;;;;;;;;;;
+;;; Strategies ;;;
+;;;;;;;;;;;;;;;;;;
+
+to act-randomly ; Turtle Procedure
+  set defect-now? one-of [ true false ]
+end
+
+to cooperate ; Turtle Procedure
+  set defect-now? false
+end
+
+to defect ; Turtle Procedure
+  set defect-now? true
+end
+
+to tit-for-tat ; Turtle Procedure
+  ifelse partner-defected?
+    [ set defect-now? true ]
+    [ set defect-now? false ]
+end
+
+to tit-for-two-tats ; Turtle Procedure
+  ifelse partner-defected? and partner-defected-past?
+    [ set defect-now? true ]
+    [ set defect-now? false ]
+end
+
+to unforgiving ; Turtle Procedure
+  ifelse partner-defected? or defect-now?
+    [ set defect-now? true ]
+    [ set defect-now? false ]
+end
+
+to custom-strategy ; Turtle Procedure
+  ; Currently defaults to tit-for-tat.  Can you do better?
+  ifelse partner-defected? ; partner defected stores your partner's action last round
+    [ set defect-now? true ]
+    [ set defect-now? false ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;
+;;; End Strategies ;;;
+;;;;;;;;;;;;;;;;;;;;;;
+
+to get-payoff ; Turtle Procedure
+  set partner-defected-past? partner-defected?
+  set partner-defected? [ defect-now? ] of partner
+  ifelse partner-defected?
+    [ ifelse defect-now?
+      [ set score score + 1 ]
+      [ set score score + 0 ]
+    ]
+    [ ifelse defect-now?
+      [ set score score + 5 ]
+      [ set score score + 3 ]
+    ]
+end
+
+
+; Copyright 2002 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <modelSettings snapToGrid="true"/>
+  <hubnet/>
+</model>

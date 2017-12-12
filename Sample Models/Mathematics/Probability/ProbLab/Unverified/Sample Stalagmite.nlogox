@@ -1,0 +1,810 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<model xmlns="http://ccl.northwestern.edu/netlogo/netlogox/1">
+  <version><![CDATA[NetLogo 6.1.0-M1]]></version>
+  <previewCommands>
+    <compiled><![CDATA[setup
+repeat 150 [ go ]]]></compiled>
+  </previewCommands>
+  <info><![CDATA[## WHAT IS IT?
+
+9-Block Stalagmite draws on and connects several central ideas in the study of probability, both theoretical and empirical: combinatorics, sample space, binomial distributions, and frequency distribution function.  In the related curricular material, students use crayons and paper to build the Combinations Tower.  The Combinations Tower is a giant bell-shaped histogram of all the 512 different combinations of a 3-by-3 array of squares that can each be either green or blue.
+
+In the tower, these combinations are grouped in columns according to how many green squares there are in each.  9-Block Stalagmite accompanies these curricular activities.
+
+The model generates random samples (with repetitions), counts how many green squares are in each sample, and collects these samples into columns, creating a histogram that grows up like a stalagmite.  If enough samples are taken, then the stalagmite approximates a bell curve.  When the probability in the model is set at .5, the shape of this histogram resembles the combinations tower.  If all repeating samples are removed from this histogram as it grows up, the model eventually exhausts the sample space at each run of the experiment, providing the view allows the tower to grow tall enough.
+
+This model is a part of the ProbLab curriculum.  The ProbLab Curriculum is currently under development at the CCL.  For more information about the ProbLab Curriculum please refer to http://ccl.northwestern.edu/curriculum/ProbLab/.
+
+## HOW IT WORKS
+
+At the top of the view, a square array of "patches" (the NetLogo square agents that don't move) generates green and blue "turtles" (the NetLogo agents that move).  These turtles' colors --- whether they are green or blue --- are determined randomly according to probabilities set by the user.  For instance, an 80% chance for each turtle to be green (so 20% chance for each turtle to be blue).  Next, the model moves this turtle-sample towards the right so that it arrive in a column that matches the number of green turtles in the sample.  Lastly, the model moves the sample down along the column and stacks it on top either of the bottom of the column or a previous sample that has already been positioned there.  When the turtles stop, they mark their color onto the patches, and then they "die".  For each sample that is generated, a larger duplicate appears on the side for the user's viewing convenience.
+
+Note that for a 9-block there are 10 columns in the view.  This is because we need a column for all combinations that have 0 greens, a column for 1 green, a column for 2 green, ..., and a columns for 9 green for a total of 10 columns (9 + 1).
+
+## HOW TO USE IT
+
+### Buttons
+
+'Setup' - prepares the view, including erasing the coloration from a previous run of the experiment.
+'Go' - a forever button that runs the experiment according to the values you have set in the sliders.
+'Go Once' - a button that runs the experiment only once.
+
+### Sliders
+
+'side' - determines the size of the square sample arrays.  For instance, for a value of 3, the model will create a 3-by-3 square (9 turtles).
+'probability-to-be-target-color' - determines the chance of each turtle in the sample array to be green (or any other color you have set the model to).  A value of 50 means that each turtle has an equal chance of being green or blue, a value of 80 means that each turtle has a 80% chance of being green (so each has a 20% chance of being blue).
+
+### Switches
+
+'keep-repeats?' - when "Off," each column will have only different combinations with no repetitions; when "On," there will most probably be repetitions in at least some of the columns.  (For 2-by-2 samples, there will be very rare cases that the whole sample space will be discovered without repetitions.  For 3-by-3 samples, the cases are so rare that you probably won't ever see it!! Actually, how rare are they?..)
+'magnify?' - when "On," you get a larger version of the sample on the side.  This helps when you're working with very small patch sizes, such as when you want to have very tall columns so as to exhaust the sample space corresponding to the value of 'side,' e.g,. 512 for 'side = 3.'
+'stop-at-all-found?' - when "On," each run will end if all the different combinations have been discovered.  When "Off," the run will continue until one of the columns reaches the top.
+
+### Monitors
+
+'#-target-color' - displays the total number of squares of target-color, e.g., 'green.'
+'#-other-color' - displays the total number of squares of other-color, e.g., 'blue.'
+'%-target-color' - displays as a percentage the proportion of target-color squares out of all colored squares.
+'combinations found' - displays the proportion of the sample space that has been revealed
+'?-blocks' shows the square of 'side.' So if 'side' is set to 3, '?-blocks' will show 9. This means that each sample of side 3 has 9 squares.
+
+### Plots
+
+'filling-up-sample-space' - plots the total number of combinations that have been discovered as a proportion of the sample space that has been discovered.
+
+### How to use it
+
+Set the sliders according to the values you want, press Setup, and then press Go.
+
+Note that once you have pressed Go, changing the slider values would "confuse" the model.  Instead, you should un-press Go, wait until the button jumps back up, and only then change the sliders as you wish, press Setup, and then press Go
+
+## THINGS TO NOTICE
+
+Setup the model in its default settings ('side' slider set to the value of 3; 'probability' slider set to the value of .5), slow down the model with the speed slider at the top left of the view, and press Go.  Note the following: the more green squares there are in the random sample the further to the right the block will move before descending down. See that at the bottom of each column there is a number.  This number tells you the type of sample that will be collected in this column.  For instance, in the column labeled '2,' samples that have exactly 2 green patches will stop moving to the right and will descend.  So, as the columns grow up, note that each sample will descend over a previous sample that has exactly as many green squares.  Overall, the columns on the right are greener than the columns on the left.  As you shift your gaze from side to side, the color density changes.
+
+Run the model over and over and watch the shape of the colorful histogram that is plotted.  Note any consistencies in the shape of this histogram.
+
+## THINGS TO TRY
+
+Work in the 'side' = 2 setup. Set 'keep-duplicates?' to Off.  How many samples do you need to fill the entire sample space?  Does this change according to the settings of 'probability'?  If so, why might this be so? If the probability is set at 80%, does it take as many trials to fill the sample space as compared to a setting of 50%? If not, why not?
+
+Setup the model with the 'side' value at 2 and the 'probability' at 70%.  Press Setup and then Go.  (If you have previously slowed down the model, you're welcome to speed it up now.)  Note that the %-target-color tends to 70%. Also note that more sample combinations collect up in the column of 3 green patches than any other column.  So '3' is the mode.  We have found it interesting and perhaps somewhat confusing to shift between thinking about the 'mode' and thinking about the 'mean.' For instance, if you set the 'probability' to 83%, you might think that 83% of 4 is 3.32 and so the mode should still be '3.' Is it? What is going on here? So for some probability setting, the 3-column will most often get to the top before other columns. For other probability settings, the 4-column wins. Try to determine the probability ranges in which each column "rules." Hint: How many ranges should there be?
+
+Edit the view so that the y-axis value is 260 and the patch size is 1 pixel. Now, if you set up in 'side = 3,' all 512 different 9-blocks will fit in. Try this.
+
+## EXTENDING THE MODEL
+
+Add monitors and/or graphs that will feature aspects of the experiments that are difficult to see in the current version.  For instance:
+- How many samples does it take for the experiment to produce an all-green sample?  How is this dependent on the various settings?
+- Are there more samples with an even number of green squares as compared to those with an odd number of green squares?
+- How symmetrical is the histogram?  How would you define "symmetry?"  How would you quantify and display its change over time?
+
+## NETLOGO FEATURES
+
+Turtle Shapes --- The top panel of the view features a red arrow-like turtle shape.  Pressing on this button toggles between Turtles-Shape "On" and "Off."  In many NetLogo models, turtles represent specific agents ("creatures") in the situation or phenomenon that is being modeled.  So in many models the turtles have distinctive shapes (icons) that approximate or at least suggest what they are modeling.  However, this model is an example of a case where we do not want any special turtle shape.  In fact, we actually want the turtles to look like the patches --- just squares.  So we have turned the Turtle-Shapes to "Off."  Try running the model with the Turtles-Shapes "On" (you can change this while running the model) and see which mode you prefer.  The difference between these two modes will be most noticeable when you are running the model slowly and/or when the 'magnify?' switch is turned to 'On."  You could also edit the size of the turtles.  Perhaps you will discover that you prefer having the turtles be some special shape.  How might that affect the histogram?
+
+## RELATED MODELS
+
+Some of the other ProbLab (curricular) models, including SAMPLER --- HubNet Participatory Simulation --- feature related visuals and activities.  In Stochastic Patchwork and especially in 9-Blocks you will see the same 3-by-3 array of green-or-blue squares.  In the 9-Block Stalagmite model, when 'keep-duplicates?' is set to 'Off' and the y-axis value of the view is set to 260, we get the whole sample space without any duplicates.  In the Stochastic Patchwork model and especially in 9-Blocks model, we see frequency distribution histograms.  These histograms compare in interesting ways with the shape of the combinations tower in this model.
+
+## CREDITS AND REFERENCES
+
+This model is a part of the ProbLab curriculum. The ProbLab Curriculum is currently under development at Northwestern's Center for Connected Learning and Computer-Based Modeling. . For more information about the ProbLab Curriculum please refer to http://ccl.northwestern.edu/curriculum/ProbLab/.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Abrahamson, D. and Wilensky, U. (2004).  NetLogo Sample Stalagmite model.  http://ccl.northwestern.edu/netlogo/models/SampleStalagmite.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2004 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This model was created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
+
+<!-- 2004 Cite: Abrahamson, D. -->]]></info>
+  <systemDynamics/>
+  <modelInfo>
+    <title/>
+    <subject/>
+  </modelInfo>
+  <linkShapes>
+    <linkShape curviness="0.0" name="default">
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="-0.2"/>
+      <line stroke-dasharray="1.0,0.0" isVisible="true" offset="0.0"/>
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="0.2"/>
+      <indicator editableColorIndex="0" rotatable="true" name="link direction">
+        <elements>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="90" y1="150" x1="150"/>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="210" y1="150" x1="150"/>
+        </elements>
+      </indicator>
+    </linkShape>
+  </linkShapes>
+  <widgets>
+    <view bottom="532" right="956" top="10" left="237" frameRate="60.0" showTickCounter="true" fontSize="10">
+      <dimensions maxPycor="85" minPycor="-85" maxPxcor="118" minPxcor="-118" wrapInY="true" wrapInX="true" patchSize="3.0"/>
+      <tickCounterLabel><![CDATA[ticks]]></tickCounterLabel>
+    </view>
+    <slider bottom="78" right="168" top="45" left="2" direction="horizontal" default="3.0">
+      <maximum><![CDATA[5]]></maximum>
+      <minimum><![CDATA[1]]></minimum>
+      <step><![CDATA[1]]></step>
+      <variable><![CDATA[side]]></variable>
+    </slider>
+    <slider bottom="43" right="235" top="10" left="1" direction="horizontal" default="50.0">
+      <maximum><![CDATA[100]]></maximum>
+      <minimum><![CDATA[0]]></minimum>
+      <step><![CDATA[1]]></step>
+      <units><![CDATA[%]]></units>
+      <variable><![CDATA[probability-to-be-target-color]]></variable>
+    </slider>
+    <button bottom="222" right="234" top="189" left="159" ticksEnabled="true" forever="true">
+      <source><![CDATA[go]]></source>
+      <display><![CDATA[Go]]></display>
+    </button>
+    <button bottom="222" right="78" top="189" left="4" ticksEnabled="false" forever="false">
+      <source><![CDATA[setup]]></source>
+      <display><![CDATA[Setup]]></display>
+    </button>
+    <switch bottom="113" right="168" top="80" left="2" isOn="true">
+      <variable><![CDATA[keep-repeats?]]></variable>
+    </switch>
+    <plot bottom="554" right="232" top="387" left="5" ymax="1.0" ymin="0.0" xmax="500.0" xmin="0.0" legendOn="false" autoPlotOn="true">
+      <display><![CDATA[filling-up-sample-space]]></display>
+      <xAxis><![CDATA[trials]]></xAxis>
+      <yAxis><![CDATA[#-combinations]]></yAxis>
+      <setup/>
+      <update/>
+      <pens>
+        <pen inLegend="true" color="-16777216" mode="line" interval="1.0">
+          <setup/>
+          <update/>
+          <display><![CDATA[default]]></display>
+        </pen>
+      </pens>
+    </plot>
+    <monitor fontSize="11" bottom="386" right="128" top="341" left="5" precision="3">
+      <source><![CDATA[(word samples-found "/" total-samples-to-find "=" %-full)]]></source>
+      <display><![CDATA[combinations found]]></display>
+    </monitor>
+    <switch bottom="182" right="120" top="149" left="3" isOn="true">
+      <variable><![CDATA[magnify?]]></variable>
+    </switch>
+    <monitor fontSize="11" bottom="324" right="95" top="279" left="5" precision="3">
+      <source><![CDATA[#-other-color]]></source>
+      <display><![CDATA[#-other-color]]></display>
+    </monitor>
+    <monitor fontSize="11" bottom="274" right="95" top="229" left="5" precision="3">
+      <source><![CDATA[#-target-color]]></source>
+      <display><![CDATA[#-target-color]]></display>
+    </monitor>
+    <switch bottom="148" right="167" top="115" left="3" isOn="false">
+      <variable><![CDATA[stop-at-all-found?]]></variable>
+    </switch>
+    <switch bottom="182" right="233" top="149" left="121" isOn="false">
+      <variable><![CDATA[plot?]]></variable>
+    </switch>
+    <monitor fontSize="11" bottom="89" right="235" top="44" left="176" precision="3">
+      <source><![CDATA[side ^ 2]]></source>
+      <display><![CDATA[?-block]]></display>
+    </monitor>
+    <monitor fontSize="11" bottom="293" right="188" top="248" left="97" precision="3">
+      <source><![CDATA[precision (100 * #-target-color / (#-target-color + #-other-color)) 1]]></source>
+      <display><![CDATA[%-target-color]]></display>
+    </monitor>
+    <button bottom="222" right="157" top="189" left="79" ticksEnabled="true" forever="false">
+      <source><![CDATA[go]]></source>
+      <display><![CDATA[Go Once]]></display>
+    </button>
+  </widgets>
+  <experiments/>
+  <shapes>
+    <vectorShape editableColorIndex="0" rotatable="true" name="default">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,5 40,250 150,205 260,250"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="airplane">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,0 135,15 120,60 120,105 15,165 15,195 120,180 135,240 105,270 120,285 150,270 180,285 210,270 165,240 180,180 285,195 285,165 180,105 180,60 165,15"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="arrow">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,0 0,150 105,150 105,293 195,293 195,150 300,150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="box">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,285 285,225 285,75 150,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,135 15,75 150,15 285,75"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="15,75 15,225 150,285 150,135"/>
+        <line marked="false" filled="false" color="#000000" y2="135" x2="150" y1="285" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="75" x2="15" y1="135" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="75" x2="285" y1="135" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="bug">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="182" cx="96"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="127" cx="110"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="75" cx="110"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="30" x2="80" y1="100" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="30" x2="220" y1="100" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="butterfly">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,165 209,199 225,225 225,255 195,270 165,255 150,240"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,165 89,198 75,225 75,255 105,270 135,255 150,240"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="139,148 100,105 55,90 25,90 10,105 10,135 25,180 40,195 85,194 139,163"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="162,150 200,105 245,90 275,90 290,105 290,135 275,180 260,195 215,195 162,165"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,255 135,225 120,150 135,120 150,105 165,120 180,150 165,225"/>
+        <circle marked="false" filled="true" color="#000000" diameter="30" cy="90" cx="135"/>
+        <line marked="false" filled="false" color="#000000" y2="60" x2="195" y1="105" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="60" x2="105" y1="105" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="car">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="300,180 279,164 261,144 240,135 226,132 213,106 203,84 185,63 159,50 135,50 75,60 0,150 0,165 0,225 300,225 300,180"/>
+        <circle marked="false" filled="true" color="#000000" diameter="90" cy="180" cx="180"/>
+        <circle marked="false" filled="true" color="#000000" diameter="90" cy="180" cx="30"/>
+        <polygon marked="false" filled="true" color="#000000" points="162,80 132,78 134,135 209,135 194,105 189,96 180,89"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="58" cy="195" cx="47"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="58" cy="195" cx="195"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="circle">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="circle 2">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="cow">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="200,193 197,249 179,249 177,196 166,187 140,189 93,191 78,179 72,211 49,209 48,181 37,149 25,120 25,89 45,72 103,84 179,75 198,76 252,64 272,81 293,103 285,121 255,121 242,118 224,167"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="73,210 86,251 62,249 48,208"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="25,114 16,195 9,204 23,213 25,200 39,123"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="cylinder">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="dot">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="120" cy="90" cx="90"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face happy">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="8" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,255 90,239 62,213 47,191 67,179 90,203 109,218 150,225 192,218 210,203 227,181 251,194 236,217 212,240"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face neutral">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="7" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <rect marked="false" filled="true" color="#000000" height="30" width="180" y="195" x="60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face sad">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="8" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,168 90,184 62,210 47,232 67,244 90,220 109,205 150,198 192,205 210,220 227,242 251,229 236,206 212,183"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="fish">
+      <elements>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="44,131 21,87 15,86 0,120 15,150 0,180 13,214 20,212 45,166"/>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="135,195 119,235 95,218 76,210 46,204 60,165"/>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="75,45 83,77 71,103 86,114 166,78 135,60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="30,136 151,77 226,81 280,119 292,146 292,160 287,170 270,195 195,210 151,212 30,166"/>
+        <circle marked="false" filled="true" color="#000000" diameter="30" cy="106" cx="215"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="flag">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="285" width="15" y="15" x="60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="90,150 270,90 90,30"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="135" x2="90" y1="135" x1="75"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="45" x2="90" y1="45" x1="75"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="flower">
+      <elements>
+        <polygon marked="false" filled="true" color="#59B03C" points="135,120 165,165 180,210 180,240 150,300 165,300 195,240 195,195 165,135"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="132" cx="85"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="147" cx="130"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="85" cx="192"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="40" cx="85"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="40" cx="177"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="132" cx="177"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="85" cx="70"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="25" cx="130"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="51" cx="96"/>
+        <circle marked="false" filled="true" color="#000000" diameter="74" cy="68" cx="113"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="189,233 219,188 249,173 279,188 234,218"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="180,255 150,210 105,210 75,240 135,240"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="house">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="165" width="210" y="120" x="45"/>
+        <rect marked="false" filled="true" color="#000000" height="75" width="60" y="210" x="120"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="15,120 150,15 285,120"/>
+        <line marked="false" filled="false" color="#000000" y2="120" x2="270" y1="120" x1="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="leaf">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,210 135,195 120,210 60,210 30,195 60,180 60,165 15,135 30,120 15,105 40,104 45,90 60,90 90,105 105,120 120,120 105,60 120,60 135,30 150,15 165,30 180,60 195,60 180,120 195,120 210,105 240,90 255,90 263,104 285,105 270,120 285,135 240,165 240,180 270,195 240,210 180,210 165,195"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,195 135,240 120,255 105,255 105,285 135,285 165,240 165,195"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="line">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="300" x2="150" y1="0" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="line half">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="150" y1="0" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="pentagon">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,15 15,120 60,285 240,285 285,120"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="person">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="5" cx="110"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="105,90 120,195 90,285 105,300 135,300 150,225 165,300 195,300 210,285 180,195 195,90"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="15" width="45" y="79" x="127"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="195,90 240,150 225,180 165,105"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="105,90 60,150 75,180 135,105"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="plant">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="210" width="30" y="90" x="135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,255 90,210 45,195 75,255 135,285"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,255 210,210 255,195 225,255 165,285"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,180 90,135 45,120 75,180 135,210"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,180 165,210 225,180 255,120 210,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,105 90,60 45,45 75,105 135,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,105 165,135 225,105 255,45 210,60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,90 120,45 150,15 180,45 165,90"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="square">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="240" width="240" y="30" x="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="square 2">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="240" width="240" y="30" x="30"/>
+        <rect marked="false" filled="true" color="#000000" height="180" width="180" y="60" x="60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="square big">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="300" width="300" y="0" x="0"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="star">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="151,1 185,108 298,108 207,175 242,282 151,216 59,282 94,175 3,108 116,108"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="target">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="180" cy="60" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="120" cy="90" cx="90"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="60" cy="120" cx="120"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="tree">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="94" cy="3" cx="118"/>
+        <rect marked="false" filled="true" color="#9D6E48" height="105" width="60" y="195" x="120"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="21" cx="65"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="127" cy="41" cx="116"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="120" cy="90" cx="45"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="152" cy="74" cx="104"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="triangle">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,30 15,255 285,255"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="triangle 2">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,30 15,255 285,255"/>
+        <polygon marked="false" filled="true" color="#000000" points="151,99 225,223 75,224"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="truck">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="142" width="191" y="45" x="4"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="296,193 296,150 259,134 244,104 208,104 207,194"/>
+        <rect marked="false" filled="true" color="#FFFFFF" height="45" width="0" y="60" x="195"/>
+        <polygon marked="false" filled="true" color="#000000" points="238,112 252,141 219,141 218,112"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="234"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="9" width="33" y="185" x="181"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="144"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="24"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="24"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="144"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="234"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="turtle">
+      <elements>
+        <polygon marked="false" filled="true" color="#59B03C" points="215,204 240,233 246,254 228,266 215,252 193,210"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="195,90 225,75 245,75 260,89 269,108 261,124 240,105 225,105 210,105"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="105,90 75,75 55,75 40,89 31,108 39,124 60,105 75,105 90,105"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="132,85 134,64 107,51 108,17 150,2 192,18 192,52 169,65 172,87"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="85,204 60,233 54,254 72,266 85,252 107,210"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="119,75 179,75 209,101 224,135 220,225 175,261 128,261 81,224 74,135 88,99"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="wheel">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="294" cy="3" cx="3"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="15" x2="150" y1="285" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="285" y1="150" x1="15"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="60" cy="120" cx="120"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="269" x2="79" y1="40" x1="216"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="221" x2="269" y1="84" x1="40"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="79" x2="269" y1="216" x1="40"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="269" x2="221" y1="40" x1="84"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="x">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="270,75 225,30 30,225 75,270"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="30,75 75,30 270,225 225,270"/>
+      </elements>
+    </vectorShape>
+  </shapes>
+  <code><![CDATA[globals [
+         ;; colors of the background of the view and of the two possible colors in samples
+         background-color column-color target-color other-color
+         num-columns ;; how many columns there are in the graphics-window histogram
+         num-target-color  ;; how many of the squares (patches) in the sample are of the favored color
+         sample-right-xcor ;; the x-coordinate of the moving sample (not the magnified sample)
+         sample-location-patch-agentset ;; patches where the moving sample will sprout
+         token-sample-dude ;; bottom-left turtle in the moving sample
+         stop-all? ;; Boolean variable for stopping the experiment
+         ]
+patches-own [ column ]
+
+breed [ column-kids column-kid ]
+breed [ sample-dudes sample-dude ]
+breed [ baby-dudes baby-dude ]
+
+sample-dudes-own [distance-for-jump ]
+column-kids-own [ binomial-coefficient sample-list ]
+
+;; This procedure colors the view, divides patches into columns of equal length ( plus a single partition column),
+;; and numbers these columns, beginning from the left, 0, 1, 2, 3, etc.
+to setup
+  clear-all
+  set-default-shape turtles "square big"
+  set background-color white - 1
+  set column-color gray
+  set target-color green
+  set other-color blue
+  set-plot-x-range 0 ( 2 ^ ( side ^ 2 ) ) ;; the max of the range is set to be large enough to begin with
+
+  ;; num-columns is how many columns (bars) there are in the graphics-window histogram.
+  ;; We need side ^ 2 + 1 columns in a histogram. For example, 3-by-3 samples (9 patches)
+  ;; have 10 -- that is, 3 ^ 2 + 1 -- different possible counts of target-color (0, 1, 2, 3, ...9).
+  set num-columns ( side ^ 2 + 1)
+
+  ;; determines the location of the sample array beginning one column to the left of the histogram
+  set sample-right-xcor -1 * round ( ( num-columns / 2 ) * ( side + 1 ) )
+
+  ;; assigns each patch with a column number. Each column is as wide as the value set in the 'side' slider
+  ask patches
+  [
+    set pcolor background-color
+    ;; The following both centers the columns and assigns a column number to each patch
+    ;; We use "side + 1" and not just "side" so as to create an empty column between samples
+    set column floor ( ( pxcor + ( ( num-columns * ( side + 1 ) ) / 2 ) ) / ( side + 1 ) )
+    if column < 0 or column >= num-columns
+      [ set column -100 ]
+  ]
+
+  ;; leave one-patch strips between the columns empty
+  ask patches with
+  [ [column] of patch-at -1 0 != column ]
+  [
+    set column -100  ;; so that they do not take part in commands that report relevant column numbers
+  ]
+
+   ;; colors the columns with two shades of some color, alternately
+   ask patches
+   [
+     if column != -100
+     [
+       ifelse int ( column / 2 ) = column / 2
+       [ set pcolor column-color ][ set pcolor column-color - 1 ]
+     ]
+   ]
+
+  ;; This draws the yellow base-line and creates a sample-kids turtle at the base of each column
+  ask patches with
+  [ ( pycor = -1 * max-pycor + side + 3 ) and  ;; The base line is several patches above the column labels.
+    ( column != -100 ) ]
+  [
+    set pcolor yellow
+    if [column] of patch-at -1 0 != column   ;; find the leftmost patch in the column...
+    [
+      ask patch (pxcor + side - 1)  ;; ...then move over to the right of the column
+                ( -1 * max-pycor + 1 )
+        [ set plabel column ]
+      ask patch (pxcor + floor (side / 2))  ;; ...then move over to the middle of the column
+                ( -1 * max-pycor + 1 )
+      [
+       sprout 1
+        [
+          hide-turtle
+          set color pcolor
+          set breed column-kids
+          set sample-list []
+
+          ;; each column-kid knows how many different combinations his column has
+          set binomial-coefficient item column binomrow (num-columns - 1)
+        ]
+      ]
+    ]
+  ]
+  set stop-all? false
+  set num-target-color false
+  reset-ticks
+end
+
+to go
+  if stop-all? [stop]
+  ;; The model keeps track of which different combinations have been discovered. Each
+  ;; column-kid reports whether or not its column has all the possible combinations. When bound? is true,
+  ;; a report from ALL column-kids that their columns are full will stop the run.
+  if stop-at-all-found? [if count column-kids with [length sample-list = binomial-coefficient] = count column-kids
+    [stop]]
+  sample
+  ifelse magnify? [ magnify-on-side ] [ ask baby-dudes [ die ] ]
+  drop-in-bin
+  ;; the counter keeps track of how many samples have been taken (not how many different samples have been discovered)
+  tick
+  if plot? [ plot %-full ]
+end
+
+;; This procedure creates a square sample of dimensions side-times-side, e.g., 3-by-3,
+;; located to the left of the columns. Each patch in this sample sprouts a turtle.
+;; The color of the sample-dudes in this square are either target-color or other-color,
+;; based on a random algorithm (see below)
+to sample
+  ;; creates a square agentset of as many sample-dudes as determined by the 'side' slider,
+  ;; positioning these sample sample-dudes at the top of the view and to the left of the histogram columns
+  set sample-location-patch-agentset patches with
+  [
+    ( pxcor <= sample-right-xcor ) and
+    ( pxcor > sample-right-xcor - side ) and
+    ( pycor > ( max-pycor - side ) ) ]
+  ;; has to be in a sorted order because of how the finish-off procedure works
+  foreach sort sample-location-patch-agentset [ p ->
+    ask p
+    [
+      sprout-a-sample-dude
+    ]
+  ]
+    ;; num-target-color reports how many sample-dudes in the random sample are of the target color
+  set num-target-color count sample-dudes with [ color = target-color ]
+end
+
+;; patch procedure
+to sprout-a-sample-dude
+  sprout 1
+  [
+    hide-turtle
+    set breed sample-dudes
+    setxy pxcor pycor
+
+    ;; Each turtle in the sample area chooses randomly between the target-color and the other color.
+    ;; The higher you have set the probability slider, the higher the chance the turtle will get the target color
+    ifelse random 100 < probability-to-be-target-color
+    [ set color target-color ]
+    [ set color other-color ]
+    show-turtle
+  ]
+end
+
+;; procedure in which the sample turtles create an enlarged duplicate on the left side of the view and this enlarged sample makes
+;; a large duplicate of the sample. This helps users see the samples that may otherwise be too small to see comfortably.
+;; Samples are small for side = 3 because we want the entire sample space to fit into the view.
+to magnify-on-side
+  ask baby-dudes [die] ;; clears the way for new magnified sample
+  ask sample-dudes
+  [
+    hatch-a-big-baby
+  ]
+end
+
+to hatch-a-big-baby ;; sample-dudes procedure
+  hatch 1
+  [
+    set breed baby-dudes
+    set size 12 * ( 8 - side ) / side
+    ;; This is tricky.  We want to center the new turtles vertically, and
+    ;; put them to the right of all the columns, with a little space between.
+    setxy -1 * ( size * .75 ) + ( sample-right-xcor + ( size * ( xcor - sample-right-xcor ) ) )
+          ( ( side - 1 ) * size / 2 ) + ( size * ( ycor + min-pycor ) )
+    set size size * .95
+  ]
+end
+
+;; This procedure moves the random sample sideways to its column and then down above other previous samples
+;; in that column.
+to drop-in-bin
+  find-your-column
+  descend
+end
+
+;; The random sample moves to the right until it is in its correct column, that is, until it is in the column
+;; that collects samples which have exactly as many sample-dudes of the target color as this sample has.
+;; The rationale is that the as long as the sample is not in its column, it keeps moving sideways.
+;; So, if the sample has 9 sample-dudes (3-by-3) and is moving sideways, but 6 of them are not yet in their correct column,
+;; the sample keeps moving. When all of the 9 sample-dudes are the sample's correct column, this procedure stops.
+to find-your-column
+  ask sample-dudes [ set heading 90 ]
+  while
+  [ count sample-dudes with [ column = num-target-color ] != side ^ 2  ]
+  [
+    ask sample-dudes
+    [ fd 1 ]
+  ]
+end
+
+;; Moves the sample downwards along the column until it is either on the base line or
+;; exactly over another sample in that column.
+to descend
+  let lowest-in-sample min [ pycor ] of sample-dudes
+  ask sample-dudes
+  [ set heading 180 ]
+
+  ;; The lowest row in the square sample is in charge of checking whether or not the sample has arrived all the way down
+  ;; In order to determine who this row is -- as the samples keeps moving down -- we find a turtle with the lowest y coordinate
+  ;; checks whether the row directly below the sample's lowest row is available to keep moving down
+  set token-sample-dude one-of sample-dudes with [ pycor = lowest-in-sample ]
+  while
+  [
+    [pcolor] of [patch-at 0 -2] of token-sample-dude != yellow and
+    [pcolor] of [patch-at 0 -2] of token-sample-dude != target-color and
+    [pcolor] of [patch-at 0 -2] of token-sample-dude != other-color
+  ]
+  [
+    ;; As in find-your-column, shift the sample one row down
+    ask sample-dudes
+    [ fd 1 ]
+    display
+  ;; Instead of establishing again the lowest row in the sample, the y coordinate of the row
+  ;; gets smaller by 1 because the sample is now one row lower than when it started this 'while' procedure
+  set lowest-in-sample ( lowest-in-sample - 1 )
+  ]
+
+  ;; Once sample-dudes have reached as low down in the column as they can go (they are on top of either the base line
+  ;; or a previous sample) they might color the patch with their own color before they "die."
+  finish-off
+
+  ;; If the column has been stacked up so far that it is near the top of the view, the whole supra-procedure stops
+  ;; and so the experiment ends
+  if max-pycor - lowest-in-sample < ( side + 1 ) [ set stop-all? true ]
+end
+
+to finish-off
+  ;; creates local list of the colors of this specific sample, for instance the color combination of a 9-square,
+  ;; beginning from its top-left corner and running to the right and then taking the next row and so on
+  ;; might be "green green red green red green"
+  ;; depends on the sample-dudes being created in a specific order inside of the sample procedure
+  let sample-color-combination map [ dude -> [ color ] of dude ] sort sample-dudes
+
+  ;; determines which turtle lives at the bottom of the column where the sample is
+  let this-column-kid one-of column-kids with [ column = [column] of token-sample-dude]
+
+  ;; accepts to list only new samples and makes a previously encountered sample if keep-duplicates? is on
+  ifelse not member? sample-color-combination [sample-list] of this-column-kid
+  [
+    ask this-column-kid
+    [ set sample-list fput sample-color-combination sample-list ]
+    ask sample-dudes
+    [ set pcolor color die ]
+  ]
+  [
+    ifelse keep-repeats? [
+      ask sample-dudes
+       [ set pcolor color die ]
+    ] [
+      ask sample-dudes
+        [  die ]
+    ]
+  ]
+end
+
+;; procedure for calculating the row of coefficients
+;; column-kids needs their coefficient so as to judge if their column has all the possible different combinations
+to-report binomrow [n]
+  if n = 0 [ report [1] ]
+  let prevrow binomrow (n - 1)
+  report (map [ [a b] -> a + b ] fput 0 prevrow lput 0 prevrow)
+end
+
+;;if the model has been run, report the number of patches
+;;with the target-color -- otherwise, display "--"
+to-report #-target-color
+  ifelse ticks != 0.0
+  [ report count patches with [ pcolor = target-color ] ]
+  [ report "--" ]
+end
+
+;;if has been run, report the number of patches
+;;with the other-color -- otherwise, display "--"
+to-report #-other-color
+  ifelse ticks != 0.0
+  [ report count patches with [ pcolor = other-color ] ]
+  [ report "--" ]
+end
+
+;; reports the proportion of the sample space that has been generated up to now
+to-report %-full
+  report precision ( samples-found / ( 2 ^ ( side ^ 2 ) ) ) 3
+end
+
+to-report samples-found
+  report sum [ length sample-list ] of column-kids
+end
+
+to-report total-samples-to-find
+  report 2 ^ ( side ^ 2 )
+end
+
+
+; Copyright 2004 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <modelSettings/>
+  <hubnet/>
+</model>

@@ -1,0 +1,228 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<model xmlns="http://ccl.northwestern.edu/netlogo/netlogox/1">
+  <version><![CDATA[NetLogo 6.1.0-M1]]></version>
+  <previewCommands>
+    <compiled><![CDATA[setup repeat 75 [ go ]]]></compiled>
+  </previewCommands>
+  <info/>
+  <systemDynamics/>
+  <modelInfo>
+    <title/>
+    <subject/>
+  </modelInfo>
+  <linkShapes>
+    <linkShape curviness="0.0" name="default">
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="-0.2"/>
+      <line stroke-dasharray="1.0,0.0" isVisible="true" offset="0.0"/>
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="0.2"/>
+      <indicator editableColorIndex="0" rotatable="true" name="link direction">
+        <elements>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="90" y1="150" x1="150"/>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="210" y1="150" x1="150"/>
+        </elements>
+      </indicator>
+    </linkShape>
+  </linkShapes>
+  <widgets>
+    <view bottom="812" right="1146" top="10" left="345" frameRate="30.0" showTickCounter="true" fontSize="10">
+      <dimensions maxPycor="45" minPycor="-45" maxPxcor="45" minPxcor="-45" wrapInY="false" wrapInX="false" patchSize="8.7143"/>
+      <tickCounterLabel><![CDATA[ticks]]></tickCounterLabel>
+    </view>
+    <button bottom="58" right="72" top="25" left="6" ticksEnabled="false" forever="false">
+      <source><![CDATA[setup]]></source>
+    </button>
+    <button bottom="97" right="170" top="64" left="93" ticksEnabled="false" forever="true">
+      <source><![CDATA[go]]></source>
+    </button>
+    <button bottom="97" right="91" top="64" left="6" ticksEnabled="false" forever="false">
+      <source><![CDATA[go]]></source>
+      <display><![CDATA[go-once]]></display>
+    </button>
+    <switch bottom="97" right="333" top="64" left="187" isOn="false">
+      <variable><![CDATA[layout?]]></variable>
+    </switch>
+    <monitor fontSize="11" bottom="145" right="316" top="100" left="237" precision="3">
+      <source><![CDATA[count turtles]]></source>
+      <display><![CDATA[# of nodes]]></display>
+    </monitor>
+    <button bottom="135" right="109" top="102" left="7" ticksEnabled="false" forever="true">
+      <source><![CDATA[layout]]></source>
+      <display><![CDATA[redo layout]]></display>
+    </button>
+    <button bottom="135" right="225" top="102" left="115" ticksEnabled="false" forever="false">
+      <source><![CDATA[resize-nodes]]></source>
+      <display><![CDATA[resize nodes]]></display>
+    </button>
+  </widgets>
+  <experiments/>
+  <shapes>
+    <vectorShape editableColorIndex="0" rotatable="true" name="default">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,5 40,250 150,205 260,250"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="circle">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+      </elements>
+    </vectorShape>
+  </shapes>
+  <code><![CDATA[;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Setup Procedures ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+to setup
+  clear-all
+  set-default-shape turtles "circle"
+  ;; make the initial network of two turtles and an edge
+  make-node nobody        ;; first node, unattached
+  make-node turtle 0      ;; second node, attached to first node
+  reset-ticks
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;;; Main Procedures ;;;
+;;;;;;;;;;;;;;;;;;;;;;;
+
+to go
+  ;; new edge is green, old edges are gray
+  ask links [ set color gray ]
+  make-node find-partner         ;; find partner & use it as attachment
+                                 ;; point for new node
+  tick
+  if layout? [ layout ]
+end
+
+;; used for creating a new node
+to make-node [old-node]
+  crt 1
+  [
+    set color red
+    if old-node != nobody
+      [ create-link-with old-node [ set color green ]
+        ;; position the new node near its partner
+        move-to old-node
+        rt random 360
+        fd 8
+      ]
+  ]
+end
+
+;; This code is borrowed from Lottery Example (in the Code Examples
+;; section of the Models Library).
+;; The idea behind the code is a bit tricky to understand.
+;; Basically we take the sum of the degrees (number of connections)
+;; of the turtles, and that's how many "tickets" we have in our lottery.
+;; Then we pick a random "ticket" (a random number).  Then we step
+;; through the turtles to figure out which node holds the winning ticket.
+to-report find-partner
+  let total random-float sum [count link-neighbors] of turtles
+  let partner nobody
+  ask turtles
+  [
+    let nc count link-neighbors
+    ;; if there's no winner yet...
+    if partner = nobody
+    [
+      ifelse nc > total
+        [ set partner self ]
+        [ set total total - nc ]
+    ]
+  ]
+  report partner
+end
+
+;;;;;;;;;;;;;;
+;;; Layout ;;;
+;;;;;;;;;;;;;;
+
+;; resize-nodes, change back and forth from size based on degree to a size of 1
+to resize-nodes
+  ifelse not any? turtles with [size > 1]
+  [
+    ;; a node is a circle with diameter determined by
+    ;; the SIZE variable; using SQRT makes the circle's
+    ;; area proportional to its degree
+    ask turtles [ set size sqrt count link-neighbors ]
+  ]
+  [
+    ask turtles [ set size 1 ]
+  ]
+end
+
+to layout
+  ;; the number 3 here is arbitrary; more repetitions slows down the
+  ;; model, but too few gives poor layouts
+  repeat 3 [
+    layout-spring turtles links 0.5 1.0 0.4
+  ]
+end
+
+to-report bad-intersections [t1 t2]
+  let i intersection t1 t2
+  if length i = 0
+    [ report  false ]
+  set i map [ [n] -> precision n 1 ] i
+  if i = [list precision xcor 1 precision ycor 1] of end1
+    [ report false ]
+  if i = [list precision xcor 1 precision ycor 1] of end2
+    [ report false ]
+  show (word t1 " " t2 " " i)
+  report true
+end
+
+to-report intersection [t1 t2]
+  let m1 [tan (90 - link-heading)] of t1
+  let m2 [tan (90 - link-heading)] of t2
+  ;; treat parallel/collinear lines as non-intersecting
+  if m1 = m2 [ report [] ]
+  ;; is t1 vertical? if so, swap the two turtles
+  if abs m1 = tan 90
+  [
+    ifelse abs m2 = tan 90
+      [ report [] ]
+      [ report intersection t2 t1 ]
+  ]
+  ;; is t2 vertical? if so, handle specially
+  if abs m2 = tan 90 [
+     ;; represent t1 line in slope-intercept form (y=mx+c)
+      let c1 [link-ycor - link-xcor * m1] of t1
+      ;; t2 is vertical so we know x already
+      let x [link-xcor] of t2
+      ;; solve for y
+      let y m1 * x + c1
+      ;; check if intersection point lies on both segments
+      if not [x-within? x] of t1 [ report [] ]
+      if not [y-within? y] of t2 [ report [] ]
+      report list x y
+  ]
+  ;; now handle the normal case where neither turtle is vertical;
+  ;; start by representing lines in slope-intercept form (y=mx+c)
+  let c1 [link-ycor - link-xcor * m1] of t1
+  let c2 [link-ycor - link-xcor * m2] of t2
+  ;; now solve for x
+  let x (c2 - c1) / (m1 - m2)
+  ;; check if intersection point lies on both segments
+  if not [x-within? x] of t1 [ report [] ]
+  if not [x-within? x] of t2 [ report [] ]
+  report list x (m1 * x + c1)
+end
+
+to-report x-within? [x]  ;; turtle procedure
+  report abs (link-xcor - x) <= abs (link-length / 2 * sin link-heading)
+end
+
+to-report y-within? [y]  ;; turtle procedure
+  report abs (link-ycor - y) <= abs (link-length / 2 * cos link-heading)
+end
+
+to-report link-xcor
+  report ([xcor] of end1 + [xcor] of end2) / 2
+end
+
+to-report link-ycor
+  report ([ycor] of end1 + [ycor] of end2) / 2
+end]]></code>
+  <modelSettings/>
+  <hubnet/>
+</model>

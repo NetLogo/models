@@ -1,0 +1,2002 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<model xmlns="http://ccl.northwestern.edu/netlogo/netlogox/1">
+  <version><![CDATA[NetLogo 6.1.0-M1]]></version>
+  <previewCommands>
+    <compiled><![CDATA[setup repeat 75 [ go ]]]></compiled>
+  </previewCommands>
+  <info><![CDATA[## WHAT IS IT?
+
+This model allows you to explore the effects of deletion, substitution, and insertion mutations on a single strand of DNA and the subsequent outcomes in related protein synthesis in cells.  The model represents effects from mutations that include 1) the number of genes that are encoded in the DNA, 2) the mRNA molecules that are transcribed, and 3) the tRNA molecules that are used to transcribe the mRNA into an amino acid chain, as wells as 4) the subsequent protein that is synthesized.
+
+## HOW IT WORKS
+
+In this model nucleotides are molecules, that when joined together, make up the structural units of DNA.  Visually this appears as single nitrogen base (represented as a colored polygon) and 1 phosphate group (represented as a yellow circle).  Only a single strand of the double stranded DNA molecule is show in this model, as the protein synthesis process starts with the doubled stranded DNA being unwound into two single strands to permit mRNA production.
+
+The nitrogen bases for DNA come in four variations: ([A]denine, [G]uanine, [T]hymine, [C]ytosine) bound to a ribose or deoxyribose backbone.
+
+The same nitrogen bases are used for mRNA and tRNA, as for DNA, except no [T]hymine is used.  Instead it is replaced with [U]racil.
+
+Genes start locations in DNA in this model don't use promoters to initiate transcription of a particular gene, like they do in reality.  Rather, the start codon (encoded by a three letter sequence of nucleotides [ATG], when read from a particular direction),  signals the start of transcription for mRNA.  In reality, ATG start condons are the first codon in mRNA that is translated by ribosome.  Therefore, in reality mRNA often contains additional non-translated nucleotides, before the start codon in mRNA and additional non-translated nucleotides after the stop codons in mRNA.
+
+In this model, however, that complexity of additional "dangling" non-transcribed mRNA has been eliminated by setting the start codon as the site for transcription of DNA to mRNA and the stop codon as the site for ending transcription of DNA to mRNA as well.
+
+In this model, transcription reading of DNA occurs from left to right.   Gene stop locations are encoded either by the first three letter sequence (either [] or [] or []) that is encountered, which is the same reading frame as the ATG sequence at the start of the gene.  Reading frames may be shifted by 0, 1, or 2 nucleotides from the start of the gene.  Stop signals have three possible three nucleotides sequences ([TAG], [TGA], or [TAA])
+
+If the first letter of the three letter sequence for stop has any multiple of 3 nucleotides between it and the last letter of the ATG marking the start, then it is in the same frame of reference and will apply as a stop signal for this gene.  If not, the stop signal is ignored.  If no stop signal is found in the DNA, the gene end will continue until end of the entire DNA strand (the far right side of the DNA in this model).
+
+
+In order for DNA to produce proteins for each gene, the following four steps must be followed by the user, after GO/STOP is pressed to start running the model.
+
+1.  For each gene an mRNA molecule must be transcribed.  This is done by pressing the  1-TRANSCRIBE for genes in the original strand of DNA or 6-TRANSCRIBE for the genes in the duplicated strand of DNA.  Each time this button is pressed, the next gene in the strand of DNA will be transcribed.  When the last gene is reached, then the next gene chosen to transcribe will be the first gene (reading from left to right).
+
+2.  For each mRNA molecule that was transcribed in the original DNA, the 2-RELEASE button must be pressed.  For each mRNA molecule that was transcribed in the duplicated DNA, the 7-RELEASE button must be pressed.  This simulates the release of the mRNA from the nucleus into the ribosome of the cell.
+
+3.  Once the mRNA has finished moving in to the ribosome, the 3-TRANSLATE button must be pressed to translate the mRNA in the original cell and the 8-TRANSLATE button must be pressed to translate the mRNA in the replicated cell.  This pairs a tRNA molecule with each set of three nucleotides in the mRNA molecule.
+
+4.  Once the entire mRNA molecule has been paired with tRNA, the 4-RELEASE button must be pressed to release the amino acid chain from that attached to the tRNA chain in the original cell.  And the 9-RELEASE button must be pressed to release it in the replicated cell.  This amino-acid chain is the protein molecule before it folds up to take on its tertiary structure.
+
+## HOW TO USE IT
+
+NEXT-INSTRUCTION button moves the text in the instruction window forward one "page".
+
+PREVIOUS-INSTRUCTION button moves the text in the instruction window back one "page".
+
+INSTRUCTION # reports the "page" of text in the instruction window being displayed.  These are each of the pages of instructions that the user can page through as they run the model:
+
+Instruction 1: You will be simulating the process of protein synthesis from DNA that occurs in every cell and the effects of mutations on the proteins that are produced.
+
+Instruction 2: When you press SETUP, a single strand of an unwound DNA molecule appears. This represents the state of DNA in the cell nucleus during transcription.
+
+Instruction 3: To produce proteins, each gene in the original DNA strand must be transcribed  into an mRNA molecule.  Do this by pressing  the 1-TRANSCRIBE button.
+
+Instruction 4: For each mRNA molecule that was transcribed, press the 2-RELEASE button.  This releases the mRNA from the nucleus  into the ribosome of the cell.
+
+Instruction 5: For each mRNA molecule in the ribosome, press the 3-TRANSLATE button.  This pairs up tRNA molecules with each set of three nucleotides  in the mRNA molecule.
+
+Instruction 6: For each tRNA chain built, press the 4-RELEASE button.  This releases the amino acid chain from the rest of the tRNA chain, leaving behind the protein molecule that is produced.
+
+Instruction 7: Each time the 1-TRANSCRIBE button is pressed, the next gene in the original strand of DNA will be transcribed.  Press the 1-, 2-, 3-, 4-, buttons and repeat to translate each subsequent gene into a protein.
+
+Instruction 8: When you press the 5-REPLICATE THE ORIGINAL DNA button a copy of the original DNA will be generated for a new cell (as in mitosis or meiosis) and appear in the green.
+
+Instruction 9: The replicated DNA will have a number of random mutations, set by #-NUCLEOTIDES-AFFECTED, each mutation of the type set by MUTATION-TYPE. Press button 5-REPLICATE THE ORIGINAL DNA  again to explore possible outcomes.
+
+Instruction 10: Now repeat the same transcription, release, translation, and release process for the DNA in this new cell.  To do that, press 6-, 7-, 8-, 9- buttons.  Again repeat that sequence to cycle through each gene in this mutated DNA.
+
+Instruction 11: If you want to test the outcomes for your own DNA code, type any sequence of A, G, T, C in the USER-CREATED-CODE  box and set the INITIAL-DNA-STRING
+to “from-user-code”.  The default is set to "AAAAA", but any sequence of letters can be processed.  Strings longer than 64 letters will be trimmed to the first 64 letters and letters that are not A, G, T, or C, will be randomly replaced by one of these letters.
+
+
+Other Setting Information:
+
+SHOW-GENES? controls whether the start and end codons for each gene are visibly tagged in the DNA.
+
+INITIAL-DNA-STRING can be set to "from user-created-code" (see above), or to any of the following: "no genes (short strand)", "no genes (long strand)", "1 short gene", "1 long gene", "2 sequential genes", "2 nested genes", "3 sequential genes", "random (short strand)", "random (long strand)".  Both random settings are fixed length, but random code in that length of DNA.
+
+Buttons 1-4 affect the original cell's DNA.
+Button 5 affects the duplicated DNA that ends up in the new cell
+Buttons 6-9 affect the duplicated cell's DNA
+
+The 10-SHOW PRODUCTION SUMMARY button reports all the proteins that produced in both the original cell and in the duplicated cell.
+
+MUTATION-TYPE can be set to deletion, insertion or substitution.  The number of nucleotides affected is set by #-NUCLEOTIDES-AFFECTED.  So 6 substitutions will place 6 random nucleotides in place of back to back sequence of 6 original nucleotides at a random location in the DNA.  And 4 insertions will add 4 random nucleotides in sequence at a random location in the DNA.  And 3 deletions will delete 3 random nucleotides in sequence at a random location in the DNA.
+
+## THINGS TO NOTICE
+
+Sometimes the end location for 1 gene is the same as for another gene.  This may make it hard to distinguish the numbering of each of the tags for these end locations, since when they are stacked on top of each other at the same location, their text and colors overlap.
+
+Some mutations introduce brand new genes into a strand of DNA.  Some mutations remove an entire gene in a strand of DNA.  Some only affect a few of the amino acids that used in protein synthesis.  Others affect many.  And some mutation affect the non-coding regions of DNA, resulting in no effects in the proteins produced by the cell.
+
+## THINGS TO TRY
+
+Start with a section of DNA with no genes.  How often does a mutation result in the emergence of new gene?
+
+Start with a section of DNA with one or more genes.  How often does a mutation result in the disappearance of an old gene?
+
+Are there certain types of mutations (deletion, insertion, or substitution) that seem to affect the structure of the resulting protein more than others?
+
+Why do certain numbers of nucleotides affected (e.g. 3 and 6) seem to affect some aspects of the genes more frequently and not others?
+
+## EXTENDING THE MODEL
+
+A representation of protein folding could be added to the model (where each neighboring amino acid affects the amount of relative change in orientation to the previous amino acid).
+
+## NETLOGO FEATURES
+
+The model makes use of transparency features in the color channel for the shapes of the start and stop codons in order to allow the user to see the DNA structure beneath them.
+
+The model makes use of "tag" turtles.  These breeds of turtles have no visible shape, but do have text labels displayed.  They are placed at a fine tuned position near the visible turtle it is helping provide a label for and is linked to it.
+
+## RELATED MODELS
+
+DNA Replication Fork is the precursor model to this one.  It shows how two types of mutations (deletion and substitution) cam emerge when DNA is duplicated in mitosis or meiosis through simple unintentional copying errors.
+
+## CREDITS AND REFERENCES
+
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/rp/beagle/index.shtml)
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Novak, M. and Wilensky, U. (2012).  NetLogo DNA Protein Synthesis model.  http://ccl.northwestern.edu/netlogo/models/DNAProteinSynthesis.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2012 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2012 Cite: Novak, M. -->]]></info>
+  <systemDynamics/>
+  <modelInfo>
+    <title/>
+    <subject/>
+  </modelInfo>
+  <linkShapes>
+    <linkShape curviness="0.0" name="default">
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="-0.2"/>
+      <line stroke-dasharray="1.0,0.0" isVisible="true" offset="0.0"/>
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="0.2"/>
+      <indicator editableColorIndex="0" rotatable="true" name="link direction">
+        <elements>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="90" y1="150" x1="150"/>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="210" y1="150" x1="150"/>
+        </elements>
+      </indicator>
+    </linkShape>
+  </linkShapes>
+  <widgets>
+    <view bottom="403" right="1217" top="10" left="465" frameRate="30.0" showTickCounter="true" fontSize="9">
+      <dimensions maxPycor="7" minPycor="-8" maxPxcor="30" minPxcor="0" wrapInY="true" wrapInX="true" patchSize="24.0"/>
+      <tickCounterLabel><![CDATA[ticks]]></tickCounterLabel>
+    </view>
+    <button bottom="50" right="75" top="10" left="5" ticksEnabled="false" forever="false">
+      <source><![CDATA[setup]]></source>
+    </button>
+    <button bottom="50" right="165" top="10" left="75" ticksEnabled="true" forever="true">
+      <source><![CDATA[go]]></source>
+      <display><![CDATA[go / stop]]></display>
+    </button>
+    <chooser bottom="330" right="255" top="285" left="5" currentChoice="4">
+      <variable><![CDATA[initial-dna-string]]></variable>
+      <choices>
+        <stringChoice><![CDATA[from user-created-code]]></stringChoice>
+        <stringChoice><![CDATA[no genes (short strand)]]></stringChoice>
+        <stringChoice><![CDATA[no genes (long strand)]]></stringChoice>
+        <stringChoice><![CDATA[1 short gene]]></stringChoice>
+        <stringChoice><![CDATA[1 long gene]]></stringChoice>
+        <stringChoice><![CDATA[2 sequential genes]]></stringChoice>
+        <stringChoice><![CDATA[2 nested genes]]></stringChoice>
+        <stringChoice><![CDATA[3 sequential genes]]></stringChoice>
+        <stringChoice><![CDATA[random (short strand)]]></stringChoice>
+        <stringChoice><![CDATA[random (long strand)]]></stringChoice>
+      </choices>
+    </chooser>
+    <stringInput bottom="390" right="255" top="330" left="5">
+      <variable><![CDATA[user-created-code]]></variable>
+      <stringData kind="string" multiline="false"><![CDATA[AAAAA]]></stringData>
+    </stringInput>
+    <button bottom="246" right="455" top="210" left="265" ticksEnabled="true" forever="false">
+      <source><![CDATA[replicate-dna
+visualize-all-genes]]></source>
+      <display><![CDATA[5. replicate the original DNA]]></display>
+    </button>
+    <slider bottom="238" right="255" top="205" left="5" direction="horizontal" default="1.0">
+      <maximum><![CDATA[6]]></maximum>
+      <minimum><![CDATA[1]]></minimum>
+      <step><![CDATA[1]]></step>
+      <variable><![CDATA[#-nucleotides-affected]]></variable>
+    </slider>
+    <chooser bottom="285" right="125" top="240" left="5" currentChoice="2">
+      <variable><![CDATA[mutation-type]]></variable>
+      <choices>
+        <stringChoice><![CDATA[deletion]]></stringChoice>
+        <stringChoice><![CDATA[insertion]]></stringChoice>
+        <stringChoice><![CDATA[substitution]]></stringChoice>
+      </choices>
+    </chooser>
+    <button bottom="179" right="370" top="145" left="280" ticksEnabled="true" forever="false">
+      <source><![CDATA[if event-2-completed? [
+  set event-3-triggered? true
+  reset-completed-events
+]]]></source>
+      <display><![CDATA[3. translate]]></display>
+    </button>
+    <button bottom="127" right="370" top="92" left="280" ticksEnabled="true" forever="false">
+      <source><![CDATA[set event-1-triggered? true
+reset-completed-events]]></source>
+      <display><![CDATA[1. transcribe]]></display>
+    </button>
+    <button bottom="179" right="446" top="145" left="370" ticksEnabled="true" forever="false">
+      <source><![CDATA[if event-3-completed? [
+  set event-4-triggered? true
+  reset-completed-events
+]]]></source>
+      <display><![CDATA[4. release]]></display>
+    </button>
+    <monitor fontSize="10" bottom="71" right="352" top="30" left="295" precision="17">
+      <source><![CDATA[original-strand-gene-counter]]></source>
+      <display><![CDATA[genes]]></display>
+    </monitor>
+    <monitor fontSize="10" bottom="321" right="440" top="280" left="340" precision="17">
+      <source><![CDATA[count proteins with [strand = "duplicate"]]]></source>
+      <display><![CDATA[proteins made]]></display>
+    </monitor>
+    <textbox fontSize="11" bottom="281" right="461" top="263" left="306" transparent="true" color="#479030">
+      <display><![CDATA[Replicated DNA in new cell]]></display>
+    </textbox>
+    <button bottom="127" right="445" top="92" left="370" ticksEnabled="true" forever="false">
+      <source><![CDATA[if event-1-completed? [
+  set event-2-triggered? true
+  reset-completed-events
+]]]></source>
+      <display><![CDATA[2. release]]></display>
+    </button>
+    <output fontSize="12" bottom="205" right="255" top="85" left="5"/>
+    <monitor fontSize="10" bottom="321" right="341" top="280" left="291" precision="17">
+      <source><![CDATA[duplicate-strand-gene-counter]]></source>
+      <display><![CDATA[genes]]></display>
+    </monitor>
+    <button bottom="373" right="370" top="340" left="280" ticksEnabled="true" forever="false">
+      <source><![CDATA[set event-6-triggered? true
+reset-completed-events]]></source>
+      <display><![CDATA[6. transcribe]]></display>
+    </button>
+    <button bottom="373" right="445" top="340" left="370" ticksEnabled="true" forever="false">
+      <source><![CDATA[if event-6-completed? [
+  set event-7-triggered? true
+  reset-completed-events
+]]]></source>
+      <display><![CDATA[7. release]]></display>
+    </button>
+    <button bottom="428" right="365" top="395" left="280" ticksEnabled="true" forever="false">
+      <source><![CDATA[if event-7-completed? [
+  set event-8-triggered? true
+  reset-completed-events
+]]]></source>
+      <display><![CDATA[8. translate]]></display>
+    </button>
+    <button bottom="428" right="445" top="395" left="365" ticksEnabled="true" forever="false">
+      <source><![CDATA[if event-8-completed? [
+  set event-9-triggered? true
+  reset-completed-events
+]]]></source>
+      <display><![CDATA[9. release]]></display>
+    </button>
+    <textbox fontSize="9" bottom="97" right="426" top="79" left="336" transparent="true" color="#1F3968">
+      <display><![CDATA[DNA-->mRNA]]></display>
+    </textbox>
+    <textbox fontSize="9" bottom="400" right="419" top="382" left="329" transparent="true" color="#479030">
+      <display><![CDATA[mRNA-->protein]]></display>
+    </textbox>
+    <textbox fontSize="9" bottom="149" right="424" top="131" left="331" transparent="true" color="#1F3968">
+      <display><![CDATA[mRNA-->protein]]></display>
+    </textbox>
+    <monitor fontSize="10" bottom="71" right="441" top="30" left="346" precision="17">
+      <source><![CDATA[count proteins with [strand = "original"]]]></source>
+      <display><![CDATA[proteins made]]></display>
+    </monitor>
+    <textbox fontSize="9" bottom="343" right="421" top="325" left="334" transparent="true" color="#479030">
+      <display><![CDATA[DNA-->mRNA]]></display>
+    </textbox>
+    <textbox fontSize="11" bottom="40" right="446" top="12" left="312" transparent="true" color="#1F3968">
+      <display><![CDATA[Original DNA in old cell]]></display>
+    </textbox>
+    <textbox fontSize="16" bottom="42" right="322" top="8" left="272" transparent="true" color="#AF2820">
+      <display><![CDATA[<--]]></display>
+    </textbox>
+    <switch bottom="278" right="260" top="245" left="130" isOn="true">
+      <variable><![CDATA[show-genes?]]></variable>
+    </switch>
+    <button bottom="428" right="255" top="395" left="5" ticksEnabled="true" forever="false">
+      <source><![CDATA[show-protein-production]]></source>
+      <display><![CDATA[10.  show protein production summary]]></display>
+    </button>
+    <textbox fontSize="16" bottom="216" right="282" top="195" left="262" transparent="true" color="#AF2820">
+      <display><![CDATA[ V]]></display>
+    </textbox>
+    <textbox fontSize="14" bottom="204" right="285" top="18" left="270" transparent="true" color="#AF2820">
+      <display><![CDATA[|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|]]></display>
+    </textbox>
+    <textbox fontSize="16" bottom="281" right="317" top="261" left="274" transparent="true" color="#AF2820">
+      <display><![CDATA[-->]]></display>
+    </textbox>
+    <textbox fontSize="14" bottom="274" right="285" top="243" left="270" transparent="true" color="#AF2820">
+      <display><![CDATA[|
+]]></display>
+    </textbox>
+    <textbox fontSize="16" bottom="276" right="282" top="256" left="267" transparent="true" color="#AF2820">
+      <display><![CDATA[V]]></display>
+    </textbox>
+    <button bottom="83" right="255" top="50" left="145" ticksEnabled="false" forever="false">
+      <source><![CDATA[next-instruction]]></source>
+      <display><![CDATA[next instruction]]></display>
+    </button>
+    <button bottom="83" right="145" top="50" left="5" ticksEnabled="false" forever="false">
+      <source><![CDATA[previous-instruction]]></source>
+      <display><![CDATA[previous instruction]]></display>
+    </button>
+    <monitor fontSize="10" bottom="51" right="255" top="10" left="165" precision="17">
+      <source><![CDATA[current-instruction-label]]></source>
+      <display><![CDATA[instruction #]]></display>
+    </monitor>
+  </widgets>
+  <experiments/>
+  <shapes>
+    <vectorShape editableColorIndex="0" rotatable="true" name="default">
+      <elements>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="60" cy="120" cx="120"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,150 165,165 165,195 180,195 180,225 195,225 195,255 210,255 210,285 165,285 165,255 150,255"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,150 135,165 135,195 120,195 120,225 105,225 105,255 90,255 90,285 135,285 135,255 150,255"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="amino acid">
+      <elements>
+        <polygon marked="true" filled="false" color="#8D8D8D" points="105,135 150,165 195,135 195,90 150,60 105,90 105,135"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="150" y1="210" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="255" x2="195" y1="255" x1="120"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="210" x2="150" y1="240" x1="150"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="30" cy="240" cx="135"/>
+        <polygon marked="false" filled="true" color="#EDED31" points="255,255 240,270 195,270 180,255 195,240 240,240"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="45,255 60,270 105,270 120,255 105,240 60,240"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="195" cx="135"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="150" cx="135"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="120" cx="90"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="75" cx="90"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="45" cx="135"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="75" cx="180"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="120" cx="180"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="amino-ala">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="259" x2="194" y1="259" x1="119"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="225" x2="150" y1="253" x1="149"/>
+        <polygon marked="false" filled="true" color="#EDED31" points="248,259 233,274 188,274 173,259 188,244 233,244"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="53,259 68,274 113,274 128,259 113,244 68,244"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="214" cx="138"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="24" cy="248" cx="138"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="amino-arg">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="75" x2="150" y1="75" x1="120"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="259" x2="194" y1="259" x1="119"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="45" x2="150" y1="253" x1="149"/>
+        <polygon marked="false" filled="true" color="#EDED31" points="247,259 232,274 187,274 172,259 187,244 232,244"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="214" cx="138"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="24" cy="248" cx="138"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="176" cx="137"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="24" cy="102" cx="138"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="139" cx="138"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="53,259 68,274 113,274 128,259 113,244 68,244"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="24" cy="64" cx="138"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="24" cy="64" cx="108"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="24" cy="27" cx="138"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="amino-asn">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="187" x2="150" y1="187" x1="120"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="259" x2="194" y1="259" x1="119"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="150" y1="253" x1="149"/>
+        <polygon marked="false" filled="true" color="#EDED31" points="247,259 232,274 187,274 172,259 187,244 232,244"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="214" cx="138"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="24" cy="248" cx="138"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="176" cx="137"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="24" cy="139" cx="138"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="53,259 68,274 113,274 128,259 113,244 68,244"/>
+        <circle marked="false" filled="true" color="#2D8DBE" diameter="24" cy="175" cx="106"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="amino-asp">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="259" x2="194" y1="259" x1="119"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="120" x2="150" y1="253" x1="149"/>
+        <polygon marked="false" filled="true" color="#EDED31" points="247,259 232,274 187,274 172,259 187,244 232,244"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="214" cx="138"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="24" cy="248" cx="138"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="24" cy="176" cx="137"/>
+        <circle marked="false" filled="true" color="#2D8DBE" diameter="24" cy="102" cx="138"/>
+        <circle marked="false" filled="true" color="#2D8DBE" diameter="24" cy="139" cx="138"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="53,259 68,274 113,274 128,259 113,244 68,244"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="amino-cys">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="259" x2="194" y1="259" x1="119"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="150" y1="253" x1="149"/>
+        <polygon marked="false" filled="true" color="#EDED31" points="247,259 232,274 187,274 172,259 187,244 232,244"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="214" cx="138"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="24" cy="248" cx="138"/>
+        <circle marked="false" filled="true" color="#2CD13B" diameter="24" cy="176" cx="137"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="53,259 68,274 113,274 128,259 113,244 68,244"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="amino-gln">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="150" y1="150" x1="120"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="259" x2="194" y1="259" x1="119"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="120" x2="150" y1="253" x1="149"/>
+        <polygon marked="false" filled="true" color="#EDED31" points="247,259 232,274 187,274 172,259 187,244 232,244"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="214" cx="138"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="24" cy="248" cx="138"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="176" cx="137"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="24" cy="102" cx="138"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="24" cy="139" cx="138"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="53,259 68,274 113,274 128,259 113,244 68,244"/>
+        <circle marked="false" filled="true" color="#2D8DBE" diameter="24" cy="139" cx="108"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="amino-glu">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="259" x2="194" y1="259" x1="119"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="75" x2="150" y1="253" x1="149"/>
+        <polygon marked="false" filled="true" color="#EDED31" points="247,259 232,274 187,274 172,259 187,244 232,244"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="214" cx="138"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="24" cy="248" cx="138"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="176" cx="137"/>
+        <circle marked="false" filled="true" color="#2D8DBE" diameter="24" cy="102" cx="138"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="24" cy="139" cx="138"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="53,259 68,274 113,274 128,259 113,244 68,244"/>
+        <circle marked="false" filled="true" color="#2D8DBE" diameter="24" cy="64" cx="138"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="amino-gly">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="259" x2="194" y1="259" x1="119"/>
+        <polygon marked="false" filled="true" color="#EDED31" points="248,259 233,274 188,274 173,259 188,244 233,244"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="53,259 68,274 113,274 128,259 113,244 68,244"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="24" cy="248" cx="138"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="amino-his">
+      <elements>
+        <polygon marked="true" filled="false" color="#8D8D8D" points="195,225 240,225 255,180 217,154 180,180"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="225" x2="195" y1="225" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="259" x2="194" y1="259" x1="119"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="225" x2="150" y1="253" x1="149"/>
+        <polygon marked="false" filled="true" color="#EDED31" points="248,259 233,274 188,274 173,259 188,244 233,244"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="53,259 68,274 113,274 128,259 113,244 68,244"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="214" cx="138"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="24" cy="248" cx="138"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="214" cx="183"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="214" cx="228"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="24" cy="169" cx="243"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="24" cy="169" cx="168"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="143" cx="206"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="amino-ile">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="226" x2="151" y1="226" x1="121"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="259" x2="194" y1="259" x1="119"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="150" y1="253" x1="149"/>
+        <polygon marked="false" filled="true" color="#EDED31" points="247,259 232,274 187,274 172,259 187,244 232,244"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="24" cy="214" cx="138"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="24" cy="248" cx="138"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="176" cx="137"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="24" cy="139" cx="138"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="53,259 68,274 113,274 128,259 113,244 68,244"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="214" cx="106"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="amino-leu">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="165" x2="150" y1="135" x1="105"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="135" x2="195" y1="165" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="150" y1="210" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="255" x2="195" y1="255" x1="120"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="210" x2="150" y1="240" x1="150"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="30" cy="240" cx="135"/>
+        <polygon marked="false" filled="true" color="#EDED31" points="255,255 240,270 195,270 180,255 195,240 240,240"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="45,255 60,270 105,270 120,255 105,240 60,240"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="195" cx="135"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="150" cx="135"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="120" cx="90"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="120" cx="180"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="amino-lys">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="259" x2="194" y1="259" x1="119"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="90" x2="150" y1="253" x1="149"/>
+        <polygon marked="false" filled="true" color="#EDED31" points="248,259 233,274 188,274 173,259 188,244 233,244"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="53,259 68,274 113,274 128,259 113,244 68,244"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="214" cx="138"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="24" cy="248" cx="138"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="176" cx="137"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="24" cy="64" cx="138"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="102" cx="138"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="139" cx="138"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="amino-met">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="259" x2="194" y1="259" x1="119"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="105" x2="150" y1="253" x1="149"/>
+        <polygon marked="false" filled="true" color="#EDED31" points="247,259 232,274 187,274 172,259 187,244 232,244"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="214" cx="138"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="24" cy="248" cx="138"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="176" cx="137"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="102" cx="138"/>
+        <circle marked="false" filled="true" color="#2CD13B" diameter="24" cy="139" cx="138"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="53,259 68,274 113,274 128,259 113,244 68,244"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="amino-phe">
+      <elements>
+        <polygon marked="true" filled="false" color="#8D8D8D" points="119,147 120,180 150,195 180,179 179,146 150,131 119,148"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="194" x2="149" y1="224" x1="149"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="259" x2="194" y1="259" x1="119"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="223" x2="149" y1="253" x1="149"/>
+        <polygon marked="false" filled="true" color="#EDED31" points="248,259 233,274 188,274 173,259 188,244 233,244"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="53,259 68,274 113,274 128,259 113,244 68,244"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="214" cx="138"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="24" cy="248" cx="138"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="183" cx="138"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="120" cx="139"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="135" cx="109"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="168" cx="109"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="135" cx="167"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="168" cx="167"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="amino-pro">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="255" x2="195" y1="210" x1="210"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="180" y1="210" x1="135"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="210" x2="210" y1="180" x1="165"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="255" x2="195" y1="255" x1="120"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="255" x2="150" y1="210" x1="135"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="30" cy="240" cx="135"/>
+        <polygon marked="false" filled="true" color="#EDED31" points="255,255 240,270 195,270 180,255 195,240 240,240"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="45,255 60,270 105,270 120,255 105,240 60,240"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="166" cx="160"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="195" cx="120"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="195" cx="195"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="amino-ser">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="150" y1="210" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="255" x2="195" y1="255" x1="120"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="210" x2="150" y1="240" x1="150"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="30" cy="240" cx="135"/>
+        <polygon marked="false" filled="true" color="#EDED31" points="255,255 240,270 195,270 180,255 195,240 240,240"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="45,255 60,270 105,270 120,255 105,240 60,240"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="195" cx="135"/>
+        <circle marked="false" filled="true" color="#E07F96" diameter="30" cy="150" cx="135"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="amino-thr">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="190" x2="148" y1="190" x1="118"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="259" x2="194" y1="259" x1="119"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="150" y1="253" x1="149"/>
+        <polygon marked="false" filled="true" color="#EDED31" points="247,259 232,274 187,274 172,259 187,244 232,244"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="214" cx="138"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="24" cy="248" cx="138"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="24" cy="176" cx="137"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="139" cx="138"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="53,259 68,274 113,274 128,259 113,244 68,244"/>
+        <circle marked="false" filled="true" color="#2D8DBE" diameter="24" cy="177" cx="105"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="amino-trp">
+      <elements>
+        <polygon marked="true" filled="false" color="#8D8D8D" points="204,137 181,163 181,194 225,195 226,161"/>
+        <polygon marked="true" filled="false" color="#8D8D8D" points="224,162 225,195 255,210 285,195 284,161 255,146 224,163"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="197" x2="180" y1="224" x1="149"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="259" x2="194" y1="259" x1="119"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="223" x2="149" y1="253" x1="149"/>
+        <polygon marked="false" filled="true" color="#EDED31" points="248,259 233,274 188,274 173,259 188,244 233,244"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="53,259 68,274 113,274 128,259 113,244 68,244"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="214" cx="138"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="24" cy="248" cx="138"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="198" cx="243"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="135" cx="244"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="150" cx="214"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="183" cx="214"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="150" cx="272"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="183" cx="272"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="183" cx="169"/>
+        <circle marked="false" filled="true" color="#54C4C4" diameter="24" cy="125" cx="192"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="24" cy="150" cx="169"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="amino-tyr">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="30" x2="150" y1="60" x1="150"/>
+        <polygon marked="true" filled="false" color="#8D8D8D" points="105,135 150,165 195,135 195,90 150,60 105,90 105,135"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="150" y1="210" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="255" x2="195" y1="255" x1="120"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="210" x2="150" y1="240" x1="150"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="30" cy="240" cx="135"/>
+        <polygon marked="false" filled="true" color="#EDED31" points="255,255 240,270 195,270 180,255 195,240 240,240"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="45,255 60,270 105,270 120,255 105,240 60,240"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="195" cx="135"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="150" cx="135"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="120" cx="90"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="75" cx="90"/>
+        <circle marked="false" filled="true" color="#E07F96" diameter="30" cy="0" cx="135"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="75" cx="180"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="120" cx="180"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="45" cx="135"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="amino-val">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="210" x2="150" y1="180" x1="105"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="195" y1="210" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="210" x2="150" y1="240" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="255" x2="195" y1="255" x1="120"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="210" x2="150" y1="240" x1="150"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="30" cy="240" cx="135"/>
+        <polygon marked="false" filled="true" color="#EDED31" points="255,255 240,270 195,270 180,255 195,240 240,240"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="45,255 60,270 105,270 120,255 105,240 60,240"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="30" cy="195" cx="135"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="165" cx="90"/>
+        <circle marked="false" filled="true" color="#D73229" diameter="30" cy="165" cx="180"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="empty">
+      <elements/>
+    </vectorShape>
+    <vectorShape editableColorIndex="2" rotatable="false" name="end">
+      <elements>
+        <polygon marked="true" filled="true" color="#F16A15" points="130,61 145,46 160,46 175,61 220,61 235,46 250,46 265,61 265,226 250,241 235,241 220,226 175,226 160,241 145,241 130,226"/>
+        <polygon marked="false" filled="false" color="#FFFFFF" points="130,61 145,46 160,46 175,61 220,61 235,46 250,46 265,61 265,226 250,241 235,241 220,226 175,226 160,241 145,241 130,226"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="helicase">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="195,150 180,165 165,165 150,180 135,180 120,195 105,195 90,210 75,210 75,165 105,165 105,150"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="195,150 180,135 165,135 150,120 135,120 120,105 105,105 90,90 75,90 75,135 105,135 105,150"/>
+        <circle marked="false" filled="false" color="#EDED31" diameter="66" cy="117" cx="117"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="helicase-expanded">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="210,150 195,135 180,135 165,120 150,120 135,105 120,105 105,90 75,90 90,135 120,135 135,150"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="210,150 195,165 180,165 165,180 150,180 135,195 120,195 105,210 75,210 90,165 120,165 135,150"/>
+        <circle marked="false" filled="false" color="#EDED31" diameter="66" cy="117" cx="117"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="line">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="300" x2="150" y1="0" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="line half">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="150" y1="0" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="mrna-a">
+      <elements>
+        <line marked="false" filled="false" color="#E07F96" y2="60" x2="45" y1="30" x1="75"/>
+        <line marked="false" filled="false" color="#E07F96" y2="30" x2="90" y1="60" x1="120"/>
+        <circle marked="false" filled="true" color="#E07F96" diameter="30" cy="15" cx="69"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="180,180 150,120 120,180 120,60 180,60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="mrna-c">
+      <elements>
+        <line marked="false" filled="false" color="#E07F96" y2="30" x2="75" y1="60" x1="45"/>
+        <line marked="false" filled="false" color="#E07F96" y2="31" x2="90" y1="61" x1="120"/>
+        <circle marked="false" filled="true" color="#E07F96" diameter="30" cy="15" cx="67"/>
+        <polygon marked="false" filled="true" color="#54C4C4" points="180,135 180,60 120,60 120,135 135,165 165,165"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="mrna-g">
+      <elements>
+        <polygon marked="false" filled="true" color="#7C50A4" points="120,60 120,165 135,135 165,135 180,165 180,60"/>
+        <line marked="false" filled="false" color="#E07F96" y2="30" x2="90" y1="60" x1="120"/>
+        <line marked="false" filled="false" color="#E07F96" y2="30" x2="75" y1="60" x1="45"/>
+        <circle marked="false" filled="true" color="#E07F96" diameter="30" cy="15" cx="67"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="mrna-start">
+      <elements>
+        <polygon marked="false" filled="true" color="#E07F96" points="150,240 0,240 15,270 30,270 30,300 60,300 60,270 150,270"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="mrna-stop">
+      <elements>
+        <polygon marked="false" filled="true" color="#E07F96" points="180,240 30,240 30,270 105,270 105,300 135,300 135,270 165,270"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="mrna-u">
+      <elements>
+        <polygon marked="false" filled="true" color="#D73229" points="120,60 120,120 150,180 180,120 180,60"/>
+        <line marked="false" filled="false" color="#E07F96" y2="30" x2="90" y1="60" x1="120"/>
+        <line marked="false" filled="false" color="#E07F96" y2="30" x2="75" y1="60" x1="45"/>
+        <circle marked="false" filled="true" color="#E07F96" diameter="30" cy="17" cx="67"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="nucleoside-tri-a">
+      <elements>
+        <line marked="false" filled="false" color="#FFFFFF" y2="75" x2="90" y1="30" x1="75"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="180,180 150,120 120,180 120,60 180,60"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="30" x2="90" y1="60" x1="120"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="75" x2="75" y1="60" x1="45"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="15" cx="69"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="60" cx="69"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="45" cx="24"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="nucleoside-tri-c">
+      <elements>
+        <line marked="false" filled="false" color="#FFFFFF" y2="75" x2="90" y1="30" x1="75"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="30" x2="90" y1="60" x1="120"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="75" x2="75" y1="60" x1="45"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="15" cx="69"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="60" cx="69"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="45" cx="24"/>
+        <polygon marked="false" filled="true" color="#54C4C4" points="120,60 120,135 135,165 165,165 180,135 180,60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="nucleoside-tri-g">
+      <elements>
+        <line marked="false" filled="false" color="#FFFFFF" y2="75" x2="90" y1="30" x1="75"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="30" x2="90" y1="60" x1="120"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="75" x2="75" y1="60" x1="45"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="15" cx="69"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="60" cx="69"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="45" cx="24"/>
+        <polygon marked="false" filled="true" color="#7C50A4" points="120,60 120,165 135,135 165,135 180,165 180,60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="nucleoside-tri-t">
+      <elements>
+        <line marked="false" filled="false" color="#FFFFFF" y2="75" x2="90" y1="30" x1="75"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="30" x2="90" y1="60" x1="120"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="75" x2="75" y1="60" x1="45"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="15" cx="69"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="60" cx="69"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="45" cx="24"/>
+        <polygon marked="false" filled="true" color="#F16A15" points="120,60 120,120 150,180 180,120 180,60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="nucleoside-tri-u">
+      <elements>
+        <line marked="false" filled="false" color="#FFFFFF" y2="75" x2="90" y1="30" x1="75"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="30" x2="90" y1="60" x1="120"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="75" x2="75" y1="60" x1="45"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="15" cx="69"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="60" cx="69"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="45" cx="24"/>
+        <polygon marked="false" filled="true" color="#D73229" points="120,60 120,120 150,180 180,120 180,60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="nucleotide-a">
+      <elements>
+        <line marked="false" filled="false" color="#FFFFFF" y2="60" x2="45" y1="30" x1="75"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="30" x2="90" y1="60" x1="120"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="15" cx="69"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="180,180 150,120 120,180 120,60 180,60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="nucleotide-c">
+      <elements>
+        <line marked="false" filled="false" color="#FFFFFF" y2="30" x2="75" y1="60" x1="45"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="31" x2="90" y1="61" x1="120"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="15" cx="67"/>
+        <polygon marked="false" filled="true" color="#54C4C4" points="180,135 180,60 120,60 120,135 135,165 165,165"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="nucleotide-g">
+      <elements>
+        <polygon marked="false" filled="true" color="#7C50A4" points="120,60 120,165 135,135 165,135 180,165 180,60"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="30" x2="90" y1="60" x1="120"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="30" x2="75" y1="60" x1="45"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="15" cx="67"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="nucleotide-t">
+      <elements>
+        <polygon marked="false" filled="true" color="#F16A15" points="120,60 120,120 150,180 180,120 180,60"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="30" x2="90" y1="60" x1="120"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="30" x2="75" y1="60" x1="45"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="17" cx="67"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="nucleotide-u">
+      <elements>
+        <polygon marked="false" filled="true" color="#D73229" points="120,60 120,120 150,180 180,120 180,60"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="30" x2="90" y1="60" x1="120"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="30" x2="75" y1="60" x1="45"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="17" cx="67"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="nucleotide-x">
+      <elements>
+        <line marked="false" filled="false" color="#FFFFFF" y2="60" x2="45" y1="30" x1="75"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="30" x2="90" y1="60" x1="120"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="15" cx="69"/>
+        <polygon marked="true" filled="false" color="#8D8D8D" points="120,60 120,180 150,120 180,180 180,60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="phosphate">
+      <elements>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="135" cx="129"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="phosphate-pair">
+      <elements>
+        <line marked="false" filled="false" color="#FFFFFF" y2="150" x2="150" y1="135" x1="120"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="135" cx="144"/>
+        <circle marked="false" filled="true" color="#EDED31" diameter="30" cy="120" cx="99"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="1" rotatable="false" name="polymerase-0">
+      <elements>
+        <polygon marked="true" filled="true" color="#D73229" points="120,150 120,60 90,60 75,60 30,60 0,120 0,180 30,240 75,240 90,240 120,240"/>
+        <rect marked="true" filled="true" color="#D73229" height="60" width="30" y="0" x="90"/>
+        <rect marked="true" filled="true" color="#D73229" height="60" width="30" y="240" x="90"/>
+        <rect marked="true" filled="false" color="#D73229" height="180" width="60" y="60" x="120"/>
+        <rect marked="true" filled="true" color="#D73229" height="30" width="180" y="135" x="120"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="1" rotatable="false" name="polymerase-1">
+      <elements>
+        <polygon marked="true" filled="true" color="#D73229" points="120,150 120,30 90,45 75,60 30,60 0,120 0,180 30,240 75,240 90,240 120,240"/>
+        <rect marked="true" filled="true" color="#D73229" height="30" width="60" y="30" x="120"/>
+        <rect marked="true" filled="true" color="#D73229" height="60" width="30" y="240" x="90"/>
+        <rect marked="true" filled="false" color="#D73229" height="180" width="60" y="60" x="120"/>
+        <rect marked="true" filled="true" color="#D73229" height="30" width="195" y="135" x="105"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="1" rotatable="false" name="polymerase-2">
+      <elements>
+        <polygon marked="true" filled="true" color="#D73229" points="120,150 120,30 90,45 75,60 30,60 0,120 0,180 30,240 75,240 90,255 120,270"/>
+        <rect marked="true" filled="true" color="#D73229" height="30" width="60" y="30" x="120"/>
+        <rect marked="true" filled="true" color="#D73229" height="30" width="60" y="240" x="120"/>
+        <line marked="true" filled="false" color="#D73229" y2="240" x2="180" y1="60" x1="180"/>
+        <rect marked="true" filled="true" color="#D73229" height="30" width="180" y="135" x="120"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="1" rotatable="false" name="polymerase-3">
+      <elements>
+        <polygon marked="true" filled="true" color="#D73229" points="120,150 120,30 90,45 75,60 30,60 0,120 0,180 30,240 75,240 90,255 120,270"/>
+        <rect marked="true" filled="true" color="#D73229" height="30" width="60" y="30" x="120"/>
+        <rect marked="true" filled="true" color="#D73229" height="30" width="60" y="240" x="120"/>
+        <rect marked="true" filled="true" color="#D73229" height="30" width="225" y="135" x="90"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="promoter-expanded">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,150 135,135 120,135 105,120 90,120 75,105 60,105 45,90 15,90 30,135 60,135 75,150"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,150 135,165 120,165 105,180 90,180 75,195 60,195 45,210 15,210 30,165 60,165 75,150"/>
+        <circle marked="false" filled="false" color="#EDED31" diameter="66" cy="117" cx="117"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="start">
+      <elements>
+        <rect marked="false" filled="false" color="#FFFFFF" height="194" width="135" y="46" x="125"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="192" width="134" y="47" x="126"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="target">
+      <elements>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="146" cy="76" cx="76"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="105" x2="150" y1="60" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="240" x2="150" y1="195" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="tree">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="94" cy="3" cx="118"/>
+        <rect marked="false" filled="true" color="#9D6E48" height="105" width="60" y="195" x="120"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="21" cx="65"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="127" cy="41" cx="116"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="120" cy="90" cx="45"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="152" cy="74" cx="104"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="triangle">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,30 15,255 285,255"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="triangle 2">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,30 15,255 285,255"/>
+        <polygon marked="false" filled="true" color="#000000" points="151,99 225,223 75,224"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="trna-a">
+      <elements>
+        <line marked="false" filled="false" color="#E07F96" y2="30" x2="150" y1="60" x1="150"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="180,180 150,120 120,180 120,60 180,60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="trna-c">
+      <elements>
+        <line marked="false" filled="false" color="#E07F96" y2="30" x2="150" y1="61" x1="150"/>
+        <polygon marked="false" filled="true" color="#54C4C4" points="180,135 180,60 120,60 120,135 135,165 165,165"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="trna-core">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="15,300 285,300 300,270 300,240 195,210 195,150 210,165 225,165 240,150 240,135 225,120 210,120 195,135 195,75 180,75 180,225 285,255 285,270 270,285 30,285 15,270 15,255 105,225 105,135 90,135 90,165 75,150 60,150 45,165 45,180 60,195 75,195 90,180 90,210 0,240 0,270"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="trna-g">
+      <elements>
+        <polygon marked="false" filled="true" color="#7C50A4" points="120,60 120,165 135,135 165,135 180,165 180,60"/>
+        <line marked="false" filled="false" color="#E07F96" y2="30" x2="150" y1="60" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="trna-u">
+      <elements>
+        <polygon marked="false" filled="true" color="#D73229" points="120,60 120,120 150,180 180,120 180,60"/>
+        <line marked="false" filled="false" color="#E07F96" y2="30" x2="150" y1="60" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="truck">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="142" width="191" y="45" x="4"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="296,193 296,150 259,134 244,104 208,104 207,194"/>
+        <rect marked="false" filled="true" color="#FFFFFF" height="45" width="0" y="60" x="195"/>
+        <polygon marked="false" filled="true" color="#000000" points="238,112 252,141 219,141 218,112"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="234"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="9" width="33" y="185" x="181"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="144"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="24"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="24"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="144"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="234"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="turtle">
+      <elements>
+        <polygon marked="false" filled="true" color="#59B03C" points="215,204 240,233 246,254 228,266 215,252 193,210"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="195,90 225,75 245,75 260,89 269,108 261,124 240,105 225,105 210,105"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="105,90 75,75 55,75 40,89 31,108 39,124 60,105 75,105 90,105"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="132,85 134,64 107,51 108,17 150,2 192,18 192,52 169,65 172,87"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="85,204 60,233 54,254 72,266 85,252 107,210"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="119,75 179,75 209,101 224,135 220,225 175,261 128,261 81,224 74,135 88,99"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="wheel">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="294" cy="3" cx="3"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="15" x2="150" y1="285" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="285" y1="150" x1="15"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="60" cy="120" cx="120"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="269" x2="79" y1="40" x1="216"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="221" x2="269" y1="84" x1="40"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="79" x2="269" y1="216" x1="40"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="269" x2="221" y1="40" x1="84"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="x">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="270,75 225,30 30,225 75,270"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="30,75 75,30 270,225 225,270"/>
+      </elements>
+    </vectorShape>
+  </shapes>
+  <code><![CDATA[;;;;;;;;;;;;; DNA molecules  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; keeps a list of the dna code for a given gene
+breed [genes gene]
+
+;; the pieces that are inside the dna chain
+breed [nucleotides nucleotide]
+
+;; a visualization agent (similar to a promoter protein)
+;; that attaches to every start codon location in a DNA chain
+breed [promoters promoter]
+
+;; a visualization agent that attaches to every stop codon location in a DNA chain
+breed [terminators terminator]
+
+;;;;;;;;;;;;; mRNA molecules  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; the pieces that are inside the mRNA chain
+breed [mRNA-nucleotides mRNA-nucleotide]
+
+;; the tail ends of the mRNA chain
+breed [mRNAs mRNA]
+
+;;;;;;;;;;;;; tRNA molecules  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; the center piece of the tRNA complex
+breed [tRNAs tRNA]
+
+;; the pieces that are inside the tRNA complex
+breed [tRNA-nucleotides tRNA-nucleotide]
+
+;; the top part of the tRNA complex
+breed [amino-acids amino-acid]
+
+;;;;;;;;;;;;; protein molecules  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+breed [proteins protein]                    ;; holds proteins information
+
+;;;;;;;;;;;;; tags for supporting a fine tuned placement of labels ;;;;;;;;;;;;;
+breed [tags tag]
+
+;;;;;;;;;;;;; links ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; the link between an agent and where its label agent is.
+;; This allows fine tuned placement of visualizing of labels
+undirected-link-breed [taglines tagline]
+
+;; the link between adjacent amino acids in a protein.
+;; It will allows the entire protein to be folded up
+;; (not currently implemented)
+directed-link-breed   [backbones backbone]
+
+;;;;;;;;;;;;;;;;;;;turtle variables ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+genes-own            [gene-number strand code start-position end-position]
+mRNAs-own            [gene-number strand code cap-type traveling? released?]
+promoters-own        [gene-number strand]
+terminators-own      [gene-number strand]
+tRNAs-own            [gene-number strand]
+proteins-own         [gene-number strand value]
+amino-acids-own      [gene-number strand value place]
+nucleotides-own      [gene-number strand value place]
+mRNA-nucleotides-own [gene-number strand value place]
+tRNA-nucleotides-own [gene-number strand value place]
+tags-own [
+  value ; the value for the label of the agent it is linked to when visualized.
+]
+
+
+
+;;;;;;;;;;;;;globals ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+globals [
+
+  current-instruction               ;; holds counter value for which instruction is being displayed
+  codon-to-amino-acid-key           ;; holds lookup table for codon triplet to amino acid
+  original-dna-string               ;; holds a string of the original DNA
+  duplicate-dna-string              ;; holds a string of the duplicate DNA.  This changes every time the replicate DNA button is pressed
+
+  ;; position values for visualization
+  duplicate-ribosome-ycor
+  original-ribosome-ycor
+  duplicate-dna-ycor
+  original-dna-ycor
+  nucleotide-spacing
+
+  ;; colors for various agents and states of agents
+  nucleo-tag-color
+  terminator-color
+  gene-color-counter
+
+  ;; counters for the number of genes
+  original-strand-gene-counter
+  duplicate-strand-gene-counter
+  original-display-mrna-counter
+  duplicate-display-mrna-counter
+
+  mRNAs-traveling                    ;; list of mRNAs traveling
+  mRNAs-released                     ;; list of mRNAs released
+
+  ;; for keeping track of user initiated events
+  replicate-dna-event?
+  show-genes-event?
+  event-1-triggered?
+  event-2-triggered?
+  event-3-triggered?
+  event-4-triggered?
+  event-6-triggered?
+  event-7-triggered?
+  event-8-triggered?
+  event-9-triggered?
+  event-1-completed?
+  event-2-completed?
+  event-3-completed?
+  event-4-completed?
+  event-6-completed?
+  event-7-completed?
+  event-8-completed?
+  event-9-completed?
+]
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;setup procedures;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to setup
+  clear-all
+  set replicate-dna-event? false
+  set show-genes-event? false
+
+  set event-1-triggered? false
+  set event-2-triggered? false
+  set event-3-triggered? false
+  set event-4-triggered? false
+  set event-6-triggered? false
+  set event-7-triggered? false
+  set event-8-triggered? false
+  set event-9-triggered? false
+  set event-1-completed? false
+  set event-2-completed? false
+  set event-3-completed? false
+  set event-4-completed? false
+  set event-6-completed? false
+  set event-7-completed? false
+  set event-8-completed? false
+  set event-9-completed? false
+
+
+  set mRNAs-traveling []
+  set mRNAs-released  []
+  set codon-to-amino-acid-key []
+  set original-dna-string ""
+  set duplicate-dna-string ""
+
+  set duplicate-ribosome-ycor -7
+  set original-ribosome-ycor 4
+  set duplicate-dna-ycor -2
+  set original-dna-ycor 1
+  set gene-color-counter 1
+  set nucleotide-spacing .45
+
+  set original-strand-gene-counter 0
+  set duplicate-strand-gene-counter 0
+  set original-display-mrna-counter 0
+  set duplicate-display-mrna-counter 0
+
+  set-default-shape promoters "start"
+  set-default-shape terminators "end"
+  set-default-shape tags "empty"
+
+  set terminator-color      [255 0 0 150]
+  set nucleo-tag-color      [255 255 255 120]
+
+  initialize-codon-to-amino-acid-key
+  setup-starting-dna
+  visualize-all-genes
+  ask patches [set pcolor blue - 4]
+  ask patches with [pycor > 2]  [set pcolor blue - 3.5]
+  ask patches with [pycor < 0]  [set pcolor green - 4]
+  ask patches with [pycor < -3] [set pcolor green - 3.5]
+  show-instruction 1
+  reset-ticks
+end
+
+
+to setup-starting-dna
+  setup-dna-string
+  build-genes-from-dna "original" original-dna-string
+  make-a-nucleotide-chain-for-dna-string "original" original-dna-string
+  place-dna "original"
+  build-mrna-for-each-gene "original"
+  build-protein-from-mrna  "original"
+  place-trnas "original"
+  hide-mrna   "original"
+  hide-trna   "original"
+  hide-genes  "original"
+end
+
+
+
+;; original-dna-string
+to setup-dna-string
+  if initial-dna-string = "from user-created-code" [set original-dna-string dna-string-with-non-nucleotide-characters-replaced user-created-code]
+  if initial-dna-string = "random (short strand)" [
+    let initial-length-dna 12
+    repeat initial-length-dna [set original-dna-string (word original-dna-string random-base-letter-DNA)]
+  ]
+  if initial-dna-string = "random (long strand)"  [
+    let initial-length-dna 56
+    repeat initial-length-dna [set original-dna-string (word original-dna-string random-base-letter-DNA)]
+  ]
+  if initial-dna-string = "no genes (short strand)" [set original-dna-string "ATTATATCGTAG"]
+  if initial-dna-string = "no genes (long strand)"  [set original-dna-string "GATATTTGGTAGCCCGAGAAGTGGTTTTTCAGATAACAGAGGTGGAGCAGCTTTTAG"]
+  if initial-dna-string = "1 short gene"            [set original-dna-string "ATTATGTGGTAG"]
+  if initial-dna-string = "1 long gene"             [set original-dna-string "GGGATGGACACCTTATCATTTGCTACTAGCGACCAGTTTGAGTAGCTTCGTCGGTGA"]
+  if initial-dna-string = "2 sequential genes"      [set original-dna-string "AGTATGAAAACCCACGAGTGGTAGCCCGAGATTGAGATGTGGTTTTTCAGATAACAG"]
+  if initial-dna-string = "2 nested genes"          [set original-dna-string "GTTATGAGGGGGACCCGAGATGTGGTTTTTGAAATAGACAAGTAGACCCTAATAGAC"]
+  if initial-dna-string = "3 sequential genes"      [set original-dna-string "GATATGTGGTAGCCCGAGATGTGGTTTTTCAGATAACAGATGTGGAGCAGCTTTTAG"]
+end
+
+
+to place-dna [strand-type]
+  let dna (turtle-set genes nucleotides promoters terminators)
+  ask dna with [strand = strand-type][
+    if strand-type = "original"  [set ycor original-dna-ycor]
+    if strand-type = "duplicate" [set ycor duplicate-dna-ycor]
+  ]
+end
+
+
+to place-trnas [strand-type]
+  ask tRNAs with [strand = strand-type] [
+    if strand-type = "original"   [set ycor original-ribosome-ycor + 1]
+    if strand-type = "duplicate"  [set ycor duplicate-ribosome-ycor + 1]
+  ]
+end
+
+
+to make-a-nucleotide-chain-for-dna-string [strand-type dna-string]
+  let previous-nucleotide nobody
+  let place-counter 0
+  create-turtles 1 [
+    set heading 90
+    fd 1
+    repeat (length dna-string) [
+        hatch 1 [
+          set breed nucleotides
+          set strand strand-type
+          set value item place-counter dna-string
+          set shape (word "nucleotide-" value)
+          set heading 0
+          set place place-counter
+          attach-tag 5 0.5 value nucleo-tag-color
+          set place-counter place-counter + 1
+          ]
+       fd nucleotide-spacing
+       ]
+   die ;; remove the chromosome builder (a temporary construction turtle)
+  ]
+end
+
+
+
+to build-genes-from-dna [strand-type dna-string]
+  let remaining-dna dna-string
+  let this-item ""
+  let last-item ""
+  let last-last-item ""
+  let triplet ""
+  let item-position 0
+  let last-item-kept length dna-string
+  repeat (length dna-string) [
+    let first-item item 0 remaining-dna
+    set remaining-dna remove-item 0 remaining-dna
+    set last-last-item last-item
+    set last-item this-item
+    set this-item first-item
+    set triplet (word last-last-item last-item this-item)
+    if triplet = "ATG" [
+      create-genes 1 [
+        set hidden? true
+        set strand strand-type
+        if strand = "original"  [
+          set original-strand-gene-counter original-strand-gene-counter + 1
+          set gene-number original-strand-gene-counter
+        ]
+        if strand = "duplicate" [
+          set duplicate-strand-gene-counter duplicate-strand-gene-counter + 1
+          set gene-number duplicate-strand-gene-counter
+        ]
+        set start-position item-position
+        set end-position ((length original-dna-string))
+        set code (word triplet substring dna-string (item-position + 1) ((length dna-string) ) )
+        ]
+     ]
+     set item-position item-position + 1
+  ]
+  ask genes [
+    let end-of-gene? false
+    let triplet-counter 0
+    let new-code code
+    repeat floor (length code / 3)  [
+      let this-triplet (word  (item (0 + (triplet-counter * 3)) code)  (item (1 + (triplet-counter * 3)) code)  (item (2 + (triplet-counter * 3)) code) )
+      if (this-triplet =  "TAG" or this-triplet = "TGA"  or this-triplet = "TAA") and not end-of-gene? [
+        set end-position triplet-counter * 3
+        set new-code substring code 0 end-position
+        set end-of-gene? true
+      ]
+      set triplet-counter triplet-counter + 1
+    ]
+    set triplet-counter 0
+    set end-of-gene? false
+    set code new-code
+  ]
+
+end
+
+
+to build-mRNA-for-each-gene [strand-type]
+  ask genes with [strand = strand-type] [
+    let this-code code
+    let this-gene self
+
+    set heading 90
+    fd .1
+    repeat start-position [fd .45] ;; move over to correct nucleotide location on dna
+
+    let gene-color next-gene-color
+    let gene-color-with-transparency (sentence (extract-rgb gene-color) 110)
+    let gene-color-label (sentence (extract-rgb gene-color) 250)
+    ;; make promoter for start codon
+    hatch 1 [
+      set breed promoters
+      set color gene-color-with-transparency
+      set size 3
+      set hidden? false
+      attach-tag 142 1.7 (word "start:" gene-number) gene-color-label
+      create-backbone-from this-gene [set hidden? true set tie-mode "fixed" tie]
+      ;; make terminator for end codon
+      hatch 1 [
+        set breed terminators
+        fd ((length this-code) * 0.45)
+        attach-tag 142 1.7 (word "end:" gene-number) gene-color-label
+        create-backbone-from this-gene [set hidden? true set tie-mode "fixed" tie]
+      ]
+    ]
+     ;; make start cap for mRNA molecule
+    hatch 1 [
+      let this-mRNA self
+      set breed mRNAs
+      set traveling? false
+      set released? false
+      set code mrna-string-from-dna-string code
+      set cap-type "start"
+      set shape "mrna-start"
+      set hidden? false
+      ;; associate the mRNA molecule with the parent gene
+      create-backbone-from this-gene [set hidden? true set tie-mode "fixed" tie]
+      ;; build a stop cap for the mRNA molecule
+      hatch 1 [
+        set cap-type "stop"
+        set shape "mrna-stop"
+        let nucleotide-counter 0
+        ;; associate the mRNA stop cap with the start cap
+        create-backbone-from this-mRNA  [set hidden? true set tie-mode "fixed" tie]
+        ;; use the stop cap turtle to construct the mRNA nucleotides
+        let code-to-transcribe code
+        repeat length code [
+          hatch 1 [
+            set breed mRNA-nucleotides
+            set value first code-to-transcribe
+            set shape (word "mrna-" value)
+            set heading 180
+            attach-tag 175 0.9 value nucleo-tag-color
+            create-backbone-from this-mRNA  [set hidden? true set tie-mode "fixed" tie]
+          ]
+          set code-to-transcribe remove-item 0 code-to-transcribe
+          fd nucleotide-spacing
+        ]
+      ]
+    ]
+  ]
+end
+
+
+to build-protein-from-mrna [strand-type]
+  ask mRNAs with [cap-type = "start" and strand = strand-type] [
+    let number-of-triplets-in-list floor ((length code) / 3)
+    let this-triplet ""
+    let triplet-counter 0
+    repeat number-of-triplets-in-list   [
+      set this-triplet (word
+        complementary-mRNA-base  (item (0 + (triplet-counter * 3)) code)
+        complementary-mRNA-base  (item (1 + (triplet-counter * 3)) code)
+        complementary-mRNA-base  (item (2 + (triplet-counter * 3)) code)
+        )
+      build-tRNA-for-this-triplet  this-triplet triplet-counter
+      set triplet-counter triplet-counter + 1
+    ]
+  ]
+end
+
+
+
+to build-tRNA-for-this-triplet [this-triplet triplet-counter]
+  let this-tRNA nobody
+  hatch 1 [
+    set breed tRNAs
+    set this-tRNA self
+    set shape "tRNA-core"
+    set size 1.2
+    set heading 0
+    hatch 1 [
+      set breed amino-acids
+      set value  (which-protein-for-this-codon this-triplet)
+      set shape (word "amino-" value)
+      set heading 0
+      set size 2
+      fd 1
+      create-backbone-from this-tRNA  [set hidden? true set tie-mode "free" tie]
+      attach-tag 20 .8 value nucleo-tag-color
+    ]
+    hatch 1 [
+      set breed tRNA-nucleotides
+      set shape (word "trna-" (item 0 this-triplet))
+      set heading -155
+      fd 1.1
+      set heading 0
+      create-backbone-from this-tRNA  [set hidden? true set tie-mode "fixed" tie]
+      hatch 1 [
+        set breed tRNA-nucleotides
+        set shape (word "trna-" (item 1 this-triplet))
+        set heading 90
+        fd .45
+        set heading 0
+        create-backbone-from this-tRNA  [set hidden? true set tie-mode "fixed" tie]
+      ]
+      hatch 1 [
+        set breed tRNA-nucleotides
+        set shape (word "trna-" (item 2 this-triplet))
+        set heading 90
+        fd .90
+        set heading 0
+        create-backbone-from this-tRNA  [set hidden? true set tie-mode "fixed" tie]
+      ]
+    ]
+    fd 1
+    set heading 90
+    fd nucleotide-spacing + ( nucleotide-spacing * 3 * triplet-counter )
+    set heading 0
+  ]
+end
+
+
+;; fine tuned placement of the location of a label for a nucleoside or nucleotide
+to attach-tag [direction displacement label-value color-value]
+  hatch 1 [
+    set heading direction
+    fd displacement
+    set breed tags
+    set label label-value
+    set size 0.1
+    set label-color color-value
+    create-tagline-with myself [set tie-mode "fixed" set hidden? true tie]
+  ]
+end
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;; visibility procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to visualize-all-genes
+   ask (turtle-set promoters terminators)[ask tagline-neighbors [set hidden? not show-genes?] set hidden? not show-genes?]
+end
+
+
+to hide-genes  [strand-type]
+   ask (turtle-set promoters terminators)  with [strand = strand-type] [ask tagline-neighbors [set hidden? true] set hidden? true]
+end
+
+
+to hide-mrna  [strand-type]
+   ask (turtle-set mRNAs mrna-nucleotides) with [strand = strand-type] [ask tagline-neighbors [set hidden? true] set hidden? true]
+end
+
+
+to hide-trna  [strand-type]
+   ask (turtle-set tRNAs trna-nucleotides amino-acids) with [strand = strand-type] [ask tagline-neighbors [set hidden? true] set hidden? true]
+end
+
+
+to show-next-mrna  [strand-type]
+  let these-genes genes with [strand = strand-type]
+  if count these-genes = 0 [display-user-message-no-genes]
+  if strand-type = "original" [
+    set original-display-mrna-counter original-display-mrna-counter + 1
+    if (original-display-mrna-counter > count these-genes) [set original-display-mrna-counter 1]
+    ask mRNAs with [strand = strand-type and cap-type = "start"] [
+      ifelse gene-number != original-display-mrna-counter
+        [ask out-backbone-neighbors [set hidden? true ask tagline-neighbors [set hidden? true] ] set hidden? true]
+        [ask out-backbone-neighbors [set hidden? false ask tagline-neighbors [set hidden? false] ] set hidden? false]
+      set traveling? false set released? false set ycor original-dna-ycor
+    ]
+  ]
+  if strand-type = "duplicate" [
+    set duplicate-display-mrna-counter duplicate-display-mrna-counter + 1
+    if (duplicate-display-mrna-counter > count these-genes) [set duplicate-display-mrna-counter 1]
+    ask mRNAs with [strand = strand-type and cap-type = "start"] [
+      ifelse gene-number != duplicate-display-mrna-counter
+        [ask out-backbone-neighbors [set hidden? true ask tagline-neighbors [set hidden? true] ] set hidden? true]
+        [ask out-backbone-neighbors [set hidden? false ask tagline-neighbors [set hidden? false]] set hidden? false]
+      set traveling? false set released? false set ycor duplicate-dna-ycor
+    ]
+  ]
+end
+
+
+to show-next-trna  [strand-type]
+  let this-gene-number gene-number-for-this-strand strand-type
+  ask mRNAs with [strand = strand-type and cap-type = "start" and released? and gene-number = this-gene-number ] [
+    ask tRNAs with [strand = strand-type] [
+      ifelse gene-number = this-gene-number
+        [ask out-backbone-neighbors [set hidden? false ask tagline-neighbors [set hidden? false] ] set hidden? false]
+        [ask out-backbone-neighbors [set hidden? true ask tagline-neighbors [set hidden? true] ] set hidden? true]
+      ]
+  ]
+end
+
+
+to display-user-message-no-genes
+  user-message "There are no genes in this strand of DNA. A specific sequence of 3 nucleotides is required for a gene"
+end
+
+
+to release-next-protein  [strand-type]
+  let make-protein? false
+  let this-gene-number gene-number-for-this-strand strand-type
+  ask mRNAs with [strand = strand-type and cap-type = "start" and released?  and gene-number = this-gene-number ] [
+
+    ask tRNAs with [strand = strand-type] [
+      ifelse gene-number = this-gene-number
+        [ask out-backbone-neighbors [
+         set make-protein? true
+         set hidden? true
+           ifelse breed = amino-acids
+             [set hidden? false ask tagline-neighbors [set hidden? false] ]
+             [set hidden? true ask tagline-neighbors [set hidden? true] ]
+           ]
+         ]
+         [ask out-backbone-neighbors [set hidden? true ask tagline-neighbors [set hidden? true] ] set hidden? true]
+         set hidden? true
+    ]
+    if make-protein? [make-protein strand-type ]
+  ]
+end
+
+
+to make-protein [strand-type]
+  let this-gene-number gene-number-for-this-strand strand-type
+  let this-protein-value ""
+  let these-amino-acids amino-acids with [breed = amino-acids and strand-type = strand and gene-number = this-gene-number]
+  let ordered-amino-acids sort-on [who] these-amino-acids
+  foreach ordered-amino-acids [ the-amino-acid ->
+    set this-protein-value (word   this-protein-value "-" ([value] of the-amino-acid))
+  ]
+  if not any? proteins with [strand = strand-type and value = this-protein-value] [
+      hatch 1 [set breed proteins set value this-protein-value set hidden? true setxy 0 0]
+  ]
+end
+
+
+to release-next-mRNA-from-nucleus [strand-type]
+  ask mRNAs with [strand = strand-type][set traveling? true set released? false]
+end
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; runtime procedures ;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to go
+  visualize-all-genes
+  ;; these boolean variables keep track of button press events being cued by the user
+  if event-1-triggered? [
+    show-next-mrna "original"
+    set event-1-triggered? false
+    set event-1-completed? true
+    set event-2-completed? false
+    set event-3-completed? false
+    set event-4-completed? false
+  ]
+  if event-2-triggered? and event-1-completed? [
+    release-next-mRNA-from-nucleus "original"
+    set event-2-triggered? false
+    set event-3-completed? false
+    set event-4-completed? false
+  ]
+  if event-3-triggered? and event-2-completed? [
+    show-next-trna "original"
+    set event-3-triggered? false
+    set event-3-completed? true
+    set event-4-completed? false
+  ]
+  if event-4-triggered? and event-3-completed? [
+    release-next-protein "original"
+    set event-4-triggered? false
+    set event-4-completed? true
+  ]
+  if event-6-triggered? [
+    show-next-mrna "duplicate"
+    set event-6-triggered? false
+    set event-6-completed? true
+    set event-7-completed? false
+    set event-8-completed? false
+    set event-9-completed? false
+  ]
+  if event-7-triggered? and event-6-completed? [
+    release-next-mRNA-from-nucleus "duplicate"
+    set event-7-triggered? false
+    set event-8-completed? false
+    set event-9-completed? false
+  ]
+  if event-8-triggered? and event-7-completed? [
+    show-next-trna "duplicate"
+    set event-8-triggered? false
+    set event-8-completed? true
+    set event-9-completed? false
+  ]
+  if event-9-triggered? and event-8-completed? [
+    release-next-protein "duplicate"
+    set event-9-triggered? false
+    set event-9-completed? true
+  ]
+  move-mRNA-molecules-out-of-nucleus
+  tick
+end
+
+
+to move-mRNA-molecules-out-of-nucleus
+  ask mRNAs with [traveling? and cap-type = "start"] [
+    if strand = "original" [
+      if ycor < original-ribosome-ycor [ set ycor ycor + .1 ]
+      if ycor >= original-ribosome-ycor [ set traveling? false set released? true set event-2-completed? true]
+    ]
+    if strand = "duplicate" [
+      if ycor > duplicate-ribosome-ycor [ set ycor ycor - .1]
+      if ycor <= duplicate-ribosome-ycor [ set traveling? false set released? true set event-7-completed? true]
+    ]
+  ]
+end
+
+
+to show-protein-production
+  clear-output
+  let original-proteins proteins with [strand = "original"]
+  output-print "Proteins Produced"
+  output-print (word "from original DNA  = " count original-proteins)
+  output-print "::::::::::::::::::"
+  ask original-proteins [
+    output-print (word "Orig.Gene #" gene-number " > Protein:")
+    output-print value
+    output-print ""
+  ]
+  output-print "=================="
+  let duplicate-proteins  proteins with [strand = "duplicate"]
+  output-print "Proteins Produced"
+  output-print (word "from copy of DNA = " count duplicate-proteins)
+  output-print "::::::::::::::::::"
+  ask duplicate-proteins [
+    output-print (word "Copy.Gene #" gene-number " > Protein:")
+    output-print value
+    output-print ""
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;; make duplicate dna procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to make-duplicate-dna-string
+  let position-counter 0
+  set duplicate-strand-gene-counter 0
+  let clean-duplicate-dna-string original-dna-string
+  let mutating-copy-of-dna-string original-dna-string
+
+    let target-loci random ((length mutating-copy-of-dna-string) - #-nucleotides-affected)
+    let dna-at-target item target-loci mutating-copy-of-dna-string
+    let dna-before-target substring mutating-copy-of-dna-string 0 target-loci
+    let loci-counter 0
+    let dna-at-and-after-target substring mutating-copy-of-dna-string target-loci length mutating-copy-of-dna-string
+
+    if mutation-type = "deletion" [
+      repeat #-nucleotides-affected [
+        set  mutating-copy-of-dna-string remove-item target-loci mutating-copy-of-dna-string
+      ]
+    ]
+    if mutation-type  = "substitution" [
+      repeat #-nucleotides-affected [
+        set mutating-copy-of-dna-string (replace-item (target-loci + loci-counter) mutating-copy-of-dna-string random-base-letter-DNA)
+        set loci-counter loci-counter + 1
+      ]
+    ]
+    if mutation-type  = "insertion" [
+      repeat #-nucleotides-affected [
+        set  dna-at-and-after-target (word random-base-letter-DNA  dna-at-and-after-target)
+      ]
+      set mutating-copy-of-dna-string (word dna-before-target dna-at-and-after-target)
+    ]
+
+ set duplicate-dna-string mutating-copy-of-dna-string
+end
+
+
+to replicate-dna
+  let turtles-to-remove (turtle-set nucleotides mRNAs tRNAs genes promoters terminators amino-acids mrna-nucleotides)
+  ;; (re)build the everything for the duplicate dna
+  ask turtles-to-remove with [strand = "duplicate" ][ask tagline-neighbors [die] die]            ;; wipe out old nucleotides
+  make-duplicate-dna-string
+  build-genes-from-dna "duplicate" duplicate-dna-string
+  make-a-nucleotide-chain-for-dna-string "duplicate" duplicate-dna-string
+  place-dna "duplicate"
+  build-mrna-for-each-gene "duplicate"
+  build-protein-from-mrna "duplicate"
+  place-trnas "duplicate"
+  hide-mrna   "duplicate"
+  hide-trna   "duplicate"
+  hide-genes  "duplicate"
+end
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;; initializing lists and strings ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to initialize-codon-to-amino-acid-key
+   set codon-to-amino-acid-key [
+     ;;all triplets where the 2nd base is U
+     ["UUU" "Phe"] ["UUC" "Phe"] ["UUA" "Leu"] ["UUG" "Leu"]
+     ["CUU" "Leu"] ["CUC" "Leu"] ["CUA" "Leu"] ["CUG" "Leu"]
+     ["AUU" "Ile"] ["AUC" "Ile"] ["AUA" "Ile"] ["AUG" "Met"]
+     ["GUU" "Val"] ["GUC" "Val"] ["GUA" "Val"] ["GUG" "Val"]
+     ;;all triplets where the 2nd base is C
+     ["UCU" "Ser"] ["UCC" "Ser"] ["UCA" "Ser"] ["UCG" "Ser"]
+     ["CCU" "Pro"] ["CCC" "Pro"] ["CCA" "Pro"] ["CCG" "Pro"]
+     ["ACU" "Thr"] ["ACC" "Thr"] ["ACA" "Thr"] ["ACG" "Thr"]
+     ["GCU" "Ala"] ["GCC" "Ala"] ["GCA" "Ala"] ["GCG" "Ala"]
+     ;;all triplets where the 3rd base is A
+     ["UAU" "Tyr"] ["UAC" "Tyr"] ["UAA" "Stop"] ["UAG" "Stop"]
+     ["CAU" "His"] ["CAC" "His"] ["CAA" "Gln"] ["CAG" "Gln"]
+     ["AAU" "Asn"] ["AAC" "Asn"] ["AAA" "Lys"] ["AAG" "Lys"]
+     ["GAU" "Asp"] ["GAC" "Asp"] ["GAA" "Glu"] ["GAG" "Glu"]
+     ;;all triplets where the 4th base is G
+     ["UGU" "Cys"] ["UGC" "Cys"] ["UGA" "Stop"] ["UGG" "Trp"]
+     ["CGU" "Arg"] ["CGC" "Arg"] ["CGA" "Arg"] ["CGG" "Arg"]
+     ["AGU" "Ser"] ["AGC" "Ser"] ["AGA" "Arg"] ["AGG" "Arg"]
+     ["GGU" "Gly"] ["GGC" "Gly"] ["GGA" "Gly"] ["GGG" "Gly"]
+     ]
+end
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;; reporters ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;; returns values such as "Gly" for "GGA" or "Tyr" for "UAC" using the codon-to-amino-acid-key
+to-report which-protein-for-this-codon [this-codon]
+ report item 1 (item 0 filter [ pair -> first pair = this-codon] codon-to-amino-acid-key )
+end
+
+;;; reports a random base for a nucleotide in DNA
+to-report random-base-letter-DNA
+  let r random 4
+  let letter-to-report ""
+  if r = 0 [set letter-to-report "A"]
+  if r = 1 [set letter-to-report "G"]
+  if r = 2 [set letter-to-report "T"]
+  if r = 3 [set letter-to-report "C"]
+  report letter-to-report
+end
+
+;;; reports a complementary base for a base pairing given the nucleotide from DNA or mRNA
+to-report complementary-mRNA-base [base]
+  let base-to-report ""
+  if base = "A" [set base-to-report "U"]
+  if base = "T" [set base-to-report "A"]
+  if base = "U" [set base-to-report "A"]
+  if base = "G" [set base-to-report "C"]
+  if base = "C" [set base-to-report "G"]
+  report base-to-report
+end
+
+
+;; cycles through next color in base-color list to assign to the next gene
+to-report next-gene-color
+  ifelse gene-color-counter >= (length base-colors) - 1
+   [set gene-color-counter 0]
+   [set gene-color-counter gene-color-counter + 1 ]
+  report (item gene-color-counter base-colors)
+end
+
+
+to-report gene-number-for-this-strand [strand-type]
+  let this-gene-number 0
+  if strand-type = "original"  [set this-gene-number original-display-mrna-counter]
+  if strand-type = "duplicate" [set this-gene-number duplicate-display-mrna-counter]
+  report this-gene-number
+end
+
+
+;; reports the mrna code that gets transcribed from the dna
+to-report mrna-string-from-dna-string [dna-string]
+  let new-string dna-string
+  let next-item 0
+  repeat length dna-string [
+    set new-string (replace-item next-item new-string (complementary-mRNA-base (item next-item new-string))  )
+    set next-item next-item + 1
+  ]
+  report new-string
+end
+
+;; reports a string of dna where any A, G, C, T letter is replaced with a random one of these, and any length beyond
+;; characters is deprecated
+to-report dna-string-with-non-nucleotide-characters-replaced [dna-string]
+  let new-string dna-string
+  let next-item 0
+  repeat length dna-string [
+    set new-string (replace-item next-item new-string (replace-non-nucleotide-character (item next-item new-string))  )
+    set next-item next-item + 1
+  ]
+  if length dna-string > 64 [set new-string substring new-string 0 64]
+  report new-string
+end
+
+;; replaces any A, G, C, T letter is replaced with a random one of these
+to-report replace-non-nucleotide-character [nucleotide-character]
+   let character-to-return nucleotide-character
+   if nucleotide-character != "A" and nucleotide-character != "T" and nucleotide-character != "C" and nucleotide-character != "G"
+     [set character-to-return random-base-letter-DNA]
+   report character-to-return
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;; instructions for players ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to-report current-instruction-label
+  report ifelse-value (current-instruction = 0)
+    [ "press setup" ]
+    [ (word current-instruction " of " length instructions) ]
+end
+
+
+to next-instruction
+  show-instruction current-instruction + 1
+end
+
+
+to previous-instruction
+  show-instruction current-instruction - 1
+end
+
+
+to show-instruction [ i ]
+  if i >= 1 and i <= length instructions [
+    set current-instruction i
+    clear-output
+    foreach item (current-instruction - 1) instructions output-print
+  ]
+end
+
+
+to-report instructions
+  report [
+    [
+     "You will be simulating the process"
+     "of protein synthesis from DNA that"
+     "occurs in every cell.  And you will"
+     "explore the effects of mutations"
+     "on the proteins that are produced."
+    ]
+    [
+     "When you press SETUP, a single"
+     "strand of an unwound DNA molecule"
+     "appears. This represents the state"
+      "of DNA in the cell nucleus during"
+     "transcription."
+    ]
+    [
+     "To produce proteins, each gene in"
+     "the original DNA strand must be"
+     "transcribed  into an mRNA molecule."
+     "Do this by pressing GO/STOP and"
+     "then the 1-TRANSCRIBE button."
+    ]
+    [
+     "For each mRNA molecule that was"
+     "transcribed, press the 2-RELEASE"
+     "button.  This releases the mRNA"
+     "from the nucleus  into the ribosome"
+     "of the cell."
+    ]
+    [
+     "For each mRNA molecule in the"
+     "ribosome, press the 3-TRANSLATE"
+     "button.  This pairs up molecules"
+     "of tRNA with each set of three"
+     "nucleotides in the mRNA molecule."
+    ]
+    [
+      "For each tRNA chain built, press"
+      "the 4-RELEASE button.  This"
+      "releases the amino acid chain"
+      "from the rest of the tRNA chain,"
+      "leaving behind the protein"
+      "molecule that is produced."
+    ]
+    [
+      "Each time the 1-TRANSCRIBE"
+      "button is pressed, the next gene"
+      "in the original strand of DNA "
+      "will be transcribed.  Press the 1-,"
+      "2-, 3-, 4- buttons and repeat to"
+      "translate each subsequent gene."
+    ]
+    [
+      "When you press the 5-REPLICATE"
+      "THE ORIGINAL DNA button a copy"
+      "of the original DNA will be "
+      "generated for a new cell"
+      "(as in mitosis or meiosis) and"
+      "it will appear in the green."
+    ]
+    [
+      "The replicated DNA will have a"
+      "# of random mutations, set by"
+      "#-NUCLEOTIDES-AFFECTED, each"
+      "mutation of the type set by"
+      "MUTATION-TYPE. Press button 5)"
+      "again to explore possible outcomes."
+    ]
+    [
+      "Now repeat the same transcription,"
+      "release, translation, and release"
+      "process for the DNA in this new"
+      "cell by pressing 6-, 7-, 8-, 9-."
+      "Repeat that sequence again to"
+      "cycle through to the next gene."
+    ]
+    [
+      "If you want to test the outcomes"
+      "for your own DNA code, type any"
+      "sequence of A, G, T, C in the"
+      "USER-CREATED-CODE box and set"
+      "the INITIAL-DNA-STRING to"
+      "“from-user-code”.  Then press"
+      "SETUP and start over again."
+    ]
+  ]
+end
+
+
+
+to reset-completed-events
+
+  if event-1-triggered? or  event-2-triggered? or event-3-triggered? or event-4-triggered? [
+    set event-4-completed? false
+    if event-1-triggered? or  event-2-triggered? or event-3-triggered? [
+      set event-3-completed? false
+      if event-1-triggered? or  event-2-triggered?  [
+        set event-2-completed? false
+        if event-1-triggered?  [ set event-1-completed? false ]
+      ]
+    ]
+  ]
+  if event-6-triggered? or event-7-triggered? or event-8-triggered? or event-9-triggered? [
+    set event-9-completed? false
+    if event-6-triggered? or  event-7-triggered? or event-8-triggered? [
+      set event-8-completed? false
+      if event-6-triggered? or  event-7-triggered?  [
+        set event-7-completed? false
+        if event-6-triggered?  [ set event-6-completed? false ]
+      ]
+    ]
+
+  ]
+
+
+end
+
+
+; Copyright 2012 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <modelSettings snapToGrid="true"/>
+  <hubnet/>
+</model>

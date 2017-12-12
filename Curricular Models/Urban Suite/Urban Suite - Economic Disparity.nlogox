@@ -1,0 +1,830 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<model xmlns="http://ccl.northwestern.edu/netlogo/netlogox/1">
+  <version><![CDATA[NetLogo 6.1.0-M1]]></version>
+  <previewCommands>
+    <compiled><![CDATA[setup repeat 75 [ go ]]]></compiled>
+  </previewCommands>
+  <info><![CDATA[## WHAT IS IT?
+
+This model explores residential land-usage patterns from an economic perspective, using the socio-economic status of the agents to determine their preferences for choosing a location to live.  It models the growth of two populations, one rich and one poor, who settle based on three properties of the landscape: the perceived quality, the cost of living, and the proximity to services (large red dots). These same properties then change based on where the different populations settle.
+
+The model ultimately shows the segregation of populations based on income, the clustering of services in more affluent areas, and how people's attitude can lead either to a cluster condition (emphasis on proximity), or a condition of sprawl (emphasis on cost or quality).
+
+## HOW IT WORKS
+
+Job sites (shown as red circles on the map) are created and destroyed.  People (shown as small blue and pink squares) move in and move out.  These people want to live near to jobs, but also consider the price (cost of living) and quality of prospective locations.  But let's get more specific.
+
+When a new place of employment comes into the world, it randomly samples some number of locations (controlled by the NUMBER-OF-TESTS slider), and chooses the one with the highest price (i.e. land-value).  This may seem irrational at first, but the assumption this model makes is that jobs move toward where the wealth is.  If there is more money in a certain area, then there are more affluent people to spend that money on goods and services.
+
+The validity of this assumption in a real-world setting is worthy of skepticism.  For instance, companies also wish to pay less rent or property tax, and so alternatively one could argue that they would be seeking the least expensive piece of land to occupy.  This seems particularly true for the industrial sector, which has no need for consumers to be nearby.
+
+In any case, the reader is encouraged to carefully examine all assumptions, challenge them, and perhaps extend the model to incorporate assumptions that are more plausible in his/her view.  A model's predictions are only as good as the assumptions that underlie them.
+
+Each "tick" of the model, some number of new poor people (controlled by the POOR-PER-STEP slider) and new rich people (controlled by the RICH-PER-STEP slider) enter into the world.  When people enter the world, they randomly sample some number of locations, and choose to inhabit the one that maximizes "utility" for them, which is given by a hedonistic utility function.
+
+There are two fundamentally different types of people in this model -- "poor" people (shown in blue) and "rich" people (shown in pink), and they have differing priorities.  Both types of people wish to be located close to a place of employment.  However, rich people seek a location that has good quality, heedless of price, whereas poor people seek locations with low price, disregarding quality.
+
+The last important rule of the model is the effect that agents have on the land they inhabit.  Rich people moving into an area cause the land price and quality to increase, whereas poor people cause the land price and quality to decrease.  Nearby land attributes are affected as well, with the effect diminishing over distance.
+
+## HOW TO USE IT
+
+Click the SETUP button first, to set up the model.  All land in the world has the same price and quality.  One job location is placed in the middle of the world, and several rich and poor people are spread out nearby it, which immediately affect the quality and price of the land they inhabit, as well as nearby land.
+
+Click the GO button to start the simulation.  To step through the simulation one "tick" at a time, use the GO-ONCE button.
+
+There are five view modes, which are controlled by the buttons VIEW PRICE, VIEW QUALITY, VIEW DIST., VIEW RICH-UTILITY, and VIEW-POOR-UTILITY
+
+VIEW PRICE displays the land-price value of each location, with white being a high price, black being a low price, and the various shades of yellow are in between.
+
+VIEW QUALITY displays the quality value of each location, with white being a high quality, black being a low quality, and the various shades of green are in between.
+
+VIEW DIST. displays the distance from each location to a place of employment.  Brighter colors demonstrate closeness.
+
+VIEW RICH-UTILITY displays the utility that rich people assign to each location on the map.  Lighter values designate better utility, and darker values designate worse utility.  Note that the highest utility areas may still be vacant, since each agent only samples a small set of the patches in the world
+
+VIEW-POOR-UTILITY displays the utility that poor people assign to each location on the map.  Lighter values designate better utility, and darker values designate worse utility.
+
+The NUMBER-OF-TESTS slider affects how many locations each agent looks at when choosing a location that optimizes the agent's utility.
+
+The RESIDENTS-PER-JOB slider determines how often a new place of employment is created in the world.  For every RESIDENTS-PER-JOB people, a new place of employment appears.
+
+There is,  however,  a maximum number of places of employment, which is controlled by the MAX-JOBS slider.
+
+Some number of poor people enter the world each time step, as determined by the POOR-PER-STEP slider.  Likewise, some number of rich people (determined by the RICH-PER-STEP slider) enter the world.
+
+Some number of poor people and rich people disappear from the world each turn, as well, which is determined by the DEATH-RATE slider.  Although it is called "death rate", it should not be taken literally -- it merely represents the disappearance of agents from the world that is being considered by the model, which could be caused by a number of factors (such as emigration).  If DEATH-RATE is set to 5, this means that both 5 rich people and 5 poor people disappear each time step.  The agents removed are always those that have been in the world for the longest period of time.
+
+The priorities of the poor people can be adjusted with the POOR-PRICE-PRIORITY slider.  If this slider is set to -1, this means that poor people do not care about price at all, and are only interested in being close to employment.  If this slider is set to 1, then poor people only care about price, and do not concern themselves with job locations.  Setting the slider at 0 balances these two factors.
+
+Similarly, the priorities of rich people can be adjusted with the RICH-QUALITY-PRIORITY slider.  On this slider, -1 means that rich people care only about having a short commute to their jobs, and not about the quality of the land, whereas 1 means that they care only about quality, and are not concerned with distance to employment.  Again, 0 represents an equal balance of these priorities.
+
+The TRAVEL DISTANCE plot shows the average distance that poor and rich people must travel to reach the nearest point of employment.  Apart from the interesting visual patterns that form in the view, this plot is the most important output of the model.
+
+The # OF JOBS monitor tells how many places of employment are currently in the world.
+
+The POPULATION monitor tells how many total people there are in the world, and the POOR POP and RICH POP monitors give the poor and rich population sizes respectively.
+
+## THINGS TO NOTICE
+
+Do the VIEW PRICE mode and the VIEW QUALITY mode look very similar?  Apart from the fact that one is green, and the other is yellow, they might be showing identical values?  To test this, you can right click (or control-click on a Mac computer) on one of the patches in the view and choose "inspect patch XX YY".  You can do this for several patches, and you will find that the price and quality are always the same.  In this model, whenever quality goes up or down, price changes in direct proportion.
+
+What if NUMBER-OF-TESTS is small?  Is the population more or less densely centered around the jobs?  What if NUMBER-OF-TESTS is large?
+
+Change the viewing mode to distance-from-jobs, by clicking the VIEW DIST button.  Watch the model run, and the lines that form where gradients from two different jobs come together and overlap.  These shapes are related to Voronoi polygons.  You can learn more about them by looking at the "Voronoi" model in the NetLogo model library.
+
+Even if the DEATH-RATE is set such that more people are leaving the world than entering it, the model does not allow the population to die out entirely -- instead, the population will stay small.  If you grow the population for a while, and then raise the DEATH-RATE to balance out rich and poor people entering the world, then you can hold the population constant.  In this case, you might view the scenario as the same people relocating within the model, rather than new people entering and old people leaving.
+
+## THINGS TO TRY
+
+After letting the model run for a while, try switching back and forth between the VIEW POOR-UTILITY and VIEW RICH-UTILITY display modes.  How many places that are dark for rich are bright for poor?  Is there usually an inverse relationship?  Are there places which both rich and poor find desirable, and if so, where are they?  What if you move both priority sliders to the left?
+
+Try drastically changing the POOR-PRICE-PRIORITY and RICH-QUALITY-PRIORITY sliders.  Do rich people always have the shorter distances to employment, or do poor people sometimes have the shorter distances?
+
+## EXTENDING THE MODEL
+
+As noted above in the THINGS TO NOTICE section, in this model price and quality of land are locked together, always holding the same values.  Extend this model so that this isn't always the case.  For example, you might make it so that when new people move into an area of the model, they only affect the quality of nearby locations in a small radius, whereas they affect the price of a broader circle of cells.
+
+## NETLOGO FEATURES
+
+This model makes use of NetLogo's breeds to differentiate rich agents, poor agents, and job agents.
+
+Extensive use is also made of the SCALE-COLOR primitive, which allows for the three different view modes of the model.
+
+## RELATED MODELS
+
+This model is related to all of the other models in the "Urban Suite".  In particular, this model shows elements of the concept of positive feedback, which is demonstrated in the "Urban Suite - Positive Feedback" model.
+
+It might also be interesting to compare it to the models "Wealth Distribution" and "Voronoi".
+
+## CREDITS AND REFERENCES
+
+This model was loosely based on a model originally written by William Rand and Derek Robinson as part of the Sluce Project at the University of Michigan.  For more about the original model (SOME) that was the basis for this model, please see:
+
+Brown D.G., Robinson D.T., Nassauer J.I., An L., Page S.E., Low B., Rand W., Zellner M., and R. Riolo (In Press) "Exurbia from the Bottom-Up: Agent-Based Modeling and Empirical Requirements." Geoforum.
+
+This model was developed during the Sprawl/Swarm Class at Illinois Institute of Technology in Fall 2006 under the supervision of Sarah Dunn and Martin Felsen, by the following group of students: Danil Nagy and Bridget Dodd.  See http://www.sprawlcity.us/ for more details.
+
+Further modifications and refinements were made by members of the Center for Connected Learning and Computer-Based Modeling before releasing it as an Urban Suite model.
+
+The Urban Suite models were developed as part of the Procedural Modeling of Cities project, under the sponsorship of NSF ITR award 0326542, Electronic Arts & Maxis.
+
+Please see the project web site ([http://ccl.northwestern.edu/cities/](http://ccl.northwestern.edu/cities/)) for more information.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Felsen, M. and Wilensky, U. (2007).  NetLogo Urban Suite - Economic Disparity model.  http://ccl.northwestern.edu/netlogo/models/UrbanSuite-EconomicDisparity.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2007 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2007 Cite: Felsen, M. -->]]></info>
+  <systemDynamics/>
+  <modelInfo>
+    <title/>
+    <subject/>
+  </modelInfo>
+  <linkShapes>
+    <linkShape curviness="0.0" name="default">
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="-0.2"/>
+      <line stroke-dasharray="1.0,0.0" isVisible="true" offset="0.0"/>
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="0.2"/>
+      <indicator editableColorIndex="0" rotatable="true" name="link direction">
+        <elements>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="90" y1="150" x1="150"/>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="210" y1="150" x1="150"/>
+        </elements>
+      </indicator>
+    </linkShape>
+  </linkShapes>
+  <widgets>
+    <view bottom="464" right="803" top="10" left="350" frameRate="30.0" showTickCounter="true" fontSize="10">
+      <dimensions maxPycor="44" minPycor="-44" maxPxcor="44" minPxcor="-44" wrapInY="false" wrapInX="false" patchSize="5.0"/>
+      <tickCounterLabel><![CDATA[ticks]]></tickCounterLabel>
+    </view>
+    <button bottom="48" right="138" top="15" left="60" ticksEnabled="false" forever="false">
+      <source><![CDATA[setup]]></source>
+    </button>
+    <button bottom="48" right="216" top="15" left="140" ticksEnabled="true" forever="true">
+      <source><![CDATA[go]]></source>
+    </button>
+    <slider bottom="173" right="170" top="140" left="10" direction="horizontal" default="15.0">
+      <maximum><![CDATA[30]]></maximum>
+      <minimum><![CDATA[0]]></minimum>
+      <step><![CDATA[1]]></step>
+      <variable><![CDATA[number-of-tests]]></variable>
+    </slider>
+    <plot bottom="485" right="335" top="285" left="10" ymax="20.0" ymin="0.0" xmax="100.0" xmin="0.0" legendOn="true" autoPlotOn="true">
+      <display><![CDATA[Travel Distance]]></display>
+      <xAxis><![CDATA[time]]></xAxis>
+      <yAxis><![CDATA[# cells]]></yAxis>
+      <setup/>
+      <update/>
+      <pens>
+        <pen inLegend="true" color="-3508570" mode="line" interval="1.0">
+          <setup/>
+          <update><![CDATA[plot median [ min [distance myself] of jobs ] of rich]]></update>
+          <display><![CDATA[rich]]></display>
+        </pen>
+        <pen inLegend="true" color="-14070903" mode="line" interval="1.0">
+          <setup/>
+          <update><![CDATA[plot median [ min [distance myself] of jobs ] of poor]]></update>
+          <display><![CDATA[poor]]></display>
+        </pen>
+      </pens>
+    </plot>
+    <button bottom="48" right="296" top="15" left="218" ticksEnabled="true" forever="false">
+      <source><![CDATA[go]]></source>
+      <display><![CDATA[go-once]]></display>
+    </button>
+    <button bottom="93" right="125" top="60" left="35" ticksEnabled="true" forever="false">
+      <source><![CDATA[set view-mode "price"
+update-view]]></source>
+      <display><![CDATA[view price]]></display>
+    </button>
+    <button bottom="93" right="220" top="60" left="130" ticksEnabled="true" forever="false">
+      <source><![CDATA[set view-mode "quality"
+update-view]]></source>
+      <display><![CDATA[view quality]]></display>
+    </button>
+    <slider bottom="208" right="170" top="175" left="10" direction="horizontal" default="100.0">
+      <maximum><![CDATA[500]]></maximum>
+      <minimum><![CDATA[0]]></minimum>
+      <step><![CDATA[10]]></step>
+      <variable><![CDATA[residents-per-job]]></variable>
+    </slider>
+    <slider bottom="243" right="335" top="210" left="175" direction="horizontal" default="5.0">
+      <maximum><![CDATA[15]]></maximum>
+      <minimum><![CDATA[0]]></minimum>
+      <step><![CDATA[1]]></step>
+      <variable><![CDATA[poor-per-step]]></variable>
+    </slider>
+    <slider bottom="278" right="335" top="245" left="175" direction="horizontal" default="5.0">
+      <maximum><![CDATA[15]]></maximum>
+      <minimum><![CDATA[0]]></minimum>
+      <step><![CDATA[1]]></step>
+      <variable><![CDATA[rich-per-step]]></variable>
+    </slider>
+    <button bottom="93" right="315" top="60" left="225" ticksEnabled="true" forever="false">
+      <source><![CDATA[set view-mode "dist"
+update-view]]></source>
+      <display><![CDATA[view dist]]></display>
+    </button>
+    <slider bottom="173" right="335" top="140" left="175" direction="horizontal" default="0.0">
+      <maximum><![CDATA[1]]></maximum>
+      <minimum><![CDATA[-1]]></minimum>
+      <step><![CDATA[.1]]></step>
+      <variable><![CDATA[poor-price-priority]]></variable>
+    </slider>
+    <slider bottom="208" right="335" top="175" left="175" direction="horizontal" default="0.0">
+      <maximum><![CDATA[1]]></maximum>
+      <minimum><![CDATA[-1]]></minimum>
+      <step><![CDATA[0.1]]></step>
+      <variable><![CDATA[rich-quality-priority]]></variable>
+    </slider>
+    <slider bottom="243" right="170" top="210" left="10" direction="horizontal" default="10.0">
+      <maximum><![CDATA[20]]></maximum>
+      <minimum><![CDATA[5]]></minimum>
+      <step><![CDATA[1]]></step>
+      <variable><![CDATA[max-jobs]]></variable>
+    </slider>
+    <slider bottom="278" right="170" top="245" left="10" direction="horizontal" default="4.0">
+      <maximum><![CDATA[15]]></maximum>
+      <minimum><![CDATA[0]]></minimum>
+      <step><![CDATA[1]]></step>
+      <variable><![CDATA[death-rate]]></variable>
+    </slider>
+    <monitor fontSize="11" bottom="56" right="885" top="11" left="810" precision="17">
+      <source><![CDATA[count jobs]]></source>
+      <display><![CDATA[# of jobs]]></display>
+    </monitor>
+    <monitor fontSize="11" bottom="106" right="885" top="61" left="810" precision="17">
+      <source><![CDATA[count poor + count rich]]></source>
+      <display><![CDATA[population]]></display>
+    </monitor>
+    <button bottom="132" right="169" top="99" left="54" ticksEnabled="true" forever="false">
+      <source><![CDATA[set view-mode "rich-utility"
+update-view]]></source>
+      <display><![CDATA[view rich-utility]]></display>
+    </button>
+    <button bottom="133" right="294" top="100" left="175" ticksEnabled="true" forever="false">
+      <source><![CDATA[set view-mode "poor-utility"
+update-view]]></source>
+      <display><![CDATA[view poor-utility]]></display>
+    </button>
+    <monitor fontSize="11" bottom="156" right="885" top="111" left="810" precision="17">
+      <source><![CDATA[count poor]]></source>
+      <display><![CDATA[poor pop]]></display>
+    </monitor>
+    <monitor fontSize="11" bottom="206" right="885" top="161" left="810" precision="17">
+      <source><![CDATA[count rich]]></source>
+      <display><![CDATA[rich pop]]></display>
+    </monitor>
+  </widgets>
+  <experiments/>
+  <shapes>
+    <vectorShape editableColorIndex="0" rotatable="true" name="default">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,5 40,250 150,205 260,250"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="ant">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="136,61 129,46 144,30 119,45 124,60 114,82 97,37 132,10 93,36 111,84 127,105 172,105 189,84 208,35 171,11 202,35 204,37 186,82 177,60 180,44 159,32 170,44 165,60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,95 135,103 139,117 125,149 137,180 135,196 150,204 166,195 161,180 174,150 158,116 164,102"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="149,186 128,197 114,232 134,270 149,282 166,270 185,232 171,195 149,186"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="225,66 230,107 159,122 161,127 234,111 236,106"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="78,58 99,116 139,123 137,128 95,119"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="48,103 90,147 129,147 130,151 86,151"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="65,224 92,171 134,160 135,164 95,175"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="235,222 210,170 163,162 161,166 208,174"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="249,107 211,147 168,147 168,150 213,150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="arrow">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,0 0,150 105,150 105,293 195,293 195,150 300,150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="bee">
+      <elements>
+        <polygon marked="false" filled="true" color="#EDED31" points="151,152 137,77 105,67 89,67 66,74 48,85 36,100 24,116 14,134 0,151 15,167 22,182 40,206 58,220 82,226 105,226 134,222"/>
+        <polygon marked="false" filled="true" color="#000000" points="151,150 149,128 149,114 155,98 178,80 197,80 217,81 233,95 242,117 246,141 247,151 245,177 234,195 218,207 206,211 184,211 161,204 151,189 148,171"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="246,151 241,119 240,96 250,81 261,78 275,87 282,103 277,115 287,121 299,150 286,180 277,189 283,197 281,210 270,222 256,222 243,212 242,192"/>
+        <polygon marked="false" filled="true" color="#000000" points="115,70 129,74 128,223 114,224"/>
+        <polygon marked="false" filled="true" color="#000000" points="89,67 74,71 74,224 89,225 89,67"/>
+        <polygon marked="false" filled="true" color="#000000" points="43,91 31,106 31,195 45,211"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="70" x2="213" y1="144" x1="200"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="45" x2="213" y1="70" x1="213"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="26" x2="203" y1="45" x1="214"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="22" x2="185" y1="26" x1="204"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="25" x2="170" y1="22" x1="185"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="37" x2="159" y1="26" x1="169"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="55" x2="156" y1="37" x1="159"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="143" x2="199" y1="55" x1="157"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="227" x2="162" y1="141" x1="200"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="241" x2="163" y1="227" x1="162"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="249" x2="171" y1="241" x1="163"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="254" x2="190" y1="249" x1="171"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="248" x2="203" y1="253" x1="192"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="235" x2="218" y1="249" x1="205"/>
+        <line marked="false" filled="false" color="#FFFFFF" y2="144" x2="200" y1="235" x1="218"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="bird1">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="2,6 2,39 270,298 297,298 299,271 187,160 279,75 276,22 100,67 31,0"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="bird2">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="2,4 33,4 298,270 298,298 272,298 155,184 117,289 61,295 61,105 0,43"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="boat1">
+      <elements>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="63,162 90,207 223,207 290,162"/>
+        <rect marked="false" filled="true" color="#9D6E48" height="130" width="7" y="32" x="150"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="150,34 131,49 145,47 147,48 149,49"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="158,33 230,157 182,150 169,151 157,156"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="149,55 88,143 103,139 111,136 117,139 126,145 130,147 139,147 146,146 149,55"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="boat2">
+      <elements>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="63,162 90,207 223,207 290,162"/>
+        <rect marked="false" filled="true" color="#9D6E48" height="130" width="7" y="32" x="150"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="150,34 131,49 145,47 147,48 149,49"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="157,54 175,79 174,96 185,102 178,112 194,124 196,131 190,139 192,146 211,151 216,154 157,154"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,74 146,91 139,99 143,114 141,123 137,126 131,129 132,139 142,136 126,142 119,147 148,147"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="boat3">
+      <elements>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="63,162 90,207 223,207 290,162"/>
+        <rect marked="false" filled="true" color="#9D6E48" height="130" width="7" y="32" x="150"/>
+        <polygon marked="false" filled="true" color="#345DA9" points="150,34 131,49 145,47 147,48 149,49"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="158,37 172,45 188,59 202,79 217,109 220,130 218,147 204,156 158,156 161,142 170,123 170,102 169,88 165,62"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="149,66 142,78 139,96 141,111 146,139 148,147 110,147 113,131 118,106 126,71"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="box">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="45,255 255,255 255,45 45,45"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="butterfly1">
+      <elements>
+        <polygon marked="false" filled="true" color="#000000" points="151,76 138,91 138,284 150,296 162,286 162,91"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="164,106 184,79 205,61 236,48 259,53 279,86 287,119 289,158 278,177 256,182 164,181"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="136,110 119,82 110,71 85,61 59,48 36,56 17,88 6,115 2,147 15,178 134,178"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="46,181 28,227 50,255 77,273 112,283 135,274 135,180"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,185 254,184 272,224 255,251 236,267 191,283 164,276"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="82" x2="159" y1="47" x1="167"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="81" x2="145" y1="47" x1="136"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="8" cy="45" cx="165"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="6" cy="45" cx="134"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="7" cy="44" cx="133"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="8" cy="43" cx="133"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="circle">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="230" cy="35" cx="35"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="link">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="300" x2="150" y1="0" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="link direction">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="90" y1="150" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="210" y1="150" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="person">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="63" cy="20" cx="155"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="85" width="59" y="79" x="158"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="158,81 110,129 131,143 158,109 165,110"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="216,83 267,123 248,143 215,107"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="167,163 145,234 183,234 183,163"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="195,163 195,233 227,233 206,159"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="15" rotatable="false" name="sheep">
+      <elements>
+        <rect marked="true" filled="true" color="#FFFFFF" height="150" width="180" y="75" x="90"/>
+        <circle marked="true" filled="true" color="#FFFFFF" diameter="150" cy="75" cx="15"/>
+        <rect marked="false" filled="true" color="#000000" height="61" width="53" y="225" x="81"/>
+        <rect marked="false" filled="true" color="#000000" height="60" width="58" y="225" x="180"/>
+        <circle marked="false" filled="true" color="#000000" diameter="92" cy="88" cx="1"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="spacecraft">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,0 180,135 255,255 225,240 150,180 75,240 45,255 120,135"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="thin-arrow">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,0 0,150 120,150 120,293 180,293 180,150 300,150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="truck-down">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="225,30 225,270 120,270 105,210 60,180 45,30 105,60 105,30"/>
+        <polygon marked="false" filled="true" color="#7C50A4" points="195,75 195,120 240,120 240,75"/>
+        <polygon marked="false" filled="true" color="#7C50A4" points="195,225 195,180 240,180 240,225"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="truck-left">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="120,135 225,135 225,210 75,210 75,165 105,165"/>
+        <polygon marked="false" filled="true" color="#7C50A4" points="90,210 105,225 120,210"/>
+        <polygon marked="false" filled="true" color="#7C50A4" points="180,210 195,225 210,210"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="truck-right">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="180,135 75,135 75,210 225,210 225,165 195,165"/>
+        <polygon marked="false" filled="true" color="#7C50A4" points="210,210 195,225 180,210"/>
+        <polygon marked="false" filled="true" color="#7C50A4" points="120,210 105,225 90,210"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="turtle">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="138,75 162,75 165,105 225,105 225,142 195,135 195,187 225,195 225,225 195,217 195,202 105,202 105,217 75,225 75,195 105,187 105,135 75,142 75,105 135,105"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="wolf">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="60" width="90" y="105" x="15"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="15" width="60" y="90" x="45"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="60,90 83,44 104,90"/>
+        <polygon marked="false" filled="true" color="#000000" points="67,90 82,59 97,89"/>
+        <rect marked="false" filled="true" color="#FFFFFF" height="12" width="11" y="93" x="48"/>
+        <rect marked="false" filled="true" color="#000000" height="5" width="4" y="96" x="51"/>
+        <rect marked="false" filled="true" color="#000000" height="14" width="15" y="121" x="0"/>
+        <rect marked="false" filled="true" color="#000000" height="15" width="45" y="136" x="15"/>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="15,136 23,149 31,136"/>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="30,151 37,136 43,151"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="75" width="158" y="120" x="105"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="6" width="151" y="195" x="108"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="9" width="138" y="201" x="114"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="4" width="123" y="210" x="120"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="6" width="140" y="114" x="115"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="6" width="120" y="108" x="128"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="3" width="75" y="105" x="150"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="56" width="23" y="214" x="132"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="10" width="22" y="260" x="110"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="56" width="22" y="214" x="210"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="10" width="21" y="260" x="189"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="155" x2="281" y1="127" x1="263"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="192" x2="281" y1="155" x1="281"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="3" rotatable="false" name="wolf-left">
+      <elements>
+        <polygon marked="true" filled="true" color="#9D6E48" points="117,97 91,74 66,74 60,85 36,85 38,92 44,97 62,97 81,117 84,134 92,147 109,152 136,144 174,144 174,103 143,103 134,97"/>
+        <polygon marked="true" filled="true" color="#9D6E48" points="87,80 79,55 76,79"/>
+        <polygon marked="true" filled="true" color="#9D6E48" points="81,75 70,58 73,82"/>
+        <polygon marked="true" filled="true" color="#9D6E48" points="99,131 76,152 76,163 96,182 104,182 109,173 102,167 99,173 87,159 104,140"/>
+        <polygon marked="true" filled="true" color="#9D6E48" points="107,138 107,186 98,190 99,196 112,196 115,190"/>
+        <polygon marked="true" filled="true" color="#9D6E48" points="116,140 114,189 105,137"/>
+        <rect marked="true" filled="true" color="#9D6E48" height="42" width="5" y="150" x="109"/>
+        <rect marked="true" filled="true" color="#9D6E48" height="48" width="5" y="143" x="111"/>
+        <polygon marked="true" filled="true" color="#9D6E48" points="168,106 184,98 205,98 218,115 218,137 186,164 196,176 195,194 178,195 178,183 188,183 169,164 173,144"/>
+        <polygon marked="true" filled="true" color="#9D6E48" points="207,140 200,163 206,175 207,192 193,189 192,177 198,176 185,150"/>
+        <polygon marked="true" filled="true" color="#9D6E48" points="214,134 203,168 192,148"/>
+        <polygon marked="true" filled="true" color="#9D6E48" points="204,151 203,176 193,148"/>
+        <polygon marked="true" filled="true" color="#9D6E48" points="207,103 221,98 236,101 243,115 243,128 256,142 239,143 233,133 225,115 214,114"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="3" rotatable="false" name="wolf-right">
+      <elements>
+        <polygon marked="true" filled="true" color="#9D6E48" points="170,127 200,93 231,93 237,103 262,103 261,113 253,119 231,119 215,143 213,160 208,173 189,187 169,190 154,190 126,180 106,171 72,171 73,126 122,126 144,123 159,123"/>
+        <polygon marked="true" filled="true" color="#9D6E48" points="201,99 214,69 215,99"/>
+        <polygon marked="true" filled="true" color="#9D6E48" points="207,98 223,71 220,101"/>
+        <polygon marked="true" filled="true" color="#9D6E48" points="184,172 189,234 203,238 203,246 187,247 180,239 171,180"/>
+        <polygon marked="true" filled="true" color="#9D6E48" points="197,174 204,220 218,224 219,234 201,232 195,225 179,179"/>
+        <polygon marked="true" filled="true" color="#9D6E48" points="78,167 95,187 95,208 79,220 92,234 98,235 100,249 81,246 76,241 61,212 65,195 52,170 45,150 44,128 55,121 69,121 81,135"/>
+        <polygon marked="true" filled="true" color="#9D6E48" points="48,143 58,141"/>
+        <polygon marked="true" filled="true" color="#9D6E48" points="46,136 68,137"/>
+        <polygon marked="true" filled="true" color="#9D6E48" points="45,129 35,142 37,159 53,192 47,210 62,238 80,237"/>
+        <line marked="false" filled="false" color="#000000" y2="213" x2="59" y1="237" x1="74"/>
+        <line marked="false" filled="false" color="#000000" y2="212" x2="59" y1="213" x1="59"/>
+        <line marked="false" filled="false" color="#000000" y2="192" x2="67" y1="211" x1="58"/>
+        <polygon marked="true" filled="true" color="#9D6E48" points="38,138 66,149"/>
+        <polygon marked="true" filled="true" color="#9D6E48" points="46,128 33,120 21,118 11,123 3,138 5,160 13,178 9,192 0,199 20,196 25,179 24,161 25,148 45,140"/>
+        <polygon marked="true" filled="true" color="#9D6E48" points="67,122 96,126 63,144"/>
+      </elements>
+    </vectorShape>
+  </shapes>
+  <code><![CDATA[breed [ rich a-rich ]
+breed [ poor a-poor ]
+breed [ jobs job ] ;; jobs are places of employment held by many people
+
+rich-own [utility-r]
+poor-own [utility-p]
+jobs-own [utility]
+patches-own [quality price sd-dist]
+globals [counter view-mode min-poor-util max-poor-util min-rich-util max-rich-util ]
+
+;;
+;; Setup Procedures
+;;
+
+to setup
+  clear-all
+  set view-mode "quality"
+  setup-jobs
+  setup-patches
+  setup-rich
+  setup-poor
+  ask patches [ update-patch-color ]
+  reset-ticks
+end
+
+to setup-jobs
+  create-jobs 1
+  ask jobs
+  [
+    set color red
+    set shape "circle"
+    set size 2
+  ]
+end
+
+to setup-patches
+  ask patches [
+    set quality 40
+    set price 40
+  ]
+  ask patches
+  [
+    set sd-dist min [distance myself] of jobs
+  ]
+end
+
+to setup-rich
+  create-rich 5
+  ask rich
+  [
+    set color 126
+    set shape "box"
+    let radius 10
+    setxy ( ( radius / 2 ) - random-float ( radius * 1.0 ) ) ( ( radius / 2 ) - random-float ( radius * 1.0 ) )
+    raise-price
+    raise-value
+  ]
+end
+
+to setup-poor
+  create-poor 5
+  ask poor
+  [
+    set color 105
+    set shape "box"
+    let radius 10
+    setxy ( ( radius / 2 ) - random-float ( radius * 1.0 ) ) ( ( radius / 2 ) - random-float ( radius * 1.0 ) )
+    decrease-price
+    decrease-value
+  ]
+
+end
+
+to decrease-value
+  ask patch-here [ set quality ( quality * 0.95 ) ]
+  ask patches in-radius 1 [ set quality ( quality * 0.96 ) ]
+  ask patches in-radius 2 [ set quality ( quality * 0.97 ) ]
+  ask patches in-radius 3 [ set quality ( quality * 0.98 ) ]
+  ask patches in-radius 4 [ set quality ( quality * 0.99 )
+    if (quality < 1) [ set quality 1]
+  ]
+
+end
+
+to raise-price
+  ask patch-here [ set price ( price * 1.05 ) ]
+  ask patches in-radius 1 [ set price ( price * 1.04 ) ]
+  ask patches in-radius 2 [ set price ( price * 1.03 ) ]
+  ask patches in-radius 3 [ set price ( price * 1.02 ) ]
+  ask patches in-radius 4 [ set price ( price * 1.01 )
+   if price > 100 [ set price 100 ] ]
+end
+
+to raise-value
+  ask patch-here [ set quality ( quality * 1.05 ) ]
+  ask patches in-radius 1 [ set quality ( quality * 1.04 ) ]
+  ask patches in-radius 2 [ set quality ( quality * 1.03 ) ]
+  ask patches in-radius 3 [ set quality ( quality * 1.02 ) ]
+  ask patches in-radius 4 [ set quality ( quality * 1.01 )
+    if quality > 100 [ set quality 100 ]
+  ]
+end
+
+to decrease-price
+  ask patch-here [ set price ( price * 0.95 ) ]
+  ask patches in-radius 1 [ set price ( price * 0.96 ) ]
+  ask patches in-radius 2 [ set price ( price * 0.97 ) ]
+  ask patches in-radius 3 [ set price ( price * 0.98 ) ]
+  ask patches in-radius 4 [ set price ( price * 0.99 )
+    if (price < 1) [ set price 1]
+  ]
+end
+
+;;
+;; Runtime Procedures
+;;
+
+to go
+  locate-poor
+  locate-rich
+  if counter > residents-per-job
+  [
+    locate-service
+    set counter 0
+  ]
+  if count (rich) >= 20 [kill-rich]
+  if count (poor) >= 20 [kill-poor]
+  if count (jobs) >= max-jobs [kill-service]
+  update-view
+  tick
+end
+
+to locate-poor
+  set counter ( counter + poor-per-step )
+  create-poor poor-per-step
+  [
+    set color 105
+    set shape "box"
+    evaluate-poor
+    decrease-value
+    decrease-price
+  ]
+end
+
+to locate-rich
+  set counter ( counter + rich-per-step )
+  create-rich rich-per-step
+  [
+    set color 126
+    set shape "box"
+    evaluate-rich
+    raise-price
+    raise-value
+  ]
+end
+
+to evaluate-poor
+  let candidate-patches n-of number-of-tests patches
+  set candidate-patches candidate-patches with [ not any? turtles-here ]
+  if (not any? candidate-patches)
+    [ stop ]
+
+  ;; we use a hedonistic utility function for our agents, shown below
+  ;; basically, poor people are looking for inexpensive real estate, close to jobs
+  let best-candidate max-one-of candidate-patches
+    [ patch-utility-for-poor ]
+  move-to best-candidate
+  set utility-p [ patch-utility-for-poor ] of best-candidate
+end
+
+to-report patch-utility-for-poor
+    report ( ( 1 / (sd-dist / 100 + 0.1) ) ^ ( 1 - poor-price-priority ) ) * ( ( 1 / price ) ^ ( 1 + poor-price-priority ) )
+end
+
+to evaluate-rich
+  let candidate-patches n-of number-of-tests patches
+  set candidate-patches candidate-patches with [ not any? turtles-here ]
+  if (not any? candidate-patches)
+    [ stop ]
+
+  ;; we use a hedonistic utility function for our agents, shown below
+  ;; basically, rich people are looking for good quality real estate, close to jobs
+  let best-candidate max-one-of candidate-patches
+        [ patch-utility-for-rich ]
+  move-to best-candidate
+  set utility-r [ patch-utility-for-rich ] of best-candidate
+end
+
+to-report patch-utility-for-rich
+  report ( ( 1 / (sd-dist + 0.1) ) ^ ( 1 - rich-quality-priority ) ) * ( quality ^ ( 1 + rich-quality-priority) )
+end
+
+to kill-poor
+  repeat ( death-rate )
+  [
+    ;always kill the person that's been around the longest
+    ask min-one-of poor [who]
+      [ die ]
+  ]
+end
+
+to kill-rich
+  repeat ( death-rate)
+  [
+    ;always kill the person that's been around the longest
+    ask min-one-of rich [who]
+      [ die ]
+  ]
+end
+
+to kill-service
+  ; always kill the oldest job
+  ask min-one-of jobs [who]
+    [ die ]
+  ask patches
+    [ set sd-dist min [distance myself + .01] of jobs ]
+end
+
+to locate-service
+  let empty-patches patches with [ not any? turtles-here ]
+
+  if any? empty-patches
+  [
+    ask one-of empty-patches
+    [
+      sprout-jobs 1
+      [
+        set color red
+        set shape "circle"
+        set size 2
+        evaluate-job
+      ]
+    ]
+    ask patches
+      [ set sd-dist min [distance myself + .01] of jobs ]
+  ]
+end
+
+to evaluate-job
+  let candidate-patches n-of number-of-tests patches
+  set candidate-patches candidate-patches with [ not any? turtles-here ]
+  if (not any? candidate-patches)
+    [ stop ]
+
+  ;; In this model, we assume that jobs move toward where the money is.
+  ;; The validity of this assumption in a real-world setting is worthy of skepticism.
+  ;;
+  ;; However, it may not be entirely unreasonable. For instance, places with higher real
+  ;; estate values are more likely to have affluent people nearby that will spend money
+  ;; at retail commercial shops.
+  ;;
+  ;; On the other hand, companies would like to pay less rent, and so they may prefer to buy
+  ;; land at low real-estate values
+  ;; (particularly true for industrial sectors, which have no need for consumers nearby)
+  let best-candidate max-one-of candidate-patches [ price ]
+  move-to best-candidate
+  set utility [ price ] of best-candidate
+end
+
+;;
+;; Visualization Procedures
+;;
+
+to update-view
+  if (view-mode = "poor-utility" or view-mode = "rich-utility")
+  [
+    let poor-util-list [ patch-utility-for-poor ] of patches
+    set min-poor-util min poor-util-list
+    set max-poor-util max poor-util-list
+
+    let rich-util-list [ patch-utility-for-rich ] of patches
+    set min-rich-util min rich-util-list
+    set max-rich-util max rich-util-list
+  ]
+
+  ask patches [ update-patch-color ]
+end
+
+to update-patch-color
+  ;; the particular constants we use to scale the colors in the display
+  ;; are mainly chosen for visual appeal
+  ifelse view-mode = "quality"
+  [
+    set pcolor scale-color green quality 1 100
+  ][
+  ifelse view-mode = "price"
+  [
+    set pcolor scale-color yellow price 0 100
+  ][
+  ifelse view-mode = "dist"
+  [
+    set pcolor scale-color blue sd-dist  ( 0.45 * ( max-pxcor * 1.414 ) ) ( 0.05 * ( max-pxcor * 1.414 ) )
+  ][
+  ifelse view-mode = "poor-utility"
+  [
+    ; use a logarithm for coloring, so we see better gradation
+    set pcolor scale-color sky ln patch-utility-for-poor ln min-poor-util ln max-poor-util
+  ][
+  if view-mode = "rich-utility"
+  [
+    ; use a logarithm for coloring, so we see better gradation
+    set pcolor scale-color pink ln patch-utility-for-rich ln min-rich-util ln max-rich-util
+  ]]]]]
+end
+
+
+; Copyright 2007 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <modelSettings snapToGrid="true"/>
+  <hubnet/>
+</model>

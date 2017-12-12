@@ -1,0 +1,779 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<model xmlns="http://ccl.northwestern.edu/netlogo/netlogox/1">
+  <version><![CDATA[NetLogo 6.1.0-M1]]></version>
+  <previewCommands>
+    <manual/>
+  </previewCommands>
+  <info><![CDATA[## WHAT IS IT?
+
+Equidistant Probability connects between probability and geometry. You select two or more squares, and the model searches randomly for squares that are equally distant from the squares you selected. To do this random search, creatures pop out of each one of your selected squares and simultaneously step forward one step in some random direction. If they all land in the same square, that's a hit. Can you guess how often this will happen?
+
+This model is a part of the ProbLab curriculum. The ProbLab curriculum is currently under development at the CCL. For more information about the ProbLab curriculum please refer to http://ccl.northwestern.edu/curriculum/ProbLab/.
+
+## HOW IT WORKS
+
+The user sets up an experiment by selecting some squares on the view. When the model runs, from each of these selected squares emerges a creature, headed in a random direction, and then all these creatures step forward at the same moment. Because there are exactly as many creatures as there are selected squares, and because they all step forward at the same moment, if all the creatures arrive at the same square at the same moment, then that square is "equidistant" (equally far away) from all the selected squares. In that case, the square where they all landed becomes green and keeps a count of how often, out of all their "attempts," the creatures met there. Note that the creatures don't need to land on the exact same spot in the view (the same pixel) -- it's enough that they land in the same square.
+
+There is a procedure in this model, "Epicenter," that helps think about how often a single creature might land in its neighboring squares. If we knew that, we might be able to figure out how often two or more creatures might land on the same square at the same time. For instance, if one creature has a 1-in-2 chance of landing on some square, and another creature has a 1-in-3 chance of landing on that same square, then there's a 1-in-6 chance that they will land on that square at the same moment. In this procedure, 10,000 creatures pop out of the middle square and take a step forward in some random direction. The other eight squares count up how many creatures landed on them, and these values are shown either as totals or as percentages.
+
+## HOW TO USE IT
+
+Here is a quick way to get familiar with the model. Press "PRESET1," slow down the model (using the slider on the top-left corner of the view), make sure SINGLE-SUCCESS? is at "Off," then press FIND EQUIDISTANT POINT. Watch how two creatures first emerge, each from its red square, and then step one step forward in some random direction. Once you understand this, speed up the model gradually. Quite soon, the creatures will land on the same square at the same time, that square will become green, and it will display a percentage, for instance 5.00% (that is, 1/20). That would mean that it took 20 attempts to find that square. Also, the plot ATTEMPTS UNTIL SUCCESS will show a histogram bar at "20," and the average that is, simply, "20" at this time. Also, the monitor below the plot, MEAN ATTEMPTS TO SUCCESS, will show "20." Now press FIND EQUIDISTANT POINT again. It could be that a different square will be found this time. The plot and monitor will update, again. If you switch the SINGLE-SUCCESS switch to "Off" and press FIND EQUIDISTANT POINT, the model will keep searching and finding. Watch the monitor SAMPLES TAKEN UP TO NOW to see how many attempts have been taken towards completing a sample (the default setting of SAMPLE-SIZE is 1,000). Once a sample has been completed, the plot #SUCCESSES PER SAMPLE will show how many successful attempts there were in that sample.
+
+Buttons:
+SETUP -- initialize variables
+SELECT SQUARE -- once you press this, you can click on the view to choose squares that become red. If you click again on a red square, it will be un-selected. When you are through with selecting, un-press the button so as not to make further selections by mistake while the model is running.
+FIND EQUIDISTANT POINT -- sets off the search procedures. From every red square, dart-like creatures pop up, each headed at some random direction, and then they step forward.
+PRESET 1 through 6 -- each 'Preset' button sets the model up with a pre-selected configuration of red squares.
+EPICENTER -- activates a procedure in which 10,000 turtles emerge from the center square at random orientations, and all step forward a single step. Pressing this causes you to lose all data from an experiment that you may have been running.
+
+Switches:
+SINGLE-SUCCESS -- when "On", the procedure FIND EQUIDISTANT POINT will stop the moment a square has been found that is equally distant from the red squares. When "Off", the procedure will continue again and again, until you un-press FIND EQUIDISTANT POINT.
+
+Monitors:
+\#SUCCESSES -- shows how many successes you have had in this experiment, that is, how many times all the creatures landed at the same time in one and the same square.
+\#ATTEMPTS  -- shows how many attempts you have had in this experiment, that is, how many times all the creatures have "tried" to land at the same time in one and the same square.
+FREQUENCY -- how many successes there have been out of the total number of attempts, expressed as a percentage. This can never be larger than 100 because there cannot be more successes than there are attempts.
+SAMPLES TAKEN UP TO NOW -- shows how many samples have been completed, for instance of 1,000 attempts each, and how many attempts have been taken in the current sample.
+
+Plots:
+ATTEMPTS UNTIL SUCCESS -- a histogram that updates each time an equidistant square is found, to show how many attempts were needed to find that square.
+
+SUCCESSES PER SAMPLE -- a histogram that updates each time a sample has been completed, for instance of 1,000 attempts, to show how many successes there were in that sample.
+
+Choice:
+DISPLAY RESULTS (relates to the 'Epicenter' button)
+'by-total' -- squares show the number of creatures that landed on them.
+'by-%' -- squares show the percentage of creatures that landed on them out of all landings.
+
+## THINGS TO NOTICE
+
+The creatures' steps are equal in length to the side of a square. If a creature has just emerged in the middle of a square and is heading at 90 degrees, then the step forward will land it at exactly the middle of the square to its right. But if it's headed at 45 degrees, then the step forward will put it in the square that is diagonally neighboring it on the top right, short of the middle of that square.
+
+The values of 'Frequency' and 'Mean #Attempts to Success' are reciprocal:
+- Frequency is what you get when you divide #Successes by #Attempts
+- Mean #Attempts to Success is what you get by dividing #Attempts by #Successes.
+So if you multiply these values, you get 1 (or 100, if you ignore the "%" sign).
+
+For Presets 1 and 2, the creatures will find more than a single square that is equally distant from the red squares. But for Presents 3, 4, 5, and 6, they will only find one such square.
+
+When you press EPICENTER with the choice set at "by-%," the percentages you get are such that the North/West/South/East squares each has roughly 1/6 of the creatures (16.7%), and the cornering patches each has 1/12 of the creature (8.33%).
+
+## THINGS TO TRY
+
+Set the model with Preset1 and run the model with SINGLE-SUCCESS? set to "Off." Note that the middle square will register four times as many successes as compared to the center-left square and as compared to the center-right square. Try to come up with a logical explanation for this.
+
+Set the model with Preset3 and run the model with SINGLE-SUCCESS? set to "Off." Track the values you get in the monitor MEAN #ATTEMPTS TO SUCCESS. Try to find a different selection of squares that gives the same value. What does this selection have in common with the Preset3 selection? Repeat this for the preset conditions 4, 5, and 6.
+
+A very big challenge: The experiments in this model are all based on random choices. After enough attempts, the results begin to stabilize around certain values. Can you determine what these numbers will be before you run an experiment? For instance, can you anticipate the value of MEAN #ATTEMPTS TO SUCCESS on the basis of the configuration of squares that you have selected? To do this, you could think about the information you get from the "Epicenter" procedure. Also, you may want to analyze this problem using pencil and paper.
+
+## EXTENDING THE MODEL
+
+Add a plot for the cumulative ratio of '#Successes' to '#Attempts.' The plot should update at every attempt.
+
+Edit the size of the view so as to include more squares. You will be able to create configurations that you could not create before.
+
+For the "Epicenter" procedure, increase the number of squares in the view. Add interface widgets and code that allow for broader experimentation, such as variety in the number of steps the creatures take and the size of these steps.
+
+## RELATED MODELS
+
+The three different ways of looking at the data in this model are the same as in Prob Graphs Basic: cumulative ratio, attempts until success ("waiting time"), and sampling.
+
+## CREDITS AND REFERENCES
+
+This model is a part of the ProbLab curriculum. The ProbLab Curriculum is currently under development at Northwestern's Center for Connected Learning and Computer-Based Modeling. . For more information about the ProbLab Curriculum please refer to http://ccl.northwestern.edu/curriculum/ProbLab/.
+
+Additional reading:
+Abrahamson, D. & Wilensky, U.  (2003).  The quest of the bell curve: A constructionist approach to learning statistics through designing computer-based probability experiments. Proceedings of the Third Conference of the European Society for Research in Mathematics Education, Bellaria, Italy, Feb. 28 - March 3, 2003.
+Available for download at http://ccl.northwestern.edu/papers/2003/AbrahamsonWilenskyCERME3.pdf
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Abrahamson, D. and Wilensky, U. (2004).  NetLogo Equidistant Probability model.  http://ccl.northwestern.edu/netlogo/models/EquidistantProbability.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2004 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This model was created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
+
+<!-- 2004 Cite: Abrahamson, D. -->]]></info>
+  <systemDynamics/>
+  <modelInfo>
+    <title/>
+    <subject/>
+  </modelInfo>
+  <linkShapes>
+    <linkShape curviness="0.0" name="default">
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="-0.2"/>
+      <line stroke-dasharray="1.0,0.0" isVisible="true" offset="0.0"/>
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="0.2"/>
+      <indicator editableColorIndex="0" rotatable="true" name="link direction">
+        <elements>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="90" y1="150" x1="150"/>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="210" y1="150" x1="150"/>
+        </elements>
+      </indicator>
+    </linkShape>
+  </linkShapes>
+  <widgets>
+    <view bottom="404" right="813" top="10" left="420" frameRate="30.0" showTickCounter="false" updateMode="continuous" fontSize="16">
+      <dimensions maxPycor="2" minPycor="-2" maxPxcor="2" minPxcor="-2" wrapInY="false" wrapInX="false" patchSize="77.0"/>
+      <tickCounterLabel><![CDATA[ticks]]></tickCounterLabel>
+    </view>
+    <button bottom="85" right="163" top="48" left="6" ticksEnabled="false" forever="true">
+      <source><![CDATA[select-squares]]></source>
+      <display><![CDATA[Select Square]]></display>
+    </button>
+    <button bottom="248" right="164" top="198" left="6" ticksEnabled="false" forever="true">
+      <source><![CDATA[find-equidistant-point]]></source>
+      <display><![CDATA[Find Equidistant Point]]></display>
+    </button>
+    <button bottom="44" right="163" top="10" left="6" ticksEnabled="false" forever="false">
+      <source><![CDATA[setup]]></source>
+      <display><![CDATA[Setup]]></display>
+    </button>
+    <switch bottom="286" right="164" top="253" left="6" isOn="true">
+      <variable><![CDATA[single-success?]]></variable>
+    </switch>
+    <monitor fontSize="11" bottom="55" right="253" top="10" left="173" precision="3">
+      <source><![CDATA[length attempts-list]]></source>
+      <display><![CDATA[#Successes]]></display>
+    </monitor>
+    <monitor fontSize="11" bottom="55" right="336" top="10" left="256" precision="0">
+      <source><![CDATA[sum attempts-list + attempts]]></source>
+      <display><![CDATA[#Attempts]]></display>
+    </monitor>
+    <monitor fontSize="11" bottom="55" right="415" top="10" left="342" precision="2">
+      <source><![CDATA[cumulative-frequency]]></source>
+      <display><![CDATA[Frequency]]></display>
+    </monitor>
+    <monitor fontSize="11" bottom="236" right="383" top="191" left="201" precision="2">
+      <source><![CDATA[mean attempts-list]]></source>
+      <display><![CDATA[Mean #Attempts to Success]]></display>
+    </monitor>
+    <button bottom="380" right="163" top="346" left="7" ticksEnabled="false" forever="false">
+      <source><![CDATA[epicenter]]></source>
+      <display><![CDATA[Epicenter]]></display>
+    </button>
+    <slider bottom="321" right="163" top="288" left="6" direction="horizontal" default="1000.0">
+      <maximum><![CDATA[10000]]></maximum>
+      <minimum><![CDATA[0]]></minimum>
+      <step><![CDATA[100]]></step>
+      <variable><![CDATA[sample-size]]></variable>
+    </slider>
+    <plot bottom="426" right="413" top="306" left="171" ymax="4.0" ymin="0.0" xmax="15.0" xmin="0.0" legendOn="false" autoPlotOn="true">
+      <display><![CDATA[#Successes Per Sample]]></display>
+      <xAxis><![CDATA[#successes]]></xAxis>
+      <yAxis><![CDATA[count]]></yAxis>
+      <setup/>
+      <update/>
+      <pens>
+        <pen inLegend="true" color="-6459832" mode="bar" interval="1.0">
+          <setup/>
+          <update/>
+          <display><![CDATA[#Successes Per Sample]]></display>
+        </pen>
+        <pen inLegend="true" color="-8630108" mode="line" interval="1.0">
+          <setup/>
+          <update/>
+          <display><![CDATA[mean-successes-per-sample]]></display>
+        </pen>
+      </pens>
+    </plot>
+    <monitor fontSize="11" bottom="300" right="413" top="255" left="171" precision="3">
+      <source><![CDATA[samples-count]]></source>
+      <display><![CDATA[Samples Taken Up To Now]]></display>
+    </monitor>
+    <plot bottom="191" right="414" top="71" left="173" ymax="4.0" ymin="0.0" xmax="10.0" xmin="0.0" legendOn="false" autoPlotOn="true">
+      <display><![CDATA[Attempts Until Success]]></display>
+      <xAxis><![CDATA[#attempts]]></xAxis>
+      <yAxis><![CDATA[count]]></yAxis>
+      <setup/>
+      <update/>
+      <pens>
+        <pen inLegend="true" color="-13791810" mode="bar" interval="1.0">
+          <setup/>
+          <update/>
+          <display><![CDATA[attempts until success]]></display>
+        </pen>
+        <pen inLegend="true" color="-2064490" mode="line" interval="1.0">
+          <setup/>
+          <update/>
+          <display><![CDATA[mean attempts]]></display>
+        </pen>
+      </pens>
+    </plot>
+    <button bottom="122" right="84" top="89" left="6" ticksEnabled="false" forever="false">
+      <source><![CDATA[preset1]]></source>
+      <display><![CDATA[Preset 1]]></display>
+    </button>
+    <button bottom="122" right="163" top="89" left="85" ticksEnabled="false" forever="false">
+      <source><![CDATA[preset2]]></source>
+      <display><![CDATA[Preset 2]]></display>
+    </button>
+    <button bottom="156" right="84" top="123" left="6" ticksEnabled="false" forever="false">
+      <source><![CDATA[preset3]]></source>
+      <display><![CDATA[Preset 3]]></display>
+    </button>
+    <button bottom="156" right="163" top="123" left="85" ticksEnabled="false" forever="false">
+      <source><![CDATA[preset4]]></source>
+      <display><![CDATA[Preset 4]]></display>
+    </button>
+    <chooser bottom="426" right="163" top="381" left="7" currentChoice="1">
+      <variable><![CDATA[display-results]]></variable>
+      <choices>
+        <stringChoice><![CDATA[by-total]]></stringChoice>
+        <stringChoice><![CDATA[by-%]]></stringChoice>
+      </choices>
+    </chooser>
+    <button bottom="191" right="84" top="158" left="6" ticksEnabled="false" forever="false">
+      <source><![CDATA[preset5]]></source>
+      <display><![CDATA[Preset 5]]></display>
+    </button>
+    <button bottom="191" right="163" top="158" left="85" ticksEnabled="false" forever="false">
+      <source><![CDATA[preset6]]></source>
+      <display><![CDATA[Preset 6]]></display>
+    </button>
+  </widgets>
+  <experiments/>
+  <shapes>
+    <vectorShape editableColorIndex="0" rotatable="true" name="default">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,5 40,250 150,205 260,250"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="airplane">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,0 135,15 120,60 120,105 15,165 15,195 120,180 135,240 105,270 120,285 150,270 180,285 210,270 165,240 180,180 285,195 285,165 180,105 180,60 165,15"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="arrow">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,0 0,150 105,150 105,293 195,293 195,150 300,150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="box">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,285 285,225 285,75 150,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,135 15,75 150,15 285,75"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="15,75 15,225 150,285 150,135"/>
+        <line marked="false" filled="false" color="#000000" y2="135" x2="150" y1="285" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="75" x2="15" y1="135" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="75" x2="285" y1="135" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="bug">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="182" cx="96"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="127" cx="110"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="75" cx="110"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="30" x2="80" y1="100" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="30" x2="220" y1="100" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="butterfly">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,165 209,199 225,225 225,255 195,270 165,255 150,240"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,165 89,198 75,225 75,255 105,270 135,255 150,240"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="139,148 100,105 55,90 25,90 10,105 10,135 25,180 40,195 85,194 139,163"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="162,150 200,105 245,90 275,90 290,105 290,135 275,180 260,195 215,195 162,165"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,255 135,225 120,150 135,120 150,105 165,120 180,150 165,225"/>
+        <circle marked="false" filled="true" color="#000000" diameter="30" cy="90" cx="135"/>
+        <line marked="false" filled="false" color="#000000" y2="60" x2="195" y1="105" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="60" x2="105" y1="105" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="car">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="300,180 279,164 261,144 240,135 226,132 213,106 203,84 185,63 159,50 135,50 75,60 0,150 0,165 0,225 300,225 300,180"/>
+        <circle marked="false" filled="true" color="#000000" diameter="90" cy="180" cx="180"/>
+        <circle marked="false" filled="true" color="#000000" diameter="90" cy="180" cx="30"/>
+        <polygon marked="false" filled="true" color="#000000" points="162,80 132,78 134,135 209,135 194,105 189,96 180,89"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="58" cy="195" cx="47"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="58" cy="195" cx="195"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="circle">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="circle 2">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="cow">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="200,193 197,249 179,249 177,196 166,187 140,189 93,191 78,179 72,211 49,209 48,181 37,149 25,120 25,89 45,72 103,84 179,75 198,76 252,64 272,81 293,103 285,121 255,121 242,118 224,167"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="73,210 86,251 62,249 48,208"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="25,114 16,195 9,204 23,213 25,200 39,123"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="cylinder">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="dot">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="120" cy="90" cx="90"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face happy">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="8" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,255 90,239 62,213 47,191 67,179 90,203 109,218 150,225 192,218 210,203 227,181 251,194 236,217 212,240"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face neutral">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="7" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <rect marked="false" filled="true" color="#000000" height="30" width="180" y="195" x="60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face sad">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="8" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,168 90,184 62,210 47,232 67,244 90,220 109,205 150,198 192,205 210,220 227,242 251,229 236,206 212,183"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="fish">
+      <elements>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="44,131 21,87 15,86 0,120 15,150 0,180 13,214 20,212 45,166"/>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="135,195 119,235 95,218 76,210 46,204 60,165"/>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="75,45 83,77 71,103 86,114 166,78 135,60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="30,136 151,77 226,81 280,119 292,146 292,160 287,170 270,195 195,210 151,212 30,166"/>
+        <circle marked="false" filled="true" color="#000000" diameter="30" cy="106" cx="215"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="flag">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="285" width="15" y="15" x="60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="90,150 270,90 90,30"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="135" x2="90" y1="135" x1="75"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="45" x2="90" y1="45" x1="75"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="flower">
+      <elements>
+        <polygon marked="false" filled="true" color="#59B03C" points="135,120 165,165 180,210 180,240 150,300 165,300 195,240 195,195 165,135"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="132" cx="85"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="147" cx="130"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="85" cx="192"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="40" cx="85"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="40" cx="177"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="132" cx="177"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="85" cx="70"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="25" cx="130"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="51" cx="96"/>
+        <circle marked="false" filled="true" color="#000000" diameter="74" cy="68" cx="113"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="189,233 219,188 249,173 279,188 234,218"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="180,255 150,210 105,210 75,240 135,240"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="house">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="165" width="210" y="120" x="45"/>
+        <rect marked="false" filled="true" color="#000000" height="75" width="60" y="210" x="120"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="15,120 150,15 285,120"/>
+        <line marked="false" filled="false" color="#000000" y2="120" x2="270" y1="120" x1="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="leaf">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,210 135,195 120,210 60,210 30,195 60,180 60,165 15,135 30,120 15,105 40,104 45,90 60,90 90,105 105,120 120,120 105,60 120,60 135,30 150,15 165,30 180,60 195,60 180,120 195,120 210,105 240,90 255,90 263,104 285,105 270,120 285,135 240,165 240,180 270,195 240,210 180,210 165,195"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,195 135,240 120,255 105,255 105,285 135,285 165,240 165,195"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="line">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="300" x2="150" y1="0" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="line half">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="150" y1="0" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="pentagon">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,15 15,120 60,285 240,285 285,120"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="person">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="5" cx="110"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="105,90 120,195 90,285 105,300 135,300 150,225 165,300 195,300 210,285 180,195 195,90"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="15" width="45" y="79" x="127"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="195,90 240,150 225,180 165,105"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="105,90 60,150 75,180 135,105"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="plant">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="210" width="30" y="90" x="135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,255 90,210 45,195 75,255 135,285"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,255 210,210 255,195 225,255 165,285"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,180 90,135 45,120 75,180 135,210"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,180 165,210 225,180 255,120 210,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,105 90,60 45,45 75,105 135,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,105 165,135 225,105 255,45 210,60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,90 120,45 150,15 180,45 165,90"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="square">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="240" width="240" y="30" x="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="square 2">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="240" width="240" y="30" x="30"/>
+        <rect marked="false" filled="true" color="#000000" height="180" width="180" y="60" x="60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="star">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="151,1 185,108 298,108 207,175 242,282 151,216 59,282 94,175 3,108 116,108"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="target">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="180" cy="60" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="120" cy="90" cx="90"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="60" cy="120" cx="120"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="tree">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="94" cy="3" cx="118"/>
+        <rect marked="false" filled="true" color="#9D6E48" height="105" width="60" y="195" x="120"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="21" cx="65"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="127" cy="41" cx="116"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="120" cy="90" cx="45"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="152" cy="74" cx="104"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="triangle">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,30 15,255 285,255"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="triangle 2">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,30 15,255 285,255"/>
+        <polygon marked="false" filled="true" color="#000000" points="151,99 225,223 75,224"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="truck">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="142" width="191" y="45" x="4"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="296,193 296,150 259,134 244,104 208,104 207,194"/>
+        <rect marked="false" filled="true" color="#FFFFFF" height="45" width="0" y="60" x="195"/>
+        <polygon marked="false" filled="true" color="#000000" points="238,112 252,141 219,141 218,112"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="234"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="9" width="33" y="185" x="181"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="144"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="24"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="24"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="144"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="234"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="turtle">
+      <elements>
+        <polygon marked="false" filled="true" color="#59B03C" points="215,204 240,233 246,254 228,266 215,252 193,210"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="195,90 225,75 245,75 260,89 269,108 261,124 240,105 225,105 210,105"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="105,90 75,75 55,75 40,89 31,108 39,124 60,105 75,105 90,105"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="132,85 134,64 107,51 108,17 150,2 192,18 192,52 169,65 172,87"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="85,204 60,233 54,254 72,266 85,252 107,210"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="119,75 179,75 209,101 224,135 220,225 175,261 128,261 81,224 74,135 88,99"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="wheel">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="294" cy="3" cx="3"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="15" x2="150" y1="285" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="285" y1="150" x1="15"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="60" cy="120" cx="120"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="269" x2="79" y1="40" x1="216"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="221" x2="269" y1="84" x1="40"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="79" x2="269" y1="216" x1="40"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="269" x2="221" y1="40" x1="84"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="x">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="270,75 225,30 30,225 75,270"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="30,75 75,30 270,225 225,270"/>
+      </elements>
+    </vectorShape>
+  </shapes>
+  <code><![CDATA[breed [ wanderers wanderer ]    ;; turtles in Equidistant-Point that walk out from green patches
+breed [ darts dart ]           ;; turtles in Epicenter: They all emerge from the middle
+
+globals
+[
+  num-squares                  ;; number of selected squares (patches) from which wanderers emerge
+  attempts                     ;; number of times the wanderers have attempted to convene on the same patch since the previous success
+  attempts-list                ;; list of how many attempts it took until a success
+  successes-per-this-sample    ;; how many successes occurred in the current sample of attempts
+  successes-per-sample-list    ;; list of how many successes occurred in all samples up to the current moment
+  successful-attempt?          ;; Boolean variable that is true if an attempt was successful
+]
+
+patches-own
+[
+  counter      ;; in Epicenter, this variable keeps track of how many times darts have visited the patch
+  pmy-color    ;; "reminds" patches of their color from before it is temporarily changed
+  conventions  ;; how many times all the wanderers meet in the patch
+]
+
+;; SETTING UP THE MODEL
+
+to setup
+  clear-all
+  set attempts-list []
+  set successes-per-sample-list []
+  set successful-attempt? false
+  checker
+end
+
+;; creates the 9-by-9 "chess-board" appearance of the view with a blue perimeter
+to checker
+  ask patches
+  [
+    ;; even patches and odd patches
+    ifelse ( pxcor mod 2  = pycor mod 2 )
+    [ set pcolor 3 ]
+    [ set pcolor 7 ]
+    if count neighbors != 8 [ set pcolor 104 ]
+    set pmy-color pcolor
+  ]
+end
+
+;; user uses mouse to paint squares red
+to select-squares
+  if mouse-down?
+  [
+    ask patch round mouse-xcor round mouse-ycor
+    [
+      if pcolor = 104 [ stop ]
+      ifelse pcolor = red
+      [ set pcolor pmy-color ]
+      [ set pcolor red ]
+    ]
+    set num-squares count patches with [ pcolor = red ]
+    while [ mouse-down? ] [ ] ; wait until mouse button released
+  ]
+end
+
+;; some preset suggestions for setting up the squares
+to preset1 ;; two abutters
+  setup
+  ask patch 0 1 [ set pcolor red ]
+  ask patch 0 -1 [ set pcolor red ]
+  set num-squares 2
+end
+
+to preset2 ;; two corners
+  setup
+  ask patch -1 1 [ set pcolor red ]
+  ask patch 1 -1 [ set pcolor red ]
+  set num-squares 2
+end
+
+to preset3 ;; three abutters -- mean #attempt to success will be 1/ (6*6*6) =1/216
+  setup
+  ask patch 1 0 [ set pcolor red ]
+  ask patch 0 -1 [ set pcolor red ]
+  ask patch -1 0 [ set pcolor red ]
+  set num-squares 3
+end
+
+to preset4 ;; two abutters, one corner -- mean #attempt to success will be 1/ (6*6*12) =1/432
+  setup
+  ask patch 1 0 [ set pcolor red ]
+  ask patch 0 -1 [ set pcolor red ]
+  ask patch -1 1 [ set pcolor red ]
+  set num-squares 3
+end
+
+to preset5 ;; one abutter, two corners -- mean #attempt to success will be 1/ (6*12*12) =1/864
+  setup
+  ask patch 1 0 [ set pcolor red ]
+  ask patch -1 -1 [ set pcolor red ]
+  ask patch -1 1 [ set pcolor red ]
+  set num-squares 3
+end
+
+to preset6 ;; three corners -- mean #attempt to success will be 1/ (12*12*12) =1/1728
+  setup
+  ask patch 1 -1 [ set pcolor red ]
+  ask patch -1 -1 [ set pcolor red ]
+  ask patch -1 1 [ set pcolor red ]
+  set num-squares 3
+end
+
+;; RUNNING THE MODEL
+
+;; from every red square a wanderer emerges, heads off randomly, and steps forward one step
+to find-equidistant-point
+  if num-squares < 2 [ stop ]
+  if single-success? and successful-attempt? [ set successful-attempt? false stop ]
+  set attempts attempts + 1
+  birth-wanderers
+  sprint-straight
+  update-sampling-data
+end
+
+to birth-wanderers
+ask patches with [pcolor = red]
+  [
+    sprout-wanderers 1
+    [
+      set color magenta
+    ]
+  ]
+end
+
+;; if there are as many turtles on the same patch as there are red squares, then that means that all
+;; our wanderers have convened together. This patch is equidistant from all red squares because
+;; all wanderers have traveled as far over the same time.
+to sprint-straight
+  if not any? wanderers [ stop ]
+  ask wanderers [ fd 1 ]
+  if any? patches with [ ( pcolor != 104 ) and ( count wanderers-here = num-squares ) ]
+  [
+    set successful-attempt? true
+    ask patches with [ ( pcolor != 104 ) and ( count wanderers-here = num-squares ) ]
+      [set conventions conventions + 1]
+    update-labels
+    do-plots
+  ]
+  ask wanderers [ die ] ;; because we need to start a new attempt now
+end
+
+to update-labels
+  ask patches with [ conventions != 0 ]
+  [
+    set pcolor green
+    set plabel word precision ( 100 * conventions / ( sum attempts-list + attempts ) ) 2 "%"
+  ]
+end
+
+to do-plots
+  set attempts-list ( fput attempts attempts-list )
+  set-current-plot "Attempts Until Success"
+  set-plot-x-range 0 ( max attempts-list + 1 )
+  set-current-plot-pen "attempts until success"
+  histogram attempts-list
+  let maxbar modes attempts-list
+  let maxrange filter [ attempt -> attempt = item 0 maxbar ] attempts-list
+  set-plot-y-range 0 length maxrange
+  set-current-plot-pen "mean attempts"
+  plot-pen-reset
+  plotxy (mean attempts-list) plot-y-min
+  plotxy (mean attempts-list) plot-y-max
+  set attempts 0
+end
+
+;; updates each time a sample has ended running
+to update-sampling-data
+  if ( sum attempts-list + attempts ) mod sample-size = 0 ;; if the number of attempts is a multiple of sample size
+  [
+    ;; finds increment in successes since last sampling point.
+    ;; note that the length of a list here is in effect how many times the list
+    ;; was updated, that is, how many times whatever it is listing actually happened
+    set successes-per-this-sample ( length attempts-list - sum successes-per-sample-list )
+    set successes-per-sample-list ( fput successes-per-this-sample successes-per-sample-list )
+    set-current-plot "#Successes Per Sample"
+    if not empty? ( remove 0 successes-per-sample-list )
+      [ set-plot-x-range 0 ( max successes-per-sample-list + 1 ) ]
+    set-current-plot-pen "#Successes Per Sample"
+    histogram successes-per-sample-list
+    let maxbar modes successes-per-sample-list
+    let maxrange filter [ successes -> successes = item 0 maxbar ] successes-per-sample-list
+    set-plot-y-range 0 length maxrange
+    set-current-plot-pen "mean-successes-per-sample"
+    plot-pen-reset
+    plotxy ( mean successes-per-sample-list ) plot-y-min
+    plotxy ( mean successes-per-sample-list ) plot-y-max
+  ]
+end
+
+to-report cumulative-frequency
+  let cum-probab precision (100 * (length attempts-list / (sum attempts-list + attempts))) 2
+  report word cum-probab " %"
+end
+
+to-report samples-count
+  let total-attempts ( sum attempts-list + attempts )
+  let total-samples floor ( total-attempts / sample-size )
+  report (word total-samples " samples + "
+               ( total-attempts - total-samples * sample-size )
+               " attempts this sample")
+end
+
+to epicenter
+  setup ; same setup as used in Equidistant-Point
+  ask patch 0 0 [ if pcolor != red [ set pcolor red ] ]
+  birth-darts
+  move-dart
+  ask darts [ die ]
+  label-results
+end
+
+to birth-darts
+  create-darts 10000
+    [ set size .5 ]
+end
+
+to move-dart ;; the patches keep track of their visits
+  ask darts [ fd 1 ]
+  ask patches [ set counter counter + count turtles-here ]
+end
+
+to label-results
+  let helper sum [ counter ] of patches
+  ask patches with [ ( pcolor != 104 ) and ( pcolor != red ) ]
+  [
+    set plabel-color pcolor + 5
+    ifelse display-results = "by-%"
+      [ set plabel word precision ( 100 * counter / helper) 2 "%" ]
+      [ set plabel precision counter 0 ]
+  ]
+end
+
+
+; Copyright 2004 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <modelSettings/>
+  <hubnet/>
+</model>

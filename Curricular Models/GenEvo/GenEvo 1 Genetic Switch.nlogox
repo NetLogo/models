@@ -1,0 +1,1220 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<model xmlns="http://ccl.northwestern.edu/netlogo/netlogox/1">
+  <version><![CDATA[NetLogo 6.1.0-M1]]></version>
+  <previewCommands>
+    <manual/>
+  </previewCommands>
+  <info><![CDATA[## WHAT IS IT?
+
+This model simulates a complex phenomenon in molecular biology: the “switching” (on and off) of genes depending on environmental conditions. Through molecular interactions between specific regulatory proteins and specific DNA sequences, each regulated gene is turn on or off in response to environmental stimuli.
+
+Specifically, it is a model of the [lac-operon](https://en.wikipedia.org/wiki/Lac_operon) of a bacterium (E. coli.), which is responsible for the uptake and digestion of lactose, when lactose is the preferred energy source in the environment. It simulates the regulation of synthesis of the enzymes [permease (LacY)](https://en.wikipedia.org/wiki/Lactose_permease) and [beta-galactosidase (LacZ)](https://en.wikipedia.org/wiki/Beta-galactosidase).
+
+## HOW IT WORKS
+
+This genetic switch is in essence, a positive feedback loop. It is responsible for regulating the synthesis of proteins (LacZ and LacY in this model) required to conduct the uptake and digestion of lactose.
+
+In this model, there are in fact two sugars: glucose and lactose. Glucose is "preferred" as an energy source over lactose. When there is glucose and/or no lactose in the surrounding environment, the genetic switch is at an _off steady-state_. This is because the repressor protein [LacI](https://en.wikipedia.org/wiki/Lac_repressor) prevents (mostly) the bacteria from producing the proteins, by binding to the [operator site](https://en.wikipedia.org/wiki/Operon#General_structure) of the DNA. In this steady state, relatively little permease (LacY) and beta-galactosidase (LacZ) are produced.
+
+When lactose is introduced to the outside environment, the lactose molecules enter into the bacterial cell through permease proteins (LacYs). Some lactose molecules that enter the cell bind to LacIs, preventing LacIs from binding to the operator site of the DNA. This, in turn, causes more LacYs to be produced. The LacYs get inserted into the cell-wall, which causes more lactose to enter the cell, thus creating a positive feedback loop. The LacZs, meanwhile digest lactose molecules inside the cell to produce energy.
+
+The genetic switch is turned on, when there is lactose and no glucose in the environment. Turning on of the switch is represented by changing the color of the cell to shades of blue color.
+
+The effect of glucose (through [cAMP](https://en.wikipedia.org/wiki/Cyclic_adenosine_monophosphate)) is only implicitly modelled. The rate at which LacZ and LacI are produced reduces significantly when glucose is present.
+
+### Important Proteins
+1. *RNAP* – These are RNA polymerases that synthesize mRNA from DNA. These are represented by brown blobs in the model. This model does not include mRNAs.
+2. *LacI* – The purple-colored shapes in the model represent a repressor (LacI proteins). They bind to the operator region (see below) of the DNA and do not let RNAP to pass along the gene, thus stopping protein synthesis. When lactose binds to LacI, they form LacI-lactose complexes (shown by a purple shape with a grey dot attached to it). These complexes cannot bind to the operator region of the DNA.
+3. *LacY* – These are shown in the model as light red rectangles. They are produced when an RNAP passes along the gene. When they hit the cell-wall, they get installed on the cell-wall (shown by light patches). Lactose (grey pentagons) from the outside environment is transported inside the cell through these light red patches.
+4. *LacZ* – These are shown as light red colored proteins. They are present inside the cell. When they collide with a lactose molecule, the lactose molecule is digested and energy is produced.
+
+### DNA Regions
+There are four important DNA regions in this model:
+
+1. *Promoter* – This region is indicated by the color green. As an RNAP binds to the promoter region and if the operator is free, it moves along DNA to start transcription.
+2. *Operator* – This region is indicated by the color orange. The repressor protein, LacI, binds to this region and prevents RNAP from moving along the DNA.
+3. *Operon* – This is indicated by the color blue. This is where lacY and lacZ genes are. This model includes only these two genes of the operon.
+4. *Terminator* – This is indicated by the color grey. RNAP separates from the DNA when it reaches this region.
+
+As RNAP moves along the gene, LacY and LacZ proteins are produced (five molecules per transcription). We do not show translation by ribosomes in this model.
+
+### Energy of the cell
+Producing and maintaining the protein machinery for a cell takes energy. So as a cell produces proteins and maintains those proteins (RNAPs, LacIs and LacZs), its energy decreases.
+
+Energy of the cell increases when lactose inside the cell is digested.
+
+### Cell division
+When the energy of the cell doubles from its initial value, it splits into two daughter cells. Each of these cells has half of the energy of the original cell as well as half the number of each type of protein in the original cell.
+
+## HOW TO USE IT
+
+### To setup
+
+Each slider controls a certain aspect of this genetic regulation circuit. Refer to the Sliders Section for more information on the function of each variable.
+
+Once all the sliders are set to the desired levels, the user should click SETUP to initialize the cell.
+
+### To run
+
+To observe the switching behavior of the genetic switch, set GLUCOSE? to ON and LACTOSE? to OFF. Let the simulation run for a few hundred ticks. Observe the changes in the energy of the cell as time progresses and cell divides. The energy drops to half when a cell divides.
+
+To run the simulation faster, uncheck the 'view updates' box for several thousand ticks. Observe the LacZ production in the graph. It varies because of the stochastic nature of the molecular interactions in the cell. This variability even when the switch "is off" is why genetic switches are referred to as "leaky".
+
+Set GLUCOSE? to OFF and LACTOSE? to ON to see the behavior of the genetic switch by observing change in the LacZ production.
+
+While molecular interactions (micro) are best observed through running the simulation with 'view updates' checked, to observe cellular behavior (macro), 'view updates' should be unchecked and the simulation should be run for several thousand ticks.
+
+### Buttons
+
+The SETUP button initializes the model.
+
+The GO button runs the simulation until the cell dies.
+
+### Switches
+
+LACTOSE?  - If ON, lactose is added to the external medium (outside of the cell)
+
+GLUCOSE?  - If ON, glucose is added to the external medium. Glucose is implicitly modelled meaning that when GLUCOSE? is ON, energy of a cell increases at a constant rate (10 units/tick). In addition, since glucose is a "preferred energy source", the lac promoter is less active when GLUCOSE? is ON.
+
+### Sliders
+
+LACI-NUMBER - Sets the number of LacIs
+
+RNAP-NUMBER - Sets the number of RNAPs
+
+LACI-BOND-LEAKAGE - This is the chance a LacI molecule bonded to the operator detaches from the operator
+
+LACI-LACTOSE-BINDING-CHANCE - Sets the chance that a lactose and a LacI come together to form a LacI-lactose complex
+
+LACI-LACTOSE-SEPARATION-CHANCE - Sets the chance that a LacI-lactose complex separates
+
+LACY-DEGRADATION-CHANCE - Sets the chance of degradation of a LacY that is installed on the cell-wall
+
+LACZ-DEGRADATION-CHANCE - Sets the chance of degradation of a LacZ molecules in the cell
+
+### Plots
+
+Energy – Plots the amount of energy in the cell over time
+
+lacZ Number – Plots the number of LacZ molecules inside a cell
+
+Cell Division Time – Plots the number of ticks between two cell division events. It can be used as a growth rate indicator. Shorter cell division time indicates higher growth rate.
+
+## THINGS TO NOTICE
+
+Notice the three parts of the molecular mechanism involved in the control of the genetic switch:
+1. Uptake of lactose from outside to inside through LacY
+2. Repression by LacI in absence of lactose
+3. Formation of LacI-lactose complex in presence of lactose and removal of repression
+
+Notice the changes in energy of the cells when lactose is added (that is, when LACTOSE? is ON and when LACTOSE? is OFF).
+
+Notice the energy changes when a cell divides.
+
+Notice the changes in the Average Cell Division Time as time progresses.
+
+Notice the effect of changes in the environmental conditions (ON/OFF of GLUCOSE? and LACTOSE? on the Average Cell Division Time and the LacZ Number.
+
+## THINGS TO TRY
+
+Try to make the genetic switch more sensitive to the environmental conditions. It should be "on" only when lactose is present and "off" otherwise. You can do this be changing the slider parameters.
+
+If the cell starts to uptake lactose and produce energy faster, does the Average Cell Division Time also decrease?
+
+## EXTENDING THE MODEL
+
+In real life, cells aren't flat! See if you can extend the model into three-dimensions with NetLogo 3D.
+
+## NETLOGO FEATURES
+
+This model uses NetLogo's `with` primitive extensively. This is because, although the different proteins are represented by different `breeds`, the proteins also exist in various states.
+
+## RELATED MODELS
+
+* GenEvo Curricular Models
+* GenDrift Sample Models
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Dabholkar, S., Bain, C. and Wilensky, U. (2016).  NetLogo GenEvo 1 Genetic Switch model.  http://ccl.northwestern.edu/netlogo/models/GenEvo1GeneticSwitch.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+To cite the GenEvo Systems Biology curriculum as a whole, please use:
+
+* Dabholkar, S. & Wilensky, U. (2016). GenEvo Systems Biology curriculum. http://ccl.northwestern.edu/curriculum/genevo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2016 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2016 GenEvo Cite: Dabholkar, S., Bain, C. -->]]></info>
+  <systemDynamics/>
+  <modelInfo>
+    <title/>
+    <subject/>
+  </modelInfo>
+  <linkShapes>
+    <linkShape curviness="0.0" name="default">
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="-0.2"/>
+      <line stroke-dasharray="1.0,0.0" isVisible="true" offset="0.0"/>
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="0.2"/>
+      <indicator editableColorIndex="0" rotatable="true" name="link direction">
+        <elements>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="90" y1="150" x1="150"/>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="210" y1="150" x1="150"/>
+        </elements>
+      </indicator>
+    </linkShape>
+  </linkShapes>
+  <widgets>
+    <view bottom="354" right="943" top="10" left="330" frameRate="30.0" showTickCounter="true" fontSize="12">
+      <dimensions maxPycor="33" minPycor="-33" maxPxcor="60" minPxcor="-60" wrapInY="true" wrapInX="true" patchSize="5.0"/>
+      <tickCounterLabel><![CDATA[ticks]]></tickCounterLabel>
+    </view>
+    <button bottom="43" right="90" top="10" left="10" ticksEnabled="false" forever="false">
+      <source><![CDATA[setup]]></source>
+    </button>
+    <button bottom="43" right="175" top="10" left="95" ticksEnabled="true" forever="true">
+      <source><![CDATA[go]]></source>
+    </button>
+    <slider bottom="393" right="165" top="360" left="10" direction="horizontal" default="0.02">
+      <maximum><![CDATA[0.1]]></maximum>
+      <minimum><![CDATA[0]]></minimum>
+      <step><![CDATA[0.001]]></step>
+      <variable><![CDATA[LacI-bond-leakage]]></variable>
+    </slider>
+    <slider bottom="433" right="325" top="400" left="10" direction="horizontal" default="0.99991">
+      <maximum><![CDATA[1]]></maximum>
+      <minimum><![CDATA[0.99990]]></minimum>
+      <step><![CDATA[0.00001]]></step>
+      <variable><![CDATA[LacI-lactose-binding-chance]]></variable>
+    </slider>
+    <slider bottom="513" right="325" top="480" left="10" direction="horizontal" default="4.0E-4">
+      <maximum><![CDATA[0.01]]></maximum>
+      <minimum><![CDATA[0]]></minimum>
+      <step><![CDATA[0.0001]]></step>
+      <variable><![CDATA[LacY-degradation-chance]]></variable>
+    </slider>
+    <slider bottom="353" right="325" top="320" left="170" direction="horizontal" default="25.0">
+      <maximum><![CDATA[50]]></maximum>
+      <minimum><![CDATA[1]]></minimum>
+      <step><![CDATA[1]]></step>
+      <variable><![CDATA[LacI-number]]></variable>
+    </slider>
+    <slider bottom="393" right="325" top="360" left="170" direction="horizontal" default="25.0">
+      <maximum><![CDATA[50]]></maximum>
+      <minimum><![CDATA[0]]></minimum>
+      <step><![CDATA[1]]></step>
+      <variable><![CDATA[RNAP-number]]></variable>
+    </slider>
+    <slider bottom="473" right="325" top="440" left="10" direction="horizontal" default="0.001">
+      <maximum><![CDATA[0.01]]></maximum>
+      <minimum><![CDATA[0]]></minimum>
+      <step><![CDATA[0.001]]></step>
+      <variable><![CDATA[LacI-lactose-separation-chance]]></variable>
+    </slider>
+    <slider bottom="553" right="325" top="520" left="10" direction="horizontal" default="1.0E-4">
+      <maximum><![CDATA[0.01]]></maximum>
+      <minimum><![CDATA[0]]></minimum>
+      <step><![CDATA[0.0001]]></step>
+      <variable><![CDATA[LacZ-degradation-chance]]></variable>
+    </slider>
+    <switch bottom="43" right="325" top="10" left="180" isOn="false">
+      <variable><![CDATA[lactose?]]></variable>
+    </switch>
+    <plot bottom="555" right="945" top="360" left="640" ymax="10.0" ymin="0.0" xmax="10.0" xmin="0.0" legendOn="false" autoPlotOn="true">
+      <display><![CDATA[Cell Division Time]]></display>
+      <xAxis><![CDATA[Time]]></xAxis>
+      <yAxis><![CDATA[Number of Ticks]]></yAxis>
+      <setup/>
+      <update/>
+      <pens>
+        <pen inLegend="true" color="-16777216" mode="line" interval="1.0">
+          <setup/>
+          <update><![CDATA[if division-number > 0 [ plot cell-division-time ]]]></update>
+          <display><![CDATA[default]]></display>
+        </pen>
+      </pens>
+    </plot>
+    <switch bottom="78" right="325" top="45" left="180" isOn="true">
+      <variable><![CDATA[glucose?]]></variable>
+    </switch>
+    <plot bottom="555" right="635" top="360" left="330" ymax="10.0" ymin="0.0" xmax="10.0" xmin="0.0" legendOn="false" autoPlotOn="true">
+      <display><![CDATA[LacZ Number]]></display>
+      <xAxis><![CDATA[Time]]></xAxis>
+      <yAxis><![CDATA[Frequency]]></yAxis>
+      <setup/>
+      <update/>
+      <pens>
+        <pen inLegend="true" color="-16777216" mode="line" interval="1.0">
+          <setup/>
+          <update><![CDATA[plot count LacZs]]></update>
+          <display><![CDATA[default]]></display>
+        </pen>
+      </pens>
+    </plot>
+    <switch bottom="213" right="190" top="180" left="50" isOn="false">
+      <variable><![CDATA[LevelSpace?]]></variable>
+    </switch>
+    <plot bottom="315" right="325" top="85" left="10" ymax="1000.0" ymin="0.0" xmax="10.0" xmin="0.0" legendOn="false" autoPlotOn="true">
+      <display><![CDATA[Energy]]></display>
+      <setup/>
+      <update/>
+      <pens>
+        <pen inLegend="true" color="-16777216" mode="line" interval="1.0">
+          <setup/>
+          <update><![CDATA[plot energy]]></update>
+          <display><![CDATA[default]]></display>
+        </pen>
+      </pens>
+    </plot>
+    <button bottom="78" right="175" top="45" left="10" ticksEnabled="true" forever="false">
+      <source><![CDATA[export-interface (word "GenEvo 1 Genetic Switch " date-and-time ".png")]]></source>
+      <display><![CDATA[save screenshot]]></display>
+    </button>
+    <monitor fontSize="11" bottom="535" right="932" top="490" left="755" precision="17">
+      <source><![CDATA[ifelse-value (division-number > 0) [
+  precision (ticks-at-end-of-cell-division / division-number) 0
+][
+ "n/a"
+]]]></source>
+      <display><![CDATA[average-cell-division-time]]></display>
+    </monitor>
+    <button bottom="353" right="165" top="320" left="10" ticksEnabled="false" forever="false">
+      <source><![CDATA[reset]]></source>
+      <display><![CDATA[reset]]></display>
+    </button>
+  </widgets>
+  <experiments/>
+  <shapes>
+    <vectorShape editableColorIndex="0" rotatable="true" name="default">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,5 40,250 150,205 260,250"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="airplane">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,0 135,15 120,60 120,105 15,165 15,195 120,180 135,240 105,270 120,285 150,270 180,285 210,270 165,240 180,180 285,195 285,165 180,105 180,60 165,15"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="arrow">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,0 0,150 105,150 105,293 195,293 195,150 300,150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="box">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,285 285,225 285,75 150,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,135 15,75 150,15 285,75"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="15,75 15,225 150,285 150,135"/>
+        <line marked="false" filled="false" color="#000000" y2="135" x2="150" y1="285" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="75" x2="15" y1="135" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="75" x2="285" y1="135" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="bug">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="182" cx="96"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="127" cx="110"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="75" cx="110"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="30" x2="80" y1="100" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="30" x2="220" y1="100" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="butterfly">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,165 209,199 225,225 225,255 195,270 165,255 150,240"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,165 89,198 75,225 75,255 105,270 135,255 150,240"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="139,148 100,105 55,90 25,90 10,105 10,135 25,180 40,195 85,194 139,163"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="162,150 200,105 245,90 275,90 290,105 290,135 275,180 260,195 215,195 162,165"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,255 135,225 120,150 135,120 150,105 165,120 180,150 165,225"/>
+        <circle marked="false" filled="true" color="#000000" diameter="30" cy="90" cx="135"/>
+        <line marked="false" filled="false" color="#000000" y2="60" x2="195" y1="105" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="60" x2="105" y1="105" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="car">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="180,15 164,21 144,39 135,60 132,74 106,87 84,97 63,115 50,141 50,165 60,225 150,285 165,285 225,285 225,15 180,15"/>
+        <circle marked="false" filled="true" color="#000000" diameter="90" cy="30" cx="180"/>
+        <circle marked="false" filled="true" color="#000000" diameter="90" cy="180" cx="180"/>
+        <polygon marked="false" filled="true" color="#000000" points="80,138 78,168 135,166 135,91 105,106 96,111 89,120"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="58" cy="195" cx="195"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="58" cy="47" cx="195"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="circle">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="circle 2">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="cow">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="200,193 197,249 179,249 177,196 166,187 140,189 93,191 78,179 72,211 49,209 48,181 37,149 25,120 25,89 45,72 103,84 179,75 198,76 252,64 272,81 293,103 285,121 255,121 242,118 224,167"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="73,210 86,251 62,249 48,208"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="25,114 16,195 9,204 23,213 25,200 39,123"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="cylinder">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="dot">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="120" cy="90" cx="90"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face happy">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="8" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,255 90,239 62,213 47,191 67,179 90,203 109,218 150,225 192,218 210,203 227,181 251,194 236,217 212,240"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face neutral">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="7" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <rect marked="false" filled="true" color="#000000" height="30" width="180" y="195" x="60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face sad">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="8" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,168 90,184 62,210 47,232 67,244 90,220 109,205 150,198 192,205 210,220 227,242 251,229 236,206 212,183"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="fish">
+      <elements>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="44,131 21,87 15,86 0,120 15,150 0,180 13,214 20,212 45,166"/>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="135,195 119,235 95,218 76,210 46,204 60,165"/>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="75,45 83,77 71,103 86,114 166,78 135,60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="30,136 151,77 226,81 280,119 292,146 292,160 287,170 270,195 195,210 151,212 30,166"/>
+        <circle marked="false" filled="true" color="#000000" diameter="30" cy="106" cx="215"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="flag">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="285" width="15" y="15" x="60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="90,150 270,90 90,30"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="135" x2="90" y1="135" x1="75"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="45" x2="90" y1="45" x1="75"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="flower">
+      <elements>
+        <polygon marked="false" filled="true" color="#59B03C" points="135,120 165,165 180,210 180,240 150,300 165,300 195,240 195,195 165,135"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="132" cx="85"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="147" cx="130"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="85" cx="192"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="40" cx="85"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="40" cx="177"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="132" cx="177"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="85" cx="70"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="25" cx="130"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="51" cx="96"/>
+        <circle marked="false" filled="true" color="#000000" diameter="74" cy="68" cx="113"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="189,233 219,188 249,173 279,188 234,218"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="180,255 150,210 105,210 75,240 135,240"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="hello">
+      <elements/>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="house">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="165" width="210" y="120" x="45"/>
+        <rect marked="false" filled="true" color="#000000" height="75" width="60" y="210" x="120"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="15,120 150,15 285,120"/>
+        <line marked="false" filled="false" color="#000000" y2="120" x2="270" y1="120" x1="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="laci">
+      <elements>
+        <polygon marked="false" filled="true" color="#7C50A4" points="120,120 135,135 150,135 165,120 270,120 270,180 210,180 210,210 165,210 165,180 120,180 120,210 75,210 75,180 15,180 15,120 120,120"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="9" rotatable="true" name="laci-lactose-complex">
+      <elements>
+        <polygon marked="false" filled="true" color="#7C50A4" points="15,135 15,210 150,210 270,210 270,135 165,135 150,150 135,150 120,135 75,135"/>
+        <polygon marked="false" filled="true" color="#8D8D8D" points="135,150 150,150 165,135 150,120 135,120 120,135"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="leaf">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,210 135,195 120,210 60,210 30,195 60,180 60,165 15,135 30,120 15,105 40,104 45,90 60,90 90,105 105,120 120,120 105,60 120,60 135,30 150,15 165,30 180,60 195,60 180,120 195,120 210,105 240,90 255,90 263,104 285,105 270,120 285,135 240,165 240,180 270,195 240,210 180,210 165,195"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,195 135,240 120,255 105,255 105,285 135,285 165,240 165,195"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="line">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="300" x2="150" y1="0" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="line half">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="150" y1="0" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="1" rotatable="false" name="pentagon">
+      <elements>
+        <polygon marked="false" filled="true" color="#8D8D8D" points="150,90 90,135 120,195 180,195 210,135"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="person">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="5" cx="110"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="105,90 120,195 90,285 105,300 135,300 150,225 165,300 195,300 210,285 180,195 195,90"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="15" width="45" y="79" x="127"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="195,90 240,150 225,180 165,105"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="105,90 60,150 75,180 135,105"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="plant">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="210" width="30" y="90" x="135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,255 90,210 45,195 75,255 135,285"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,255 210,210 255,195 225,255 165,285"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,180 90,135 45,120 75,180 135,210"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,180 165,210 225,180 255,120 210,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,105 90,60 45,45 75,105 135,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,105 165,135 225,105 255,45 210,60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,90 120,45 150,15 180,45 165,90"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="protein">
+      <elements>
+        <polygon marked="true" filled="false" color="#8D8D8D" points="165,75 135,75 135,90 165,105 165,75 165,60 135,105 165,120 180,120 180,90 150,75 150,105 180,135 165,135 165,120 180,120 195,135 195,105 195,105 165,105 150,105 165,90 180,75 165,75 150,90 165,105 150,120 135,150 120,150 120,165 150,165 180,165 165,135 165,135"/>
+        <polygon marked="true" filled="false" color="#8D8D8D" points="165,150 165,165 150,180 135,165 120,195 150,210 165,180 180,165 150,165 135,150 135,165 120,165 120,210 150,195 180,195 180,180 195,165 165,150 165,150 210,165 180,210 150,180 135,210 120,225 150,225"/>
+        <polygon marked="true" filled="false" color="#8D8D8D" points="135,120 120,120 150,135 150,150 180,150 150,120 120,135 135,105 105,105 180,135 210,150 105,120 105,135 210,195"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="protein2">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,60 60,210 240,210 150,60 150,60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="pump">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="180" width="90" y="60" x="105"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="10" rotatable="true" name="rnap">
+      <elements>
+        <circle marked="true" filled="true" color="#345DA9" diameter="150" cy="75" cx="45"/>
+        <circle marked="true" filled="true" color="#345DA9" diameter="150" cy="75" cx="105"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="square">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="240" width="240" y="30" x="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="square 2">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="240" width="240" y="30" x="30"/>
+        <rect marked="false" filled="true" color="#000000" height="180" width="180" y="60" x="60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="star">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="151,1 185,108 298,108 207,175 242,282 151,216 59,282 94,175 3,108 116,108"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="target">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="180" cy="60" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="120" cy="90" cx="90"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="60" cy="120" cx="120"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="tree">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="94" cy="3" cx="118"/>
+        <rect marked="false" filled="true" color="#9D6E48" height="105" width="60" y="195" x="120"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="21" cx="65"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="127" cy="41" cx="116"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="120" cy="90" cx="45"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="152" cy="74" cx="104"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="triangle">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,30 15,255 285,255"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="triangle 2">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,30 15,255 285,255"/>
+        <polygon marked="false" filled="true" color="#000000" points="151,99 225,223 75,224"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="truck">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="142" width="191" y="45" x="4"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="296,193 296,150 259,134 244,104 208,104 207,194"/>
+        <rect marked="false" filled="true" color="#FFFFFF" height="45" width="0" y="60" x="195"/>
+        <polygon marked="false" filled="true" color="#000000" points="238,112 252,141 219,141 218,112"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="234"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="9" width="33" y="185" x="181"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="144"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="24"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="24"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="144"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="234"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="turtle">
+      <elements>
+        <polygon marked="false" filled="true" color="#59B03C" points="215,204 240,233 246,254 228,266 215,252 193,210"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="195,90 225,75 245,75 260,89 269,108 261,124 240,105 225,105 210,105"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="105,90 75,75 55,75 40,89 31,108 39,124 60,105 75,105 90,105"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="132,85 134,64 107,51 108,17 150,2 192,18 192,52 169,65 172,87"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="85,204 60,233 54,254 72,266 85,252 107,210"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="119,75 179,75 209,101 224,135 220,225 175,261 128,261 81,224 74,135 88,99"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="wheel">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="294" cy="3" cx="3"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="15" x2="150" y1="285" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="285" y1="150" x1="15"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="60" cy="120" cx="120"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="269" x2="79" y1="40" x1="216"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="221" x2="269" y1="84" x1="40"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="79" x2="269" y1="216" x1="40"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="269" x2="221" y1="40" x1="84"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="x">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="270,75 225,30 30,225 75,270"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="30,75 75,30 270,225 225,270"/>
+      </elements>
+    </vectorShape>
+  </shapes>
+  <code><![CDATA[globals [
+  ; Simulation constants
+  cell-width                 ; the width of the cell
+  cell-height                ; the height of the cell
+  cell-color                 ; the color of the cell
+  cell-wall                  ; a patch set that contains the patches on the cell wall
+  cell-patches               ; a patch set that contains the patches inside the cell
+  operon                     ; a patch set that contains the operon patches
+  promoter                   ; a patch set that contains the patches that represent the promoter
+  operator                   ; a patch set that contains the patches that represent the operator
+  terminator                 ; a patch set that contains the patches that represent the terminator
+  LacZ-production-num        ; number of LacZ proteins produced per transcription event
+  LacZ-production-cost       ; cost incurred by the cell to produce one molecule of LacZ protein
+  LacY-production-num        ; number of LacZ proteins produced per transcription event
+  LacY-production-cost       ; cost incurred by the cell to produce one molecule of LacZ protein
+  initial-energy             ; initial energy of the cell
+  lactose-upper-limit        ; a variable to set the lactose quantity in the external environment
+
+  ; Global (cellular) properties
+  energy                           ; keeps track of the energy of the cell
+  ticks-at-start-of-cell-division  ; to keep track of cell division time
+  ticks-at-end-of-cell-division    ; to keep track of cell division time
+  cell-division-time               ; time taken for the cell to divide
+  division-number                  ; a counter to keep track of number of cell division events
+  inhibited?                       ; boolean for whether or not the operator is inhibited
+]
+
+breed [ LacIs LacI ]         ; the LacI repressor protein (purple proteins)
+breed [ LacZs LacZ ]         ; the LacZ beta-galactosidase enzyme (light red proteins)
+breed [ LacYs LacY ]         ; the LacY lactose permease enzyme (light red rectangles)
+breed [ RNAPs RNAP ]         ; RNA Polymerase (brown proteins) that binds to the DNA and synthesizes mRNA
+breed [ lactoses lactose ]   ; lactose molecules (gray)
+
+breed [ mask-turtles mask-turtle ]   ; turtles to mask the background during animation of cell division
+breed [ daughter-cell-turtles daughter-cell-turtle ]  ; turtles to animate cell division process
+
+LacIs-own [
+  partner                ; if it's a LacI complex, then partner is a lactose molecule
+  bound-to-operator?     ; a boolean to track if a LacI is bound to DNA as an inhibitor of transcription
+]
+
+RNAPs-own [
+  on-DNA?     ; a boolean to track if a RNAP is transcribing the DNA
+]
+
+lactoses-own [
+  partner     ; a partner is a LacI molecule with which an ONPG forms a complex
+  inside?     ; a boolean to track if a lactose molecule is inside the cell
+]
+
+to setup
+  clear-all
+
+  ; Set all of our constant global variables
+  set cell-width 44
+  set cell-height 16
+  set initial-energy 1000
+  set lactose-upper-limit 1500
+  set LacZ-production-num 5
+  set LacZ-production-cost 10
+  set LacY-production-num 5
+  set LacY-production-cost 10
+
+  ; Initialize all of our global property variables
+  set energy initial-energy
+  set ticks-at-start-of-cell-division 0
+  set division-number 0
+  set inhibited? false
+
+  draw-cell
+
+  ; add the necessary proteins to the cell
+  create-LacIs LacI-number [
+    set bound-to-operator? false
+    set partner nobody
+    set-shape
+    gen-xy-inside-inside
+  ]
+  create-RNAPs RNAP-number [
+    set on-DNA? false
+    set-shape
+    gen-xy-inside-inside
+  ]
+
+  if not LevelSpace? [
+    if lactose? [ update-lactose lactose-upper-limit ] ; add lactose if ON
+  ]
+  reset-ticks
+end
+
+to reset   ;; to reset the parameters to default setting
+  set LacI-number 25
+  set RNAP-number 25
+  set LacI-bond-leakage 0.02
+  set LacI-lactose-binding-chance 0.99991
+  set LacI-lactose-separation-chance 0.001
+  set LacY-degradation-chance 4.0E-4
+  set LacZ-degradation-chance 1.0E-4
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;  Runtime Procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to go
+  go-LacIs
+  go-LacYs
+  go-LacZs
+  go-lactoses
+  go-RNAPs
+
+  ; if glucose? is ON, we get a steady stream of energy
+  if glucose? [ set energy energy + 10 ]
+  ; but it takes energy to maintain all of the proteins so consume some energy
+  set energy (energy - (count RNAPs + count LacIs + count LacZs) / 100 )
+
+  ; If we're in LevelSpace, then let the population model control division and lactose distribution.
+  if not LevelSpace? [
+    if lactose? [ update-lactose lactose-upper-limit ]
+
+    ; if we've doubled our energy, then divide
+    if (energy > 2 * initial-energy) [ divide-cell ]
+
+    ; if we're out of energy, die
+    if (energy < 0) [ user-message "The cell has run out of energy. It's dead!" stop ]
+  ]
+  show-switch-color
+  tick
+end
+
+; controls the random movement of all turtles. If you're headed towards the cell wall, just turn until you're not
+to move ; turtle procedure
+  rt random-float 360
+  while [ (member? patch-ahead 1 cell-wall) or (member? patch-ahead 2 cell-wall) ] [ rt random-float 360 ]
+  forward 1
+end
+
+; procedure for movement and molecular interactions of LacI proteins
+to go-LacIs
+
+  ; a LacI bound with the operator might dissociate from the operator
+  ask LacIs with [ bound-to-operator? ] [
+    if (random-float 1 < LacI-bond-leakage) [
+      dissociate-from-operator
+    ]
+  ]
+
+  ; LacIs with partners might dissociate from their partners
+  ask LacIs with [ partner != nobody ] [
+     if (random-float 1 < LacI-lactose-separation-chance) [
+      ask partner [
+        set partner nobody
+        move-to myself
+        set-shape
+        forward 1
+      ]
+      set partner nobody
+      set-shape
+      forward -1
+    ]
+  ]
+
+  ; LacIs without partners either bind with the operator
+  ask LacIs with [ partner = nobody ] [
+    ifelse (not inhibited?) and ((member? patch-here operator) or (member? patch-ahead 1 operator)) [
+      set bound-to-operator? true
+      set inhibited? true
+      set heading 0
+      setxy -12 1
+    ] [ ; or maybe bind with a lactose
+      if (count lactoses-here with [ partner = nobody ] > 0  and (random-float 1 < LacI-lactose-binding-chance)) [
+        set partner one-of lactoses-here with [ partner = nobody ]
+        set-shape
+        ask partner [
+          set partner myself
+          set-shape
+        ]
+        dissociate-from-operator ; if necessary, dissociate from the operator
+      ]
+    ]
+  ]
+
+  ask LacIs with [ not bound-to-operator? ] [ move ]
+end
+
+; procedure for LacIs to dissociate from the operator
+to dissociate-from-operator ; LacI procedure
+  if (bound-to-operator?) [
+    set bound-to-operator? false
+    set inhibited? false
+    forward 3
+  ]
+end
+
+; procedure for movement and interactions of LacY proteins
+to go-LacYs
+  ask LacYs [
+    ; if LacY hits the cellwall, it gets installed on the cell wall
+    ifelse (member? patch-ahead 2 cell-wall) [
+      ask patch-ahead 2 [ set pcolor (red + 2) ]
+      die
+    ]
+    ; otherwise we just move normally
+    [ move ]
+  ]
+  ; each tick, the installed LacYs have a chance of degrading
+  ask patches with [pcolor = (red + 2)] [
+    if (random-float 1 < LacY-degradation-chance) [ set pcolor cell-color ]
+  ]
+end
+
+; procedure for movement and interactions of LacZ proteins
+to go-LacZs
+  ; LacZs near lactose can digest that lactose and produce energy
+  ask LacZs with [ any? lactoses in-radius 1 with [ partner = nobody ] ] [
+    ask lactoses in-radius 2 with [ partner = nobody ] [
+      set energy energy + 10
+      die
+    ]
+  ]
+  ask LacZs [
+    move
+    if (random-float 1 < LacZ-degradation-chance) [ die ] ; there's a chance LacZ degrades
+  ]
+end
+
+; procedure for movement and interactions of lactose molecules
+to go-lactoses
+  ; any lactoses near an installed LacY get pumped into the cell
+  ask lactoses with [ ([ pcolor ] of patch-ahead 2 = (red + 2)) and not inside? ] [
+    move-to patch-ahead 2 set heading towards patch 0 0 ; make sure the lactose gets inside the cell
+    fd 3
+    set inside? true
+  ]
+
+  ask lactoses [ move ]
+end
+
+
+; procedure for movement and molecular interactions of RNAPs
+to go-RNAPs
+  ; In the presence of glucose, the probability of trancription is less.
+  let transcription-probability ifelse-value (glucose?) [ 0.1 ] [ 1 ]
+
+  ; If any RNAPs are close to the promoter and the operator is not inhibited
+  if (not inhibited?) [
+    ask RNAPs with [ (member? patch-here promoter) or (member? patch-ahead 1 promoter) or (member? patch-ahead 2 promoter) ] [
+      if random-float 1 < transcription-probability [
+         ; then start moving along the DNA to model transcription
+         setxy xcor 1
+         set heading 90
+         set on-dna? true
+      ]
+    ]
+  ]
+
+  ; If any RNAPs are in the process of transcribing (on-dna?) move them along
+  ask RNAPs with [ on-dna? ] [
+    forward 1
+    ; when you reach the terminator, synthesize the proteins
+    if (member? patch-here terminator) [
+      synthesize-proteins
+      set on-dna? false
+      gen-xy-inside-inside
+    ]
+  ]
+
+  ; Any other RNAPs just move around the cell
+  ask RNAPs with [ not on-dna? ] [
+    move
+    ; Because our DNA is fixed within the cell,  RNAPs at both ends of the
+    ; of the cell are moved to a random position inside the cell
+    if (xcor > (cell-width - 3) or xcor < (- cell-width + 3)) [ gen-xy-inside-inside ]
+  ]
+end
+
+; procedure to synthesize proteins upon dna transcription
+to synthesize-proteins
+  hatch-LacYs LacY-production-num [
+    gen-xy-inside-inside
+    set-shape
+  ]
+  hatch-LacZs LacZ-production-num [
+    gen-xy-inside-inside
+    set-shape
+  ]
+  set energy energy - (LacY-production-cost * LacY-production-num) - (LacZ-production-cost * LacZ-production-num)
+end
+
+; procedure to simulate cell division; each type of turtle (except RNAPs and LacIs) population is halved
+to divide-cell
+  animate-cell-division
+
+  ask n-of (count lactoses with [ inside? and partner = nobody ] / 2) lactoses with [ inside? and partner = nobody ] [ die ]
+  ask n-of (count LacYs / 2) LacYs [ die ]
+  ask n-of (count LacZs / 2) LacZs [ die ]
+  ask n-of (count patches with [pcolor = (red + 2) ] / 2)patches with [pcolor = (red + 2)] [set pcolor cell-color]
+
+  set energy energy / 2
+  set division-number division-number + 1
+  set ticks-at-end-of-cell-division ticks
+  set cell-division-time (ticks-at-end-of-cell-division - ticks-at-start-of-cell-division)
+  set ticks-at-start-of-cell-division ticks
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;  Helper Procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; procedure that sets patches for the cell, the cell-wall, and the
+; regions of the DNA; although it looks complicated, really we're just
+; addressing a bunch of patch-sets
+to draw-cell
+  set cell-wall ( patch-set
+    ; the vertical part of the cell wall
+    (patches with [
+      (pycor = cell-height or pycor = (- cell-height))
+       and
+      (pxcor > (-(cell-width + 1)) and pxcor < (cell-width + 1))
+    ])
+    ; the horizontal part of the cell wall
+    (patches with [
+       (pxcor = cell-width or pxcor = (- cell-width))
+        and
+       (pycor > (-(cell-height + 1)) and pycor < (cell-height + 1))
+     ])
+  )
+  set-cell-color brown
+
+  ; patches inside the cell-wall are set white.
+  set cell-patches patches with [
+    (pycor > (- cell-height) and pycor < cell-height)
+     and
+    (pxcor > (- cell-width)  and pxcor < cell-width)
+  ]
+  ask cell-patches [ set pcolor white ]
+
+  ; the operon patches are blue
+  set operon patches with [ (pycor > -1 and pycor < 2) and (pxcor > -10 and pxcor < 17) ]
+  ask operon [ set pcolor blue ]
+
+  ; promoter is green
+  set promoter patches with [ (pycor > -1 and pycor < 2) and (pxcor > -22 and pxcor < -14) ]
+  ask promoter [ set pcolor green ]
+
+  ; operator is orange
+  set operator patches with [
+   ((pycor = 0) and (pxcor > -15 and pxcor < -9))
+    or
+   (( pycor = 1) and (( pxcor = -10) or ( pxcor = -12) or ( pxcor = -14)))
+  ]
+  ask operator [ set pcolor orange ]
+
+  ; the terminator patches are gray
+  set terminator patches with [
+    ((pycor > -1) and (pycor < 2))
+     and
+    ((pxcor > 16 and pxcor < 19))
+  ]
+  ask terminator [ set pcolor gray ]
+end
+
+; procedure to animate the process of cell division
+to animate-cell-division
+
+  create-mask-turtles 1 [
+    set size 1000
+    set color black
+    set shape "square"
+  ]
+
+  ask cell-wall [
+    sprout-daughter-cell-turtles 1 [
+      set color cell-color + 2
+      set shape "square"
+      set size 2
+      set heading 45
+    ]
+  ]
+
+  ask cell-wall [
+    sprout-daughter-cell-turtles 1 [
+      set color cell-color + 2
+      set shape "square"
+      set size 2
+      set heading 225
+    ]
+  ]
+
+  ask cell-patches [
+    sprout-daughter-cell-turtles 1 [
+      set color pcolor
+      set shape "square"
+      set size 2
+      set heading 45
+    ]
+  ]
+
+  ask cell-patches [
+    sprout-daughter-cell-turtles 1 [
+      set color pcolor
+      set shape "square"
+      set size 2
+      set heading 225
+    ]
+  ]
+
+  ask (patch-set operon promoter operator terminator) [
+    sprout-daughter-cell-turtles 1 [
+      set color [ pcolor ] of myself + 2
+      set shape "square"
+      set size 2
+      set heading 45
+    ]
+  ]
+
+  ask (patch-set operon promoter operator terminator) [
+    sprout-daughter-cell-turtles 1 [
+      set color [ pcolor ] of myself + 2
+      set shape "square"
+      set size 2
+      set heading 225
+    ]
+  ]
+
+  ask (turtle-set LacYs LacZs RNAPs LacIs lactoses with [inside?]) [
+    hatch 1 [
+      gen-xy-inside-inside
+      set breed daughter-cell-turtles
+      set shape [shape] of myself
+      set color [color] of myself + 2
+      set heading 45
+    ]
+  ]
+
+  ask (turtle-set LacYs LacZs RNAPs LacIs lactoses with [inside?]) [
+    hatch 1 [
+      gen-xy-inside-inside
+      set breed daughter-cell-turtles
+      set shape [shape] of myself
+      set color [color] of myself + 2
+      set heading 225
+    ]
+  ]
+
+  repeat 23 [
+    ask daughter-cell-turtles [ fd 1 ]
+    display
+  ]
+
+  ask mask-turtles [ die ]
+  ask daughter-cell-turtles [ die ]
+end
+
+
+; procedure that assigns a specific shape to an agent based on breed
+to set-shape ; turtle procedure
+  if breed = LacIs [
+    set size 6
+    ifelse partner = nobody [
+      set shape "LacI"
+    ][ ; if you have a partner, you're a LacI-lactose-complex
+      set shape "LacI-lactose-complex"
+      set size 6
+    ]
+  ]
+  if breed = RNAPs [
+    set size 5
+    set shape "RNAP"
+    set color brown
+  ]
+  if breed = lactoses [
+    ifelse partner = nobody [
+      set size 2
+      set shape "pentagon"
+      set hidden? false
+    ][ ; if you have a partner, you're invisible!
+      set hidden? true
+     ]
+  ]
+  if breed = LacYs [
+    set shape "pump"
+    set color (red + 2)
+    set size 3
+  ]
+  if breed = LacZs [
+    set shape "protein2"
+    set color (red + 2)
+    set size 4
+  ]
+end
+
+; to keep the lactose amount constant if the lactose? switch is on
+to update-lactose [ upper-limit ]
+    let num-lactose-outside count lactoses with [ not inside? ]
+    ifelse num-lactose-outside > upper-limit [
+      ask n-of (num-lactose-outside - upper-limit) lactoses with [ not inside? ] [ die ]
+    ][
+      create-lactoses (upper-limit - num-lactose-outside) [
+        gen-xy-inside-outside
+        set inside? false
+        set partner nobody
+        set-shape
+      ]
+    ]
+end
+
+; procedure to place a molecule inside the cell
+to gen-xy-inside-inside ; turtle procedure
+  setxy random-xcor random-ycor
+  while [ not member? patch-here cell-patches] [
+    setxy random-xcor random-ycor
+  ]
+end
+
+; procedure to place a molecule outside the cell
+to gen-xy-inside-outside ; turtle procedure
+  setxy random-xcor random-ycor
+  while [(member? patch-here cell-wall) or (member? patch-here cell-patches)] [
+    setxy random-xcor random-ycor
+  ]
+end
+
+; procedure to set the color of the cell wall. (this is a separate procedure because
+; in LevelSpace, the cell wall color needs to be assigned)
+to set-cell-color [ the-color ]
+  set cell-color the-color
+  ask cell-wall [ set pcolor the-color ]
+end
+
+to show-switch-color
+  if count lacZs <= 10 [
+    ask cell-patches [ set pcolor white ]
+  ]
+  if count lacZs > 10 and count lacZs <= 20 [
+    ask cell-patches [ set pcolor 99 ]
+  ]
+  if count lacZs > 20 and count lacZs <= 30 [
+    ask cell-patches [ set pcolor 98 ]
+  ]
+  if count lacZs > 30 [
+    ask cell-patches [ set pcolor 97 ]
+  ]
+  ask operon [ set pcolor blue ]
+  ask promoter [ set pcolor green ]
+  ask operator [ set pcolor orange ]
+  ask terminator [ set pcolor gray ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;  LevelSpace Procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; procedure to setup the cell according to parameters passed in from the population model
+to set-initial-variables [ the-list ]
+
+  ; 'the-list' is the following list of numbers (or counts) and booleans
+  ; [ cell-color initial-energy energy initial-LacYs initial-LacYs-inserted initial-LacZs
+  ;    initial-LacI-lactose-complexes initial-lactose-inside initial-lactose-outside
+  ;    glucose?-setting lactose?-setting ]
+
+  ; we use NetLogo's `item` primitive to directly select elements of the list
+  set LevelSpace?      true
+  set-cell-color       item 0 the-list
+  set initial-energy   item 1 the-list
+  set energy           initial-energy
+  set lactose?         item 8 the-list
+  set glucose?         item 9 the-list
+
+  ; create the necessary turtles
+  ask n-of (item 3 the-list) cell-wall [ set pcolor red + 2 ]
+  create-LacYs (item 2 the-list) [ gen-xy-inside-inside ]
+  create-LacZs (item 4 the-list) [ gen-xy-inside-inside ]
+  create-lactoses (item 6 the-list) [
+    set inside? true
+    set partner nobody
+    gen-xy-inside-inside
+  ]
+  ask n-of (item 5 the-list) LacIs [
+    hatch-lactoses 1 [
+      set inside? true
+      set partner myself
+      ask partner [ set partner myself ]
+    ]
+  ]
+  ask turtles [ set-shape ]
+end
+
+; procedure to extract list of variables to use in the population model when using LevelSpace
+to-report send-variables-list
+  report (list (energy) (count LacYs) (count (patches with [pcolor = red + 2])) (count LacZs)
+      (count (LacIs with [ partner != nobody ])) (count (lactoses with [ (inside?) and (partner = nobody) ])) (count (lactoses with [ not inside? ])))
+end
+
+
+; Copyright 2016 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <modelSettings snapToGrid="true"/>
+  <hubnet/>
+</model>

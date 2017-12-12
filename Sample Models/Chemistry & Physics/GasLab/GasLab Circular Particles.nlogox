@@ -1,0 +1,1039 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<model xmlns="http://ccl.northwestern.edu/netlogo/netlogox/1">
+  <version><![CDATA[NetLogo 6.1.0-M1]]></version>
+  <previewCommands>
+    <compiled><![CDATA[setup repeat 75 [ go ]]]></compiled>
+  </previewCommands>
+  <info><![CDATA[## WHAT IS IT?
+
+This model is one in a series of GasLab models. They use the same basic rules for simulating the behavior of gases.  Each model integrates different features in order to highlight different aspects of gas behavior. This model is different from the other GasLab models in that the collision calculations take the circular shape and size of the particles into account, instead of modeling the particles as dimensionless points.
+
+## HOW IT WORKS
+
+The model determines the resulting motion of particles that collide, with no loss in their total momentum or total kinetic energy (an elastic collision).
+
+To calculate the outcome of collision, it is necessary to calculate the exact time at which the edge of one particle (represented as a circle), would touch the edge of another particle (or the walls of a container) if the particles were allowed to continue with their current headings and speeds.
+
+By performing such a calculation, one can determine when the next collision anywhere in the system would occur in time.  From this determination, the model then advances the motion of all the particles using their current headings and speeds that far in time until this next collision point is reached.  Exchange of kinetic energy and momentum between the two particles, according to conservation of kinetic energy and conservation of momentum along the collision axis (a line drawn between the centers of the two particles), is then calculated, and the particles are given new headings and speeds based on this outcome.
+
+## HOW TO USE IT
+
+INITIAL-NUMBER-PARTICLES determines the number of gas particles used with SETUP.  If the world is too small or the particles are too large, the SETUP procedure of the particles will stop so as to prevent overlapping particles.
+
+SMALLEST-PARTICLE-SIZE and LARGEST-PARTICLE-SIZE determines the range of particle sizes that will be created when SETUP is pressed.  (Particles are also assigned a mass proportional to the area of the particle that is created.)
+
+The SETUP button will set the initial conditions.
+The GO button will run the simulation.
+
+Monitors:
+- % FAST, % MEDIUM, % SLOW: the percentage of particles with different speeds: fast (red), medium (green), and slow (blue).
+- AVERAGE SPEED: average speed of the particles.
+- AVERAGE ENERGY: average kinetic energy of the particles.
+
+Plots:
+- SPEED COUNTS: plots the number of particles in each range of speed.
+- SPEED HISTOGRAM: speed distribution of all the particles.  The gray line is the average value, and the black line is the initial average.
+- ENERGY HISTOGRAM: distribution of energies of all the particles, calculated as  m*(v^2)/2.  The gray line is the average value, and the black line is the initial average.
+
+Initially, all the particles have the same speed but random directions. Therefore the first histogram plots of speed will show only one column.  If all the particles have the same size (and therefore the same mass), then the first histogram plot of energy will also show one column.  As the particles repeatedly collide, they exchange energy and head off in new directions, and the speeds are dispersed -- some particles get faster, some get slower.  The histogram distribution changes accordingly.
+
+## THINGS TO NOTICE
+
+Run the model with different masses, by setting the MAX-PARTICLE-SIZE larger than the MIN-PARTICLE-SIZE.  Mass is scaled linearly to the area of the particle, so that a particle that is twice the radius of another particle, has four the area and therefore four times the mass.
+
+With many different mass particles colliding over time, different sized particles start to move at different speed ranges (in general).  The smallest mass particles will be usually moving faster (red) than the average particle speed and the largest mass particles will be usually slower (blue) than the average particle speed.  This emergent result is what happens in a gas that is a mixture of particles of different masses.  At any given temperature, the higher mass particles are moving slower (such as Nitrogen gas: N<sub>2</sub>) then the lower mass particles (such as water vapor: H<sub>2</sub>O).
+
+The particle histograms quickly converge on the classic Maxwell-Boltzmann distribution.  What's special about these curves?  Why is the shape of the energy curve not the same as the speed curve?
+
+Look at the other GasLab models to compare the particle histograms.  In those models, the particles are modeled as "point" particles, with an area of "zero".  The results of those models should match this model, even with that simplification.
+
+With particles of different sizes, you may notice some fast moving particles have lower energy than medium speed particles.  How can the difference in the mass of the particles account for this?
+
+## THINGS TO TRY
+
+Setting all the particles to have a very slow speed (e.g. 0.001) and one particle to have a very fast speed helps show how kinetic energy is eventually transferred to all the particles through a series of collisions and would serve as a good model for energy exchange through conduction between hot and cold gases.
+
+To see what the approximate mass of each particle is, type this in the command center:
+
+    ask particles [ set label precision mass 0 ]
+
+## EXTENDING THE MODEL
+
+Collisions between boxes and circles could also be explored.  Variations in size between particles could investigated or variations in the mass of some of the particle could be made to explore other factors that affect the outcome of collisions.
+
+## NETLOGO FEATURES
+
+Instead of advancing one tick at a time as in most models, the tick counter takes on fractional values, using the `tick-advance` primitive.  (In the Interface tab, it is displayed as an integer, but if you make a monitor for `ticks` you'll see the exact value.)
+
+## RELATED MODELS
+
+Look at the other GasLab models to see collisions of "point" particles, that is, the particles are assumed to have an area or volume of zero.
+
+## CREDITS AND REFERENCES
+
+This model was developed as part of the GasLab curriculum (http://ccl.northwestern.edu/curriculum/gaslab/) and has also been incorporated into the Connected Chemistry curriculum (http://ccl.northwestern.edu/curriculum/ConnectedChemistry/)
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. (2005).  NetLogo GasLab Circular Particles model.  http://ccl.northwestern.edu/netlogo/models/GasLabCircularParticles.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2005 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This model and associated activities and materials were created as part of the project: MODELING ACROSS THE CURRICULUM.  The project gratefully acknowledges the support of the National Science Foundation, the National Institute of Health, and the Department of Education (IERI program) -- grant number REC #0115699.
+
+<!-- 2005 MAC -->]]></info>
+  <systemDynamics/>
+  <modelInfo>
+    <title/>
+    <subject/>
+  </modelInfo>
+  <linkShapes>
+    <linkShape curviness="0.0" name="default">
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="-0.2"/>
+      <line stroke-dasharray="1.0,0.0" isVisible="true" offset="0.0"/>
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="0.2"/>
+      <indicator editableColorIndex="0" rotatable="true" name="link direction">
+        <elements>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="90" y1="150" x1="150"/>
+          <line marked="true" filled="false" color="#8D8D8D" y2="180" x2="210" y1="150" x1="150"/>
+        </elements>
+      </indicator>
+    </linkShape>
+  </linkShapes>
+  <widgets>
+    <view bottom="424" right="685" top="10" left="272" frameRate="30.0" showTickCounter="true" fontSize="20">
+      <dimensions maxPycor="40" minPycor="-40" maxPxcor="40" minPxcor="-40" wrapInY="false" wrapInX="false" patchSize="5.0"/>
+      <tickCounterLabel><![CDATA[ticks]]></tickCounterLabel>
+    </view>
+    <button bottom="43" right="97" top="10" left="4" ticksEnabled="false" forever="false">
+      <source><![CDATA[setup]]></source>
+    </button>
+    <slider bottom="78" right="190" top="45" left="0" direction="horizontal" default="60.0">
+      <maximum><![CDATA[250]]></maximum>
+      <minimum><![CDATA[1]]></minimum>
+      <step><![CDATA[1]]></step>
+      <variable><![CDATA[initial-number-particles]]></variable>
+    </slider>
+    <button bottom="43" right="188" top="10" left="98" ticksEnabled="true" forever="true">
+      <source><![CDATA[go]]></source>
+      <display><![CDATA[go/pause]]></display>
+    </button>
+    <slider bottom="153" right="190" top="120" left="0" direction="horizontal" default="6.0">
+      <maximum><![CDATA[10]]></maximum>
+      <minimum><![CDATA[1]]></minimum>
+      <step><![CDATA[0.5]]></step>
+      <variable><![CDATA[largest-particle-size]]></variable>
+    </slider>
+    <slider bottom="117" right="190" top="84" left="0" direction="horizontal" default="2.0">
+      <maximum><![CDATA[5]]></maximum>
+      <minimum><![CDATA[1]]></minimum>
+      <step><![CDATA[0.5]]></step>
+      <variable><![CDATA[smallest-particle-size]]></variable>
+    </slider>
+    <monitor fontSize="11" bottom="200" right="101" top="155" left="5" precision="2">
+      <source><![CDATA[avg-speed]]></source>
+      <display><![CDATA[average speed]]></display>
+    </monitor>
+    <plot bottom="445" right="268" top="250" left="5" ymax="10.0" ymin="0.0" xmax="10.0" xmin="0.0" legendOn="false" autoPlotOn="true">
+      <display><![CDATA[Speed Counts]]></display>
+      <setup><![CDATA[set-plot-y-range 0 100]]></setup>
+      <update/>
+      <pens>
+        <pen inLegend="true" color="-2674135" mode="line" interval="1.0">
+          <setup/>
+          <update><![CDATA[plotxy ticks percent-fast]]></update>
+          <display><![CDATA[fast]]></display>
+        </pen>
+        <pen inLegend="true" color="-10899396" mode="line" interval="1.0">
+          <setup/>
+          <update><![CDATA[plotxy ticks percent-medium]]></update>
+          <display><![CDATA[medium]]></display>
+        </pen>
+        <pen inLegend="true" color="-13345367" mode="line" interval="1.0">
+          <setup/>
+          <update><![CDATA[plotxy ticks percent-slow]]></update>
+          <display><![CDATA[slow]]></display>
+        </pen>
+      </pens>
+    </plot>
+    <plot bottom="604" right="340" top="449" left="6" ymax="10.0" ymin="0.0" xmax="10.0" xmin="0.0" legendOn="false" autoPlotOn="true">
+      <display><![CDATA[Speed Histogram]]></display>
+      <setup><![CDATA[set-plot-x-range 0 ceiling (init-particle-speed * 2)
+set-plot-y-range 0 ceiling (count particles / 6)
+set-current-plot-pen "medium"
+set-histogram-num-bars 40
+set-current-plot-pen "slow"
+set-histogram-num-bars 40
+set-current-plot-pen "fast"
+set-histogram-num-bars 40
+set-current-plot-pen "init-avg-speed"
+draw-vert-line init-avg-speed]]></setup>
+      <update/>
+      <pens>
+        <pen inLegend="true" color="-2674135" mode="bar" interval="1.0">
+          <setup/>
+          <update><![CDATA[histogram [speed] of particles with [color = red]]]></update>
+          <display><![CDATA[fast]]></display>
+        </pen>
+        <pen inLegend="true" color="-10899396" mode="bar" interval="1.0">
+          <setup/>
+          <update><![CDATA[histogram [speed] of particles with [color = green]]]></update>
+          <display><![CDATA[medium]]></display>
+        </pen>
+        <pen inLegend="true" color="-13345367" mode="bar" interval="1.0">
+          <setup/>
+          <update><![CDATA[histogram [speed] of particles with [color = blue]]]></update>
+          <display><![CDATA[slow]]></display>
+        </pen>
+        <pen inLegend="true" color="-7500403" mode="line" interval="1.0">
+          <setup/>
+          <update><![CDATA[plot-pen-reset   draw-vert-line avg-speed]]></update>
+          <display><![CDATA[avg-speed]]></display>
+        </pen>
+        <pen inLegend="true" color="-16777216" mode="line" interval="1.0">
+          <setup/>
+          <update/>
+          <display><![CDATA[init-avg-speed]]></display>
+        </pen>
+      </pens>
+    </plot>
+    <plot bottom="604" right="687" top="449" left="343" ymax="10.0" ymin="0.0" xmax="200.0" xmin="0.0" legendOn="false" autoPlotOn="true">
+      <display><![CDATA[Energy Histogram]]></display>
+      <setup><![CDATA[set-plot-x-range 0 ceiling (0.5 * (init-particle-speed * 2) * (init-particle-speed * 2) * max-particle-mass)
+set-plot-y-range 0 ceiling (count particles / 6)
+
+set-current-plot-pen "particles"
+set-histogram-num-bars 40
+set-current-plot-pen "init-avg-energy"
+draw-vert-line init-avg-energy]]></setup>
+      <update/>
+      <pens>
+        <pen inLegend="true" color="-11053225" mode="bar" interval="1.0">
+          <setup/>
+          <update><![CDATA[histogram [energy] of particles]]></update>
+          <display><![CDATA[particles]]></display>
+        </pen>
+        <pen inLegend="true" color="-7500403" mode="line" interval="1.0">
+          <setup/>
+          <update><![CDATA[plot-pen-reset   draw-vert-line avg-energy]]></update>
+          <display><![CDATA[avg-energy]]></display>
+        </pen>
+        <pen inLegend="true" color="-16777216" mode="line" interval="1.0">
+          <setup/>
+          <update/>
+          <display><![CDATA[init-avg-energy]]></display>
+        </pen>
+      </pens>
+    </plot>
+    <monitor fontSize="11" bottom="199" right="205" top="154" left="102" precision="2">
+      <source><![CDATA[avg-energy]]></source>
+      <display><![CDATA[average-energy]]></display>
+    </monitor>
+    <monitor fontSize="11" bottom="250" right="82" top="205" left="5" precision="0">
+      <source><![CDATA[percent-fast]]></source>
+      <display><![CDATA[% fast]]></display>
+    </monitor>
+    <monitor fontSize="11" bottom="250" right="181" top="205" left="85" precision="0">
+      <source><![CDATA[percent-medium]]></source>
+      <display><![CDATA[% medium]]></display>
+    </monitor>
+    <monitor fontSize="11" bottom="250" right="268" top="205" left="185" precision="0">
+      <source><![CDATA[percent-slow]]></source>
+      <display><![CDATA[% slow]]></display>
+    </monitor>
+  </widgets>
+  <experiments/>
+  <shapes>
+    <vectorShape editableColorIndex="0" rotatable="true" name="default">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,5 40,250 150,205 260,250"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="airplane">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,0 135,15 120,60 120,105 15,165 15,195 120,180 135,240 105,270 120,285 150,270 180,285 210,270 165,240 180,180 285,195 285,165 180,105 180,60 165,15"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="arrow">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,0 0,150 105,150 105,293 195,293 195,150 300,150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="box">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,285 285,225 285,75 150,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,135 15,75 150,15 285,75"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="15,75 15,225 150,285 150,135"/>
+        <line marked="false" filled="false" color="#000000" y2="135" x2="150" y1="285" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="75" x2="15" y1="135" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="75" x2="285" y1="135" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="bug">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="182" cx="96"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="127" cx="110"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="75" cx="110"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="30" x2="80" y1="100" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="30" x2="220" y1="100" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="butterfly">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,165 209,199 225,225 225,255 195,270 165,255 150,240"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,165 89,198 75,225 75,255 105,270 135,255 150,240"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="139,148 100,105 55,90 25,90 10,105 10,135 25,180 40,195 85,194 139,163"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="162,150 200,105 245,90 275,90 290,105 290,135 275,180 260,195 215,195 162,165"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,255 135,225 120,150 135,120 150,105 165,120 180,150 165,225"/>
+        <circle marked="false" filled="true" color="#000000" diameter="30" cy="90" cx="135"/>
+        <line marked="false" filled="false" color="#000000" y2="60" x2="195" y1="105" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="60" x2="105" y1="105" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="car">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="300,180 279,164 261,144 240,135 226,132 213,106 203,84 185,63 159,50 135,50 75,60 0,150 0,165 0,225 300,225 300,180"/>
+        <circle marked="false" filled="true" color="#000000" diameter="90" cy="180" cx="180"/>
+        <circle marked="false" filled="true" color="#000000" diameter="90" cy="180" cx="30"/>
+        <polygon marked="false" filled="true" color="#000000" points="162,80 132,78 134,135 209,135 194,105 189,96 180,89"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="58" cy="195" cx="47"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="58" cy="195" cx="195"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="circle">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="298" cy="1" cx="1"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="circle 2">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="cow">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="200,193 197,249 179,249 177,196 166,187 140,189 93,191 78,179 72,211 49,209 48,181 37,149 25,120 25,89 45,72 103,84 179,75 198,76 252,64 272,81 293,103 285,121 255,121 242,118 224,167"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="73,210 86,251 62,249 48,208"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="25,114 16,195 9,204 23,213 25,200 39,123"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="cylinder">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="dot">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="120" cy="90" cx="90"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face happy">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="8" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,255 90,239 62,213 47,191 67,179 90,203 109,218 150,225 192,218 210,203 227,181 251,194 236,217 212,240"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face neutral">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="7" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <rect marked="false" filled="true" color="#000000" height="30" width="180" y="195" x="60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face sad">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="8" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,168 90,184 62,210 47,232 67,244 90,220 109,205 150,198 192,205 210,220 227,242 251,229 236,206 212,183"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="fish">
+      <elements>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="44,131 21,87 15,86 0,120 15,150 0,180 13,214 20,212 45,166"/>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="135,195 119,235 95,218 76,210 46,204 60,165"/>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="75,45 83,77 71,103 86,114 166,78 135,60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="30,136 151,77 226,81 280,119 292,146 292,160 287,170 270,195 195,210 151,212 30,166"/>
+        <circle marked="false" filled="true" color="#000000" diameter="30" cy="106" cx="215"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="flag">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="285" width="15" y="15" x="60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="90,150 270,90 90,30"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="135" x2="90" y1="135" x1="75"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="45" x2="90" y1="45" x1="75"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="flower">
+      <elements>
+        <polygon marked="false" filled="true" color="#59B03C" points="135,120 165,165 180,210 180,240 150,300 165,300 195,240 195,195 165,135"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="132" cx="85"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="147" cx="130"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="85" cx="192"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="40" cx="85"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="40" cx="177"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="132" cx="177"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="85" cx="70"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="25" cx="130"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="51" cx="96"/>
+        <circle marked="false" filled="true" color="#000000" diameter="74" cy="68" cx="113"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="189,233 219,188 249,173 279,188 234,218"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="180,255 150,210 105,210 75,240 135,240"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="house">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="165" width="210" y="120" x="45"/>
+        <rect marked="false" filled="true" color="#000000" height="75" width="60" y="210" x="120"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="15,120 150,15 285,120"/>
+        <line marked="false" filled="false" color="#000000" y2="120" x2="270" y1="120" x1="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="leaf">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,210 135,195 120,210 60,210 30,195 60,180 60,165 15,135 30,120 15,105 40,104 45,90 60,90 90,105 105,120 120,120 105,60 120,60 135,30 150,15 165,30 180,60 195,60 180,120 195,120 210,105 240,90 255,90 263,104 285,105 270,120 285,135 240,165 240,180 270,195 240,210 180,210 165,195"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,195 135,240 120,255 105,255 105,285 135,285 165,240 165,195"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="line">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="300" x2="150" y1="0" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="line half">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="150" y1="0" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="pentagon">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,15 15,120 60,285 240,285 285,120"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="person">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="5" cx="110"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="105,90 120,195 90,285 105,300 135,300 150,225 165,300 195,300 210,285 180,195 195,90"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="15" width="45" y="79" x="127"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="195,90 240,150 225,180 165,105"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="105,90 60,150 75,180 135,105"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="plant">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="210" width="30" y="90" x="135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,255 90,210 45,195 75,255 135,285"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,255 210,210 255,195 225,255 165,285"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,180 90,135 45,120 75,180 135,210"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,180 165,210 225,180 255,120 210,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,105 90,60 45,45 75,105 135,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,105 165,135 225,105 255,45 210,60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,90 120,45 150,15 180,45 165,90"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="square">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="240" width="240" y="30" x="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="square 2">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="240" width="240" y="30" x="30"/>
+        <rect marked="false" filled="true" color="#000000" height="180" width="180" y="60" x="60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="star">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="151,1 185,108 298,108 207,175 242,282 151,216 59,282 94,175 3,108 116,108"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="target">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="180" cy="60" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="120" cy="90" cx="90"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="60" cy="120" cx="120"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="tree">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="94" cy="3" cx="118"/>
+        <rect marked="false" filled="true" color="#9D6E48" height="105" width="60" y="195" x="120"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="21" cx="65"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="127" cy="41" cx="116"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="120" cy="90" cx="45"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="152" cy="74" cx="104"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="triangle">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,30 15,255 285,255"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="triangle 2">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,30 15,255 285,255"/>
+        <polygon marked="false" filled="true" color="#000000" points="151,99 225,223 75,224"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="truck">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="142" width="191" y="45" x="4"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="296,193 296,150 259,134 244,104 208,104 207,194"/>
+        <rect marked="false" filled="true" color="#FFFFFF" height="45" width="0" y="60" x="195"/>
+        <polygon marked="false" filled="true" color="#000000" points="238,112 252,141 219,141 218,112"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="234"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="9" width="33" y="185" x="181"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="144"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="24"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="24"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="144"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="234"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="turtle">
+      <elements>
+        <polygon marked="false" filled="true" color="#59B03C" points="215,204 240,233 246,254 228,266 215,252 193,210"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="195,90 225,75 245,75 260,89 269,108 261,124 240,105 225,105 210,105"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="105,90 75,75 55,75 40,89 31,108 39,124 60,105 75,105 90,105"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="132,85 134,64 107,51 108,17 150,2 192,18 192,52 169,65 172,87"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="85,204 60,233 54,254 72,266 85,252 107,210"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="119,75 179,75 209,101 224,135 220,225 175,261 128,261 81,224 74,135 88,99"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="vector">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="150" y1="15" x1="150"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="120,30 150,0 180,30 120,30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="wheel">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="294" cy="3" cx="3"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="15" x2="150" y1="285" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="285" y1="150" x1="15"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="60" cy="120" cx="120"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="269" x2="79" y1="40" x1="216"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="221" x2="269" y1="84" x1="40"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="79" x2="269" y1="216" x1="40"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="269" x2="221" y1="40" x1="84"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="x">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="270,75 225,30 30,225 75,270"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="30,75 75,30 270,225 225,270"/>
+      </elements>
+    </vectorShape>
+  </shapes>
+  <code><![CDATA[globals [
+  tick-delta        ;; how much simulation time will pass in this step
+  box-edge          ;; distance of box edge from origin
+  collisions        ;; list used to keep track of future collisions
+  particle1         ;; first particle currently colliding
+  particle2         ;; second particle currently colliding
+  init-avg-speed init-avg-energy             ;; initial averages
+  avg-speed avg-energy                       ;; current averages
+  fast medium slow                           ;; current counts
+  percent-slow percent-medium percent-fast   ;; percentage of current counts
+]
+
+breed [particles particle]
+
+particles-own [
+  speed
+  mass
+  energy
+]
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;; setup procedures ;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to setup
+  clear-all
+  set-default-shape particles "circle"
+  set box-edge max-pxcor - 1
+  ask patches with [(abs pxcor = box-edge or abs pycor = box-edge) and
+                    abs pxcor <= box-edge and abs pycor <= box-edge]
+    [ set pcolor yellow ]
+  set avg-speed 1
+  make-particles
+  set particle1 nobody
+  set particle2 nobody
+  reset-ticks
+  set collisions []
+  ask particles [ check-for-wall-collision ]
+  ask particles [ check-for-particle-collision ]
+  update-variables
+  set init-avg-speed avg-speed
+  set init-avg-energy avg-energy
+end
+
+to make-particles
+  create-particles initial-number-particles [
+    set speed 1
+
+    set size smallest-particle-size
+             + random-float (largest-particle-size - smallest-particle-size)
+    ;; set the mass proportional to the area of the particle
+    set mass (size * size)
+    set energy kinetic-energy
+
+    recolor
+  ]
+  ;; When space is tight, placing the big particles first improves
+  ;; our chances of eventually finding places for all of them.
+  foreach sort-by [ [a b] -> [ size ] of a > [ size ] of b ] particles [ the-particle ->
+    ask the-particle [
+      position-randomly
+      while [ overlapping? ] [ position-randomly ]
+    ]
+  ]
+end
+
+to-report overlapping?  ;; particle procedure
+  ;; here, we use IN-RADIUS just for improved speed; the real testing
+  ;; is done by DISTANCE
+  report any? other particles in-radius ((size + largest-particle-size) / 2)
+                              with [distance myself < (size + [size] of myself) / 2]
+end
+
+to position-randomly  ;; particle procedure
+  ;; place particle at random location inside the box
+  setxy one-of [1 -1] * random-float (box-edge - 0.5 - size / 2)
+        one-of [1 -1] * random-float (box-edge - 0.5 - size / 2)
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;; go procedures  ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to go
+  choose-next-collision
+  ask particles [ jump speed * tick-delta ]
+  perform-next-collision
+  tick-advance tick-delta
+  recalculate-particles-that-just-collided
+  if floor ticks > floor (ticks - tick-delta)
+  [
+    update-variables
+    update-plots
+  ]
+end
+
+to update-variables
+  set medium count particles with [color = green]
+  set slow   count particles with [color = blue]
+  set fast   count particles with [color = red]
+  set percent-medium (medium / ( count particles )) * 100
+  set percent-slow (slow / (count particles)) * 100
+  set percent-fast (fast / (count particles)) * 100
+  set avg-speed  mean [speed] of particles
+  set avg-energy mean [energy] of particles
+end
+
+
+to recalculate-particles-that-just-collided
+  ;; Since only collisions involving the particles that collided most recently could be affected,
+  ;; we filter those out of collisions.  Then we recalculate all possible collisions for
+  ;; the particles that collided last.  The ifelse statement is necessary because
+  ;; particle2 can be either a particle or a string representing a wall.  If it is a
+  ;; wall, we don't want to invalidate all collisions involving that wall (because the wall's
+  ;; position wasn't affected, those collisions are still valid.
+  ifelse is-turtle? particle2
+    [
+      set collisions filter [ the-collision ->
+        item 1 the-collision != particle1 and
+        item 2 the-collision != particle1 and
+        item 1 the-collision != particle2 and
+        item 2 the-collision != particle2
+      ] collisions
+      ask particle2 [ check-for-wall-collision ]
+      ask particle2 [ check-for-particle-collision ]
+    ]
+    [
+      set collisions filter [ the-collision ->
+        item 1 the-collision != particle1 and
+        item 2 the-collision != particle1
+      ] collisions
+    ]
+  if particle1 != nobody [ ask particle1 [ check-for-wall-collision ] ]
+  if particle1 != nobody [ ask particle1 [ check-for-particle-collision ] ]
+  ;; Slight errors in floating point math can cause a collision that just
+  ;; happened to be calculated as happening again a very tiny amount of
+  ;; time into the future, so we remove any collisions that involves
+  ;; the same two particles (or particle and wall) as last time.
+  set collisions filter [ the-collision ->
+    item 1 the-collision != particle1 or
+    item 2 the-collision != particle2
+  ] collisions
+  ;; All done.
+  set particle1 nobody
+  set particle2 nobody
+end
+
+;; check-for-particle-collision is a particle procedure that determines the time it takes
+;; to the collision between two particles (if one exists).  It solves for the time by representing
+;; the equations of motion for distance, velocity, and time in a quadratic equation of the vector
+;; components of the relative velocities and changes in position between the two particles and
+;; solves for the time until the next collision
+to check-for-particle-collision
+  let my-x xcor
+  let my-y ycor
+  let my-particle-size size
+  let my-x-speed speed * dx
+  let my-y-speed speed * dy
+  ask other particles
+  [
+    let dpx (xcor - my-x)   ;; relative distance between particles in the x direction
+    let dpy (ycor - my-y)    ;; relative distance between particles in the y direction
+    let x-speed (speed * dx) ;; speed of other particle in the x direction
+    let y-speed (speed * dy) ;; speed of other particle in the x direction
+    let dvx (x-speed - my-x-speed) ;; relative speed difference between particles in x direction
+    let dvy (y-speed - my-y-speed) ;; relative speed difference between particles in y direction
+    let sum-r (((my-particle-size) / 2 ) + (([size] of self) / 2 )) ;; sum of both particle radii
+
+    ;; To figure out what the difference in position (P1) between two particles at a future
+    ;; time (t) will be, one would need to know the current difference in position (P0) between the
+    ;; two particles and the current difference in the velocity (V0) between the two particles.
+    ;;
+    ;; The equation that represents the relationship is:
+    ;;   P1 = P0 + t * V0
+    ;; we want find when in time (t), P1 would be equal to the sum of both the particle's radii
+    ;; (sum-r).  When P1 is equal to is equal to sum-r, the particles will just be touching each
+    ;; other at their edges (a single point of contact).
+    ;;
+    ;; Therefore we are looking for when:   sum-r =  P0 + t * V0
+    ;;
+    ;; This equation is not a simple linear equation, since P0 and V0 should both have x and y
+    ;; components in their two dimensional vector representation (calculated as dpx, dpy, and
+    ;; dvx, dvy).
+    ;;
+    ;; By squaring both sides of the equation, we get:
+    ;;   (sum-r) * (sum-r) =  (P0 + t * V0) * (P0 + t * V0)
+    ;; When expanded gives:
+    ;;   (sum-r ^ 2) = (P0 ^ 2) + (t * PO * V0) + (t * PO * V0) + (t ^ 2 * VO ^ 2)
+    ;; Which can be simplified to:
+    ;;   0 = (P0 ^ 2) - (sum-r ^ 2) + (2 * PO * V0) * t + (VO ^ 2) * t ^ 2
+    ;; Below, we will let p-squared represent:   (P0 ^ 2) - (sum-r ^ 2)
+    ;; and pv represent: (2 * PO * V0)
+    ;; and v-squared represent: (VO ^ 2)
+    ;;
+    ;;  then the equation will simplify to:     0 = p-squared + pv * t + v-squared * t^2
+
+    let p-squared   ((dpx * dpx) + (dpy * dpy)) - (sum-r ^ 2)   ;; p-squared represents difference
+    ;; of the square of the radii and the square of the initial positions
+
+    let pv  (2 * ((dpx * dvx) + (dpy * dvy)))  ;; vector product of the position times the velocity
+    let v-squared  ((dvx * dvx) + (dvy * dvy)) ;; the square of the difference in speeds
+    ;; represented as the sum of the squares of the x-component
+    ;; and y-component of relative speeds between the two particles
+
+    ;; p-squared, pv, and v-squared are coefficients in the quadratic equation shown above that
+    ;; represents how distance between the particles and relative velocity are related to the time,
+    ;; t, at which they will next collide (or when their edges will just be touching)
+
+    ;; Any quadratic equation that is a function of time (t) can be represented as:
+    ;;   a*t*t + b*t + c = 0,
+    ;; where a, b, and c are the coefficients of the three different terms, and has solutions for t
+    ;; that can be found by using the quadratic formula.  The quadratic formula states that if a is
+    ;; not 0, then there are two solutions for t, either real or complex.
+    ;; t is equal to (b +/- sqrt (b^2 - 4*a*c)) / 2*a
+    ;; the portion of this equation that is under a square root is referred to here
+    ;; as the determinant, d1.   d1 is equal to (b^2 - 4*a*c)
+    ;; and:   a = v-squared, b = pv, and c = p-squared.
+    let d1 pv ^ 2 -  (4 * v-squared * p-squared)
+
+    ;; the next test tells us that a collision will happen in the future if
+    ;; the determinant, d1 is > 0,  since a positive determinant tells us that there is a
+    ;; real solution for the quadratic equation.  Quadratic equations can have solutions
+    ;; that are not real (they are square roots of negative numbers).  These are referred
+    ;; to as imaginary numbers and for many real world systems that the equations represent
+    ;; are not real world states the system can actually end up in.
+
+    ;; Once we determine that a real solution exists, we want to take only one of the two
+    ;; possible solutions to the quadratic equation, namely the smaller of the two the solutions:
+    ;;  (b - sqrt (b^2 - 4*a*c)) / 2*a
+    ;;  which is a solution that represents when the particles first touching on their edges.
+    ;;  instead of (b + sqrt (b^2 - 4*a*c)) / 2*a
+    ;;  which is a solution that represents a time after the particles have penetrated
+    ;;  and are coming back out of each other and when they are just touching on their edges.
+
+    let time-to-collision  -1
+
+    if d1 > 0
+      [ set time-to-collision (- pv - sqrt d1) / (2 * v-squared) ]        ;; solution for time step
+
+    ;; if time-to-collision is still -1 there is no collision in the future - no valid solution
+    ;; note:  negative values for time-to-collision represent where particles would collide
+    ;; if allowed to move backward in time.
+    ;; if time-to-collision is greater than 1, then we continue to advance the motion
+    ;; of the particles along their current trajectories.  They do not collide yet.
+
+    if time-to-collision > 0
+    [
+      ;; time-to-collision is relative (ie, a collision will occur one second from now)
+      ;; We need to store the absolute time (ie, a collision will occur at time 48.5 seconds.
+      ;; So, we add clock to time-to-collision when we store it.
+      ;; The entry we add is a three element list of the time to collision and the colliding pair.
+      set collisions fput (list (time-to-collision + ticks) self myself)
+                          collisions
+    ]
+  ]
+end
+
+
+;; determines when a particle will hit any of the four walls
+to check-for-wall-collision  ;; particle procedure
+  ;; right & left walls
+  let x-speed (speed * dx)
+  if x-speed != 0
+    [ ;; solve for how long it will take particle to reach right wall
+      let right-interval (box-edge - 0.5 - xcor - size / 2) / x-speed
+      if right-interval > 0
+        [ assign-colliding-wall right-interval "right wall" ]
+      ;; solve for time it will take particle to reach left wall
+      let left-interval ((- box-edge) + 0.5 - xcor + size / 2) / x-speed
+      if left-interval > 0
+        [ assign-colliding-wall left-interval "left wall" ] ]
+  ;; top & bottom walls
+  let y-speed (speed * dy)
+  if y-speed != 0
+    [ ;; solve for time it will take particle to reach top wall
+      let top-interval (box-edge - 0.5 - ycor - size / 2) / y-speed
+      if top-interval > 0
+        [ assign-colliding-wall top-interval "top wall" ]
+      ;; solve for time it will take particle to reach bottom wall
+      let bottom-interval ((- box-edge) + 0.5 - ycor + size / 2) / y-speed
+      if bottom-interval > 0
+        [ assign-colliding-wall bottom-interval "bottom wall" ] ]
+end
+
+
+to assign-colliding-wall [time-to-collision wall]  ;; particle procedure
+  ;; this procedure is used by the check-for-wall-collision procedure
+  ;; to assemble the correct particle-wall pair
+  ;; time-to-collision is relative (ie, a collision will occur one second from now)
+  ;; We need to store the absolute time (ie, a collision will occur at time 48.5 seconds.
+  ;; So, we add clock to time-to-collision when we store it.
+  let colliding-pair (list (time-to-collision + ticks) self wall)
+  set collisions fput colliding-pair collisions
+end
+
+to choose-next-collision
+  if collisions = [] [ stop ]
+  ;; Sort the list of projected collisions between all the particles into an ordered list.
+  ;; Take the smallest time-step from the list (which represents the next collision that will
+  ;; happen in time).  Use this time step as the tick-delta for all the particles to move through
+  let winner first collisions
+  foreach collisions [ the-collision ->
+    if first the-collision < first winner [ set winner the-collision ]
+  ]
+  ;; winner is now the collision that will occur next
+  let dt item 0 winner
+  ;; If the next collision is more than 1 in the future,
+  ;; only advance the simulation one tick, for smoother animation.
+  set tick-delta dt - ticks
+  if tick-delta > 1
+    [ set tick-delta 1
+      set particle1 nobody
+      set particle2 nobody
+      stop ]
+  set particle1 item 1 winner
+  set particle2 item 2 winner
+end
+
+
+to perform-next-collision
+  ;; deal with 3 possible cases:
+  ;; 1) no collision at all
+  if particle1 = nobody [ stop ]
+  ;; 2) particle meets wall
+  if is-string? particle2
+    [ if particle2 = "left wall" or particle2 = "right wall"
+        [ ask particle1 [ set heading (- heading) ]
+          stop ]
+      if particle2 = "top wall" or particle2 = "bottom wall"
+        [ ask particle1 [ set heading 180 - heading ]
+          stop ] ]
+  ;; 3) particle meets particle
+  ask particle1 [ collide-with particle2 ]
+end
+
+
+to collide-with [other-particle]  ;; particle procedure
+  ;;; PHASE 1: initial setup
+  ;; for convenience, grab some quantities from other-particle
+  let mass2 [mass] of other-particle
+  let speed2 [speed] of other-particle
+  let heading2 [heading] of other-particle
+  ;; modified so that theta is heading toward other particle
+  let theta towards other-particle
+
+  ;;; PHASE 2: convert velocities to theta-based vector representation
+  ;; now convert my velocity from speed/heading representation to components
+  ;; along theta and perpendicular to theta
+  let v1t (speed * cos (theta - heading))
+  let v1l (speed * sin (theta - heading))
+  ;; do the same for other-particle
+  let v2t (speed2 * cos (theta - heading2))
+  let v2l (speed2 * sin (theta - heading2))
+
+  ;;; PHASE 3: manipulate vectors to implement collision
+  ;; compute the velocity of the system's center of mass along theta
+  let vcm (((mass * v1t) + (mass2 * v2t)) / (mass + mass2) )
+  ;; now compute the new velocity for each particle along direction theta.
+  ;; velocity perpendicular to theta is unaffected by a collision along theta,
+  ;; so the next two lines actually implement the collision itself, in the
+  ;; sense that the effects of the collision are exactly the following changes
+  ;; in particle velocity.
+  set v1t (2 * vcm - v1t)
+  set v2t (2 * vcm - v2t)
+
+  ;;; PHASE 4: convert back to normal speed/heading
+  ;; now convert my velocity vector into my new speed and heading
+  set speed sqrt ((v1t * v1t) + (v1l * v1l))
+  ;; if the magnitude of the velocity vector is 0, atan is undefined. but
+  ;; speed will be 0, so heading is irrelevant anyway. therefore, in that
+  ;; case we'll just leave it unmodified.
+  set energy kinetic-energy
+
+  if v1l != 0 or v1t != 0
+    [ set heading (theta - (atan v1l v1t)) ]
+  ;; and do the same for other-particle
+  ask other-particle [
+    set speed sqrt ((v2t ^ 2) + (v2l ^ 2))
+    set energy kinetic-energy
+
+    if v2l != 0 or v2t != 0
+      [ set heading (theta - (atan v2l v2t)) ]
+  ]
+
+  ;; PHASE 5: recolor
+  ;; since color is based on quantities that may have changed
+  recolor
+  ask other-particle [ recolor ]
+end
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;; particle coloring procedures ;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to recolor ;; particle procedure
+  ;;let avg-speed 1
+  ;; avg-speed is assumed to be 0.5, since particles are assigned a random speed between 0 and 1
+  ;; particle coloring procedures for visualizing speed with a color palette,
+  ;; red are fast particles, blue slow, and green in between.
+  ifelse speed < (0.5 * avg-speed) ;; at lower than 50% the average speed
+    [ set color blue ]      ;; slow particles colored blue
+    [ ifelse speed > (1.5 * avg-speed) ;; above 50% higher the average speed
+        [ set color red ]        ;; fast particles colored red
+        [ set color green ] ]    ;; medium speed particles colored green
+end
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;; time reversal procedure  ;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Here's a procedure that demonstrates time-reversing the model.
+;; You can run it from the command center.  When it finishes,
+;; the final particle positions may be slightly different because
+;; the amount of time that passes after the reversal might not
+;; be exactly the same as the amount that passed before; this
+;; doesn't indicate a bug in the model.
+;; For larger values of n, you will start to notice larger
+;; discrepancies, eventually causing the behavior of the system
+;; to diverge totally. Unless the model has some bug we don't know
+;; about, this is due to accumulating tiny inaccuracies in the
+;; floating point calculations.  Once these inaccuracies accumulate
+;; to the point that a collision is missed or an extra collision
+;; happens, after that the reversed model will diverge rapidly.
+to test-time-reversal [n]
+  setup
+  ask particles [ stamp ]
+  while [ticks < n] [ go ]
+  let old-ticks ticks
+  reverse-time
+  while [ticks < 2 * old-ticks] [ go ]
+  ask particles [ set color white ]
+end
+
+to reverse-time
+  ask particles [ rt 180 ]
+  set collisions []
+  ask particles [ check-for-wall-collision ]
+  ask particles [ check-for-particle-collision ]
+  ;; the last collision that happened before the model was paused
+  ;; (if the model was paused immediately after a collision)
+  ;; won't happen again after time is reversed because of the
+  ;; "don't do the same collision twice in a row" rule.  We could
+  ;; try to fool that rule by setting particle1 and
+  ;; particle2 to nobody, but that might not always work,
+  ;; because the vagaries of floating point math means that the
+  ;; collision might be calculated to be slightly in the past
+  ;; (the past that used to be the future!) and be skipped.
+  ;; So to be sure, we force the collision to happen:
+  perform-next-collision
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;; reporters ;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to-report init-particle-speed
+  report 1
+end
+
+to-report max-particle-mass
+  report max [mass] of particles
+end
+
+to-report kinetic-energy
+   report (0.5 * mass * speed * speed)
+end
+
+to draw-vert-line [ xval ]
+  plotxy xval plot-y-min
+  plot-pen-down
+  plotxy xval plot-y-max
+  plot-pen-up
+end
+
+
+; Copyright 2005 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <modelSettings snapToGrid="true"/>
+  <hubnet/>
+</model>

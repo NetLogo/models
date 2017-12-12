@@ -1,0 +1,793 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<model xmlns="http://ccl.northwestern.edu/netlogo/netlogox/1">
+  <version><![CDATA[NetLogo 6.1.0-M1]]></version>
+  <previewCommands>
+    <compiled><![CDATA[setup repeat 75 [ go ]]]></compiled>
+  </previewCommands>
+  <info><![CDATA[## WHAT IS IT?
+
+This model simulates the distribution of wealth.  "The rich get richer and the poor get poorer" is a familiar saying that expresses inequity in the distribution of wealth.  In this simulation, we see Pareto's law, in which there are a large number of "poor" or red people, fewer "middle class" or green people, and many fewer "rich" or blue people.
+
+## HOW IT WORKS
+
+This model is adapted from Epstein & Axtell's "Sugarscape" model. It uses grain instead of sugar.  Each patch has an amount of grain and a grain capacity (the amount of grain it can grow).  People collect grain from the patches, and eat the grain to survive.  How much grain each person accumulates is his or her wealth.
+
+The model begins with a roughly equal wealth distribution.  The people then wander around the landscape gathering as much grain as they can.  Each person attempts to move in the direction where the most grain lies.  Each time tick, each person eats a certain amount of grain.  This amount is called their metabolism.  People also have a life expectancy.  When their lifespan runs out, or they run out of grain, they die and produce a single offspring.  The offspring has a random metabolism and a random amount of grain, ranging from the poorest person's amount of grain to the richest person's amount of grain.  (There is no inheritance of wealth.)
+
+To observe the equity (or the inequity) of the distribution of wealth, a graphical tool called the Lorenz curve is utilized.  We rank the population by their wealth and then plot the percentage of the population that owns each percentage of the wealth (e.g. 30% of the wealth is owned by 50% of the population).  Hence the ranges on both axes are from 0% to 100%.
+
+Another way to understand the Lorenz curve is to imagine a society of 100 people with a fixed amount of wealth available.  Each individual is 1% of the population.  Rank the individuals in order of their wealth from greatest to least: the poorest individual would have the lowest ranking of 1 and so forth.  Then plot the proportion of the rank of an individual on the y-axis and the portion of wealth owned by this particular individual and all the individuals with lower rankings on the x-axis.  For example, individual Y with a ranking of 20 (20th poorest in society) would have a percentage ranking of 20% in a society of 100 people (or 100 rankings) --- this is the point on the y-axis.  The corresponding plot on the x-axis is the proportion of the wealth that this individual with ranking 20 owns along with the wealth owned by all the individuals with lower rankings (from rankings 1 to 19).  A straight line with a 45 degree incline at the origin (or slope of 1) is a Lorenz curve that represents perfect equality --- everyone holds an equal part of the available wealth.  On the other hand, should only one family or one individual hold all of the wealth in the population (i.e. perfect inequity), then the Lorenz curve will be a backwards "L" where 100% of the wealth is owned by the last percentage proportion of the population.  In practice, the Lorenz curve actually falls somewhere between the straight 45 degree line and the backwards "L".
+
+For a numerical measurement of the inequity in the distribution of wealth, the Gini index (or Gini coefficient) is derived from the Lorenz curve.  To calculate the Gini index, find the area between the 45 degree line of perfect equality and the Lorenz curve.  Divide this quantity by the total area under the 45 degree line of perfect equality (this number is always 0.5 --- the area of 45-45-90 triangle with sides of length 1).  If the Lorenz curve is the 45 degree line then the Gini index would be 0; there is no area between the Lorenz curve and the 45 degree line.  If, however, the Lorenz curve is a backwards "L", then the Gini-Index would be 1 --- the area between the Lorenz curve and the 45 degree line is 0.5; this quantity divided by 0.5 is 1.  Hence, equality in the distribution of wealth is measured on a scale of 0 to 1 --- more inequity as one travels up the scale.  Another way to understand (and equivalently compute) the Gini index, without reference to the Lorenz curve, is to think of it as the mean difference in wealth between all possible pairs of people in the population, expressed as a proportion of the average wealth (see Deltas, 2003 for more).
+
+## HOW TO USE IT
+
+The PERCENT-BEST-LAND slider determines the initial density of patches that are seeded with the maximum amount of grain.  This maximum is adjustable via the MAX-GRAIN variable in the SETUP procedure in the procedures window.  The GRAIN-GROWTH-INTERVAL slider determines how often grain grows.  The NUM-GRAIN-GROWN slider sets how much grain is grown each time GRAIN-GROWTH-INTERVAL allows grain to be grown.
+
+The NUM-PEOPLE slider determines the initial number of people.  LIFE-EXPECTANCY-MIN is the shortest number of ticks that a person can possibly live.  LIFE-EXPECTANCY-MAX is the longest number of ticks that a person can possibly live.  The METABOLISM-MAX slider sets the highest possible amount of grain that a person could eat per clock tick.  The MAX-VISION slider is the furthest possible distance that any person could see.
+
+GO starts the simulation.  The TIME ELAPSED monitor shows the total number of clock ticks since the last setup.  The CLASS PLOT shows a line plot of the number of people in each class over time.  The CLASS HISTOGRAM shows the same information in the form of a histogram.  The LORENZ CURVE plot shows the Lorenz curve of the population at a particular time as well as the 45 degree line of equality.  The GINI-INDEX V. TIME plot shows the Gini index at the time that the Lorenz curve is drawn.  The LORENZ CURVE and the GINI-INDEX V. TIME plots are updated every 5 passes through the GO procedure.
+
+## THINGS TO NOTICE
+
+Notice the distribution of wealth.  Are the classes equal?
+
+This model usually demonstrates Pareto's Law, in which most of the people are poor, fewer are middle class, and very few are rich.  Why does this happen?
+
+Do poor families seem to stay poor?  What about the rich and the middle class people?
+
+Watch the CLASS PLOT to see how long it takes for the classes to reach stable values.
+
+As time passes, does the distribution get more equalized or more skewed?  (Hint: observe the Gini index plot.)
+
+Try to find resources from the U.S. Government Census Bureau for the U.S.'s Gini coefficient.  Are the Gini coefficients that you calculate from the model comparable to those of the Census Bureau?  Why or why not?
+
+Is there a trend in the plotting of the Gini index with respect to time?  Does the plot oscillate?  Or does it stabilize to a certain number?
+
+## THINGS TO TRY
+
+Are there any settings that do not result in a demonstration of Pareto's Law?
+
+Play with the NUM-GRAIN-GROWN slider, and see how this affects the distribution of wealth.
+
+How much does the LIFE-EXPECTANCY-MAX matter?
+
+Change the value of the MAX-GRAIN variable (in the `setup` procedure in the Code tab).  Do outcomes differ?
+
+Experiment with the PERCENT-BEST-LAND and NUM-PEOPLE sliders.  How do these affect the outcome of the distribution of wealth?
+
+Try having all the people start in one location. See what happens.
+
+Try setting everyone's initial wealth as being equal.  Does the initial endowment of an individual still arrive at an unequal distribution in wealth?  Is it less so when setting random initial wealth for each individual?
+
+Try setting all the individual's wealth and vision to being equal.  Do you still arrive at an unequal distribution of wealth?  Is it more equal in the measure of the Gini index than with random endowments of vision?
+
+## EXTENDING THE MODEL
+
+Have each newborn inherit a percentage of the wealth of its parent.
+
+Add a switch or slider which has the patches grow back all or a percentage of their grain capacity, rather than just one unit of grain.
+
+Allow the grain to give an advantage or disadvantage to its carrier, such as every time some grain is eaten or harvested, pollution is created.
+
+Would this model be the same if the wealth were randomly distributed (as opposed to a gradient)?  Try different landscapes, making SETUP buttons for each new landscape.
+
+Try allowing metabolism or vision or another characteristic to be inherited.  Will we see any sort of evolution?  Will the "fittest" survive? If not, why not?
+
+We said above that "there is no inheritance of wealth" in the model, but that is not entirely true. New turtles are born in the same location as their parents. If grain is plentiful relative to the population at this location, they inherit a good starting situation. Try moving the turtles to a random patch when they are born. Does that lead to a more equitable distribution of wealth?
+
+Try adding in seasons into the model.  That is to say have the grain grow better in a section of the landscape during certain times and worse at others.
+
+How could you change the model to achieve wealth equality?
+
+The way the procedures are set up now, one person will sometimes follow another.  You can see this by setting the number of people relatively low, such as 50 or 100, and having a long life expectancy.  Why does this phenomenon happen?  Try adding code to prevent this from occurring.  (Hint: When and how do people check to see which direction they should move in?)
+
+## NETLOGO FEATURES
+
+Examine how the landscape of color is created --- note the use of the `scale-color` reporter.  Each patch is given a value, and `scale-color` reports a color for each patch that is scaled according to its value.
+
+Note the use of lists in drawing the Lorenz Curve and computing the Gini index.
+
+## CREDITS AND REFERENCES
+
+This model is based on a model described in Epstein, J. & Axtell R. (1996). Growing Artificial Societies: Social Science from the Bottom Up. Washington, DC: Brookings Institution Press.
+
+For an explanation of Pareto's Law, see https://en.wikipedia.org/wiki/Pareto_principle.
+
+For more on the calculation of the Gini index see:
+
+ * Deltas, George (2003).  The Small-Sample Bias of the Gini Coefficient:  Results and Implications for Empirical Research.  The Review of Economics and Statistics, February 2003, 85(1): 226-234.
+
+In particular, note that if one is calculating the Gini index of a sample for the purpose of estimating the value for a larger population, a small correction factor to the method used here may be needed for small samples.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. (1998).  NetLogo Wealth Distribution model.  http://ccl.northwestern.edu/netlogo/models/WealthDistribution.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 1998 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This model was created as part of the project: CONNECTED MATHEMATICS: MAKING SENSE OF COMPLEX PHENOMENA THROUGH BUILDING OBJECT-BASED PARALLEL MODELS (OBPML).  The project gratefully acknowledges the support of the National Science Foundation (Applications of Advanced Technologies Program) -- grant numbers RED #9552950 and REC #9632612.
+
+This model was converted to NetLogo as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227. Converted from StarLogoT to NetLogo, 2001.
+
+<!-- 1998 2001 -->]]></info>
+  <systemDynamics/>
+  <modelInfo>
+    <title/>
+    <subject/>
+  </modelInfo>
+  <linkShapes>
+    <linkShape curviness="0.0" name="default">
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="-0.2"/>
+      <line stroke-dasharray="1.0,0.0" isVisible="true" offset="0.0"/>
+      <line stroke-dasharray="0.0,1.0" isVisible="false" offset="0.2"/>
+      <indicator editableColorIndex="0" rotatable="true" name="link direction">
+        <elements>
+          <line marked="true" filled="false" color="#8D8D8D" y2="225" x2="30" y1="150" x1="150"/>
+          <line marked="true" filled="false" color="#8D8D8D" y2="225" x2="270" y1="150" x1="150"/>
+        </elements>
+      </indicator>
+    </linkShape>
+  </linkShapes>
+  <widgets>
+    <view bottom="427" right="600" top="10" left="184" frameRate="30.0" showTickCounter="true" fontSize="10">
+      <dimensions maxPycor="25" minPycor="-25" maxPxcor="25" minPxcor="-25" wrapInY="true" wrapInX="true" patchSize="8.0"/>
+      <tickCounterLabel><![CDATA[ticks]]></tickCounterLabel>
+    </view>
+    <button bottom="289" right="84" top="256" left="8" ticksEnabled="false" forever="false">
+      <source><![CDATA[setup]]></source>
+      <display><![CDATA[setup]]></display>
+    </button>
+    <button bottom="289" right="175" top="256" left="105" ticksEnabled="true" forever="true">
+      <source><![CDATA[go]]></source>
+      <display><![CDATA[go]]></display>
+    </button>
+    <slider bottom="105" right="176" top="72" left="8" direction="horizontal" default="5.0">
+      <maximum><![CDATA[15]]></maximum>
+      <minimum><![CDATA[1]]></minimum>
+      <step><![CDATA[1]]></step>
+      <variable><![CDATA[max-vision]]></variable>
+    </slider>
+    <slider bottom="334" right="176" top="301" left="8" direction="horizontal" default="1.0">
+      <maximum><![CDATA[10]]></maximum>
+      <minimum><![CDATA[1]]></minimum>
+      <step><![CDATA[1]]></step>
+      <variable><![CDATA[grain-growth-interval]]></variable>
+    </slider>
+    <slider bottom="139" right="176" top="106" left="8" direction="horizontal" default="15.0">
+      <maximum><![CDATA[25]]></maximum>
+      <minimum><![CDATA[1]]></minimum>
+      <step><![CDATA[1]]></step>
+      <variable><![CDATA[metabolism-max]]></variable>
+    </slider>
+    <slider bottom="71" right="176" top="38" left="8" direction="horizontal" default="250.0">
+      <maximum><![CDATA[1000]]></maximum>
+      <minimum><![CDATA[2]]></minimum>
+      <step><![CDATA[1]]></step>
+      <variable><![CDATA[num-people]]></variable>
+    </slider>
+    <slider bottom="241" right="176" top="208" left="8" direction="horizontal" default="10.0">
+      <maximum><![CDATA[25]]></maximum>
+      <minimum><![CDATA[5]]></minimum>
+      <step><![CDATA[1]]></step>
+      <units><![CDATA[%]]></units>
+      <variable><![CDATA[percent-best-land]]></variable>
+    </slider>
+    <slider bottom="207" right="176" top="174" left="8" direction="horizontal" default="83.0">
+      <maximum><![CDATA[100]]></maximum>
+      <minimum><![CDATA[1]]></minimum>
+      <step><![CDATA[1]]></step>
+      <variable><![CDATA[life-expectancy-max]]></variable>
+    </slider>
+    <plot bottom="634" right="255" top="454" left="3" ymax="250.0" ymin="0.0" xmax="50.0" xmin="0.0" legendOn="true" autoPlotOn="true">
+      <display><![CDATA[Class Plot]]></display>
+      <xAxis><![CDATA[Time]]></xAxis>
+      <yAxis><![CDATA[Turtles]]></yAxis>
+      <setup><![CDATA[set-plot-y-range 0 num-people]]></setup>
+      <update/>
+      <pens>
+        <pen inLegend="true" color="-2674135" mode="line" interval="1.0">
+          <setup/>
+          <update><![CDATA[plot count turtles with [color = red]]]></update>
+          <display><![CDATA[low]]></display>
+        </pen>
+        <pen inLegend="true" color="-10899396" mode="line" interval="1.0">
+          <setup/>
+          <update><![CDATA[plot count turtles with [color = green]]]></update>
+          <display><![CDATA[mid]]></display>
+        </pen>
+        <pen inLegend="true" color="-13345367" mode="line" interval="1.0">
+          <setup/>
+          <update><![CDATA[plot count turtles with [color = blue]]]></update>
+          <display><![CDATA[up]]></display>
+        </pen>
+      </pens>
+    </plot>
+    <slider bottom="368" right="176" top="335" left="8" direction="horizontal" default="4.0">
+      <maximum><![CDATA[10]]></maximum>
+      <minimum><![CDATA[1]]></minimum>
+      <step><![CDATA[1]]></step>
+      <variable><![CDATA[num-grain-grown]]></variable>
+    </slider>
+    <slider bottom="173" right="176" top="140" left="8" direction="horizontal" default="1.0">
+      <maximum><![CDATA[100]]></maximum>
+      <minimum><![CDATA[1]]></minimum>
+      <step><![CDATA[1]]></step>
+      <variable><![CDATA[life-expectancy-min]]></variable>
+    </slider>
+    <plot bottom="634" right="469" top="454" left="257" ymax="250.0" ymin="0.0" xmax="3.0" xmin="0.0" legendOn="false" autoPlotOn="false">
+      <display><![CDATA[Class Histogram]]></display>
+      <xAxis><![CDATA[Classes]]></xAxis>
+      <yAxis><![CDATA[Turtles]]></yAxis>
+      <setup><![CDATA[set-plot-y-range 0 num-people]]></setup>
+      <update/>
+      <pens>
+        <pen inLegend="true" color="-2674135" mode="bar" interval="1.0">
+          <setup/>
+          <update><![CDATA[plot-pen-reset
+set-plot-pen-color red
+plot count turtles with [color = red]
+set-plot-pen-color green
+plot count turtles with [color = green]
+set-plot-pen-color blue
+plot count turtles with [color = blue]]]></update>
+          <display><![CDATA[default]]></display>
+        </pen>
+      </pens>
+    </plot>
+    <plot bottom="634" right="672" top="454" left="471" ymax="100.0" ymin="0.0" xmax="100.0" xmin="0.0" legendOn="true" autoPlotOn="false">
+      <display><![CDATA[Lorenz Curve]]></display>
+      <xAxis><![CDATA[Pop %]]></xAxis>
+      <yAxis><![CDATA[Wealth %]]></yAxis>
+      <setup/>
+      <update/>
+      <pens>
+        <pen inLegend="true" color="-2674135" mode="line" interval="1.0">
+          <setup/>
+          <update><![CDATA[plot-pen-reset
+set-plot-pen-interval 100 / num-people
+plot 0
+foreach lorenz-points plot]]></update>
+          <display><![CDATA[lorenz]]></display>
+        </pen>
+        <pen inLegend="true" color="-16777216" mode="line" interval="100.0">
+          <setup><![CDATA[plot 0
+plot 100]]></setup>
+          <update/>
+          <display><![CDATA[equal]]></display>
+        </pen>
+      </pens>
+    </plot>
+    <plot bottom="634" right="908" top="454" left="674" ymax="1.0" ymin="0.0" xmax="50.0" xmin="0.0" legendOn="false" autoPlotOn="true">
+      <display><![CDATA[Gini-Index v. Time]]></display>
+      <xAxis><![CDATA[Time]]></xAxis>
+      <yAxis><![CDATA[Gini]]></yAxis>
+      <setup/>
+      <update/>
+      <pens>
+        <pen inLegend="true" color="-13345367" mode="line" interval="1.0">
+          <setup/>
+          <update><![CDATA[plot (gini-index-reserve / num-people) / 0.5]]></update>
+          <display><![CDATA[default]]></display>
+        </pen>
+      </pens>
+    </plot>
+  </widgets>
+  <experiments/>
+  <shapes>
+    <vectorShape editableColorIndex="0" rotatable="true" name="default">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,5 40,250 150,205 260,250"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="airplane">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,0 135,15 120,60 120,105 15,165 15,195 120,180 135,240 105,270 120,285 150,270 180,285 210,270 165,240 180,180 285,195 285,165 180,105 180,60 165,15"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="arrow">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,0 0,150 105,150 105,293 195,293 195,150 300,150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="box">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,285 285,225 285,75 150,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,135 15,75 150,15 285,75"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="15,75 15,225 150,285 150,135"/>
+        <line marked="false" filled="false" color="#000000" y2="135" x2="150" y1="285" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="75" x2="15" y1="135" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="75" x2="285" y1="135" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="bug">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="182" cx="96"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="127" cx="110"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="75" cx="110"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="30" x2="80" y1="100" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="30" x2="220" y1="100" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="butterfly">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,165 209,199 225,225 225,255 195,270 165,255 150,240"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,165 89,198 75,225 75,255 105,270 135,255 150,240"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="139,148 100,105 55,90 25,90 10,105 10,135 25,180 40,195 85,194 139,163"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="162,150 200,105 245,90 275,90 290,105 290,135 275,180 260,195 215,195 162,165"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,255 135,225 120,150 135,120 150,105 165,120 180,150 165,225"/>
+        <circle marked="false" filled="true" color="#000000" diameter="30" cy="90" cx="135"/>
+        <line marked="false" filled="false" color="#000000" y2="60" x2="195" y1="105" x1="150"/>
+        <line marked="false" filled="false" color="#000000" y2="60" x2="105" y1="105" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="car">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="300,180 279,164 261,144 240,135 226,132 213,106 203,84 185,63 159,50 135,50 75,60 0,150 0,165 0,225 300,225 300,180"/>
+        <circle marked="false" filled="true" color="#000000" diameter="90" cy="180" cx="180"/>
+        <circle marked="false" filled="true" color="#000000" diameter="90" cy="180" cx="30"/>
+        <polygon marked="false" filled="true" color="#000000" points="162,80 132,78 134,135 209,135 194,105 189,96 180,89"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="58" cy="195" cx="47"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="58" cy="195" cx="195"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="circle">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="circle 2">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="cow">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="200,193 197,249 179,249 177,196 166,187 140,189 93,191 78,179 72,211 49,209 48,181 37,149 25,120 25,89 45,72 103,84 179,75 198,76 252,64 272,81 293,103 285,121 255,121 242,118 224,167"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="73,210 86,251 62,249 48,208"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="25,114 16,195 9,204 23,213 25,200 39,123"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="cylinder">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="dot">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="120" cy="90" cx="90"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face happy">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="8" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,255 90,239 62,213 47,191 67,179 90,203 109,218 150,225 192,218 210,203 227,181 251,194 236,217 212,240"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face neutral">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="7" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <rect marked="false" filled="true" color="#000000" height="30" width="180" y="195" x="60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="face sad">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="285" cy="8" cx="8"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="60" cy="75" cx="180"/>
+        <polygon marked="false" filled="true" color="#000000" points="150,168 90,184 62,210 47,232 67,244 90,220 109,205 150,198 192,205 210,220 227,242 251,229 236,206 212,183"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="fish">
+      <elements>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="44,131 21,87 15,86 0,120 15,150 0,180 13,214 20,212 45,166"/>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="135,195 119,235 95,218 76,210 46,204 60,165"/>
+        <polygon marked="false" filled="true" color="#FFFFFF" points="75,45 83,77 71,103 86,114 166,78 135,60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="30,136 151,77 226,81 280,119 292,146 292,160 287,170 270,195 195,210 151,212 30,166"/>
+        <circle marked="false" filled="true" color="#000000" diameter="30" cy="106" cx="215"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="flag">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="285" width="15" y="15" x="60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="90,150 270,90 90,30"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="135" x2="90" y1="135" x1="75"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="45" x2="90" y1="45" x1="75"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="flower">
+      <elements>
+        <polygon marked="false" filled="true" color="#59B03C" points="135,120 165,165 180,210 180,240 150,300 165,300 195,240 195,195 165,135"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="132" cx="85"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="147" cx="130"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="85" cx="192"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="40" cx="85"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="40" cx="177"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="132" cx="177"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="85" cx="70"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="38" cy="25" cx="130"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="51" cx="96"/>
+        <circle marked="false" filled="true" color="#000000" diameter="74" cy="68" cx="113"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="189,233 219,188 249,173 279,188 234,218"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="180,255 150,210 105,210 75,240 135,240"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="house">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="165" width="210" y="120" x="45"/>
+        <rect marked="false" filled="true" color="#000000" height="75" width="60" y="210" x="120"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="15,120 150,15 285,120"/>
+        <line marked="false" filled="false" color="#000000" y2="120" x2="270" y1="120" x1="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="leaf">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,210 135,195 120,210 60,210 30,195 60,180 60,165 15,135 30,120 15,105 40,104 45,90 60,90 90,105 105,120 120,120 105,60 120,60 135,30 150,15 165,30 180,60 195,60 180,120 195,120 210,105 240,90 255,90 263,104 285,105 270,120 285,135 240,165 240,180 270,195 240,210 180,210 165,195"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,195 135,240 120,255 105,255 105,285 135,285 165,240 165,195"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="line">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="300" x2="150" y1="0" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="line half">
+      <elements>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="150" y1="0" x1="150"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="pentagon">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,15 15,120 60,285 240,285 285,120"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="person">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="80" cy="5" cx="110"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="105,90 120,195 90,285 105,300 135,300 150,225 165,300 195,300 210,285 180,195 195,90"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="15" width="45" y="79" x="127"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="195,90 240,150 225,180 165,105"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="105,90 60,150 75,180 135,105"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="plant">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="210" width="30" y="90" x="135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,255 90,210 45,195 75,255 135,285"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,255 210,210 255,195 225,255 165,285"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,180 90,135 45,120 75,180 135,210"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,180 165,210 225,180 255,120 210,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,105 90,60 45,45 75,105 135,135"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="165,105 165,135 225,105 255,45 210,60"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="135,90 120,45 150,15 180,45 165,90"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="square">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="240" width="240" y="30" x="30"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="square 2">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="240" width="240" y="30" x="30"/>
+        <rect marked="false" filled="true" color="#000000" height="180" width="180" y="60" x="60"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="star">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="151,1 185,108 298,108 207,175 242,282 151,216 59,282 94,175 3,108 116,108"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="target">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="300" cy="0" cx="0"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="180" cy="60" cx="60"/>
+        <circle marked="false" filled="true" color="#000000" diameter="120" cy="90" cx="90"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="60" cy="120" cx="120"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="tree">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="94" cy="3" cx="118"/>
+        <rect marked="false" filled="true" color="#9D6E48" height="105" width="60" y="195" x="120"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="108" cy="21" cx="65"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="127" cy="41" cx="116"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="120" cy="90" cx="45"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="152" cy="74" cx="104"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="triangle">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,30 15,255 285,255"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="triangle 2">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="150,30 15,255 285,255"/>
+        <polygon marked="false" filled="true" color="#000000" points="151,99 225,223 75,224"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="truck">
+      <elements>
+        <rect marked="true" filled="true" color="#8D8D8D" height="142" width="191" y="45" x="4"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="296,193 296,150 259,134 244,104 208,104 207,194"/>
+        <rect marked="false" filled="true" color="#FFFFFF" height="45" width="0" y="60" x="195"/>
+        <polygon marked="false" filled="true" color="#000000" points="238,112 252,141 219,141 218,112"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="234"/>
+        <rect marked="true" filled="true" color="#8D8D8D" height="9" width="33" y="185" x="181"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="144"/>
+        <circle marked="false" filled="true" color="#000000" diameter="42" cy="174" cx="24"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="24"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="144"/>
+        <circle marked="true" filled="false" color="#8D8D8D" diameter="42" cy="174" cx="234"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="true" name="turtle">
+      <elements>
+        <polygon marked="false" filled="true" color="#59B03C" points="215,204 240,233 246,254 228,266 215,252 193,210"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="195,90 225,75 245,75 260,89 269,108 261,124 240,105 225,105 210,105"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="105,90 75,75 55,75 40,89 31,108 39,124 60,105 75,105 90,105"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="132,85 134,64 107,51 108,17 150,2 192,18 192,52 169,65 172,87"/>
+        <polygon marked="false" filled="true" color="#59B03C" points="85,204 60,233 54,254 72,266 85,252 107,210"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="119,75 179,75 209,101 224,135 220,225 175,261 128,261 81,224 74,135 88,99"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="wheel">
+      <elements>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="294" cy="3" cx="3"/>
+        <circle marked="false" filled="true" color="#000000" diameter="240" cy="30" cx="30"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="15" x2="150" y1="285" x1="150"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="150" x2="285" y1="150" x1="15"/>
+        <circle marked="true" filled="true" color="#8D8D8D" diameter="60" cy="120" cx="120"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="269" x2="79" y1="40" x1="216"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="221" x2="269" y1="84" x1="40"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="79" x2="269" y1="216" x1="40"/>
+        <line marked="true" filled="false" color="#8D8D8D" y2="269" x2="221" y1="40" x1="84"/>
+      </elements>
+    </vectorShape>
+    <vectorShape editableColorIndex="0" rotatable="false" name="x">
+      <elements>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="270,75 225,30 30,225 75,270"/>
+        <polygon marked="true" filled="true" color="#8D8D8D" points="30,75 75,30 270,225 225,270"/>
+      </elements>
+    </vectorShape>
+  </shapes>
+  <code><![CDATA[globals
+[
+  max-grain    ; maximum amount any patch can hold
+  gini-index-reserve
+  lorenz-points
+]
+
+patches-own
+[
+  grain-here      ; the current amount of grain on this patch
+  max-grain-here  ; the maximum amount of grain this patch can hold
+]
+
+turtles-own
+[
+  age              ; how old a turtle is
+  wealth           ; the amount of grain a turtle has
+  life-expectancy  ; maximum age that a turtle can reach
+  metabolism       ; how much grain a turtle eats each time
+  vision           ; how many patches ahead a turtle can see
+]
+
+;;;
+;;; SETUP AND HELPERS
+;;;
+
+to setup
+  clear-all
+  ;; set global variables to appropriate values
+  set max-grain 50
+  ;; call other procedures to set up various parts of the world
+  setup-patches
+  setup-turtles
+  update-lorenz-and-gini
+  reset-ticks
+end
+
+;; set up the initial amounts of grain each patch has
+to setup-patches
+  ;; give some patches the highest amount of grain possible --
+  ;; these patches are the "best land"
+  ask patches
+    [ set max-grain-here 0
+      if (random-float 100.0) <= percent-best-land
+        [ set max-grain-here max-grain
+          set grain-here max-grain-here ] ]
+  ;; spread that grain around the window a little and put a little back
+  ;; into the patches that are the "best land" found above
+  repeat 5
+    [ ask patches with [max-grain-here != 0]
+        [ set grain-here max-grain-here ]
+      diffuse grain-here 0.25 ]
+  repeat 10
+    [ diffuse grain-here 0.25 ]          ;; spread the grain around some more
+  ask patches
+    [ set grain-here floor grain-here    ;; round grain levels to whole numbers
+      set max-grain-here grain-here      ;; initial grain level is also maximum
+      recolor-patch ]
+end
+
+to recolor-patch  ;; patch procedure -- use color to indicate grain level
+  set pcolor scale-color yellow grain-here 0 max-grain
+end
+
+;; set up the initial values for the turtle variables
+to setup-turtles
+  set-default-shape turtles "person"
+  create-turtles num-people
+    [ move-to one-of patches  ;; put turtles on patch centers
+      set size 1.5  ;; easier to see
+      set-initial-turtle-vars
+      set age random life-expectancy ]
+  recolor-turtles
+end
+
+to set-initial-turtle-vars
+  set age 0
+  face one-of neighbors4
+  set life-expectancy life-expectancy-min +
+                        random (life-expectancy-max - life-expectancy-min + 1)
+  set metabolism 1 + random metabolism-max
+  set wealth metabolism + random 50
+  set vision 1 + random max-vision
+end
+
+;; Set the class of the turtles -- if a turtle has less than a third
+;; the wealth of the richest turtle, color it red.  If between one
+;; and two thirds, color it green.  If over two thirds, color it blue.
+to recolor-turtles
+  let max-wealth max [wealth] of turtles
+  ask turtles
+    [ ifelse (wealth <= max-wealth / 3)
+        [ set color red ]
+        [ ifelse (wealth <= (max-wealth * 2 / 3))
+            [ set color green ]
+            [ set color blue ] ] ]
+end
+
+;;;
+;;; GO AND HELPERS
+;;;
+
+to go
+  ask turtles
+    [ turn-towards-grain ]  ;; choose direction holding most grain within the turtle's vision
+  harvest
+  ask turtles
+    [ move-eat-age-die ]
+  recolor-turtles
+
+  ;; grow grain every grain-growth-interval clock ticks
+  if ticks mod grain-growth-interval = 0
+    [ ask patches [ grow-grain ] ]
+
+  update-lorenz-and-gini
+  tick
+end
+
+;; determine the direction which is most profitable for each turtle in
+;; the surrounding patches within the turtles' vision
+to turn-towards-grain  ;; turtle procedure
+  set heading 0
+  let best-direction 0
+  let best-amount grain-ahead
+  set heading 90
+  if (grain-ahead > best-amount)
+    [ set best-direction 90
+      set best-amount grain-ahead ]
+  set heading 180
+  if (grain-ahead > best-amount)
+    [ set best-direction 180
+      set best-amount grain-ahead ]
+  set heading 270
+  if (grain-ahead > best-amount)
+    [ set best-direction 270
+      set best-amount grain-ahead ]
+  set heading best-direction
+end
+
+to-report grain-ahead  ;; turtle procedure
+  let total 0
+  let how-far 1
+  repeat vision
+    [ set total total + [grain-here] of patch-ahead how-far
+      set how-far how-far + 1 ]
+  report total
+end
+
+to grow-grain  ;; patch procedure
+  ;; if a patch does not have it's maximum amount of grain, add
+  ;; num-grain-grown to its grain amount
+  if (grain-here < max-grain-here)
+    [ set grain-here grain-here + num-grain-grown
+      ;; if the new amount of grain on a patch is over its maximum
+      ;; capacity, set it to its maximum
+      if (grain-here > max-grain-here)
+        [ set grain-here max-grain-here ]
+      recolor-patch ]
+end
+
+;; each turtle harvests the grain on its patch.  if there are multiple
+;; turtles on a patch, divide the grain evenly among the turtles
+to harvest
+  ; have turtles harvest before any turtle sets the patch to 0
+  ask turtles
+    [ set wealth floor (wealth + (grain-here / (count turtles-here))) ]
+  ;; now that the grain has been harvested, have the turtles make the
+  ;; patches which they are on have no grain
+  ask turtles
+    [ set grain-here 0
+      recolor-patch ]
+end
+
+to move-eat-age-die  ;; turtle procedure
+  fd 1
+  ;; consume some grain according to metabolism
+  set wealth (wealth - metabolism)
+  ;; grow older
+  set age (age + 1)
+  ;; check for death conditions: if you have no grain or
+  ;; you're older than the life expectancy or if some random factor
+  ;; holds, then you "die" and are "reborn" (in fact, your variables
+  ;; are just reset to new random values)
+  if (wealth < 0) or (age >= life-expectancy)
+    [ set-initial-turtle-vars ]
+end
+
+;; this procedure recomputes the value of gini-index-reserve
+;; and the points in lorenz-points for the Lorenz and Gini-Index plots
+to update-lorenz-and-gini
+  let sorted-wealths sort [wealth] of turtles
+  let total-wealth sum sorted-wealths
+  let wealth-sum-so-far 0
+  let index 0
+  set gini-index-reserve 0
+  set lorenz-points []
+
+  ;; now actually plot the Lorenz curve -- along the way, we also
+  ;; calculate the Gini index.
+  ;; (see the Info tab for a description of the curve and measure)
+  repeat num-people [
+    set wealth-sum-so-far (wealth-sum-so-far + item index sorted-wealths)
+    set lorenz-points lput ((wealth-sum-so-far / total-wealth) * 100) lorenz-points
+    set index (index + 1)
+    set gini-index-reserve
+      gini-index-reserve +
+      (index / num-people) -
+      (wealth-sum-so-far / total-wealth)
+  ]
+end
+
+
+; Copyright 1998 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <modelSettings/>
+  <hubnet/>
+</model>
