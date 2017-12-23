@@ -453,7 +453,7 @@ Hint on solving for the force: The force a particle experiences is the negative 
 
 ## CREDITS AND REFERENCES
 
-Original implementation: Jacob Kelter with Prof. Erik Luijten, Northwestern Material Science and Engineering, and with supervision by Uri Wilensky.
+Lennard-Jones, J. (1925). On the Forces between Atoms and Ions. Proceedings of the Royal Society of London. Series A, Containing Papers of a Mathematical and Physical Character, Vol. 109, No. 752 (Dec. 1, 1925), pp. 584-597.
 
 ## HOW TO CITE
 
