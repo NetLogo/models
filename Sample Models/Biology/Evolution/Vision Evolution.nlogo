@@ -231,11 +231,11 @@ end
 GRAPHICS-WINDOW
 610
 10
-1143
-544
+1123
+524
 -1
 -1
-5.2
+5.0
 1
 14
 1
@@ -525,11 +525,11 @@ This model aims to simulate the transition of vertebrates from life underwater t
 
 * EYE-SIZE: This is a real number between 1 and the parameter MAX-EYE-SIZE set by the user. Eye-size determines the radius of the field of vision of the fish. For the sake of simplicity, we assume that fish have a field of vision of 360 degrees. Since a typical field of vision of fish is 305 degrees, this assumption is justified. We note that the radius of the field of vision also depends on whether the fish is on land or underwater. Since visibility is very poor underwater, the radius of the field of vision underwater, is significantly smaller than it is on land. Furthermore an increase in eye-size provides little improvement to the radius of the field of vision underwater, but provides a dramatic improvement to the radius of the field of vision on land.
 
-* LAND-MOBILITY: This characteristic is a real number between 0 and 1, and it models how well adapted the fish is, to life underwater or on land. This characteristic aims to capture the morphology of the fish (or vertebrate) as it undergoes the fin-to-limb transformation, and how this relates to its locomotion. If this characteristic is 0, this means that the fish is completely adapted to life underwater, and is likely to have fins. It means that the fish can move underwater quickly and without a lot of effort. However it can hardly move on land, and would have to spend a lot of energy to cover a small distance on land. Similarly, if land-mobility is 1, the organism is adapted to life on land, and is likely to have limbs. For example, applying this characteristic to real world species we could suppose that a clown fish would have a land-mobility value of almost 0. A crocodile would have a land-mobility value of approximately 0.25. A frog would have a land-mobility value of 0.5, and finally a cat would have a land-mobility value of almost 1. 
+* LAND-MOBILITY: This characteristic is a real number between 0 and 1, and it models how well adapted the fish is, to life underwater or on land. This characteristic aims to capture the morphology of the fish (or vertebrate) as it undergoes the fin-to-limb transformation, and how this relates to its locomotion. If this characteristic is 0, this means that the fish is completely adapted to life underwater, and is likely to have fins. It means that the fish can move underwater quickly and without a lot of effort. However it can hardly move on land, and would have to spend a lot of energy to cover a small distance on land. Similarly, if land-mobility is 1, the organism is adapted to life on land, and is likely to have limbs. For example, applying this characteristic to real world species we could suppose that a clown fish would have a land-mobility value of almost 0. A crocodile would have a land-mobility value of approximately 0.25. A frog would have a land-mobility value of 0.5, and finally a cat would have a land-mobility value of almost 1.
 
 * LAND-FOOD-PREFERENCE: This value is also a real number between 0 and 1. This characteristic aims to capture the food preference of the fish; specifically whether it prefers food on land or food underwater. The intuition behind this characteristic is that a terrestrial animal would be more likely to hunt and eat another terrestrial animal, and would be less likely to hunt an aquatic animal.
 
-* ENERGY: This characteristic is used to model the level of nutrition of the fish, which is in a sense, the level of energy of the fish. Fish gain energy from consuming food, and lose energy as they move, and as they reproduce. 
+* ENERGY: This characteristic is used to model the level of nutrition of the fish, which is in a sense, the level of energy of the fish. Fish gain energy from consuming food, and lose energy as they move, and as they reproduce.
 
 Initially, each fish are located underwater, because they have not made the transition to land yet. They have the smallest eye size possible, since visibility is very low underwater. They are completely adapted to life underwater, so they move fast and consume little energy underwater. But move very slowly and consume a lot of energy on land. Each fish has a random preference towards food on land or on water. This could be explained by genetic variability and the scarcity of food underwater compared to that of on land.
 
@@ -539,13 +539,13 @@ At each time step, each fish moves. If there is food in the field of vision of t
 
 The SETUP button initializes the model.
 
-The GO button runs the model.     
+The GO button runs the model.
 
 Use the INITIAL-NUMBER-FISH slider to set the initial amount of fish.
 
 Use the INITIAL-NUMBER-FOOD slider to set the initial amount of food.
 
-Use the SHOW-VISION switch to toggle on or off the visualization of the field of view of each fish. 
+Use the SHOW-VISION switch to toggle on or off the visualization of the field of view of each fish.
 
 Use the FOOD-REPLENISH-RATE slider to set the probability that a new food appears at each time step.
 
@@ -610,7 +610,7 @@ The IN-RADIUS primitive is used to find every food source in a fish's field of v
 
 MacIver, Malcolm & Schmitz, Lars & Mugan, Ugurcan & D. Murphey, Todd & D. Mobley, Curtis. (2017). Massive increase in visual range preceded the origin of terrestrial vertebrates. Proceedings of the National Academy of Sciences. 114. 201615563. 10.1073/pnas.1615563114.
 
-<!-- 2017 Cite: Gurkan, C., Head, B., Woods, P.
+<!-- 2018 Cite: Gurkan, C., Head, B., Woods, P. -->
 @#$#@#$#@
 default
 true
@@ -919,9 +919,6 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
 NetLogo 6.0.2
 @#$#@#$#@
-setup
-set grass? true
-repeat 75 [ go ]
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
