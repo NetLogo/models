@@ -498,6 +498,10 @@ to-report get-leading-temp
   [ report [my-average-temp] of max-one-of students [ my-average-temp] ]
   [ report "hidden" ]
 end
+
+
+; Copyright 2008 Pratim Sengupta and Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 233
