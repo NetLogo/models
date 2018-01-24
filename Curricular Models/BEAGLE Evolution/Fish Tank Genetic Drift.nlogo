@@ -961,9 +961,9 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-579
+610
 10
-1427
+1458
 467
 -1
 -1
@@ -1095,7 +1095,7 @@ HORIZONTAL
 PLOT
 370
 370
-575
+605
 490
 Tail Shape Alleles
 time
@@ -1108,13 +1108,13 @@ true
 true
 "" ""
 PENS
-"F" 1.0 0 -16777216 true "" "plotxy ticks #-big-f-alleles"
-"f" 1.0 0 -4539718 true "" "plotxy ticks #-small-f-alleles"
+"big-F" 1.0 0 -16777216 true "" "plotxy ticks #-big-f-alleles"
+"small-f" 1.0 0 -4539718 true "" "plotxy ticks #-small-f-alleles"
 
 PLOT
 370
 490
-575
+605
 610
 Tail Color Alleles
 time
@@ -1127,13 +1127,13 @@ true
 true
 "" ""
 PENS
-"T" 1.0 0 -16777216 true "" "plotxy ticks #-big-t-alleles"
-"t" 1.0 0 -4539718 true "" "plotxy ticks #-small-t-alleles"
+"big-T" 1.0 0 -16777216 true "" "plotxy ticks #-big-t-alleles"
+"small-t" 1.0 0 -4539718 true "" "plotxy ticks #-small-t-alleles"
 
 PLOT
 370
 250
-575
+605
 370
 Dorsal Fin Color Alleles
 time
@@ -1146,13 +1146,13 @@ true
 true
 "" ""
 PENS
-"G" 1.0 0 -16777216 true "" "plotxy ticks #-big-g-alleles"
-"g" 1.0 0 -4539718 true "" "plotxy ticks #-small-g-alleles"
+"big-G" 1.0 0 -16777216 true "" "plotxy ticks #-big-g-alleles"
+"small-g" 1.0 0 -4539718 true "" "plotxy ticks #-small-g-alleles"
 
 PLOT
 370
 10
-575
+605
 130
 Sex Chromosomes
 time
@@ -1244,9 +1244,9 @@ Genotype --> Phenotype
 1
 
 PLOT
-580
+611
 490
-878
+909
 610
 dorsal fin & spotting variations
 NIL
@@ -1287,7 +1287,7 @@ GG / Gg / gG --> green dorsal fin\n                gg --> no green fin
 PLOT
 370
 130
-575
+605
 250
 Body Spot Alleles
 time
@@ -1300,8 +1300,8 @@ true
 true
 "" ""
 PENS
-"B" 1.0 0 -16777216 true "" "plotxy ticks #-big-b-alleles"
-"b" 1.0 0 -4539718 true "" "plotxy ticks #-small-b-alleles"
+"big-B" 1.0 0 -16777216 true "" "plotxy ticks #-big-b-alleles"
+"small-b" 1.0 0 -4539718 true "" "plotxy ticks #-small-b-alleles"
 
 TEXTBOX
 241
@@ -1346,9 +1346,9 @@ see-sex-cells?
 -1000
 
 PLOT
-880
+911
 490
-1152
+1183
 610
 tail fin variations
 NIL
@@ -1367,9 +1367,9 @@ PENS
 "no yellow" 1.0 0 -13791810 true "" "plotxy ticks #-of-no-yellow-tail-fins"
 
 PLOT
-1155
+1186
 490
-1427
+1458
 610
 # of males & females
 time
