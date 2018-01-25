@@ -2,6 +2,7 @@ package org.nlogo.models
 
 import org.nlogo.core.TokenType
 import org.nlogo.core.TokenType.Command
+import org.nlogo.core.Model
 
 class CodeTests extends TestModels {
 
@@ -260,6 +261,27 @@ class CodeTests extends TestModels {
   val typesToCheck = Set[TokenType](
     TokenType.Ident, TokenType.Command, TokenType.Reporter, TokenType.Keyword
   )
+
+  testModels("Plot names should be case insensitive") { model =>
+    (for {
+      m <- Option(Model)
+      duplicates = new Tokens(model).plotNames.map(_.toLowerCase)
+        .groupBy(identity)
+        .collect { case (x, ys) if ys.size > 1 => x }
+      if (duplicates.nonEmpty)
+    } yield(duplicates.mkString("\n"))).toSet
+  }
+
+  testModels("Plot-pen names should be case insensitive") { model =>
+    (for {
+      plot <- new Tokens(model).plotPenNamesByPlot
+      title = plot._1
+      duplicates = plot._2.map(_.toLowerCase).filter(_.nonEmpty)
+        .groupBy(identity)
+        .collect { case (x, ys) if ys.size > 1 => x }
+      if (duplicates.nonEmpty)
+    } yield(title + " plot: " + duplicates.mkString(", "))).toSet
+  }
 
   testModels("All identifiers should be lowercase") { model =>
     val allowed = nonLowercaseExceptions.getOrElse(model.baseName, Set.empty)
