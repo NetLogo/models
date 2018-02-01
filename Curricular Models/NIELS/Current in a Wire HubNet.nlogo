@@ -1,8 +1,3 @@
-extensions [ cf ]
-; we use the control-flow extension because HubNet models require
-; a lot of "case-based" logic. This way, we can avoid nasty
-; nested ifelse statements and simply process things by case.
-
 globals [
   charge-flow  ; a variable to keep track of the number of
                ;   electrons that have flowed through the cathode
@@ -339,54 +334,51 @@ to listen-to-clients
     hubnet-fetch-message
 
     ; handle them based on the type of message
-    cf:when
     ; If it's a log-in message, create a new student-observer
-    cf:case [ hubnet-enter-message? ] [
+    ifelse hubnet-enter-message? [
       create-new-student-observer
-    ]
-    ; If this is a log-out we vacate our turtle
-    cf:case [ hubnet-exit-message? ] [
-      ask students with [ user-name = hubnet-message-source ] [ set user-name "" ]
-    ]
-    ; If it's a mouse up, we lookup the selected-mouse-option and then do the appropriate operation
-    cf:case [ hubnet-message-tag = "Mouse Up" ] [
-      ask students with [ user-name = hubnet-message-source ] [
-        let clicked-patch patch (item 0 hubnet-message) (item 1 hubnet-message)
-        move-a-nucleus clicked-patch
+    ][
+      ; If this is a log-out we vacate our turtle
+      ifelse hubnet-exit-message? [
+        ask students with [ user-name = hubnet-message-source ] [ set user-name "" ]
+      ][
+        ; If it's a mouse up, we lookup the selected-mouse-option and then do the appropriate operation
+        ifelse hubnet-message-tag = "Mouse Up" [
+        ask students with [ user-name = hubnet-message-source ] [
+          let clicked-patch patch (item 0 hubnet-message) (item 1 hubnet-message)
+          move-a-nucleus clicked-patch
+        ]
+      ][
+          ; If they pressed the label button, then pick an electron to label
+          if hubnet-message-tag = "label-an-electron" [
+            ask students with [ user-name = hubnet-message-source ] [
+              label-electron-in-my-slice
+            ]
+          ]
+        ]
       ]
     ]
-
-    ; If they pressed the label button, then pick an electron to label
-    cf:case [ hubnet-message-tag = "label-an-electron" ] [
-      ask students with [ user-name = hubnet-message-source ] [
-        label-electron-in-my-slice
-      ]
-    ]
-
-    ; otherwise it's some other message and we throw it away
-    cf:else [ ]
   ]
 end
 
 to move-a-nucleus [ clicked-patch ] ; student procedure
   if member? clicked-patch my-patches [
-    cf:when
     ; if we don't have a selected nuclei and there's one here, select it
-    cf:case [selected-nuclei = nobody and any? [nuclei-here] of clicked-patch] [
+    ifelse selected-nuclei = nobody and any? [nuclei-here] of clicked-patch [
       set selected-nuclei one-of [nuclei-here] of clicked-patch
+    ][
+      ; if we have one selected, and it's where we clicked, deselect it
+      ifelse selected-nuclei != nobody and any? [nuclei-here] of clicked-patch [
+        if member? selected-nuclei [nuclei-here] of clicked-patch [ set selected-nuclei nobody ]
+      ][
+        ; if there is a nuclei already selected, place it on the clicked patch
+        if selected-nuclei != nobody [
+          ask clicked-patch [ sprout-a-nucleus ]
+          ask selected-nuclei [ die ]
+          set selected-nuclei nobody
+        ]
+      ]
     ]
-    ; if we have one selected, and it's where we clicked, deselect it
-    cf:case [selected-nuclei != nobody and any? [nuclei-here] of clicked-patch] [
-      if member? selected-nuclei [nuclei-here] of clicked-patch [ set selected-nuclei nobody ]
-    ]
-    ; if there is a nuclei already selected, place it on the clicked patch
-    cf:case [selected-nuclei != nobody] [
-      ask clicked-patch [ sprout-a-nucleus ]
-      ask selected-nuclei [ die ]
-      set selected-nuclei nobody
-    ]
-    ; otherwise, we do nothing
-    cf:else[]
   ]
 
   ; recolor all of the nuclei in our slice
@@ -573,7 +565,7 @@ voltage
 voltage
 0.01
 0.2
-0.11
+0.1
 0.01
 1
 NIL
