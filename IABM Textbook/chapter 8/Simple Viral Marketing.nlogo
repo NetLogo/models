@@ -36,7 +36,7 @@ end
 
 ;; the Barabasi-Albert method of creating a PA graph
 to create-preferential-attachment
-  nw:generate-preferential-attachment turtles links 500 [
+  nw:generate-preferential-attachment turtles links 500 1 [
     set size 2
     set shape "circle"
     set color blue
