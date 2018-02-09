@@ -18,14 +18,25 @@ void loop() {
   counter++;
 
   //Write out our counter value
-  Serial.print("C,");
+  Serial.print("C,");    // send a value named "C"       
+  Serial.print("D,");    // specify it is a numeric ("Double") value
   Serial.print(counter);
   Serial.print(";");
 
   //Create and write out a random number from 0 to 10, with two digits of decimals.
   double rnum = random(1000) / 100.0;
-  Serial.print("R,");
-  Serial.print(rnum, 2);        //sending 2 digit accuracy
+  Serial.print("R,");         // send a value named "R"
+  Serial.print("D,");         // specify it is a numeric ("Double") value
+  Serial.print(rnum, 2);      // sending 2 digit accuracy
+  Serial.print(";");
+
+  Serial.print("GAME,");      // send a value named "GAME"
+  Serial.print("S,");         // specify it is a String value
+  if (counter % 3 != 2) {     // play a fun game
+    Serial.print("DUCK");
+  } else {
+    Serial.print("GOOSE");
+  }
   Serial.print(";");
 
   if (Serial.available() > 0) {
