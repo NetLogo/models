@@ -434,7 +434,7 @@ Note the use of the `neighbors` and `neighbors4` primitives to implement 8-mode 
 
 ## RELATED MODELS
 
-Virus, AIDS
+Virus, HIV
 
 ## CREDITS AND REFERENCES
 
