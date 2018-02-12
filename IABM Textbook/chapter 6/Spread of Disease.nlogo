@@ -400,7 +400,7 @@ At the moment, in the environmental variant of the model, patches are either inf
 
 NetLogo is very good at simulating the spread of epidemics, so there are a few disease transmission model in the library:
 
-- AIDS
+- HIV
 - Disease Solo
 - Disease HubNet
 - Disease Doctors HubNet

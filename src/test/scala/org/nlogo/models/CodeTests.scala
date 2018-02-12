@@ -120,7 +120,7 @@ class CodeTests extends TestModels {
       "GasLab Maxwells Demon", "GasLab Adiabatic Piston", "Turing Machine 2D",
       "PageRank", "Dining Philosophers", "Team Assembly", "Ants",
       "Simple Birth Rates", "BeeSmart Hive Finding", "Sunflower Biomorphs",
-      "AIDS", "Tumor", "Flocking Vee Formations", "Ant Lines", "Kaleidoscope",
+      "HIV", "Tumor", "Flocking Vee Formations", "Ant Lines", "Kaleidoscope",
       "Geometron Top-Down", "Optical Illusions", "Sound Machines", "Random Walk 360",
       "Expected Value Advanced", "GasLab Free Gas", "Rope",
       "Three Loops Example", "Shapes Example", "Disease With Android Avoidance HubNet",

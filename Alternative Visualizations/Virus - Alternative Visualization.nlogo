@@ -466,7 +466,7 @@ Kornhauser, D., Wilensky, U., & Rand, W. (2009). http://ccl.northwestern.edu/pap
 
 ## RELATED MODELS
 
-* AIDS
+* HIV
 * Virus
 * Virus on a Network
 
