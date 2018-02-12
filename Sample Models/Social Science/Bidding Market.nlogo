@@ -606,7 +606,7 @@ This model demonstrates a very simple bidding market, where buyers and sellers t
 
 ## HOW IT WORKS
 
-The inner ring of agents represent sellers, who bring some goods they want to sell to the market. The outer ring of agents are the buyers, who bring money to the market to buy the goods.
+The agents in the inner ring of represent sellers, who bring some goods they want to sell to the market. The agents in the outer ring are the buyers, who bring money to the market to buy the goods.
 
 Each round (tick), the buyers move to their right (counter-clockwise) and are paired with a seller. Then each buyer checks its paired seller's asking price. If it's lower than their asking-price, they'll buy 1 item. If it's higher, they'll buy nothing. Then each seller individually decides to either raise prices or lower prices based on their buyer's behavior. The buyers also individually lower or raise their expectations based on their seller's behavior.
 
