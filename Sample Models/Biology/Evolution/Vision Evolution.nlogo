@@ -228,7 +228,6 @@ to-report weighted-distance [ weight ]
 end
 
 
-
 ; Copyright 2018 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@
@@ -525,9 +524,9 @@ Around 385 million years ago, vertebrates inhabiting underwater environments beg
 
 ## HOW IT WORKS
 
-This model aims to simulate the transition of vertebrates from life underwater to life on land. Thus half the world in our simulation is underwater, and the other half is land. The agents in our model are fish initially swimming underwater. We refer to the agents in this model as fish for simplicity purposes, however we think about them more of as vertebrates that are on the brink of transitioning to terrestrial life. At the beginning of our simulation, we can indeed think of these agents as aquatic tetrapods, however as time goes by, they evolve and some of them transition to life on land. 
+This model aims to simulate the transition of vertebrates from life underwater to life on land. Thus half the world in our simulation is underwater, and the other half is land. The agents in our model are fish initially swimming underwater. We refer to the agents in this model as fish for simplicity purposes, however we think about them more of as vertebrates that are on the brink of transitioning to terrestrial life. At the beginning of our simulation, we can indeed think of these agents as aquatic tetrapods, however as time goes by, they evolve and some of them transition to life on land.
 
-In addition there are other organisms that these fish prey upon. We refer to them as food in our model, but we can think of them as invertebrates that inhabit water as well as land. 
+In addition there are other organisms that these fish prey upon. We refer to them as food in our model, but we can think of them as invertebrates that inhabit water as well as land.
 
 Each agent or fish has certain characteristics. These are listed below.
 
@@ -541,7 +540,7 @@ Each agent or fish has certain characteristics. These are listed below.
 
 Initially, the fish are located underwater, because they have not made the transition to land yet. They have the smallest eye size possible since visibility is very low underwater. And they are completely adapted to life underwater, so they move fast and consume little energy underwater. This means that they move very slowly and consume a lot of energy on land. Each fish has a random preference towards food on land or underwater water. This could be explained by genetic variability and the scarcity of food underwater compared to that of on land.
 
-At each time step, each fish moves. If there is food in the field of vision of the fish, then it moves toward the food, otherwise it just moves randomly. The speed of their movement depends upon their land-mobility value and whether they are on land or underwater. Fish with low land-mobility values move fast underwater and slowly on land. The food remain stationary. As the fish move, they consume energy. How much energy they consume, again depends on their land-mobility value and whether they are underwater or on land. Fish with low land-mobility values consume less energy underwater than on land. 
+At each time step, each fish moves. If there is food in the field of vision of the fish, then it moves toward the food, otherwise it just moves randomly. The speed of their movement depends upon their land-mobility value and whether they are on land or underwater. Fish with low land-mobility values move fast underwater and slowly on land. The food remain stationary. As the fish move, they consume energy. How much energy they consume, again depends on their land-mobility value and whether they are underwater or on land. Fish with low land-mobility values consume less energy underwater than on land.
 
 Energy consumption also depends on the eye size of the fish. Having larger eyes cost more energy, since they require more resources to operate. If a fish reaches food, it kills the food and gains energy. There is a fixed probability that a new food appears at each time step.
 
