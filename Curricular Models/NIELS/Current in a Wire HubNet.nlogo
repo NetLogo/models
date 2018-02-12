@@ -981,8 +981,6 @@ Right now, students can only ever see their slice of the wire. See if you can ad
 
 This model uses the `hubnet-send-follow` primitive to give students a local view of a part of the system.
 
-Because HubNet models require a lot of "case-based logic", we also use the `cf` extension to handle operations that occur frequently based on certain model states.
-
 ## RELATED MODELS
 
 Checkout the other NIELS curricular models, including:
