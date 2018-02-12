@@ -110,7 +110,7 @@ class CodeTests extends TestModels {
     "who" -> Seq(
       // Some of the following models may make justifiable use of `who`, but most
       // probably don't. They should be revisited at some point. NP 2015-10-16.
-      "Disease HubNet", "Restaurants HubNet", "Prisoners Dilemma HubNet",
+      "Bidding Market", "Disease HubNet", "Restaurants HubNet", "Prisoners Dilemma HubNet",
       "Disease Doctors HubNet", "Planarity", "Tetris", "PD N-Person Iterated",
       "Minority Game", "Osmotic Pressure", "Scattering", "N-Bodies", "Rope",
       "Speakers", "Raindrops", "GasLab Free Gas", "GasLab Moving Piston",
