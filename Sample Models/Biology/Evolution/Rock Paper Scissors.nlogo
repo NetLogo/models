@@ -1,165 +1,136 @@
-breed [ lights light ]
-breed [ moths moth ]
-
-globals
-[
-  scale-factor  ;; to control the form of the light field
-]
-
-lights-own
-[
-  intensity
-]
-
-moths-own
-[
-  ;; +1 means the moths turn to the right to try to evade a bright light
-  ;; (and thus circle the light source clockwise). -1 means the moths
-  ;; turn to the left (and circle the light counter-clockwise)
-  ;; The direction tendency is assigned to each moth when it is created and does not
-  ;; change during the moth's lifetime.
-  direction
-]
-
-patches-own
-[
-  light-level ;; represents the light energy from all light sources
-]
-
 to setup
   clear-all
-  set-default-shape lights "circle 2"
-  set-default-shape moths "butterfly"
-  set scale-factor 50
-  if number-lights > 0
-  [
-    make-lights number-lights
-    ask patches [ generate-field ]
+  ask patches [
+    ; Start populations at roughly even levels.
+    set pcolor one-of [ red green blue black ]
   ]
-  make-moths number-moths
   reset-ticks
 end
 
 to go
-  ask moths [ move-thru-field ]
+  ; This model uses an event-based approach. It calculates how many events of each type
+  ; should occur each tick and then executes those events in a random order. Event type
+  ; could be signified by any constant. Here, we use a the numbers 0, 1, and 2 to signify
+  ; event type, but then store those numbers in variables with clear names for readability.
+  let swap-event 0
+  let reproduce-event 1
+  let select-event 2
+
+  ; Note that we have to compute the number of global events rather than the number of
+  ; actions that each individual patch performs since the execution of those events has
+  ; to be random between the patches. That is, a single patch can't perform all of their
+  ; actions in one go: suppose they end up executing 5 swaps in one tick. The swaps would
+  ; be shuffling things around locally rather than allowing for an organism to travel
+  ; multiple steps.
+  ; Hence, this code creates a list with an entry for each event type that should occur
+  ; this tick, then shuffles that list so that the events are in a random order. We then
+  ; iterate through the list, and random neighboring patches run the corresponding event.
+  let repetitions count patches / 3 ; At default settings, there will be an average of 1 event per patch.
+  let events shuffle (sentence
+    n-values random-poisson (repetitions * swap-rate)      [ swap-event ]
+    n-values random-poisson (repetitions * reproduce-rate) [ reproduce-event ]
+    n-values random-poisson (repetitions * select-rate)    [ select-event ]
+  )
+
+  foreach events [ event ->
+    ask one-of patches [
+      let target one-of neighbors4
+      if event = swap-event      [ swap target ]
+      if event = reproduce-event [ reproduce target ]
+      if event = select-event    [ select target ]
+    ]
+  ]
   tick
 end
 
-;;;;;;;;;;;;;;;;;;;;;;
-;; Setup Procedures ;;
-;;;;;;;;;;;;;;;;;;;;;;
+; Patch procedures
 
-to make-lights [ number ]
-  create-lights number [
-    set color white
-    jump 10 + random-float (max-pxcor - 30)
-    set intensity random luminance + 20
-    set size sqrt intensity
-  ]
+; Swap PCOLOR with TARGET.
+to swap [ target ]
+  let old-color pcolor
+  set pcolor [ pcolor ] of target
+  ask target [ set pcolor old-color ]
 end
 
-to make-moths [ number ]
-  create-moths number [
-    ifelse (random 2 = 0)
-      [ set direction 1 ]
-      [ set direction -1 ]
-    set color white
-    jump random-float max-pxcor
-    set size 5
-  ]
-end
-
-to generate-field ;; patch procedure
-  set light-level 0
-  ;; every patch needs to check in with every light
-  ask lights
-    [ set-field myself ]
-  set pcolor scale-color blue (sqrt light-level) 0.1 ( sqrt ( 20 * max [intensity] of lights ) )
-end
-
-;; do the calculations for the light on one patch due to one light
-;; which is proportional to the distance from the light squared.
-to set-field [p]  ;; turtle procedure; input p is a patch
-  let rsquared (distance p) ^ 2
-  let amount intensity * scale-factor
-  ifelse rsquared = 0
-    [ set amount amount * 1000 ]
-    [ set amount amount / rsquared ]
-  ask p [ set light-level light-level + amount ]
-end
-
-;;;;;;;;;;;;;;;;;;;;;;;;
-;; Runtime Procedures ;;
-;;;;;;;;;;;;;;;;;;;;;;;;
-
-to move-thru-field    ;; turtle procedure
-  ifelse (light-level <= ( 1 / (10 * sensitivity) ))
-  [
-    ;; if there is no detectable light move randomly
-    rt flutter-amount 45
-  ]
-  [
-    ifelse (random 25 = 0)
-    ;; add some additional randomness to the moth's movement, this allows some small
-    ;; probability that the moth might "escape" from the light.
-    [
-      rt flutter-amount 60
-    ]
-    [
-      ;; turn toward the brightest light
-      maximize
-      ;; if the light ahead is not above the sensitivity threshold  head towards the light
-      ;; otherwise move randomly
-      ifelse ( [light-level] of patch-ahead 1 / light-level > ( 1 + 1 / (10 * sensitivity) ) )
-      [
-        lt ( direction * turn-angle )
-      ]
-      [
-        rt flutter-amount 60
-      ]
+; Compete with TARGET. The loser becomes blank.
+to select [ target ]
+  ifelse beat? target [
+    ask target [ set pcolor black ]
+  ] [
+    if [ beat? myself ] of target [
+      set pcolor black
     ]
   ]
-  if not can-move? 1
-    [ maximize ]
-  fd 1
 end
 
-to maximize  ;; turtle procedure
-  face max-one-of patches in-radius 1 [light-level]
+; If TARGET is blank, reproduce to it. If I'm blank, TARGET reproduces to me.
+to reproduce [ target ]
+  ifelse [ pcolor ] of target = black [
+    ask target [
+      set pcolor [ pcolor ] of myself
+    ]
+  ] [
+    if pcolor = black [
+      set pcolor [ pcolor ] of target
+    ]
+  ]
 end
 
-to-report flutter-amount [limit]
-  ;; This routine takes a number as an input and returns a random value between
-  ;; (+1 * input value) and (-1 * input value).
-  ;; It is used to add a random flutter to the moth's movements
-  report random-float (2 * limit) - limit
+; Determine whether or not I beat TARGET
+to-report beat? [ target ]
+  report (pcolor = red   and [ pcolor ] of target = green) or
+         (pcolor = green and [ pcolor ] of target = blue) or
+         (pcolor = blue  and [ pcolor ] of target = red)
+end
+
+; Utility procedures
+
+to-report rate-from-exponent [ exponent ]
+  report 10 ^ exponent
+end
+
+to-report swap-rate
+  report rate-from-exponent swap-rate-exponent
+end
+
+to-report reproduce-rate
+  report rate-from-exponent reproduce-rate-exponent
+end
+
+to-report select-rate
+  report rate-from-exponent select-rate-exponent
+end
+
+; Convert the given rate to a percentage of how much that action happens
+to-report percentage [ rate ]
+  report 100 * rate / (swap-rate + reproduce-rate + select-rate)
 end
 
 
-; Copyright 2005 Uri Wilensky.
+; Copyright 2017 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-280
+310
 10
-690
-421
+771
+472
 -1
 -1
-2.0
+3.0
 1
 10
 1
 1
 1
 0
-0
-0
 1
--100
-100
--100
-100
+1
+1
+-75
+75
+-75
+75
 1
 1
 1
@@ -167,10 +138,10 @@ ticks
 30.0
 
 BUTTON
-73
-157
-139
-190
+5
+10
+100
+43
 NIL
 setup
 NIL
@@ -183,28 +154,13 @@ NIL
 NIL
 1
 
-SLIDER
-140
-115
-262
-148
-luminance
-luminance
-1
-10
-3.0
-1
-1
-NIL
-HORIZONTAL
-
 BUTTON
-141
-157
-204
-190
+115
+10
+210
+43
 NIL
-go
+go\n
 T
 1
 T
@@ -216,139 +172,160 @@ NIL
 0
 
 SLIDER
-16
-115
-138
-148
-number-lights
-number-lights
-0
 5
-2.0
+55
+210
+88
+swap-rate-exponent
+swap-rate-exponent
+-1
 1
+0.0
+0.1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-54
-80
-226
-113
-number-moths
-number-moths
+5
+100
+210
+133
+reproduce-rate-exponent
+reproduce-rate-exponent
+-1
 1
-20
+0.0
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+5
+145
+210
+178
+select-rate-exponent
+select-rate-exponent
+-1
+1
+0.0
+0.1
+1
+NIL
+HORIZONTAL
+
+PLOT
+5
+190
+305
+470
+Populations
+NIL
+NIL
+0.0
 10.0
-1
-1
-NIL
-HORIZONTAL
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 0 -2674135 true "" "plot count patches with [ pcolor = red ]"
+"pen-1" 1.0 0 -10899396 true "" "plot count patches with [ pcolor = green ]"
+"pen-2" 1.0 0 -13345367 true "" "plot count patches with [ pcolor = blue ]"
 
-SLIDER
-45
-198
-230
-231
-sensitivity
-sensitivity
+MONITOR
+215
+50
+305
+95
+swap-%
+percentage swap-rate
+2
 1
-3
-2.0
-0.25
-1
-NIL
-HORIZONTAL
+11
 
-SLIDER
-45
-233
-230
-266
-turn-angle
-turn-angle
-45
-180
-105.0
-5
+MONITOR
+215
+95
+305
+140
+reproduce-%
+percentage reproduce-rate
+2
 1
-degrees
-HORIZONTAL
+11
+
+MONITOR
+215
+140
+305
+185
+select-%
+percentage select-rate
+2
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model demonstrates moths flying in circles around a light.  Each moth follows a set of simple rules.  None of the rules specify that the moth should seek and then circle a light.  Rather, the observed pattern arises out of the combination of the moth's random flight and the simple behavioral rules described below.
+This model explores the role of movement and space in a three species ecosystem. The system consists of three species, represented by red patches, green patches, and blue patches, which compete over space. The interactions between the species are based on the game Rock-Paper-Scissors. That is, red beats green, green beats blue, and blue beats red. Organisms compete with their neighbors, move throughout the environment, and reproduce. These interactions result in spiral patterns whose size and stability depends on the movement rate of the organisms.
 
-Scientists have proposed several explanations for why moths are attracted to and then circle lights. For example, scientists once believed that moths navigated through the sky by orienting themselves to the moon, and that the moths' attraction to nearby, earthly light sources (such as a street lamp) arose because they mistook the terrestrial lights for the moon.  However, while this explanation may seem reasonable, it is not supported by available scientific evidence.
+The model is written in an event-based fashion, to reflect the formulation of the published model. See HOW IT WORKS and EXTENDING THE MODEL.
 
 ## HOW IT WORKS
 
-Moths exhibit two basic kinds of behavior.  When they detect a light source from a distance (as far as 200 feet away) moths tend to fly straight toward the light.  Then, when moths get close to the light, they tend to turn away from the light in order to avoid it.
+Each patch can be occupied by one of three species or can be blank. The species are represented by three colors: red, green, and blue. Each tick, the following types of events happen at defined average rates:
 
-First, moths sense the light in their immediate vicinity and turn toward the direction where the light is greatest.
+- Select event: Two random neighbors compete with each other. In competition, red beats green, green beats blue, and blue beats red, like in rock paper scissors. The losing patch becomes blanks.
+- Reproduce event: Two random neighbors attempt to reproduce to each other. If one of the neighbors is blank, it acquires the color of the other.
+- Swap event: Two random neighbors swap color. This represents the organisms moving.
 
-Second, moths compare the light immediately ahead of them with the light at their current position.  If the ratio of 'light just ahead' to 'light here' is below a threshold value, then the moths fly forward toward the light.  If the ratio of 'light just ahead' to 'light here' is above a threshold value, then moths turns away from the light.  The threshold is determined by the moths' sensitivity to light.
+The exact number of, for instance, swap events that occur each tick is drawn from a [Poisson distribution](https://en.wikipedia.org/wiki/Poisson_distribution) with mean equal to `(count patches) * 10 ^ swap-rate-exponent`. A Poisson distribution defines how many times a particular event occurs given an average rate for that event assuming that the occurrences of that event are independent. Here, the occurrences of the events of are approximately independent since they're being performed by different organisms.
 
-If the moths do not detect any light, or if there simply are no lights in the space where the moths are flying, then the moths flutter about randomly.
-
-Note that light energy is represented in this model as decreasing with the square of the distance from the light source.  This characteristic is known as a "one over r-squared relationship," and is comparable to the way electrical field strength decreases with the distance from an electrical charge and the way that gravitational field strength decreases with the distance from a massive body.
+The events occur in a random order involving random pairs of neighbors.
 
 ## HOW TO USE IT
 
-Click the SETUP button to create NUMBER-LIGHTS with LUMINANCE and NUMBER-MOTHS.  Click the GO button to start the simulation.
+Press SETUP to initialize the model and GO to run it.
 
-NUMBER-MOTHS:  This slider determines how many lights will be created when the SETUP button is pressed.
+SWAP-RATE-EXPONENT, REPRODUCE-RATE-EXPONENT, and SELECT-RATE-EXPONENT each control the rate at which their respective actions are performed. There will be an average of `count patches * 10 ^ rate-exponent` events each tick for each event type. This means that increasing a slider by `1.0` will result in that event type occurring 10 times more often, no matter what the other sliders are set to. The SWAP-%, REPRODUCE-%, and SELECT-% monitors indicate what percentage of events will be swap, reproduce, and select events (respectively) each tick.
 
-NUMBER-LIGHTS:  This slider determines how many lights will be created when the SETUP button pressed.  Note that this value only affects the model at setup.
-
-LUMINANCE:  This slider influences how bright the lights will be.  When a light is created, it is assigned a luminance of 20 plus a random value between 0 and LUMINANCE. Lights with a higher luminance can be sensed by moths from farther away.  Note that changing LUMINANCE while the model is running has no effect.
-
-SENSITIVITY:  This slider determines how sensitive the moths are to light.  When SENSITIVITY is higher, moths are able to detect a given light source from a greater distance and will turn away from the light source at a greater distance.
-
-TURN-ANGLE:  This slider determines the angle that moths turn away when they sense that the ratio of 'light ahead' to 'light here' is above their threshold value.
+The POPULATIONS plot shows how much of each organism there is over time.
 
 ## THINGS TO NOTICE
 
-When the model begins, notice how moths are attracted to the two lights.  What happens when the lights are created very close together?  What happens when the lights are created very far apart?
+Running the model quickly results in a collection of interconnected spirals in which each species is chasing another species.
 
-Do all of the moths circle the same light?  When a moth begins to circle one light, does it ever change to circling the other light?  Why or why not?
+Global population levels of each of the species oscillate over time.
 
 ## THINGS TO TRY
 
-Run the simulation without any lights.  What can you say about the moths' flight patterns?
-
-With the simulation stopped, use the following values:
-- NUMBER-LIGHTS: 1
-- LUMINANCE: 1
-- NUMBER-MOTHS: 10
-- SENSITIVITY: 1.00
-- TURN-ANGLE: 95
-Notice that, at first, some moths might fly about randomly while others are attracted to the light immediately.  Why?
-
-While the model is running increase SENSITIVITY.  What happens to the moths' flight patterns?  See if you can create conditions in which one or more of the moths can 'escape' from its state of perpetually circling the light.
-
-Vary the TURN-ANGLE.  What happens?  Why do you think the moths behave as observed with different values of TURN-ANGLE?  What value or values do you think are most realistic?
-
-It would be interesting to better understand the flight patterns of the moths in the model.  Add code to the model that allows you to track the movements of one or more moths (for example, by using the pen features).  Do you see a pattern?  Why might such a pattern appear and how can it be altered?
+- What happens as you increase SWAP-RATE-EXPONENT? What happens to the shape and size of the spirals? Why does this happen?
+- What happens as you decrease SWAP-RATE-EXPONENT?
+- Can you find parameter settings that result in the extinction of one of the species? What happens to the other two species?
 
 ## EXTENDING THE MODEL
 
-This model offers only one set of rules for generating moths' circular flight around a light source.  Can you think of different ways to define the rules?
-
-Alternatively, can you imagine a way to model an earlier theory of moth behavior in which moths navigate straight lines by orienting themselves to the moon?  Do rules that allow moths to navigate according to their position relative to the moon lead to the observed circling behavior around light sources that are much, much closer than the far-away moon?
+- Try generalizing the model to more than three species.
+- The model is written in an event-based manner. Try rewriting it in a more idiomatic agent-based way.
 
 ## NETLOGO FEATURES
 
-This model creates a field of light across the patches, using `scale-color` to display the value, and the moths use `face` and `max-one-of` to traverse the light field.
+The model makes heavy use of the `random-poisson` primitive. This primitive is useful when modeling events that happen at various rates. Furthermore, this model uses a technique wherein a list of events is produced and shuffled to simulate the occurrence of each event at each rate while still allowing the events to occur in arbitrary orders.
 
 ## RELATED MODELS
 
-Ants, Ant Lines, Fireflies, Flocking
+Wolf Sheep Predation shows a simpler predator prey model.
 
 ## CREDITS AND REFERENCES
 
-Adams, C.  (1989).  Why are moths attracted to bright lights?  Retrieved May 1, 2005, from http://www.straightdope.com/columns/read/1071/why-are-moths-attracted-to-bright-lights/
+Reichenbach, T., Mobilia, M., & Frey, E. (2008). Self-organization of mobile populations in cyclic competition. Journal of Theoretical Biology, 254(2), 368–383. https://doi.org/10.1016/j.jtbi.2008.05.014
+
+Reichenbach, T., Mobilia, M., & Frey, E. (2007). Mobility promotes and jeopardizes biodiversity in rock-paper-scissors games. Nature, 448(7157), 1046–1049. https://doi.org/10.1038/nature06095
 
 ## HOW TO CITE
 
@@ -356,7 +333,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Wilensky, U. (2005).  NetLogo Moths model.  http://ccl.northwestern.edu/netlogo/models/Moths.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Head, B., Grider, R. and Wilensky, U. (2017).  NetLogo Rock Paper Scissors model.  http://ccl.northwestern.edu/netlogo/models/RockPaperScissors.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
@@ -364,7 +341,7 @@ Please cite the NetLogo software as:
 
 ## COPYRIGHT AND LICENSE
 
-Copyright 2005 Uri Wilensky.
+Copyright 2017 Uri Wilensky.
 
 ![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
 
@@ -372,7 +349,7 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-Share
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 
-<!-- 2005 -->
+<!-- 2017 Cite: Head, B., Grider, R. -->
 @#$#@#$#@
 default
 true
@@ -438,8 +415,8 @@ Circle -7500403 true true 0 0 300
 circle 2
 false
 0
-Circle -7500403 true true 16 16 270
-Circle -16777216 true false 46 46 210
+Circle -7500403 true true 0 0 300
+Circle -16777216 true false 30 30 240
 
 cow
 false
@@ -566,6 +543,22 @@ Polygon -7500403 true true 135 105 90 60 45 45 75 105 135 135
 Polygon -7500403 true true 165 105 165 135 225 105 255 45 210 60
 Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
 
+sheep
+false
+15
+Circle -1 true true 203 65 88
+Circle -1 true true 70 65 162
+Circle -1 true true 150 105 120
+Polygon -7500403 true false 218 120 240 165 255 165 278 120
+Circle -7500403 true false 214 72 67
+Rectangle -1 true true 164 223 179 298
+Polygon -1 true true 45 285 30 285 30 240 15 195 45 210
+Circle -1 true true 3 83 150
+Rectangle -1 true true 65 221 80 296
+Polygon -1 true true 195 285 210 285 210 240 240 210 195 210
+Polygon -7500403 true false 276 85 285 105 302 99 294 83
+Polygon -7500403 true false 219 85 210 105 193 99 201 83
+
 square
 false
 0
@@ -650,6 +643,13 @@ Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
 
+wolf
+false
+0
+Polygon -16777216 true false 253 133 245 131 245 133
+Polygon -7500403 true true 2 194 13 197 30 191 38 193 38 205 20 226 20 257 27 265 38 266 40 260 31 253 31 230 60 206 68 198 75 209 66 228 65 243 82 261 84 268 100 267 103 261 77 239 79 231 100 207 98 196 119 201 143 202 160 195 166 210 172 213 173 238 167 251 160 248 154 265 169 264 178 247 186 240 198 260 200 271 217 271 219 262 207 258 195 230 192 198 210 184 227 164 242 144 259 145 284 151 277 141 293 140 299 134 297 127 273 119 270 105
+Polygon -7500403 true true -1 195 14 180 36 166 40 153 53 140 82 131 134 133 159 126 188 115 227 108 236 102 238 98 268 86 269 92 281 87 269 103 269 113
+
 x
 false
 0
@@ -673,5 +673,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@

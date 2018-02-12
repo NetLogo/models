@@ -89,10 +89,10 @@ ticks
 30.0
 
 MONITOR
-144
-16
-311
-65
+147
+17
+365
+66
 instrument
 (word (instrument-index + 1) \". \" \n(item instrument-index sound:instruments))
 3
@@ -117,10 +117,10 @@ NIL
 1
 
 BUTTON
-317
-32
-372
-65
+376
+31
+431
+64
 -->
 next-instrument
 NIL
@@ -134,10 +134,10 @@ NIL
 1
 
 SLIDER
-21
-103
-173
-136
+22
+79
+174
+112
 velocity
 velocity
 0
@@ -149,10 +149,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-21
+22
+149
 173
-172
-206
+182
 tone
 tone
 0
@@ -164,10 +164,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-181
-158
-274
-191
+200
+139
+293
+172
 Play note
 play
 NIL
@@ -181,10 +181,10 @@ NIL
 1
 
 SLIDER
-21
-137
-173
-170
+22
+113
+174
+146
 duration
 duration
 0
@@ -213,10 +213,10 @@ NIL
 1
 
 BUTTON
-376
-32
-431
-65
+435
+31
+490
+64
 -->|
 last-instrument
 NIL
@@ -230,10 +230,10 @@ NIL
 1
 
 BUTTON
-10
-430
-66
-478
+23
+429
+79
+477
 Save 1
 save 1
 NIL
@@ -247,10 +247,10 @@ NIL
 1
 
 MONITOR
-138
-426
-463
-475
+151
+425
+476
+474
 NIL
 item 1 memory
 3
@@ -258,10 +258,10 @@ item 1 memory
 12
 
 BUTTON
-12
-484
-67
-529
+23
+483
+80
+528
 Save 2
 save 2
 NIL
@@ -275,10 +275,10 @@ NIL
 1
 
 MONITOR
-139
-481
-463
-530
+152
+480
+476
+529
 NIL
 item 2 memory
 3
@@ -286,10 +286,10 @@ item 2 memory
 12
 
 BUTTON
-466
-427
-522
-475
+479
+426
+535
+474
 Play
 run item 1 memory
 NIL
@@ -303,10 +303,10 @@ NIL
 1
 
 BUTTON
-525
-427
-580
-475
+538
+426
+593
+474
 Print
 output-print item 1 memory
 NIL
@@ -320,10 +320,10 @@ NIL
 1
 
 BUTTON
-71
-430
-126
-478
+84
+429
+139
+477
 Clear
 set memory replace-item 1 memory \"\"
 NIL
@@ -337,10 +337,10 @@ NIL
 1
 
 BUTTON
-466
-481
-522
-529
+479
+480
+535
+528
 Play
 run item 2 memory
 NIL
@@ -354,10 +354,10 @@ NIL
 1
 
 BUTTON
-525
-481
-580
-529
+538
+480
+593
+528
 Print
 output-print item 2 memory
 NIL
@@ -371,10 +371,10 @@ NIL
 1
 
 BUTTON
-71
-483
-127
-529
+84
+482
+140
+528
 Clear
 set memory replace-item 2 memory \"\"
 NIL
@@ -388,20 +388,20 @@ NIL
 1
 
 TEXTBOX
-9
-405
-340
-423
-MEMORY BANK ---------------------------------------------
+25
+386
+439
+418
+MEMORY BANK\n-----------------------------------------------------
 12
 0.0
 0
 
 BUTTON
-12
-535
-67
-580
+23
+534
+80
+579
 Save 3
 save 3
 NIL
@@ -415,10 +415,10 @@ NIL
 1
 
 MONITOR
-138
-534
-462
-583
+151
+533
+475
+582
 NIL
 item 3 memory
 3
@@ -426,10 +426,10 @@ item 3 memory
 12
 
 BUTTON
-466
-535
-521
-580
+479
+534
+534
+579
 Play
 run item 3 memory
 NIL
@@ -443,10 +443,10 @@ NIL
 1
 
 BUTTON
-525
-535
-580
-580
+538
+534
+593
+579
 Print
 output-print item 3 memory
 NIL
@@ -460,10 +460,10 @@ NIL
 1
 
 BUTTON
-71
-535
-126
-580
+84
+534
+139
+579
 Clear
 set memory replace-item 3 memory \"\"
 NIL
@@ -477,10 +477,10 @@ NIL
 1
 
 BUTTON
-461
-390
-534
-423
+474
+389
+547
+422
 Play all
 foreach memory run
 NIL
@@ -494,10 +494,10 @@ NIL
 1
 
 BUTTON
-390
-157
-493
-195
+328
+139
+431
+172
 stop music
 sound:stop-music
 NIL
@@ -511,10 +511,10 @@ NIL
 1
 
 BUTTON
-397
-346
-533
-379
+396
+327
+532
+360
 Play C-major chord
 let tmp tone\nforeach [ 60 64 67 ] [ n -> set tone n play ]\nset tone tmp
 NIL
@@ -528,10 +528,10 @@ NIL
 1
 
 BUTTON
-267
-346
-390
-379
+266
+327
+389
+360
 Play C-major scale
 let tmp tone\nforeach c-major-scale [ note ->\n  set tone note\n  play\n  wait duration\n]\nset tone tmp
 NIL
@@ -545,10 +545,10 @@ NIL
 1
 
 MONITOR
-24
-345
-252
-394
+23
+326
+251
+375
 C-major scale
 c-major-scale
 3
@@ -556,10 +556,10 @@ c-major-scale
 12
 
 MONITOR
-180
-104
-481
-153
+181
+80
+544
+129
 NIL
 generate-command
 3
@@ -567,40 +567,20 @@ generate-command
 12
 
 TEXTBOX
-113
-79
-399
-97
----------------------------------------------
-12
-0.0
-0
-
-TEXTBOX
-104
-325
-375
-343
----------------------------------------------
-12
-0.0
-0
-
-TEXTBOX
-564
-51
-654
-408
+610
+55
+700
+412
 48    C\n49    C#\n50    D\n51    D#\n52    E\n53    F\n54    F#/Gb\n55    G\n56    A#/Bb\n57    A\n58    A#/Bb\n59    B\n60    C\n61    C#\n62    D\n63    D#\n64    E\n65    F\n66    F#/Gb\n67    G\n68    A#/Bb\n69    A\n70    A#/Bb\n71    B\n72    C
 12
 0.0
 0
 
 OUTPUT
-21
-208
-452
-323
+22
+193
+546
+308
 12
 
 @#$#@#$#@

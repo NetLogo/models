@@ -2,6 +2,7 @@ package org.nlogo.models
 
 import org.nlogo.core.TokenType
 import org.nlogo.core.TokenType.Command
+import org.nlogo.core.Model
 
 class CodeTests extends TestModels {
 
@@ -109,7 +110,7 @@ class CodeTests extends TestModels {
     "who" -> Seq(
       // Some of the following models may make justifiable use of `who`, but most
       // probably don't. They should be revisited at some point. NP 2015-10-16.
-      "Disease HubNet", "Restaurants HubNet", "Prisoners Dilemma HubNet",
+      "Bidding Market", "Disease HubNet", "Restaurants HubNet", "Prisoners Dilemma HubNet",
       "Disease Doctors HubNet", "Planarity", "Tetris", "PD N-Person Iterated",
       "Minority Game", "Osmotic Pressure", "Scattering", "N-Bodies", "Rope",
       "Speakers", "Raindrops", "GasLab Free Gas", "GasLab Moving Piston",
@@ -119,7 +120,7 @@ class CodeTests extends TestModels {
       "GasLab Maxwells Demon", "GasLab Adiabatic Piston", "Turing Machine 2D",
       "PageRank", "Dining Philosophers", "Team Assembly", "Ants",
       "Simple Birth Rates", "BeeSmart Hive Finding", "Sunflower Biomorphs",
-      "AIDS", "Tumor", "Flocking Vee Formations", "Ant Lines", "Kaleidoscope",
+      "HIV", "Tumor", "Flocking Vee Formations", "Ant Lines", "Kaleidoscope",
       "Geometron Top-Down", "Optical Illusions", "Sound Machines", "Random Walk 360",
       "Expected Value Advanced", "GasLab Free Gas", "Rope",
       "Three Loops Example", "Shapes Example", "Disease With Android Avoidance HubNet",
@@ -260,6 +261,27 @@ class CodeTests extends TestModels {
   val typesToCheck = Set[TokenType](
     TokenType.Ident, TokenType.Command, TokenType.Reporter, TokenType.Keyword
   )
+
+  testModels("Plot names should be case insensitive") { model =>
+    (for {
+      m <- Option(Model)
+      duplicates = new Tokens(model).plotNames.map(_.toLowerCase)
+        .groupBy(identity)
+        .collect { case (x, ys) if ys.size > 1 => x }
+      if (duplicates.nonEmpty)
+    } yield(duplicates.mkString("\n"))).toSet
+  }
+
+  testModels("Plot-pen names should be case insensitive") { model =>
+    (for {
+      plot <- new Tokens(model).plotPenNamesByPlot
+      title = plot._1
+      duplicates = plot._2.map(_.toLowerCase).filter(_.nonEmpty)
+        .groupBy(identity)
+        .collect { case (x, ys) if ys.size > 1 => x }
+      if (duplicates.nonEmpty)
+    } yield(title + " plot: " + duplicates.mkString(", "))).toSet
+  }
 
   testModels("All identifiers should be lowercase") { model =>
     val allowed = nonLowercaseExceptions.getOrElse(model.baseName, Set.empty)

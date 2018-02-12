@@ -31,6 +31,18 @@ class Tokens(model: Model) {
 
   def previewCommandsTokens: Seq[Token] = tokenize(model.previewCommands.source)
 
+  def plotNames: Seq[String] =
+    model.plots.map { plot =>
+      plot.display.getOrElse("")
+    }
+
+  def plotPenNamesByPlot: Seq[(String, Seq[String])] =
+    model.plots.map { plot =>
+      plot.display.getOrElse("") -> plot.pens.map { pen =>
+        pen.display
+      }
+    }
+
   def plotTokens: Seq[Token] =
     model.plots.flatMap { plot =>
       tokenize(plot.setupCode) ++ tokenize(plot.updateCode) ++

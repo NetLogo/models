@@ -820,7 +820,7 @@ In addition to travel and control measures, notice that this model introduces li
 
 ## RELATED MODELS
 
-epiDEM basic, AIDS, Virus and Virus on a Network are related models.
+epiDEM basic, HIV, Virus and Virus on a Network are related models.
 
 ## HOW TO CITE
 

@@ -1,24 +1,29 @@
 globals [
-  percent-similar  ;; on the average, what percent of a turtle's neighbors
-                   ;; are the same color as that turtle?
-  percent-unhappy  ;; what percent of the turtles are unhappy?
+  percent-similar  ; on the average, what percent of a turtle's neighbors
+                   ; are the same color as that turtle?
+  percent-unhappy  ; what percent of the turtles are unhappy?
 ]
 
 turtles-own [
-  happy?           ;; for each turtle, indicates whether at least %-similar-wanted percent of
-                   ;;   that turtle's neighbors are the same color as the turtle
-  similar-nearby   ;; how many neighboring patches have a turtle with my color?
-  other-nearby     ;; how many have a turtle of another color?
-  total-nearby     ;; sum of previous two variables
+  happy?           ; for each turtle, indicates whether at least %-similar-wanted percent of
+                   ;   that turtle's neighbors are the same color as the turtle
+  similar-nearby   ; how many neighboring patches have a turtle with my color?
+  other-nearby     ; how many have a turtle of another color?
+  total-nearby     ; sum of previous two variables
 ]
 
 to setup
   clear-all
-  ;; create turtles on random patches.
+  ; create turtles on random patches.
   ask patches [
-    if random 100 < density [   ;; set the occupancy density
+
+    set pcolor white
+    if random 100 < density [   ; set the occupancy density
       sprout 1 [
-        set color one-of [red green]
+        ; 18 is the color number for "pink"
+        ; 95 is the color number for "blue"
+        set color one-of [18 95]
+        set size 1.1
       ]
     ]
   ]
@@ -27,7 +32,7 @@ to setup
   reset-ticks
 end
 
-;; run the model for one tick
+; run the model for one tick
 to go
   if all? turtles [ happy? ] [ stop ]
   move-unhappy-turtles
@@ -36,30 +41,30 @@ to go
   tick
 end
 
-;; unhappy turtles try a new spot
+; unhappy turtles try a new spot
 to move-unhappy-turtles
   ask turtles with [ not happy? ]
     [ find-new-spot ]
 end
 
-;; move until we find an unoccupied spot
+; move until we find an unoccupied spot
 to find-new-spot
   rt random-float 360
   fd random-float 10
-  if any? other turtles-here [ find-new-spot ] ;; keep going until we find an unoccupied patch
-  move-to patch-here  ;; move to center of patch
+  if any? other turtles-here [ find-new-spot ] ; keep going until we find an unoccupied patch
+  move-to patch-here  ; move to center of patch
 end
 
 to update-turtles
   ask turtles [
-    ;; in next two lines, we use "neighbors" to test the eight patches
-    ;; surrounding the current patch
+    ; in next two lines, we use "neighbors" to test the eight patches
+    ; surrounding the current patch
     set similar-nearby count (turtles-on neighbors)  with [ color = [ color ] of myself ]
     set other-nearby count (turtles-on neighbors) with [ color != [ color ] of myself ]
     set total-nearby similar-nearby + other-nearby
     set happy? similar-nearby >= (%-similar-wanted * total-nearby / 100)
-    ;; add visualization here
-    if visualization = "old" [ set shape "default" ]
+    ; add visualization here
+    if visualization = "old" [ set shape "default" set size 1.3 ]
     if visualization = "square-x" [
       ifelse happy? [ set shape "square" ] [ set shape "square-x" ]
     ]
@@ -78,9 +83,9 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-353
+360
 10
-769
+776
 427
 -1
 -1
@@ -105,10 +110,10 @@ ticks
 30.0
 
 MONITOR
-262
-373
-347
-418
+265
+375
+355
+420
 % unhappy
 percent-unhappy
 1
@@ -116,10 +121,10 @@ percent-unhappy
 11
 
 MONITOR
-264
-233
-339
-278
+265
+225
+340
+270
 % similar
 percent-similar
 1
@@ -127,10 +132,10 @@ percent-similar
 11
 
 PLOT
-13
-141
-262
-284
+10
+140
+259
+285
 Percent Similar
 time
 %
@@ -142,12 +147,12 @@ true
 false
 "" ""
 PENS
-"percent" 1.0 0 -2674135 true "" "plot percent-similar"
+"percent" 1.0 0 -16777216 true "" "plot percent-similar"
 
 SLIDER
-19
+10
 95
-279
+285
 128
 %-similar-wanted
 %-similar-wanted
@@ -160,10 +165,10 @@ SLIDER
 HORIZONTAL
 
 BUTTON
-20
-60
-100
-93
+10
+55
+90
+88
 setup
 setup
 NIL
@@ -178,9 +183,9 @@ NIL
 
 BUTTON
 199
-60
-279
-93
+55
+284
+88
 go
 go
 T
@@ -194,10 +199,10 @@ NIL
 0
 
 BUTTON
-104
-60
-194
-93
+100
+55
+190
+88
 go once
 go
 NIL
@@ -221,9 +226,9 @@ visualization
 1
 
 SLIDER
-26
+11
 10
-281
+286
 43
 density
 density
@@ -236,9 +241,9 @@ density
 HORIZONTAL
 
 PLOT
-14
+9
 293
-257
+259
 443
 Number-unhappy
 NIL
@@ -251,13 +256,13 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -14439633 true "" "plot count turtles with [not happy?]"
+"default" 1.0 0 -16777216 true "" "plot count turtles with [not happy?]"
 
 MONITOR
-261
-325
-349
-370
+265
+315
+355
+360
 num-unhappy
 count turtles with [not happy?]
 1
@@ -265,10 +270,10 @@ count turtles with [not happy?]
 11
 
 MONITOR
-266
-139
-332
-184
+265
+165
+340
+210
 # agents
 count turtles
 1
@@ -278,25 +283,25 @@ count turtles
 @#$#@#$#@
 ## WHAT IS IT?
 
-This project models the behavior of two types of agents in a neighborhood. The red agents and green agents get along with one another. But each agent wants to make sure that it lives near some of "its own." That is, each red agent wants to live near at least some red agents, and each green agent wants to live near at least some green agents. The simulation shows how these individual preferences ripple through the neighborhood, leading to large-scale patterns.
+This project models the behavior of two types of agents in a neighborhood. The pink agents and blue agents get along with one another. But each agent wants to make sure that it lives near some of "its own." That is, each pink agent wants to live near at least some pink agents, and each blue agent wants to live near at least some blue agents. The simulation shows how these individual preferences ripple through the neighborhood, leading to large-scale patterns.
 
 This project was inspired by Thomas Schelling's writings about social systems (such as housing patterns in cities).
 
 ## HOW TO USE IT
 
-Click the SETUP button to set up the agents. There are approximately equal numbers of red and green agents. The agents are set up so no patch has more than one agent.  Click GO to start the simulation. If agents don't have enough same-color neighbors, they move to a nearby patch. (The topology is wrapping, so that patches on the bottom edge are neighbors with patches on the top and similar for left and right).
+Click the SETUP button to set up the agents. There are approximately equal numbers of pink and blue agents. The agents are set up so no patch has more than one agent.  Click GO to start the simulation. If agents don't have enough same-color neighbors, they move to a nearby patch. (The topology is wrapping, so that patches on the bottom edge are neighbors with patches on the top and similar for left and right).
 
-The DENSITY slider controls the occupancy density of the neighborhood (and thus the total number of agents). (It takes effect the next time you click SETUP.)  The %-SIMILAR-WANTED slider controls the percentage of same-color agents that each agent wants among its neighbors. For example, if the slider is set at 30, each green agent wants at least 30% of its neighbors to be green agents.
+The DENSITY slider controls the occupancy density of the neighborhood (and thus the total number of agents). (It takes effect the next time you click SETUP.)  The %-SIMILAR-WANTED slider controls the percentage of same-color agents that each agent wants among its neighbors. For example, if the slider is set at 30, each blue agent wants at least 30% of its neighbors to be blue agents.
 
-The % SIMILAR monitor shows the average percentage of same-color neighbors for each agent. It starts at about 50%, since each agent starts (on average) with an equal number of red and green agents as neighbors. The NUM-UNHAPPY monitor shows the number of unhappy agents, and the % UNHAPPY monitor shows the percent of agents that have fewer same-color neighbors than they want (and thus want to move). The % SIMILAR and the NUM-UNHAPPY monitors are also plotted.
+The % SIMILAR monitor shows the average percentage of same-color neighbors for each agent. It starts at about 50%, since each agent starts (on average) with an equal number of pink and blue agents as neighbors. The NUM-UNHAPPY monitor shows the number of unhappy agents, and the % UNHAPPY monitor shows the percent of agents that have fewer same-color neighbors than they want (and thus want to move). The % SIMILAR and the NUM-UNHAPPY monitors are also plotted.
 
 The VISUALIZATION chooser gives two options for visualizing the agents. The OLD option uses the visualization that was used by the segregation model in the past. The SQUARE-X option visualizes the agents as squares. The agents have X's in them if they are unhappy.
 
 ## THINGS TO NOTICE
 
-When you execute SETUP, the red and green agents are randomly distributed throughout the neighborhood. But many agents are "unhappy" since they don't have enough same-color neighbors. The unhappy agents move to new locations in the vicinity. But in the new locations, they might tip the balance of the local population, prompting other agents to leave. If a few red agents move into an area, the local green agents might leave. But when the green agents move to a new area, they might prompt red agents to leave that area.
+When you execute SETUP, the pink and blue agents are randomly distributed throughout the neighborhood. But many agents are "unhappy" since they don't have enough same-color neighbors. The unhappy agents move to new locations in the vicinity. But in the new locations, they might tip the balance of the local population, prompting other agents to leave. If a few  agents move into an area, the local blue agents might leave. But when the blue agents move to a new area, they might prompt pink agents to leave that area.
 
-Over time, the number of unhappy agents decreases. But the neighborhood becomes more segregated, with clusters of red agents and clusters of green agents.
+Over time, the number of unhappy agents decreases. But the neighborhood becomes more segregated, with clusters of pink agents and clusters of blue agents.
 
 In the case where each agent wants at least 30% same-color neighbors, the agents end up with (on average) 70% same-color neighbors. So relatively small individual preferences can lead to significant overall segregation.
 
@@ -332,7 +337,7 @@ Note two different methods that can be used for find-new-spot, one of them (the 
 
 Schelling, T. (1978). Micromotives and Macrobehavior. New York: Norton.
 
-See also: Rauch, J. (2002). Seeing Around Corners; The Atlantic Monthly; April 2002;Volume 289, No. 4; 35-48. http://www.theatlantic.com/magazine/archive/2002/04/seeing-around-corners/302471/
+See also: Rauch, J. (2002). Seeing Around Corners; The Atlantic Monthly; April 2002;Volume 289, No. 4; 35-48. https://www.theatlantic.com/magazine/archive/2002/04/seeing-around-corners/302471/
 
 ## HOW TO CITE
 
@@ -715,5 +720,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@

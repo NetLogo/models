@@ -534,7 +534,7 @@ The plot uses temporary plot pens, rather than a fixed set of permanent plot pen
 
 * Disease (HubNet version)
 * Virus
-* AIDS
+* HIV
 
 ## CREDITS AND REFERENCES
 

@@ -468,7 +468,7 @@ Notice that R_0 calculated in this model is a numerical estimate to the analytic
 
 ## RELATED MODELS
 
-AIDS, Virus and Virus on a Network are related models.
+HIV, Virus and Virus on a Network are related models.
 
 ## HOW TO CITE
 

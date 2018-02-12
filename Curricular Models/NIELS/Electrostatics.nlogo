@@ -1,121 +1,134 @@
-breed [centers center]
 breed [particles particle]
 
 particles-own [
-  fx     ;; x-component of force vector
-  fy     ;; y-component of force vector
-  vx     ;; x-component of velocity vector
-  vy     ;; y-component of velocity vector
+  my-charge ; the charge of the particle
+  fx     ; x-component of force vector
+  fy     ; y-component of force vector
+  vx     ; x-component of velocity vector
+  vy     ; y-component of velocity vector
 ]
 
 globals [
-  r          ;; distance between particle and center
-  potential  ;; potential energy of particle
-  force      ;; modulus of force vector
-  previous-permittivity ;; the last recorded value of permittivity
-  c-charge   ;; charge of the center particle
+  q1         ; the first particle
+  q2         ; the second particle (a proton) that the user moves
+  force      ; modulus of force vector
+  previous-permittivity ; the last recorded value of permittivity
 ]
 
-;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Setup Procedures ;;;
-;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;
+;; Setup Procedures ;;
+;;;;;;;;;;;;;;;;;;;;;;
 
 to setup
   clear-all
   set-default-shape turtles "circle"
   ask patches [ set pcolor background ]
   set previous-permittivity permittivity
-  set c-charge abs charge
-  create-centers 1 [
+  create-particles 1 [
+    set q2 self
+    set my-charge abs charge
     set size 20
-    set color gray
+    set label my-charge
     hide-turtle
   ]
   create-particles 1 [
-    set color blue
+    set q1 self
+    set my-charge charge
     set size 10
+    set label my-charge
     fd random-float (max-pxcor - 6)
   ]
+
+  ask particles [ color-by-charge set label-color black ]
+
   reset-ticks
 end
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Runtime Procedures ;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;
+;; Runtime Procedures ;;
+;;;;;;;;;;;;;;;;;;;;;;;;
 
 to go
-  if not any? particles [ stop ]
-  ;; label the particles with the appropriate charge
-  ask particles [ set label charge ]
-  ;; color the patches for the appropriate permittivity
-  ;; if the permittivity slider has changed
-  if permittivity != previous-permittivity
-  [
+  ; if q1 has moved off the view, we stop
+  if q1 = nobody [ stop ]
+
+  ; color the patches for the appropriate permittivity
+  ; if the permittivity slider has changed
+  if permittivity != previous-permittivity [
     ask patches [ set pcolor background ]
     set previous-permittivity permittivity
   ]
-  set c-charge abs charge
-  if mouse-down?
-  [
-    ask centers [ show-turtle ]
-    every 0.1
-    [
-      ;; Get the mouse(mass) position.
-      let m-xc mouse-xcor
-      let m-yc mouse-ycor
-      ask centers
-      [
-        setxy m-xc m-yc
-        set label c-charge
+
+  ; update the charges of both particles if necessary
+  ask q1 [
+    set my-charge charge
+    color-by-charge
+    set label my-charge
+  ]
+  ask q2 [
+    set my-charge abs charge
+    set label my-charge
+  ]
+
+  if mouse-down? [
+    ask q2 [ show-turtle ]
+    every 0.1 [
+      ; Get the mouse(mass) position.
+      ask q2 [
+        setxy mouse-xcor mouse-ycor
+        set label my-charge
       ]
-      ask particles [
+
+      ask q1 [
         update-force
         move
       ]
-      ask particles [ calculate-potential-energy ]
+
       fade-patches
-      tick
     ]
   ]
+  tick
 end
 
-to update-force  ;; particle procedure
-  set r distance one-of centers
-  ;; if r = 0, then it's at the mass, and then the model stops;
-  ;; prevents divide by zero
+to update-force  ; particle procedure
+  let r distance q2
+  ; if r = 0, then it's at the mass, and then the model stops;
   if r = 0 [ die ]
-  ;; Calculate force using inverse square law
-  set force (- charge) * c-charge / (r ^ 2)
-  ;; Separate force into x and y components
-  face one-of centers
+  ; prevents divide by zero
+  ; Calculate force using inverse square law
+  set force (- [my-charge] of q1) * ([my-charge] of q2) / (r ^ 2)
+  ; Separate force into x and y components
+  face q2
   set fx force * dx
   set fy force * dy
 end
 
-to move  ;; particle procedure
-  ;; update the particle's velocity, by taking the old velocity and
-  ;; adding the force to it.
+to move  ; particle procedure
+  ; update the particle's velocity, by taking the old velocity and
+  ; adding the force to it.
   set vx vx + fx * permittivity
   set vy vy + fy * permittivity
-  ;; disappear if we reached the edge
-  if patch-at vx vy = nobody [ die ]
-  ;; update the particle's position
+
+  ; disappear if we reached the edge
+  if abs (ycor + vy) > max-pycor or abs (xcor + vx) > max-pxcor [ die ]
+
+  ; update the particle's position
   setxy (xcor + vx) (ycor + vy)
-  ;; leave a trail
+  ; leave a trail
   set pcolor background - 5
 end
 
-to calculate-potential-energy  ;; particle procedure
-  set r distance one-of centers
-  set potential charge / r
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;; Visual Procedures ;;
+;;;;;;;;;;;;;;;;;;;;;;;
+
+to color-by-charge ; turtle procedure
+  ifelse my-charge < 0 [ set color orange ] [ set color blue ]
 end
 
-;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Visual Procedures ;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;
-
 to-report background
-  report permittivity * 8 + 5
+  report cyan + permittivity * 0.5
 end
 
 to fade-patches
@@ -129,9 +142,9 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-194
+192
 10
-704
+702
 521
 -1
 -1
@@ -242,10 +255,10 @@ potential
 0.0
 1.0
 true
-true
-"" ""
+false
+"" "if not mouse-down? [ stop ]"
 PENS
-"potential" 1.0 0 -16777216 true "" "plot potential"
+"potential" 1.0 0 -16777216 true "" "if q1 != nobody [ plot [my-charge / distance q2] of q1 ]"
 
 SLIDER
 7
@@ -279,7 +292,7 @@ MONITOR
 173
 412
 distance (r)
-r
+[distance q2] of q1
 3
 1
 11
@@ -290,7 +303,7 @@ MONITOR
 172
 363
 potential energy
-potential
+[my-charge / distance q2] of q1
 3
 1
 11
@@ -309,9 +322,9 @@ distance
 10.0
 true
 false
-"" ""
+"" "if not mouse-down? [ stop ]"
 PENS
-"r" 1.0 0 -16777216 true "" "plot r"
+"r" 1.0 0 -16777216 true "" "if q1 != nobody [ plot [distance q2] of q1 ]"
 
 PLOT
 709
@@ -327,7 +340,7 @@ force
 0.05
 true
 false
-"" ""
+"" "if not mouse-down? [ stop ]"
 PENS
 "force" 1.0 0 -16777216 true "" "plot force"
 
@@ -347,7 +360,7 @@ In this formula:
 - "Permittivity", the constant of proportionality here, is a property of the medium in which the two charges q1 and q2 are situated.
 - "r" is the distance between the centers of the two charges.
 
-This is a single force two body model, where we have a charge q1 (the blue particle that is created when you press SETUP) and a proton (q2) (the gray particle that appears  when you press the mouse button in the view).  The force is entirely one-way: only q1 is attracted towards (or repelled from) the proton (q2), while the proton (q2) remains unaffected.  Note that this is purely for purposes of simulation.  In the real world, Coulomb's force acts on all bodies around it.
+This is a single force two body model, where we have a charge q1 (the particle that is created when you press SETUP) and a proton (q2) (the blue particle that appears when you press the mouse button in the view).  If a particle is positively charged, it is colored blue. If it's negatively charged, it will be orange. The force is entirely one-way: only q1 is attracted towards (or repelled from) the proton (q2), while the proton (q2) remains unaffected.  Note that this is purely for purposes of simulation.  In the real world, Coulomb's force acts on all bodies around it.
 
 Gravity is another example of an inverse square force.  Roughly speaking, our solar system resembles a nucleus (sun) with electrons (planets) orbiting around it.
 
@@ -357,17 +370,17 @@ For certain values of q1 (which you can control by using the CHARGE slider), you
 
 When you press the SETUP button, the charge q1 is created in a medium determined by the permittivity value from the PERMITTIVITY slider. When you click and hold down the mouse anywhere within the view, the model creates a unit of positive charge (q2) at the position of the mouse.
 
-The CHARGE slider sets the value of the charge on q1.  First, select the value of CHARGE on q1.  (For simulation ease, value of the Charge on q2 is set to be +1 unit.  Thus, it also determines at what distances the particles can safely orbit before they get sucked in by an overwhelming force.)
+The CHARGE slider sets the value of the charge on q1.  First, select the value of CHARGE on q1. You will see that the color of q1 reflects its charge. (For simulation ease, value of the charge on q2 is set to be the absolute value of this charge. Thus, it also determines at what distances the particles can safely orbit before they get sucked in by an overwhelming force.)
 
 The FADE-RATE slider controls how fast the paths marked by the particles fade.  At 100% there won't be any paths as they fade immediately, and at 0% the paths won't fade at all.
 
-The PERMITTIVITY slider allows you to change values of the constant of proportionality in Coulomb's law. What does this variable depend on -- the charges, or the medium in which the charges are immersed?
+The PERMITTIVITY slider allows you to change values of the constant of proportionality in Coulomb's law. What does this variable manipulate? The charges or the medium in which the charges are immersed?
 
-When the sliders have been set to desirable levels, press the GO button to begin the simulation.  Move the mouse to where you wish q2 to begin, and click and hold the mouse button. This will start the particles moving. If you wish to stop the simulation (say, to change the value of CHARGE), release the mouse button and the particles will stop moving.  You may then change any settings you wish.  Then, to continue the simulation, simply put your mouse in the window again and click and hold. Objects in the window will only move while the mouse button is pressed down within the window.
+When the sliders have been set to desirable levels, press the GO button to begin the simulation.  Move the mouse to where you wish q2 to begin, and click and hold the mouse button. This will start the particles moving. If you wish to stop the simulation (say, to change the value of CHARGE), release the mouse button and the particles will stop moving. You may then change any settings you wish. Then, to continue the simulation, simply put your mouse in the window again and click and hold. Objects in the window will only move while the mouse button is pressed down within the window.
 
 ## THINGS TO NOTICE
 
-The most important thing to observe is the behavior of the q1 (the blue charge).
+The most important thing to observe is the behavior of q1, the particle first placed in the world at SETUP.
 
 What is the initial velocity for q1?
 
@@ -375,13 +388,13 @@ What happens as you change the value of q1 from negative to positive?
 
 As you run the model, watch the graphs on the right hand side of the world. What can you infer from the graphs about the relationship between potential energy and distance between charges? What can you say about the relationship between Coulomb's force and distance between the charges from the graphs?
 
-Move the mouse around -- watch what happens if you move it quickly or slowly. Jiggle it around in a single place, or let it sit still.  Observe what patterns the particles fall into.  (You may keep FADE-RATE low to watch this explicitly.)
+Move the mouse around and watch what happens if you move it quickly or slowly. Jiggle it around in a single place, or let it sit still. Observe what patterns the particles fall into. (You may keep FADE-RATE low to watch this explicitly.)
 
 ## THINGS TO TRY
 
 Run the simulation playing with different values of:
-a) charge -- make sure to watch how different values of the CHARGE slider impact the model for any fixed value of permittivity.
-b) permittivity -- make sure to watch how different values of the PERMITTIVITY slider impact the model for any fixed value of charge.
+a) charge - make sure to watch how different values of the CHARGE slider impact the model for any fixed value of permittivity.
+b) permittivity - make sure to watch how different values of the PERMITTIVITY slider impact the model for any fixed value of charge.
 
 Can you make q1 revolve around q2?  Imagine, if q1 would be an electron and q2 a proton, then you have just built a hydrogen atom...
 
@@ -394,7 +407,7 @@ In each case, take 8 to 10 data points.  Plot your results by hand or by any plo
 
 ## EXTENDING THE MODEL
 
-Assign a fixed position to the proton (q1), i.e., make it independent of the mouse position.  Assign a variable to its magnitude.
+Assign a fixed position to the proton (q1), i.e., make it independent of the mouse position. Assign a variable to its magnitude.
 
 Now create another charge of the breed "centers", and assign a fixed position to it in the graphics window.  Run the model for different positions, magnitude and signs (i.e., "+"ve or "-"ve) of the new "center".
 
@@ -402,7 +415,7 @@ Create many test-charges.  Then place the two "centers", of opposite signs and c
 
 ## RELATED MODELS
 
-Gravitation
+* Gravitation
 
 ## NETLOGO FEATURES
 

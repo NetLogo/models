@@ -498,10 +498,11 @@ all of the other models in the Fractals section of the Models Library (under Mat
 
 You may find more information on L-System fractals in the following locations:
 
-This site offers a nice history and explanation of L-system fractals as well as quit a few classic examples of L-systems.
-http://www.nahee.com/spanky/www/fractint/lsys/tutor.html
+This site offers some explanation and quite a few classic examples of L-systems.
+http://www.kevs3d.co.uk/dev/lsystems/#
 
-This site offers an introduction to fractals, including L-system fractals as well as others: http://web.cs.wpi.edu/~matt/courses/cs563/talks/cbyrd/pres1.html.
+This site offers an introduction to fractals, including L-system fractals as well as others:
+http://web.cs.wpi.edu/~matt/courses/cs563/talks/cbyrd/pres1.html
 
 _The Fractal Geometry of Nature_ by Benoit Mandelbrot
 

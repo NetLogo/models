@@ -415,7 +415,7 @@ Does the circle visualization make it easier for you to see what is happening?
 
 ## RELATED MODELS
 
-* AIDS
+* HIV
 * Virus on a Network
 
 ## CREDITS AND REFERENCES

@@ -160,7 +160,7 @@ In this version of the code, the agentset for the lottery (`turtles`) and the re
 
 ## RELATED MODELS
 
-Preferential Attachment, in the Networks section of Sample Models, uses this code.
+The Rnd Example model, in the Extensions Examples section of the Code Examples, shows how to achieve similar results using the `rnd` extension bundled with NetLogo.
 
 <!-- 2004 -->
 @#$#@#$#@

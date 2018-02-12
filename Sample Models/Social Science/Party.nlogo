@@ -86,8 +86,8 @@ end
 
 to spread-out-vertically  ;; turtle procedure
   ifelse woman?
-    [ set heading 180 ]  ;; face north
-    [ set heading   0 ]  ;; face south
+    [ set heading 180 ]  ;; face south
+    [ set heading   0 ]  ;; face north
   fd 4                   ;; leave a gap
   while [any? other turtles-here] [
     if-else can-move? 2 [

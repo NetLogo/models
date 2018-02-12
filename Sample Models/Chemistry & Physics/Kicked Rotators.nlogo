@@ -220,7 +220,7 @@ For more info on what a kicked rotator is, check out the Kicked Rotator model in
 
 ## HOW IT WORKS
 
-The model generates a number of turtles, each representing a kicked rotator with a unique starting angular position and momentum. Then, at each tick, the model 'kicks' each rotator, changing both its momentum and angular position. The turtle then 'stamps' a copy of itself onto the view with the location representing its current momentum and angular position. Each turtle repeats this process at each tick, creating an overall [phase portrait](http://mathworld.wolfram.com/PhasePortrait.html) via a [Poincare return map](https://en.wikipedia.org/wiki/Poincaré_map). This continues for as long as the model is run.
+The model generates a number of turtles, each representing a kicked rotator with a unique starting angular position and momentum. Then, at each tick, the model 'kicks' each rotator, changing both its momentum and angular position. The turtle then 'stamps' a copy of itself onto the view with the location representing its current momentum and angular position. Each turtle repeats this process at each tick, creating an overall [phase portrait](http://mathworld.wolfram.com/PhasePortrait.html) via a [Poincare return map](https://en.wikipedia.org/wiki/Poincare_map). This continues for as long as the model is run.
 
 For more info on how each individual rotator (turtle) works,  checkout the Kicked Rotator model.
 
