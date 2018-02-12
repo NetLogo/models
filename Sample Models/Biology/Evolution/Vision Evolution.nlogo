@@ -132,27 +132,6 @@ to move
   ]
 end
 
-
-to-report rad-size [ eye ]
-  ; Eye size determines the radius of the field of vision
-  ; The effect of eye size on the field of vision under water vs on land is vastly different
-  report ifelse-value ( ycor < 0 ) [ eye / max-eye-size + 3 ] [ ( eye ) ^ 2 + 3 ]
-end
-
-
-to-report weighted-distance [ weight ]
-  ; Distance is weighted based on preference
-  ; This is a multiplier used to emphasize the effect of the preference
-  let mult 3
-  ; Exponentials are used to model the weight of the food prefence
-  ; Being close to 0.5 has little effect, but getting closer to one or zero has big effects
-  let dist ifelse-value ( ycor < 0 )
-  [ (distance myself) * exp ((weight - 0.5)* mult) ]
-  [ (distance myself) * exp ((0.5 - weight)* mult) ]
-  report dist
-end
-
-
 to consume-energy
   ; Moving consumes energy, organisms adapted to water consume more energy on land
   ifelse ycor < 0
@@ -217,9 +196,9 @@ to replenish-food
 end
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;; OBSERVABLES ;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; OBSERVABLES / HELPERS ;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to-report avg-eye-size [ agentset ]
   let val ifelse-value (any? agentset)
@@ -227,6 +206,27 @@ to-report avg-eye-size [ agentset ]
     [ 1 ]
   report val
 end
+
+
+to-report rad-size [ eye ]
+  ; Eye size determines the radius of the field of vision
+  ; The effect of eye size on the field of vision under water vs on land is vastly different
+  report ifelse-value ( ycor < 0 ) [ eye / max-eye-size + 3 ] [ ( eye ) ^ 2 + 3 ]
+end
+
+
+to-report weighted-distance [ weight ]
+  ; Distance is weighted based on preference
+  ; This is a multiplier used to emphasize the effect of the preference
+  let mult 3
+  ; Exponentials are used to model the weight of the food prefence
+  ; Being close to 0.5 has little effect, but getting closer to one or zero has big effects
+  let dist ifelse-value ( ycor < 0 )
+  [ (distance myself) * exp ((weight - 0.5)* mult) ]
+  [ (distance myself) * exp ((0.5 - weight)* mult) ]
+  report dist
+end
+
 
 
 ; Copyright 2018 Uri Wilensky.
@@ -519,25 +519,33 @@ HORIZONTAL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model explores the potential relationship between our early ancestors' transformation from water to land and the evolution of their eyes.
+This model explores the potential relationship between our early ancestors' transition from water to land and the evolution of their eyes.
 
 Around 385 million years ago, vertebrates inhabiting underwater environments began to evolve to live on land. A recent study by MacIver et al. (2017) suggests that the radical fin-to-limb transformation of early tetrapods (vertebrates with four limbs) was accompanied by a radical change in eye size. This would have dramatically increased the visual perception space of these tetrapods, allowing them to observe the abundant food sources on land, and thus aiding their selection for limbs. In this model, we investigate the interplay between eye size and the fin-to-limb transformation, as well as the emergence of terrestrial vertebrates with large eyes.
 
 ## HOW IT WORKS
 
-This model aims to simulate the transition of vertebrates from life underwater to life on land. Thus half the world, in our simulation is underwater, and the other half is land. The agents in our model, are fish initially swimming underwater. We refer to the agents in this model as fish for simplicity purposes, however we think about them more of as vertebrates that are on the brink of transitioning to terrestrial life. At the beginning of our simulation, we can indeed think of these agents as aquatic tetrapods, however as time goes by, they evolve and some of them transition to life on land. In addition there are other organisms that these fish prey upon, we refer to them as food in our model, but we can think of them as invertebrates that inhabit water as well as land. Each agent or fish has certain characteristics. These are listed below.
+This model aims to simulate the transition of vertebrates from life underwater to life on land. Thus half the world in our simulation is underwater, and the other half is land. The agents in our model are fish initially swimming underwater. We refer to the agents in this model as fish for simplicity purposes, however we think about them more of as vertebrates that are on the brink of transitioning to terrestrial life. At the beginning of our simulation, we can indeed think of these agents as aquatic tetrapods, however as time goes by, they evolve and some of them transition to life on land. 
 
-* EYE-SIZE: This is a real number between 1 and the parameter MAX-EYE-SIZE set by the user. Eye-size determines the radius of the field of vision of the fish. For the sake of simplicity, we assume that fish have a field of vision of 360 degrees. Since a typical field of vision of fish is 305 degrees, this assumption is justified. We note that the radius of the field of vision also depends on whether the fish is on land or underwater. Since visibility is very poor underwater, the radius of the field of vision underwater, is significantly smaller than it is on land. Furthermore an increase in eye-size provides little improvement to the radius of the field of vision underwater, but provides a dramatic improvement to the radius of the field of vision on land.
+In addition there are other organisms that these fish prey upon. We refer to them as food in our model, but we can think of them as invertebrates that inhabit water as well as land. 
 
-* LAND-MOBILITY: This characteristic is a real number between 0 and 1, and it models how well adapted the fish is, to life underwater or on land. This characteristic aims to capture the morphology of the fish (or vertebrate) as it undergoes the fin-to-limb transformation, and how this relates to its locomotion. If this characteristic is 0, this means that the fish is completely adapted to life underwater, and is likely to have fins. It means that the fish can move underwater quickly and without a lot of effort. However it can hardly move on land, and would have to spend a lot of energy to cover a small distance on land. Similarly, if land-mobility is 1, the organism is adapted to life on land, and is likely to have limbs. For example, applying this characteristic to real world species we could suppose that a clown fish would have a land-mobility value of almost 0. A crocodile would have a land-mobility value of approximately 0.25. A frog would have a land-mobility value of 0.5, and finally a cat would have a land-mobility value of almost 1.
+Each agent or fish has certain characteristics. These are listed below.
 
-* LAND-FOOD-PREFERENCE: This value is also a real number between 0 and 1. This characteristic aims to capture the food preference of the fish; specifically whether it prefers food on land or food underwater. The intuition behind this characteristic is that a terrestrial animal would be more likely to hunt and eat another terrestrial animal, and would be less likely to hunt an aquatic animal.
+* EYE-SIZE: This is a real number between 1 and the parameter MAX-EYE-SIZE set by the user. Eye-size determines the radius of the field of vision of the fish. For the sake of simplicity, we assume that fish have a field of vision of 360 degrees. Since a typical field of vision of fish is 305 degrees, this assumption is justified. We note that the radius of the field of vision also depends on whether the fish is on land or underwater. Since visibility is very poor underwater, the radius of the field of vision underwater is significantly smaller than it is on land. Furthermore, an increase in eye-size provides little improvement to the radius of the field of vision underwater, but provides a dramatic improvement to the radius of the field of vision on land.
+
+* LAND-MOBILITY: This characteristic is a real number between 0 and 1, and it models how well adapted the fish is to life underwater or on land. This characteristic aims to capture the morphology of the fish (or vertebrate) as it undergoes the fin-to-limb transformation, and how this relates to its locomotion. If this characteristic is 0, this means that the fish is completely adapted to life underwater and is likely to have fins. It means that the fish can move underwater quickly and without a lot of effort. However, it can hardly move on land and would have to spend a lot of energy to cover a small distance on land. Similarly, if land-mobility is 1 the organism is adapted to life on land and is likely to have limbs. For example, applying this characteristic to real world species we could suppose that a clown fish would have a land-mobility value of almost 0, a crocodile would have a land-mobility value of approximately 0.25, a frog would have a land-mobility value of 0.5, and finally a cat would have a land-mobility value of almost 1.
+
+* LAND-FOOD-PREFERENCE: This value is also a real number between 0 and 1. This characteristic aims to capture the food preference of the fish–specifically whether it prefers food on land or food underwater. The intuition behind this characteristic is that a terrestrial animal would be more likely to hunt and eat another terrestrial animal and would be less likely to hunt an aquatic animal.
 
 * ENERGY: This characteristic is used to model the level of nutrition of the fish, which is in a sense, the level of energy of the fish. Fish gain energy from consuming food, and lose energy as they move, and as they reproduce.
 
-Initially, each fish are located underwater, because they have not made the transition to land yet. They have the smallest eye size possible, since visibility is very low underwater. They are completely adapted to life underwater, so they move fast and consume little energy underwater. But move very slowly and consume a lot of energy on land. Each fish has a random preference towards food on land or on water. This could be explained by genetic variability and the scarcity of food underwater compared to that of on land.
+Initially, the fish are located underwater, because they have not made the transition to land yet. They have the smallest eye size possible since visibility is very low underwater. And they are completely adapted to life underwater, so they move fast and consume little energy underwater. This means that they move very slowly and consume a lot of energy on land. Each fish has a random preference towards food on land or underwater water. This could be explained by genetic variability and the scarcity of food underwater compared to that of on land.
 
-At each time step, each fish moves. If there is food in the field of vision of the fish, then it moves toward the food, otherwise it just moves randomly. The speed of their movement depends upon their land-mobility value and whether they are on land or underwater. Fish with low land-mobility values move fast underwater and slowly on land. The food remain stationary. As the fish move, they consume energy. How much energy they consume, again depends on their land-mobility value and whether they are underwater or on land. Fish with low land-mobility values consume less energy underwater than on land. Energy consumption also depends on the eye size of the fish. Having larger eyes cost more energy, since they require more resources to operate. If a fish reaches a food, it kills the food and gains energy. If the energy value of a fish goes below zero, it dies. The fish reproduce at a fixed rate, if their  energy level exceeds a certain threshold. When a fish reproduces, its energy is divided between it and its offspring. Furthermore, the offspring genetically inherits the other characteristics of its parent, however each of these characteristics are mutated. The rate of mutation is determined by the user, and will be explained in more detail in the next section. There is a fixed probability that a new food appears at each time step.
+At each time step, each fish moves. If there is food in the field of vision of the fish, then it moves toward the food, otherwise it just moves randomly. The speed of their movement depends upon their land-mobility value and whether they are on land or underwater. Fish with low land-mobility values move fast underwater and slowly on land. The food remain stationary. As the fish move, they consume energy. How much energy they consume, again depends on their land-mobility value and whether they are underwater or on land. Fish with low land-mobility values consume less energy underwater than on land. 
+
+Energy consumption also depends on the eye size of the fish. Having larger eyes cost more energy, since they require more resources to operate. If a fish reaches food, it kills the food and gains energy. There is a fixed probability that a new food appears at each time step.
+
+If the energy value of a fish goes below zero, it dies. The fish reproduce at a fixed rate: if their  energy level exceeds a certain threshold. When a fish reproduces, its energy is divided between it and its offspring. Furthermore, the offspring genetically inherits the other characteristics of its parent, however each of these characteristics are mutated. The rate of mutation is determined by the user.
 
 ## HOW TO USE IT
 
@@ -563,7 +571,7 @@ Use the EYE-COST slider to set how much energy having large eyes costs.
 
 Use the MAX-EYE-SIZE slider to set the maximum size the eyes of a fish can evolve to.
 
-The shade of each fish represents the land-mobility value of that fish. The lighter colored fish have lower land mobility values, i.e. they’re more adapted to live underwater. Similarly, the darker colored fish have higher land-mobility values, that is they’re more adapted to live on land.
+The shade of each fish represents the land-mobility value of that fish. The lighter colored fish have lower land mobility values (i.e. they’re more adapted to live underwater). Similarly, the darker colored fish have higher land-mobility values, that is they’re more adapted to live on land.
 
 The plot of the average eye size displays the average eye size of two populations as a function of time. The terrestrial population consists of fish with land-mobility values greater than 0.5, while the aquatic population consists of fish with land-mobility values less than 0.5.
 
@@ -577,27 +585,27 @@ The Food Preference Histogram depicts the food source preferences of all fish at
 
 ## THINGS TO NOTICE
 
-Notice that after the food population size peaks, a sudden jump in the fish population size follows and suddenly fish start to move on land. After that point, notice how the histogram of the land-mobility characteristic tends to have two peaks at the ends of the spectrum, indicating two populations: terrestrials and aquatics.
+Notice that after the food population size peaks, a sudden jump in the fish population size follows and fish start to move on land. After that point, notice how the histogram of the land-mobility characteristic tends to have two peaks at the ends of the spectrum indicating two populations: terrestrials and aquatics.
 
 Notice that after a while, the average eye size of the terrestrial population triples in size, where the eye size of the aquatic population tends to stay small.
 
 ## THINGS TO TRY
 
-Under what conditions a terrestrial population with larger eyes does not emerge? Why?
+Under what conditions does a terrestrial population with larger eyes not emerge? Why?
 
 Is there a condition in which the transition from water to land does not happen?
 
-Try changing the initial population sizes, energy-gain-from-food, food-replenish-rate, and reproduction-rate? How does these changes affect the population dynamics?
+Try changing the initial population sizes, ENERGY-GAIN-FROM-FOOD, FOOD-REPLENISH-RATE, and REPRODUCTION-RATE? How do these changes affect the population dynamics?
 
 ## EXTENDING THE MODEL
 
-There are various ways this model can be extended and improved. One of them is adding a depth component, so that fish can peak above the water line and look towards the shore.
+There are various ways this model can be extended and improved. One of them is adding a depth component so that fish can peak above the water line and look towards the shore.
 
 A more realistic field of vision could be used, where the field of vision is narrower, and the distance to the food source could only be measured in a field of binocular vision where both eyes are used.
 
 Another way is to introduce a new characteristic that determines the location of the eye on the head. Then modeling how this changes the field of view and the depth perception of the fish.
 
-Another exciting extension of this model would be using LevelSpace such that each agent has an actual neural network, that tells it where to go based on its inputs. This would allow one to investigate how an increase in the visual perception space might affect the intelligence of the agents, by allowing them to plan.
+Another exciting extension of this model would be using LevelSpace such that each agent has an actual neural network that tells it where to go based on its inputs. This would allow one to investigate how an increase in the visual perception space might affect the intelligence of the agents by allowing them to plan.
 
 ## NETLOGO FEATURES
 
