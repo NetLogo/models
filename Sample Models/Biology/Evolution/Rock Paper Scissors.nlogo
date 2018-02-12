@@ -292,13 +292,13 @@ The events occur in a random order involving random pairs of neighbors.
 
 Press SETUP to initialize the model and GO to run it.
 
-SWAP-RATE-EXPONENT, REPRODUCE-RATE-EXPONENT, and SELECT-RATE-EXPONENT each control the rate at which their respective actions are performed. There is will be an average of `count patches * 10 ^ rate-exponent` events each tick for each event type. This means that increasing a slider by `1.0` will result in that event type occurring 10 times more often, no matter what the other sliders are set to. The SWAP-%, REPRODUCE-%, and SELECT-% monitors indicate what percentage of events will be swap, reproduce, and select events (respectively) each tick.
+SWAP-RATE-EXPONENT, REPRODUCE-RATE-EXPONENT, and SELECT-RATE-EXPONENT each control the rate at which their respective actions are performed. There will be an average of `count patches * 10 ^ rate-exponent` events each tick for each event type. This means that increasing a slider by `1.0` will result in that event type occurring 10 times more often, no matter what the other sliders are set to. The SWAP-%, REPRODUCE-%, and SELECT-% monitors indicate what percentage of events will be swap, reproduce, and select events (respectively) each tick.
 
 The POPULATIONS plot shows how much of each organism there is over time.
 
 ## THINGS TO NOTICE
 
-Running the model quickly results in a collection of interconnected spirals, in which each species is chasing another species.
+Running the model quickly results in a collection of interconnected spirals in which each species is chasing another species.
 
 Global population levels of each of the species oscillate over time.
 
