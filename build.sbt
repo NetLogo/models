@@ -1,3 +1,6 @@
+lazy val root = Project("root", file("."))
+  .dependsOn(MyBuild.netLogo)
+
 scalaVersion := "2.12.1"
 
 scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
@@ -6,7 +9,7 @@ resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/"
 
 javaOptions ++= Seq(
   "-Dorg.nlogo.is3d=" + Option(System.getProperty("org.nlogo.is3d")).getOrElse("false"),
-  "-Dnetlogo.extensions.dir=" + (baseDirectory in netLogo).value.getParentFile.getPath + "/extensions/",
+  "-Dnetlogo.extensions.dir=" + (baseDirectory in MyBuild.netLogo).value.getParentFile.getPath + "/extensions/",
   "-Dcom.sun.media.jai.disableMediaLib=true", // see https://github.com/NetLogo/GIS-Extension/issues/4
   "-Xmx4G" // extra memory to work around https://github.com/travis-ci/travis-ci/issues/3775
 )
@@ -28,13 +31,15 @@ libraryDependencies ++= Seq(
   "com.vladsch.flexmark" % "flexmark-util" % "0.20.0" % "test"
 )
 
-(test in Test) <<= (test in Test) dependsOn {
-  Def.task {
-    EvaluateTask(
-      buildStructure.value,
-      extensionsKey,
-      state.value,
-      buildStructure.value.allProjectRefs.find(_.project.contains("netlogo")).get
-    )
-  }
+(test in Test) := {
+  {(test in Test) dependsOn
+    (Def.task {
+      EvaluateTask(
+          buildStructure.value,
+          MyBuild.extensionsKey,
+          state.value,
+          buildStructure.value.allProjectRefs.find(_.project.contains("netlogo")).get
+          )
+    })
+  }.value
 }
