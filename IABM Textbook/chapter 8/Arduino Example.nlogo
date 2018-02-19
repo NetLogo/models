@@ -189,9 +189,9 @@ arduino:get \"C\"
 TEXTBOX
 10
 410
-280
+395
 445
-The connected Arduino can also send strings which will be read by NetLogo.
+The connected Arduino can also send\nstrings which will be read by NetLogo.
 13
 0.0
 1
@@ -200,7 +200,7 @@ MONITOR
 50
 450
 170
-501
+503
 GAME
 arduino:get \"GAME\"
 17
