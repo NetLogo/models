@@ -1,4 +1,4 @@
-extensions [ ls cf ]
+extensions [ ls ]
 
 globals [
   ; These are constant variables used to specify simulation restrictions
@@ -126,10 +126,16 @@ to distribute-lactose
     ; see how much lactose is outside all of the cells
     let total-lactose-outside sum [ count lactoses with [ not inside? ] ] ls:of ls:models
 
-    cf:when ; color the patches based on the global lactose amount
-    cf:case [ total-lactose-outside < (global-lactose-limit / 2) ] [ ask patches [ set pcolor 1 ]]
-    cf:case [ total-lactose-outside = 0 ] [ ask patches [ set pcolor 0 ] ]
-    cf:else [ ask patches [ set pcolor 2 ] ]
+    ; color the patches based on the global lactose amount
+    ifelse total-lactose-outside < (global-lactose-limit / 2) [
+      ask patches [ set pcolor 1 ]
+    ][
+      ifelse total-lactose-outside = 0 [
+        ask patches [ set pcolor 0 ]
+      ][
+        ask patches [ set pcolor 2 ]
+      ]
+    ]
 
     ls:let lactose-per-model (total-lactose-outside / length ls:models)
     ask ecolis [ ls:ask my-model [ update-lactose lactose-per-model ] ]
