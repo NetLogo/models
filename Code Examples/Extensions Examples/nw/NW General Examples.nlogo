@@ -230,7 +230,7 @@ to generate [ generator-task ]
 end
 
 to preferential-attachment
-  generate [ -> nw:generate-preferential-attachment turtles get-links-to-use nb-nodes ]
+  generate [ -> nw:generate-preferential-attachment turtles get-links-to-use nb-nodes 1 ]
 end
 
 to ring
