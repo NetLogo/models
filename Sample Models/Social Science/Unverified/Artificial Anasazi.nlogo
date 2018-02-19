@@ -941,7 +941,7 @@ This model is a lightly adapted version of the prior replication work of Marco J
 
 The code of this complex historical model is in the process of being refined by the NetLogo team, and still differs greatly from the usual standards of the Models Library.
 
-Janssen's version of the model is available at: https://www.openabm.org/model/2222/version/2/view. (Furthermore, this "Info tab" is adapted from the ODD model documentation that accompanies that model.)
+Janssen's version of the model is available at: https://www.comses.net/codebases/2222/releases/1.1.0/. (Furthermore, this "Info tab" is adapted from the ODD model documentation that accompanies that model.)
 
 Janssen's replication is discussed further in the following academic journal paper, which curious readers are highly encouraged to examine:
 
