@@ -68,7 +68,7 @@ class PreviewImagesTests extends TestModels {
   )
   testModels("Models should have manual previews only if needed or permitted") { m =>
     if (manualPreviewNeeded.exists(m.file.getPath.contains))
-      if (m.previewCommands != Manual && m.name != "Current in a Wire HubNet")
+      if (m.previewCommands != Manual)
         Some("should need manual preview")
       else
         None

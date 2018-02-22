@@ -1343,7 +1343,7 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
 NetLogo 6.0.2
 @#$#@#$#@
-setup repeat 300 [ go ]
+need-to-manually-make-preview-for-this-model
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
