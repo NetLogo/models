@@ -238,7 +238,7 @@ Particle Systems by Allen Martin
 http://web.cs.wpi.edu/~matt/courses/cs563/talks/psys.html
 
 William T.  Reeves, "Particle Systems - A Technique for Modeling a Class of Fuzzy Objects", Computer Graphics 17:3 pp.  359-376, 1983 (SIGGRAPH 83).
-http://dl.acm.org/citation.cfm?id=357320
+https://dl.acm.org/citation.cfm?id=357320
 
 Physically based modeling Online SIGGRAPH 2001 Course Notes
 http://www.pixar.com/companyinfo/research/pbm2001/

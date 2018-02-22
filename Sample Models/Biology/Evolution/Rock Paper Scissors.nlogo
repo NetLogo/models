@@ -323,7 +323,7 @@ Wolf Sheep Predation shows a simpler predator prey model.
 
 ## CREDITS AND REFERENCES
 
-Reichenbach, T., Mobilia, M., & Frey, E. (2008). Self-organization of mobile populations in cyclic competition. Journal of Theoretical Biology, 254(2), 368–383. https://doi.org/10.1016/j.jtbi.2008.05.014
+Reichenbach, T., Mobilia, M., & Frey, E. (2008). Self-organization of mobile populations in cyclic competition. Journal of Theoretical Biology, 254(2), 368–383. https://www.sciencedirect.com/science/article/pii/S0022519308002464?via%3Dihub
 
 Reichenbach, T., Mobilia, M., & Frey, E. (2007). Mobility promotes and jeopardizes biodiversity in rock-paper-scissors games. Nature, 448(7157), 1046–1049. https://doi.org/10.1038/nature06095
 
