@@ -20,10 +20,10 @@ to setup
     set pcolor white
     if random 100 < density [   ; set the occupancy density
       sprout 1 [
-        ; 18 is the color number for "pink"
-        ; 95 is the color number for "blue"
-        set color one-of [18 95]
-        set size 1.1
+        ; 105 is the color number for "blue"
+        ; 27 is the color number for "orange"
+        set color one-of [105 27]
+        set size 1
       ]
     ]
   ]
@@ -66,7 +66,7 @@ to update-turtles
     ; add visualization here
     if visualization = "old" [ set shape "default" set size 1.3 ]
     if visualization = "square-x" [
-      ifelse happy? [ set shape "square" ] [ set shape "square-x" ]
+      ifelse happy? [ set shape "square" ] [ set shape "X" ]
     ]
   ]
 end
@@ -83,9 +83,9 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-360
+375
 10
-776
+791
 427
 -1
 -1
@@ -111,9 +111,9 @@ ticks
 
 MONITOR
 265
-375
+365
 355
-420
+410
 % unhappy
 percent-unhappy
 1
@@ -122,9 +122,9 @@ percent-unhappy
 
 MONITOR
 265
-225
-340
-270
+220
+355
+265
 % similar
 percent-similar
 1
@@ -134,7 +134,7 @@ percent-similar
 PLOT
 10
 140
-259
+260
 285
 Percent Similar
 time
@@ -182,9 +182,9 @@ NIL
 1
 
 BUTTON
-199
+200
 55
-284
+285
 88
 go
 go
@@ -216,19 +216,19 @@ NIL
 0
 
 CHOOSER
-780
-222
-929
-267
+801
+380
+950
+425
 visualization
 visualization
 "old" "square-x"
 1
 
 SLIDER
-11
 10
-286
+10
+285
 43
 density
 density
@@ -241,10 +241,10 @@ density
 HORIZONTAL
 
 PLOT
-9
-293
-259
-443
+10
+295
+260
+445
 Number-unhappy
 NIL
 NIL
@@ -271,9 +271,9 @@ count turtles with [not happy?]
 
 MONITOR
 265
-165
-340
-210
+170
+355
+215
 # agents
 count turtles
 1
@@ -283,25 +283,25 @@ count turtles
 @#$#@#$#@
 ## WHAT IS IT?
 
-This project models the behavior of two types of agents in a neighborhood. The pink agents and blue agents get along with one another. But each agent wants to make sure that it lives near some of "its own." That is, each pink agent wants to live near at least some pink agents, and each blue agent wants to live near at least some blue agents. The simulation shows how these individual preferences ripple through the neighborhood, leading to large-scale patterns.
+This project models the behavior of two types of agents in a neighborhood. The orange agents and blue agents get along with one another. But each agent wants to make sure that it lives near some of "its own." That is, each orange agent wants to live near at least some orange agents, and each blue agent wants to live near at least some blue agents. The simulation shows how these individual preferences ripple through the neighborhood, leading to large-scale patterns.
 
 This project was inspired by Thomas Schelling's writings about social systems (such as housing patterns in cities).
 
 ## HOW TO USE IT
 
-Click the SETUP button to set up the agents. There are approximately equal numbers of pink and blue agents. The agents are set up so no patch has more than one agent.  Click GO to start the simulation. If agents don't have enough same-color neighbors, they move to a nearby patch. (The topology is wrapping, so that patches on the bottom edge are neighbors with patches on the top and similar for left and right).
+Click the SETUP button to set up the agents. There are approximately equal numbers of orange and blue agents. The agents are set up so no patch has more than one agent.  Click GO to start the simulation. If agents don't have enough same-color neighbors, they move to a nearby patch. (The topology is wrapping, so that patches on the bottom edge are neighbors with patches on the top and similar for left and right).
 
 The DENSITY slider controls the occupancy density of the neighborhood (and thus the total number of agents). (It takes effect the next time you click SETUP.)  The %-SIMILAR-WANTED slider controls the percentage of same-color agents that each agent wants among its neighbors. For example, if the slider is set at 30, each blue agent wants at least 30% of its neighbors to be blue agents.
 
-The % SIMILAR monitor shows the average percentage of same-color neighbors for each agent. It starts at about 50%, since each agent starts (on average) with an equal number of pink and blue agents as neighbors. The NUM-UNHAPPY monitor shows the number of unhappy agents, and the % UNHAPPY monitor shows the percent of agents that have fewer same-color neighbors than they want (and thus want to move). The % SIMILAR and the NUM-UNHAPPY monitors are also plotted.
+The % SIMILAR monitor shows the average percentage of same-color neighbors for each agent. It starts at about 50%, since each agent starts (on average) with an equal number of orange and blue agents as neighbors. The NUM-UNHAPPY monitor shows the number of unhappy agents, and the % UNHAPPY monitor shows the percent of agents that have fewer same-color neighbors than they want (and thus want to move). The % SIMILAR and the NUM-UNHAPPY monitors are also plotted.
 
-The VISUALIZATION chooser gives two options for visualizing the agents. The OLD option uses the visualization that was used by the segregation model in the past. The SQUARE-X option visualizes the agents as squares. The agents have X's in them if they are unhappy.
+The VISUALIZATION chooser gives two options for visualizing the agents. The OLD option uses the visualization that was used by the segregation model in the past. The SQUARE-X option visualizes the agents as squares. Unhappy agents are visualized as Xs.
 
 ## THINGS TO NOTICE
 
-When you execute SETUP, the pink and blue agents are randomly distributed throughout the neighborhood. But many agents are "unhappy" since they don't have enough same-color neighbors. The unhappy agents move to new locations in the vicinity. But in the new locations, they might tip the balance of the local population, prompting other agents to leave. If a few  agents move into an area, the local blue agents might leave. But when the blue agents move to a new area, they might prompt pink agents to leave that area.
+When you execute SETUP, the orange and blue agents are randomly distributed throughout the neighborhood. But many agents are "unhappy" since they don't have enough same-color neighbors. The unhappy agents move to new locations in the vicinity. But in the new locations, they might tip the balance of the local population, prompting other agents to leave. If a few  agents move into an area, the local blue agents might leave. But when the blue agents move to a new area, they might prompt orange agents to leave that area.
 
-Over time, the number of unhappy agents decreases. But the neighborhood becomes more segregated, with clusters of pink agents and clusters of blue agents.
+Over time, the number of unhappy agents decreases. But the neighborhood becomes more segregated, with clusters of orange agents and clusters of blue agents.
 
 In the case where each agent wants at least 30% same-color neighbors, the agents end up with (on average) 70% same-color neighbors. So relatively small individual preferences can lead to significant overall segregation.
 
@@ -446,11 +446,6 @@ false
 0
 Circle -7500403 true true 0 0 300
 
-dot
-false
-0
-Circle -7500403 true true 90 90 120
-
 face happy
 false
 0
@@ -482,14 +477,6 @@ Circle -7500403 true true 8 8 285
 Circle -16777216 true false 60 75 60
 Circle -16777216 true false 180 75 60
 Polygon -16777216 true false 150 255 90 239 62 213 47 191 67 179 90 203 109 218 150 225 192 218 210 203 227 181 251 194 236 217 212 240
-
-face-sad
-false
-0
-Circle -7500403 true true 8 8 285
-Circle -16777216 true false 60 75 60
-Circle -16777216 true false 180 75 60
-Polygon -16777216 true false 150 168 90 184 62 210 47 232 67 244 90 220 109 205 150 198 192 205 210 220 227 242 251 229 236 206 212 183
 
 fish
 false
@@ -651,8 +638,7 @@ Polygon -7500403 true true 150 30 15 255 285 255
 triangle 2
 false
 0
-Polygon -7500403 true true 150 30 15 255 285 255
-Polygon -16777216 true false 151 99 225 223 75 224
+Polygon -7500403 true true 0 0 0 300 300 300 30 30
 
 triangle2
 false
@@ -700,8 +686,8 @@ Line -7500403 true 84 40 221 269
 x
 false
 0
-Polygon -7500403 true true 270 75 225 30 30 225 75 270
-Polygon -7500403 true true 30 75 75 30 270 225 225 270
+Polygon -7500403 true true 300 60 225 0 0 225 60 300
+Polygon -7500403 true true 0 60 75 0 300 240 225 300
 @#$#@#$#@
 NetLogo 6.0.2
 @#$#@#$#@
