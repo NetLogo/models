@@ -200,9 +200,11 @@ to delete-segment
   if mouse-down? [
     if mouse-has-gotten-air? [
       let candidate (one-of dots with [ distancexy mouse-xcor mouse-ycor < 0.3 ])
-      ask segments [
-        if end1 = dot [who] of candidate [die]
-        if end2 = dot [who] of candidate [die]
+      if candidate != nobody [
+        ask segments [
+          if end1 = dot [who] of candidate [die]
+          if end2 = dot [who] of candidate [die]
+        ]
       ]
     ]
   ]
