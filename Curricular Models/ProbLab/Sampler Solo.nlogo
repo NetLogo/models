@@ -988,7 +988,7 @@ Polygon -6459832 true true 38 138 66 149
 Polygon -6459832 true true 46 128 33 120 21 118 11 123 3 138 5 160 13 178 9 192 0 199 20 196 25 179 24 161 25 148 45 140
 Polygon -6459832 true true 67 122 96 126 63 144
 @#$#@#$#@
-NetLogo 6.0.2
+NetLogo 6.0.3
 @#$#@#$#@
 set %-target-color 20
 setup
