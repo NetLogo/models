@@ -341,15 +341,18 @@ to-report random-binomial [n p]
   report sum n-values n [random-bernoulli p]
 end
 
+
+; Copyright 2017 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 395
 15
-849
-470
+832
+453
 -1
 -1
-13.52
+13.0
 1
 10
 1
@@ -484,7 +487,7 @@ PLOT
 15
 245
 380
-470
+455
 signal molecules
 ticks
 counts
@@ -620,32 +623,32 @@ The model has some unavoidable differences from the real world.  For example, re
 
 ## HOW TO USE IT
 
-This model can be used to examine the effects of a variety of factors on glucose homeostasis.  One of the most common factors that might affect this is activity level or excercise.  You can simulate changes in this by adjusting the `METABOLIC-RATE` slider.  Another common factor that influences homeostasis is eating, which can be simulated by pressing the `EAT` button.
+This model can be used to examine the effects of a variety of factors on glucose homeostasis.  One of the most common factors that might affect this is activity level or exercise.  You can simulate changes in this by adjusting the `METABOLIC-RATE` slider.  Another common factor that influences homeostasis is eating, which can be simulated by pressing the `EAT` button.
 
 Other interesting factors that can be simulated include metabolic disorders.  These can be simulated by adjusting the `GLUCOSE-SENSITIVITY`, `INSULIN-SENSITIVITY`, and `GLUCAGON-SENSITIVITY` sliders.
 
 This model makes it easy to explore how different factors affect the body's homeostasis and how the body responds to food.  The best way to observe these changes is by looking at the `SIGNAL MOLECULES` plot in the bottom left corner.  Anything you change will affect this plot, which shows the amount of glucose, insulin, and glucagon in the blood over time.
 
 ### Buttons
-`SETUP`:	Initializes variables and creates the initial cells and molecules.
-`GO`:	Runs the model.
-`EAT`:	Simulates eating by adding glucose to the bloodstream over a short period.
+`SETUP`:  Initializes variables and creates the initial cells and molecules.
+`GO`:  Runs the model.
+`EAT`:  Simulates eating by adding glucose to the bloodstream over a short period.
 
-`FOLLOW-GLUCOSE`:	  Highlights a glucose molecule until it is consumed or sequestered.
-`FOLLOW-INSULIN`:	  Highlights an insulin molecule until it is broken down.
+`FOLLOW-GLUCOSE`:  Highlights a glucose molecule until it is consumed or sequestered.
+`FOLLOW-INSULIN`:  Highlights an insulin molecule until it is broken down.
 `FOLLOW-GLUCAGON`:  Highlights a glucagon molecule until it is broken down.
 
 ### Sliders
-`METABOLIC-RATE`:		The number of glucose molecules consumed by the body on each tick.
-`GLUCOSE-SENSITIVITY`:	The probability that pancreatic cells will detect a glucose molecule that is present.
-`INSULIN-SENSITIVITY`:	The probability that liver cells will detect an insulin molecule that is present.
-`GLUCAGON-SENSITIVITY`:	The probability that liver cells will detect a glucagon molecule that is present.
+`METABOLIC-RATE`:  The number of glucose molecules consumed by the body on each tick.
+`GLUCOSE-SENSITIVITY`:  The probability that pancreatic cells will detect a glucose molecule that is present.
+`INSULIN-SENSITIVITY`:  The probability that liver cells will detect an insulin molecule that is present.
+`GLUCAGON-SENSITIVITY`:  The probability that liver cells will detect a glucagon molecule that is present.
 
 ### Monitors
-`INSULIN`:	Shows the number of insulin molecules in the bloodstream.
-`GLUCAGON`:	Shows the number of glucagon molecules in the bloodstream.
-`BLOOD GLUCOSE`:	Shows the number of glucose molecules in the bloodstream.
-`STORED GLUCOSE`:	Shows the number of glucose molecules stored in the liver.
+`INSULIN`:  Shows the number of insulin molecules in the bloodstream.
+`GLUCAGON`:  Shows the number of glucagon molecules in the bloodstream.
+`BLOOD GLUCOSE`:  Shows the number of glucose molecules in the bloodstream.
+`STORED GLUCOSE`:  Shows the number of glucose molecules stored in the liver.
 
 ### Plots
 `SIGNAL MOLECULES`:  Shows the counts of glucose, insulin, and glucagon in the bloodstream.
@@ -685,6 +688,30 @@ NetLogo buttons typically cause a procedure to occur exactly once when the butto
 This model also implements a new function `random-binomial` in the style of the NetLogo primitives `random-normal`, `random-poisson`, etc. which takes in the defining parameters `n` and `p` and outputs a binomial-distributed random number.  This is accomplished using the `rnd` extension.  The method used in this model can be adapted to create a similar function for other finite discrete probability distributions.
 
 ## RELATED MODELS
+
+Checkout some of the other Biology models in the Models Library for similar models of other biological phenomenon.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Woods, P. and Wilensky, U. (2017).  NetLogo Blood Sugar Regulation model.  http://ccl.northwestern.edu/netlogo/models/BloodSugarRegulation.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2017 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 
 <!-- 2017 Cite: Woods, P. -->
 @#$#@#$#@
