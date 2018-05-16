@@ -546,6 +546,16 @@ to show-switch-color
   ask terminator [ set pcolor gray ]
 end
 
+
+; to convert the string for export-interface 'date-and-time' command to work on windows machines
+to-report replace-all [target replacement str]
+  let acc str
+  while [position target acc != false] [
+    set acc (replace-item (position target acc) acc replacement)
+  ]
+  report acc
+end
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;  LevelSpace Procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -853,7 +863,7 @@ BUTTON
 175
 78
 save screenshot
-export-interface (word \"GenEvo 1 Genetic Switch \" date-and-time \".png\")
+export-interface (word \"GenEvo 1 Genetic Switch \" (replace-all \":\" \"-\" date-and-time) \".png\")
 NIL
 1
 T
