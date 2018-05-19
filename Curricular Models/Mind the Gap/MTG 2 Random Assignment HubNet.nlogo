@@ -299,6 +299,10 @@ end
 to-report random-in-range [low high]
   report low + random (high - low + 1)
 end
+
+
+; Copyright 2018 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 214
@@ -464,29 +468,29 @@ mean [sugar] of students
 @#$#@#$#@
 ## WHAT IS IT?
 
-This HubNet model is the second model of the MTG series. Mind the Gap (MTG) is a curricular unit revolving around a series of three agent-based participatory simulations (ABPSs). The goal of the MTG curricular unit is to help high school students understand important mechanisms of wealth inequality in the U.S. through the lens of complex systems with NetLogo HubNet-based participatory activities. For more details about the unit, refer to Mind the Gap 1 Equality HubNet Model--the first model of the MTG series.
+This HubNet model is the second model of the MTG series. Mind the Gap (MTG) is a curricular unit revolving around a series of three agent-based participatory simulations (ABPSs). The goal of the MTG curricular unit is to help high school students understand important mechanisms of wealth inequality in the U.S. through the lens of complex systems with NetLogo HubNet-based participatory activities. For more details about the unit, refer to Mind the Gap 1 Equal Opportunities HubNet Model--the first model of the MTG series.
 
 The goal of this model is to let students to experience the power of an uncontrollable force that contributes to wealth inequality. In this model, sugar is unevenly distributed across the checkerboard. Students are randomly placed on the board and are also randomly assigned different visions, metabolisms, and endowments. Therefore, the initial conditions that a student starts with, to a large extent, determine the student’s course of life in this simulation. Students should realize that when faced with the force of randomness (luck), instead of personal abilities, usually shapes the course of life.
 
 ## HOW IT WORKS
 
-The "land" in this model is represented by a 50 by 50 checkerboard. Each tile (or patch) on the checkerboard contains a predetermined amount of sugar (2 units of sugar). The color of the patch shows the amount of sugar it contains: the darker the yellow, the more sugar it has. Each person (or agent) has a few attributes: 
+The "land" in this model is represented by a 50 by 50 checkerboard. Each tile (or patch) on the checkerboard contains a predetermined amount of sugar (2 units of sugar). The color of the patch shows the amount of sugar it contains: the darker the yellow, the more sugar it has. Each person (or agent) has a few attributes:
 
-1. Vision: how many patches (steps) away an agent can see; a randomly assigned number between 1 and 6.  
+1. Vision: how many patches (steps) away an agent can see; a randomly assigned number between 1 and 6.
 
-2. Endowment: how many units of sugar an agent starts with; a randomly assigned amount of sugar between 5 and 25. 
+2. Endowment: how many units of sugar an agent starts with; a randomly assigned amount of sugar between 5 and 25.
 
 3. Metabolism: how many units of sugar is needed for moving one step or doing one harvest; a randomly assigned amount of sugar between 1 and 3.
 
-Students have some actions they can take: 
+Students have some actions they can take:
 
-1. Move: by clicking the direction buttons or the keyboard shortcuts, students can move around. Each click moves the student by one step and burns metabolism amount of sugar. 
+1. Move: by clicking the direction buttons or the keyboard shortcuts, students can move around. Each click moves the student by one step and burns metabolism amount of sugar.
 
 2. Harvest: by clicking the harvest button, students harvest all the sugar on the tile that he or she is standing on. One harvest burns metabolism amount of sugar.
 
 ## HOW TO USE IT
 
-Before starting the model, the teacher can pose a question such as "Why are rich people rich while poor people poor in this model?". After briefly showing students the interface elements on both the students' and the teacher's interface, the teacher can start the model. 
+Before starting the model, the teacher can pose a question such as "Why are rich people rich while poor people poor in this model?". After briefly showing students the interface elements on both the students' and the teacher's interface, the teacher can start the model.
 
 Teacher's interface elements:
 
@@ -502,11 +506,11 @@ HIDE-WORLD: after showing the world, the teacher can hide the world again from t
 
 Wealth distribution plot: a bar chart, in which each bar represents a student's sugar, sorted from the lowest to the highest.
 
-Lorenz curve plot: a chart that shows the accumulative percent of wealth (y axis) owned by the accumulative percentage of the population (x axis). The perfectly equal distribution is the gray diagonal line (e.g. the bottom 30% of the population owns 30% of the total wealth). The farther the red curve deviate from the diagonal line, the more unequal the wealth distribution (e.g. the bottom 30% of the population owns 1% of the total wealth). The Lorenz curve is an accumulative and percented version of the Wealth distribution plot. 
+Lorenz curve plot: a chart that shows the accumulative percent of wealth (y axis) owned by the accumulative percentage of the population (x axis). The perfectly equal distribution is the gray diagonal line (e.g. the bottom 30% of the population owns 30% of the total wealth). The farther the red curve deviate from the diagonal line, the more unequal the wealth distribution (e.g. the bottom 30% of the population owns 1% of the total wealth). The Lorenz curve is an accumulative and percent version of the Wealth distribution plot.
 
-Gini index vs. time: Gini index is a numerical value between 0 and 1, with 0 being perfectly equal and 1 being extremely unequal, that measure the wealth inequality. The plot shows Gini index (y axis) over time (x axis) 
+Gini index vs. time: Gini index is a numerical value between 0 and 1, with 0 being perfectly equal and 1 being extremely unequal, that measure the wealth inequality. The plot shows Gini index (y axis) over time (x axis)
 
-The plots automatically update based on real time aggregation of the amount of sugar that students own. 
+The plots automatically update based on real time aggregation of the amount of sugar that students own.
 
 ## THINGS TO NOTICE
 
@@ -514,27 +518,27 @@ At the individual level, pay attention to your initial conditions: What is your 
 
 Pay attention to the color of the patch that you are harvesting. When you harvest it, it becomes white. But it returns to yellow soon after being harvested, indicating the sugar on that patch grew back.
 
-How does your sugar change? Pay attention to the sugar monitor on your interface. 
+How does your sugar change? Pay attention to the sugar monitor on your interface.
 
-What happens when you go broke? 
+What happens when you go broke?
 
-At the aggregate level (on the teacher's interface), pay attention to the three plots, especially the relationship between the Wealth distribution plot and the Lorenz curve. Because the Lorenz curve is an accumulative and percented version of the Wealth distribution plot, try find out the relationship between the shapes of the two plots and how well the sugar-mean represents everybody's wealth.  
+At the aggregate level (on the teacher's interface), pay attention to the three plots, especially the relationship between the Wealth distribution plot and the Lorenz curve. Because the Lorenz curve is an accumulative and percent version of the Wealth distribution plot, try find out the relationship between the shapes of the two plots and how well the sugar-mean represents everybody's wealth.
 
-Compare the three plots with those in the first model. How and why do they differ?  
+Compare the three plots with those in the first model. How and why do they differ?
 
 ## THINGS TO TRY
 
-Try taking one step by clicking any of the directional buttons. How much sugar does it take to move one step? That amount is your metabolism. Try clicking the harvest button. Does your total sugar increase, decrease, or stay the same? Do you know why? (Tip: each harvest burns the same amount of sugar as moving one step). 
+Try taking one step by clicking any of the directional buttons. How much sugar does it take to move one step? That amount is your metabolism. Try clicking the harvest button. Does your total sugar increase, decrease, or stay the same? Do you know why? (Tip: each harvest burns the same amount of sugar as moving one step).
 
 Do you want to move or not? Why? If you do want to move, do you know where to move? (Tip: what is your vision?)
 
-How rich are you in your class? Who is the richest? How did you or they become the richest? Share your experience with the whole class. 
+How rich are you in your class? Who is the richest? How did you or they become the richest? Share your experience with the whole class.
 
 Discuss how the simulation compare to the real world. Do you see any analogies? What do vision, endowment, and metabolism mean in the real world? Can you find a real-world story that maps onto your experience in the simulation?
 
 ## EXTENDING THE MODEL
 
-The agents' conditions in this model are assigned completely at random. In the real world however, these conditions usually correlate with each other. For example, if a person is born into a rich neighborhood, his or her endowment is usually also high. Try to extend the model by adding some correlations, so participants can experience scenarios that more closely resemble the real world. 
+The agents' conditions in this model are assigned completely at random. In the real world however, these conditions usually correlate with each other. For example, if a person is born into a rich neighborhood, his or her endowment is usually also high. Try to extend the model by adding some correlations, so participants can experience scenarios that more closely resemble the real world.
 
 ## NETLOGO FEATURES
 
@@ -542,16 +546,16 @@ This model initializes each patch's sugar and color by using the file-read primi
 
 This model uses `hubnet-view-override` and `hubnet-send-follow` to create the view seen on the clients' interface. `hubnet-send-override` allows the clients see a view that is different that the host. In this model, clients only see a small part of the virtual world. `hubnet-send-follow` keeps the user at the center of the client's view and puts a halo around it. The user is always centered even when it's moving.
 
-This model also makes use of tasks, which allow agents to change states (E.g. from "chilling" to "broke"), in which the agents follow different rules at each tick (E.g. when an agent is in the "chilling" state, at each tick, the user's button clicks are executed. However, if the agent is in the "broke" state, the user's button clicks are ignored). Users switch between states in two ways: when in the "chilling" state, if the agent runs out of sugar, it goes into the "broke" state. Meanwhile, a timer starts to count down. When to timer goes down to zero, the agent goes out of the "broke" state and enters the "chilling" state again.  
+This model also makes use of tasks, which allow agents to change states (E.g. from "chilling" to "broke"), in which the agents follow different rules at each tick (E.g. when an agent is in the "chilling" state, at each tick, the user's button clicks are executed. However, if the agent is in the "broke" state, the user's button clicks are ignored). Users switch between states in two ways: when in the "chilling" state, if the agent runs out of sugar, it goes into the "broke" state. Meanwhile, a timer starts to count down. When to timer goes down to zero, the agent goes out of the "broke" state and enters the "chilling" state again.
 
 ## RELATED MODELS
 
 Other models in the Mind the Gap HubNet suite include:
 
-* Mind the Gap 1 Equality HubNet Model
-* Mind the Gap 3 Feedback HubNet Model
+* Mind the Gap 1 Equal Opportunities HubNet Model
+* Mind the Gap 3 Feedback Loop HubNet Model
 
-The model is also related to the NetLogo SugarScape suite, including: 
+The model is also related to the NetLogo SugarScape suite, including:
 
 * Sugarscape 1 Immediate Growback
 * Sugarscape 2 Constant Growback
@@ -560,6 +564,34 @@ The model is also related to the NetLogo SugarScape suite, including:
 ## CREDITS AND REFERENCES
 
 Epstein, J. and Axtell, R. (1996). Growing Artificial Societies: Social Science from the Bottom Up. Washington, D.C.: Brookings Institution Press.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Guo, Y. and Wilensky, U. (2018).  NetLogo MTG 2 Random Assignment HubNet model.  http://ccl.northwestern.edu/netlogo/models/MTG2RandomAssignmentHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+To cite the Mind the Gap curriculum as a whole, please use:
+
+* Guo, Y. & Wilensky, U. (2018). Mind the Gap curriculum. http://ccl.northwestern.edu/MindtheGap/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2018 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2018 MTG Cite: Guo, Y. -->
 @#$#@#$#@
 default
 true
@@ -987,6 +1019,7 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
 NetLogo 6.0.3
 @#$#@#$#@
+need-to-manually-make-preview-for-this-model
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

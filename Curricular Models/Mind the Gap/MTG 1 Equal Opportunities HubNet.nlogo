@@ -282,6 +282,10 @@ end
 to-report random-in-range [low high]
   report low + random (high - low + 1)
 end
+
+
+; Copyright 2018 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 214
@@ -447,9 +451,9 @@ mean [sugar] of students
 @#$#@#$#@
 ## WHAT IS IT?
 
-Mind the Gap (MTG) is a curricular unit revolving around a series of three agent-based participatory simulations (ABPSs). The goal of the MTG curricular unit is to help high school students understand important mechanisms of wealth inequality in the U.S. through the lens of complex systems with NetLogo HubNet-based participatory activities. 
+Mind the Gap (MTG) is a curricular unit revolving around a series of three agent-based participatory simulations (ABPSs). The goal of the MTG curricular unit is to help high school students understand important mechanisms of wealth inequality in the U.S. through the lens of complex systems with NetLogo HubNet-based participatory activities.
 
-ABPSs are collaborative learning activities for students to collectively experience and explore the interrelationship between "micromotives" and "macrobehavior" in agent-based models. In a regular ABM, a computer controls the behavior of agents, but in a PartSim, each student takes control of an agent in the model. 
+ABPSs are collaborative learning activities for students to collectively experience and explore the interrelationship between "micromotives" and "macrobehavior" in agent-based models. In a regular ABM, a computer controls the behavior of agents, but in a PartSim, each student takes control of an agent in the model.
 
 The design of the MTG ABPSs was informed by the SugarScape agent-based models (Epstein & Axtell, 1996; Li & Wilensky 2009). Like in the original SugarScape models, the simulation space in the MTG ABPSs consists two major parts: 1) the “land”, where resources (sugar) can be harvested to become people’s wealth; 2) the people, each of which is an avatar controlled directly by a student, who competes with other students to harvest the most sugar and become the wealthiest in the simulation. The students are connected to the teacher's server through the HubNet architecture, just like an online multiplayer game.
 
@@ -457,25 +461,25 @@ This HubNet model is the first of the MTG series, representing a world of equal 
 
 ## HOW IT WORKS
 
-The "land" in this model is represented by a 50 by 50 checkerboard. Each tile (or patch) on the checkerboard contains the same amount of sugar (2 units of sugar). Each person (or agent) has a few attributes: 
+The "land" in this model is represented by a 50 by 50 checkerboard. Each tile (or patch) on the checkerboard contains the same amount of sugar (2 units of sugar). Each person (or agent) has a few attributes:
 
-1. Vision: how many patches (steps) away an agent can see. 
+1. Vision: how many patches (steps) away an agent can see.
 
-2. Endowment: how many units of sugar an agent starts with. 
+2. Endowment: how many units of sugar an agent starts with.
 
-3. Metabolism: how many units of sugar is needed for moving one step or doing one harvest. 
+3. Metabolism: how many units of sugar is needed for moving one step or doing one harvest.
 
-In this model, every agent has the same attributes, including 2 steps of vision, 25 units of sugar as endowment, and a metabolism of 1 sugar. 
+In this model, every agent has the same attributes, including 2 steps of vision, 25 units of sugar as endowment, and a metabolism of 1 sugar.
 
-Students have some actions they can take: 
+Students have some actions they can take:
 
-1. Move: by clicking the direction buttons or the keyboard shortcuts, students can move around. Each click moves the student by one step and burns metabolism amount of sugar. 
+1. Move: by clicking the direction buttons or the keyboard shortcuts, students can move around. Each click moves the student by one step and burns metabolism amount of sugar.
 
 2. Harvest: by clicking the harvest button, students harvest all the sugar on the tile that he or she is standing on. One harvest burns metabolism amount of sugar.
 
 ## HOW TO USE IT
 
-Before starting the model, the teacher can pose a question such as "Why are rich people rich while poor people poor in this model?". After briefly showing students the interface elements on both the students' and the teacher's interface, the teacher can start the model. 
+Before starting the model, the teacher can pose a question such as "Why are rich people rich while poor people poor in this model?". After briefly showing students the interface elements on both the students' and the teacher's interface, the teacher can start the model.
 
 Teacher's interface elements:
 
@@ -491,11 +495,11 @@ HIDE-WORLD: after showing the world, the teacher can hide the world again from t
 
 Wealth distribution plot: a bar chart, in which each bar represents a student's sugar, sorted from the lowest to the highest.
 
-Lorenz curve plot: a chart that shows the accumulative percent of wealth (y axis) owned by the accumulative percentage of the population (x axis). The perfectly equal distribution is the gray diagonal line (e.g. the bottom 30% of the population owns 30% of the total wealth). The farther the red curve deviate from the diagonal line, the more unequal the wealth distribution (e.g. the bottom 30% of the population owns 1% of the total wealth). The Lorenz curve is an accumulative and percented version of the Wealth distribution plot. 
+Lorenz curve plot: a chart that shows the accumulative percent of wealth (y axis) owned by the accumulative percentage of the population (x axis). The perfectly equal distribution is the gray diagonal line (e.g. the bottom 30% of the population owns 30% of the total wealth). The farther the red curve deviate from the diagonal line, the more unequal the wealth distribution (e.g. the bottom 30% of the population owns 1% of the total wealth). The Lorenz curve is an accumulative and percent version of the Wealth distribution plot.
 
-Gini index vs. time: Gini index is a numerical value between 0 and 1, with 0 being perfectly equal and 1 being extremely unequal, that measure the wealth inequality. The plot shows Gini index (y axis) over time (x axis) 
+Gini index vs. time: Gini index is a numerical value between 0 and 1, with 0 being perfectly equal and 1 being extremely unequal, that measure the wealth inequality. The plot shows Gini index (y axis) over time (x axis)
 
-The plots automatically update based on the real time aggregation of the amount of sugar that students own. 
+The plots automatically update based on the real time aggregation of the amount of sugar that students own.
 
 ## THINGS TO NOTICE
 
@@ -503,19 +507,19 @@ At the individual level, pay attention to your initial conditions: What is your 
 
 Pay attention to the color of the patch that you are harvesting. When you harvest it, it becomes white. But it returns to yellow soon after being harvested, indicating the sugar on that patch grew back.
 
-How does your sugar change? Pay attention to the sugar monitor on your interface. 
+How does your sugar change? Pay attention to the sugar monitor on your interface.
 
-What happens when you go broke? 
+What happens when you go broke?
 
-At the aggregate level (on the teacher's interface), pay attention to the three plots, especially the relationship between the Wealth distribution plot and the Lorenz curve. Because the Lorenz curve is an accumulative and percented version of the Wealth distribution plot, try find out the relationship between the shapes of the two plots and how well the sugar-mean represents everybody's wealth.  
+At the aggregate level (on the teacher's interface), pay attention to the three plots, especially the relationship between the Wealth distribution plot and the Lorenz curve. Because the Lorenz curve is an accumulative and percent version of the Wealth distribution plot, try find out the relationship between the shapes of the two plots and how well the sugar-mean represents everybody's wealth.
 
 ## THINGS TO TRY
 
-Try taking one step by clicking any of the directional buttons. How much sugar does it take to move one step? That amount is your metabolism. Try clicking the harvest button. Does your total sugar increase, decrease, or stay the same? Do you know why? (Tip: each harvest burns the same amount of sugar as moving one step). 
+Try taking one step by clicking any of the directional buttons. How much sugar does it take to move one step? That amount is your metabolism. Try clicking the harvest button. Does your total sugar increase, decrease, or stay the same? Do you know why? (Tip: each harvest burns the same amount of sugar as moving one step).
 
 Do you want to move or not? Why? If you do want to move, do you know where to move? (Tip: what is your vision?)
 
-How rich are you in your class? Who is the richest? How did you or they become the richest? Share your experience with the whole class. 
+How rich are you in your class? Who is the richest? How did you or they become the richest? Share your experience with the whole class.
 
 Discuss how the simulation compare to the real world. Do you see any analogies? What do vision, endowment, and metabolism mean in the real world? Can you find a real-world story that maps onto your experience in the simulation?
 
@@ -527,16 +531,16 @@ Agents in this model live forever. The model currently does not incorporate agin
 
 This model uses `hubnet-view-override` and `hubnet-send-follow` to create the view seen on the clients' interface. `hubnet-send-override` allows the clients see a view that is different that the host. In this model, clients only see a small part of the virtual world. `hubnet-send-follow` keeps the user at the center of the client's view and puts a halo around it. The user is always centered even when it's moving.
 
-This model also makes use of tasks, which allow agents to change states (e.g. from "chilling" to "broke"), in which the agents follow different rules at each tick (e.g. when an agent is in the "chilling" state, at each tick, the user's button clicks are executed. However, if the agent is in the "broke" state, the user's button clicks are ignored). Users switch between states in two ways: when in the "chilling" state, if the agent runs out of sugar, it goes into the "broke" state. Meanwhile, a timer starts to count down. When to timer goes down to zero, the agent goes out of the "broke" state and enters the "chilling" state again.  
+This model also makes use of tasks, which allow agents to change states (e.g. from "chilling" to "broke"), in which the agents follow different rules at each tick (e.g. when an agent is in the "chilling" state, at each tick, the user's button clicks are executed. However, if the agent is in the "broke" state, the user's button clicks are ignored). Users switch between states in two ways: when in the "chilling" state, if the agent runs out of sugar, it goes into the "broke" state. Meanwhile, a timer starts to count down. When to timer goes down to zero, the agent goes out of the "broke" state and enters the "chilling" state again.
 
 ## RELATED MODELS
 
 Other models in the Mind the Gap HubNet suite include:
 
-* Mind the Gap 2 Randomness HubNet Model
-* Mind the Gap 3 Feedback HubNet Model
+* Mind the Gap 2 Random Assignment HubNet Model
+* Mind the Gap 3 Feedback Loop HubNet Model
 
-The model is also related to the NetLogo SugarScape suite, including: 
+The model is also related to the NetLogo SugarScape suite, including:
 
 * Sugarscape 1 Immediate Growback
 * Sugarscape 2 Constant Growback
@@ -545,6 +549,34 @@ The model is also related to the NetLogo SugarScape suite, including:
 ## CREDITS AND REFERENCES
 
 Epstein, J. and Axtell, R. (1996). Growing Artificial Societies: Social Science from the Bottom Up. Washington, D.C.: Brookings Institution Press.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Guo, Y. and Wilensky, U. (2018).  NetLogo MTG 1 Equal Opportunities HubNet model.  http://ccl.northwestern.edu/netlogo/models/MTG1EqualOpportunitiesHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+To cite the Mind the Gap curriculum as a whole, please use:
+
+* Guo, Y. & Wilensky, U. (2018). Mind the Gap curriculum. http://ccl.northwestern.edu/MindtheGap/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2018 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2018 MTG Cite: Guo, Y. -->
 @#$#@#$#@
 default
 true
@@ -972,6 +1004,7 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
 NetLogo 6.0.3
 @#$#@#$#@
+need-to-manually-make-preview-for-this-model
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
