@@ -19,7 +19,9 @@ class ViewTests extends TestModels {
     "Sound Machines", "Flocking Vee Formations", "BeeSmart Hive Finding", "Disease Solo", "Peppered Moths",
     "Honeycomb", "Preferential Attachment", "Sandpile", "Raindrops", "Doppler", "Ising", "MaterialSim Grain Growth",
     "Gravitation", "B-Z Reaction", "Reactor X-Section", "Lunar Lander",
-    "PD N-Person Iterated", "PD Basic Evolutionary", "Sandpile Simple", "Heroes and Cowards"
+    "PD N-Person Iterated", "PD Basic Evolutionary", "Sandpile Simple", "Heroes and Cowards",
+    // Exception for MTG models that control tick-rate in case of no HubNet activity (CB 05-15-2018)
+    "MTG 1 Equal Opportunities HubNet", "MTG 2 Random Assignment HubNet", "MTG 3 Feedback Loop HubNet"
   )
   testModels("Most models should have a frame rate of 30") {
     /* It can be OK to have a non-standard frame rate (though I'm

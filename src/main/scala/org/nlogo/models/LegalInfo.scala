@@ -15,7 +15,7 @@ object LegalInfo {
     """<!-- (\d\d\d\d)( \d\d\d\d)?(( \w+)*)( Cite: .*)? -->""".r
   val validKeywords = List(
     "MIT", "Wilensky", "specialCE", "MAC", "Steiner",
-    "Stroup", "3D", "NIELS", "ConChem", "CC0", "BYSA", "GenEvo")
+    "Stroup", "3D", "NIELS", "ConChem", "CC0", "BYSA", "GenEvo", "MTG")
   val textbookCitation =
     "* Wilensky, U. & Rand, W. (2015). Introduction " +
       "to Agent-Based Modeling: Modeling Natural, Social " +
@@ -208,6 +208,14 @@ case class LegalInfo(model: Model) {
         builder.append("* Dabholkar, S. & Wilensky, U. (2016). ")
         builder.append("GenEvo Systems Biology curriculum. ")
         builder.append("http://ccl.northwestern.edu/curriculum/genevo/. ")
+        builder.append("Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.\n")
+      }
+      if (keywords.contains("MTG")) {
+        builder.append("\n")
+        builder.append("To cite the Mind the Gap curriculum as a whole, please use:\n\n")
+        builder.append("* Guo, Y. & Wilensky, U. (2018). ")
+        builder.append("Mind the Gap curriculum. ")
+        builder.append("http://ccl.northwestern.edu/MindtheGap/. ")
         builder.append("Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.\n")
       }
     }
