@@ -87,6 +87,10 @@ class CodeTests extends TestModels {
     "ppd" -> Seq.empty,
     "ppu" -> Seq.empty,
     "print" -> Seq(
+      // Exclusion for MTG models to print an error-message in rare case
+      // the sugar map isn't available for some reason (CB 05-18-2018)
+      "MTG 1 Equal Opportunities HubNet", "MTG 2 Random Assignment HubNet",
+      "MTG 3 Feedback Loop HubNet",
       // IABM textbook models using `print` in example code:
       "Example HubNet", "Voting Sensitivity Analysis",
       "Voting Component Verification", "Spread of Disease"
