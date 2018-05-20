@@ -57,7 +57,7 @@ to spread-rumor  ;; patch procedure
   ] [
     set neighbor one-of neighbors4
   ]
-  ;; spread the rumor
+  ;; Wetick
   ask neighbor [ hear-rumor ]
 end
 
