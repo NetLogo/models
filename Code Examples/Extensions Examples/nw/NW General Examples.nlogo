@@ -144,26 +144,23 @@ end
 
 to color-clusters [ clusters ]
   ; reset all colors
-  ask turtles [ set color gray - 3 ]
-  ask links [ set color gray - 3 ]
+  ask turtles [ set color gray ]
+  ask links [ set color gray - 2 ]
   let n length clusters
-  let colors ifelse-value (n <= 12)
-    [ n-of n remove gray remove white base-colors ] ;; choose base colors other than white and gray
-    [ n-values n [ approximate-hsb (random 255) (255) (100 + random 100) ] ] ; too many colors - pick random ones
+  ; Generate a unique hue for each cluster
+  let hues n-values n [ i -> (360 * i / n) ]
 
-    ; loop through the clusters and colors zipped together
-    (foreach clusters colors [ [cluster cluster-color] ->
-      ask cluster [ ; for each node in the cluster
-        ; give the node the color of its cluster
-        set color cluster-color
-        ; colorize the links from the node to other nodes in the same cluster
-        ; link color is slightly darker...
-        ask my-undirected-edges [ if member? other-end cluster [ set color cluster-color - 1 ] ]
-        ask my-in-directed-edges [ if member? other-end cluster [ set color cluster-color - 1 ] ]
-        ask my-out-directed-edges [ if member? other-end cluster [ set color cluster-color - 1 ] ]
-      ]
-    ])
+  ; loop through the clusters and colors zipped together
+  (foreach clusters hues [ [cluster hue] ->
+    ask cluster [ ; for each node in the cluster
+                  ; give the node the color of its cluster
+      set color hsb hue 100 100
+      ; Color links contained in the cluster slightly darker than the cluster color
+      ask my-links with [ member? other-end cluster ] [ set color hsb hue 100 75 ]
+    ]
+  ])
 end
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Centrality Measures
