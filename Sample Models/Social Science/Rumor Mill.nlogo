@@ -1,13 +1,13 @@
 globals [
   color-mode       ;; 0 = normal, 1 = when heard, 2 = times heard
-  clique           ;; how many patches have heard the rumor
-  previous-clique  ;; value of clique from last tick, for use in the "successive" plots
 ]
 
 patches-own [
   times-heard    ;; tracks times the rumor has been heard
-  first-heard    ;; clock tick when first heard the rumor
-  just-heard?    ;; tracks whether rumor was heard this round -- resets each round
+
+  ;; Clock tick when first heard the rumor. -1 means that a patch hasn't heard the rumor.
+  ;; 0 means that the rumor was seeded with the rumor in setup.
+  first-heard
 ]
 
 ;;; setup procedures
@@ -15,85 +15,96 @@ patches-own [
 to setup [seed-one?]
   clear-all
   set color-mode 0
-  set clique 0
-  ask patches
-    [ set first-heard -1
-      set times-heard 0
-      set just-heard? false
-      recolor ]
-  ifelse seed-one?
-    [ seed-one ]
-    [ seed-random ]
+  ask patches [
+    set first-heard -1
+    set times-heard 0
+    recolor
+  ]
+  ifelse seed-one? [
+    seed-one
+  ] [
+    seed-random
+  ]
   reset-ticks
 end
 
 to seed-one
   ;; tell the center patch the rumor
-  ask patch 0 0
-    [ hear-rumor 0 ]
+  ask patch 0 0 [
+    hear-rumor
+  ]
 end
 
 to seed-random
   ;; seed with random number of rumor sources governed by init-clique slider
-  ask patches with [times-heard = 0]
-    [ if (random-float 100.0) < init-clique
-        [ hear-rumor 0 ] ]
+  ask patches with [times-heard = 0] [
+    if (random-float 100.0) < init-clique [
+      hear-rumor
+    ]
+  ]
 end
 
 to go
-  if all? patches [times-heard > 0]
-    [ stop ]
-  ask patches
-    [ if times-heard > 0
-        [ spread-rumor ] ]
-  update
+  if all? patches [times-heard > 0] [ stop ]
+  ask patches with [ times-heard > 0 ] [ spread-rumor ]
   tick
 end
 
 to spread-rumor  ;; patch procedure
   let neighbor nobody
-  ifelse eight-mode?
-    [ set neighbor one-of neighbors ]
-    [ set neighbor one-of neighbors4 ]
-  ask neighbor [ set just-heard? true ]
+  ifelse eight-mode? [
+    set neighbor one-of neighbors
+  ] [
+    set neighbor one-of neighbors4
+  ]
+  ;; spread the rumor
+  ask neighbor [ hear-rumor ]
 end
 
-to hear-rumor [when]  ;; patch procedure
-  if first-heard = -1
-    [ set first-heard when
-      set just-heard? true ]
+to hear-rumor  ;; patch procedure
+  ;; If RESET-TICKS hasn't been called, we need to set FIRST-HEARD to 0. Unfortunately,
+  ;; the only way to know if RESET-TICKS hasn't been called yet is to try to get the TICKS
+  ;; and catch the ensuing error. On normal ticks, we use TICKS + 1 because that's going
+  ;; to be the tick on which this patch will be included in statistics.
+  if not heard-rumor? [
+    carefully [
+      set first-heard ticks + 1
+    ] [
+      set first-heard 0
+    ]
+  ]
   set times-heard times-heard + 1
   recolor
-end
-
-to update
-  ask patches with [just-heard?]
-    [ set just-heard? false
-      hear-rumor ticks ]
-  set previous-clique clique
-  set clique count patches with [times-heard > 0]
 end
 
 ;;; coloring procedures
 
 to recolor  ;; patch procedure
-  ifelse color-mode = 0
-    [ recolor-normal ]
-    [ ifelse color-mode = 1
-      [ recolor-by-when-heard ]
-      [ recolor-by-times-heard ] ]
+  ifelse color-mode = 0 [
+    recolor-normal
+  ] [
+    ifelse color-mode = 1 [
+      recolor-by-when-heard
+    ] [
+      recolor-by-times-heard
+    ]
+  ]
 end
 
 to recolor-normal  ;; patch procedure
-  ifelse first-heard >= 0
-    [ set pcolor red ]
-    [ set pcolor blue ]
+  ifelse heard-rumor? [
+    set pcolor red
+  ] [
+    set pcolor blue
+  ]
 end
 
 to recolor-by-when-heard  ;; patch procedure
-  ifelse first-heard = -1
-    [ set pcolor black ]
-    [ set pcolor scale-color yellow first-heard world-width 0 ]
+  ifelse heard-rumor? [
+    set pcolor scale-color yellow first-heard world-width 0
+  ] [
+    set pcolor black
+  ]
 end
 
 to recolor-by-times-heard   ;; patch procedure
@@ -103,10 +114,24 @@ end
 ;;; mouse handling
 
 to spread-rumor-with-mouse
-  if mouse-down?
-    [ ask patch mouse-xcor mouse-ycor
-        [ hear-rumor ticks ]
-        display ]
+  if mouse-down? [
+    ask patch mouse-xcor mouse-ycor [
+      hear-rumor
+    ]
+    display
+  ]
+end
+
+to-report heard-rumor?
+  report first-heard >= 0
+end
+
+to-report clique
+  report count patches with [ heard-rumor? ]
+end
+
+to-report previous-clique
+  report count patches with [ heard-rumor? and first-heard < ticks ]
 end
 
 
