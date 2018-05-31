@@ -21,8 +21,6 @@
 ; effects of the high grain size noted earlier. I also accelerated starvation
 ; for ease of observation by reducing the initial store of glucose.
 
-extensions [ rnd ]
-
 globals [
   molecule-size     ; display scaling constant
   hormone-half-life
@@ -330,8 +328,8 @@ end
 ; Returns a random number according to the binomial distribution with parameters n and p
 ; where n is the number of trials and p is the probability of success in each trial.
 to-report random-binomial [n p]
-  if not (int n = n) or (n > 0) [
-    error "Input n must be a natural number."
+  if (n < 0) or not (int n = n) [
+    error "Input n must be a non-negative integer."
   ]
   if (p < 0) or (p > 1) [
     error "Probability p must be between 0 and 1."
