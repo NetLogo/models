@@ -29,10 +29,11 @@ students-own [
 ;;;;;;;;; Setup Procedures ;;;;;;;;
 
 to startup
-  hubnet-reset
+  hubnet-reset          ; automatically initialize hubnet architecture upon starting the model
 end
 
 to setup
+  ; clear patches and plots, instead of clear all, to preserve students' connections to the server
   clear-patches
   clear-all-plots
 
@@ -43,7 +44,7 @@ to setup
     patch-recolor
   ]
 
-  listen-clients
+  listen-clients ; detect any user actions (if any student has joined, left, or clicked buttons)
 
   ask students [
     refresh-student
@@ -77,6 +78,7 @@ end
 
 to go
   listen-clients
+  ; stop the model when no student is in. Prevents division by zero and plotting errors
   if not any? students [ stop ]
 
   ask patches [
@@ -98,6 +100,7 @@ to go
         set state "broke"
       ]
       run next-task
+      ; send resulting information for this round (this tick) to clients' interface to display
       send-info-to-clients
     ]
   ]
@@ -108,16 +111,16 @@ end
 ;;;;;; HubNet Procedures ;;;;;;;
 
 to listen-clients
-  while [ hubnet-message-waiting? ] [
-    hubnet-fetch-message
-    ifelse hubnet-enter-message? [
-      create-new-student
+  while [ hubnet-message-waiting? ] [   ; if there are any HubNet messages
+    hubnet-fetch-message                ; retrieve a message
+    ifelse hubnet-enter-message? [      ; if a new student joins
+      create-new-student                ; create a new student
     ][
-      ifelse hubnet-exit-message? [
-        remove-student
+      ifelse hubnet-exit-message? [     ; if a student exits
+        remove-student                  ; remove the student
       ][
-        ask students with [user-id = hubnet-message-source] [
-          execute-command hubnet-message-tag
+        ask students with [user-id = hubnet-message-source] [     ; otherwise
+          execute-command hubnet-message-tag                      ; execute the input that the student made
         ]
       ]
     ]
@@ -127,8 +130,8 @@ end
 ; procedure to create a new student
 to create-new-student
   create-students 1 [
-    set user-id hubnet-message-source
-    set color gray
+    set user-id hubnet-message-source     ; assign a user-id to the student who just entered
+    set color gray                        ; set student color and label gray so it blends into the gray background
     set label user-id
     set label-color gray
     refresh-student
@@ -145,12 +148,14 @@ to refresh-student ; student procedure
   set shape "default"
   set size 1
   set has-moved? false
+  ; randomly choose one empty patch to place the student
   move-to one-of patches with [not any? other turtles-here]
 
   set vision-points nobody
   visualize-view-points
 
   set next-task [ -> chill ]
+  ; chilling is the default state, with which students start when they join or after going broke
   set state "chilling"
   send-info-to-clients
 end
@@ -188,6 +193,7 @@ end
 ; procedure to calculate the "vision" of each student for their client
 to visualize-view-points ; student procedure
   hubnet-clear-overrides user-id
+  ; initializes view overrides
   hubnet-send-override user-id self "label" [ "" ]
   calculate-view-points vision
   hubnet-send-override user-id vision-points "pcolor" [ true-color ]
@@ -203,14 +209,16 @@ end
 ; resume after being broke
 to resume ; student procedure
   ifelse my-timer > 0 [
+    ; creates the visual effect of a big red X flashing
     hubnet-clear-overrides user-id
     hubnet-send-override user-id self "label" [ "" ]
     hubnet-send-override user-id self "color" [ red ]
     set shape "x"
     set size 2
     visualize-view-points
+    ; reduce the timer by 1 each tick until it reaches 0
     set my-timer my-timer - 1
-  ][
+  ][ ; when time runs out, refresh the student and let it go back to play
     set shape "default"
     set size 1
 
@@ -335,7 +343,7 @@ BUTTON
 2
 10
 103
-57
+56
 NIL
 setup
 NIL
@@ -470,13 +478,13 @@ mean [sugar] of students
 
 This HubNet model is the second model of the MTG series. Mind the Gap (MTG) is a curricular unit revolving around a series of three agent-based participatory simulations (ABPSs). The goal of the MTG curricular unit is to help high school students understand important mechanisms of wealth inequality in the U.S. through the lens of complex systems with NetLogo HubNet-based participatory activities. For more details about the unit, refer to Mind the Gap 1 Equal Opportunities HubNet Model--the first model of the MTG series.
 
-The goal of this model is to let students to experience the power of an uncontrollable force that contributes to wealth inequality. In this model, sugar is unevenly distributed across the checkerboard. Students are randomly placed on the board and are also randomly assigned different visions, metabolisms, and endowments. Therefore, the initial conditions that a student starts with, to a large extent, determine the student’s course of life in this simulation. Students should realize that when faced with the force of randomness (luck), instead of personal abilities, usually shapes the course of life.
+The goal of this model is to let students experience the power of an uncontrollable force that contributes to wealth inequality. In this model, sugar is unevenly distributed across the checkerboard. Students are randomly placed on the board and are also randomly assigned different visions, metabolisms, and endowments. Therefore, the initial conditions that a student starts with, to a large extent, determine the student’s course of life in this simulation. Students come to realize that when faced with the force of randomness (luck), instead of personal abilities, luck usually shapes the course of life.
 
 ## HOW IT WORKS
 
-The "land" in this model is represented by a 50 by 50 checkerboard. Each tile (or patch) on the checkerboard contains a predetermined amount of sugar (2 units of sugar). The color of the patch shows the amount of sugar it contains: the darker the yellow, the more sugar it has. Each person (or agent) has a few attributes:
+The "land" in this model is represented by a 50 by 50 world. Each patch contains a predetermined amount of sugar (2 units of sugar). The color of the patch shows the amount of sugar it contains: the darker the yellow, the more sugar it has. Each person (or agent) has a few attributes:
 
-1. Vision: how many patches (steps) away an agent can see; a randomly assigned number between 1 and 6.
+1. Vision: how many patches (steps) away an agent can see; a randomly assigned number between 1 and 6. Note that vision is not circular, but along a cross in the cardinal directions.
 
 2. Endowment: how many units of sugar an agent starts with; a randomly assigned amount of sugar between 5 and 25.
 
@@ -484,9 +492,9 @@ The "land" in this model is represented by a 50 by 50 checkerboard. Each tile (o
 
 Students have some actions they can take:
 
-1. Move: by clicking the direction buttons or the keyboard shortcuts, students can move around. Each click moves the student by one step and burns metabolism amount of sugar.
+1. Move: by clicking the direction buttons or the keyboard shortcuts on the HubNet client, students can move around. Each click moves the student by one step and burns METABOLISM amount of sugar.
 
-2. Harvest: by clicking the harvest button, students harvest all the sugar on the tile that he or she is standing on. One harvest burns metabolism amount of sugar.
+2. Harvest: by clicking the harvest button, students harvest all the sugar on the tile that he or she is standing on. One harvest burns METABOLISM amount of sugar.
 
 ## HOW TO USE IT
 
@@ -506,7 +514,7 @@ HIDE-WORLD: after showing the world, the teacher can hide the world again from t
 
 Wealth distribution plot: a bar chart, in which each bar represents a student's sugar, sorted from the lowest to the highest.
 
-Lorenz curve plot: a chart that shows the accumulative percent of wealth (y axis) owned by the accumulative percentage of the population (x axis). The perfectly equal distribution is the gray diagonal line (e.g. the bottom 30% of the population owns 30% of the total wealth). The farther the red curve deviate from the diagonal line, the more unequal the wealth distribution (e.g. the bottom 30% of the population owns 1% of the total wealth). The Lorenz curve is an accumulative and percent version of the Wealth distribution plot.
+Lorenz curve plot: a chart that shows the cumulative percent of wealth (y axis) owned by the cumulative percentage of the population (x axis). The perfectly equal distribution is the gray diagonal line (e.g., the bottom 30% of the population owns 30% of the total wealth). The farther the red curve deviates from the diagonal line, the more unequal the wealth distribution (e.g., the bottom 30% of the population owns 1% of the total wealth). The Lorenz curve is a cumulative percentage version of the Wealth distribution plot.
 
 Gini index vs. time: Gini index is a numerical value between 0 and 1, with 0 being perfectly equal and 1 being extremely unequal, that measure the wealth inequality. The plot shows Gini index (y axis) over time (x axis)
 
@@ -522,19 +530,23 @@ How does your sugar change? Pay attention to the sugar monitor on your interface
 
 What happens when you go broke?
 
-At the aggregate level (on the teacher's interface), pay attention to the three plots, especially the relationship between the Wealth distribution plot and the Lorenz curve. Because the Lorenz curve is an accumulative and percent version of the Wealth distribution plot, try find out the relationship between the shapes of the two plots and how well the sugar-mean represents everybody's wealth.
+At the aggregate level (on the teacher's interface), pay attention to the three plots, especially the relationship between the Wealth distribution plot and the Lorenz curve.
+
+The Lorenz curve can be derived from the wealth distribution plot by converting the actual amount of sugar that each participant owns (what the height of each bar in the wealth distribution plot represents) into cumulative percentages in the Lorenz curve, which can be interpreted as “the bottom certain percent of the population own certain percent of the world’s wealth”. Therefore, the shape of the area under the red curve in the Lorenz curve plot looks like the shape of the bars in the wealth distribution plot, except that the red curve is stretched unevenly along the y axis.
+
+Pay attention to how one plot’s shape changes in relation to the other and how well the sugar-mean represents everybody’s wealth.
 
 Compare the three plots with those in the first model. How and why do they differ?
 
 ## THINGS TO TRY
 
-Try taking one step by clicking any of the directional buttons. How much sugar does it take to move one step? That amount is your metabolism. Try clicking the harvest button. Does your total sugar increase, decrease, or stay the same? Do you know why? (Tip: each harvest burns the same amount of sugar as moving one step).
+Try taking one step by clicking any of the directional buttons. How much sugar does it take to move one step? That amount is your METABOLISM. Try clicking the harvest button. Does your total sugar increase, decrease, or stay the same? Do you know why? (Tip: each harvest burns the same amount of sugar as moving one step).
 
 Do you want to move or not? Why? If you do want to move, do you know where to move? (Tip: what is your vision?)
 
 How rich are you in your class? Who is the richest? How did you or they become the richest? Share your experience with the whole class.
 
-Discuss how the simulation compare to the real world. Do you see any analogies? What do vision, endowment, and metabolism mean in the real world? Can you find a real-world story that maps onto your experience in the simulation?
+Discuss how the simulation compares to the real world. Do you see any analogies? What do vision, endowment, and metabolism mean in the real world? Can you find a real-world story that maps onto your experience in the simulation?
 
 ## EXTENDING THE MODEL
 
@@ -546,7 +558,7 @@ This model initializes each patch's sugar and color by using the file-read primi
 
 This model uses `hubnet-view-override` and `hubnet-send-follow` to create the view seen on the clients' interface. `hubnet-send-override` allows the clients see a view that is different that the host. In this model, clients only see a small part of the virtual world. `hubnet-send-follow` keeps the user at the center of the client's view and puts a halo around it. The user is always centered even when it's moving.
 
-This model also makes use of tasks, which allow agents to change states (E.g. from "chilling" to "broke"), in which the agents follow different rules at each tick (E.g. when an agent is in the "chilling" state, at each tick, the user's button clicks are executed. However, if the agent is in the "broke" state, the user's button clicks are ignored). Users switch between states in two ways: when in the "chilling" state, if the agent runs out of sugar, it goes into the "broke" state. Meanwhile, a timer starts to count down. When to timer goes down to zero, the agent goes out of the "broke" state and enters the "chilling" state again.
+This model also makes use of <b>anonymous procedures</b>, which allow agents to change states (E.g. from "chilling" to "broke"), in which the agents follow different rules at each tick (E.g. when an agent is in the "chilling" state, at each tick, the user's button clicks are executed. However, if the agent is in the "broke" state, the user's button clicks are ignored). Users switch between states in two ways: when in the "chilling" state, if the agent runs out of sugar, it goes into the "broke" state. Meanwhile, a timer starts to count down. When to timer goes down to zero, the agent goes out of the "broke" state and enters the "chilling" state again.
 
 ## RELATED MODELS
 
@@ -564,6 +576,8 @@ The model is also related to the NetLogo SugarScape suite, including:
 ## CREDITS AND REFERENCES
 
 Epstein, J. and Axtell, R. (1996). Growing Artificial Societies: Social Science from the Bottom Up. Washington, D.C.: Brookings Institution Press.
+
+Li, J. and Wilensky, U. (2009). NetLogo Sugarscape 3 Wealth Distribution model. http://ccl.northwestern.edu/netlogo/models/Sugarscape3WealthDistribution. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 ## HOW TO CITE
 
