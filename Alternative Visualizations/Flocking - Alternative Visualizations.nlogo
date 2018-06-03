@@ -295,7 +295,7 @@ vision
 vision
 0
 10
-3.0
+5.0
 0.5
 1
 patches
