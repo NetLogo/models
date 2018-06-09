@@ -683,7 +683,7 @@ The bloodstream also carries other nutrients like amino acids or fatty acids, wh
 
 NetLogo buttons typically cause a procedure to occur exactly once when the button is pressed or 'forever', meaning once each tick until the button is pressed a second time.  The `EAT` button in conjunction with the `add-glucose` procedure allows a button to run a procedure once every tick for the next N ticks.
 
-This model also implements a new function `random-binomial` in the style of the NetLogo primitives `random-normal`, `random-poisson`, etc. which takes in the defining parameters `n` and `p` and outputs a binomial-distributed random number.  This is accomplished using the `rnd` extension.  The method used in this model can be adapted to create a similar function for other finite discrete probability distributions.
+This model also implements a new function `random-binomial` in the style of the NetLogo primitives `random-normal`, `random-poisson`, etc. which takes in the defining parameters `n` and `p` and outputs a binomial-distributed random number. This method of combining random number generators to define a new random number generator can be applied generally to form many distributions beyond NetLogo's built in capabilities.
 
 ## RELATED MODELS
 
