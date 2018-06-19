@@ -968,7 +968,7 @@ Circle -7500403 true true 96 76 108
 Circle -7500403 true true 72 104 156
 Polygon -7500403 true true 221 149 195 101 106 99 80 148
 @#$#@#$#@
-NetLogo 6.0.3
+NetLogo 6.0.4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

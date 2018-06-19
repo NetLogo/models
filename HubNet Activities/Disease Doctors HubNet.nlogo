@@ -1393,7 +1393,7 @@ Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
 Circle -2674135 true false 156 156 108
 @#$#@#$#@
-NetLogo 6.0.3
+NetLogo 6.0.4
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
