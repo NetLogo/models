@@ -81,7 +81,7 @@ BUTTON
 80
 190
 113
-NIL
+setup child models
 setup-models
 NIL
 1
