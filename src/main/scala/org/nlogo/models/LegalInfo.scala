@@ -15,7 +15,7 @@ object LegalInfo {
     """<!-- (\d\d\d\d)( \d\d\d\d)?(( \w+)*)( Cite: .*)? -->""".r
   val validKeywords = List(
     "MIT", "Wilensky", "specialCE", "MAC", "Steiner",
-    "Stroup", "3D", "NIELS", "ConChem", "CC0", "BYSA", "GenEvo", "MTG")
+    "Stroup", "3D", "NIELS", "ConChem", "CC0", "BYSA", "GenEvo", "MTG", "PNoM")
   val textbookCitation =
     "* Wilensky, U. & Rand, W. (2015). Introduction " +
       "to Agent-Based Modeling: Modeling Natural, Social " +
@@ -217,6 +217,15 @@ case class LegalInfo(model: Model) {
         builder.append("Mind the Gap curriculum. ")
         builder.append("http://ccl.northwestern.edu/MindtheGap/. ")
         builder.append("Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.\n")
+      }
+      if (keywords.contains("PNoM")) {
+        builder.append("\n")
+        builder.append("To cite the Particulate Nature of Matter curriculum as a whole, please use:\n\n")
+        builder.append("* Novak, M., Brady, C., Holbert, N., Soylu, F. and Wilensky, U. (2010). ")
+        builder.append("Particulate Nature of Matter curriculum. ")
+        builder.append(" http://ccl.northwestern.edu/curriculum/pnom/. ")
+        builder.append("Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.\n")
+        builder.append("Thanks to Umit Aslan and Mitchell Estberg for updating these models for inclusion the in Models Library.\n")
       }
     }
     InfoTabParts.clean(builder.toString)
