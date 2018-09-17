@@ -134,7 +134,7 @@ end
 ;; MUTATION-RATE slider.
 to mutate   ;; turtle procedure
   set bits map [ b ->
-    ifelse-value (random-float 100.0 < mutation-rate)
+    ifelse-value random-float 100.0 < mutation-rate
       [ 1 - b ]
       [ b ]
   ] bits

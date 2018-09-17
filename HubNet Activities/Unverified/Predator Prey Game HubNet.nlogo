@@ -387,7 +387,7 @@ end
 to-report my-role
   if energy <= 0
     [ report "dead" ]
-  report ifelse-value (shape = "wolf") [ "predator" ][ "prey" ]
+  report ifelse-value shape = "wolf" [ "predator" ][ "prey" ]
 end
 
 ;; show the appropriate amount of energy

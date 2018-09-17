@@ -69,7 +69,7 @@ to setup
     set asking-price get-starting-value starting-asking-price
     ; we set the behavior using anonymous procedures to make the usage during the run simple
     ; the behavior depends on the settings of the model
-    let mix-behavior ifelse-value (seller-behavior = "mix of all") [random 3] [-1]
+    let mix-behavior ifelse-value seller-behavior = "mix of all" [random 3] [-1]
     ifelse seller-behavior = "normal" or mix-behavior = 0 [
       set behavior-after-sale [         -> change-price 2.5 ]
       set behavior-no-sale    [ hide? -> if (not hide?) [ change-price -2.0 ] ]
@@ -95,7 +95,7 @@ to setup
     set willing-to-pay get-starting-value starting-willing-to-pay
     ; we set the behavior using anonymous procedures to make the usage during the run simple
     ; again, the behavior depends on the settings of the model
-    let mix-behavior ifelse-value (buyer-behavior = "mix of all") [random 3] [-1]
+    let mix-behavior ifelse-value buyer-behavior = "mix of all" [random 3] [-1]
     ifelse buyer-behavior = "normal" or mix-behavior = 0 [
       set behavior-after-purchase [-> change-payment -2.0 ]
       set behavior-no-purchase    [-> change-payment  2.5 ]
@@ -144,7 +144,7 @@ to setup
 end
 
 to-report get-random-amount [ dist amount ]
-  report ifelse-value (dist = "even") [
+  report ifelse-value dist = "even" [
     1 + random (get-amount amount)
   ] [ ; "concentrated"
     1 + floor random-exponential ((get-amount amount) / 2)
@@ -152,7 +152,7 @@ to-report get-random-amount [ dist amount ]
 end
 
 to-report get-amount [ amount ]
-  report ifelse-value (amount = "high") [
+  report ifelse-value amount = "high" [
     amount-high
   ] [ ; else "low"
     amount-low
@@ -172,7 +172,7 @@ to go
   ; move our buyers to their next position in the circle
   ; record the positions first, since if we move before processing all of them, it screws things up
   ask buyers [
-    let next ifelse-value (who = (1 * population)) [(2 * population) - 1] [who - 1]
+    let next ifelse-value who = (1 * population) [(2 * population) - 1] [who - 1]
     set next-xcor [xcor] of buyer next
     set next-ycor [ycor] of buyer next
   ]
@@ -240,7 +240,7 @@ to do-commerce-with [ the-seller ]
     set want-to-buy (want-to-buy - 1)
     let price asking
     set money precision (money - price) 2
-    set money ifelse-value (money < min-price) [0] [money]
+    set money ifelse-value money < min-price [0] [money]
     set bought (bought + 1)
     ask the-seller [
       set items-for-sale (items-for-sale - 1)
@@ -319,7 +319,7 @@ to-report seller-cash
 end
 
 to-report average-price
-  report (ifelse-value (total-sales = 0) [ 0.00 ] [ precision (seller-cash / total-sales) 2 ])
+  report (ifelse-value total-sales = 0 [ 0.00 ] [ precision (seller-cash / total-sales) 2 ])
 end
 
 to-report percent-money-taken
@@ -335,7 +335,7 @@ to-report percent-demand-satisfied
 end
 
 to-report check-for-min-price [ value ]
-  report precision ifelse-value (value < min-price) [min-price] [value] 2
+  report precision ifelse-value value < min-price [min-price] [value] 2
 end
 
 
@@ -417,7 +417,7 @@ NIL
 100.0
 true
 false
-"" "let top (floor ifelse-value (average-price = 0) [max [asking-price] of sellers] [average-price * 2])\nset-plot-y-range 0 ifelse-value (top < 1) [1] [top]"
+"" "let top (floor ifelse-value average-price = 0 [max [asking-price] of sellers] [average-price * 2])\nset-plot-y-range 0 ifelse-value top < 1 [1] [top]"
 PENS
 "avg-asking-price" 1.0 0 -13345367 true "" "let ss (sellers with [items-for-sale > 0])\nifelse (count ss = 0) \n[ plot 0 ]\n[ plot mean [asking-price] of ss ]"
 "min-asking-price" 1.0 0 -5325092 true "" "let ss (sellers with [items-for-sale > 0])\nifelse (count ss = 0) \n[ plot 0 ]\n[ plot min [asking-price] of ss ]"
@@ -511,7 +511,7 @@ NIL
 100.0
 true
 false
-"" "let top floor ifelse-value (average-price = 0) [max [asking-price] of sellers] [average-price * 2]\nset-plot-y-range 0 ifelse-value (top < 1) [1] [top]"
+"" "let top floor ifelse-value average-price = 0 [max [asking-price] of sellers] [average-price * 2]\nset-plot-y-range 0 ifelse-value top < 1 [1] [top]"
 PENS
 "avg-willing" 1.0 0 -5825686 true "" "let bs (buyers with [want-to-buy > 0 and money > 0])\nifelse (count bs = 0) \n[ plot 0 ]\n[ plot mean [willing-to-pay] of bs ]"
 "max-willing" 1.0 0 -2382653 true "" "let bs (buyers with [want-to-buy > 0 and money > 0])\nifelse (count bs = 0) \n[ plot 0 ]\n[ plot max [willing-to-pay] of bs ]"

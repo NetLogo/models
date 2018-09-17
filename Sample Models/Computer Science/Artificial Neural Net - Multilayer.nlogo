@@ -170,7 +170,7 @@ end
 
 ;; computes the step function given an input value and the weight on the link
 to-report step [input]
-  report ifelse-value (input > 0.5) [ 1 ] [ 0 ]
+  report ifelse-value input > 0.5 [ 1 ] [ 0 ]
 end
 
 ;;;
@@ -180,7 +180,7 @@ end
 ;; test runs one instance and computes the output
 to test
   let result result-for-inputs input-1 input-2
-  let correct? ifelse-value (result = target-answer) [ "correct" ] [ "incorrect" ]
+  let correct? ifelse-value result = target-answer [ "correct" ] [ "incorrect" ]
   user-message (word
     "The expected answer for " input-1 " " target-function " " input-2 " is " target-answer ".\n\n"
     "The network reported " result ", which is " correct? ".")

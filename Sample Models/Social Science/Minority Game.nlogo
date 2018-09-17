@@ -115,7 +115,7 @@ to increment-scores  ;; turtles procedure
   ;; the minority.  If it did, we increase its score by one,
   ;; otherwise we leave the score alone.
   set strategies-scores (map [ [the-strategy the-score] ->
-    ifelse-value (item history the-strategy = minority) [ the-score + 1] [ the-score ]
+    ifelse-value item history the-strategy = minority [ the-score + 1] [ the-score ]
   ] strategies strategies-scores)
 end
 

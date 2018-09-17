@@ -22,7 +22,7 @@ end
 
 ;; Reports the link set corresponding to the value of the links-to-use combo box
 to-report get-links-to-use
-  report ifelse-value (links-to-use = "directed")
+  report ifelse-value links-to-use = "directed"
     [ directed-edges ]
     [ undirected-edges ]
 end

@@ -112,7 +112,7 @@ to-report collision-distance [incoming]  ;; stayer procedure
 end
 
 to-report sign-star [x]
-  report ifelse-value (x < 0) [-1] [1]
+  report ifelse-value x < 0 [-1] [1]
 end
 
 

@@ -137,7 +137,7 @@ to make-a-sample-organizer ; sample-dudes procedure
   hatch-sample-organizers 1 [
     hide-turtle
     set sample-values map [ the-sample-dude ->
-      ifelse-value ([ color ] of the-sample-dude = target-color) [ 1 ] [ 0 ]
+      ifelse-value [ color ] of the-sample-dude = target-color [ 1 ] [ 0 ]
     ] sorted-sample-dudes
     display-sample
   ]
