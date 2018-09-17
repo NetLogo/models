@@ -126,7 +126,7 @@ end
 to toggle  ;; patch procedure
   if pycor != max-pycor [
     ifelse pxcor = min-pxcor
-      [ set pcolor ifelse-value (pcolor = black) [white] [black] ]
+      [ set pcolor ifelse-value pcolor = black [white] [black] ]
       [ ifelse any? notes-here
           [ ask notes-here [ die ] ]
           [ sprout-notes 1 ] ] ]

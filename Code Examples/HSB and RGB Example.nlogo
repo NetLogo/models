@@ -20,8 +20,8 @@ to-report quadrant [x y]  ;; inputs are 1 or -1
 end
 
 to-report patch-quadrant  ;; patch procedure
-  report list ifelse-value (pxcor < world-width / 2) [-1] [1]
-              ifelse-value (pycor < world-width / 2) [-1] [1]
+  report list ifelse-value pxcor < world-width / 2 [-1] [1]
+              ifelse-value pycor < world-width / 2 [-1] [1]
 end
 
 

@@ -848,7 +848,7 @@ end
 
 
 to-report current-instruction-label
-  report ifelse-value (current-instruction = 0)
+  report ifelse-value current-instruction = 0
     [ "press setup" ]
     [ (word current-instruction " of " length instructions) ]
 end

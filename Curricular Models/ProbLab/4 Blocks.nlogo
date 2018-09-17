@@ -83,7 +83,7 @@ to-report choose [n c]
 end
 
 to-report factorial [n]
-  report ifelse-value (n = 0) [
+  report ifelse-value n = 0 [
     1
   ] [
     n * factorial (n - 1)

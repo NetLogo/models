@@ -306,7 +306,7 @@ to update-my-slice-label ; student procedure
 
   ; either display a user-name or a slice #
   let short-name substring user-name 0
-    ifelse-value ((round (slice-width / 4) + 1) > length user-name)
+    ifelse-value (round (slice-width / 4) + 1) > length user-name
       [ length user-name ]
       [ (round (slice-width / 4) + 1) ]
 
@@ -450,7 +450,7 @@ to initialize-hubnet-client ; turtle procedure
 
   ; Send the new interface options to the client
   hubnet-clear-overrides user-name
-  hubnet-send-follow user-name self ifelse-value (18 > (round (abs(left-bound - right-bound)) / 2)) [18] [ (round (abs(left-bound - right-bound)) / 2) ]
+  hubnet-send-follow user-name self ifelse-value 18 > (round (abs(left-bound - right-bound)) / 2) [18] [ (round (abs(left-bound - right-bound)) / 2) ]
   hubnet-send-override user-name (nuclei-on my-patches) "color" [ [color] of myself ]
   hubnet-send user-name "slice" (word "#" slice-id)
 end

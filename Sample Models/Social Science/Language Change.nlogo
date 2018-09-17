@@ -84,7 +84,7 @@ end
 
 ;; reports a string of the agent's initial grammar
 to-report orig-grammar-string
-  report ifelse-value (orig-state = 1.0) ["1"] ["0"]
+  report ifelse-value orig-state = 1.0 ["1"] ["0"]
 end
 
 ;;;

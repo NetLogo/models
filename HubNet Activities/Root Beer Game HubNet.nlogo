@@ -151,7 +151,7 @@ to end-week ;; team procedure
   [
     ;; the demand starts at 4 cases per week. In week 7 it rises to
     ;; 8 cases and remains there the rest of the time.
-    set orders-placed ifelse-value ([clock] of myself <= 5) [ 4 ][ 8 ]
+    set orders-placed ifelse-value [clock] of myself <= 5 [ 4 ][ 8 ]
   ]
 
   ;; produce the goods at the factory level
