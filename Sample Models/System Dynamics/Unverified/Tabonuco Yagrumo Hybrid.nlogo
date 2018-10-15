@@ -757,7 +757,7 @@ NetLogo 6.0.4
         org.nlogo.sdm.gui.ConverterFigure "attributes" "attributes" 1 "FillColor" "Color" 130 188 183 441 503 50 50
             org.nlogo.sdm.gui.WrappedConverter "user-hurricane-interval" "hurricane-interval"
         org.nlogo.sdm.gui.ConverterFigure "attributes" "attributes" 1 "FillColor" "Color" 130 188 183 357 418 50 50
-            org.nlogo.sdm.gui.WrappedConverter ";; We always have at least 0.001 disturbance,\n;; If hurricane frequency is above 0, then\n;; we have a hurricane strike at a regular\n;; otherwise we have a single hurricane strike\n;; at time 0\n0.001 + ifelse-value ( hurricane-interval = 0 )\n  [ pulse hurricane-strength 0 0]\n  [ pulse hurricane-strength hurricane-interval hurricane-interval ]\n" "disturbance"
+            org.nlogo.sdm.gui.WrappedConverter ";; We always have at least 0.001 disturbance,\n;; If hurricane frequency is above 0, then\n;; we have a hurricane strike at a regular\n;; otherwise we have a single hurricane strike\n;; at time 0\n0.001 + ifelse-value hurricane-interval = 0\n  [ pulse hurricane-strength 0 0]\n  [ pulse hurricane-strength hurricane-interval hurricane-interval ]\n" "disturbance"
         org.nlogo.sdm.gui.BindingConnection 2 453 515 394 455 NULL NULL 0 0 0
             org.jhotdraw.contrib.ChopDiamondConnector REF 5
             org.jhotdraw.contrib.ChopDiamondConnector REF 7
@@ -770,7 +770,7 @@ NetLogo 6.0.4
         org.nlogo.sdm.gui.ConverterFigure "attributes" "attributes" 1 "FillColor" "Color" 130 188 183 351 35 50 50
             org.nlogo.sdm.gui.WrappedConverter "amount-of-tabonuco + amount-of-yagrumo" "carbon"
         org.nlogo.sdm.gui.ConverterFigure "attributes" "attributes" 1 "FillColor" "Color" 130 188 183 472 28 50 50
-            org.nlogo.sdm.gui.WrappedConverter ";; this is the equivalent of derivn(carbon, 1)\n;; in Stella, however we have to explicitly\n;; track the previous value, see the GO procedure\nifelse-value ( previous-carbon = 0 )\n [ 0 ]\n [ max (list 0 ( ( carbon - previous-carbon) / dt ) )] " "productivity"
+            org.nlogo.sdm.gui.WrappedConverter ";; this is the equivalent of derivn(carbon, 1)\n;; in Stella, however we have to explicitly\n;; track the previous value, see the GO procedure\nifelse-value previous-carbon = 0\n [ 0 ]\n [ max (list 0 ( ( carbon - previous-carbon) / dt ) )] " "productivity"
         org.nlogo.sdm.gui.BindingConnection 2 246 256 304 152 NULL NULL 0 0 0
             org.jhotdraw.standard.ChopBoxConnector REF 1
             org.jhotdraw.contrib.ChopDiamondConnector REF 12

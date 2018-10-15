@@ -165,7 +165,7 @@ end
 to-report target-answer ;; observer procedure
   let a [activation] of input-node-1 = 1
   let b [activation] of input-node-2 = 1
-  report ifelse-value (run-result (word "my-" target-function " a b")) [1][-1]
+  report ifelse-value run-result (word "my-" target-function " a b") [1][-1]
 end
 
 to-report my-or [a b];; output-node procedure

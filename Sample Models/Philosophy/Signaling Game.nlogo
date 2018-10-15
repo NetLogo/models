@@ -243,8 +243,8 @@ to-report format-list [ this-list ]
 end
 
 to-report format-value [ x width ]
-  let str (word ifelse-value (is-number? x) [ precision x 0 ] [ x ])
-  let padding ifelse-value (length str < width)
+  let str (word ifelse-value is-number? x [ precision x 0 ] [ x ])
+  let padding ifelse-value length str < width
     [ reduce word (n-values (width - length str) [ " " ]) ]
     [ "" ]
   report word padding str
@@ -257,7 +257,7 @@ end
 
 to-report instances [ x this-list ]
   ; report the number of instances of x in this-list
-  report reduce [ [a b] -> a + ifelse-value (b = x) [ 1 ] [ 0 ] ] fput 0 this-list
+  report reduce [ [a b] -> a + ifelse-value b = x [ 1 ] [ 0 ] ] fput 0 this-list
 end
 
 to-report normalize [ this-list ]

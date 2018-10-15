@@ -26,7 +26,7 @@ end
 to setup-consumers
   ; Store the agentset of patches that are going to be our
   ; consumers in a global variable for easy reference.
-  set consumers ifelse-value (layout = "line")
+  set consumers ifelse-value layout = "line"
     [ patches with [ pxcor = 0 ] ]
     [ patches ]
 end
@@ -51,11 +51,11 @@ to go
   ; We accumulate location and price changes as lists of tasks to be run later
   ; in order to simulate simultaneous decision making on the part of the stores
 
-  let location-changes ifelse-value (rules = "pricing-only")
+  let location-changes ifelse-value rules = "pricing-only"
     [ (list) ] ; if we are doing "pricing-only", the list of moves is empty
     [ [ new-location-task ] of turtles ]
 
-  let price-changes ifelse-value (rules = "moving-only")
+  let price-changes ifelse-value rules = "moving-only"
     [ (list) ] ; if we are doing "moving-only", the list of price changes is empty
     [ [ new-price-task ] of turtles ]
 
@@ -141,7 +141,7 @@ to-report new-price-task
     map [ the-price -> list the-price (potential-revenue the-price) ] possible-prices
 
   let all-zeros? (not member? false map [ pair -> last pair = 0 ] prices-with-revenues)
-  let chosen-price ifelse-value (all-zeros? and price > 1)
+  let chosen-price ifelse-value all-zeros? and price > 1
     [ price - 1 ] ; if all potential revenues are zero, the store lowers its price as an emergency procedure if it can
     [ first first prices-with-revenues ] ; in any other case, we pick the price with the best potential revenues
 
