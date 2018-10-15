@@ -436,7 +436,7 @@ to update-client  ;; player procedure
   hubnet-send user-id "current choice" choice
   hubnet-send user-id "history" full-history player-history player-memory
   hubnet-send user-id "score" score
-  hubnet-send user-id "success rate" precision ifelse-value (choices-made > 0) [ score / choices-made ] [ 0 ] 2
+  hubnet-send user-id "success rate" precision ifelse-value choices-made > 0 [ score / choices-made ] [ 0 ] 2
 end
 
 ;; the client chooses 0 or 1

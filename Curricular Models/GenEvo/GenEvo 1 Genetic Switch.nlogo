@@ -239,7 +239,7 @@ end
 ; procedure for movement and molecular interactions of RNAPs
 to go-RNAPs
   ; In the presence of glucose, the probability of trancription is less.
-  let transcription-probability ifelse-value (glucose?) [ 0.1 ] [ 1 ]
+  let transcription-probability ifelse-value glucose? [ 0.1 ] [ 1 ]
 
   ; If any RNAPs are close to the promoter and the operator is not inhibited
   if (not inhibited?) [

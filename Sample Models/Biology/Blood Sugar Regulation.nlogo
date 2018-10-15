@@ -322,7 +322,7 @@ end
 ; Returns the outcome of a Bernoulli trial with success probability p.
 ; Successes are reported as 1 and failures are reported as 0.
 to-report random-bernoulli [ p ]
-  report ifelse-value (random-float 1 < p) [1] [0]
+  report ifelse-value random-float 1 < p [1] [0]
 end
 
 ; Returns a random number according to the binomial distribution with parameters n and p

@@ -96,7 +96,7 @@ end
 
 to move
   ; Determine the step size based on the land-mobility parameter
-  let step-size ifelse-value ( ycor < 0 ) [ 1 - land-mobility ] [ land-mobility ]
+  let step-size ifelse-value ycor < 0 [ 1 - land-mobility ] [ land-mobility ]
   ; Add a random element so that fish can make some progress on land even when land-mobility is 0
   set step-size step-size + random-float 0.1
 
@@ -201,7 +201,7 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to-report avg-eye-size [ agentset ]
-  let val ifelse-value (any? agentset)
+  let val ifelse-value any? agentset
     [ mean [ eye-size ] of agentset ]
     [ 1 ]
   report val
@@ -211,7 +211,7 @@ end
 to-report rad-size [ eye ]
   ; Eye size determines the radius of the field of vision
   ; The effect of eye size on the field of vision under water vs on land is vastly different
-  report ifelse-value ( ycor < 0 ) [ eye / max-eye-size + 3 ] [ ( eye ) ^ 2 + 3 ]
+  report ifelse-value ycor < 0 [ eye / max-eye-size + 3 ] [ ( eye ) ^ 2 + 3 ]
 end
 
 
@@ -221,7 +221,7 @@ to-report weighted-distance [ weight ]
   let mult 3
   ; Exponentials are used to model the weight of the food prefence
   ; Being close to 0.5 has little effect, but getting closer to one or zero has big effects
-  let dist ifelse-value ( ycor < 0 )
+  let dist ifelse-value ycor < 0
   [ (distance myself) * exp ((weight - 0.5)* mult) ]
   [ (distance myself) * exp ((0.5 - weight)* mult) ]
   report dist
