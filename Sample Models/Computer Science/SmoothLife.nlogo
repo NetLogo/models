@@ -11,7 +11,7 @@ patches-own [
 to setup
   clear-all
   ; Plot the transition function for the current settings
-  visualize-transition
+  if (not netlogo-web?) [ visualize-transition ]
   ask patches [
     ; Store neighboring patches so that we don't have to calculate them each tick
     set inner-neighbors patches in-radius inner-radius
@@ -401,7 +401,7 @@ BUTTON
 185
 373
 visualize-transition
-every 0.5 [ visualize-transition ]
+if (not netlogo-web?) [ every 0.5 [ visualize-transition ] ]
 T
 1
 T
