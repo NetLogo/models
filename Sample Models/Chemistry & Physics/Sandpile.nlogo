@@ -448,13 +448,13 @@ yellow = 2 grains
 green = 1 grain
 black = 0 grains
 
-If the **display-avalanches?** switch is on, overloaded patches are white.
+If the **animate-avalanches?** switch is on, overloaded patches are white.
 
 Press **go** to start dropping sand.  You can choose where to drop with **drop-location**. If the **drop-location** is set to "mouse-click", you can drop sand by clicking on the view (the **go** button needs to be active for that to work.)
 
 If you start out with a uniform distribution of 0 or even 1, it might take a while before you see avalanches. If you want to speed up this process, uncheck "view updates" for a few seconds, and then check it again. This makes the model run faster, because NetLogo does not have to draw the model every tick.
 
-When **display-avalanches?** is on, you can watch each avalanche happening, and then when the avalanche is done, the areas touched by the avalanche flash white.
+When **animate-avalanches?** is on, you can watch each avalanche happening, and then when the avalanche is done, the areas touched by the avalanche flash white.
 
 Push the speed slider to the right to get results faster.
 
@@ -468,7 +468,7 @@ Most avalanches are small. Occasionally a much larger one happens. How is it pos
 
 Can you predict when a big avalanche is about to happen? What do you look for?
 
-Leaving **display-avalanches?** on lets you watch the pattern each avalanche makes. How would you describe the patterns you see?
+Leaving **animate-avalanches?** on lets you watch the pattern each avalanche makes. How would you describe the patterns you see?
 
 Observe the **Average grain count** plot. What happens to the average height of sand over time?
 
