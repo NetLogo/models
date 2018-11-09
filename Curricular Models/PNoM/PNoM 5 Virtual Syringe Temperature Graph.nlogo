@@ -1230,11 +1230,11 @@ end
 GRAPHICS-WINDOW
 175
 10
-733
-449
+729
+446
 -1
 -1
-7.0513
+7.0
 1
 10
 1
@@ -1625,9 +1625,9 @@ precision mean plunger-up-forces 2
 TEXTBOX
 1235
 495
-1370
-596
-TIP: Before running \nyour experiment\nmake sure that \nthe system has \nreached an equilibrium\nstate.\n
+1380
+610
+TIP: Before running \nyour experiment\nmake sure that \nthe system has \nreached an \nequilibrium\nstate.\n
 12
 0.0
 1

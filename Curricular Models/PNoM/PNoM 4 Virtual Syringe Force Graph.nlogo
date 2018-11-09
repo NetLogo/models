@@ -1712,7 +1712,7 @@ precision mean plunger-up-force 2
 TEXTBOX
 940
 545
-1175
+1210
 641
 TIP:  Before running your experiment, \nmake sure that the system has \nreached an equilibrium state.
 12
