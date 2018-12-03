@@ -334,7 +334,7 @@ SLIDER
 rod-depth
 rod-depth
 0
-80
+reactor-size
 0.0
 1
 1
@@ -389,7 +389,7 @@ spend-fuel?
 
 This project simulates a nuclear fission reaction in a nuclear power plant. In a fission reaction, free neutrons hit uranium atoms, causing each uranium atom to generate 2 or 3 neutrons and a unit of energy. The uranium atom itself splits into two smaller atoms. The newly generated neutrons, together with the neutron that caused the reaction, keep moving and continue to hit more uranium atoms, which release more neutrons, etc.  This is the chain reaction that happens inside an atomic bomb.
 
-Most nuclear energy is used for peaceful purpose, however. Generated in a nuclear power plant, nuclear fission goes on in a much more controlled fashion. Heavy metal plates made of lead help to absorb the free neutrons, thus fewer atoms of uranium are smashed, which in turn limits how much energy is released.
+Most nuclear energy is used for peaceful purposes, however. Generated in a nuclear power plant, nuclear fission goes on in a much more controlled fashion. Heavy metal plates made of lead help to absorb the free neutrons, thus fewer atoms of uranium are smashed, which in turn limits how much energy is released.
 
 This model simulates the process of a nuclear fission reaction inside such a plant. The reactor core is built of concrete, with adjustable control rods to help control the speed of the reaction. The reactor has a built-in automatic controller, and has a set of manual controls as well.
 
