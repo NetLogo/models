@@ -63,7 +63,7 @@ to select [ target ]
   ]
 end
 
-; If TARGET is blank, reproduce to it. If I'm blank, TARGET reproduces to me.
+; If TARGET is blank, reproduce on that patch. If I'm blank, TARGET reproduces on my patch.
 to reproduce [ target ]
   ifelse [ pcolor ] of target = black [
     ask target [
@@ -281,10 +281,10 @@ The model is written in an event-based fashion, to reflect the formulation of th
 Each patch can be occupied by one of three species or can be blank. The species are represented by three colors: red, green, and blue. Each tick, the following types of events happen at defined average rates:
 
 - Select event: Two random neighbors compete with each other. In competition, red beats green, green beats blue, and blue beats red, like in rock paper scissors. The losing patch becomes blanks.
-- Reproduce event: Two random neighbors attempt to reproduce to each other. If one of the neighbors is blank, it acquires the color of the other.
+- Reproduce event: Two random neighbors attempt to reproduce. If one of the neighbors is blank, it acquires the color of the other. Nothing happens if neither neighbor is blank.
 - Swap event: Two random neighbors swap color. This represents the organisms moving.
 
-The exact number of, for instance, swap events that occur each tick is drawn from a [Poisson distribution](https://en.wikipedia.org/wiki/Poisson_distribution) with mean equal to `(count patches) * 10 ^ swap-rate-exponent`. A Poisson distribution defines how many times a particular event occurs given an average rate for that event assuming that the occurrences of that event are independent. Here, the occurrences of the events of are approximately independent since they're being performed by different organisms.
+The exact number of, for instance, swap events that occur each tick is drawn from a [Poisson distribution](https://en.wikipedia.org/wiki/Poisson_distribution) with mean equal to `(count patches) * 10 ^ swap-rate-exponent`. A Poisson distribution defines how many times a particular event occurs given an average rate for that event assuming that the occurrences of that event are independent. Here, the occurrences of the events are approximately independent since they're being performed by different organisms.
 
 The events occur in a random order involving random pairs of neighbors.
 
