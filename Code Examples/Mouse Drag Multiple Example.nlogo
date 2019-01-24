@@ -1,73 +1,112 @@
-breed [circles circle]   ;; the turtles being selected
-breed [sides side]       ;; the four sides of the selection rectangle
+breed [circles circle] ; the turtles being selected
+breed [sides side]     ; the four sides of the selection rectangle
 
-globals [selected]       ;; agentset of currently selected circles
+globals [
+  current-state ; "not-started", "selecting", "waiting-to-drag", "dragging"
+  select-x      ; coordinates for the start of the select box
+  select-y
+  drag-x        ; coordinates for the start of a drag operation
+  drag-y
+  selected      ; agentset of currently selected circles
+]
 
 to setup
   clear-all
+  set current-state "not-started"
   set-default-shape circles "circle"
   set-default-shape sides "line"
   create-circles 200 [
     set color blue
     setxy random-xcor random-ycor
   ]
-  ;; initially, no turtles are selected
+  ; initially, no turtles are selected
   set selected no-turtles
   reset-ticks
 end
 
 to go
+  ; we use a different procedure depending on which state we're in
+  ; the procedures will update the `current-state` to the next value as the user clicks
+  (ifelse
+    (current-state = "not-started")     [ start-selecting ]
+    (current-state = "selecting")       [ handle-selecting ]
+    (current-state = "waiting-to-drag") [ handle-waiting ]
+    (current-state = "dragging")        [ handle-drag ]
+  )
+end
+
+to start-selecting
   if mouse-down? [
-    ifelse selected? mouse-xcor mouse-ycor
-      [ handle-drag
-        deselect ]
-      [ handle-select ]
+    ; on the first click we see, we record the mouse position as the start of selection
+    set select-x mouse-xcor
+    set select-y mouse-ycor
+    set current-state "selecting"
   ]
 end
 
-to handle-select
-  ;; remember where the mouse pointer was located when
-  ;; the user pressed the mouse button
-  let old-x mouse-xcor
-  let old-y mouse-ycor
-  while [mouse-down?] [
-    select old-x old-y mouse-xcor mouse-ycor
-    ;; update the view, otherwise the user can't see
-    ;; what's going on
-    display
+to handle-selecting
+  ifelse mouse-down? [
+    ; we keep updating the selection box as long as the mouse is down
+    select select-x select-y mouse-xcor mouse-ycor
+  ][
+    ; user was selecting, but let off the mouse button
+    ifelse not any? selected [
+      ; if nothing was selected in the box, return to the not-started state
+      deselect
+      set current-state "not-started"
+    ] [
+      ; else we are ready to drag
+      set current-state "waiting-to-drag"
+    ]
   ]
-  ;; if no turtles are selected, kill off
-  ;; the selection rectangle and start over
-  if not any? selected [ deselect ]
+  display
+end
+
+to handle-waiting
+  if mouse-down? [
+    ; on the first click after the selection
+    ; check if we're inside or outside the box
+    ifelse selected? mouse-xcor mouse-ycor [
+      ; inside the box, set the starting drag coordinates
+      set drag-x mouse-xcor
+      set drag-y mouse-ycor
+      set current-state "dragging"
+    ] [
+      ; clicked outside the select box, return to the "selecting" state
+      start-selecting
+    ]
+  ]
 end
 
 to handle-drag
-  ;; remember where the mouse pointer was located when
-  ;; the user pressed the mouse button
-  let old-x mouse-xcor
-  let old-y mouse-ycor
-  if selected? old-x old-y [
-    while [mouse-down?] [
-      let new-x mouse-xcor
-      let new-y mouse-ycor
-      ;; we need to move both the selected turtles and the sides
-      ;; of the selection rectangle by the same amount that the
-      ;; mouse has moved.  we do this by subtracting the current
-      ;; mouse coordinates from the previous mouse coordinates
-      ;; and adding the results to the coordinates of the turtles
-      ;; and sides.
-      ask selected
-        [ setxy xcor + new-x - old-x
-                ycor + new-y - old-y ]
-      ask sides
-        [ setxy xcor + new-x - old-x
-                ycor + new-y - old-y ]
-      set old-x new-x
-      set old-y new-y
-      ;; update the view, otherwise the user can't see
-      ;; what's going on
-      display
+  ifelse mouse-down? [
+    let new-x mouse-xcor
+    let new-y mouse-ycor
+    ; we need to move both the selected turtles and the sides
+    ; of the selection rectangle by the same amount that the
+    ; mouse has moved.  we do this by subtracting the current
+    ; mouse coordinates from the previous mouse coordinates
+    ; and adding the results to the coordinates of the turtles
+    ; and sides.
+    ask selected
+    [
+      setxy xcor + new-x - drag-x
+      ycor + new-y - drag-y
     ]
+    ask sides
+    [
+      setxy xcor + new-x - drag-x
+      ycor + new-y - drag-y
+    ]
+    ; update the drag coordinates for the next time through
+    ; if the user keeps the mouse button down
+    set drag-x new-x
+    set drag-y new-y
+    display
+  ] [
+    ; user was dragging, but let off the mouse button
+    ; wait for them to click again
+    set current-state "waiting-to-drag"
   ]
 end
 
@@ -77,8 +116,8 @@ to deselect
   set selected no-turtles
 end
 
-to select [x1 y1 x2 y2]   ;; x1 y1 is initial corner and x2 y2 is current corner
-  deselect  ;; kill old selection rectangle
+to select [x1 y1 x2 y2] ; x1 y1 is initial corner and x2 y2 is current corner
+  deselect ; kill old selection rectangle
   make-side x1 y1 x2 y1
   make-side x1 y1 x1 y2
   make-side x1 y2 x2 y2
@@ -88,8 +127,8 @@ to select [x1 y1 x2 y2]   ;; x1 y1 is initial corner and x2 y2 is current corner
 end
 
 to make-side [x1 y1 x2 y2]
-  ;; for each side, one thin line shape is created at the mid point of each segment
-  ;; of the bounding box and scaled to the proper length
+  ; for each side, one thin line shape is created at the mid point of each segment
+  ; of the bounding box and scaled to the proper length
   create-sides 1 [
     set color gray
     setxy (x1 + x2) / 2
@@ -99,15 +138,14 @@ to make-side [x1 y1 x2 y2]
   ]
 end
 
-;; helper procedure that determines whether a point is
-;; inside the selection rectangle
+; helper procedure that determines whether a point is
+; inside the selection rectangle
 to-report selected? [x y]
-  if not any? sides [ report false ]
-  let y-max max [ycor] of sides   ;; largest ycor is where the top is
-  let y-min min [ycor] of sides   ;; smallest ycor is where the bottom is
-  let x-max max [xcor] of sides   ;; largest xcor is where the right side is
-  let x-min min [xcor] of sides   ;; smallest xcor is where the left side is
-  ;; report whether the input coordinates are within the rectangle
+  let y-max max [ycor] of sides  ; largest ycor is where the top is
+  let y-min min [ycor] of sides  ; smallest ycor is where the bottom is
+  let x-max max [xcor] of sides  ; largest xcor is where the right side is
+  let x-min min [xcor] of sides  ; smallest xcor is where the left side is
+  ; report whether the input coordinates are within the rectangle
   report x >= x-min and x <= x-max and
          y >= y-min and y <= y-max
 end
@@ -183,10 +221,21 @@ TEXTBOX
 156
 199
 310
-After pressing SETUP and\nGO, you can select turtles\nby dragging a selection\nrectangle around them.\n\nOnce turtles are selected\nthey will turn red.  You then\nmove them by dragging them.
+After pressing SETUP and\GO, you can select turtles\nby dragging a selection\nrectangle around them.\n\nOnce turtles are selected\nthey will turn red.  You then\nmove them by dragging them.
 11
 0.0
 0
+
+MONITOR
+19
+284
+175
+329
+NIL
+current-state
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
