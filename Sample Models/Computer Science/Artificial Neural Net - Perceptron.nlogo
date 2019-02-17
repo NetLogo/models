@@ -233,7 +233,7 @@ to resize-recolor-links
     ifelse show-weights?
     [ set label precision weight 4 ]
     [ set label "" ]
-    set thickness 0.1 + 20 * abs weight
+    set thickness 0.2 * abs weight
     ifelse weight > 0
       [ set color [ 255 0 0 196 ] ]   ; transparent red
       [ set color [ 0 0 255 196 ] ] ; transparent light blue
