@@ -1,28 +1,24 @@
-turtles-own
-[
-  stem?     ;; true for stem cells, false for transitory cells
-  age  ;; age of cell. changes color with age
-  metastatic?  ;; false for progeny of stem cell 0, true for progeny of stem cell 1
+turtles-own [
+  stem?     ; true for stem cells, false for transitory cells
+  age  ; age of cell. changes color with age
+  metastatic?  ; false for progeny of stem cell 0, true for progeny of stem cell 1
 ]
 
-globals
-[
+globals [
   cell-count
 ]
 
 to setup
   clear-all
   set-default-shape turtles "circle 3"
-  ask patches
-    [ set pcolor gray ]
+  ask patches [ set pcolor gray ]
   set-stem
   evaluate-params
   reset-ticks
 end
 
-to set-stem   ;;create two stem cells
-  create-turtles 2
-  [
+to set-stem   ; create two stem cells
+  create-turtles 2 [
     set size 2   ; easier to see
     setxy (min-pxcor / 2) 0
     set stem? true
@@ -30,22 +26,19 @@ to set-stem   ;;create two stem cells
     set color blue
     set age 0
   ]
-  ask turtle 1
-  [
+  ask turtle 1 [
     set metastatic? true
-    set heading 90            ;; stem cell 1 will move away
+    set heading 90            ; stem cell 1 will move away
   ]
   set cell-count 2
 end
 
 to go
-  ask turtles
-  [
+  ask turtles [
     ifelse leave-trail?
       [ pen-down ]
       [ pen-up ]
-    if (who = 1) and (xcor < 25)
-    [ fd 1 ]  ;stem cell movement
+    if (who = 1) and (xcor < 25) [ fd 1 ]  ; stem cell movement
     set age age + 1
     move-transitional-cells
     mitosis
@@ -55,16 +48,14 @@ to go
   evaluate-params
 end
 
-;;transitional cells move and hatch more. Turtle proc.
+; transitional cells move and hatch more. Turtle proc.
 to move-transitional-cells
-  if (not stem?)
-  [
+  if (not stem?) [
     set color ( red + 0.25 * age )
     fd 1
-    if (age < 6)
-    [
-      hatch 1
-      [  ;amplification
+    if age < 6 [
+      hatch 1 [
+        ; amplification
         rt random-float 360
         fd 1
       ]
@@ -72,11 +63,9 @@ to move-transitional-cells
   ]
 end
 
-to mitosis ;; turtle proc. - stem cells only
-  if stem?
-  [
-    hatch 1
-    [
+to mitosis ; turtle proc. - stem cells only
+  if stem? [
+    hatch 1 [
       fd 1
       set color red
       set stem? false
@@ -87,7 +76,7 @@ to mitosis ;; turtle proc. - stem cells only
   ]
 end
 
-to death   ;; turtle proc.
+to death ; turtle proc.
   if (not stem?) and (not metastatic?) and (age > 20)
     [ die ]
   if (not stem?) and metastatic? and (age > 4)
@@ -95,24 +84,20 @@ to death   ;; turtle proc.
 end
 
 to evaluate-params
-  set cell-count count turtles  ;cell count
-  if (cell-count <= 0)
-    [ stop ]
+  set cell-count count turtles  ; cell count
+  if (cell-count <= 0) [ stop ]
 end
 
 to kill-original-stem-cell
-  ask turtle 0
-    [ die ]
+  if turtle 0 != nobody [ ask turtle 0 [ die ] ]
 end
 
 to kill-moving-stem-cell
-  ask turtle 1
-    [ die ]
+  if turtle 1 != nobody [ ask turtle 1 [ die ] ]
 end
 
 to kill-transitory-cells
-  ask turtles with [ age < 10 and not stem? ]
-    [ die ]
+  ask turtles with [ age < 10 and not stem? ] [ die ]
 end
 
 
