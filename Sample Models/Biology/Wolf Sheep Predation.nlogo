@@ -1,17 +1,20 @@
-globals [ max-sheep ]  ; don't let sheep population grow too large
-; Sheep and wolves are both breeds of turtle.
-breed [ sheep a-sheep ]  ; sheep is its own plural, so we use "a-sheep" as the singular.
+globals [ max-sheep ]  ; don't let the sheep population grow too large
+
+; Sheep and wolves are both breeds of turtles
+breed [ sheep a-sheep ]  ; sheep is its own plural, so we use "a-sheep" as the singular
 breed [ wolves wolf ]
+
 turtles-own [ energy ]       ; both wolves and sheep have energy
-patches-own [ countdown ]
+
+patches-own [ countdown ]    ; this is for the sheep-wolves-grass model version
 
 to setup
   clear-all
-  ifelse netlogo-web? [set max-sheep 10000] [set max-sheep 30000]
+  ifelse netlogo-web? [ set max-sheep 10000 ] [ set max-sheep 30000 ]
 
   ; Check model-version switch
   ; if we're not modeling grass, then the sheep don't need to eat to survive
-  ; otherwise the grass's state of growth and growing logic need to be set up
+  ; otherwise each grass' state of growth and growing logic need to be set up
   ifelse model-version = "sheep-wolves-grass" [
     ask patches [
       set pcolor one-of [ green brown ]
@@ -47,28 +50,32 @@ to setup
 end
 
 to go
-  ; stop the simulation of no wolves or sheep
+  ; stop the model if there are no wolves and no sheep
   if not any? turtles [ stop ]
   ; stop the model if there are no wolves and the number of sheep gets very large
   if not any? wolves and count sheep > max-sheep [ user-message "The sheep have inherited the earth" stop ]
   ask sheep [
     move
-    if model-version = "sheep-wolves-grass" [ ; in this version, sheep eat grass, grass grows and it costs sheep energy to move
-      set energy energy - 1  ; deduct energy for sheep only if running sheep-wolf-grass model version
-      eat-grass  ; sheep eat grass only if running sheep-wolf-grass model version
-      death ; sheep die from starvation only if running sheep-wolf-grass model version
+
+    ; in this version, sheep eat grass, grass grows, and it costs sheep energy to move
+    if model-version = "sheep-wolves-grass" [
+      set energy energy - 1  ; deduct energy for sheep only if running sheep-wolves-grass model version
+      eat-grass  ; sheep eat grass only if running the sheep-wolves-grass model version
+      death ; sheep die from starvation only if running the sheep-wolves-grass model version
     ]
-    reproduce-sheep  ; sheep reproduce at random rate governed by slider
+
+    reproduce-sheep  ; sheep reproduce at a random rate governed by a slider
   ]
   ask wolves [
     move
     set energy energy - 1  ; wolves lose energy as they move
     eat-sheep ; wolves eat a sheep on their patch
-    death ; wolves die if our of energy
-    reproduce-wolves ; wolves reproduce at random rate governed by slider
+    death ; wolves die if they run out of energy
+    reproduce-wolves ; wolves reproduce at a random rate governed by a slider
   ]
+
   if model-version = "sheep-wolves-grass" [ ask patches [ grow-grass ] ]
-  ; set grass count patches with [pcolor = green]
+
   tick
   display-labels
 end
@@ -80,7 +87,7 @@ to move  ; turtle procedure
 end
 
 to eat-grass  ; sheep procedure
-  ; sheep eat grass, turn the patch brown
+  ; sheep eat grass and turn the patch brown
   if pcolor = green [
     set pcolor brown
     set energy energy + sheep-gain-from-food  ; sheep gain energy by eating
@@ -103,19 +110,19 @@ end
 
 to eat-sheep  ; wolf procedure
   let prey one-of sheep-here                    ; grab a random sheep
-  if prey != nobody  [                          ; did we get one?  if so,
+  if prey != nobody  [                          ; did we get one? if so,
     ask prey [ die ]                            ; kill it, and...
     set energy energy + wolf-gain-from-food     ; get energy from eating
   ]
 end
 
-to death  ; turtle procedure (i.e. both wolf nd sheep procedure)
+to death  ; turtle procedure (i.e. both wolf and sheep procedure)
   ; when energy dips below zero, die
   if energy < 0 [ die ]
 end
 
 to grow-grass  ; patch procedure
-  ; countdown on brown patches: if reach 0, grow some grass
+  ; countdown on brown patches: if you reach 0, grow some grass
   if pcolor = brown [
     ifelse countdown <= 0
       [ set pcolor green
