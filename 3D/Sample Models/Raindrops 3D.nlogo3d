@@ -19,13 +19,13 @@ to setup
       set roll 0
     ]
   ]
-  ;; fix the edges in place, so the impact of the drops
-  ;; doesn't cause the surface of the water to gradually
-  ;; move downward
+  ; fix the edges in place, so the impact of the drops
+  ; doesn't cause the surface of the water to gradually
+  ; move downward
   set edges waters with [abs pxcor = max-pxcor or
                          abs pycor = max-pycor]
-  ;; make the edges invisible because it looks cooler if
-  ;; they aren't blocking your view of the waves
+  ; make the edges invisible because it looks cooler if
+  ; they aren't blocking your view of the waves
   ask edges
     [ hide-turtle ]
   ask waters
@@ -46,7 +46,7 @@ to go
   tick
 end
 
-to fall  ;; drop procedure
+to fall  ; drop procedure
   fd 1
   let impact-zone waters in-radius drop-width
   if any? impact-zone
@@ -57,13 +57,6 @@ to fall  ;; drop procedure
     ]
     die
   ]
-end
-
-to splash ; drop procedure
-  ask waters in-radius drop-width
-    [ set zvel zvel + (k * ((sum [zpos] of neighbor-turtles )
-                    - (count neighbor-turtles) * zpos - impact)) ]
-  die
 end
 
 to compute-delta-z    ; water procedure
