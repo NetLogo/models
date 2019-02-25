@@ -227,10 +227,10 @@ After pressing SETUP and GO,\nyou can select turtles\nby dragging a selection\nr
 0
 
 MONITOR
-10
-285
-166
-330
+19
+284
+175
+329
 NIL
 current-state
 17
