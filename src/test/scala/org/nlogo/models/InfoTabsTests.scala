@@ -113,7 +113,8 @@ class InfoTabsTests extends TestModels {
 
         def check(code: String) = {
           def compileProc(header: String, body: String) =
-            Try(ws.compiler.compileMoreCode(s"$header $body end", None, ws.world.program, ws.procedures, ws.getExtensionManager, ws.getCompilationEnvironment))
+            Try(ws.compiler.compileMoreCode(s"$header $body end", None, ws.world.program,
+              ws.procedures, ws.getExtensionManager, ws.getLibraryManager, ws.getCompilationEnvironment))
 
           val blocks = code.split("""\n\s*\n""")
           val errors = blocks map { block =>

@@ -1,7 +1,7 @@
 lazy val root = Project("root", file("."))
   .dependsOn(MyBuild.netLogo)
 
-scalaVersion := "2.12.1"
+scalaVersion := "2.12.8"
 
 scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
 
