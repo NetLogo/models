@@ -39,7 +39,7 @@ class ModelCompilationTests extends TestModels {
   def uncompilablePreviewCommands(ws: HeadlessWorkspace): Iterable[String] = {
     def compile(source: String) =
       ws.compiler.compileMoreCode(source, None, ws.world.program,
-        ws.procedures, ws.getExtensionManager, ws.getCompilationEnvironment)
+        ws.procedures, ws.getExtensionManager, ws.getLibraryManager, ws.getCompilationEnvironment)
     for {
       commands <- Seq(ws.previewCommands)
       source = s"to __custom-preview-commands\n${commands.source}\nend"
