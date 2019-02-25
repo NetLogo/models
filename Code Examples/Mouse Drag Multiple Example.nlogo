@@ -183,10 +183,10 @@ ticks
 30.0
 
 BUTTON
-80
-103
-151
-136
+85
+110
+156
+143
 NIL
 go
 T
@@ -200,10 +200,10 @@ NIL
 0
 
 BUTTON
-8
-103
-79
-136
+13
+110
+84
+143
 NIL
 setup
 NIL
@@ -217,20 +217,20 @@ NIL
 1
 
 TEXTBOX
-14
-156
-199
-310
-After pressing SETUP and\GO, you can select turtles\nby dragging a selection\nrectangle around them.\n\nOnce turtles are selected\nthey will turn red.  You then\nmove them by dragging them.
+15
+155
+195
+309
+After pressing SETUP and GO,\nyou can select turtles\nby dragging a selection\nrectangle around them.\n\nOnce turtles are selected\nthey will turn red.  You then\nmove them by dragging them.
 11
 0.0
 0
 
 MONITOR
-19
-284
-175
-329
+10
+285
+166
+330
 NIL
 current-state
 17
@@ -570,5 +570,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
