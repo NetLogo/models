@@ -1,25 +1,38 @@
+globals [ selected ]
+
 to setup
   clear-all
   ask n-of 30 patches [ sprout 1 ]
+  set selected nobody
   reset-ticks
 end
 
 to go
-  if mouse-down? [
-    let candidate min-one-of turtles [distancexy mouse-xcor mouse-ycor]
-    if [distancexy mouse-xcor mouse-ycor] of candidate < 1 [
-      ;; The WATCH primitive puts a "halo" around the watched turtle.
-      watch candidate
-      while [mouse-down?] [
-        ;; If we don't force the view to update, the user won't
-        ;; be able to see the turtle moving around.
-        display
-        ;; The SUBJECT primitive reports the turtle being watched.
-        ask subject [ setxy mouse-xcor mouse-ycor ]
-      ]
-      ;; Undoes the effects of WATCH.  Can be abbreviated RP.
-      reset-perspective
+  ifelse mouse-down? [
+    ; if the mouse is down then handle selecting and dragging
+    handle-select-and-drag
+  ][
+    ; otherwise, make sure the previous selection is deselected
+    set selected nobody
+    reset-perspective
+  ]
+  display ; update the display
+end
+
+to handle-select-and-drag
+  ; if no turtle is selected
+  ifelse selected = nobody  [
+    ; pick the closet turtle
+    set selected min-one-of turtles [distancexy mouse-xcor mouse-ycor]
+    ; check whether or not it's close enough
+    ifelse [distancexy mouse-xcor mouse-ycor] of selected > 1 [
+      set selected nobody ; if not, don't select it
+    ][
+      watch selected ; if it is, go ahead and `watch` it
     ]
+  ][
+    ; if a turtle is selected, move it to the mouse
+    ask selected [ setxy mouse-xcor mouse-ycor ]
   ]
 end
 
@@ -51,7 +64,7 @@ GRAPHICS-WINDOW
 10
 1
 1
-1
+0
 ticks
 30.0
 
@@ -105,7 +118,7 @@ MONITOR
 114
 301
 NIL
-subject
+selected
 3
 1
 11
