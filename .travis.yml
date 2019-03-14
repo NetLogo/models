@@ -1,4 +1,3 @@
-sudo: required
 cache:
   apt: true
   directories:
@@ -11,16 +10,15 @@ addons:
     packages:
     - aspell
     - aspell-en
-    - python3
-install:
-  - pip install --user sklearn
 language: scala
 scala:
    - 2.12.8
 jdk:
   - oraclejdk8
 script:
+  - pyenv global 3.6
   - python --version
+  - pip install --user sklearn
   - sbt test:compile
   - sbt test
   - sbt test -Dorg.nlogo.is3d=true
