@@ -44,7 +44,7 @@ RNAPs-own [
 ]
 
 lactoses-own [
-  partner     ; a partner is a LacI molecule with which an ONPG forms a complex
+  partner     ; a partner is a LacI molecule with which a lactose molecule forms a complex
   inside?     ; a boolean to track if a lactose molecule is inside the cell
 ]
 
