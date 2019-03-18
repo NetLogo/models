@@ -19,7 +19,7 @@ to get-sys-info ; Here we use the `sys` package in python to output some system 
   output-print ""
 end
 
-to gcd ; Use the `math` package's built-in gcd method to caclulate the gcd(a,b)
+to gcd ; Use the `math` package's built-in gcd method to calculate the gcd(a,b)
   py:set "a" a
   py:set "b" b
   let result py:runresult "math.gcd(a, b)"
@@ -270,7 +270,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
