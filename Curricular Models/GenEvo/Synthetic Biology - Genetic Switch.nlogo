@@ -685,7 +685,7 @@ The genetic circuit modelled here has the following components:
 
 The model explicitly incorporates transcription by showing the movement of RNA polymerases across DNA. It implicitly incorporates translation and does not incorporate mRNAs or ribosomes.
 
-A user can select the promoter and RBS strengths, add ONPG (by making 'CONST-ONPG' ON) and run the model. The model simulates interactions between the components of the genetic circuit that results in an emergent cellular behavior. The cellular behavior of interest in this model is LacZ (beta-galactosidase) activity which can be observed in a graph and is also represented in the change in the color of the cell to yellow. Beta-galactosidase cleaves ONPG to produce an intensely yellow colored compound.
+A user can select the promoter and RBS strengths, add ONPG (by making 'ONPG?' ON) and run the model. The model simulates interactions between the components of the genetic circuit that results in an emergent cellular behavior. The cellular behavior of interest in this model is LacZ (beta-galactosidase) activity which can be observed in a graph and is also represented in the change in the color of the cell to yellow. Beta-galactosidase cleaves ONPG to produce an intensely yellow colored compound.
 
 ## HOW TO USE IT
 
@@ -697,7 +697,7 @@ Press GO to run the model.
 
 You can use the RUN EXPERIMENT button to run experiments for a specified time duration (2500 ticks). This is useful for comparing the behavior of the cell in different simulations of the same conditions. You could also use this button to run a timed experiment for different initial conditions (e.g. different promoter and RBS strengths).
 
-‘CONST-ONPG?’ is a switch which keeps ONPG concentration constant throughout the simulation. This switch can be used to emulate situations where ONPG concentration in the medium is excess and not a limiting factor.
+‘ONPG?’ is a switch which keeps ONPG concentration constant throughout the simulation. This switch can be used to emulate situations where ONPG concentration in the medium is excess and not a limiting factor.
 
 ## THINGS TO NOTICE
 
