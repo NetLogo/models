@@ -1,6 +1,6 @@
 extensions [ py ]
 
-to setup
+to setup ; Here we setup the connection to python and import a few libraries
   py:setup py:python
   py:run "import math"
   py:run "import sys"
@@ -8,14 +8,18 @@ to setup
   reset-ticks
 end
 
-to get-sys-info
+to go ; make sure everything is ready to go!
+  py:run "print('go!')"
+end
+
+to get-sys-info ; Here we use the `sys` package in python to output some system info
   output-print (word "Python directory: " (py:runresult "sys.prefix"))
   output-print (word "Platform: " (py:runresult "sys.platform"))
   output-print (word "Python copyright: " (py:runresult "sys.copyright"))
   output-print ""
 end
 
-to gcd
+to gcd ; Use the `math` package's built-in gcd method to caclulate the gcd(a,b)
   py:set "a" a
   py:set "b" b
   let result py:runresult "math.gcd(a, b)"
@@ -23,25 +27,25 @@ to gcd
   output-print ""
 end
 
-to get-home-directory
+to get-home-directory ; Use the `os` package to get the home directory of the system
   let home-dir py:runresult "os.environ['HOME']"
   output-print (word "Current home directory is: " home-dir)
   output-print ""
 end
 
-to-report joined-strings
-  py:set "delim" delimiter
-  py:set "list" read-from-string string-list
-  report py:runresult "delim.join(list)"
-end
-
-to join-strings
+to join-strings ; join some strings in python
   let result joined-strings
   output-print (word "Here they are joined: " result)
   output-print ""
 end
 
-to to-upper-case
+to-report joined-strings ; helper procedure to join strings using a delimiter
+  py:set "delim" delimiter
+  py:set "list" read-from-string string-list
+  report py:runresult "delim.join(list)"
+end
+
+to to-upper-case ; upper case some Strings in Python
   let result joined-strings
   py:set "result" result
   set result py:runresult "result.upper()"
@@ -49,9 +53,10 @@ to to-upper-case
   output-print ""
 end
 
-to go
-  let x "py:run print('go!')"
-end
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.
 @#$#@#$#@
 GRAPHICS-WINDOW
 305
@@ -250,20 +255,37 @@ NIL
 NIL
 1
 
+BUTTON
+95
+15
+158
+48
+NIL
+go
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model shows the how to use the NetLogo's `py` extension to interact with Python.  This extension allows users with Python installed on their computer to write Python code in their NetLogo model, and to share data back and forth between the two environments.
+This model shows how to use NetLogo's `py` extension to interact with Python. This extension allows users with Python installed on their computer to write Python code in their NetLogo model and to share data back and forth between the Python and NetLogo.
 
 ## THINGS TO NOTICE
 
-First the model sets up Python with the `py:setup py:python` primitives.  The default `python` found on the system will be used.  This step is required for models using the Python extension.  Once the Python environment is setup, it's available until the model is closed.
+First, the model sets up Python with the `py:setup` and `py:python` primitives. The default `python` found on the system will be used. This step is required for models using the Python extension. If you do not have Python installed on your computer, you will need to install it on your computer outside of NetLogo. Once the Python environment is setup, it's available until the model is closed.
 
-This model uses a few basic Python packages, `sys`, `math`, and `os`, to get information and do calculations that would be difficult or impossible in NetLogo.  The packages are made available by using `py:run` to execute the Python `import` commands.   The key to interacting with the packages is using `py:set` to set a variable value and pass data into the Python extension, and `py:runresult` to get data back out of Python to use in NetLogo.
+This model uses a few basic Python packages, `sys`, `math`, and `os`, to get information and do calculations that would be difficult or impossible in NetLogo. The packages are made available by using `py:run` to execute the Python `import` commands. The key to interacting with the packages is using `py:set` to set a variable value and pass data into the Python extension and `py:runresult` to get data back out of Python to use in NetLogo.
 
 ## THINGS TO TRY
 
-Check [the Python `math` package documentation](https://docs.python.org/3.6/library/math.html) and see if there are any other calculations it can do that NetLogo doesn't natively support, and try to make them work.
+Check out [the Python `math` package documentation](https://docs.python.org/3.6/library/math.html) and see if there are any other calculations it can do that NetLogo doesn't natively support and try to make them work.
 
 ## EXTENDING THE MODEL
 
