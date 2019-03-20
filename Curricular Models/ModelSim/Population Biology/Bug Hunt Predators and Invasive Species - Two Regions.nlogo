@@ -203,21 +203,25 @@ end
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; runtime procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 to go
- if ticks >= 999 and constant-simulation-length? [stop]
-  ask bugs [
-    bugs-live
-    reproduce-bugs
-    ]
-  ask birds [
-    birds-live
-    reproduce-birds]
-  ask invaders [
-    invaders-live
-    reproduce-invaders]
+  if ticks >= 1000 and constant-simulation-length? [ stop ]
+
+  ask turtles [
+    ;; we need invaders and bugs to eat at the same time
+    ;; so one breed doesn't get all the tasty grass before
+    ;; the others get a chance at it.
+    (ifelse breed = bugs     [ bugs-live reproduce-bugs ]
+            breed = invaders [ invaders-live reproduce-invaders ]
+            breed = birds    [ birds-live reproduce-birds ]
+                             [ ] ; anyone else doesn't do anything
+    )
+  ]
+
   ask patches [
+    ;; only the fertile patches can grow grass
     set countdown random sprout-delay-time
     grow-grass
-    ]   ;; only the fertile patches can grow grass
+  ]
+
   tick
 end
 
