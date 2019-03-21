@@ -411,7 +411,7 @@ One can extend this model further by introducing a different layout. How would t
 
 ## CREDITS AND REFERENCES
 
-Hotelling, Harold. (1929). "Stability in Competition." The Economic Journal 39.153: 41 -57. (Stable URL: http://www.jstor.org/stable/2224214 ).
+Hotelling, Harold. (1929). "Stability in Competition." The Economic Journal 39.153: 41 -57. (Stable URL: https://www.jstor.org/stable/2224214).
 
 ## HOW TO CITE
 

@@ -281,7 +281,7 @@ NIL
 
 This model simulates rainfall on a patch of terrain on the eastern end of the Grand Canyon, approximately 6 miles (9.7 km) on each side, where Crazy Jug Canyon and Saddle Canyon meet to form Tapeats Canyon. Each patch represents an area approximately 105 feet (32 m) on each side. The model was created as an experiment in using NetLogo with My World GIS.
 
-The elevation data comes from the National Elevation Dataset available at https://lta.cr.usgs.gov/NED. It was converted from an ESRI Grid into an ASCII grid file using ArcGIS, then resampled to its current resolution and rescaled to lie in the range 0-999 using My World GIS.
+The elevation data comes from the National Elevation Dataset available at https://www.nrcs.usda.gov/wps/portal/nrcs/detail/national/?&cid=nrcs143_021626. It was converted from an ESRI Grid into an ASCII grid file using ArcGIS, then resampled to its current resolution and rescaled to lie in the range 0-999 using My World GIS.
 
 ## HOW IT WORKS
 

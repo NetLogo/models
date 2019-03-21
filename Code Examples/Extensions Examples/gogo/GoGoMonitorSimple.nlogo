@@ -388,7 +388,7 @@ This model uses the NetLogo GoGo Extension. For more information, see the GoGo E
 
 ## CREDITS AND REFERENCES
 
-To learn about GoGo Boards, see http://gogoboard.org.
+To learn about GoGo Boards, see https://gogoboard.org.
 
 This model was created by Paulo Blikstein at Stanford's [Transformative Learning Technologies Lab](https://tltl.stanford.edu/).
 

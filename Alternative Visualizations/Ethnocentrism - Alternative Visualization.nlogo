@@ -652,7 +652,7 @@ http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuideline
 
 This work is based on the visualization guidelines found in:
 Healey, C. (2006). Perception in Visualization.
-http://www.csc.ncsu.edu/faculty/healey/PP/index.html
+https://www.csc2.ncsu.edu/faculty/healey/PP/
 
 ## HOW TO CITE
 

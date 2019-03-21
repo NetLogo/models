@@ -232,7 +232,7 @@ Many models in the NetLogo models library can be thought as systems composed of 
 
 The B-Z reaction is named after Boris Belousov and Anatol Zhabotinsky, the Russian scientists who discovered it in the 1950's.
 
-A discussion of the chemistry behind the reaction, plus a movie and some pictures, are available at http://www.faidherbe.org/site/cours/dupuis/oscil.htm.
+A discussion of the chemistry behind the reaction, plus a movie and some pictures, are available at https://www.faidherbe.org/site/cours/dupuis/oscil.htm.
 
 The cellular automaton was presented by A.K. Dewdney in his "Computer Recreations" column in the August 1988 of Scientific American.
 
