@@ -1,6 +1,11 @@
+globals
+[
+  max-iterations
+]
+
 turtles-own
 [
-  previous-count  ; the patch color of the previous patch- used in the turtles' movement
+  previous-count  ; the patch color of the previous patch - used in the turtles' movement
 ]
 
 patches-own
@@ -12,10 +17,12 @@ patches-own
   counter      ; keeps track of the color that the patch is supposed to be
 ]
 
-;;; Initialization Procedures
+;; Initialization Procedures
 
 to setup
   clear-all
+  set max-iterations 115 ; if after this number of iterations of the function, it still
+                         ;  hasn't diverged, then we declare it as a member of the Mandelbrot set
   setup-turtles
   setup-patches
   reset-ticks
@@ -26,7 +33,7 @@ to setup-turtles
   [
     set color green
     setxy random-xcor random-ycor
-    set size 3  ;; easier to see
+    set size 3  ; easier to see
   ]
 end
 
@@ -37,14 +44,14 @@ to setup-patches
     set c-real (pxcor / scale-factor)
     ; set the imaginary portion of c to be the y coordinate of the patch
     set c-imaginary (pycor / scale-factor)
-    ; have the initial value of z be 0 + 0i
+    ; set the initial value of z to 0 + 0i
     set z-real 0
     set z-imaginary 0
     set counter 0
   ]
 end
 
-;;; Run-Time Procedures
+;; Run-Time Procedures
 
 to go
   mandelbrot-calc-and-color
@@ -54,12 +61,13 @@ to go
   tick
 end
 
-; calculate the equation of the mandelbrot fractal for each patch with a turtle on it and change
-; its color to be an appropriate color.
+; calculate the equation of the Mandelbrot fractal for each patch with a turtle on it and change
+; its color to an appropriate color.
 to mandelbrot-calc-and-color
   ; if the distance of a patch's z from the origin (0,0) is less than 2 and its counter is less
-  ; than 256 perform another iteration the equation f(z) = z^2 + c.
-  ask turtles with [(modulus z-real z-imaginary <= 2.0) and (counter < 256)]
+  ; than MAX-ITERATIONS perform another iteration of the equation f(z) = z^2 + c.
+  ; we can ignore complex numbers with modulus greater than 2 as we know any such are not in the Mandelbrot set
+  ask turtles with [(modulus z-real z-imaginary <= 2.0) and (counter < max-iterations)]
   [
     let temp-z-real z-real
     set z-real c-real + (rmult z-real z-imaginary z-real z-imaginary)
@@ -69,7 +77,7 @@ to mandelbrot-calc-and-color
   ]
 end
 
-;ask each turtle to move forward by 1
+; ask each turtle to move forward by 1
 to step
   ask turtles
   [ ifelse can-move? 1
@@ -77,7 +85,7 @@ to step
     [ setxy random-xcor random-ycor ] ]
 end
 
-;ask each turtle to change its direction slightly
+; ask each turtle to change its direction slightly
 to wiggle
   ask turtles
   [
@@ -86,17 +94,17 @@ to wiggle
   ]
 end
 
-;ask the turtles to climb up the counter gradient
+; ask the turtles to climb up the counter gradient
 to climb
   ask turtles
   [
     ifelse counter >= previous-count
-    [
+    [ ; successful iteration, jump to a nearby patch
       set previous-count counter
       set color yellow
       jump throw
     ]
-    [
+    [ ; unsuccessful iteration, turn around
       set previous-count counter
       set color blue
       rt 180
@@ -104,19 +112,28 @@ to climb
   ]
 end
 
-;;; Real and Imaginary Arithmetic Operators
+;; Real and Imaginary Arithmetic Operators
 
+;  compute the real part of the product of 2 complex numbers
 to-report rmult [real1 imaginary1 real2 imaginary2]
   report real1 * real2 - imaginary1 * imaginary2
 end
 
+;  compute the imaginary part of the product of 2 complex numbers
 to-report imult [real1 imaginary1 real2 imaginary2]
   report real1 * imaginary2 + real2 * imaginary1
 end
 
+; compute the modulus of a complex number
 to-report modulus [real imaginary]
   report sqrt (real ^ 2 + imaginary ^ 2)
 end
+
+; Test procedure to check real numbers
+;to-report compute-real [z r n]
+;  if n <= 0 [report z]
+;  report compute-real (z ^ 2 + r) r (n - 1)
+;end
 
 
 ; Copyright 1997 Uri Wilensky.
@@ -150,10 +167,10 @@ ticks
 30.0
 
 BUTTON
-42
-50
-108
-83
+35
+165
+101
+198
 NIL
 setup
 NIL
@@ -167,10 +184,10 @@ NIL
 1
 
 BUTTON
-110
-50
-176
-83
+115
+165
+181
+198
 NIL
 go
 T
@@ -184,44 +201,44 @@ NIL
 0
 
 SLIDER
-6
-98
-215
-131
+5
+10
+214
+43
 num-turtles
 num-turtles
 0
 1500
-1000.0
+1500.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-6
-148
-215
-181
+5
+60
+214
+93
 throw
 throw
 0.0
 99.0
-30.0
+10.0
 1.0
 1
 NIL
 HORIZONTAL
 
 SLIDER
-6
-199
-215
-232
+5
+111
+214
+144
 scale-factor
 scale-factor
 1
-200
+500
 100.0
 1
 1
@@ -229,10 +246,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-59
-254
-161
-287
+55
+210
+160
+243
 hide turtles
 hide-turtle
 NIL
@@ -250,17 +267,23 @@ NIL
 
 This model draws a mathematical object called the Mandelbrot set, named after its discoverer, Benoit Mandelbrot.  It demonstrates an interesting technique for generating the design as well as providing a nice example of hill climbing.
 
-A number of fractal generation turtles do a random walk across a complex plane, computing one additional iteration of F(Z) = Z<sup>2</sup> + C each time they cross a patch, where C is the coordinates of the patch, and Z is a complex number from the result of the last iteration.  A count is maintained of the number of iterations computed at each patch before the complex number at that patch reaches a maximum.  This count is then translated into a color, giving the Mandelbrot set its distinctive look.
+A number of fractal generating turtles do a random walk across a complex plane, computing one additional iteration of F(Z) = Z<sup>2</sup> + C each time they cross a patch, where C is the coordinates of the patch, and Z is a complex number from the result of the last iteration.  A count is maintained of the number of iterations computed at each patch until the patch reaches its maximum iterations.  This count is then translated into a color, giving the Mandelbrot set its distinctive look.
 
 An interesting way to view the emerging set is that you are looking straight down on one of the Hawaiian Islands.  The center is extremely high (infinitely so, in fact), simply because no fixed number of iterations at these points will cause the associated complex number to reach a pre-determined maximum.  The edges of the set are steeply sloped, and the "sea" around the set is very shallow.
 
 ## HOW IT WORKS
 
+The Mandelbrot set is a set of points on the complex plane. It is the set of points for which the iterated map F(Z) = Z<sup>2</sup> + C with a seed of 0 remains finite. In other words the orbit of 0 under the map stays finite. As an example of computing the orbit, start with F(0), then next in the orbit is F(F0)), then F(F(F0)))....Most complex numbers under this map with seed 0 will produce infinite orbits. Some orbits tend towards a constant, some are cyclic, and some chaotic, all of which produce points in the Mandelbrot set as they are not infinite. To determine if a point C (that is with coordinates (x, y) in the complex plane) is in the Mandelbrot set, apply the map F(Z) = Z<sup>2</sup> + C to it iteratively, starting from Z = 0. If when applied iteratively, it diverges within a fixed limit of iterations (in our case 256) then we treat it as infinite and exclude it from the Mandelbrot set.
+
+The way this model implements the algorithm, 1000 turtles are created and do a random walk in the complex plane. When they land on a patch, they check that it is within the modulus limit (of 2) and that it has not yet maxed out its iterations. If these conditions hold, they perform another iteration on the patch, increase the iteration counter of the patch, turn yellow and take a random step. If the new patch has an iteration counter higher than one they've seen before, they jump to a nearby patch for the next iteration. If the new patch isn't higher than they turn around and face the opposite direction. In this way the turtles are "climbing" the gradient of the iterations, getting closer and close to the overall top of the hill. The purpose of the jump is to make sure the turtles don't get stuck on the top of a local maximum, but instead search the space for a global maximum "height" of the hill. The patches are colored by the value of the counter, so patches that have successfully passed the Mandelbrot test more times have a higher NetLogo color and those that have passed it less times, have a lower NetLogo color.
+
+
+*Complex Numbers*
 In case you are not familiar with complex numbers, here as an introduction to what they are and how to calculate with them.
 
 In this model, the world becomes a complex plane.  This plane is similar to the real or Cartesian plane that people who have taken an algebra course in middle school or high school should be familiar with.  The real plane is the combination of two real lines placed perpendicularly to each other.  Each point on the real plane can be described by a pair of numbers such as (0,0) or (12,-6).  The complex plane is slightly different from the real plane in that there is no such thing as a complex number line.  Each point on a complex plane can still be thought of as a pair of numbers, but the pair has a different meaning.  Before we describe this meaning, let us describe what a complex number looks like and how it differs from a real one.
 
-As you may know, a complex number is made up of two parts, a real number and an imaginary number.  Traditionally, a complex number is written as 4 + 6i or -7 - 17i.  Sometimes, a complex number can be written in the form of a pair, (4,6) or (-7,-17).  In general, a complex number could be written as a + bi or (a,b) in the other way of writing complex numbers, where both a and b are real numbers.  So, basically a complex number is two real numbers added together with one of them multiplied by i.  You are probably asking yourself, what is this i?  i is called the imaginary number and is a constant equivalent to the square root of -1.
+As you may know, a complex number is made up of two parts, a real number and an imaginary number.  Traditionally, a complex number is written as 4 + 6i or -7 - 17i.  Sometimes, a complex number can be written in the form of a pair, (4,6) or (-7,-17).  In general, a complex number can be written as a + bi or (a,b) in the other way of writing complex numbers, where both a and b are real numbers.  So, basically a complex number is two real numbers added together with one of them multiplied by i.  You are probably asking yourself, what is this i?  i is called the imaginary number and is a constant equivalent to the square root of -1.
 
 Getting back to the complex plane, it is now easier to see, if we use the paired version of writing complex numbers described above, that we let the real part of the complex number be the horizontal coordinate (x coordinate) and the imaginary part be the vertical coordinate (y coordinate).  Thus, the complex number 5 - 3i would be located at (5,-3) on the complex plane.  Thus, since the patches make up a complex plane, in each patch, the pxcor corresponds to the real part and the pycor corresponds to the imaginary part of a complex number.  A quick word on complex arithmetic and you will be set to understand this model completely.
 
@@ -272,37 +295,51 @@ If we were to multiply the same two numbers from above, we would get -12 + 44i -
 
 ## HOW TO USE IT
 
-Click on SETUP to create NUM-TURTLES fractal generation turtles, place them in the middle of the world (at complex coordinate (0,0)), and scale the 101,101 world to approx -1 to 1 on both the real and complex planes.
-
-To start the calculation, start the slider THROW at 0, press the GO button. Note that the system seems to stall, with each turtle "stuck" on a local maximum hill.
-
-Changing THROW to 7 will "throw" each turtle a distance of 7 each time they reach the top of a hill, essentially giving them a second chance to climb an even greater hill.  The classic Mandelbrot shape will begin to appear fairly quickly.
+Click on SETUP to create NUM-TURTLES fractal generating turtles, place them randomly, and scale the 101,101 world to approx -1 to 1 on both the real and complex axes.
 
 The slider SCALE-FACTOR scales the fractal so that you can see more or less of it.  The higher the value, the less of the entire fractal you will see.  Be aware that you sacrifice resolution for the price of being able to see more of the fractal.
 
+The slider THROW determines the range the turtles will jump if they're on top of a hill where the number of iterations is locally maximum.
+
+To first try the model, start the slider THROW at 0, press the GO button. Note that the system seems to stall, with each turtle "stuck" on a local maximum hill.
+
+Changing THROW to 9 will "throw" each turtle a distance of 9 each time they reach the top of a hill, essentially giving them a second chance to climb an even greater hill.  The classic Mandelbrot shape will begin to appear fairly quickly.
+
 ## THINGS TO NOTICE
 
-Notice that the "aura" around the Mandelbrot set begins to appear first, then the details along the edges become more and more crisply defined.  Finally, the center fills out and slowly changes to black.
+Notice that the "aura" around the Mandelbrot set begins to appear first, then the details along the edges become more and more crisply defined.  Finally, the center fills out and slowly changes to purple.
 
-Notice how different values for THROW change the speed and precision of the project. Also, try running the model with different values for NUM-TURTLES.
+Notice how different values for THROW change the speed and precision of the model.
 
 ## THINGS TO TRY
 
-It's fairly easy to hack at the NetLogo code to change the scale factor --- it's set as the global variable `factor`.  You might also think about adjusting the viewport in the plane, to allow for a larger picture (although the smaller sized picture might look better and emerge quicker).
+Try running the model with different values for NUM-TURTLES. What differences do you see?
 
-You might also play with the colors to experiment with different visual effects.
+Experiment with different values of  SCALE-FACTOR. What differences do you see?
+
+Experiment to see what real numbers are in the Mandelbrot set.
+
+You might also think about changing the code so as to adjust the viewport in the plane, to allow for a larger picture (although the smaller sized picture might look better and emerge quicker).
 
 Notice also what happens when you turn off climbing and/or wiggling.
 
+Change the patch size and world size. What differences do you see?
+
 ## EXTENDING THE MODEL
 
+Change the color code to experiment with different visual effects. Consider using the HSB or RGB color schemes.
+
 Try to produce some of the other complex sets --- the Julia set for instance.  There are many other fractals commonly known today.  Just about any book on them will have several nice pictures you can try to duplicate.
+
+One of the coolest things about the Mandelbrot set is as you zoom in, you start see all sorts of additional structure. Try using the LevelSpace NetLogo extension to allow users to click on a point of the set and open a new model that zooms in on just that point of the set.
 
 ## NETLOGO FEATURES
 
 To accomplish the hill climbing, the code uses `current-count` and `previous-count` turtle variables, comparing them to one another to establish a gradient to guide turtle movement.  The goal of each turtle is to move up the emerging gradient, "booting itself up" to the ever growing center of the set.
 
-Note that complex arithmetic is not built in to NetLogo, so the basic operations needed to be provided as NetLogo routines at the end of the code. These complex arithmetic routines are also used in other fractal calculations and can be tailored to your own explorations.
+Note that complex arithmetic is not built in to NetLogo, so the basic operations needed to be provided as NetLogo procedures at the end of the code. These complex arithmetic routines are also used in other fractal calculations and can be tailored to your own explorations.
+
+The count of iterations computed on a patch is set to the pcolor of the patch, making use of NetLogo's color scheme. Since the counter ranges from 0 to 256, the colors range from gray to red to orange to brown to yellow to green to lime to turquoise to cyan to sky to blue to violet to magenta to pink, back to gray then to red, to orange to brown to yellow to green to lime to turquoise to cyan to sky to blue and maxes out at violet.
 
 ## CREDITS AND REFERENCES
 
@@ -317,7 +354,7 @@ An introductory online textbook for Complex Analysis.
 (Note: This is a college level text, but the first chapter or so should be accessible to people with only some algebra background.)
 http://people.math.gatech.edu/~cain/winter99/complex.html
 
-_The Fractal Geometry of Nature_ by Benoit Mandelbrot
+The Fractal Geometry of Nature by Benoit Mandelbrot
 
 ## HOW TO CITE
 
@@ -649,5 +686,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
