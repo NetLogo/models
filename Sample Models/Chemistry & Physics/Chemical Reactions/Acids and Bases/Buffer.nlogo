@@ -35,7 +35,10 @@ end
 ;; dissociate an acid molecule into hydronium and conj-base
 ;; this should only be called by turtles that are acids
 to dissociate  ;; turtle procedure
-  hatch-hydroniums 1 [ set color green ]
+  hatch-hydroniums 1 [
+    set color green
+    set heading random 360
+  ]
   set breed conj-bases
   set color orange
 end

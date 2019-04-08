@@ -25,6 +25,7 @@ to setup
     [ if random-float 100.0 < Ka              ;; creates initial dissociated acid
         [ hatch-hydroniums 1
             [ set color green
+              set heading random 360
               fd 3 ]
          set breed conj-bases                 ;; parent turtle turns into a conj-base
          set color orange ] ]

@@ -78,7 +78,7 @@ to react-backward  ;; turtle procedure
     [ set breed reactants
       set color green
       hatch 1
-        [ rt 180 ] ]
+        [ set heading random 360 ] ]
 end
 
 ;; turtle procedure to bounce molecules off the yellow walls

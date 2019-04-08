@@ -1,18 +1,18 @@
-breed [acids acid]           ;; acid molecules (yellow)
-breed [hydroxides hydroxide] ;; base molecules (red)
-breed [hydroniums hydronium]  ;; hydronium ions (green)
-breed [waters water]         ;; water molecules (blue)
-breed [con-bases con-base]   ;;first conjugate base molecules (magenta)
-breed [con-base2s con-base2] ;;second conjugate base molecules (cyan)
-
 globals
   [
-   pH pOH                                         ;;variables for calculating pH
-   mmolH mmolOH mmolA mmolA2 mmolHA               ;;variables for calculating amount of molecules
-   Hconc OHconc Aconc HAconc A2conc volume        ;;variables for calculating concentrations
+   pH pOH                                         ;; variables for calculating pH
+   mmolH mmolOH mmolA mmolA2 mmolHA               ;; variables for calculating amount of molecules
+   Hconc OHconc Aconc HAconc A2conc volume        ;; variables for calculating concentrations
   ]
 
-turtles-own [partner]                                  ;;variable to control reactions
+breed [acids acid]           ;; acid molecules (yellow)
+breed [hydroxides hydroxide] ;; base molecules (red)
+breed [hydroniums hydronium] ;; hydronium ions (green)
+breed [waters water]         ;; water molecules (blue)
+breed [con-bases con-base]   ;; first conjugate base molecules (magenta)
+breed [con-base2s con-base2] ;; second conjugate base molecules (cyan)
+
+turtles-own [partner] ;; variable to control reactions
 
 to setup
   clear-all
@@ -22,9 +22,11 @@ to setup
   set-default-shape acids "acid"
   set-default-shape con-bases "conbase"
   set-default-shape con-base2s "conbase2"
-  ;;creates variable amount of acid
+
+  ;; creates variable amount of acid
   create-acids starting-acid
-  ;;initializes the amount of dissociated acid
+
+  ;; initializes the amount of dissociated acid
   ask acids
     [
      if ((random 100) > (99 - Ka1))
@@ -33,70 +35,72 @@ to setup
        set breed con-bases
       ]
     ]
-  ;;initializes the amount of dissociated conjugate base
+  ;; initializes the amount of dissociated conjugate base
   ask con-bases
     [
      if ((random 100) > (99 - Ka2))
       [
-       hatch-hydroniums 1 [fd 3]
+       hatch-hydroniums 1 [
+          set heading random 360
+          fd 3 ]
        set breed con-base2s
       ]
     ]
   if see-starting-water?
     [ create-waters (100 - (count hydroniums)) ]
-  calculate-ions    ;;used to calculate pH
-  set-colors    ;;assigns colors
+  calculate-ions    ;; used to calculate pH
+  set-colors    ;; assigns colors
   set mmolOH 0
   ;; calculates overall number of molecules (total volume)
   set volume count turtles
-  ;;randomizes position and headings
+  ;; randomizes position
   ask turtles [setxy random-xcor random-ycor]
   reset-ticks
 end
 
-to go ;;main turtle procedure
+to go ;; main procedure
   collide
   set-colors
-  ask turtles [fd 1]
+  ask turtles [ fd 1 ]
   calculate-ions
   tick
 end
 
 
-to collide ;;turtle procedure - tells molecules how to find other molecules
+to collide ;; turtle procedure - tells molecules how to find other molecules
   ;; hydroxide molecules will react with all proton donor molecules in the model
-  if (count hydroxides > 0)
+  if any? hydroxides
     [
      ask hydroxides
        [
-        if any? hydroniums-here [set partner one-of hydroniums-here react-bases]
-        if any? acids-here [set partner one-of acids-here react-bases]
-        if any? con-bases-here [set partner one-of con-bases-here react-bases]
+        if any? hydroniums-here [ set partner one-of hydroniums-here react-bases ]
+        if any? acids-here      [ set partner one-of acids-here react-bases ]
+        if any? con-bases-here  [ set partner one-of con-bases-here react-bases ]
        ]
     ]
 
   ;; acid molecules always have a chance to dissociate to hydroniums depending on their
-  if (count acids > 0)
+  if any? acids
     [
      ask acids
        [
         if ((random 100) > (99 - Ka1))
-          [if any? waters-here [set partner one-of waters-here react-acids]]
+          [ if any? waters-here [ set partner one-of waters-here react-acids ] ]
        ]
     ]
 
   ;; conjugate base molecules always have a chance to dissociate to hydroniums depending on their Ka
-  if count con-bases > 0
+  if any? con-bases
     [
       ask con-bases
         [
          if ((random 100) > (99 - Ka2))
-           [if any? waters-here [set partner one-of waters-here react-bases]]
+           [ if any? waters-here [set partner one-of waters-here react-bases ] ]
         ]
     ]
 
-  ;; hydroniums molecules always have a chance to recombine with conjugate base to form acid
-  if count hydroniums > 0
+  ;; hydronium molecules always have a chance to recombine with conjugate base to form acid
+  if any? hydroniums
     [
      ask hydroniums
           [
@@ -105,7 +109,7 @@ to collide ;;turtle procedure - tells molecules how to find other molecules
           ]
     ]
 
-  ;; hydroniums molecules can also recombine with the second conjugate base to form conjugate base
+  ;; hydronium molecules can also recombine with the second conjugate base to form conjugate base
   if count hydroniums > 0
     [
      ask hydroniums
@@ -116,16 +120,16 @@ to collide ;;turtle procedure - tells molecules how to find other molecules
     ]
 end
 
-to set-colors ;;turtle procedure to assign graphics
-  ask waters [set color blue]
+to set-colors ;; procedure to assign colors
+  ask waters     [set color blue]
   ask hydroniums [set color green]
-  ask acids [set color yellow]
-  ask con-bases [set color magenta]
+  ask acids      [set color yellow]
+  ask con-bases  [set color magenta]
   ask con-base2s [set color cyan]
   ask hydroxides [set color red]
 end
 
-to react-bases ;;turtle procedure that tells base molecules how to react
+to react-bases ;; turtle procedure that tells base molecules how to react
 
 ;; all hydroxide molecules will instantly react with hydroniums molecules
   if [breed] of partner = hydroniums
@@ -149,25 +153,24 @@ to react-bases ;;turtle procedure that tells base molecules how to react
 end
 
 
-to react-acids ;;turtle procedure that tells acid turtles how to react
+to react-acids ;; turtle procedure that tells acid turtles how to react
 
-;;acid molecules react with water to form hydroniums and con-base
+;; acid molecules react with water to form hydroniums and con-base
 if [breed] of partner = waters
   [set breed con-bases
    ask partner [set breed hydroniums]]
 
-;;hydroniums molecules react with con-base to form acid and water
+;; hydronium molecules react with con-base to form acid and water
 if [breed] of partner = con-bases
   [set breed waters
    rt random 360 fd 2
    ask partner [set breed acids]]
 
-;;hydroniums molecules react with con-base2 to form con-base and water
+;; hydronium molecules react with con-base2 to form con-base and water
 if [breed] of partner = con-base2s
   [set breed waters rt random 360 fd 2
    ask partner [set breed con-bases]]
 end
-
 
 ;; calculates variables for determining the pH
 to calculate-ions
@@ -184,7 +187,6 @@ to calculate-ions
   set HAconc (mmolHA / volume)
   calculate-pH
 end
-
 
 ;; calculates the pH from the amount of the various ions in solution;
 ;; note that for simplicity the calculations don't take the true molar
@@ -206,30 +208,25 @@ end
 
 ;; adds more base to the system
 to add-base
-  create-hydroxides base-added
-    [
-     fd 1
-    ]
+  create-hydroxides base-added [ fd 1 ]
   set-colors
 end
 
 ;; plotting procedures
-
 to record-pH
   set-current-plot "Titration Curve"
   set-plot-pen-interval base-added
-  ; before next plotting, move along x-axis by magnitude of amount added
+  ;; before next plotting, move along x-axis by magnitude of amount added
   plot pH
 end
-
 
 ; Copyright 2005 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-266
+295
 10
-649
+678
 394
 -1
 -1
@@ -254,10 +251,10 @@ ticks
 30.0
 
 BUTTON
-6
-11
-110
-44
+9
+10
+113
+43
 setup
 setup
 NIL
@@ -271,10 +268,10 @@ NIL
 1
 
 BUTTON
-124
-11
-252
-44
+127
+10
+283
+43
 go
 go
 T
@@ -288,10 +285,10 @@ NIL
 0
 
 BUTTON
-7
-233
-71
-266
+9
+230
+109
+263
 record pH
 record-pH
 NIL
@@ -305,10 +302,10 @@ NIL
 1
 
 BUTTON
-6
-103
-92
-136
+9
+100
+95
+133
 add base
 add-base
 NIL
@@ -322,40 +319,40 @@ NIL
 1
 
 SLIDER
-6
-54
-253
-87
+9
+53
+283
+86
 starting-acid
 starting-acid
 0
 100
-50.0
+100.0
 1
 1
 molecules
 HORIZONTAL
 
 SLIDER
-100
 103
-253
-136
+100
+283
+133
 base-added
 base-added
 0
 100
-15.0
+10.0
 1
 1
 molecules
 HORIZONTAL
 
 PLOT
-9
-465
-253
-625
+10
+445
+254
+605
 pH Curve
 Time
 pH
@@ -370,10 +367,10 @@ PENS
 "ph" 1.0 0 -2674135 true "" "plot pH"
 
 PLOT
-8
-269
-253
-438
+10
+270
+285
+439
 Titration Curve
 Vol base
 pH
@@ -388,10 +385,10 @@ PENS
 "ph" 1.0 0 -13345367 true "" ""
 
 PLOT
-370
-431
-765
-627
+355
+400
+750
+596
 Molecule Counts
 time
 #
@@ -408,12 +405,13 @@ PENS
 "con-base" 1.0 0 -5825686 true "" "plot count con-bases"
 "hydroxide" 1.0 0 -2674135 true "" "plot count hydroxides"
 "water" 1.0 0 -13345367 true "" "plot count waters"
+"con-base2" 1.0 0 -11221820 true "" "plot count con-base2s"
 
 SWITCH
-75
-233
-253
-266
+110
+230
+285
+263
 see-starting-water?
 see-starting-water?
 0
@@ -421,10 +419,10 @@ see-starting-water?
 -1000
 
 SLIDER
-6
-151
-253
-184
+9
+145
+284
+178
 Ka1
 Ka1
 0
@@ -436,10 +434,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-7
-188
-253
-221
+10
+192
+285
+225
 Ka2
 Ka2
 0
@@ -451,10 +449,10 @@ NIL
 HORIZONTAL
 
 MONITOR
-257
-531
-350
-576
+258
+511
+351
+556
 # hydronium
 count hydroniums
 0
@@ -462,10 +460,10 @@ count hydroniums
 11
 
 MONITOR
-257
-571
-350
-616
+258
+551
+351
+596
 pH
 pH
 1
@@ -473,10 +471,10 @@ pH
 11
 
 MONITOR
-257
-481
-350
-526
+258
+461
+351
+506
 # hydroxide
 count hydroxides
 0
@@ -486,7 +484,7 @@ count hydroxides
 @#$#@#$#@
 ## WHAT IS IT?
 
-This is the fourth model of the Acid-Base subsection of the Connected Chemistry models. It is best explored after the Strong Acid, Weak Acid, and Buffer models. In this model, we have yet another variant on determining the pH of a solution.  This model depicts a diprotic acid, or an acid which can donate two atoms of hydrogen to a base.
+This is the fourth model of the Acid-Base subsection of the Connected Chemistry models. It is best explored after the Strong Acid, Weak Acid, and Buffer models. In this model, we have yet another variant on determining the pH of a solution. This model depicts a diprotic acid, or an acid which can donate two atoms of hydrogen to a base.
 
 ## HOW IT WORKS
 
@@ -546,13 +544,14 @@ Substitute the short-cut equation for calculating pH with the full equation. Are
 
 Try substituting the various pKa values below into the Henderson-Hasselbach equation and observe their effect on the titration curve. What affect does this have on the pH?
 
-<table border>
-<tr><th>weak acid<th>pK1<th>pK2
-<tr><td>carbonic<td>6.5<td>10.2
-<tr><td>oxalic<td>1.27<td>4.27
-<tr><td>glycine<td>2.34<td>9.60
-<tr><td>maleic<td>2.00<td>6.20
-</table>
+```
+| weak acid |  pK1 | pK2  |
+---------------------------
+| carbonic  | 6.5  | 10.2 |
+| oxalic    | 1.27 | 4.27 |
+| glycine   | 2.34 | 9.60 |
+| malice    | 2.00 | 6.20 |
+```
 
 ## RELATED MODELS
 
@@ -563,10 +562,6 @@ Buffer
 ## NETLOGO FEATURES
 
 Notice that in the `calculate-pH` procedure the model makes use of the `count` primitive to convert the number of turtles in the world into concentrations that are often used in the chemistry laboratory.
-
-## CREDITS AND REFERENCES
-
-Thanks to Mike Stieff for his work on this model.
 
 ## HOW TO CITE
 
@@ -916,5 +911,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@

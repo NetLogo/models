@@ -37,7 +37,8 @@ to react-backward
   if (random-float 1000) < Ku
     [ set breed reactants    ;; change back to reactant
       set color green
-      hatch 1 ]         ;; then split into two reactants
+      ;; then split into two reactants
+      hatch 1 [ set heading random 360 ] ]
 end
 
 
