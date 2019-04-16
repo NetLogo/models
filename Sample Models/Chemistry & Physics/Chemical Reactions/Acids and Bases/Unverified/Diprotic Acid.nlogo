@@ -220,6 +220,7 @@ to record-pH
   plot pH
 end
 
+
 ; Copyright 2005 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@
@@ -544,7 +545,7 @@ Substitute the short-cut equation for calculating pH with the full equation. Are
 
 Try substituting the various pKa values below into the Henderson-Hasselbach equation and observe their effect on the titration curve. What affect does this have on the pH?
 
-```
+```text
 | weak acid |  pK1 | pK2  |
 ---------------------------
 | carbonic  | 6.5  | 10.2 |
