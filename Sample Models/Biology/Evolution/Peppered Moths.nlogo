@@ -50,6 +50,7 @@ end
 to setup-moths
   create-moths num-moths
   [
+    set size 1.5
     set color random-color
     moths-pick-shape
     set age (random 3) ;; start out with random ages
