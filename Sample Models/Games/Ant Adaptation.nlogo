@@ -872,9 +872,9 @@ NIL
 1
 
 TEXTBOX
-133
+125
 390
-391
+450
 423
 Press Play to Start |>
 24
@@ -1851,7 +1851,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.1.0-RC1
+NetLogo 6.1.0-RC2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
