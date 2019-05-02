@@ -160,6 +160,9 @@ class CodeTests extends TestModels {
   // Some of these exceptions are debatable and should
   // be revisited at some point -- NP 2015-08-30
   val nonLowercaseExceptions = Map[String, Set[String]](
+    "Ant Adaptation" -> Set(
+      "create-HUD-display-of-ants"
+   ),
     "CA 1D Elementary" -> Set(
       "OIO", "IOI", "OII", "III", "OOI", "IOO", "IIO", "OOO"
     ),
