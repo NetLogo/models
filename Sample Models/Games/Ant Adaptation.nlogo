@@ -967,15 +967,13 @@ Right now there is only one type of ant: forager. Try adding ant castes, such as
 
 This model uses the updated variadic `ifelse` primitive.
 
-The model was originally built for use on a 52-inch touch pad in a museum. If you are interested in using it in this context, please contact kitmartin@u.northwestern.edu and info@ccl.northwestern.edu .
+The model was originally built for use on a 52-inch touch pad in a museum. If you are interested in using it in this context, please contact kitmartin@u.northwestern.edu and info@ccl.northwestern.edu.
 
 ## RELATED MODELS
 
 This model extends the NetLogo Ants (Wilensky, 1997) and is based on Holldobler and Wilson's The Ants (1990).
 
 Holldobler, B., & Wilson, E. O. (1990). The Ants. Belknap (Harvard University Press), Cambridge, MA.
-
-Wilensky, U. (1997). Netlogo ants model. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 ## ACKNOWLEDGMENTS
 
@@ -1002,6 +1000,8 @@ Copyright 2019 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2019 Cite: Martin, K. -->
 @#$#@#$#@
 default
 true
