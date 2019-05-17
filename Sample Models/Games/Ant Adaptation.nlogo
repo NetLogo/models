@@ -5,7 +5,7 @@ globals
 
 breed [flowers flower] ; the main food source
 breed [nests nest]     ; the ants' home, where they bring food to and are born
-breed [ants ant]       ; the red and black ants
+breed [ants ant]       ; the red and blue ants
 breed [queens queen]   ; the reproductive flying ants that found new colonies
 breed [males male]     ; the queens' mates, required only for founding new colonies
 breed [gasters gaster] ; part of the HUD display of ants
@@ -70,7 +70,7 @@ to initialize ; sets up the colonies, initial flowers, grass, and gives each nes
     set my-color green - 1 set pcolor green - 1
   ]
   flowering 45 1 ; makes 45 flowers
-  make-nest 1 -24 8  black "black-team" ; place a black colony
+  make-nest 1 -24 8  cyan "blue-team" ; place a blue colony
   make-nest 1 27 -7 red "red-team"      ; place a red colony
   ask nests [ hatched-ant 10 ]          ; give each colony 10 ants
   set-default-shape nests "anthill"
@@ -109,7 +109,7 @@ to move-ants ; moves ants
       fd 1
     ]
     [
-      black-attack ; run attack for black ants
+      blue-attack ; run attack for blue ants
       red-attack   ; run attack for red ants
       continue-fight  ; if in a fight, keep fighting
     ]
@@ -241,8 +241,8 @@ to create-more-ants ; births some ants
   ask nests
   [ ; for red colonies, if the stored food greater than the cost to feed a baby ant to adulthood, make another ant
     if color = red   [ if food-store > red-build-cost   [ birth ] ]
-    ; for black colonies, if the stored food greater than the cost to feed a baby ant to adulthood, make another ant
-    if color = black [ if food-store > black-build-cost [ birth ] ]
+    ; for blue colonies, if the stored food greater than the cost to feed a baby ant to adulthood, make another ant
+    if color = cyan [ if food-store > blue-build-cost [ birth ] ]
   ]
 end
 
@@ -258,7 +258,7 @@ to birth
     [ hatched-ant 1 ]
 
   if color = red   [ set food-store food-store - red-build-cost ]
-  if color = black [ set food-store food-store - black-build-cost ]
+  if color = cyan [ set food-store food-store - blue-build-cost ]
 end
 
 to hatched-ant [ some-ants ] ; turtle procedure. This procedure hatches some ants, called by nests.
@@ -267,14 +267,14 @@ to hatched-ant [ some-ants ] ; turtle procedure. This procedure hatches some ant
   [
     ifelse color = red
       [ set energy red-start-energy]
-      [ set energy black-start-energy]
+      [ set energy blue-start-energy]
     set mother myself
     set fighting? false
     set shape "ant"
     set has-food? false
     ifelse color = red
       [ set size red-size ]
-      [ set size black-size ]
+      [ set size blue-size ]
     set label ""
     set age 0
     set prey nobody
@@ -300,7 +300,7 @@ end
 to death ; check to see if turtles will die,
   ask ants
   [
-    set energy energy - 5 + (1 - (black-aggression / 100))
+    set energy energy - 5 + (1 - (blue-aggression / 100))
     if energy - (age) <= 0 [ die ]
   ]
 
@@ -408,11 +408,11 @@ to attack ; turtle procedure that checks if the ant it fighting, and the prey an
   ]
 end
 
-to black-attack ; turtle procedure calculates the black aggression and if high enough to surpass a randomly generated number, the ant attacks this tick.
-  ask ants with [team = "black-team"] [ if black-aggression > random 100 [ attack ] ]
+to blue-attack ; turtle procedure calculates the blue aggression and if high enough to surpass a randomly generated number, the ant attacks this tick.
+  ask ants with [team = "blue-team"] [ if blue-aggression > random 100 [ attack ] ]
 end
 
-to red-attack ; turtle procedure calculates the black aggression and if high enough to surpass a randomly generated number, the ant attacks this tick.
+to red-attack ; turtle procedure calculates the blue aggression and if high enough to surpass a randomly generated number, the ant attacks this tick.
   ask ants with [team = "red-team"]   [ if red-aggression > random 100 [ attack ] ]
 end
 
@@ -490,9 +490,9 @@ to paint-pheromone ; adds pheromone where the user touches the view
   ]
 end
 
-to-report black-build-cost ; the amount the black colonies need to reproduce one more ant, based on size, aggression and start energy
+to-report blue-build-cost ; the amount the blue colonies need to reproduce one more ant, based on size, aggression and start energy
   let return 0
-  set return black-size / 2 + (black-aggression / 15) + (black-start-energy / 1000)
+  set return blue-size / 2 + (blue-aggression / 15) + (blue-start-energy / 1000)
   report return
 end
 
@@ -506,7 +506,7 @@ to-report demo-shape-case ; set the size and face of the representation in the t
   let return "sideant"
   let choice red-aggression ; sets red as the default color
 
-  if color = 2 [ set choice black-aggression ] ; shifts the black for the black display.
+  if color = cyan + 2 [ set choice blue-aggression ] ; shifts the blue for the blue display.
 
   (ifelse  ; case switch statement for graphics that sets the shape in the top left and right based on the team's aggression level.
     choice < 10                  [ set return "sideant" ]
@@ -525,9 +525,9 @@ end
 
 to control-heads-up-display-of-ants ; There are two grey squares that show the changing aggressiveness and size.
                                     ; Here we adjust the size of these to representations based on the size and aggresssion sliders
-  ask demos [ifelse color = 2
+  ask demos [ifelse color = cyan + 2
     [
-      set size black-size * 2
+      set size blue-size * 2
       set shape demo-shape-case
     ]
     [
@@ -546,9 +546,9 @@ to control-heads-up-display-of-ants ; There are two grey squares that show the c
   ]
   ask gasters
   [
-    ifelse color = black
+    ifelse color = cyan
     [
-      set size (black-size * 2 + (black-start-energy / 10))
+      set size (blue-size * 2 + (blue-start-energy / 10))
     ]
     [
       set size (red-size * 2 + (red-start-energy / 10))
@@ -565,17 +565,17 @@ to go-into-nest ; simulate ants entering their nest by hiding them if they are b
   ask ants [ifelse any? nests in-radius 5 and has-food? = false [hide-turtle] [show-turtle]]
 end
 
-
+; creates the boxes in with ants in them in the upper right and left of the view. These changed based on how the players change their ant's characteristics.
 to create-HUD-display-of-ants
   create-demos 2
   [
     set shape demo-shape-case
     set heading 0
-    ifelse not any? demos with [color = black + 2]
+    ifelse not any? demos with [color = cyan + 2]
     [
       setxy -63 21
-      set size black-size * 2
-      set color black + 2
+      set size blue-size * 2
+      set color cyan + 2
     ]
     [
       setxy 63 21
@@ -665,7 +665,7 @@ true
 false
 "" ""
 PENS
-"Black" 1.0 0 -16777216 true "" "plot count ants with [color = black]"
+"Blue" 1.0 0 -11221820 true "" "plot count ants with [color = cyan]"
 "Red" 1.0 0 -2674135 true "" "plot count ants with [color = red]"
 
 SLIDER
@@ -673,11 +673,11 @@ SLIDER
 250
 237
 283
-black-aggression
-black-aggression
+blue-aggression
+blue-aggression
 0
 100
-15.0
+30.0
 1
 1
 %
@@ -692,7 +692,7 @@ red-aggression
 red-aggression
 0
 100
-15.0
+30.0
 1
 1
 %
@@ -707,7 +707,7 @@ evaporation-rate
 evaporation-rate
 0
 1
-0.7
+1.0
 .01
 1
 % of pheromones
@@ -751,7 +751,7 @@ MONITOR
 240
 170
 Create Cost
-black-build-cost
+blue-build-cost
 0
 1
 16
@@ -787,8 +787,8 @@ SLIDER
 290
 236
 323
-black-start-energy
-black-start-energy
+blue-start-energy
+blue-start-energy
 300
 2000
 2000.0
@@ -802,8 +802,8 @@ MONITOR
 40
 240
 105
-Black Ants
-count ants with [color = black]
+Blue Ants
+count ants with [color = cyan]
 17
 1
 16
@@ -824,9 +824,9 @@ SLIDER
 211
 238
 244
-black-size
-black-size
-2
+blue-size
+blue-size
+3
 10
 6.0
 1
@@ -845,11 +845,11 @@ Add
 1
 
 TEXTBOX
-532
-343
-1197
-394
-You can pick to add three things: chemicals (pheromones) the ants follow, flowers\nthe ants eat, or vinegar that erases ant chemical trails. Once selected, click on the grass\nto add to the game.
+540
+330
+1220
+386
+You can choose to add three things: \n• chemicals (pheromones) the ants follow, \n• flowers the ants eat, or \n• vinegar that erases ant chemical trails. Once selected, click on the grass to add to the game.
 11
 0.0
 1
@@ -872,9 +872,9 @@ NIL
 1
 
 TEXTBOX
-125
+133
 390
-450
+428
 423
 Press Play to Start |>
 24
@@ -886,11 +886,11 @@ Press Play to Start |>
 
 In this game, two colonies of ants forage for food. Though each ant follows a set of simple rules, the colonies as a whole act in sophisticated ways. Ant Adaptation simulates two ant colonies side by side, each controlled by a different player.
 
-The model teaches users about complexity through play. The sensing area of the view contains five widgets for each team. With Ant Adaptation, we aim to realize the promise of agent-based modeling originally illustrated by systems such as Gas Lab (Wilensky, 1997) or NIELS (Sengupta and Wilensky, 2009), in a rich interaction form factor for walk-up-and-play use in an informal learning space.
+The model teaches users about complexity through play. The sensing area of the view contains five widgets for each of the two players. With Ant Adaptation, we aim to realize the promise of agent-based modeling originally illustrated by systems such as GasLab (Wilensky, 1997) or NIELS (Sengupta and Wilensky, 2009), in a rich interaction form factor for walk-up-and-play use in an informal learning space.
 
 ## HOW IT WORKS
 
-In this model two ant colonies send out their foragers to move around and find food. If they walk over food, they pick it up and return to their colony. When the nest gets enough food, the colony produces another ant. The user can interact with the model with by painting (and removing) pheromones or adding additional food to the game. While users can add food, the food (flowers) also reproduce on their own slowly. After some time, the colonies will produce new queens to found new colonies of each color. If ants of different colonies run into each other, they might fight. When ants fight, or return food from flowers, they will leave pheromone trails to attract other ants.
+In this model two ant colonies send out their foragers to move around and find food. If they walk over food, they pick it up and return to their colony. When the nest gets enough food, the colony produces another ant. The user can interact with the model by painting (and removing) pheromones or adding additional food to the game. While users can add food, the food (flowers) also reproduce on their own slowly. After some time, the colonies will produce new queens to found new colonies of each color. If ants of different colonies run into each other, they might fight. When ants fight, or return food from flowers, they will leave pheromone trails to attract other ants.
 
 ### WITHOUT USER INTERACTION
 On setup, two ant colonies (one of red ants and one of black ants) and a number of flowers are created in the world. Ants are spawned in the ant colony and then wander until they find food, represented as flowers in the model. When they find food, they personally gain energy through eating nectar, then they return to the colony while laying down a pheromone, represented as pink trails in this model to feed the young inside the nest. Ants near pheromone trails are attracted to the strongest chemical trail. As the ants exhaust a food source, they once again begin to wander until they find another food source or another pheromone trail to follow.
@@ -905,9 +905,9 @@ Users can interact with the model, setting parameters for their colony and ants.
 
 The colony teams interact with this complex system in two ways. First, they can adjust the characteristics of their colony and its ants. Second, they can add or remove certain environmental features from the world.
 
-Colony teams can decide how large and aggressive their ants are. When the size of ants increases, they become slightly faster and stronger in a fight. When players make their ants more aggressive, it increases the likelihood that ants detect opposing ants and thus the probability that they will attack. The starting energy slider sets the amount of energy a new born ant has when it leaves the nest for the first time. This determines how far it can walk before finding food.
+Colony teams can decide how large and aggressive their ants are. When the size of ants increases, they become slightly faster and stronger in a fight. When players make their ants more aggressive, it increases the likelihood that ants detect opposing ants and thus the probability that they will attack. The START-ENERGY sliders set the amount of energy a new born ant has when it leaves the nest for the first time. This determines how far it can walk before finding food.
 
-Increases in any of these parameters reduces the expected population of the colony, by increasing the Create Cost, though it increases their likelihood of fighting and winning through emergent interactions of parameters (size and aggressiveness) and agent actions (collecting food, leaving trails, and fighting).
+Increases in size, aggressiveness or start-energy reduces the expected population of the colony, by increasing the the cost of creating more ants, displayed in the "Create Cost" widget. The changes also increases their likelihood of fighting and winning through emergent interactions of parameters (size and aggressiveness) and agent actions (collecting food, leaving trails, and fighting).
 
 Colony teams can adjust the environment by adding chemical trails, adding flowers, and erasing chemical trails with vinegar.
 
@@ -915,13 +915,13 @@ Colony teams can adjust the environment by adding chemical trails, adding flower
 
 ![](ant_adaptation_figure.png)
 
-There are five widgets in the center of the screen that control functions for both colony teams. As shown in the diagram above, marked 4 above, Play and Stop control the model’s time. Marked 5 in the diagram, Restart sets the model back to initial conditions. The Add drop down menu, marked 6 above, allows you to choose to place flowers, chemical pheromone trails, or erase trails with vinegar. To use it, select one of them, then click on the view. The EVAPORATION-RATE slider, marked 7 above, controls the evaporation rate of the chemical.
+There are five widgets in the center of the screen that control functions for both the red and black colony teams. As shown in the diagram above, marked 4 above, PLAY and STOP control the model’s time measured in ticks. Marked 5 in the diagram, RESTART sets the model back to initial conditions. The ADD drop down menu, marked 6 above, allows you to choose to place flowers, chemical pheromone trails, or erase trails with vinegar. To use it, select one of them, then click on the view. The EVAPORATION-RATE slider, marked 7 above, controls the evaporation rate of the chemical.
 
-Each team decides how large and aggressive their ants are with the sliders to the left and right of the view, marked 2 in the diagram above. Then they each select how much food each new ant starts with. Once teams have decided, they should agree to click the Restart button to set up the ant nests (with red and black flags) and the food-flowers. Clicking the Play button starts the simulation.
+Each team decides how large and aggressive their ants are with the sliders to the left and right of the view, marked 2 in the diagram above. Then they each select how much food each new ant starts with. Once teams have decided, they should agree to click the RESTART button to set up the ant nests (with red and black flags) and the food-flowers. Clicking the PLAY button starts the simulation.
 
-If you want to change the size, aggressiveness or starting food move your team's sliders either before pressing Restart, or after to affect newly born ants.
+If you want to change the size, aggressiveness or starting food move your team's sliders either before pressing RESTART, or after to affect newly born ants.
 
-Marked 1, monitors Red and Black ants at the top, counts the ants’ population named “Black Ants” on the left, and “Red Ants” on the right. Marked 2, the three sliders at the bottom left and right are sliders players can use to adjust their ant’s size, aggressiveness, and the maximum amount of energy, or basically how long ants can walk without eating. Adjusting any of these sliders will change the Create Cost. These sliders can be adjusted at any time during the game to experiment with different settings. Marked 3, in the middle, Ant Adaptation provides a monitor “Create Cost.” The Create Cost widget shows the summed value that it currently costs to produce one more ant. Specifically, the colony produces a new ant when the stored food is greater than the Create Cost. The cost is calculated by a function of the three sliders.
+Marked 1, monitors Red and Black ants at the top, counts the ants’ population named BLACK ANTS on the left, and RED ANTS on the right. Marked 2, the three sliders at the bottom left and right are sliders players can use to adjust their ant’s size, aggressiveness, and the maximum amount of energy, or basically how long ants can walk without eating. Adjusting any of these sliders will change the Create Cost. These sliders can be adjusted at any time during the game to experiment with different settings. Marked 3, in the middle, Ant Adaptation provides a monitor CREATE COST. The CREATE COST monitor shows the total value that it currently costs to produce one more ant. Specifically, the colony produces a new ant when the stored food is greater than the CREATE COST. The cost is calculated by a function of the three sliders.
 
 ## THINGS TO NOTICE
 
@@ -929,13 +929,15 @@ The ant colony generally exploits the food sources in order, starting with the f
 
 Once the colony finishes collecting the closest food, the chemical trail to that food naturally disappears, freeing up ants to help collect the other food sources. The more distant food sources require a larger "critical number" of ants to form a stable trail.
 
-The population of the colonies is shown in a plot.  The line colors in the plot match the colors of the colonies.
+The population of each of the two colonies is shown in the plot.  The line colors in the plot match the colors of the colonies.
 
-Changing a team's aggressiveness, or size, changes ant behavior. It also changes to depiction of the ant in the widget marked 8 above.
+Changing a team's AGGRESSIVENESS, or SIZE, changes ant behavior. It also changes the depiction of the ant in the widget marked 8 above.
 
 Notice how proximity of food to the colony affects population growth.
 
 Notice if too much chemical causes problems.
+
+This model operates at two levels, both representing the individual ant, and the colony. This makes it an agent-based model of a super-organism.
 
 ## THINGS TO TRY
 
@@ -945,11 +947,11 @@ Explore where you place chemical trails for ants to follow. What is the most eff
 
 How long can your colony survive? How large can you make your colony?
 
-Which one is better, being aggressive or being big?
+Try different levels of being aggressive and being big. Is one more important than the other for the colony's success?
 
 Try peacefully collecting flowers.
 
-Then try starting a fight between colonies.
+Try starting a fight between colonies.
 
 ## EXTENDING THE MODEL
 
@@ -957,7 +959,7 @@ Right now, both colonies respond to the same pheromone for food collection, and 
 
 Right now, ants can fight ants from the other team, what happens if ants sometimes fight ants from their own colony?
 
-Change the code so the colonies start in different locations.
+Change the code so the colonies start in different locations. Does changing the starting proximity affect the model?
 
 Right now there is only one type of ant: forager. Try adding ant castes, such as soldiers.
 
@@ -965,17 +967,19 @@ Right now there is only one type of ant: forager. Try adding ant castes, such as
 
 This model uses the updated variadic `ifelse` primitive.
 
-This model operates at two levels (Reisman and Wilensky, 2006) both representing the individual ant, and the colony. This makes it an agent based model of a super-organism.
-
-The model was originally built for use on a 52-inch touch pad in a museum. If you are interested in using it in this context, please contact the Author at kitmartin@u.northwestern.edu
+The model was originally built for use on a 52-inch touch pad in a museum. If you are interested in using it in this context, please contact kitmartin@u.northwestern.edu and info@ccl.northwestern.edu .
 
 ## RELATED MODELS
 
-This model extends NetLogo Ants (Wilensky, 1997) and is based on Hölldobler and Wilson's The Ants (1990).
+This model extends the NetLogo Ants (Wilensky, 1997) and is based on Holldobler and Wilson's The Ants (1990).
+
+Holldobler, B., & Wilson, E. O. (1990). The Ants. Belknap (Harvard University Press), Cambridge, MA.
+
+Wilensky, U. (1997). Netlogo ants model. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 ## ACKNOWLEDGMENTS
 
-The project gratefully acknowledges the support the Multidisciplinary Program in Education Sciences for funding the project (Award # R305B090009).
+The project gratefully acknowledges the support of the Multidisciplinary Program in Education Sciences for funding the project (Award # R305B090009).
 
 ## HOW TO CITE
 
@@ -998,8 +1002,6 @@ Copyright 2019 Uri Wilensky.
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
-<!-- 2019 Cite: Martin, K. -->
 @#$#@#$#@
 default
 true
