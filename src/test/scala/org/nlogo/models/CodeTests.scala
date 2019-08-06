@@ -190,6 +190,39 @@ class CodeTests extends TestModels {
     "Connected Chemistry Reversible Reaction" -> Set(
       "#-H2", "#-N2", "#-NH3"
     ),
+    "CRISPR Bacterium LevelSpace" -> Set(
+      "RNAPs-own",
+      "hatch-guide-RNAs",
+      "guide-RNA",
+      "guide-RNAs-own",
+      "go-guide-RNAs",
+      "CRISPR-function",
+      "guide-RNAs",
+      "go-RNAPs",
+      "CRISPR",
+      "RNAPs",
+      "create-RNAPs",
+      "transcripts-per-RNAP",
+      "CRISPR-function-%",
+      "RNAP",
+      "CRISPR-array",
+      "guide-RNAs-here"
+    ),
+    "CRISPR Bacterium" -> Set(
+      "RNAPs-own",
+      "hatch-guide-RNAs",
+      "guide-RNA",
+      "guide-RNAs-own",
+      "go-guide-RNAs",
+      "guide-RNAs",
+      "go-RNAPs",
+      "CRISPR",
+      "RNAPs",
+      "create-RNAPs",
+      "transcripts-per-RNAP",
+      "RNAP",
+      "guide-RNAs-here"
+    ),
     "Matrix Example" -> Set(
       "A", "mCopy", "B", "mRef", "conR2", "comR2", "linR2"
     ),
@@ -320,6 +353,8 @@ class CodeTests extends TestModels {
     "Connected Chemistry 5 Temperature and Pressure",
     "Connected Chemistry 6 Volume and Pressure",
     "Connected Chemistry 8 Gas Particle Sandbox",
+    "CRISPR Ecosystem",
+    "CRISPR Ecosystem LevelSpace",
     "Decay",
     "Diprotic Acid",
     "Doppler",
