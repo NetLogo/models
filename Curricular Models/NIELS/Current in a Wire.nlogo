@@ -219,7 +219,7 @@ Battery-positive (B+)
 TEXTBOX
 767
 184
-889
+890
 212
 Battery-negative (B-)\n
 11

@@ -1195,7 +1195,7 @@ count proteins with [strand = \"duplicate\"]
 TEXTBOX
 306
 263
-461
+462
 281
 Replicated DNA in new cell
 11
