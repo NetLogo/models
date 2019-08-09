@@ -28,11 +28,12 @@ package object models {
 
   def withWorkspace[A](model: Model)(f: HeadlessWorkspace => A) = {
     val workspace = HeadlessWorkspace.newInstance
+    workspace.getLibraryManager.reloadMetadata(isFirstLoad = false, useBundled = false)
     try {
       workspace.silent = true
       // open the model from path instead of content string so that
       // the current directory gets set (necessary for `__includes`)
-      workspace.open(model.file.getCanonicalPath)
+      workspace.open(model.file.getCanonicalPath, true)
       f(workspace)
     } finally workspace.dispose()
   }
