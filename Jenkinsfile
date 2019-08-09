@@ -22,8 +22,8 @@ pipeline {
 
     stage('Test') {
       steps {
+        sh "./sbt.sh -Dorg.nlogo.is3d=true test"
         sh "./sbt.sh test"
-        sh "./sbt.sh test -Dorg.nlogo.is3d=true"
       }
     }
 
