@@ -15,15 +15,15 @@ pipeline {
 
     stage('Build') {
       steps {
-        sh "sbt update"
-        sh "sbt test:compile"
+        sh "./sbt.sh update"
+        sh "./sbt.sh test:compile"
       }
     }
 
     stage('Test') {
       steps {
-        sh "sbt test"
-        sh "sbt test -Dorg.nlogo.is3d=true"
+        sh "./sbt.sh test"
+        sh "./sbt.sh test -Dorg.nlogo.is3d=true"
       }
     }
 
