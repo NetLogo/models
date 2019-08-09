@@ -24,6 +24,7 @@ pipeline {
       steps {
         sh "./sbt.sh -Dorg.nlogo.is3d=true test"
         sh "./sbt.sh test"
+        junit 'target/test-reports/*.xml'
       }
     }
 
