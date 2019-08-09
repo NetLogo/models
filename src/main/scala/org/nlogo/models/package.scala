@@ -24,7 +24,7 @@ package object models {
 
   org.nlogo.headless.Main.setHeadlessProperty()
 
-  lazy val onTravis: Boolean = sys.env.get("TRAVIS").filter(_.toBoolean).isDefined
+  lazy val onTestServer: Boolean = sys.env.get("JENKINS_URL").forall(!_.isEmpty)
 
   def withWorkspace[A](model: Model)(f: HeadlessWorkspace => A) = {
     val workspace = HeadlessWorkspace.newInstance
@@ -86,12 +86,12 @@ package object models {
     def previewFile = new File(removeExtension(file.getPath) + ".png")
     def infoTabParts = InfoTabParts.fromContent(model.info)
     def isCompilable: Boolean = {
-      val notCompilableOnTravis = Set(
+      val notCompilableOnTestServer = Set(
         "Beatbox", "Composer", "GasLab With Sound", "Musical Phrase Example",
         "Percussion Workbench", "Sound Workbench", "Sound Machines", "Frogger",
-        "Sound Machines", "GenJam - Duple") // because MIDI is not available on Travis
+        "Sound Machines", "GenJam - Duple") // because MIDI is not available on Jenkins
       val neverCompilable = Set("GoGoMonitor", "GoGoMonitorSimple")
-      !(neverCompilable.contains(name) || (onTravis && notCompilableOnTravis.contains(name)))
+      !(neverCompilable.contains(name) || (onTestServer && notCompilableOnTestServer.contains(name)))
     }
     def protocols: Seq[LabProtocol] = model
       .optionalSectionValue("org.nlogo.modelsection.behaviorspace")

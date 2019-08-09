@@ -72,8 +72,8 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
   val client = new DefaultAsyncHttpClient(builder.build())
   val urlValidator = new UrlValidator(ALLOW_2_SLASHES)
 
-  if (!onTravis) {
-    /* Only run the URL tests locally: they take a long time to run on Travis
+  if (!onTestServer) {
+    /* Only run the URL tests locally: they take a long time to run on Jenkins
      * and are an endless source of false positives (i.e., temporary failures),
      * lowering ones sensitivity to _actual_ failures. My hope is that keeping
      * the tests running locally will be enough to catch actual URL problems.
