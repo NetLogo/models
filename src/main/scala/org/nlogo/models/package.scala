@@ -14,6 +14,7 @@ import org.apache.commons.io.FilenameUtils.removeExtension
 import org.nlogo.api.LabProtocol
 import org.nlogo.api.PreviewCommands
 import org.nlogo.core.Button
+import org.nlogo.core.LibraryStatus
 import org.nlogo.core.Model
 import org.nlogo.core.Monitor
 import org.nlogo.core.Slider
@@ -28,7 +29,13 @@ package object models {
 
   def withWorkspace[A](model: Model)(f: HeadlessWorkspace => A) = {
     val workspace = HeadlessWorkspace.newInstance
-    workspace.getLibraryManager.reloadMetadata(isFirstLoad = false, useBundled = false)
+    val libraryManager = workspace.getLibraryManager
+    libraryManager.reloadMetadata(isFirstLoad = false, useBundled = false)
+    val updateableLibs = libraryManager.getExtensionInfos.filter(_.status == LibraryStatus.CanUpdate)
+    updateableLibs.foreach( (libInfo) => {
+      println(s"Updating extension: ${libInfo.name}")
+      libraryManager.installExtension(libInfo)
+    })
     try {
       workspace.silent = true
       // open the model from path instead of content string so that
