@@ -198,7 +198,7 @@ TEXTBOX
 TEXTBOX
 413
 44
-614
+615
 62
  approximated NetLogo equivalent
 11
@@ -218,7 +218,7 @@ TEXTBOX
 TEXTBOX
 414
 271
-614
+616
 289
  approximated NetLogo equivalent
 11
