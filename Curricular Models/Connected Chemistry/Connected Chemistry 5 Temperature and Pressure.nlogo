@@ -976,7 +976,7 @@ false
 0
 Rectangle -7500403 true true 0 0 297 299
 @#$#@#$#@
-NetLogo 6.1.0
+NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
