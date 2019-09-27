@@ -16,6 +16,11 @@ object LegalInfo {
   val validKeywords = List(
     "MIT", "Wilensky", "specialCE", "MAC", "Steiner",
     "Stroup", "3D", "NIELS", "ConChem", "CC0", "BYSA", "GenEvo", "MTG", "PNoM")
+  val hubnetCitation =
+    "* Wilensky, U. & Stroup, W. (1999). HubNet. " +
+    "http://ccl.northwestern.edu/netlogo/hubnet.html. " +
+    "Center for Connected Learning and Computer-Based " +
+    "Modeling, Northwestern University. Evanston, IL.\n"
   val textbookCitation =
     "* Wilensky, U. & Rand, W. (2015). Introduction " +
       "to Agent-Based Modeling: Modeling Natural, Social " +
@@ -51,10 +56,6 @@ case class LegalInfo(model: Model) {
     require(isCodeExample, "specialCE keyword is only for code examples")
 
   val path = model.file.getPath.drop(2)
-
-  val netlogohubnet =
-    if (model.isHubNet) "NetLogo HubNet"
-    else "NetLogo"
 
   val copyrightString = {
     if (keywords.contains("Steiner"))
@@ -97,7 +98,7 @@ case class LegalInfo(model: Model) {
       case _                             => cite + " and Wilensky, U."
     }
     builder.append(authors)
-    builder.append(" (" + year + ").  " + netlogohubnet + " " + model.name + " model.  ")
+    builder.append(" (" + year + ").  NetLogo " + model.name + " model.  ")
     builder.append("http://ccl.northwestern.edu/netlogo/models/" + model.compressedName + ".  ")
     builder.append("Center for Connected Learning and Computer-Based Modeling, ")
     if (model.isIABM) builder.append("Northwestern Institute on Complex Systems, ")
@@ -182,6 +183,11 @@ case class LegalInfo(model: Model) {
       builder.append("Center for Connected Learning and ")
       builder.append("Computer-Based Modeling, Northwestern University, Evanston, IL.\n")
 
+      if (model.isHubNet) {
+         builder.append("\n")
+         builder.append("Please cite the HubNet software as:\n\n")
+         builder.append(hubnetCitation)
+      }
       if (model.isIABM) {
         builder.append("\n")
         builder.append("Please cite the textbook as:\n\n")

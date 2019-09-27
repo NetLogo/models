@@ -796,11 +796,15 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Guo, Y. and Wilensky, U. (2016).  NetLogo HubNet BeeSmart HubNet model.  http://ccl.northwestern.edu/netlogo/models/HubNetBeeSmartHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Guo, Y. and Wilensky, U. (2016).  NetLogo BeeSmart HubNet model.  http://ccl.northwestern.edu/netlogo/models/HubNetBeeSmartHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
 * Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the HubNet software as:
+
+* Wilensky, U. & Stroup, W. (1999). HubNet. http://ccl.northwestern.edu/netlogo/hubnet.html. Center for Connected Learning and Computer-Based Modeling, Northwestern University. Evanston, IL.
 
 ## COPYRIGHT AND LICENSE
 
