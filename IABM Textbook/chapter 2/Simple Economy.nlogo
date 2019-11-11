@@ -17,7 +17,7 @@ end
 to go
   ;; transact and then update your location
   ask turtles with [ wealth > 0 ] [ transact ]
-  ;; prevent wealthy turtles from moving too far to the right
+  ;; prevent wealthy turtles from moving too far to the right -- that is, outside the view
   ask turtles [ if wealth <= max-pxcor [ set xcor wealth ] ]
   tick
 end
@@ -28,10 +28,13 @@ to transact
   ask one-of other turtles [ set wealth wealth + 1 ]
 end
 
+;; report the total wealth of the top 10% of turtles
 to-report top-10-pct-wealth
   report sum [ wealth ] of max-n-of (count turtles * 0.10) turtles [ wealth ]
 end
 
+
+;; report the total wealth of the bottom half of turtles
 to-report bottom-50-pct-wealth
   report sum [ wealth ] of min-n-of (count turtles * 0.50) turtles [ wealth ]
 end
@@ -197,15 +200,15 @@ Examine the various graphs and see how the model unfolds. Let it run for many ti
 
 ## THINGS TO TRY
 
-Try running the model for many thousands of ticks. Does the distribution stabilize? How can you measure stabilization? Keep track of some individual agents. How do they move?
+Try running the model for many thousands of ticks. Does the distribution stabilize? How can you measure stabilization? Keep track of some individual agents. How do they move? Track the wealth of the wealthiest and poorest turtles. How do they change?
+
+Change the number of turtles. Does this affect the results?
 
 ## EXTENDING THE MODEL
 
-Change the number of turtles.  Does this affect the results?
-
 Change the rules so agents can go into debt. Does this affect the results?
 
-Change the basic transaction rule of the model.  What happens if the turtles exchange more than one dollar? How about if they give a random amount to another agent at each tick? Change the rules so that the richer agents have a better chance of being given money? Or a smaller chance? How does this change the results?
+Change the basic transaction rule of the model. What happens if the turtles exchange more than one dollar? How about if they give a random amount to another agent at each tick? Change the rules so that the richer agents have a better chance of being given money. Then try using a smaller chance. Or try a rule that says they give a percentage of their money rather than just $1. How does this change the results?
 
 ## NETLOGO FEATURES
 
