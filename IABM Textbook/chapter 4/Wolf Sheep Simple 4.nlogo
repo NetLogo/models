@@ -1,4 +1,4 @@
-breed [sheep a-sheep]
+breed [ sheep a-sheep ]
 
 turtles-own [ energy ]  ;; agents own energy
 

@@ -7,7 +7,7 @@ globals [
 ]
 
 ;; n is how many grains of sand are on this patch
-patches-own [n]
+patches-own [ n ]
 
 ;; The input task says what each patch should do at setup time
 ;; to compute its initial value for n.  (See the Tasks section

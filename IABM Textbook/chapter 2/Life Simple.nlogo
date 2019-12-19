@@ -1,4 +1,4 @@
-patches-own [live-neighbors]
+patches-own [ live-neighbors ]
 
 to setup
   clear-all

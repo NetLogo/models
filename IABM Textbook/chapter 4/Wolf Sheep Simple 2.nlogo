@@ -1,4 +1,4 @@
-breed [sheep a-sheep]
+breed [ sheep a-sheep ]
 
 sheep-own [ energy ]  ;; sheep own energy
 

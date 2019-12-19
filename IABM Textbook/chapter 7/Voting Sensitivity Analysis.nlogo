@@ -1,5 +1,4 @@
-patches-own
-[
+patches-own [
   vote   ;; my vote (0 or 1)
   total  ;; sum of votes around me
 ]

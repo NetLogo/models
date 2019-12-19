@@ -1,4 +1,4 @@
-turtles-own [speed]
+turtles-own [ speed ]
 
 to setup
   setup-circle

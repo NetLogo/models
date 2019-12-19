@@ -1,4 +1,4 @@
-extensions [nw]
+extensions [ nw ]
 
 turtles-own [
   adopted?    ;; whether or not the agent has adopted the product

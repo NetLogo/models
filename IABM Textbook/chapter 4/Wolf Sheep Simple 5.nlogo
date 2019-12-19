@@ -1,5 +1,5 @@
-breed [sheep a-sheep]
-breed [wolves wolf]
+breed [ sheep a-sheep ]
+breed [ wolves wolf ]
 
 turtles-own [ energy ]  ;; agents own energy
 

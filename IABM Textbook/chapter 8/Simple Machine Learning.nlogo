@@ -6,8 +6,8 @@ globals [ goal operators inputs ]
 
 to setup
   clear-all
-  set operators ["+ " "- " "* "]  ;; set up the usable operators
-  set inputs ["heading " "xcor " "1 " "2 " "10 "]  ;; set up the usable inputs
+  set operators [ "+ " "- " "* " ]  ;; set up the usable operators
+  set inputs [ "heading " "xcor " "1 " "2 " "10 " ]  ;; set up the usable inputs
 
   ;; create the first generation of turtles and have them put their pens down
   ;;   so we can see them when they draw

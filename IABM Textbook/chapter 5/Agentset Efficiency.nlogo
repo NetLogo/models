@@ -2,7 +2,7 @@
 to setup
   clear-all
   ask patches [
-    set pcolor one-of [red green]
+    set pcolor one-of [ red green ]
   ]
   reset-ticks
 end

@@ -1,4 +1,4 @@
-breed [sheep a-sheep]
+breed [ sheep a-sheep ]
 
 ;; this procedures sets up the model
 to setup
