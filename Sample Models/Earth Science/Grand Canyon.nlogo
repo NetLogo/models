@@ -325,7 +325,7 @@ Erosion
 
 ## CREDITS AND REFERENCES
 
-National Elevation Dataset: https://lta.cr.usgs.gov/NED
+National Elevation Dataset: https://catalog.data.gov/dataset/usgs-national-elevation-dataset-ned
 ArcGIS: http://www.esri.com/software/arcgis
 My World GIS: http://www.myworldgis.org/
 

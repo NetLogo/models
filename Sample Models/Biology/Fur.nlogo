@@ -380,7 +380,7 @@ Here is a quote from the Wilkins article:
 >validating an old theory of the activator-inhibitor model first put forward by
 >Alan Turing in the 50s."
 
-Other new research published in the Journal of Experimental Biology (Egri et al, 2011) proposes an evolutionary explanation for the advantage conferred by stripes. http://jeb.biologists.org/content/215/5/736.abstract
+Other new research published in the Journal of Experimental Biology (Egri et al, 2011) proposes an evolutionary explanation for the advantage conferred by stripes. https://jeb.biologists.org/content/215/5/736.abstract
 
 Thanks to Seth Tisue and Dor Abrahamson for their work on this model.
 

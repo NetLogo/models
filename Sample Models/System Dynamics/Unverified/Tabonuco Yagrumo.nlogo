@@ -330,7 +330,7 @@ Tabonuco Yagrumo Hybrid
 
 ## CREDITS AND REFERENCES
 
-This model is based on the work of The Learning Partnership in the Journey to El Yunque project (PI's include Steven McGee, Jess Zimmerman, and Steven Croft). To view the original materials or to learn more about that project, visit http://elyunque.net/journey.html.
+This model is based on the work of The Learning Partnership in the Journey to El Yunque project (PI's include Steven McGee, Jess Zimmerman, and Steven Croft). To view the original materials or to learn more about that project, visit http://elyunque.net.
 
 ## HOW TO CITE
 
