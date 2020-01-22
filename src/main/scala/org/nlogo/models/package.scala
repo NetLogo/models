@@ -30,7 +30,7 @@ package object models {
   def withWorkspace[A](model: Model)(f: HeadlessWorkspace => A) = {
     val workspace = HeadlessWorkspace.newInstance
     val libraryManager = workspace.getLibraryManager
-    libraryManager.reloadMetadata(isFirstLoad = false, useBundled = false)
+    libraryManager.reloadMetadata(isFirstLoad = false)
     val updateableLibs = libraryManager.getExtensionInfos.filter(_.status == LibraryStatus.CanUpdate)
     updateableLibs.foreach( (libInfo) => {
       println(s"Updating extension: ${libInfo.name}")
@@ -97,7 +97,7 @@ package object models {
         "Beatbox", "Composer", "GasLab With Sound", "Musical Phrase Example",
         "Percussion Workbench", "Sound Workbench", "Sound Machines", "Frogger",
         "Sound Machines", "GenJam - Duple") // because MIDI is not available on Jenkins
-      val neverCompilable = Set("GoGoMonitor", "GoGoMonitorSimple")
+      val neverCompilable = Set("GoGoMonitor", "GoGoMonitorSimple", "Profiler Example")
       !(neverCompilable.contains(name) || (onTestServer && notCompilableOnTestServer.contains(name)))
     }
     def protocols: Seq[LabProtocol] = model
