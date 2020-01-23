@@ -233,6 +233,9 @@ class CodeTests extends TestModels {
     "Weak Acid" -> Set(
       "calculate-pH", "plot-pH", "concOH", "record-pH", "pOH", "Ka", "pH", "concH"
     ),
+    "Small Worlds" -> Set(
+      "node-A", "node-B"   
+    ),
     "Strong Acid" -> Set(
       "calculate-pH", "concOH", "record-pH", "pOH", "pH", "concH"
     ),

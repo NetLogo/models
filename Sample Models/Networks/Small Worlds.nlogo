@@ -1,33 +1,30 @@
-turtles-own
-[
-  node-clustering-coefficient
-  distance-from-other-turtles   ;; list of distances of this node from other turtles
-]
+globals [
+  infinity         ; used to represent the distance between two turtles with no path between them
+  highlight-string ; message that appears on the node properties monitor
 
-links-own
-[
-  rewired?                    ;; keeps track of whether the link has been rewired or not
-]
+  average-path-length-of-lattice       ; average path length of the initial lattice
+  average-path-length                  ; average path length in the current network
 
-globals
-[
-  clustering-coefficient               ;; the clustering coefficient of the network; this is the
-                                       ;; average of clustering coefficients of all turtles
-  average-path-length                  ;; average path length of the network
-  clustering-coefficient-of-lattice    ;; the clustering coefficient of the initial lattice
-  average-path-length-of-lattice       ;; average path length of the initial lattice
-  infinity                             ;; a very large number.
-                                         ;; used to denote distance between two turtles which
-                                         ;; don't have a connected or unconnected path between them
-  highlight-string                     ;; message that appears on the node properties monitor
-  number-rewired                       ;; number of edges that have been rewired. used for plots.
-  rewire-one?                          ;; these two variables record which button was last pushed
+  clustering-coefficient-of-lattice    ; the clustering coefficient of the initial lattice
+  clustering-coefficient               ; the clustering coefficient of the current network (avg. across nodes)
+
+  number-rewired                       ; number of edges that have been rewired
+  rewire-one?                          ; these two variables record which button was last pushed
   rewire-all?
 ]
 
-;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Setup Procedures ;;;
-;;;;;;;;;;;;;;;;;;;;;;;;
+turtles-own [
+  distance-from-other-turtles ; list of distances of this node from other turtles
+  my-clustering-coefficient   ; the current clustering coefficient of this node
+]
+
+links-own [
+  rewired? ; keeps track of whether the link has been rewired or not
+]
+
+;;;;;;;;;;;;;;;;;;;;;;
+;; Setup Procedures ;;
+;;;;;;;;;;;;;;;;;;;;;;
 
 to startup
   set highlight-string ""
@@ -35,215 +32,173 @@ end
 
 to setup
   clear-all
-  set infinity 99999  ;; just an arbitrary choice for a large number
+
+  ; set the global variables
+  set infinity 99999      ; this is an arbitrary choice for a large number
+  set number-rewired 0    ; initial count of rewired edges
+  set highlight-string "" ; clear the highlight monitor
+
+  ; make the nodes and arrange them in a circle in order by who number
   set-default-shape turtles "circle"
-  make-turtles
-
-  ;; set up a variable to determine if we still have a connected network
-  ;; (in most cases we will since it starts out fully connected)
-  let success? false
-  while [not success?] [
-    ;; we need to find initial values for lattice
-    wire-them
-    ;;calculate average path length and clustering coefficient for the lattice
-    set success? do-calculations
-  ]
-
-  ;; setting the values for the initial lattice
-  set clustering-coefficient-of-lattice clustering-coefficient
-  set average-path-length-of-lattice average-path-length
-  set number-rewired 0
-  set highlight-string ""
-end
-
-to make-turtles
   create-turtles num-nodes [ set color gray + 2 ]
-  ;; arrange them in a circle in order by who number
   layout-circle (sort turtles) max-pxcor - 1
+
+  ; Create the initial lattice
+  wire-lattice
+
+  ; Fix the color scheme
+  ask turtles [ set color gray + 2 ]
+  ask links [ set color gray + 2 ]
+
+  ; Calculate the initial average path length and clustering coefficient
+  set average-path-length find-average-path-length
+  set clustering-coefficient find-clustering-coefficient
+
+  set average-path-length-of-lattice average-path-length
+  set clustering-coefficient-of-lattice clustering-coefficient
 end
 
-;;;;;;;;;;;;;;;;;;;;;;;
-;;; Main Procedure ;;;
-;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;
+;; Main Procedures ;;
+;;;;;;;;;;;;;;;;;;;;;
 
 to rewire-one
+  ; make sure num-turtles is setup correctly else run setup first
+  if count turtles != num-nodes [ setup ]
 
-  ;; make sure num-turtles is setup correctly else run setup first
-  if count turtles != num-nodes [
-    setup
-  ]
-
-  ;; record which button was pushed
+  ; record which button was pushed
   set rewire-one? true
   set rewire-all? false
 
   let potential-edges links with [ not rewired? ]
   ifelse any? potential-edges [
-    ask one-of potential-edges [
-      ;; "a" remains the same
-      let node1 end1
-      ;; if "a" is not connected to everybody
-      if [ count link-neighbors ] of end1 < (count turtles - 1)
-      [
-        ;; find a node distinct from node1 and not already a neighbor of node1
-        let node2 one-of turtles with [ (self != node1) and (not link-neighbor? node1) ]
-        ;; wire the new edge
-        ask node1 [ create-link-with node2 [ set color cyan  set rewired? true ] ]
-
-        set number-rewired number-rewired + 1  ;; counter for number of rewirings
-
-        ;; remove the old edge
-        die
-      ]
-    ]
-    ;; plot the results
-    let connected? do-calculations
+    ask one-of potential-edges [ rewire-me ]
+    ; Calculate the new statistics and update the plots
+    set average-path-length find-average-path-length
+    set clustering-coefficient find-clustering-coefficient
     update-plots
   ]
   [ user-message "all edges have already been rewired once" ]
 end
 
-to rewire-all
 
-  ;; make sure num-turtles is setup correctly; if not run setup first
-  if count turtles != num-nodes [
-    setup
+to rewire-me ; turtle procedure
+  ; node-A remains the same
+  let node-A end1
+  ; as long as A is not connected to everybody
+  if [ count link-neighbors ] of end1 < (count turtles - 1) [
+    ; find a node distinct from A and not already a neighbor of "A"
+    let node-B one-of turtles with [ (self != node-A) and (not link-neighbor? node-A) ]
+    ; wire the new edge
+    ask node-A [ create-link-with node-B [ set color cyan set rewired? true ] ]
+
+    set number-rewired number-rewired + 1
+    die ; remove the old edge
   ]
+end
 
-  ;; record which button was pushed
+to rewire-all
+  ; confirm we have the right amount of turtles, otherwise reinitialize
+  if count turtles != num-nodes [ setup ]
+
+  ; record which button was pushed
   set rewire-one? false
   set rewire-all? true
 
-  ;; set up a variable to see if the network is connected
-  let success? false
-
-  ;; if we end up with a disconnected network, we keep trying, because the APL distance
-  ;; isn't meaningful for a disconnected network.
-  while [not success?] [
-    ;; kill the old lattice, reset neighbors, and create new lattice
+  ; we keep generating networks until we get a connected one since apl doesn't mean anything
+  ; in a non-connected network
+  let connected? false
+  while [ not connected? ] [
+    ; kill the old lattice and create new one
     ask links [ die ]
-    wire-them
+    wire-lattice
     set number-rewired 0
 
+    ; ask each link to maybe rewire, according to the rewiring-probability slider
     ask links [
-
-      ;; whether to rewire it or not?
-      if (random-float 1) < rewiring-probability
-      [
-        ;; "a" remains the same
-        let node1 end1
-        ;; if "a" is not connected to everybody
-        if [ count link-neighbors ] of end1 < (count turtles - 1)
-        [
-          ;; find a node distinct from node1 and not already a neighbor of node1
-          let node2 one-of turtles with [ (self != node1) and (not link-neighbor? node1) ]
-          ;; wire the new edge
-          ask node1 [ create-link-with node2 [ set color cyan  set rewired? true ] ]
-
-          set number-rewired number-rewired + 1  ;; counter for number of rewirings
-          set rewired? true
-        ]
-      ]
-      ;; remove the old edge
-      if (rewired?)
-      [
-        die
-      ]
+      if (random-float 1) < rewiring-probability [ rewire-me ]
     ]
 
-    ;; check to see if the new network is connected and calculate path length and clustering
-    ;; coefficient at the same time
-    set success? do-calculations
+    ; if the apl is infinity, it means our new network is not connected. Reset the lattice.
+    ifelse find-average-path-length = infinity [ set connected? false ] [ set connected? true ]
   ]
 
-  ;; do the plotting
+  ; calculate the statistics and visualize the data
+  set clustering-coefficient find-clustering-coefficient
+  set average-path-length find-average-path-length
   update-plots
 end
 
-;; do-calculations reports true if the network is connected,
-;;   and reports false if the network is disconnected.
-;; (In the disconnected case, the average path length does not make sense,
-;;   or perhaps may be considered infinite)
-to-report do-calculations
-
-  ;; set up a variable so we can report if the network is disconnected
-  let connected? true
-
-  ;; find the path lengths in the network
-  find-path-lengths
-
-  let num-connected-pairs sum [length remove infinity (remove 0 distance-from-other-turtles)] of turtles
-
-  ;; In a connected network on N nodes, we should have N(N-1) measurements of distances between pairs,
-  ;; and none of those distances should be infinity.
-  ;; If there were any "infinity" length paths between nodes, then the network is disconnected.
-  ;; In that case, calculating the average-path-length doesn't really make sense.
-  ifelse ( num-connected-pairs != (count turtles * (count turtles - 1) ))
-  [
-      set average-path-length infinity
-      ;; report that the network is not connected
-      set connected? false
-  ]
-  [
-    set average-path-length (sum [sum distance-from-other-turtles] of turtles) / (num-connected-pairs)
-  ]
-  ;; find the clustering coefficient and add to the aggregate for all iterations
-  find-clustering-coefficient
-
-  ;; report whether the network is connected or not
-  report connected?
-end
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Clustering computations ;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
+;; Clustering computations ;;
+;;;;;;;;;;;;;;;;
 
 to-report in-neighborhood? [ hood ]
   report ( member? end1 hood and member? end2 hood )
 end
 
 
-to find-clustering-coefficient
-  ifelse all? turtles [count link-neighbors <= 1]
-  [
-    ;; it is undefined
-    ;; what should this be?
-    set clustering-coefficient 0
-  ]
-  [
+to-report find-clustering-coefficient
+
+  let cc infinity
+
+  ifelse all? turtles [ count link-neighbors <= 1 ] [
+    ; it is undefined
+    ; what should this be?
+    set cc 0
+  ][
     let total 0
-    ask turtles with [ count link-neighbors <= 1]
-      [ set node-clustering-coefficient "undefined" ]
-    ask turtles with [ count link-neighbors > 1]
-    [
+    ask turtles with [ count link-neighbors <= 1 ] [ set my-clustering-coefficient "undefined" ]
+    ask turtles with [ count link-neighbors > 1 ] [
       let hood link-neighbors
-      set node-clustering-coefficient (2 * count links with [ in-neighborhood? hood ] /
+      set my-clustering-coefficient (2 * count links with [ in-neighborhood? hood ] /
                                          ((count hood) * (count hood - 1)) )
-      ;; find the sum for the value at turtles
-      set total total + node-clustering-coefficient
+      ; find the sum for the value at turtles
+      set total total + my-clustering-coefficient
     ]
-    ;; take the average
-    set clustering-coefficient total / count turtles with [count link-neighbors > 1]
+    ; take the average
+    set cc total / count turtles with [count link-neighbors > 1]
   ]
+
+  report cc
 end
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Path length computations ;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Path length computations ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Implements the Floyd Warshall algorithm for All Pairs Shortest Paths
-;; It is a dynamic programming algorithm which builds bigger solutions
-;; from the solutions of smaller subproblems using memoization that
-;; is storing the results.
-;; It keeps finding incrementally if there is shorter path through
-;; the kth node.
-;; Since it iterates over all turtles through k,
-;; so at the end we get the shortest possible path for each i and j.
+; Procedure to calculate the average-path-length (apl) in the network. If the network is not
+; connected, we return `infinity` since apl doesn't really mean anything in a non-connected network.
+to-report find-average-path-length
 
+  let apl 0
+
+  ; calculate all the path-lengths for each node
+  find-path-lengths
+
+  let num-connected-pairs sum [length remove infinity (remove 0 distance-from-other-turtles)] of turtles
+
+  ; In a connected network on N nodes, we should have N(N-1) measurements of distances between pairs.
+  ; If there were any "infinity" length paths between nodes, then the network is disconnected.
+  ifelse num-connected-pairs != (count turtles * (count turtles - 1)) [
+    ; This means the network is not connected, so we report infinity
+    set apl infinity
+  ][
+    set apl (sum [sum distance-from-other-turtles] of turtles) / (num-connected-pairs)
+  ]
+
+  report apl
+end
+
+; Implements the Floyd Warshall algorithm for All Pairs Shortest Paths
+; It is a dynamic programming algorithm which builds bigger solutions
+; from the solutions of smaller subproblems using memoization that
+; is storing the results. It keeps finding incrementally if there is shorter
+; path through the kth node. Since it iterates over all turtles through k,
+; so at the end we get the shortest possible path for each i and j.
 to find-path-lengths
-  ;; reset the distance list
-  ask turtles
-  [
+  ; reset the distance list
+  ask turtles [
     set distance-from-other-turtles []
   ]
 
@@ -253,31 +208,24 @@ to find-path-lengths
   let node1 one-of turtles
   let node2 one-of turtles
   let node-count count turtles
-  ;; initialize the distance lists
-  while [i < node-count]
-  [
+  ; initialize the distance lists
+  while [i < node-count] [
     set j 0
-    while [j < node-count]
-    [
+    while [ j < node-count ] [
       set node1 turtle i
       set node2 turtle j
-      ;; zero from a node to itself
-      ifelse i = j
-      [
+      ; zero from a node to itself
+      ifelse i = j [
         ask node1 [
           set distance-from-other-turtles lput 0 distance-from-other-turtles
         ]
-      ]
-      [
-        ;; 1 from a node to it's neighbor
-        ifelse [ link-neighbor? node1 ] of node2
-        [
+      ][
+        ; 1 from a node to it's neighbor
+        ifelse [ link-neighbor? node1 ] of node2 [
           ask node1 [
             set distance-from-other-turtles lput 1 distance-from-other-turtles
           ]
-        ]
-        ;; infinite to everyone else
-        [
+        ][ ; infinite to everyone else
           ask node1 [
             set distance-from-other-turtles lput infinity distance-from-other-turtles
           ]
@@ -290,20 +238,16 @@ to find-path-lengths
   set i 0
   set j 0
   let dummy 0
-  while [k < node-count]
-  [
+  while [k < node-count] [
     set i 0
-    while [i < node-count]
-    [
+    while [i < node-count] [
       set j 0
-      while [j < node-count]
-      [
-        ;; alternate path length through kth node
+      while [j < node-count] [
+        ; alternate path length through kth node
         set dummy ( (item k [distance-from-other-turtles] of turtle i) +
                     (item j [distance-from-other-turtles] of turtle k))
-        ;; is the alternate path shorter?
-        if dummy < (item j [distance-from-other-turtles] of turtle i)
-        [
+        ; is the alternate path shorter?
+        if dummy < (item j [distance-from-other-turtles] of turtle i) [
           ask turtle i [
             set distance-from-other-turtles replace-item j distance-from-other-turtles dummy
           ]
@@ -317,78 +261,90 @@ to find-path-lengths
 
 end
 
-;;;;;;;;;;;;;;;;;;;;;;;
-;;; Edge Operations ;;;
-;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;
+;; Edge Operations ;;
+;;;;;;;;;;;;;;;;;;;;;
 
-;; creates a new lattice
-to wire-them
-  ;; iterate over the turtles
+; creates a new lattice
+to wire-lattice
+  ; iterate over the turtles
   let n 0
-  while [n < count turtles]
-  [
-    ;; make edges with the next two neighbors
-    ;; this makes a lattice with average degree of 4
+  while [ n < count turtles ] [
+    ; make edges with the next two neighbors
+    ; this makes a lattice with average degree of 4
     make-edge turtle n
               turtle ((n + 1) mod count turtles)
+              "default"
+    ; Make the neighbor's neighbor links curved
     make-edge turtle n
               turtle ((n + 2) mod count turtles)
+              "curve"
     set n n + 1
+  ]
+
+  ; Because of the way NetLogo draws curved links between turtles of ascending
+  ; `who` number, two of the links near the top of the network will appear
+  ; flipped by default. To avoid this, we used an inverse curved link shape
+  ; ("curve-a") which makes all of the curves face the same direction.
+  ask link 0 (count turtles - 2) [ set shape "curve-a" ]
+  ask link 1 (count turtles - 1) [ set shape "curve-a" ]
+end
+
+; Connects two nodes
+to make-edge [ node-A node-B the-shape ]
+  ask node-A [
+    create-link-with node-B  [
+      set shape the-shape
+      set rewired? false
+    ]
   ]
 end
 
-;; connects the two turtles
-to make-edge [node1 node2]
-  ask node1 [ create-link-with node2  [
-    set rewired? false
-  ] ]
-end
-
-;;;;;;;;;;;;;;;;
-;;; Graphics ;;;
-;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;
+;; Highlighting ;;
+;;;;;;;;;;;;;;;;;;
 
 to highlight
-  ;; remove any previous highlights
+  ; remove any previous highlights
   ask turtles [ set color gray + 2 ]
-  ask links [ set color gray + 2 ]
+  ask links   [ set color gray + 2 ]
+
+  ; if the mouse is in the View, go ahead and highlight
   if mouse-inside? [ do-highlight ]
+
+  ; force updates since we don't use ticks
   display
 end
 
 to do-highlight
-  ;; getting the node closest to the mouse
-  let min-d min [distancexy mouse-xcor mouse-ycor] of turtles
+  ; getting the node closest to the mouse
+  let min-d min [ distancexy mouse-xcor mouse-ycor ] of turtles
   let node one-of turtles with [count link-neighbors > 0 and distancexy mouse-xcor mouse-ycor = min-d]
-  if node != nobody
-  [
-    ;; highlight the chosen node
-    ask node
-    [
-      set color pink - 1
+
+  if node != nobody [
+    ; highlight the chosen node
+    ask node [
+      set color white
       let pairs (length remove infinity distance-from-other-turtles)
-      let local-val (sum remove infinity distance-from-other-turtles) / pairs
-      ;; show node's clustering coefficient
-      set highlight-string (word "clustering coefficient = " precision node-clustering-coefficient 3
-                                 " and avg path length = " precision local-val 3
-                                 " (for " pairs " turtles )")
+      let my-apl (sum remove infinity distance-from-other-turtles) / pairs
+
+      ; show node's statistics
+      set highlight-string (word "clustering coefficient = " precision my-clustering-coefficient 3
+        " and avg path length = " precision my-apl 3
+        " (for " pairs " turtles )")
     ]
+
     let neighbor-nodes [ link-neighbors ] of node
     let direct-links [ my-links ] of node
-    ;; highlight neighbors
-    ask neighbor-nodes
-    [
-      set color blue - 1
 
-      ;; highlight edges connecting the chosen node to its neighbors
+    ; highlight neighbors
+    ask neighbor-nodes [
+      set color orange
+      ; highlight edges connecting the chosen node to its neighbors
       ask my-links [
         ifelse (end1 = node or end2 = node)
-        [
-          set color blue - 1 ;
-        ]
-        [
-          if (member? end1 neighbor-nodes and member? end2 neighbor-nodes)
-            [ set color yellow ]
+          [ set color orange ]
+          [ if (member? end1 neighbor-nodes and member? end2 neighbor-nodes) [ set color yellow ]
         ]
       ]
     ]
@@ -396,17 +352,17 @@ to do-highlight
 end
 
 
-; Copyright 2005 Uri Wilensky.
+; Copyright 2015 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-387
-52
-745
-411
+10
+50
+438
+479
 -1
 -1
-10.0
+12.0
 1
 10
 1
@@ -427,25 +383,25 @@ ticks
 30.0
 
 SLIDER
-472
+120
 10
-631
+435
 43
 num-nodes
 num-nodes
 10
-125
-40.0
+100
+31.0
 1
 1
 NIL
 HORIZONTAL
 
 PLOT
-12
-13
-276
-192
+445
+235
+710
+414
 Network Properties Rewire-One
 fraction of edges rewired
 NIL
@@ -454,17 +410,17 @@ NIL
 0.0
 1.0
 true
-true
+false
 "" "if not rewire-one? [ stop ]"
 PENS
-"apl" 1.0 2 -2674135 true "" "plotxy number-rewired / count links\n       average-path-length / average-path-length-of-lattice"
-"cc" 1.0 2 -13345367 true "" ";; note: dividing by initial value to normalize the plot\nplotxy number-rewired / count links\n       clustering-coefficient / clustering-coefficient-of-lattice"
+"apl" 1.0 2 -65485 true "" "plotxy number-rewired / count links\n       average-path-length / average-path-length-of-lattice"
+"cc" 1.0 2 -10899396 true "" ";; note: dividing by initial value to normalize the plot\nplotxy number-rewired / count links\n       clustering-coefficient / clustering-coefficient-of-lattice"
 
 BUTTON
-283
-77
-373
-110
+445
+200
+710
+233
 NIL
 rewire-one
 NIL
@@ -478,25 +434,25 @@ NIL
 1
 
 SLIDER
-99
-469
-370
-502
+715
+420
+990
+453
 rewiring-probability
 rewiring-probability
 0
 1
-0.3
+1.0
 0.01
 1
 NIL
 HORIZONTAL
 
 BUTTON
-280
-434
-370
-467
+715
+200
+990
+233
 NIL
 rewire-all
 NIL
@@ -510,21 +466,21 @@ NIL
 1
 
 MONITOR
-387
-435
-813
-480
-node properties
+445
+120
+990
+165
+highlighted node properties
 highlight-string
 3
 1
 11
 
 BUTTON
-637
-10
-737
-43
+445
+85
+990
+118
 NIL
 highlight
 T
@@ -538,32 +494,32 @@ NIL
 1
 
 MONITOR
-14
-214
-142
-259
-NIL
+50
+485
+222
+530
+clustering-coefficient (cc)
 clustering-coefficient
 3
 1
 11
 
 MONITOR
-148
-214
-276
-259
-NIL
+225
+485
+397
+530
+average-path-length (apl)
 average-path-length
 3
 1
 11
 
 PLOT
-15
-288
-278
-467
+715
+235
+990
+414
 Network Properties Rewire-All
 rewiring probability
 NIL
@@ -572,16 +528,16 @@ NIL
 0.0
 1.0
 true
-true
+false
 "" "if not rewire-all? [ stop ]"
 PENS
 "apl" 1.0 2 -2674135 true "" ";; note: dividing by value at initial value to normalize the plot\nplotxy rewiring-probability\n       average-path-length / average-path-length-of-lattice"
-"cc" 1.0 2 -13345367 true "" ";; note: dividing by initial value to normalize the plot\nplotxy rewiring-probability\n       clustering-coefficient / clustering-coefficient-of-lattice"
+"cc" 1.0 2 -10899396 true "" ";; note: dividing by initial value to normalize the plot\nplotxy rewiring-probability\n       clustering-coefficient / clustering-coefficient-of-lattice"
 
 BUTTON
-398
+11
 10
-464
+116
 43
 setup
 setup
@@ -595,86 +551,110 @@ NIL
 NIL
 1
 
+TEXTBOX
+535
+420
+740
+486
+• - Clustering Coefficient\n
+14
+55.0
+1
+
+TEXTBOX
+535
+440
+755
+471
+• - Average Path Length
+14
+15.0
+1
+
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model explores the formation of networks that result in the "small world" phenomenon -- the idea that a person is only a couple of connections away any other person in the world.
+This model explores the formation of networks that result in the "small world" phenomenon -- the idea that a person is only a couple of connections away from any other person in the world.
 
-A popular example of the small world phenomenon is the network formed by actors appearing in the same movie (e.g. the "six degrees of Kevin Bacon" game), but small worlds are not limited to people-only networks.  Other examples range from power grids to the neural networks of worms.  This model illustrates some general, theoretical conditions under which small world networks between people or things might occur.
+A popular example of the small world phenomenon is the network formed by actors appearing in the same movie (e.g., "[Six Degrees of Kevin Bacon](https://en.wikipedia.org/wiki/Six_Degrees_of_Kevin_Bacon)"), but small worlds are not limited to people-only networks. Other examples range from power grids to the neural networks of worms. This model illustrates some general, theoretical conditions under which small world networks between people or things might occur.
 
 ## HOW IT WORKS
 
-This model is an adaptation of a model proposed by Duncan Watts and Steve Strogatz (1998). It begins with a network where each person (or "node") is connected to his or her two neighbors on either side.  The REWIRE-ONE button picks a random connection (or "edge") and rewires it. By rewiring, we mean changing one end of a connected pair of nodes, and keeping the other end the same.
+This model is an adaptation of the [Watts-Strogatz model](https://en.wikipedia.org/wiki/Watts\-Strogatz_model) proposed by Duncan Watts and Steve Strogatz (1998). It begins with a network where each person (or "node") is connected to his or her two neighbors on either side. Using this a base, we then modify the network by rewiring nodes–changing one end of a connected pair of nodes and keeping the other end the same. Over time, we analyze the effect this rewiring has the on various connections between nodes and on the properties of the network.
 
-The REWIRE-ALL button creates the network and then visits all edges and tries to rewire them.  The REWIRING-PROBABILITY slider determines the probability that an edge will get rewired.  Running REWIRE-ALL at multiple probabilities produces a range of possible networks with varying average path lengths and clustering coefficients.
-
-To identify small worlds, the "average path length" (abbreviated "apl") and "clustering coefficient" (abbreviated "cc") of the network are calculated and plotted after the REWIRE-ONE or REWIRE-ALL buttons are pressed. These two plots are separated because the x-axis is slightly different.  The REWIRE-ONE x-axis is the fraction of edges rewired so far, whereas the REWIRE-ALL x-axis is the probability of rewiring.  Networks with short average path lengths and high clustering coefficients are considered small world networks. (Note: The plots for both the clustering coefficient and average path length are normalized by dividing by the values of the initial network. The monitors give the actual values.)
-
-Average Path Length: Average path length is calculated by finding the shortest path between all pairs of nodes, adding them up, and then dividing by the total number of pairs. This shows us, on average, the number of steps it takes to get from one member of the network to another.
-
-Clustering Coefficient:  Another property of small world networks is that from one person's perspective it seems unlikely that they could be only a few steps away from anybody else in the world.  This is because their friends more or less know all the same people they do. The clustering coefficient is a measure of this "all-my-friends-know-each-other" property.  This is sometimes described as the friends of my friends are my friends.  More precisely, the clustering coefficient of a node is the ratio of existing links connecting a node's neighbors to each other to the maximum possible number of such links.  You can see this is if you press the HIGHLIGHT button and click a node, that will display all of the neighbors in blue and the edges connecting those neighbors in yellow.  The more yellow links, the higher the clustering coefficient for the node you are examining (the one in pink) will be.  The clustering coefficient for the entire network is the average of the clustering coefficients of all the nodes. A high clustering coefficient for a network is another indication of a small world.
+Particularly, we're interested in identifying "small worlds." To identify small worlds, the "average path length" (abbreviated "apl") and "clustering coefficient" (abbreviated "cc") of the network are calculated and plotted after a rewiring is performed. Networks with _short_ average path lengths and _high_ clustering coefficients are considered small world networks. See the **Statistics** section of HOW TO USE IT on how these are calculated.
 
 ## HOW TO USE IT
 
-The NUM-NODES slider controls the size of the network.  Choose a size and press SETUP.
+The NUM-NODES slider controls the size of the network. Choose a size and press SETUP.
 
-Pressing the REWIRE-ONE button picks one edge at random, rewires it, and then plots the resulting network properties. The REWIRE-ONE button always rewires at least one edge (i.e., it ignores the REWIRING-PROBABILITY).
+Pressing the REWIRE-ONE button picks one edge at random, rewires it, and then plots the resulting network properties in the "Network Properties Rewire-One" graph. The REWIRE-ONE button _ignores_ the REWIRING-PROBABILITY slider. It will always rewire one exactly one edge in the network that has not yet been rewired _unless_ all edges in the network have already been rewired.
 
-Pressing the REWIRE-ALL button re-creates the initial network (each node connected to its two neighbors on each side for a total of four neighbors) and rewires all the edges with the current rewiring probability, then plots the resulting network properties on the rewire-all plot. Changing the REWIRING-PROBABILITY slider changes the fraction of links rewired after each run.
+Pressing the REWIRE-ALL button starts with a new lattice (just like pressing SETUP) and then rewires all of the edges edges according to the current REWIRING-PROBABILITY. In other words, it `asks` each `edge` to roll a die that will determine whether or not it is rewired. The resulting network properties are then plotted on the "Network Properties Rewire-All" graph. Changing the REWIRING-PROBABILITY slider changes the fraction of edges rewired during each run. Running REWIRE-ALL at multiple probabilities produces a range of possible networks with varying average path lengths and clustering coefficients.
 
-When you press HIGHLIGHT and then point to node in the view it color-codes the nodes and edges.  The node itself turns pink. Its neighbors and the edges connecting the node to those neighbors turn blue. Edges connecting the neighbors of the node to each other turn yellow. The amount of yellow between neighbors can gives you an indication of the clustering coefficient for that node.  The NODE-PROPERTIES monitor displays the average path length and clustering coefficient of the highlighted node only.  The AVERAGE-PATH-LENGTH and CLUSTERING-COEFFICIENT monitors display the values for the entire network.
+When you press HIGHLIGHT and then point to a node in the view it color-codes the nodes and edges. The node itself turns white. Its neighbors and the edges connecting the node to those neighbors turn orange. Edges connecting the neighbors of the node to each other turn yellow. The amount of yellow between neighbors gives you a sort of indication of the clustering coefficient for that node. The NODE-PROPERTIES monitor displays the average path length and clustering coefficient of the highlighted node only. The AVERAGE-PATH-LENGTH and CLUSTERING-COEFFICIENT monitors display the values for the entire network.
+
+### Statistics
+
+**Average Path Length**: Average path length is calculated by finding the shortest path between all pairs of nodes, adding them up, and then dividing by the total number of pairs. This shows us, on average, the number of steps it takes to get from one node in the network to another.
+
+In order to find the shortest paths between all pairs of nodes we use the [standard dynamic programming algorithm by Floyd Warshall] (https://en.wikipedia.org/wiki/Floyd-Warshall_algorithm). You may have noticed that the model runs slowly for large number of nodes. That is because the time it takes for the Floyd Warshall algorithm (or other "all-pairs-shortest-path" algorithm) to run grows polynomially with the number of nodes.
+
+**Clustering Coefficient**: The clustering coefficient of a _node_ is the ratio of existing edges connecting a node's neighbors to each other to the maximum possible number of such edges. It is, in essence, a measure of the "all-my-friends-know-each-other" property. The clustering coefficient for the entire network is the average of the clustering coefficients of all the nodes.
+
+### Plots
+
+1. The "Network Properties Rewire-One" visualizes the average-path-length and clustering-coefficient of the network as the user increases the number of single-rewires in the network.
+
+2. The "Network Properties Rewire-All" visualizes the average-path-length and clustering coefficient of the network as the user manipulates the REWIRING-PROBABILITY slider.
+
+These two plots are separated because the x-axis is slightly different.  The REWIRE-ONE x-axis is the fraction of edges rewired so far, whereas the REWIRE-ALL x-axis is the probability of rewiring.
+
+The plots for both the clustering coefficient and average path length are normalized by dividing by the values of the initial lattice. The monitors CLUSTERING-COEFFICIENT and AVERAGE-PATH-LENGTH give the actual values.
 
 ## THINGS TO NOTICE
 
-Note that for certain ranges of the fraction of nodes, the average path length decreases faster than the clustering coefficient.  In fact, there is a range of values for which the average path length is much smaller than clustering coefficient.  (Note that the values for average path length and clustering coefficient have been normalized, so that they are more directly comparable.)  Networks in that range are considered small worlds.
+Note that for certain ranges of the fraction of nodes rewired, the average path length decreases faster than the clustering coefficient. In fact, there is a range of values for which the average path length is much smaller than clustering coefficient. (Note that the values for average path length and clustering coefficient have been normalized, so that they are more directly comparable.) Networks in that range are considered small worlds.
 
 ## THINGS TO TRY
 
-Try plotting the values for different rewiring probabilities and observe the trends of the values for average path length and clustering coefficient.  What is the relationship between rewiring probability and fraction of nodes?  In other words, what is the relationship between the rewire-one plot and the rewire-all plot?
+Can you get a small world by repeatedly pressing REWIRE-ONE?
+
+Try plotting the values for different rewiring probabilities and observe the trends of the values for average path length and clustering coefficient.  What is the relationship between rewiring probability and fraction of nodes? In other words, what is the relationship between the rewire-one plot and the rewire-all plot?
 
 Do the trends depend on the number of nodes in the network?
-
-Can you get a small world by repeatedly pressing REWIRE-ONE?
 
 Set NUM-NODES to 80 and then press SETUP. Go to BehaviorSpace and run the VARY-REWIRING-PROBABILITY experiment. Try running the experiment multiple times without clearing the plot (i.e., do not run SETUP again).  What range of rewiring probabilities result in small world networks?
 
 ## EXTENDING THE MODEL
 
-Try to see if you can produce the same results if you start with a different initial network.  Create new BehaviorSpace experiments to compare results.
+Try to see if you can produce the same results if you start with a different type of initial network. Create new BehaviorSpace experiments to compare results.
 
-In a precursor to this model, Watts and Strogatz created an "alpha" model where the rewiring was not based on a global rewiring probability.  Instead, the probability that a node got connected to another node depended on how many mutual connections the two nodes had. The extent to which mutual connections mattered was determined by the parameter "alpha."  Create the "alpha" model and see if it also can result in small world formation.
-
-## NETWORK CONCEPTS
-
-In this model we need to find the shortest paths between all pairs of nodes.  This is accomplished through the use of a standard dynamic programming algorithm called the Floyd Warshall algorithm. You may have noticed that the model runs slowly for large number of nodes.  That is because the time it takes for the Floyd Warshall algorithm (or other "all-pairs-shortest-path" algorithm) to run grows polynomially with the number of nodes.  For more information on the Floyd Warshall algorithm please consult:  https://en.wikipedia.org/wiki/Floyd-Warshall_algorithm
+In a precursor to this model, Watts and Strogatz created an "alpha" model where the rewiring was not based on a global rewiring probability. Instead, the probability that a node got connected to another node depended on how many mutual connections the two nodes had. The extent to which mutual connections mattered was determined by the parameter "alpha." Create the "alpha" model and see if it also can result in small world formation.
 
 ## NETLOGO FEATURES
 
-Links are used extensively in this model.
+Links are used extensively in this model to model the edges of the network. The model also uses custom link shapes for neighbor's neighbor links.
 
 Lists are used heavily in the procedures that calculates shortest paths.
-
-Though it is not used in this model, there exists a [network extension for NetLogo](http://ccl.northwestern.edu/netlogo/docs/nw.html).
 
 ## RELATED MODELS
 
 See other models in the Networks section of the Models Library, such as Giant Component and Preferential Attachment.
 
-There is also a version of this model using the (NW extension)[https://github.com/NetLogo/NW-Extension] in the `demo` folder of the extension.
+Check out the NW Extension General Examples model to see how similar models might implemented using the built-in NW extension.
 
 ## CREDITS AND REFERENCES
 
-This model is adapted from:
-Duncan J. Watts, Six Degrees: The Science of a Connected Age (W.W. Norton & Company, New York, 2003), pages 83-100.
+This model is adapted from: Duncan J. Watts, Six Degrees: The Science of a Connected Age (W.W. Norton & Company, New York, 2003), pages 83-100.
 
-The work described here was originally published in:
-DJ Watts and SH Strogatz. Collective dynamics of 'small-world' networks, Nature,
-393:440-442 (1998)
+The work described here was originally published in: DJ Watts and SH Strogatz. Collective dynamics of 'small-world' networks, Nature, 393:440-442 (1998).
 
-The small worlds idea was first made popular by Stanley Milgram's famous experiment (1967) which found that two random US citizens where on average connected by six acquaintances (giving rise to the popular "six degrees of separation" expression):
-Stanley Milgram.  The Small World Problem,  Psychology Today,  2: 60-67 (1967).
+The small worlds idea was first made popular by Stanley Milgram's famous experiment (1967) which found that two random US citizens where on average connected by six acquaintances (giving rise to the popular "six degrees of separation" expression): Stanley Milgram. The Small World Problem, Psychology Today, 2: 60-67 (1967).
 
-This experiment was popularized into a game called "six degrees of Kevin Bacon" which you can find more information about here:  http://oracleofbacon.org/
+This experiment was popularized into a game called "six degrees of Kevin Bacon" which you can find more information about here: https://oracleofbacon.org
+
+Thanks to Connor Bain for updating this model in 2020.
 
 ## HOW TO CITE
 
@@ -682,7 +662,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Wilensky, U. (2005).  NetLogo Small Worlds model.  http://ccl.northwestern.edu/netlogo/models/SmallWorlds.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. (2015).  NetLogo Small Worlds model.  http://ccl.northwestern.edu/netlogo/models/SmallWorlds.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
@@ -690,7 +670,7 @@ Please cite the NetLogo software as:
 
 ## COPYRIGHT AND LICENSE
 
-Copyright 2005 Uri Wilensky.
+Copyright 2015 Uri Wilensky.
 
 ![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
 
@@ -698,7 +678,7 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-Share
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 
-<!-- 2005 -->
+<!-- 2015 -->
 @#$#@#$#@
 default
 true
@@ -1010,6 +990,28 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-@#$#@#$#@
+
+curve
+3.0
+-0.2 0 0.0 1.0
+0.0 0 0.0 1.0
+0.2 1 1.0 0.0
+link direction
+true
 0
+Line -7500403 true 150 150 90 180
+Line -7500403 true 150 150 210 180
+
+curve-a
+-3.0
+-0.2 0 0.0 1.0
+0.0 0 0.0 1.0
+0.2 1 1.0 0.0
+link direction
+true
+0
+Line -7500403 true 150 150 90 180
+Line -7500403 true 150 150 210 180
+@#$#@#$#@
+1
 @#$#@#$#@
