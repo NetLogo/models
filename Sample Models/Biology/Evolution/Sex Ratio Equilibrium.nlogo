@@ -1,47 +1,54 @@
 globals [
-  adult-sex-ratio-list     ; global variable to track adult-sex-ratio at each tick to compute running average and standard deviation
+  adult-sex-ratio-list     ; tracks adult-sex-ratio at each tick to compute running average and standard deviation
   age-list                 ; list of ages of dead individuals
-  adult-age
+  adult-age                ; tracks the age of adulthood
 ]
 breed [ males male ]
 breed [ females female ]
 
 females-own [
-  partner                ; a variable to temporary store a mating-partner
+  partner                ; a variable to temporarily store a mating-partner
   carrying?              ; a boolean to track if a female is carrying a child after mating
-  male-child-chance      ; this is a trait veriable that influences the probability of giving birth to a male child
-  temp-male-child-chance ; a variable to store male-chind-chance for a particular father-mother pair
-  gestation              ; a variable to track time of carrying a child till a female reachers gesatation-period
-  age                    ; a variable to keep track of age
-  longevity              ; a variable that gets assigned at birth - age up to which an individual lives
-  num-of-exes            ; a variable to keep track of matings partners an individual had in its life
-  num-of-children        ; a variable to keep track of how many children an individual had
-  adult?
+  male-child-chance      ; this is a trait variable that influences the probability of giving birth to a male child
+  temp-male-child-chance ; stores male-chind-chance for a particular father-mother pair
+  gestation              ; tracks the time of carrying a child till a female reachers gesatation-period
+  age                    ; to keep track of age
+  longevity              ; gets assigned at birth - age up to which an individual lives
+  num-of-exes            ; tracks mating partners an individual had in its life
+  num-of-children        ; tracks how many children an individual had
+  adult?                 ; boolean to flag if this agent is an adult
 ]
 
 males-own [
   partner               ; a variable to temporary store a mating-partner
   male-child-chance     ; this is a trait variable that influences the probability of giving birth to a male child
-  age                   ; a variable to keep track of age
-  longevity             ; a variable that gets assigned at birth - age up to which an individual lives
-  num-of-exes           ; a variable to keep track of matings it has had in its life
-  num-of-children       ; a variable to keep track of how many children it has
-  adult?
+  age                   ; tracks of age
+  longevity             ; gets assigned at birth - age up to which an individual lives
+  num-of-exes           ; tracks mating partners an individual had in its life
+  num-of-children       ; track how many children it has
+  adult?                ; boolean to flag if this agent is an adult
 ]
 
-;set-up pupulation of males and females
+; setup the pupulation of males and females
 to setup
   clear-all
   set-default-shape males "dot"
   set-default-shape females "dot"
 
+  ; Create male agents and initialize them
   create-males round ( (initial-adult-sex-ratio / 100  ) * initial-population-size ) [
     setxy random-xcor random-ycor
     set size 2
     set color green
-    set male-child-chance random-normal initial-average-male-child-chance 0.05   ; males are assinged initial male-child-chance from a random-normal distribution
-    if male-child-chance < 0 [set male-child-chance 0]                           ; curtail negative or greater-than-1 probabilities
-    if male-child-chance > 1 [set male-child-chance 1]
+
+    ; males are assinged initial male-child-chance from a random-normal distribution
+    set male-child-chance random-normal initial-average-male-child-chance 0.05
+
+    ; curtail negative or greater-than-1 probabilities
+    if male-child-chance < 0 [ set male-child-chance 0 ]
+    if male-child-chance > 1 [ set male-child-chance 1 ]
+
+    ; initialize turtle variables
     set age int (random-normal (mean-longevity / 2) (mean-longevity / 10))
     set longevity int (random-normal mean-longevity (mean-longevity / 10))
     set partner nobody
@@ -49,15 +56,22 @@ to setup
     set num-of-children 0
     set adult? True
   ]
+
+  ; Create female agents and initialize them
   create-females initial-population-size - count males [
     setxy random-xcor random-ycor
     set size 2
     set color blue
     set partner nobody
     set carrying? false
-    set male-child-chance random-normal initial-average-male-child-chance 0.05 ; females are assinged initial male-child-chance from a random-normal distribution
-    if male-child-chance < 0 [set male-child-chance 0]                         ; curtail negative or greater-than-1 probabilities
-    if male-child-chance > 1 [set male-child-chance 1]
+
+    ; females are assinged initial male-child-chance from a random-normal distribution
+    set male-child-chance random-normal initial-average-male-child-chance 0.05
+    ; curtail negative or greater-than-1 probabilities
+    if male-child-chance < 0 [ set male-child-chance 0 ]
+    if male-child-chance > 1 [ set male-child-chance 1 ]
+
+    ; initialize rest of turtle variables
     set gestation 0
     set age int (random-normal (mean-longevity / 2) (mean-longevity / 10))
     set longevity int (random-normal mean-longevity (mean-longevity / 10))
@@ -65,97 +79,114 @@ to setup
     set num-of-children 0
     set adult? True
   ]
+
   set adult-sex-ratio-list []
   set age-list []
-  set adult-age int (0.25 * mean-longevity)     ; Agents with age more than 25% of mean-logevity are considered adult
+  set adult-age int (0.25 * mean-longevity) ; Agents with age more than 25% of mean-logevity are considered adult
+
   reset-ticks
 end
 
 to go
-  if not any? turtles [stop]
-  ask turtles [
-    check-if-dead
-  ]
+  if not any? turtles [ stop ]
+
+  ask turtles [ check-if-dead ]
+
   ask males [
     move
-    if [age] of self > adult-age [
-      set adult? True
-    ]
+    if [age] of self > adult-age [ set adult? True ]
   ]
-  ask males with [adult?] [search-an-adult-partner]
+
+  ask males with [adult?] [ search-for-an-adult-partner ]
+
   ask females [
-    if not carrying? [move]
-    if [age] of self > adult-age [
-      set adult? True
-    ]
+    if not carrying? [ move ]
+    if [age] of self > adult-age [ set adult? True ]
   ]
+
   ask females with [adult?] [reproduce]
+
   update-adult-sex-ratio-list
   tick
 end
 
-to move
+; procedure to move randomly
+to move ; turtle procedure
   rt random 60
   lt random 60
   fd 0.1
 end
 
-to search-an-adult-partner  ; a male procedure
+; procedure to find an adult partner
+to search-for-an-adult-partner  ; a male procedure
 
-  if count females in-radius 1 with [not carrying? and adult?] = 1 and count other males with [adult?] in-radius 1 = 0  [  ; spatial restriction is used to incorporate density-dependent growth rate
-    set partner one-of females with [adult?] in-radius 1 with [not carrying?]                                   ; this is a common empirically validated assumption in many evolution models
+  ; enforce a spatial restriction to incorporate density-dependent growth rate
+  ; this is a common empirically validated assumption in many evolution models
+  if count females in-radius 1 with [not carrying? and adult?] = 1
+      and count other males with [adult?] in-radius 1 = 0  [
+    set partner one-of females with [adult?] in-radius 1 with [not carrying?]
   ]
-  if partner = nobody [stop]
 
-  ifelse random-float 1 < mating-chance [                                                   ; successful mating leads to conception 100% of times in the model
+  if partner = nobody [ stop ]
+
+  ; successful mating leads to conception 100% of times in the model
+  ifelse random-float 1 < mating-chance [
     ask partner [
       set partner myself
       set carrying? true
       set color orange    ; color oragne indicates carrying female
       set num-of-exes num-of-exes + 1
-      set temp-male-child-chance ( male-child-chance + [male-child-chance] of myself ) / 2  ; sex of a child is determined by male-child-chance (determined by father and mother)
-    ]                                                                                       ; this is a part of the fundamental assumption in Fisher's model
-    set partner nobody                                                                      ; autosomal inheritance of sex-determination-mechanism
-                                                                                            ; reset partner to nobody, so that this male agent can mate with other females immediately
+      ; sex of a child is determined by male-child-chance (determined by father and mother)
+      ; this is a part of the fundamental assumption in Fisher's model
+      ; autosomal inheritance of sex-determination-mechanism
+      set temp-male-child-chance ( male-child-chance + [male-child-chance] of myself ) / 2
+    ]
+    ; reset partner to nobody, so that this male agent can mate with other females immediately
+    set partner nobody
     set num-of-exes num-of-exes + 1
-  ]
-  [
-    set partner nobody                                                                      ; mating unsuccessful
+  ][ ; mating unsuccessful
+    set partner nobody
   ]
   end
 
-to reproduce     ; a female procedure
+to reproduce ; a female procedure
   if carrying? [
-    ifelse gestation = gestation-period [   ; genstation-period can be set.
-                                            ; When it's over, a female gives birth to a a child, starts afresh and can have a new partner
-      ; reset variables associated with pregnancy
+    ; gestation-period can be set by user
+    ; When it's over, a female gives birth to a a child, starts afresh and can have a new partner
+    ; reset variables associated with pregnancy
+    ifelse gestation = gestation-period [
       set gestation 0
       set carrying? false
       set color blue
-
-      let temp-litter-size random maximum-litter-size + 1 ; determine the litter size for this reproduction
+      ; determine the litter size for this reproduction
+      let temp-litter-size random maximum-litter-size + 1
       repeat temp-litter-size [
-        ifelse random-float 1 < temp-male-child-chance [                                 ; if case corresponds to the chance of having a male child
+        ; if the case corresponds to the chance of having a male child
+        ifelse random-float 1 < temp-male-child-chance [
           hatch-males 1 [
             set color green
             set partner nobody
-            set male-child-chance random-normal [temp-male-child-chance] of myself 0.05  ; inheritance of male-child-chance is determined by father and mother.
-            if male-child-chance < 0 [set male-child-chance 0]                           ; curtail negative or greater-than-1 probabilities
-            if male-child-chance > 1 [set male-child-chance 1]
+            ; inheritance of male-child-chance is determined by father and mother.
+            set male-child-chance random-normal [temp-male-child-chance] of myself 0.05
+            ; curtail negative or greater-than-1 probabilities
+            if male-child-chance < 0 [ set male-child-chance 0 ]
+            if male-child-chance > 1 [ set male-child-chance 1 ]
             set heading random 360
             set age 0
             set longevity int (random-normal mean-longevity (mean-longevity / 10))
             set num-of-exes 0
             set num-of-children 0
           ]
-        ][                                                                               ; else corresponds to the chance of having a female child
+        ][ ; else corresponds to the chance of having a female child
           hatch-females 1 [
             set color blue
             set partner nobody
             set carrying? false
-            set male-child-chance random-normal [temp-male-child-chance] of myself 0.05  ; inheritance of male-child-chance is determined by father and mother.
-            if male-child-chance < 0 [set male-child-chance 0]                           ; curtail negative or greater-than-1 probabilities
-            if male-child-chance > 1 [set male-child-chance 1]
+            ; inheritance of male-child-chance is determined by father and mother.
+            set male-child-chance random-normal [temp-male-child-chance] of myself 0.05
+            ; curtail negative or greater-than-1 probabilities
+            if male-child-chance < 0 [ set male-child-chance 0 ]
+            if male-child-chance > 1 [ set male-child-chance 1 ]
             set temp-male-child-chance 0
             set heading random 360
             set gestation 0
@@ -166,23 +197,22 @@ to reproduce     ; a female procedure
           ]
         ]
       ]
-
-      if partner != nobody                                                       ; if polygamy is allowed, no need to reset "partner" of the male partner to nobody
-      [                                                                          ; if the male partner still alive,
-        ask partner [set num-of-children num-of-children + temp-litter-size]     ; update his number of children
+      ; if polygamy is allowed, no need to reset "partner" of the male partner to nobody
+      if partner != nobody [
+        ; if the male partner still alive, update his number of children
+        ask partner [set num-of-children num-of-children + temp-litter-size]
       ]
-      set num-of-children num-of-children + temp-litter-size                     ; update my number of children
-      set partner nobody                                                         ; this female agent can go find herself another man
+      set num-of-children num-of-children + temp-litter-size ; update my number of children
+      set partner nobody ; this female agent can go find herself another man
+    ][ ; else case for the reproduce procedure.
+      set gestation gestation + 1  ; update the length of pregnancy
     ]
-    [
-      set gestation gestation + 1                                                ; else case for the reproduce procedure.
-    ]                                                                            ; update the length of pregnancy
   ]
 end
 
-
-to check-if-dead
-  ifelse age > longevity  [                         ; if an individual is older than the assigned longevity it dies
+; if an individual is older than the assigned longevity it dies
+to check-if-dead ; turtle procedure
+  ifelse age > longevity [
     set age-list lput [age] of self age-list
     die
   ][
@@ -190,15 +220,13 @@ to check-if-dead
   ]
 end
 
-; reporting procedures for plotting
-
+;;; Reporters for plotting ;;;
 to-report adult-sex-ratio
   let adult-turtles turtles with [adult?]
   let adult-males males with [adult?]
   ifelse any? adult-turtles [
     report ( count males  / count adult-turtles ) * 100
-  ]
-  [
+  ][
     report 0
   ]
 end
@@ -206,8 +234,7 @@ end
 to-report average-male-child-chance
   ifelse any? turtles [
     report mean [male-child-chance] of turtles
-  ]
-  [
+  ][
     report 0
   ]
 end
