@@ -237,13 +237,13 @@ to-report running-sd-adult-sex-ratio
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-270
+265
 10
-808
-356
+801
+355
 -1
 -1
-16.061
+16.0
 1
 10
 1
@@ -264,11 +264,11 @@ ticks
 30.0
 
 BUTTON
-25
+5
 360
-255
+260
 450
-Setup
+NIL
 setup
 NIL
 1
@@ -281,9 +281,9 @@ NIL
 1
 
 SLIDER
-25
+5
 10
-255
+260
 43
 initial-population-size
 initial-population-size
@@ -296,9 +296,9 @@ NIL
 HORIZONTAL
 
 SLIDER
-25
+5
 49
-255
+260
 82
 initial-adult-sex-ratio
 initial-adult-sex-ratio
@@ -311,10 +311,10 @@ initial-adult-sex-ratio
 HORIZONTAL
 
 SLIDER
-25
-120
-255
-153
+5
+100
+260
+133
 initial-average-male-child-chance
 initial-average-male-child-chance
 0
@@ -326,11 +326,11 @@ NIL
 HORIZONTAL
 
 BUTTON
-25
-465
-255
-550
-Go
+5
+460
+260
+555
+NIL
 go
 T
 1
@@ -340,13 +340,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 PLOT
-820
+805
 10
-1095
-182
+1080
+180
 Adult Sex Ratio (ASR)
 Ticks
 Sex Ratio
@@ -362,10 +362,10 @@ PENS
 "pen-1" 1.0 0 -2674135 true "" "plot 50"
 
 PLOT
-820
+805
 185
-1095
-359
+1080
+355
 Average Male Child Chance
 Ticks
 Average
@@ -381,10 +381,10 @@ PENS
 "pen-1" 1.0 0 -2674135 true "" "plot 0.5"
 
 SLIDER
-25
-200
-255
-233
+5
+180
+260
+213
 gestation-period
 gestation-period
 0
@@ -396,10 +396,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-25
-240
-255
-273
+5
+220
+260
+253
 maximum-litter-size
 maximum-litter-size
 1
@@ -411,10 +411,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-25
-310
-255
-343
+5
+285
+260
+318
 mating-chance
 mating-chance
 0
@@ -426,9 +426,9 @@ NIL
 HORIZONTAL
 
 PLOT
-270
+265
 410
-810
+800
 555
 Gender Distribution
 Ticks
@@ -442,15 +442,15 @@ true
 "" ""
 PENS
 "Males" 1.0 0 -13840069 true "" "plot count males"
-"Carrying females" 1.0 0 -955883 true "" "plot count females with [carrying?]"
-"Females not carrying" 1.0 0 -13345367 true "" "plot count females with [not carrying?]"
+"Carrying females" 1.0 0 -955883 true "" "plot count females with [ carrying? ]"
+"Females not carrying" 1.0 0 -13345367 true "" "plot count females with [ not carrying? ]"
 "All females" 1.0 0 -8630108 true "" "plot count females"
 
 SLIDER
-25
-160
-255
-193
+5
+140
+260
+173
 mean-longevity
 mean-longevity
 0
@@ -462,9 +462,9 @@ NIL
 HORIZONTAL
 
 MONITOR
-410
+405
 360
-605
+600
 405
 Running mean of ASR
 running-average-adult-sex-ratio
@@ -473,9 +473,9 @@ running-average-adult-sex-ratio
 11
 
 MONITOR
-612
+605
 360
-807
+800
 405
 Running std dev of ASR
 running-sd-adult-sex-ratio
@@ -484,7 +484,7 @@ running-sd-adult-sex-ratio
 11
 
 MONITOR
-270
+265
 360
 400
 405
@@ -495,10 +495,10 @@ adult-sex-ratio
 11
 
 PLOT
-820
-365
-1095
-557
+805
+360
+1080
+555
 Mating Success Ratio (Male to Female) 
 Ticks
 Ratio
@@ -510,7 +510,7 @@ true
 false
 "" ""
 PENS
-"default" 1.0 0 -16777216 true "" "if female-mating-success != 0 [\nplot precision (male-mating-success / female-mating-success) 3\n]"
+"default" 1.0 0 -16777216 true "" "if female-mating-success != 0 [\n  plot precision (male-mating-success / female-mating-success) 3\n]"
 "pen-1" 1.0 0 -2674135 true "" "plot 1"
 
 @#$#@#$#@
