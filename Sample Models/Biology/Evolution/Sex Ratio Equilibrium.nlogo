@@ -543,45 +543,47 @@ PENS
 @#$#@#$#@
 ## WHAT IS IT
 
-This model investigates emergent patterns in a demographic property of a population, adult sex ratio (ASR). ASR is defined as the proportion of males in the adult population. Most of the sexually reproducing organisms have ASR of 1:1. Fisher (1930) explained the rationale based on natural selection, irrespective of a particular mechanism of sex-determination, which is known as Fisher’s principle (Hamilton, 1967).
-This model is based on Fisher's assumptions of biparentism and Mendelian inheritance.
-It captures the emergence of the Fisherian Sex Ratio (1:1) for a wide range of initial sex-ratios and life-history traits.
+This model investigates emergent patterns in a demographic property of a population: the adult sex ratio (ASR). ASR is defined as the ratio of males to females in the adult population. Most sexually reproducing organisms have an ASR of 1:1. Fisher (1930) explains a rationale for this phenomenon based on natural selection, irrespective of a particular mechanism of sex-determination, which is now known as Fisher’s principle (Hamilton, 1967).
+
+This model is based on Fisher's assumptions of biparentism and [Mendelian inheritance](https://en.wikipedia.org/wiki/Mendelian_inheritance).
+It allows user to explorethe emergence of the Fisherian Sex Ratio (1:1) across a wide range of initial sex-ratios and life-history traits. 
 
 ## HOW IT WORKS
 
-This is a population dynamics model of sexually reproducing organisms. The demographics changes in the population and adult sex ratio are plotted as the time progresses.
+This is a population dynamics model of sexually reproducing organisms. The demographic changes in the population as well as the adult sex ratio are plotted as the time progresses.
 
 There are two types of individuals in the model:
-Males   (Indicated by green color)
-Females (Indicated by blue color if not carrying a child and indicated by orange color if carrying a child)
+- *Males* (Indicated by green color)
+- *Females* (Indicated by blue color if not carrying a child and indicated by orange color if carrying a child)
 
 At every time-step the individuals:
-Age and check if dead – a random value of longevity is assigned at birth if an agent’s age is more than that value it dies 
-Move
-Search-an-adult-partner – (only males). This procedure involves mating, which is dependent on the assigned value of the mating chance. If agents mate, the female carries. (For simplicity, mating chance incorporates conception-chance as well.)
-Reproduce – (only females)
+- Age and check if dead – a random value of longevity is assigned at birth if an agent’s age is more than that value it dies 
+- Move randomly
+- Search for an adult partner if *male*. This procedure involves mating, which is dependent on the assigned value of the mating chance. If agents mate, the *female* carries. (For simplicity, the mating chance in this model incorporates conception-chance as well.)
+- Reproduce if *female*
 
-The genetic mechanism of influencing the proportion of male children in the litter is abstracted as a parameter, called MALE-CHILD-CHANCE. Each male and female carry a trait called MALE-CHILD-CHANCE. This determines the probability of a child being male. In this basic model, the sex of the child is equally influenced by the MALE-CHILD-CHANCE values of both the parents.
-A child inherits this trait from its parents with a mutation. The inherited value for the trait is drawn from a random-normal distribution with a mean equal to the average of male-child-chance of the parents.
+The genetic mechanism of influencing the proportion of *male* children in the litter is abstracted as a parameter, called MALE-CHILD-CHANCE. Each *male* and *female* carry a trait called MALE-CHILD-CHANCE. This determines the probability of a child being *male*. In this basic model, the sex of the child is equally influenced by the MALE-CHILD-CHANCE values of both the parents.
+
+A child inherits this trait from its parents with a mutation. The inherited value for the trait is drawn from a random normal distribution with a mean equal to the average of MALE-CHILD-CHANCE of the parents.
 
 ## HOW TO USE IT
 
-Click the SETUP button to set up the population. Various population level and individual level parameters can be set by using the sliders explained below. The plots and monitors allow users to observe population-level changes and see the emergence of the Fisherian sex-ratio equilibrium.
+Using the sliders, set your desired initial population and individual values (see the **Sliders** section below for more details). Click the SETUP button to setup the population. To run the model, click the GO button. 
+
+The plots and monitors allow users to observe population-level changes and see the emergence of the Fisherian sex-ratio equilibrium.
 
 ### Sliders 
 
-INITIAL-POPULATION-SIZE: initial number of individuals in the population
-INITIAL-SEX-RATIO: initial sex-ratio (number of males/number of females * 100) in the population
-INITIAL-AVERAGE-MALE-CHILD-CHANCE: initial average male-child-chance of all the individuals in the population
-MEAN-LONGEVITY: average longevity (number of ‘ticks’ an individual lives) 
-GESTATION-PERIOD: number of 'ticks' a female is going to carry a child
-MAX-LITTER-SIZE: maximum number of children a female would give birth to after she completes gestation
+INITIAL-POPULATION-SIZE: the initial number of individuals in the population
+INITIAL-SEX-RATIO: the initial sex-ratio (number of males/number of females * 100) in the population
+INITIAL-AVERAGE-MALE-CHILD-CHANCE: the initial average male-child-chance of all the individuals in the population
+MEAN-LONGEVITY: the average longevity (number of ‘ticks’ an individual lives) 
+GESTATION-PERIOD: the number of 'ticks' a female is going to carry a child
+MAX-LITTER-SIZE: the maximum number of children a female would give birth to after she completes gestation
 MATING-CHANCE: the probability that a female mates with a male when a male finds a female partner
 
-
-
 ### Plots 
-ADUTL SEX RATIO:  shows the percentage of male agents 
+ADUTL SEX RATIO: shows the percentage of male agents 
 POPULATION AVERAGE MALE-CHILD-CHANCE: shows how the population's male-child-chance changes over time
 GENDER DISTRIBUTION: shows numbers of agents of both sexes 
 MATING SUCCESS RATIO (MALE TO FEMALE): shows how the ratio of male mating success to female mating success changes over time
@@ -594,7 +596,7 @@ RUNNING STD DEV OF ASR: standard deviation of adult sex ratio in the past 1000 t
 
 ## THINGS TO NOTICE
 
-When you run the model, notice how the number of males and the number of females vary in the GENDER DISTRIBUTION plot. Also, notice that for a wide range of parameter values, if you run the simulation long enough, the ASR converges to 50% as seen in the ADULT-SEX-RATIO plot.
+When you run the model, notice how the number of males and females vary in the GENDER DISTRIBUTION plot. Also, notice that for a wide range of parameter values, if you run the simulation long enough, the ASR converges to 50% as seen in the ADULT-SEX-RATIO plot.
 
 Notice that the average value of the trait male-child-chance across all agents in the AVERAGE MALE-CHILD-CHANCE plot also converges to 0.5 for a wide range of parameters.
 
@@ -603,46 +605,27 @@ Vary the INITIAL-SEX-RATIO and INITIAL-AVERAGE-MALE-CHILD-CHANCE, which are the 
 ## THINGS TO TRY
 
 Try setting different values of INITIAL-ADULT-SEX-RATIO and INITIAL-AVERAGE-MALE-CHILD-CHANCE to see how that affects the emergence of the adult sex ratio equilibrium. 
-See if you can change the parameters and see if you can get to a different stable ASR. 
 
+See if you can change the parameters and see if you can get to a different stable ASR. 
 
 ## EXTENDING THE MODEL
 
-This model implements search of partner by a male, see if you can change it and make it a female action. You can add a variety of features related to evolutionary population genetics and sex ratio equilibrium studies, such as different mortality rates for males and females, sexual selection by females.
+This model implements search-for-a-partner by a male. See if you can change it and make it a female action.
+
+You can also add a variety of features related to evolutionary population genetics and sex ratio equilibrium studies, such as different mortality rates for males and females, sexual selection by females.
 
 ## RELATED MODELS
 
-Red Queen, Fish Tank Genetic Drift, Plant Speciation
+- Red Queen
+- Fish Tank Genetic Drift 
+- Plant Speciation
 
 ## CREDITS AND REFERENCES
 
 Hamilton, W. D. (1967). Extraordinary sex ratios. Science, 156(3774), 477-488
 Fisher, R. A. (1930). The genetical theory of natural selection: a complete variorum edition. Oxford University Press.
 
-## HOW TO CITE
-
-If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
-
-For the model itself:
-
-* Dabholkar, S., Lee J.S., Wilensky, U. (2020).  Sex Ratio Equilibrium model.  http://ccl.northwestern.edu/netlogo/models/Ants.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-
-Please cite the NetLogo software as:
-
-* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-
-
-## COPYRIGHT AND LICENSE
-
-Copyright 2006 Uri Wilensky.
-
-![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
-
-This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
-
-Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
-
-<!-- 2006 -->
+<!-- 2020 Cite: Dabholkar, S., Lee, J.S. -->
 @#$#@#$#@
 default
 true
