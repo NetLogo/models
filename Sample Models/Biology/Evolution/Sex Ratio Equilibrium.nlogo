@@ -3,6 +3,7 @@ globals [
   age-list                 ; list of ages of dead individuals
   adult-age                ; tracks the age of adulthood
 ]
+
 breed [ males male ]
 breed [ females female ]
 
@@ -10,8 +11,8 @@ females-own [
   partner                ; a variable to temporarily store a mating-partner
   carrying?              ; a boolean to track if a female is carrying a child after mating
   male-child-chance      ; this is a trait variable that influences the probability of giving birth to a male child
-  temp-male-child-chance ; stores male-chind-chance for a particular father-mother pair
-  gestation              ; tracks the time of carrying a child till a female reachers gesatation-period
+  temp-male-child-chance ; stores male-child-chance for a particular father-mother pair
+  gestation              ; tracks the time of carrying a child till a female reaches gestation-period
   age                    ; to keep track of age
   longevity              ; gets assigned at birth - age up to which an individual lives
   num-of-exes            ; tracks mating partners an individual had in its life
@@ -29,7 +30,7 @@ males-own [
   adult?                ; boolean to flag if this agent is an adult
 ]
 
-; setup the pupulation of males and females
+; setup the population of males and females
 to setup
   clear-all
   set-default-shape males "dot"
@@ -41,7 +42,7 @@ to setup
     set size 2
     set color green
 
-    ; males are assinged initial male-child-chance from a random-normal distribution
+    ; males are assigned initial male-child-chance from a random-normal distribution
     set male-child-chance random-normal initial-average-male-child-chance 0.05
 
     ; curtail negative or greater-than-1 probabilities
@@ -65,7 +66,7 @@ to setup
     set partner nobody
     set carrying? false
 
-    ; females are assinged initial male-child-chance from a random-normal distribution
+    ; females are assigned initial male-child-chance from a random-normal distribution
     set male-child-chance random-normal initial-average-male-child-chance 0.05
     ; curtail negative or greater-than-1 probabilities
     if male-child-chance < 0 [ set male-child-chance 0 ]
@@ -82,7 +83,7 @@ to setup
 
   set adult-sex-ratio-list []
   set age-list []
-  set adult-age int (0.25 * mean-longevity) ; Agents with age more than 25% of mean-logevity are considered adult
+  set adult-age int (0.15 * mean-longevity) ; Agents with age more than 25% of mean-longevity are considered adult
 
   reset-ticks
 end
@@ -262,6 +263,10 @@ to-report running-sd-adult-sex-ratio
     report precision standard-deviation (sublist adult-sex-ratio-list (length (adult-sex-ratio-list) - 1000) length (adult-sex-ratio-list)) 2]
   [report "NA"]
 end
+
+
+; Copyright 2020 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 265
@@ -309,9 +314,9 @@ NIL
 
 SLIDER
 5
-10
+40
 260
-43
+73
 initial-population-size
 initial-population-size
 50
@@ -324,9 +329,9 @@ HORIZONTAL
 
 SLIDER
 5
-49
+79
 260
-82
+112
 initial-adult-sex-ratio
 initial-adult-sex-ratio
 0
@@ -339,9 +344,9 @@ HORIZONTAL
 
 SLIDER
 5
-100
+120
 260
-133
+153
 initial-average-male-child-chance
 initial-average-male-child-chance
 0
@@ -409,9 +414,9 @@ PENS
 
 SLIDER
 5
-180
+235
 260
-213
+268
 gestation-period
 gestation-period
 0
@@ -424,9 +429,9 @@ HORIZONTAL
 
 SLIDER
 5
-220
+275
 260
-253
+308
 maximum-litter-size
 maximum-litter-size
 1
@@ -439,9 +444,9 @@ HORIZONTAL
 
 SLIDER
 5
-285
+315
 260
-318
+348
 mating-chance
 mating-chance
 0
@@ -475,9 +480,9 @@ PENS
 
 SLIDER
 5
-140
+160
 260
-173
+193
 mean-longevity
 mean-longevity
 0
@@ -526,7 +531,7 @@ PLOT
 360
 1080
 555
-Mating Success Ratio (Male to Female) 
+Mating Success Ratio (Male to Female)
 Ticks
 Ratio
 0.0
@@ -540,13 +545,33 @@ PENS
 "default" 1.0 0 -16777216 true "" "if female-mating-success != 0 [\n  plot precision (male-mating-success / female-mating-success) 3\n]"
 "pen-1" 1.0 0 -2674135 true "" "plot 1"
 
+TEXTBOX
+55
+15
+240
+51
+Population Parameters
+14
+0.0
+1
+
+TEXTBOX
+55
+210
+210
+246
+Individual Parameters
+14
+0.0
+1
+
 @#$#@#$#@
-## WHAT IS IT
+## WHAT IS IT?
 
 This model investigates emergent patterns in a demographic property of a population: the adult sex ratio (ASR). ASR is defined as the ratio of males to females in the adult population. Most sexually reproducing organisms have an ASR of 1:1. Fisher (1930) explains a rationale for this phenomenon based on natural selection, irrespective of a particular mechanism of sex-determination, which is now known as Fisher’s principle (Hamilton, 1967).
 
 This model is based on Fisher's assumptions of biparentism and [Mendelian inheritance](https://en.wikipedia.org/wiki/Mendelian_inheritance).
-It allows user to explorethe emergence of the Fisherian Sex Ratio (1:1) across a wide range of initial sex-ratios and life-history traits. 
+It allows user to explore the emergence of the Fisherian Sex Ratio (1:1) across a wide range of initial sex-ratios and life-history traits.
 
 ## HOW IT WORKS
 
@@ -557,7 +582,7 @@ There are two types of individuals in the model:
 - *Females* (Indicated by blue color if not carrying a child and indicated by orange color if carrying a child)
 
 At every time-step the individuals:
-- Age and check if dead – a random value of longevity is assigned at birth if an agent’s age is more than that value it dies 
+- Age and check if dead – a random value of longevity is assigned at birth if an agent’s age is more than that value it dies
 - Move randomly
 - Search for an adult partner if *male*. This procedure involves mating, which is dependent on the assigned value of the mating chance. If agents mate, the *female* carries. (For simplicity, the mating chance in this model incorporates conception-chance as well.)
 - Reproduce if *female*
@@ -568,24 +593,24 @@ A child inherits this trait from its parents with a mutation. The inherited valu
 
 ## HOW TO USE IT
 
-Using the sliders, set your desired initial population and individual values (see the **Sliders** section below for more details). Click the SETUP button to setup the population. To run the model, click the GO button. 
+Using the sliders, set your desired initial population and individual values (see the **Sliders** section below for more details). Click the SETUP button to setup the population. To run the model, click the GO button.
 
 The plots and monitors allow users to observe population-level changes and see the emergence of the Fisherian sex-ratio equilibrium.
 
-### Sliders 
+### Sliders
 
 INITIAL-POPULATION-SIZE: the initial number of individuals in the population
-INITIAL-SEX-RATIO: the initial sex-ratio (number of males/number of females * 100) in the population
+INITIAL-ADULT-SEX-RATIO: the initial adult-sex-ratio (number of males/number individual * 100) in the population
 INITIAL-AVERAGE-MALE-CHILD-CHANCE: the initial average male-child-chance of all the individuals in the population
-MEAN-LONGEVITY: the average longevity (number of ‘ticks’ an individual lives) 
+MEAN-LONGEVITY: the average longevity (number of ‘ticks’ an individual lives)
 GESTATION-PERIOD: the number of 'ticks' a female is going to carry a child
-MAX-LITTER-SIZE: the maximum number of children a female would give birth to after she completes gestation
+MAXIMUM-LITTER-SIZE: the maximum number of children a female would give birth to after she completes gestation
 MATING-CHANCE: the probability that a female mates with a male when a male finds a female partner
 
-### Plots 
-ADUTL SEX RATIO: shows the percentage of male agents 
+### Plots
+ADULT SEX RATIO: shows the percentage of male agents
 POPULATION AVERAGE MALE-CHILD-CHANCE: shows how the population's male-child-chance changes over time
-GENDER DISTRIBUTION: shows numbers of agents of both sexes 
+GENDER DISTRIBUTION: shows numbers of agents of both sexes
 MATING SUCCESS RATIO (MALE TO FEMALE): shows how the ratio of male mating success to female mating success changes over time
 
 ### Monitors
@@ -596,17 +621,19 @@ RUNNING STD DEV OF ASR: standard deviation of adult sex ratio in the past 1000 t
 
 ## THINGS TO NOTICE
 
-When you run the model, notice how the number of males and females vary in the GENDER DISTRIBUTION plot. Also, notice that for a wide range of parameter values, if you run the simulation long enough, the ASR converges to 50% as seen in the ADULT-SEX-RATIO plot.
+When you run the model, notice how the number of males and females vary in the GENDER DISTRIBUTION plot. Also, notice that for a wide range of parameter values, if you run the simulation long enough (4000 to 5000 ticks), the ASR converges to 50% as seen in the ADULT-SEX-RATIO plot.
 
 Notice that the average value of the trait male-child-chance across all agents in the AVERAGE MALE-CHILD-CHANCE plot also converges to 0.5 for a wide range of parameters.
+
+Also notice that once the ASR reaches 50%, it is stable around the 50% point. The AVERAGE MALE-CHILD-CHANCE is also stable around the value of 0.5.
 
 Vary the INITIAL-SEX-RATIO and INITIAL-AVERAGE-MALE-CHILD-CHANCE, which are the two variables that affect the sex ratio the most in this model. How do these variables relate to the mating success of each sex?
 
 ## THINGS TO TRY
 
-Try setting different values of INITIAL-ADULT-SEX-RATIO and INITIAL-AVERAGE-MALE-CHILD-CHANCE to see how that affects the emergence of the adult sex ratio equilibrium. 
+Try setting different values of INITIAL-ADULT-SEX-RATIO and INITIAL-AVERAGE-MALE-CHILD-CHANCE to see how that affects the emergence of the adult sex ratio equilibrium.
 
-See if you can change the parameters and see if you can get to a different stable ASR. 
+See if you can change the parameters and see if you can get to a different stable ASR.
 
 ## EXTENDING THE MODEL
 
@@ -617,13 +644,35 @@ You can also add a variety of features related to evolutionary population geneti
 ## RELATED MODELS
 
 - Red Queen
-- Fish Tank Genetic Drift 
+- Fish Tank Genetic Drift
 - Plant Speciation
 
 ## CREDITS AND REFERENCES
 
 Hamilton, W. D. (1967). Extraordinary sex ratios. Science, 156(3774), 477-488
 Fisher, R. A. (1930). The genetical theory of natural selection: a complete variorum edition. Oxford University Press.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Dabholkar, S., Lee, J.S. and Wilensky, U. (2020).  NetLogo Sex Ratio Equilibrium model.  http://ccl.northwestern.edu/netlogo/models/SexRatioEquilibrium.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2020 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 
 <!-- 2020 Cite: Dabholkar, S., Lee, J.S. -->
 @#$#@#$#@
@@ -992,72 +1041,6 @@ NetLogo 6.1.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
-<experiments>
-  <experiment name="test" repetitions="1" runMetricsEveryStep="true">
-    <setup>setup</setup>
-    <go>repeat 100 [go]</go>
-    <timeLimit steps="10"/>
-    <metric>count turtles</metric>
-    <metric>ticks</metric>
-    <metric>[num-of-ex / age] of males with [age &gt; 0]</metric>
-    <metric>[num-of-ex / age] of females with [age &gt; 0]</metric>
-    <enumeratedValueSet variable="initial-average-male-child-chance">
-      <value value="0.1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="initial-sex-ratio">
-      <value value="50"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="initial-population-size">
-      <value value="400"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="mating-chance">
-      <value value="0.1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="gestation-period">
-      <value value="10"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="mean-longevity">
-      <value value="600"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="maximum-litter-size">
-      <value value="10"/>
-    </enumeratedValueSet>
-  </experiment>
-  <experiment name="mp_and_offspring" repetitions="1" runMetricsEveryStep="true">
-    <setup>setup</setup>
-    <go>repeat 2000 [go]</go>
-    <timeLimit steps="50"/>
-    <metric>ticks</metric>
-    <metric>sex-ratio</metric>
-    <metric>count males with [age &gt; 0]</metric>
-    <metric>count females with [age &gt; 0]</metric>
-    <metric>[(list (num-of-ex / age) (num-of-children / age) male-child-chance)] of males with [age &gt; 0]</metric>
-    <metric>[(list (num-of-ex / age) (num-of-children / age) male-child-chance)] of females with [age &gt; 0]</metric>
-    <metric>average-male-child-chance</metric>
-    <steppedValueSet variable="initial-average-male-child-chance" first="0.1" step="0.1" last="0.9"/>
-    <enumeratedValueSet variable="initial-sex-ratio">
-      <value value="50"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="cheating?">
-      <value value="false"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="initial-population-size">
-      <value value="400"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="mating-chance">
-      <value value="0.1"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="gestation-period">
-      <value value="10"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="mean-longevity">
-      <value value="600"/>
-    </enumeratedValueSet>
-    <enumeratedValueSet variable="maximum-litter-size">
-      <value value="10"/>
-    </enumeratedValueSet>
-  </experiment>
-</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default
