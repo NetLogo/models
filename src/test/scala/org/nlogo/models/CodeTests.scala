@@ -234,7 +234,7 @@ class CodeTests extends TestModels {
       "calculate-pH", "plot-pH", "concOH", "record-pH", "pOH", "Ka", "pH", "concH"
     ),
     "Small Worlds" -> Set(
-      "node-A", "node-B"   
+      "node-A", "node-B"
     ),
     "Strong Acid" -> Set(
       "calculate-pH", "concOH", "record-pH", "pOH", "pH", "concH"
@@ -302,6 +302,28 @@ class CodeTests extends TestModels {
       "LacZ-degradation-chance", "add-ONPG", "ONPGs", "go-ONPG", "LacIs-own", "ONPG?", "ONPG-quantity",
       "ONPG-number", "RNAP", "LacZ-degradation-chance", "LacI-ONPG-binding-chance", "LacZs", "LacZ-production-num",
       "degrade-LacZ", "go-ONPGs", "LacI-number"
+   ),
+   "Repressilator 1D" -> Set(
+      "count-other-mRNAs-same-patch", "set-TF-position", "y-DNA","mRNA-gene-id",
+      "bound-to-signal-TF-shape", "bound-TF-shape", "y-mRNA-top", "y-TF-top",
+      "initial-TF1s","local-TF-gene-id","DNA-segment-shapes","mRNA-decay-prob",
+      "TF-gene-id","TFs","TF-unbind-prob","signal-TF-unbind-prob","DNA-x-offset",
+      "TF-age","initial-TF2s","sprout-TFs", "get-TF-DNA-is-inhibited-by",
+      "TF","TF-decay-prob","initial-TFs","move-TFs","mRNAs-here","hatch-TFs",
+      "mRNAs","initialize-TFs","TF-binding-site-gene-id","mRNAs-own","TF-can-bind-signal?",
+      "DNA-segment-size","TF-bound-to-signal?","signal-TF-bind-prob","signal-TF-gene-id",
+      "bind-TF","TF-binding-site","degrade-mRNAs","local-DNA-gene-id","TFs-here",
+      "initialize-composite-DNA","n-TFs-produced","bind-TF-to-signal","DNA-gene-id",
+      "get-DNA-TF-inhibits","sprout-DNA-segments","y-TF-bottom","produce-mRNAs",
+      "TFs-per-mRNA","n-mRNAs-produced","count-other-TFs-same-color-same-patch",
+      "unbound-TF-shape","initialize-TF","usable-mRNA-height","DNA-segments",
+      "unbind-TF","TF-inhibits-gene-id","TF-binding-sites-own","DNA-segment",
+      "unbind-TFs","TF-can-bind-gene-here?","y-mRNA-bottom","update-TF-shape",
+      "create-initial-TFs","TF-can-inhibit-gene-here?","TF-binding-sites","produce-TFs",
+      "bind-TFs","max-TF-synergy","TF-size","DNA-inhibited-by-gene-id","TF-bound?",
+      "mRNA-size","TFs-own","TF-bind-prob","initial-TF0s","mRNA","degrade-TFs",
+      "unbind-TF-from-signal","TF-rolling-plot-width","bound-TF-size","sprout-mRNAs",
+      "initialize-mRNA"
    )
   )
 
