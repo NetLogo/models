@@ -308,7 +308,7 @@ What alternative treatments would you suggest?  How would you model them here?
 
 ## CREDITS AND REFERENCES
 
-The original StarLogoT Tumor model was contributed by Gershom Zajicek M.D., Professor of Experimental Medicine and Cancer Research at The Hebrew University-Hadassah Medical School, Jerusalem.
+The original StarLogoT Tumor model was contributed in 1997 by Gershom Zajicek M.D., Professor of Experimental Medicine and Cancer Research at The Hebrew University-Hadassah Medical School, Jerusalem. It was adapted and converted to NetLogo by Wilensky and members of the CCL in 1998.
 
 ## HOW TO CITE
 
@@ -316,7 +316,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Wilensky, U. (1998).  NetLogo Tumor model.  http://ccl.northwestern.edu/netlogo/models/Tumor.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Zacijek, G. and Wilensky, U. (1998).  NetLogo Tumor model.  http://ccl.northwestern.edu/netlogo/models/Tumor.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
@@ -336,7 +336,7 @@ This model was created as part of the project: CONNECTED MATHEMATICS: MAKING SEN
 
 This model was converted to NetLogo as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227. Converted from StarLogoT to NetLogo, 2001.
 
-<!-- 1998 2001 -->
+<!-- 1998 2001 Cite: Zacijek, G. -->
 @#$#@#$#@
 default
 true
