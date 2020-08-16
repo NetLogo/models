@@ -327,7 +327,7 @@ Erosion
 
 National Elevation Dataset: https://catalog.data.gov/dataset/usgs-national-elevation-dataset-ned
 ArcGIS: http://www.esri.com/software/arcgis
-My World GIS: http://www.myworldgis.org/
+My World GIS (archival): https://serc.carleton.edu/resources/19436.html
 
 Thanks to Eric Russell for his work on this model.
 

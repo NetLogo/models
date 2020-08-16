@@ -125,7 +125,7 @@ See [the documentation for the extension](https://github.com/NetLogo/Palette-Ext
 
 ## CREDITS AND REFERENCES
 
-ColorBrewer: http://colorbrewer2.org/
+ColorBrewer: https://colorbrewer2.org/
 
 <!-- 2014 -->
 @#$#@#$#@

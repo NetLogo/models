@@ -292,7 +292,7 @@ For a more technical treatment, see:
 
 - Albert-László Barabási & Reka Albert. Emergence of Scaling in Random Networks, Science, Vol 286, Issue 5439, 15 October 1999, pages 509-512.
 
-Barabási's webpage has additional information at: http://www.barabasi.com/
+Barabási's webpage has additional information at: https://www.barabasi.com/
 
 The layout algorithm is based on the Fruchterman-Reingold layout algorithm.  More information about this algorithm can be obtained at: http://cs.brown.edu/people/rtamassi/gdhandbook/chapters/force-directed.pdf.
 

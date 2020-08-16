@@ -507,7 +507,7 @@ Try modeling derivative or combined boundary conditions.
 
 ## NETLOGO  FEATURES
 
-The bundled palette extension is used to create color schemes from the widely-used ColorBrewer standard ([http://colorbrewer2.org/](http://colorbrewer2.org/)). Here we use a divergent spectral color scheme.
+The bundled palette extension is used to create color schemes from the widely-used ColorBrewer standard ([https://colorbrewer2.org/](https://colorbrewer2.org/)). Here we use a divergent spectral color scheme.
 
 ## CREDITS AND REFERENCES
 
