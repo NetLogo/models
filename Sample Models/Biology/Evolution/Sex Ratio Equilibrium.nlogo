@@ -558,7 +558,7 @@ Population Parameters
 TEXTBOX
 55
 210
-210
+250
 246
 Individual Parameters
 14
