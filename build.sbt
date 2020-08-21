@@ -4,7 +4,7 @@ scalaVersion := "2.12.8"
 
 scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
 
-resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/"
+resolvers += "Typesafe Repo" at "https://repo.typesafe.com/typesafe/releases/"
 resolvers += sbt.Resolver.bintrayRepo("netlogo", "NetLogo-JVM")
 
 javaOptions ++= Seq(
