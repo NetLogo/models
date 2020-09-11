@@ -27,7 +27,8 @@ class UpdateModeTests extends TestModels {
     "Voronoi",
     "Lattice Land - Explore",
     "Lattice Land - Triangles Explore",
-    "Lattice Land - Triangles Dissection"
+    "Lattice Land - Triangles Dissection",
+    "Prison Architecture and Emergent Violence"
   )
 
   testModels("Models should use tick-based updates unless otherwise specified") { model =>

@@ -15,7 +15,8 @@ object LegalInfo {
     """<!-- (\d\d\d\d)( \d\d\d\d)?(( \w+)*)( Cite: .*)? -->""".r
   val validKeywords = List(
     "MIT", "Wilensky", "specialCE", "MAC", "Steiner",
-    "Stroup", "3D", "NIELS", "ConChem", "CC0", "BYSA", "GenEvo", "MTG", "PNoM")
+    "Stroup", "3D", "NIELS", "ConChem", "CC0", "BYSA",
+    "GenEvo", "MTG", "PNoM", "MAM2019", "CTSTEM")
   val hubnetCitation =
     "* Wilensky, U. & Stroup, W. (1999). HubNet. " +
     "http://ccl.northwestern.edu/netlogo/hubnet.html. " +
@@ -192,6 +193,22 @@ case class LegalInfo(model: Model) {
         builder.append("\n")
         builder.append("Please cite the textbook as:\n\n")
         builder.append(textbookCitation)
+      }
+      if (keywords.contains("MAM2019")) {
+        builder.append("\n")
+        builder.append("This model was developed as part of the Multi-agent Modeling course ")
+        builder.append("offerred by Dr. Uri Wilensky at Northwestern University. For more info, ")
+        builder.append("visit http://ccl.northwestern.edu/courses/mam/. ")
+        builder.append("Special thanks to Teaching Assistants Sugat Dabholkar, Can Gurkan, and Connor Bain.\n")
+      }
+      if (keywords.contains("CTSTEM")) {
+        builder.append("\n")
+        builder.append("This model was developed as part of the CT-STEM Project at Northwestern University and was")
+        builder.append("made possible through generous support from the National Science Foundation")
+        builder.append("(grants CNS-1138461, CNS-1441041, DRL-1020101, DRL-1640201 and DRL-1842374) and the")
+        builder.append("Spencer Foundation (Award #201600069). Any opinions, findings, or recommendations expressed")
+        builder.append("in this material are those of the author(s) and do not necessarily reflect the views of the")
+        builder.append("funding organizations. For more information visit https://ct-stem.northwestern.edu/.\n")
       }
       if (keywords.contains("NIELS")) {
         builder.append("\n")

@@ -143,7 +143,8 @@ class CodeTests extends TestModels {
       "Lattice Land - Triangles Dissection", "Lattice Land - Triangles Explore", "Lattice Land - Explore",
       "PNoM 1 Diffusion Sandbox", "PNoM 2 Diffusion Sensor Sandbox", "PNoM 3 Virtual Syringe",
       "PNoM 4 Virtual Syringe Force Graph", "PNoM 5 Virtual Syringe Temperature Graph",
-      "PNoM 6 Particle Sandbox Gravity", "PNoM 7 Particle Sandbox Intermolecular Forces"
+      "PNoM 6 Particle Sandbox Gravity", "PNoM 7 Particle Sandbox Intermolecular Forces",
+      "Prison Architecture and Emergent Violence"
     ),
     "write" -> Seq.empty
   )
@@ -324,6 +325,11 @@ class CodeTests extends TestModels {
       "mRNA-size","TFs-own","TF-bind-prob","initial-TF0s","mRNA","degrade-TFs",
       "unbind-TF-from-signal","TF-rolling-plot-width","bound-TF-size","sprout-mRNAs",
       "initialize-mRNA"
+   ),
+   "Prison Architecture and Emergent Violence" -> Set(
+      "PT-base-kindness-propensity", "SJ-percent-conforming", "RG-percent-conforming",
+      "RG-base-kindness-propensity", "SJ-base-kindness-propensity", "PT-percent-conforming",
+      "OL-base-kindness-propensity", "OL-percent-conforming"
    )
   )
 
