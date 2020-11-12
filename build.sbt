@@ -1,6 +1,6 @@
-lazy val netLogoVersion = "6.1.1"
+lazy val netLogoVersion = "6.1.1-f58ebf6"
 
-scalaVersion := "2.12.8"
+scalaVersion := "2.12.12"
 
 scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
 
@@ -20,6 +20,8 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.0" % Test,
   "commons-io" % "commons-io" % "2.4",
   "commons-validator" % "commons-validator" % "1.4.1",
+  "org.jogamp.jogl" % "jogl-all" % "2.4.0" from "https://jogamp.org/deployment/archive/rc/v2.4.0-rc-20200307/jar/jogl-all.jar",
+  "org.jogamp.gluegen" % "gluegen-rt" % "2.4.0" from "https://jogamp.org/deployment/archive/rc/v2.4.0-rc-20200307/jar/gluegen-rt.jar",
   "org.apache.commons" % "commons-lang3" % "3.5",
   "org.asynchttpclient" % "async-http-client" % "2.0.24",
   "com.github.wookietreiber" %% "scala-chart" % "0.5.1",
