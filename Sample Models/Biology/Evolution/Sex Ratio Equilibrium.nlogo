@@ -637,7 +637,7 @@ See if you can change the parameters and see if you can get to a different stabl
 
 ## EXTENDING THE MODEL
 
-This model implements search-for-a-partner by a male. See if you can change it and make it a female action.
+This model implements `search-for-a-partner` by a male. See if you can change it and make it a female action.
 
 You can also add a variety of features related to evolutionary population genetics and sex ratio equilibrium studies, such as different mortality rates for males and females, sexual selection by females.
 
@@ -649,8 +649,9 @@ You can also add a variety of features related to evolutionary population geneti
 
 ## CREDITS AND REFERENCES
 
-Hamilton, W. D. (1967). Extraordinary sex ratios. Science, 156(3774), 477-488
 Fisher, R. A. (1930). The genetical theory of natural selection: a complete variorum edition. Oxford University Press.
+
+Hamilton, W. D. (1967). Extraordinary sex ratios. Science, 156(3774), 477-488
 
 ## HOW TO CITE
 
