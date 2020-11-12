@@ -110,7 +110,8 @@ class CodeTests extends TestModels {
       "Public Good HubNet", "4 Blocks", "9-Blocks", "Expected Value",
       "Expected Value Advanced", "Random Combinations and Permutations",
       "Partition Permutation Distribution", "GenJam - Duple",
-      "PNoM 5 Virtual Syringe Temperature Graph"
+      "PNoM 5 Virtual Syringe Temperature Graph",
+      "2.5d Turtle View Example", "2.5d Patch View Example"
     ),
     "who" -> Seq(
       // Some of the following models may make justifiable use of `who`, but most
@@ -330,6 +331,13 @@ class CodeTests extends TestModels {
       "PT-base-kindness-propensity", "SJ-percent-conforming", "RG-percent-conforming",
       "RG-base-kindness-propensity", "SJ-base-kindness-propensity", "PT-percent-conforming",
       "OL-base-kindness-propensity", "OL-percent-conforming"
+   ),
+   "Mendelian Inheritance" -> Set(
+      "make-F1-generation", "clear-F1-generation"
+   ),
+   "Dislocation Motion and Deformation" -> Set(
+      "total-PE", "indiv-PE-and-force", "equalizing-LJ-force", "min-A",
+      "LJ-potential-and-force"
    )
   )
 

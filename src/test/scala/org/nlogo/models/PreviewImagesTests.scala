@@ -65,7 +65,10 @@ class PreviewImagesTests extends TestModels {
     "GenEvo 4 Competition",
     "Synthetic Biology - Genetic Switch",
     "Lattice Land - Explore",
-    "Python Basic Example"
+    "Python Basic Example",
+    "2.5d Turtle View Example",
+    "2.5d Patch View Example",
+    "Mandelian Inheritance"
   )
   testModels("Models should have manual previews only if needed or permitted") { m =>
     if (manualPreviewNeeded.exists(m.file.getPath.contains))

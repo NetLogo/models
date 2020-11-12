@@ -196,18 +196,18 @@ case class LegalInfo(model: Model) {
       }
       if (keywords.contains("MAM2019")) {
         builder.append("\n")
-        builder.append("This model was developed as part of the Multi-agent Modeling course ")
+        builder.append("This model was developed as part of the Spring 2019 Multi-agent Modeling course ")
         builder.append("offerred by Dr. Uri Wilensky at Northwestern University. For more info, ")
         builder.append("visit http://ccl.northwestern.edu/courses/mam/. ")
         builder.append("Special thanks to Teaching Assistants Sugat Dabholkar, Can Gurkan, and Connor Bain.\n")
       }
       if (keywords.contains("CTSTEM")) {
         builder.append("\n")
-        builder.append("This model was developed as part of the CT-STEM Project at Northwestern University and was")
-        builder.append("made possible through generous support from the National Science Foundation")
-        builder.append("(grants CNS-1138461, CNS-1441041, DRL-1020101, DRL-1640201 and DRL-1842374) and the")
-        builder.append("Spencer Foundation (Award #201600069). Any opinions, findings, or recommendations expressed")
-        builder.append("in this material are those of the author(s) and do not necessarily reflect the views of the")
+        builder.append("This model was developed as part of the CT-STEM Project at Northwestern University and was ")
+        builder.append("made possible through generous support from the National Science Foundation ")
+        builder.append("(grants CNS-1138461, CNS-1441041, DRL-1020101, DRL-1640201 and DRL-1842374) and the ")
+        builder.append("Spencer Foundation (Award #201600069). Any opinions, findings, or recommendations expressed ")
+        builder.append("in this material are those of the author(s) and do not necessarily reflect the views of the ")
         builder.append("funding organizations. For more information visit https://ct-stem.northwestern.edu/.\n")
       }
       if (keywords.contains("NIELS")) {
