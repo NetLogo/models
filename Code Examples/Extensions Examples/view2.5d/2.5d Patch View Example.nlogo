@@ -25,6 +25,7 @@ to setup
   ; light patches are higher, dark patches are lower
   view2.5d:patch-view window-name [ the-patch -> [ pcolor ] of the-patch ]
 
+  wait 1
   view2.5d:decorate-patch-view window-name ; add turtles to the patch-view
   view2.5d:set-observer-angles window-name 32 24 ; change the camera angle
   view2.5d:set-z-scale window-name 5 ; change the z-scale so that the peaks are higher
@@ -142,7 +143,7 @@ At the end of the `setup` procedure, you'll see a few other customizations of th
 
 In the `go` procedure, we use `view2.5d:update-patch-view` to refresh the patch view using the current state of the model.
 
-For more information, please refer to the `view2.5d` extension documentation.
+For more information, please refer to the `view2.5d` extension documentation and checkout the 2.5d Turtle View Example model.
 
 <!-- 2016 -->
 @#$#@#$#@
@@ -430,6 +431,7 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
 NetLogo 6.1.1
 @#$#@#$#@
+need-to-manually-make-preview-for-this-model
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
