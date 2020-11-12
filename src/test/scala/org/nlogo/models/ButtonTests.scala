@@ -21,7 +21,7 @@ class ButtonTests extends TestModels {
         "GoGoMonitor", // won't work without a GoGo board
         "GoGoMonitorSimple",
         "Arduino Example", // the arduino extension makes the tests crash when running in parallel
-        "2.5d Patch View Example" // https://github.com/NetLogo/View2.5D/issues/4
+        "2.5d Patch View Example", "2.5d Turtle View Example" // https://github.com/NetLogo/View2.5D/issues/4
       ).contains(model.name))
   }.par
 
