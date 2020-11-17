@@ -401,6 +401,12 @@ Please cite the NetLogo software as:
 
 * Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
+This model was developed as part of the CT-STEM Project at Northwestern University and was made possible through generous support from the National Science Foundation (grants CNS-1138461, CNS-1441041, DRL-1020101, DRL-1640201 and DRL-1842374) and the Spencer Foundation (Award #201600069). Any opinions, findings, or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the funding organizations. For more information visit https://ct-stem.northwestern.edu/.
+
+Special thanks to the CT-STEM models team for preparing these models for inclusion
+in the Models Library including: Jamie Gray, Kelvin Lao, Sugat Dabholkar, Sally Wu,
+and Connor Bain.
+
 ## COPYRIGHT AND LICENSE
 
 Copyright 2020 Uri Wilensky.
@@ -411,7 +417,7 @@ This work is licensed under the Creative Commons Attribution-NonCommercial-Share
 
 Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 
-<!-- 2020 Cite: Dabholkar, S., Granito, T. -->
+<!-- 2020 CTSTEM Cite: Dabholkar, S., Granito, T. -->
 @#$#@#$#@
 default
 true
