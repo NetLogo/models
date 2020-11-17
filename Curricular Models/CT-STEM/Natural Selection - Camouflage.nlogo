@@ -119,7 +119,7 @@ to die-if-predated ; mice procedure
   ifelse predation? and ( random-float 1 < ( chance-of-predation - camouflage ) ) [
     die ; dies if mouse is predated
   ] [
-    search-a-partner ; if the mouse doesn't die, it finds a partner to reproduce
+    search-a-partner ; if the mouse does not die, it finds a partner to reproduce
   ]
 
 end
@@ -686,7 +686,7 @@ At each generation, the following happens:
 - it is possibly predated (if "predation?" is ON) based on the chance of predation and how well it can camouflage with the surroundings
 - if the mouse survives predation, it finds a partner and produces 4 offspring with this partner
 - the mouse and its partner both die
-- if a mouse doesn’t get to reproduce and is over 10 generations old, there is a chance that it dies from old age
+- if a mouse does not get to reproduce and is over 10 generations old, there is a chance that it dies from old age
 
 Inheritance of the fur coat color genes is modeled based on the laws of Mendelian inheritance.
 
