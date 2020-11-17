@@ -825,7 +825,7 @@ To find out where to buy sensors and motors, go to the [GoGo Board website](http
 Add filters and normalization to the sensor data.
 Using a light sensor, make a turtle move forward when it's dark, and stop when there is light.
 Create animations that are controlled by sensors
-Create Bifocal Models (see [bifocal modeling](https://tltlab.org/portfolio_page/bifocal-modeling/))
+Create Bifocal Models (see [bifocal modeling](https://fablearn.org/bifocal-modeling/))
 
 ## NETLOGO FEATURES
 

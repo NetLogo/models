@@ -347,7 +347,7 @@ Research published in Nature Genetics (Economou et al, 2012) appears to confirm 
 https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3303118/
 
 A news article in IO9 by Alasdair Wilkins describing the research can be found here.
-https://io9.gizmodo.com/5886406/scientists-confirm-alan-turings-50-year-old-theory-for-why-tigers-have-stripes
+https://io9.gizmodo.com/scientists-confirm-alan-turings-60-year-old-theory-for-5886406
 
 Here is a quote from the Wilkins article:
 

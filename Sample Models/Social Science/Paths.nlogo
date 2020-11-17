@@ -336,7 +336,7 @@ Turtles select a new patch to move toward each turn. This isn't a particularly e
 
 ## CREDITS AND REFERENCES
 
-Inspired by [Let pedestrians define the walkways](https://sivers.org/walkways).
+Inspired by [Let pedestrians define the walkways](https://sive.rs/walkways).
 
 ## HOW TO CITE
 

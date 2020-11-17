@@ -349,7 +349,7 @@ Bug Hunt Camouflage
 
 ## CREDITS AND REFERENCES
 
-Inspired by EvoDots software: https://faculty.washington.edu/herronjc/SoftwareFolder/EvoDots.html
+Inspired by EvoDots software: https://faculty.washington.edu/herronjc/SoftwareFolder/EvoDots.html/
 
 ## HOW TO CITE
 

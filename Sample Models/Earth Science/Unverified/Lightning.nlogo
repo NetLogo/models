@@ -680,9 +680,6 @@ https://en.wikipedia.org/wiki/Lightning
 How Stuff Works on Lightning:
 https://science.howstuffworks.com/nature/natural-disasters/lightning.htm
 
-National Geographic on Lightning:
-http://environment.nationalgeographic.com/environment/natural-disasters/lightning-profile.html
-
 ## HOW TO CITE
 
 If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.

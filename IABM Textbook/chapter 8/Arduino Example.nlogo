@@ -228,7 +228,7 @@ This model should give a sense for the process of controlling an Arduino board w
 
 The Arduino requires a custom program, or “sketch,” to run on the board for every new situation. The sketch required by this example is included in an `arduino-example-sketch` subfolder under the same folder of the NetLogo model library. The sketch file itself is named `arduino-example-sketch.ino`.
 
-To compile your sketch file and upload it to your Arduino board, you will need to download and install the Arduino Software IDE, available from https://www.arduino.cc/en/main/software. You can learn how to use it by following the guide available at https://www.arduino.cc/en/Guide/HomePage.
+To compile your sketch file and upload it to your Arduino board, you will need to download and install the Arduino Software IDE, available from https://www.arduino.cc/en/software. You can learn how to use it by following the guide available at https://www.arduino.cc/en/Guide/HomePage.
 
 ## HOW TO USE IT
 

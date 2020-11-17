@@ -567,7 +567,7 @@ What is the relation between the value of average-distance and the curves you ge
 Here is an experiment you can try without NetLogo that might shed more light on the model:
 Set up a deck of cards that has 13 face cards and 39 number cards. That is a 1:3 ratio of faces to numbers. One fourth of the cards are faces. Thus, the probability that any random card drawn from this deck is a face is 1 out of 4 -- that is, a 25% chance. Now distribute the face cards uniformly in the deck so that literally every fourth card is a face. Next, shuffle the cards thoroughly. Still, every fourth card on average will be a face. But what is hiding behind this sense of "average" in "every fourth card on average is a face"? Count up to each face card and create a histogram of the frequencies of each number of attempts until success. What have you learned? Can you explain this? Note that two decks put together with the same "number:face" ratio (for a total of 26:78) will bring quicker results.
 
-Shuffle Board is a NetLogo analogy to shuffling a deck of cards and then going through the cards one by one and counting how long it takes to find each face.  To be precise, the shuffling procedure in this model is less rule governed than standard shuffling of cards (see for example [https://www.sciencenews.org/node/19977](https://www.sciencenews.org/node/19977)).
+Shuffle Board is a NetLogo analogy to shuffling a deck of cards and then going through the cards one by one and counting how long it takes to find each face.  To be precise, the shuffling procedure in this model is less rule governed than standard shuffling of cards (see for example [https://www.sciencenews.org/article/disorder-deck)).
 
 ## EXTENDING THE MODEL
 

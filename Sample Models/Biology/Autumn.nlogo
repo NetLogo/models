@@ -746,7 +746,7 @@ Plant Growth is in some ways a model of the opposite process, namely how do leav
 ## CREDITS AND REFERENCES
 
 - www.scifun.org/CHEMWEEK/AutumnColors2017.pdf
-- http://www.the-scientist.com/?articles.view/articleNo/13750/title/Why-Leaves-Turn-Color-in-the-Fall/
+- https://www.the-scientist.com/news/why-leaves-turn-color-in-the-fall-53929
 
 Thanks to Reuven Lerner for his work on this model.
 

@@ -537,7 +537,7 @@ Giant Component - shows how critical points exist in which a network can transit
 ## CREDITS AND REFERENCES
 
 This model is based on:
-R Guimera, B Uzzi, J Spiro, L Amaral; Team Assembly Mechanisms Determine Collaboration Network Structure and Team Performance. Science 2005, V308, N5722, p697-702 https://amaral.northwestern.edu/media/publication_pdfs/Guimera-2005-Science-308-697.pdf
+R Guimera, B Uzzi, J Spiro, L Amaral. Team Assembly Mechanisms Determine Collaboration Network Structure and Team Performance. Science 2005, V308, N5722, p697-702 https://amaral.northwestern.edu/media/publication_pdfs/Guimera-2005-Science-308-697.pdf
 
 ## HOW TO CITE
 

@@ -670,7 +670,7 @@ This button adds a heterozygous mutant.
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model simulates natural selection and adaptation in populations of rock pocket mice, which are found mainly in rocky outcrops in the deserts of the southwestern United States and Mexico. This model is based on a lesson plan designed by the [Howard Hughes Medical Institute] (https://www.hhmi.org/biointeractive/making-fittest-natural-selection-and-adaptation).
+This model simulates natural selection and adaptation in populations of rock pocket mice, which are found mainly in rocky outcrops in the deserts of the southwestern United States and Mexico. This model is based on a lesson plan designed by the [Howard Hughes Medical Institute] (https://www.biointeractive.org/classroom-resources/making-fittest-natural-selection-and-adaptation).
 
 The model simulates fur coat color changes in the population of rock pocket mice due to predation. The mice that cannot camouflage themselves have a higher chance of being predated when there are predators present. Users can investigate how the population evolves because of natural selection across various environmental conditions.
 
@@ -753,7 +753,7 @@ Check out these other models in the Models Library:
 
 Nachman, M. W., Hoekstra, H. E., & D'Agostino, S. L. (2003). The genetic basis of adaptive melanism in pocket mice. Proceedings of the National Academy of Sciences, 100(9), 5268-5273.
 
-This is a model of rock pocket mice evolution based on a lesson plan designed by the Howard Hughes Medical Institute (https://www.hhmi.org/biointeractive/making-fittest-natural-selection-and-adaptation).
+This is a model of rock pocket mice evolution based on a lesson plan designed by the Howard Hughes Medical Institute (https://www.biointeractive.org/classroom-resources/making-fittest-natural-selection-and-adaptation).
 
 ## HOW TO CITE
 

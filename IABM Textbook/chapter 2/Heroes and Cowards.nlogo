@@ -357,8 +357,6 @@ Versions of the Model are described in:
 
 Bonabeau, E., & Meyer, C. (2001). Swarm intelligence. A whole new way to think about business. Harvard Business Review, 5, 107-114.
 
-Bonabeau. E. (2012). http://www.icosystem.com/labsdemos/the-game/ .
-
 Bonabeau, E., Funes, P. & Orme, B.  (2003). Exploratory Design Of Swarms. 2nd International Workshop on the Mathematics and Algorithms of Social Insects. Georgia Institute of technology, Atlanta, GA.
 
 Sweeney, L. B., & Meadows, D. (2010). The systems thinking playbook: Exercises to stretch and build learning and systems thinking capabilities.

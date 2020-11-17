@@ -805,7 +805,7 @@ The INSPECT and the STOP-INSPECTING-DEAD-AGENTS primitives are used to allow use
 
 ## CREDITS AND REFERENCES
 
-Bulmer, M. G., & Parker, G. A. (2002). The evolution of anisogamy: a game-theoretic approach. Proceedings of the Royal Society B: Biological Sciences, 269(1507), 2381–2388. http://rspb.royalsocietypublishing.org/content/269/1507/2381
+Bulmer, M. G., & Parker, G. A. (2002). The evolution of anisogamy: a game-theoretic approach. Proceedings of the Royal Society B: Biological Sciences, 269(1507), 2381–2388. https://royalsocietypublishing.org/doi/abs/10.1098/rspb.2002.2161
 
 Togashi, T., & Cox, P. A. (Eds.). (2011). The evolution of anisogamy: a fundamental phenomenon underlying sexual selection. Cambridge University Press.
 
