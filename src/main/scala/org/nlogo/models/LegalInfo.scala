@@ -210,7 +210,7 @@ case class LegalInfo(model: Model) {
         builder.append("in this material are those of the author(s) and do not necessarily reflect the views of the ")
         builder.append("funding organizations. For more information visit https://ct-stem.northwestern.edu/.\n")
         builder.append("\nSpecial thanks to the CT-STEM models team for preparing these models for inclusion\n")
-        builder.append("in the Models Library including: Jamie Gray, Kelvin Lao, Sugat Dabholkar, Sally Wu, \n")
+        builder.append("in the Models Library including: Kelvin Lao, Jamie Lee, Sugat Dabholkar, Sally Wu, \n")
         builder.append("and Connor Bain.\n")
       }
       if (keywords.contains("NIELS")) {
