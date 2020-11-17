@@ -111,7 +111,8 @@ class CodeTests extends TestModels {
       "Expected Value Advanced", "Random Combinations and Permutations",
       "Partition Permutation Distribution", "GenJam - Duple",
       "PNoM 5 Virtual Syringe Temperature Graph",
-      "2.5d Turtle View Example", "2.5d Patch View Example"
+      "2.5d Turtle View Example", "2.5d Patch View Example",
+      "Pendulum"
     ),
     "who" -> Seq(
       // Some of the following models may make justifiable use of `who`, but most
