@@ -5,8 +5,11 @@
 import sys.process.Process
 
 println("Counting lines containing something besides a bracket or paren and/or a comment.")
-println("Of the GasLab suite, only Circular Particles and Gas in a Box are included.")
+// See below comment. 11-18-2020 CPB
+//println("Of the GasLab suite, only Circular Particles and Gas in a Box are included.")
 println
+
+System.setProperty( "user.dir", "../" )
 
 def hasActualCode(line:String):Boolean =
   line.matches(""".*\S.*""") &&               // ignore blank lines
@@ -15,11 +18,17 @@ def hasActualCode(line:String):Boolean =
   !line.matches("""\s*[\[\]\(\)]\s*;.*""")    // ignore if nothing but a bracket/paren and a comment
 
 val hash = collection.mutable.HashMap[String,Int]()
-for{path <- Process(Seq("find", "models/Sample Models", "-name", "*.nlogo", "-o", "-name", "*.nlogo3d")).lineStream
+for {
+   path <- Process(Seq("find", "./", "-name", "*.nlogo", "-o", "-name", "*.nlogo3d")).lineStream
     name = path.split("/").last.stripSuffix(".nlogo")
     if !path.containsSlice("/System Dynamics/")
-    if !path.containsSlice("/GasLab/") || List("GasLab Circular Particles","GasLab Gas in a Box").contains(name)}
-  hash += name -> io.Source.fromFile(path).getLines.takeWhile(_ != "@#$#@#$#@").count(hasActualCode)
+    // The below exception was likely due to the fact that the GasLab models are
+    // A) incredibly long; B) share similar underlying mechanical code.
+    // 11-18-2020 CPB
+    //if !path.containsSlice("/GasLab/") || List("GasLab Circular Particles","GasLab Gas in a Box").contains(name)
+}
+
+hash += name -> io.Source.fromFile(path).getLines.takeWhile(_ != "@#$#@#$#@").count(hasActualCode)
 println(hash.size + " models total")
 println
 
