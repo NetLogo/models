@@ -432,7 +432,8 @@ class CodeTests extends TestModels {
     "Wolf Sheep Simple 2",
     "Wolf Sheep Simple 3",
     "Wolf Sheep Simple 4",
-    "Wolf Sheep Simple 5"
+    "Wolf Sheep Simple 5",
+    "Discrete Event Mousetrap"
   )
 
   testModels("Plotting commands should not be in the main code") { model =>
