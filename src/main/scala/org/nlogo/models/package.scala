@@ -25,7 +25,7 @@ package object models {
 
   org.nlogo.headless.Main.setHeadlessProperty()
 
-  lazy val onTestServer: Boolean = sys.env.get("JENKINS_URL").forall(!_.isEmpty)
+  lazy val onLocal: Boolean = System.getProperty("org.nlogo.isLocal").toBoolean
 
   def withWorkspace[A](model: Model)(f: HeadlessWorkspace => A) = {
     val workspace = HeadlessWorkspace.newInstance
@@ -98,7 +98,7 @@ package object models {
         "Percussion Workbench", "Sound Workbench", "Sound Machines", "Frogger",
         "Sound Machines", "GenJam - Duple") // because MIDI is not available on Jenkins
       val neverCompilable = Set("GoGoMonitor", "GoGoMonitorSimple", "Profiler Example")
-      !(neverCompilable.contains(name) || (onTestServer && notCompilableOnTestServer.contains(name)))
+      !(neverCompilable.contains(name) || (!onLocal && notCompilableOnTestServer.contains(name)))
     }
     def protocols: Seq[LabProtocol] = model
       .optionalSectionValue("org.nlogo.modelsection.behaviorspace")

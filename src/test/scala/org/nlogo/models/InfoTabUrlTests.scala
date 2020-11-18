@@ -72,7 +72,7 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
   val client = new DefaultAsyncHttpClient(builder.build())
   val urlValidator = new UrlValidator(ALLOW_2_SLASHES)
 
-  if (!onTestServer) {
+  if (onLocal) {
     /* Only run the URL tests locally: they take a long time to run on Jenkins
      * and are an endless source of false positives (i.e., temporary failures),
      * lowering ones sensitivity to _actual_ failures. My hope is that keeping
@@ -99,12 +99,13 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
 
   val exceptions: Map[Int, Seq[String]] = Map(
     301 -> Seq(
-      "http://www.esri.com/software/arcgis",
+      "https://edrl.berkeley.edu/design/",
+      "https://www.nature.com/articles/nature20801",
+      "https://www.jstor.org/stable/2224214",
+      "https://www.jstor.org/stable/27858114",
       "http://www.pixar.com/companyinfo/research/pbm2001/",
-      "http://environment.nationalgeographic.com/environment/natural-disasters/lightning-profile.html",
-      "http://link.springer.com/chapter/10.1007/978-3-540-74913-4_88#page-1",
-      "http://www.the-scientist.com/?articles.view/articleNo/13750/title/Why-Leaves-Turn-Color-in-the-Fall/",
-      "https://www.theatlantic.com/magazine/archive/2002/04/seeing-around-corners/302471/"
+      "https://amaral.northwestern.edu/media/publication_pdfs/Guimera-2005-Science-308-697.pdf",
+      "https://www.arduino.cc/en/software"
     ),
     403 -> Seq(
     ),
