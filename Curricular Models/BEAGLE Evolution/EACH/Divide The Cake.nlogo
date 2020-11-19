@@ -1,12 +1,12 @@
 turtles-own [
-  ;; "appetite" will reflect the behavior of the three types of agents: '2' for modest,
-  ;; '3' for fair, and '4' for greedy.  Note that the ratio between these three numbers
-  ;; 2:3:4 is equal to the ratio of agent types' eating habits: 1/3 : 1/2 : 2/3.
-  ;; In principle, we could have worked with 1/3, 1/2, and 2/3 but it's just easier to
-  ;; work with integers.   So we will think of a whole as "6" and not as "1".
+  ; "appetite" will reflect the behavior of the three types of agents: '2' for modest,
+  ; '3' for fair, and '4' for greedy.  Note that the ratio between these three numbers
+  ; 2:3:4 is equal to the ratio of agent types' eating habits: 1/3 : 1/2 : 2/3.
+  ; In principle, we could have worked with 1/3, 1/2, and 2/3 but it's just easier to
+  ; work with integers. So we will think of a whole as "6" and not as "1".
   appetite
-  ;; true or false for "is it my turn to run the 'eat' procedure?," will help us manage
-  ;; the behavior of turtles who are on the same patch.
+  ; true or false for "is it my turn to run the 'eat' procedure?," will help us manage
+  ; the behavior of turtles who are on the same patch.
   turn?
 ]
 
@@ -22,14 +22,14 @@ to setup-turtles
   let total (modest-proportion + fair-proportion + greedy-proportion)
   create-turtles initial-number
     [ setxy random-xcor random-ycor
-      ;; This will assign proportions of the turtles to agent types
-      ;; according to the ratio of greedy, fair, and modest turtles
-      ;; as set in their respective sliders.  The procedure uses the
-      ;; fact that, given enough turtles, the random yet uniform
-      ;; distribution of individual turtles' values from 0 to 1.0
-      ;; will assign these turtles to different agent types so as to
-      ;; approximate a correspondence with the number of turtles in
-      ;; each type, as determined by the user's ratio settings.
+      ; This will assign proportions of the turtles to agent types
+      ; according to the ratio of greedy, fair, and modest turtles
+      ; as set in their respective sliders. The procedure uses the
+      ; fact that, given enough turtles, the random yet uniform
+      ; distribution of individual turtles' values from 0 to 1.0
+      ; will assign these turtles to different agent types so as to
+      ; approximate a correspondence with the number of turtles in
+      ; each type, as determined by the user's ratio settings.
       let breed-rand random-float 1.0
       ifelse breed-rand < (fair-proportion / total)
         [ set appetite 3
@@ -42,9 +42,9 @@ to setup-turtles
 end
 
 to go
-  ;; Main loop - agents move around and eat the grass
-  ;; Here all agents receive a 'true' value for their 'turn?' Boolean variable.
-  ;; Later, in the 'eat' procedure, only a single turtle of turtle pairs who are on the same patch will get to use this value.
+  ; Main loop - agents move around and eat the grass
+  ; Here all agents receive a 'true' value for their 'turn?' Boolean variable.
+  ; Later, in the 'eat' procedure, only a single turtle of turtle pairs who are on the same patch will get to use this value.
   ask turtles
     [ set turn? true
       move
@@ -52,37 +52,37 @@ to go
   tick
 end
 
-to move  ;; turtle procedure
-  ;; Agents move in random directions every turn,
-  ;; at least one patch per turn.
+to move  ; turtle procedure
+  ; Agents move in random directions every turn,
+  ; at least one patch per turn.
   rt random-float 360
 
-  ;; Note that 'travel-distance' is scaled down by the (1 - viscosity) factor, unless 'viscosity' is 0.
+  ; Note that 'travel-distance' is scaled down by the (1 - viscosity) factor, unless 'viscosity' is 0.
   fd 1 + (travel-distance * (1 - viscosity))
 end
 
-to eat ;; turtle procedure
-  ;; We need the turn? variable so turtles who are eligible
-  ;; to eat will not get two chances to reproduce.
-  ;; Only where there is exactly a pair of turtles on a patch are both turtles eligible to eat.
-  ;; Logically, we can't manage more than two turtles, because we could not, then, distinguish between
-  ;; the presence of three modest turtles (2 + 2 + 2) or two fair turtles (3 + 3);
-  ;; Also, if appetites on a patch exceeded resources, that is if their total was greater than 6, we would not know if this
-  ;; were because two turtles have gone beyond 6 and they should die, or because there were three or more turtles on the patch.
+to eat ; turtle procedure
+  ; We need the turn? variable so turtles who are eligible
+  ; to eat will not get two chances to reproduce.
+  ; Only where there is exactly a pair of turtles on a patch are both turtles eligible to eat.
+  ; Logically, we can't manage more than two turtles, because we could not, then, distinguish between
+  ; the presence of three modest turtles (2 + 2 + 2) or two fair turtles (3 + 3);
+  ; Also, if appetites on a patch exceeded resources, that is if their total was greater than 6, we would not know if this
+  ; were because two turtles have gone beyond 6 and they should die, or because there were three or more turtles on the patch.
   if (count turtles-here = 2 and turn?)
     [ ifelse (6 >= sum [appetite] of turtles-here)
-        [ ask turtles-here  ;; including myself!
+        [ ask turtles-here  ; including myself!
             [ reproduce
               set turn? false ] ]
-        [ ask turtles-here  ;; including myself!
+        [ ask turtles-here  ; including myself!
            [ die ] ] ]
   set turn? false
 end
 
-to reproduce ;; turtle procedure
-  ;; Note that the higher a turtle's appetite value, the higher are its
-  ;; chances of reproduction.
-  if (random 6) < appetite
+to reproduce ; turtle procedure
+  ; Note that the higher a turtle's appetite value, the higher are its
+  ; chances of reproduction.
+  if random 6 < appetite
     [ hatch 1 ]
 end
 
@@ -161,7 +161,7 @@ travel-distance
 travel-distance
 0
 10
-1.0
+4.0
 1
 1
 NIL
@@ -300,7 +300,7 @@ MONITOR
 276
 395
 % modest
-(count turtles with [color = brown ])\n/ (count turtles)\n* 100
+(count turtles with [color = brown])\n/ (count turtles)\n* 100
 1
 1
 11
@@ -330,17 +330,24 @@ MONITOR
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model (and Cooperation and Altruism) are part of the EACH unit ("Evolution of Altruistic and Cooperative Habits: Learning About Complexity in Evolution"). See http://ccl.northwestern.edu/rp/each/index.shtml for more information on the EACH unit. The EACH unit is embedded within the BEAGLE (Biological Experiments in Adaptation, Genetics, Learning and Evolution) evolution curriculum. See http://ccl.northwestern.edu/rp/beagle/index.shtml.
+This is an evolutionary game-playing model. Three types of agents must divide a common resource. In the original model it's cake, but let's think of it as edible grass instead, which is green. The agents come in three types: modest, fair, and greedy. The agents move around competing for grass.  Agents need grass in order to produce offspring, so over time, the agent types that get more grass will tend to increase in number.
 
-This is an evolutionary game-playing model.  Three types of agents must divide a common resource.  In the original model it's cake, but let's think of it as edible grass instead, which is green.  The agents come in three types: modest, fair, and greedy.  The agents move around competing for grass.  Agents need grass in order to produce offspring, so over time, the agent types that get more grass will tend to increase in number.
+This model (and Cooperation and Altruism) are part of the EACH unit ("Evolution of Altruistic and Cooperative Habits: Learning About Complexity in Evolution"). See http://ccl.northwestern.edu/rp/each/index.shtml for more information on the EACH unit. The EACH unit is embedded within the BEAGLE (Biological Experiments in Adaptation, Genetics, Learning and Evolution) evolution curriculum. See http://ccl.northwestern.edu/rp/beagle/index.shtml.
 
 ## HOW IT WORKS
 
+Agents randomly wander the map.
+
 When there are only two agents on a patch of grass, each of the agents tries to eat a certain amount of the grass.
 
-There are fair agents (red), modest agents (brown), and greedy agents (blue).  Fair agents try to eat half the grass, modest agents try to eat a third of the grass, and greedy agents try to eat two-thirds of the grass.
+There are three types of agents:
+- Modest agents (brown) who try to eat one-third of the grass on a patch
+- Fair agents (red) who try to eat one-half of the grass on a patch
+- Greed agents (blue) who try to eat two-thirds of the grass on a patch
 
-If the total amount requested by both agents is greater than 100%, then both agents die.  Otherwise, each agent gets his requested share of the patch's resources.   Each agent then enters a reproduction lottery based on its appetite:  The greater the appetite, the greater the chance of reproduction.  This factor gives a fitness advantage to the agents with a greater appetite that counteracts the disadvantage of having a greater appetite (viz., the higher chance of asking for too much food and dying).
+If the total amount requested by both agents is greater than 100%, then both agents die.  Otherwise, each agent gets its requested share of the patch's resources.
+
+Each agent then enters a reproduction lottery based on its appetite: the greater the appetite, the greater the chance of reproduction. This factor gives a fitness advantage to the agents with a greater appetite that counteracts the disadvantage of having a greater appetite.
 
 Each turn, every patch resets to the full amount of grass.
 
@@ -350,35 +357,40 @@ SETUP: Creates the agents.
 
 GO: Starts the model running.
 
-MODEST-PROPORTION, FAIR-PROPORTION, GREEDY-PROPORTION:  These sliders set the proportions of the three agent types within the initial number of agents.  Note that the actual numbers chosen for these three sliders are irrelevant -- only the ratio of the three numbers counts vis-a-vis the setting of the INITIAL-NUMBER slider.  For example, the ratio settings "1 1 1" will produce roughly equal numbers of each type, as will the settings "79 79 79" or what-have-you.  Likewise, the setting "0 0 1" is no different from "0 0 88", etc.
-
 INITIAL-NUMBER: Creates this number of turtles of all three types together.
 
-TRAVEL-DISTANCE: The value of this variable determines the number of steps an agent moves each turn.  This value is the mobility of an agent.
+MODEST-PROPORTION, FAIR-PROPORTION, GREEDY-PROPORTION: These sliders set the proportions of the three agent types within the initial number of agents.
+Note that the actual numbers chosen for these three sliders are irrelevant--only the ratio of the three numbers counts vis-a-vis the setting of the INITIAL-NUMBER slider. For example, the ratio settings "1 1 1" will produce roughly equal numbers of each type, as will the settings "79 79 79" or what-have-you. Likewise, the setting "0 0 1" is no different from "0 0 88", etc.
 
-VISCOSITY: This variable is the difficulty of movement.  It limits the general mobility of agents.
+TRAVEL-DISTANCE: The value of this variable determines the number of steps an agent moves each turn. This value is the mobility of an agent.
+
+VISCOSITY: This variable is the difficulty of movement. It limits the general mobility of agents.
 
 ## THINGS TO NOTICE
 
-If you run the model with the default settings (high viscosity), notice how the population of fair (1/2) agents increases.  Why does this happen?  Also, notice how the modest (1/3) and greedy (2/3) populations and the modest (1/3) and fair (1/2) populations congregate in dynamically-stable communities but the greedy (2/3) and fair (1/2) populations do not seem to co-exist.  Why does this happen?
+If you run the model with the default settings (high viscosity), notice how the population of fair agents increases. Why does this happen?
+
+Also, notice how the modest and greedy populations and the modest and fair populations congregate in dynamically-stable communities but the greedy and fair populations do not seem to co-exist. Why does this happen?
 
 ## THINGS TO TRY
 
-Try changing the population VISCOSITY value.  What happens when this value is decreased?  How does this affect the survival and the grouping of the different populations?
+Try changing the population VISCOSITY value. What happens when this value is decreased?  How does this affect the survival and the grouping of the different populations?
 
-Change the starting ratios of the populations.  How do these ratios affect the behavior of the model?  Why should the model depend on these ratios?
+Change the starting ratios of the populations. How do these ratios affect the behavior of the model? Why should the model depend on these ratios?
 
-Change TRAVEL-DISTANCE.  How does it affect the model?  What is the relationship between the values of TRAVEL-DISTANCE and VISCOSITY?
+Change TRAVEL-DISTANCE. How does it affect the model? What is the relationship between the values of TRAVEL-DISTANCE and VISCOSITY?
 
 ## EXTENDING THE MODEL
 
-What environmental variables might affect the model?  Should the grass grow back to its full length each turn?  How would changing the rejuvenation of available resources affect the model?
+What environmental variables might affect the model? Should the grass grow back to its full length each turn?  How would changing the rejuvenation of available resources affect the model?
 
-Should the agents be informed of each other's anticipated demands prior to making their claims?  If they did, then agents could bargain before asking for food, and therefore reduce their chances of death as a result of a joint demand that exceeds the available resources, e.g., 1/2 + 2/3 > 1.  This bargaining behavior would change the model drastically, but is an interesting way of exploring how populations may adapt their interpersonal behaviors in order to survive.  A question would then arise of whether such survival does or does not ultimately play against agents as a type, because the price of survival could be a depletion of resources in future generations.
+Should the agents be informed of each other's anticipated demands prior to making their claims? If they did, then agents could bargain before asking for food, and therefore reduce their chances of death as a result of a joint demand that exceeds the available resources, e.g., 1/2 + 2/3 > 1. This bargaining behavior would change the model drastically, but is an interesting way of exploring how populations may adapt their interpersonal behaviors in order to survive.  A question would then arise of whether such survival does or does not ultimately play against agents as a type, because the price of survival could be a depletion of resources in future generations.
 
 ## RELATED MODELS
 
-Altruism, Cooperation, PD Basic
+* Altruism
+* Cooperation
+* PD Basic
 
 ## CREDITS AND REFERENCES
 
