@@ -330,13 +330,13 @@ count patches with [pcolor = green]
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model (and Cooperation and Divide the Cake) are part of the EACH unit ("Evolution of Altruistic and Cooperative Habits: Learning About Complexity in Evolution").  See http://ccl.northwestern.edu/rp/each/index.shtml for more information on the EACH unit. The EACH unit is embedded within the BEAGLE (Biological Experiments in Adaptation, Genetics, Learning and Evolution) evolution curriculum. See http://ccl.northwestern.edu/rp/beagle/index.shtml.
-
 This is an evolutionary biology model.  It models population genetics with respect to the fitness of traits that are affected by social and environmental conditions.  The model has two types of patch agents: altruistic agents and selfish agents.
 
 The basic premise of the model is that the selfish agents and the altruistic agents are competing for each spot in the world by entering into a genetic lottery.  You can imagine these agents as plants who "seed" for a spot, and the dominant seed generally wins.  The details of the lottery are explained below in HOW IT WORKS.
 
 Under normal (non-interfering) environmental conditions, the selfish agents win, and the altruistic population is driven to extinction.  However, as outlined in HOW TO USE IT, when the environmental conditions are made more harsh, the altruistic population is able to survive, and even dominate the selfish population.
+
+This model (and Cooperation and Divide the Cake) are part of the EACH unit ("Evolution of Altruistic and Cooperative Habits: Learning About Complexity in Evolution").  See http://ccl.northwestern.edu/rp/each/index.shtml for more information on the EACH unit. The EACH unit is embedded within the BEAGLE (Biological Experiments in Adaptation, Genetics, Learning and Evolution) evolution curriculum. See http://ccl.northwestern.edu/rp/beagle/index.shtml.
 
 ## HOW IT WORKS
 
@@ -400,7 +400,8 @@ This model uses patches as its basic agents. Can you design an "equivalent" mode
 
 ## RELATED MODELS
 
-Cooperation
+* Cooperation
+* Divide the Cake
 
 ## CREDITS AND REFERENCES
 
