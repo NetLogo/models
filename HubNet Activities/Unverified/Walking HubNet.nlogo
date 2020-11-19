@@ -788,7 +788,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Wilensky, U. and Stroup, W. (2006).  NetLogo Walking HubNet model.  http://ccl.northwestern.edu/netlogo/models/HubNetWalkingHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. and Stroup, W. (2006).  NetLogo Walking HubNet model.  http://ccl.northwestern.edu/netlogo/models/WalkingHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 

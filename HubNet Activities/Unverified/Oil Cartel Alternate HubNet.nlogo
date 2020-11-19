@@ -1171,7 +1171,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Wilensky, U. (2004).  NetLogo Oil Cartel Alternate HubNet model.  http://ccl.northwestern.edu/netlogo/models/HubNetOilCartelAlternateHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. (2004).  NetLogo Oil Cartel Alternate HubNet model.  http://ccl.northwestern.edu/netlogo/models/OilCartelAlternateHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 

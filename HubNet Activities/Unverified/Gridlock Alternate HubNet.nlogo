@@ -1490,7 +1490,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Wilensky, U. and Stroup, W. (2002).  NetLogo Gridlock Alternate HubNet model.  http://ccl.northwestern.edu/netlogo/models/HubNetGridlockAlternateHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. and Stroup, W. (2002).  NetLogo Gridlock Alternate HubNet model.  http://ccl.northwestern.edu/netlogo/models/GridlockAlternateHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 

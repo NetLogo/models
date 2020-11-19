@@ -955,7 +955,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Abrahamson, D. and Wilensky, U. (2003).  NetLogo Sampler HubNet model.  http://ccl.northwestern.edu/netlogo/models/HubNetSamplerHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Abrahamson, D. and Wilensky, U. (2003).  NetLogo Sampler HubNet model.  http://ccl.northwestern.edu/netlogo/models/SamplerHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 

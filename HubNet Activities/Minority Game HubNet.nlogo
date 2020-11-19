@@ -960,7 +960,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Wilensky, U. (2004).  NetLogo Minority Game HubNet model.  http://ccl.northwestern.edu/netlogo/models/HubNetMinorityGameHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. (2004).  NetLogo Minority Game HubNet model.  http://ccl.northwestern.edu/netlogo/models/MinorityGameHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 

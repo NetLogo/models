@@ -1032,7 +1032,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Novak, M. and Wilensky, U. (2006).  NetLogo Bug Hunters Adaptations HubNet model.  http://ccl.northwestern.edu/netlogo/models/HubNetBugHuntersAdaptationsHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Novak, M. and Wilensky, U. (2006).  NetLogo Bug Hunters Adaptations HubNet model.  http://ccl.northwestern.edu/netlogo/models/BugHuntersAdaptationsHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 

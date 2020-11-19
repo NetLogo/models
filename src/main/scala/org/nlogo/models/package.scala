@@ -83,9 +83,9 @@ package object models {
     def file = modelFiles(model)
     def content = modelContent(model)
     def isTestModel = file.getCanonicalPath.startsWith(new File("test/").getCanonicalPath)
-    def isHubNet = file.getPath.startsWith("./HubNet Activities/")
     def name = file.getPath.reverse.dropWhile(_ != '.').tail.takeWhile(_ != '/').reverse.mkString
-    def compressedName = (if (isHubNet) "HubNet" else "") + name.replaceAll(" ", "")
+    def isHubNet = name.contains("HubNet")
+    def compressedName = name.replaceAll(" ", "")
     def isIABM = file.getPath.contains("IABM")
     def baseName = if (name.endsWith(" 3D")) name.replaceFirst(" 3D$", "") else name
     def is3D = getExtension(file.getName) == "nlogo3d"
