@@ -1,6 +1,6 @@
 globals
 [
-  ;; used to keep score
+  ; used to keep score
   mate-leader
   mates-found
   predator-leader
@@ -8,11 +8,11 @@ globals
   total-mates-found
   total-prey-found
 
-  ;; used for different aspects of the appearance
+  ; used for different aspects of the appearance
   wander-angle
   old-show-age?
 
-  ;; used to mutate the colors of the fish
+  ; used to mutate the colors of the fish
   min-size
   max-size
   chance-mutate-color
@@ -29,31 +29,31 @@ breed [ players player ]
 
 players-own [user-name found attempts role]
 
-;; gene-frequencies are used to determine the color of the fish
-;; (or fish parts). When fish reproduce the gene-frequencies
-;; will mutate making a slightly different color
+; gene-frequencies are used to determine the color of the fish
+; (or fish parts). When fish reproduce the gene-frequencies
+; will mutate making a slightly different color
 fish-own [
-    red-pigment-gene-frequency
-    blue-pigment-gene-frequency
-    green-pigment-gene-frequency
-    age      ;; fish cannot reproduce until they have reached MIN-AGE-REPRODUCTION
-    reproduce?
-    eaten?
-    my-parts ;; agentset including tail and fins for easy access
-  ]
+  red-pigment-gene-frequency
+  blue-pigment-gene-frequency
+  green-pigment-gene-frequency
+  age ; fish cannot reproduce until they have reached MIN-AGE-REPRODUCTION
+  reproduce?
+  eaten?
+  my-parts ; agentset including tail and fins for easy access
+]
 
 fish-parts-own [
-  owned-by    ;; parent fish
-  body-part   ;; which part of the body this turtle displays (tail, top or bottom fins)
+  owned-by    ; parent fish
+  body-part   ; which part of the body this turtle displays (tail, top or bottom fins)
   red-pigment-gene-frequency
   blue-pigment-gene-frequency
   green-pigment-gene-frequency
 ]
 
 
-;;;;;;;;;;;;;;;;;;;
-;; Setup Procedures
-;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;
+; Setup Procedures
+;;;;;;;;;;;;;;;;;;;;
 to startup
   hubnet-reset
   init-globals
@@ -61,7 +61,7 @@ to startup
   make-initial-fish
 end
 
-;; set constants once at the very beginning.
+; set constants once at the very beginning.
 to init-globals
   set wander-angle 40
   set chance-mutate-color 20
@@ -73,9 +73,9 @@ to init-globals
   set max-color-mutation-step 50
 end
 
-;; reset the fish, predators, and mates
-;; to their initial conditions to start
-;; the simulation over
+; reset the fish, predators, and mates
+; to their initial conditions to start
+; the simulation over
 to setup
   reset-ticks
   ask fish [ die ]
@@ -94,20 +94,20 @@ end
 
 to setup-environment
   ask patches [ set pcolor background-color ]
-  if (rock-shelters?)
+  if rock-shelters?
   [
     create-rocks 1 [
       set size world-width
-      set color (brown - 3)
+      set color brown - 3
       set shape "rocks"
     ]
   ]
- import-drawing background
+  import-drawing background
 end
 
-;; each fish consists of several turtles, one for the body
-;; one for the tail, and one for each of the fins
-;; so the colors can vary separately
+; each fish consists of several turtles, one for the body,
+; one for the tail, and one for each of the fins
+; so the colors can vary separately
 to make-initial-fish
   create-fish carrying-capacity [
     set shape "fish-body"
@@ -127,16 +127,16 @@ to make-initial-fish
 end
 
 to assign-initial-body-genotype-and-phenotype
-   set red-pigment-gene-frequency 150
-   set blue-pigment-gene-frequency 150
-   set green-pigment-gene-frequency 150
-   set-phenotype-color
+  set red-pigment-gene-frequency 150
+  set blue-pigment-gene-frequency 150
+  set green-pigment-gene-frequency 150
+  set-phenotype-color
 end
 
-;; make the fish parts and
-;; use the my-part turtle variable to
-;; have a quick reference to the turtles
-;; that make up the tail and fins.
+; make the fish parts and
+; use the my-part turtle variable to
+; have a quick reference to the turtles
+; that make up the tail and fins.
 to assign-initial-fish-parts
   hatch-fish-part "top"
   hatch-fish-part "bottom"
@@ -160,25 +160,25 @@ to assign-initial-part-genotype-and-phenotype
   set-phenotype-color
 end
 
-;; convert the genetic representation of gene frequency
-;; into a phenotype using the rgb primitive
-to set-phenotype-color  ;; turtle procedure
+; convert the genetic representation of gene frequency
+; into a phenotype using the rgb primitive
+to set-phenotype-color  ; turtle procedure
   set color rgb red-pigment-gene-frequency
-                green-pigment-gene-frequency
-                blue-pigment-gene-frequency
+  green-pigment-gene-frequency
+  blue-pigment-gene-frequency
 end
 
 to toggle-labels
-  ;; only change the labels when the switch is
-  ;; changed so they don't flicker and slow the
-  ;; model down.
+  ; only change the labels when the switch is
+  ; changed so they don't flicker and slow the
+  ; model down.
   if old-show-age? != show-age?
   [
     ask fish [
       ifelse show-age?
       [
         set label-color red
-        set label (word age "      ") ;; add spaces at the end to the label is shifted to the left a bit
+        set label (word age "      ") ; add spaces at the end to the label is shifted to the left a bit
       ]
       [
         set label ""
@@ -188,37 +188,36 @@ to toggle-labels
   ]
 end
 
-;; the rock shelter is used to hide newborn
-;; fish so they don't clump up too much.
+; the rock shelter is used to hide newborn
+; fish so they don't clump up too much.
 to make-rock-shelter
-  ;; keep the existence of the rock shelters in
-  ;; sync with the switch.
+  ; keep the existence of the rock shelters in
+  ; sync with the switch.
   if rock-shelters? and count rocks = 0
   [
-    if (rock-shelters?)
-     [
-       create-rocks 1 [
-         set size world-width
-         set color ( brown - 3)
-         set shape "rocks"
-       ]
-     ]
+    if rock-shelters?
+      [
+        create-rocks 1 [
+          set size world-width
+          set color brown - 3
+          set shape "rocks"
+        ]
+    ]
   ]
-  if not rock-shelters? and count rocks > 0
-  [ ask rocks [ die ] ]
+  if not rock-shelters? and count rocks > 0 [ ask rocks [ die ] ]
 end
 
-;;;;;;;;;;;;;;;;;;;;;
-;; Runtime Procedures
-;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;
+; Runtime Procedures
+;;;;;;;;;;;
 
 to go
   ask fish [ set age age + 1 ]
   ask fish [ move-fish ]
   ask fish [ update-fish ]
 
-  ;; keep the world in a state consistent
-  ;; with the model settings
+  ; keep the world in a state consistent
+  ; with the model settings
   toggle-labels
   make-rock-shelter
   enforce-capacity
@@ -228,19 +227,19 @@ to go
   update-plots
 end
 
-to move-fish ;; fish procedure
+to move-fish ; fish procedure
   let move-right random wander-angle
   let move-left  random wander-angle
   let move-forward 0
 
-  ;; fish-speed-scale slows down or speeds up fish
-  ;; to make the game more playable without slowing
-  ;; down the entire model.
+  ; fish-speed-scale slows down or speeds up fish
+  ; to make the game more playable without slowing
+  ; down the entire model.
   ifelse (count fish <= 50)
-  [ set move-forward fish-speed-scale * 0.001 * (count fish) ]
-  [ set move-forward fish-speed-scale * 0.001 * 50 ]
+    [ set move-forward fish-speed-scale * 0.001 * (count fish) ]
+    [ set move-forward fish-speed-scale * 0.001 * 50 ]
 
-  ;; move myself and my fins and tail.
+  ; move myself and my fins and tail.
   ask my-parts
   [
     right move-right
@@ -252,37 +251,37 @@ to move-fish ;; fish procedure
   fd move-forward
 end
 
-to update-fish ;; fish procedure
-  ;; remove fish that are tagged to die
-  ;; and all associated parts
+to update-fish ; fish procedure
+               ; remove fish that are tagged to die
+               ; and all associated parts
   if eaten?
   [
     ask my-parts [ die ]
     die
   ]
 
- ;; reproduce fish that are tagged to reproduce
- if reproduce?
- [
+  ; reproduce fish that are tagged to reproduce
+  if reproduce?
+  [
     make-one-offspring
     set age 0
     set reproduce? false
- ]
+  ]
 end
 
 to enforce-capacity
- ;; keeps the world population
- ;; constant so there is no population
- ;; boom or bust.
- if enforce-capacity? [
-   if count fish > 0
-   [
-     while [ count fish < carrying-capacity ]
-       [ reproduce-fish ]
-     while [ count fish with [ eaten? = false ]  > carrying-capacity ]
-       [ eat-one-random-fish ]
-   ]
- ]
+  ; keeps the world population
+  ; constant so there is no population
+  ; boom or bust.
+  if enforce-capacity? [
+    if count fish > 0
+    [
+      while [ count fish < carrying-capacity ]
+        [ reproduce-fish ]
+      while [ count fish with [ eaten? = false ]  > carrying-capacity ]
+        [ eat-one-random-fish ]
+    ]
+  ]
 end
 
 to eat-one-random-fish
@@ -296,7 +295,7 @@ to reproduce-fish
   ]
 end
 
-to make-one-offspring ;; fish procedure
+to make-one-offspring ; fish procedure
   set age 0
   hatch 1
   [
@@ -305,7 +304,7 @@ to make-one-offspring ;; fish procedure
   ]
 end
 
-to make-offspring-parts [parent] ;; fish procedure
+to make-offspring-parts [parent] ; fish procedure
   let baby-xcor random-pxcor
   let baby-ycor (1 + min-pycor)
 
@@ -314,32 +313,32 @@ to make-offspring-parts [parent] ;; fish procedure
     set heading 0
   ]
 
-  ;; keep track of the fish that is hatching the parts
-  ;; because we get double perspective change below and
-  ;; we can't get back to the parent fish.
+  ; keep track of the fish that is hatching the parts
+  ; because we get double perspective change below and
+  ; we can't get back to the parent fish.
   let owner self
 
-  ask [my-parts] of parent  [
+  ask [my-parts] of parent [
     hatch 1 [
-     set owned-by owner
-     set red-pigment-gene-frequency color-mutation red-pigment-gene-frequency
-     set green-pigment-gene-frequency color-mutation green-pigment-gene-frequency
-     set blue-pigment-gene-frequency color-mutation blue-pigment-gene-frequency
-     set-phenotype-color
-     size-mutation
-     if rock-shelters?
-     [
-       setxy baby-xcor baby-ycor
-       set heading 0
-     ]
+      set owned-by owner
+      set red-pigment-gene-frequency color-mutation red-pigment-gene-frequency
+      set green-pigment-gene-frequency color-mutation green-pigment-gene-frequency
+      set blue-pigment-gene-frequency color-mutation blue-pigment-gene-frequency
+      set-phenotype-color
+      size-mutation
+      if rock-shelters?
+      [
+        setxy baby-xcor baby-ycor
+        set heading 0
+      ]
     ]
-   ]
+  ]
 
-   set my-parts fish-parts with [ owned-by = myself ]
+  set my-parts fish-parts with [ owned-by = myself ]
 end
 
-;; everytime a predator or mate catches a fish update
-;; his found variable and the totals for that role
+; everytime a predator or mate catches a fish update
+; his found variable and the totals for that role
 to update-found-stats
   ask players with [ user-name = hubnet-message-source ]
   [
@@ -351,14 +350,14 @@ to update-found-stats
   ]
 end
 
-;; update the stats for the leaders in the game
+; update the stats for the leaders in the game
 to update-mate-leaders
   let mates players with [ role = "mate" ]
   let leaders mates with-max [ found ]
 
   ifelse count leaders > 1
-  [ set mate-leader (word count leaders "-way tie") ]
-  [ set mate-leader [user-name] of one-of leaders ]
+    [ set mate-leader (word count leaders "-way tie") ]
+    [ set mate-leader [user-name] of one-of leaders ]
   set mates-found [found] of one-of leaders
 end
 
@@ -367,14 +366,14 @@ to update-predator-leaders
   let leaders predators with-max [ found ]
 
   ifelse count leaders > 1
-  [ set predator-leader (word count leaders "-way tie") ]
-  [ set predator-leader [user-name] of one-of leaders ]
+    [ set predator-leader (word count leaders "-way tie") ]
+    [ set predator-leader [user-name] of one-of leaders ]
   set prey-found [found] of one-of leaders
 end
 
-;; extract the coordinates of the mouse event
-;; on client, find any fish on that location
-;; and mark them for reproduction or eating
+; extract the coordinates of the mouse event
+; on client, find any fish on that location
+; and mark them for reproduction or eating
 to select-fish
   let owner nobody
   let clicked-xcor  (round item 0 hubnet-message)
@@ -388,8 +387,8 @@ to select-fish
     set attempts attempts + 1
     if any? fishies-here [
       update-found-stats
-      ;; predators or mates only get one of the fish here
-      ;; each time they click.
+      ; predators or mates only get one of the fish here
+      ; each time they click.
       ask one-of fishies-here [
         ifelse [role] of myself = "mate"
         [ if age > min-age-reproduction
@@ -398,53 +397,47 @@ to select-fish
       ]
       update-leader-stats
 
-      ;; every time any player finds a fish update the
-      ;; monitors on all the players with the same
-      ;; role, so the leader stats don't get out of date
-      ;; if they don't click for awhile
+      ; every time any player finds a fish update the
+      ; monitors on all the players with the same
+      ; role, so the leader stats don't get out of date
+      ; if they don't click for awhile
       ask players with [ role = [role] of myself ]
         [ update-player ]
     ]
   ]
 end
 
-;; mutate the size, don't let the size go outside
-;; the range min-size - max-size
+; mutate the size, don't let the size go outside
+; the range min-size - max-size
 to size-mutation
   if random 100 < chance-mutate-size
   [
     set size size + random-float max-size-mutation-step
-    if size < min-size
-      [ set size min-size ]
-    if size > max-size
-      [ set size max-size ]
+    if size < min-size [ set size min-size ]
+    if size > max-size [ set size max-size ]
   ]
 end
 
-;; mutate the color but don't let it mutate
-;; outside the random 1 - 10
+; mutate the color but don't let it mutate
+; outside the random 1 - 10
 to-report color-mutation [gene-frequency]
   let mutation (random (max-color-mutation-step * 2)) - max-color-mutation-step
   if random 100 < chance-mutate-color [
     set gene-frequency gene-frequency + mutation
   ]
-  if gene-frequency < 0
-    [ set gene-frequency 0 ]
-  if gene-frequency > 255
-    [ set gene-frequency 255 ]
-   report gene-frequency
+  if gene-frequency < 0   [ set gene-frequency 0 ]
+  if gene-frequency > 255 [ set gene-frequency 255 ]
+  report gene-frequency
 end
 
 to update-leader-stats
-  if any? players with [role = "mate"]
-  [ update-mate-leaders ]
-  if any? players with [role = "predator"]
-  [ update-predator-leaders ]
+  if any? players with [role = "mate"]     [ update-mate-leaders ]
+  if any? players with [role = "predator"] [ update-predator-leaders ]
 end
 
-;;
-;; HubNet Procedures
-;;
+;;;;;;;;;;;;;;;;;;;;;
+; HubNet Procedures
+;;;;;;;;;;;;;;;;;;;;;
 to listen-clients
   while [hubnet-message-waiting?]
   [
@@ -452,37 +445,35 @@ to listen-clients
     ifelse hubnet-enter-message?
     [ add-player ]
     [
-      ifelse hubnet-exit-message?
-      [ remove-player ]
+      ifelse hubnet-exit-message? [ remove-player ]
       [
-        if hubnet-message-tag = "View"
-        [ select-fish ]
+        if hubnet-message-tag = "View" [ select-fish ]
       ]
     ]
   ]
 end
 
-;; report name of the leader of a players group
-to-report my-leader ;; player procedure
+; report name of the leader of a players group
+to-report my-leader ; player procedure
   ifelse role = "mate"
-  [ report mate-leader ]
-  [ report predator-leader ]
+    [ report mate-leader ]
+    [ report predator-leader ]
 end
 
-to-report my-leaders-score ;; player procedure
+to-report my-leaders-score ; player procedure
   report max [ found ] of players with [ role = [role] of myself ]
 end
 
-;; update all the monitors that change on the clients
-to update-player ;; player procedure
+; update all the monitors that change on the clients
+to update-player ; player procedure
   hubnet-send user-name "Your role" role
   let max-found my-leaders-score
   hubnet-send user-name "Your leader" my-leader
   hubnet-send user-name "Leader found" max-found
   hubnet-send user-name "You found" found
   ifelse max-found = 0
-  [ hubnet-send user-name "Success %"  100  ]
-  [ hubnet-send user-name "Success %"  precision ((found / max-found) * 100)  2 ]
+    [ hubnet-send user-name "Success %" 100  ]
+    [ hubnet-send user-name "Success %" precision ((found / max-found) * 100)  2 ]
 end
 
 to add-player
@@ -495,8 +486,8 @@ to add-player
   ]
 end
 
-;; initialize one player
-to init-player-variables ;; player procedure
+; initialize one player
+to init-player-variables ; player procedure
   set attempts 0
   set found 0
   if player-roles = "all predators"
@@ -512,8 +503,7 @@ to init-player-variables ;; player procedure
 end
 
 to remove-player
-  ask players with [user-name = hubnet-message-source ]
-    [ die ]
+  ask players with [user-name = hubnet-message-source ] [ die ]
 end
 
 
@@ -521,10 +511,10 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-274
-35
-688
-450
+280
+10
+694
+425
 -1
 -1
 14.0
@@ -599,7 +589,7 @@ HORIZONTAL
 BUTTON
 141
 312
-261
+271
 345
 clear background
 clear-drawing
@@ -622,7 +612,7 @@ fish-speed-scale
 fish-speed-scale
 0
 10
-7.8
+8.0
 0.2
 1
 NIL
@@ -715,7 +705,7 @@ background
 BUTTON
 141
 276
-261
+271
 310
 change background
 import-drawing background
@@ -849,24 +839,18 @@ PENS
 @#$#@#$#@
 ## WHAT IS IT?
 
-This selection model shows how sexual attraction and predation change the coloration and patterns in guppy's population.
+This selection model shows how sexual attraction and predation change the coloration and patterns in guppy's population. When you run the model, you can either play the role of a predator or the role of a mate. As a predator, you will probably notice the more brightly colored guppy males. In other words, the more colored the guppy is, the more likely he will be seen by you, the predator. In this model, (as happens in the wild in streams where predators are plentiful), male guppies become increasingly drab over generations, pushed by predation pressure toward greater camouflage.
 
-If you have not seen guppies you can see some at the "Sex and the Single Guppy" webpage:
-http://www.pbs.org/wgbh/evolution/sex/guppy/low_bandwidth.html
-
-When you run the model, you can either play the role of a predator or the role of a mate.
-
-As a predator, you will probably notice the more brightly colored guppy males.  In other words, the more colored the guppy is, the more likely he will be seen by you, the predator. In this model, (as happens in the wild in streams where predators are plentiful), male guppies become increasingly drab over generations, pushed by predation pressure toward greater camouflage.
-
-You can notice that many guppies are very colorful, have garish patterns and large tails, even if it makes them more noticeable to predators. You might ask yourself: Why doesn't a guppy remain camouflaged and discreet in order to avoid the detection by a predator?
+If you have not seen guppies you can see some at the ["Sex and the Single Guppy" webpage](http://www.pbs.org/wgbh/evolution/sex/guppy/low_bandwidth.html). You can notice that many guppies are very colorful, have garish patterns and large tails, even if it makes them more noticeable to predators. You might ask yourself: why doesn't a guppy remain camouflaged and discreet in order to avoid the detection by a predator?
 
 The answer lies in the fact that guppies are driven by more than only a survival instinct. Guppies also desire to reproduce with other guppies and to do this they must be noticed by their mates. The "flashier" a male guppy is, the likelier a female guppy will choose him as a mate, passing his genes to the next generation. This is sexual selection at work, and it is the force that drives guppy's coloration toward conspicuousness just as hard as predation pushes coloration toward drabness.
 
 Thus as a mate, you will again probably notice the more brightly colored guppy males.
 When you click on a colorful mate, he will hatch an offspring, which will likely create another colorful guppy and guppies will increasingly become colorful over generations, pushed by breeding pressure.
 
-Quoting from "Sex and the Single Guppy"  [2]:
-There may be several evolutionary reasons why female guppies prefer flashy males. On the most basic level, the male with the biggest, brightest tail spot announces most loudly, "Hey, I'm over here" to any female it can see. Flashy colors are simply easier to locate.  However, there is also research to suggest that bright colors serve as an indicator of good genes in the way the strong physique of a human athlete is a direct indicator of that individual's health and vitality.  Or, bright coloration may signal to a potential mate that he's got something else going for him. After all, he's been able to survive the very handicap -- conspicuousness to predators -- that his flashiness creates.
+Quoting from "Sex and the Single Guppy" [2]:
+
+```There may be several evolutionary reasons why female guppies prefer flashy males. On the most basic level, the male with the biggest, brightest tail spot announces most loudly, "Hey, I'm over here" to any female it can see. Flashy colors are simply easier to locate.  However, there is also research to suggest that bright colors serve as an indicator of good genes in the way the strong physique of a human athlete is a direct indicator of that individual's health and vitality.  Or, bright coloration may signal to a potential mate that he's got something else going for him. After all, he's been able to survive the very handicap -- conspicuousness to predators -- that his flashiness creates.```
 
 Whatever the reasons, it is clear from the research of Endler and other evolutionary biologists that male guppies live in the crossfire between their enemies and their would-be mates, with the opposing forces of predation and sexual selection forever pushing the guppy coloration in opposite directions.
 
@@ -876,38 +860,39 @@ You can assume either the role of a predator or the role of a mate.
 
 When GO is pressed, if you are a predator you should try to click on the guppies, as fast as you can, in order to eat them.  Each time you click on a guppy it will be removed from the guppy population.  At that point, another guppy in the population will hatch an offspring to replace the one that was caught (keeping the population of guppies constant).
 
-If you are a mate (a female guppy), you should try to click on the guppies as fast as you can (they are all males).  When you click on a guppy that is old enough to mate, he will hatch an offspring.  When the population of guppies exceeds the capacity, a random guppy will be removed.
+If you are a mate (a female guppy), you should try to click on the guppies as fast as you can (they are all males). When you click on a guppy that is old enough to mate, he will hatch an offspring. When the population of guppies exceeds the capacity, a random guppy will be removed.
 
 Each new guppy may undergo small mutations in its genetics for each of its three fins.  These mutations will results in changes in the size and the three pigments that make up the color of each fin.
 
 Predators prey on the most brightly colored or patterned individuals more often than the less colored ones since they are easier to spot and eliminate them from the gene pool. Thus, predators cause guppy populations to remain relatively drab (with respect to colors and patterns of the environment they live in).
 
-However, guppies looking for a mate exert the opposite selection.  Relatively drab guppies are hard to find and mate with, while guppies with garish colors and patterns are easier to find and mate with.  As these guppies reproduce, the frequency of their genes increases in the gene pool.
+However, guppies looking for a mate exert the opposite selection. Relatively drab guppies are hard to find and mate with, while guppies with garish colors and patterns are easier to find and mate with. As these guppies reproduce, the frequency of their genes increases in the gene pool.
 
 Guppy populations are evolving to match, and/or stand out, from their environment depending on which of the selective pressures are stronger.
 
 ## HOW TO USE IT
 
-To run the activity press the GO button.  To start the activity over with the same group of students stop the GO button by pressing it again, press the SETUP button, and press GO again.  To run the activity with a new group of students press the RESET button in the Control Center.
+To run the activity press the GO button. To start the activity over with the same group of students stop the GO button by pressing it again, press the SETUP button, and press GO again. To run the activity with a new group of students press the RESET button in the HubNet Control Center.
 
-Buttons:
+### Buttons
+
 SETUP - Clears the world and populates the world with fish. All players are set to initial values.
 GO - Runs the simulation, students can login and start eating, or mating with the fish population.
 CHANGE BACKGROUND - loads the image selected in the BACKGROUND chooser into the drawing.
 CLEAR BACKGROUND - erases the drawing so the patches show through.
 
-Sliders:
+### Sliders
 FISH-SPEED-SCALE - controls how quickly the fish move around the world
 CARRYING-CAPACITY - the simulation will automatically keep CARRYING-CAPACITY fish in the world at all times.  If there are too many fish it will randomly kill some, however, if there are too few fish, a random fish already will automatically be reproduced.  Note that CARRYING-CAPACITY will only be active when the ENFORCE-CAPACITY? switch is in the "on" position.
 MIN-AGE-REPRODUCTION - The minimum amount of time before a fish can reproduce after it is born and since the last time it reproduced.
 BACKGROUND-COLOR - the value of the color of the background (patches), which is only visible when there is no image loaded in the drawing.
 
-Switches:
+### Switches
 ENFORCE-CAPACITY? - When it is on, the simulation automatically maintains number of fish in the world at CARRYING-CAPACITY.
 SHOW-AGE? - When it is on, set the label of each fish to its age.
 ROCK-SHELTERS? - When it is on, a rock shelter is placed on top of the world, as new fish are born they emerge from the rocks rather than appearing where its parent was at the time of reproduction.
 
-Monitors:
+### Monitors
 FISH - The number of fish in the world.
 MATES - The number of students logged in as mates.
 PREDATORS - The number of students logged in as predators.
@@ -918,14 +903,14 @@ PREY-FOUND - The number of prey found by the leader.
 TOTAL-MATES-FOUND - The number of mates found by all mates.
 TOTAL-PREY-FOUND - The number of prey found by all predators.
 
-Choosers:
+### Choosers
 BACKGROUND - Select the name of the background image to use in the world.
 PLAYER-ROLES - Select the type of game to play so you can explore the affects of the two forces (mates and predators) separately and in competition with each other.
 
-Plots:
+### Plots
 FOUND V TIME - The number of fish found by both predators and mates over time.
 
-Global variables in the procedures to change:
+### Global variables in the procedures to change
 WANDER-ANGLE - The amount that the fish will wiggle when they move around the world.
 MAX-COLOR-MUTATION-STEP - the maximum amount that a color gene can change by in one step
 CHANCE-MUTATE-COLOR - The percent chance the fish parts will slightly change color when reproduced
@@ -935,17 +920,17 @@ MAX-SIZE-MUTATION-STEP - the maximum amount that a size gene can change by in on
 
 ## THINGS TO TRY
 
-Select ALL MATES in the PLAYER-ROLES chooser, run the activity notice the results, Are the fish very colorful or are they drab?
+Select ALL MATES in the PLAYER-ROLES chooser, run the activity and notice the results. Are the fish very colorful or are they drab?
 
 Do the same with ALL PREDATORS and MATES V PREDATORS, which force wins out in the end?
 
-Try different backgrounds to see if the drab color of the guppies becomes closer to the common objects in the background (backlit seawater, rocky bottoms, green plants, etc.)
+Try different backgrounds to see if the drab color of the guppies becomes closer to the common objects in the background (backlit seawater, rocky bottoms, green plants, etc.).
 
-Try to run the model without using a backdrop, instead adjust the color of the patches using the BACKGROUND-COLOR slider.
+Try to run the model without using a backdrop and instead adjust the color of the patches using the BACKGROUND-COLOR slider.
 
 ## EXTENDING THE MODEL
 
-It can sometimes be difficult to click on the fish because catching fish is dependent on patch boundaries, change it so it uses in-radius instead.
+It can sometimes be difficult to click on the fish because catching fish is dependent on patch boundaries. Change it so it uses `in-radius` instead.
 
 ## NETLOGO FEATURES
 
@@ -953,13 +938,15 @@ This model uses `import-drawing` to load high resolution backdrops into the draw
 
 ## RELATED MODELS
 
-Bug Hunt Pursuit
-Peppered Moths
+* Bug Hunt Pursuit
+* Peppered Moths
 
 ## CREDITS AND REFERENCES
 
-[1] Inspired by Sex and the Single Guppy http://www.pbs.org/wgbh/evolution/sex/guppy/low_bandwidth.html
-[2] Sex and the Single Guppy. Conclusion: Exhibitionism Explained http://www.pbs.org/wgbh/evolution/sex/guppy/conclusion.html
+[1] Inspired by Sex and the Single Guppy. http://www.pbs.org/wgbh/evolution/sex/guppy/low_bandwidth.html
+[2] Sex and the Single Guppy. Conclusion: Exhibitionism Explained. http://www.pbs.org/wgbh/evolution/sex/guppy/conclusion.html
+
+This model is part of the BEAGLE curriculum (http://ccl.northwestern.edu/rp/beagle/index.shtml)
 
 ## HOW TO CITE
 
@@ -967,15 +954,11 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Novak, M. and Wilensky, U. (2006).  NetLogo Guppy Spots HubNet model.  http://ccl.northwestern.edu/netlogo/models/HubNetGuppySpotsHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Novak, M. and Wilensky, U. (2006).  NetLogo Guppy Spots HubNet model.  http://ccl.northwestern.edu/netlogo/models/GuppySpotsHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
 * Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
-
-Please cite the HubNet software as:
-
-* Wilensky, U. & Stroup, W. (1999). HubNet. http://ccl.northwestern.edu/netlogo/hubnet.html. Center for Connected Learning and Computer-Based Modeling, Northwestern University. Evanston, IL.
 
 ## COPYRIGHT AND LICENSE
 
@@ -1444,5 +1427,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
