@@ -862,7 +862,7 @@ false
 0
 Rectangle -7500403 true true 30 30 270 270
 @#$#@#$#@
-NetLogo 6.1.1
+NetLogo 6.1.2-beta1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
