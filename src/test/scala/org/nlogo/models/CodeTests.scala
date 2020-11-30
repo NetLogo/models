@@ -339,6 +339,9 @@ class CodeTests extends TestModels {
    "Dislocation Motion and Deformation" -> Set(
       "total-PE", "indiv-PE-and-force", "equalizing-LJ-force", "min-A",
       "LJ-potential-and-force"
+   ),
+   "Hardy Weinberg Equilibrium" -> Set(
+      "frequency-of-dominant-A"
    )
   )
 
