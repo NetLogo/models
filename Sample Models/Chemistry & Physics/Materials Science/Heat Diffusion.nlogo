@@ -1,55 +1,130 @@
-patches-own
-[
-  old-temperature  ;; the temperature of the patch the last time thru go
-  temperature  ;; the current temperature of the patch
+globals [
+  plate-size  ; the size of the plate on which heat is diffusing
+  ; Used for scaling the color of the patches
+  min-temp  ; the minimum temperature at setup time
+  max-temp  ; the maximum temperature at setup time
 ]
 
-globals
-[
-  plate-size  ;; the size of the plate on which heat is diffusing
-  ;; Used for scaling the color of the patches
-  min-temp  ;; the minimum temperature at setup time
-  max-temp  ;; the maximum temperature at setup time
+patches-own [
+  old-temperature  ; the temperature of the patch the last time thru go
+  temperature  ; the current temperature of the patch
 ]
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Setup Procedures ;;;
-;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;
+;; Setup Procedures ;;
+;;;;;;;;;;;;;;;;;;;;;;
 to setup
   clear-all
-  ;; initialize variables
-  set plate-size round (0.6 * max-pxcor)  ;; use 0.6 to make a nice sized plate
+  ; initialize variables
+  set plate-size round (0.6 * max-pxcor)  ; use 0.6 to make a nice sized plate
 
-  ;; set up the plate
-  ask patches
-  [
+  ; set up the plate
+  ask patches [
     set pcolor gray
     set-initial-temperatures
     set-edge-temperatures
     set old-temperature temperature
   ]
+
   set min-temp min [old-temperature] of patches
   set max-temp max [old-temperature] of patches
+
   draw-legend
+
   ask patches [ draw-plate ]
+
   reset-ticks
 end
 
-;; Sets the temperature for inside of the plate
-to set-initial-temperatures  ;; Patch Procedure
+; Sets the temperature for inside of the plate
+to set-initial-temperatures  ; Patch Procedure
   if ((abs pycor) < plate-size) and ((abs pxcor) < plate-size)
-  [set temperature initial-plate-temp]
+    [ set temperature initial-plate-temp ]
 end
 
-;; Draws the Color Scale Legend
-to draw-legend  ;; Patch Procedure
+; Sets the temperatures of the plate edges and corners
+to set-edge-temperatures  ; patch procedure
+  ; set the temperatures of the edges
+  if (pxcor >= plate-size) and ((abs pycor) < plate-size)
+    [set temperature right-temp]
+  if (pxcor <= (- plate-size)) and ((abs pycor) < plate-size)
+    [set temperature left-temp]
+  if (pycor >= plate-size) and ((abs pxcor) < plate-size)
+    [set temperature top-temp]
+  if (pycor <= (- plate-size)) and ((abs pxcor) < plate-size )
+    [set temperature bottom-temp]
+
+  ; set the temperatures of the corners
+  if (pxcor >= plate-size) and (pycor >= plate-size)
+    [set temperature 0.5 * (right-temp + top-temp)]
+  if (pxcor >= plate-size) and (pycor <= (- plate-size))
+    [set temperature 0.5 * (right-temp + bottom-temp)]
+  if (pxcor <= (- plate-size)) and (pycor >= plate-size)
+    [set temperature 0.5 * (left-temp + top-temp)]
+  if (pxcor <= (- plate-size)) and (pycor <= (- plate-size))
+    [set temperature 0.5 * (left-temp + bottom-temp)]
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+;; Runtime Procedures ;;
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Runs the simulation through a loop
+to go
+  ask patches [
+    ; diffuse the heat of a patch with its neighbors
+    set temperature (heat-diffusivity * (sum [old-temperature] of neighbors4)) + ((1 - ( 4 * heat-diffusivity )) * old-temperature)
+    ; set the edges back to their constant heat
+    set-edge-temperatures
+    set old-temperature temperature
+    draw-plate
+  ]
+  tick
+end
+
+; Draws the patches that are within the plate
+to draw-plate  ; Patch Procedure
+  if ((abs pycor) <= plate-size) and ((abs pxcor) <= plate-size)
+    [color-patch]
+end
+
+; color the patch based on its temperature
+to color-patch  ; Patch Procedure
+  set pcolor scale-color red temperature min-temp max-temp
+end
+
+; report the heat diffusivity constant that we use for the calculations
+to-report heat-diffusivity
+  ; a few notes on the constants used here:
+  ; 1. we use .25 as a time step that causes the heat to diffuse at a reasonable pace
+  ; 2. we use alpha + .3 instead of just alpha here since alpha would be too
+  ; small to view any changes between some of the preset materials
+  ; 3. these constants are necessary since this model uses an Euler approximation to
+  ; calculate the temperature. The approximation is only valid within a certain range
+  ; of time-steps and this range changes depending upon the value of alpha.
+  report .25 * e ^ (-1 / (alpha + .3))
+end
+
+; Sets the material
+to update-alpha
+  (
+    ifelse
+      material-type = "wood"     [ set alpha 0.00128 ]
+      material-type = "stone"    [ set alpha 0.012   ]
+      material-type = "iron"     [ set alpha 0.2034  ]
+      material-type = "aluminum" [ set alpha 0.8418  ]
+      material-type = "silver"   [ set alpha 1.7004  ]
+      [ user-message "Choose your own value for alpha!" ]
+  )
+end
+
+; Draws the Color Scale Legend (this code isn't fundamental to the mechanism at hand)
+to draw-legend  ; Patch Procedure
   let x (1 + min-pxcor)
-  repeat 3
-  [
+  repeat 3 [
     let y 0
-    repeat 10
-    [
+    repeat 10 [
       ask patch (x + 4) (y * 2 - 11) [ set temperature (y * 10) ]
       ask patch (x + 4) (y * 2 - 10) [ set temperature (y * 10) ]
       set y y + 1
@@ -58,11 +133,9 @@ to draw-legend  ;; Patch Procedure
   ]
 
   set x (1 + min-pxcor)
-  repeat 3
-  [
+  repeat 3 [
     let y 0
-    repeat 10
-    [
+    repeat 10 [
       ask patch (x + 4) (y * 2 - 11) [color-patch ]
       ask patch (x + 4) (y * 2 - 10) [color-patch ]
       set y y + 1
@@ -70,107 +143,16 @@ to draw-legend  ;; Patch Procedure
     set x x + 1
   ]
 
-
   set x (1 + min-pxcor)
-  repeat 3
-  [
+  repeat 3 [
     let y 0
-    repeat 11
-    [
+    repeat 11 [
       if (x = (3 + min-pxcor)) [ ask patch  x (y * 2 - 12) [ set plabel (y * 10) ] ]
     set y y + 1
     ]
     set x x + 1
   ]
 
-end
-
-;; Sets the temperatures of the plate edges and corners
-to set-edge-temperatures  ;; patch procedure
-  ;; set the temperatures of the edges
-  if (pxcor >= plate-size) and ((abs pycor) < plate-size)
-  [set temperature right-temp]
-  if (pxcor <= (- plate-size)) and ((abs pycor) < plate-size)
-  [set temperature left-temp]
-  if (pycor >= plate-size) and ((abs pxcor) < plate-size)
-  [set temperature top-temp]
-  if (pycor <= (- plate-size)) and ((abs pxcor) < plate-size )
-  [set temperature bottom-temp]
-
-  ;; set the temperatures of the corners
-  if (pxcor >= plate-size) and (pycor >= plate-size)
-  [set temperature 0.5 * (right-temp + top-temp)]
-  if (pxcor >= plate-size) and (pycor <= (- plate-size))
-  [set temperature 0.5 * (right-temp + bottom-temp)]
-  if (pxcor <= (- plate-size)) and (pycor >= plate-size)
-  [set temperature 0.5 * (left-temp + top-temp)]
-  if (pxcor <= (- plate-size)) and (pycor <= (- plate-size))
-  [set temperature 0.5 * (left-temp + bottom-temp)]
-end
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Runtime Procedures ;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; Runs the simulation through a loop
-to go
-  ask patches
-  [
-    ;; diffuse the heat of a patch with its neighbors
-    set temperature (heat-diffusivity * (sum [old-temperature] of neighbors4)) + ((1 - ( 4 * heat-diffusivity )) * old-temperature)
-    ;; set the edges back to their constant heat
-    set-edge-temperatures
-    set old-temperature temperature
-    draw-plate
-  ]
-  tick
-end
-
-;; Draws the patches that are within the plate
-to draw-plate  ;; Patch Procedure
-  if ((abs pycor) <= plate-size) and ((abs pxcor) <= plate-size)
-  [color-patch]
-end
-
-;; color the patch based on its temperature
-to color-patch  ;; Patch Procedure
-  set pcolor scale-color red temperature min-temp max-temp
-end
-
-;; report the heat diffusivity constant that we use for the calculations
-to-report heat-diffusivity
-  ;; a few notes on the constants used here:
-  ;; --we use .25 as a time step that causes the heat to diffuse at a reasonable pace
-  ;; --we use alpha + .3 instead of just alpha here since alpha would be too
-  ;; small to view any changes between some of the preset materials
-  ;; --these constants are necessary since this model uses an Euler approximation to
-  ;; calculate the temperature.  the approximation is only valid within a certain range
-  ;; of time-steps and this range changes depending upon the value of alpha.
-  report .25 * e ^ (-1 / (alpha + .3))
-end
-
-;; Sets the material
-to update-alpha
-  ifelse (material-type = "wood")
-  [ set alpha 0.00128 ]
-  [
-    ifelse (material-type = "stone")
-    [ set alpha 0.012 ]
-    [
-      ifelse (material-type = "iron")
-      [ set alpha 0.2034 ]
-      [
-        ifelse (material-type = "aluminum")
-        [ set alpha 0.8418 ]
-        [
-          ifelse (material-type = "silver")
-          [ set alpha 1.7004 ]
-          [ user-message "Choose your own value for alpha!" ]
-        ]
-      ]
-    ]
-  ]
 end
 
 
@@ -213,7 +195,7 @@ alpha
 alpha
 0.0010
 10.0
-10.0
+0.8418
 1.0E-4
 1
 NIL
@@ -228,7 +210,7 @@ top-temp
 top-temp
 1.0
 100.0
-81.0
+50.0
 1.0
 1
 NIL
@@ -243,7 +225,7 @@ right-temp
 right-temp
 1.0
 100.0
-100.0
+50.0
 1.0
 1
 NIL
@@ -258,7 +240,7 @@ bottom-temp
 bottom-temp
 1.0
 100.0
-41.0
+50.0
 1.0
 1
 NIL
@@ -273,7 +255,7 @@ initial-plate-temp
 initial-plate-temp
 1.0
 100.0
-87.0
+44.0
 1.0
 1
 NIL
@@ -305,7 +287,7 @@ left-temp
 left-temp
 1.0
 100.0
-3.0
+1.0
 1.0
 1
 NIL
@@ -385,11 +367,17 @@ Choose a material and\nthen press UPDATE ALPHA\nbased on that material,\nor set 
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model simulates transient and steady-state temperature distribution of a thin plate.
+This model simulates transient and steady-state temperature distribution of a thin plate. The View shows a square thin plate as viewed from above. The plate is thermally isolated on the two faces parallel to the view such that heat can flow only in and out from the perimeter of the plate and not into or out of the world. Heat is kept constant at the edges.
 
-The View shows a square thin plate as viewed from above.  The plate is thermally isolated on the two faces parallel to the view such that heat can flow only in and out from the perimeter of the plate and not into or out of the world.  Heat is kept constant at the edges.  As the simulation runs, heat is transmitted from warmer parts of the plate to cooler parts of the plate as shown by the varying color of the plate.  Therefore, the temperature of the plate begins to change immediately and possibly differently at different locations, gradually converging to a stable state.  Overall, the temperature distribution over the plate is a function of time and location.  In addition to this simple use of the model, you are encouraged to control various paramaters, such as the temperature of each edge edge of the plate and of the center of the plate before--and even while--the model is running.
+As the simulation runs, heat is transmitted from warmer parts of the plate to cooler parts of the plate as shown by the varying color of the plate. Therefore, the temperature of the plate begins to change immediately and possibly differently at different locations, gradually converging to a stable state. Overall, the temperature distribution over the plate is a function of time and location. In addition to this simple use of the model, you are encouraged to control various paramaters, such as the temperature of each edge edge of the plate and of the center of the plate before--and even while--the model is running.
 
-Heat diffuses ("spreads") at different rates through different media.  These rates can be determined and are called the Thermal Diffusivity of the material.  The Greek letter alpha is often associated with this value.  The diffusivity of a material does not change based on how much of the material there is.  It is always the same.  Below is a table containing several different materials with different diffusivity rates.  See that wood (bottom row) has a lower heat diffusivity than, say, iron.  This means that it takes a longer for heat to spread through a wooden object than an iron one.  That is one reason why the handles of iron saucepans are wooden, and not the other way round.  Also, think of a marble table with iron legs that has just been put out in the sun in a street-side cafe.  Which material part of the table do you expect will warm up faster?  The model allows you to change thermal diffusivity of the plate in two ways.  You can directly change the value of ALPHA to any value you like, or you can indirectly change ALPHA by selecting a material.
+## HOW IT WORKS
+
+Heat diffuses ("spreads") at different rates through different media. These rates can be determined and are called the [Thermal Diffusivity](https://en.wikipedia.org/wiki/Thermal_diffusivity) of the material. The Greek letter alpha is often associated with this value. The diffusivity of a material does not change based on how much of the material there is; it is always the same.
+
+Below is a table containing several different materials with different diffusivity rates. See that wood (bottom row) has a lower heat diffusivity than, say, iron. This means that it takes a longer for heat to spread through a wooden object than an iron one. That is one reason why the handles of iron saucepans are often wooden and not the other way round.
+
+Think of a marble table with iron legs that has just been put out in the sun in a street-side cafe. Which material part of the table do you expect will warm up faster?  The model allows you to change thermal diffusivity of the plate in two ways.  You can directly change the value of ALPHA to any value you like, or you can indirectly change ALPHA by selecting a material.
 
 ### Thermal diffusivity of selected materials
 
@@ -402,18 +390,20 @@ Heat diffuses ("spreads") at different rates through different media.  These rat
 <tr><td>Silver<td>1.7004
 </table>
 
-## HOW IT WORKS
+### How the diffusion is modeled
 
-Initialize the plate and edges to have temperatures that equal their respective slider values.  Each time through the GO procedure, diffuse the heat on each patch in the following way.  Have each patch set its current temperature to the sum of the 4 neighbors' old temperature times a constant based on alpha plus a weighted version of the patch's old temperature.  (For those interested, the updated temperature is calculated by using a Forward Euler Method.)  Then the edges are set back to the specified values and the old temperature is updated to the current temperature.  Then the plate is redrawn.
+Initialize the plate and edges to have temperatures that equal their respective slider values. Each time through the GO procedure, diffuse the heat on each patch in the following way. Have each patch set its current temperature to the sum of the 4 neighbors' old temperature times a constant based on ALPHA plus a weighted version of the patch's old temperature (the updated temperature is calculated by using a [Forward Euler Method](https://en.wikipedia.org/wiki/Euler_method)). Then the edges are set back to the specified values and the old temperature is updated to the current temperature. Finally, the plate is redrawn.
 
 ## HOW TO USE IT
 
 There are five temperature sliders which enable users to set four fixed edge temperatures and one initial plate temperature:
 -- TOP-TEMP - Top edge temperature
 -- BOTTOM-TEMP - Bottom edge temperature
--- IN-PLATE-TEMP - Initial plate temperature
+-- INITIAL-PLATE-TEMP - Initial plate temperature
 -- LEFT-TEMP - Left edge temperature
 -- RIGHT-TEMP - Right edge temperature
+
+Note, if all of these are the same temperature, the model will fail to SETUP because there is no heat differential.
 
 There are two sliders that govern the thermal diffusivity of the plate:
 -- MATERIAL-TYPE - The value of the chooser is that of the above chart.  You must press UPDATE ALPHA for this to change the value of ALPHA.
@@ -445,9 +435,9 @@ Keep track of the units:
 
 ## THINGS TO TRY
 
-Set the parameters on the temperature sliders.  Pick a value for ALPHA (or pick MATERIAL-TYPE and press UPDATE ALPHA).  After you have changed all the sliders to values you like, press Setup followed by GO or GO ONCE.
+Set the parameters on the temperature sliders. Pick a value for ALPHA (or pick MATERIAL-TYPE and press UPDATE ALPHA). After you have changed all the sliders to values you like, press Setup followed by GO or GO ONCE.
 
-Try different materials to observe the heat transfer speed.  How does this compare to physical experiments?
+Try different materials to observe the heat transfer speed. How does this compare to physical experiments?
 
 Try the following sample settings:
 - Top:100, Bottom:0,   Left:0,   Right:0
@@ -465,7 +455,7 @@ Try modeling derivative or combined boundary conditions.
 
 ## RELATED MODELS
 
-Heat Diffusion - Alternative Gradient
+Checkout the other Materials Science models in the library
 
 ## HOW TO CITE
 
