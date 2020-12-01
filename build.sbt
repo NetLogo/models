@@ -1,4 +1,4 @@
-lazy val netLogoVersion = "6.1.1-b1428bc"
+lazy val netLogoVersion = "6.1.2-beta2"
 
 scalaVersion := "2.12.12"
 
