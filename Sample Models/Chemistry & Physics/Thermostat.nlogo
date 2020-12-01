@@ -1,8 +1,6 @@
-turtles-own [ new? ]
-
 globals [
-  temperature
-  temperatures
+  temperature  ; to track the current temperature
+  temperatures ; a list of old temperatures
 ]
 
 to setup
@@ -10,25 +8,27 @@ to setup
   set-default-shape turtles "circle"
   set temperature initial-temp
   set temperatures n-values 10 [initial-temp]
-  ask patches
-  [
-    ;; create the thermometer
+  ask patches [
+
+    ; create the thermometer
     if (((abs pxcor) < 5) and
         (pycor < (max-pxcor - 15)) and
         (pycor > (max-pxcor - 25)))
-    [ set pcolor green ]
-    ;; create the sides of room
+      [ set pcolor green ]
+
+    ; create the sides of room
     if (((abs pycor) <= (max-pxcor - 7)) and
         ((abs pxcor) =  (max-pxcor - 7)))
-    [ set pcolor yellow ]
-    ;; create the front and back of room
+      [ set pcolor yellow ]
+
+    ; create the front and back of room
     if (((abs pycor) =  (max-pxcor - 7)) and
         ((abs pxcor) <= (max-pxcor - 7)))
-    [ set pcolor yellow ]
+      [ set pcolor yellow ]
   ]
-  ;; create enough turtles to fill room to init-temp temperature
-  create-turtles (round (initial-temp * (((world-width - 16) * (world-width - 16)) / 81)))
-  [
+
+  ; create enough turtles to fill room to the init-temp
+  create-turtles (round (initial-temp * (((world-width - 16) * (world-width - 16)) / 81))) [
     set color red
     fd (random-float (max-pxcor - 8))
   ]
@@ -36,56 +36,44 @@ to setup
 end
 
 to go
-  ask turtles
-  [ circulate-heat ]
-  take-temperature
-  thermo-control  ;; the control for the thermostat
+  ; move turtles to model "heat circulation"
+  ask turtles [ circulate-heat ]
+  take-temperature ; measure the temperature
+  thermo-control  ; have the thermostat "respond"
   tick
 end
 
 to thermo-control
-  ifelse (temperature < goal-temp )
-  [
+  ifelse temperature < goal-temp [
     run-heater
-    ask patches  ;; show the heater
-    [
-      if (((distancexy 0 0) <= 2))
-      [ set pcolor  white ]
+    ; show the heater
+    ask patches [
+      if (distancexy 0 0) <= 2 [ set pcolor  white ]
     ]
-  ]
-  [
-    ask patches
-    [
-      if (((distancexy 0 0) <= 2))  ;; hide the heater
-      [ set pcolor black ]
+  ][ ; if we're at the goal temp
+    ask patches [
+      ; hide the heater
+      if (distancexy 0 0) <= 2 [ set pcolor black ]
     ]
   ]
 end
 
 to run-heater
-  create-turtles heater-strength
-  [
-    if (new? = 0)
-    [ set new? 1 ]
-    set color red
-  ]
+  create-turtles heater-strength [ set color red ]
 end
 
-to circulate-heat  ;; turtle procedure
-  if (pcolor = yellow)
-  [
-    ;; to be reflected back into the room, turtles choose a random point
-    ;; inside and set their heading in that direction. This diffuses the
-    ;; heat evenly around the room.
-    if ((random-float insulation) > 1)
-    [
+to circulate-heat  ; turtle procedure
+  if (pcolor = yellow) [
+    ; to be reflected back into the room, turtles choose a random point
+    ; inside and set their heading in that direction. This diffuses the
+    ; heat evenly around the room.
+    if ((random-float insulation) > 1) [
       facexy ((random-float (world-width - 13)) - (max-pxcor - 6))
                             ((random-float (world-width - 14)) - (max-pxcor - 6))
     ]
   ]
   fd 1
-  if not can-move? 1
-  [ die ]
+  if not can-move? 1 [ die ]
 end
 
 to take-temperature
@@ -125,10 +113,10 @@ ticks
 30.0
 
 BUTTON
-151
-30
-214
-63
+150
+60
+213
+93
 go
 go
 T
@@ -143,9 +131,9 @@ NIL
 
 BUTTON
 85
-30
+60
 145
-63
+93
 NIL
 setup
 NIL
@@ -160,9 +148,9 @@ NIL
 
 SLIDER
 7
-78
+10
 143
-111
+43
 initial-temp
 initial-temp
 0.0
@@ -175,9 +163,9 @@ HORIZONTAL
 
 SLIDER
 152
-78
+10
 288
-111
+43
 goal-temp
 goal-temp
 0.0
@@ -251,25 +239,26 @@ PENS
 @#$#@#$#@
 ## WHAT IS IT?
 
-A thermostat is a device that responds to the temperature of a room in order to maintain the temperature at some desired level.  This is often used as an example of feedback control, where a system adjusts its behavior in response the effects of its prior behavior.
-
-Generally speaking, heating systems have only two settings - on and off - and it is the job of the thermostat to turn the heater on and off at the appropriate times. A simple thermostat does this by switching the heater on when the temperature of the room has fallen below the set desired temperature, and switching the heater off once the desired temperature has been reached or exceeded.
+A thermostat is a device that responds to the temperature of a room in order to maintain the temperature at some desired level.  This is often used as an example of feedback control, where a system adjusts its behavior in response the effects of its prior behavior. Generally speaking, heating systems have only two settings - on and off - and it is the job of the thermostat to turn the heater on and off at the appropriate times. A simple thermostat does this by switching the heater on when the temperature of the room has fallen below the set desired temperature, and switching the heater off once the desired temperature has been reached or exceeded.
 
 ## HOW IT WORKS
 
 In this model, the red turtles represent heat, and the yellow border demarcates the room whose temperature is being regulated. The yellow border is semi-permeable, allowing some of the heat that hits it to escape from the room. This heat disappears from the model once it reaches the edge of the world. A thermometer, indicated by the green square, measures the approximate temperature of the room (effectively, the density of red turtles). The heater is located in the center of the room, represented by a white patch.
 
-It should be noted that use of turtles in this model to represent heat is not intended to be physically realistic. Instead, it is an example where a model is simplified in such a way so as to make another feature of the model more salient. In this case, it is the regulating function of the thermostat that we are primarily concerned with.
+It should be noted that use of turtles in this model to represent heat **is not intended to be physically realistic**. Instead, it is an example where a model is simplified in such a way so as to make another feature of the model more salient. In this case, it is the regulating function of the thermostat that we are primarily concerned with.
 
 ## HOW TO USE IT
 
-GO: Starts and stops the simulation.
 SETUP: Resets the simulation, and sets the initial temperature according to init-temp.
-TEMPERATURE: Monitors the temperature in the room, as detected by the green box near the top.
-GOAL-TEMP: The thermostat aims to maintain the room at this temperature. It may be adjusted in the middle of a simulation.
-HEATER-STRENGTH: The number of red turtles created by the heater in a tick (if the heater is 'on').
-INSULATION: The efficiency of the room's insulation, or the rate at which heat escapes from the room. Higher numbers allow less heat to escape; lower number numbers allow more. This may be adjusted during a simulation.
+GO: Starts and stops the simulation.
+
 INITIAL-TEMP: The initial temperature of the room. This takes effect only when the SETUP button is pressed.
+GOAL-TEMP: The thermostat aims to maintain the room at this temperature. It may be adjusted in the middle of a simulation.
+TEMPERATURE: Monitors the temperature in the room, as detected by the green box near the top.
+
+HEATER-STRENGTH: The number of red turtles created by the heater in a tick (if the heater is 'on').
+
+INSULATION: The efficiency of the room's insulation, or the rate at which heat escapes from the room. Higher numbers allow less heat to escape; lower number numbers allow more. This may be adjusted during a simulation.
 
 There is also a plot, which tracks the temperature over time (in red) and the desired temperature (in green).
 
@@ -622,5 +611,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
