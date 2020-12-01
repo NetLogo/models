@@ -1,25 +1,30 @@
 globals [
-  max-energy           ;; the maximum amount of energy any animal can have
-  min-energy           ;; the minimum amount of energy an animal needs to reproduce
-  max-stride           ;; the maximum stride length, the minimum stride length is 0,
-                       ;; the stride will always be between these limits
-  wolf-gain-from-food  ;; energy units wolves get for eating
-  sheep-gain-from-food ;; energy units sheep get for eating
-  sheep-reproduce      ;; probability that sheep will reproduce at each time step
-  wolf-reproduce       ;; probability that wolves will reproduce at each time step
-  grass-regrowth-time  ;; number of ticks before eaten grass regrows.
+  max-energy           ; the maximum amount of energy any animal can have
+  min-energy           ; the minimum amount of energy an animal needs to reproduce
+  max-stride           ; the maximum stride length, the minimum stride length is 0,
+                       ; the stride will always be between these limits
+  wolf-gain-from-food  ; energy units wolves get for eating
+  sheep-gain-from-food ; energy units sheep get for eating
+  sheep-reproduce      ; probability that sheep will reproduce at each time step
+  wolf-reproduce       ; probability that wolves will reproduce at each time step
+  grass-regrowth-time  ; number of ticks before eaten grass regrows.
+  max-sheep            ; don't let the sheep population grow too large
 ]
 
-breed [sheep a-sheep]
-breed [wolves wolf]
+breed [ sheep a-sheep ]
+breed [ wolves wolf ]
 
 turtles-own [ energy stride-length ]
-patches-own [ countdown ]  ;; patches countdown until they regrow
+patches-own [ countdown ]  ; patches countdown until they regrow
 
 to setup
   clear-all
-  ;; initialize constant values
-  set max-stride 3
+
+  ; on NetLogo Web, limit the number of sheep to a lower amount
+  ifelse netlogo-web? [ set max-sheep 10000 ] [ set max-sheep 30000 ]
+
+  ; initialize constant values
+  set max-stride 3 ; you could consider changing this value to allow larger strides
   set min-energy 200
   set max-energy 500
   set wolf-gain-from-food 20
@@ -28,30 +33,27 @@ to setup
   set wolf-reproduce 6
   set grass-regrowth-time 138
 
-  ;; setup the grass
-  ask patches [ set pcolor green ]
+  ; setup the grass
   ask patches [
-    set countdown random grass-regrowth-time ;; initialize grass grow clocks randomly
-    if random 2 = 0  ;;half the patches start out with grass
-      [ set pcolor brown ]
+    set countdown random grass-regrowth-time ; initialize grass grow clocks randomly
+    ; half the patches start out with grass
+    ifelse random 2 = 0 [ set pcolor brown ] [ set pcolor green ]
   ]
 
   set-default-shape sheep "sheep"
-  create-sheep initial-number-sheep  ;; create the sheep, then initialize their variables
-  [
+  create-sheep initial-number-sheep [ ; create the sheep, then initialize their variables
     set color white
     set stride-length initial-sheep-stride
-    set size max-stride  ;; easier to see
+    set size max-stride ; easier to see
     set energy random max-energy
     setxy random-xcor random-ycor
   ]
 
   set-default-shape wolves "wolf"
-  create-wolves initial-number-wolves  ;; create the wolves, then initialize their variables
-  [
+  create-wolves initial-number-wolves [  ; create the wolves, then initialize their variables
     set color black
     set stride-length initial-wolf-stride
-    set size max-stride  ;; easier to see
+    set size max-stride  ; easier to see
     set energy random max-energy
     setxy random-xcor random-ycor
   ]
@@ -59,27 +61,30 @@ to setup
 end
 
 to go
+  ; stop the model if there are no wolves and no sheep
   if not any? turtles [ stop ]
+
+  ; stop the model if there are no wolves and the number of sheep gets very large
+  if not any? wolves and count sheep > max-sheep [ user-message "The sheep have inherited the earth" stop ]
+
   ask sheep [
     move
-    ;; sheep always loose 0.5 units of energy each tick
+    ; sheep always loose 0.5 units of energy each tick
     set energy energy - 0.5
-    ;; if larger strides use more energy
-    ;; also deduct the energy for the distance moved
-    if stride-length-penalty?
-    [ set energy energy - stride-length ]
+    ; if larger strides use more energy
+    ; also deduct the energy for the distance moved
+    if stride-length-penalty? [ set energy energy - stride-length ]
     eat-grass
     maybe-die
     reproduce-sheep
   ]
   ask wolves [
     move
-    ;; wolves always loose 0.5 units of energy each tick
+    ; wolves always loose 0.5 units of energy each tick
     set energy energy - 0.5
-    ;; if larger strides use more energy
-    ;; also deduct the energy for the distance moved
-    if stride-length-penalty?
-    [ set energy energy - stride-length ]
+    ; if larger strides use more energy
+    ; also deduct the energy for the distance moved
+    if stride-length-penalty? [ set energy energy - stride-length ]
     catch-sheep
     maybe-die
     reproduce-wolves
@@ -88,46 +93,45 @@ to go
   tick
 end
 
-to move  ;; turtle procedure
+to move  ; turtle procedure
   rt random-float 50
   lt random-float 50
   fd stride-length
 end
 
-to eat-grass  ;; sheep procedure
-  ;; sheep eat grass, turn the patch brown
+to eat-grass  ; sheep procedure
+  ; sheep eat grass, turn the patch brown
   if pcolor = green [
     set pcolor brown
-    set energy energy + sheep-gain-from-food  ;; sheep gain energy by eating
-    if energy > max-energy
-    [ set energy max-energy ]
+    set energy energy + sheep-gain-from-food  ; sheep gain energy by eating
+    if energy > max-energy [ set energy max-energy ]
   ]
 end
 
-to reproduce-sheep  ;; sheep procedure
+to reproduce-sheep  ; sheep procedure
   reproduce sheep-reproduce sheep-stride-length-drift
 end
 
-to reproduce-wolves  ;; wolf procedure
+to reproduce-wolves  ; wolf procedure
   reproduce wolf-reproduce wolf-stride-length-drift
 end
 
-to reproduce [reproduction-chance drift] ;; turtle procedure
-  ;; throw "dice" to see if you will reproduce
+to reproduce [ reproduction-chance drift ] ; turtle procedure
+  ; throw "dice" to see if you will reproduce
   if random-float 100 < reproduction-chance and energy > min-energy [
-    set energy (energy / 2 )  ;; divide energy between parent and offspring
+    set energy (energy / 2 )  ; divide energy between parent and offspring
     hatch 1 [
       rt random-float 360
       fd 1
-      ;; mutate the stride length based on the drift for this breed
+      ; mutate the stride length based on the drift for this breed
       set stride-length mutated-stride-length drift
     ]
   ]
 end
 
-to-report mutated-stride-length [drift] ;; turtle reporter
+to-report mutated-stride-length [ drift ] ; turtle reporter
   let l stride-length + random-float drift - random-float drift
-  ;; keep the stride lengths within the accepted bounds
+  ; keep the stride lengths within the accepted bounds
   if l < 0
   [ report 0 ]
   if stride-length > max-stride
@@ -135,27 +139,27 @@ to-report mutated-stride-length [drift] ;; turtle reporter
   report l
 end
 
-to catch-sheep  ;; wolf procedure
+to catch-sheep  ; wolf procedure
   let prey one-of sheep-here
-  if prey != nobody
-  [ ask prey [ die ]
+  if prey != nobody [
+    ask prey [ die ]
     set energy energy + wolf-gain-from-food
     if energy > max-energy [set energy max-energy]
   ]
 end
 
-to maybe-die  ;; turtle procedure
-  ;; when energy dips below zero, die
+to maybe-die  ; turtle procedure
+  ; when energy dips below zero, die
   if energy < 0 [ die ]
 end
 
-to grow-grass  ;; patch procedure
-  ;; countdown on brown patches, if reach 0, grow some grass
+to grow-grass  ; patch procedure
+  ; countdown on brown patches, if reach 0, grow some grass
   if pcolor = brown [
-    ifelse countdown <= 0
-      [ set pcolor green
-        set countdown grass-regrowth-time ]
-      [ set countdown countdown - 1 ]
+    ifelse countdown <= 0 [
+      set pcolor green
+      set countdown grass-regrowth-time
+    ] [ set countdown countdown - 1 ]
   ]
 end
 
@@ -351,7 +355,7 @@ initial-wolf-stride
 initial-wolf-stride
 0
 1
-0.2
+1.0
 0.1
 1
 NIL
@@ -400,7 +404,7 @@ wolf-stride-length-drift
 wolf-stride-length-drift
 0
 1
-0.2
+0.24
 0.01
 1
 NIL
@@ -478,29 +482,41 @@ mean [stride-length] of sheep
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model is a variation on the predator-prey ecosystems model wolf-sheep predation.
-In this model, predator and prey can inherit a stride length, which describes how far forward they move in each model time step.  When wolves and sheep reproduce, the children inherit the parent's stride length -- though it may be mutated.
+This model is a variation on the predator-prey ecosystems model _Wolf-Sheep Predation_.
+In this model, predator and prey can inherit a stride length, which describes how far forward they move in each model time step. When wolves and sheep reproduce, the children inherit the parent's stride length--though it may be mutated. By modeling this type of inheritance, the user can now see the effects of natural selection within the model.
 
 ## HOW IT WORKS
 
-At initialization wolves have a stride of INITIAL-WOLF-STRIDE and sheep have a stride of INITIAL-SHEEP-STRIDE.  Wolves and sheep wander around the world moving STRIDE-LENGTH in a random direction at each step.  Sheep eat grass and wolves eat sheep, as in the Wolf Sheep Predation model.  When wolves and sheep reproduce, they pass their stride length down to their young. However, there is a chance that the stride length will mutate, becoming slightly larger or smaller than that of its parent.
+This model is fundamentally very similar to Wolf-Sheep Predation. Sheep eat grass and wolves eat sheep. They also randomly wander the world. However, at initialization, wolves have a stride of INITIAL-WOLF-STRIDE and sheep have a stride of INITIAL-SHEEP-STRIDE. This  means some sheep (wolves) can go farther in a particular tick than their compatriots. Wolves and sheep wander around the world moving STRIDE-LENGTH in a random direction at each step. When wolves and sheep reproduce, they pass their stride length down to their young. However, there is a chance that the stride length will mutate, becoming slightly larger or smaller than that of its parent.
 
 ## HOW TO USE IT
+
+1. Adjust the slider parameters (see below), or use the default settings
+2. Press the SETUP button
+3. Press the GO button to begin the simulation
+4. Look at the monitors to see the current population sizes
+5. Look at the POPULATIONS plot to watch the populations fluctuate over time
+6. Look at the Strid Length plots to watch how the STRIDE-LENGTH for each agent fluctuates over time
+
+### Sliders
 
 INITIAL-NUMBER-SHEEP: The initial size of sheep population
 INITIAL-NUMBER-WOLVES: The initial size of wolf population
 
-Half a unit of energy is deducted from each wolf and sheep at every time step. If STRIDE-LENGTH-PENALTY? is on, additional energy is deducted, scaled to the length of stride the animal takes (e.g., 0.5 stride deducts an additional 0.5 energy units each step).
+INITIAL-SHEEP-STRIDE: The initial STRIDE-LENGTH for sheep
+INITIAL-WOLF-STRIDE: The initial STRIDE-LENGTH for wolves
 
-WOLF-STRIDE-DRIFT and SHEEP-STRIDE-DRIFT:  How much variation an offspring of a wolf or a sheep can have in its stride length compared to its parent.  For example, if set to 0.4, then an offspring might have a stride length up to 0.4 less than the parent or 0.4 more than the parent.
+WOLF-STRIDE-DRIFT and SHEEP-STRIDE-DRIFT: How much variation an offspring of a wolf or a sheep can have in its stride length compared to its parent. For example, if set to 0.4, then an offspring might have a stride length up to 0.4 less than the parent or 0.4 more than the parent. This is a way of controlling how much mutation occurs during reproduction.
+
+Half a unit of energy is deducted from each wolf and sheep at every time step. If STRIDE-LENGTH-PENALTY? is on, additional energy unit is deducted, scaled to the length of stride the animal takes (e.g., 0.5 stride deducts an additional 0.5 energy units each step). That is, there is a cost to having a longer stride.
 
 ## THINGS TO NOTICE
 
 WOLF STRIDE HISTOGRAM and SHEEP STRIDE HISTOGRAM will show how the population distribution of different animal strides is changing.
 
-In general, sheep get faster over time and wolves get slower or move at the same speed.  Sheep get faster in part, because remaining on a square with no grass is less advantageous than moving to new locations to consume grass that is not eaten.  Sheep typically converge on an average stride length close to 1.  Why do you suppose it is not advantageous for sheep stride length to keep increasing far beyond 1?
+In general, sheep get faster over time and wolves get slower or move at the same speed.  Sheep get faster in part, because remaining on a square with no grass is less advantageous than moving to new locations to consume grass that is not eaten. Sheep typically converge on an average stride length close to 1. Why do you suppose it is not advantageous for sheep stride length to keep increasing far beyond 1? Make sure to run the model multiple times with different settings. The outcome is not always the same.
 
-If you turn STRIDE-LENGTH-PENALTY? off, sheep will become faster over time, but will not stay close to a stride length of 1.  Instead they will become faster and faster, effectively jumping over multiple patches with each simulation step.
+If you turn STRIDE-LENGTH-PENALTY? off, sheep will become faster over time, but will not stay close to a stride length of 1. Instead they will become faster and faster, effectively jumping over multiple patches with each simulation step.
 
 ## THINGS TO TRY
 
@@ -510,7 +526,7 @@ Can you find any parameters that generate a stable ecosystem where there are at 
 
 ## EXTENDING THE MODEL
 
-Add a cone of vision for sheep and wolves that allows them to chase or run away from each other.   Make this an inheritable trait.
+Add a cone of vision for sheep and wolves that allows them to chase or run away from each other. Make this an inheritable trait.
 
 ## NETLOGO FEATURES
 
