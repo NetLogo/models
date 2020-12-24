@@ -689,7 +689,7 @@ false
 Polygon -7500403 true true 300 60 225 0 0 225 60 300
 Polygon -7500403 true true 0 60 75 0 300 240 225 300
 @#$#@#$#@
-NetLogo 6.1.2-beta2
+NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
