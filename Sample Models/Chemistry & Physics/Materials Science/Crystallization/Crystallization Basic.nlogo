@@ -20,7 +20,7 @@ to setup
   ;; create turtles everywhere inside the given box range
   ask patches [
     if (not circle? and ((abs pycor) < height / 2) and ((abs pxcor) < width / 2))
-       or (circle? and distancexy 0 0 < height / 2)
+       or (circle? and distancexy 0 0 < width / 2)
     [
       sprout 1
       [
