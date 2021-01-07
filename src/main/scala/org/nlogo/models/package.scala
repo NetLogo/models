@@ -30,7 +30,7 @@ package object models {
   def withWorkspace[A](model: Model)(f: HeadlessWorkspace => A) = {
     val workspace = HeadlessWorkspace.newInstance
     val libraryManager = workspace.getLibraryManager
-    libraryManager.reloadMetadata(isFirstLoad = false)
+    libraryManager.reloadMetadata(isFirstLoad = false, useBundled = false)
     val updateableLibs = libraryManager.getExtensionInfos.filter(_.status == LibraryStatus.CanUpdate)
     updateableLibs.foreach( (libInfo) => {
       println(s"Updating extension: ${libInfo.name}")
