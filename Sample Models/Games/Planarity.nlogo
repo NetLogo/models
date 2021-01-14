@@ -1,81 +1,105 @@
 globals [
-  level    ;; determines how many nodes you have to untangle;
-           ;; the formula is below
+  level    ; determines how many nodes you have to untangle;
+           ; the formula is below
+  selected ; stores the selected agent
+  moves    ; counts the number of moves the player has made
 ]
 
 to setup
   clear-all
   set-default-shape turtles "circle"
-  ask patches [ set pcolor white ]      ;; plain white background
+  ; plain white background
+  ask patches [ set pcolor white ]
   set level starting-level
+  set selected nobody
   setup-level
 end
 
 to setup-level
-  reset-ticks  ;; use tick counter as a move counter
-  clear-turtles  ;; when the turtles die, the links connecting them die too
-  ;; create nodes and position them randomly
+  reset-ticks    ; use tick counter as a move counter
+  clear-turtles  ; when the turtles die, the links connecting them die too
+  ; create nodes and position them randomly
   create-turtles 4 + level [
     set color blue
     setxy random-xcor random-ycor
   ]
-  ;; Now we need to make some links.  We have to be careful that
-  ;; the resulting graph has a solution.  Probably there are lots
-  ;; of ways this could be done, but this was the simplest way we
-  ;; could think of.
-  ;; First make a bunch of links at random.
+  ; Now we need to make some links.  We have to be careful that
+  ; the resulting graph has a solution.  Probably there are lots
+  ; of ways this could be done, but this was the simplest way we
+  ; could think of.
+  ; First make a bunch of links at random.
   while [count links < count turtles] [
     ask one-of turtles [
       ask one-of other turtles [ attempt-link ]
     ]
   ]
-  ;; Then fill in all remaining allowable links.
+  ; Then fill in all remaining allowable links.
   ask turtles [
     ask other turtles [ attempt-link ]
   ]
-  ;; Now we have a graph which we know is solvable,
-  ;; because the current layout is a solution.
-  ;; Time to scramble the nodes around!
+  ; Now we have a graph which we know is solvable,
+  ; because the current layout is a solution.
+  ; Time to scramble the nodes around!
   while [solved?] [ scramble ]
+  set moves 0
   display
 end
 
-to attempt-link  ;; link procedure
-  ;; note that if the link already exists, nothing happens
+to attempt-link  ; link procedure
+  ; note that if the link already exists, nothing happens
   create-link-with myself [
     if any-intersections? [ die ]
   ]
 end
 
 to scramble
-  ;; The turtles agentset is always in random order,
-  ;; so this makes a random layout.
+  ; The turtles agentset is always in random order,
+  ; so this makes a random layout.
   layout-circle turtles (world-width / 2 - 1)
 end
 
-;; This procedure lets us find the next turtle,
-;; or the turtle two over, and so on.
-to-report turtle-plus [n]  ;; turtle procedure
+; This procedure lets us find the next turtle,
+; or the turtle two over, and so on.
+to-report turtle-plus [n]  ; turtle procedure
   report turtle ((who + n) mod count turtles)
 end
 
 to go
-  if mouse-down? [
-    ;; find the closest node
-    let grabbed min-one-of turtles [distancexy mouse-xcor mouse-ycor]
-    ;; loop until the mouse button is released
-    while [mouse-down?] [
-      ask grabbed [ setxy mouse-xcor mouse-ycor ]
-      display
+  ifelse mouse-down? [
+    ; if the mouse is down then handle selecting and dragging
+    handle-select-and-drag
+  ][
+    if selected != nobody [
+      ; make sure the previous selection is deselected
+      set selected nobody
+      ; check if the level is solved
+      if solved? [
+        user-message "You rock. Now try this..."
+        set level level + 1
+        setup-level
+      ]
     ]
-    ;; use tick counter as a move counter
-    tick
-    ;; check if the level is solved
-    if solved? [
-      user-message "You rock. Now try this..."
-      set level level + 1
-      setup-level
+    reset-perspective
+  ]
+  tick
+end
+
+to handle-select-and-drag
+  ; if no turtle is selected
+  ifelse selected = nobody  [
+    ; pick the closet turtle
+    set selected min-one-of turtles [distancexy mouse-xcor mouse-ycor]
+    ; check whether or not it's close enough
+    ifelse [distancexy mouse-xcor mouse-ycor] of selected > 1 [
+      set selected nobody ; if not, don't select it
+    ][
+      watch selected ; if it is, go ahead and `watch` it
+      ; increment the moves counter
+      set moves moves + 1
     ]
+  ][
+    ; if a turtle is selected, move it to the mouse
+    ask selected [ setxy mouse-xcor mouse-ycor ]
   ]
 end
 
@@ -83,26 +107,26 @@ to-report solved?
   report all? links [not any-intersections?]
 end
 
-to-report any-intersections?  ;; link procedure
+to-report any-intersections?  ; link procedure
   report any? other links with [crossed? self myself]
 end
 
 to-report crossed? [link-a link-b]
-  ;; store nodes in variables for easy access
+  ; store nodes in variables for easy access
   let a1 [end1] of link-a
   let a2 [end2] of link-a
   let b1 [end1] of link-b
   let b2 [end2] of link-b
   let nodes (turtle-set a1 a2 b1 b2)
-  ;; if the links share a node, they don't cross
+  ; if the links share a node, they don't cross
   if 4 > count nodes [ report false ]
-  ;; but if two nodes are on top of each other, we will say
-  ;; the links do cross (so you can't cheat that way)
+  ; but if two nodes are on top of each other, we will say
+  ; the links do cross (so you can't cheat that way)
   if 4 > length remove-duplicates [list xcor ycor] of nodes
     [ report true ]
-  ;; if the ends of link-a are on opposite sides of link-b,
-  ;; and the ends of link-b are on opposite sides of link-a,
-  ;; then the links cross
+  ; if the ends of link-a are on opposite sides of link-b,
+  ; and the ends of link-b are on opposite sides of link-a,
+  ; then the links cross
   report [subtract-headings towards a2 towards b1 < 0 xor
           subtract-headings towards a2 towards b2 < 0] of a1
      and [subtract-headings towards b2 towards a1 < 0 xor
@@ -137,7 +161,7 @@ GRAPHICS-WINDOW
 1
 1
 1
-moves
+ticks
 30.0
 
 BUTTON
@@ -175,10 +199,10 @@ NIL
 0
 
 MONITOR
-61
-171
-146
-216
+20
+170
+105
+215
 NIL
 level
 0
@@ -200,6 +224,17 @@ starting-level
 NIL
 HORIZONTAL
 
+MONITOR
+110
+170
+190
+215
+NIL
+moves
+17
+1
+11
+
 @#$#@#$#@
 ## WHAT IS IT?
 
@@ -211,37 +246,37 @@ The game knows how to generate solvable graphs, and it also knows how to detect 
 
 ## HOW TO USE IT
 
-Use the STARTING-LEVEL slider to choose the initial difficulty level.  If you're a beginner, start at 1.  Press SETUP to set up a new board, then press GO to play.  Once the GO button is pressed, you can use your mouse to drag the nodes around.
+Use the STARTING-LEVEL slider to choose the initial difficulty level. If you're a beginner, start at 1. Press SETUP to set up a new board, then press GO to play. Once the GO button is pressed, you can use your mouse to drag the nodes around.
 
 Every level is solvable. One you find a solution, you will automatically be taken to the next level.
 
 ## THINGS TO NOTICE
 
-The game only gives you solvable graphs. How might the game be able to guarantee this?  (One answer is in the Code tab.)
+The game only gives you solvable graphs. How might the game be able to guarantee this? (One answer is in the Code tab.)
 
-Can you draw an example of an unsolvable graph on a piece of paper?  How many nodes are in the smallest unsolvable graph?
+Can you draw an example of an unsolvable graph on a piece of paper? How many nodes are in the smallest unsolvable graph?
 
-On early levels, you can usually untangle the nodes without too much thought.  On later levels, you'll probably need to develop some conscious strategies.  What strategies do you find most effective?  When your friends play, do they use the same strategies you do?
+On early levels, you can usually untangle the nodes without too much thought. On later levels, you'll probably need to develop some conscious strategies. What strategies do you find most effective? When your friends play, do they use the same strategies you do? Use the MOVES counter to keep track of how many moves it takes you to untangle the graph.
 
 ## THINGS TO TRY
 
 See how high a level you can solve.
 
-Try to solve each level in the fewest number of moves. (The tick counter shows you how many moves you've made.)
+Try to solve each level in the fewest number of MOVES.
 
 ## EXTENDING THE MODEL
 
-Are there any other ways of generating solvable graphs besides the SETUP-LEVEL?  Does it matter what method is used? The more links you can make, the harder the level will be, but if you make too many links, the level might not be solvable at all!
+Are there any other ways of generating solvable graphs besides the SETUP-LEVEL? Does it matter what method is used? The more links you can make, the harder the level will be, but if you make too many links, the level might not be solvable at all!
 
-Wherever two links intersect, add a small, brightly colored turtle to mark the intersection.  (You'll need two breeds of turtle, one for the nodes, one for the markers.  Intersecting Links Example has code for locating the intersection points.)
+Wherever two links intersect, add a small, brightly colored turtle to mark the intersection. (You'll need two breeds of turtle, one for the nodes, one for the markers. Intersecting Links Example has code for locating the intersection points.)
 
 Make it possible to select multiple nodes and move them together.
 
 ## NETLOGO FEATURES
 
-The nodes are turtles; the lines connecting them are links.  The code does not make use of patches (other than to make a plain white background).
+The nodes are turtles; the lines connecting them are links. The code does not make use of patches (other than to make a plain white background).
 
-NetLogo does not have a primitive which detects whether two links intersect.  To do the detection, the code uses the `subtract-headings` primitive and some math.
+NetLogo does not have a primitive which detects whether two links intersect. To do the detection, the code uses the `subtract-headings` primitive and some math.
 
 ## RELATED MODELS
 
@@ -253,7 +288,9 @@ Thanks to Josh Unterman and Seth Tisue for their work on this model and to Jim L
 
 Original version created by John Tantalo, from an original concept by Mary Radcliffe. Tantalo's site is here: http://planarity.net/.
 
-Solvable graphs are called "planar graphs" by mathematicians.  See https://en.wikipedia.org/wiki/Planar_graph.
+Solvable graphs are called "planar graphs" by mathematicians. See https://en.wikipedia.org/wiki/Planar_graph.
+
+Thanks to Connor Bain for updating this model to work in NetLogo Web in 2021.
 
 ## HOW TO CITE
 
@@ -563,8 +600,6 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
 NetLogo 6.2.0
 @#$#@#$#@
-set starting-level 8
-setup
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -580,5 +615,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
