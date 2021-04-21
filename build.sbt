@@ -1,11 +1,13 @@
-lazy val netLogoVersion = "6.2.0"
+lazy val netLogoVersion = "6.2.0-d27b502"
 
 scalaVersion := "2.12.12"
 
 scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation")
 
-resolvers += "Typesafe Repo" at "https://repo.typesafe.com/typesafe/releases/"
-resolvers += sbt.Resolver.bintrayRepo("netlogo", "NetLogo-JVM")
+resolvers ++= Seq(
+  "Typesafe Repo"   at "https://repo.typesafe.com/typesafe/releases/"
+, "netlogoheadless" at "https://dl.cloudsmith.io/public/netlogo/netlogo/maven/"
+)
 
 javaOptions ++= Seq(
   "-Dorg.nlogo.onLocal=" + Option(System.getProperty("org.nlogo.onLocal")).getOrElse("false"),
