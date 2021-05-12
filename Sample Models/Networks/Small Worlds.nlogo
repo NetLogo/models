@@ -329,7 +329,10 @@ to do-highlight
       let my-apl (sum remove infinity distance-from-other-turtles) / pairs
 
       ; show node's statistics
-      set highlight-string (word "clustering coefficient = " precision my-clustering-coefficient 3
+      let coefficient-description ifelse-value my-clustering-coefficient = "undefined"
+        ["undefined for single-link"]
+        [precision my-clustering-coefficient 3]
+      set highlight-string (word "clustering coefficient = " coefficient-description
         " and avg path length = " precision my-apl 3
         " (for " pairs " turtles )")
     ]
