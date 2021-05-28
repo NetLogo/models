@@ -33,10 +33,10 @@ jobs:
         run: sbt -v update compile test:compile "test:runMain org.nlogo.models.ExtensionInstaller"
 
       - name: Test 2D
-        run: sbt -v -Dnetlogo.extensions.perUserDir=`pwd` "testOnly *ButtonTests"
+        run: sbt -v -Dorg.nlogo.onLocal=false test
 
       - name: Test 3D
-        run: sbt -v -Dorg.nlogo.is3d=true test
+        run: sbt -v -Dorg.nlogo.onLocal=false -Dorg.nlogo.is3d=true test
 
       - name: Failure Debug Info
         if: ${{ failure() }}

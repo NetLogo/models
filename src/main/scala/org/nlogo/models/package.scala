@@ -24,7 +24,7 @@ package object models {
 
   org.nlogo.headless.Main.setHeadlessProperty()
 
-  lazy val onLocal: Boolean = System.getProperty("org.nlogo.onLocal").toBoolean
+  lazy val onLocal: Boolean = Option(System.getProperty("org.nlogo.onLocal")).getOrElse("true").toBoolean
 
   def withWorkspace[A](model: Model)(f: HeadlessWorkspace => A) = {
     val workspace = HeadlessWorkspace.newInstance

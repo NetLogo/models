@@ -1,7 +1,7 @@
 package org.nlogo.models
 
+import org.nlogo.api.{ ExtensionManager, LibraryManager }
 import org.nlogo.core.{ LibraryInfo, LibraryStatus, Model }
-import org.nlogo.headless.HeadlessWorkspace
 
 object ExtensionInstaller {
 
@@ -13,12 +13,12 @@ object ExtensionInstaller {
     }
     hasRun = true
 
-    val workspace      = HeadlessWorkspace.newInstance
-    val libraryManager = workspace.getLibraryManager
+    val libraryManager = new LibraryManager(ExtensionManager.userExtensionsPath, () => {})
     libraryManager.reloadMetadata(isFirstLoad = false, useBundled = false)
-
-    val extensionInfos       = libraryManager.getExtensionInfos
-    val neededExtensionNames = Set("bitmap", "csv", "gis", "ls", "matrix", "nw", "palette", "py", "rnd", "table", "time", "vid")
+    val extensionInfos = libraryManager.getExtensionInfos
+    // We even install the extensions we can't or won't test just to avoid compile errors with them.
+    // -Jeremy B May 2021
+    val neededExtensionNames = Set("arduino", "array", "bitmap", "csv", "gis", "gogo", "ls", "matrix", "nw", "palette", "profiler", "py", "r", "rnd", "sound", "table", "time", "vid", "view2.5d")
     def isNeededExtension(extInfo: LibraryInfo): Boolean = {
       println(s"checking ${extInfo.codeName}")
       val isContained   = neededExtensionNames.contains(extInfo.codeName)
@@ -32,6 +32,7 @@ object ExtensionInstaller {
       val action = if (extInfo.status == LibraryStatus.CanInstall) { "Installing" } else { "Updating" }
       println(s"$action extension: ${extInfo.name} (${extInfo.codeName})")
       libraryManager.installExtension(extInfo)
+      println(s"${extInfo.name} done.")
       Thread.sleep(2500)
     })
   }
@@ -40,7 +41,6 @@ object ExtensionInstaller {
   def main(args: Array[String]): Unit = {
     ExtensionInstaller(true)
     println("Complete")
-    System.exit(0)
   }
 
 }
