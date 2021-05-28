@@ -10,6 +10,8 @@ import org.scalatest.FunSuite
 
 trait TestModels extends FunSuite {
 
+  ExtensionInstaller()
+
   def testModels(
     testName: String,
     includeTestModels: Boolean = false,

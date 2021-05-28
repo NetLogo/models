@@ -13,7 +13,7 @@ javaOptions ++= Seq(
   "-Dorg.nlogo.onLocal=" + Option(System.getProperty("org.nlogo.onLocal")).getOrElse("false"),
   "-Dorg.nlogo.is3d=" + Option(System.getProperty("org.nlogo.is3d")).getOrElse("false"),
   "-Dcom.sun.media.jai.disableMediaLib=true", // see https://github.com/NetLogo/GIS-Extension/issues/4
-  "-Xmx4G" // extra memory to work around https://github.com/travis-ci/travis-ci/issues/3775
+  "-Xmx4G"
 )
 
 fork := true

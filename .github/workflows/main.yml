@@ -1,0 +1,46 @@
+name: build-and-test
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.9.0
+        with:
+          access_token: ${{ github.token }}
+
+      - uses: actions/checkout@v2
+
+      - uses: olafurpg/setup-scala@v10
+        with:
+          java-version: liberica@1.8
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install Dependencies
+        run: |
+          pip install numpy
+          pip install sklearn
+          sudo apt-get -y install aspell
+
+      - name: Build
+        run: sbt -v update compile test:compile "test:runMain org.nlogo.models.ExtensionInstaller"
+
+      - name: Test 2D
+        run: sbt -v -Dnetlogo.extensions.perUserDir=`pwd` "testOnly *ButtonTests"
+
+      - name: Test 3D
+        run: sbt -v -Dorg.nlogo.is3d=true test
+
+      - name: Failure Debug Info
+        if: ${{ failure() }}
+        run: |
+          pwd
+          sudo apt-get -y install tree
+          tree
