@@ -97,7 +97,7 @@ class CodeTests extends TestModels {
     ),
     "pu" -> Seq.empty,
     "se" -> Seq.empty,
-    "show" -> Seq.empty,
+    "show" -> Seq("GIS General Examples"),
     "st" -> Seq.empty,
     "towards-nowrap" -> Seq.empty,
     "towardsxy-nowrap" -> Seq.empty,

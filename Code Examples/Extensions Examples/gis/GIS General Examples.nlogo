@@ -2,12 +2,17 @@ extensions [ gis ]
 globals [ cities-dataset
           rivers-dataset
           countries-dataset
-          elevation-dataset ]
-breed [ city-labels city-label ]
+          elevation-dataset
+          should-draw-country-labels
+          should-draw-city-turtle-labels ]
+
 breed [ country-labels country-label ]
-breed [ country-vertices country-vertex ]
-breed [ river-labels river-label ]
-patches-own [ population country-name elevation ]
+breed [ cities city ]
+cities-own [ name country population ]
+breed [ citizens citizen ]
+citizens-own [ cntry_name ]
+
+patches-own [ patch-population country-name elevation ]
 
 to setup
   clear-all
@@ -27,66 +32,96 @@ to setup
   reset-ticks
 end
 
-; Drawing point data from a shapefile, and optionally loading the
-; data into turtles, if label-cities is true
-to display-cities
-  ask city-labels [ die ]
-  foreach gis:feature-list-of cities-dataset [ vector-feature ->
-    gis:set-drawing-color scale-color red (gis:property-value vector-feature "POPULATION") 5000000 1000
-    gis:fill vector-feature 2.0
-    if label-cities
-    [ ; a feature in a point dataset may have multiple points, so we
-      ; have a list of lists of points, which is why we need to use
-      ; first twice here
-      let location gis:location-of (first (first (gis:vertex-lists-of vector-feature)))
-      ; location will be an empty list if the point lies outside the
-      ; bounds of the current NetLogo world, as defined by our current
-      ; coordinate transformation
-      if not empty? location
-      [ create-city-labels 1
-        [ set xcor item 0 location
-          set ycor item 1 location
-          set size 0
-          set label gis:property-value vector-feature "NAME"
-        ]
-      ]
-    ]
-  ]
+; Draw points for each city on the drawing layer
+to draw-cities
+  gis:set-drawing-color red
+  gis:draw cities-dataset 1
 end
 
-; Drawing polyline data from a shapefile, and optionally loading some
-; of the data into turtles, if label-rivers is true
-to display-rivers
-  ask river-labels [ die ]
+; Draw the polyline rivers dataset to the drawing layer
+to draw-rivers
   gis:set-drawing-color blue
   gis:draw rivers-dataset 1
-  if label-rivers
-  [ foreach gis:feature-list-of rivers-dataset [ vector-feature ->
-      let centroid gis:location-of gis:centroid-of vector-feature
-      ; centroid will be an empty list if it lies outside the bounds
-      ; of the current NetLogo world, as defined by our current GIS
-      ; coordinate transformation
-      if not empty? centroid
-      [ create-river-labels 1
-          [ set xcor item 0 centroid
-            set ycor item 1 centroid
-            set size 0
-            set label gis:property-value vector-feature "NAME"
-          ]
-      ]
+end
+
+; Draw the multi-polygon countries dataset to the drawing layer
+to draw-countries
+  gis:set-drawing-color white
+  gis:draw countries-dataset 1
+  ; Alternatively, you could use `gis:fill countries-dataset 1` to
+  ; draw the countries with a solid fill
+end
+
+; Use the gis:create-turtles-from-points primitive to create one turtle
+; for each city with the breed city and automatically populate its
+; cities-own variables with values corresponding to the property values
+; of that city. Like the create-turtles primitive, you can optionally
+; add a code block to give commands to the turtles upon creation.
+to make-city-turtles
+  ask cities [ die ]
+  gis:create-turtles-from-points cities-dataset cities [
+    set color scale-color red population 5000000 1000
+    set shape "circle"
+  ]
+end
+
+; Highlight all city turtles with a high population. make-city-turtles
+; must have been run first.
+;
+; Once created with the gis:create-turtles-from-points primitive,
+; working with turtles created from GIS data is just the same as
+; working with any other turtles.
+to highlight-large-city-turtles
+  ask cities with [population > 10000000] [
+    set color yellow
+    set size 3
+  ]
+end
+
+; Draw or clear labels for city turtles. make-city-turtles
+; must have been run first for the labels to display.
+to draw/clear-city-turtle-labels
+  if-else should-draw-city-turtle-labels = 1 [
+    set should-draw-city-turtle-labels 0
+    ask cities [ set label "" ]
+  ] [
+    set should-draw-city-turtle-labels 1
+    ask cities [ set label name ]
+  ]
+end
+
+; using the gis:create-turtles-inside-polygon primitive, create
+; a number of turtles within the borders of each country.
+;
+; Just like the gis:create-turtles-from-points primitive, the
+; turtles created with this primitive have any turtles-own
+; variables they might have with the same names as GIS
+; property names populated with their corresponding GIS
+; property value.
+to create-citizens-in-countries
+  foreach gis:feature-list-of countries-dataset [ this-country ->
+    gis:create-turtles-inside-polygon this-country citizens num-citizens-to-create [
+      set shape "person"
+      ; since we included cntry_name as a citizens-own variable,
+      ; if we wanted to we could give each citizen a label
+      ; with their corresponding cntry_name like so:
+
+      ;; set label cntry_name
     ]
   ]
 end
 
-; Drawing polygon data from a shapefile, and optionally loading some
-; of the data into turtles, if label-countries is true
-to display-countries
-  ask country-labels [ die ]
-  gis:set-drawing-color white
-  gis:draw countries-dataset 1
-  if label-countries
-  [ foreach gis:feature-list-of countries-dataset [ vector-feature ->
-      let centroid gis:location-of gis:centroid-of vector-feature
+; Create an invisible (size 0) turtle at the centroid of each
+; country and set its label to the name of the given country.
+; If the labels are already drawn, remove them.
+to draw/clear-country-labels
+  if-else should-draw-country-labels = 1 [
+    set should-draw-country-labels 0
+    ask country-labels [ die ]
+  ] [
+    set should-draw-country-labels 1
+    foreach gis:feature-list-of countries-dataset [ this-country-vector-feature ->
+      let centroid gis:location-of gis:centroid-of this-country-vector-feature
       ; centroid will be an empty list if it lies outside the bounds
       ; of the current NetLogo world, as defined by our current GIS
       ; coordinate transformation
@@ -95,45 +130,15 @@ to display-countries
         [ set xcor item 0 centroid
           set ycor item 1 centroid
           set size 0
-          set label gis:property-value vector-feature "CNTRY_NAME"
+          set label gis:property-value this-country-vector-feature "CNTRY_NAME"
         ]
       ]
     ]
   ]
 end
 
-; Loading polygon data into turtles connected by links
-to display-countries-using-links
-  ask country-vertices [ die ]
-  foreach gis:feature-list-of countries-dataset [ vector-feature ->
-    foreach gis:vertex-lists-of vector-feature [ vertex ->
-      let previous-turtle nobody
-      let first-turtle nobody
-      ; By convention, the first and last coordinates of polygons
-      ; in a shapefile are the same, so we don't create a turtle
-      ; on the last vertex of the polygon
-      foreach but-last vertex [ point ->
-        let location gis:location-of point
-        ; location will be an empty list if it lies outside the
-        ; bounds of the current NetLogo world, as defined by our
-        ; current GIS coordinate transformation
-        if not empty? location
-        [ create-country-vertices 1
-          [ set xcor item 0 location
-            set ycor item 1 location
-            ifelse previous-turtle = nobody
-            [ set first-turtle self ]
-            [ create-link-with previous-turtle ]
-            set hidden? true
-            set previous-turtle self ] ] ]
-      ; Link the first turtle to the last turtle to close the polygon
-      if first-turtle != nobody and first-turtle != previous-turtle
-      [ ask first-turtle
-        [ create-link-with previous-turtle ] ] ] ]
-end
-
-; Using gis:intersecting to find the set of patches that intersects
-; a given vector feature (in this case, a river).
+; Use gis:intersecting to find the set of patches that intersects
+; a given vector feature (in this case, one of the rivers).
 to display-rivers-in-patches
   ask patches [ set pcolor black ]
   ask patches gis:intersecting rivers-dataset
@@ -143,38 +148,48 @@ end
 ; Using gis:apply-coverage to copy values from a polygon dataset
 ; to a patch variable
 to display-population-in-patches
-  gis:apply-coverage countries-dataset "POP_CNTRY" population
-  ask patches
-  [ ifelse (population > 0)
-    [ set pcolor scale-color red population 500000000 100000 ]
-    [ set pcolor blue ] ]
+  gis:apply-coverage countries-dataset "POP_CNTRY" patch-population
+  ask patches [
+    ifelse (patch-population > 0) [
+      set pcolor scale-color red patch-population 500000000 100000
+    ] [
+      set pcolor blue
+    ]
+  ]
 end
 
-; Using find-one-of to find a particular VectorFeature, then using
-; gis:intersects? to do something with all the features from another
+; Use gis:find-one-of to find a particular VectorFeature, then using
+; gis:intersects?, do something with all the features from another
 ; dataset that intersect that feature.
 to draw-us-rivers-in-green
   let united-states gis:find-one-feature countries-dataset "CNTRY_NAME" "United States"
   gis:set-drawing-color green
   foreach gis:feature-list-of rivers-dataset [ vector-feature ->
-    if gis:intersects? vector-feature united-states
-    [ gis:draw vector-feature 1 ] ]
+    if gis:intersects? vector-feature united-states [
+      gis:draw vector-feature 1
+    ]
+  ]
 end
 
-; Using find-greater-than to find a list of VectorFeatures by value.
-to highlight-large-cities
+; Use gis:find-greater-than to find a list of VectorFeatures by one of their
+; property values.
+to draw-large-cities
   gis:set-drawing-color yellow
   foreach gis:find-greater-than cities-dataset "POPULATION" 10000000 [ vector-feature ->
     gis:draw vector-feature 3
   ]
 end
 
-; Drawing a raster dataset to the NetLogo drawing layer, which sits
-; on top of (and obscures) the patches.
+; Draw a raster dataset to the NetLogo drawing layer, which sits
+; on top of (and obscures) the patches. The second parameter
+; is the opacity of the layer, with 0 representing fully opaque
+; and 255 representing fully transparent.
 to display-elevation
   gis:paint elevation-dataset 0
 end
 
+; Copy information from the elevation raster layer into the patch variable
+; "elevation" and then color each patch based on that value.
 to display-elevation-in-patches
   ; This is the preferred way of copying values from a raster dataset
   ; into a patch variable: in one step, using gis:apply-raster.
@@ -183,11 +198,13 @@ to display-elevation-in-patches
   ; elevation value.
   let min-elevation gis:minimum-of elevation-dataset
   let max-elevation gis:maximum-of elevation-dataset
-  ask patches
-  [ ; note the use of the "<= 0 or >= 0" technique to filter out
+  ask patches [
+    ; note the use of the "<= 0 or >= 0" technique to filter out
     ; "not a number" values, as discussed in the documentation.
-    if (elevation <= 0) or (elevation >= 0)
-    [ set pcolor scale-color black elevation min-elevation max-elevation ] ]
+    if (elevation <= 0) or (elevation >= 0) [
+      set pcolor scale-color black elevation min-elevation max-elevation
+    ]
+  ]
 end
 
 ; This is a second way of copying values from a raster dataset into
@@ -197,22 +214,12 @@ end
 to sample-elevation-with-patches
   let min-elevation gis:minimum-of elevation-dataset
   let max-elevation gis:maximum-of elevation-dataset
-  ask patches
-  [ set elevation gis:raster-sample elevation-dataset self
-    if (elevation <= 0) or (elevation >= 0)
-    [ set pcolor scale-color black elevation min-elevation max-elevation ] ]
-end
-
-; This is an example of how to select a subset of a raster dataset
-; whose size and shape matches the dimensions of the NetLogo world.
-; It doesn't actually draw anything; it just modifies the coordinate
-; transformation to line up patch boundaries with raster cell
-; boundaries. You need to call one of the other commands after calling
-; this one to see its effect.
-to match-cells-to-patches
-  gis:set-world-envelope gis:raster-world-envelope elevation-dataset 0 0
-  clear-drawing
-  clear-turtles
+  ask patches [
+    set elevation gis:raster-sample elevation-dataset self
+    if (elevation <= 0) or (elevation >= 0) [
+      set pcolor scale-color black elevation min-elevation max-elevation
+    ]
+  ]
 end
 
 ; This command also demonstrates the technique of creating a new, empty
@@ -229,21 +236,75 @@ to display-gradient-in-patches
   let vertical-gradient gis:convolve elevation-dataset 3 3 [ 1 2 1 0 0 0 -1 -2 -1 ] 1 1
   let gradient gis:create-raster gis:width-of elevation-dataset gis:height-of elevation-dataset gis:envelope-of elevation-dataset
   let x 0
-  repeat (gis:width-of gradient)
-  [ let y 0
-    repeat (gis:height-of gradient)
-    [ let gx gis:raster-value horizontal-gradient x y
+  repeat (gis:width-of gradient) [
+    let y 0
+    repeat (gis:height-of gradient) [
+      let gx gis:raster-value horizontal-gradient x y
       let gy gis:raster-value vertical-gradient x y
-      if ((gx <= 0) or (gx >= 0)) and ((gy <= 0) or (gy >= 0))
-      [ gis:set-raster-value gradient x y sqrt ((gx * gx) + (gy * gy)) ]
-      set y y + 1 ]
-    set x x + 1 ]
+      if ((gx <= 0) or (gx >= 0)) and ((gy <= 0) or (gy >= 0)) [
+        gis:set-raster-value gradient x y sqrt ((gx * gx) + (gy * gy))
+      ]
+      set y y + 1
+    ]
+    set x x + 1
+  ]
   let min-g gis:minimum-of gradient
   let max-g gis:maximum-of gradient
   gis:apply-raster gradient elevation
-  ask patches
-  [ if (elevation <= 0) or (elevation >= 0)
-    [ set pcolor scale-color black elevation min-g max-g ] ]
+  ask patches [
+    if (elevation <= 0) or (elevation >= 0) [
+      set pcolor scale-color black elevation min-g max-g
+    ]
+  ]
+end
+
+; This is an example of how to select a subset of a raster dataset
+; whose size and shape matches the dimensions of the NetLogo world.
+; It doesn't actually draw anything; it just modifies the coordinate
+; transformation to line up patch boundaries with raster cell
+; boundaries. You need to call one of the other commands after calling
+; this one to see its effect.
+to match-cells-to-patches
+  gis:set-world-envelope gis:raster-world-envelope elevation-dataset 0 0
+  clear-drawing
+  clear-turtles
+end
+
+; WMS stands for web mapping service, and it is a protocol that allows clients to ask
+; a server for image of a section of a larger map image.
+;
+; The `import-wms-drawing` primitive asks a server (in this case one run by
+; terrestris.de, a german GIS company that offers a WMS for the public)
+; for the section of the map within the current world envelope
+; and then draws it to the screen.
+;
+; In addition to the url of the WMS server, you must also supply the EPSG code
+; for the projection you want to use and the name of the layer you want to grab
+; from that server as well as a transparency parameter from 0 to 255.
+; If you do not know what EPSG code to use, 4326, the code for WGS84, should
+; provide good-enough results.
+to download-background-image
+  if-else projection = "WGS_84_Geographic" [
+    gis:import-wms-drawing "https://ows.terrestris.de/osm/service?" "EPSG:4326" "OSM-WMS" 0
+  ] [
+    show "Only WGS_84_Geographic projections are supported. Please Change to WGS_84_Geographic in the top left drop-down."
+  ]
+end
+
+; Use gis:project-lat-lon to convert latitude and longitude values
+; into an xcor and a ycor and create a turtle there.
+to create-turtle-at-lat-lon
+  let location gis:project-lat-lon lat lon
+  if not empty? location [
+    let loc-xcor item 0 location
+    let loc-ycor item 1 location
+    create-turtles 1 [
+      set xcor loc-xcor
+      set ycor loc-ycor
+      set shape "star"
+      set size 3
+    ]
+  ]
 end
 
 
@@ -284,7 +345,7 @@ BUTTON
 175
 133
 NIL
-display-cities
+draw-cities
 NIL
 1
 T
@@ -297,11 +358,11 @@ NIL
 
 BUTTON
 5
-260
+180
 175
-293
+213
 NIL
-display-countries
+draw-countries
 NIL
 1
 T
@@ -329,35 +390,13 @@ NIL
 NIL
 1
 
-SWITCH
+BUTTON
 5
 140
 175
 173
-label-cities
-label-cities
-1
-1
--1000
-
-SWITCH
-5
-300
-175
-333
-label-countries
-label-countries
-1
-1
--1000
-
-BUTTON
-5
-180
-175
-213
 NIL
-display-rivers
+draw-rivers
 NIL
 1
 T
@@ -368,21 +407,10 @@ NIL
 NIL
 0
 
-SWITCH
-5
-220
-175
-253
-label-rivers
-label-rivers
-1
-1
--1000
-
 BUTTON
-5
+200
 340
-175
+390
 373
 NIL
 display-rivers-in-patches
@@ -397,9 +425,9 @@ NIL
 0
 
 BUTTON
-5
+200
 380
-175
+390
 413
 NIL
 display-population-in-patches
@@ -414,10 +442,10 @@ NIL
 0
 
 BUTTON
-185
-340
-365
-373
+200
+460
+390
+493
 NIL
 draw-us-rivers-in-green
 NIL
@@ -431,12 +459,12 @@ NIL
 0
 
 BUTTON
-185
-380
-365
-413
+200
+500
+390
+533
 NIL
-highlight-large-cities
+draw-large-cities
 NIL
 1
 T
@@ -458,26 +486,9 @@ projection
 0
 
 BUTTON
-5
-420
-175
-453
-NIL
-display-countries-using-links
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-0
-
-BUTTON
-395
+405
 340
-580
+590
 373
 NIL
 display-elevation
@@ -492,9 +503,9 @@ NIL
 0
 
 BUTTON
-395
+405
 420
-580
+590
 453
 NIL
 sample-elevation-with-patches
@@ -509,9 +520,9 @@ NIL
 0
 
 BUTTON
-395
+405
 380
-580
+590
 413
 NIL
 display-elevation-in-patches
@@ -526,10 +537,10 @@ NIL
 0
 
 BUTTON
+405
+500
 590
-380
-775
-413
+533
 NIL
 match-cells-to-patches
 NIL
@@ -543,10 +554,10 @@ NIL
 0
 
 BUTTON
+405
+460
 590
-340
-775
-373
+493
 NIL
 display-gradient-in-patches
 NIL
@@ -560,10 +571,10 @@ NIL
 0
 
 BUTTON
-185
-420
-365
-453
+5
+265
+175
+298
 NIL
 clear-drawing
 NIL
@@ -576,6 +587,212 @@ NIL
 NIL
 1
 
+BUTTON
+605
+340
+790
+373
+NIL
+download-background-image
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+BUTTON
+5
+340
+185
+373
+NIL
+make-city-turtles
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+BUTTON
+5
+380
+185
+413
+NIL
+highlight-large-city-turtles
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+BUTTON
+5
+460
+185
+493
+NIL
+create-citizens-in-countries
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+BUTTON
+5
+420
+185
+453
+NIL
+draw/clear-city-turtle-labels
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+BUTTON
+5
+220
+175
+255
+NIL
+draw/clear-country-labels
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+TEXTBOX
+30
+320
+180
+338
+Vector Data -> Turtles
+11
+0.0
+1
+
+TEXTBOX
+230
+320
+380
+338
+Vector Data -> Patches
+11
+0.0
+1
+
+TEXTBOX
+465
+320
+615
+338
+Raster Data
+11
+0.0
+1
+
+TEXTBOX
+680
+320
+830
+338
+Misc.
+11
+0.0
+1
+
+TEXTBOX
+230
+435
+380
+453
+Filtering Vector Datasets
+11
+0.0
+1
+
+INPUTBOX
+605
+380
+690
+455
+lat
+42.055
+1
+0
+Number
+
+INPUTBOX
+705
+380
+790
+455
+lon
+-87.671
+1
+0
+Number
+
+BUTTON
+605
+460
+790
+493
+NIL
+create-turtle-at-lat-lon
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+SLIDER
+5
+500
+185
+533
+num-citizens-to-create
+num-citizens-to-create
+0
+100
+50.0
+1
+1
+NIL
+HORIZONTAL
+
 @#$#@#$#@
 ## WHAT IS IT?
 
@@ -583,15 +800,15 @@ This model was built to test and demonstrate the functionality of the GIS NetLog
 
 ## HOW IT WORKS
 
-This model loads four different GIS datasets: a point file of world cities, a polyline file of world rivers, a polygon file of countries, and a raster file of surface elevation. It provides a collection of different ways to display and query the data, to demonstrate the capabilities of the GIS extension.
+This model loads four different GIS datasets: a point file of world cities, a polyline file of world rivers, a polygon file of countries, and a raster file of surface elevation. It provides a collection of different ways to draw the data to the drawing layer, run queries on it, and transform it into NetLogo Turtles or Patch data.
 
 ## HOW TO USE IT
 
-Select a map projection from the projection menu, then click the setup button. You can then click on any of the other buttons to display data. See the code tab for specific information about how the different buttons work.
+Select a map projection from the projection menu, then click the setup button. You can then use all other features of the mode. See the code tab for specific information about how the different buttons work.
 
 ## THINGS TO TRY
 
-Most of the commands in the Code tab can be easily modified to display slightly different information. For example, you could modify `display-cities` to label cities with their population instead of their name. Or you could modify `highlight-large-cities` to highlight small cities instead, by replacing `gis:find-greater-than` with `gis:find-less-than`.
+Most of the commands in the Code tab can be easily modified to display slightly different information. For example, you could modify `highlight-large-cities` to highlight small cities instead, by replacing `gis:find-greater-than` with `gis:find-less-than`.
 
 ## EXTENDING THE MODEL
 
@@ -888,8 +1105,11 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 NetLogo 6.2.0
 @#$#@#$#@
 setup
-display-cities
-display-countries
+draw-countries
+make-city-turtles
+set num-citizens-to-create 5
+create-citizens-in-countries
+display-population-in-patches
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -905,5 +1125,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
