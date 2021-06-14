@@ -30,7 +30,7 @@ object ExtensionInstaller {
     println(s"Found ${extensionInfos.size} extensions in the library, with ${neededInfos.size} of them needing updates.")
     neededInfos.foreach( (extInfo) => {
       val action = if (extInfo.status == LibraryStatus.CanInstall) { "Installing" } else { "Updating" }
-      println(s"$action extension: ${extInfo.name} (${extInfo.codeName})")
+      println(s"$action extension: ${extInfo.name} (${extInfo.codeName} ${extInfo.version})")
       libraryManager.installExtension(extInfo)
       println(s"${extInfo.name} done.")
       Thread.sleep(2500)
