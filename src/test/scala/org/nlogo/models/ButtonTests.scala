@@ -39,16 +39,10 @@ class ButtonTests extends TestModels {
         val jobOwner = new SimpleJobOwner(button.display.getOrElse(source), ws.mainRNG, Observer)
         try {
           ws.evaluateCommands(jobOwner, "startup", ws.world.observers, true)
-          Thread.sleep(500)
         } catch {
           case e: CompilerException => /* ignore */
         }
         ws.evaluateCommands(jobOwner, code, ws.world.observers, true)
-        // LevelSpace launches its child models asynchronously, which means if we immediately "click" another
-        // button that uses that model, it might not be totally setup yet.  So... wait.
-        // A better solution would be to add a way to `await` a model open/setup in LevelSpace directly,
-        // but for now this should get tests passing on Actions. -Jeremy B May 2021
-        Thread.sleep(500)
         Option(ws.lastLogoException)
           .filterNot(_.getMessage.endsWith("You can't get user input headless."))
           .foreach(throw _)
