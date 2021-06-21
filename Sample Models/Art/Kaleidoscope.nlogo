@@ -1,19 +1,19 @@
-globals [curr-color-sep]   ;; spread of the colors in the kaleidoscope
+globals [ curr-color-sep ]   ; spread of the colors in the kaleidoscope
 
-;; INITIALIZATION PROCEDURES
+; INITIALIZATION PROCEDURES
 to setup
   clear-all
   set-default-shape turtles "circle"
-  ;; the patterns assume evenly spaced turtles
-  create-ordered-turtles nturtles [ pen-down ]
+  ; the patterns assume evenly spaced turtles
+  create-ordered-turtles num-turtles [ pen-down ]
   set curr-color-sep color-sep
   reset-ticks
 end
 
 
-;; RUN-TIME PROCEDURES
-;; First Pattern
-;; -turn a bit right, hatch a turtle which draws a circle then dies
+; RUN-TIME PROCEDURES
+; First Pattern
+; Turn a bit right, hatch a turtle which draws a circle then dies
 to pattern-1
   ask turtles [
     rt 1
@@ -23,17 +23,13 @@ to pattern-1
       die
     ]
   ]
-  every 1
-  [
-    if color-shift?
-      [ color-shift ]
-  ]
+  every 1 [ if color-shift? [ color-shift ] ]
   tick
 end
 
-;; Second Pattern
-;; -half our turtles do Pattern 1; the other half do the same,
-;;  except mirrored (they turn left circles)
+; Second Pattern
+; Half our turtles do Pattern 1; the other half do the same,
+; except mirrored (they turn left circles)
 to pattern-2
   ask turtles [
     ifelse (who mod 2) = 0 [
@@ -43,8 +39,7 @@ to pattern-2
         right-circle
         die
       ]
-    ]
-    [
+    ][
       lt 1
       hatch 1 [
         set color 5.375 * ((count turtles - 1) / curr-color-sep) + 10
@@ -53,15 +48,11 @@ to pattern-2
       ]
     ]
   ]
-  every 1
-  [
-    if color-shift?
-      [ color-shift ]
-  ]
+  every 1 [ if color-shift? [ color-shift ] ]
   tick
 end
 
-;; Spin a circle, clockwise
+; Spin a circle, clockwise
 to right-circle
   repeat 36 [
     fd 4
@@ -69,26 +60,23 @@ to right-circle
   ]
 end
 
-;; Spin a circle, counterclockwise
+; Spin a circle, counterclockwise
 to left-circle
-  repeat 36[
+  repeat 36 [
     fd 4
     lt 10
   ]
 end
 
-;; Change curr-olor-sep, to increase colors or decrease colors
+; Change curr-color-sep, to increase colors or decrease colors
+; and cap the value at the bottom at 1 and at the top at 60
 to color-shift
-  ifelse increase-color?
-  [
+  ifelse increase-color? [
     set curr-color-sep curr-color-sep + random 3
-    if curr-color-sep > 60
-      [ set curr-color-sep 60 ]
-  ]
-  [
+    if curr-color-sep > 60 [ set curr-color-sep 60 ]
+  ][
     set curr-color-sep curr-color-sep - random 3
-    if curr-color-sep < 1
-      [ set curr-color-sep 1 ]
+    if curr-color-sep < 1 [ set curr-color-sep 1 ]
   ]
 end
 
@@ -97,9 +85,9 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-264
+295
 10
-676
+707
 423
 -1
 -1
@@ -124,21 +112,10 @@ ticks
 30.0
 
 MONITOR
-18
-172
-119
-217
-count-turtles
-count turtles
-3
-1
-11
-
-MONITOR
-132
-173
-247
-218
+75
+130
+215
+175
 current-color-sep
 curr-color-sep
 3
@@ -146,25 +123,25 @@ curr-color-sep
 11
 
 SLIDER
-12
-52
-147
-85
+145
+10
+285
+43
 color-sep
 color-sep
 1.0
 60.0
-7.0
+1.0
 1.0
 1
 NIL
 HORIZONTAL
 
 BUTTON
-154
-10
-248
-43
+5
+50
+85
+83
 setup
 setup
 NIL
@@ -178,10 +155,10 @@ NIL
 1
 
 BUTTON
-155
-64
-248
-97
+90
+50
+183
+83
 pattern-1
 pattern-1
 T
@@ -195,21 +172,21 @@ NIL
 0
 
 SWITCH
-12
-121
-148
-154
+145
+90
+285
+123
 increase-color?
 increase-color?
-1
+0
 1
 -1000
 
 BUTTON
-155
-99
-248
-132
+190
+50
+285
+83
 pattern-2
 pattern-2
 T
@@ -223,12 +200,12 @@ NIL
 0
 
 SLIDER
-9
+5
 10
-144
+140
 43
-nturtles
-nturtles
+num-turtles
+num-turtles
 1
 24
 6.0
@@ -238,42 +215,46 @@ NIL
 HORIZONTAL
 
 SWITCH
-12
-87
-148
-120
+5
+90
+141
+123
 color-shift?
 color-shift?
-1
+0
 1
 -1000
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model uses NetLogo turtles to repeatedly draw circles, turning periodically so that the display gives the impression of a kaleidoscope or pinwheel.
+This model uses NetLogo turtles to repeatedly draw circles, turning periodically so that the display gives the impression of a kaleidoscope or pinwheel. It is a demonstration of how a set of simple agent rules can give rise to complex and beautiful patterns.
+
+## HOW IT WORKS
+
+The inner workings of the model are quite simple. A number of turtles are created with their pen's down (wherever they move, they will draw a trail). At each tick, every original turtle hatches a new "drawing turtle" whose only job is to draw a circle and then immediately die. In between hatchings, the only thing the original turtles are doing is slowly rotating. While there are two built-in patterns for the model, both follow the same set of rules, with the only difference being that half of the drawing turtles in PATTERN-2 draw circles counterclockwise while all of the turtles in PATTERN-1 draw circles clockwise.
 
 ## HOW TO USE IT
 
-The NTURTLES slider really determines the number of "arms" or "petals" that the kaleidoscope will have. Begin by setting this slider to the desired value (10 is fine).
+The NUM-TURTLES slider really determines the number of "arms" or "petals" that the kaleidoscope will have. Begin by setting this slider to the desired value (10 is fine).
 
-Next, set COLOR-SEP to some value. COLOR-SEP basically determines the range of colors that the turtles (and hence the kaleidoscope) will take on. The higher the value, the smaller the range. (For a nice, three-colored kaleidoscope, set COLOR-SEP to 25.) This inverse relation between COLOR-SEP and the color range is due to the fact that COLOR-SEP acts as a constant to divide a turtle's color by.
+Next, set COLOR-SEP to some value. COLOR-SEP determines the range of colors that the turtles (and hence the kaleidoscope) will take on. The higher the value, the smaller the range. For a nice, three-colored kaleidoscope, set COLOR-SEP to 25. This inverse relation between COLOR-SEP and the color range is due to the fact that COLOR-SEP acts as a constant to divide a turtle's color by.
 
-When you have set both NTURTLES and COLOR-SEP, press the SETUP button to set your kaleidoscope in motion.
+When you have set both NUM-TURTLES and COLOR-SEP, press the SETUP button to get your model ready for drawing.
 
 Next, choose which pattern you want. Each pattern has its own forever-button that controls it. PATTERN-1 has the arms of the kaleidoscope all spiraling clockwise, while PATTERN-2 has the arms of the kaleidoscope spiral in both clockwise and counterclockwise directions, giving a slightly more complicated design.
 
-Finally, you have the power to change the color distribution exhibited by this model. The COLOR-SHIFT button will either increment or decrement the value of COLOR-SEP used by the turtles -- saved internally as CURR-COLOR-SEP. (Thus the slider value itself isn't changed, but the number the turtles look at is.) This number is changed by a small random amount. The INCREASE-C? switch determines if CURR-COLOR-SEP is increased (true) or decreased (false).
+Finally, you have the power to change the color distribution exhibited by this model. The COLOR-SHIFT button will either increment or decrement the value of COLOR-SEP used by the turtles -- saved internally as CURR-COLOR-SEP. Thus the slider value itself isn't changed, but the number the turtles look at is constantly changing. This number is changed by a small random amount. The INCREASE-COLOR? switch determines if CURR-COLOR-SEP is increased (true) or decreased (false).
 
-You also have two monitors at the bottom of the Interface Window. COUNT-TURTLES will simply display the current number of turtles. Likewise, CURR-COLOR-SEP will display that variable's value, so that you know when it has been altered, and by how much.
+You also have a monitor, CURR-COLOR-SEP, which will display that variable's value, so that you know when it has been altered, and by how much.
 
 ## THINGS TO NOTICE
 
-First, just try playing around and observe what happens. This is meant to be a visually pleasing model just to watch. See what different values of NTURTLES and COLOR-SEP produce, and explore how COLOR-SHIFT changes the appearance of the kaleidoscope. What seems the best to you?
+First, just try playing around and observe what happens. This is meant to be a visually pleasing model just to watch. See what different values of NUM-TURTLES and COLOR-SEP produce, and explore how COLOR-SHIFT changes the appearance of the kaleidoscope. What seems the best to you?
 
-An important thing to notice here is the number given in COUNT-TURTLES. Right away, it becomes much larger than NTURTLES, but quickly settles on some nice big number. Take a look at the Procedures Window. There are really two levels of turtle commands going on here. Initially, upon setup, there are NTURTLES number of turtles. Once one of the pattern buttons is pressed, each of these turtles (who compose the "arms" of the kaleidoscope) repeatedly hatches a new turtle and turns by a single degree. The newly-hatched turtles begin to draw circles, self-destructing upon completion. As the "arm" turtles execute their commands much quicker than the hatched turtles, they produce many turtles during one loop of a circle; eventually, though, turtles start to die off. At this point, the number of turtles who are born is roughly equal to the number who die at any given step.
+An important thing to notice here is the number given in COUNT-TURTLES. Right away, it becomes much larger than NUM-TURTLES, but quickly settles on some nice big number. Take a look at the Procedures Window. There are really two levels of turtle commands going on here. Initially, upon setup, there are NTURTLES number of turtles. Once one of the pattern buttons is pressed, each of these turtles (who compose the "arms" of the kaleidoscope) repeatedly hatches a new turtle and turns by a single degree. The newly-hatched turtles begin to draw circles, self-destructing upon completion. As the "arm" turtles execute their commands much quicker than the hatched turtles, they produce many turtles during one loop of a circle; eventually, though, turtles start to die off. At this point, the number of turtles who are born is roughly equal to the number who die at any given step.
 
-You also should notice how COLOR-SEP (or really CURR-COLOR-SEP) alters the appearance of the kaleidoscope. Turn COLOR-SHIFT on, and let CURR-COLOR-SEP become very large. Then watch what happens when it is small, maybe zero or some negative number.
+You also should notice how COLOR-SEP (or really CURR-COLOR-SEP) alters the appearance of the kaleidoscope. Turn COLOR-SHIFT? on, and let CURR-COLOR-SEP become very large. Then watch what happens when it is small, maybe zero or some negative number.
 
 ## THINGS TO TRY
 
@@ -292,6 +273,10 @@ Try to write an entirely new kind of model along similar lines.  In the current 
 ## NETLOGO FEATURES
 
 This makes nice use of the turtle primitive `hatch`. Whenever a turtle is hatched, it executes the command list that follows the `hatch` command. In most context this is used just to change the new turtle's color or alter some variable.  But there's no reason it can't run some other, possibly lengthy, procedure, and that's exactly what happens here.
+
+## ACKNOWLEDGEMENTS
+
+Thanks to Connor Bain for updating this model in 2021.
 
 ## HOW TO CITE
 
@@ -622,5 +607,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
