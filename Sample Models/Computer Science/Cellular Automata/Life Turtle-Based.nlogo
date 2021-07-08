@@ -1,6 +1,10 @@
 breed [cells cell]    ;; living cells
 breed [babies baby]   ;; show where a cell will be born
 
+globals [
+  erasing?        ;; is the current draw-cells mouse click erasing or adding?
+]
+
 patches-own [
   live-neighbors  ;; count of how many neighboring cells are alive
 ]
@@ -67,13 +71,21 @@ end
 
 ;; user adds or removes cells with the mouse
 to draw-cells
-  let erasing? any? cells-on patch mouse-xcor mouse-ycor
-  while [mouse-down?]
-    [ ask patch mouse-xcor mouse-ycor
-      [ ifelse erasing?
-        [ erase ]
-        [ draw ] ]
-    display ]
+  ifelse mouse-down? [
+    if erasing? = 0 [
+      set erasing? any? cells-on patch mouse-xcor mouse-ycor
+    ]
+    ask patch mouse-xcor mouse-ycor [
+      ifelse erasing? [
+        erase
+      ] [
+        draw
+      ]
+    ]
+    display
+  ] [
+    set erasing? 0
+  ]
 end
 
 ;; user adds a cell with the mouse

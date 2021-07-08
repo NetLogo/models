@@ -52,11 +52,14 @@ to swap-pcolor [p1 p2]
 end
 
 to draw-circle
-  while [mouse-down?]
-    [ ask patch mouse-xcor mouse-ycor
-        [ ask patches in-radius radius
-            [ set pcolor black ] ]
-      display ]
+  if mouse-down? [
+    ask patch mouse-xcor mouse-ycor [
+      ask patches in-radius radius [
+        set pcolor black
+      ]
+    ]
+    display
+  ]
 end
 
 

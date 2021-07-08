@@ -1,3 +1,7 @@
+globals [
+  erasing?          ;; is the current draw-cells mouse click erasing or adding?
+]
+
 patches-own [
   firing?           ;; white cells
   refractory?       ;; red cells
@@ -56,15 +60,25 @@ to go
 end
 
 to draw-cells [target-color]
-  let erasing? target-color = [pcolor] of patch mouse-xcor mouse-ycor
-  while [mouse-down?]
-    [ ask patch mouse-xcor mouse-ycor
-      [ ifelse erasing?
-        [ cell-death ]
-        [ ifelse target-color = white
-          [ cell-birth ]
-          [ cell-aging ] ] ]
-      display ]
+  ifelse mouse-down? [
+    if erasing? = 0 [
+      set erasing? target-color = [pcolor] of patch mouse-xcor mouse-ycor
+    ]
+    ask patch mouse-xcor mouse-ycor [
+      ifelse erasing? [
+        cell-death
+      ] [
+        ifelse target-color = white [
+          cell-birth
+        ] [
+          cell-aging
+        ]
+      ]
+    ]
+    display
+  ] [
+    set erasing? 0
+  ]
 end
 
 
