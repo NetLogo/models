@@ -1,3 +1,7 @@
+globals [
+  erasing?        ;; is the current draw-cells mouse click erasing or adding?
+]
+
 patches-own [
   living?         ;; indicates if the cell is living
   live-neighbors  ;; counts how many neighboring cells are alive
@@ -44,13 +48,21 @@ to go
 end
 
 to draw-cells
-  let erasing? [living?] of patch mouse-xcor mouse-ycor
-  while [mouse-down?]
-    [ ask patch mouse-xcor mouse-ycor
-      [ ifelse erasing?
-        [ cell-death ]
-        [ cell-birth ] ]
-      display ]
+  ifelse mouse-down? [
+    if erasing? = 0 [
+      set erasing? [living?] of patch mouse-xcor mouse-ycor
+    ]
+    ask patch mouse-xcor mouse-ycor [
+      ifelse erasing? [
+        cell-death
+      ] [
+        cell-birth
+      ]
+    ]
+    display
+  ] [
+    set erasing? 0
+  ]
 end
 
 

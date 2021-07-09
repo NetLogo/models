@@ -5,6 +5,7 @@ breed [petals petal]
 
 globals [
   first-parent     ;; the first parent chosen if sexual reproduction is being used
+  mouse-handled?   ;; if we already handled a mouse-down? event
 ]
 
 spawners-own [
@@ -36,6 +37,7 @@ to setup
   ]
   arrange-spawners
   set first-parent nobody
+  set mouse-handled? false
   reset-ticks
 end
 
@@ -77,7 +79,14 @@ to go
     if abs (ycor - [ycor] of parent) > max-pycor / (rows * 1.5) [ die ]
   ]
   tick
-  if mouse-down? [ handle-mouse-down ]
+  ifelse mouse-down? [
+    if not mouse-handled? [
+      handle-mouse-down
+      set mouse-handled? true
+    ]
+  ] [
+    set mouse-handled? false
+  ]
 end
 
 to repopulate-from-two [parent1 parent2]
@@ -138,8 +147,6 @@ to handle-mouse-down
       ]
     ]
   ]
-  ;; wait for the user to release mouse button
-  while [mouse-down?] [ ]
 end
 
 

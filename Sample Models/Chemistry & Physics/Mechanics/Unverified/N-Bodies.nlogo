@@ -12,6 +12,7 @@ globals
 [ center-of-mass-yc ;; y-coordinate of the center of mass
   center-of-mass-xc ;; x-coordinate of the center of mass
   g  ;; Gravitational Constant
+  mouse-handled?    ;; did we already handle the create particle mouse event?
 ]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -70,30 +71,38 @@ to zero-sum-initial-setup
 end
 
 to create-particle
-  if mouse-down?
-  [ let mx mouse-xcor
-    let my mouse-ycor
-    if (not any? turtles-on patch mx my)
-    [
-      create-turtles 1
-      [ set xc mx ;initial-position-x
-        set yc my ;initial-position-y
-        setxy xc yc
-        set vx initial-velocity-x
-        set vy initial-velocity-y
-        set mass initial-mass
-        set size sqrt mass
-        set color particle-color
+  if mouse-handled? = 0 [
+    set mouse-handled? false
+  ]
+
+  ifelse mouse-down?
+  [
+    if not mouse-handled? [
+      let mx mouse-xcor
+      let my mouse-ycor
+      if (not any? turtles-on patch mx my)
+      [
+        create-turtles 1
+        [ set xc mx ;initial-position-x
+          set yc my ;initial-position-y
+          setxy xc yc
+          set vx initial-velocity-x
+          set vy initial-velocity-y
+          set mass initial-mass
+          set size sqrt mass
+          set color particle-color
+        ]
+        display
       ]
+      set mouse-handled? true
+    ]
+  ] [
+    if mouse-handled? and keep-centered?
+    [
+      recenter
       display
     ]
-  ]
-  while [mouse-down?]
-  []
-  if keep-centered?
-  [
-    recenter
-    display
+    set mouse-handled? false
   ]
 end
 

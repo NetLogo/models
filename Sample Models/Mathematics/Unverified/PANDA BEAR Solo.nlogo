@@ -4,6 +4,7 @@
 
 globals [
   red-vertex          ;; the red vertex
+  click-vertex        ;; the mouse clicked vertex
 ]
 
 breed [ vertices vertex ]
@@ -79,25 +80,29 @@ end
 ;;
 
 to go
-  if mouse-down? [
-    ;; clicking "picks up" the closest vertex
-    ask min-one-of vertices [ distancexy mouse-xcor mouse-ycor ] [
+  ifelse mouse-down? [
+    ifelse click-vertex = 0 [
+      ;; clicking "picks up" the closest vertex
+      set click-vertex min-one-of vertices [ distancexy mouse-xcor mouse-ycor ]
       ;; if the mouse is more than 1 patch away from any
       ;; vertex just ignore the click.
-      if distancexy mouse-xcor mouse-ycor < 1
-      [
-        while [mouse-down?] [
-          ;; use EVERY to limit how much data we end up plotting
-          every 0.05 [
-            ;; don't move vertices directly on top of one another
-            if all? other vertices [ xcor != mouse-xcor or ycor != mouse-ycor ] [
-              setxy mouse-xcor mouse-ycor
-              update
-            ]
+      if [distancexy mouse-xcor mouse-ycor] of click-vertex >= 1 [
+        set click-vertex 0
+      ]
+    ] [
+      ;; use EVERY to limit how much data we end up plotting
+      every 0.05 [
+        ask click-vertex [
+          ;; don't move vertices directly on top of one another
+          if all? other vertices [ xcor != mouse-xcor or ycor != mouse-ycor ] [
+            setxy mouse-xcor mouse-ycor
+            update
           ]
         ]
       ]
     ]
+  ] [
+    set click-vertex 0
   ]
 end
 

@@ -41,7 +41,7 @@ end
 ;; ======================= Other Surface Procedures ==========================
 
 to draw-surface
-  while [mouse-down?] [
+  if mouse-down? [
     create-turtles 1 [
       setxy mouse-xcor mouse-ycor
       ask patches in-radius 3 [ set pcolor violet ]
