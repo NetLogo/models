@@ -20,7 +20,7 @@ fork := true
 
 libraryDependencies ++= Seq(
   "org.nlogo" % "netlogo" % netLogoVersion,
-  "org.scalatest" %% "scalatest" % "3.0.0" % Test,
+  "org.scalatest" %% "scalatest" % "3.0.1" % Test,
   "commons-io" % "commons-io" % "2.4",
   "commons-validator" % "commons-validator" % "1.4.1",
   "org.jogamp.jogl" % "jogl-all" % "2.4.0" from "https://jogamp.org/deployment/archive/rc/v2.4.0-rc-20210111/jar/jogl-all.jar",
