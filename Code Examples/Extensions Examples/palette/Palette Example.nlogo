@@ -1,24 +1,36 @@
 extensions [ palette ]
 
+globals [ prev-setting ] ; used in GO so that patch colors are only changed when the chooser changes
+
 to setup
   clear-all
-  if scheme = "Normal" [ normal-scale-scheme ]
-  if scheme = "RGB" [ rgb-color-scale-gradient ]
-  if scheme = "NetLogo" [ netlogo-color-scale-gradient ]
-  if scheme = "Spectral" [ scheme-color-scale-gradient ]
+  reset-ticks
+  go
+end
+
+to go
+  if prev-setting != scheme [
+    if scheme = "Color Wheel" [ hsb-color-scale-gradient ]
+    if scheme = "Scale Scheme" [ normal-scale-scheme ]
+    if scheme = "RGB" [ rgb-color-scale-gradient ]
+    if scheme = "NetLogo RGB" [ netlogo-color-scale-gradient ]
+    if scheme = "Spectral" [ scheme-color-scale-gradient ]
+  ]
+  set prev-setting scheme
+  tick
 end
 
 to normal-scale-scheme
   ask patches [
     set plabel round patch-value
-    set pcolor palette:scale-scheme "Sequential" "Reds" 9 patch-value 0 10
+    set pcolor palette:scale-scheme "Qualitative" "Set3" 7 patch-value 0 10
   ]
 end
 
 to rgb-color-scale-gradient
   ask patches [
     set plabel round patch-value
-    set pcolor palette:scale-gradient [[255 0 0] [255 255 255] [0 0 255]] patch-value 0 10
+    set pcolor palette:scale-gradient [[255 0 0] [0 255 0] [0 0 255]] patch-value 0 10
   ]
 end
 
@@ -26,10 +38,9 @@ to netlogo-color-scale-gradient
   ask patches [
     set plabel round patch-value
     ; NetLogo red is different than [ 255 0 0 ] it is [215 50 41]
-    let red-netlogo extract-rgb red
+    ; NetLogo green is different than [  0 255 0 ] it is [89 176 60]]
     ; NetLogo blue is different than [ 0 0 255 ] it is [52 93 169]
-    let blue-netlogo extract-rgb blue
-    set pcolor palette:scale-gradient (list red-netlogo [255 255 255] blue-netlogo) patch-value 0 10
+    set pcolor palette:scale-gradient (list red green blue) patch-value 0 10
   ]
 end
 
@@ -37,6 +48,13 @@ to scheme-color-scale-gradient
   ask patches [
     set plabel round patch-value
     set pcolor palette:scale-gradient palette:scheme-colors "Divergent" "Spectral" 9 patch-value 0 10
+  ]
+end
+
+to hsb-color-scale-gradient
+  ask patches [
+    set plabel round patch-value
+    set pcolor palette:scale-gradient-hsb [[0 100 100] [120 100 100] [240 100 100] [360 100 100]] patch-value 0 10
   ]
 end
 
@@ -78,10 +96,10 @@ ticks
 30.0
 
 BUTTON
-79
-103
-145
-136
+20
+55
+86
+88
 NIL
 setup
 NIL
@@ -96,13 +114,30 @@ NIL
 
 CHOOSER
 20
-169
+95
 158
-214
+140
 scheme
 scheme
-"Normal" "RGB" "NetLogo" "Spectral"
-2
+"Color Wheel" "Scale Scheme" "RGB" "NetLogo RGB" "Spectral"
+0
+
+BUTTON
+95
+55
+158
+88
+NIL
+go\n
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -111,7 +146,7 @@ This model demonstrates basic usage of the `palette` extension.
 
 ## HOW TO USE IT
 
-Select the color scheme that you want in the SCHEME chooser and then click SETUP.
+Click SETUP then select the setting you want displayed with the chooser.
 
 ## HOW IT WORKS
 
@@ -119,7 +154,7 @@ The model assigns fractional values from 0 to 10 to patches, from bottom to top,
 
 ## NETLOGO FEATURES
 
-The `palette:scale-scheme`, `palette:scale-gradient` and `palette:scheme-colors` primitives of the `palette` extension are used here.
+The `palette:scale-scheme`, `palette:scale-gradient`, `palette:scale-gradient-hsb`, and `palette:scheme-colors` primitives of the `palette` extension are used here.
 
 See [the documentation for the extension](https://github.com/NetLogo/Palette-Extension#readme) for more details.
 
@@ -452,5 +487,5 @@ true
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
 @#$#@#$#@
-0
+1
 @#$#@#$#@
