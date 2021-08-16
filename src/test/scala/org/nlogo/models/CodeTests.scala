@@ -342,6 +342,27 @@ class CodeTests extends TestModels {
    ),
    "Hardy Weinberg Equilibrium" -> Set(
       "frequency-of-dominant-A"
+   ),
+   "Calorimetry" -> Set(
+      "Ca-to-add",
+      "add-Ca",
+      "add-CA",
+      "add-KI",
+      "KI-to-add"
+   ),
+   "Taxi Cabs" -> Set(
+       "prob-res-res-EVE", "prob-com-com-PM", "prob-cbd-res-PM", "prob-cbd-cbd-AM",
+       "prob-com-res-AM", "prob-res-res-EM", "prob-res-res-PM", "prob-cbd-com-PM",
+       "prob-com-res-MD", "prob-res-cbd-EM", "prob-cbd-cbd-EVE", "prob-com-com-EVE",
+       "prob-cbd-res-AM", "prob-com-cbd-EVE", "prob-res-com-AM", "prob-res-com-EM",
+       "prob-com-cbd-PM", "prob-res-cbd-PM", "prob-cbd-res-MD", "prob-cbd-com-EM",
+       "prob-cbd-com-AM", "prob-cbd-cbd-EM", "prob-res-cbd-AM", "prob-com-com-EM",
+       "prob-com-res-EVE", "prob-res-res-MD", "prob-res-cbd-MD", "prob-res-com-MD",
+       "prob-res-cbd-EVE", "prob-res-com-EVE", "prob-com-cbd-AM", "prob-cbd-res-EVE",
+       "prob-com-com-MD", "prob-res-res-AM", "prob-com-cbd-MD", "prob-com-cbd-EM",
+       "prob-cbd-com-MD", "prob-com-res-PM", "prob-com-res-EM", "prob-com-com-AM",
+       "prob-cbd-com-EVE", "prob-res-com-PM", "prob-cbd-cbd-MD", "prob-cbd-res-EM",
+       "prob-cbd-cbd-PM",
    )
   )
 
