@@ -74,7 +74,7 @@ end
 to go ; the simulation loops that repeats forever
 
   make-garments
-  state-machine
+  set-robots-destination
   return-home
   recharge
   deliver-more-material-sheets
@@ -90,7 +90,7 @@ to go ; the simulation loops that repeats forever
 end
 
 
-to state-machine ; sets the destination of robot based on its energy, laden? status and current location
+to set-robots-destination ; sets the destination of robot based on its energy, laden? status and current location
   ask robots [ ; ask all the robots to implement the following
     (ifelse ; takes account of the type of breed of machine here to operate across several states.
       ; LOADING DOCKS
@@ -225,6 +225,8 @@ to recharge
     if sum [supply] of loading-docks > 0 [ ; if robots are needed for immediate tasks, interrupt some charging and send a robot.
       if any? robots-here [
         ask one-of robots-here [
+          ; note: this could be changed to a different heuristic, like selecting the robot
+          ; with the most energy.
           if energy > just-in-time-supply-robot [ set destination one-of loading-docks ]
         ]
       ]
@@ -269,9 +271,8 @@ to deliver-more-material-sheets ; 3% of the time, when the supply at the loading
   ]
 end
 
+; Robots move toward their destination set by the set-robots-destination procedure
 to move
-  ; Robots move toward their destination
-
   if can-move? 1 [forward 1 face destination]
   ifelse product > 0 [ ; if the are carrying something, robots lose two energy
     set laden? true
@@ -560,14 +561,14 @@ HORIZONTAL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model demonstrates a resilient robot factory that runs autonomously, based on the principles of self-organization so prevalent in nature. In the model, a garment factory is completely automated but attached to an unpredictable external world (suppliers). The robots carry products from one machine to the next, and then out to the van to be whisked away. Nature has long experience with persisting in an interconnected world. If only humans could self organize as efficiently, and resiliently as the bees or ants do. If only the stock market had the same antibodies as our own bodies to take care of virulent interlopers. We need more resilient human systems that borrow from nature, of which, this is an example.
+This model demonstrates a resilient robot factory that runs autonomously, based on the principles of self-organization so prevalent in nature. In the model, a garment factory is completely automated but attached to an unpredictable external world (suppliers). The robots carry products from one machine to the next, and then out to the van to be whisked away. Nature has long experience with persisting in an interconnected world. If only humans could self organize as efficiently, and resiliently as the bees or ants do. We need more resilient human systems that borrow from nature, of which, this is an example.
 
 ### The Factory, an Emergent or Sequential Process?
-In order to reimagine resilient human systems, we need to redesign many systems from sequential systems prevalent in the industrial age, to emergent processes, so prevelent in nature. For Chi et al. (2012) processes, can be categorized in two ways – sequential or emergent. Sequential processes can be subdivided into a sequence of events, like an assembly line where the metal is rolled, pressed, stamped, and smoothed before being turned into cans and filled with tomatoes sauce. This is a process with multiple agents: the machines, their operators, and a manager. It makes sense to speak of sequential processes resulting from a single agent’s actions. For example, we could say the manager increased efficiency of the assembly process by increasing the speed of the conveyor belt. Even though all the agents participated in the process, we can focus on the goal setting manger’s actions to account for the change. As a result, Chi et al. (2012) say one can give special controlling status to the agent that caused the change in a sequential process. This means if someone thinks of a process, like ant colonies, as sequential, people often times assume interactions at the agent level are done in order to reach the goal of the higher level, whether that be producing cans of tomato soup at the managers, or the queen ant giving orders. The causal mechanism that leads to the result comes from the summing of the assembly line’s outcomes directed by the manager. Many people confuse this control when thinking about emergent processes.
+In order to reimagine resilient human systems, we need to redesign many systems from sequential systems prevalent in the industrial age, to emergent processes, so prevalent in nature. For Chi et al. (2012) processes, can be categorized in two ways – sequential or emergent. Sequential processes can be subdivided into a sequence of events, like an assembly line where the metal is rolled, pressed, stamped, and smoothed before being turned into cans and filled with tomatoes sauce. This is a process with multiple agents: the machines, their operators, and a manager. It makes sense to speak of sequential processes resulting from a single agent’s actions. For example, we could say the manager increased efficiency of the assembly process by increasing the speed of the conveyor belt. Even though all the agents participated in the process, we can focus on the goal setting manger’s actions to account for the change. As a result, Chi et al. (2012) say one can give special controlling status to the agent that caused the change in a sequential process. This means if someone thinks of a process, like ant colonies, as sequential, people often times assume interactions at the agent level are done in order to reach the goal of the higher level, whether that be producing cans of tomato soup at the managers, or the queen ant giving orders. The causal mechanism that leads to the result comes from the summing of the assembly line’s outcomes directed by the manager. Many people confuse this control when thinking about emergent processes. Many people confuse this control when thinking about emergent processes.
 
 Emergent processes, like ants searching for food, marching in orderly paths, or getting stuck in a doorway are slightly different. These processes result from each ant taking actions, some of them random, where the result emerges from the repetition of the action, but no agent is in control. These processes are encountered in school standards such as osmosis and diffusion, electrical current and buoyancy.
 
-In this model, the factory is configured to be an emergent, as opposed to a sequential process, providing a novel design of the factory floor.
+This model configures a factory to be an emergent, as opposed to a sequential process, providing a novel design of a factory floor. This model is emergent because instead of operating on the processes of the factory, we set key properties that establish the emergent pattern of the model: the energy cycle. In other words, the efficiencies result from operating on the emergent, instead of operational, parameters. This is an example of humans designing an emergent system to meet business needs.
 
 ## HOW IT WORKS
 
@@ -627,7 +628,7 @@ Right now, robots have to go back to the charging room to recharge, try add rech
 
 The machines are in a particular arrangement, optimize for idleness or productivity by rearranging the machines.
 
-Currently, robots can always make it back to the robot room to recharge. Change the model so that robots can get stranded if they do not leave for the robot room in time by editing the return-home function.
+Currently, robots can always make it back to the robot room to recharge, because they can go into negative energy. This may not be the most realistic model. Change the model so that robots can get stranded if they do not leave for the robot room in time by editing the return-home function.
 
 Python: right now, the robots don't learn, which makes them like a conveyor belt. Using the python extension implement some learning into the model.
 
