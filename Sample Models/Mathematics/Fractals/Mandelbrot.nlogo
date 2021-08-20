@@ -352,7 +352,7 @@ https://web.archive.org/web/20160131061433/http://www.ddewey.net/mandelbrot/
 
 An introductory online textbook for Complex Analysis.
 (Note: This is a college level text, but the first chapter or so should be accessible to people with only some algebra background.)
-http://people.math.gatech.edu/~cain/winter99/complex.html
+https://people.math.gatech.edu/~cain/winter99/complex.html
 
 The Fractal Geometry of Nature by Benoit Mandelbrot
 

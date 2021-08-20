@@ -293,7 +293,7 @@ The Ising model was first proposed by Wilhelm Lenz in 1920.  It is named after h
 
 There are many web pages which explore the Ising model in greater detail than attempted here. Here are a few:
 
-- http://pages.physics.cornell.edu/~sethna/teaching/sss/ising/intro.htm
+- https://web.archive.org/web/20210601224436/http://pages.physics.cornell.edu/~sethna/teaching/sss/ising/intro.htm
 - http://demonstrations.wolfram.com/IsingModel/
 
 ## HOW TO CITE

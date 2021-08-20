@@ -347,7 +347,7 @@ Research published in Nature Genetics (Economou et al, 2012) appears to confirm 
 https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3303118/
 
 A news article in IO9 by Alasdair Wilkins describing the research can be found here.
-https://io9.gizmodo.com/scientists-confirm-alan-turings-60-year-old-theory-for-5886406
+https://gizmodo.com/scientists-confirm-alan-turings-60-year-old-theory-for-5886406
 
 Here is a quote from the Wilkins article:
 
@@ -380,7 +380,7 @@ Here is a quote from the Wilkins article:
 >validating an old theory of the activator-inhibitor model first put forward by
 >Alan Turing in the 50s."
 
-Other new research published in the Journal of Experimental Biology (Egri et al, 2011) proposes an evolutionary explanation for the advantage conferred by stripes. https://jeb.biologists.org/content/215/5/736.abstract
+Other new research published in the Journal of Experimental Biology (Egri et al, 2011) proposes an evolutionary explanation for the advantage conferred by stripes. https://journals.biologists.com/jeb/article/215/5/736/11213/Polarotactic-tabanids-find-striped-patterns-with
 
 Thanks to Seth Tisue and Dor Abrahamson for their work on this model.
 
