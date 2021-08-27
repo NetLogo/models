@@ -146,7 +146,7 @@ class CodeTests extends TestModels {
       "PNoM 1 Diffusion Sandbox", "PNoM 2 Diffusion Sensor Sandbox", "PNoM 3 Virtual Syringe",
       "PNoM 4 Virtual Syringe Force Graph", "PNoM 5 Virtual Syringe Temperature Graph",
       "PNoM 6 Particle Sandbox Gravity", "PNoM 7 Particle Sandbox Intermolecular Forces",
-      "Prison Architecture and Emergent Violence", "Robotic Factory"
+      "Prison Architecture and Emergent Violence", "Robotic Factory", "Limited Order Book"
     ),
     "write" -> Seq.empty
   )
