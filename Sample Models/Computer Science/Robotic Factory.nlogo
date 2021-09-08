@@ -638,7 +638,9 @@ The variadic ifelse statement is used to implement the state machine (variadic m
 
 ## RELATED MODELS
 
-This model builds on Ant Adaptation (Martin & Wilensky, 2019) and is based on Hölldobler and Wilson's The Ants (1990).
+This model builds on the Ant Adaptation model (Martin & Wilensky, 2019) and is based on Hölldobler and Wilson's The Ants (1990).
+
+Martin, K. and Wilensky, U. (2019). NetLogo Ant Adaptation model. http://ccl.northwestern.edu/netlogo/models/AntAdaptation. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Hölldobler, B., & Wilson, E. O. (1990). The Ants. Belknap (Harvard University Press), Cambridge, MA.
 
@@ -980,6 +982,7 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
 NetLogo 6.2.0
 @#$#@#$#@
+need-to-manually-make-preview-for-this-model
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

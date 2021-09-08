@@ -70,7 +70,8 @@ class PreviewImagesTests extends TestModels {
     "2.5d Patch View Example",
     "Mandelian Inheritance",
     "Discrete Event Mousetrap",
-    "Calorimetry"
+    "Calorimetry",
+    "Robotic Factory" // `import-drawing` doesn't seem to work as a preview command
   )
   testModels("Models should have manual previews only if needed or permitted") { m =>
     if (manualPreviewNeeded.exists(m.file.getPath.contains))

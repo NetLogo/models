@@ -1350,7 +1350,7 @@ prob-res-com-AM
 prob-res-com-AM
 0
 1
-0.0
+0.1
 0.01
 1
 NIL
@@ -2370,7 +2370,7 @@ Residential
 @#$#@#$#@
 ## WHAT IS IT?
 
-The model mimics taxi cab ridership in an urban area. Users can control ridership demand, fleet size, traffic rules, and fare calculation. The model aims to reveal insights into taxi cab profitability based on trip characteristics and demand dynamics.
+The model mimics taxi cab ridership in an urban area. Users can control ridership demand, fleet size, traffic rules, and fare calculations. The model aims to reveal insights into taxi cab profitability based on trip characteristics and demand dynamics.
 
 ## HOW IT WORKS
 
@@ -2378,28 +2378,27 @@ The urban area is portrayed as a grid system, which is formed by two-lane roads 
 
 Since taxi demands for each type of flow can be dramatically different based on the time of a day, users can control the amount of flow from regions to regions through the interface.
 
-Potential passenger(s) show up on roads controlled by users. When a vacant taxicab happens to pass by, it stops and pickups the passenger(s). The passenger(s) inform the taxicab of the destination coordinate, and the taxi turns light-purple and starts the trip. The taxi will travel from the pickup coordinate to the light-purple colored drop-off coordinate by the shortest Manhattan distance and complete the trip when it arrives at the destination coordinate.
+Potential passenger(s) show up on roads controlled by users. When a vacant taxicab happens to pass by, it stops and pickups the passenger(s). The passenger(s) inform the taxicab of the destination coordinates, the taxi turns light-purple, and starts the trip. The taxi will travel from the pickup coordinates to the light-purple colored drop-off coordinates by the shortest [Manhattan distance](https://en.wikipedia.org/wiki/Taxicab_geometry) and complete the trip when it arrives at the destination coordinates.
 
-After finishing a trip, the taxi becomes vacant and searches for other passenger(s) by traveling randomly on roads.
+After finishing a trip, the taxi becomes vacant and searches for other passenger(s) by traveling randomly along the roads.
 
 ## HOW TO USE IT
 
 ### Taxicab Demand
 * Spatial Flow and Time Interval:
-- _Time Interval_: The flow of residents in an urban area between regions can be quite different by the time of a day. To indicate the differences in the spatial flow of taxi trips between regions throughout the day, a clock is created to keep track of the time in the world. Five distinct time intervals are implemented (1) AM Peak, (2) Midday, (3) PM Peak, (4) Evening, (5) Early Morning. A reporter shows the current time interval in the interface, and the length of each time interval can be controlled by a slider called LENGTH-OF-TIME-PERIOD.
-- _Spatial Flow_: Demand of taxicabs in city districts can be diverse, and different amount of flows can be manipulated by users by the spatial flow sliders, which controls the probability (or proportion) of trips that are going from an origin to a destination during a specific time interval. For such purpose, each time interval's marginal probabilities are shown by a reporter at the bottom of each slider column to remind the users that the marginal probability should sum to 1.
+- _Time Interval_: The flow of residents in an urban area between regions can be quite different by the time of a day. To indicate the differences in the spatial flow of taxi trips between regions throughout the day, a clock is used to keep track of the time in the world. Five distinct time intervals are implemented (1) AM Peak, (2) Midday, (3) PM Peak, (4) Evening, (5) Early Morning. A reporter shows the current time interval in the interface, and the length of each time interval can be controlled by a slider called LENGTH-OF-TIME-PERIOD.
+- _Spatial Flow_: Demand of taxicabs in city districts can be diverse and different amount of flows can be manipulated by users by the spatial flow sliders, which control the probability (or proportion) of trips that are going from an origin to a destination during a specific time interval. Each time interval's marginal probabilities are shown by a reporter at the bottom of each slider column to remind the users that the marginal probability should sum to 1.
 
 ### Traffic Rules
 * Traffic Lights: the length of red/green lights can be controlled by a slider in the interface called LENGTH-OF-GREEN-LIGHT.
 
 ### Passengers
-* Passenger waiting time is modeled by a normal distributnetlogi
-on. The parameters of this normal distribution can be input by users in the interface through WAIT-TIME-MEAN and WAIT-TIME-SD.
+* Passenger waiting time is modeled by a normal distribution. The parameters of this normal distribution can be input by users in the interface through WAIT-TIME-MEAN and WAIT-TIME-SD.
 
 ### Taxicabs
 * Fleet size: taxicab fleet size can be controlled by a slider NUM-TAXICABS.
 
-* Trip Fare: Trip fare is calculated based on Chicago Yellow Taxicab. Trip fare is mainly calculated by three different variables: (1) the number of passengers on-board, (2) the number of miles traveled, (3) the trip duration. These cost variables can be determined by users in the interface using FIRST-PASSENGER-COST, EACH-ADDITIONAL-PASSENGER-COST, EACH-GRID-COST, and EACH-TICK-COST.
+* Trip Fare: Trip fare is calculated based on the fares of the Chicago Yellow Taxicab company in 2019. Trip fare is mainly calculated by three different variables: (1) the number of passengers on-board, (2) the number of miles traveled, and (3) the trip duration. These cost variables can be determined by users in the interface using FIRST-PASSENGER-COST, EACH-ADDITIONAL-PASSENGER-COST, EACH-GRID-COST, and EACH-TICK-COST.
 
 ## THINGS TO NOTICE
 
@@ -2411,19 +2410,19 @@ For a clear visualization of pickup and dropoff process, it is suggested to star
 
 ## EXTENDING THE MODEL
 
-There are many ways to extend this model. Interesting avenues would be to use real-world data with the GIS extension, more complex searching strategies, perhaps using AI tools, and including rideshare systems such as Uber or Lyft in the model, to better understand the relation between taxicabs and the rideshare systems.
+There are many ways to extend this model. Interesting avenues would be to use real-world data with the GIS extension, more complex searching strategies (perhaps using AI tools), and including rideshare systems such as Uber or Lyft in the model, to better understand the relation between taxicabs and the rideshare systems.
 
-Some other meaningful extension specific to taxicabs is to figure out how to reduce the number of dead miles -- miles traveled by taxicabs with no passengers on-board. Dead miles are costly to drivers because drivers need to internalize vehicle depreciation and gasoline price while searching for passengers. Figuring out more intelligent searching strategies such as locating the next passenger immediately after the last dropoff will be meaningful to pursue.
+Some other meaningful extensions specific to taxicabs would be to figure out how to reduce the number of dead miles: miles traveled by taxicabs with no passengers on-board. Dead miles are costly to drivers because drivers need to absorb vehicle depreciation and gasoline price while searching for passengers. Figuring out more intelligent searching strategies, for instance, to locate the next passenger immediately after the last dropoff, would be meaningful to pursue.
 
 ## NETLOGO FEATURES
 
-Each road in the model are formed by two lanes, with each lane allows taxicabs to travel in one direction. When delivering passengers, taxicabs will make u-turns to put themselves into the right direction to start the delivery following the shortest Manhattan distance. Some workarounds can be done to avoid making the u-turns.
+Each road in the model are formed by two lanes, with each lane allowing taxicabs to travel in one direction. When delivering passengers, taxicabs will make u-turns to put themselves into the right direction to start the delivery following the shortest Manhattan distance. Some workarounds can be used to avoid making the u-turns.
 
 ## RELATED MODELS
 
-- "Traffic Basic": a simple model of the movement of cars on a highway.
-- "Traffic Basic Utility": a version of "Traffic Basic" including a utility function for the cars.
-- "Traffic 2 Lanes": a more sophisticated two-lane version of the "Traffic Basic" model.
+- Traffic Basic: a simple model of the movement of cars on a highway.
+- Traffic Basic Utility: a version of Traffic Basic including a utility function for the cars.
+- Traffic 2 Lanes: a more sophisticated two-lane version of the Traffic Basic model.
 
 ## HOW TO CITE
 

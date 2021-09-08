@@ -776,70 +776,75 @@ HORIZONTAL
 @#$#@#$#@
 ## WHAT IS IT?
 
-The model is a "watered-down" version of a cryptocurrency trading model (Chen, 2021) that aims to reproduce certain phenomena that emerged in many cryptocurrency markets.
-
-In this version, we stripped out most complexities, resulted in a simple and static market that looks more like the Bidding Market model (Baker & Wilensky, 2020) in the Models Library. However, this model organized in a different way to produce the market price. A central Limited Order Book, a core subset of trading rules that is widely used in most exchanges globally, is used to simulate the market dynamics.
+This model aims to reproduce phenomena that emerge in modern-day cryptocurrency markets, but is general enough to model any resource traded using the concept of a limited order book. A Limited Order Book is a simple idea: it is a record of outstanding limit orders maintained by a stock exchange. A limit order is a type of order to buy or sell a security at a specific price or better. The simple act of buying and selling in this manner creates complex behaviors at the level of the exchange.
 
 ## HOW IT WORKS
 
-In this model, each trader holds some `cash` and some tokens (`stockpile`), and trades in the same limited order book. Tokens could be understood as any tradable goods, such as gold, silver, oil, stocks, or cryptocurrency such as Bitcoin or Ethereum. Each trader also holds a firm and constant `belief` in the value of tokens, which is randomly set between [initial-belief / 2, initial-belief] during the initialization of the model.
+In this model, each trader holds some `cash`, some tokens (`stockpile`), and trades in the same limited order book. Tokens can be thought of as any tradable good, such as gold, silver, oil, stocks, or cryptocurrency such as Bitcoin or Ethereum. Each trader also holds a firm and constant `belief` in the value of tokens, which is randomly set somewhere in the interval [initial-belief / 2, initial-belief] during the initialization of the model.
 
-Time is split into multiple slices and represented as ticks. In each tick, each trader uses a pre-determined strategy to put limited orders on the market. Then, we start the matchmaking process. First, we create two empty lists to store unmatched (pending) orders. Then, since we assume that each trader has an equal opportunity of trading, we match each order in a random order. During which:
+Time is split into multiple slices and represented as ticks. In each tick, each trader uses a pre-determined strategy to put limited orders on the market. Then, the matchmaking process starts between buyers and sellers. First, we create two empty lists to store pending orders. Then, since we assume that each trader has an equal opportunity of trading, we match each order randomly, during which:
 
-1. If this is a selling order, we try to find if any of the unmatched buying orders has a higher price. If so, we will execute the order by delivering the cash and the tokens. Then, we will repeat this process, until there is no such orders, or the selling order is completely executed.
-2. If the selling order is still not fully executed, we will put it into the unmatched list for selling orders, waiting for other buying orders to pick it up.
+1. If it is a SELL order, we try to find if any of the unmatched BUY orders at the stated sale price or higher. If so, we will execute the order sale at the highest possible price and the two parties will exchange tokens and cash.
+2. We repeat this process until there are no remaining matching BUY orders or the selling order is completely executed (this means if you sell 100 tokens, they might not all sell to the same buyer).
+2. If the SELL order is not fully executed, we will put it into the unmatched list for selling orders, waiting for other buying orders to pick it up.
 
-For buying orders, we will do exactly the same, just switch to the opposite side. Consequently, the market price, as well as the other information available in the market, is calculated and provided to traders in the next tick.
+For BUY orders, we go through the same process but with an opposite bias. In other words, we try to match BUY orders to _cheaper_ prices.
 
-In this simplified model, we only implemented two simple trading strategies. The first one is called "honest", in which the trader will always try to buy and sell tokens according to his/her belief. The second one is slightly more complicated, in which the trader will always buy with min(best-selling-price, belief) and sell with max(best-buying-price, belief). Then, after the matchmaking process, both strategies will cancel unfulfilled orders and issue new ones instead.
+Consequently, the market price of the token, as well as the other information available in the market, is calculated and provided to traders in the next tick.
+
+In this fairly simplified model, we only implement two simple trading strategies.
+
+The first one is called "honest", in which the trader will always try to buy and sell tokens at a price according to his/her belief of the value of that token.
+
+The second strategy we call "cunning" and is slightly more complicated. Here, the trader will always buy with a price which of either the best-selling-price or their belief (whichever is smaller) and sell with a price of either the best-buying-price or their belief (whichever is larger).
+
+Note that after the matchmaking process, both strategies will cancel unfulfilled orders and issue new ones rather than keeping the orders on the exchange.
 
 ## HOW TO USE IT
 
 ### Basic Usage
-* **Setup** button resets the model.
-* **Go** button allows the model to continuously simulate the market.
-* **Go-once** button asks the model to simulate the market for 1 tick.
+* SETUP button resets the model.
+* GO button allows the model to continuously simulate the market.
+* GO-ONCE button asks the model to simulate the market for 1 tick.
 
 ### Parameters
 The following parameters affect how the market works in this model.
 
-* **Trade-precision** slider sets the maximum precision of each trade. For example, if you set it to 0, the minimum trade unit would be 10^0 = 1. If you set it to 1, the minimum trade unit would be 10^(-1) = 0.1. Default is 1.
-* **Honest-traders** slider determines how many traders with "honest" strategy will be spawned during the setup process.
-* **Cunning-traders** slider determines how many traders with "cunning" strategy will be spawned during the setup process.
-* **Initial-cash** slider determines how much cash will be handed to each trader initially. Each trader will receive a random amount of cash based on this parameter.
-* **Initial-tokens** slider determines how many tokens will be handed to each trader initially. Each trader will receive a random number of tokens based on this parameter.
-* **Initial-belief** slider determines the distribution of `belief` of each trader. In this model, we simply use a uniform distribution [initial-belief / 2, initial-belief].
+* The TRADE-PRECISION slider sets the maximum precision for the number of tokens for each trade. For example, if you set it to 0, the minimum trade unit would be 10^0 = 1. If you set it to 1, the minimum trade unit would be 10^(-1) = 0.1. Default is 1. This models the fact that these currencies are often sold in very small units.
+* The HONEST-TRADERS slider determines how many traders with the "honest" strategy will be spawned during the setup process.
+* The CUNNING-TRADERS slider determines how many traders with the "cunning" strategy will be spawned during the setup process.
+
+The below parameters all set the maximum amount of CASH, TOKENS, and BELIEF for each agent. Each is initialized according to a random draw from a uniform distribution on the interval [amount/2, amount]:
+* The INITIAL-CASH slider sets the maximum cash each trader will receive when the model is initialized.
+* The INITIAL-TOKENS slider sets the maximum tokens each trader will receive when the model is initialized.
+* The INITIAL-BELIEF slider determines the maximum initial BELIEF of each trader.
 
 ### Plots and Monitors
-The plots and monitors give you a set of tools to measure the market.
+The plots and monitors give you a set of tools to measure the market as it transacts.
 
-* **Trading Prices** plot allows you to watch the daily trading prices.
-* **Average Utilities Gain** plot allows you to follow the average utility gain of traders with different strategies. Utility, in this model, is defined as the sum of cash and value of the stockpile, = cash + belief * stockpile.
+* The **Trading Prices** plot allows you to watch the daily trading prices.
+* The **Average Utilities Gain** plot allows you to follow the _average utility gain_ of traders with different strategies. Utility, in this model, is defined as the sum of cash and value of the stockpile (cash + belief * stockpile).
 
 ## THINGS TO NOTICE
 
-* Notice that the trade stops shortly after you start the model. Can you make the trade continue longer without changing the code? If not, how to extend the model to make it happen?
-* Notice that the sum of each traders' utilities would be increasing, no matter how many honest or cunning traders are spawned. Why does this phenomenon happen? Does everyone in the market equally share the gains or not, and why?
+* Notice that trading seems to stop only a few hundred ticks into running the model. Why might that be the case? How might you make trading continue longer without changing the code of the model?
+* Notice that the sum of each traders' utilities is increasing, no matter how many honest or cunning traders are spawned. Why might this  happen? Does everyone in the market equally share the gains? Why or why not?
 
 ## THINGS TO TRY
 
-* **Just run the model.** What did you observe from the market? Why did nobody stop to trade after a while?
-* **Set the configuration to 0, and rerun the model.** It would give you a new randomized starting scenario. Were there any differences or similarities between the two runs?
-* **Make all traders honest or cunning.** How fast will traders stop trading?
-* **Try to mix honest traders with cunning one.** What happened to their utility gain relative to each other, and why it happened like that?
+* **Make all traders honest or cunning.** How fast do traders stop trading in each of these situations?
+* **Try to mix honest traders with cunning ones.** What happened to the utility gains relative to each other. Why does that occur?
+* **Try first giving traders lots of CASH. Then trying giving traders lots of TOKENS.** How does the market behave differently across these two scenarios?
 
 ## EXTENDING THE MODEL
 
-Try to create a more complicated trading strategy - and there are many ways to do that!
-* You could try to allow traders to trade more than 1 units each time.
-* You could also try to allow traders to change their belief according to some random factors, or through watching the market dynamics.
-* Or, you could try to introduce more traders, cash, or stockpile during the run!
+Try to create a more complicated trading strategy (there are a ton of possibilities)!
+* You could try to allow traders to trade more than 1 unit of TOKENS each trade.
+* You could also try to allow traders to change their belief in the value of the token according to some random factors or through watching the market dynamics.
 
 ## NETLOGO FEATURES
 
-Sometimes we want to ask turtles to do things in a given order. For example, in order for you to extend the model easily, we took into consider that you may want to call `arrange-traders` out of the `setup` context. Hence, we employed `foreach sort-on [who] traders`, so that the traders are deterministically called by their `who` property, rendered in the same order, no matter when and how you call the procedure.
-
-This feature enables you to dynamically introduce traders into the model and keep its visualization stable and intact.
+While in many NetLogo models we want to ask turtles to do things in a random order to not introduce bias toward particular turtles, here we use `foreach sort-on [who] traders` so that the traders are deterministically called by their `who` property and always rendered in the same order.This feature enables you to dynamically introduce traders into the model and keep its visualization stable and intact.
 
 ## RELATED MODELS
 
