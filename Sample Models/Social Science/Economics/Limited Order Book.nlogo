@@ -796,7 +796,7 @@ In this fairly simplified model, we only implement two simple trading strategies
 
 The first one is called "honest", in which the trader will always try to buy and sell tokens at a price according to his/her belief of the value of that token.
 
-The second strategy we call "cunning" and is slightly more complicated. Here, the trader will always buy with a price which of either the best-selling-price or their belief (whichever is smaller) and sell with a price of either the best-buying-price or their belief (whichever is larger).
+The second strategy we call "cunning" and is slightly more complicated. Here, the trader will always buy with a price of either the best-selling-price or their belief (whichever is smaller) and sell with a price of either the best-buying-price or their belief (whichever is larger).
 
 Note that after the matchmaking process, both strategies will cancel unfulfilled orders and issue new ones rather than keeping the orders on the exchange.
 
@@ -839,6 +839,7 @@ The plots and monitors give you a set of tools to measure the market as it trans
 ## EXTENDING THE MODEL
 
 Try to create a more complicated trading strategy (there are a ton of possibilities)!
+
 * You could try to allow traders to trade more than 1 unit of TOKENS each trade.
 * You could also try to allow traders to change their belief in the value of the token according to some random factors or through watching the market dynamics.
 
