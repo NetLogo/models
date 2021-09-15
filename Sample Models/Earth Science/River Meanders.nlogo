@@ -474,7 +474,7 @@ TEXTBOX
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model demonstrates the meandering of a river along its "middle course," where the gradient of the landscape is gradual and the river runs within a U-shaped river valley. The evolution of the shape of the river is governed by the path of its highest-velocity flow, as well as by erosion and deposition.
+This model demonstrates the meandering of a river along its "middle course", where the gradient of the landscape is gradual and the river runs within a U-shaped river valley. The evolution of the shape of the river is governed by the path of its highest-velocity flow, as well as erosion and deposition.
 
 ## HOW IT WORKS
 
@@ -482,9 +482,9 @@ There are three main agents: Land patches, Water turtles and Flow turtles.
 
 Land patches are green, and simply represent land where the river does not run through.
 
-Water turtles, or water tiles, are blue, and represent a segment of water, containing properties which describe the physical characteristics of this segment, such as depth, the amount of sediment deposited, and whether it is a source or drain. When a connected path of "water tiles" is made between a source and a drain, a "flow gradient" is formed to represent the direction of water flow.
+Water turtles, or "water tiles", are blue, and represent a segment of water, containing properties that describe the physical characteristics of this segment, such as depth, the amount of sediment deposited, and whether it is a source or drain. When a connected path of "water tiles" is made between a source and a drain, a "flow gradient" is formed to represent the direction of water flow.
 
-Flow turtles are white, and represent the highest-velocity flow of the water, and they move along the "flow gradient" from source to drain, as well as along the center of the river channel, as this is where water flows the fastest in real-life streams. These flow turtles are the main driving force for erosion and deposition along the river.
+Flow turtles are white, and represent the highest-velocity flow of the water. They move along the "flow gradient" from source to drain, as well as along the center of the river channel, as this is where water flows the fastest in real-life streams. These flow turtles are the main driving force for erosion and deposition along the river.
 
 ### Deposition
 Each tick, sediment is deposited on all water tiles, increasing their "sediment-amount" by 1%. When this amount reaches 100%, the water-tile is converted to a Land patch.
@@ -502,7 +502,9 @@ The two key switches labeled DEPOSITION? and EROSION? serve to enable or disable
 
 The four sliders are parameters that affect the flowing mechanics of the flow turtles. MAX-FLOW-SPEED determines the maximum speed flows will move at. FLOW-ACCELERATION determines how fast flow turtles will be accelerated down the flow gradient. RIVER-CENTER-ACCELERATION determines how fast flow turtles will be accelerated towards the center (i.e., deepest) part of the river. DOWNWARDS-INCLINE-FORCE determines the magnitude of the constant downwards force, essentially representing how steep the land gradient is.
 
-The graph plots the sinuosity of the river over time. Sinuosity is the ratio of the path length of the river and the Euclidean distance between the two endpoints of the river. It is a measure of how much a river meanders. A sinuosity of 1 correlates to a completely straight river and this value increases the more the path of the river deviates from the shortest path. The monitor displays the exact sinuosity. The river is categorized according to conventional classes of sinuosity, where sinuosities between 1 and 1.05 are “almost straight”, between 1.05 and 1.25 “winding”, between 1.25 and 1.50 “twisty”, and above 1.50 “meandering”.
+The graph plots the sinuosity of the river over time. Sinuosity is the ratio of the path length of the river and the Euclidean distance between the two endpoints of the river. It is a measure of how much a river meanders; a sinuosity of 1 correlates to a completely straight river, and this value increases the more the path of the river deviates from the shortest path.
+
+The monitor displays the exact sinuosity, The river would be categorized according to  conventional classes of sinuosity, where sinuosities between 1 and 1.05 are “almost straight”, between 1.05 and 1.25 “winding”, between 1.25 and 1.50 “twisty”, and above 1.50 “meandering”.
 
 ## THINGS TO NOTICE
 
@@ -522,13 +524,11 @@ Changing the MAX-FLOW-SPEED also affects the behavior of meanders a lot - try va
 
 ## EXTENDING THE MODEL
 
-Improve the flow mechanics of the model to prevent any behaviors that seem to not be reasonable in real life.
-
-Think about what other factors might affect the flow of a river. How might you add those factors to the model?
+Improve the flow mechanics of the model to prevent the occasional unintended and unintentional behavior that detracts from the realism of the model.
 
 ## NETLOGO FEATURES
 
-The model makes use of `dx` and `dy` to help replicate vector addition while still using each turtle's "heading" property, allowing for modification of a turtle's motion with both NetLogo heading-related commands as well as with vector addition.
+The model makes use of `dx` and `dy` to help replicate vector addition while still using the turtles' own "heading" property. This allows for modification of a turtle's motion with both NetLogo heading-related commands as well as with vector addition.
 
 ## RELATED MODELS
 
