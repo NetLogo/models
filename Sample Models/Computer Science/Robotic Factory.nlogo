@@ -561,22 +561,23 @@ HORIZONTAL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model demonstrates a resilient robot factory that runs autonomously, based on the principles of self-organization so prevalent in nature. In the model, a garment factory is completely automated but attached to an unpredictable external world (suppliers). The robots carry products from one machine to the next, and then out to the van to be whisked away. Nature has long experience with persisting in an interconnected world. If only humans could self organize as efficiently, and resiliently as the bees or ants do. We need more resilient human systems that borrow from nature, of which, this is an example.
+This model demonstrates a resilient robot factory that runs autonomously, based on the principles of self-organization so prevalent in nature. In the model, a garment factory is completely automated but attached to an unpredictable external world (suppliers). The robots carry products from one machine to the next, and then out to the van to be whisked away. Nature has long experience with persisting in an interconnected world. If only humans could self organize as efficiently and resiliently as bees or ants do. We need more resilient human systems that borrow from nature, such as this model.
 
 ### The Factory, an Emergent or Sequential Process?
-In order to reimagine resilient human systems, we need to redesign many systems from sequential systems prevalent in the industrial age, to emergent processes, so prevalent in nature. For Chi et al. (2012) processes, can be categorized in two ways – sequential or emergent. Sequential processes can be subdivided into a sequence of events, like an assembly line where the metal is rolled, pressed, stamped, and smoothed before being turned into cans and filled with tomatoes sauce. This is a process with multiple agents: the machines, their operators, and a manager. It makes sense to speak of sequential processes resulting from a single agent’s actions. For example, we could say the manager increased efficiency of the assembly process by increasing the speed of the conveyor belt. Even though all the agents participated in the process, we can focus on the goal setting manger’s actions to account for the change. As a result, Chi et al. (2012) say one can give special controlling status to the agent that caused the change in a sequential process. This means if someone thinks of a process, like ant colonies, as sequential, people often times assume interactions at the agent level are done in order to reach the goal of the higher level, whether that be producing cans of tomato soup at the managers, or the queen ant giving orders. The causal mechanism that leads to the result comes from the summing of the assembly line’s outcomes directed by the manager. Many people confuse this control when thinking about emergent processes. Many people confuse this control when thinking about emergent processes.
 
-Emergent processes, like ants searching for food, marching in orderly paths, or getting stuck in a doorway are slightly different. These processes result from each ant taking actions, some of them random, where the result emerges from the repetition of the action, but no agent is in control. These processes are encountered in school standards such as osmosis and diffusion, electrical current and buoyancy.
+In order to reimagine resilient human systems, we need to redesign many systems from sequential systems, prevalent in the industrial age, to emergent processes, which are so prevalent in nature. For Chi et al. (2012) processes, can be categorized in two ways – sequential or emergent. Sequential processes can be subdivided into a sequence of events, like an assembly line where the metal is rolled, pressed, stamped, and smoothed before being turned into cans and filled with tomato sauce. This is a process with multiple agents: the machines, their operators, and a manager. It makes sense to speak of sequential processes resulting from a single agent’s actions. For example, we could say the manager increased efficiency of the assembly process by increasing the speed of the conveyor belt. Even though all the agents participated in the process, we can focus on the goal setting manager’s actions to account for the change. As a result, Chi et al. say one can give special controlling status to the agent that caused the change in a sequential process. This means if someone thinks of a process as sequential, they tend to interpret interactions at the agent level as done in order to reach the goal of the higher level (See Wilensky & Resnick, 1999). For the assembly line, this can make sense. The causal mechanism that leads to the result comes from the summing of the assembly line’s outcomes directed by the manager. But, for emergent systems, such as ant colonies, this can lead to false assumptions (like that the queen ant gives direction to all the other ants). Many people confuse this control when thinking about emergent processes, what Wilensky & Resnick call Levels Confusion.
+
+Emergent processes, like ants searching for food, marching in orderly paths, or getting stuck in a doorway are different. These processes result from each ant taking actions, some of them random, where the result emerges from the repetition of the action, but no agent is in control. These processes are encountered in school standards such as osmosis and diffusion, electrical current and buoyancy.
 
 This model configures a factory to be an emergent, as opposed to a sequential process, providing a novel design of a factory floor. This model is emergent because instead of operating on the processes of the factory, we set key properties that establish the emergent pattern of the model: the energy cycle. In other words, the efficiencies result from operating on the emergent, instead of operational, parameters. This is an example of humans designing an emergent system to meet business needs.
 
 ## HOW IT WORKS
 
-The model initializes with 2 cutters, 2 stitchers, 2 finishers (one lux, one standard), a storage room, and a loading dock and places them in the correct place in the factory. Finally, it creates some robots, initializes all of these with starting parameters, and then all the robots are sent to the loading dock
+The model initializes with 2 cutters, 2 stitchers, 2 finishers (one lux, one standard), a storage room, and a loading dock and places them in the correct place in the factory. Finally, it creates some robots, initializes all of these with starting parameters, and then all the robots are sent to the loading dock.
 
-Every tick, machines process various garments by moving them through the factory. If the robots are carrying garments, then they spend more energy to move. There are two quality levels of garment ‘luxurious’ and ‘standard’. Each order is either "luxurious" or "standard". Both finishers can produce ‘standard’ garments but only Finisher 1 can produce the "luxurious" version. Finisher 1 takes 7 simulation cycles to complete the garment, whilst Finisher 2 takes 4 cycles. This creates a manufacturing bottleneck that induces the need for more resistant robot behavior.
+Every tick, machines process various garments by moving them through the factory. If the robots are carrying garments, then they spend more energy to move. There are two quality levels of garment "luxurious" and "standard". Each order is either "luxurious" or "standard". Both finishers can produce ‘standard’ garments but only Finisher 1 can produce the "luxurious" version. Finisher 1 takes 7 simulation cycles to complete the garment, whilst Finisher 2 takes 4 cycles. This creates a manufacturing bottleneck that induces the need for more resistant robot behavior.
 
-We ask the robots to check their destination against a list of options. They then move towards their destination. When they arrive they drop off supply to that machine. If the machines where it is  has some product (it processes some supply), we pick it up and set our destination to the next machine.
+We ask the robots to check their destination against a list of options. They then move towards their destination. When they arrive they drop off supply to that machine. If the machine where the robot arrives has some product (it processes some supply), we pick it up and set our destination to the next machine.
 
 The robots return to the robot room when they run low on power. There, they recharge at a rate of 5 units per tick.
 
@@ -584,17 +585,17 @@ Every so often, a new order comes in which sends materials to the loading dock, 
 
 ## HOW TO USE IT
 
-Press SETUP and then GO. Examine the graphs, and watch the robots move through the factory,
+Press SETUP and then GO. Examine the graphs, and watch the robots move through the factory.
 
 The MAKE-TRAILS? switch asks Robots to trace their routes on the ground so we can inspect how they travel.
 
 SHOW-AGENT-NAME? shows names of the different agents in the View.
 
-the number-of-robots slider sets how many robots are in the factory at the start.
+The NUMBER-OF-ROBOTS slider sets how many robots are in the factory at the start.
 
 The FULL-CHARGE slider sets what a full battery is in the model. The higher the value the longer robots go between charges, but also, the longer it takes them to charge up.
 
-Sometimes, to keep a factory moving, a robots needs to go just when needed, even if not fully charged. The JUST-IN-TIME-ROBOT-SUPPLY sets the amount of energy a robot needs to have at the charging station to be selected to meet critical factory needs. The lower it is, the more robots will be available to meet the needs, but they also won't last very long due to their low charge. Tweak this to balance the factory.
+Sometimes, to keep a factory moving, a robot needs to go just when needed, even if not fully charged. The JUST-IN-TIME-ROBOT-SUPPLY sets the amount of energy a robot needs to have at the charging station to be selected to meet critical factory needs. The lower it is, the more robots will be available to meet the needs, but they also won't last very long due to their low charge. Tweak this to balance the factory.
 
 ## THINGS TO NOTICE
 
@@ -602,7 +603,7 @@ Even though the robots move to semi-random locations after charging, and there i
 
 Note how the external factor of the delivery of new material can slow or stop production.
 
-Also notice the percent of time idle. Note when this goes up or down across various bottlenecks or model parameters
+Also notice the percent of time idle. Note when this goes up or down across various bottlenecks or model parameters.
 
 ## THINGS TO TRY
 
@@ -616,7 +617,7 @@ Try setting the FULL-CHARGE to the max. How does it impact the idleness graph?
 
 ## EXTENDING THE MODEL
 
-Does reorganizing the machines change idleness? How else could you improve efficiency? Improve resilience? What happens if one the machines occasionally breaks? For instance:
+Does reorganizing the machines change idleness? How else could you improve efficiency? Improve resilience? What happens if one of the machines occasionally breaks? For instance:
 
 Implement shifts, so that robots recharge at two different times.
 
@@ -624,13 +625,13 @@ Make delivery of new sheets more random, to simulate extreme supply shortages.
 
 Right now there is a production bottleneck at the finishers. Add additional bottlenecks in the machine processing.
 
-Right now, robots have to go back to the charging room to recharge, try add recharging robots that can bring the charge to the worker robots.
+Right now, robots have to go back to the charging room to recharge. Try adding recharging robots that can bring the charge to the worker robots.
 
 The machines are in a particular arrangement, optimize for idleness or productivity by rearranging the machines.
 
 Currently, robots can always make it back to the robot room to recharge, because they can go into negative energy. This may not be the most realistic model. Change the model so that robots can get stranded if they do not leave for the robot room in time by editing the return-home function.
 
-Python: right now, the robots don't learn, which makes them like a conveyor belt. Using the python extension implement some learning into the model.
+Python: right now, the robots don't learn, which makes them like a conveyor belt. Using the python extension, implement some learning into the model.
 
 ## NETLOGO FEATURES
 
@@ -638,11 +639,16 @@ The variadic ifelse statement is used to implement the state machine (variadic m
 
 ## RELATED MODELS
 
-This model builds on the Ant Adaptation model (Martin & Wilensky, 2019) and is based on Hölldobler and Wilson's The Ants (1990).
+This model builds on Ant Adaptation (Martin & Wilensky, 2019), which is based on Hölldobler and Wilson's The Ants (1990).
 
-Martin, K. and Wilensky, U. (2019). NetLogo Ant Adaptation model. http://ccl.northwestern.edu/netlogo/models/AntAdaptation. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+## CREDITS AND REFERENCES
 
 Hölldobler, B., & Wilson, E. O. (1990). The Ants. Belknap (Harvard University Press), Cambridge, MA.
+
+Chi, M. T. H., Roscoe, R. D., Slotta, J. D., Roy, M., & Chase, C. C. (2012). Misconceived causal explanations for emergent processes. Cognitive Science, 36(1), 1-61. doi:doi:10.1111/j.1551-6709.2011.01207
+
+
+Wilensky , U., & Resnick, M. (1999). Thinking in levels: A dynamic systems approach to making sense of the world. Journal of Science Education and Technology, 8(1), 3-19.
 
 ## HOW TO CITE
 
@@ -982,7 +988,6 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
 NetLogo 6.2.0
 @#$#@#$#@
-need-to-manually-make-preview-for-this-model
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
