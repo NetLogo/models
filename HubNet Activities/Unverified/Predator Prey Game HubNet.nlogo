@@ -1040,7 +1040,7 @@ Rectangle -16777216 true false 189 260 210 270
 Line -16777216 false 263 127 281 155
 Line -16777216 false 281 155 281 192
 @#$#@#$#@
-NetLogo 6.2.0
+NetLogo 6.2.1
 @#$#@#$#@
 need-to-manually-make-preview-for-this-model
 @#$#@#$#@
