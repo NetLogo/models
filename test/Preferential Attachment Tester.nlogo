@@ -102,31 +102,41 @@ to-report bad-intersections [t1 t2]
   report true
 end
 
+;; reports a two-item list of x and y coordinates, or an empty
+;; list if no intersection is found
 to-report intersection [t1 t2]
-  let m1 [tan (90 - link-heading)] of t1
-  let m2 [tan (90 - link-heading)] of t2
-  ;; treat parallel/collinear lines as non-intersecting
-  if m1 = m2 [ report [] ]
+  let is-t1-vertical? ([link-heading] of t1 = 0 or [link-heading] of t1 = 180)
+  let is-t2-vertical? ([link-heading] of t2 = 0 or [link-heading] of t2 = 180)
+
   ;; is t1 vertical? if so, swap the two turtles
-  if abs m1 = tan 90
+  if is-t1-vertical?
   [
-    ifelse abs m2 = tan 90
+    ifelse is-t2-vertical?
       [ report [] ]
       [ report intersection t2 t1 ]
   ]
+
+  let m1 [tan (90 - link-heading)] of t1
+
   ;; is t2 vertical? if so, handle specially
-  if abs m2 = tan 90 [
-     ;; represent t1 line in slope-intercept form (y=mx+c)
-      let c1 [link-ycor - link-xcor * m1] of t1
-      ;; t2 is vertical so we know x already
-      let x [link-xcor] of t2
-      ;; solve for y
-      let y m1 * x + c1
-      ;; check if intersection point lies on both segments
-      if not [x-within? x] of t1 [ report [] ]
-      if not [y-within? y] of t2 [ report [] ]
-      report list x y
+  if is-t2-vertical? [
+    ;; represent t1 line in slope-intercept form (y=mx+c)
+    let c1 [link-ycor - link-xcor * m1] of t1
+    ;; t2 is vertical so we know x already
+    let x [link-xcor] of t2
+    ;; solve for y
+    let y m1 * x + c1
+    ;; check if intersection point lies on both segments
+    if not [x-within? x] of t1 [ report [] ]
+    if not [y-within? y] of t2 [ report [] ]
+    report list x y
   ]
+
+  let m2 [tan (90 - link-heading)] of t2
+
+  ;; treat parallel/collinear lines as non-intersecting
+  if m1 = m2 [ report [] ]
+
   ;; now handle the normal case where neither turtle is vertical;
   ;; start by representing lines in slope-intercept form (y=mx+c)
   let c1 [link-ycor - link-xcor * m1] of t1
