@@ -28,7 +28,8 @@ class UpdateModeTests extends TestModels {
     "Lattice Land - Explore",
     "Lattice Land - Triangles Explore",
     "Lattice Land - Triangles Dissection",
-    "Discrete Event Mousetrap"
+    "Discrete Event Mousetrap",
+    "Distribution Center Discrete Event Simulator"
   )
 
   testModels("Models should use tick-based updates unless otherwise specified") { model =>

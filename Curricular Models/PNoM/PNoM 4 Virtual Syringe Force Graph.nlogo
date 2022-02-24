@@ -109,7 +109,7 @@ to setup
   set plunger-down-force 0
   set plunger-plot-start 0
   set p-force-plot-start 0
-  set plunger-up-force [ 0 ]
+  set plunger-up-forces [ 0 ]
   set plunger-down-forces [ 0 ]
   set plunger-up-force-color   [100 100 255 160]
   set plunger-down-force-color [255 100 100 160]
@@ -315,9 +315,9 @@ to move-plunger
   ;; the plunger-move value is based on a tick
   ;; since we're moving at fractions of ticks, we need to multiply by tick-delta
   set plunger-move plunger-move * tick-delta
-  set plunger-up-force lput plunger-up-force plunger-up-force
+  set plunger-up-forces lput plunger-up-force plunger-up-forces
   set plunger-down-forces lput plunger-down-force plunger-down-forces
-  if (length plunger-up-force > 200) [ set plunger-up-force butfirst plunger-up-force ]
+  if (length plunger-up-forces > 200) [ set plunger-up-forces butfirst plunger-up-forces ]
   if (length plunger-down-forces > 200) [ set plunger-down-forces butfirst plunger-down-forces ]
 
   if plunger-move != 0 [
@@ -1426,7 +1426,7 @@ CHOOSER
 mouse-interaction
 mouse-interaction
 "none - let particles move" "draw basic wall" "draw red removable wall" "draw blue removable wall" "big eraser" "slow down particles" "speed up particles" "paint particles purple" "paint particles green" "paint particles orange" "add green particles" "add purple particles" "add orange particles"
-4
+0
 
 BUTTON
 5
@@ -1588,8 +1588,8 @@ true
 PENS
 "zero line" 1.0 0 -7500403 true "" "plotxy ticks 0"
 "External Forces" 1.0 0 -14439633 true "" "if ready-to-run? = true [plotxy ticks (sum [my-f] of forces)]"
-"Net Particle Forces" 1.0 0 -2674135 true "" "let n length plunger-up-force\n if n > length plunger-down-forces [ set n length plunger-down-forces ]\n  let net mean sublist plunger-up-force (n - num-ave) n + mean sublist plunger-down-forces (n - num-ave) n\n plotxy ticks precision net 2\n"
-"Sum of Forces" 1.0 0 -955883 true "" "  ;let fs sentence plunger-up-force plunger-down-forces\n  ;sublist list position1 position2\n  let n length plunger-up-force\n  if n > length plunger-down-forces [ set n length plunger-down-forces ]\n  let net mean sublist plunger-up-force (n - num-ave) n + mean sublist plunger-down-forces (n - num-ave) n\n ; if (UseForceSensorReading = true)\n ; [ set net net + port-reading ];(force-on-port port-for-force-sensor / 100) ]\n  if ( ready-to-run? = true)\n  [ set net net + sum [ my-f ] of forces ]\n  plotxy ticks  net"
+"Net Particle Forces" 1.0 0 -2674135 true "" "let n length plunger-up-forces\n if n > length plunger-down-forces [ set n length plunger-down-forces ]\n  let net mean sublist plunger-up-forces (n - num-ave) n + mean sublist plunger-down-forces (n - num-ave) n\n plotxy ticks precision net 2\n"
+"Sum of Forces" 1.0 0 -955883 true "" "  let n length plunger-up-forces\n  if n > length plunger-down-forces [ set n length plunger-down-forces ]\n  let net mean sublist plunger-up-forces (n - num-ave) n + mean sublist plunger-down-forces (n - num-ave) n\n ; if (UseForceSensorReading = true)\n ; [ set net net + port-reading ];(force-on-port port-for-force-sensor / 100) ]\n  if ( ready-to-run? = true)\n  [ set net net + sum [ my-f ] of forces ]\n  plotxy ticks  net"
 
 BUTTON
 480
@@ -1728,7 +1728,7 @@ num-ave
 num-ave
 10
 200
-0.0
+10.0
 1
 1
 NIL
@@ -2367,7 +2367,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.2.0
+NetLogo 6.2.2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

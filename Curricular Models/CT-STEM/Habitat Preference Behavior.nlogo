@@ -191,7 +191,7 @@ number-of-rollypollies
 number-of-rollypollies
 0
 50
-20.0
+50.0
 1
 1
 NIL
@@ -256,7 +256,7 @@ INPUTBOX
 188
 298
 preferred-condition
-moist
+dry
 1
 1
 String
@@ -357,21 +357,24 @@ Try changing the chamber conditions in the middle of the experiment. What happen
 
 ## CURRICULAR USE
 
-This model was incorporated into an Animal Behavior Experimental Lab which was designed for high school Advanced Placement (AP) Biology students. Within the lab, these students simulated agent-level interactions to model their prior hands-on lab experiments.
+This model was incorporated into an Animal Behavior Experimental Lab which was designed for high school Advanced Placement (AP) Biology students. Within the lab, these students simulated agent-level interactions to model their prior hands-on lab experiments. This lab aims to have students develop an understanding of experimental design, data collection, and data analysis by conducting a laboratory experiment and using a computational model to study the behavior of pillbugs, also called 'roly-polies' (Armadillidium vulgare).
 
 The [associated unit](https://ct-stem.northwestern.edu/curriculum/preview/1523/) contains several iterations of this rollypolly model:
 
-* [The basic model](https://ct-stem.northwestern.edu/curriculum/preview/1529/page/3/)
-Students use the model to make observations and conduct experiments regarding habitat preference behavior of rollypollies.
+* [The basic model](https://ct-stem.northwestern.edu/curriculum/preview/1529/page/3/) is used in Lesson 4 Page 3
+Students use the model to make observations and conduct experiments regarding habitat preference behavior of rollypollies. This model does not include the data recording features. It still displays the graph and monitor for rollypollies in each chamber but lacks the Rollypolly Distribution graph.
 
-* [An introductory model with suggested time intervals](https://ct-stem.northwestern.edu/curriculum/preview/1529/page/1/)
-Students are asked to record data after different time intervals and across different numbers of rollypollies. They are expected to learn about the nuances of experimental design (large sample size, multiple trials, etc.).
+* [An introductory model with suggested time intervals](https://ct-stem.northwestern.edu/curriculum/preview/1529/page/1/) is used in Lesson 4 Page 1
+Students are asked to record data after different time intervals and across different numbers of rollypollies. They are expected to learn about the nuances of experimental design (large sample size, multiple trials, etc.). This model is similar to the basic model in that it still displays the graph and monitor for rollypollies in each chamber but lacks the Rollypolly Distribution graph. Instead, this model includes two buttons which allow for the model to advance 5 seconds (ticks) or 30 seconds along with the usual continuous GO button. This allows for the user to see the rollypollies movement more clearly and makes it easier to manually record data after different time intervals and across different numbers of rollypollies.
 
-* [The model extended with CODAP, a data science tool](https://ct-stem.northwestern.edu/curriculum/preview/1525/page/1/)
-Students use a computationally enhanced data collection method to record and analyze data using CODAP, a computational tool for data visualization and analysis.
+* [The model extended with CODAP, a data science tool](https://ct-stem.northwestern.edu/curriculum/preview/1525/page/1/) is used in Lesson 5 Page 1
+Students use a computationally enhanced data collection method to record and analyze data using CODAP, a computational tool for data visualization and analysis. This model also displays the graph and monitor for rollypollies in each chamber but lacks the Rollypolly Distribution graph. This model also keeps the RUN-FOR-30-TICKS button from the introductory model but gets rid of the RUN-FOR-5-TICKS button. The biggest difference of this model is the integration with CODAP which is used to allow for users to easily record data and analyze data.
 
-* [A NetTango version that allows students to code with programming blocks](https://ct-stem.northwestern.edu/curriculum/preview/1530/page/1/)
-Students use a block-based coding environment, NetTango, to code habitat preference behavior.
+* [The model extended with CODAP and experiment features](https://ct-stem.northwestern.edu/curriculum/preview/1525/page/2/) is used in Lesson 5 Page 2
+Students use a computationally enhanced data collection method to record and analyze data using CODAP, a computational tool for data visualization and analysis. This model is similar to the model extended with CODAP but there are two extra features used to make running an experiment easier. There are two extra sliders, NUMBER-OF-READINGS (0-100) and NUMBER-OF-TICKS-BETWEEN-READINGS (0-50), and one extra button RUN-A-TRIAL. These extra features allow for the model to automatically run the model and record the data to quickly perform an experiment.
+
+* [A NetTango version that allows students to code with programming blocks](https://ct-stem.northwestern.edu/curriculum/preview/1530/page/1/) is used in Lesson 6 Page 1
+Students use a block-based coding environment, NetTango, to code habitat preference behavior. This model is completely different from the previous models in that this is a NetTango model which has the goal of teaching students how to program the model behavior using blocks. There is only a SETUP and GO button with an initially blank NetLogo code tab. Users replicate the previous models by using the blocks provided to add code to the model.
 
 ## EXTENDING THE MODEL
 
@@ -729,7 +732,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.2.0
+NetLogo 6.2.2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

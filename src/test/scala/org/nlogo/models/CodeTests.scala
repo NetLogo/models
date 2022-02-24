@@ -93,7 +93,9 @@ class CodeTests extends TestModels {
       "MTG 3 Feedback Loop HubNet",
       // IABM textbook models using `print` in example code:
       "Example HubNet", "Voting Sensitivity Analysis",
-      "Voting Component Verification", "Spread of Disease"
+      "Voting Component Verification", "Spread of Disease",
+      "Logotimes Example", // prints out logo times
+      "Distribution Center Discrete Event Simulator"
     ),
     "pu" -> Seq.empty,
     "se" -> Seq.empty,
@@ -146,7 +148,8 @@ class CodeTests extends TestModels {
       "PNoM 1 Diffusion Sandbox", "PNoM 2 Diffusion Sensor Sandbox", "PNoM 3 Virtual Syringe",
       "PNoM 4 Virtual Syringe Force Graph", "PNoM 5 Virtual Syringe Temperature Graph",
       "PNoM 6 Particle Sandbox Gravity", "PNoM 7 Particle Sandbox Intermolecular Forces",
-      "Prison Architecture and Emergent Violence", "Robotic Factory", "Limited Order Book"
+      "Prison Architecture and Emergent Violence", "Robotic Factory", "Limited Order Book",
+      "Distribution Center Discrete Event Simulator"
     ),
     "write" -> Seq.empty
   )
