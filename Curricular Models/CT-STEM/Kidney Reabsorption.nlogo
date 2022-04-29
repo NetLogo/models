@@ -414,7 +414,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Dabholkar, S. and Wilensky, U. (2020).  NetLogo Excretory Reabsorption model.  http://ccl.northwestern.edu/netlogo/models/ExcretoryReabsorption.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Dabholkar, S. and Wilensky, U. (2020).  NetLogo Kidney Reabsorption model.  http://ccl.northwestern.edu/netlogo/models/KidneyReabsorption.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
