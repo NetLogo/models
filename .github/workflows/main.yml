@@ -32,7 +32,9 @@ jobs:
           sudo apt-get -y install aspell
 
       - name: Build
-        run: sbt -v update compile test:compile "test:runMain org.nlogo.models.ExtensionInstaller"
+        # We even install the extensions we can't or won't test just to avoid compile errors with them.
+        # -Jeremy B May 2021
+        run: sbt -v update compile test:compile "test:runMain org.nlogo.workspace.ExtensionInstaller arduino array bitmap csv gis gogo ls matrix nw palette profiler py r rnd sound table time vid view2.5d"
 
       - name: Test 2D
         run: sbt -v -Dorg.nlogo.onLocal=false test
