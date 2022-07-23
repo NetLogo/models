@@ -1,15 +1,17 @@
 globals [
   sample-car
-]
-
-turtles-own [
-  speed
   speed-limit
   speed-min
 ]
 
+turtles-own [
+  speed
+]
+
 to setup
   clear-all
+  set speed-limit 1
+  set speed-min 0
   ask patches [ setup-road ]
   setup-cars
   watch sample-car
@@ -36,8 +38,6 @@ to setup-cars
     set heading 90
     ;; set initial speed to be in range 0.1 to 1.0
     set speed 0.1 + random-float 0.9
-    set speed-limit 1
-    set speed-min 0
     separate-cars
   ]
   set sample-car one-of turtles

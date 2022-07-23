@@ -212,7 +212,7 @@ BUTTON
 10
 162
 43
-go * 80
+go * 40
 repeat 40 [ go ]
 NIL
 1
