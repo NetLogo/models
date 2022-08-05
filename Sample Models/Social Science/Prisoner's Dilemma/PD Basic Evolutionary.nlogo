@@ -202,7 +202,7 @@ PENS
 @#$#@#$#@
 ## WHAT IS IT?
 
-One of the most prominently studied phenomena in Game Theory is the "Prisoner's Dilemma."  The Prisoner's Dilemma, which was formulated by Melvin Drescher and Merrill Flood and named by Albert W. Tucker, is an example of a class of games called non-zero-sum games.
+One of the most prominently studied phenomena in Game Theory is the "Prisoner's Dilemma."  The Prisoner's Dilemma, which was formulated by Melvin Drescher and Merrill Flood and named by Albert W. Tucker, is an example of a class of games called non-zero-sum games. This model explores the dynamics of agents on a grid playing iterated prisoner's dilemma with their neighbors and then adapting their strategy to match their best performing neighbor at each iteration.
 
 In zero-sum games, total benefit to all players add up to zero, or in other words, each player can only benefit at the expense of other players (e.g. chess, football, poker --- one person can only win when the opponent loses).  On the other hand, in non-zero-games, each person's benefit does not necessarily come at the expense of someone else.  In many non-zero-sum situations, a person can benefit only when others benefit as well.  Non-zero-sum situations exist where the supply of a resource is not fixed or limited in any way (e.g. knowledge, artwork, and trade).  Prisoner's Dilemma, as a non-zero-sum game, demonstrates a conflict between rational individual behavior and the benefits of cooperation in certain situations.  The classical prisoner's dilemma is as follows:
 
