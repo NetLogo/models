@@ -451,6 +451,11 @@ Hint on solving for the minimum energy: take the derivative of the Lennard-Jones
 
 Hint on solving for the force: The force a particle experiences is the negative of the of the derivative of the potential (F = - dV/dr).
 
+## RELATED MODELS
+
+- Molecular Dynamics Lennard-Jones
+- Membrane Formation
+
 ## CREDITS AND REFERENCES
 
 Lennard-Jones, J. (1925). On the Forces between Atoms and Ions. Proceedings of the Royal Society of London. Series A, Containing Papers of a Mathematical and Physical Character, Vol. 109, No. 752 (Dec. 1, 1925), pp. 584-597.
@@ -461,7 +466,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Kelter, J., Luijten, E. and Wilensky, U. (2015).  NetLogo Lennard-Jones model.  http://ccl.northwestern.edu/netlogo/models/Lennard-Jones.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Kelter, J., Luijten, E. and Wilensky, U. (2015).  NetLogo Monte Carlo Lennard-Jones model.  http://ccl.northwestern.edu/netlogo/models/MonteCarloLennard-Jones.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 

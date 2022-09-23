@@ -149,7 +149,7 @@ class CodeTests extends TestModels {
       "PNoM 4 Virtual Syringe Force Graph", "PNoM 5 Virtual Syringe Temperature Graph",
       "PNoM 6 Particle Sandbox Gravity", "PNoM 7 Particle Sandbox Intermolecular Forces",
       "Prison Architecture and Emergent Violence", "Robotic Factory", "Limited Order Book",
-      "Distribution Center Discrete Event Simulator", "Volume Temperature"
+      "Distribution Center Discrete Event Simulator", "Volume Temperature", "Hydrogen Gas Production"
     ),
     "write" -> Seq.empty
   )
@@ -366,6 +366,13 @@ class CodeTests extends TestModels {
        "prob-cbd-com-MD", "prob-com-res-PM", "prob-com-res-EM", "prob-com-com-AM",
        "prob-cbd-com-EVE", "prob-res-com-PM", "prob-cbd-cbd-MD", "prob-cbd-res-EM",
        "prob-cbd-cbd-PM",
+   ),
+   "Hydrogen Gas Production" -> Set(
+     "num-Zn", "num-HCl", "Zn-increment", "Zns", "Zn", "Zn-ions", "Zn-ion",
+     "Zn-ions-own","make-Zn", "make-HCl", "Zns-here", "sprout-Zns",
+   ),
+   "Molecular Dynamics Lennard-Jones" -> Set(
+     "Kb",
    )
   )
 
