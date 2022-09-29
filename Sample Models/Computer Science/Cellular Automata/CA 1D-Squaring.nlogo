@@ -206,7 +206,7 @@ NIL
 TEXTBOX
 20
 50
-135
+145
 85
 Start CA from an \ninput row at the top
 11
@@ -216,7 +216,7 @@ Start CA from an \ninput row at the top
 TEXTBOX
 20
 130
-145
+150
 165
 Start from the end\nof the previous run
 11
@@ -737,7 +737,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.2.2
+NetLogo 6.3.0-beta1
 @#$#@#$#@
 setup
 repeat world-height - 1 [ go ]
