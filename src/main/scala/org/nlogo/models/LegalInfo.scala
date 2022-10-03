@@ -82,7 +82,7 @@ case class LegalInfo(model: Model) {
     InfoTabParts.clean(result)
   }
 
-  val code = model.code.lines.toSeq
+  val code = model.code.linesIterator.toSeq
     .reverse
     .dropWhile(_.startsWith(";"))
     .dropWhile(_.isEmpty)
@@ -157,7 +157,7 @@ case class LegalInfo(model: Model) {
         else model.name.split("Simple").head.trim
       libraryModels.find(_.name == originalName).map { m =>
         val rest = current.map { s =>
-          (if (s.startsWith(thisModelIs)) s.lines.drop(4).mkString("\n") else s)
+          (if (s.startsWith(thisModelIs)) s.linesIterator.drop(4).mkString("\n") else s)
         }.map(s => if (s.nonEmpty) s"\n\n$s" else s).getOrElse("")
         thisModelIs + "* " + LegalInfo(m).modelCitation + rest
       }

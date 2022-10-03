@@ -40,7 +40,7 @@ package object models {
 
   implicit class RicherString(s: String) {
     def indent(spaces: Int): String =
-      s.lines.map((" " * spaces) + _).mkString("\n")
+      s.linesIterator.map((" " * spaces) + _).mkString("\n")
   }
 
   val modelTries: Iterable[(File, Try[Model], Try[String])] = {

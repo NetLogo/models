@@ -17,7 +17,7 @@ object InfoTabParts {
   ).map(s => s.name -> s).toMap
 
   def clean(s: String) =
-    s.lines.map(stripEnd(_, null)).toSeq
+    s.linesIterator.map(stripEnd(_, null)).toSeq
       .dropWhile(_.isEmpty).reverse
       .dropWhile(_.isEmpty).reverse
       .mkString("\n")
@@ -42,7 +42,7 @@ object InfoTabParts {
       .map { case (title, lines) => title -> clean(lines.mkString("\n")) }
   }
   def fromContent(content: String): InfoTabParts = {
-    val contentLines = clean(content).lines.toSeq
+    val contentLines = clean(content).linesIterator.toSeq
     val legalSnippet = contentLines.lastOption
     fromSections(contentToSections(contentLines.dropRight(1)), legalSnippet)
   }
