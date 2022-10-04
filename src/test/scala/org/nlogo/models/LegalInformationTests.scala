@@ -29,7 +29,7 @@ class LegalInformationTests extends TestModels {
     val savedLines = Source.fromFile(model.file.getPath).getLines.toSeq.asJava
     for {
       notarizedModel <- Try(Notarizer.notarize(model)).toOption
-      patch = DiffUtils.diff(savedLines, notarizedModel.lines.toSeq.asJava)
+      patch = DiffUtils.diff(savedLines, notarizedModel.linesIterator.toSeq.asJava)
       if ! patch.getDeltas.isEmpty
     } yield DiffUtils.generateUnifiedDiff(model.file.getPath, model.file.getPath, savedLines, patch, 3).asScala.mkString("\n")
   }
