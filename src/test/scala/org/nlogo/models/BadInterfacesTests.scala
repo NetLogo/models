@@ -48,7 +48,7 @@ class BadInterfacesTests extends TestModels {
       noteWidth = note.right - note.left
       font = new Font(Fonts.platformFont, Font.PLAIN, note.fontSize)
       fontMetrics = graphics.getFontMetrics(font)
-      line <- text.lines
+      line <- text.linesIterator
       lineWidth = fontMetrics.stringWidth(line)
       desiredWidth = (lineWidth + lineWidth * (bufferPct / 100.0)).ceil.toInt
       if noteWidth < desiredWidth

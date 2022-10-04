@@ -31,7 +31,7 @@ class InfoTabsTests extends TestModels {
           .exists(m.file.getPath.contains)
       }
       .map {
-        "starts with " + _.info.lines.dropWhile(_.isEmpty).take(1).mkString
+        "starts with " + _.info.linesIterator.dropWhile(_.isEmpty).take(1).mkString
       }
   }
 
@@ -39,7 +39,7 @@ class InfoTabsTests extends TestModels {
   val maxLen = 700
   testModels(s"Length of first paragraph of WHAT IS IT should be >= $minLen and <= $maxLen") { model =>
     for {
-      paragraph <- model.infoTabParts.sectionMap.get(whatIsIt).map(_.lines.next)
+      paragraph <- model.infoTabParts.sectionMap.get(whatIsIt).map(_.linesIterator.next)
       length = paragraph.length
       if length <= minLen || length > maxLen
     } yield s"Length is $length in ${model.quotedPath}"
@@ -47,7 +47,7 @@ class InfoTabsTests extends TestModels {
 
   test("First paragraph of WHAT IS IT should be unique") {
     val failures = for {
-      (optWhatItIs, groupedModels) <- libraryModels.groupBy(_.infoTabParts.sectionMap.get(whatIsIt).map(_.lines.next))
+      (optWhatItIs, groupedModels) <- libraryModels.groupBy(_.infoTabParts.sectionMap.get(whatIsIt).map(_.linesIterator.next))
       whatItIs <- optWhatItIs
       if groupedModels.size > 1
     } yield whatItIs + "\n  " + groupedModels.map(_.quotedPath).mkString("\n  ")
