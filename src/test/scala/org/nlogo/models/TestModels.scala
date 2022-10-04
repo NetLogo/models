@@ -42,7 +42,7 @@ trait TestModels extends FunSuite {
     section: Model => String, p: String => Boolean,
     msg: String => String = _ => "")(model: Model): Iterable[String] = {
     (for {
-      (line, lineNumber) <- section(model).lines.zipWithIndex
+      (line, lineNumber) <- section(model).linesIterator.zipWithIndex
       if p(line)
     } yield "  " + msg(line) + "line %4d |".format(lineNumber) + line).toIterable
   }

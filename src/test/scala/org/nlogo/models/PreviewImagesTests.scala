@@ -18,7 +18,7 @@ class PreviewImagesTests extends TestModels {
    */
   def needsPreviewFile(m: Model) = m.is3D || m.previewCommands == Manual
 
-  val ignoredLines = readFileToString(new File(".gitignore"), "UTF-8").lines.toSeq
+  val ignoredLines = readFileToString(new File(".gitignore"), "UTF-8").linesIterator.toSeq
   val ignored = ignoredLines.toSet
   def isInGitIgnore(m: Model) = ignored.contains(m.previewFile.getPath.drop(1))
 
