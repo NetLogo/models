@@ -39,7 +39,7 @@ libraryDependencies ++= Seq(
   "org.jogamp.jogl" % "jogl-all" % "2.4.0" from "https://jogamp.org/deployment/archive/rc/v2.4.0-rc-20210111/jar/jogl-all.jar",
   "org.jogamp.gluegen" % "gluegen-rt" % "2.4.0" from "https://jogamp.org/deployment/archive/rc/v2.4.0-rc-20210111/jar/gluegen-rt.jar",
   "org.apache.commons" % "commons-lang3" % "3.5",
-  "org.asynchttpclient" % "async-http-client" % "2.0.24",
+  "org.asynchttpclient" % "async-http-client" % "2.12.3",
   "com.github.wookietreiber" %% "scala-chart" % "0.5.1",
   "com.googlecode.java-diff-utils" % "diffutils" % "1.2" % "test",
   "org.jfree" % "jfreesvg" % "3.0",
