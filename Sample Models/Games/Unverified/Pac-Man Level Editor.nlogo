@@ -10,16 +10,17 @@ bonuses-own [ value countdown ]
 patches-own [ pellet-grid? ]
 
 globals [
-  difficulty    ;; Slider in Pac-Man.nlogo
-  level         ;; Current Level
-  score         ;; Your Score
-  lives         ;; Remaining Lives
-  extra-lives   ;; Total Number of Extra Lives you've won
-  scared        ;; Time until Ghosts aren't scared (0 means not scared)
-  level-over?   ;; True when a level is complete
-  dead?         ;; True when pacman is loses a life
-  next-bonus-in ;; Time until next bonus is created
-  tool          ;; The currently selected tool
+  difficulty      ;; Slider in Pac-Man.nlogo
+  level           ;; Current Level
+  score           ;; Your Score
+  lives           ;; Remaining Lives
+  extra-lives     ;; Total Number of Extra Lives you've won
+  scared          ;; Time until Ghosts aren't scared (0 means not scared)
+  level-over?     ;; True when a level is complete
+  dead?           ;; True when pacman is loses a life
+  next-bonus-in   ;; Time until next bonus is created
+  tool            ;; The currently selected tool
+  button-clicked? ;; Click made for the power pellet toggle
 ]
 
 
@@ -42,6 +43,7 @@ to new
     set dead? false
     set next-bonus-in 0
     set tool "Eraser"
+    set button-clicked? false
 
     create-pacmans 1
     [
@@ -79,7 +81,7 @@ end
 
 ;; If the mouse is down, use the Current Tool on the patch the mouse is over
 to draw
-  if mouse-down?
+  ifelse mouse-down?
   [
     ;; Eraser Tool - Clears Walls/Gates, Removes Pellets
     if tool = "Eraser"
@@ -103,6 +105,8 @@ to draw
     ;; Ghost Tool - Changes the starting position of the Ghost chosen by the WHICH-GHOST slider
     if tool = "Place Ghost"
     [ place-ghost ]
+  ] [
+    set button-clicked? false
   ]
 end
 
@@ -163,16 +167,18 @@ end
 
 ;; Changes a Pellet into a Power Pellet and vice versa.
 to toggle-power-pellet
-  if any? pellets-on patch mouse-xcor mouse-ycor
-  [
-    ask one-of pellets-on patch mouse-xcor mouse-ycor
+  if not button-clicked? [
+    if any? pellets-on patch mouse-xcor mouse-ycor
     [
-      set powerup? not powerup?
-      ifelse powerup?
-      [ set shape "circle" ]
-      [ set shape "pellet" ]
-      while [ mouse-down? ] [ ] ;; wait until mouse button is released
+      ask one-of pellets-on patch mouse-xcor mouse-ycor
+      [
+        set powerup? not powerup?
+        ifelse powerup?
+        [ set shape "circle" ]
+        [ set shape "pellet" ]
+      ]
     ]
+    set button-clicked? true
   ]
 end
 

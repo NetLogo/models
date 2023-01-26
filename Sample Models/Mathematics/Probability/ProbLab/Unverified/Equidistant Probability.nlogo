@@ -9,6 +9,7 @@ globals
   successes-per-this-sample    ;; how many successes occurred in the current sample of attempts
   successes-per-sample-list    ;; list of how many successes occurred in all samples up to the current moment
   successful-attempt?          ;; Boolean variable that is true if an attempt was successful
+  square-clicked?              ;; waiting for a mouse-down? to end to complete a square selection
 ]
 
 patches-own
@@ -22,6 +23,7 @@ patches-own
 
 to setup
   clear-all
+  set square-clicked? false
   set attempts-list []
   set successes-per-sample-list []
   set successful-attempt? false
@@ -43,17 +45,21 @@ end
 
 ;; user uses mouse to paint squares red
 to select-squares
-  if mouse-down?
+  ifelse mouse-down?
   [
-    ask patch round mouse-xcor round mouse-ycor
-    [
-      if pcolor = 104 [ stop ]
-      ifelse pcolor = red
-      [ set pcolor pmy-color ]
-      [ set pcolor red ]
+    if not square-clicked? [
+      ask patch round mouse-xcor round mouse-ycor
+      [
+        if pcolor = 104 [ stop ]
+        ifelse pcolor = red
+        [ set pcolor pmy-color ]
+        [ set pcolor red ]
+      ]
+      set num-squares count patches with [ pcolor = red ]
+      set square-clicked? true
     ]
-    set num-squares count patches with [ pcolor = red ]
-    while [ mouse-down? ] [ ] ; wait until mouse button released
+  ] [
+    set square-clicked? false
   ]
 end
 
