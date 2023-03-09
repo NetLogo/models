@@ -289,7 +289,7 @@ Check out [the Python `math` package documentation](https://docs.python.org/3.6/
 
 ## EXTENDING THE MODEL
 
-While the uses demonstrated are convenient when needed, the real power of Python is in its scientific packages, like `numpy`, `pandas`, and `sklearn` and more.
+While the uses demonstrated are convenient when needed, the real power of Python is in its scientific packages, like `numpy`, `pandas`, and `scikit-learn` and more.
 
 ## RELATED MODELS
 

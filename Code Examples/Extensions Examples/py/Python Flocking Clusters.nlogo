@@ -7,7 +7,7 @@ turtles-own [
 
 to setup
   clear-all
-  ;; initialize the py extension and import numpy and sklearn
+  ;; initialize the py extension and import numpy and scikit-learn
   py:setup py:python
   (py:run
     "import numpy as np"
@@ -287,11 +287,11 @@ HORIZONTAL
 @#$#@#$#@
 ## WHAT IS IT?
 
-This model is based on the original **Flocking** model that has birds follow exactly the same set of rules, from which flocks emerge. It demonstrates using a Python package, `sklearn`, within a NetLogo model through the `py` extension in order to cluster the birds into groups, who are given matching colors in the view.
+This model is based on the original **Flocking** model that has birds follow exactly the same set of rules, from which flocks emerge. It demonstrates using a Python package, `scikit-learn`, within a NetLogo model through the `py` extension in order to cluster the birds into groups, who are given matching colors in the view.
 
 ## HOW IT WORKS
 
-In the `setup` procedure, `py:setup py:python` is used to start the Python session and `py:run` is used to let Python `import` the `numpy` and `sklearn` packages for use during the model run. If you do not have these packages installed, the `py` extension will show an error. Please install these packages in your Python environment before running the model.
+In the `setup` procedure, `py:setup py:python` is used to start the Python session and `py:run` is used to let Python `import` the `numpy` and `scikit-learn` packages for use during the model run. If you do not have these packages installed, the `py` extension will show an error. Please install these packages in your Python environment before running the model.
 
 The modifications for clustering are in the `go` procedure, where `py:set` is used to pass turtle data to Python as the `coords` variable and the `vision` NetLogo variable as the `eps` variable.
 
