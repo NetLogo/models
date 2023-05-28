@@ -1,8 +1,15 @@
+globals [
+  add-clicked?   ; the add seed button has been clicked
+  move-candidate ; the current clicked seed for moving
+]
+
 breed [ seeds seed ]    ; these are the circles in the middle of the polygons
 breed [ movers mover ]  ; these are the turtles that move around, forming the edges
 
 to setup
   clear-all
+
+  set move-candidate nobody
 
   ; create the seeds and randomly distribute them
   create-seeds num-seeds [
@@ -90,16 +97,19 @@ to do-mouse-action
 end
 
 to add-new-seed
-  if mouse-down? [
-    ; block until the user releases the mouse button
-    while [ mouse-down? ] [ ]
-    ; and then create the new seed
-    create-seeds 1 [
-      set shape "circle"
-      set size 2
-      setxy mouse-xcor mouse-ycor
+  ifelse mouse-down? [
+    if not add-clicked? [
+      ; and then create the new seed
+      create-seeds 1 [
+        set shape "circle"
+        set size 2
+        setxy mouse-xcor mouse-ycor
+      ]
+      display
+      set add-clicked? true
     ]
-    display
+  ] [
+    set add-clicked? false
   ]
 end
 
@@ -114,14 +124,18 @@ to remove-seeds
 end
 
 to move-seeds
-   if mouse-down? [
-    let candidate min-one-of seeds [ distancexy mouse-xcor mouse-ycor ]
-    if [ distancexy mouse-xcor mouse-ycor ] of candidate < 1 [
-      while [ mouse-down? ] [
-        go
-        ask candidate [ setxy mouse-xcor mouse-ycor ]
+  ifelse mouse-down? [
+    ifelse move-candidate = nobody [
+      let candidate min-one-of seeds [ distancexy mouse-xcor mouse-ycor ]
+      if [ distancexy mouse-xcor mouse-ycor ] of candidate < 1 [
+        set move-candidate candidate
+        ask move-candidate [ setxy mouse-xcor mouse-ycor ]
       ]
+    ] [
+      ask move-candidate [ setxy mouse-xcor mouse-ycor ]
     ]
+  ] [
+    set move-candidate nobody
   ]
 end
 
