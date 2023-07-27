@@ -50,10 +50,10 @@ end
 GRAPHICS-WINDOW
 200
 10
-612
-443
-100
-100
+610
+421
+-1
+-1
 2.0
 1
 10
@@ -94,7 +94,7 @@ density
 density
 0.0
 99.0
-57
+57.0
 1.0
 1
 %
@@ -402,9 +402,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 6.0-M4
+NetLogo 6.3.0
 @#$#@#$#@
 set density 60
 setup
@@ -424,6 +423,34 @@ repeat 180 [ go ]
     <timeLimit steps="50"/>
     <metric>burned-trees</metric>
   </experiment>
+  <experiment name="test3" repetitions="1" runMetricsEveryStep="false">
+    <setup>random-seed 474 setup</setup>
+    <go>go</go>
+    <timeLimit steps="50"/>
+    <metric>burned-trees</metric>
+  </experiment>
+  <experiment name="test4" repetitions="1" runMetricsEveryStep="false">
+    <setup>random-seed 474 setup</setup>
+    <go>go</go>
+    <timeLimit steps="50"/>
+    <metric>burned-trees</metric>
+    <runMetricsCondition>burned-trees mod 2 = 0</runMetricsCondition>
+  </experiment>
+  <experiment name="test5" repetitions="1" runMetricsEveryStep="true">
+    <setup>random-seed 474 setup</setup>
+    <go>go</go>
+    <timeLimit steps="50"/>
+    <metric>burned-trees</metric>
+    <runMetricsCondition>burned-trees mod 2 = 0</runMetricsCondition>
+  </experiment>
+  <experiment name="experiment" repetitions="1" runMetricsEveryStep="true">
+    <setup>setup</setup>
+    <go>go</go>
+    <metric>count turtles</metric>
+    <enumeratedValueSet variable="density">
+      <value value="57"/>
+    </enumeratedValueSet>
+  </experiment>
 </experiments>
 @#$#@#$#@
 @#$#@#$#@
@@ -437,7 +464,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 0
 @#$#@#$#@
