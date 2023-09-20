@@ -210,7 +210,7 @@ Two suspects are apprehended by the police.  The police do have enough evidence 
 
 Each suspect may reason as follows: "Either my partner confesses or not.  If he does confess and I remain silent, I get 10 years while if I confess, I get 5 years.  So, if my partner confesses, it is best that I confess and get only 5 years than 10 years in prison.  If he didn't, then by confessing, I go free, whereby remaining silent, I get 6 months.  Thus, if he didn't confess, it is best to confess, so that I can go free.   Whether or not my partner confesses or not, it is best that I confess."
 
-In a non-iterated prisoner's dilemma, the two partners will never have to work together again.  Both partners are thinking in the above manner and decide to confess.  Consequently, they both receive 5 years in prison.  If neither would have confessed, they would have only gotten 6 months each.  The rational behavior paradoxically leads to a socially unbeneficial outcome.
+In a non-iterated prisoner's dilemma, the two partners will never have to work together again.  Both partners are thinking in the above manner and decide to confess, which is called "defecting," because they each abandoned the other.  Consequently, they both receive 5 years in prison.  If neither would have confessed, they would have only gotten 6 months each.  The rational behavior paradoxically leads to a socially unbeneficial outcome.
 
 ```text
                              Payoff Matrix
@@ -226,7 +226,7 @@ In a non-iterated prisoner's dilemma, the two partners will never have to work t
         Note: lower the score (number of years in prison), the better.
 ```
 
-In an Iterated Prisoner's Dilemma where you have more than two players and multiple rounds, such as this one, the scoring is different.  In this model, it is assumed that an increase in the number of people who cooperate will increase proportionately the benefit for each cooperating player (which would be a fine assumption, for example, in the sharing of knowledge).  For those who do not cooperate, assume that their benefit is some factor (alpha) multiplied by the number of people who cooperate (that is, to continue the previous example, the non-cooperating players take knowledge from others but do not share any knowledge themselves).  How much cooperation is incited is dependent on the factor multiple for not cooperating.  Consequently, in an iterated prisoner's dilemma with multiple players, the dynamics of the evolution in cooperation may be observed.
+In an Iterated Prisoner's Dilemma where you have more than two players and multiple rounds, such as this one, the scoring is different.  In this model, it is assumed that an increase in the number of people who cooperate will increase proportionately the benefit for each cooperating player (which would be a fine assumption, for example, in the sharing of knowledge).  For those who do not cooperate, assume that their benefit is some factor (alpha) multiplied by the number of people who cooperate (that is, to continue the previous example, the non-cooperating (defecting) players take knowledge from others but do not share any knowledge themselves).  How much cooperation is incited is dependent on the factor multiple for not cooperating.  Consequently, in an iterated prisoner's dilemma with multiple players, the dynamics of the evolution in cooperation may be observed.
 
 ```text
                              Payoff Matrix
@@ -244,7 +244,7 @@ In an Iterated Prisoner's Dilemma where you have more than two players and multi
 
 ## HOW TO USE IT
 
-Decide what percentage of patches should cooperate at the initial stage of the simulation and change the INITIAL-COOPERATION slider to match what you would like.  Next, determine the DEFECTION-AWARD multiple (mentioned as alpha in the payoff matrix above) for defecting or not cooperating.  The Defection-Award multiple varies from range of 0 to 3.  Press SETUP and note that red patches (that will defect) and blue patches (cooperate) are scattered across the  .  Press GO to make the patches interact with their eight neighboring patches.  First, they count the number of neighboring patches that are cooperating.  If a patch is cooperating, then its score is number of neighboring patches that also cooperated.   If a patch is defecting, then its score is the product of the number of neighboring patches who are cooperating and the Defection-Award multiple.
+Decide what percentage of patches should cooperate at the initial stage of the simulation and change the INITIAL-COOPERATION slider to match what you would like.  Next, determine the DEFECTION-AWARD multiple (mentioned as alpha in the payoff matrix above) for defecting (not cooperating).  The Defection-Award multiple varies from range of 0 to 3.  Press SETUP and note that red patches (that will defect) and blue patches (cooperate) are scattered across the  .  Press GO to make the patches interact with their eight neighboring patches.  First, they count the number of neighboring patches that are cooperating.  If a patch is cooperating, then its score is number of neighboring patches that also cooperated.   If a patch is defecting, then its score is the product of the number of neighboring patches who are cooperating and the Defection-Award multiple.
 
 ## HOW IT WORKS
 

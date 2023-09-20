@@ -327,7 +327,7 @@ This model is an iterated version of the prisoner's dilemma.  If you are unfamil
 
 ## HOW IT WORKS
 
-The PD Basic model presents an interesting problem: In order to minimize the overall jail time you would cooperate with your partner and remain silent and not confess.  However, the rational choice is to defect against your partner by confessing.  If your partner does not confess you will go free.  If your partner confesses, you will go to jail for three years, much better than the five you would have earned had you refused to confess.  Unfortunately, your partner is in the same position.  Acting rationally, you will both be worse off.
+The PD Basic model presents an interesting problem: In order to minimize the overall jail time you would cooperate with your partner and remain silent and not confess (defect).  However, the rational choice is to defect against your partner by confessing.  If your partner does not confess you will go free.  If your partner confesses, you will go to jail for three years, much better than the five you would have earned had you refused to confess.  Unfortunately, your partner is in the same position.  Acting rationally, you will both be worse off.
 
 The dilemma is made more interesting when you know you will interact with the person again.  Let us consider the case where you and a friend are chosen for a research study to play the prisoner's dilemma game; only instead of the payoffs being years of jail time, they are money.
 
