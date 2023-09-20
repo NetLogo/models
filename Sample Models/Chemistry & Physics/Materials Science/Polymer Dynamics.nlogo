@@ -147,7 +147,7 @@ This model simulates the motion of a simple polymer.  Polymers are simply long c
 
 ## HOW IT WORKS
 
-The polymer is modeled using a cellular automaton approach involving only local interactions.
+The polymer is modeled using an approach involving only local interactions.
 
 Initially the monomers are colored alternating orange and blue.  Blue monomers interact only with their two neighboring orange monomers, and vice versa.
 
@@ -192,9 +192,11 @@ Allow monomers to break apart from the polymer, in some particular situations.  
 In order for the model to operate correctly on a torus, the dimensions of the world must be even, so we put the world origin in the corner.
 
 ## RELATED MODELS
+Although this model is not strictly a cellular automata because it uses both patches and turtles, it is similar to them:
 
-CA 1D Elementary - an introduction to cellular automata
-Life Turtle-Based - a cellular automaton implemented, like this one, using turtles
+- CA 1D Elementary - an introduction to cellular automata
+- Life Turtle-Based - a cellular automaton implemented using turtles
+
 Radical Polymerization - another model about polymers
 
 ## CREDITS AND REFERENCES
