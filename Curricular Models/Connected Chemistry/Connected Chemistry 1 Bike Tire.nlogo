@@ -523,7 +523,7 @@ nothing
 true
 0
 @#$#@#$#@
-NetLogo 6.2.2
+NetLogo 6.3.0
 @#$#@#$#@
 setup
 set box-x 18
