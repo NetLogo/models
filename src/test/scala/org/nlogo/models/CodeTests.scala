@@ -196,6 +196,9 @@ class CodeTests extends TestModels {
     "Connected Chemistry Reversible Reaction" -> Set(
       "#-H2", "#-N2", "#-NH3"
     ),
+    "Current in a Semiconductor" -> Set(
+      "Vx", "Vy"
+    ),
     "CRISPR Bacterium LevelSpace" -> Set(
       "RNAPs-own",
       "hatch-guide-RNAs",
