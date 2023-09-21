@@ -34,11 +34,18 @@ import org.nlogo.sdm.{ NLogoSDMFormat, SDMAutoConvertable }
  * of the NetLogo repo. -Jeremy B September 2023
  *
  */
+
+object ModelResaver3d {
+  def main(args: Array[String]): Unit = {
+    System.setProperty("org.nlogo.is3d", "true")
+    ModelResaver.main(Array())
+  }
+}
+
 object ModelResaver {
   def main(args: Array[String]): Unit = {
     System.setProperty("org.nlogo.preferHeadless", "true")
     System.setProperty("java.awt.headless", "true")
-
     resaveAllModels()
   }
 

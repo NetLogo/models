@@ -10,7 +10,7 @@ When the NetLogo version is bumped, a few changes are required:
 
 - Update the version in `build.sbt`
 - Update the expected version in `VersionTests.scala`
-- Resave the models using the `runMain org.nlogo.models.ModelsResaver` sbt command.
+- Resave the models using the `runMain org.nlogo.models.ModelsResaver` sbt command and then the `runMain org.nlogo.models.ModelsResaver3d` sbt command.  These commands must be run separately as the switch for 3D mode is only read once globally.
 
 ## Licenses
 
