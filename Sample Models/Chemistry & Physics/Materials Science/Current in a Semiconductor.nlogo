@@ -633,7 +633,7 @@ PENS
 TEXTBOX
 310
 320
-325
+335
 341
 ■
 20
@@ -643,7 +643,7 @@ TEXTBOX
 TEXTBOX
 400
 320
-415
+430
 341
 ■
 20
@@ -743,6 +743,8 @@ In real semiconductors, even extrinisic charge carriers need a little bit of ene
 ## NETLOGO FEATURES
 
 This model uses a `charge-carriers` reporter which uses the `turtle-set` primitive to construct a set of both electrons and holes so they can be asked to do things together.
+
+The # free electrons and # holes monitors have notes placed in their upper right corners with the unicode black square character ■ (U+25A0) colored to match the lines in the plot instead of using the legend on the plot.
 
 ## RELATED MODELS
 
