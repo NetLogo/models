@@ -192,6 +192,7 @@ Allow monomers to break apart from the polymer, in some particular situations.  
 In order for the model to operate correctly on a torus, the dimensions of the world must be even, so we put the world origin in the corner.
 
 ## RELATED MODELS
+
 Although this model is not strictly a cellular automata because it uses both patches and turtles, it is similar to them:
 
 - CA 1D Elementary - an introduction to cellular automata
