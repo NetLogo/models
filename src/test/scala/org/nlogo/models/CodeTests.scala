@@ -166,6 +166,9 @@ class CodeTests extends TestModels {
   // Some of these exceptions are debatable and should
   // be revisited at some point -- NP 2015-08-30
   val nonLowercaseExceptions = Map[String, Set[String]](
+    "Chloroplasts and Food" -> Set(
+      "ADP-ATPs", "ADP-ATP", "ADP-ATPs-own", "update-ADP-ATPs"
+    ),
     "Ant Adaptation" -> Set(
       "create-HUD-display-of-ants"
    ),
