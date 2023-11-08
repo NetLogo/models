@@ -471,7 +471,7 @@ saturated mers: teal
 TEXTBOX
 45
 475
-210
+216
 501
 radical initiators: light orange
 11
@@ -542,7 +542,7 @@ PENS
 TEXTBOX
 20
 465
-35
+45
 488
 ■
 25
@@ -552,7 +552,7 @@ TEXTBOX
 TEXTBOX
 20
 485
-35
+45
 516
 ■
 25
@@ -562,7 +562,7 @@ TEXTBOX
 TEXTBOX
 20
 445
-35
+45
 476
 ●
 25
@@ -572,7 +572,7 @@ TEXTBOX
 TEXTBOX
 20
 425
-35
+45
 456
 ●
 25
@@ -582,7 +582,7 @@ TEXTBOX
 TEXTBOX
 20
 405
-35
+45
 436
 ●
 25

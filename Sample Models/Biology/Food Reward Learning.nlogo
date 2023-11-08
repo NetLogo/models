@@ -248,7 +248,7 @@ heterogeneous-responsivity?
 TEXTBOX
 15
 95
-215
+216
 113
 Learning rate (α) values of agents
 11
@@ -298,7 +298,7 @@ HORIZONTAL
 TEXTBOX
 15
 275
-240
+245
 293
 Palatability of low and high value foods
 11
@@ -338,7 +338,7 @@ HORIZONTAL
 TEXTBOX
 10
 400
-40
+60
 466
 ■
 50
@@ -348,7 +348,7 @@ TEXTBOX
 TEXTBOX
 10
 330
-45
+60
 390
 ■
 50
@@ -358,7 +358,7 @@ TEXTBOX
 TEXTBOX
 10
 365
-45
+60
 426
 ■
 50
@@ -457,7 +457,7 @@ PENS
 TEXTBOX
 13
 438
-38
+47
 479
 ●
 38
@@ -467,7 +467,7 @@ TEXTBOX
 TEXTBOX
 14
 465
-44
+52
 506
 ■
 38
