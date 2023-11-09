@@ -471,7 +471,7 @@ saturated mers: teal
 TEXTBOX
 45
 475
-216
+220
 501
 radical initiators: light orange
 11
