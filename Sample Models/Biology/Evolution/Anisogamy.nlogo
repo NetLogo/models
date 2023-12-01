@@ -752,7 +752,7 @@ false
 Circle -7500403 true true 15 60 178
 Circle -7500403 true true 103 58 182
 @#$#@#$#@
-NetLogo 6.4.0-beta1
+NetLogo 6.4.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

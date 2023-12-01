@@ -571,7 +571,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.3.0
+NetLogo 6.4.0
 @#$#@#$#@
 setup repeat 175 [ go ]
 @#$#@#$#@
@@ -581,7 +581,7 @@ setup repeat 175 [ go ]
     <setup>vid:start-recorder
 setup</setup>
     <go>go</go>
-    <final>vid:save-recording (word behaviorspace-run-number)</final>
+    <postRun>vid:save-recording (word behaviorspace-run-number)</postRun>
     <exitCondition>count turtles &gt;= 3000</exitCondition>
   </experiment>
 </experiments>
