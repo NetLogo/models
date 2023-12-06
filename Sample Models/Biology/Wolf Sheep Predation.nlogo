@@ -409,7 +409,7 @@ CHOOSER
 model-version
 model-version
 "sheep-wolves" "sheep-wolves-grass"
-1
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
