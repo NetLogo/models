@@ -150,7 +150,7 @@ PLOT
 204
 268
 Balls in air
-Ticks
+Seconds
 Balls in air
 0.0
 10.0
@@ -168,7 +168,7 @@ PLOT
 204
 426
 Untriggered traps
-Ticks
+Seconds
 Untriggered traps
 0.0
 10.0
@@ -200,14 +200,14 @@ Snap time distribution
 Snap time, seconds
 Number of traps
 0.0
-5.0
+30.0
 0.0
 10.0
 true
 false
 "" ""
 PENS
-"default" 0.2 1 -16777216 true "" ""
+"default" 1.0 1 -16777216 true "" ""
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -233,6 +233,7 @@ See the `time` extension documentation for more details on each of these primiti
 ## CREDITS
 
 Prepared by Colin Sheppard and Steve Railsback, 7 Nov 2013.
+Updated by Steve Railsback, 11 Aug 2022.
 
 <!-- 2020 -->
 @#$#@#$#@
