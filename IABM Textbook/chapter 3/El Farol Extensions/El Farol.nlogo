@@ -37,7 +37,7 @@ to setup
   ;; bar is "crowded"
   ask patch (0.75 * max-pxcor) (0.5 * max-pycor) [
     set crowded-patch self
-    set plabel-color red
+    set plabel-color yellow
   ]
 
   ;; create the agents and give them random strategies
