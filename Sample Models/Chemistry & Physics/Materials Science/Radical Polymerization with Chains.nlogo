@@ -471,7 +471,7 @@ saturated mers: teal
 TEXTBOX
 45
 475
-210
+220
 501
 radical initiators: light orange
 11
@@ -542,7 +542,7 @@ PENS
 TEXTBOX
 20
 465
-35
+45
 488
 ■
 25
@@ -552,7 +552,7 @@ TEXTBOX
 TEXTBOX
 20
 485
-35
+45
 516
 ■
 25
@@ -562,7 +562,7 @@ TEXTBOX
 TEXTBOX
 20
 445
-35
+45
 476
 ●
 25
@@ -572,7 +572,7 @@ TEXTBOX
 TEXTBOX
 20
 425
-35
+45
 456
 ●
 25
@@ -582,7 +582,7 @@ TEXTBOX
 TEXTBOX
 20
 405
-35
+45
 436
 ●
 25
@@ -1020,7 +1020,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.3.0
+NetLogo 6.4.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
