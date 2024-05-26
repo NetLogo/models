@@ -82,7 +82,7 @@ to rewire-one
 end
 
 
-to rewire-me ; turtle procedure
+to rewire-me ; link procedure
   ; node-A remains the same
   let node-A end1
   ; as long as A is not connected to everybody
