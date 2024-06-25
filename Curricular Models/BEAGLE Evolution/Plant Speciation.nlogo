@@ -175,8 +175,9 @@ to do-reproduction
       if flower-time < 0 [ set flower-time 0 ]
       if flower-time > 365 [ set flower-time 365 ]
 
-      ;change color to reflect metal tolerance
+      ;change color and label to reflect metal tolerance
       set color calc-plant-color tolerance
+      check-turtle-label
       migrate-this-plant
     ]
 
@@ -259,11 +260,13 @@ to check-labels
     [set plabel metal]
     [set plabel ""]
   ]
-  ask turtles [
-    if show-labels-as = "metal tolerance" [set label precision tolerance 0]
-    if show-labels-as = "flower time"  [set label precision flower-time 0 ]
-    if show-labels-as = "none" [set label ""]
-  ]
+  ask turtles [ check-turtle-label ]
+end
+
+to check-turtle-label
+  if show-labels-as = "metal tolerance" [ set label precision tolerance 0 ]
+  if show-labels-as = "flower time"  [ set label precision flower-time 0 ]
+  if show-labels-as = "none" [ set label "" ]
 end
 
 to redraw-plants-as-full-sized-plants ;; turtle procedure
