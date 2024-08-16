@@ -883,7 +883,7 @@ INPUTBOX
 code1
 ;average (mean) number of violet particles nearby, over whole history.\nrecord (count particles in-radius 3 with [color-type = violet] ) \nset reading mean my-history\nset reading precision reading 1\n    \n;turn the sensor \"on\" (white) if the reading is > 1.   \nset light-up-threshold 1
 1
-0
+1
 String (commands)
 
 INPUTBOX
@@ -894,7 +894,7 @@ INPUTBOX
 code2
 ;cumulative count (sum) of violet particles that touch the sensor  \nrecord (count particles-here with [color-type = violet])\nset reading sum my-history\nset reading precision reading 1\n    \n;turn the sensor \"on\" (white) if the reading is > 50.   \nset light-up-threshold 50
 1
-0
+1
 String (commands)
 
 INPUTBOX
@@ -905,7 +905,7 @@ INPUTBOX
 code3
 ;instantaneous count of violet particles that are nearby NOW (last measure)  \nrecord (count particles-here with [color-type = violet])\nset reading last my-history\nset reading precision reading 1\n    \n;turn the sensor \"on\" (white) if the reading is > 1.   \nset light-up-threshold 1
 1
-0
+1
 String (commands)
 
 INPUTBOX
@@ -916,7 +916,7 @@ INPUTBOX
 code4
 ;running average number of violet particles nearby, over last 20 ticks.\nrecord (count particles in-radius 3 with [color-type = violet] )\nif (length my-history > 20) [ \n  let recent-data (sublist my-history ((length my-history) - 20) (length my-history))  \n  set reading mean recent-data\n  set reading precision reading 1\n]\n;turn the sensor \"on\" (white) if the reading is > 1.   \nset light-up-threshold 1
 1
-0
+1
 String (commands)
 
 PLOT
@@ -1065,7 +1065,7 @@ INPUTBOX
 example1
 ;average number of violet particles nearby, over whole history.\nrecord (count particles in-radius 3 with [color-type = violet] ) \nset reading mean my-history\nset reading precision reading 1\n    \n;turn the sensor \"on\" (white) if the reading is > 1.   \nset light-up-threshold 1
 1
-0
+1
 String (commands)
 
 INPUTBOX
@@ -1076,7 +1076,7 @@ INPUTBOX
 example2
 ;cumulative count of violet particles that touch the sensor  \nrecord (count particles-here with [color-type = violet])\nset reading sum my-history\nset reading precision reading 1\n    \n;turn the sensor \"on\" (white) if the reading is > 50.   \nset light-up-threshold 50
 1
-0
+1
 String (commands)
 
 INPUTBOX
@@ -1087,7 +1087,7 @@ INPUTBOX
 example3
 ;instantaneous count of violet particles that are nearby NOW  \nrecord (count particles-here with [color-type = violet])\nset reading last my-history\nset reading precision reading 1\n    \n;turn the sensor \"on\" (white) if the reading is > 1.   \nset light-up-threshold 1
 1
-0
+1
 String (commands)
 
 INPUTBOX
@@ -1098,7 +1098,7 @@ INPUTBOX
 example4
 ;running average number of violet particles nearby, over last 20 ticks.\nrecord (count particles in-radius 3 with [color-type = violet] )\nif (length my-history > 20) [ \n  let recent-data (sublist my-history ((length my-history) - 20) (length my-history))  \n  set reading mean recent-data\n  set reading precision reading 1\n]\n;turn the sensor \"on\" (white) if the reading is > 1.   \nset light-up-threshold 1
 1
-0
+1
 String (commands)
 
 MONITOR
