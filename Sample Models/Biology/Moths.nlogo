@@ -338,6 +338,8 @@ This model offers only one set of rules for generating moths' circular flight ar
 
 Alternatively, can you imagine a way to model an earlier theory of moth behavior in which moths navigate straight lines by orienting themselves to the moon?  Do rules that allow moths to navigate according to their position relative to the moon lead to the observed circling behavior around light sources that are much, much closer than the far-away moon?
 
+More recent research shows that the problem is three dimensional in nature. Moths orient themselves so that their backs are to a salient light source.  Typically this source is above. This defines the plane in which they fly. However with human light sources they keep turning in order to stay oriented, which causes them to fly in a circle. Can you model this using NetLogo 3D?
+
 ## NETLOGO FEATURES
 
 This model creates a field of light across the patches, using `scale-color` to display the value, and the moths use `face` and `max-one-of` to traverse the light field.
@@ -349,6 +351,8 @@ Ants, Ant Lines, Fireflies, Flocking
 ## CREDITS AND REFERENCES
 
 Adams, C.  (1989).  Why are moths attracted to bright lights?  Retrieved May 1, 2005, from https://www.straightdope.com/21342222/why-are-moths-attracted-to-bright-lights
+
+Fabian, S.T., Sondhi, Y., Allen, P.E. et al. Why flying insects gather at artificial light. Nat Commun 15, 689 (2024). https://doi.org/10.1038/s41467-024-44785-3
 
 ## HOW TO CITE
 
