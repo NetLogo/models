@@ -61,7 +61,7 @@ end
 ;; radical procedure -- radicals react pairwise
 to terminate
   let partner one-of other radicals-here
-  if (partner != nobody) and (random-float 500 < Km)
+  if (partner != nobody) and (random-float 500 < Kr)
     [ if self < partner
         [ ask partner
             [ set color blue
@@ -301,29 +301,29 @@ In this model, there are four breeds of turtles:
 - radicals (red turtles);
 - polymers (blue turtles).
 
-Each turtle carries a variable, chain-length.  Initially there are 200 turtles of monomer breed with chain-length set to 1.  There is also a user-defined number (Io) of initiator breed with chain-length set to 0.
+Each turtle carries a variable, chain-length.  Initially there are 200 turtles of monomer breed with chain-length set to 1.  There is also a user-defined number (`Io`) of initiator breed with chain-length set to 0.
 
 The rules are quite simple:
 
 (i) All turtles move around randomly.
 (ii) Yellow turtles (initiators) spontaneously break up into two red turtles (radicals) with probability Ki;
-(iii) Green turtles (monomers) react with red turtles (radicals) with probability Km.  If there is at least one radical on the same patch as the given monomer, the monomer dies and the chain-length of the radical which "killed" it is incremented by 1;
-(iv) Red turtles (radicals) react with each other pairwise.  If there is a pair of radicals on the same patch, they annihilate each other with probability Kr forming a polymer chain (a blue turtle);
+(iii) Green turtles (monomers) react with red turtles (radicals) with probability `Km`.  If there is at least one radical on the same patch as the given monomer, the monomer dies and the chain-length of the radical which "killed" it is incremented by 1;
+(iv) Red turtles (radicals) react with each other pairwise.  If there is a pair of radicals on the same patch, they annihilate each other with probability `Kr` forming a polymer chain (a blue turtle);
 
 ## HOW TO USE IT
 
-With sliders one can control the initial number of initiators (Io) and reaction probabilities
-- Ki (initiator): probability of an initiator (yellow) creating two radicals (red);
-- Km (monomer): probability of reaction between monomers (green) and radicals (red), forming a radical with a longer chain length;
-- Kr (radical): probability of two radicals (red)  reacting to form a polymer chain (blue).
+With sliders one can control the initial number of initiators (`Io`) and reaction probabilities
+- `Ki` (initiator): probability of an initiator (yellow) creating two radicals (red);
+- `Km` (monomer): probability of reaction between monomers (green) and radicals (red), forming a radical with a longer chain length;
+- `Kr` (radical): probability of two radicals (red)  reacting to form a polymer chain (blue).
 
-Select the initial number of initiators Io and press the "setup" button.  To start the simulation press the GO button.  You can set the probabilities Ki, Km and Kr before or after you do setup.  You can also modify this constants on the fly during the execution of the GO procedure.
+Select the initial number of initiators `Io` and press the "setup" button.  To start the simulation press the GO button.  You can set the probabilities `Ki`, `Km` and `Kr` before or after you do setup.  You can also modify this constants on the fly during the execution of the GO procedure.
 
 One plot shows the number of initiators, monomers, radicals, and polymers.  The distribution of chain-lengths of polymers (blue) is shown in the second plot in the form of a histogram.  Each chain is labeled with its length.
 
 ## THINGS TO NOTICE
 
-Distribution of chain-length drastically depends on the mode of initiation.  If you select low values of Io and Ki, then the life expectancy of radicals will rise leading to longer chains.  However in this case the simulation will have to run too long in order to produce a sizable amount of long-length chains.   If you start the simulation with a lot of initiator which decomposes rapidly, radicals will tend to react with themselves and form low molecular oligomers.
+Distribution of chain-length drastically depends on the mode of initiation.  If you select low values of `Io` and `Ki`, then the life expectancy of radicals will rise leading to longer chains.  However in this case the simulation will have to run too long in order to produce a sizable amount of long-length chains.   If you start the simulation with a lot of initiator which decomposes rapidly, radicals will tend to react with themselves and form low molecular oligomers.
 
 ## THINGS TO TRY
 
