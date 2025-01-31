@@ -1,0 +1,1278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[globals [
+  left-side                                 ;; left side of the membrane
+  right-side                                ;; right side of the membrane
+  split                                     ;; location of membrane
+  pre-split                                 ;; location of membrane in prior step, used to calculate the change in membrane location
+  equilibrium                               ;; the difference in number of particles moving each direction across membrane
+  tick-delta                                ;; how much we advance the tick counter this time through
+  max-tick-delta                            ;; the largest tick-delta is allowed to be
+  membrane-list                             ;; list of membrane locations during a model run, for computing average
+]
+
+breed [solutes solute]
+breed [solvents solvent]
+breed [membranes membrane]
+
+turtles-own [
+  speed
+  mass
+  energy
+  last-collision
+  old-pos
+  new-pos
+  stick-count                              ;; counter for solutes that are stuck to solvents
+  linked?                                  ;; flag for solvents stating whether or not they are stuck
+]
+
+to setup
+  clear-all
+  set-default-shape solutes "circle"
+  set-default-shape solvents "circle"
+  set-default-shape membranes "square"
+  set max-tick-delta 0.1073
+  create-container
+  spawn-particles
+  set split 0
+  set membrane-list [0]
+  calculate-wall
+  reset-ticks
+end
+
+to create-container
+  ask patches with [pycor = max-pycor or pycor = min-pycor] [              ;; sets the walls of the container
+    set pcolor blue
+  ]
+  ask patches with [pxcor = max-pxcor or pxcor = min-pxcor] [
+    set pcolor blue
+  ]
+  set left-side patches with [pxcor < 0]                                   ;; defines the left and right sides of the container equally
+  set right-side patches with [pxcor > 0]
+  set equilibrium 0                                                        ;; sets equilibrium to starting value (the middle of the container)
+  set split 0                                                              ;; sets the starting location of the membrane
+  ask patches with [pxcor = 0 and pycor != max-pycor and pycor != min-pycor and abs pycor mod 2 != 0] [
+    sprout-membranes 1 [                                                   ;; create the membrane
+      set color red
+      set size 1.3
+    ]
+  ]
+end
+
+to setup-particles                                                      ;; set variable values for each new particle
+  set speed 10
+  set mass 1
+  set energy (0.5 * mass * speed * speed)
+  if breed = solutes [
+    set stick-count 0
+    set size 1.3
+  ]
+  set heading random 360
+  set linked? false
+  set last-collision nobody
+end
+
+;; Osmotic pressure is a colligative property, meaning the number of particles matter more than the identity of the particles.
+;; So when spawning particles, we have to take into account whether or not particles dissociate (break up into ions) in the solvent.
+;; Covalent compounds, such as sugar, do not break up, while ionic compounds, such as sodium chloride do.  Therefore, when we create 10 solute
+;; particles of sugar, 10 solute particles are created.  However, when we create 10 solute particles of sodium chloride, the particles break up into
+;; sodium and chloride ions -- so for every one particle of sodium chloride, we get 2 particles of ions (in the model, these still retain the "solute"
+;; breed).  Magnesium chloride breaks up into one magnesium ion, and two chloride ions (so 1 magnesium chloride gets you 3 ion particles),
+;; and aluminum chloride breaks up into one aluminum ion, and three chloride ions (so 1 aluminum chloride gets you 4 ion particles).
+;;
+;; In the code below, this is accomplished by creating solute particles based on the slider value, and then "hatching" new solute particles based on
+;; the number of ions the compound forms.  So for sodium chloride, we create the number of particles indicated by the slider, and then each solute
+;; spawns an extra solute particle to make a total of two ion particles for each solute particle added.
+
+to spawn-particles
+  create-solvents 1000 [                                               ;; creates 1000 solvent molecules
+    set color blue + 2
+    setup-particles
+    move-to one-of patches with [pcolor = black]                       ;; randomly distribute them throughout the world
+    while [any? other turtles-here] [
+      move-to one-of patches with [pcolor = black]
+    ]
+  ]
+
+  if solute-type = "Sugar" [                       ;; checks to see the identity of the solute based on the chooser
+    output-type "C12H22O11"                        ;; write the chemical formula in the output area
+    create-solutes-and-ions 1                      ;; since sugar is covalent and it does not break into ions in solvent, one molecule is formed
+  ]
+
+  if solute-type = "Sodium Chloride" [
+    output-type "NaCl"
+    create-solutes-and-ions 2                      ;; Sodium Chloride breaks up into Na+ and Cl- ions, so two ions are formed
+  ]
+
+  if solute-type = "Magnesium Chloride" [
+    output-type "MgCl2"
+    create-solutes-and-ions 3                      ;; Magnesium Chloride breaks up into Mg2+ and two Cl- ions, so three ions are formed
+  ]
+
+  if solute-type = "Aluminum Chloride" [
+    output-type "AlCl3"
+    create-solutes-and-ions 4                      ;; Aluminum Chloride breaks up into Al3+ and three Cl- ions, so four ions are formed
+  ]
+end
+
+to create-solutes-and-ions [ions]
+  create-solutes solute-left [                              ;; create the number of particles on the left indicated by the slider
+      set color white
+      setup-particles
+      move-to one-of left-side with [pcolor = black]        ;; move to an open space on the left side
+      while [any? other turtles-here] [
+        move-to one-of left-side with [pcolor = black] ]
+      hatch-solutes (ions - 1) [                            ;; since one particle was already created above,
+        set color white                                     ;; we hatch 1 less than the total number of ions the substance has
+        setup-particles
+        fd 0.2                                              ;; move forward a bit so we can see the particles better
+      ]
+    ]
+    create-solutes solute-right [                           ;; create the number of particles on the right indicated by the slider
+      set color white
+      setup-particles
+      move-to one-of right-side with [pcolor = black]       ;; move to an open space on the right side
+      while [any? other turtles-here] [
+        move-to one-of right-side with [pcolor = black] ]
+      hatch-solutes (ions - 1) [
+        set color white
+        setup-particles
+        fd 0.2
+      ]
+    ]
+end
+
+to-report particles
+  report (turtle-set solutes solvents)
+end
+
+to particle-jump
+  ask solutes with [xcor >= pre-split and xcor <= split] [       ;; check for solutes in the way of a membrane jump
+    set heading 90                                                                           ;; turn proper direction and jump
+    jump (split - pre-split) + 1
+  ]
+  ask solutes with [xcor <= pre-split and xcor >= split] [
+    set heading 270
+    jump (pre-split - split) + 1
+  ]
+end
+
+to calculate-wall
+  set pre-split split                                                  ;; save location of the membrane before it moves
+  let nudge ((equilibrium * -1) / count solvents) * 50                 ;; calculates the amount to move the membrane - based on fraction of solvents passing
+  set split split + nudge                                              ;; set split to be the new location of the membrane
+  particle-jump                                                        ;; move solutes in the way of the membrane jump
+  ask membranes [
+    set xcor split                                                     ;; move membrane turtles according to nudge value
+  ]
+
+  set left-side patches with [pxcor < split]                           ;; redefine right and left sides
+  set right-side patches with [pxcor > split]
+  set membrane-list lput precision split 2 membrane-list
+  set equilibrium 0                                                    ;; reset equilibrium so we can keep track of what happens during the next tick
+end
+
+to go
+  if count turtles-on right-side = 0 or count turtles-on left-side = 0 [                    ;; stops model if membrane reaches either edge
+    user-message "The membrane has burst! Make sure you have some solute on both sides!"
+    stop
+  ]
+  ask particles [ set old-pos xcor ]                            ;; saves starting position of particles
+  ask particles [ bounce ]                                      ;; all particles bounce off of walls and solutes bounce off of the membrane
+  ask particles with [ linked? = false ] [ move ]               ;; only particles not linked should move -- these are "unstuck" particles
+  ask links [ check-for-release ]                               ;; links have a chance of dying -- stuck particles have a chance of getting free
+  ask particles [ check-for-collision ]                         ;; particles bounce off of each other
+  ask solvents [ check-for-stick ]                              ;; solvent particles can stick to solute molecules
+
+  ask solvents [
+    if old-pos < split and xcor >= split [                      ;; if a solvent moves from the left of the membrane to the right of the membrane
+      set equilibrium equilibrium + 1                           ;; add one to equilibrium
+    ]
+    if old-pos > split and xcor <= split [                      ;; if a solvent moves from the right of the membrane to the left of the membrane
+      set equilibrium equilibrium - 1                           ;; subtract one from equilibrium
+    ]
+  ]
+  tick-advance tick-delta
+  update-plots
+  calculate-tick-delta
+  display
+  calculate-wall                                                ;; recalculate the new location of the wall
+end
+
+to calculate-tick-delta
+  ;; tick-delta is calculated in such way that even the fastest
+  ;; particle will jump at most 1 patch length when we advance the
+  ;; tick counter. As particles jump (speed * tick-delta) each time, making
+  ;; tick-delta the inverse of the speed of the fastest particle
+  ;; (1/max speed) assures that. Having each particle advance at most
+  ;; one patch-length is necessary for it not to "jump over" a wall
+  ;; or another particle.
+  ifelse any? particles with [speed > 0]
+    [ set tick-delta min list (1 / (ceiling max [speed] of particles)) max-tick-delta ]
+    [ set tick-delta max-tick-delta ]
+end
+
+to bounce  ;; particle procedure
+  ;; get the coordinates of the patch we'll be on if we go forward 1
+  let new-patch patch-ahead 1
+  let new-px [pxcor] of new-patch
+  let new-py [pycor] of new-patch
+
+  ;; if hitting the membrane...
+  if any? membranes in-cone 3 180 and breed = solutes
+    [ set heading (- heading) ]
+
+  ;; if we're not about to hit a wall, we don't need to do any further checks
+  if not shade-of? blue [pcolor] of new-patch
+    [ stop ]
+
+  ;; if hitting left or right wall, reflect heading around x axis
+  if (abs new-px = max-pxcor) or (abs new-px = min-pxcor)
+    [ set heading (- heading) ]
+  ;; if hitting top or bottom wall, reflect heading around y axis
+  if (abs new-py = max-pycor) or (abs new-py = min-pycor)
+    [ set heading (180 - heading)]
+end
+
+to move  ;; particle procedure
+  if patch-ahead (speed * tick-delta) != patch-here
+    [ set last-collision nobody ]
+  jump (speed * tick-delta)
+end
+
+to check-for-release
+  ;; there is a 2% chance that a stuck particle will become unstuck
+  if random 100 <= 2 [
+    ask end1 [
+      set stick-count stick-count - 1                                   ;; lower the stick counter of the solute
+    ]
+    ask end2 [
+      if [pcolor] of patch-here = blue [
+        face one-of in-link-neighbors
+        fd 1
+      ]
+      set linked? false                                                 ;; set the solvent's flag to "unstuck"
+      set color color + 2                                               ;; return the color to normal
+    ]
+    die
+  ]
+end
+
+to check-for-collision  ;; particle procedure
+  ;; Here we impose a rule that collisions only take place when there
+  ;; are exactly two particles per patch.  We do this because we want them to
+  ;; form a uniform wavefront.
+  ;;
+  ;; Why do we want a uniform wavefront?  Because it is actually more
+  ;; realistic.
+  ;;
+  ;; Why is it realistic to assume a uniform wavefront?  Because in reality,
+  ;; whether a collision takes place would depend on the actual headings
+  ;; of the particles, not merely on their proximity.  Since the particles
+  ;; in the wavefront have identical speeds and near-identical headings,
+  ;; in reality they would not collide.  So even though the two-particles
+  ;; rule is not itself realistic, it produces a realistic result.  Also,
+  ;; unless the number of particles is extremely large, it is very rare
+  ;; for three or more particles to land on the same patch (for example,
+  ;; with 400 particles it happens less than 1% of the time).  So imposing
+  ;; this additional rule should have only a negligible effect on the
+  ;; aggregate behavior of the system.
+  ;;
+  ;; Why does this rule produce a uniform wavefront?  The particles all
+  ;; start out on the same patch, which means that without the only-two
+  ;; rule, they would all start colliding with each other immediately,
+  ;; resulting in much random variation of speeds and headings.  With
+  ;; the only-two rule, they are prevented from colliding with each other
+  ;; until they have spread out a lot.  (And in fact, if you observe
+  ;; the wavefront closely, you will see that it is not completely smooth,
+  ;; because some collisions eventually do start occurring when it thins out while fanning.)
+
+  if (count other turtles-here with [breed != membranes] = 1)
+  [
+    ;; the following conditions are imposed on collision candidates:
+    ;;   1. they must have a lower who number than my own, because collision
+    ;;      code is asymmetrical: it must always happen from the point of view
+    ;;      of just one particle.
+    ;;   2. they must not be the same particle that we last collided with on
+    ;;      this patch, so that we have a chance to leave the patch after we've
+    ;;      collided with someone.
+    let candidate one-of other turtles-here with [breed != membranes and who < [who] of myself and myself != last-collision]
+    ;; we also only collide if one of us has non-zero speed. It's useless
+    ;; (and incorrect, actually) for two particles with zero speed to collide.
+    if (candidate != nobody) and (speed > 0 or [speed] of candidate > 0)
+    [
+      collide-with candidate
+      set last-collision candidate
+      ask candidate [ set last-collision myself ]
+    ]
+  ]
+end
+
+;; implements a collision with another particle.
+;;
+;; THIS IS THE HEART OF THE PARTICLE SIMULATION, AND YOU ARE STRONGLY ADVISED
+;; NOT TO CHANGE IT UNLESS YOU REALLY UNDERSTAND WHAT YOU'RE DOING!
+;;
+;; The two particles colliding are self and other-particle, and while the
+;; collision is performed from the point of view of self, both particles are
+;; modified to reflect its effects. This is somewhat complicated, so I'll
+;; give a general outline here:
+;;   1. Do initial setup, and determine the heading between particle centers
+;;      (call it theta).
+;;   2. Convert the representation of the velocity of each particle from
+;;      speed/heading to a theta-based vector whose first component is the
+;;      particle's speed along theta, and whose second component is the speed
+;;      perpendicular to theta.
+;;   3. Modify the velocity vectors to reflect the effects of the collision.
+;;      This involves:
+;;        a. computing the velocity of the center of mass of the whole system
+;;           along direction theta
+;;        b. updating the along-theta components of the two velocity vectors.
+;;   4. Convert from the theta-based vector representation of velocity back to
+;;      the usual speed/heading representation for each particle.
+;;   5. Perform final cleanup and update derived quantities.
+
+to collide-with [ other-particle ] ;; particle procedure
+  ;;; PHASE 1: initial setup
+
+  ;; for convenience, grab some quantities from other-particle
+  let mass2 [mass] of other-particle
+  let speed2 [speed] of other-particle
+  let heading2 [heading] of other-particle
+
+  ;; since particles are modeled as zero-size points, theta isn't meaningfully
+  ;; defined. we can assign it randomly without affecting the model's outcome.
+  let theta (random-float 360)
+
+
+
+  ;;; PHASE 2: convert velocities to theta-based vector representation
+
+  ;; now convert my velocity from speed/heading representation to components
+  ;; along theta and perpendicular to theta
+  let v1t (speed * cos (theta - heading))
+  let v1l (speed * sin (theta - heading))
+
+  ;; do the same for other-particle
+  let v2t (speed2 * cos (theta - heading2))
+  let v2l (speed2 * sin (theta - heading2))
+
+
+
+  ;;; PHASE 3: manipulate vectors to implement collision
+
+  ;; compute the velocity of the system's center of mass along theta
+  let vcm (((mass * v1t) + (mass2 * v2t)) / (mass + mass2) )
+
+  ;; now compute the new velocity for each particle along direction theta.
+  ;; velocity perpendicular to theta is unaffected by a collision along theta,
+  ;; so the next two lines actually implement the collision itself, in the
+  ;; sense that the effects of the collision are exactly the following changes
+  ;; in particle velocity.
+  set v1t (2 * vcm - v1t)
+  set v2t (2 * vcm - v2t)
+
+
+
+  ;;; PHASE 4: convert back to normal speed/heading
+
+  ;; now convert my velocity vector into my new speed and heading
+  set speed sqrt ((v1t ^ 2) + (v1l ^ 2))
+  set energy (0.5 * mass * speed ^ 2)
+  ;; if the magnitude of the velocity vector is 0, atan is undefined. but
+  ;; speed will be 0, so heading is irrelevant anyway. therefore, in that
+  ;; case we'll just leave it unmodified.
+  if v1l != 0 or v1t != 0
+    [ set heading (theta - (atan v1l v1t)) ]
+
+  ;; and do the same for other-particle
+  ask other-particle [
+    set speed sqrt ((v2t ^ 2) + (v2l ^ 2))
+    set energy (0.5 * mass * (speed ^ 2))
+    if v2l != 0 or v2t != 0
+      [ set heading (theta - (atan v2l v2t)) ]
+  ]
+
+end
+
+to check-for-stick ;; solvent procedure
+  ;; The stick code is similar to the collision code.
+  ;; If there are more than one particles on the same patch,
+  ;; and the solvent isn't already stuck to another particle,
+  ;; the two particles have a chance to stick.
+  if (count other turtles-here with [breed != membranes] = 1) and (linked? = false)
+  [
+    ;; the stick candidate must be a solute and not already be stuck to too many solvents
+    let candidate one-of other solutes-here with [stick-count < 5]
+    ;; we also only stick if one of us has non-zero speed
+    ;; there is a 50% chance to stick
+    if (candidate != nobody) and (speed > 0 or [speed] of candidate > 0) and (random 100 <= 50)
+    [
+      ask candidate [
+        create-link-to myself [
+          tie
+          hide-link
+        ]
+        set stick-count stick-count + 1                                    ;; keep a running total of how many solvents are stuck
+      ]
+      set linked? true                                                     ;; flag the solvent as "stuck"
+      set color color - 2                                                  ;; tweak the color so we can see it's stuck
+    ]
+  ]
+end
+
+
+; Copyright 2012 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="275" maxPycor="20" updateMode="1" wrappingAllowedX="true" y="30" frameRate="30.0" minPycor="-20" height="337" showTickCounter="true" patchSize="8.0" fontSize="10" wrappingAllowedY="true" width="816" tickCounterLabel="ticks" maxPxcor="50" minPxcor="-50"></view>
+    <button x="20" y="10" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="65">setup</button>
+    <button x="90" y="10" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="65">go</button>
+    <chooser x="20" y="50" height="45" variable="solute-type" current="0" width="135" display="solute-type">
+      <choice type="string" value="Sugar"></choice>
+      <choice type="string" value="Sodium Chloride"></choice>
+      <choice type="string" value="Magnesium Chloride"></choice>
+      <choice type="string" value="Aluminum Chloride"></choice>
+    </chooser>
+    <slider x="20" step="1" y="100" height="33" min="1" direction="Horizontal" max="100" default="100.0" variable="solute-left" width="125" display="solute-left"></slider>
+    <output x="160" y="50" height="45" fontSize="12" width="110"></output>
+    <monitor x="20" precision="0" y="140" height="45" fontSize="11" width="80" display="Water # Left"><![CDATA[count solvents with [pxcor < split]]]></monitor>
+    <monitor x="180" precision="0" y="140" height="45" fontSize="11" width="85" display="Water # Right"><![CDATA[count solvents with [pxcor > split]]]></monitor>
+    <plot x="20" yMax="150.0" yAxis="Amount" y="290" xMin="0.0" height="130" legend="true" xMax="10.0" autoplot="true" yMin="50.0" width="245" xAxis="Ticks" display="Water#">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="left">
+        <setup></setup>
+        <update><![CDATA[plotxy ticks count solvents with [pxcor < split]]]></update>
+      </pen>
+      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="right">
+        <setup></setup>
+        <update><![CDATA[plotxy ticks count solvents with [pxcor > split]]]></update>
+      </pen>
+    </plot>
+    <slider x="145" step="1" y="100" height="33" min="1" direction="Horizontal" max="100" default="25.0" variable="solute-right" width="125" display="solute-right"></slider>
+    <monitor x="105" precision="2" y="165" height="45" fontSize="11" width="70" display="Membrane">split</monitor>
+    <monitor x="20" precision="17" y="190" height="45" fontSize="11" width="80" display="Solute # Left"><![CDATA[count solutes with [pxcor < split]]]></monitor>
+    <monitor x="180" precision="17" y="190" height="45" fontSize="11" width="85" display="Solute # Right"><![CDATA[count solutes with [pxcor > split]]]></monitor>
+    <monitor x="20" precision="0" y="240" height="45" fontSize="11" width="80" display="Stuck Left"><![CDATA[count particles with [xcor < split and linked? = true]]]></monitor>
+    <monitor x="180" precision="0" y="240" height="45" fontSize="11" width="85" display="Stuck Right"><![CDATA[count particles with [xcor > split and linked? = true]]]></monitor>
+    <monitor x="105" precision="2" y="215" height="45" fontSize="11" width="70" display="Average">mean membrane-list</monitor>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+Osmotic pressure is generally defined as the amount of pressure required to bring solvent movement across a semipermeable membrane to equilibrium. This model attempts to model an agent-based description of the movement of solution particles across a semipermeable membrane and illustrate the colligative nature of osmotic pressure.
+
+Osmotic pressure is a colligative property of a solution, meaning the number of particles matter more than the identity of the particles. Because adding pressure to the solution on one side of the membrane changes the rate at which the solvent passes through the membrane (a rate that is restricted by the presence of solute particles), osmotic pressure can be thought of as a measurement of the tendency of a solute to restrict osmosis. As a colligative property, changes in osmotic pressure are proportional to the number of solute particles, not the identity of the particles.  The colligative nature of osmotic pressure can be explored in this model by experimenting with different types and number of solute particles.
+
+## HOW IT WORKS
+
+In this model, blue patches represent a container divided by a semipermeable membrane (the red squares) -- a physical, porous barrier separating two solutions that allows some particles to pass but not others. Blue circles represent solvent molecules (water in this model) that can pass freely through the membrane. At setup, 1000 of these solvent molecules are created and randomly distributed throughout the container.  White circles represent particles of added solute. The amount of solute defined by the sliders is placed on the appropriate side of the membrane. If a solute is an ionic compound, it breaks apart into the appropriate number of ions.  If the solute is covalent, the compound does not break apart. Solute particles cannot pass through the membrane.
+
+As the model runs, particles move through the container according to kinetic molecular theory using NetLogo code first defined in the GasLab suite of models.  All particles move in a straight line until they collide with another particle, the wall, or the membrane (only solute particles collide with the membrane). Particles collide with one another in an elastic collision. While solvent molecules (water represented by the blue circles) may pass through the membrane freely, solute particles (white circles) are restricted to the side they are created on. In addition, at each step solvent molecules have a 50% chance to "stick" to solute molecules occupying the same patch (solute particles can hold a maximum of five solvent molecules). "Stuck" molecules have a 2% chance to become unstuck at each step of the model. In this model, changes in volume for each side occur through the movement of the membrane.
+
+At each tick, the membrane moves according to the difference in the number of solvent molecules moving from left to right and those moving from right to left. As the model progresses, according to the phenomenon of osmosis, the solvent (water) shows a net movement towards the side of higher solute concentration.
+
+## HOW TO USE IT
+
+###Initial settings
+
+**SOLUTE:** Choose the solute to add to the solution.  The chemical formula of the solute will be printed in the output box to the right.  Each solute will act differently in solution depending on its bonding behavior.
+**SOLUTE-LEFT:** This number will determine the number of solute particles added to the solution on the left side of the membrane.  Keep in mind, due to various bonding behaviors, the total number of dissolved particles may be different from this value.
+**SOLUTE-RIGHT:** This number will determine the number of solute particles added to the solution on the right side of the membrane.  Keep in mind, due to various bonding behaviors, the total number of dissolved particles may be different from this value.
+
+###Buttons
+
+**SETUP:** Sets up the model
+**GO:** Runs the model
+
+###Monitors
+
+**WATER # LEFT:** Shows the number of solvent particles on the left side of the membrane.
+**WATER # RIGHT:** Shows the number of solvent particles on the right side of the membrane.
+**SOLUTE LEFT:** Shows the number of solute particles on the left side of the membrane.
+**SOLUTE RIGHT:** Shows the number of solute particles on the right side of the membrane.
+**STUCK LEFT:** Shows the number of solvent particles currently stuck to solute particles on the left side of the membrane
+**STUCK RIGHT:** Shows the number of solvent particles currently stuck to solute particles on the right side of the membrane
+**MEMBRANE:** Shows the x-cor of the membrane. Note: The membrane moves based on the difference between the amount of particles moving across the membrane in a given direction each step.
+**AVERAGE:** Shows mean of the membrane location over the entire model run.
+
+###Plot
+
+**WATER #:** Plots the number of solvent particles on the left and right side of the membrane over time (ticks).
+
+## THINGS TO NOTICE
+
+As the model runs, more solvent particles should end up on the side of the membrane with more solute particles. Because more solvent particles are free to move on the side with fewer solute particles, they are more likely to cross the membrane.
+
+How does the membrane movement change when adding different solutes? Is there a pattern?
+What happens when adding Sodium Chloride?  How is this different from adding Sugar?
+
+## THINGS TO TRY
+
+Try adding different solutes.  Can you get a change in the number of solute particles so that Sodium Chloride acts like Sugar?
+Is there a mathematical relationship between membrane movement and the number of solute particles. Will this relationship depend on the type of solute added?  Why or why not?
+
+## EXTENDING THE MODEL
+
+Try making new solutes.
+
+There are at least two other common proposals for an agent-based explanations for the process of osmosis.
+
+ 1. Solute particles "block" solvent particles from moving across the membrane. Solvent particles will then show a net movement from a side of fewer solute particles (because there are less solute particles blocking their path) to a side with more solvent particles.
+ 2. Solute particles are generally larger than solvent particles (usually water). The size of the solute particles leads to frequent collisions of solvent-solute particles. On the side with more solute particles, the mean free path of solvent particles will be lower, leading to a net movement of particles from the low solute side.
+
+Can you model these alternate explanations?
+
+## NETLOGO FEATURES
+
+Fixed length links are simulated by first tying particles together, then applying motion rules to only the solute particles.
+
+## RELATED MODELS
+
+GasLab suite
+
+## CREDITS AND REFERENCES
+
+We thank Luis Amaral for his scientific consultation.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Holbert, N. and Wilensky, U. (2012).  NetLogo Osmotic Pressure model.  http://ccl.northwestern.edu/netlogo/models/OsmoticPressure.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2012 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2012 Cite: Holbert, N. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="sheep" rotatable="false" editableColorIndex="0">
+      <rectangle endX="180" startY="225" marked="true" color="-1920102913" endY="285" startX="151" filled="true"></rectangle>
+      <rectangle endX="75" startY="225" marked="true" color="-1920102913" endY="285" startX="47" filled="true"></rectangle>
+      <rectangle endX="210" startY="75" marked="true" color="-1920102913" endY="225" startX="15" filled="true"></rectangle>
+      <circle x="135" y="75" marked="true" color="-1920102913" diameter="150" filled="true"></circle>
+      <circle x="165" y="76" marked="false" color="255" diameter="116" filled="true"></circle>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>

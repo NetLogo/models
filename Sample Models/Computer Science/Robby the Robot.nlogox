@@ -1,0 +1,1308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="false">
+  <code><![CDATA[;; Each candidate strategy is represented by one individual.
+;; These individuals don't appear in the view; they are an invisible source
+;; of strategies for Robby to use.
+breed [individuals individual]
+individuals-own [
+  chromosome   ;; list of procedure names
+  fitness      ;; average final score
+  scaled-fitness ;; Used for display functions
+  allele-distribution
+]
+
+;; This is Robby.
+;; Instead of making a separate variable to keep his current score in, we just
+;; use the built-in variable "label", so we can see his score as he moves around.
+breed [robots robot]
+robots-own [strategy]
+
+breed [cans can]
+
+globals [
+  can-density
+  can-reward
+  wall-penalty
+  pick-up-penalty
+  best-chromosome
+  best-fitness
+  step-counter ;; used for keeping track of Robby's movements in the trial
+  visuals?     ;; only true when the set up environment button (SETUP-VISUALS procedure) is called. During the regular GA runs we
+               ;; skimp on visuals to get greater speed.
+  min-fit
+  max-fit
+  x-offset       ; For placing individuals in world
+  tournament-size ; Size of "tournament" used to choose each parent.
+  num-environments-for-fitness ; Number of environments for Robby to run in to calculate fitness
+  num-actions-per-environment; Number of actions Robby takes in each environment for calculating fitness
+]
+
+;;; setup procedures
+
+
+to setup
+  clear-all
+  reset-ticks
+  ask patches [set pcolor white]
+  set visuals? false
+  initialize-globals
+  set-default-shape robots "person"
+  set-default-shape cans "dot"
+  set-default-shape individuals "person"
+  create-individuals population-size [
+    set color 19
+    set size .5
+
+    ;; A situation consists of 5 sites, each of which can contain 3 possibilities (empty, can, wall).
+    ;; So 243 (3^5) is the chromosome length allowing any possible situation to be represented.
+    set chromosome n-values 243 [random-action]
+    ;; calculate the frequency of the 7 basic actions (or "alleles") in each chromosome
+    set allele-distribution map [ action -> occurrences action chromosome ] ["move-north" "move-east" "move-south" "move-west" "move-random" "stay-put" "pick-up-can"]
+  ]
+  calculate-population-fitnesses
+  let best-individual max-one-of individuals [fitness]
+  ask best-individual [
+    set best-chromosome chromosome
+    set best-fitness fitness
+    output-print (word "generation " ticks ":")
+    output-print (word "  best fitness = " fitness)
+    output-print (word "  best strategy: " map action-symbol chromosome)
+  ]
+  display-fitness best-individual
+
+  plot-pen-up
+
+  ; plots are initialized to begin at an x-value of 0, this moves the plot-pen to
+  ; the point (-1,0) so that best-fitness for generation 0 will be drawn at x = 0
+  plotxy -1 0
+
+  set-plot-y-range (precision best-fitness 0) (precision best-fitness 0) + 3
+  plot best-fitness
+  plot-pen-down
+end
+
+to initialize-globals
+  set can-density 0.5
+  set wall-penalty 5
+  set can-reward 10
+  set pick-up-penalty 1
+  set min-fit  -100; For display.  Any fitness less than min-fit is displayed at the same location as min-fit.
+  set max-fit 500 ; (approximate) maximum possible fitness that an individual could obtain assuming approx. 50 cans per environment.
+  set x-offset 0
+  set tournament-size 15
+  set num-environments-for-fitness 20
+  set num-actions-per-environment 100
+end
+
+;; randomly distribute cans, one per patch
+to distribute-cans
+  ask cans [ die ]
+  ask patches with [random-float 1 < can-density] [
+    sprout-cans 1 [
+      set color orange
+      if not visuals? [hide-turtle]
+    ]
+  ]
+end
+
+to draw-grid
+  clear-drawing
+  ask patches [
+    sprout 1 [
+      set shape "square"
+      set color blue + 4
+      stamp
+      die
+    ]
+  ]
+end
+
+to-report random-action
+  report one-of ["move-north" "move-east" "move-south" "move-west"
+                 "move-random" "stay-put" "pick-up-can"]
+end
+
+;; converts action string to its associated symbol
+to-report action-symbol [action]
+  if action = "move-north"  [ report "↑" ]
+  if action = "move-east"   [ report "→" ]
+  if action = "move-south"  [ report "↓" ]
+  if action = "move-west"   [ report "←" ]
+  if action = "move-random" [ report "+" ]
+  if action = "stay-put"    [ report "x" ]
+  if action = "pick-up-can" [ report "●" ]
+end
+
+;; converts action string to its associated number
+to-report action-number [action]
+  if action = "move-north"  [ report 1 ]
+  if action = "move-east"   [ report 2 ]
+  if action = "move-south"  [ report 3 ]
+  if action = "move-west"   [ report 4 ]
+  if action = "move-random" [ report 5 ]
+  if action = "stay-put"    [ report 6 ]
+  if action = "pick-up-can" [ report 7 ]
+end
+
+to go
+  create-next-generation
+  calculate-population-fitnesses
+  let best-individual max-one-of individuals [fitness]
+  display-fitness best-individual
+  ask best-individual [
+    set best-chromosome chromosome
+    set best-fitness fitness
+    output-print (word "generation " (ticks + 1) ":")
+    output-print (word "  best fitness = " fitness)
+    output-print (word "  best strategy: " map action-symbol chromosome)
+  ]
+  tick
+end
+
+to go-n-generations
+  if ticks < number-of-generations [go]
+end
+
+
+;; scale the color of the individuals according to their fitness: the higher the fitness, the darker the color
+;; also move the individuals to an x coordinate that is a function of their fitness and a y coordinate that is a function of the allele distance to the best-individual
+to display-fitness [best-individual]
+  ask individuals [ set label "" set color scale-color red scaled-fitness 1 -.1]
+  let mid-x max-pxcor / 2
+  let mid-y max-pycor / 2
+  ask best-individual [
+    setxy ((precision scaled-fitness 2) * max-pxcor + x-offset) mid-y
+    setxy ( scaled-fitness * max-pxcor + x-offset) mid-y
+    ;; place the individuals at a distance from the center based on the similarity of their chromosome to the best chromosome
+    ask other individuals [
+      setxy ((precision scaled-fitness 2) * max-pxcor + x-offset) mid-y
+      setxy ( scaled-fitness * max-pxcor + x-offset) mid-y
+      set heading one-of [0 180]
+      fd chromosome-distance self myself
+      ]
+  ]
+  ask best-individual [set heading 90 set label-color black set label (word "Best:" (precision fitness  2)) ]
+end
+
+
+to initialize-robot [s]
+  ask robots [ die ]
+  create-robots 1 [
+    set label 0
+    ifelse visuals? [ ; Show robot if this is during a trial of Robby that will be displayed in the view.
+      set color blue
+      pen-down
+      set label-color black
+      ]
+      [set hidden? true]  ; Hide robot if this is during the GA run.
+    set strategy s
+  ]
+end
+
+to create-next-generation ;[best-individual]
+
+  ; The following line of code looks a bit odd, so we'll explain it.
+  ; if we simply wrote "let old-generation individuals",
+  ; then old-generation would mean the set of all individuals, and when
+  ; new individuals were created, they would be added to the breed, and
+  ; old-generation would also grow.  Since we don't want it to grow,
+  ; we instead write "(turtle-set individuals)", which makes old-generation
+  ; a new agentset which doesn't get updated when new individuals are created.
+  let old-generation (turtle-set individuals)
+
+  ; The new population is created by crossover.  Each crossover creates two children.
+  ; There are population-size/2 crossovers done.  (Population size is constrained to
+  ; be even.)
+  let crossover-count population-size / 2
+
+  repeat crossover-count [
+
+    ; We use "tournament selection". So for example if tournament-size is 15
+    ; then we randomly pick 15 individuals from the previous generation
+    ; and allow the best-individuals to reproduce.
+
+    let parent1 max-one-of (n-of tournament-size old-generation) [fitness]
+    let parent2 max-one-of (n-of tournament-size old-generation) [fitness]
+
+    ; get a two-element list containing two new chromosomes
+    let child-chromosomes crossover ([chromosome] of parent1) ([chromosome] of parent2)
+
+    ; create the two children, with their new genetic material
+    let actions ["move-north" "move-east" "move-south" "move-west" "move-random" "stay-put" "pick-up-can"]
+    ask parent1 [
+      hatch 1 [
+        rt random 360 fd random-float 3.0
+        set chromosome item 0 child-chromosomes
+        ;; record the distribution of basic actions (or "alleles") for each individual
+        set allele-distribution map [ action -> occurrences action chromosome ] actions
+      ]
+    ]
+    ask parent2 [
+      hatch 1 [
+        rt random 360 fd random-float 3.0
+        set chromosome item 1 child-chromosomes
+        ;; record the distribution of basic actions (or "alleles") for each individual
+        set allele-distribution map [ action -> occurrences action chromosome ] actions
+       ]
+    ]
+  ]
+
+  ask old-generation [ die ]
+  ask individuals [ mutate ]
+end
+
+;; each individual takes NUM-ACTIONS-PER-ENVIRONMENT actions according to its strategy on NUM-ENVIRONMENTS-FOR-FITNESS random environments
+to calculate-population-fitnesses
+  foreach sort individuals [ current-individual ->
+    let score-sum 0
+    repeat num-environments-for-fitness [
+      initialize-robot [chromosome] of current-individual
+      distribute-cans
+      repeat num-actions-per-environment [
+        ask robots [ run item state strategy ]
+      ]
+      set score-sum score-sum + sum [label] of robots
+    ]
+    ask current-individual [
+      set fitness score-sum / num-environments-for-fitness
+      ifelse fitness < min-fit
+        [set scaled-fitness 0]
+        [set scaled-fitness (fitness + (abs min-fit)) / (max-fit + (abs min-fit))]
+    ]
+  ]
+end
+
+;; This reporter performs one-point crossover on two chromosomes.
+;; That is, it chooses a random location for a splitting point.
+;; Then it reports two new lists, using that splitting point,
+;; by combining the first part of chromosome1 with the second part of chromosome2
+;; and the first part of chromosome2 with the second part of chromosome1;
+;; it puts together the first part of one list with the second part of
+;; the other.
+
+to-report crossover [chromosome1 chromosome2]
+  let split-point 1 + random (length chromosome1 - 1)
+  report list (sentence (sublist chromosome1 0 split-point)
+                        (sublist chromosome2 split-point length chromosome2))
+              (sentence (sublist chromosome2 0 split-point)
+                        (sublist chromosome1 split-point length chromosome1))
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; This procedure causes random mutations to occur in a solution's chromosome.
+;; The probability that each item will be replaced is controlled by the
+;; MUTATION-RATE slider.  In the MAP, "[?]" means "return the same value".
+
+to mutate   ;; individual procedure
+  set chromosome map [ action ->
+    ifelse-value random-float 1 < mutation-rate
+      [random-action]
+      [action]
+  ] chromosome
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; robot procedures
+
+;; These procedures are called an extremely high number of times as the GA runs, so it's
+;; important they be fast.  Therefore they are written in a style which maximizes
+;; execution speed rather than maximizing clarity for the human reader.
+
+;; Each possible state is encoded as an integer from 0 to 242 and then used as an index
+;; into a strategy (which is a 243-element list).  Here's how the encoding works.  There
+;; are five patches Robby can sense.  Each patch can be in one of three states, which
+;; we encode as 0 (empty), 1 (can), and 2 (wall).  Putting the five states in an arbitrary
+;; order (N, E, S, W, patch-here), we get a five digit number, for example 10220 (can
+;; to the north, walls to the south and west, nothing to the east and here).  Then we
+;; interpret this number in base 3, where the first digit is the 81s place,
+;; the second digit is the 27s place, the third is the 9s place, the fourth is the 3s place,
+;; and the fifth is the 1s place.  For speed, we do this math using a compact series of
+;; nested IFELSE-VALUE expressions.
+to-report state
+  let north patch-at 0 1
+  let east patch-at 1 0
+  let south patch-at 0 -1
+  let west patch-at -1 0
+  report (ifelse-value is-patch? north [ifelse-value any? cans-on north [81] [0]] [162]) +
+         (ifelse-value is-patch? east  [ifelse-value any? cans-on east  [27] [0]] [ 54]) +
+         (ifelse-value is-patch? south [ifelse-value any? cans-on south [ 9] [0]] [ 18]) +
+         (ifelse-value is-patch? west  [ifelse-value any? cans-on west  [ 3] [0]] [  6]) +
+         (ifelse-value any? cans-here [1] [0])
+end
+
+;; Below are the definitions of Robby's seven basic actions
+to move-north  set heading   0  ifelse can-move? 1 [ fd 1 ] [ set label label - wall-penalty ]  end
+to move-east   set heading  90  ifelse can-move? 1 [ fd 1 ] [ set label label - wall-penalty ]  end
+to move-south  set heading 180  ifelse can-move? 1 [ fd 1 ] [ set label label - wall-penalty ]  end
+to move-west   set heading 270  ifelse can-move? 1 [ fd 1 ] [ set label label - wall-penalty ]  end
+to move-random run one-of ["move-north" "move-south" "move-east" "move-west"] end
+to stay-put    end  ;; Do nothing
+
+
+to pick-up-can
+  ifelse any? cans-here
+    [ set label label + can-reward ]
+    [ set label label - pick-up-penalty ]
+  ask cans-here [
+    ;; during RUN-TRIAL, leave gray circles behind so we can see where the cans were
+    if visuals? [
+      set color gray
+      stamp
+    ]
+    die
+  ]
+end
+
+to setup-robot-visuals
+  if ticks = 0 [ stop ]  ;; must run at least one generation before a best-individual exists
+  clear-output
+  ask individuals [hide-turtle]
+  set visuals? true
+  draw-grid
+  distribute-cans
+  initialize-robot best-chromosome
+  set step-counter 1
+  output-print "Setting up a new random can distribution"
+end
+
+;;display the last view of strategies seen before entering Robot view
+;;this only works while in Robot view
+to setup-individual-visuals
+  if visuals? [
+    clear-output
+    clear-drawing
+    ask cans [die]
+    ask robots [die]
+    ask patches [set pcolor white]
+    ask individuals [show-turtle]
+    set visuals? false
+    let best-individual max-one-of individuals [fitness]
+    display-fitness best-individual
+    ask best-individual[
+      output-print (word "generation " ticks ":")
+      output-print (word "  best fitness = " fitness)
+      output-print (word "  best strategy: " map action-symbol chromosome)
+    ]
+  ]
+end
+
+
+;; Robby takes one step of best strategy
+to run-trial-step
+  if ticks = 0 [ stop ]  ;; must run at least one generation before a best-individual exists
+  if step-counter > num-actions-per-environment [set step-counter 0 set visuals? false ]
+  if step-counter = 1 [output-print "Stepping through the best strategy found at this generation"]
+  ask robots [
+      let current-action item state strategy
+      run current-action
+      ifelse step-counter != num-actions-per-environment
+      [output-print (word step-counter ")  " current-action " (" action-symbol current-action "), score = " label)]
+      [output-print (word step-counter ")  " current-action " (" action-symbol current-action "), final-score = " label)]
+      ;; we're not using the tick counter here, so force a view update
+      display
+      set step-counter step-counter + 1
+  ]
+end
+
+;; count the number of occurrences of an item in a list
+to-report occurrences [x a-list]
+  report reduce [ [n the-item] -> ifelse-value the-item = x [ n + 1 ] [ n ] ] (fput 0 a-list)
+end
+
+;; measure distance between two chromosomes
+;; distance is Euclidean distance between their allele distributions, scaled to fit in view
+to-report chromosome-distance [individual1 individual2]
+  let max-dist  273 * sqrt 2
+  ;; compute the euclidean distance between allele distributions
+  let dist2 sum (map [ [a1 a2] -> (a1  - a2) ^ 2 ] [allele-distribution] of individual1 [allele-distribution] of individual2)
+  ;; scale the distance to fit in the view
+  let dist-candidate max-pxcor * sqrt dist2 / ( max-dist / 10)
+  ;; if distance is too large, report the edge of the view
+  report ifelse-value dist-candidate > max-pxcor [max-pxcor] [dist-candidate]
+end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.]]></code>
+  <widgets>
+    <view x="336" maxPycor="9" updateMode="1" wrappingAllowedX="false" y="16" frameRate="90.0" minPycor="0" height="309" showTickCounter="true" patchSize="30.0" fontSize="10" wrappingAllowedY="false" width="308" tickCounterLabel="generations" maxPxcor="9" minPxcor="0"></view>
+    <slider x="12" step="2" y="262" height="33" min="20" direction="Horizontal" max="500" default="100.0" variable="population-size" width="172" display="population-size"></slider>
+    <slider x="13" step=".001" y="307" height="33" min="0" direction="Horizontal" max="1" default="0.01" variable="mutation-rate" width="172" display="mutation-rate"></slider>
+    <button x="43" y="74" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="73">setup</button>
+    <plot x="11" yMax="1.0" yAxis="Best Fitness" y="357" xMin="0.0" height="200" legend="false" xMax="5.0" autoplot="true" yMin="-30.0" width="301" xAxis="Generation" display="Best Fitness">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="best">
+        <setup></setup>
+        <update>plot best-fitness</update>
+      </pen>
+    </plot>
+    <output x="682" y="10" height="542" fontSize="9" width="431"></output>
+    <note x="1116" y="203" height="143" color="0.0" transparent="true" fontSize="13" width="158">"↑" =   move-north  
+ "→"  = move-east 
+ "↓"  = move-south  
+ "←"  = move-west
+ "+"   = move-random
+ "x"    =  stay-put   
+"●"    =  pick-up-can</note>
+    <note x="9" y="26" height="32" color="0.0" transparent="true" fontSize="11" width="249">Speed up speed slider or turn off
+view updates for faster response.</note>
+    <button x="339" y="481" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="189" display="step thru best strategy">run-trial-step</button>
+    <slider x="13" step="1" y="220" height="33" min="1" direction="Horizontal" max="1000" default="100.0" variable="number-of-generations" width="171" display="number-of-generations"></slider>
+    <button x="13" y="173" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="143">go-n-generations</button>
+    <note x="340" y="374" height="18" color="18.0" transparent="true" fontSize="11" width="150">Low Fitness</note>
+    <note x="456" y="374" height="18" color="13.0" transparent="true" fontSize="11" width="150">Medium Fitness</note>
+    <note x="588" y="373" height="18" color="10.0" transparent="true" fontSize="11" width="150">High Fitness</note>
+    <button x="339" y="442" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="193" display="view Robby's Environment">setup-robot-visuals</button>
+    <note x="537" y="487" height="31" color="0.0" transparent="true" fontSize="10" width="121">Watch Robby move
+one step at a time.</note>
+    <note x="540" y="424" height="52" color="0.0" transparent="true" fontSize="10" width="136">Setup and view Robby's
+environment by randomly
+distributing cans
+throughout the world.</note>
+    <note x="339" y="393" height="42" color="95.0" transparent="true" fontSize="14" width="321">After running the GA,  watch Robby use
+the best evolved strategy:</note>
+    <button x="28" y="123" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="100" display="go-forever">go</button>
+    <note x="249" y="226" height="56" color="0.0" transparent="true" fontSize="11" width="150">More similar 
+to best strategy</note>
+    <note x="250" y="63" height="42" color="0.0" transparent="true" fontSize="11" width="150">Less similar
+to best strategy</note>
+    <note x="249" y="294" height="42" color="0.0" transparent="true" fontSize="11" width="150">Less similar 
+to best strategy</note>
+    <note x="254" y="185" height="18" color="95.0" transparent="true" fontSize="14" width="150">Population</note>
+    <note x="250" y="132" height="28" color="0.0" transparent="true" fontSize="11" width="150">More similar
+to best strategy</note>
+    <note x="9" y="10" height="18" color="95.0" transparent="true" fontSize="14" width="150">Run the GA:</note>
+    <button x="339" y="524" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="181" display="view strategies">setup-individual-visuals</button>
+    <note x="535" y="530" height="28" color="0.0" transparent="true" fontSize="10" width="135">Return to a view of
+the strategies.</note>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+Robby the Robot is a virtual robot who moves around a room and picks up cans.  This model demonstrates the use of a genetic algorithm (GA) to evolve control strategies for Robby.  The GA starts with randomly generated strategies and then uses evolution to improve them.
+
+## HOW IT WORKS
+
+### How Robby works
+
+Robby's 10x10 square world contains randomly scattered cans. His goal is to pick up as many as he can.  At each time tick, Robby can perform one of seven actions: move in one of the four cardinal directions, move in a random direction, pick up a can, or stay put.
+
+When Robby picks up a can, he gets a reward. If he tries to pick up a can where none exists, or bumps into a wall, he is penalized.  His score at the end of a run is the sum of these rewards and penalties. The higher his score, the better he did.
+
+To decide which action to perform, Robby senses his surroundings. He can see the contents of the square he is in and the four neighboring squares.  Each square can contain a wall, a can, or neither.  That means his sensors can be in one of 3<sup>5</sup> = 243 possible combinations.
+
+A "strategy" for Robby specifies one of his seven possible actions for each of those 243 possible situations he can find himself in.
+
+(Advanced note: If you actually do the math, you'll realize that some of those 243 situations turn out to be "impossible", e.g., Robby will never actually find himself in a situation in which all cardinal directions contain walls.  This is no problem; the genetic algorithm essentially ignores the "impossible" situations since Robby never encounters them.)
+
+### How the genetic algorithm works
+
+There are many possible variations on the basic concept of a genetic algorithm. Here is the particular variant implemented in this model.
+
+We begin with a pool of randomly generated strategies.  We load each strategy into Robby in turn, and then run that strategy in a series of randomly generated arrangements of cans ("environments").  We score Robby on how well he does in each environment. If Robby hits a wall, he loses 5 points. If he successfully picks up a can, he gains 10 points. If he tries to pick up a can, but there isn't one there, he loses 1 point.  Robby's average score across all these environments is taken as the "fitness" of that strategy.
+
+Once we have measured the fitness of the current pool of strategies, we construct the next generation of strategies.  Each new strategy has two parents.  We pick the first parent by picking 15 random candidate parents, then choose the one with the highest fitness.  We repeat this to pick the second parent. Each pair of parents creates two new children via crossover and mutation (see below).  We keep repeating this process until we have enough new children to fill up the population (settable by the POPULATION-SIZE slider).   This "generation" of new children replaces the previous generation.  We then similarly calculate the fitness of the current generation, choose parents, and create a new generation.  This process continues as long as the GO button is pressed, or is controlled by the NUMBER-OF-GENERATIONS slider when the GO-N-GENERATIONS button is pressed.
+
+To combine the strategies of two parents, we use "crossover".  We pick a random crossover point and combine the first part of the first parent's strategy with the second part of the other's parent's strategy.  For example, if the crossover point selected is 50, we use the first 50 entries of the first parent's strategy and the last 193 entries of the second parent's strategy.  (Each strategy is in a fixed order.)
+
+In addition to crossover, the children's strategies are subject to occasional random mutation (settable by the MUTATION-RATE slider), in which an action is replaced by a randomly chosen action.
+
+## HOW TO USE IT
+
+Press SETUP to create the initial pool of random strategies.  Press GO-FOREVER to start the genetic algorithm running, or GO-N-GENERATIONS to run the genetic algorithm for a fixed number of generations (settable by the NUMBER-OF-GENERATIONS slider).
+
+In the view, you'll see the pool of strategies (represented by "person" icons). The strategies are heterogeneous. The diversity in their fitness is visualized by color and position on the x-axis.  Their color is a shade of red, scaled by their fitness. It's  lightest when the fitness is low and darkest when it's high. In addition, the fitness of a strategy determines where it is along the x-axis, with the least fit strategies on the left, and the fittest strategies on the right.
+
+Another aspect of diversity is the difference between the strategies. This difference is measured by counting the frequency of each of the 7 basic actions in the strategy (the "allele-diversity"), forming a 7 dimensional vector and then calculating the Euclidean distance between two such vectors.  One of the strategies with the highest fitness is placed in the center of the y-axis. The other strategies are placed at locations whose distance from the center along the y-axis is proportional to the difference between their strategy and the winning strategy.
+
+All of this takes a fair amount of time to show, so for long runs of the GA you'll want to move the speed slider to the right or uncheck the "view updates" checkbox to get results faster.
+
+Any time you want to pause the algorithm and see how the current best strategy behaves, press GO-FOREVER and wait for the current generation to finish.  Re-check "view updates" if you unchecked it before.  Next, press VIEW-ROBBY'S-ENVIRONMENT.  This displays the grid that Robby moves in, with a new, random distribution of cans.  Then, press STEP-THRU-BEST-STRATEGY.  Each time you press this button, Robby will use the best  strategy from the last generation to take an action in the current environment.  Keep pressing the STEP-THRU-BEST-STRATEGY button to see how the strategy works.  At any time you can press VIEW-ROBBY'S-ENVIRONMENT again to start over with a new environment of cans.  If you want to go back to the "strategy view", press the VIEW-STRATEGIES button.
+
+## THINGS TO NOTICE
+
+Robby's performance gradually improves.  How long does it take to get to a medium or high fitness?
+
+How does Robby typically behave with a totally random strategy?  How does he behave once some evolution has taken place?
+
+Does Robby's performance eventually reach a plateau?  How does he behave with the strategies that ultimately evolve?
+
+On the way to the final plateau, were there ever any temporary plateaus?
+
+## THINGS TO TRY
+
+Vary the settings on the POPULATION-SIZE and MUTATION-RATE sliders.  How do these affect the best fitness in the population as well as the speed of evolution?
+
+## EXTENDING THE MODEL
+
+Add a slider for "crossover rate", the probability that two parents create offspring by crossover.  If they don't crossover, they simply clone themselves (and then the cloned offspring undergo possible mutation).   (You'll need to change the `crossover` procedure.)
+
+Add a slider for the tournament-size. How does varying the tournament-size affect the evolution of Robby’s strategies?
+
+Try different rules for selecting the parents of the next generation. What leads to the fastest evolution? Is there ever a tradeoff between fast evolution at the beginning and how effective the winning strategies are at the end?
+
+Try using spatial contiguity as a factor in selecting which individuals mate.
+
+Try to train Robby to perform a somewhat more difficult task.
+
+## NETLOGO FEATURES
+
+The `run` command is key here.  A chromosome is a list of strings, where each string is a procedure name.  Calling `run` on that string runs the procedure.
+
+To represent strategies compactly, we use Unicode symbols (such as arrows).
+
+To measure the similarity between different strategies, we use the high-level list primitives `map` and `reduce`.
+
+## RELATED MODELS
+
+Simple Genetic Algorithm
+
+## CREDITS AND REFERENCES
+
+Robby was invented by Melanie Mitchell and described in her book _Complexity: A Guided Tour_ (Oxford University Press, 2009), pages 130-142.   Robby was inspired by The "Herbert" robot developed at the MIT Artificial Intelligence Lab in the 1980s.
+
+This NetLogo version of Robby is based on Mitchell's earlier versions in NetLogo and C.
+It uses code from the Simple Genetic Algorithms model (Stonedahl & Wilensky, 2008) in the NetLogo Sample Models Library.
+
+Robby resembles a simpler version of Richard E. Pattis' Karel the Robot, https://en.wikipedia.org/wiki/Karel_(programming_language).
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Mitchell, M., Tisue, S. and Wilensky, U. (2012).  NetLogo Robby the Robot model.  http://ccl.northwestern.edu/netlogo/models/RobbytheRobot.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+[![CC0](http://ccl.northwestern.edu/images/creativecommons/zero.png)](https://creativecommons.org/publicdomain/zero/1.0/)
+
+Public Domain: To the extent possible under law, Uri Wilensky has waived all copyright and related or neighboring rights to this model.
+
+<!-- 2012 CC0 Cite: Mitchell, M., Tisue, S. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="sheep" rotatable="false" editableColorIndex="0">
+      <rectangle endX="180" startY="225" marked="true" color="-1920102913" endY="285" startX="151" filled="true"></rectangle>
+      <rectangle endX="75" startY="225" marked="true" color="-1920102913" endY="285" startX="47" filled="true"></rectangle>
+      <rectangle endX="210" startY="75" marked="true" color="-1920102913" endY="225" startX="15" filled="true"></rectangle>
+      <circle x="135" y="75" marked="true" color="-1920102913" diameter="150" filled="true"></circle>
+      <circle x="165" y="76" marked="false" color="255" diameter="116" filled="true"></circle>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="294" startY="4" marked="true" color="-1920102913" endY="295" startX="5" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 5 [ go ]</previewCommands>
+</model>

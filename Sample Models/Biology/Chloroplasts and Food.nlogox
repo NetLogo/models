@@ -1,0 +1,1651 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[breed [co2s co2]
+breed [o2s o2]
+breed [h2os h2o]
+breed [sugars sugar]
+breed [photons photon]
+breed [chloroplasts chloroplast]
+breed [ADP-ATPs ADP-ATP]
+breed [carbon-complexes carbon-complex]  ;; this is the chain of C, H, and O atoms that is built up in the chloroplasts prior to the formation of a glucose molecule
+breed [flows flow]  ;; this is a single hidden turtle representing the bulk flow of water in a particular direction through the plant cell.
+breed [side-panels side-panel]  ;; these cover the right side of the world and define the edge of the graphics space for the key
+breed [key-labels key-label]  ;; these hold the text for the labels for each molecule shown in the key.
+
+carbon-complexes-own [my-chloroplast]  ;; an id indicating which chloropoast this agent belongs to
+patches-own [region]  ;; region 3 is the top, bottom, and left gray edge surrounding the blue in the cell
+                      ;; region 4 is the blue in the cell
+                      ;; region 5 is the right gray edge of the blue between the cell and the key
+                      ;; region 6 is the key
+
+
+
+ADP-ATPs-own [
+  pair   ;; every ADP-ATP site is part of a pair that interact simultaneous with two carbon dioxide molecuels. This variable indicates which pair they belong to.
+  my-chloroplast  ;; an id indicating which chloropoast this agent belongs to
+  charged?
+]
+
+
+
+globals [
+  #-co2-molecules
+  #-o2-molecules
+  #-glucose-molecules-produced
+]
+
+to start-up
+  setup
+end
+
+
+;-----------------------------------------------------------------------------------;
+;--------------------------SETUP RELATED PROCEDURES---------------------------------;
+;-----------------------------------------------------------------------------------;
+
+to setup
+  clear-all
+
+  set-default-shape o2s "o2"
+  set-default-shape sugars "sugar"
+  set-default-shape carbon-complexes "carbon-complexes"
+  set #-co2-molecules initial-carbon-dioxide
+  set #-o2-molecules 0
+  set #-glucose-molecules-produced 0
+
+  make-system-boundary
+  make-legend
+
+  create-co2s initial-carbon-dioxide [
+    setxy (-10 + random-float 20)
+    random 20
+    set-shape-size-and-color
+  ]
+
+  if initial-#-of-chloroplasts > 0 [make-initial-chloroplasts]
+
+  make-flows
+  reset-ticks
+end
+
+
+
+to make-legend
+  create-sugars 1 [
+    setxy 14.2 -5.5
+    set-shape-size-and-color
+    stamp
+    die
+  ]
+
+  create-key-labels 1 [
+    setxy 16 -6.8
+    set shape "empty"
+    set label "sugar (glucose)"
+  ]
+
+  create-turtles 1 [
+    setxy 13.95 -3.8
+    set shape "line"
+    set color gray + 2
+    set size 6.7
+    set heading 90
+    stamp
+    die
+  ]
+
+  create-key-labels 1 [
+    setxy 15.2 -7.6
+    set shape "empty"
+    set label "molecule"
+  ]
+
+  create-co2s 1 [
+    setxy 14.2 -1.5
+    set-shape-size-and-color
+    stamp
+    die
+  ]
+
+  create-key-labels 1 [
+    setxy 16.2 -2.4
+    set shape "empty"
+    set label "carbon dioxide"
+  ]
+
+  create-turtles 1 [
+    setxy 13.95 -0.0
+    set shape "line"
+    set color gray + 2
+    set size 6.7
+    set heading 90
+    stamp
+    die
+  ]
+
+  create-key-labels 1  [
+    setxy 15.2 -3.1
+    set shape "empty"
+    set label "molecule"
+  ]
+
+  create-o2s 1 [
+    setxy 14.2 1.4
+    set-shape-size-and-color
+    stamp
+    die
+  ]
+
+  create-key-labels 1 [
+    setxy 16.4 0.7
+    set shape "empty"
+    set label "oxygen molecule"
+  ]
+
+  create-turtles 1 [
+    setxy 13.95 2.8
+    set shape "line"
+    set color gray + 2
+    set size 6.7
+    set heading 90
+    stamp
+    die
+  ]
+
+  create-h2os 1 [
+    setxy 14.3 4.4
+    set-shape-size-and-color
+    stamp
+    die
+  ]
+
+  create-key-labels 1 [
+    setxy 16.1 3.7
+    set shape "empty"
+    set label "water molecule"
+  ]
+
+  create-turtles 1 [
+    setxy 13.95 5.8
+    set shape "line"
+    set color gray + 2
+    set size 6.7
+    set heading 90
+    stamp
+    die
+  ]
+
+  create-key-labels 1  [
+    setxy 14.3 7.5
+    set color yellow + 3
+    set size 0.6
+    set heading 135
+    set shape "ray"
+    stamp
+    die
+  ]
+
+  create-key-labels 1  [
+    setxy 14.5 6.5
+    set shape "empty"
+    set label "light"
+  ]
+  create-key-labels 1  [
+    setxy 14.3 9
+    set shape "empty"
+    set label-color black
+    set label "KEY"
+  ]
+
+end
+
+
+to make-initial-chloroplasts
+  let angle-increment 0
+  let off-set random 360
+  let divider 360 / initial-#-of-chloroplasts
+
+  repeat initial-#-of-chloroplasts [
+  create-chloroplasts 1 [
+
+    set heading (off-set + (angle-increment * (divider)  + random (divider / 3) - random  (divider / 3)))
+    fd (3.5 + random-float 3.5)
+    set-shape-size-and-color
+    ]
+    set angle-increment angle-increment + 1
+  ]
+
+  ask chloroplasts [
+    let atp-count 0
+    let atp-offset random 60
+    let this-chloroplast self
+    let this-pair 0
+    set heading 0
+
+
+    repeat 3 [
+        hatch 2 [
+          set breed ADP-ATPs
+          set heading (atp-offset + (atp-count * 60))
+          set my-chloroplast this-chloroplast
+          hide-turtle
+          set pair this-pair
+          set charged? false
+          set atp-count atp-count + 1
+        ]
+      set this-pair this-pair + 1
+    ]
+  ]
+
+end
+
+
+to set-shape-size-and-color
+  let new-size 2.5
+  (ifelse
+    breed = sugars [
+      set color black
+      set size new-size
+    ]
+    breed = chloroplasts [
+      set color [0 200 0 150]
+      set shape "circle"
+      set size 4
+    ]
+    breed = h2os [
+      set shape "h20"
+      set color black
+      set size new-size
+    ]
+    breed = co2s [
+      set shape "co2"
+      set color black
+      set size new-size
+    ]
+    breed = o2s [
+      set color black
+      set size new-size
+    ]
+    breed = photons [
+      set color yellow + 3
+      set size 0.6
+      set heading 135
+      set shape "ray"
+    ]
+  )
+end
+
+
+to make-flows
+  create-flows 1 [set heading 90 hide-turtle]
+end
+
+
+to make-system-boundary
+    ask patches [
+    if ((pxcor < -9 or pxcor > 10) and (pycor = max-pycor or pycor = min-pycor))
+    or (pycor = max-pycor or pycor = min-pycor)
+    or (pxcor = -10 or pxcor = 10 )
+    or (pycor = 0 and pxcor < -10 )
+    or (pxcor = min-pxcor or pxcor = max-pxcor) [
+      sprout 1 [
+        set breed side-panels
+        set shape "square"
+        set size 1.2
+        set color [180 180 180]
+      ]
+    ]
+
+    (ifelse
+
+      ((pxcor = -9) or ((pxcor >= -9 and pxcor < 10) and pycor = max-pycor)) [
+        set region 3
+      ]
+
+      (pxcor >  -9 and pxcor < 10 and pycor != max-pycor) [
+        set region 4
+        sprout 1  [
+          set shape "square"
+          set size 1.2
+          set color sky + 2
+          stamp
+          die
+        ]
+      ]
+
+      ((pxcor = 10) or ((pxcor >= -9 and pxcor < 10) and pycor = min-pycor)) [
+        set region 5
+      ]
+
+      (pxcor > 10)    [
+        set region 6
+        sprout 1  [
+          set shape "square"
+          set size 1.0
+          set color gray
+          stamp
+          die
+        ]
+      ]
+    )
+
+  ]
+end
+
+;-----------------------------------------------------------------------------------;
+;--------------------------RUNTIME RELATED PROCEDURES-------------------------------;
+;-----------------------------------------------------------------------------------;
+
+
+to go
+  if (auto-stop? and ticks >= stop-at) [stop]
+
+  ask turtles with [breed = co2s or breed = o2s or breed = h2os or breed = sugars or breed = photons] [
+    ifelse region = 4 [show-turtle] [hide-turtle]
+  ]
+  do-photon-flow
+
+  do-water-and-sugar-flow
+  do-gas-flow
+  ask flows [fd 0.05]
+
+  update-ADP-ATPs
+  update-chloroplasts
+  update-counts
+
+  tick
+
+end
+
+
+
+
+to do-photon-flow
+  ;; this creates light photons along the edge of the cell, hidden under the side-panels and then
+  if intensity-of-light > random 100 [
+  ask n-of 1 patches with [region = 3] [
+    sprout 1  [
+      set breed photons
+        set-shape-size-and-color
+        hide-turtle
+      ]
+    ]
+  ]
+  ;; this moves the photons diagonally through the cell until they reach the right side of the cell at which point they die
+  ask photons [
+    fd 0.15
+
+    if region = 5 [die]
+    if pxcor >= -9.6 [show-turtle]
+  ]
+
+end
+
+
+to wiggle
+  rt random 10
+  lt random 10
+end
+
+to do-water-and-sugar-flow
+  ;; this creates water molecules under the side-panels along the left side of the cell and attaches them to the water flow turtle
+  ;; these water molecules wander slightly in addition to that larger water flow that they are attached to
+  if waterflow-through-leaf > random 100 and random 3 = 0 [
+    ask one-of patches with [region = 3 and pxcor = min-pxcor]  [
+      sprout 1 [
+        set breed h2os
+        set-shape-size-and-color
+        hide-turtle
+        create-link-from one-of flows [
+          tie
+          hide-link
+        ]
+      ]
+    ]
+  ]
+  ask (turtle-set h2os sugars) [
+    fd 0.04
+    wiggle
+    if pxcor >= 10 [die]
+  ]
+end
+
+
+
+
+to do-gas-flow
+  ;; this moves gas molecules, which move in straight liines and are not attached to water flow.
+  ask (turtle-set co2s o2s) [
+    fd 0.04
+    if xcor > 10 [set xcor -9]
+    if xcor < -9 [set xcor 10]
+  ]
+end
+
+
+
+to update-ADP-ATPs
+  ;; only non carged adp-atp are available to carry out a reaction.
+  ask ADP-ATPs with [not charged?] [
+    let this-pair pair
+    let this-chloroplasts my-chloroplast
+    let h2os-near-me h2os in-radius 2
+    let photons-near-me photons in-radius 2
+    let both-atps ADP-ATPs with [pair = this-pair and my-chloroplast = this-chloroplasts and not charged?]
+    let other-charged-atps ADP-ATPs with [pair != this-pair and my-chloroplast = this-chloroplasts and charged?]
+
+    ;; they carry out a reaction if there is a photon and two water molecules near the sites and they are not charged
+    if (any? photons-near-me) and (count h2os-near-me >= 2) and (not any? other-charged-atps) and (count both-atps = 2)[
+      ask n-of 2 h2os-near-me  [die]
+      ;; if the reaction uses up the water, then oxygen is a product
+      hatch 1 [
+        set breed o2s
+        set size 2
+        set heading random 360
+      ]
+      show-turtle
+
+      ;;; and the reaction charges up both pairs of the adp-atp site
+      ask both-atps [
+        show-turtle
+        set charged? true
+      ]
+    ]
+  ]
+
+  ask ADP-ATPs [ask photons in-radius 2 [die]] ; additional photons that arrive at the adp/atp site are absorbed, but don't produce a reaction creating a shadowing effect
+
+  ;; Look to see if any charged adp-atp sites can carry out the next step of the reaction
+  ask ADP-ATPs with [charged?] [
+    let this-pair pair
+    let this-chloroplasts my-chloroplast
+    let total-atps ADP-ATPs with [not hidden? and pair = this-pair and my-chloroplast = this-chloroplasts and charged?]
+
+    if count total-atps = 2 [
+      let co2s-near-me co2s in-radius 2
+      ;; if there are two CO2 molecules near the adp-atp site then start building or adding to the carbon chain molecule that will eventually become sugar
+      if count co2s-near-me >= 2 [
+        let other-atps one-of other total-atps
+
+        ask one-of co2s-near-me [
+          set heading [heading] of myself
+          setxy ([xcor] of myself) ([ycor] of myself)
+          set breed carbon-complexes
+          set my-chloroplast this-chloroplasts
+
+          ask one-of other co2s-near-me [
+            set heading [heading] of other-atps
+            setxy ([xcor] of other-atps) ([ycor] of other-atps)
+            set breed carbon-complexes
+            set my-chloroplast this-chloroplasts
+          ]
+          ;; produce additional oxygen molecules as a product of this reaction.
+          hatch 1 [
+            set breed o2s
+            set size 2
+            set heading random 360
+          ]
+        ]
+        ask total-atps [set charged? false]
+      ]
+
+    ]
+  ]
+  ask ADP-ATPs with [charged?] [
+    show-turtle
+    set color (orange + 3 + random-float 1)
+    set shape (word "electric-" random 10)
+  ]
+
+  ask ADP-ATPs with [not charged?] [hide-turtle]
+end
+
+
+to  update-chloroplasts
+    ask chloroplasts [
+    let this-chloroplast self
+    let my-carbon-complexes carbon-complexes with [my-chloroplast = this-chloroplast]
+    if count my-carbon-complexes = 6 [
+      ask my-carbon-complexes with [my-chloroplast = this-chloroplast] [die]
+      hatch 1 [
+        set breed sugars
+        set color black
+        set heading random 360
+        set size 2
+        create-link-from one-of flows [ tie hide-link]
+      ]
+      set #-glucose-molecules-produced #-glucose-molecules-produced + 1
+      ask ADP-ATPs with [my-chloroplast = this-chloroplast] [
+        hide-turtle
+        set charged? false
+      ]
+    ]
+
+  ]
+end
+
+
+to update-counts
+ set #-co2-molecules count co2s
+ set #-o2-molecules count o2s
+end
+
+
+; Copyright 2016 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="350" maxPycor="9" updateMode="1" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-9" height="408" showTickCounter="true" patchSize="21.0" fontSize="14" wrappingAllowedY="true" width="596" tickCounterLabel="ticks" maxPxcor="18" minPxcor="-9"></view>
+    <button x="5" y="10" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="110" display="setup/reset">setup</button>
+    <slider x="5" step="1" y="90" height="33" min="0" direction="Horizontal" max="200" default="100.0" variable="initial-carbon-dioxide" width="190" display="initial-carbon-dioxide"></slider>
+    <button x="120" y="10" height="35" disableUntilTicks="true" forever="true" kind="Observer" width="110" display="go/pause">go</button>
+    <slider x="5" step="1" y="130" height="33" min="0" direction="Horizontal" max="50" default="25.0" variable="waterflow-through-leaf" width="190" display="waterflow-through-leaf"></slider>
+    <slider x="5" step="1" y="170" height="33" min="0" direction="Horizontal" max="100" default="50.0" variable="intensity-of-light" width="190" display="intensity-of-light"></slider>
+    <slider x="5" step="1" y="50" height="33" min="0" direction="Horizontal" max="6" default="3.0" variable="initial-#-of-chloroplasts" width="180" display="initial-#-of-chloroplasts"></slider>
+    <monitor x="200" precision="17" y="90" height="37" fontSize="9" width="145" display="carbon dioxide molecules">#-co2-molecules</monitor>
+    <monitor x="200" precision="17" y="130" height="37" fontSize="9" width="145" display="oxygen molecules">#-o2-molecules</monitor>
+    <monitor x="200" precision="17" y="170" height="37" fontSize="9" width="144" display="sugar molecules produced">#-glucose-molecules-produced</monitor>
+    <plot x="5" yMax="100.0" y="215" xMin="0.0" height="202" legend="true" xMax="2000.0" autoplot="true" yMin="0.0" width="340" xAxis="time" display="Number of molecules">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="CO2">
+        <setup></setup>
+        <update>plotxy ticks #-co2-molecules</update>
+      </pen>
+      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="O2">
+        <setup></setup>
+        <update>plotxy ticks #-o2-molecules</update>
+      </pen>
+      <pen color="-7500403" legend="true" interval="1.0" mode="0" display="sugar">
+        <setup></setup>
+        <update>plotxy ticks #-glucose-molecules-produced</update>
+      </pen>
+    </plot>
+    <slider x="190" step="100" y="50" height="33" min="100" direction="Horizontal" max="5000" default="2000.0" variable="stop-at" units="ticks" width="155" display="stop-at"></slider>
+    <switch x="235" y="10" height="33" on="false" variable="auto-stop?" width="110" display="auto-stop?"></switch>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+The simulation shows the relationship between some of the inputs and outputs in the chloroplasts of plant cell, that can help explain how they convert water and carbon dioxide to glucose and water with the help of energy absorbed from light.
+
+This simulation is of a single plant cell. The multistep process shown occurring in a chloroplast in this simulation represents a series of more complex sub steps that form a series of chemical reactions involved in the process referred to as photosynthesis. This includes the light reactions and the Calvin cycle.
+# HOW IT WORKS
+
+A chloroplast contains 3 hidden pairs of ADP/ATP molecules (6 total).  Each of these is modeled as a fixed reaction site in a chloroplast.  The state of these sites can be charged or uncharged.
+
+A chloroplast will carry out a light reaction at a pair of these hidden sites if the following are within its radius: two water and one photon.  When this happens, two oxygen molecules will be produced, the two water molecules and photon will be removed.  The latter represents absorption of the photon. When this happens the two ADP/ATP sites each gain an positively charge hydrogen ion (a proton) from the water molecule that is broken apart. Notice that these light reactions produce oxygen gas before a glucose molecule is fully formed. See https://en.wikipedia.org/wiki/Light-dependent_reactions for more information on light reactions.
+
+Gradual rearrangement of additional carbon dioxide molecules is shown occurring before a fully formed glucose molecule is produced. This represents some of the gradual rearrangement of carbon and oxygen atoms from carbon dioxide and hydrogen atoms from water that occurs in the Calvin cycle  though the intermediate arrangements of those carbon atoms at each sub step in the process is different than those shown in the simulation. See https://en.wikipedia.org/wiki/Calvin_cycle for more information on the Calvin Cycle.
+
+In this simulation ADP/ATP sites that have an electrical charge, will carry out a chemical reaction if two carbon dioxide molecules are near them. If this condition is met, the two carbon dioxide molecules will be bonded together along with protons that were at the ADP/ATP sites, and the resulting molecule is kept fixed inside the chloroplast. This can happen two more times, at the four remaining ADP/ATP sites. Each time it happens the bound carbon-chain molecule grows.  Once all this has happened at all six sites, the bound molecule will be glucose.  This glucose molecule will then be released from the chloroplast and the ADP/ATP sites in the chloroplast are ready to repeat this process.
+
+## HOW TO USE IT
+
+1. Adjust the slider parameters (see below) or use the default settings.
+2. Press the SETUP/RESET button.
+3. Press the GO/PAUSE button to begin the model run.
+
+INITIAL-#-OF-CHLOROPLASTS - is a slider that controls the number of chloroplasts complexes (big green circles) put into the model when SETUP/RESET is pressed.
+
+INITIAL-CARBON-DIOXIDE - is a slider that controls the initial number of carbon dioxide molecules put into the model when SETUP/RESET is pressed.
+
+WATERFLOW-THROUGH-LEAF - is a slider that controls the rate at which water molecules flow into the leaf cell (from the left side of the model). Its affects can be adjusted as the model is running.
+
+INTENSITY-OF-LIGHT - is a slider that controls the rate at which photons flow into the leaf cell from the top and left side of the model. Its affects can be adjusted as the model is running.
+
+CARBON DIOXIDE MOLECULES - is a monitor that reports number of carbon dioxide molecules currently in the system (the leaf).  Additional carbon dioxide molecules do not enter the system after SETUP is pressed.
+
+OXYGEN MOLECULES - is a monitor that reports number of oxygen molecules currently in the system (the leaf).  Oxygen molecules are not released from the leaf in this system after they are produced.
+
+SUGAR MOLECULES PRODUCED - is a monitor that reports number of sugar molecules produced by the leaf.  Sugar molecules flow out of the world to the right as if they are dissolved in water, after they are produced. They are hidden from the world view when the reach the right side of the model, to represent that they flowed out of this system (to other parts of the plant)
+
+NUMBER OF MOLECULES - is a graph of total number of molecules of carbon dioxide remaining in the world, number of oxygen molecules produced (and still in the world), and the number of sugar molecules produced (which includes both those that are visible and those that were hidden when they reached the right side of the model).
+
+## THINGS TO NOTICE
+
+Once there is either no water molecules or only one water molecule in the system or no photons in the system the light reactions can no longer continue.
+
+Once there is either no carbon dioxide molecules or only one carbon dioxide molecule in the system, the Calvin cycle process can no longer continue.
+
+## THINGS TO TRY
+
+Compare how the matter outputs (oxygen and glucose) are affected by changes in a single independent variable (light, carbon dioxide, water, number of chloroplasts) for a given length of simulation run.
+
+## EXTENDING THE MODEL
+
+One could add daylight or seasonal changes in light intensity, angle, and duration.
+One could add cellular respiration into the system, which occurs continuously in plants. Coupling this with changes in light intensity, could help show the net output of the plant. One could add stomata that open and close to let additional gas molecules into or out of the system.
+
+## NETLOGO FEATURES
+
+This model includes a side panel in the world that serves as a space to provide a key for the agents in the model.  These are build with agents called side-panels.  To support more refined placement of text for these, another agent, called key-labels, which has an empty shape is used.
+
+The model also includes an agent called `side-panels`, which produces a border around the moving molecules and photon in the model.  Because it is defined after those agents, the shape it is assigned (a square), is in a graphics layer above those other agents, providing a visual blind to stack and store agents in (like sugar molecules) that we don't want to eliminate from the world, but also don't want to have wrap around and reenter the world where the user can see them.
+
+## Related Models
+
+Simple Kinetics 1, 2 and 3
+Autumn
+
+## CREDITS AND REFERENCES
+
+Developed by Michael Novak and Bill Penuel.
+
+This version of the model is part of the OpenSciEd Middle School instructional units developed with funding from the Carnegie Corporation of New York.  http://www.openscied.org/.
+
+The original model it was developed form, was part of the iHub/nextgenstorylines High School Evolution developed with funding through grants from the National Science Foundation, the Gordon and Betty Moore Foundation, Denver Public Schools to Northwestern University and the University of Colorado Boulder.
+
+For more information about this project, see the nextgenstorylines website:
+http://www.nextgenstorylines.org/how-do-small-changes-make-big-impacts-on-ecosystems-part-2/
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Novak, M., Penuel, B. and Wilensky, U. (2016).  NetLogo Chloroplasts and Food model.  http://ccl.northwestern.edu/netlogo/models/ChloroplastsandFood.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2016 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2016 Cite: Novak, M., Penuel, B. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="break" rotatable="false" editableColorIndex="15">
+      <line endX="300" startY="165" marked="true" color="-1" endY="165" startX="0"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="carbon-complexes" rotatable="true" editableColorIndex="0">
+      <circle x="129" y="59" marked="false" color="-684578305" diameter="40" filled="true"></circle>
+      <circle x="124" y="95" marked="true" color="-1920102913" diameter="42" filled="true"></circle>
+      <circle x="164" y="56" marked="false" color="-1" diameter="16" filled="true"></circle>
+      <circle x="159" y="99" marked="false" color="-1" diameter="16" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="co2" rotatable="true" editableColorIndex="0">
+      <circle x="94" y="131" marked="false" color="-684578305" diameter="38" filled="true"></circle>
+      <circle x="129" y="129" marked="true" color="-1920102913" diameter="42" filled="true"></circle>
+      <circle x="169" y="132" marked="false" color="-684578305" diameter="38" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="electric-0" rotatable="true" editableColorIndex="0">
+      <line endX="135" startY="0" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="165" startY="60" marked="true" color="-1920102913" endY="105" startX="150"></line>
+      <line endX="150" startY="105" marked="true" color="-1920102913" endY="120" startX="165"></line>
+      <line endX="165" startY="120" marked="true" color="-1920102913" endY="135" startX="150"></line>
+      <line endX="165" startY="150" marked="true" color="-1920102913" endY="135" startX="150"></line>
+      <line endX="150" startY="60" marked="true" color="-1920102913" endY="45" startX="150"></line>
+      <line endX="135" startY="45" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <circle x="145" y="64" marked="false" color="-1" diameter="10" filled="true"></circle>
+    </shape>
+    <shape name="electric-1" rotatable="true" editableColorIndex="0">
+      <line endX="165" startY="0" marked="true" color="-1920102913" endY="60" startX="150"></line>
+      <line endX="135" startY="60" marked="true" color="-1920102913" endY="90" startX="165"></line>
+      <line endX="150" startY="90" marked="true" color="-1920102913" endY="120" startX="135"></line>
+      <line endX="150" startY="120" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="electric-2" rotatable="true" editableColorIndex="0">
+      <line endX="165" startY="0" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="135" startY="75" marked="true" color="-1920102913" endY="90" startX="150"></line>
+      <line endX="135" startY="90" marked="true" color="-1920102913" endY="120" startX="135"></line>
+      <line endX="165" startY="120" marked="true" color="-1920102913" endY="135" startX="135"></line>
+      <line endX="165" startY="150" marked="true" color="-1920102913" endY="135" startX="150"></line>
+      <line endX="135" startY="75" marked="true" color="-1920102913" endY="45" startX="150"></line>
+      <line endX="165" startY="45" marked="true" color="-1920102913" endY="30" startX="135"></line>
+    </shape>
+    <shape name="electric-3" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="150" startY="60" marked="true" color="-1920102913" endY="90" startX="165"></line>
+      <line endX="150" startY="105" marked="true" color="-1920102913" endY="120" startX="165"></line>
+      <line endX="135" startY="120" marked="true" color="-1920102913" endY="135" startX="150"></line>
+      <line endX="135" startY="150" marked="true" color="-1920102913" endY="135" startX="150"></line>
+      <line endX="135" startY="60" marked="true" color="-1920102913" endY="45" startX="165"></line>
+      <line endX="150" startY="45" marked="true" color="-1920102913" endY="15" startX="135"></line>
+      <line endX="165" startY="90" marked="true" color="-1920102913" endY="105" startX="150"></line>
+    </shape>
+    <shape name="electric-4" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="150" startY="75" marked="true" color="-1920102913" endY="90" startX="135"></line>
+      <line endX="150" startY="120" marked="true" color="-1920102913" endY="105" startX="165"></line>
+      <line endX="150" startY="120" marked="true" color="-1920102913" endY="135" startX="165"></line>
+      <line endX="150" startY="150" marked="true" color="-1920102913" endY="135" startX="150"></line>
+      <line endX="165" startY="75" marked="true" color="-1920102913" endY="45" startX="135"></line>
+      <line endX="150" startY="45" marked="true" color="-1920102913" endY="15" startX="165"></line>
+      <line endX="150" startY="90" marked="true" color="-1920102913" endY="105" startX="150"></line>
+    </shape>
+    <shape name="electric-5" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="165" startY="60" marked="true" color="-1920102913" endY="75" startX="135"></line>
+      <line endX="135" startY="120" marked="true" color="-1920102913" endY="90" startX="150"></line>
+      <line endX="135" startY="120" marked="true" color="-1920102913" endY="135" startX="150"></line>
+      <line endX="135" startY="150" marked="true" color="-1920102913" endY="135" startX="150"></line>
+      <line endX="135" startY="60" marked="true" color="-1920102913" endY="30" startX="135"></line>
+      <line endX="150" startY="30" marked="true" color="-1920102913" endY="15" startX="135"></line>
+      <line endX="135" startY="75" marked="true" color="-1920102913" endY="90" startX="165"></line>
+      <circle x="135" y="100" marked="false" color="-1" diameter="12" filled="true"></circle>
+    </shape>
+    <shape name="electric-6" rotatable="true" editableColorIndex="0">
+      <line endX="165" startY="0" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="150" startY="75" marked="true" color="-1920102913" endY="90" startX="165"></line>
+      <line endX="165" startY="90" marked="true" color="-1920102913" endY="105" startX="150"></line>
+      <line endX="165" startY="120" marked="true" color="-1920102913" endY="105" startX="135"></line>
+      <line endX="135" startY="150" marked="true" color="-1920102913" endY="120" startX="150"></line>
+      <line endX="150" startY="75" marked="true" color="-1920102913" endY="45" startX="165"></line>
+      <line endX="165" startY="45" marked="true" color="-1920102913" endY="15" startX="150"></line>
+    </shape>
+    <shape name="electric-7" rotatable="true" editableColorIndex="0">
+      <line endX="165" startY="0" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="135" startY="60" marked="true" color="-1920102913" endY="75" startX="150"></line>
+      <line endX="165" startY="75" marked="true" color="-1920102913" endY="105" startX="135"></line>
+      <line endX="165" startY="135" marked="true" color="-1920102913" endY="105" startX="150"></line>
+      <line endX="150" startY="150" marked="true" color="-1920102913" endY="135" startX="150"></line>
+      <line endX="150" startY="60" marked="true" color="-1920102913" endY="45" startX="150"></line>
+      <line endX="165" startY="45" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <circle x="145" y="55" marked="false" color="-1" diameter="10" filled="true"></circle>
+    </shape>
+    <shape name="electric-8" rotatable="true" editableColorIndex="0">
+      <line endX="165" startY="0" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="150" startY="60" marked="true" color="-1920102913" endY="90" startX="135"></line>
+      <line endX="165" startY="90" marked="true" color="-1920102913" endY="120" startX="150"></line>
+      <line endX="165" startY="135" marked="true" color="-1920102913" endY="120" startX="150"></line>
+      <line endX="150" startY="150" marked="true" color="-1920102913" endY="135" startX="150"></line>
+      <line endX="150" startY="60" marked="true" color="-1920102913" endY="45" startX="135"></line>
+      <line endX="165" startY="45" marked="true" color="-1920102913" endY="15" startX="150"></line>
+    </shape>
+    <shape name="electric-9" rotatable="true" editableColorIndex="0">
+      <line endX="135" startY="0" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="150" startY="60" marked="true" color="-1920102913" endY="90" startX="165"></line>
+      <line endX="135" startY="90" marked="true" color="-1920102913" endY="105" startX="150"></line>
+      <line endX="165" startY="105" marked="true" color="-1920102913" endY="135" startX="135"></line>
+      <line endX="165" startY="150" marked="true" color="-1920102913" endY="135" startX="150"></line>
+      <line endX="150" startY="60" marked="true" color="-1920102913" endY="45" startX="165"></line>
+      <line endX="135" startY="45" marked="true" color="-1920102913" endY="15" startX="150"></line>
+    </shape>
+    <shape name="empty" rotatable="false" editableColorIndex="0"></shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="h20" rotatable="true" editableColorIndex="0">
+      <circle x="124" y="157" marked="false" color="-1" diameter="16" filled="true"></circle>
+      <circle x="161" y="158" marked="false" color="-1" diameter="16" filled="true"></circle>
+      <circle x="135" y="134" marked="false" color="-684578305" diameter="32" filled="true"></circle>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="o2" rotatable="true" editableColorIndex="0">
+      <circle x="113" y="131" marked="false" color="-684578305" diameter="38" filled="true"></circle>
+      <circle x="149" y="132" marked="false" color="-684578305" diameter="38" filled="true"></circle>
+    </shape>
+    <shape name="panel" rotatable="true" editableColorIndex="0">
+      <rectangle endX="195" startY="0" marked="true" color="-1920102913" endY="30" startX="105" filled="true"></rectangle>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="ray" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="105" y="90"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="156" startY="90" marked="true" color="-1920102913" endY="300" startX="141" filled="true"></rectangle>
+    </shape>
+    <shape name="sheep" rotatable="false" editableColorIndex="15">
+      <circle x="203" y="65" marked="true" color="-1" diameter="88" filled="true"></circle>
+      <circle x="70" y="65" marked="true" color="-1" diameter="162" filled="true"></circle>
+      <circle x="150" y="105" marked="true" color="-1" diameter="120" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="218" y="120"></point>
+        <point x="240" y="165"></point>
+        <point x="255" y="165"></point>
+        <point x="278" y="120"></point>
+      </polygon>
+      <circle x="214" y="72" marked="false" color="-1920102913" diameter="67" filled="true"></circle>
+      <rectangle endX="179" startY="223" marked="true" color="-1" endY="298" startX="164" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="45" y="285"></point>
+        <point x="30" y="285"></point>
+        <point x="30" y="240"></point>
+        <point x="15" y="195"></point>
+        <point x="45" y="210"></point>
+      </polygon>
+      <circle x="3" y="83" marked="true" color="-1" diameter="150" filled="true"></circle>
+      <rectangle endX="80" startY="221" marked="true" color="-1" endY="296" startX="65" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="195" y="285"></point>
+        <point x="210" y="285"></point>
+        <point x="210" y="240"></point>
+        <point x="240" y="210"></point>
+        <point x="195" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="276" y="85"></point>
+        <point x="285" y="105"></point>
+        <point x="302" y="99"></point>
+        <point x="294" y="83"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="219" y="85"></point>
+        <point x="210" y="105"></point>
+        <point x="193" y="99"></point>
+        <point x="201" y="83"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="300" startY="-15" marked="true" color="-1920102913" endY="300" startX="-15" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="sugar" rotatable="true" editableColorIndex="0">
+      <circle x="120" y="191" marked="false" color="-684578305" diameter="38" filled="true"></circle>
+      <circle x="26" y="166" marked="false" color="-684578305" diameter="38" filled="true"></circle>
+      <circle x="132" y="59" marked="false" color="-684578305" diameter="38" filled="true"></circle>
+      <circle x="190" y="103" marked="false" color="-684578305" diameter="38" filled="true"></circle>
+      <circle x="220" y="131" marked="false" color="-1" diameter="16" filled="true"></circle>
+      <circle x="149" y="145" marked="false" color="-1" diameter="16" filled="true"></circle>
+      <circle x="45" y="214" marked="false" color="-1" diameter="16" filled="true"></circle>
+      <circle x="74" y="138" marked="false" color="-1" diameter="16" filled="true"></circle>
+      <circle x="84" y="159" marked="true" color="-1920102913" diameter="42" filled="true"></circle>
+      <circle x="54" y="189" marked="true" color="-1920102913" diameter="42" filled="true"></circle>
+      <circle x="84" y="114" marked="true" color="-1920102913" diameter="42" filled="true"></circle>
+      <circle x="124" y="95" marked="true" color="-1920102913" diameter="42" filled="true"></circle>
+      <circle x="158" y="124" marked="true" color="-1920102913" diameter="42" filled="true"></circle>
+      <circle x="150" y="168" marked="true" color="-1920102913" diameter="42" filled="true"></circle>
+      <circle x="42" y="106" marked="false" color="-1" diameter="16" filled="true"></circle>
+      <circle x="113" y="165" marked="false" color="-1" diameter="16" filled="true"></circle>
+      <circle x="72" y="225" marked="false" color="-1" diameter="16" filled="true"></circle>
+      <circle x="16" y="192" marked="false" color="-1" diameter="16" filled="true"></circle>
+      <circle x="164" y="56" marked="false" color="-1" diameter="16" filled="true"></circle>
+      <circle x="159" y="99" marked="false" color="-1" diameter="16" filled="true"></circle>
+      <circle x="185" y="176" marked="false" color="-1" diameter="16" filled="true"></circle>
+      <circle x="213" y="209" marked="false" color="-1" diameter="16" filled="true"></circle>
+      <circle x="175" y="198" marked="false" color="-684578305" diameter="38" filled="true"></circle>
+      <circle x="57" y="91" marked="false" color="-684578305" diameter="38" filled="true"></circle>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="wolf" rotatable="false" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="253" y="133"></point>
+        <point x="245" y="131"></point>
+        <point x="245" y="133"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="2" y="194"></point>
+        <point x="13" y="197"></point>
+        <point x="30" y="191"></point>
+        <point x="38" y="193"></point>
+        <point x="38" y="205"></point>
+        <point x="20" y="226"></point>
+        <point x="20" y="257"></point>
+        <point x="27" y="265"></point>
+        <point x="38" y="266"></point>
+        <point x="40" y="260"></point>
+        <point x="31" y="253"></point>
+        <point x="31" y="230"></point>
+        <point x="60" y="206"></point>
+        <point x="68" y="198"></point>
+        <point x="75" y="209"></point>
+        <point x="66" y="228"></point>
+        <point x="65" y="243"></point>
+        <point x="82" y="261"></point>
+        <point x="84" y="268"></point>
+        <point x="100" y="267"></point>
+        <point x="103" y="261"></point>
+        <point x="77" y="239"></point>
+        <point x="79" y="231"></point>
+        <point x="100" y="207"></point>
+        <point x="98" y="196"></point>
+        <point x="119" y="201"></point>
+        <point x="143" y="202"></point>
+        <point x="160" y="195"></point>
+        <point x="166" y="210"></point>
+        <point x="172" y="213"></point>
+        <point x="173" y="238"></point>
+        <point x="167" y="251"></point>
+        <point x="160" y="248"></point>
+        <point x="154" y="265"></point>
+        <point x="169" y="264"></point>
+        <point x="178" y="247"></point>
+        <point x="186" y="240"></point>
+        <point x="198" y="260"></point>
+        <point x="200" y="271"></point>
+        <point x="217" y="271"></point>
+        <point x="219" y="262"></point>
+        <point x="207" y="258"></point>
+        <point x="195" y="230"></point>
+        <point x="192" y="198"></point>
+        <point x="210" y="184"></point>
+        <point x="227" y="164"></point>
+        <point x="242" y="144"></point>
+        <point x="259" y="145"></point>
+        <point x="284" y="151"></point>
+        <point x="277" y="141"></point>
+        <point x="293" y="140"></point>
+        <point x="299" y="134"></point>
+        <point x="297" y="127"></point>
+        <point x="273" y="119"></point>
+        <point x="270" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="-1" y="195"></point>
+        <point x="14" y="180"></point>
+        <point x="36" y="166"></point>
+        <point x="40" y="153"></point>
+        <point x="53" y="140"></point>
+        <point x="82" y="131"></point>
+        <point x="134" y="133"></point>
+        <point x="159" y="126"></point>
+        <point x="188" y="115"></point>
+        <point x="227" y="108"></point>
+        <point x="236" y="102"></point>
+        <point x="238" y="98"></point>
+        <point x="268" y="86"></point>
+        <point x="269" y="92"></point>
+        <point x="281" y="87"></point>
+        <point x="269" y="103"></point>
+        <point x="269" y="113"></point>
+      </polygon>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>

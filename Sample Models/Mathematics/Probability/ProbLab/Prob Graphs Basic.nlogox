@@ -1,0 +1,1003 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="false">
+  <code><![CDATA[globals [
+  event
+  total-attempts
+  total-successes
+  counter
+  counter-list
+  successes-per-sample-list
+  attempts-this-sample
+  successes-this-sample
+  samples-counter ]
+
+to setup  ;; resets everything to appropriate initial values
+  clear-all
+  set event "-"
+  set total-attempts 0
+  set total-successes 0
+  set counter 0
+  set counter-list []
+  set attempts-this-sample 0
+  set successes-this-sample 0
+  set samples-counter 0
+  set successes-per-sample-list []
+  reset-ticks
+end
+
+to go
+  if samples-counter = how-many-samples? [stop]
+  set total-attempts total-attempts + 1
+  set counter counter + 1
+  select-and-check
+  tick
+  update-and-plot
+end
+
+to select-and-check
+  ;; This procedure simulates a chance event by randomly selecting a number between 1 and
+  ;; sample-space-size, for instance between 1 and 5, as if you are rolling a die with 5
+  ;; sides. Next, the procedure checks to see if this event (what you "rolled") happens to
+  ;; be '1.' A '1' is a success. Note that 'random' reports a number between 0 and value,
+  ;; so "random 1" is only 0, and "random 2" is 0 or 1. That is why we have to add 1.
+  set event ( 1 + random sample-space-size )
+  if  event = 1
+    [
+     set total-successes total-successes + 1
+     set counter-list lput counter counter-list
+     set counter 0
+     set successes-this-sample successes-this-sample + 1
+    ]
+end
+
+to update-and-plot  ;; updates values for each of the three plots
+  update-and-plot-m/n
+  update-and-plot-attempts
+  update-and-plot-successes
+end
+
+to update-and-plot-m/n
+  set-current-plot "m/n convergence to limiting value"
+  plot (total-successes / total-attempts)
+end
+
+to update-and-plot-attempts
+  if length counter-list = 0 [stop]
+  set-current-plot "Attempts-until-Success Distribution"
+
+  ;; setting the range just beyond the maximum value (e.g.,5 beyond but it could be more or less)
+  ;; helps the eye pick up that the right-most value is indeed the maximum value
+  set-plot-x-range 0 ( (max counter-list) + 5)
+  histogram counter-list
+  let maxbar modes counter-list
+  let maxrange length filter [ the-counter -> the-counter = item 0 maxbar ] counter-list
+  set-plot-y-range 0 max list 10 maxrange
+end
+
+to update-and-plot-successes
+  set attempts-this-sample attempts-this-sample + 1
+  if attempts-this-sample = sample-size
+  [
+    set successes-per-sample-list lput successes-this-sample successes-per-sample-list
+    set-current-plot "Successes-per-Sample Distribution"
+
+    ;; This line adjusts the top range of the x-axis so as to stabilize and centralize
+    ;; the distribution. The idea is to try and keep the emergent graph shape in the
+    ;; middle of the plot. The 'ceiling' primitive keeps the maximum range value an integer.
+    set-plot-x-range 0 ( max ( list plot-x-max
+                                    ( 3 + ( ceiling ( 2 * mean successes-per-sample-list ) ) ) ) )
+    histogram successes-per-sample-list
+    let maxbar modes successes-per-sample-list
+    let maxrange length filter [ successes -> successes = item 0 maxbar ] successes-per-sample-list
+    set-plot-y-range 0 max list 25 maxrange
+    set attempts-this-sample 0
+    set successes-this-sample 0
+    set samples-counter samples-counter + 1
+  ]
+end
+
+
+; Copyright 2004 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="243" maxPycor="0" updateMode="1" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="0" height="16" showTickCounter="true" patchSize="7.0" fontSize="10" wrappingAllowedY="true" width="253" tickCounterLabel="ticks" maxPxcor="17" minPxcor="-17"></view>
+    <button x="102" y="35" height="46" disableUntilTicks="true" forever="true" kind="Observer" width="79" display="Go">go</button>
+    <button x="7" y="35" height="46" disableUntilTicks="false" forever="false" kind="Observer" width="79" display="Setup">setup</button>
+    <plot x="204" yMax="1.0" yAxis="Successes per Attempts" y="35" xMin="0.0" height="183" legend="false" xMax="100.0" autoplot="true" yMin="0.0" width="342" xAxis="Attempts" display="m/n convergence to limiting value">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="default">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <plot x="204" yMax="10.0" yAxis="Frequency" y="219" xMin="1.0" height="160" legend="false" xMax="50.0" autoplot="true" yMin="0.0" width="342" xAxis="Run Length" display="Attempts-until-Success Distribution">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="1" display="default">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <slider x="9" step="1" y="203" height="33" min="1" direction="Horizontal" max="10" default="2.0" variable="sample-space-size" width="175" display="sample-space-size"></slider>
+    <plot x="204" yMax="25.0" yAxis="Frequency" y="378" xMin="0.0" height="161" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="342" xAxis="Successes" display="Successes-per-Sample Distribution">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="1" display="default">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <slider x="12" step="5" y="461" height="33" min="0" direction="Horizontal" max="100" default="10.0" variable="sample-size" width="172" display="sample-size"></slider>
+    <slider x="10" step="10" y="375" height="33" min="0" direction="Horizontal" max="1000" default="1000.0" variable="how-many-samples?" width="174" display="how-many-samples?"></slider>
+    <monitor x="550" precision="3" y="112" height="45" fontSize="11" width="99">total-attempts</monitor>
+    <monitor x="705" precision="3" y="70" height="45" fontSize="11" width="57" display="rate">total-successes / total-attempts</monitor>
+    <monitor x="550" precision="0" y="35" height="45" fontSize="11" width="99" display="total-successes">total-successes</monitor>
+    <note x="551" y="89" height="18" color="0.0" transparent="false" fontSize="11" width="143">________________     =</note>
+    <monitor x="549" precision="3" y="379" height="45" fontSize="11" width="147">successes-this-sample</monitor>
+    <monitor x="12" precision="3" y="495" height="45" fontSize="11" width="172">attempts-this-sample</monitor>
+    <monitor x="549" precision="3" y="219" height="45" fontSize="11" width="57">counter</monitor>
+    <monitor x="11" precision="3" y="409" height="45" fontSize="11" width="173">samples-counter</monitor>
+    <monitor x="445" precision="3" y="540" height="45" fontSize="11" width="101" display="max">max successes-per-sample-list</monitor>
+    <monitor x="204" precision="3" y="540" height="45" fontSize="11" width="104" display="min">min successes-per-sample-list</monitor>
+    <monitor x="325" precision="3" y="540" height="45" fontSize="11" width="104" display="mean">mean successes-per-sample-list</monitor>
+    <note x="9" y="87" height="104" color="0.0" transparent="false" fontSize="11" width="139">The program will
+record and plot the
+random occurrence
+of the event "1"
+among other integers
+in the sample space
+of size...</note>
+    <monitor x="549" precision="3" y="270" height="45" fontSize="11" width="57" display="mean">mean counter-list</monitor>
+    <monitor x="142" precision="3" y="93" height="45" fontSize="11" width="50">event</monitor>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+Prob Graphs Basic is a basic introduction to probability and statistics.
+
+A sample space is the collection of all possible outcomes in an experiment. An example of a sample space is the numbers "1, 2, 3, 4, 5, 6, 7."  An event is what you get when you run an experiment. For example, if I am running an experiment that randomly selects a single number out of the sample space "1, 2, 3, 4, 5, 6, 7," then an event might be "5." A sample is a collection of events that occur in an experiment. You could have a sample of size 1 that contains just 1 event, but you could have a sample of size 4 that contains 4 events, e.g., "5, 3, 3, 7."
+
+In this model, 3 graphs monitor a single experiment as it unfolds. The experiment here is finding how often the number "1" shows up when you randomly select a number within a range that you define. This range could be, for example, between 1 and 2. An example of a sample space of only two values is a coin that can be either 'heads' or 'tails.' An example of a sample space of 6 values is a die that can land on the values 1 thru 6. Through observing this simple experiment through 3 different graphs, you will learn of 3 different ways of making sense of the phenomenon.
+
+The top graph, "m/n convergence to limiting value," shows how the rate settles down to the expected- or mathematical probability. For instance, the limiting value of a coin falling on "heads" is .5 because it happens 1/2 of the time. So, the unit of analysis is a single trial and the rate is always informed by all previous trials. To explain this further, lets think of "batting average." The sample space in batting is a 'hit' or a 'no hit,' which is much the same as whether a coin falls on "heads" or on "tails" (only of course batting is not random like tossing a coin or otherwise Babe Ruth's average would have been the same as anyone's). So there are exactly 2 possible outcomes. The "batting average" keeps track, over time, of how many "hits" occurred out of all attempts to hit, known as "at bats." So the "batting average" is calculated as
+
+> Hits / At-Bats  =  Batting Average
+
+For instance, using "H" for hit and "N" for no-hit, a baseball player's at-bat events may look like this, over 20 attempts:
+
+```text
+N N N H H N N N N H N H N N H H H N N H
+```
+
+'Hits' are called 'favored events' because when we do the statistics, what we care about, count, and calculate is all about how often 'hits' occurred out of all the at-bat events. The m/n interpretation (favored events / total events) would interpret this string of events as 8 hits / 20 at bats, .4 probability (the same as .400), or a score of 400 (out of 1000).
+
+You may be familiar with the fact that as the baseball season progresses, it is more and more difficult for an individual player to change his "average." This model may help you understand or at least simulate this phenomenon. But remember that a batter, unlike a coin or a die, is not behaving randomly. But in this model the behavior will be random. We have discussed batting only to give you context for thinking about the graph. A truer context, though, would be a coin that has 2 sides.  In fact, this model can simulate not just objects with 2 sides, but with more. You know all about dice that have 6 sides, right? If you have set the size of your sample space to 5, then the model will simulate an experiment in which a die of 5 sides is rolled over and over again.
+
+The middle graph, "Attempts-until-Success Distribution" counts how many trials it takes for the favored event to occur. For instance, if you're tossing a coin, it takes on average 2 tosses to get "heads," and if you're rolling a die it takes on average 6 rolls to get a "5." This graph is tracking the exact same experiment as the top graph; only it is "parsing" the events differently, that is, it is using a different rule to divide up the sequence of events over time. (We will continue using "N" and "H" but you can think of the coin with 2 sides or of the die with as many sides as you want.)
+
+```text
+N N N H    H    N N N N H    N H    N N H    H    H    N N H
+```
+
+So the unit of analysis in this interpretation of the experiment's results is the number of events leading up to and including a hit. As you see, the number of events per unit changes. In this example the string of numbers is [4; 1; 5; 2; 3; 1; 1; 3]. Note that in this string the numeral "1" appears 3 times, the numeral "2" appears 1 time, the numeral "3" appears 2 times, the numeral "4" appears 1 time, and the numeral "5" appears 1 time. The histogram of this string would peak over '1' (this peak will be of height 3), then go down to '2' (frequency of 1), etc.  Perhaps this interpretation is a bit like what a batter's fans feel -- their suspense grows over failed hits until there is a hit, they are relieved and happy, and then they start counting again. So according to the context you are in -- what you're interested in finding, how you're feeling -- the world can appear different.
+
+The bottom graph, "Successes-per-Sample distribution," takes yet another perspective on the experiment, namely a sampling perspective. The sampling perspective is used in statistics. Lets analyze the same string of events from our experiment, this time chopping it up into samples of equal size, say size 5.
+
+```text
+N N N H H   N N N N H   N H N N H   H H N N H
+```
+
+See that in the first sample there are 2 hits, in the second sample there is 1 hit, in the third sample there are 2 hits, and in the last sample there are 3 hits. This observation could be summed up as [2; 1; 2; 3]. A histogram of this result would show a frequency of 0 (y axis) over the 0 (x axis), because all samples had at least a single 'H.' Then over the '1' there will be a column of height 1, over the '2' there will be a column of height 2, and over the '3' there will be a column of height 1.
+
+Understanding the differences and relations between these 3 graphs will give you a strong head start in studying Probability and Statistics.
+
+This model is a part of the ProbLab curriculum. The ProbLab Curriculum is currently under development at the CCL. For more information about the ProbLab Curriculum please refer to http://ccl.northwestern.edu/curriculum/ProbLab/.
+
+## HOW IT WORKS
+
+The model first generates a random value between 1 and sample-space-size inclusive.  The number of attempts (trials) is increased by one.  If the random value is equal to 1, then the number of successes (favored events or "hits") is also increased by one.  The number of attempts and the number of successes are interpreted in three different ways with each way shown in a graph as follows: (1) single attempt (trial) and single success; (2) trials (attempts) thru to each success; or (3) successes in each sample (fixed number of trials).  Each of the graphs comes to be associated with typical shapes.
+
+## HOW TO USE IT
+
+Begin with the default settings. If you have changed them, then do the following: set the sample-space-size to 2 (so outcomes are either '1' or '2'), set the sample-size to '10' (so each sample will be a string of 10 events), and set the 'how-many-samples?' slider to 300 (so that the experiment will run a total of 300 samples of size 10 each, making a total of 3,000 trials). Press 'setup' to be sure all the variables are initialized, so that you will not have leftover values from a previous experiment). Press 'go.' Watch the 'event' monitor to see the number that the randomized procedure has reported. It will be either '1' or '2' because you have set the value to 2.
+
+You may want to use the speed slider above the view to slow down the simulation. As you become more comfortable with understanding what you are seeing, you can speed up the simulation by moving the slider farther right.
+
+Note how the event does not necessarily alternate between '1' and '2' according to any particular pattern.  Rather, only in the long run do you see what the constant is in the phenomenon you are observing. "In the long run" is precisely what this experiment shows. You can control how long this run will be by increasing or decreasing both the 'sample-size' and/or the 'how-many-samples?' slider.
+
+### Buttons
+
+'setup' -- initializes all variables. Press this button to begin a new experiment.
+'go' -- begins the simulation running. You can press it again to pause the model.
+
+### Sliders
+
+'sample-space-size' - set the size of the sample space (in integers).
+'sample-size' - set the number of trials per sample.
+'how-many-samples?'- set the number of samples you wish to run in the experiment.
+
+### Monitors
+
+'event' -- the number that the randomized procedure has generated this trial.
+'total-successes' -- total number of favored events over all trials.
+'total-attempts' -- total number of trials.
+'rate' -- total-successes / total-attempts.
+'counter' -- shows how many trials have passed since last success (or, if you've only just set up and run the model, then it will show how many trials have passed since the model began running).
+'attempts-this-sample' -- counts how many trials there have been since the last success (or, if you've only just set up and run the model, then it will show how many trials have passed since the model began running).
+'successes-this-sample' -- counts how many successes there have been since the last success (or, if you've only just set up and run the model, then it will show how many trials have passed since the model began running).
+'samples counter' -- counts how many samples there have been since the beginning of this experiment
+'min', 'mean', 'max' -- the minimum, mean, and maximum values of the Successes-per-Sample distribution
+
+### Plots
+
+m/n convergence to limiting value -- cumulative rate of successes (hits or favored events) per total trials.
+Attempts-until-Success Distribution -- histogram of number of trials it takes until each success.
+Successes-per-Sample Distribution -- histogram of number of successes within each sample.
+
+## THINGS TO NOTICE
+
+What are the characteristic shapes of each graph?
+
+Look at the 'rate' monitor. What can you say about the fluctuation of numbers? What can you say about the value it settles on? What other settings in the model can you relate to this rate value?
+
+The "Attempts-until-Success Distribution" never has values for 0, whereas the other plots sometimes do. Why is that?
+Also, what can you say about the mean of this distribution? Does this make sense to you?
+
+## THINGS TO TRY
+
+A sample-size of 10 that is run 300 times and a sample-size of 300 that is run 10 times both produce 3000 trials, because 10 and 300 are the factors of 3000 regardless of their order in a context. Run the experiment under both combination conditions. Did this make any difference? If so, which of the three graphs did it affect and which did it not affect? Run the experiment under other pairs of combination conditions. How different do the factors have to be to cause any difference in the graphs? How does the sample-space-size play in with all this?
+
+By now you may have noticed the typically bell-shaped histogram of the Successes-per-Sample distribution.  Try to find settings that do not create this shape and analyze why this is the case.
+
+## EXTENDING THE MODEL
+
+As a beginning, try adding monitors to show values from variables you are interested in tracking. For instance, you may want to know the minimum, mean, and maximum values of the "Attempts-until-Success Distribution." Also, you may want to change parameters of the sliders.
+
+Challenge: Add to the "Attempt-until-Success" plot a line that indicates the mean.
+
+Challenge: Think of modification that keeps the 'random' reporter, but "helps" the program have more hits. Of course, this will change completely the nature of the simulation, so you can think of what you have created, and give the program a new name.
+
+## NETLOGO FEATURES
+
+This model is unusual in that it doesn't use the view at all.  Everything that happens visually happens in the plots and monitors.
+
+## CREDITS AND REFERENCES
+
+This model is a part of the ProbLab curriculum. The ProbLab Curriculum is currently under development at Northwestern's Center for Connected Learning and Computer-Based Modeling. . For more information about the ProbLab Curriculum please refer to http://ccl.northwestern.edu/curriculum/ProbLab/.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Abrahamson, D. and Wilensky, U. (2004).  NetLogo Prob Graphs Basic model.  http://ccl.northwestern.edu/netlogo/models/ProbGraphsBasic.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2004 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This model was created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
+
+<!-- 2004 Cite: Abrahamson, D. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>need-to-manually-make-preview-for-this-model</previewCommands>
+</model>

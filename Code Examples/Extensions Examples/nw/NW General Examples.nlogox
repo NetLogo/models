@@ -1,0 +1,1270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[extensions [ nw ]
+
+; we have two different kinds of link breeds, one directed and one undirected, just
+; to show what the different networks look like with directed vs. undirected links
+directed-link-breed [ directed-edges directed-edge ]
+undirected-link-breed [ undirected-edges undirected-edge ]
+
+globals [
+  highlighted-node                ; used for the "highlight mode" buttons to keep track of the currently highlighted node
+  highlight-bicomponents-on       ; indicates that highlight-bicomponents mode is active
+  stop-highlight-bicomponents     ; indicates that highlight-bicomponents mode needs to stop
+  highlight-maximal-cliques-on    ; indicates highlight-maximal-cliques mode is active
+  stop-highlight-maximal-cliques  ; indicates highlight-maximal-cliques mode needs to stop
+]
+
+to setup
+  clear-all
+  set-current-plot "Degree distribution"
+  set-default-shape turtles "circle"
+  reset-ticks
+end
+
+;; Reports the link set corresponding to the value of the links-to-use combo box
+to-report get-links-to-use
+  report ifelse-value links-to-use = "directed"
+    [ directed-edges ]
+    [ undirected-edges ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Layouts
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to layout-turtles
+  if layout = "radial" and count turtles > 1 [
+    let root-agent max-one-of turtles [ count my-links ]
+    layout-radial turtles links root-agent
+  ]
+  if layout = "spring" [
+    let factor sqrt count turtles
+    if factor = 0 [ set factor 1 ]
+    layout-spring turtles links (1 / factor) (14 / factor) (1.5 / factor)
+  ]
+  if layout = "circle" [
+    layout-circle sort turtles max-pxcor * 0.9
+  ]
+  if layout = "tutte" [
+    layout-circle sort turtles max-pxcor * 0.9
+    layout-tutte max-n-of (count turtles * 0.5) turtles [ count my-links ] links 12
+  ]
+  display
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Clusterers
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Colorizes each node according to which component it is part of
+to weak-component
+  nw:set-context turtles get-links-to-use
+  color-clusters nw:weak-component-clusters
+end
+
+; Colorizes each node according to the community it is part of
+to community-detection
+  nw:set-context turtles get-links-to-use
+  color-clusters nw:louvain-communities
+end
+
+; Allows the user to mouse over and highlight all bicomponents
+to highlight-bicomponents
+
+  if stop-highlight-bicomponents = true [
+    ; we're asked to stop - do so
+    set stop-highlight-bicomponents false
+    set highlight-bicomponents-on false
+    stop
+  ]
+  set highlight-bicomponents-on true ; we're on!
+  if highlight-maximal-cliques-on = true [
+    ; if the other guy is on, he needs to stop
+    set stop-highlight-maximal-cliques true
+  ]
+
+  if mouse-inside? [
+    nw:set-context turtles get-links-to-use
+    highlight-clusters nw:bicomponent-clusters
+  ]
+  display
+end
+
+; Allows the user to mouse over and highlight all maximal cliques
+to highlight-maximal-cliques
+  if (links-to-use != "undirected") [
+    user-message "Maximal cliques only work with undirected links."
+    stop
+  ]
+  if stop-highlight-maximal-cliques = true [
+    ; we're asked to stop - do so
+    set stop-highlight-maximal-cliques false
+    set highlight-maximal-cliques-on false
+    stop
+  ]
+  set highlight-maximal-cliques-on true ; we're on!
+  if highlight-bicomponents-on = true [
+    ; if the other guy is on, he needs to stop
+    set stop-highlight-bicomponents true
+  ]
+
+  if mouse-inside? [
+    nw:set-context turtles undirected-edges
+    highlight-clusters nw:maximal-cliques
+  ]
+  display
+end
+
+; Colorizes the biggest maximal clique in the graph, or a random one if there is more than one
+to find-biggest-cliques
+  if links-to-use != "undirected" [
+    user-message "Maximal cliques only work with undirected links."
+    stop
+  ]
+  nw:set-context turtles undirected-edges
+  color-clusters nw:biggest-maximal-cliques
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Highlighting and coloring of clusters
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Allows the user to mouse over different nodes and
+; highlight all the clusters that this node is a part of
+to highlight-clusters [ clusters ]
+  ; get the node with neighbors that is closest to the mouse
+  let node min-one-of turtles [ distancexy mouse-xcor mouse-ycor ]
+  if node != nobody and node != highlighted-node [
+    set highlighted-node node
+    ; find all clusters the node is in and assign them different colors
+    color-clusters filter [ cluster -> member? node cluster ] clusters
+    ; highlight target node
+    ask node [ set color white ]
+  ]
+end
+
+to color-clusters [ clusters ]
+  ; reset all colors
+  ask turtles [ set color gray ]
+  ask links [ set color gray - 2 ]
+  let n length clusters
+  ; Generate a unique hue for each cluster
+  let hues n-values n [ i -> (360 * i / n) ]
+
+  ; loop through the clusters and colors zipped together
+  (foreach clusters hues [ [cluster hue] ->
+    ask cluster [ ; for each node in the cluster
+                  ; give the node the color of its cluster
+      set color hsb hue 100 100
+      ; Color links contained in the cluster slightly darker than the cluster color
+      ask my-links with [ member? other-end cluster ] [ set color hsb hue 100 75 ]
+    ]
+  ])
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Centrality Measures
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to betweenness
+  centrality [ -> nw:betweenness-centrality ]
+end
+
+to eigenvector
+  centrality [ -> nw:eigenvector-centrality ]
+end
+
+to closeness
+  centrality [ -> nw:closeness-centrality ]
+end
+
+; Takes a centrality measure as a reporter task, runs it for all nodes
+; and set labels, sizes and colors of turtles to illustrate result
+to centrality [ measure ]
+  nw:set-context turtles get-links-to-use
+  ask turtles [
+    let res (runresult measure) ; run the task for the turtle
+    ifelse is-number? res [
+      set label precision res 2
+      set size res ; this will be normalized later
+    ]
+    [ ; if the result is not a number, it is because eigenvector returned false (in the case of disconnected graphs
+      set label res
+      set size 1
+    ]
+  ]
+  normalize-sizes-and-colors
+end
+
+; We want the size of the turtles to reflect their centrality, but different measures
+; give different ranges of size, so we normalize the sizes according to the formula
+; below. We then use the normalized sizes to pick an appropriate color.
+to normalize-sizes-and-colors
+  if count turtles > 0 [
+    let sizes sort [ size ] of turtles ; initial sizes in increasing order
+    let delta last sizes - first sizes ; difference between biggest and smallest
+    ifelse delta = 0 [ ; if they are all the same size
+      ask turtles [ set size 1 ]
+    ]
+    [ ; remap the size to a range between 0.5 and 2.5
+      ask turtles [ set size ((size - first sizes) / delta) * 2 + 0.5 ]
+    ]
+    ask turtles [ set color scale-color red size 0 5 ] ; using a higher range max not to get too white...
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Generators
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to generate [ generator-task ]
+  if clear-before-generating? [ setup ]
+  ; we have a general "generate" procedure that basically just takes a task
+  ; parameter and runs it, but takes care of calling layout and update plots
+  run generator-task
+  layout-turtles
+  update-plots
+end
+
+to preferential-attachment
+  generate [ -> nw:generate-preferential-attachment turtles get-links-to-use nb-nodes 1 ]
+end
+
+to ring
+  generate [ -> nw:generate-ring turtles get-links-to-use nb-nodes ]
+end
+
+to star
+  generate [ -> nw:generate-star turtles get-links-to-use nb-nodes ]
+end
+
+to wheel
+  ifelse links-to-use = "directed" [
+    ifelse spokes-direction = "inward" [
+      generate [ -> nw:generate-wheel-inward turtles get-links-to-use nb-nodes ]
+    ]
+    [ ; if it's not inward, it's outward
+      generate [ -> nw:generate-wheel-outward turtles get-links-to-use nb-nodes ]
+    ]
+  ]
+  [ ; for an undirected network, we don't care about spokes
+    generate [ -> nw:generate-wheel turtles get-links-to-use nb-nodes ]
+  ]
+end
+
+to lattice-2d
+  generate [ -> nw:generate-lattice-2d turtles get-links-to-use nb-rows nb-cols wrap ]
+end
+
+to small-world-ring
+  generate [ -> nw:generate-watts-strogatz turtles get-links-to-use nb-nodes neighborhood-size rewire-prob ]
+end
+
+to small-world-lattice
+  generate [ -> nw:generate-small-world turtles get-links-to-use nb-rows nb-cols clustering-exponent wrap ]
+end
+
+to generate-random
+  generate  [ -> nw:generate-random turtles get-links-to-use nb-nodes connection-prob ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Saving and loading of network files
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to save-matrix
+  nw:set-context turtles get-links-to-use
+  nw:save-matrix "matrix.txt"
+end
+
+to load-matrix
+  generate [ -> nw:load-matrix "matrix.txt" turtles get-links-to-use ]
+end
+
+to save-graphml
+  nw:set-context turtles get-links-to-use
+  nw:save-graphml "demo.graphml"
+end
+
+to load-graphml
+  nw:set-context turtles get-links-to-use
+  nw:load-graphml "demo.graphml"
+end
+
+
+; Public Domain:
+; To the extent possible under law, Uri Wilensky has waived all
+; copyright and related or neighboring rights to this model.]]></code>
+  <widgets>
+    <view x="630" maxPycor="16" updateMode="1" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-16" height="504" showTickCounter="false" patchSize="15.0" fontSize="10" wrappingAllowedY="false" width="503" tickCounterLabel="ticks" maxPxcor="16" minPxcor="-16"></view>
+    <button x="510" y="30" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="110">betweenness</button>
+    <note x="305" y="10" height="18" color="0.0" transparent="true" fontSize="12" width="150"><![CDATA[Clusterers & Cliques]]></note>
+    <slider x="10" step="1" y="150" height="33" min="0" direction="Horizontal" max="1000" default="100.0" variable="nb-nodes" width="280" display="nb-nodes"></slider>
+    <note x="510" y="10" height="18" color="0.0" transparent="true" fontSize="12" width="150">Centrality</note>
+    <button x="10" y="10" height="45" disableUntilTicks="false" forever="false" kind="Observer" width="85" display="setup/clear">setup</button>
+    <button x="10" y="185" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="160" display="preferential attachment">preferential-attachment</button>
+    <button x="10" y="445" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="105" display="lattice 2D">lattice-2d</button>
+    <slider x="120" step="1" y="410" height="33" min="0" direction="Horizontal" max="20" default="8.0" variable="nb-rows" width="170" display="nb-rows"></slider>
+    <slider x="120" step="1" y="445" height="33" min="0" direction="Horizontal" max="20" default="8.0" variable="nb-cols" width="170" display="nb-cols"></slider>
+    <switch x="10" y="410" height="33" on="false" variable="wrap" width="105" display="wrap"></switch>
+    <note x="15" y="125" height="18" color="0.0" transparent="true" fontSize="12" width="150">Generators</note>
+    <button x="510" y="65" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="110">eigenvector</button>
+    <button x="10" y="275" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="85" display="random">generate-random</button>
+    <slider x="100" step="0.01" y="275" height="33" min="0" direction="Horizontal" max="1" default="0.2" variable="connection-prob" width="190" display="connection-prob"></slider>
+    <button x="10" y="480" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="105" display="kleinberg">small-world-lattice</button>
+    <slider x="120" step="0.1" y="480" height="33" min="0" direction="Horizontal" max="10" default="2.0" variable="clustering-exponent" width="170" display="clustering-exponent"></slider>
+    <button x="510" y="100" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="110">closeness</button>
+    <button x="305" y="30" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="190" display="weak component clusters">weak-component</button>
+    <chooser x="100" y="10" height="45" variable="links-to-use" current="0" width="190" display="links-to-use">
+      <choice type="string" value="undirected"></choice>
+      <choice type="string" value="directed"></choice>
+    </chooser>
+    <plot x="305" yMax="10.0" yAxis="Nb nodes" y="305" xMin="0.0" height="160" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="315" xAxis="Degrees" display="Degree distribution">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="1" display="default">
+        <setup></setup>
+        <update>histogram [ count my-links ] of turtles</update>
+      </pen>
+    </plot>
+    <button x="305" y="225" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="85" display="save matrix">save-matrix</button>
+    <button x="305" y="260" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="85" display="load matrix">load-matrix</button>
+    <monitor x="390" precision="17" y="470" height="45" fontSize="11" width="85">count turtles</monitor>
+    <monitor x="305" precision="17" y="470" height="45" fontSize="11" width="80">count links</monitor>
+    <button x="305" y="170" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="190" display="biggest maximal cliques">find-biggest-cliques</button>
+    <button x="175" y="185" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="55">ring</button>
+    <button x="10" y="225" height="45" disableUntilTicks="true" forever="false" kind="Observer" width="85">wheel</button>
+    <button x="235" y="185" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="55">star</button>
+    <monitor x="480" precision="3" y="470" height="45" fontSize="11" width="140" display="Mean path length">nw:mean-path-length</monitor>
+    <chooser x="190" y="60" height="45" variable="layout" current="0" width="100" display="layout">
+      <choice type="string" value="spring"></choice>
+      <choice type="string" value="circle"></choice>
+      <choice type="string" value="radial"></choice>
+      <choice type="string" value="tutte"></choice>
+    </chooser>
+    <button x="100" y="60" height="45" disableUntilTicks="true" forever="false" kind="Observer" width="85" display="layout once">layout-turtles</button>
+    <button x="10" y="60" height="45" disableUntilTicks="false" forever="true" kind="Observer" width="85" display="layout">layout-turtles</button>
+    <button x="305" y="100" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="190" display="highlight bicomponents">highlight-bicomponents</button>
+    <button x="305" y="135" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="190" display="highlight maximal cliques">highlight-maximal-cliques</button>
+    <chooser x="100" y="225" height="45" variable="spokes-direction" current="1" width="190" display="spokes-direction">
+      <choice type="string" value="inward"></choice>
+      <choice type="string" value="outward"></choice>
+    </chooser>
+    <note x="310" y="205" height="18" color="0.0" transparent="true" fontSize="12" width="150">Files</note>
+    <button x="395" y="225" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="100" display="save GraphML">save-graphml</button>
+    <button x="395" y="260" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="100" display="load GraphML">load-graphml</button>
+    <button x="305" y="65" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="190" display="detect communities">community-detection</button>
+    <button x="10" y="360" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="85" display="small world">small-world-ring</button>
+    <slider x="10" step="1" y="325" height="33" min="0" direction="Horizontal" max="floor ((nb-nodes - 1) / 2)" default="3.0" variable="neighborhood-size" width="280" display="neighborhood-size"></slider>
+    <slider x="100" step="0.01" y="360" height="33" min="0" direction="Horizontal" max="1" default="0.1" variable="rewire-prob" width="190" display="rewire-prob"></slider>
+    <switch x="95" y="115" height="33" on="true" variable="clear-before-generating?" width="195" display="clear-before-generating?"></switch>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This model demonstrates various features of the Netlogo NW extension: it allows you to generate various kinds of networks, lay them out on screen, and get information about them.
+
+## HOW TO USE IT
+
+The SETUP/CLEAR button initializes the model and clears any existing networks.
+
+The LINKS-TO-USE chooser allow you to specify whether you want to use directed or undirected links: all the generators use the kind of links selected in the chooser. You can generate different networks with different kinds of links without clearing everything in between.
+
+The value of LINKS-TO-USE is used by the different clusterers and measures as well. Be careful to use the right value for the network you are interested in. For example, if you ask for betweenness centrality with "directed links" selected in the chooser, but the network on the screen is undirected, the betweenness centrality values will all be zero, because the algorithm only takes directed links into account.
+
+There is another chooser called LAYOUT. NetLogo currently offers four different kinds of layouts (this is not new in the NW extension - they were all available before):
+
+- [circle](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#layout-circle)
+
+- [radial](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#layout-radial)
+
+- [spring](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#layout-spring)
+
+- [tutte](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#layout-tutte)
+
+Clicking the LAYOUT forever button will ensure that the chosen layout is applied continuously. This is especially useful in the case of the spring layout. For other layouts, you can also use the LAYOUT ONCE button.
+
+### Generators
+
+The first thing that you will see in the **Generators** section of the model is a slider labeled NB-NODES. It allows you to specify the number of nodes you want to have in your network. The first six generator buttons (PREFERENTIAL ATTACHMENT, RING, STAR, WHEEL, RANDOM, and SMALL WORLD) will take the value of that slider into account.
+
+By default, using one of the generators will clear the current network first. You can disable this using the CLEAR-BEFORE-GENERATING? switch. Note that at any time, you can press the SETUP/CLEAR button to erase everything and start over.
+
+Here is a description of each of generator.
+
+PREFERENTIAL ATTACHMENT
+
+Generates a new network using the [Barabási–Albert](https://en.wikipedia.org/wiki/Barab%C3%A1si%E2%80%93Albert_model) algorithm. This network will have the property of being "scale free": the distribution of degrees (i.e. the number of links for each turtle) should follow a power law.
+
+Turtles are added, one by one, each forming one link to a previously added turtle, until _nb-nodes_ is reached. The more links a turtle already has, the greater the probability that new turtles form links with it when they are added.
+
+RING
+
+Generates a [ring network](https://en.wikipedia.org/wiki/Ring_network) of NB-NODES turtles, in which each turtle is connected to exactly two other turtles.
+
+STAR
+
+Generates a [star network](https://en.wikipedia.org/wiki/Star_graph) in which there is one central turtle and every other turtle is connected only to this central node. The number of turtles can be as low as one, but it won't look much like a star.
+
+WHEEL
+
+Generates a [wheel network](https://en.wikipedia.org/wiki/Wheel_graph), which is basically a [ring network](https://en.wikipedia.org/wiki/Ring_network) with an additional "central" turtle that is connected to every other turtle. The number of nodes must be at least four.
+
+On the right side of the WHEEL button, you will see a chooser allowing you the select either "inward" or "outward". This will allow to specify if the "spokes" of the wheel point toward the central turtle (inward) or away from it (outward). This is, of course, meaningful only in the case of a directed network.
+
+RANDOM
+
+Generates a new random network of NB-NODES turtles in which each one has a  connection probability (between 0 and 1) of being connected to each other turtles (this is specified through the CONNECTION-PROB slider). The algorithm uses the [Erdős–Rényi model](https://en.wikipedia.org/wiki/Erd%C5%91s%E2%80%93R%C3%A9nyi_model).
+
+SMALL WORLD
+
+Generates a new [Watts-Strogatz small-world network](https://en.wikipedia.org/wiki/Watts_and_Strogatz_model). The algorithm begins by creating a ring of nodes, where each node is connected to NEIGHBORHOOD-SIZE nodes on either side. Then, each link is rewired with probability REWIRE-PROB.
+
+LATTICE 2D
+
+Generates a new 2D [lattice network](https://en.wikipedia.org/wiki/Lattice_graph) (basically, a grid) of NB-ROWS rows and NB-COLS columns. The grid will wrap around itself if the WRAP switch is set to "on".
+
+KLEINBERG
+
+Generates a new [small-world network](https://en.wikipedia.org/wiki/Small-world_network) using the [Kleinberg Model](https://en.wikipedia.org/wiki/Small_world_routing#The_Kleinberg_Model).
+
+The generator uses the same sliders and switch as the lattice 2D generator, namely, NB-ROWS, NO-COLS and WRAP. The algorithm proceeds by generating a lattice of the given number of rows and columns (the lattice will wrap around itself if WRAP is "on"). The "small world effect" is created by adding additional links between the nodes in the lattice. The higher the CLUSTERING-EXPONENT, the more the algorithm will favor already close-by nodes when adding new links. A clustering exponent of `2.0` is typically used.
+
+### Clusters and cliques
+
+Now that you have generated one or more networks, there are things that you might want to know about them.
+
+WEAK COMPONENT CLUSTERS
+
+This button will assign a different color to all the "weakly" [connected components](https://en.wikipedia.org/wiki/Connected_component_%28graph_theory%29) in the current network. A weakly connected component is simply a group of nodes where there is a path from each node to every other node. A "strongly" connected component would be one where there is a _directed_ path from each node to every other. The extension does not support the identification of strongly connected components at the moment.
+
+DETECT COMMUNITIES
+
+Detects community structure present in the network. It does this by maximizing modularity using the [Louvain method](https://en.wikipedia.org/wiki/Louvain_Modularity).
+
+HIGHLIGHT BICOMPONENTS
+
+Clicking on this button will put you in a mode where you use your mouse to highlight the different [bicomponent clusters](https://en.wikipedia.org/wiki/Biconnected_component) in the current network. A bicomponent (also known as a maximal biconnected subgraph) is a part of a network that cannot be disconnected by removing only one node (i.e. you need to remove at least two to disconnect it).
+
+Note that one turtle can be a member of more than one bicomponent at once. If it is the case, all the bicomponents that the target turtle is part of will be highlighted when you move your mouse pointer near it, but they will be of different color.
+
+HIGHLIGHT MAXIMAL CLIQUES
+
+The general usage for this is the same as for the **highlight bicomponents** mode. Note you should not try to use both highlight modes at the same time.
+
+A [clique](https://en.wikipedia.org/wiki/Clique_%28graph_theory%29) is a subset of a network in which every node has a direct link to every other node. A maximal clique is a clique that is not, itself, contained in a bigger clique.
+
+BIGGEST MAXIMAL CLIQUES
+
+This simply highlights the biggest of all the maximal cliques in the networks. If there are multiple cliques that are equally big (as is often the case), it will highlight them with different colors.
+
+### Centrality measures
+
+Besides all the clusterers and the clique finder, you can also calculate some centrality measures on your networks. All the centrality measures will label the nodes will the result of the calculation and adjust their size and color to reflect that result.
+
+BETWEENNESS
+
+To calculate the [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality) of a turtle, you take every other possible pairs of turtles and, for each pair, you calculate the proportion of shortest paths between members of the pair that passes through the current turtle. The betweenness centrality of a turtle is the sum of these.
+
+EIGENVECTOR
+
+The [Eigenvector centrality](https://en.wikipedia.org/wiki/Centrality#Eigenvector_centrality) of a node can be thought of as the proportion of its time that an agent forever "walking" at random on the network would spend on this node. In practice, turtles that are connected to a lot of other turtles that are themselves well-connected (and so) get a higher Eigenvector centrality score.
+
+Eigenvector centrality is only defined for connected networks, and will report `false` for disconnected graphs.
+
+CLOSENESS
+
+The [closeness centrality](https://en.wikipedia.org/wiki/Centrality#Closeness_centrality) of a turtle is defined as the inverse of the sum of it's distances to all other turtles.
+
+Note that this primitive reports the _intra-component_ closeness of a turtle, that is, it takes into account only the distances to the turtles that are part of the same [component](https://en.wikipedia.org/wiki/Connected_component_%28graph_theory%29) as the current turtle, since distance to turtles in other components is undefined. The closeness centrality of an isolated turtle is defined to be zero.
+
+### Files
+
+LOAD / SAVE MATRIX
+
+Finally, you can save and load your networks. This can be done through the use of simple text files containing an [adjacency matrix](https://en.wikipedia.org/wiki/Adjacency_matrix).
+
+The model currently always save the network to your NetLogo directory in a file called `matrix.txt` when you click the SAVE MATRIX button. When you click the LOAD MATRIX button, it reads from the same location and creates a new network from the file.
+
+LOAD / SAVE GRAPHML
+
+You can also save and load GraphML files. Please see the [extension's documentation](http://ccl.northwestern.edu/netlogo/docs/nw.html#save-graphml) for more detail on handling GraphML files. The demo simply saves the current network to (and can load from) the file `demo.graphml` in your default directory.
+
+## THINGS TO NOTICE
+
+- When you generate preferential attachment networks, notice the distribution of node degrees in the histogram. What does it look like? What happens if you generate a network with more nodes, or multiple preferential attachment networks?
+
+- When you generate a small world network, what is the MEAN PATH LENGTH value that you can see on the monitor? How does it compare the a random network with the same number of nodes?
+
+## THINGS TO TRY
+
+- In general, different layouts work best for different kind of graphs. Can you try every combination of graph/layout? Which layout do you prefer for each kind of graph? Why?
+
+- Try the spring layout with a lattice 2D network, with WRAP set to off. How does it look? Now try it with WRAP set to on. Can you explain the difference?
+
+- Generate a small world network with a low clustering exponent (e.g., 0.1). What is the size of the biggest maximal clique? Now try it with a big exponent (e.g. 10.0). What is the size? Try it multiple times. Do you see a pattern? What if you crank up the number of rows and columns?
+
+## EXTENDING THE MODEL
+
+The current version of the demo does not take link weights into account. You can add a "weight" variable to each link breed. Can you add a button assigning random weights to the links? Can you make it so that link thickness reflects the "weight" of the link? Look at the extensions documentation for primitive that take weights into account. Can you integrate those in the demo?
+
+## NETLOGO FEATURES
+
+This model demonstrates the `nw` extension primitives.
+
+But aside from that, notice the interesting use it makes of tasks for the centrality buttons. We have only one `centrality` procedure in the code that does all the hard work, and the other procedures call it with a `measure` reporter task as a parameter, that the `centrality` primitive then runs with `runresult`. This removes a lot of code duplication.
+
+Another nice tidbit is how the `foreach` command is used in the `color-clusters` primitive. Notice how it loops over both the `clusters` list and the `colors` and then uses the `cluster` and `cluster-color` arguments to access members of each pair of cluster/color.
+
+## RELATED MODELS
+
+A couple of models already in the model library, namely the "Giant Component" model and the "Small World" model could be build much more easily by using the primitives in the network extension. Such versions of these two models are included in the "demo" folder of the extension, but trying to make the modifications yourself would be an excellent exercise.
+
+<!-- 2012 -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="sheep" rotatable="false" editableColorIndex="0">
+      <rectangle endX="180" startY="225" marked="true" color="-1920102913" endY="285" startX="151" filled="true"></rectangle>
+      <rectangle endX="75" startY="225" marked="true" color="-1920102913" endY="285" startX="47" filled="true"></rectangle>
+      <rectangle endX="210" startY="75" marked="true" color="-1920102913" endY="225" startX="15" filled="true"></rectangle>
+      <circle x="135" y="75" marked="true" color="-1920102913" diameter="150" filled="true"></circle>
+      <circle x="165" y="76" marked="false" color="255" diameter="116" filled="true"></circle>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="wolf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="285"></point>
+        <point x="195" y="285"></point>
+        <point x="270" y="90"></point>
+        <point x="30" y="90"></point>
+        <point x="105" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="90"></point>
+        <point x="225" y="15"></point>
+        <point x="180" y="90"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="90"></point>
+        <point x="75" y="15"></point>
+        <point x="120" y="90"></point>
+      </polygon>
+      <circle x="183" y="138" marked="false" color="-1" diameter="24" filled="true"></circle>
+      <circle x="93" y="138" marked="false" color="-1" diameter="24" filled="true"></circle>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup
+nw:generate-watts-strogatz
+  turtles undirected-edges 200 4 0.1
+community-detection
+set layout "circle"
+layout-turtles
+set layout "spring"
+repeat 300 [ layout-turtles ]</previewCommands>
+</model>

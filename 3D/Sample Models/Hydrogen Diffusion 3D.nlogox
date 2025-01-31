@@ -1,0 +1,1151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[patches-own [
+  patch-type ;; inner, surface, or air
+  h-count
+]
+
+globals[
+  ;;visualization constants
+  h4-color h3-color h2-color h1-color
+  anchor-transparency ;;color transparency for anchors
+  hydrogen-transparency ;;color transparency for hydrogen
+  box-size
+  h-size
+  h-total ;; total hydrogen available in patches and free-roaming
+  h-remain ;; remaining hydrogen
+]
+
+breed [hydrogens hydrogen]  ;;hydrogen
+breed [anchors anchor] ;;patch visualization
+
+to setup
+  clear-all
+  set anchor-transparency 161
+
+  ;;Colors for Hydrogen Counts
+  ifelse h4-on?
+    [ set h4-color white ]
+    [ set h4-color 0 ]
+
+  ifelse h3-on?
+    [ set h3-color green ]
+    [ set h3-color 0 ]
+
+  ifelse h2-on?
+    [ set h2-color blue ]
+    [ set h2-color 0 ]
+
+  ifelse h1-on?
+    [ set h1-color red ]
+    [ set h1-color 0 ]
+
+  set hydrogen-transparency 200
+  set box-size 0.30
+  set h-size 0.35
+
+  ;;SETUP PATCHES
+
+  ;; all patches start as air
+  ask patches [ set patch-type "air" ]
+
+  ;;Quick diffuse surface patches
+  ask patches with [
+    (pxcor > min-pxcor and pxcor < max-pxcor) and
+    (pycor > min-pycor and pycor < max-pycor) and
+    (pzcor > min-pzcor and pzcor < max-pzcor)
+  ] [
+    set patch-type "surface"
+  ]
+
+  ;;Inner lattice patches
+  ask patches with [
+    (pxcor > min-pxcor + 1 and pxcor < max-pxcor - 1) and
+    (pycor > min-pycor + 1 and pycor < max-pycor - 1) and
+    (pzcor > min-pzcor + 1 and pzcor < max-pzcor - 1)
+  ] [
+    set patch-type "inner"
+  ]
+
+  ;;Populate anchors
+  ask patches with [ patch-type != "air" ] [
+    sprout-anchors 1 [
+      set shape "square"
+      set color lput anchor-transparency extract-rgb h4-color
+      set size box-size
+      set heading 0
+      set pitch 0
+    ]
+    set h-count 4
+  ]
+
+  ;;Total Hydrogens
+  set h-total ((count patches with [ patch-type != "air" ]) * 3)
+  set h-remain h-total
+
+  ;;Grid Draw
+  if grid-draw [
+    ask patch min-pxcor min-pycor min-pzcor [
+      sprout 1 [
+        set color gray - 2
+
+        ;;Y
+        set heading 0
+        ;;loop setup
+        set xcor xcor - 1.5 set ycor ycor - 0.5 set zcor zcor - 1.5
+        repeat (max-pxcor * 2 + 1) [
+          set zcor zcor + 1
+          repeat (max-pxcor * 2 + 1) [
+            set ycor min-pxcor - 0.5
+            set xcor xcor + 1
+            pen-down fd .25 repeat (max-pxcor * 2) [ pen-up fd .5 pen-down fd .5 ] pen-up fd .5 pen-down fd .25 pen-up ]
+          set xcor xcor + 1
+        ]
+        set xcor xcor + 1
+
+        ;;X
+        set heading 90
+        ;;loop setup
+        set ycor ycor - 1 set zcor min-pzcor - 0.5 - 1
+        repeat (max-pxcor * 2 + 1) [
+          set zcor zcor + 1
+          repeat (max-pxcor * 2 + 1) [
+            set ycor ycor + 1
+            pen-down fd .25 repeat (max-pxcor * 2) [ pen-up fd .5 pen-down fd .5 ] pen-up fd .5 pen-down fd .25 pen-up ]
+          set ycor ycor + 1
+        ]
+
+        ;;Z
+        set pitch 90
+        ;;loop setup
+        set zcor zcor + 1 set xcor xcor - 1
+        repeat (max-pxcor * 2 + 1) [
+          set ycor ycor + 1
+          repeat (max-pxcor * 2 + 1) [
+            set xcor xcor + 1
+            pen-down fd .25 repeat (max-pxcor * 2) [ pen-up fd .5 pen-down fd .5 ] pen-up fd .5 pen-down fd .25 pen-up ]
+          set xcor xcor + 1
+        ]
+
+        ;;kill pen turtle
+        die
+      ]
+    ]
+  ]
+  reset-ticks
+end
+
+to go
+
+  ;;Termination %
+  if h-remain < (h-total * end-percent / 100) [
+    ask patch 0 0 0 [ set pcolor red ]
+    stop
+  ]
+
+  ;; removing H2 from model
+  ask hydrogens with [ color = yellow ] [ die ]
+
+  ;;Freedom! - Hydrogen desorbs
+  ask patches with [ h-count = 2 ] [
+    if random-float 1.0 < p2to1 [
+      set h-count h-count - 1
+      sprout-hydrogens 1 [
+        set shape "circle"
+        set color lput hydrogen-transparency extract-rgb h1-color
+        set size h-size
+        fd random-float .4 - .8
+      ]
+      ask anchors-here [
+        set color lput anchor-transparency extract-rgb h1-color
+      ]
+    ]
+  ]
+
+  ask patches with [ h-count = 3 ] [
+    if random-float 1.0 < p3to2 [
+      set h-count h-count - 1
+      sprout-hydrogens 1 [
+        set shape "circle"
+        set color lput hydrogen-transparency extract-rgb h2-color
+        set size h-size
+        fd random-float .4 - .8
+      ]
+      ask anchors-here [
+        set color lput anchor-transparency extract-rgb h2-color
+      ]
+    ]
+  ]
+
+  ask patches with [ h-count = 4 ] [
+    if random-float 1.0 < p4to3 [
+      set h-count h-count - 1
+      sprout-hydrogens 1 [
+        set shape "circle"
+        set color lput hydrogen-transparency extract-rgb h3-color
+        set size h-size
+        fd random-float .4 - .8
+      ]
+      ask anchors-here [
+        set color lput anchor-transparency extract-rgb h3-color
+      ]
+    ]
+  ]
+
+  ;;Absorption
+  ask hydrogens [
+    ;;2 to 3 absorption
+    ifelse (h-count = 2) and (random-float 1.0 < p2to3) [
+      set h-count h-count + 1 ;; patch variable
+      ask anchors-here [
+        set color lput anchor-transparency extract-rgb h3-color
+      ]
+      die
+    ] [
+      ;;3 to 4 absorption
+      if ((h-count = 3) and (random-float 1.0 < p3to4)) [
+        set h-count h-count + 1 ;; patch variable
+        ask anchors-here [
+          set color lput anchor-transparency extract-rgb h4-color
+        ]
+        die
+      ]
+    ]
+  ]
+
+  ;; HYDROGEN MOVEMENT
+  ask hydrogens-on patches with [ patch-type = "inner" ] [
+    let norm (count neighbors6 with [ h-count = 1 ]) * red-diffuse + (count neighbors6 with [h-count > 1]) + 0.00000000001
+    let p-red (count neighbors6 with [ h-count = 1 ]) * red-diffuse / norm ;;percent chance to move to red(depleted regions)
+
+    ifelse (random-float 1.0 < p-red) [
+      face one-of neighbors6 with [ h-count = 1 ]
+    ] [
+      ifelse count (neighbors6 with [ h-count > 1 ]) > 0 [
+        face one-of neighbors6 with [ h-count > 1 ]
+      ] [
+        face one-of neighbors6
+      ]
+    ]
+
+    ;; move to neighboring patch, then slightly off-center
+    fd random-float 1.4 - .8
+  ]
+
+  ;; quick-diffuse surface hydrogens
+  ask hydrogens-on patches with [ patch-type != "inner" ] [
+    face one-of neighbors with [ patch-type = "surface" ]
+    fd 1
+  ]
+
+  ;; PAIRING-UP AND LEAVING
+  ;;==============================================================================
+  ask patches with [ patch-type = "surface" ] [
+
+    ;; When there are two hydrogens on one surface lattice patch, combine and leave system
+    if count hydrogens-here > 1 [
+      ask n-of 2 hydrogens-here [
+        set color yellow
+        set size .5
+      ]
+      set h-remain h-remain - 2
+    ]
+  ]
+
+  tick
+end
+
+
+; Copyright 2015 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view3d wrappingAllowedZ="true" x="0" maxPycor="8" updateMode="1" wrappingAllowedX="true" y="0" frameRate="30.0" maxPzcor="8" minPycor="-8" height="252" showTickCounter="true" patchSize="13.0" fontSize="10" wrappingAllowedY="true" width="245" tickCounterLabel="ticks" maxPxcor="8" minPxcor="-8" minPzcor="-8"></view3d>
+    <button x="125" y="15" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="85">go</button>
+    <button x="15" y="15" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="90">setup</button>
+    <slider x="235" step=".01" y="25" height="33" min="0" direction="Horizontal" max="1" default="0.05" variable="p4to3" width="195" display="p4to3"></slider>
+    <slider x="235" step=".01" y="60" height="33" min="0" direction="Horizontal" max="1" default="0.05" variable="p3to2" width="195" display="p3to2"></slider>
+    <slider x="235" step="0.01" y="95" height="33" min="0" direction="Horizontal" max="1" default="0.05" variable="p2to1" width="195" display="p2to1"></slider>
+    <plot x="450" yMax="10.0" yAxis="h" y="140" xMin="0.0" height="145" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="205" xAxis="time" display="Total  Hydrogen Count">
+      <setup></setup>
+      <update></update>
+      <pen color="-13345367" legend="true" interval="1.0" mode="0" display="hydrogens">
+        <setup></setup>
+        <update>plot h-remain</update>
+      </pen>
+    </plot>
+    <slider x="15" step="1" y="95" height="33" min="0" direction="Horizontal" max="100" default="23.0" variable="end-percent" units="%" width="195" display="end-percent"></slider>
+    <slider x="235" step=".01" y="160" height="33" min="0" direction="Horizontal" max="1" default="0.05" variable="p3to4" width="195" display="p3to4"></slider>
+    <slider x="235" step="0.01" y="195" height="33" min="0" direction="Horizontal" max="1" default="0.05" variable="p2to3" width="195" display="p2to3"></slider>
+    <switch x="15" y="295" height="33" on="true" variable="h3-on?" width="102" display="h3-on?"></switch>
+    <switch x="15" y="260" height="33" on="true" variable="h4-on?" width="102" display="h4-on?"></switch>
+    <switch x="120" y="260" height="33" on="true" variable="h2-on?" width="102" display="h2-on?"></switch>
+    <switch x="120" y="295" height="33" on="true" variable="h1-on?" width="102" display="h1-on?"></switch>
+    <slider x="235" step="0.01" y="295" height="33" min="0" direction="Horizontal" max="2" default="0.1" variable="red-diffuse" width="195" display="red-diffuse"></slider>
+    <note x="15" y="225" height="30" color="0.0" transparent="true" fontSize="11" width="215">Turns on/off the color visualizations
+for the nth free hydrogen</note>
+    <switch x="15" y="175" height="33" on="true" variable="grid-draw" width="122" display="grid-draw"></switch>
+    <monitor x="450" precision="3" y="80" height="45" fontSize="11" width="205" display="Fraction of Surface H Remaining">(sum [h-count - 1] of patches with [patch-type = "surface"]) / (3 * count patches with [patch-type = "surface"])</monitor>
+    <monitor x="450" precision="3" y="25" height="45" fontSize="11" width="205" display="Percent of Hydrogen Remaining">(h-remain / h-total) * 100</monitor>
+    <note x="15" y="145" height="30" color="0.0" transparent="true" fontSize="11" width="205">Enables or disables
+the grid markings</note>
+    <note x="235" y="10" height="26" color="0.0" transparent="true" fontSize="11" width="205">Hydrogen Desorption Probabilities</note>
+    <note x="235" y="145" height="26" color="0.0" transparent="true" fontSize="11" width="205">Hydrogen Absorption Probabilities</note>
+    <note x="235" y="250" height="40" color="0.0" transparent="true" fontSize="11" width="210">Probability to move to depleted red
+patch vs different colored patch</note>
+    <note x="15" y="60" height="30" color="0.0" transparent="true" fontSize="11" width="180">Simulation termination %
+(of initial hydrogen)</note>
+    <plot x="450" yMax="10.0" y="310" xMin="0.0" height="150" legend="false" xMax="4.0" autoplot="true" yMin="0.0" width="205" display="Patch Distribution">
+      <setup></setup>
+      <update>plot-pen-reset
+set-plot-pen-color h1-color
+plot ifelse-value (h1-on?) [count anchors with [color = lput anchor-transparency extract-rgb h1-color]][0]
+set-plot-pen-color h2-color
+plot ifelse-value (h2-on?) [count anchors with [color = lput anchor-transparency extract-rgb h2-color]][0]
+set-plot-pen-color h3-color
+plot ifelse-value (h3-on?) [count anchors with [color = lput anchor-transparency extract-rgb h3-color]][0]
+set-plot-pen-color black
+plot ifelse-value (h4-on?) [count anchors with [color = lput anchor-transparency extract-rgb h4-color]][0]</update>
+      <pen color="-7500403" legend="true" interval="1.0" mode="1" display="pen-0">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This model simulates hydrogen diffusion through a lattice, in particular, hydrogen desorption from solid state hydrides. These hydrides are hydrogen storage materials that absorb hydrogen at high pressures, and release hydrogen at high temperatures.
+
+This research tool allows us to better understand the kinetics of hydrogen desorption from a lattice, which can aid in the development of candidate hydrogen storage materials for hydrogen fuel cell powered vehicles. These vehicles have the potential to be extremely efficient, zero-emission vehicles and may serve to be a central component in the battle against global warming.
+
+Diffusion and desorption are complex material behaviors, and these kinetics are not well understood. There are several fundamental parameters involved in these processes:
+
+####Bond breaking
+Hydrogen atoms are stored on molecular units like BH<sub>4</sub> and AlH<sub>4</sub>, where they are bonded to some central atom like boron or aluminum. In order for hydrogen to diffuse, it must break the bond formed with this central atom. An important factor affecting this process is the strength of the bond, controlled in the model by the hydrogen desorption probabilities sliders.
+
+####Diffusion through different phases
+As hydrogen desorbs, the underlying crystal structure of the material will change. This in turn affects the movement speed of hydrogen atoms through the material. It is important to model the relative probability of a hydrogen atom moving into a cell depleted of hydrogen, versus a completely full cell.
+
+####Reabsorption
+There is a probability that if a hydrogen atom travels to a non-full cell, it will form bonds with the central atom in that cell. This reabsorption property is probabilistic and can dramatically affect the desorption rate from the materials.
+
+This model explores the contribution of each of these properties on the desorption and diffusion behavior of candidate hydrogen storage materials. Different materials can be modeled through setting the absorption and desorption probabilities to match the behavior of the material under investigation.
+
+## HOW IT WORKS
+
+The model begins with a fully saturated lattice with all available hydrogen in compound form.  Hydrogen will diffuse freely through the lattice until they reach the surface of the material, where they must pair off in order to leave the lattice as a H<sub>2</sub> gas molecule. The simulation terminates when the available hydrogen in the model reaches the user-set termination percent.
+
+The SETUP button initializes the model with a fully saturated lattice of hydrogen atoms.
+
+The GO button begins the diffusion process.
+The lattice is represented by a series of small cubes marking the center of each lattice molecule. At each tick, hydrogen atoms have the opportunity to break their bonds to the lattice molecule. This behavior is controlled by the HYDROGEN DESORPTION PROBABILITIES sliders which define the probability of a hydrogen atom desorbing based on the number of hydrogen atoms currently bonded with the central atom.  Free hydrogen within the lattice will move to one of its six neighboring patches with equal probability, unless one of them is a depleted (red) patch, where the probability is altered by a factor of RED-DIFFUSE. The hydrogen will continue to desorb/absorb over the course of the model run until it pairs up and leaves the system.
+
+When a free hydrogen atom reach the surface of the lattice, it will still move once per tick, but can only move to other patches on the surface of the material. When it pairs up with another hydrogen, it flashes yellow then is removed from the model.
+
+The color of the cube indicates the amount of available desorbable hydrogen.
+White:&nbsp;&nbsp;XH<sub>4</sub>: fully saturated with 3 potential available hydrogen atoms
+Blue:&nbsp;&nbsp;&nbsp;&nbsp;XH<sub>3</sub>: 2 potential hydrogen to be desorbed
+Green:&nbsp;&nbsp;XH<sub>2</sub>: 1 potential hydrogen to be desorbed
+Red:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XH&nbsp;&nbsp;: fully depleted with no available hydrogen to lose
+
+*This is modeled after LiBH<sub>4</sub>, which follows the reaction LiBH<sub>4</sub> -> LiH+B+3/2H<sub>2</sub>. LiH is a stable compound and does not desorb more hydrogen.
+
+When an atom has desorbed all available hydrogen, it becomes red and "stable". At this stage, it undergoes a "phase change". It is unknown if hydrogen will diffuse through these phases at different speeds, but it is very likely to have a different diffusing speed. Because the XH compound has less hydrogen, it ought to be less dense, and we anticipate the diffusion rate to be slower. In the model, this rate can be controlled by the RED-DIFFUSE slider.
+
+The desorbed hydrogen follow a similar color scheme:
+Blue - first free hydrogen
+Green - second free hydrogen
+Red - third free hydrogen
+
+## HOW TO USE IT
+
+The probability for desorption, diffusion, and absorption of free hydrogen can be changed using corresponding sliders. By varying the desorption sliders, one can control the probability for hydrogen atoms to free themselves from the compound at each of the three stages (4->3, 3->2, 2-1). Similarly, the absorption sliders control the probability for hydrogen atoms to be re-absorbed back into molecular form (causing the lattice cube to change color accordingly).
+
+### Visualization Options
+
+The GRID-DRAW switch enables the user to turn on or off the grid markings for each patch.  By default this is set to off and is generally not recommended for world sizes of larger than 5x5x5.
+
+The four H-On switches enable the user to change the color of the desired hydrogen to dark gray.  This allows the user to focus their attention on one particular stage of diffusion.  For example, turning off the H4,H3,H2 switches will color everything dark gray except for the red depleted lattice patches as well as the final desorbed hydrogen.
+
+### Monitors
+
+Fraction of Surface H Remaining:
+Displays the fraction of desorbable hydrogen (vs. initial) remaining in the surface layer of the lattice.
+
+Percent of Hydrogen Remaining:
+Displays fraction of desorbable hydrogen (vs. initial) remaining in the entire lattice.
+
+Total Hydrogen Count:
+Displays total of both attached and free hydrogens remaining in the system over time.
+
+Patch Distribution:
+Shows the distribution of patches based on how many desorbable hydrogen it are present
+
+## THINGS TO NOTICE
+
+One interesting thing to notice about the model is that the Total Hydrogen Count plot will have two distinct slopes. First, there will be a steep decrease near the beginning of the simulation, due to the fact that the desorbed hydrogen atoms near the surface will quickly pair up and leave the system. This will be followed by a linear region of diffusion as the particles regularly leave the system.  Given that the user has allowed for absorption and reabsorption at all stages, as the particles leave the system and desorption and reabsorption continues, the outer region of the lattice may decay to XH1(red) more quickly than the inner region. This is due to the fact that free desorbed hydrogen atoms exit through the surface of the material, while the hydrogen atoms in the central part of the lattice must diffuse more before being able to exit the system. Effectively, the inner lattice patches have greater opportunity to absorb free hydrogen. Changing the sliders can modify the degree to which this effect occurs.
+
+## THINGS TO TRY
+
+Setting all hydrogen control parameters to 0.10 will induce a "shell effect," where outer hydrogen atoms leave quickly, and free hydrogen atoms will become trapped in the central region of the lattice.  This is due to a re-absorption probability in combination with a slower relative diffusion rate through depleted cells.
+
+When the RED-DIFFUSE is increased, the desorption rate decreases dramatically, with nearly linear dependence on this slider. With zero RED-DIFFUSE (0% chance to move to a red patch when there are other patches to move to), we observe many desorbed hydrogen atoms tightly grouped around a small area of non-depleted patches sustained by abnormally high re-absorption rates. Eventually these patches will become depleted, causing an 'explosion' of each of these clusters of free hydrogen atoms.  While this phenomenon is rather unrealistic, 0% RED-DIFFUSE is unrealistic as well.
+
+Absorption also plays a huge role on the rate of hydrogen leaving the system.
+With the absorption sliders set to 0, the simulation runs extremely quickly.
+But with a slight increase of p3to4 and p2to3 to 0.02, the simulation time nearly doubles.
+
+## EXTENDING THE MODEL
+
+There are many interesting techniques that are used to accelerate kinetics of desorption that could eventually be modeled by this simulation.
+
+The properties that are being investigated (bond breaking, diffusion speed, etc.) are calculable using first-principles Density Functional Theory methods. Having a built in converter that changed binding energy directly to a bond-breaking probability would allow the model to be greatly extended to model a great number of realistic systems.
+
+Additionally, there are several catalytic means that could be implemented into this model. There is a 'magic dust' concept, where the inclusion of a very small amount of catalyst can dramatically reduce desorption time. There is alloy seeding, where the existence of depleted patches nearby promote the formation of similar patches nearby, depleting hydrogen. There is finally a size-effect - it is known that nanoparticles desorb hydrogen at much lower temperatures than bulk materials, but it is not known why - sophisticated size effect models could also be examined.
+
+## CREDITS AND REFERENCES
+
+This project was programmed by Daniel Kim, a graduating senior from the computer science department at Northwestern University as part of Professor Wilensky's Agent-Based Modeling class. It was advised by Wenhao Sun, a graduating senior in the Department of Materials Science and Engineering at Northwestern University.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Kim, D. and Wilensky, U. (2015).  NetLogo Hydrogen Diffusion 3D model.  http://ccl.northwestern.edu/netlogo/models/HydrogenDiffusion3D.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2015 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This is a 3D version of the 2D model Hydrogen Diffusion.
+
+<!-- 2015 3D Cite: Kim, D. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="sheep" rotatable="false" editableColorIndex="0">
+      <rectangle endX="180" startY="225" marked="true" color="-1920102913" endY="285" startX="151" filled="true"></rectangle>
+      <rectangle endX="75" startY="225" marked="true" color="-1920102913" endY="285" startX="47" filled="true"></rectangle>
+      <rectangle endX="210" startY="75" marked="true" color="-1920102913" endY="225" startX="15" filled="true"></rectangle>
+      <circle x="135" y="75" marked="true" color="-1920102913" diameter="150" filled="true"></circle>
+      <circle x="165" y="76" marked="false" color="255" diameter="116" filled="true"></circle>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>

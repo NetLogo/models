@@ -1,0 +1,2136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[globals[
+  ; phase counter
+  all-phases
+  all-phases-abbr
+  current-phase
+  current-phase-abbr
+  phase-counter
+  ; patch indices for building the city grid
+  road-patch-all-index
+  road-patch-right-index
+  road-patch-left-index
+  road-patch-up-index
+  road-patch-down-index
+  traffic-light-patch-index
+
+  ; patch agentsets for building the city grids
+  intersections            ; agentset containing the patches that are intersections
+  roads                    ; agentset containing the patches that are roads
+  streets                  ; agentset containing the patches that are roads excluding intersections
+  traffic-lights           ; agentset containing the patches that are traffic lights
+  row-traffic-lights       ; agentset containing the patches that are traffic lights on horizontal roads
+  col-traffic-lights       ; agentset containing the patches that are traffic lights on vertical roads
+
+  ; patch agentsets for districts and zones of a city
+  cbd-zones
+  commercial-zones
+  residential-zones
+
+  ; phase of the traffic:
+  row-green?
+  col-green?
+]
+
+breed [ taxicabs taxicab ]
+breed [ passengers passenger ]
+
+passengers-own [
+  patience-to-wait
+  been-waiting
+  destination-patch-passenger
+  d-xcor
+  d-ycor
+  num-passengers-waiting
+]
+
+taxicabs-own [
+  ; vacancy flag
+  vacancy?
+  ; intersection flag
+  prev-intersection
+  num-passengers-onboard
+  ; travel variables
+  num-total-miles
+  num-business-miles
+  num-dead-miles
+  num-grids-traveled-current-trip
+  trip-distance-lst
+  ; income variables
+  num-total-trips
+  total-income
+  current-trip-income
+  trip-income-lst
+  ; time when the passenger is picked
+  tick-at-pickup
+  current-trip-duration
+  trip-duration-lst
+  ; location information about pickup road
+  pickup-on-horizontal?
+  pickup-on-vertical? ; destination coordinates
+  d-xcor
+  d-xcor2
+  d-ycor
+  d-ycor2 ; pickup coordinates
+  pickup-xcor
+  pickup-ycor
+]
+
+patches-own[
+  ; patch identity check
+  is-road?
+  is-intersection?
+  is-traffic-light?
+  ; controlling the direction of the traffic for each patch
+  left?
+  right?
+  up?
+  down?
+  num-directions-possible
+  ; traffic rules
+  green-light-up?
+  ; district and zone characteristics
+  is-cbd?
+  is-residential?
+  is-commercial?
+]
+
+; The current grid size is 65x65
+; To create a grid system, for any given row and column,
+; there are 9 blocks with each spans for 5 patches separate by roads which spans 2 patches
+to setup
+  clear-all
+  setup-globals
+  setup-patches
+  draw-road-lines
+  setup-road-direction
+  setup-taxicabs
+  reset-ticks
+end
+
+to go
+  start-traffic-light
+  report-current-phase
+  taxi-demand-at-patch
+  passengers-wait-for-ride
+  taxicabs-movement
+  tick
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;; Setup all patches ;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+to setup-patches
+  build-zones
+  build-roads
+  build-intersections
+  build-traffic-lights
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;; Build Urban Zones ;;
+;;;;;;;;;;;;;;;;;;;;;;;
+to build-zones
+  ; residential zones
+  set residential-zones patches with [
+    (pycor < -25 or pycor > 25) or (pxcor < -25 or pxcor > 25)
+  ]
+  ask residential-zones[
+    set is-residential? true
+    set is-cbd? false
+    set is-commercial? false
+  ]
+  ; cbd zones: center
+  set cbd-zones patches with [
+    pxcor > -12 and pxcor < 12 and
+    pycor > -12 and pycor < 12
+  ]
+  ask cbd-zones [
+    set is-cbd? true
+    set is-residential? false
+    set is-commercial? false
+    set pcolor [255 188 121]
+  ]
+  ; commercial zones
+  set commercial-zones patches with [
+    pxcor > -26 and pxcor < 26 and
+    pycor > -26 and pycor < 26
+  ]
+  set commercial-zones commercial-zones with [not member? self cbd-zones]
+  ask commercial-zones [
+    set is-residential? false
+    set is-cbd? false
+    set is-commercial? true
+    set pcolor [162 200 236] ;; blue
+  ]
+end
+
+; Helper that takes a list as input
+; 1. turn all elements in a list negative
+; 2. concatenate both negative and positive lists
+to-report create-full-list [lst]
+  ;; convert the input list all to negative
+  let neg-lst map [i -> i * -1] lst
+  ;; concatenate the negative lst with the original pos list
+  let full-lst sentence neg-lst lst
+  report full-lst
+end
+
+to setup-globals
+  ; define the color of the neighborhoods
+  ask patches [
+    set pcolor [207 207 207] ;; cherry red
+
+    ; patch identity
+    set is-road? false
+    set is-intersection? false
+    set is-traffic-light? false
+
+    ; patch direction
+    set left? false
+    set right? false
+    set up? false
+    set down? false
+    set num-directions-possible 0
+    ;; set phase for the traffic light
+    set row-green? true
+    set col-green? false
+  ]
+
+  ; Identify roads with positive road index number
+  let road-patch-pos [3 4 10 11 17 18 24 25 31 32]
+
+  ; Use create-full-list procedure to get all road patch index
+  set road-patch-all-index create-full-list (road-patch-pos)
+
+  ; Identify roads that can only go right
+  let road-patch-right-pos [3 10 17 24 31]
+  let road-patch-right-neg map[i -> (i + 1) * -1] road-patch-right-pos
+  set road-patch-right-index sentence road-patch-right-pos road-patch-right-neg
+
+  ; Identify roads that can only go left
+  let road-patch-left-pos [4 11 18 25 32]
+  let road-patch-left-neg map[i -> (i - 1) * -1] road-patch-left-pos
+  set road-patch-left-index sentence road-patch-left-pos road-patch-left-neg
+
+  ; Identify roads that can only go top
+  set road-patch-up-index road-patch-left-index;
+
+  ; Identify roads that can only go bottom
+  set road-patch-down-index road-patch-right-index;
+
+  ; set up all phases
+  set all-phases ["AM Peak" "Midday" "PM Peak" "Evening" "Early Morning"]
+  set current-phase first all-phases
+  set all-phases-abbr["AM" "MD" "PM" "EVE" "EM"]
+  set current-phase-abbr first all-phases-abbr
+
+  set phase-counter 1
+end
+
+;;;;;;;;;;;;;;;;;
+;; Build roads ;;
+;;;;;;;;;;;;;;;;;
+to build-roads
+  set roads patches with [
+    member? pycor road-patch-all-index or
+    member? pxcor road-patch-all-index
+  ]
+  ask roads [
+    set is-road? true
+    set pcolor black
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Build intersections ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+to build-intersections
+  set intersections roads with [
+    member? pycor road-patch-all-index and
+    member? pxcor road-patch-all-index
+  ]
+  ask intersections [
+    set is-intersection? true
+    set is-road? true
+    set pcolor black
+  ]
+  ; build streets which separate intersection and roads
+  set streets roads with [not member? self intersections]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;;; Draw road lines ;;;
+;;;;;;;;;;;;;;;;;;;;;;;
+to draw-horizontal-line [ y gap ]
+  ; We use a temporary turtle to draw the line:
+  ; - with a gap of zero, we get a continuous line;
+  ; - with a gap greater than zero, we get a dashed line.
+  create-turtles 1 [
+    setxy (min-pxcor - 0.5 ) y
+    hide-turtle
+    set color white
+    set heading 90
+    repeat world-width - 0.5 [
+      pen-up
+      forward gap
+      pen-down
+      forward (1 - gap)
+    ]
+    die
+  ]
+end
+
+to draw-vertical-line [ x gap ]
+  ; We use a temporary turtle to draw the line:
+  ;   with a gap of zero, we get a continuous line;
+  ;   with a gap greater than zero, we get a dashed line.
+  create-turtles 1 [
+    setxy x (min-pxcor - 0.5 )
+    hide-turtle
+    set color white
+    set heading 180
+    repeat world-width - 0.5 [
+      pen-up
+      forward gap
+      pen-down
+      forward (1 - gap)
+    ]
+    die
+  ]
+end
+
+to draw-road-lines
+  foreach road-patch-all-index [y-coordinate ->
+    draw-horizontal-line y-coordinate 0.5
+  ]
+  foreach road-patch-all-index [x-coordinate ->
+    draw-vertical-line x-coordinate 0.5
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Build traffic lights ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+to build-traffic-lights
+  ; Identify patches that are traffic lights with positive index
+  let traffic-light-patch-index-pos [2 5 9 12 16 19 23 26 30]
+  ; Use create-full-list procedure to get all road patch index
+  set traffic-light-patch-index create-full-list (traffic-light-patch-index-pos)
+
+  ; Create an agent set called traffic lights
+  set traffic-lights roads with [
+    member? pxcor traffic-light-patch-index or
+    member? pycor traffic-light-patch-index
+  ]
+  ; Create an agent set called row traffic lights
+  set row-traffic-lights traffic-lights with [
+    member? pycor traffic-light-patch-index
+  ]
+  ; Create an agent set called col traffic lights
+  set col-traffic-lights traffic-lights with [
+    member? pxcor traffic-light-patch-index
+  ]
+
+  ; Set traffic light flag
+  ask traffic-lights [
+    set is-traffic-light? true
+  ]
+
+  ; define row and column traffic lights
+  set row-traffic-lights traffic-lights with [
+    member? pxcor traffic-light-patch-index
+  ]
+  set col-traffic-lights traffic-lights with [
+    member? pycor traffic-light-patch-index
+  ]
+  ask row-traffic-lights [
+    set pcolor green
+  ]
+  ask col-traffic-lights [
+    set pcolor red
+  ]
+  ask traffic-lights[
+    if pcolor = green [
+      set green-light-up? true
+    ]
+    if pcolor = red [
+      set green-light-up? false
+    ]
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; Draw road direction ;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+to setup-road-direction
+  ; first set all roads with dummy direction to false
+  ask roads [
+    set right? false
+    set left? false
+    set up? false
+    set down? false
+  ]
+
+  ; change roads direction dummy according to road patch index
+  ask roads[
+    if member? pycor road-patch-right-index[set right? true]
+    if member? pycor road-patch-left-index[set left? true]
+    if member? pxcor road-patch-up-index[set up? true]
+    if member? pxcor road-patch-down-index[set down? true ]
+  ]
+
+  ; Adjust corner cases
+  ; if a driver at the most top roads cannot go further top
+  ask roads with [pycor = 32] [set up? false]
+  ; if a driver at the most bottom roads cannot go further bottom
+  ask roads with [pycor = -32] [set down? false]
+  ; if a driver at the most right roads cannot go further right
+  ask roads with [pxcor = 32][set right? false]
+  ; if a driver at the most left roads cannot go left
+  ask roads with [pxcor = -32][set left? false]
+
+  ; fix some corner cases
+  ; left upper corner
+  ask patch -31 32 [
+    set up? false
+    set left? true
+  ]
+
+  ; left lower corner
+  ask patch -32 -31 [
+    set left? false
+    set down? true
+  ]
+  ask patch 32 31 [
+    set right? false
+    set up? true
+  ]
+
+  ; right lower corner
+  ask patch 31 -32 [
+    set down? false
+    set right? true
+  ]
+
+  ; count the number of directions possible for each road patches
+  ask patches [
+    if up? [set num-directions-possible num-directions-possible + 1]
+    if down? [set num-directions-possible num-directions-possible + 1]
+    if right? [set num-directions-possible num-directions-possible + 1]
+    if left? [set num-directions-possible num-directions-possible + 1]
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; Create Taxicabs ;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;
+to setup-taxicabs
+  create-taxicabs num-taxicab [
+    set color yellow
+    set size 2
+    set vacancy? true
+    set num-passengers-onboard 0
+    set num-total-trips 0
+    set num-total-miles 0
+    set num-business-miles 0
+    set num-dead-miles 0
+    set num-grids-traveled-current-trip 0
+    set total-income 0
+    set current-trip-income 0
+    set trip-distance-lst []
+    set trip-income-lst []
+    set trip-duration-lst []
+  ]
+  ; put those cabs on the road
+  ; 0 up; 90 right; 180 down; 270 left
+  ask taxicabs[ move-to one-of roads with [not any? taxicabs-on self] ]
+  fix-taxicab-direction
+end
+
+to fix-taxicab-direction
+  ask roads [
+    ; multi-direction patches
+    if up? and not down? and not left? and right? [
+      ask taxicabs-here [
+        ifelse random 100 > 50 [set heading 0][set heading 90]
+      ]
+    ]
+    if up? and not down? and left? and not right? [
+      ask taxicabs-here [
+        ifelse random 100 > 50 [set heading 0][set heading 270]
+      ]
+    ]
+    if not up? and down? and not left? and right? [
+      ask taxicabs-here [
+        ifelse random 100 > 50 [set heading 180][set heading 90]
+      ]
+    ]
+    if not up? and down? and left? and not right? [
+      ask taxicabs-here [ifelse random 100 > 50 [set heading 180][set heading 270]
+      ]
+    ]
+    ; single direction patches
+    if up? and not down? and not left? and not right? [ask taxicabs-here [set heading 0]]
+    if not up? and down? and not left? and not right? [ask taxicabs-here [set heading 180]]
+    if not up? and not down? and left? and not right? [ask taxicabs-here [set heading 270]]
+    if not up? and not down? and not left? and right? [ask taxicabs-here [set heading 90]]]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Update traffic lights ;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to update-traffic-light
+  ask row-traffic-lights [
+    ifelse pcolor = green [set row-green? true][set row-green? false]
+  ]
+
+  ask col-traffic-lights [
+    ifelse pcolor = green [set col-green? true][set col-green? false]
+  ]
+end
+
+to switch-traffic-light
+  ifelse row-green? [
+    set row-green? false
+    set col-green? true
+  ][
+    set row-green? true
+    set col-green? false
+  ]
+end
+
+to change-traffic-light-color
+  if row-green? [
+    ask row-traffic-lights [
+    set pcolor green]
+
+    ask col-traffic-lights [
+      set pcolor red]
+  ]
+  if col-green? [
+    ask row-traffic-lights[
+      set pcolor red]
+
+    ask col-traffic-lights [
+      set pcolor green]
+  ]
+end
+
+to start-traffic-light
+  update-traffic-light
+  change-traffic-light-color
+  if ticks mod length-of-green-light = 0 [
+    switch-traffic-light
+    change-traffic-light-color
+  ]
+
+  ; update patch variable of traffic lights of its color
+  ask traffic-lights [
+   ifelse pcolor = green [
+      set green-light-up? true
+    ][
+      set green-light-up? false
+    ]
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;
+;;;; Global Clock ;;;;
+;;;;;;;;;;;;;;;;;;;;;;
+to report-current-phase
+  ; there are a total of 5 time phases of a day
+  ; so in case of the counter is exceeding 4
+  ; set the counter back to 0
+  if phase-counter > 4 [
+      set phase-counter 0
+    ]
+  ; initial setting first phase is "AM Peak" and the counter is set to be 1
+  ; so this will let the first phase go through the whole time period without
+  ; jumping to the second phase at the very beginning
+  if ticks >= length-of-time-period and ticks mod length-of-time-period = 0 [
+    set current-phase item phase-counter all-phases
+    set current-phase-abbr item phase-counter all-phases-abbr
+    set phase-counter phase-counter + 1
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;
+;;;; Taxi pickup ;;;;
+;;;;;;;;;;;;;;;;;;;;;
+; Passengers wait for ride at a specific location
+; If the wait time exceed the patience
+; Passenger die
+to passengers-wait-for-ride
+  ask passengers [
+    set been-waiting been-waiting + 1
+    if been-waiting >= patience-to-wait [ die ]
+  ]
+end
+
+to generate-demand [some-prob origin destination]
+  if random-float 1 < some-prob [
+    ask n-of 1 origin [
+      sprout-passengers 1 [
+        set color 9.9
+        set shape "person"
+        set patience-to-wait random-normal wait-time-mean wait-time-sd
+        set been-waiting 0
+        set destination-patch-passenger one-of destination
+        set d-xcor [pxcor] of destination-patch-passenger
+        set d-ycor [pycor] of destination-patch-passenger
+        set num-passengers-waiting random 4 + 1
+      ]
+    ]
+  ]
+end
+
+to generate-demand-phase [phase-abbreviate]
+  let cbd-roads-pickup roads with [is-cbd? and not is-intersection?]
+  let commercial-roads-pickup roads with [is-commercial? and not is-intersection?]
+  let residential-roads-pickup roads with [is-residential? and not is-intersection?]
+  let cbd-roads-dropoff roads with [is-cbd? and not is-intersection? and not is-traffic-light?]
+  let commercial-roads-dropoff roads with [
+    is-commercial? and
+    not is-intersection? and
+    not is-traffic-light?
+  ]
+  let residential-roads-dropoff roads with [
+    is-residential? and
+    not is-intersection? and
+    not is-traffic-light?
+  ]
+
+  ; cbd -> commercial
+  generate-demand (runresult word "prob-cbd-cbd-" phase-abbreviate) (cbd-roads-pickup) (cbd-roads-dropoff)
+  ; cbd -> residential
+  generate-demand (runresult word "prob-cbd-com-" phase-abbreviate) (cbd-roads-pickup) (commercial-roads-dropoff)
+  ; cbd -> cbd
+  generate-demand (runresult word "prob-cbd-res-" phase-abbreviate) (cbd-roads-pickup) (residential-roads-dropoff)
+
+  ; commercial -> cbd
+  generate-demand (runresult word "prob-com-com-" phase-abbreviate) (commercial-roads-pickup) (commercial-roads-dropoff)
+  ; commercial -> residential
+  generate-demand (runresult word "prob-com-cbd-" phase-abbreviate) (commercial-roads-pickup) (cbd-roads-dropoff)
+  ; commercial -> commercial
+  generate-demand (runresult word "prob-com-res-" phase-abbreviate) (commercial-roads-pickup) (residential-roads-dropoff)
+
+  ; residential -> cbd
+  generate-demand (runresult word "prob-res-res-" phase-abbreviate) (residential-roads-pickup) (residential-roads-dropoff)
+  ; residential -> commercial
+  generate-demand (runresult word "prob-res-cbd-" phase-abbreviate) (residential-roads-pickup) (cbd-roads-dropoff)
+  ; residential -> residential
+  generate-demand (runresult word "prob-res-com-" phase-abbreviate) (residential-roads-pickup) (commercial-roads-dropoff)
+end
+
+to taxi-demand-at-patch
+  generate-demand-phase current-phase-abbr
+end
+
+;;;;;;;;;;;;;;;;;;;;
+;;;;Taxi Movement;;;
+;;;;;;;;;;;;;;;;;;;;
+to move-up
+  set heading 0
+  stop-for-red-else-go
+end
+
+to move-down
+  set heading 180
+  stop-for-red-else-go
+end
+
+to move-right
+  set heading 90
+  stop-for-red-else-go
+end
+
+to move-left
+  set heading 270
+  stop-for-red-else-go
+end
+
+to move-straight
+  let cur-heading [heading] of self
+  (ifelse
+    cur-heading = 0 [move-up]
+    cur-heading = 90 [move-right]
+    cur-heading = 180 [move-down]
+    cur-heading = 270 [move-left]
+  )
+end
+
+; Traffic rule good citizens: stop at the red light
+to stop-for-red-else-go
+  ifelse (
+    ; stop-condition: taxicab is at a traffic light patch and red light is up and patch ahead is an intersection
+    is-traffic-light? and not green-light-up? and ([is-intersection?] of patch-ahead 1)
+  ) [
+    stop
+  ][
+    ; in case there is another taxicabs waiting for red light ahead, stop behind
+    if (not any? taxicabs-on patch-ahead 1) [
+      fd 1
+      update-delivery-and-income
+    ]
+  ]
+end
+
+to make-u-turn
+  ; taxicab current spatial direction and location
+  let heading-up? [heading] of self = 0
+  let heading-right? [heading] of self = 90
+  let heading-down? [heading] of self = 180
+  let heading-left? [heading] of self = 270
+
+  if heading-up? [
+    set heading 270
+    fd 1
+    update-delivery-and-income
+    set heading 180
+  ]
+  if heading-down? [
+    set heading 90
+    fd 1
+    update-delivery-and-income
+    set heading 0
+  ]
+  if heading-right? [
+    set heading 0
+    fd 1
+    update-delivery-and-income
+    set heading 270
+  ]
+  if heading-left? [
+    set heading 180
+    fd 1
+    update-delivery-and-income
+    set heading 90
+  ]
+end
+
+to taxicabs-movement
+  ask taxicabs[
+    pickup-passengers
+    ifelse vacancy? [
+      taxicab-move-random
+    ][
+      taxicab-move-deliver
+    ]
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; Pickup Passengers ;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; procedure that instruct taxicabs to pickup passengers
+to pickup-passengers
+  ; setting or passing along trip-related variables
+  if vacancy? [
+    if any? passengers-here[
+      ; identify a passenger to pickup
+      let target-passenger one-of passengers-here
+      ; pick up passengers and taxicab is no longer vacant
+      set vacancy? false
+      ; color taxicabs to indicate occupancy
+      set color 117
+      ; indicate number of passengers on board
+      set num-passengers-onboard [num-passengers-waiting] of target-passenger
+      ; tracking trip fare
+      set current-trip-income first-passenger-cost +
+        (num-passengers-onboard - 1) *
+        each-additional-passenger-cost
+      ; record ticks at the pickup moment
+      set tick-at-pickup ticks
+      ; record pickup coordinates
+      set pickup-xcor [xcor] of self
+      set pickup-ycor [ycor] of self
+      ; update total number of trips
+      set num-total-trips num-total-trips + 1
+      ; update destination coordinates
+      set d-xcor [d-xcor] of target-passenger
+      set d-ycor [d-ycor] of target-passenger
+      ; passengers onboard and died on roads
+      ask target-passenger [die]
+      ; indicate pickup road is horizontal or vertical
+      set pickup-on-horizontal? (left? or right?)
+      set pickup-on-vertical? (up? or down?)
+      ; update destination coordinates
+      update-destination-coordinates
+      highlight-destination-patches 117
+      change-direction-for-delivery
+    ]
+  ]
+end
+
+to change-direction-for-delivery
+  ; Assess the destination coordinate with the current pickup coordinate
+  let current-xcor [xcor] of self
+  let current-ycor [ycor] of self
+
+  let destination-xcor1 [d-xcor] of self
+  let destination-xcor2 [d-xcor2] of self
+  let destination-ycor1 [d-ycor] of self
+  let destination-ycor2 [d-ycor2] of self
+
+  ; current location based on the destination location
+  let cur-at-top? (current-ycor > destination-ycor1) and (current-ycor > destination-ycor2)
+  let cur-at-bottom? (current-ycor < destination-ycor1) and (current-ycor < destination-ycor2)
+  let cur-on-right? (current-xcor > destination-xcor1) and (current-xcor > destination-xcor2)
+  let cur-on-left? (current-xcor < destination-xcor1) and (current-xcor < destination-xcor2)
+  let cur-same-x? (current-xcor = destination-xcor1) or (current-xcor =  destination-xcor2)
+  let cur-same-y? (current-ycor = destination-ycor1) or (current-ycor = destination-ycor2)
+
+  ; taxicab current spatial direction and location
+  let heading-up? [heading] of self = 0
+  let heading-right? [heading] of self = 90
+  let heading-down? [heading] of self = 180
+  let heading-left? [heading] of self = 270
+
+  ; fix taxicab heading
+  ; The current location is on top-right of destination
+  (ifelse
+  ; The current location is straight above
+    cur-same-x? and cur-at-top? [
+      if heading-up? [make-u-turn]
+    ]
+  ; The current location is straight below
+    cur-same-x? and cur-at-bottom? [
+      if heading-down? [make-u-turn]
+    ]
+  ; The current location is straight right
+    cur-same-y? and cur-on-right? [
+      if heading-right? [make-u-turn]
+    ]
+  ; The current location is straight left
+    cur-same-y? and cur-on-left? [
+      if heading-left? [make-u-turn]
+    ]
+    cur-at-top? and cur-on-right? [
+      ; if the heading is not facing bottom or left, make a u-turn
+      if (heading-up? or heading-right?) [make-u-turn]
+    ]
+  ; The current location is on top left of destination
+    cur-at-top? and cur-on-left? [
+      ; if the heading is not facing down or right, make a u-turn
+      if (heading-up? or heading-left?) [make-u-turn]
+    ]
+  ; The current location is on bottom-right of destination
+    cur-at-bottom? and cur-on-right? [
+      ; if the heading is not facing up or left, make a u-turn
+      if (heading-down? or heading-right?) [make-u-turn]
+    ]
+  ; The current location is on botton-left of destination
+    cur-at-bottom? and cur-on-left? [
+      ; if the heading is not facing up or right, make a u-turn
+      if (heading-down? or heading-left?) [make-u-turn]
+    ]
+  )
+end
+
+; update the destination coordinates:
+; so that dropoff patches can be flexible and
+; road directions no longer matter
+to update-destination-coordinates
+  ; if destination patch has up or down sign
+  ; meaning destination is in column roads so x coordinate can be flexible
+  if [up? or down?] of patch d-xcor d-ycor [
+    let dropoff-x-cord-1 d-xcor + 1
+    let dropoff-x-cord-2 d-xcor - 1
+    ifelse member? dropoff-x-cord-1 road-patch-all-index [
+      set d-xcor2 dropoff-x-cord-1
+    ][
+      set d-xcor2 dropoff-x-cord-2
+    ]
+    set d-ycor2 d-ycor
+  ]
+  ; if destination patch has left or right sign
+  ; meaning destination is in row roads so y coordinate can be flexible
+  if [right? or left?] of patch d-xcor d-ycor [
+    let dropoff-y-cord-1 d-ycor + 1
+    let dropoff-y-cord-2 d-ycor - 1
+    ifelse member? dropoff-y-cord-1 road-patch-all-index [
+      set d-ycor2 dropoff-y-cord-1
+    ][
+      set d-ycor2 dropoff-y-cord-2
+    ]
+    set d-xcor2 d-xcor
+  ]
+end
+
+; highlight the destination patches
+to highlight-destination-patches [patch-color]
+  if d-ycor2 != 0 [
+    ask patch d-xcor d-ycor [set pcolor patch-color]
+    ask patch d-xcor d-ycor2 [set pcolor patch-color]
+  ]
+  if d-xcor2 != 0 [
+    ask patch d-xcor d-ycor [set pcolor patch-color]
+    ask patch d-xcor2 d-ycor [set pcolor patch-color]
+  ]
+end
+
+to update-delivery-and-income
+  set num-total-miles num-total-miles + 1
+  if vacancy? [set num-dead-miles num-dead-miles  + 1]
+  if not vacancy? [
+    set num-business-miles num-business-miles + 1
+    set num-grids-traveled-current-trip  num-grids-traveled-current-trip  + 1
+    set current-trip-income current-trip-income + each-grid-cost + each-tick-cost
+    set current-trip-duration ticks - tick-at-pickup
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; Passenger seeking ;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+to taxicab-move-random
+  ifelse num-directions-possible = 1 [
+    set prev-intersection 0
+    (ifelse right? [move-right]
+      left? [move-left]
+      up? [move-up]
+      down? [move-down])
+  ][
+    ; turtle behavior in the intersection
+    ; need to prevent taxicabs looping in the intersections
+    set prev-intersection prev-intersection + 1
+    ; this taxicab attribute tracks
+    ; how many ticks have turtle spent on an intersection
+    (ifelse
+      up? and right? [
+        ifelse prev-intersection = 2 [ move-right ][ifelse random 2 = 0 [ move-up ][ move-right ] ]
+      ]
+      up? and left? [
+        ifelse prev-intersection = 2 [ move-up ][ ifelse random 2 = 0 [move-up][move-left] ]
+      ]
+      down? and right? [
+        ifelse prev-intersection = 2 [ move-down ][ifelse random 2 = 0 [ move-down ][ move-right ] ]
+      ]
+      down? and left? [
+        ifelse prev-intersection = 2 [ move-left ] [ ifelse random 2 = 0 [ move-down ][ move-left ] ]
+      ]
+    )
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; Passenger Delivery ;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; to deliver passengers:
+; taxicabs will go with the shortest path in Manhattan distance
+to taxicab-move-deliver
+  ; current location coordinates
+  let current-xcor [xcor] of self
+  let current-ycor [ycor] of self
+
+  ; destination location coordintes
+  let destination-xcor1 [d-xcor] of self
+  let destination-xcor2 [d-xcor2] of self
+  let destination-ycor1 [d-ycor] of self
+  let destination-ycor2 [d-ycor2] of self
+
+  ; current location based on the destination location
+  let cur-at-top? (current-ycor > destination-ycor1) and (current-ycor > destination-ycor2)
+  let cur-at-bottom? (current-ycor < destination-ycor1) and (current-ycor < destination-ycor2)
+  let cur-same-y? (current-ycor = destination-ycor1) or (current-ycor = destination-ycor2)
+  let cur-on-right? (current-xcor > destination-xcor1) and (current-xcor > destination-xcor2)
+  let cur-on-left? (current-xcor < destination-xcor1) and (current-xcor < destination-xcor2)
+  let cur-same-x? (current-xcor = destination-xcor1) or (current-xcor =  destination-xcor2)
+
+  ; drop-off coordinate road type
+  let dropoff-on-vertical? (destination-ycor1 = destination-ycor2)
+  let dropoff-on-horizontal? (destination-xcor1 = destination-xcor2)
+
+  ; taxicab current spatial direction and location
+  let heading-up? [heading] of self = 0
+  let heading-right? [heading] of self = 90
+  let heading-down? [heading] of self = 180
+  let heading-left? [heading] of self = 270
+  let on-intersection? member? patch-here intersections
+
+  ; movement logic based on pickup dropoff road type
+  if (pickup-on-vertical? and dropoff-on-vertical?)[
+    (ifelse
+      cur-on-left? [
+        ifelse right? [ move-right ][ ifelse on-intersection? and heading-down? [ move-down ] [ move-straight ] ]
+      ]
+      cur-on-right? [
+        ifelse left? [ move-left ][ ifelse on-intersection? and heading-up? [ move-up ][ move-straight ] ]
+      ]
+      cur-same-x? [
+        (ifelse
+          cur-at-top? [
+            ifelse down? [ move-down ][ if heading-left? [ move-left ] ]
+          ]
+          cur-at-bottom? [
+            ifelse up? [ move-up ] [ if heading-right? [ move-right ] ]
+          ]
+        )
+      ]
+    )
+  ]
+
+  if (pickup-on-horizontal? and dropoff-on-horizontal?) [
+    (ifelse
+      cur-at-top? [
+        ifelse down? [move-down][move-straight]
+      ]
+      cur-at-bottom? [
+        ifelse up? [ move-up ][ move-straight ]
+      ]
+      cur-same-y? [
+        (ifelse
+          cur-on-right? [ifelse left? [ move-left ][ if heading-up? [ move-up ]]]
+          cur-on-left? [ifelse right? [ move-right ][ if heading-down? [ move-down ]]]
+        )
+      ]
+    )
+  ]
+
+  if (pickup-on-vertical? and dropoff-on-horizontal?)[
+    (ifelse
+      cur-at-top? [
+        ifelse down? [ move-down ][ move-straight ]
+      ]
+      cur-at-bottom? [
+        ifelse up? [ move-up ][ move-straight ]
+      ]
+      cur-same-y? [
+        (ifelse
+          cur-on-right? [ ifelse left?  [ move-left  ][ if heading-up? [ move-up ] ] ]
+          cur-on-left?  [ ifelse right? [ move-right ][ if heading-down? [ move-down ] ] ]
+        )
+      ]
+    )
+  ]
+  if (pickup-on-horizontal? and dropoff-on-vertical?)[
+    (ifelse
+      cur-on-right? [ ifelse left? [ move-left][ move-straight ] ]
+      cur-on-left? [ ifelse right? [ move-right][ move-straight ] ]
+      cur-same-x? [
+        (ifelse
+          cur-at-top? [ ifelse down? [ move-down] [if heading-left? [ move-left ] ] ]
+          cur-at-bottom? [ ifelse up? [ move-up ] [if heading-right? [ move-right ] ] ]
+        )
+      ]
+    )
+  ]
+
+  ; dropoff passenger if reached destination
+  dropoff-passenger
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; Dropoff Passengers ;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+to dropoff-passenger
+  let current-xcor [xcor] of self
+  let current-ycor [ycor] of self
+
+  let destination-xcor1 [d-xcor] of self
+  let destination-xcor2 [d-xcor2] of self
+  let destination-ycor1 [d-ycor] of self
+  let destination-ycor2 [d-ycor2] of self
+
+  if (current-xcor = destination-xcor1 or current-xcor = destination-xcor2) and
+     (current-ycor = destination-ycor1 or current-ycor = destination-ycor2)[
+    ; update total income
+    set total-income total-income + current-trip-income
+    ; append current trip distance
+    set trip-distance-lst lput num-grids-traveled-current-trip trip-distance-lst
+    set trip-income-lst lput current-trip-income trip-income-lst
+    set trip-duration-lst lput current-trip-duration trip-duration-lst
+    ; reset taxicab
+    reset-taxicab-parameter-after-trip
+  ]
+end
+
+to reset-taxicab-parameter-after-trip
+  ; reset taxicab
+  set vacancy? true
+  set color yellow
+  set num-passengers-onboard 0
+  set num-grids-traveled-current-trip 0
+  set current-trip-income 0
+  set current-trip-duration 0
+  highlight-destination-patches black
+  set d-xcor 0
+  set d-xcor2 0
+  set d-ycor 0
+  set d-ycor2 0
+  set pickup-on-horizontal? 0
+  set pickup-on-vertical? 0
+end
+
+
+; Copyright 2019 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="270" maxPycor="32" updateMode="1" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-32" height="919" showTickCounter="true" patchSize="14.0" fontSize="10" wrappingAllowedY="true" width="918" tickCounterLabel="ticks" maxPxcor="32" minPxcor="-32"></view>
+    <button x="15" y="538" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="84">setup</button>
+    <slider x="0" step="1" y="162" height="33" min="1" direction="Horizontal" max="50" default="25.0" variable="num-taxicab" width="260" display="num-taxicab"></slider>
+    <slider x="0" step="1" y="68" height="33" min="0" direction="Horizontal" max="30" default="20.0" variable="length-of-green-light" units="ticks" width="260" display="length-of-green-light"></slider>
+    <button x="146" y="539" height="34" disableUntilTicks="true" forever="true" kind="Observer" width="84">go</button>
+    <button x="146" y="585" height="34" disableUntilTicks="true" forever="false" kind="Observer" width="84" display="go-once">go</button>
+    <monitor x="61" precision="17" y="12" height="45" fontSize="11" width="110" display="Time of the Day">current-phase</monitor>
+    <slider x="0" step="100" y="114" height="33" min="1" direction="Horizontal" max="5000" default="2000.0" variable="length-of-time-period" width="260" display="length-of-time-period"></slider>
+    <note x="1833" y="484" height="32" color="14.0" transparent="true" fontSize="20" width="264">Spatial Flow Parameters</note>
+    <note x="1532" y="539" height="20" color="14.0" transparent="true" fontSize="15" width="71">AM Peak</note>
+    <slider x="1480" step="0.01" y="565" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-cbd-cbd-AM" width="175" display="prob-cbd-cbd-AM"></slider>
+    <slider x="1480" step="0.01" y="598" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-cbd-com-AM" width="175" display="prob-cbd-com-AM"></slider>
+    <slider x="1480" step="0.01" y="630" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-cbd-res-AM" width="175" display="prob-cbd-res-AM"></slider>
+    <slider x="1479" step="0.01" y="663" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-com-com-AM" width="175" display="prob-com-com-AM"></slider>
+    <slider x="1479" step="0.01" y="695" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-com-cbd-AM" width="175" display="prob-com-cbd-AM"></slider>
+    <slider x="1479" step="0.01" y="728" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-com-res-AM" width="175" display="prob-com-res-AM"></slider>
+    <slider x="1480" step="0.01" y="760" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-res-res-AM" width="175" display="prob-res-res-AM"></slider>
+    <slider x="1477" step="0.01" y="794" height="33" min="0" direction="Horizontal" max="1" default="1.0" variable="prob-res-cbd-AM" width="175" display="prob-res-cbd-AM"></slider>
+    <slider x="1474" step="0.01" y="827" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-res-com-AM" width="175" display="prob-res-com-AM"></slider>
+    <note x="1718" y="537" height="20" color="14.0" transparent="true" fontSize="15" width="64">Midday</note>
+    <slider x="1667" step="0.01" y="565" height="33" min="0" direction="Horizontal" max="1" default="0.97" variable="prob-cbd-cbd-MD" width="173" display="prob-cbd-cbd-MD"></slider>
+    <slider x="1667" step="0.01" y="600" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-cbd-com-MD" width="174" display="prob-cbd-com-MD"></slider>
+    <slider x="1667" step="0.01" y="633" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-cbd-res-MD" width="174" display="prob-cbd-res-MD"></slider>
+    <slider x="1667" step="0.01" y="665" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-com-com-MD" width="175" display="prob-com-com-MD"></slider>
+    <slider x="1665" step="0.01" y="698" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-com-cbd-MD" width="176" display="prob-com-cbd-MD"></slider>
+    <slider x="1665" step="0.01" y="730" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-com-res-MD" width="176" display="prob-com-res-MD"></slider>
+    <slider x="1665" step="0.01" y="762" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-res-res-MD" width="176" display="prob-res-res-MD"></slider>
+    <slider x="1665" step="0.01" y="795" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-res-cbd-MD" width="176" display="prob-res-cbd-MD"></slider>
+    <slider x="1665" step="0.01" y="828" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-res-com-MD" width="176" display="prob-res-com-MD"></slider>
+    <slider x="1852" step="0.01" y="567" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-cbd-cbd-PM" width="173" display="prob-cbd-cbd-PM"></slider>
+    <slider x="1852" step="0.01" y="600" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-cbd-com-PM" width="173" display="prob-cbd-com-PM"></slider>
+    <slider x="1852" step="0.01" y="633" height="33" min="0" direction="Horizontal" max="1" default="1.0" variable="prob-cbd-res-PM" width="173" display="prob-cbd-res-PM"></slider>
+    <slider x="1852" step="0.01" y="665" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-com-com-PM" width="175" display="prob-com-com-PM"></slider>
+    <slider x="1852" step="0.01" y="697" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-com-cbd-PM" width="175" display="prob-com-cbd-PM"></slider>
+    <slider x="1852" step="0.01" y="730" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-com-res-PM" width="173" display="prob-com-res-PM"></slider>
+    <slider x="1852" step="0.01" y="764" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-res-res-PM" width="173" display="prob-res-res-PM"></slider>
+    <slider x="1852" step="0.01" y="797" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-res-cbd-PM" width="173" display="prob-res-cbd-PM"></slider>
+    <slider x="1852" step="0.01" y="830" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-res-com-PM" width="173" display="prob-res-com-PM"></slider>
+    <slider x="2033" step="0.01" y="568" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-cbd-cbd-EVE" width="173" display="prob-cbd-cbd-EVE"></slider>
+    <slider x="2033" step="0.01" y="600" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-cbd-com-EVE" width="173" display="prob-cbd-com-EVE"></slider>
+    <slider x="2033" step="0.01" y="634" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-cbd-res-EVE" width="173" display="prob-cbd-res-EVE"></slider>
+    <slider x="2033" step="0.01" y="667" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-com-com-EVE" width="173" display="prob-com-com-EVE"></slider>
+    <slider x="2033" step="0.01" y="700" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-com-cbd-EVE" width="174" display="prob-com-cbd-EVE"></slider>
+    <slider x="2033" step="0.01" y="732" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-com-res-EVE" width="174" display="prob-com-res-EVE"></slider>
+    <slider x="2033" step="0.01" y="765" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-res-res-EVE" width="174" display="prob-res-res-EVE"></slider>
+    <slider x="2033" step="0.01" y="798" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-res-cbd-EVE" width="175" display="prob-res-cbd-EVE"></slider>
+    <slider x="2033" step="0.01" y="830" height="33" min="0" direction="Horizontal" max="1" default="1.0" variable="prob-res-com-EVE" width="175" display="prob-res-com-EVE"></slider>
+    <slider x="2217" step="0.01" y="569" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-cbd-cbd-EM" width="173" display="prob-cbd-cbd-EM"></slider>
+    <slider x="2217" step="0.01" y="602" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-cbd-com-EM" width="173" display="prob-cbd-com-EM"></slider>
+    <slider x="2217" step="0.01" y="635" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-cbd-res-EM" width="173" display="prob-cbd-res-EM"></slider>
+    <slider x="2217" step="0.01" y="668" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-com-com-EM" width="175" display="prob-com-com-EM"></slider>
+    <slider x="2217" step="0.01" y="700" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-com-cbd-EM" width="175" display="prob-com-cbd-EM"></slider>
+    <slider x="2217" step="0.01" y="732" height="33" min="0" direction="Horizontal" max="1" default="1.0" variable="prob-com-res-EM" width="175" display="prob-com-res-EM"></slider>
+    <slider x="2217" step="0.01" y="765" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-res-res-EM" width="175" display="prob-res-res-EM"></slider>
+    <slider x="2217" step="0.01" y="799" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-res-cbd-EM" width="175" display="prob-res-cbd-EM"></slider>
+    <slider x="2217" step="0.01" y="832" height="33" min="0" direction="Horizontal" max="1" default="0.0" variable="prob-res-com-EM" width="175" display="prob-res-com-EM"></slider>
+    <note x="1903" y="537" height="20" color="14.0" transparent="true" fontSize="15" width="67">PM Peak</note>
+    <note x="2088" y="535" height="20" color="14.0" transparent="true" fontSize="15" width="70">Evening</note>
+    <note x="2257" y="535" height="20" color="14.0" transparent="true" fontSize="15" width="105">Early Morning</note>
+    <monitor x="1498" precision="2" y="864" height="45" fontSize="11" width="135" display="AM Peak Marginal">prob-cbd-com-AM + prob-cbd-res-AM + prob-cbd-cbd-AM + 
+prob-com-cbd-AM + prob-com-res-AM + prob-com-com-AM 
++ prob-res-cbd-AM +  prob-res-com-AM + prob-res-res-AM</monitor>
+    <monitor x="1690" precision="2" y="865" height="45" fontSize="11" width="135" display="Midday Marginal">prob-cbd-com-MD + prob-cbd-res-MD + prob-cbd-cbd-MD + 
+prob-com-com-MD + prob-com-res-MD + prob-com-com-MD
++ prob-res-cbd-MD +  prob-res-com-MD + prob-res-res-MD</monitor>
+    <monitor x="1873" precision="2" y="867" height="45" fontSize="11" width="135" display="PM Peak Marginal">prob-cbd-com-PM + prob-cbd-res-PM + prob-cbd-cbd-PM + 
+prob-com-cbd-PM + prob-com-res-PM + prob-com-com-PM 
++ prob-res-cbd-PM +  prob-res-com-PM + prob-res-res-PM</monitor>
+    <monitor x="2054" precision="2" y="865" height="45" fontSize="11" width="135" display="Evening Marginal">prob-cbd-com-EVE + prob-cbd-res-EVE + prob-cbd-cbd-EVE + 
+prob-com-cbd-EVE + prob-com-res-EVE + prob-com-com-EVE 
++ prob-res-cbd-EVE +  prob-res-com-EVE + prob-res-res-EVE</monitor>
+    <monitor x="2237" precision="2" y="867" height="45" fontSize="11" width="135" display="Early Morning Marginal">prob-cbd-com-EM + prob-cbd-res-EM + prob-cbd-cbd-EM + 
+prob-com-cbd-EM + prob-com-res-EM + prob-com-com-EM 
++ prob-res-cbd-EM +  prob-res-com-EM + prob-res-res-EM</monitor>
+    <input x="20" multiline="false" y="245" height="60" variable="wait-time-mean" type="number" width="105">50.0</input>
+    <input x="130" multiline="false" y="245" height="60" variable="wait-time-sd" type="number" width="118">10.0</input>
+    <slider x="-1" step="0.01" y="392" height="33" min="0" direction="Horizontal" max="10" default="0.78" variable="first-passenger-cost" units="$" width="260" display="first-passenger-cost"></slider>
+    <slider x="-1" step="0.01" y="426" height="33" min="0" direction="Horizontal" max="5" default="0.49" variable="each-additional-passenger-cost" units="$" width="260" display="each-additional-passenger-cost"></slider>
+    <slider x="-1" step="0.01" y="459" height="33" min="0" direction="Horizontal" max="10" default="0.93" variable="each-grid-cost" units="$" width="260" display="each-grid-cost"></slider>
+    <slider x="-1" step="0.01" y="492" height="33" min="0.01" direction="Horizontal" max="5" default="0.5" variable="each-tick-cost" units="$" width="260" display="each-tick-cost"></slider>
+    <note x="9" y="316" height="72" color="0.0" transparent="true" fontSize="11" width="248">Fare Calculation:
+- First passenger: $1
+- Each additional passenger: $0.5
+- Each additional grid: $1
+- Every tick of time elapsed: $0.5</note>
+    <note x="11" y="209" height="42" color="0.0" transparent="true" fontSize="11" width="256">Passenger Patience:
+Normal Distribution Parameters</note>
+    <plot x="1230" yMax="10.0" yAxis="Miles" y="10" xMin="0.0" height="253" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="565" display="Taxicabs Travelling Distance">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="Total Miles">
+        <setup></setup>
+        <update>plot sum [num-total-miles] of taxicabs</update>
+      </pen>
+      <pen color="-13840069" legend="true" interval="1.0" mode="0" display="Business Miles">
+        <setup></setup>
+        <update>plot sum [num-business-miles] of taxicabs</update>
+      </pen>
+      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="Dead Miles">
+        <setup></setup>
+        <update>plot sum [num-dead-miles] of taxicabs</update>
+      </pen>
+    </plot>
+    <plot x="1229" yMax="10.0" y="260" xMin="0.0" height="150" legend="false" xMax="300.0" autoplot="true" yMin="0.0" width="180" display="Trip Income Distribution">
+      <setup>set-histogram-num-bars 30</setup>
+      <update></update>
+      <pen color="-4079321" legend="true" interval="1.0" mode="1" display="Trip Income">
+        <setup></setup>
+        <update>histogram reduce sentence [trip-income-lst] of taxicabs</update>
+      </pen>
+    </plot>
+    <plot x="1405" yMax="10.0" y="260" xMin="0.0" height="150" legend="false" xMax="300.0" autoplot="true" yMin="0.0" width="192" display="Trip Distance Distribution">
+      <setup>set-histogram-num-bars 30</setup>
+      <update></update>
+      <pen color="-5825686" legend="true" interval="1.0" mode="1" display="default">
+        <setup></setup>
+        <update>histogram reduce sentence [trip-distance-lst] of taxicabs</update>
+      </pen>
+    </plot>
+    <plot x="1595" yMax="10.0" y="260" xMin="0.0" height="150" legend="false" xMax="300.0" autoplot="true" yMin="0.0" width="200" display="Trip Duration Distribution">
+      <setup>set-histogram-num-bars 30</setup>
+      <update></update>
+      <pen color="-14835848" legend="true" interval="1.0" mode="1" display="default">
+        <setup></setup>
+        <update>histogram reduce sentence [trip-duration-lst] of taxicabs</update>
+      </pen>
+    </plot>
+    <note x="1257" y="537" height="19" color="14.0" transparent="true" fontSize="15" width="150">Origin</note>
+    <note x="1353" y="538" height="19" color="14.0" transparent="true" fontSize="15" width="150">Destination</note>
+    <note x="1260" y="570" height="19" color="0.0" transparent="true" fontSize="15" width="37">CBD</note>
+    <note x="1377" y="570" height="19" color="0.0" transparent="true" fontSize="15" width="150">CBD</note>
+    <note x="1262" y="603" height="19" color="0.0" transparent="true" fontSize="15" width="150">CBD</note>
+    <note x="1354" y="603" height="19" color="0.0" transparent="true" fontSize="15" width="150">Commercial</note>
+    <note x="1362" y="635" height="19" color="0.0" transparent="true" fontSize="15" width="150">Residential
+</note>
+    <note x="1357" y="668" height="19" color="0.0" transparent="true" fontSize="15" width="150">Commercial</note>
+    <note x="1359" y="734" height="19" color="0.0" transparent="true" fontSize="15" width="150">Residential</note>
+    <note x="1377" y="700" height="19" color="0.0" transparent="true" fontSize="15" width="150">CBD</note>
+    <note x="1357" y="770" height="19" color="0.0" transparent="true" fontSize="15" width="150">Residential</note>
+    <note x="1378" y="804" height="19" color="0.0" transparent="true" fontSize="15" width="150">CBD</note>
+    <note x="1359" y="835" height="19" color="0.0" transparent="true" fontSize="15" width="150">Commercial</note>
+    <note x="1262" y="633" height="19" color="0.0" transparent="true" fontSize="15" width="150">CBD</note>
+    <note x="1242" y="668" height="19" color="0.0" transparent="true" fontSize="15" width="150">Commercial</note>
+    <note x="1244" y="700" height="19" color="0.0" transparent="true" fontSize="15" width="150">Commercial</note>
+    <note x="1243" y="734" height="19" color="0.0" transparent="true" fontSize="15" width="150">Commercial	</note>
+    <note x="1247" y="772" height="19" color="0.0" transparent="true" fontSize="15" width="150">Residential</note>
+    <note x="1248" y="803" height="19" color="0.0" transparent="true" fontSize="15" width="150">Residential</note>
+    <note x="1247" y="835" height="19" color="0.0" transparent="true" fontSize="15" width="150">Residential</note>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+The model mimics taxi cab ridership in an urban area. Users can control ridership demand, fleet size, traffic rules, and fare calculation. The model aims to reveal insights into taxi cab profitability based on trip characteristics and demand dynamics.
+
+## HOW IT WORKS
+
+The urban area is portrayed as a grid system, which is formed by two-lane roads and intersections. The metropolitan area consists of three regions: (1) Central Business District (in orange), (2) Commercial Zone (in blue), and (3) Residential Zone (in grey). The three regions can form nine origin-destination (OD) pairs, with six pairs of inter-regional flows and three pairs of intra-regional flows.
+
+Since taxi demands for each type of flow can be dramatically different based on the time of a day, users can control the amount of flow from regions to regions through the interface.
+
+Potential passenger(s) show up on roads controlled by users. When a vacant taxicab happens to pass by, it stops and pickups the passenger(s). The passenger(s) inform the taxicab of the destination coordinate, and the taxi turns light-purple and starts the trip. The taxi will travel from the pickup coordinate to the light-purple colored drop-off coordinate by the shortest Manhattan distance and complete the trip when it arrives at the destination coordinate.
+
+After finishing a trip, the taxi becomes vacant and searches for the next passenger(s) by traveling randomly on roads.
+
+## HOW TO USE IT
+
+### Taxicab Demand
+* Spatial Flow and Time Interval:
+- _Time Interval_: The flow of residents in an urban area between regions can be quite different depending on the time of day. To indicate the differences in the spatial flow of taxi trips between regions throughout the day, a clock is created to keep track of the time in the world. Five distinct time intervals are implemented (1) AM Peak, (2) Midday, (3) PM Peak, (4) Evening, (5) Early Morning. A reporter shows the current time interval in the interface, and the length of each time interval can be controlled by a slider called LENGTH-OF-TIME-PERIOD.
+- _Spatial Flow_: Demand for taxicabs in city districts can be variable, and different amounts of flows can be manipulated by users through the spatial flow sliders, which control the probability (or proportion) of trips that are going from an origin to a destination during a specific time interval. For such purposes, each time interval's marginal probabilities are shown by a reporter at the bottom of each slider column to remind the users that the marginal probability should sum to 1.
+
+### Traffic Rules
+* Traffic Lights: the length of red/green lights can be controlled by a slider in the interface called LENGTH-OF-GREEN-LIGHT.
+
+### Passengers
+* Passenger waiting time is modeled by a normal distribution. The parameters of this normal distribution can be input by users in the interface through WAIT-TIME-MEAN and WAIT-TIME-SD.
+
+### Taxicabs
+* Fleet size: taxicab fleet size can be controlled by a slider NUM-TAXICABS.
+
+* Trip Fare: Trip fare is calculated based on Chicago Yellow Taxicab. Trip fare is mainly calculated by three different variables: (1) the number of passengers on-board, (2) the number of miles traveled, (3) the trip duration. These cost variables can be determined by users in the interface using FIRST-PASSENGER-COST, EACH-ADDITIONAL-PASSENGER-COST, EACH-GRID-COST, and EACH-TICK-COST.
+
+## THINGS TO NOTICE
+
+As the model runs, the trade-off between business miles and dead miles can be contrasting. The distributions of trip income, distance, and duration should be correlated, and the overall shapes of the distribution are susceptible to the changes in traffic rules and interval lengths.
+
+## THINGS TO TRY
+
+For a clear visualization of the pickup and dropoff process, it is suggested to start with one taxicab to see how a taxicab behaves before generating multiple taxicabs.
+
+## EXTENDING THE MODEL
+
+There are many ways to extend this model. Interesting avenues would be to use real-world data with the GIS extension, more complex searching strategies, such as using AI tools, and including rideshare systems such as Uber or Lyft in the model, to better understand the relation between taxicabs and the rideshare systems.
+
+Some other meaningful extension specific to taxicabs is to figure out how to reduce the number of dead miles -- miles traveled by taxicabs with no passengers on-board. Dead miles are costly to drivers because drivers need to internalize vehicle depreciation and gasoline price while searching for passengers. Figuring out more intelligent searching strategies such as locating the next passenger immediately after the last dropoff will be meaningful to pursue.
+
+## NETLOGO FEATURES
+
+Each road in the model is formed by two lanes, with each lane allowing taxicabs to travel in one direction. When delivering passengers, taxicabs will make U-turns to put themselves in the right direction to start the delivery following the shortest Manhattan distance. Some workarounds can be done to avoid making the u-turns.
+
+## RELATED MODELS
+
+- "Traffic Basic": a simple model of the movement of cars on a highway.
+- "Traffic Basic Utility": a version of "Traffic Basic" including a utility function for the cars.
+- "Traffic 2 Lanes": a more sophisticated two-lane version of the "Traffic Basic" model.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Dongping, Z. and Wilensky, U. (2019).  NetLogo Taxi Cabs model.  http://ccl.northwestern.edu/netlogo/models/TaxiCabs.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+This model was developed as part of the Spring 2019 Multi-agent Modeling course offered by Dr. Uri Wilensky at Northwestern University. For more info, visit http://ccl.northwestern.edu/courses/mam/. Special thanks to Teaching Assistants Sugat Dabholkar, Can Gurkan, and Connor Bain.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2019 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2019 MAM2019 Cite: Dongping, Z. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="sheep" rotatable="false" editableColorIndex="15">
+      <circle x="203" y="65" marked="true" color="-1" diameter="88" filled="true"></circle>
+      <circle x="70" y="65" marked="true" color="-1" diameter="162" filled="true"></circle>
+      <circle x="150" y="105" marked="true" color="-1" diameter="120" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="218" y="120"></point>
+        <point x="240" y="165"></point>
+        <point x="255" y="165"></point>
+        <point x="278" y="120"></point>
+      </polygon>
+      <circle x="214" y="72" marked="false" color="-1920102913" diameter="67" filled="true"></circle>
+      <rectangle endX="179" startY="223" marked="true" color="-1" endY="298" startX="164" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="45" y="285"></point>
+        <point x="30" y="285"></point>
+        <point x="30" y="240"></point>
+        <point x="15" y="195"></point>
+        <point x="45" y="210"></point>
+      </polygon>
+      <circle x="3" y="83" marked="true" color="-1" diameter="150" filled="true"></circle>
+      <rectangle endX="80" startY="221" marked="true" color="-1" endY="296" startX="65" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="195" y="285"></point>
+        <point x="210" y="285"></point>
+        <point x="210" y="240"></point>
+        <point x="240" y="210"></point>
+        <point x="195" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="276" y="85"></point>
+        <point x="285" y="105"></point>
+        <point x="302" y="99"></point>
+        <point x="294" y="83"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="219" y="85"></point>
+        <point x="210" y="105"></point>
+        <point x="193" y="99"></point>
+        <point x="201" y="83"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="wolf" rotatable="false" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="253" y="133"></point>
+        <point x="245" y="131"></point>
+        <point x="245" y="133"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="2" y="194"></point>
+        <point x="13" y="197"></point>
+        <point x="30" y="191"></point>
+        <point x="38" y="193"></point>
+        <point x="38" y="205"></point>
+        <point x="20" y="226"></point>
+        <point x="20" y="257"></point>
+        <point x="27" y="265"></point>
+        <point x="38" y="266"></point>
+        <point x="40" y="260"></point>
+        <point x="31" y="253"></point>
+        <point x="31" y="230"></point>
+        <point x="60" y="206"></point>
+        <point x="68" y="198"></point>
+        <point x="75" y="209"></point>
+        <point x="66" y="228"></point>
+        <point x="65" y="243"></point>
+        <point x="82" y="261"></point>
+        <point x="84" y="268"></point>
+        <point x="100" y="267"></point>
+        <point x="103" y="261"></point>
+        <point x="77" y="239"></point>
+        <point x="79" y="231"></point>
+        <point x="100" y="207"></point>
+        <point x="98" y="196"></point>
+        <point x="119" y="201"></point>
+        <point x="143" y="202"></point>
+        <point x="160" y="195"></point>
+        <point x="166" y="210"></point>
+        <point x="172" y="213"></point>
+        <point x="173" y="238"></point>
+        <point x="167" y="251"></point>
+        <point x="160" y="248"></point>
+        <point x="154" y="265"></point>
+        <point x="169" y="264"></point>
+        <point x="178" y="247"></point>
+        <point x="186" y="240"></point>
+        <point x="198" y="260"></point>
+        <point x="200" y="271"></point>
+        <point x="217" y="271"></point>
+        <point x="219" y="262"></point>
+        <point x="207" y="258"></point>
+        <point x="195" y="230"></point>
+        <point x="192" y="198"></point>
+        <point x="210" y="184"></point>
+        <point x="227" y="164"></point>
+        <point x="242" y="144"></point>
+        <point x="259" y="145"></point>
+        <point x="284" y="151"></point>
+        <point x="277" y="141"></point>
+        <point x="293" y="140"></point>
+        <point x="299" y="134"></point>
+        <point x="297" y="127"></point>
+        <point x="273" y="119"></point>
+        <point x="270" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="-1" y="195"></point>
+        <point x="14" y="180"></point>
+        <point x="36" y="166"></point>
+        <point x="40" y="153"></point>
+        <point x="53" y="140"></point>
+        <point x="82" y="131"></point>
+        <point x="134" y="133"></point>
+        <point x="159" y="126"></point>
+        <point x="188" y="115"></point>
+        <point x="227" y="108"></point>
+        <point x="236" y="102"></point>
+        <point x="238" y="98"></point>
+        <point x="268" y="86"></point>
+        <point x="269" y="92"></point>
+        <point x="281" y="87"></point>
+        <point x="269" y="103"></point>
+        <point x="269" y="113"></point>
+      </polygon>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>

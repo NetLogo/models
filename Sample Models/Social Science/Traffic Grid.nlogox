@@ -1,0 +1,1237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="false">
+  <code><![CDATA[globals
+[
+  grid-x-inc               ;; the amount of patches in between two roads in the x direction
+  grid-y-inc               ;; the amount of patches in between two roads in the y direction
+  acceleration             ;; the constant that controls how much a car speeds up or slows down by if
+                           ;; it is to accelerate or decelerate
+  phase                    ;; keeps track of the phase
+  num-cars-stopped         ;; the number of cars that are stopped during a single pass thru the go procedure
+  current-light            ;; the currently selected light
+
+  ;; patch agentsets
+  intersections ;; agentset containing the patches that are intersections
+  roads         ;; agentset containing the patches that are roads
+]
+
+turtles-own
+[
+  speed     ;; the speed of the turtle
+  up-car?   ;; true if the turtle moves downwards and false if it moves to the right
+  wait-time ;; the amount of time since the last time a turtle has moved
+]
+
+patches-own
+[
+  intersection?   ;; true if the patch is at the intersection of two roads
+  green-light-up? ;; true if the green light is above the intersection.  otherwise, false.
+                  ;; false for a non-intersection patches.
+  my-row          ;; the row of the intersection counting from the upper left corner of the
+                  ;; world.  -1 for non-intersection patches.
+  my-column       ;; the column of the intersection counting from the upper left corner of the
+                  ;; world.  -1 for non-intersection patches.
+  my-phase        ;; the phase for the intersection.  -1 for non-intersection patches.
+  auto?           ;; whether or not this intersection will switch automatically.
+                  ;; false for non-intersection patches.
+]
+
+
+;;;;;;;;;;;;;;;;;;;;;;
+;; Setup Procedures ;;
+;;;;;;;;;;;;;;;;;;;;;;
+
+;; Initialize the display by giving the global and patch variables initial values.
+;; Create num-cars of turtles if there are enough road patches for one turtle to
+;; be created per road patch. Set up the plots.
+to setup
+  clear-all
+  setup-globals
+
+  ;; First we ask the patches to draw themselves and set up a few variables
+  setup-patches
+  make-current one-of intersections
+  label-current
+
+  set-default-shape turtles "car"
+
+  if (num-cars > count roads)
+  [
+    user-message (word "There are too many cars for the amount of "
+                       "road.  Either increase the amount of roads "
+                       "by increasing the GRID-SIZE-X or "
+                       "GRID-SIZE-Y sliders, or decrease the "
+                       "number of cars by lowering the NUMBER slider.\n"
+                       "The setup has stopped.")
+    stop
+  ]
+
+  ;; Now create the turtles and have each created turtle call the functions setup-cars and set-car-color
+  create-turtles num-cars
+  [
+    setup-cars
+    set-car-color
+    record-data
+  ]
+
+  ;; give the turtles an initial speed
+  ask turtles [ set-car-speed ]
+
+  reset-ticks
+end
+
+;; Initialize the global variables to appropriate values
+to setup-globals
+  set current-light nobody ;; just for now, since there are no lights yet
+  set phase 0
+  set num-cars-stopped 0
+  set grid-x-inc world-width / grid-size-x
+  set grid-y-inc world-height / grid-size-y
+
+  ;; don't make acceleration 0.1 since we could get a rounding error and end up on a patch boundary
+  set acceleration 0.099
+end
+
+;; Make the patches have appropriate colors, set up the roads and intersections agentsets,
+;; and initialize the traffic lights to one setting
+to setup-patches
+  ;; initialize the patch-owned variables and color the patches to a base-color
+  ask patches
+  [
+    set intersection? false
+    set auto? false
+    set green-light-up? true
+    set my-row -1
+    set my-column -1
+    set my-phase -1
+    set pcolor brown + 3
+  ]
+
+  ;; initialize the global variables that hold patch agentsets
+  set roads patches with
+    [(floor((pxcor + max-pxcor - floor(grid-x-inc - 1)) mod grid-x-inc) = 0) or
+    (floor((pycor + max-pycor) mod grid-y-inc) = 0)]
+  set intersections roads with
+    [(floor((pxcor + max-pxcor - floor(grid-x-inc - 1)) mod grid-x-inc) = 0) and
+    (floor((pycor + max-pycor) mod grid-y-inc) = 0)]
+
+  ask roads [ set pcolor white ]
+  setup-intersections
+end
+
+;; Give the intersections appropriate values for the intersection?, my-row, and my-column
+;; patch variables.  Make all the traffic lights start off so that the lights are red
+;; horizontally and green vertically.
+to setup-intersections
+  ask intersections
+  [
+    set intersection? true
+    set green-light-up? true
+    set my-phase 0
+    set auto? true
+    set my-row floor((pycor + max-pycor) / grid-y-inc)
+    set my-column floor((pxcor + max-pxcor) / grid-x-inc)
+    set-signal-colors
+  ]
+end
+
+;; Initialize the turtle variables to appropriate values and place the turtle on an empty road patch.
+to setup-cars  ;; turtle procedure
+  set speed 0
+  set wait-time 0
+  put-on-empty-road
+  ifelse intersection?
+  [
+    ifelse random 2 = 0
+    [ set up-car? true ]
+    [ set up-car? false ]
+  ]
+  [
+    ; if the turtle is on a vertical road (rather than a horizontal one)
+    ifelse (floor((pxcor + max-pxcor - floor(grid-x-inc - 1)) mod grid-x-inc) = 0)
+    [ set up-car? true ]
+    [ set up-car? false ]
+  ]
+  ifelse up-car?
+  [ set heading 180 ]
+  [ set heading 90 ]
+end
+
+;; Find a road patch without any turtles on it and place the turtle there.
+to put-on-empty-road  ;; turtle procedure
+  move-to one-of roads with [not any? turtles-on self]
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+;; Runtime Procedures ;;
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Run the simulation
+to go
+
+  update-current
+
+  ;; have the intersections change their color
+  set-signals
+  set num-cars-stopped 0
+
+  ;; set the turtles speed for this time thru the procedure, move them forward their speed,
+  ;; record data for plotting, and set the color of the turtles to an appropriate color
+  ;; based on their speed
+  ask turtles [
+    set-car-speed
+    fd speed
+    record-data
+    set-car-color
+  ]
+
+  ;; update the phase and the global clock
+  next-phase
+  tick
+end
+
+to choose-current
+  if mouse-down?
+  [
+    let x-mouse mouse-xcor
+    let y-mouse mouse-ycor
+    if [intersection?] of patch x-mouse y-mouse
+    [
+      update-current
+      unlabel-current
+      make-current patch x-mouse y-mouse
+      label-current
+      stop
+    ]
+  ]
+end
+
+;; Set up the current light and the interface to change it.
+to make-current [light]
+  set current-light light
+  set current-phase [my-phase] of current-light
+  set current-auto? [auto?] of current-light
+end
+
+;; update the variables for the current light
+to update-current
+  ask current-light [
+    set my-phase current-phase
+    set auto? current-auto?
+  ]
+end
+
+;; label the current light
+to label-current
+  ask current-light
+  [
+    ask patch-at -1 1
+    [
+      set plabel-color black
+      set plabel "current"
+    ]
+  ]
+end
+
+;; unlabel the current light (because we've chosen a new one)
+to unlabel-current
+  ask current-light
+  [
+    ask patch-at -1 1
+    [
+      set plabel ""
+    ]
+  ]
+end
+
+;; have the traffic lights change color if phase equals each intersections' my-phase
+to set-signals
+  ask intersections with [auto? and phase = floor ((my-phase * ticks-per-cycle) / 100)]
+  [
+    set green-light-up? (not green-light-up?)
+    set-signal-colors
+  ]
+end
+
+;; This procedure checks the variable green-light-up? at each intersection and sets the
+;; traffic lights to have the green light up or the green light to the left.
+to set-signal-colors  ;; intersection (patch) procedure
+  ifelse power?
+  [
+    ifelse green-light-up?
+    [
+      ask patch-at -1 0 [ set pcolor red ]
+      ask patch-at 0 1 [ set pcolor green ]
+    ]
+    [
+      ask patch-at -1 0 [ set pcolor green ]
+      ask patch-at 0 1 [ set pcolor red ]
+    ]
+  ]
+  [
+    ask patch-at -1 0 [ set pcolor white ]
+    ask patch-at 0 1 [ set pcolor white ]
+  ]
+end
+
+;; set the turtles' speed based on whether they are at a red traffic light or the speed of the
+;; turtle (if any) on the patch in front of them
+to set-car-speed  ;; turtle procedure
+  ifelse pcolor = red
+  [ set speed 0 ]
+  [
+    ifelse up-car?
+    [ set-speed 0 -1 ]
+    [ set-speed 1 0 ]
+  ]
+end
+
+;; set the speed variable of the car to an appropriate value (not exceeding the
+;; speed limit) based on whether there are cars on the patch in front of the car
+to set-speed [ delta-x delta-y ]  ;; turtle procedure
+  ;; get the turtles on the patch in front of the turtle
+  let turtles-ahead turtles-at delta-x delta-y
+
+  ;; if there are turtles in front of the turtle, slow down
+  ;; otherwise, speed up
+  ifelse any? turtles-ahead
+  [
+    ifelse any? (turtles-ahead with [ up-car? != [up-car?] of myself ])
+    [
+      set speed 0
+    ]
+    [
+      set speed [speed] of one-of turtles-ahead
+      slow-down
+    ]
+  ]
+  [ speed-up ]
+end
+
+;; decrease the speed of the turtle
+to slow-down  ;; turtle procedure
+  ifelse speed <= 0  ;;if speed < 0
+  [ set speed 0 ]
+  [ set speed speed - acceleration ]
+end
+
+;; increase the speed of the turtle
+to speed-up  ;; turtle procedure
+  ifelse speed > speed-limit
+  [ set speed speed-limit ]
+  [ set speed speed + acceleration ]
+end
+
+;; set the color of the turtle to a different color based on how fast the turtle is moving
+to set-car-color  ;; turtle procedure
+  ifelse speed < (speed-limit / 2)
+  [ set color blue ]
+  [ set color cyan - 2 ]
+end
+
+;; keep track of the number of stopped turtles and the amount of time a turtle has been stopped
+;; if its speed is 0
+to record-data  ;; turtle procedure
+  ifelse speed = 0
+  [
+    set num-cars-stopped num-cars-stopped + 1
+    set wait-time wait-time + 1
+  ]
+  [ set wait-time 0 ]
+end
+
+to change-current
+  ask current-light
+  [
+    set green-light-up? (not green-light-up?)
+    set-signal-colors
+  ]
+end
+
+;; cycles phase to the next appropriate value
+to next-phase
+  ;; The phase cycles from 0 to ticks-per-cycle, then starts over.
+  set phase phase + 1
+  if phase mod ticks-per-cycle = 0
+    [ set phase 0 ]
+end
+
+
+; Copyright 2003 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="327" maxPycor="18" updateMode="1" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-18" height="342" showTickCounter="true" patchSize="9.0" fontSize="12" wrappingAllowedY="true" width="341" tickCounterLabel="ticks" maxPxcor="18" minPxcor="-18"></view>
+    <plot x="453" yMax="5.0" yAxis="Average Wait" y="377" xMin="0.0" height="164" legend="false" xMax="100.0" autoplot="true" yMin="0.0" width="218" xAxis="Time" display="Average Wait Time of Cars">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="default">
+        <setup></setup>
+        <update>plot mean [wait-time] of turtles</update>
+      </pen>
+    </plot>
+    <plot x="228" yMax="1.0" yAxis="Average Speed" y="377" xMin="0.0" height="165" legend="false" xMax="100.0" autoplot="true" yMin="0.0" width="216" xAxis="Time" display="Average Speed of Cars">
+      <setup>set-plot-y-range 0 speed-limit</setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="default">
+        <setup></setup>
+        <update>plot mean [speed] of turtles</update>
+      </pen>
+    </plot>
+    <slider x="108" step="1" y="35" height="33" min="1" direction="Horizontal" max="9" default="5.0" variable="grid-size-y" width="97" display="grid-size-y"></slider>
+    <slider x="12" step="1" y="35" height="33" min="1" direction="Horizontal" max="9" default="5.0" variable="grid-size-x" width="94" display="grid-size-x"></slider>
+    <switch x="12" y="107" height="33" on="true" variable="power?" width="95" display="power?"></switch>
+    <slider x="12" step="1" y="71" height="33" min="1" direction="Horizontal" max="400" default="200.0" variable="num-cars" width="281" display="num-cars"></slider>
+    <plot x="5" yMax="100.0" yAxis="Stopped Cars" y="376" xMin="0.0" height="164" legend="false" xMax="100.0" autoplot="true" yMin="0.0" width="214" xAxis="Time" display="Stopped Cars">
+      <setup>set-plot-y-range 0 num-cars</setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="default">
+        <setup></setup>
+        <update>plot num-cars-stopped</update>
+      </pen>
+    </plot>
+    <button x="221" y="184" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="64" display="Go">go</button>
+    <button x="208" y="35" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="84" display="Setup">setup</button>
+    <slider x="11" step="0.1" y="177" height="33" min="0.1" direction="Horizontal" max="1" default="1.0" variable="speed-limit" width="154" display="speed-limit"></slider>
+    <monitor x="205" precision="3" y="132" height="45" fontSize="11" width="105" display="Current Phase">phase</monitor>
+    <slider x="11" step="1" y="143" height="33" min="1" direction="Horizontal" max="100" default="20.0" variable="ticks-per-cycle" width="154" display="ticks-per-cycle"></slider>
+    <slider x="146" step="1" y="256" height="33" min="0" direction="Horizontal" max="99" default="0.0" variable="current-phase" units="%" width="156" display="current-phase"></slider>
+    <button x="9" y="292" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="134" display="Change light">change-current</button>
+    <switch x="9" y="256" height="33" on="true" variable="current-auto?" width="135" display="current-auto?"></switch>
+    <button x="145" y="292" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="155" display="Select intersection">choose-current</button>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This is a model of traffic moving in a city grid. It allows you to control traffic lights and global variables, such as the speed limit and the number of cars, and explore traffic dynamics.
+
+Try to develop strategies to improve traffic and to understand the different ways to measure the quality of traffic.
+
+## HOW IT WORKS
+
+Each time step, the cars attempt to move forward at their current speed.  If their current speed is less than the speed limit and there is no car directly in front of them, they accelerate.  If there is a slower car in front of them, they match the speed of the slower car and deccelerate.  If there is a red light or a stopped car in front of them, they stop.
+
+There are two different ways the lights can change.  First, the user can change any light at any time by making the light current, and then clicking CHANGE LIGHT.  Second, lights can change automatically, once per cycle.  Initially, all lights will automatically change at the beginning of each cycle.
+
+## HOW TO USE IT
+
+Change the traffic grid (using the sliders GRID-SIZE-X and GRID-SIZE-Y) to make the desired number of lights.  Change any other of the settings that you would like to change.  Press the SETUP button.
+
+At this time, you may configure the lights however you like, with any combination of auto/manual and any phase. Changes to the state of the current light are made using the CURRENT-AUTO?, CURRENT-PHASE and CHANGE LIGHT controls.  You may select the current intersection using the SELECT INTERSECTION control.  See below for details.
+
+Start the simulation by pressing the GO button.  You may continue to make changes to the lights while the simulation is running.
+
+### Buttons
+
+SETUP - generates a new traffic grid based on the current GRID-SIZE-X and GRID-SIZE-Y and NUM-CARS number of cars.  This also clears all the plots. All lights are set to auto, and all phases are set to 0.
+GO - runs the simulation indefinitely
+CHANGE LIGHT - changes the direction traffic may flow through the current light. A light can be changed manually even if it is operating in auto mode.
+SELECT INTERSECTION - allows you to select a new "current" light. When this button is depressed, click in the intersection which you would like to make current. When you've selected an intersection, the "current" label will move to the new intersection and this button will automatically pop up.
+
+### Sliders
+
+SPEED-LIMIT - sets the maximum speed for the cars
+NUM-CARS - the number of cars in the simulation (you must press the SETUP button to see the change)
+TICKS-PER-CYCLE - sets the number of ticks that will elapse for each cycle.  This has no effect on manual lights.  This allows you to increase or decrease the granularity with which lights can automatically change.
+GRID-SIZE-X - sets the number of vertical roads there are (you must press the SETUP button to see the change)
+GRID-SIZE-Y - sets the number of horizontal roads there are (you must press the SETUP button to see the change)
+CURRENT-PHASE - controls when the current light changes, if it is in auto mode. The slider value represents the percentage of the way through each cycle at which the light should change. So, if the TICKS-PER-CYCLE is 20 and CURRENT-PHASE is 75%, the current light will switch at tick 15 of each cycle.
+
+### Switches
+
+POWER? - toggles the presence of traffic lights
+CURRENT-AUTO? - toggles the current light between automatic mode, where it changes once per cycle (according to CURRENT-PHASE), and manual, in which you directly control it with CHANGE LIGHT.
+
+### Plots
+
+STOPPED CARS - displays the number of stopped cars over time
+AVERAGE SPEED OF CARS - displays the average speed of cars over time
+AVERAGE WAIT TIME OF CARS - displays the average time cars are stopped over time
+
+## THINGS TO NOTICE
+
+When cars have stopped at a traffic light, and then they start moving again, the traffic jam will move backwards even though the cars are moving forwards.  Why is this?
+
+When POWER? is turned off and there are quite a few cars on the roads, "gridlock" usually occurs after a while.  In fact, gridlock can be so severe that traffic stops completely.  Why is it that no car can move forward and break the gridlock?  Could this happen in the real world?
+
+Gridlock can occur when the power is turned on, as well.  What kinds of situations can lead to gridlock?
+
+## THINGS TO TRY
+
+Try changing the speed limit for the cars.  How does this affect the overall efficiency of the traffic flow?  Are fewer cars stopping for a shorter amount of time?  Is the average speed of the cars higher or lower than before?
+
+Try changing the number of cars on the roads.  Does this affect the efficiency of the traffic flow?
+
+How about changing the speed of the simulation?  Does this affect the efficiency of the traffic flow?
+
+Try running this simulation with all lights automatic.  Is it harder to make the traffic move well using this scheme than controlling one light manually?  Why?
+
+Try running this simulation with all lights automatic.  Try to find a way of setting the phases of the traffic lights so that the average speed of the cars is the highest.  Now try to minimize the number of stopped cars.  Now try to decrease the average wait time of the cars.  Is there any correlation between these different metrics?
+
+## EXTENDING THE MODEL
+
+Currently, the maximum speed limit (found in the SPEED-LIMIT slider) for the cars is 1.0.  This is due to the fact that the cars must look ahead the speed that they are traveling to see if there are cars ahead of them.  If there aren't, they speed up.  If there are, they slow down.  Looking ahead for a value greater than 1 is a little bit tricky.  Try implementing the correct behavior for speeds greater than 1.
+
+When a car reaches the edge of the world, it reappears on the other side.  What if it disappeared, and if new cars entered the city at random locations and intervals?
+
+## NETLOGO FEATURES
+
+This model uses two forever buttons which may be active simultaneously, to allow the user to select a new current intersection while the model is running.
+
+It also uses a chooser to allow the user to choose between several different possible plots, or to display all of them at once.
+
+## RELATED MODELS
+
+- "Traffic Basic": a simple model of the movement of cars on a highway.
+
+- "Traffic Basic Utility": a version of "Traffic Basic" including a utility function for the cars.
+
+- "Traffic Basic Adaptive": a version of "Traffic Basic" where cars adapt their acceleration to try and maintain a smooth flow of traffic.
+
+- "Traffic Basic Adaptive Individuals": a version of "Traffic Basic Adaptive" where each car adapts individually, instead of all cars adapting in unison.
+
+- "Traffic 2 Lanes": a more sophisticated two-lane version of the "Traffic Basic" model.
+
+- "Traffic Intersection": a model of cars traveling through a single intersection.
+
+- "Traffic Grid Goal": a version of "Traffic Grid" where the cars have goals, namely to drive to and from work.
+
+- "Gridlock HubNet": a version of "Traffic Grid" where students control traffic lights in real-time.
+
+- "Gridlock Alternate HubNet": a version of "Gridlock HubNet" where students can enter NetLogo code to plot custom metrics.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. (2003).  NetLogo Traffic Grid model.  http://ccl.northwestern.edu/netlogo/models/TrafficGrid.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2003 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This model was created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
+
+<!-- 2003 -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="180" y="15"></point>
+        <point x="164" y="21"></point>
+        <point x="144" y="39"></point>
+        <point x="135" y="60"></point>
+        <point x="132" y="74"></point>
+        <point x="106" y="87"></point>
+        <point x="84" y="97"></point>
+        <point x="63" y="115"></point>
+        <point x="50" y="141"></point>
+        <point x="50" y="165"></point>
+        <point x="60" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="165" y="285"></point>
+        <point x="225" y="285"></point>
+        <point x="225" y="15"></point>
+        <point x="180" y="15"></point>
+      </polygon>
+      <circle x="180" y="30" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="80" y="138"></point>
+        <point x="78" y="168"></point>
+        <point x="135" y="166"></point>
+        <point x="135" y="91"></point>
+        <point x="105" y="106"></point>
+        <point x="96" y="111"></point>
+        <point x="89" y="120"></point>
+      </polygon>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="47" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>

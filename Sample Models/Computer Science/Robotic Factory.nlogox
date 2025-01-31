@@ -1,0 +1,1370 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[breed [ cutters cutter ]
+breed [ stitchers stitcher ]
+breed [ finishers finisher ]
+breed [ storages storage ]
+breed [ robots robot ]
+breed [ robot-rooms robot-room ]
+breed [ loading-docks loading-dock ]
+breed [ orders order ]
+
+turtles-own   [
+  product             ; the finished product the turtle has
+  supply              ; the amount of material used to create a product
+  turtles-present     ; the total number of turtles here
+]
+
+finishers-own
+[
+  deluxe-level        ; whether an order is luxurious or standard, which effects processing time at the finishers.
+  build-counter       ; finishers process orders in different times based on if it is a standard, or a luxurious order,
+                      ;      build-counter keeps track of that build time as the finisher processes
+  queued-supply       ; finishers do not instantly process supply, this store the supply that robots bring to a finisher for future processing.
+  processing-order?   ; the finisher can receive luxurious or standard orders, this boolean keeps track of the current order type
+]
+robots-own
+[
+  energy              ; what robots use to drive with
+  laden?              ; whether the robot is carrying anything
+  destination         ; where the robot is current going
+  idleness            ; a counter of time this robot has spend idle
+  product-type        ; keeps track of the order type in a string
+]
+
+orders-own [
+  type-of-order       ; an order can be standard or luxurious, this keeps track of that for each order created.
+]
+
+
+to setup ; imports the base image from the folder, sets up the color of the factory, adds the processing machines, and robots.
+
+  clear-all
+
+  import-drawing "Robotic Factory Base Image.png"
+
+  ask patches [ set pcolor grey + 4 ]
+
+  ; There are two each of cutters, stitchers and finishers
+  create-cutters 1 [ setxy 10 -6  set color blue set shape "x" ]
+  create-cutters 1 [ setxy 10 -11 set color blue set shape "x" ]
+
+  create-stitchers 1 [ setxy 4 8 set color red set shape "box 2" ]
+  create-stitchers 1 [ setxy 4 3 set color red set shape "box 2" ]
+
+  create-finishers 1 [ setxy 0 -4 set color green set deluxe-level 1 set shape "circle" set processing-order? false ]
+  create-finishers 1 [ setxy 2 -8 set color green set deluxe-level 2 set shape "circle" set processing-order? false ]
+
+  create-storages 1 [ setxy -6 4 set shape "box" set color magenta]
+
+  create-robot-rooms 1 [ setxy -11 -7 set shape "box" set color yellow ]
+
+  create-loading-docks 1 [ setxy 13 4 set shape "box" set color black set supply 10 set shape "box 2"]
+
+  create-robots number-of-robots  [ ; creates a variable number of robots and sets their values
+    setxy random-xcor random-ycor
+    set color grey
+    set destination "none"
+    set laden? false
+    set energy full-charge
+  ]
+  ask robots [set destination one-of loading-docks] ; sends all the robots to the loading dock to start
+
+  reset-ticks
+end
+
+to go ; the simulation loops that repeats forever
+
+  make-garments
+  set-robots-destination
+  return-home
+  recharge
+  deliver-more-material-sheets
+  shift-change
+  label-agents
+
+  ask turtles [
+    set turtles-present count turtles-here
+    ifelse make-trails? [ pen-down ] [ pen-up ]
+  ]
+
+  tick
+end
+
+
+to set-robots-destination ; sets the destination of robot based on its energy, laden? status and current location
+  ask robots [ ; ask all the robots to implement the following
+    (ifelse ; takes account of the type of breed of machine here to operate across several states.
+      ; LOADING DOCKS
+      [ breed ] of destination = loading-docks [ ; if the robot's destination is loading dock
+
+        ifelse any? loading-docks-here [ ; Check if the robot has reached the loading doc  ;
+
+          if [supply] of one-of loading-docks-here > 0 [; if there is a loading dock here with supply
+            set product product + 1 ; increase the robots production
+            set product-type "bolts" ; keep track of the type of product with a string
+            set destination one-of cutters ; set the robots destination of the cutters
+            ask one-of loading-docks-here [ if supply > 0 [set supply supply - 1] ] ] ; then ask the loading dock to reduce its supply by 1
+        ]
+        [ move ] ; otherwise, If the robot is not at its destination, it moves towards its destination.
+      ]
+      ; CUTTERS
+      [ breed ] of destination = cutters [ ; if the destination of the robot is cutters
+        ifelse any? cutters-here [ ; if the robot is at a cutter
+          if product > 0 [ ; if it has some product
+            set product 0 ;  drop off the product
+            ask one-of cutters-here [set supply supply + 1]; and add to the cutters supply of material to process
+            stop ; and leave the loop to come back next tick.
+          ]
+          ifelse [product] of one-of cutters-here > 0 [; if the machine has some products to pick up
+            set product product + 1 ; add some product to the robot
+            set product-type "cuttings" ; set the product type to cutting
+            set destination one-of stitchers ; set the destination to one of the stitchers
+            ask one-of cutters-here [ if supply > 0 [set supply supply - 1] ] ] ; decrement supply
+          [ set destination one-of loading-docks ] ; otherwise, go back to the loading docks
+        ]
+        [ move ] ; otherwise, if the robot is not at its destination, it moves towards its destination.
+      ]
+      ; STITCHERS
+      [ breed ] of destination = stitchers [ ; if the destination of the robot is stitchers
+        ifelse any? stitchers-here [ ; If the robot is at a sticker
+          if product > 0 [ ; we drop off some supply
+            set product 0  ;  drop off the product
+            ask one-of stitchers-here [set supply supply + 1] ;the supply goes to the stitcher
+            stop ; and leave the loop to come back next tick.
+          ]
+          ifelse [product] of one-of stitchers-here > 0 [ ; if the stitcher has some product, get the robots to carry it to the correct finisher
+            set product product + 1 ; increase the robots product
+            if any? orders [ ;then check the lit of orders,
+              let order-now one-of orders ; assign the order to one of the robots
+              set product-type [type-of-order] of order-now ; the robot sets its product type to the type of order of one of the outstanding orders.
+              ask order-now [die] ; we check that order off the list
+            ]
+            ifelse product-type = 0 [ ; if the product type is standard,
+              set destination one-of finishers ; we take the supply to either of the finishers.
+            ][ ; otherwise, we take the order specifically the the finisher that can handle deluxe orders.
+              set destination one-of finishers with [deluxe-level = 2]
+            ]
+            ask one-of stitchers-here [ if supply > 0 [ set supply supply - 1 ] ] ] ; then the stitcher reduces supply
+          [
+            set destination one-of loading-docks ; if there isn't anything to carry the robot heads back to the loading doc.
+          ]
+        ]
+        [ move ] ; otherwise, if the robot is not at its destination, it moves towards its destination.
+      ]
+      ; FINISHERS
+      [ breed ] of destination = finishers [; if the destination is finisher
+        ifelse any? finishers-here [ ; if the robot reaches a finisher
+          if product > 0 [ ; drop off some product if the robot is carrying any
+            set product 0
+            ; increase the finishers supply. Importantly through the make-garments and finish functions
+            ; the finishers take account of how long it takes them to process an order based on order type.
+            ask one-of finishers-here [set supply supply + 1]
+            stop
+          ]
+          ifelse [product] of one-of finishers-here > 0 [; When the finishers finish processing the order based on the finish function, and they have some supply
+            set product product + 1 ; increase the robots product
+            set product-type "finishing" ; set the product type to finishing
+            set destination one-of storages ; and set the destination the storage room.
+            ask one-of finishers-here [ finish ] ; the finisher then processes the order.
+          ][
+            set destination one-of loading-docks ; if not any product, head back to start.
+          ]
+        ]
+        [ move ] ; otherwise, if the robot is not at its destination, it moves towards its destination.
+      ]
+      ; STORAGE
+      [ breed ] of destination = storages [ ; if the robot is at the storage
+        ifelse any? storages-here [ ; when it arrives
+          if product > 0 [ ; dropoff what the robot is carrying
+            set product 0
+            ask one-of storages-here [set supply supply + 1] ; increase the storage
+          ]
+          set product-type "nothing" ; empty the robot
+          set destination one-of loading-docks ; send it back to start.
+        ]
+        [ move ]
+      ]
+      ; ROBOT ROOM
+      [ breed ] of destination = robot-rooms [ move ] ; if the destination of a robot is robot room, go to the robot room
+
+      ; EXCEPTIONS
+      [ breed ] of destination = "none" [ set destination one-of loading-docks ] ; if the destination is not set, go to the loading docks
+      [ breed ] of destination = nobody [ set destination one-of robot-rooms   ] ; if the destination is empty, go to the charging station
+
+      [ set destination one-of loading-docks ] ; if we don't have a destination, go back to the start.
+    )
+  ]
+end
+
+
+to return-home
+  ; When their energy level becomes low, robots must return to a robot room to recharge.
+  ask robots [ if energy < 2 [ set destination one-of robot-rooms ] ]
+end
+
+to recharge
+  ; They recharge at a rate of 5 units per simulation cycle.
+  let choice 0
+
+  ask robot-rooms [
+    ask robots in-radius 2 [
+      set laden? false
+      set product 0
+      set product-type 0
+      set energy energy + 5
+      set idleness idleness + 1
+
+      if energy >= full-charge [
+        set choice one-of [1 2 ]
+        ifelse choice = 1 [
+          set destination (one-of turtles with [turtles-present = robot-supply-need ])
+        ][
+          set destination (one-of loading-docks)
+        ]
+      ]
+    ]
+    if sum [supply] of loading-docks > 0 [ ; if robots are needed for immediate tasks, interrupt some charging and send a robot.
+      if any? robots-here [
+        ask one-of robots-here [
+          ; note: this could be changed to a different heuristic, like selecting the robot
+          ; with the most energy.
+          if energy > just-in-time-supply-robot [ set destination one-of loading-docks ]
+        ]
+      ]
+    ]
+  ]
+end
+
+to make-garments ; Machines process supply into product at a rate of 1 per tick.
+  ask cutters   [
+    if supply > 0 [
+      set product product + 1
+      set supply supply - 1
+    ]
+  ]
+  ask stitchers [
+    if supply > 0 [
+      set product product + 1
+      set supply supply - 1
+    ]
+  ]
+  ; There are two qualities of goods in the model, luxurious and standard. This only impacts the finishers.
+  ; These are processed at a rate of once for 7 ticks and once per 4 ticks, respectively.
+  finish
+end
+
+
+; there is external supply of new materials. In this model we simplify this, and every so often add a random additional supply to the loading dock
+to controller-sends-garments
+  ask loading-docks [ set supply supply + random 10 ]
+end
+
+to deliver-more-material-sheets ; 3% of the time, when the supply at the loading dock gets low, add some more supply to the loading dock.
+  if random 100 < 3 [ if sum [supply] of loading-docks < 3 [ controller-sends-garments ] ]
+
+  ask loading-docks [
+    if random 100 < 3 [ ; additionally, orders come in 3% of the time that can be luxurious, or standard.
+      hatch-orders random 3 [
+        set type-of-order random 2
+        set size 1 set shape "box"
+      ]
+    ]
+  ]
+end
+
+; Robots move toward their destination set by the set-robots-destination procedure
+to move
+  if can-move? 1 [forward 1 face destination]
+  ifelse product > 0 [ ; if the are carrying something, robots lose two energy
+    set laden? true
+    set energy energy - 2
+  ]
+  [
+    set laden? false ; otherwise, if they are not carrying something they lose 1 energy,
+    set energy energy - 1
+    set idleness idleness + 1 ; and increase their idleness score by 1 each tick.
+  ]
+end
+
+
+
+
+to finish ; the two finishers can hand either luxurious or standard orders. The one that does higher end orders, takes 7 ticks to process supply. The other one takes 4.
+  ask finishers [
+    if supply > 0 [
+      set queued-supply queued-supply + 1 ; the finishers stores supply as its delivered for future processing.
+      set supply supply - 1
+    ]
+    if queued-supply > 1 and not processing-order? and build-counter = 0 [
+      ifelse deluxe-level = 1 [ set build-counter 4 ] [ set build-counter 7 ]
+    ]
+    if build-counter > 0 [
+      set processing-order? true
+      set build-counter build-counter - 1
+    ]
+    if build-counter = 0 and processing-order? [
+      set product product + 1
+      set processing-order? false
+      set queued-supply queued-supply - 1
+    ]
+  ]
+end
+
+to shift-change ; occasionally, move robots back to the loading dock to initiate a new shift.
+  if random 100 < 2 [ ask n-of 3 robots [ set destination one-of loading-docks ] ]
+end
+
+to label-agents ; places tbhe labels on the agents if switched on
+  ifelse show-agent-name? [
+    ask turtles [ set label (word breed " "  who) set label-color black ]
+  ]
+  [ ask turtles [ set label "" ] ]
+
+end
+
+to-report robot-supply-need
+  let return nobody
+  set return min [ turtles-present ] of turtles with [breed != robots]
+  report return
+end
+
+
+; Copyright 2021 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="210" maxPycor="16" updateMode="1" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-16" height="801" showTickCounter="true" patchSize="24.0" fontSize="10" wrappingAllowedY="false" width="800" tickCounterLabel="ticks" maxPxcor="16" minPxcor="-16"></view>
+    <button x="30" y="10" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="65" display="setup">setup
+setup</button>
+    <button x="100" y="10" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="63">go</button>
+    <monitor x="20" precision="17" y="105" height="45" fontSize="11" width="155" display="Products Ready for Van">sum [ supply ] of storages</monitor>
+    <slider x="5" step="1" y="215" height="33" min="0" direction="Horizontal" max="1000" default="350.0" variable="full-charge" units="energy" width="200" display="full-charge"></slider>
+    <plot x="1026" yMax="10.0" yAxis="Percentage of Time" y="12" xMin="0.0" height="150" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="200" xAxis="Time" display="Percentage Time Robots Idle">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="default">
+        <setup></setup>
+        <update><![CDATA[if ticks > 0 [ 
+  plot (sum [ idleness ] of robots ) / ticks
+]]]></update>
+      </pen>
+    </plot>
+    <switch x="5" y="335" height="33" on="true" variable="make-trails?" width="200" display="make-trails?"></switch>
+    <monitor x="20" precision="17" y="55" height="45" fontSize="11" width="155" display="New Sheets">sum [ supply ] of loading-docks</monitor>
+    <plot x="1026" yMax="4.0" yAxis="Percent of Robots" y="168" xMin="0.0" height="150" legend="false" xMax="600.0" autoplot="true" yMin="0.0" width="200" xAxis="Time" display="Robots' Energy">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="1" display="default">
+        <setup></setup>
+        <update>histogram [ energy ] of robots</update>
+      </pen>
+    </plot>
+    <slider x="5" step="1" y="250" height="33" min="0" direction="Horizontal" max="300" default="150.0" variable="just-in-time-supply-robot" width="200" display="just-in-time-supply-robot"></slider>
+    <switch x="5" y="295" height="33" on="true" variable="show-agent-name?" width="200" display="show-agent-name?"></switch>
+    <plot x="1026" yMax="10.0" yAxis="Supply" y="322" xMin="0.0" height="150" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="293" xAxis="Time" display="Supply of Machines">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="Finishers">
+        <setup></setup>
+        <update>plot sum [ supply ] of finishers</update>
+      </pen>
+      <pen color="-7500403" legend="true" interval="1.0" mode="0" display="Cutters">
+        <setup></setup>
+        <update>plot sum [ supply ] of cutters</update>
+      </pen>
+      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="Stitchers">
+        <setup></setup>
+        <update>plot sum [ supply ] of stitchers</update>
+      </pen>
+      <pen color="-955883" legend="true" interval="1.0" mode="0" display="Loading Docks">
+        <setup></setup>
+        <update>plot sum [ supply ] of loading-docks</update>
+      </pen>
+    </plot>
+    <plot x="1230" yMax="10.0" yAxis="Orders" y="12" xMin="0.0" height="151" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="342" xAxis="Time" display="Outstanding Orders">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="Total Orders">
+        <setup></setup>
+        <update>plot count orders</update>
+      </pen>
+      <pen color="-7500403" legend="true" interval="1.0" mode="0" display="Deluxe Orders">
+        <setup></setup>
+        <update>plot count orders with [ type-of-order = 1 ]</update>
+      </pen>
+      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="Standard Orders">
+        <setup></setup>
+        <update>plot count orders with [ type-of-order = 0 ]</update>
+      </pen>
+    </plot>
+    <slider x="5" step="1" y="180" height="33" min="3" direction="Horizontal" max="20" default="5.0" variable="number-of-robots" width="200" display="number-of-robots"></slider>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This model demonstrates a resilient robot factory that runs autonomously, based on the principles of self-organization so prevalent in nature. In the model, a garment factory is completely automated but attached to an unpredictable external world (suppliers). The robots carry products from one machine to the next, and then out to the van to be whisked away. Nature has long experience with persisting in an interconnected world. If only humans could self organize as efficiently and resiliently as bees or ants do. We need more resilient human systems that borrow from nature, such as this model.
+
+### The Factory, an Emergent or Sequential Process?
+
+In order to reimagine resilient human systems, we need to redesign many systems from sequential systems, prevalent in the industrial age, to emergent processes, which are so prevalent in nature. For Chi et al. (2012) processes, can be categorized in two ways – sequential or emergent. Sequential processes can be subdivided into a sequence of events, like an assembly line where the metal is rolled, pressed, stamped, and smoothed before being turned into cans and filled with tomato sauce. This is a process with multiple agents: the machines, their operators, and a manager. It makes sense to speak of sequential processes resulting from a single agent’s actions. For example, we could say the manager increased efficiency of the assembly process by increasing the speed of the conveyor belt. Even though all the agents participated in the process, we can focus on the goal setting manager’s actions to account for the change. As a result, Chi et al. say one can give special controlling status to the agent that caused the change in a sequential process. This means if someone thinks of a process as sequential, they tend to interpret interactions at the agent level as done in order to reach the goal of the higher level (See Wilensky & Resnick, 1999). For the assembly line, this can make sense. The causal mechanism that leads to the result comes from the summing of the assembly line’s outcomes directed by the manager. But, for emergent systems, such as ant colonies, this can lead to false assumptions (like that the queen ant gives direction to all the other ants). Many people confuse this control when thinking about emergent processes, what Wilensky & Resnick call Levels Confusion.
+
+Emergent processes, like ants searching for food, marching in orderly paths, or getting stuck in a doorway are different. These processes result from each ant taking actions, some of them random, where the result emerges from the repetition of the action, but no agent is in control. These processes are encountered in school standards such as osmosis and diffusion, electrical current and buoyancy.
+
+This model configures a factory to be an emergent, as opposed to a sequential process, providing a novel design of a factory floor. This model is emergent because instead of operating on the processes of the factory, we set key properties that establish the emergent pattern of the model: the energy cycle. In other words, the efficiencies result from operating on the emergent, instead of operational, parameters. This is an example of humans designing an emergent system to meet business needs.
+
+## HOW IT WORKS
+
+The model initializes with 2 cutters, 2 stitchers, 2 finishers (one lux, one standard), a storage room, and a loading dock and places them in the correct place in the factory. Finally, it creates some robots, initializes all of these with starting parameters, and then all the robots are sent to the loading dock.
+
+Every tick, machines process various garments by moving them through the factory. If the robots are carrying garments, then they spend more energy to move. There are two quality levels of garment "luxurious" and "standard". Each order is either "luxurious" or "standard". Both finishers can produce ‘standard’ garments but only Finisher 1 can produce the "luxurious" version. Finisher 1 takes 7 simulation cycles to complete the garment, whilst Finisher 2 takes 4 cycles. This creates a manufacturing bottleneck that induces the need for more resistant robot behavior.
+
+We ask the robots to check their destination against a list of options. They then move towards their destination. When they arrive they drop off supply to that machine. If the machine where the robot arrives has some product (it processes some supply), we pick it up and set our destination to the next machine.
+
+The robots return to the robot room when they run low on power. There, they recharge at a rate of 5 units per tick.
+
+Every so often, a new order comes in which sends materials to the loading dock, either lux, or standard. This creates a supply side bottleneck in the manufacturing. Occasionally there is a shift change. With a 3% probability (a random percentage), if the loading dock is low on supplies, we add between 1 and 10 new supplies. We also create orders on 3% of ticks. This is used for routing orders to the Finishers.
+
+## HOW TO USE IT
+
+Press SETUP and then GO. Examine the graphs, and watch the robots move through the factory.
+
+The MAKE-TRAILS? switch asks Robots to trace their routes on the ground so we can inspect how they travel.
+
+SHOW-AGENT-NAME? shows names of the different agents in the View.
+
+The NUMBER-OF-ROBOTS slider sets how many robots are in the factory at the start.
+
+The FULL-CHARGE slider sets what a full battery is in the model. The higher the value the longer robots go between charges, but also, the longer it takes them to charge up.
+
+Sometimes, to keep a factory moving, a robot needs to go just when needed, even if not fully charged. The JUST-IN-TIME-ROBOT-SUPPLY sets the amount of energy a robot needs to have at the charging station to be selected to meet critical factory needs. The lower it is, the more robots will be available to meet the needs, but they also won't last very long due to their low charge. Tweak this to balance the factory.
+
+## THINGS TO NOTICE
+
+Even though the robots move to semi-random locations after charging, and there is no central controller tracking all the robots locations/allocating orders, the robots do a good job of moving the process through the system with internal bottlenecks.
+
+Note how the external factor of the delivery of new material can slow or stop production.
+
+Also notice the percent of time idle. Note when this goes up or down across various bottlenecks or model parameters.
+
+## THINGS TO TRY
+
+Does increasing the number of robots increase or decrease idleness?
+
+Can you think of a way to reduce idleness in the factory?
+
+Try changing the JUST-IN-TIME-ROBOT-SUPPLY slider up and down. How does it impact the idleness graph?
+
+Try setting the FULL-CHARGE to the max. How does it impact the idleness graph?
+
+## EXTENDING THE MODEL
+
+Does reorganizing the machines change idleness? How else could you improve efficiency? Improve resilience? What happens if one of the machines occasionally breaks? For instance:
+
+Implement shifts, so that robots recharge at two different times.
+
+Make delivery of new sheets more random, to simulate extreme supply shortages.
+
+Right now there is a production bottleneck at the finishers. Add additional bottlenecks in the machine processing.
+
+Right now, robots have to go back to the charging room to recharge. Try adding recharging robots that can bring the charge to the worker robots.
+
+The machines are in a particular arrangement, optimize for idleness or productivity by rearranging the machines.
+
+Currently, robots can always make it back to the robot room to recharge, because they can go into negative energy. This may not be the most realistic model. Change the model so that robots can get stranded if they do not leave for the robot room in time by editing the return-home function.
+
+Python: right now, the robots don't learn, which makes them like a conveyor belt. Using the python extension, implement some learning into the model.
+
+## NETLOGO FEATURES
+
+The variadic ifelse statement is used to implement the state machine (variadic means it can take a variable number of arguments, in this case, multiple conditionals). This makes the model a good demonstration of the procedure.
+
+## RELATED MODELS
+
+This model builds on Ant Adaptation (Martin & Wilensky, 2019), which is based on Hölldobler and Wilson's The Ants (1990).
+
+## CREDITS AND REFERENCES
+
+Hölldobler, B., & Wilson, E. O. (1990). The Ants. Belknap (Harvard University Press), Cambridge, MA.
+
+Chi, M. T. H., Roscoe, R. D., Slotta, J. D., Roy, M., & Chase, C. C. (2012). Misconceived causal explanations for emergent processes. Cognitive Science, 36(1), 1-61. doi:doi:10.1111/j.1551-6709.2011.01207
+
+
+Wilensky , U., & Resnick, M. (1999). Thinking in levels: A dynamic systems approach to making sense of the world. Journal of Science Education and Technology, 8(1), 3-19.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Martin, K. and Wilensky, U. (2021).  NetLogo Robotic Factory model.  http://ccl.northwestern.edu/netlogo/models/RoboticFactory.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2021 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2021 Cite: Martin, K. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="box 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="270" y="225"></point>
+        <point x="270" y="90"></point>
+        <point x="150" y="150"></point>
+      </polygon>
+      <polygon color="764264191" filled="true" marked="false">
+        <point x="150" y="150"></point>
+        <point x="30" y="90"></point>
+        <point x="150" y="30"></point>
+        <point x="270" y="90"></point>
+      </polygon>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="30" y="90"></point>
+        <point x="30" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="sheep" rotatable="false" editableColorIndex="15">
+      <circle x="203" y="65" marked="true" color="-1" diameter="88" filled="true"></circle>
+      <circle x="70" y="65" marked="true" color="-1" diameter="162" filled="true"></circle>
+      <circle x="150" y="105" marked="true" color="-1" diameter="120" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="218" y="120"></point>
+        <point x="240" y="165"></point>
+        <point x="255" y="165"></point>
+        <point x="278" y="120"></point>
+      </polygon>
+      <circle x="214" y="72" marked="false" color="-1920102913" diameter="67" filled="true"></circle>
+      <rectangle endX="179" startY="223" marked="true" color="-1" endY="298" startX="164" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="45" y="285"></point>
+        <point x="30" y="285"></point>
+        <point x="30" y="240"></point>
+        <point x="15" y="195"></point>
+        <point x="45" y="210"></point>
+      </polygon>
+      <circle x="3" y="83" marked="true" color="-1" diameter="150" filled="true"></circle>
+      <rectangle endX="80" startY="221" marked="true" color="-1" endY="296" startX="65" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="195" y="285"></point>
+        <point x="210" y="285"></point>
+        <point x="210" y="240"></point>
+        <point x="240" y="210"></point>
+        <point x="195" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="276" y="85"></point>
+        <point x="285" y="105"></point>
+        <point x="302" y="99"></point>
+        <point x="294" y="83"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="219" y="85"></point>
+        <point x="210" y="105"></point>
+        <point x="193" y="99"></point>
+        <point x="201" y="83"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="wolf" rotatable="false" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="253" y="133"></point>
+        <point x="245" y="131"></point>
+        <point x="245" y="133"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="2" y="194"></point>
+        <point x="13" y="197"></point>
+        <point x="30" y="191"></point>
+        <point x="38" y="193"></point>
+        <point x="38" y="205"></point>
+        <point x="20" y="226"></point>
+        <point x="20" y="257"></point>
+        <point x="27" y="265"></point>
+        <point x="38" y="266"></point>
+        <point x="40" y="260"></point>
+        <point x="31" y="253"></point>
+        <point x="31" y="230"></point>
+        <point x="60" y="206"></point>
+        <point x="68" y="198"></point>
+        <point x="75" y="209"></point>
+        <point x="66" y="228"></point>
+        <point x="65" y="243"></point>
+        <point x="82" y="261"></point>
+        <point x="84" y="268"></point>
+        <point x="100" y="267"></point>
+        <point x="103" y="261"></point>
+        <point x="77" y="239"></point>
+        <point x="79" y="231"></point>
+        <point x="100" y="207"></point>
+        <point x="98" y="196"></point>
+        <point x="119" y="201"></point>
+        <point x="143" y="202"></point>
+        <point x="160" y="195"></point>
+        <point x="166" y="210"></point>
+        <point x="172" y="213"></point>
+        <point x="173" y="238"></point>
+        <point x="167" y="251"></point>
+        <point x="160" y="248"></point>
+        <point x="154" y="265"></point>
+        <point x="169" y="264"></point>
+        <point x="178" y="247"></point>
+        <point x="186" y="240"></point>
+        <point x="198" y="260"></point>
+        <point x="200" y="271"></point>
+        <point x="217" y="271"></point>
+        <point x="219" y="262"></point>
+        <point x="207" y="258"></point>
+        <point x="195" y="230"></point>
+        <point x="192" y="198"></point>
+        <point x="210" y="184"></point>
+        <point x="227" y="164"></point>
+        <point x="242" y="144"></point>
+        <point x="259" y="145"></point>
+        <point x="284" y="151"></point>
+        <point x="277" y="141"></point>
+        <point x="293" y="140"></point>
+        <point x="299" y="134"></point>
+        <point x="297" y="127"></point>
+        <point x="273" y="119"></point>
+        <point x="270" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="-1" y="195"></point>
+        <point x="14" y="180"></point>
+        <point x="36" y="166"></point>
+        <point x="40" y="153"></point>
+        <point x="53" y="140"></point>
+        <point x="82" y="131"></point>
+        <point x="134" y="133"></point>
+        <point x="159" y="126"></point>
+        <point x="188" y="115"></point>
+        <point x="227" y="108"></point>
+        <point x="236" y="102"></point>
+        <point x="238" y="98"></point>
+        <point x="268" y="86"></point>
+        <point x="269" y="92"></point>
+        <point x="281" y="87"></point>
+        <point x="269" y="103"></point>
+        <point x="269" y="113"></point>
+      </polygon>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>

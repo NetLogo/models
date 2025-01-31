@@ -1,0 +1,1375 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Variable and Breed declarations ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+breed [frames frame]
+breed [gatherers gatherer]
+breed [clients client]
+breed [pending-clients pending-client]
+
+globals
+[
+  ;; holds the actual value used to determine how many patches should choose
+  ;; target-color.  this is set when the setup or rerun buttons are pressed.
+  ;; if random-rerun? is true, this will be set to a random value from 0 to 100.
+  ;; otherwise, this is set to whatever the current value of %-target-color is.
+  real-%-target-color
+
+  ;; Users guess the % of target-color in the population
+  target-color  ;; set to green currently
+  other-color  ;; set to blue currently
+  hide-patch-color  ;; the color that patches are colored when they are not revealed
+
+  ;; holds the number of patches in the observer's last sample
+  num-patches-in-observer-sample
+  ;;  holds the number of target color patches in the observer's last sample
+  num-target-color-patches-in-observer-sample
+
+  ;; if you were to segregate the patches by color, target-color to the left and
+  ;; other-color to the right, you would create a contour line at approximately
+  ;; xcor-of-organize-contour
+  xcor-of-organize-contour
+
+  ;; variables for storing various statistics of guesses
+  guesses-list  ;; list of all the clients guesses for this current population
+  guess-average  ;; the average of all the students' guesses
+  averages-list  ;; list of all the averages since we last pressed rerun or setup
+]
+
+patches-own
+[
+  my-color  ;; variables for when user toggles between samples and reveal displays
+
+  ;; a list of the users (including the observer/instructor/server and
+  ;; all active clients) that have this patch in their current sample
+  agents-with-me-in-sample
+]
+
+
+;;;;;;;;;;;;;;;;;;;;;
+;; Setup Functions ;;
+;;;;;;;;;;;;;;;;;;;;;
+
+;; setup the model to be used
+to initialize [ full-setup? ]
+  clear-plot
+  initialize-variables
+  initialize-patches
+  hide-frames
+  abnormality-distribution
+  set organize? false
+  reset-ticks
+  tick
+end
+
+;; initialize-variables when rerunning or setting up
+to initialize-variables
+
+  init-color-vars
+
+  ;; the contour line between colors will be at a location proportionate to the
+  ;; real-%-target-color of screen-size-x.  for example, if real-%-target-color
+  ;; is 70 then about 70% of the Graphics Window will be solid target-color
+  ;; beginning from the left and extending to the right.
+  set xcor-of-organize-contour min-pxcor + (real-%-target-color * world-width / 100)
+  set averages-list []
+  start-over-variables
+end
+
+;; initialize the color-related variables
+to init-color-vars
+  set target-color green - 1
+  set other-color blue
+  set hide-patch-color 3
+  ifelse random-rerun?
+  [
+    set real-%-target-color random 101
+    set %-target-color 0
+  ]
+  [ set real-%-target-color %-target-color ]
+end
+
+;; initialize variables that are needed when collecting a set of data for the
+;; current population
+to start-over-variables
+  set num-patches-in-observer-sample 0
+  set num-target-color-patches-in-observer-sample 0
+  set guesses-list []
+  set guess-average 0
+end
+
+;; initialize patch variables
+to initialize-patches
+  set-default-shape frames "frame"
+  ask patches
+  [
+    initialize-patch-colors
+    setup-frames
+    set agents-with-me-in-sample []
+  ]
+end
+
+;; initialize patches colors.  this is where the patches determine whether they
+;; are target-color or other-color
+to initialize-patch-colors  ;; patch procedure
+  set pcolor hide-patch-color  ;; default color of patches when not revealed
+  ;; each patch "throws a die" to determine if it's target-color or other-color
+  ifelse random-float 100.0 < real-%-target-color
+  [ set my-color target-color ]
+  [ set my-color other-color ]
+end
+
+;; each patch creates a frame which give the optional grid appearance
+to setup-frames  ;; patch procedure
+  if not any? frames-here
+  [
+    sprout 1
+    [
+      set breed frames
+      hide-turtle
+    ]
+  ]
+end
+
+;; ask all the frames to hide, even if grid? is true
+to hide-frames
+  ask frames
+  [ hide-turtle ]
+end
+
+;; create and kill gatherers which modify the bi-linear random distribution of
+;; target-color and other-color patches in the population.  in other words, it
+;; creates turtles which clump like-colored patches
+to abnormality-distribution
+  create-gatherers (4 + random 4)  ;; create gatherers
+  [
+    hide-turtle
+    setxy (random-float world-width) (random-float world-height)
+    rt random-float 360.0
+    gather
+    die
+  ]
+end
+
+;; clump like-colored patches by swapping patch colors from progressively
+;; further patches around your location based on the abnormality slider
+to gather  ;; gatherer procedure
+  let index 0
+  let a-patch 0
+  let another-patch 0
+
+  set index ( 20 * abnormality )
+  while [ index > 0 ]
+  [
+    set a-patch one-of patches in-radius 16 with [ my-color = target-color ]
+    set another-patch one-of patches in-radius 8 with [ my-color = other-color ]
+    if (a-patch != nobody and another-patch != nobody)
+    [ swap-my-color a-patch another-patch ]
+    set index (index - 1)
+  ]
+end
+
+;; swap my-colors between two patches
+to swap-my-color [ a-patch another-patch ]
+  let color-buffer 0
+
+  set color-buffer [my-color] of a-patch
+  ask a-patch [ set my-color [my-color] of another-patch ]
+  ask another-patch [ set my-color color-buffer ]
+end
+
+;; setup the model for use.  this kills all the turtles and should only be used
+;; with a new group
+to setup
+    clear-all
+    set organize? false
+    initialize true ;; initialize turns back on the display
+    reset-ticks
+ ; ]
+end
+
+;; setup the model for use.  this doesn't kill all the turtles and so should be
+;; used if you want to create a new population for the current set of clients.
+to go
+  initialize false
+end
+
+;; make sure that the user really wants to use the same population
+
+;; prepare the patches to be sampled with the same population
+to start-over-patches
+  ask patches
+  [
+    set pcolor hide-patch-color
+    ;; don't clear the agents-with-me-in-sample list if we are keeping the samples
+    if not keep-samples?
+    [ set agents-with-me-in-sample [] ]
+  ]
+  hide-frames
+end
+
+;; plot means and mean of means
+to start-over-plot
+  let list-counter 0
+
+  clear-plot
+  set-current-plot-pen "means"
+  set list-counter 0
+  ;; plot a line for each item in averages-list
+  repeat length averages-list
+  [
+    plot-pen-up
+    plotxy (item list-counter averages-list)  0
+    plot-pen-down
+    plotxy (item list-counter averages-list) 25
+    set list-counter list-counter + 1
+  ]
+  ;; if there are at least 2 items in averages-list, plot the mean of all the items
+  if length averages-list > 1
+  [
+    set-current-plot-pen "mean-of-means"
+    plot-pen-up
+    plotxy mean averages-list 0
+    plot-pen-down
+    plotxy mean averages-list 25
+  ]
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;; Runtime Functions ;;
+;;;;;;;;;;;;;;;;;;;;;;;
+
+;; if the user clicks in the graphics window, take a sample where the click
+;; occurred.  the size of the sample depends upon the current value of the
+;; sample-block-side slider
+to sample
+  if mouse-down?
+  [
+    change-sample (round mouse-xcor) (round mouse-ycor) sample-block-side "observer"
+  ]
+  tick
+end
+
+;; based on input, create the chosen sample and
+;; have all patches in it set pcolor to my-color
+to change-sample [ x y block-side agent ]
+  let patches-in-sample 0
+
+  set patches-in-sample nobody
+
+  ;; designates all patches in a square around the mouse spot as being in the sample.
+  ;; the sample-block side is set on the interface using the slider
+  ask patch x y
+  [
+    let d (block-side - 1) / 2
+    set patches-in-sample in-rectangle patches d d
+  ]
+
+  ;; hide all the patches and frames
+  ask patches with [ true ]
+  [ set pcolor hide-patch-color ]
+  ask frames
+  [ hide-turtle ]
+
+  ;; show the patches their frames (if grid? is true) in the currently chosen sample
+  ask patches-in-sample
+  [
+    set pcolor my-color
+    ask frames-here
+    [ set hidden? not grid? ]
+  ]
+
+  if keep-samples?
+  [
+    ;; show all the patches which were previously sampled while
+    ;; keep-samples? was true
+    ask patches with [ member? agent agents-with-me-in-sample ]
+    [ set pcolor my-color ]
+
+    ask patches-in-sample
+    [
+      ;; add agent to my list of agents that have me in their samples
+      ;; so that the agent will keep seeing me when taking subsequent
+      ;; samples (if keep-samples? is true)
+      if( not member? agent agents-with-me-in-sample )
+      [ set agents-with-me-in-sample fput agent agents-with-me-in-sample ]
+    ]
+  ]
+  if agent = "observer"
+  [
+    set num-patches-in-observer-sample count patches-in-sample
+    set num-target-color-patches-in-observer-sample
+      count patches-in-sample with [ pcolor = target-color ]
+  ]
+end
+
+;; report the agentset within a box that has a width = (width/2 * 2) + 1
+;; and a height = (height/2 * 2) + 1 and is centered on the calling agent
+to-report in-rectangle [ patchset width/2 height/2 ]  ;; turtle and patch procedure
+  ;; this procedure does not work with a non-patch-agentset variable
+  if not is-patch-set? patchset
+    [ report nobody ]
+  let min-x pxcor - width/2
+  let max-x pxcor + width/2
+  let min-y pycor - height/2
+  let max-y pycor + height/2
+  report patchset with
+  [
+    pxcor >= min-x and pxcor <= max-x and
+    pycor >= min-y and pycor <= max-y
+  ]
+end
+
+;; reveal the whole population - have all the patches show their 'true' colors
+to reveal
+  set num-patches-in-observer-sample 0
+
+  ;; grid? is the option to have frames around each patch
+  ask frames
+  [ set hidden? not grid? ]
+
+  ask patches
+  [
+    ifelse organize?
+    [
+      ;; When we reveal the population with organize? true, we get a vertical
+      ;; contour. Patches with target-color are on the left and other
+      ;; patches are on the right
+      ifelse pxcor < round xcor-of-organize-contour
+      [ set pcolor target-color ]
+      [ set pcolor other-color ]
+     set %-target-color real-%-target-color
+    ]
+    [ set pcolor my-color ]
+  ]
+  tick
+end
+
+;; reports the proportion of patches with target-color in the current sample
+;; if there has been no sample chosen yet, patches-in-sample is nobody.  so
+;; report -1 as an error code.
+to-report target-color-%-in-sample
+  ifelse (num-patches-in-observer-sample = 0)
+  [ report -1 ]
+  [ report (100 * num-target-color-patches-in-observer-sample /
+      num-patches-in-observer-sample) ]
+end
+
+
+;; cause the graphics window to show all the samples that students have
+;; taken this far
+to pool-samples
+  ask patches
+  [
+    ifelse length agents-with-me-in-sample = 0
+    [ set pcolor hide-patch-color ]
+    [
+      set pcolor my-color
+      ;; put all the clients (including "observer") into agents-with-me-in-sample
+      set agents-with-me-in-sample lput "observer" sort clients
+    ]
+  ]
+  tick
+end
+
+
+to simulate-classroom-histogram
+  let class-size 25
+  let err 0
+  let class-mean 0
+  let stand-dev 0
+  if real-%-target-color = 0 [
+    set stand-dev 0 set class-mean 0 set err 0
+  ]
+  if real-%-target-color > 0 and real-%-target-color <= 5  [
+    set class-mean %-target-color + 2 set stand-dev 1.5 set err 1
+  ]
+  if real-%-target-color > 5 and real-%-target-color <= 7 [
+    set class-mean %-target-color + 3 set stand-dev 2 set err -2 + random 5
+  ]
+  if real-%-target-color > 7 and real-%-target-color <= 30 [
+    set class-mean %-target-color + 3 set stand-dev 6 set err -2 + random 5
+  ]
+  if real-%-target-color > 30 and real-%-target-color <= 70 [
+    set class-mean %-target-color + 3 set stand-dev 8 set err -3 + random 7
+  ]
+  if real-%-target-color > 70 and real-%-target-color <= 93 [
+    set class-mean %-target-color + 3 set stand-dev 6 set err -2 + random 5
+  ]
+  if real-%-target-color > 93 and real-%-target-color < 100 [
+    set class-mean %-target-color - 2 set stand-dev 1.5 set err -1
+  ]
+  if real-%-target-color = 100 [
+    set stand-dev 0 set class-mean 100 set err 0
+  ]
+
+  set class-mean ( real-%-target-color + err )
+  set organize? true
+  reveal
+  set guesses-list []
+  repeat class-size [
+    set guesses-list (lput random-normal class-mean stand-dev guesses-list)
+  ]
+  plot-guesses
+end
+
+
+to plot-guesses
+  set-current-plot "Student Guesses"
+  clear-plot
+  set-current-plot-pen "guesses"
+  set-histogram-num-bars 100 / cluster-guesses
+  histogram guesses-list
+  set-current-plot-pen "mean-of-guesses"
+  plot-pen-up plotxy (mean guesses-list) plot-y-min
+  plot-pen-down plotxy (mean guesses-list) plot-y-max
+end
+
+
+; Copyright 2009 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="280" maxPycor="99" updateMode="1" wrappingAllowedX="true" y="45" frameRate="30.0" minPycor="0" height="409" showTickCounter="false" patchSize="4.0" fontSize="10" wrappingAllowedY="true" width="408" tickCounterLabel="ticks" maxPxcor="99" minPxcor="0"></view>
+    <slider x="120" step="2" y="160" height="33" min="1" direction="Horizontal" max="11" default="3.0" variable="sample-block-side" width="145" display="sample-block-side"></slider>
+    <plot x="260" yMax="6.0" yAxis="# students" y="480" xMin="0.0" height="135" legend="true" xMax="100.0" autoplot="true" yMin="0.0" width="545" xAxis=" %-target-color" display="Student Guesses">
+      <setup></setup>
+      <update></update>
+      <pen color="-2674135" legend="true" interval="1.0" mode="1" display="guesses">
+        <setup></setup>
+        <update></update>
+      </pen>
+      <pen color="-5825686" legend="true" interval="1.0" mode="0" display="mean-of-guesses">
+        <setup></setup>
+        <update></update>
+      </pen>
+      <pen color="-6459832" legend="true" interval="1.0" mode="0" display="means">
+        <setup></setup>
+        <update></update>
+      </pen>
+      <pen color="-11221820" legend="true" interval="1.0" mode="0" display="mean-of-means">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <button x="10" y="120" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="108" display="Reveal Pop.">reveal</button>
+    <switch x="121" y="121" height="33" on="true" variable="organize?" width="145" display="organize?"></switch>
+    <switch x="120" y="230" height="33" on="false" variable="grid?" width="145" display="grid?"></switch>
+    <slider x="280" step="1" y="10" height="33" min="0" direction="Horizontal" max="100" default="0.0" variable="%-target-color" width="410" display="%-target-color"></slider>
+    <button x="10" y="45" height="70" disableUntilTicks="true" forever="false" kind="Observer" width="107" display="Rerun">go</button>
+    <slider x="10" step="1" y="355" height="33" min="1" direction="Horizontal" max="10" default="3.0" variable="cluster-guesses" width="255" display="cluster-guesses"></slider>
+    <button x="10" y="160" height="105" disableUntilTicks="true" forever="true" kind="Observer" width="108" display="Sample">sample</button>
+    <switch x="120" y="195" height="33" on="false" variable="keep-samples?" width="145" display="keep-samples?"></switch>
+    <button x="10" y="10" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="255" display="Setup">setup</button>
+    <slider x="120" step="1" y="80" height="33" min="0" direction="Horizontal" max="10" default="4.0" variable="abnormality" width="145" display="abnormality"></slider>
+    <switch x="120" y="45" height="33" on="false" variable="random-rerun?" width="145" display="random-rerun?"></switch>
+    <button x="10" y="270" height="49" disableUntilTicks="true" forever="false" kind="Observer" width="255" display="Simulate Classroom Histogram">simulate-classroom-histogram</button>
+    <button x="10" y="320" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="255" display="Clear Histogram">clear-plot</button>
+    <note x="20" y="480" height="121" color="0.0" transparent="false" fontSize="11" width="225">The histogram simulates a typical run
+in a classroom. The aggregation of
+students' guesses approximates a
+normal distribution, and the
+classroom mean is a few % scores
+off of the population value.</note>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+SAMPLER Solo is part of the ProbLab curricular models, in which students engage in probability-and-statistics activities as individuals and as a classroom.  SAMPLER stands for Statistics as Multi-Participant Learning-Environment Resource.  It is called "multi-participant", because there is a HubNet version of this model, which was created before the solo version was built.
+
+In both versions, users take samples from a giant grid consisting of tiny squares that are revealed as either green or blue, and then the users guess the greenness of the grid on the basis of these samples. The suggested activities are designed to create opportunities for learners to discover and discuss several basic notions of statistics, such as mean, distribution, and margin of error.
+
+In SAMPLER Solo, a teacher can prepare to run the HubNet version by getting to know the environment and encountering features that simulate the classroom functioning of the model.  Or a student could work on the model on her own, in class or at home, whether to prepare for participating in the classroom version - becoming an expert sampler! - or as a follow-up activity.  Or one could work on the model regardless of the classroom context.
+
+## PEDAGOGICAL NOTE
+
+In SAMPLER, statistics is presented as a task of making inferences about a population under conditions of uncertainty due to limited resources. For example, if you wanted to know what percentage of students in your city speak a language other than English, how would you go about it? Would it be enough to measure the distribution of this variable in your own classroom? If so, then how sure could you be that your conclusions hold for a school in another neighborhood? Are there certain groups of people that it would make more sense to use as a sample? For instance, would it make sense to stand outside a movie house that is showing a French film with no subtitles and ask each patron whether they speak a second language? Is this a representative sample? Should we look at certain parts of town? Would all parts of town be the same? Oh, and by the way, what is an average (a mean)? A variable? A value? What does it mean to measure a distribution of a variable within a population?
+
+Many students experience difficulty understanding statistics--not only in middle and high school, but also in college and beyond.  Yet, we all share certain natural capabilities that could be thought of as naive statistics. These capabilities are related to proportional judgments that we cast in our everyday life. We make proportional judgments when we need to decide how to maximize the utility of our actions on the basis of our cumulative experience of how events were distributed For instance, when we come to a new place we may say, "People in this town are very nice." How did we decide that? Or, "Don't buy fruit there--it's often overripe." How did we infer that? Or, "To get to school, take Main street--it's the fastest route in the morning; but drive back through High street, I find that's faster in the afternoon."
+
+## HOW IT WORKS
+
+The View features a "population" of 10,000 tiny squares that are each either green or blue, like a giant matrix of coins that are each either heads or tail.  The model can be set to select a random value for the proportion of green and blue in the population, so that the user does not know this value.  Moreover, these colors are not initially shown - the squares are grey - so that we cannot initially use proportional judgment to guess the proportion of green in the population.  Yet we can reveal the hidden color by "sampling", that is, by clicking on the View.  When you click on a square, not only do you reveal that particular square, but also its surrounding squares, so that the overall shape of the sample is a larger square. The total number of tiny squares revealed in this sample will be determined by the current value set in a slider called "sample-block-side". For example, if the slider is set at 3, taking a sample will expose a total of 9 squares (3-by-3), with the clicked square in the center. On the basis of the revealed colors, you can make a calculated guesses as to the percentage of green squares within the entire population. You can then reveal the population to find out this unknown value.
+
+A special feature of this model is that it includes an element that simulates what it looks like to use the HubNet version of this model. In the classroom PSA, all students input their guesses for green, and these collective guesses are plotted as a histogram. In the solo model it's only you guessing, and so the model creates histograms that are meant to demonstrate distributions of guesses that a classroom might produce. These demo distributions are based on what we saw in classes where we researched SAMPLER.
+
+## HOW TO USE IT
+
+SETUP -- initializes all variables
+RERUN - creates a new population
+REVEAL POP - all tiny squares reveal their color
+SAMPLE - enables sampling by clicking on the View
+SIMULATE CLASSROOM HISTOGRAM - creates in the graphics window STUDENT GUESSES a histogram similar to what you would see if you were working as part of a large group.
+CLEAR HISTOGRAM - returns the histogram to its initial blank state.
+CLUSTER-GUESSES? - use this slider to control the size of the bins in the histogram. This can be helpful to see the distribution of guesses in the simulated classroom collective guesses.
+RANDOM-RERUN? - When Off, the Rerun will create a population with a greenness proportion set in the %-TARGET-COLOR slider. When On, the model will assign a random value for the greenness, irrespective of the slider value (and it will send that slider to 0).
+ABNORMALITY - determines the "clumpiness" of the green and blue squares in the population. When set at 0, there is typically no clumpiness (the distribution is normal). The higher the value, the larger the clusters of green (the distribution is "abnormal").
+ORGANIZE? - if at Off, then when you reveal the population, each square will show its true color. However, when On, the green and blue squares relocate, as through there were a green magnet on the left and a blue one on the right. This results in a contour running vertically down the View. Note: the contour is always a straight line, because it rounds up to the nearest line.
+SAMPLE-BLOCK-SIDE - determines the size of the sample, for example the value 3 will give a 3-by-3 sample for a total of 9 exposed squares.
+KEEP-SAMPLES? - When set to Off, each time you take a sample, the previous sample becomes dark grey again. When set to On, the next sample you take, and all subsequent samples, will remain revealed.
+GRID? - When set to On, the View will feature a grid. The grid is helpful to interpret a sample in cases of extreme green or blue, because it enables you to count the number of squares.
+
+## THINGS TO NOTICE
+
+When you press REVEAL POP and Organize? Is On, the green and blue colors "move" to the left and the right of the screen, respectively, forming a contour line. The location of this contour line is comparable to two other elements on the interface: the contour line falls directly below the slider handle above it and directly above the mean line of the histogram. The reason we can compare these three features directly is because the 0 and 'whole' (100%) of each of these features are aligned. That is, the sliders, graphics window, and plot have all been placed carefully so as to subtend each other precisely.
+
+## THINGS TO TRY
+
+Set RANDOM-RERUN? to ON, press RERUN, and now take some samples. What is the minimal number of samples you need in order to feel you have a reasonable sense of the overall greenness in the population?
+
+Try setting the ABNORMALITY slider to different values and press RERUN over and over for the same percentage green, for instance 50%. Can you think of situations in the world where a certain attribute is distributed in a population in a way that corresponds to a high value of ABNORMALITY? What do we mean when we speak of a 'uniform distribution' within a population? For instance, is a distribution of ABNORMALITY = 0 uniform? Or must there be strict order, for instance stripes of target-color, in order for you to feel that the distribution is uniform? Also, is there a difference between your sense of uniformity whether you're looking at the whole population or just at certain parts of it? If you threw a handful of pebbles onto a square area, would you say they fell 'uniformly'? What kinds of patterns are natural, and what kinds of patterns would you think of as coincidental?
+
+## EXTENDING THE MODEL
+
+Change the procedure that separates green an blue, so that same green and blue squares remain when you reveal the population.
+
+## NETLOGO FEATURES
+
+The abnormality distribution feature does not take much code to write, but is effective. Look at the code and try to understand it.
+
+## RELATED MODELS
+
+See the HubNet SAMPLER model.
+
+## CREDITS AND REFERENCES
+
+This model is a part of the ProbLab curriculum  Thanks to Dor Abrahamson for his design of ProbLab.  The ProbLab curriculum is currently under development at Northwestern's Center for Connected Learning and Computer-Based Modeling and at the Graduate School of Education at University of California, Berkeley. For more information about the ProbLab curriculum please refer to http://ccl.northwestern.edu/curriculum/ProbLab/.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Abrahamson, D. and Wilensky, U. (2009).  NetLogo Sampler Solo model.  http://ccl.northwestern.edu/netlogo/models/SamplerSolo.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2009 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2009 Cite: Abrahamson, D. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="ant" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="136" y="61"></point>
+        <point x="129" y="46"></point>
+        <point x="144" y="30"></point>
+        <point x="119" y="45"></point>
+        <point x="124" y="60"></point>
+        <point x="114" y="82"></point>
+        <point x="97" y="37"></point>
+        <point x="132" y="10"></point>
+        <point x="93" y="36"></point>
+        <point x="111" y="84"></point>
+        <point x="127" y="105"></point>
+        <point x="172" y="105"></point>
+        <point x="189" y="84"></point>
+        <point x="208" y="35"></point>
+        <point x="171" y="11"></point>
+        <point x="202" y="35"></point>
+        <point x="204" y="37"></point>
+        <point x="186" y="82"></point>
+        <point x="177" y="60"></point>
+        <point x="180" y="44"></point>
+        <point x="159" y="32"></point>
+        <point x="170" y="44"></point>
+        <point x="165" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="95"></point>
+        <point x="135" y="103"></point>
+        <point x="139" y="117"></point>
+        <point x="125" y="149"></point>
+        <point x="137" y="180"></point>
+        <point x="135" y="196"></point>
+        <point x="150" y="204"></point>
+        <point x="166" y="195"></point>
+        <point x="161" y="180"></point>
+        <point x="174" y="150"></point>
+        <point x="158" y="116"></point>
+        <point x="164" y="102"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="149" y="186"></point>
+        <point x="128" y="197"></point>
+        <point x="114" y="232"></point>
+        <point x="134" y="270"></point>
+        <point x="149" y="282"></point>
+        <point x="166" y="270"></point>
+        <point x="185" y="232"></point>
+        <point x="171" y="195"></point>
+        <point x="149" y="186"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="225" y="66"></point>
+        <point x="230" y="107"></point>
+        <point x="159" y="122"></point>
+        <point x="161" y="127"></point>
+        <point x="234" y="111"></point>
+        <point x="236" y="106"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="78" y="58"></point>
+        <point x="99" y="116"></point>
+        <point x="139" y="123"></point>
+        <point x="137" y="128"></point>
+        <point x="95" y="119"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="48" y="103"></point>
+        <point x="90" y="147"></point>
+        <point x="129" y="147"></point>
+        <point x="130" y="151"></point>
+        <point x="86" y="151"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="65" y="224"></point>
+        <point x="92" y="171"></point>
+        <point x="134" y="160"></point>
+        <point x="135" y="164"></point>
+        <point x="95" y="175"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="235" y="222"></point>
+        <point x="210" y="170"></point>
+        <point x="163" y="162"></point>
+        <point x="161" y="166"></point>
+        <point x="208" y="174"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="249" y="107"></point>
+        <point x="211" y="147"></point>
+        <point x="168" y="147"></point>
+        <point x="168" y="150"></point>
+        <point x="213" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="bee" rotatable="true" editableColorIndex="0">
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="152" y="149"></point>
+        <point x="77" y="163"></point>
+        <point x="67" y="195"></point>
+        <point x="67" y="211"></point>
+        <point x="74" y="234"></point>
+        <point x="85" y="252"></point>
+        <point x="100" y="264"></point>
+        <point x="116" y="276"></point>
+        <point x="134" y="286"></point>
+        <point x="151" y="300"></point>
+        <point x="167" y="285"></point>
+        <point x="182" y="278"></point>
+        <point x="206" y="260"></point>
+        <point x="220" y="242"></point>
+        <point x="226" y="218"></point>
+        <point x="226" y="195"></point>
+        <point x="222" y="166"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="149"></point>
+        <point x="128" y="151"></point>
+        <point x="114" y="151"></point>
+        <point x="98" y="145"></point>
+        <point x="80" y="122"></point>
+        <point x="80" y="103"></point>
+        <point x="81" y="83"></point>
+        <point x="95" y="67"></point>
+        <point x="117" y="58"></point>
+        <point x="141" y="54"></point>
+        <point x="151" y="53"></point>
+        <point x="177" y="55"></point>
+        <point x="195" y="66"></point>
+        <point x="207" y="82"></point>
+        <point x="211" y="94"></point>
+        <point x="211" y="116"></point>
+        <point x="204" y="139"></point>
+        <point x="189" y="149"></point>
+        <point x="171" y="152"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="54"></point>
+        <point x="119" y="59"></point>
+        <point x="96" y="60"></point>
+        <point x="81" y="50"></point>
+        <point x="78" y="39"></point>
+        <point x="87" y="25"></point>
+        <point x="103" y="18"></point>
+        <point x="115" y="23"></point>
+        <point x="121" y="13"></point>
+        <point x="150" y="1"></point>
+        <point x="180" y="14"></point>
+        <point x="189" y="23"></point>
+        <point x="197" y="17"></point>
+        <point x="210" y="19"></point>
+        <point x="222" y="30"></point>
+        <point x="222" y="44"></point>
+        <point x="212" y="57"></point>
+        <point x="192" y="58"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="70" y="185"></point>
+        <point x="74" y="171"></point>
+        <point x="223" y="172"></point>
+        <point x="224" y="186"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="67" y="211"></point>
+        <point x="71" y="226"></point>
+        <point x="224" y="226"></point>
+        <point x="225" y="211"></point>
+        <point x="67" y="211"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="91" y="257"></point>
+        <point x="106" y="269"></point>
+        <point x="195" y="269"></point>
+        <point x="211" y="255"></point>
+      </polygon>
+      <line endX="70" startY="100" marked="false" color="-1" endY="87" startX="144"></line>
+      <line endX="45" startY="87" marked="false" color="-1" endY="87" startX="70"></line>
+      <line endX="26" startY="86" marked="false" color="-1" endY="97" startX="45"></line>
+      <line endX="22" startY="96" marked="false" color="-1" endY="115" startX="26"></line>
+      <line endX="25" startY="115" marked="false" color="-1" endY="130" startX="22"></line>
+      <line endX="37" startY="131" marked="false" color="-1" endY="141" startX="26"></line>
+      <line endX="55" startY="141" marked="false" color="-1" endY="144" startX="37"></line>
+      <line endX="143" startY="143" marked="false" color="-1" endY="101" startX="55"></line>
+      <line endX="227" startY="100" marked="false" color="-1" endY="138" startX="141"></line>
+      <line endX="241" startY="138" marked="false" color="-1" endY="137" startX="227"></line>
+      <line endX="249" startY="137" marked="false" color="-1" endY="129" startX="241"></line>
+      <line endX="254" startY="129" marked="false" color="-1" endY="110" startX="249"></line>
+      <line endX="248" startY="108" marked="false" color="-1" endY="97" startX="253"></line>
+      <line endX="235" startY="95" marked="false" color="-1" endY="82" startX="249"></line>
+      <line endX="144" startY="82" marked="false" color="-1" endY="100" startX="235"></line>
+    </shape>
+    <shape name="bird1" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="2" y="6"></point>
+        <point x="2" y="39"></point>
+        <point x="270" y="298"></point>
+        <point x="297" y="298"></point>
+        <point x="299" y="271"></point>
+        <point x="187" y="160"></point>
+        <point x="279" y="75"></point>
+        <point x="276" y="22"></point>
+        <point x="100" y="67"></point>
+        <point x="31" y="0"></point>
+      </polygon>
+    </shape>
+    <shape name="bird2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="2" y="4"></point>
+        <point x="33" y="4"></point>
+        <point x="298" y="270"></point>
+        <point x="298" y="298"></point>
+        <point x="272" y="298"></point>
+        <point x="155" y="184"></point>
+        <point x="117" y="289"></point>
+        <point x="61" y="295"></point>
+        <point x="61" y="105"></point>
+        <point x="0" y="43"></point>
+      </polygon>
+    </shape>
+    <shape name="blues" rotatable="true" editableColorIndex="0">
+      <circle x="77" y="76" marked="false" color="878553599" diameter="148" filled="true"></circle>
+    </shape>
+    <shape name="boat1" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="63" y="162"></point>
+        <point x="90" y="207"></point>
+        <point x="223" y="207"></point>
+        <point x="290" y="162"></point>
+      </polygon>
+      <rectangle endX="157" startY="32" marked="false" color="-1653716737" endY="162" startX="150" filled="true"></rectangle>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="150" y="34"></point>
+        <point x="131" y="49"></point>
+        <point x="145" y="47"></point>
+        <point x="147" y="48"></point>
+        <point x="149" y="49"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="158" y="33"></point>
+        <point x="230" y="157"></point>
+        <point x="182" y="150"></point>
+        <point x="169" y="151"></point>
+        <point x="157" y="156"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="149" y="55"></point>
+        <point x="88" y="143"></point>
+        <point x="103" y="139"></point>
+        <point x="111" y="136"></point>
+        <point x="117" y="139"></point>
+        <point x="126" y="145"></point>
+        <point x="130" y="147"></point>
+        <point x="139" y="147"></point>
+        <point x="146" y="146"></point>
+        <point x="149" y="55"></point>
+      </polygon>
+    </shape>
+    <shape name="boat2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="63" y="162"></point>
+        <point x="90" y="207"></point>
+        <point x="223" y="207"></point>
+        <point x="290" y="162"></point>
+      </polygon>
+      <rectangle endX="157" startY="32" marked="false" color="-1653716737" endY="162" startX="150" filled="true"></rectangle>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="150" y="34"></point>
+        <point x="131" y="49"></point>
+        <point x="145" y="47"></point>
+        <point x="147" y="48"></point>
+        <point x="149" y="49"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="157" y="54"></point>
+        <point x="175" y="79"></point>
+        <point x="174" y="96"></point>
+        <point x="185" y="102"></point>
+        <point x="178" y="112"></point>
+        <point x="194" y="124"></point>
+        <point x="196" y="131"></point>
+        <point x="190" y="139"></point>
+        <point x="192" y="146"></point>
+        <point x="211" y="151"></point>
+        <point x="216" y="154"></point>
+        <point x="157" y="154"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="74"></point>
+        <point x="146" y="91"></point>
+        <point x="139" y="99"></point>
+        <point x="143" y="114"></point>
+        <point x="141" y="123"></point>
+        <point x="137" y="126"></point>
+        <point x="131" y="129"></point>
+        <point x="132" y="139"></point>
+        <point x="142" y="136"></point>
+        <point x="126" y="142"></point>
+        <point x="119" y="147"></point>
+        <point x="148" y="147"></point>
+      </polygon>
+    </shape>
+    <shape name="boat3" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="63" y="162"></point>
+        <point x="90" y="207"></point>
+        <point x="223" y="207"></point>
+        <point x="290" y="162"></point>
+      </polygon>
+      <rectangle endX="157" startY="32" marked="false" color="-1653716737" endY="162" startX="150" filled="true"></rectangle>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="150" y="34"></point>
+        <point x="131" y="49"></point>
+        <point x="145" y="47"></point>
+        <point x="147" y="48"></point>
+        <point x="149" y="49"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="158" y="37"></point>
+        <point x="172" y="45"></point>
+        <point x="188" y="59"></point>
+        <point x="202" y="79"></point>
+        <point x="217" y="109"></point>
+        <point x="220" y="130"></point>
+        <point x="218" y="147"></point>
+        <point x="204" y="156"></point>
+        <point x="158" y="156"></point>
+        <point x="161" y="142"></point>
+        <point x="170" y="123"></point>
+        <point x="170" y="102"></point>
+        <point x="169" y="88"></point>
+        <point x="165" y="62"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="149" y="66"></point>
+        <point x="142" y="78"></point>
+        <point x="139" y="96"></point>
+        <point x="141" y="111"></point>
+        <point x="146" y="139"></point>
+        <point x="148" y="147"></point>
+        <point x="110" y="147"></point>
+        <point x="113" y="131"></point>
+        <point x="118" y="106"></point>
+        <point x="126" y="71"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="45" y="255"></point>
+        <point x="255" y="255"></point>
+        <point x="255" y="45"></point>
+        <point x="45" y="45"></point>
+      </polygon>
+    </shape>
+    <shape name="butterfly1" rotatable="true" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="76"></point>
+        <point x="138" y="91"></point>
+        <point x="138" y="284"></point>
+        <point x="150" y="296"></point>
+        <point x="162" y="286"></point>
+        <point x="162" y="91"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="164" y="106"></point>
+        <point x="184" y="79"></point>
+        <point x="205" y="61"></point>
+        <point x="236" y="48"></point>
+        <point x="259" y="53"></point>
+        <point x="279" y="86"></point>
+        <point x="287" y="119"></point>
+        <point x="289" y="158"></point>
+        <point x="278" y="177"></point>
+        <point x="256" y="182"></point>
+        <point x="164" y="181"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="136" y="110"></point>
+        <point x="119" y="82"></point>
+        <point x="110" y="71"></point>
+        <point x="85" y="61"></point>
+        <point x="59" y="48"></point>
+        <point x="36" y="56"></point>
+        <point x="17" y="88"></point>
+        <point x="6" y="115"></point>
+        <point x="2" y="147"></point>
+        <point x="15" y="178"></point>
+        <point x="134" y="178"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="46" y="181"></point>
+        <point x="28" y="227"></point>
+        <point x="50" y="255"></point>
+        <point x="77" y="273"></point>
+        <point x="112" y="283"></point>
+        <point x="135" y="274"></point>
+        <point x="135" y="180"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="185"></point>
+        <point x="254" y="184"></point>
+        <point x="272" y="224"></point>
+        <point x="255" y="251"></point>
+        <point x="236" y="267"></point>
+        <point x="191" y="283"></point>
+        <point x="164" y="276"></point>
+      </polygon>
+      <line endX="159" startY="47" marked="true" color="-1920102913" endY="82" startX="167"></line>
+      <line endX="145" startY="47" marked="true" color="-1920102913" endY="81" startX="136"></line>
+      <circle x="165" y="45" marked="true" color="-1920102913" diameter="8" filled="true"></circle>
+      <circle x="134" y="45" marked="true" color="-1920102913" diameter="6" filled="true"></circle>
+      <circle x="133" y="44" marked="true" color="-1920102913" diameter="7" filled="true"></circle>
+      <circle x="133" y="43" marked="true" color="-1920102913" diameter="8" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="35" y="35" marked="true" color="-1920102913" diameter="230" filled="true"></circle>
+    </shape>
+    <shape name="frame" rotatable="false" editableColorIndex="14">
+      <rectangle endX="296" startY="1" marked="false" color="-1920102913" endY="296" startX="0" filled="false"></rectangle>
+      <rectangle endX="297" startY="2" marked="false" color="-1920102913" endY="297" startX="0" filled="false"></rectangle>
+      <rectangle endX="298" startY="0" marked="false" color="-1920102913" endY="298" startX="0" filled="false"></rectangle>
+      <rectangle endX="295" startY="3" marked="false" color="-1920102913" endY="295" startX="1" filled="false"></rectangle>
+      <rectangle endX="299" startY="1" marked="false" color="-1920102913" endY="299" startX="1" filled="false"></rectangle>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="155" y="20" marked="true" color="-1920102913" diameter="63" filled="true"></circle>
+      <rectangle endX="217" startY="79" marked="true" color="-1920102913" endY="164" startX="158" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="158" y="81"></point>
+        <point x="110" y="129"></point>
+        <point x="131" y="143"></point>
+        <point x="158" y="109"></point>
+        <point x="165" y="110"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="216" y="83"></point>
+        <point x="267" y="123"></point>
+        <point x="248" y="143"></point>
+        <point x="215" y="107"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="167" y="163"></point>
+        <point x="145" y="234"></point>
+        <point x="183" y="234"></point>
+        <point x="183" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="163"></point>
+        <point x="195" y="233"></point>
+        <point x="227" y="233"></point>
+        <point x="206" y="159"></point>
+      </polygon>
+    </shape>
+    <shape name="reds" rotatable="true" editableColorIndex="0">
+      <circle x="76" y="77" marked="true" color="-1920102913" diameter="148" filled="true"></circle>
+      <circle x="77" y="78" marked="false" color="-684578305" diameter="148" filled="true"></circle>
+    </shape>
+    <shape name="spacecraft" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="180" y="135"></point>
+        <point x="255" y="255"></point>
+        <point x="225" y="240"></point>
+        <point x="150" y="180"></point>
+        <point x="75" y="240"></point>
+        <point x="45" y="255"></point>
+        <point x="120" y="135"></point>
+      </polygon>
+    </shape>
+    <shape name="thin-arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="120" y="150"></point>
+        <point x="120" y="293"></point>
+        <point x="180" y="293"></point>
+        <point x="180" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="truck-down" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="225" y="30"></point>
+        <point x="225" y="270"></point>
+        <point x="120" y="270"></point>
+        <point x="105" y="210"></point>
+        <point x="60" y="180"></point>
+        <point x="45" y="30"></point>
+        <point x="105" y="60"></point>
+        <point x="105" y="30"></point>
+      </polygon>
+      <polygon color="2085659903" filled="true" marked="false">
+        <point x="195" y="75"></point>
+        <point x="195" y="120"></point>
+        <point x="240" y="120"></point>
+        <point x="240" y="75"></point>
+      </polygon>
+      <polygon color="2085659903" filled="true" marked="false">
+        <point x="195" y="225"></point>
+        <point x="195" y="180"></point>
+        <point x="240" y="180"></point>
+        <point x="240" y="225"></point>
+      </polygon>
+    </shape>
+    <shape name="truck-left" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="120" y="135"></point>
+        <point x="225" y="135"></point>
+        <point x="225" y="210"></point>
+        <point x="75" y="210"></point>
+        <point x="75" y="165"></point>
+        <point x="105" y="165"></point>
+      </polygon>
+      <polygon color="2085659903" filled="true" marked="false">
+        <point x="90" y="210"></point>
+        <point x="105" y="225"></point>
+        <point x="120" y="210"></point>
+      </polygon>
+      <polygon color="2085659903" filled="true" marked="false">
+        <point x="180" y="210"></point>
+        <point x="195" y="225"></point>
+        <point x="210" y="210"></point>
+      </polygon>
+    </shape>
+    <shape name="truck-right" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="180" y="135"></point>
+        <point x="75" y="135"></point>
+        <point x="75" y="210"></point>
+        <point x="225" y="210"></point>
+        <point x="225" y="165"></point>
+        <point x="195" y="165"></point>
+      </polygon>
+      <polygon color="2085659903" filled="true" marked="false">
+        <point x="210" y="210"></point>
+        <point x="195" y="225"></point>
+        <point x="180" y="210"></point>
+      </polygon>
+      <polygon color="2085659903" filled="true" marked="false">
+        <point x="120" y="210"></point>
+        <point x="105" y="225"></point>
+        <point x="90" y="210"></point>
+      </polygon>
+    </shape>
+    <shape name="wolf-left" rotatable="false" editableColorIndex="3">
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="117" y="97"></point>
+        <point x="91" y="74"></point>
+        <point x="66" y="74"></point>
+        <point x="60" y="85"></point>
+        <point x="36" y="85"></point>
+        <point x="38" y="92"></point>
+        <point x="44" y="97"></point>
+        <point x="62" y="97"></point>
+        <point x="81" y="117"></point>
+        <point x="84" y="134"></point>
+        <point x="92" y="147"></point>
+        <point x="109" y="152"></point>
+        <point x="136" y="144"></point>
+        <point x="174" y="144"></point>
+        <point x="174" y="103"></point>
+        <point x="143" y="103"></point>
+        <point x="134" y="97"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="87" y="80"></point>
+        <point x="79" y="55"></point>
+        <point x="76" y="79"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="81" y="75"></point>
+        <point x="70" y="58"></point>
+        <point x="73" y="82"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="99" y="131"></point>
+        <point x="76" y="152"></point>
+        <point x="76" y="163"></point>
+        <point x="96" y="182"></point>
+        <point x="104" y="182"></point>
+        <point x="109" y="173"></point>
+        <point x="102" y="167"></point>
+        <point x="99" y="173"></point>
+        <point x="87" y="159"></point>
+        <point x="104" y="140"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="107" y="138"></point>
+        <point x="107" y="186"></point>
+        <point x="98" y="190"></point>
+        <point x="99" y="196"></point>
+        <point x="112" y="196"></point>
+        <point x="115" y="190"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="116" y="140"></point>
+        <point x="114" y="189"></point>
+        <point x="105" y="137"></point>
+      </polygon>
+      <rectangle endX="114" startY="150" marked="true" color="-1653716737" endY="192" startX="109" filled="true"></rectangle>
+      <rectangle endX="116" startY="143" marked="true" color="-1653716737" endY="191" startX="111" filled="true"></rectangle>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="168" y="106"></point>
+        <point x="184" y="98"></point>
+        <point x="205" y="98"></point>
+        <point x="218" y="115"></point>
+        <point x="218" y="137"></point>
+        <point x="186" y="164"></point>
+        <point x="196" y="176"></point>
+        <point x="195" y="194"></point>
+        <point x="178" y="195"></point>
+        <point x="178" y="183"></point>
+        <point x="188" y="183"></point>
+        <point x="169" y="164"></point>
+        <point x="173" y="144"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="207" y="140"></point>
+        <point x="200" y="163"></point>
+        <point x="206" y="175"></point>
+        <point x="207" y="192"></point>
+        <point x="193" y="189"></point>
+        <point x="192" y="177"></point>
+        <point x="198" y="176"></point>
+        <point x="185" y="150"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="214" y="134"></point>
+        <point x="203" y="168"></point>
+        <point x="192" y="148"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="204" y="151"></point>
+        <point x="203" y="176"></point>
+        <point x="193" y="148"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="207" y="103"></point>
+        <point x="221" y="98"></point>
+        <point x="236" y="101"></point>
+        <point x="243" y="115"></point>
+        <point x="243" y="128"></point>
+        <point x="256" y="142"></point>
+        <point x="239" y="143"></point>
+        <point x="233" y="133"></point>
+        <point x="225" y="115"></point>
+        <point x="214" y="114"></point>
+      </polygon>
+    </shape>
+    <shape name="wolf-right" rotatable="false" editableColorIndex="3">
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="170" y="127"></point>
+        <point x="200" y="93"></point>
+        <point x="231" y="93"></point>
+        <point x="237" y="103"></point>
+        <point x="262" y="103"></point>
+        <point x="261" y="113"></point>
+        <point x="253" y="119"></point>
+        <point x="231" y="119"></point>
+        <point x="215" y="143"></point>
+        <point x="213" y="160"></point>
+        <point x="208" y="173"></point>
+        <point x="189" y="187"></point>
+        <point x="169" y="190"></point>
+        <point x="154" y="190"></point>
+        <point x="126" y="180"></point>
+        <point x="106" y="171"></point>
+        <point x="72" y="171"></point>
+        <point x="73" y="126"></point>
+        <point x="122" y="126"></point>
+        <point x="144" y="123"></point>
+        <point x="159" y="123"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="201" y="99"></point>
+        <point x="214" y="69"></point>
+        <point x="215" y="99"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="207" y="98"></point>
+        <point x="223" y="71"></point>
+        <point x="220" y="101"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="184" y="172"></point>
+        <point x="189" y="234"></point>
+        <point x="203" y="238"></point>
+        <point x="203" y="246"></point>
+        <point x="187" y="247"></point>
+        <point x="180" y="239"></point>
+        <point x="171" y="180"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="197" y="174"></point>
+        <point x="204" y="220"></point>
+        <point x="218" y="224"></point>
+        <point x="219" y="234"></point>
+        <point x="201" y="232"></point>
+        <point x="195" y="225"></point>
+        <point x="179" y="179"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="78" y="167"></point>
+        <point x="95" y="187"></point>
+        <point x="95" y="208"></point>
+        <point x="79" y="220"></point>
+        <point x="92" y="234"></point>
+        <point x="98" y="235"></point>
+        <point x="100" y="249"></point>
+        <point x="81" y="246"></point>
+        <point x="76" y="241"></point>
+        <point x="61" y="212"></point>
+        <point x="65" y="195"></point>
+        <point x="52" y="170"></point>
+        <point x="45" y="150"></point>
+        <point x="44" y="128"></point>
+        <point x="55" y="121"></point>
+        <point x="69" y="121"></point>
+        <point x="81" y="135"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="48" y="143"></point>
+        <point x="58" y="141"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="46" y="136"></point>
+        <point x="68" y="137"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="45" y="129"></point>
+        <point x="35" y="142"></point>
+        <point x="37" y="159"></point>
+        <point x="53" y="192"></point>
+        <point x="47" y="210"></point>
+        <point x="62" y="238"></point>
+        <point x="80" y="237"></point>
+      </polygon>
+      <line endX="59" startY="237" marked="false" color="255" endY="213" startX="74"></line>
+      <line endX="59" startY="213" marked="false" color="255" endY="212" startX="59"></line>
+      <line endX="67" startY="211" marked="false" color="255" endY="192" startX="58"></line>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="38" y="138"></point>
+        <point x="66" y="149"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="46" y="128"></point>
+        <point x="33" y="120"></point>
+        <point x="21" y="118"></point>
+        <point x="11" y="123"></point>
+        <point x="3" y="138"></point>
+        <point x="5" y="160"></point>
+        <point x="13" y="178"></point>
+        <point x="9" y="192"></point>
+        <point x="0" y="199"></point>
+        <point x="20" y="196"></point>
+        <point x="25" y="179"></point>
+        <point x="24" y="161"></point>
+        <point x="25" y="148"></point>
+        <point x="45" y="140"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="67" y="122"></point>
+        <point x="96" y="126"></point>
+        <point x="63" y="144"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>set %-target-color 20
+setup
+reveal</previewCommands>
+</model>

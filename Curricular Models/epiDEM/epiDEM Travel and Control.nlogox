@@ -1,0 +1,1370 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[globals
+[
+  nb-infected-previous ;; Number of infected people at the previous tick
+  border               ;; The patches representing the yellow border
+  angle                ;; Heading for individuals
+  beta-n               ;; The average number of new secondary infections per infected this tick
+  gamma                ;; The average number of new recoveries per infected this tick
+  r0                   ;; The number of secondary infections that arise due to a single infective introduced in a wholly susceptible population
+]
+
+turtles-own
+[
+  infected?            ;; If true, the person is infected.
+  cured?               ;; If true, the person has lived through an infection. They cannot be re-infected.
+  inoculated?          ;; If true, the person has been inoculated.
+  isolated?            ;; If true, the person is isolated, unable to infect anyone.
+  hospitalized?        ;; If true, the person is hospitalized and will recovery in half the average-recovery-time.
+
+  infection-length     ;; How long the person has been infected.
+  recovery-time        ;; Time (in hours) it takes before the person has a chance to recover from the infection
+  isolation-tendency   ;; Chance the person will self-quarantine during any hour being infected.
+  hospital-going-tendency ;; Chance that an infected person will go to the hospital when infected
+
+  continent            ;; Which continent a person lives one, people on continent 1 are squares, people on continent 2 are circles.
+
+  ambulance?           ;; If true, the person is an ambulance and will transport infected people to the hospital.
+
+  susceptible?         ;; Tracks whether the person was initially susceptible
+  nb-infected          ;; Number of secondary infections caused by an infected person at the end of the tick
+  nb-recovered         ;; Number of recovered people at the end of the tick
+]
+
+;;;
+;;; SETUP PROCEDURES
+;;;
+
+to setup
+  clear-all
+  setup-globals
+  setup-people
+  setup-ambulance
+  reset-ticks
+end
+
+to setup-globals
+  ask patch (- max-pxcor / 2 ) 0 [ set pcolor white ]
+  ask patch (max-pxcor / 2 ) 0 [ set pcolor white ]
+
+  set border patches with [(pxcor =  0 and abs (pycor) >= 0)]
+  ask border [ set pcolor yellow ]
+end
+
+;; Create initial-people number of people.
+;; Those that live on the left are squares; those on the right, circles.
+to setup-people
+  create-turtles initial-people
+    [ setxy random-xcor random-ycor
+      ifelse xcor <= 0
+      [ set continent 1 ]
+      [ set continent 2 ]
+
+      set cured? false
+      set isolated? false
+      set hospitalized? false
+      set ambulance? false
+      set infected? false
+      set susceptible? true
+
+      assign-tendency
+
+      ifelse continent = 1
+        [ set shape "square" ]
+        [ set shape "circle" ]
+
+      set size 0.5
+
+      ;; Each individual has a 5% chance of starting out infected
+      if (random-float 100 < 5)
+      [ set infected? true
+        set susceptible? false
+        set infection-length random recovery-time
+      ]
+
+      ifelse (not infected?) and (random-float 100 < inoculation-chance)
+        [ set inoculated? true
+          set susceptible? false ]
+        [ set inoculated? false ]
+
+      assign-color
+      ]
+
+    if links? [ make-network ]
+end
+
+to setup-ambulance
+  create-turtles initial-ambulance
+  [
+    ifelse random 2 < 1
+    [
+      set continent 1
+      setxy (- max-pxcor / 2) 0
+    ]
+    [
+      set continent 2
+      setxy (max-pxcor / 2) 0
+    ]
+
+    set cured? false
+    set isolated? false
+    set hospitalized? false
+    set infected? false
+    set inoculated? false
+    set susceptible? false
+
+    set ambulance? true
+
+    set shape "person"
+    set color yellow
+  ]
+end
+
+to assign-tendency ;; Turtle procedure
+
+  set isolation-tendency random-normal average-isolation-tendency average-isolation-tendency / 4
+  set hospital-going-tendency random-normal average-hospital-going-tendency average-hospital-going-tendency / 4
+  set recovery-time random-normal average-recovery-time average-recovery-time / 4
+
+  ;; Make sure recovery-time lies between 0 and 2x average-recovery-time
+  if recovery-time > average-recovery-time * 2 [ set recovery-time average-recovery-time * 2 ]
+  if recovery-time < 0 [ set recovery-time 0 ]
+
+  ;; Similarly for isolation and hospital going tendencies
+  if isolation-tendency > average-isolation-tendency * 2 [ set isolation-tendency average-isolation-tendency * 2 ]
+  if isolation-tendency < 0 [ set isolation-tendency 0 ]
+
+  if hospital-going-tendency > average-hospital-going-tendency * 2 [ set hospital-going-tendency average-hospital-going-tendency * 2 ]
+  if hospital-going-tendency < 0 [ set hospital-going-tendency 0 ]
+end
+
+
+;; Different people are displayed in 5 different colors depending on health
+;; green is a survivor of the infection
+;; blue is a successful innoculation
+;; red is an infected person
+;; white is neither infected, innoculated, nor cured
+;; yellow is an ambulance
+to assign-color ;; turtle procedure
+
+  ifelse cured?
+    [ set color green ]
+    [ ifelse inoculated?
+      [ set color blue ]
+      [ ifelse infected?
+        [set color red ]
+        [set color white]]]
+  if ambulance?
+    [ set color yellow ]
+end
+
+
+to make-network
+  ask turtles
+  [
+    create-links-with turtles-on neighbors
+  ]
+end
+
+
+;;;
+;;; GO PROCEDURES
+;;;
+
+
+to go
+  if all? turtles [ not infected? ]
+    [ stop ]
+  ask turtles
+    [ clear-count ]
+
+  ask turtles
+    [ if not isolated? and not hospitalized? and not ambulance?
+        [ move ] ]
+
+  ask turtles
+    [ if infected? and not isolated? and not hospitalized?
+         [ infect ] ]
+
+  ask turtles
+    [ if not isolated? and not hospitalized? and infected? and (random 100 < isolation-tendency)
+        [ isolate ] ]
+
+  ask turtles
+    [ if not isolated? and not hospitalized? and infected? and (random 100 < hospital-going-tendency)
+        [ hospitalize ] ]
+
+  ask turtles
+  [
+    if ambulance?
+    [
+      move
+      ask turtles-on neighbors
+      [
+        if (ambulance? = false) and (infected? = true)
+        [ hospitalize ]
+      ]
+    ]
+  ]
+
+  ask turtles
+    [ if infected?
+       [ maybe-recover ]
+    ]
+
+  ask turtles
+    [ if (isolated? or hospitalized?) and cured?
+        [ unisolate ] ]
+
+  ask turtles
+    [ assign-color
+      calculate-r0 ]
+
+  tick
+end
+
+
+to move  ;; turtle procedure
+  if travel?
+  [
+    if random 100 < (travel-tendency) and not ambulance?  ;; up to 1% chance of travel
+    [ set xcor (- xcor) ]
+  ]
+
+  ifelse continent = 1
+  [
+    ifelse xcor > (- 0.5)  ;; and on border patch
+    [
+      set angle random-float 180
+      let new-patch patch-at-heading-and-distance angle (-1)
+      if new-patch != nobody
+      [
+        move-to new-patch
+      ]
+    ]
+    [ ;; if in continent 1 and not on border
+      ifelse xcor < (min-pxcor + 0.5)  ;; at the edge of world
+      [
+        set angle random-float 180
+      ]
+      [
+        set angle random-float 360  ;; inside world
+      ]
+      rt angle
+
+      ifelse ambulance?
+      [
+        fd intra-mobility * 5  ;; ambulances move 5 times as fast than the ppl
+      ]
+      [
+        fd intra-mobility
+      ]
+    ]
+
+  ]
+  [ ;; in continent 2
+    ifelse xcor < 1  ;; and on border patch
+    [
+      set angle random-float 180
+      let new-patch patch-at-heading-and-distance angle (1)
+      if new-patch != nobody
+      [
+        move-to new-patch
+      ]
+    ]
+    [ ;; if in continent 2 and not on border
+      ifelse xcor > (max-pxcor - 1) ;; at the edge of world
+      [
+        set angle random-float 180
+      ]
+      [
+        set angle random-float 360
+      ]
+      lt angle
+
+      ifelse ambulance?
+      [
+        fd intra-mobility * 5
+      ]
+      [
+        fd intra-mobility
+      ]
+    ]
+
+  ]
+end
+
+to clear-count
+  set nb-infected 0
+  set nb-recovered 0
+end
+
+to maybe-recover
+  set infection-length infection-length + 1
+
+      ;; If people have been infected for more than the recovery-time
+      ;; then there is a chance for recovery
+      ifelse not hospitalized?
+      [
+        if infection-length > recovery-time
+        [
+          if random-float 100 < recovery-chance
+          [
+            set infected? false
+            set cured? true
+            set nb-recovered (nb-recovered + 1)
+          ]
+        ]
+      ]
+      [ ;; If hospitalized, recover in a fifth of the recovery time
+        if infection-length > (recovery-time / 5)
+        [
+          set infected? false
+          set cured? true
+          set nb-recovered (nb-recovered + 1 )
+        ]
+      ]
+end
+
+;; To better show that isolation has occurred, the patch below the person turns gray
+to isolate ;; turtle procedure
+  set isolated? true
+  move-to patch-here ;; move to center of patch
+  ask (patch-at 0 0) [ set pcolor gray - 3 ]
+end
+
+;; After unisolating, patch turns back to normal color
+to unisolate  ;; turtle procedure
+  set isolated? false
+  set hospitalized? false
+
+  ask (patch-at 0 0) [ set pcolor black ]
+
+  ask border [ set pcolor yellow ]                      ;; patches on the border stay yellow
+  ask (patch (- max-pxcor / 2) 0) [ set pcolor white ]  ;; hospital patch on the left stays white
+  ask (patch (max-pxcor / 2) 0) [ set pcolor white ]    ;; hospital patch on the right stays white
+end
+
+;; To hospitalize, move to hospital patch in the continent of current residence
+to hospitalize ;; turtle procedure
+  set hospitalized? true
+  set pcolor black
+  ifelse continent = 1
+  [
+    move-to patch (- max-pxcor / 2) 0
+  ]
+  [
+    move-to patch (max-pxcor / 2) 0
+  ]
+  set pcolor white
+end
+
+;; Infected individuals who are not isolated or hospitalized have a chance of transmitting their disease to their susceptible neighbors.
+;; If the neighbor is linked, then the chance of disease transmission doubles.
+
+to infect  ;; turtle procedure
+
+    let caller self
+
+    let nearby-uninfected (turtles-on neighbors)
+    with [ not infected? and not cured? and not inoculated? ]
+    if nearby-uninfected != nobody
+    [
+       ask nearby-uninfected
+       [
+           ifelse link-neighbor? caller
+           [
+             if random 100 < infection-chance * 2 ;; twice as likely to infect a linked person
+             [
+               set infected? true
+               set nb-infected (nb-infected + 1)
+             ]
+           ]
+           [
+             if random 100 < infection-chance
+             [
+               set infected? true
+               set nb-infected (nb-infected + 1)
+             ]
+           ]
+       ]
+
+    ]
+
+end
+
+
+to calculate-r0
+
+  let new-infected sum [ nb-infected ] of turtles
+  let new-recovered sum [ nb-recovered ] of turtles
+  set nb-infected-previous (count turtles with [ infected? ] + new-recovered - new-infected)  ;; Number of infected people at the previous tick
+  let susceptible-t (initial-people - (count turtles with [ infected? ]) - (count turtles with [ cured? ]))  ;; Number of susceptibles now
+  let s0 count turtles with [ susceptible? ] ;; Initial number of susceptibles
+
+  ifelse nb-infected-previous < 10
+  [ set beta-n 0 ]
+  [
+    set beta-n (new-infected / nb-infected-previous)       ;; This is the average number of new secondary infections per infected this tick
+  ]
+
+  ifelse nb-infected-previous < 5
+  [ set gamma 0 ]
+  [
+    set gamma (new-recovered / nb-infected-previous)     ;; This is the average number of new recoveries per infected this tick
+  ]
+
+  if ((initial-people - susceptible-t) != 0 and (susceptible-t != 0))   ;; Prevent from dividing by 0
+  [
+    ;; This is derived from integrating dI / dS = (beta*SI - gamma*I) / (-beta*SI)
+    ;; Assuming one infected individual introduced in the beginning, and hence counting I(0) as negligible,
+    ;; we get the relation
+    ;; N - gamma*ln(S(0)) / beta = S(t) - gamma*ln(S(t)) / beta, where N is the initial 'susceptible' population.
+    ;; Since N >> 1
+    ;; Using this, we have R_0 = beta*N / gamma = N*ln(S(0)/S(t)) / (K-S(t))
+    set r0 (ln (s0 / susceptible-t) / (initial-people - susceptible-t))
+    set r0 r0 * s0 ]
+end
+
+
+; Copyright 2011 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="646" maxPycor="12" updateMode="1" wrappingAllowedX="false" y="27" frameRate="30.0" minPycor="-12" height="484" showTickCounter="true" patchSize="19.0" fontSize="10" wrappingAllowedY="false" width="483" tickCounterLabel="hours" maxPxcor="12" minPxcor="-12"></view>
+    <button x="339" y="219" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="83" display="setup">setup</button>
+    <button x="443" y="219" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="83" display="go">go</button>
+    <slider x="18" step="10" y="22" height="33" min="50" direction="Horizontal" max="400" default="250.0" variable="initial-people" width="269" display="initial-people"></slider>
+    <slider x="315" step="5" y="22" height="33" min="0" direction="Horizontal" max="50" default="5.0" variable="average-isolation-tendency" width="269" display="average-isolation-tendency"></slider>
+    <plot x="356" yMax="350.0" yAxis="# people" y="299" xMin="0.0" height="143" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="263" xAxis="hours" display="Populations">
+      <setup></setup>
+      <update></update>
+      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="Infected">
+        <setup></setup>
+        <update>plot count turtles with [ infected? ]</update>
+      </pen>
+      <pen color="-10899396" legend="true" interval="1.0" mode="0" display="Not Infected">
+        <setup></setup>
+        <update>plot count turtles with [ not infected? ]</update>
+      </pen>
+    </plot>
+    <slider x="315" step="5" y="95" height="33" min="0" direction="Horizontal" max="50" default="10.0" variable="inoculation-chance" width="269" display="inoculation-chance"></slider>
+    <slider x="315" step="1" y="134" height="33" min="0" direction="Horizontal" max="4" default="2.0" variable="initial-ambulance" width="172" display="initial-ambulance"></slider>
+    <slider x="315" step="5" y="58" height="33" min="0" direction="Horizontal" max="50" default="5.0" variable="average-hospital-going-tendency" width="269" display="average-hospital-going-tendency"></slider>
+    <plot x="11" yMax="0.1" yAxis="rate" y="452" xMin="0.0" height="145" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="333" xAxis="hours" display="Infection and Recovery Rates">
+      <setup></setup>
+      <update></update>
+      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="Infection Rate">
+        <setup></setup>
+        <update>plot (beta-n * nb-infected-previous)</update>
+      </pen>
+      <pen color="-10899396" legend="true" interval="1.0" mode="0" display="Recovery Rate">
+        <setup></setup>
+        <update>plot (gamma * nb-infected-previous)</update>
+      </pen>
+    </plot>
+    <slider x="18" step="5" y="59" height="33" min="10" direction="Horizontal" max="100" default="55.0" variable="infection-chance" width="268" display="infection-chance"></slider>
+    <slider x="18" step="5" y="97" height="33" min="10" direction="Horizontal" max="100" default="45.0" variable="recovery-chance" width="267" display="recovery-chance"></slider>
+    <monitor x="356" precision="2" y="451" height="45" fontSize="11" width="81" display="R0">r0
+</monitor>
+    <switch x="195" y="199" height="33" on="false" variable="links?" width="103" display="links?"></switch>
+    <slider x="15" step="0.1" y="199" height="33" min="0" direction="Horizontal" max="1" default="0.4" variable="intra-mobility" width="172" display="intra-mobility"></slider>
+    <switch x="196" y="241" height="33" on="false" variable="travel?" width="103" display="travel?"></switch>
+    <slider x="14" step=".1" y="240" height="33" min="0" direction="Horizontal" max="1" default="1.0" variable="travel-tendency" width="172" display="travel-tendency"></slider>
+    <slider x="18" step="10" y="136" height="33" min="50" direction="Horizontal" max="300" default="110.0" variable="average-recovery-time" width="268" display="average-recovery-time"></slider>
+    <plot x="11" yMax="10.0" yAxis="% total pop." y="297" xMin="0.0" height="144" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="332" xAxis="hours" display="Cumulative Infected and Recovered">
+      <setup></setup>
+      <update></update>
+      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="% infected">
+        <setup></setup>
+        <update>plot (((count turtles with [ cured? ] + count turtles with [ infected? ]) / initial-people) * 100)</update>
+      </pen>
+      <pen color="-10899396" legend="true" interval="1.0" mode="0" display="% recovered">
+        <setup></setup>
+        <update>plot ((count turtles with [ cured? ] / initial-people) * 100)</update>
+      </pen>
+    </plot>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This model is an extension of the basic model of epiDEM (a curricular unit which stands for Epidemiology: Understanding Disease Dynamics and Emergence through Modeling). It simulates the spread of an infectious disease in a semi-closed population, but with additional features such as travel, isolation, quarantine, inoculation, and links between individuals. However, we still assume that the virus does not mutate, and that upon recovery, an individual will have perfect immunity.
+
+Overall, this model helps users:
+1) understand the emergent disease spread dynamics in relation to the changes in control measures, travel, and mobility
+2) understand how the reproduction number, R_0, represents the threshold for an epidemic
+3) understand the relationship between derivatives and integrals, represented simply as rates and cumulative number of cases, and
+4) provide opportunities to extend or change the model to include some properties of a disease that interest users the most.
+
+## HOW IT WORKS
+
+Individuals wander around the world in random motion. There are two groups of individuals, represented as either squares or circles, and are geographically divided by the yellow border. Upon coming into contact with an infected person, he or she has a chance of contracting the illness. Depending on their tendencies, which are set by the user, sick individuals will either isolate themselves at "home," go to a hospital, be force-quarantined into a hospital by health officials, or just move about. An infected individual has a chance of recovery after the given recovery time has elapsed.
+
+The presence of the virus in the population is represented by the colors of individuals. Four colors are used: white individuals are uninfected, red individuals are infected, green individuals are recovered, and blue individuals are inoculated. Once recovered, the individual is permanently immune to the virus. The yellow person symbolizes the health official or ambulance, who patrols the world in search of ill people. Once coming in contact with an infected individual, the ambulance immediately delivers the infected to the hospital within the region of residence.
+
+The graph INFECTION AND RECOVERY RATES shows the rate of change of the cumulative infected and recovered in the population. It tracks the average number of secondary infections and recoveries per tick. The reproduction number is calculated under different assumptions than those of the KM model, as we allow for more than one infected individual in the population, and introduce aforementioned variables.
+
+At the end of the simulation, the R_0 reflects the estimate of the reproduction number, the final size relation that indicates whether there will be (or there was, in the model sense) an epidemic. This again closely follows the mathematical derivation that R_0 = beta*S(0)/ gamma = N*ln(S(0) / S(t)) / (N - S(t)), where N is the total population, S(0) is the initial number of susceptibles, and S(t) is the total number of susceptibles at time t. In this model, the R_0 estimate is the number of secondary infections that arise for an average infected individual over the course of the person's infected period.
+
+## HOW TO USE IT
+
+The SETUP button creates individuals according to the parameter values chosen by the user. Each individual has a 5% chance of being initialized as infected. Once the simulation has been setup, push the GO button to run the model. GO starts the simulation and runs it continuously until GO is pushed again.
+
+Each time-step can be considered to be in hours, although any suitable time unit will do.
+
+What follows is a summary of the sliders in the model.
+
+INITIAL-PEOPLE (initialized to vary between 50 - 400): The total number of individuals the simulation begins with.
+INFECTION-CHANCE (10 - 50): Probability of disease transmission from one individual to another.
+RECOVERY-CHANCE (10 - 100): Probability of an individual's recovery once the infection has lasted longer than the person's recovery time.
+AVERAGE-RECOVERY-TIME (50 - 300): Time it takes for an individual to recover, on average. The actual individual's recovery time is pulled from a normal distribution centered around the AVERAGE-RECOVERY-TIME at its mean, with a standard deviation of a quarter of the AVERAGE-RECOVERY-TIME. Each time-step can be considered to be in hours, although any suitable time unit will do.
+AVERAGE-ISOLATION-TENDENCY (0 - 50): Average tendency of individuals to isolate themselves and will not spread the disease. Once an infected person is identified as an "isolator," the individual will isolate himself in the current location (as indicated by the grey patch) and will stay there until full recovery.
+AVERAGE-HOSPITAL-GOING-TENDENCY (0 - 50): Average tendency of individuals to go to a hospital when sick. If an infected person is identified as a "hospital goer," then he or she will go to the hospital, and will recover in half the time of an average recovery period, due to better medication and rest.
+INITIAL-AMBULANCE (0 - 4): Number of health officials or ambulances that move about at random, and force-quarantine sick individuals upon contact. The health officials are immune to the disease, and they themselves do not physically accompany the patient to the hospital. They move at a speed 5 times as fast as other individuals in the world and are not bounded by geographic region.
+INOCULATION-CHANCE (0 - 50): Probability of an individual getting vaccinated, and hence immune from the virus.
+INTRA-MOBILITY (0 - 1): This indicates how "mobile" an individual is. Usually, an individual at each time step moves by a distance 1. In this model, the person will move at a distance indicated by the INTRA-MOBILITY at each time-step. Thus, the lower the intra-mobility level, the less the movement in the individuals. Individuals move randomly by this assigned value; ambulances always move 5 times faster than this assigned value.
+
+In addition, there are two switches, and a related slider:
+
+LINKS? : When ON, there will be links randomly assigned between people, and the disease will spread twice as fast to those that the infected person is linked with as to the others. When OFF, the disease spreads with an equal chance to those around the infected person.
+TRAVEL? : When ON, people from the two regions (separated by the yellow border in the middle) are allowed to migrate and mix. When OFF, the people stay in the region in which they live.
+TRAVEL-TENDENCY (0 - 1): When TRAVEL? is ON, this slider indicates the probability of an individual to be traveling at each tick. The 1 indicates a 1 percent chance of travel per tick.
+
+A number of graphs are also plotted in this model.
+
+CUMULATIVE INFECTED AND RECOVERED: This plots the total percentage of individuals who have ever been infected or recovered.
+POPULATIONS: This plots the number of people with or without the disease.
+INFECTION AND RECOVERY RATES: This plots the estimated rates at which the disease is spreading. BetaN is the rate at which the cumulative infected changes, and Gamma rate at which the cumulative recovered changes.
+R_0: This is an estimate of the reproduction number.
+
+## THINGS TO NOTICE
+
+As with many epidemiological models, the number of people becoming infected over time, in the event of an epidemic, traces out an "S-curve." It is called an S-curve because it is shaped like a sideways S. By changing the values of the parameters using the slider, try to see what kinds of changes make the S curve stretch or shrink.
+
+Whenever there's a spread of the disease that reaches most of the population, we say that there was an epidemic. The reproduction number serves as an indicator for the likeliness of an epidemic to occur, if it is greater than 1. If it is smaller than 1, then it is likely that the disease spread will stop short, and we call this an endemic.
+
+Notice how the introduction of various human behaviors, such as travel, inoculation, isolation and quarantine, help constrain the spread of the disease, and what changes that brings to the population level in terms of rate and time taken of disease spread, as well as the population affected.
+
+## THINGS TO TRY
+
+Compare this model with the epiDEM basic model. Do the added complexities significantly change the disease spread? What kinds of changes bring about interesting outcomes?
+
+Notice the difference in dynamics when the travel chooser is on versus off. What happens to the population and the disease spread in both cases?
+
+Does the disease spread change when the link chooser is on? What about when you increase the number of ambulances? What happens to the number of people infected?
+
+Based on this model, what are some strategies or preventive measures that you think are important to undertake on the onset of a disease outbreak? Are there some that are more effective than others? Why might that be? What combinations work well? Are there some measures that seem redundant?
+
+## EXTENDING THE MODEL
+
+Are there other ways to change the behavior of the people once they are infected? Try to think about how you would introduce such a variable.
+
+In this model, we introduce an option for travel, so that there is mixing between two otherwise closed populations. What happens when you introduce births and deaths to each region or just one?
+
+What would happen when the virus mutates? How will that change the population dynamic and disease spread?
+
+What would happen if the population had a mix of healthy and less healthy people, so as to have differing levels of susceptibility?
+
+## NETLOGO FEATURES
+
+Notice that each agent pulls from a truncated normal distribution, centered around the AVERAGE-RECOVERY-TIME set by the user, to determine its recovery-time. This is to account for the variation in genetic differences and the immune system functions of individuals. Similarly, an individual's isolation-tendency and hospital-going-tendency are pulled from truncated normal distributions centered around AVERAGE-ISOLATION-TENDENCY and AVERAGE-HOSPITAL-GOING-TENDENCY respectively.
+
+Notice that R_0 calculated in this model is a numerical estimate to the analytic R_0. In the special case of one infective introduced to a wholly susceptible population (i.e., the Kermack-McKendrick assumptions), the numerical estimations of R_0 are very close to the analytic values. With added complexity in the models, such as the introduction of travel and control measures, the analytic R_0 becomes harder to derive. The numerical estimation is therefore a crude measure of what the actual R_0 might be.
+
+In addition to travel and control measures, notice that this model introduces links amongst individuals and the individual's mobility, which also affect the dynamics of the disease transmission.
+
+## RELATED MODELS
+
+epiDEM basic, HIV, Virus and Virus on a Network are related models.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Yang, C. and Wilensky, U. (2011).  NetLogo epiDEM Travel and Control model.  http://ccl.northwestern.edu/netlogo/models/epiDEMTravelandControl.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2011 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2011 Cite: Yang, C. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="person lefty" rotatable="false" editableColorIndex="0">
+      <circle x="170" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="90"></point>
+        <point x="180" y="195"></point>
+        <point x="150" y="285"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="225"></point>
+        <point x="225" y="300"></point>
+        <point x="255" y="300"></point>
+        <point x="270" y="285"></point>
+        <point x="240" y="195"></point>
+        <point x="255" y="90"></point>
+      </polygon>
+      <rectangle endX="232" startY="79" marked="true" color="-1920102913" endY="94" startX="187" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="255" y="90"></point>
+        <point x="300" y="150"></point>
+        <point x="285" y="180"></point>
+        <point x="225" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="90"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="180"></point>
+        <point x="195" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="person righty" rotatable="false" editableColorIndex="0">
+      <circle x="50" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="45" y="90"></point>
+        <point x="60" y="195"></point>
+        <point x="30" y="285"></point>
+        <point x="45" y="300"></point>
+        <point x="75" y="300"></point>
+        <point x="90" y="225"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="285"></point>
+        <point x="120" y="195"></point>
+        <point x="135" y="90"></point>
+      </polygon>
+      <rectangle endX="112" startY="79" marked="true" color="-1920102913" endY="94" startX="67" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="180"></point>
+        <point x="105" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="45" y="90"></point>
+        <point x="0" y="150"></point>
+        <point x="15" y="180"></point>
+        <point x="75" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>

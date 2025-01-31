@@ -1,0 +1,1718 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[extensions [ csv ]         ; export clients history
+
+breed [ sites site ]
+breed [ robots robot ]
+breed [ students student ]
+
+globals [
+  history                 ; a list of history of all students' dances, including [Ticks, Quality, Recruited]
+]
+
+sites-own [
+  quality
+  true-color              ; color after being discovered. (undiscovered sites are all grey)
+]
+
+students-own [
+  dance-length            ; the number of ticks a student-controlled bee will dance
+  dances-made             ; the rounds of dances a student have finished
+  user-id
+  supported-site
+  bee-timer               ; keep track of ticks elapsed at a certain state, usually the dance length.
+                          ;   the higher the target quality, the longer the dance
+  recruited               ; the number of other bees recruited (influenced by its dance)
+  destination             ; where the bee is headed
+  message-content
+
+  state                   ; There are 4 states a student could be in:
+                          ; 1. exploring: the initial state of a student. It can be
+                          ;    controlled by the direction buttons on the hubnet
+                          ;    client to move around and explore new hive sites.
+                          ; 2. visiting: the outbound part of an automated trip to
+                          ;    a site just visited. After a student found a site and
+                          ;    returned to the swarm, if the "revisit" button is hit,
+                          ;    the bee automatically flies toward the site just visited.
+                          ; 3. returning: the inbound part of the trip.
+                          ; 4. dancing
+]
+
+robots-own [              ; variables below are the same as students'. See students-own for explanations
+  destination             ; where the bee is headed
+  supported-site
+  bee-timer
+  recruited
+  state                   ; marks the current state a bee is in. 5 possible values:
+                          ; 1. chilling: when a robot is in idle. a robot in this
+                          ;    state is crawling and watching. it can be attracted
+                          ;    by a dance nearby
+                          ; 2. dancing: same as students'
+                          ; 3. visiting: same as students'
+                          ; 4. returning: same as students'
+                          ; 5. recovering: a robot needs a certain period of time
+                          ;    after a dance to rejoin the recruiting process
+]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;SETUP;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+to startup
+  hubnet-reset
+  set-default-shape students "bee"
+  set-default-shape robots "beebot"
+  listen-clients
+end
+
+to setup
+  clear-patches            ; initialize the world. didn't use clear-all to keep the HubNet connection
+  clear-drawing
+  clear-output
+  clear-all-plots
+  ask robots [ die ]
+  setup-patches
+  ask sites [ die ]
+  setup-sites
+  ask robots [ die ]
+  make-robots
+  listen-clients
+  ask students [
+    reset-students
+    send-info-to-clients
+  ]
+  set history []
+  reset-ticks
+end
+
+to make-robots
+  create-robots number-of-robots [
+    set color gray
+    set supported-site nobody
+    set state "chilling"
+    fd random-float 4
+  ]
+end
+
+to setup-patches
+  ask patches [
+    ifelse dance-floor? [
+      set pcolor scale-color brown (distancexy 0 0) 0 8    ; darker center
+    ] [
+      set pcolor scale-color green (distancexy 0 0) 0 25   ; green gets darker towards center
+    ]
+  ]
+end
+
+to-report dance-floor? ; patch and turtle reporter
+  report [ distancexy 0 0 ] of patch-at 0 0 < 4            ; bees only dance within the distance of 4 of the center
+end
+
+to reset-students
+  hubnet-send-follow user-id self student-vision-radius    ; apply field of vision constrains
+  setxy random-float 5 random-float 5
+  set state "exploring"
+  set supported-site nobody
+  set dances-made 0
+  set dance-length 0
+  set recruited 0
+  set message-content ""
+  set color gray
+end
+
+to setup-sites
+  create-sites number-of-sites [
+    set color gray
+    set shape "box"
+    set size 2
+  ]
+
+  ; a pre-defined color list, which is color-blind safe
+  let color-list [ 95 15 105 25 125 85 135 115 75 ]
+
+  ; a pre-defined quality "seed" list to calculate quality-list, which
+  ; ensures the first 4 sites have sufficient quality difference
+  let input-quality-list [ 85 55 35 5 75 15 65 25 45 80 ]
+
+  ; added randomness to the seed list and made it quadratic to
+  ; amplify differences between better quality sites
+  let quality-list map [ n -> round (((n + random 10 - 4) / 10) ^ 2) ] input-quality-list
+
+  (foreach (sort sites) (n-of count sites color-list) (n-of count sites quality-list) [ [the-site the-color the-quality] ->
+    ask the-site [                  ; ask the next site in the sorted list of sites
+      let mycolor the-color          ; assign a color from the color list
+      set true-color mycolor
+      set quality the-quality          ; assign a quality from the quality list
+    ]
+  ])
+  place-sites
+end
+
+to place-sites
+  ; pick either xcor or ycor and set it as random first, and then set the other coordinate close to the edge of the world.
+  ask sites [
+    ifelse random 2 = 0 [
+      set xcor min-pxcor + 1 + random (world-height - 2)
+      set ycor one-of (list (max-pycor - 1) (min-pycor + 1))
+    ] [
+      set ycor min-pycor + 1 + random (world-width - 2)
+      set xcor one-of (list (min-pxcor + 1) (max-pxcor - 1))
+    ]
+  ]
+  ; if the smallest distance between two sites are less than 10, re-place sites
+  if any? sites with [ min [ distance myself ] of other sites < 10 ] [
+    place-sites
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;RUN TIME ;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+to go
+  listen-clients
+
+  ask students with [ state = "exploring" ] [explore]
+  ask students with [ state = "visiting" ] [ visit ]
+  ask students with [ state = "returning" ] [ return ]
+  ask students [ show-message ]
+
+  dance
+
+  ask robots with [ state = "chilling" ] [
+    robot-move
+    robot-follow
+  ]
+  ask robots with [ state = "visiting" ] [ visit ]
+  ask robots with [ state = "returning" ] [ return ]
+  ask robots with [ state = "recovering" ] [ recover ]
+
+  tick
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;BEE PROCEDURES;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to explore; student procedure
+  if any? sites in-radius 2 [
+    ifelse color = gray [
+      set supported-site one-of sites in-radius 2
+      ask supported-site [ set color true-color ]
+      set bee-timer [ quality ] of supported-site
+      set color [ color ] of supported-site
+      set dance-length 0
+      hubnet-send user-id "target-quality" [ quality ] of supported-site
+      hubnet-send user-id "interest-in-target" bee-timer
+    ] [
+      ; if the bee's color is not gray, which means it has a commitment
+      set message-content "Dance before you can discover another site"
+    ]
+  ]
+end
+
+to recover ; robot procedure
+  ifelse bee-timer > 0 [
+    set bee-timer bee-timer - 1
+  ] [
+    set state "chilling"
+  ]
+end
+
+to visit ; bee procedure
+  ifelse distance destination < 1 [
+    set supported-site destination
+    set bee-timer [ quality ] of supported-site
+    set color ([ color ] of supported-site)
+    set state "returning"
+    set destination one-of patches with [dance-floor?]
+    if is-student? self [
+      hubnet-send user-id "target-quality" [ quality ] of supported-site
+      hubnet-send user-id "interest-in-target" bee-timer
+      hubnet-send user-id "dance-length" 0
+      hubnet-send user-id "bees-recruited" 0
+    ]
+  ] [
+    fd 1
+    face destination
+  ]
+end
+
+to return ; bee procedure
+  ifelse distance destination > 1 [
+    face destination fd 1
+  ] [
+    move-to destination
+    ifelse breed = robots [
+      set state "dancing"
+    ] [
+      set state "exploring"
+    ]
+  ]
+end
+
+to robot-move ; robot procedure
+  ifelse dance-floor? [
+    ; if in swarm, crawl a little bit
+    rt random 30 - 15
+    fd random-float 0.1
+  ] [
+    ; if on grass, head towards dance floor
+    facexy 0 0
+    fd 0.1
+  ]
+end
+
+to robot-follow ; robot procedure
+  let bees (turtle-set students robots)
+  let dancing-bees-in-sight (other bees with [ state = "dancing" ] in-cone 1 30)
+  if any? dancing-bees-in-sight[
+    ; if any other dancing bee is in the cone of vision
+    let bee-watched one-of dancing-bees-in-sight
+    if random 100 < [ [ quality ] of supported-site ] of bee-watched [
+      set destination [ supported-site ] of bee-watched
+      set color [ color ] of destination
+      ask bee-watched [ set recruited recruited + 1 ]
+      set state "visiting"
+    ]
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;DANCE;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to dance ; bee procedure
+  let dancers (turtle-set students robots) with [ state = "dancing" and bee-timer > 0 ]
+  foreach [ 0 1 0 -1 0 ] [ n ->
+    ask dancers [
+      set heading (towards supported-site) + ([ quality ] of supported-site * n)
+    ]
+    display
+    ; displays a simplified waggle dance with 5 states instead of the figure-8 waggle path
+    ; the higher the quality of the supported site, the move vigorous the dance looks.
+  ]
+  ask dancers [
+    set bee-timer bee-timer - 1
+    if breed = students [
+      set dance-length dance-length + 1
+      hubnet-send user-id "interest-in-target" bee-timer
+      hubnet-send user-id "dance-length" dance-length
+      hubnet-send user-id "bees-recruited" recruited
+      hubnet-send user-id "ticks" ticks
+    ]
+  ]
+  ask students with [ done-dancing? ] [
+    set state "exploring"
+    set dances-made dances-made + 1
+    hubnet-send user-id "dances-made" dances-made
+    hubnet-send user-id "ticks" ticks
+    let summary-list (list ticks [ quality ] of supported-site recruited)
+    hubnet-send user-id "summary" summary-list
+    set summary-list fput user-id summary-list         ; adding user id to the list
+    set history lput summary-list history              ; adding personal history to the global history
+    set recruited 0
+    set color grey
+    set destination supported-site
+    set supported-site nobody
+  ]
+  ask robots with [ done-dancing? ] [
+    set state "recovering"
+    set bee-timer 20
+    set color grey
+    set destination nobody
+    set supported-site nobody
+  ]
+end
+
+to-report done-dancing?
+  report state = "dancing" and bee-timer = 0
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;HubNet Procedures;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+to listen-clients
+  while [ hubnet-message-waiting? ] [
+    hubnet-fetch-message
+    ifelse hubnet-enter-message? [
+      create-new-student
+    ] [
+      ifelse hubnet-exit-message? [
+        remove-student
+      ] [
+        ask students with [ user-id = hubnet-message-source ] [
+          execute-command hubnet-message-tag
+        ]
+      ]
+    ]
+  ]
+end
+
+to create-new-student
+  create-students 1 [
+    set user-id hubnet-message-source
+    hubnet-send-follow user-id self student-vision-radius
+    set state "exploring"
+    set color gray
+  ]
+end
+
+to remove-student
+  ask students with [ user-id = hubnet-message-source ] [ die ]
+end
+
+to execute-command [ command ]
+  if command = "dance" [ command-dance ]
+  if command = "revisit" [ command-revisit ]
+  if command = "give-up" [ command-give-up ]
+  if command = "View" [ command-click ]
+
+  if member? command [ "up" "down" "left" "right" ] [
+    if state = "dancing" [ set message-content "Move after dance" ]
+    if state = "visiting" or state = "returning" [
+      set message-content "Move after returning to the swarm"
+    ]
+    if state = "exploring" [
+      if command = "up"   [ execute-move   0 stop ]
+      if command = "down" [ execute-move 180 stop ]
+      if command = "right"[ execute-move  90 stop ]
+      if command = "left" [ execute-move 270 stop ]
+    ]
+  ]
+end
+
+to execute-move [ new-heading ]
+  set heading new-heading
+  fd 1
+end
+
+to command-dance
+  if state = "dancing" [
+    set message-content "You are already dancing"
+  ]
+  if state = "returning" or state = "visiting" [
+    set message-content "Dance after returning to the swarm"
+  ]
+  if state = "exploring" [
+    ifelse dance-floor? [
+      ifelse color = grey [ ;white [
+        set message-content "Visit or revisit a site to dance for it"
+      ] [
+        set state "dancing"
+        set dance-length 0
+      ]
+    ] [
+      set message-content "You can only dance in the swarm."
+    ]
+  ]
+end
+
+to command-revisit
+  if state = "dancing" [
+    set message-content "Revisit after this dance"
+  ]
+  if state = "revisiting" [
+    set message-content "You are revisiting a hive"
+  ]
+
+  if state = "exploring" [
+    ifelse is-site? destination [
+      set state "visiting"
+      set color [ color ] of destination
+    ] [
+      ifelse is-patch? destination [
+        set message-content "please dance before revisiting"
+      ] [
+        set message-content "I don't know which site to revisit"
+      ]
+    ]
+  ]
+end
+
+to command-give-up
+  if state = "dancing" [
+    set message-content "Give up before a dance"
+  ]
+  if state = "returning" or state = "visiting" [
+    set message-content "Give up when you are in the swarm"
+  ]
+  if state = "exploring" [
+    ifelse dance-floor? [
+      ifelse supported-site != nobody [
+        ifelse [ quality ] of supported-site < 50 [
+          set supported-site nobody
+          set color grey
+          hubnet-send user-id "target-quality" 0
+          hubnet-send user-id "interest-in-target" 0
+        ] [
+          set message-content "You can't give up a good site"
+        ]
+      ] [
+        set message-content "Give up a site after it's found"
+      ]
+    ] [
+      set message-content "Return to the swarm to give up"
+    ]
+  ]
+end
+
+to command-click
+  if state = "dancing" [
+    set message-content "Click a dancer after dancing to follow it"
+  ]
+  if state = "visiting" or state = "returning" [
+    set message-content "Click a dancer after returning to the swarm"
+  ]
+  if state = "exploring" [
+    ifelse is-patch? destination [
+      set message-content "Dance before following another dancer"
+    ] [
+      let close-enough? false
+      let bees (turtle-set students robots)
+      let choice min-one-of bees [
+        distancexy item 0 hubnet-message item 1 hubnet-message
+      ]
+      ask choice [
+        ;; click is close enough to the chosen bee, but a student
+        ;; should only be able to click a dancer nearby.
+        if distancexy item 0 hubnet-message item 1 hubnet-message < 0.5 [
+          set close-enough? true ;; clicking anywhere gives a message asking to click on a dancer
+        ]
+      ]
+      if close-enough? [
+        ifelse [ state ] of choice =  "dancing" [
+          set destination [ supported-site ] of choice
+          hubnet-send user-id "target-quality" "figuring out..."
+          hubnet-send user-id "interest-in-target" "figuring out..."
+          set state "visiting"
+          set color [color] of destination
+        ] [
+          set message-content "Click a DANCING bee nearby to follow it"
+        ]
+      ]
+    ]
+  ]
+end
+
+to send-info-to-clients ;; turtle procedure
+  hubnet-send user-id "target-quality" 0
+  hubnet-send user-id "dances-made" 0
+  hubnet-send user-id "dance-length" 0
+  hubnet-send user-id "interest-in-target" 0
+  hubnet-send user-id "summary" ""
+  hubnet-send user-id "ticks" 0
+  hubnet-send user-id "bees-recruited" 0
+end
+
+to show-message
+  hubnet-send user-id "Message" message-content
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;SAVE FILE;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+to save-history
+  csv:to-file filename history
+end
+
+
+; Copyright 2016 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="210" maxPycor="18" updateMode="1" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-18" height="490" showTickCounter="true" patchSize="13.0" fontSize="10" wrappingAllowedY="false" width="489" tickCounterLabel="ticks" maxPxcor="18" minPxcor="-18"></view>
+    <button x="14" y="10" height="48" disableUntilTicks="false" forever="false" kind="Observer" width="80">setup</button>
+    <button x="114" y="10" height="48" disableUntilTicks="true" forever="true" kind="Observer" width="81">go</button>
+    <slider x="10" step="1" y="177" height="33" min="1" direction="Horizontal" max="10" default="10.0" variable="student-vision-radius" width="185" display="student-vision-radius"></slider>
+    <slider x="10" step="1" y="95" height="33" min="2" direction="Horizontal" max="9" default="9.0" variable="number-of-sites" width="185" display="number-of-sites"></slider>
+    <monitor x="12" precision="17" y="265" height="45" fontSize="11" width="183" display="Best site discovered?">[ color = true-color ] of max-one-of sites [ quality ]</monitor>
+    <plot x="707" yMax="10.0" yAxis="Bee Count" y="10" xMin="0.0" height="253" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="307" xAxis="Sites" display="Current Sites Support">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="1" display="pen-0">
+        <setup>set-plot-x-range 0 count sites
+set-plot-y-range 0 10
+set-histogram-num-bars count sites</setup>
+        <update>let sites-by-quality sort-on [ quality ] sites ; assemble a sorted list of sites by quality
+let supporting-bees (turtle-set students robots) with [ is-site? supported-site ]
+histogram [ position supported-site sites-by-quality ] of supporting-bees</update>
+      </pen>
+    </plot>
+    <plot x="708" yMax="10.0" yAxis="Bee Count" y="268" xMin="0.0" height="253" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="307" xAxis="Ticks" display="Sites Support Over Time">
+      <setup>ask sites [
+  create-temporary-plot-pen (word self)
+  set-plot-pen-color true-color
+]</setup>
+      <update>ask sites [
+  set-current-plot-pen (word self)
+  plot count (turtle-set students robots) with [ supported-site = myself ]
+]</update>
+    </plot>
+    <input x="14" multiline="false" y="407" height="60" variable="filename" type="string" width="179">history.csv</input>
+    <button x="14" y="473" height="46" disableUntilTicks="true" forever="false" kind="Observer" width="179" display="save history">save-history</button>
+    <slider x="10" step="10" y="136" height="33" min="0" direction="Horizontal" max="100" default="100.0" variable="number-of-robots" width="185" display="number-of-robots"></slider>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+BeeSmart HubNet model is part of the BeeSmart Curricular Unit. It is the HubNet version of the BeeSmart Hive Finding model in NetLogo Models library. For detailed description of honeybees hive finding phenomenon, please see the info tab of the BeeSmart Hive Finding model.
+
+Unlike the BeeSmart Hive Finding model, the BeeSmart HubNet model allows students to see the phenomenon from bees’ perspective. Each student uses a HubNet client to control a bee. All the bees live in the same virtual space on the teacher’s server. In this way, students can interact with the environment and with each other, and experience the bees' physical and cognitive limitations.
+
+## HOW IT WORKS
+
+The model contains three types of agents: students, robots, and sites.
+
+- Students are scouts that are controlled by students through HubNet clients. In the model, they are bee-shaped agents with yellow noses and white wing edges.
+
+- Robots are automated scouts that follow similar rules as human players. They look exactly like the students, except that their noses are grey.
+
+- Sites are potential targets that the swarm tries to pick. They are box-shaped agents that never move. At each setup, they are placed randomly in the view.
+
+A color gradient is used in the view where the closer to the center, the darker the color. At the very center, the patches are brown, which indicates the location of the swarm.
+
+At each tick, a robot moves around randomly and sees if there is any dancing agent within one step in its 30 degrees cone of vision. If there is, the robot may follow the dance based on a probability that is proportional to the interest (the value of the `bee-timer` variable) of the dancer. If the robot decides to follow the dance, it targets the hive site advocated by the dancer and flies out to evaluate it. When arrived at a site, the robot adjusts its interest according to the quality of the site and fly back to the swarm to dance for it.
+
+Students generally follow the same routine but can make a few decisions. When the simulation starts, students need to "fly" out of the swarm using the direction buttons in order to discover new potential hive sites. When stumbling upon a site, students can go back to the swarm and press the dance button to perform dances in order to promote the hive they discovered. They can also give up a dance for a low quality site when they return to the swarm. As a bee dances, her interest declines. When the interest reaches zero, the bee stops dancing and turns gray. At this point, students can choose if they want to fly out and explore another hive or to stay in the swarm and follow other bees’ dances. They can follow other dances by clicking a nearby dancing bee. Once a dancer is clicked on, the student automatically flies out to the site the dance advocates, inspects the site, and flies back to the swarm. Then the student can decide whether to dance for the site, give up the dance, or follow another dance.
+
+## HOW TO USE IT
+
+When the model is launched, ask clients to join. After clients have joined the model, set the number of sites and radius _before_ clicking the setup button. Then click GO.
+
+SETUP initializes the model, adding hive sites into the view.
+
+GO starts the model. If clients joined after SETUP was clicked, They can only see themselves after GO is clicked.
+
+SAVE HISTORY saves the history of all students' dances to a CSV file, the name of which is specified in the FILENAME input box. When used in a classroom, the teacher can save the history as a CSV file and then use Excel to open it in order to provide students with detailed data for analyzing the phenomenon.
+
+NUMBER-OF-SITES determines how may hive sites to put in the view.
+
+NUMBER-OF-ROBOTS determines how may robots to put in the view.
+
+STUDENT-VISION-RADIUS determines how far the clients can see from their perspective.
+
+The CURRENT SITE SUPPORT plot shows a histogram of the current support. The leftmost bar shows how many dancing bees are supporting the site with the lowest quality, and the rightmost, the highest, with everything else in between.
+
+The SITE SUPPORT OVER TIME plot shows a line graph detailing the change of support over time.
+
+On the client view:
+
+MESSAGE shows suggestions when students attempt operations that are not allowed by the rules in this world.
+
+DANCE, GIVE-UP, and REVISIT are only effective when a student is in the swarm (at the center brown area). A student can dance only after she inspected a site; can only give up when the quality of the site visited is less than 50; and can revisit a site only after the bee the student controls danced at least once for the site.
+
+TARGET-QUALITY is the objective quality of the site the bee just inspected. (How bees assess the quality of a potential site is not included in this model. For more information, see Seeley 2010)
+
+INTEREST-IN-TARGET is the interest or the extent of the bee's enthusiasm towards the target.
+
+DANCE-LENGTH is the length of the current dance.
+
+BEES-RECRUITED is the number of bees recruited with the current round of dance.
+
+DANCES-MADE are rounds of dances made.
+
+TICKS is the time elapsed in the virtual world. The TICKS monitor on the clients is only updated when a student is dancing. It stops when a dance is finished, showing when the dance stopped since the model started to run
+
+SUMMARY shows the summary of the just finished dance. It contains three values: [T Q R], where T means ticks, or the time when the last round of dance finished; Q means target quality, by which the target that the bee just danced for can be identified; and R means the number of bees the dance has recruited.
+
+## THINGS TO NOTICE
+
+As the model runs, notice the change in the histogram. The leftmost bar represents the dances that support of the lowest quality site, while the rightmost bar represents the dances for the highest. Sites are discovered in random order, so the bars start out with random heights. However, as the process continues, the bars gradually shift to the right, showing a convergence of support to the highest quality site.
+
+The SITES SUPPORT OVER TIME plot shows this dynamic over time.
+
+## THINGS TO TRY
+
+Play this simulation with at least 3 people. A group of 10 would be ideal because is provides enough diversity to imitate the scout bees in a beehive. Try to start with a small number of hives (around 4 to 5) but a larger vision radius (5 to 7). Talk to your partners as you play. After you are familiar with the model, reduce the vision radius and play again. You can also increase the number of hives to increase the difficulty. Finally, use a vision radius of 1 and play the model without talking to any of your partners. This way, you can experience bees' physical and cognitive limitations. After each round of play, look at the plots on the server and debrief what you and your partners did, and what happened.
+
+## EXTENDING THE MODEL
+
+The waggle dances in this model are represented by agents turning left and right. One possibility for extending the model is to use the actual waggle dance pattern (the figure-8 dance, included in the BeeSmart Hive Finding model) to make the dances more realistic and informative.
+
+`hubnet-send-watch` and `hubnet-send-follow` can be used to allow students to follow a certain bee with better visual effects.
+
+Currently, the bees dance one interest unit per tick. It would be better if the dance could expand across multiple ticks to create more detailed visual effects of the dances.
+
+## NETLOGO FEATURES
+
+This model uses the HubNet Architecture, especially the perspective reset feature (`hubnet-send-follow`). Notice that the layers of agents are determined by the order in which their breeds are declared. Agents of breeds declared later are on top of those declared earlier.
+
+This model also uses dynamic plots. The histogram and the line graph are dynamically generated to show current and historical support of sites by counting the number of bees that support each target.
+
+## RELATED MODELS
+
+BeeSmart Hive Finding
+
+## CREDITS AND REFERENCES
+
+Seeley, T. D. (2010). Honeybee democracy. Princeton, NJ: Princeton University Press.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Guo, Y. and Wilensky, U. (2016).  NetLogo BeeSmart HubNet model.  http://ccl.northwestern.edu/netlogo/models/BeeSmartHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the HubNet software as:
+
+* Wilensky, U. & Stroup, W. (1999). HubNet. http://ccl.northwestern.edu/netlogo/hubnet.html. Center for Connected Learning and Computer-Based Modeling, Northwestern University. Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2016 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2016 Cite: Guo, Y. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="bee" rotatable="true" editableColorIndex="1">
+      <polygon color="-684578305" filled="true" marked="true">
+        <point x="152" y="149"></point>
+        <point x="77" y="163"></point>
+        <point x="67" y="195"></point>
+        <point x="67" y="211"></point>
+        <point x="74" y="234"></point>
+        <point x="85" y="252"></point>
+        <point x="100" y="264"></point>
+        <point x="116" y="276"></point>
+        <point x="134" y="286"></point>
+        <point x="151" y="300"></point>
+        <point x="167" y="285"></point>
+        <point x="182" y="278"></point>
+        <point x="206" y="260"></point>
+        <point x="220" y="242"></point>
+        <point x="226" y="218"></point>
+        <point x="226" y="195"></point>
+        <point x="222" y="166"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="149"></point>
+        <point x="128" y="151"></point>
+        <point x="114" y="151"></point>
+        <point x="98" y="145"></point>
+        <point x="80" y="122"></point>
+        <point x="80" y="103"></point>
+        <point x="81" y="83"></point>
+        <point x="95" y="67"></point>
+        <point x="117" y="58"></point>
+        <point x="141" y="54"></point>
+        <point x="151" y="53"></point>
+        <point x="177" y="55"></point>
+        <point x="195" y="66"></point>
+        <point x="207" y="82"></point>
+        <point x="211" y="94"></point>
+        <point x="211" y="116"></point>
+        <point x="204" y="139"></point>
+        <point x="189" y="149"></point>
+        <point x="171" y="152"></point>
+      </polygon>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="151" y="54"></point>
+        <point x="119" y="59"></point>
+        <point x="96" y="60"></point>
+        <point x="81" y="50"></point>
+        <point x="78" y="39"></point>
+        <point x="87" y="25"></point>
+        <point x="103" y="18"></point>
+        <point x="115" y="23"></point>
+        <point x="121" y="13"></point>
+        <point x="150" y="1"></point>
+        <point x="180" y="14"></point>
+        <point x="189" y="23"></point>
+        <point x="197" y="17"></point>
+        <point x="210" y="19"></point>
+        <point x="222" y="30"></point>
+        <point x="222" y="44"></point>
+        <point x="212" y="57"></point>
+        <point x="192" y="58"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="70" y="185"></point>
+        <point x="74" y="171"></point>
+        <point x="223" y="172"></point>
+        <point x="224" y="186"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="67" y="211"></point>
+        <point x="71" y="226"></point>
+        <point x="224" y="226"></point>
+        <point x="225" y="211"></point>
+        <point x="67" y="211"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="91" y="257"></point>
+        <point x="106" y="269"></point>
+        <point x="195" y="269"></point>
+        <point x="211" y="255"></point>
+      </polygon>
+      <line endX="70" startY="100" marked="false" color="-1" endY="87" startX="144"></line>
+      <line endX="45" startY="87" marked="false" color="-1" endY="87" startX="70"></line>
+      <line endX="26" startY="86" marked="false" color="-1" endY="97" startX="45"></line>
+      <line endX="22" startY="96" marked="false" color="-1" endY="115" startX="26"></line>
+      <line endX="25" startY="115" marked="false" color="-1" endY="130" startX="22"></line>
+      <line endX="37" startY="131" marked="false" color="-1" endY="141" startX="26"></line>
+      <line endX="55" startY="141" marked="false" color="-1" endY="144" startX="37"></line>
+      <line endX="143" startY="143" marked="false" color="-1" endY="101" startX="55"></line>
+      <line endX="227" startY="100" marked="false" color="-1" endY="138" startX="141"></line>
+      <line endX="241" startY="138" marked="false" color="-1" endY="137" startX="227"></line>
+      <line endX="249" startY="137" marked="false" color="-1" endY="129" startX="241"></line>
+      <line endX="254" startY="129" marked="false" color="-1" endY="110" startX="249"></line>
+      <line endX="248" startY="108" marked="false" color="-1" endY="97" startX="253"></line>
+      <line endX="235" startY="95" marked="false" color="-1" endY="82" startX="249"></line>
+      <line endX="144" startY="82" marked="false" color="-1" endY="100" startX="235"></line>
+    </shape>
+    <shape name="beebot" rotatable="true" editableColorIndex="1">
+      <polygon color="-684578305" filled="true" marked="true">
+        <point x="152" y="149"></point>
+        <point x="77" y="163"></point>
+        <point x="67" y="195"></point>
+        <point x="67" y="211"></point>
+        <point x="74" y="234"></point>
+        <point x="85" y="252"></point>
+        <point x="100" y="264"></point>
+        <point x="116" y="276"></point>
+        <point x="134" y="286"></point>
+        <point x="151" y="300"></point>
+        <point x="167" y="285"></point>
+        <point x="182" y="278"></point>
+        <point x="206" y="260"></point>
+        <point x="220" y="242"></point>
+        <point x="226" y="218"></point>
+        <point x="226" y="195"></point>
+        <point x="222" y="166"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="149"></point>
+        <point x="128" y="151"></point>
+        <point x="114" y="151"></point>
+        <point x="98" y="145"></point>
+        <point x="80" y="122"></point>
+        <point x="80" y="103"></point>
+        <point x="81" y="83"></point>
+        <point x="95" y="67"></point>
+        <point x="117" y="58"></point>
+        <point x="141" y="54"></point>
+        <point x="151" y="53"></point>
+        <point x="177" y="55"></point>
+        <point x="195" y="66"></point>
+        <point x="207" y="82"></point>
+        <point x="211" y="94"></point>
+        <point x="211" y="116"></point>
+        <point x="204" y="139"></point>
+        <point x="189" y="149"></point>
+        <point x="171" y="152"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="151" y="54"></point>
+        <point x="119" y="59"></point>
+        <point x="96" y="60"></point>
+        <point x="81" y="50"></point>
+        <point x="78" y="39"></point>
+        <point x="87" y="25"></point>
+        <point x="103" y="18"></point>
+        <point x="115" y="23"></point>
+        <point x="121" y="13"></point>
+        <point x="150" y="1"></point>
+        <point x="180" y="14"></point>
+        <point x="189" y="23"></point>
+        <point x="197" y="17"></point>
+        <point x="210" y="19"></point>
+        <point x="222" y="30"></point>
+        <point x="222" y="44"></point>
+        <point x="212" y="57"></point>
+        <point x="192" y="58"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="70" y="185"></point>
+        <point x="74" y="171"></point>
+        <point x="223" y="172"></point>
+        <point x="224" y="186"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="67" y="211"></point>
+        <point x="71" y="226"></point>
+        <point x="224" y="226"></point>
+        <point x="225" y="211"></point>
+        <point x="67" y="211"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="91" y="257"></point>
+        <point x="106" y="269"></point>
+        <point x="195" y="269"></point>
+        <point x="211" y="255"></point>
+      </polygon>
+      <line endX="70" startY="100" marked="false" color="-1920102913" endY="87" startX="144"></line>
+      <line endX="45" startY="87" marked="false" color="-1920102913" endY="87" startX="70"></line>
+      <line endX="26" startY="86" marked="false" color="-1920102913" endY="97" startX="45"></line>
+      <line endX="22" startY="96" marked="false" color="-1920102913" endY="115" startX="26"></line>
+      <line endX="25" startY="115" marked="false" color="-1920102913" endY="130" startX="22"></line>
+      <line endX="37" startY="131" marked="false" color="-1920102913" endY="141" startX="26"></line>
+      <line endX="55" startY="141" marked="false" color="-1920102913" endY="144" startX="37"></line>
+      <line endX="143" startY="143" marked="false" color="-1920102913" endY="101" startX="55"></line>
+      <line endX="227" startY="100" marked="false" color="-1920102913" endY="138" startX="141"></line>
+      <line endX="241" startY="138" marked="false" color="-1920102913" endY="137" startX="227"></line>
+      <line endX="249" startY="137" marked="false" color="-1920102913" endY="129" startX="241"></line>
+      <line endX="254" startY="129" marked="false" color="-1920102913" endY="110" startX="249"></line>
+      <line endX="248" startY="108" marked="false" color="-1920102913" endY="97" startX="253"></line>
+      <line endX="235" startY="95" marked="false" color="-1920102913" endY="82" startX="249"></line>
+      <line endX="144" startY="82" marked="false" color="-1920102913" endY="100" startX="235"></line>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="sheep" rotatable="false" editableColorIndex="15">
+      <circle x="203" y="65" marked="true" color="-1" diameter="88" filled="true"></circle>
+      <circle x="70" y="65" marked="true" color="-1" diameter="162" filled="true"></circle>
+      <circle x="150" y="105" marked="true" color="-1" diameter="120" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="218" y="120"></point>
+        <point x="240" y="165"></point>
+        <point x="255" y="165"></point>
+        <point x="278" y="120"></point>
+      </polygon>
+      <circle x="214" y="72" marked="false" color="-1920102913" diameter="67" filled="true"></circle>
+      <rectangle endX="179" startY="223" marked="true" color="-1" endY="298" startX="164" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="45" y="285"></point>
+        <point x="30" y="285"></point>
+        <point x="30" y="240"></point>
+        <point x="15" y="195"></point>
+        <point x="45" y="210"></point>
+      </polygon>
+      <circle x="3" y="83" marked="true" color="-1" diameter="150" filled="true"></circle>
+      <rectangle endX="80" startY="221" marked="true" color="-1" endY="296" startX="65" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="195" y="285"></point>
+        <point x="210" y="285"></point>
+        <point x="210" y="240"></point>
+        <point x="240" y="210"></point>
+        <point x="195" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="276" y="85"></point>
+        <point x="285" y="105"></point>
+        <point x="302" y="99"></point>
+        <point x="294" y="83"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="219" y="85"></point>
+        <point x="210" y="105"></point>
+        <point x="193" y="99"></point>
+        <point x="201" y="83"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="wolf" rotatable="false" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="253" y="133"></point>
+        <point x="245" y="131"></point>
+        <point x="245" y="133"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="2" y="194"></point>
+        <point x="13" y="197"></point>
+        <point x="30" y="191"></point>
+        <point x="38" y="193"></point>
+        <point x="38" y="205"></point>
+        <point x="20" y="226"></point>
+        <point x="20" y="257"></point>
+        <point x="27" y="265"></point>
+        <point x="38" y="266"></point>
+        <point x="40" y="260"></point>
+        <point x="31" y="253"></point>
+        <point x="31" y="230"></point>
+        <point x="60" y="206"></point>
+        <point x="68" y="198"></point>
+        <point x="75" y="209"></point>
+        <point x="66" y="228"></point>
+        <point x="65" y="243"></point>
+        <point x="82" y="261"></point>
+        <point x="84" y="268"></point>
+        <point x="100" y="267"></point>
+        <point x="103" y="261"></point>
+        <point x="77" y="239"></point>
+        <point x="79" y="231"></point>
+        <point x="100" y="207"></point>
+        <point x="98" y="196"></point>
+        <point x="119" y="201"></point>
+        <point x="143" y="202"></point>
+        <point x="160" y="195"></point>
+        <point x="166" y="210"></point>
+        <point x="172" y="213"></point>
+        <point x="173" y="238"></point>
+        <point x="167" y="251"></point>
+        <point x="160" y="248"></point>
+        <point x="154" y="265"></point>
+        <point x="169" y="264"></point>
+        <point x="178" y="247"></point>
+        <point x="186" y="240"></point>
+        <point x="198" y="260"></point>
+        <point x="200" y="271"></point>
+        <point x="217" y="271"></point>
+        <point x="219" y="262"></point>
+        <point x="207" y="258"></point>
+        <point x="195" y="230"></point>
+        <point x="192" y="198"></point>
+        <point x="210" y="184"></point>
+        <point x="227" y="164"></point>
+        <point x="242" y="144"></point>
+        <point x="259" y="145"></point>
+        <point x="284" y="151"></point>
+        <point x="277" y="141"></point>
+        <point x="293" y="140"></point>
+        <point x="299" y="134"></point>
+        <point x="297" y="127"></point>
+        <point x="273" y="119"></point>
+        <point x="270" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="-1" y="195"></point>
+        <point x="14" y="180"></point>
+        <point x="36" y="166"></point>
+        <point x="40" y="153"></point>
+        <point x="53" y="140"></point>
+        <point x="82" y="131"></point>
+        <point x="134" y="133"></point>
+        <point x="159" y="126"></point>
+        <point x="188" y="115"></point>
+        <point x="227" y="108"></point>
+        <point x="236" y="102"></point>
+        <point x="238" y="98"></point>
+        <point x="268" y="86"></point>
+        <point x="269" y="92"></point>
+        <point x="281" y="87"></point>
+        <point x="269" y="103"></point>
+        <point x="269" y="113"></point>
+      </polygon>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <hubNetClient>
+    <view x="300" maxPycor="18" updateMode="1" wrappingAllowedX="true" y="25" frameRate="30.0" minPycor="-18" height="429" showTickCounter="true" patchSize="12.0" fontSize="13" wrappingAllowedY="true" width="429" tickCounterLabel="ticks" maxPxcor="18" minPxcor="-18"></view>
+    <button x="104" actionKey="W" y="82" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="83" display="up"></button>
+    <button x="104" actionKey="S" y="129" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="84" display="down"></button>
+    <button x="9" actionKey="A" y="129" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="78" display="left"></button>
+    <button x="205" actionKey="D" y="129" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="79" display="right"></button>
+    <button x="9" actionKey="Q" y="185" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="79" display="dance"></button>
+    <button x="205" actionKey="R" y="185" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="79" display="revisit"></button>
+    <monitor x="11" precision="3" y="339" height="49" fontSize="11" width="131" display="dances-made"></monitor>
+    <monitor x="11" precision="3" y="291" height="49" fontSize="11" width="131" display="dance-length"></monitor>
+    <monitor x="11" precision="3" y="243" height="49" fontSize="11" width="131" display="target-quality"></monitor>
+    <monitor x="8" precision="3" y="26" height="49" fontSize="11" width="275" display="Message"></monitor>
+    <monitor x="156" precision="3" y="243" height="49" fontSize="11" width="129" display="interest-in-target"></monitor>
+    <monitor x="11" precision="3" y="387" height="49" fontSize="11" width="274" display="summary"></monitor>
+    <note x="14" y="441" height="28" color="0.0" transparent="true" fontSize="11" width="252">[T    Q    R] : ticks, target-quality, recruited</note>
+    <monitor x="156" precision="3" y="339" height="49" fontSize="11" width="129" display="ticks"></monitor>
+    <monitor x="156" precision="3" y="291" height="49" fontSize="11" width="129" display="bees-recruited"></monitor>
+    <button x="104" actionKey="G" y="185" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="84" display="give-up"></button>
+  </hubNetClient>
+  <previewCommands>need-to-manually-make-preview-for-this-model</previewCommands>
+</model>

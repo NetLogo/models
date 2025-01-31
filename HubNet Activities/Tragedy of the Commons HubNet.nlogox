@@ -1,0 +1,1504 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="false">
+  <code><![CDATA[;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Variable and Breed declarations ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+globals
+[
+  day                ;; number of days so far
+
+  colors             ;; list that holds the colors used for students' turtles
+  color-names        ;; list that holds the names of the colors used for
+                     ;; students' turtles
+  num-colors         ;; number of colors in the color list
+  used-colors        ;; list that holds the shape-color pairs that are
+                     ;; already being used
+
+  n/a                ;; unset variable indicator
+
+  ;; quick start instructions variables
+  quick-start        ;; current quickstart instruction displayed in the
+                     ;; quickstart monitor
+  qs-item            ;; index of the current quickstart instruction
+  qs-items           ;; list of quickstart instructions
+
+  grass-max          ;; grass capacity
+  food-max           ;; grass collection capacity
+  bite-size          ;; amount of grass collected at each move
+]
+
+patches-own
+[
+  grass-stored       ;; amount of grass currently stored
+]
+
+breed [ goats goat ]  ;; creation controlled by farmers
+breed [ farmers farmer ] ;; created and controlled by clients
+
+
+goats-own
+[
+  food-stored        ;; amount of grass collected from grazing
+  owner#             ;; the user-id of the farmer who owns the goat
+]
+
+farmers-own
+[
+  user-id            ;; unique user-id, input by the client when they log in,
+                     ;; to identify each student turtle
+  num-goats-to-buy   ;; desired quantity of goats to purchase
+  revenue-lst        ;; list of each days' revenue collection
+  total-assets       ;; total of past revenue, minus expenses
+  current-revenue    ;; the revenue collected at the end of the last day
+]
+
+
+;;;;;;;;;;;;;;;;;;;;;
+;; Setup Functions ;;
+;;;;;;;;;;;;;;;;;;;;;
+
+to startup
+  setup-quick-start
+  hubnet-reset
+  setup
+end
+
+;; initializes the display
+;; but does not clear already created farmers
+to setup
+  setup-globals
+  setup-patches
+  clear-output
+  clear-all-plots
+  ask farmers
+    [ reset-farmers-vars ]
+  hubnet-broadcast "Goat Seller Says:"
+    (word "Everyone starts with " init-num-goats/farmer " goats.")
+  hubnet-broadcast "num-goats-to-buy" 1
+  broadcast-system-info
+end
+
+;; initialize global variables
+to setup-globals
+  reset-ticks
+  set day 0
+
+  set grass-max 50
+  set food-max 50
+  ;; why this particular calculation?
+  set bite-size (round (100 / (grazing-period - 1)))
+
+  set colors      [ white   gray   orange   brown    yellow    turquoise
+                    cyan    sky    blue     violet   magenta   pink ]
+  set color-names ["white" "gray" "orange" "brown"  "yellow"  "turquoise"
+                   "cyan"  "sky"  "blue"   "violet" "magenta" "pink"]
+  set used-colors []
+  set num-colors length colors
+  set n/a "n/a"
+end
+
+;; initialize grass supply for each patch
+to setup-patches
+  ask patches
+  [
+    ;; set amount of food at each patch
+    set grass-stored grass-max
+    color-patches
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;; Runtime Functions ;;
+;;;;;;;;;;;;;;;;;;;;;;;
+
+to go
+  ;; get command and data from client
+  listen-to-clients
+
+  every .1
+  [
+    every .5
+      [ broadcast-system-info ]
+
+    if not any? farmers
+    [
+      user-message word "There are no farmers.  GO is stopping.  "
+          "Press GO again when people have logged in."
+      stop
+    ]
+
+    tick
+
+    ;; when not milking time
+    ifelse (ticks mod grazing-period) != 0
+    [
+      ask goats
+        [ graze ]
+    ]
+    [
+      set day day + 1
+      ask farmers
+        [ milk-goats ]
+      go-to-market ;; to buy goats
+      plot-graph
+    ]
+
+    reset-patches
+  ]
+end
+
+;; goat move along the common looking for best patch of grass
+to graze  ;; goat procedure
+  if (food-stored != food-max) or (other goats-here = nobody)
+  [
+    let new-food-amt (food-stored + get-amt-eaten)
+    ifelse (new-food-amt < food-max)
+      [ set food-stored new-food-amt ]
+      [ set food-stored food-max ]
+  ]
+  rt (random-float 90)
+  lt (random-float 90)
+  fd 1
+end
+
+;; returns amount of grass eaten at patch and
+;; sets the patch grass amount accordingly
+to-report get-amt-eaten  ;; goat procedure
+  let reduced-amt (grass-stored - bite-size)
+  ifelse (reduced-amt < 0)
+  [
+    set grass-stored 0
+    report grass-stored
+  ]
+  [
+    set grass-stored reduced-amt
+    report bite-size
+  ]
+end
+
+;; collect milk and sells them at market ($1 = 1 gallon)
+to milk-goats  ;; farmer procedure
+  set current-revenue
+    (round-to-place (sum [food-stored] of my-goats) 10)
+  ask my-goats
+    [ set food-stored 0 ]
+  set revenue-lst (fput current-revenue revenue-lst)
+  set total-assets total-assets + current-revenue
+  send-personal-info
+end
+
+;; the goat market setup
+to go-to-market
+  ask farmers
+  [
+    if num-goats-to-buy > 0
+      [ buy-goats num-goats-to-buy ]
+    if num-goats-to-buy < 0
+      [ lose-goats (- num-goats-to-buy) ]
+    if num-goats-to-buy = 0
+      [ hubnet-send user-id "Goat Seller Says:" "You did not buy any goats." ]
+    send-personal-info
+  ]
+end
+
+;; farmers buy goats at market
+to buy-goats [ num-goats-desired ]  ;; farmer procedure
+  let got-number-desired? true
+  let num-goats-afford (int (total-assets / cost/goat))
+  let num-goats-purchase num-goats-desired
+  if (num-goats-afford < num-goats-purchase)
+  [
+    set num-goats-purchase num-goats-afford
+    set got-number-desired? false
+  ]
+  let cost-of-purchase num-goats-purchase * cost/goat
+  set total-assets (total-assets - cost-of-purchase)
+  hubnet-send user-id "Goat Seller Says:"
+    (seller-says got-number-desired? num-goats-desired num-goats-purchase)
+
+  ;; create the goats purchased by the farmer
+  hatch num-goats-purchase
+    [ setup-goats user-id ]
+end
+
+;; farmers eliminate some of their goats (with no gain in assets)
+to lose-goats [ num-to-lose ]  ;; farmer procedure
+  if ((count my-goats) < num-to-lose)
+    [ set num-to-lose (count my-goats) ]
+  hubnet-send user-id "Goat Seller Says:"
+    (word "You lost " num-to-lose " goats.")
+
+  ;; eliminate the goats ditched by the farmer
+  ask (n-of num-to-lose my-goats)
+    [ die ]
+end
+
+;; reports the appropriate information on the transaction of purchasing goats
+to-report seller-says [ success? desired purchased ]
+  let seller-message ""
+  let cost purchased * cost/goat
+  ifelse success?
+  [
+    ifelse (purchased > 1)
+      [ set seller-message (word "Here are your " purchased " goats.  ") ]
+      [ set seller-message "Here is your goat.  " ]
+    set seller-message (word seller-message "You have spent $" cost ".")
+  ]
+  [
+    set seller-message (word "You do not have enough to buy " desired ".  "
+      "You can afford " purchased " for $" cost ".")
+  ]
+  report seller-message
+end
+
+;; initializes goat variables
+to setup-goats [ farmer# ]  ;; turtle procedure
+  set breed goats
+  setxy random-xcor random-ycor
+  set shape "goat"
+  set food-stored 0
+  set owner# farmer#
+  show-turtle
+end
+
+;; updates patches' color and increase grass supply with growth rate
+to reset-patches
+  ask patches with [grass-stored < grass-max]
+  [
+    let new-grass-amt (grass-stored + grass-growth-rate)
+    ifelse (new-grass-amt > grass-max)
+      [ set grass-stored grass-max ]
+      [ set grass-stored new-grass-amt ]
+    color-patches
+  ]
+end
+
+;; colors patches according to amount of grass on the patch
+to color-patches  ;; patch procedure
+  set pcolor (scale-color green grass-stored -5 (2 * grass-max))
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+;; Plotting Functions ;;
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; plots the graph of the system
+to plot-graph
+  plot-value "Milk Supply" milk-supply
+  plot-value "Grass Supply" grass-supply
+  plot-value "Goat Population" count goats
+  plot-value "Average Revenue" avg-revenue
+end
+
+;; plot value on the plot called name-of-plot
+to plot-value [ name-of-plot value ]
+  set-current-plot name-of-plot
+  plot value
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Calculation Functions ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to-report milk-supply
+  ;; we can just compute this from revenue, since the price of milk is
+  ;; fixed at $1/1 gallon.
+  report sum [ current-revenue ] of farmers
+end
+
+to-report grass-supply
+  report sum [ grass-stored ] of patches
+end
+
+to-report avg-revenue
+  report mean [ current-revenue ] of farmers
+end
+
+;; returns agentset that of goats of a particular farmer
+to-report my-goats  ;; farmer procedure
+  report goats with [ owner# = [user-id] of myself ]
+end
+
+;; rounds given number to certain decimal-place
+to-report round-to-place [ num decimal-place ]
+  report (round (num * decimal-place)) / decimal-place
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Quick Start functions ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; instructions to quickly setup the model, and clients to run this activity
+to setup-quick-start
+  set qs-item 0
+  set qs-items
+  [
+    "Teacher: Follow these directions to run the HubNet activity."
+      "Optional: Zoom In (see Tools in the Menu Bar)"
+      "Optional: Change any of the settings...."
+      "If you do change the settings, press the SETUP button."
+      "Press the LOGIN button to allow people to login."
+      "Everyone: Open up a HubNet Client on your machine and..."
+        "type your user name, select this activity and press ENTER."
+
+    "Teacher: Once everyone has logged in,..."
+        "turn off the LOGIN button by pressing it again."
+      "Have the students acquaint themselves with the information..."
+        "available to them in the monitors, buttons, and sliders."
+      "Then press the GO button to start the simulation."
+      "Please note that you may adjust the length of time..."
+        "GRAZING-PERIOD, that goats are allowed to graze each day."
+      "For a quicker demonstration, reduce the..."
+        "GRASS-GROWTH-RATE slider."
+      "To curb buying incentives of the students, increase..."
+        "the COST/GOAT slider."
+      "Any of the above mentioned parameters - ..."
+        "GRAZING-PERIOD, GRASS-GROWTH-RATE, and COST/GOAT -..."
+        "may be altered without stopping the simulation."
+
+    "Teacher: To run the activity again with the same group,..."
+        "stop the model by pressing the GO button, if it is on."
+        "Change any of the settings that you would like."
+      "Press the SETUP button."
+
+    "Teacher: Restart the simulation by pressing the GO button again."
+
+    "Teacher: To start the simulation over with a new group,..."
+        "stop the model by pressing the GO button if it is on..."
+        "press the RESET button in the Control Center"
+        "and follow these instructions again from the beginning."
+  ]
+  set quick-start (item qs-item qs-items)
+end
+
+;; view the next item in the quickstart monitor
+to view-next
+  set qs-item qs-item + 1
+  if qs-item >= length qs-items
+    [ set qs-item length qs-items - 1 ]
+  set quick-start (item qs-item qs-items)
+end
+
+;; view the previous item in the quickstart monitor
+to view-prev
+  set qs-item qs-item - 1
+  if qs-item < 0
+    [ set qs-item 0 ]
+  set quick-start (item qs-item qs-items)
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Code for interacting with the clients ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; determines which client sent a command, and what the command was
+to listen-to-clients
+  while [ hubnet-message-waiting? ]
+  [
+    hubnet-fetch-message
+    ifelse hubnet-enter-message?
+    [
+      create-new-farmer hubnet-message-source
+    ]
+    [
+      ifelse hubnet-exit-message?
+        [ remove-farmer hubnet-message-source ]
+        [ execute-command hubnet-message-tag ]
+    ]
+  ]
+end
+
+;; NetLogo knows what each student turtle is supposed to be
+;; doing based on the tag sent by the node:
+;; num-goats-to-buy - determine quantity of student's desired purchase
+to execute-command [command]
+  if command = "num-goats-to-buy"
+  [
+    ask farmers with [user-id = hubnet-message-source]
+      [ set num-goats-to-buy hubnet-message ]
+    stop
+  ]
+end
+
+to create-new-farmer [ id ]
+  create-farmers 1
+  [
+    set user-id id
+    setup-farm
+    set-unique-color
+    reset-farmers-vars
+    hubnet-send id "num-goats-to-buy" num-goats-to-buy
+    send-system-info
+  ]
+end
+
+;; situates the farmer in particular location
+to setup-farm  ;; farmer procedure
+  setxy ((random-float (world-width - 2)) + min-pxcor + 1)
+        ((random-float (world-height - 2)) + min-pycor + 1)
+  hide-turtle
+end
+
+;; pick a color for the turtle
+to set-unique-color  ;; turtle procedure
+  let code random num-colors
+  while [member? code used-colors and count farmers < num-colors]
+    [ set code random num-colors ]
+  set used-colors (lput code used-colors)
+  set color item code colors
+end
+
+;; set farmer variables to initial values
+to reset-farmers-vars  ;; farmer procedure
+  ;; reset the farmer variable to initial values
+  set revenue-lst []
+  set num-goats-to-buy 1
+  set total-assets cost/goat
+  set current-revenue 0
+
+  ;; get rid of existing goats
+  ask my-goats
+    [ die ]
+
+  ;; create new goats for the farmer
+  hatch init-num-goats/farmer
+    [ setup-goats user-id ]
+
+  send-personal-info
+end
+
+;; sends the appropriate monitor information back to the client
+to send-personal-info  ;; farmer procedure
+  hubnet-send user-id "My Goat Color" (color->string color)
+  hubnet-send user-id "Current Revenue" current-revenue
+  hubnet-send user-id "Total Assets" total-assets
+  hubnet-send user-id "My Goat Population" count my-goats
+end
+
+;; returns string version of color name
+to-report color->string [ color-value ]
+  report item (position color-value colors) color-names
+end
+
+;; sends the appropriate monitor information back to one client
+to send-system-info  ;; farmer procedure
+  hubnet-send user-id "Milk Amt" milk-supply
+  hubnet-send user-id "Grass Amt" grass-supply
+  hubnet-send user-id "Cost per Goat" cost/goat
+  hubnet-send user-id "Day" day
+end
+
+;; broadcasts the appropriate monitor information back to all clients
+to broadcast-system-info
+  hubnet-broadcast "Milk Amt" milk-supply
+  hubnet-broadcast "Grass Amt" (int grass-supply)
+  hubnet-broadcast "Cost per Goat" cost/goat
+  hubnet-broadcast "Day" day
+end
+
+;; delete farmers once client has exited
+to remove-farmer [ id ]
+  let old-color 0
+  ask farmers with [user-id = id]
+  [
+    set old-color color
+    ask my-goats
+      [ die ]
+    die
+  ]
+  if not any? farmers with [color = old-color]
+    [ set used-colors remove (position old-color colors) used-colors ]
+end
+
+
+; Copyright 2002 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="462" maxPycor="10" updateMode="1" wrappingAllowedX="true" y="96" frameRate="30.0" minPycor="-10" height="555" showTickCounter="true" patchSize="26.0" fontSize="10" wrappingAllowedY="true" width="554" tickCounterLabel="ticks" maxPxcor="10" minPxcor="-10"></view>
+    <button x="270" y="11" height="33" disableUntilTicks="false" forever="true" kind="Observer" width="93">go</button>
+    <slider x="6" step="1" y="48" height="33" min="0" direction="Horizontal" max="10" default="5.0" variable="init-num-goats/farmer" units="goats" width="218" display="init-num-goats/farmer"></slider>
+    <slider x="6" step="0.1" y="82" height="33" min="0" direction="Horizontal" max="2" default="0.5" variable="grass-growth-rate" units="oz/cycle" width="218" display="grass-growth-rate"></slider>
+    <slider x="225" step="1" y="82" height="33" min="1" direction="Horizontal" max="2000" default="893.0" variable="cost/goat" units="$" width="219" display="cost/goat"></slider>
+    <monitor x="239" precision="1" y="345" height="45" fontSize="11" width="98" display="Avg-Revenue">avg-revenue</monitor>
+    <plot x="233" yMax="1000.0" yAxis="Revenue" y="174" xMin="0.0" height="168" legend="false" xMax="20.0" autoplot="true" yMin="0.0" width="215" xAxis="Day" display="Average Revenue">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="revenue">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <plot x="233" yMax="100.0" yAxis="Goats" y="398" xMin="0.0" height="158" legend="false" xMax="20.0" autoplot="true" yMin="0.0" width="215" xAxis="Day" display="Goat Population">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="num-goats">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <monitor x="341" precision="0" y="345" height="45" fontSize="11" width="100" display="Goat Population">count goats</monitor>
+    <monitor x="42" precision="0" y="345" height="45" fontSize="11" width="76" display="Milk Supply">milk-supply</monitor>
+    <plot x="15" yMax="100.0" yAxis="Milk (Gallons)" y="174" xMin="0.0" height="168" legend="false" xMax="20.0" autoplot="true" yMin="0.0" width="214" xAxis="Day" display="Milk Supply">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="milk-amt">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <plot x="15" yMax="100.0" yAxis="Grass (lbs)" y="398" xMin="0.0" height="158" legend="false" xMax="20.0" autoplot="true" yMin="0.0" width="214" xAxis="Day" display="Grass Supply">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="grass-amt">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <slider x="225" step="1" y="48" height="33" min="2" direction="Horizontal" max="50" default="34.0" variable="grazing-period" width="218" display="grazing-period"></slider>
+    <monitor x="121" precision="0" y="345" height="45" fontSize="11" width="86" display="Grass Supply">grass-supply</monitor>
+    <button x="75" y="11" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="89">setup</button>
+    <monitor x="16" precision="3" y="121" height="45" fontSize="11" width="63" display="Day">day</monitor>
+    <button x="462" y="61" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="118" display="Reset Instructions">setup-quick-start</button>
+    <button x="798" y="61" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="84" display="NEXT &gt;&gt;&gt;">view-next</button>
+    <button x="720" y="61" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="78" display="&lt;&lt;&lt; PREV">view-prev</button>
+    <monitor x="462" precision="0" y="10" height="45" fontSize="11" width="420" display="Quick Start Instructions- More in Info Window">quick-start</monitor>
+    <button x="165" y="11" height="33" disableUntilTicks="false" forever="true" kind="Observer" width="104" display="login">listen-to-clients</button>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This model simulates the utilization of a common resource by multiple users.  In this example, the common resource is represented by the common grazing area, used by goat farmers to feed their goats.  Depending on the actions of the participants, the outcome may demonstrate a phenomenon called the "tragedy of the commons", where a common good or resource is over-utilized.
+
+This is a counterexample to the efficient (as defined in "Pareto efficiency") market theorem.  (The efficient market theorem states that agents, looking out for their own best interest [i.e., everyone trying to increase their own wealth], leads to the most efficient social outcome [i.e., the highest quantity of milk].)
+
+## HOW IT WORKS
+
+The students act as the farmers.  They own INIT-NUM-GOATS/FARMER when they join the simulation.
+
+The goats move around the screen for a time span of GRAZING-PERIOD to graze and feed themselves.  The amount of grass they eat is equivalent to how much milk they can produce (and ultimately, the amount of profit they produce for the farmer).
+
+After the GRAZING-PERIOD, the farmers may choose to buy more goats to increase their own wealth.
+
+Initially, the abundance of GRASS-SUPPLY of the patches can sustain the goats and their grazing and leads to increasing milk-supply and increasing revenue.  But suppose, then, that due to the farmers' own incentive to increase their own wealth and each farmer's indifference to the other farmers' decision to purchase goats, each farmer continues to buy more goats.  With the increase of the GOAT-POPULATION, GRASS-SUPPLY gradually decreases.  Ultimately, the common grazing area does not contain enough grass to sustain the overcrowding of goats, and the milk-supply as well as the farmers' revenues decline.  This is the "tragedy of the commons".
+
+## HOW TO USE IT
+
+Quickstart Instructions:
+
+Teacher: Follow these directions to run the HubNet activity.
+Optional: Zoom In (see Tools in the Menu Bar)
+Optional: Change any of the settings.  If you do change the settings, press the SETUP button.
+Press the LOGIN button to allow people to login.
+Everyone: Open up a HubNet Client on your machine and enter your name, select this activity, and press ENTER.
+
+Teacher: Once everyone has logged in, turn off the LOGIN button by pressing it again.
+Have the students acquaint themselves with the various information available to them in the monitors, buttons, and sliders.
+Then press the GO button to start the simulation.
+Please note that you may adjust the length of time, GRAZING-PERIOD, that goats allowed to graze each day.
+For a quicker demonstration, reduce the GRASS-GROWTH-RATE slider.
+To curb buying incentives of the students, increase the COST/GOAT slider.
+Any of the above mentioned parameters - GRAZING-PERIOD, GRASS-GROWTH-RATE, and COST/GOAT - may be altered without stopping the simulation.
+
+Teacher: To run the activity again with the same group, stop the model by pressing the GO button, if it is on.
+Change any of the settings that you would like.
+Press the SETUP button.
+Restart the simulation by pressing the GO button.
+
+Teacher: To start the simulation over with a new group, stop the model by pressing the GO button if it is on, press the RESET button in the Control Center to kick out all the clients  and follow these instructions again from the beginning.
+
+Buttons:
+
+SETUP - returns all farmers, goats, and patches to initial condition and clears the plot.
+LOGIN - allows users to log into the activity without running the model or collecting data
+GO - runs the simulation
+
+Sliders:
+
+INIT-NUM-GOATS/FARMER - initial number of goats per farmer at the beginning of the simulation
+GRASS-GROWTH-RATE - amount of grass growth for each tick of the clock
+COST/GOAT - cost for a goat
+GRAZING-PERIOD - the time frame in which goats are allowed to graze each day
+
+Monitors:
+
+GRASS SUPPLY - amount of grass available to eat
+MILK SUPPLY - amount of milk produced each day
+AVG-PROFIT/DAY - amount of revenue collected from milk sale per day
+GOAT POPULATION - number of goats grazing in the common area
+
+Plots:
+
+GRASS SUPPLY - amount of grass available to graze upon over time (in days)
+MILK SUPPLY - amount of milk produced over time (in days)
+AVERAGE REVENUE - average revenue of all farmers over time (in days)
+GOAT POPULATION - number of goats on grazing field over time (in days)
+
+Client Information
+
+After logging in, the client interface will appear for the students, and if GO is pressed in NetLogo, they will be assigned a farmer which will be described by the color in the MY GOAT COLOR monitor.  The MY GOAT POPULATION monitor will display the number of goats each student owns.  Their revenue for the last day will be displayed in the CURRENT REVENUE monitor and their total assets in the TOTAL ASSETS monitor.
+
+The global Cost per Goat can be viewed in the COST PER GOAT monitor.  The performance of the society, measured by the amount of grass available for food and the amount of milk produced can be measured from the GRASS AMT and MILK AMT monitors, respectively.  The current day, a day being defined as one grazing period followed by a milking session, is displayed in the DAY monitor.
+
+The student manages his/her goat population.  During the course of each grazing period, the student must decide what action to take for the day, whether to buy or to discard some goats.  To buy or to discard goats, the student must adjust NUM-GOATS-TO-BUY slider to his/her desired quantity.  At the end of the day, the specified transaction will be executed automatically.  The transaction of the purchase will be described in the GOAT SELLER SAYS: monitor, which will inform the client of the action taken and how many goats were purchased, if any.
+
+The progress of the community's welfare as measured by the grass available for grazing, average revenue of farmers, and milk supply is plotted in the GRASS SUPPLY, AVERAGE REVENUE, and MILK SUPPLY plots (if present), which are each identical to the plot of the same name in NetLogo.
+
+## THINGS TO NOTICE
+
+Note that if the students do not confer with each other, the tragedy of the commons arises.  The general patterns of the plots for average revenue and milk supply are similar -- the curves eventually peak and are followed by a decrease.  After the initial run, ask the students which parameters helped them to decide to purchase or not purchase goats.  Ask the students to switch objectives for the simulation; instead of maximizing total-assets, ask them to maximize milk-supply.  Also, ask the students to confer and act as cooperative unit.
+
+## THINGS TO TRY
+
+Use the model with the entire class to serve as an introduction to the topic.  Upon running the initial set of simulations, ask the students to switch objective - instead of maximizing their own total-assets, ask them to maximize milk-supply for the entire community.  Ask the students to confer and act as a cooperative unit.  Observe and discuss the changes in AVG-REV/FARMER and MILK-SUPPLY from the initial simulation and the later simulation with altered objectives.  Continue to discuss how the "Tragedy of the Commons" can be avoided and why or why not a society would want to avoid this phenomenon.  Then, have students use the NetLogo model individually, in a computer lab, to explore the effects of the various parameters.  Discuss what they find, observe, and can conclude from this model.
+
+## EXTENDING THE MODEL
+
+Is there other information about the state of the simulation that the farmers might want access to? Do you think this would change the outcome of the simulation? From what other phenomena (e.g. prisoner's dilemma or free-rider problem) would the student's behavior to not sell the goats arise (if it arises)?
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. (2002).  NetLogo Tragedy of the Commons HubNet model.  http://ccl.northwestern.edu/netlogo/models/TragedyoftheCommonsHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the HubNet software as:
+
+* Wilensky, U. & Stroup, W. (1999). HubNet. http://ccl.northwestern.edu/netlogo/hubnet.html. Center for Connected Learning and Computer-Based Modeling, Northwestern University. Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2002 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This activity and associated models and materials were created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
+
+<!-- 2002 -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="goat" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="97" y="116"></point>
+        <point x="125" y="128"></point>
+        <point x="166" y="130"></point>
+        <point x="209" y="119"></point>
+        <point x="243" y="136"></point>
+        <point x="244" y="171"></point>
+        <point x="231" y="188"></point>
+        <point x="215" y="193"></point>
+        <point x="215" y="243"></point>
+        <point x="205" y="244"></point>
+        <point x="203" y="192"></point>
+        <point x="169" y="182"></point>
+        <point x="131" y="185"></point>
+        <point x="130" y="245"></point>
+        <point x="116" y="245"></point>
+        <point x="115" y="184"></point>
+        <point x="87" y="138"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="243" y="146"></point>
+        <point x="260" y="152"></point>
+        <point x="259" y="180"></point>
+        <point x="253" y="155"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="97" y="113"></point>
+        <point x="82" y="93"></point>
+        <point x="61" y="93"></point>
+        <point x="34" y="134"></point>
+        <point x="43" y="145"></point>
+        <point x="59" y="137"></point>
+        <point x="79" y="133"></point>
+        <point x="86" y="138"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="58" y="136"></point>
+        <point x="65" y="150"></point>
+        <point x="55" y="161"></point>
+        <point x="58" y="146"></point>
+      </polygon>
+      <rectangle endX="103" startY="123" marked="true" color="-1920102913" endY="138" startX="88" filled="true"></rectangle>
+      <rectangle endX="100" startY="120" marked="true" color="-1920102913" endY="133" startX="88" filled="true"></rectangle>
+      <rectangle endX="100" startY="119" marked="true" color="-1920102913" endY="131" startX="88" filled="true"></rectangle>
+      <rectangle endX="95" startY="119" marked="true" color="-1920102913" endY="123" startX="86" filled="true"></rectangle>
+      <rectangle endX="98" startY="115" marked="true" color="-1920102913" endY="124" startX="88" filled="true"></rectangle>
+      <rectangle endX="90" startY="134" marked="true" color="-1920102913" endY="140" startX="87" filled="true"></rectangle>
+      <polygon color="-1653716737" filled="true" marked="false">
+        <point x="69" y="91"></point>
+        <point x="76" y="65"></point>
+        <point x="114" y="57"></point>
+        <point x="120" y="68"></point>
+        <point x="109" y="64"></point>
+        <point x="83" y="71"></point>
+        <point x="80" y="93"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="203" y="193"></point>
+        <point x="201" y="242"></point>
+        <point x="204" y="243"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="205" y="217"></point>
+        <point x="201" y="242"></point>
+        <point x="205" y="242"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="168"></point>
+        <point x="81" y="186"></point>
+        <point x="90" y="223"></point>
+        <point x="101" y="222"></point>
+        <point x="94" y="188"></point>
+        <point x="118" y="183"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="184" y="186"></point>
+        <point x="173" y="197"></point>
+        <point x="186" y="223"></point>
+        <point x="196" y="213"></point>
+        <point x="183" y="196"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="false">
+        <point x="68" y="92"></point>
+        <point x="82" y="92"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <hubNetClient>
+    <view x="460" maxPycor="10" updateMode="1" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-10" height="420" showTickCounter="true" patchSize="12.0" fontSize="13" wrappingAllowedY="true" width="420" tickCounterLabel="ticks" maxPxcor="10" minPxcor="-10"></view>
+    <monitor x="251" precision="3" y="30" height="49" fontSize="11" width="105" display="Current Revenue"></monitor>
+    <monitor x="126" precision="3" y="30" height="49" fontSize="11" width="118" display="My Goat Population"></monitor>
+    <monitor x="99" precision="0" y="218" height="49" fontSize="11" width="71" display="Grass Amt"></monitor>
+    <monitor x="6" precision="3" y="218" height="49" fontSize="11" width="90" display="Cost per Goat"></monitor>
+    <monitor x="363" precision="3" y="30" height="49" fontSize="11" width="91" display="Total Assets"></monitor>
+    <monitor x="5" precision="3" y="30" height="49" fontSize="11" width="116" display="My Goat Color"></monitor>
+    <monitor x="173" precision="3" y="218" height="49" fontSize="11" width="57" display="Milk Amt"></monitor>
+    <note x="8" y="199" height="18" color="0.0" transparent="false" fontSize="11" width="117">System Variables:</note>
+    <note x="7" y="10" height="18" color="0.0" transparent="false" fontSize="11" width="117">Personal Variables:</note>
+    <slider x="8" step="1.0" y="95" height="33" min="-5.0" direction="Horizontal" max="5.0" default="0.0" variable="num-goats-to-buy" width="149" display="num-goats-to-buy"></slider>
+    <monitor x="383" precision="3" y="217" height="49" fontSize="11" width="57" display="Day"></monitor>
+    <monitor x="8" precision="3" y="145" height="49" fontSize="11" width="446" display="Goat Seller Says:"></monitor>
+    <note x="163" y="98" height="32" color="0.0" transparent="false" fontSize="11" width="278">Selecting a negative number here will eliminate some of your goats.</note>
+  </hubNetClient>
+  <previewCommands>need-to-manually-make-preview-for-this-model</previewCommands>
+</model>

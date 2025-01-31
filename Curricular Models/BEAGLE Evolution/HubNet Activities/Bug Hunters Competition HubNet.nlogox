@@ -1,0 +1,1249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[globals
+[
+  ;; global variables related to color
+  bugs-color
+  grass-color
+  dirt-color
+  invasive-color
+  not-grown-back-color
+
+  ;; global variables related to bugs
+  bugs-size             ;; the shape size for a bug
+  bugs-stride           ;; how much a bug moves at every tick
+  bugs-reproduce-energy ;; energy at which bugs reproduce
+  min-energy-of-any-bug ;; energy of the bug with the lowest energy in the population
+  max-energy-of-any-bug ;; energy of the bug with the maximum energy in the population
+  dead-bugs             ;; keeps count of the number of bugs that have died in a model run
+  offspring-bugs        ;; keeps count of the number of bugs  reproduced by automated bugs
+  bugs-energy-from-food ;; energy that the bug eat from the food (the grass) each tick
+                        ;; set to 4 in this model, but is adjustable in other Bug Hunt models (such as Bug Hunt Consumers).
+
+  ;; global variables related to grass
+  max-grass-energy      ;; the most amount of grass that can grow in a single patch (determined by a max. energy threshold)
+  grass-growth-rate     ;; set to 1 in this model, but is adjustable in other Bug Hunt models (such as Bug Hunt Consumers).
+  competition-status    ;; updates users with a message about the status of the competition
+
+  ;; global variables related to time and histogram
+  time-remaining        ;; time left for the competition to end
+  x-min-histogram
+  x-max-histogram
+  x-interval-histogram
+
+  old-player-vision
+]
+
+breed [ bugs bug ]
+breed [ players player ]
+
+bugs-own    [destination-patch controlled-by-player? owned-by energy]
+players-own [destination-patch user-id dead?]
+
+patches-own [
+  fertile?              ;; whether or not a grass patch is fertile is determined by the amount-grassland slider
+  grass-energy          ;; energy for grass
+  countdown
+  ]
+
+
+to startup ;; setting up hubnet
+  hubnet-reset
+  setup
+end
+
+
+to setup
+  ask bugs [die]
+  clear-all-plots
+
+  ;; time variables
+  set time-remaining 0
+
+
+  ;; variables for the histogram
+  set x-min-histogram 0
+  set x-max-histogram 0
+  set x-interval-histogram 0
+
+  set old-player-vision 0
+
+  ;; variables for grass
+  set max-grass-energy 100
+  set grass-growth-rate 1     ;; set to 1 by default in this model.  But in other Bug Hunt Models (such as Bug Hunt Consumers), this is adjustable
+                              ;; In other Bug Hunt Models (such as Bug Hunt Consumers), grass-growth-rate has a default of 1, but is slider adjustable.
+
+  ;; variables for bugs
+  set-default-shape bugs "bug"
+  set bugs-size 1.0
+  set bugs-stride 0.2
+  set bugs-reproduce-energy 100
+  set bugs-energy-from-food 4  ;; set to 4 by default in this model.
+                               ;; In other Bug Hunt Models (such as Bug Hunt Consumers), bug-energy-from-food has a default of 4, but is slider adjustable.
+  set dead-bugs 0
+  set offspring-bugs 0
+
+  ;; setting colors
+  set bugs-color (violet )
+  set grass-color (green)
+  set dirt-color (gray - 1)
+  set not-grown-back-color white
+
+  set competition-status "Get Ready"
+  add-starting-grass
+  if include-clients-as-bugs? [ask players [assign-bug-to-player]]
+  add-bugs
+
+
+  listen-clients
+  check-reset-perspective
+  display-labels
+
+  reset-ticks
+  set time-remaining (length-competition - ticks)
+  send-all-info
+end
+
+
+to setup-a-new-bugs-for-a-new-player [p-user-id]
+   set hidden? false
+   set color (magenta - 1)
+   set size 1.4  ;; easier to see
+   set label-color blue
+
+   set energy 10 * bugs-energy-from-food
+   set owned-by p-user-id
+   set controlled-by-player? true
+   update-statistics
+end
+
+
+to go
+  if ticks < length-competition  [
+    set competition-status "Running"
+    update-statistics
+    listen-clients
+    send-all-info
+    ask patches [ grow-grass ]
+    ask bugs [
+      if automated-bugs-lose-energy? [ set energy energy - 1 ] ;; deduct energy for bugs only if bugs-lose-energy? switch is on
+      if automated-bugs-reproduce? [ reproduce-bugs ]
+      if automated-bugs-wander? [right random 30 left random 30]
+      fd bugs-stride
+      bugs-eat-grass
+      bug-death
+    ]
+    display-labels
+    check-reset-perspective
+    tick
+    set time-remaining (length-competition - ticks)
+  ]
+  if ticks = length-competition  [
+    display
+    set competition-status "Over"
+    if time-remaining <= 0 [set time-remaining 0]
+    send-all-info
+    tick
+  ]
+end
+
+
+to add-starting-grass
+  ask patches [
+      ifelse random 100 < amount-grassland    ;;  the maximum number of fertile patches is set by a slider
+    [
+      set fertile? true
+      set grass-energy max-grass-energy
+    ]
+    [
+      set fertile? false
+      set grass-energy 0
+    ]
+    color-grass
+  ]
+end
+
+
+to add-bugs
+  create-bugs initial-#-automated-bugs  ;; create the bugs, then initialize their variables
+  [
+    set color bugs-color
+    set size bugs-size
+    set controlled-by-player? false
+    set energy 10 * bugs-energy-from-food
+    setxy random world-width random world-height
+  ]
+end
+
+
+to bugs-eat-grass  ;; bugs procedure
+  ;; if there is enough grass to eat at this patch, the bugs eat it
+  ;; and then gain energy from it.
+  if grass-energy > bugs-energy-from-food  [
+    ;; grass lose ten times as much energy as the bugs gains (trophic level assumption)
+    set grass-energy (grass-energy - (bugs-energy-from-food * 10))
+    set energy (energy + bugs-energy-from-food)  ;; bugs gain energy by eating
+  ]
+  ;; if grass-energy is negative, make it positive
+  if grass-energy <=  bugs-energy-from-food  [set countdown sprout-delay-time ]
+end
+
+
+
+to reproduce-bugs  ;; automated bugs procedure
+  if (energy > ( bugs-reproduce-energy))
+  [
+    if random 2 = 1 and not controlled-by-player?          ;; only half of the fertile bugs reproduce (gender)
+    [
+      set energy (energy / 2)      ;; lose energy when reproducing - energy is divided between offspring and parent
+      hatch  1
+      [    ;; hatch an offspring set it heading off in a a random direction and move it forward a step
+        set offspring-bugs (offspring-bugs + 1)
+        set size bugs-size
+        set color bugs-color
+        rt random 360 fd bugs-stride
+      ]
+    ]
+  ]
+end
+
+
+to bug-death  ;; bugs die when energy dips below zero (starvation)
+  if  (energy < 0)
+ [ set dead-bugs (dead-bugs + 1)
+   die ]
+
+end
+
+to grow-grass  ;; patch procedure
+  set countdown (countdown - 1)
+  ;; fertile patches gain 1 energy unit per turn, up to a maximum max-grass-energy threshold
+  if fertile? and countdown <= 0 [
+    set grass-energy (grass-energy + grass-growth-rate)
+    if grass-energy > max-grass-energy [set grass-energy max-grass-energy]
+  ]
+  if not fertile? [set grass-energy 0]
+  if grass-energy < 0 [set grass-energy 0 set countdown sprout-delay-time]
+  color-grass
+end
+
+to color-grass
+  ifelse fertile? [
+    ifelse grass-energy > 0
+    ;; scale color of patch from whitish green for low energy (less foliage) to green - high energy (lots of foliage)
+    [set pcolor (scale-color green grass-energy  (max-grass-energy * 2)  0)]
+    [set pcolor not-grown-back-color]
+  ]
+  [set pcolor dirt-color]
+end
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; player enter / exit procedures  ;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to create-new-player
+  create-players 1
+  [
+    set dead? true
+    set user-id hubnet-message-source
+    set hidden? true
+    assign-bug-to-player
+  ]
+end
+
+
+to assign-bug-to-player
+  if include-clients-as-bugs? [
+    let p-user-id user-id
+    let parent-player self
+    let child-bug nobody
+    setxy random-xcor random-ycor
+    ask bugs with [p-user-id = owned-by] [die]
+    hatch 1 [
+      set breed bugs
+      set child-bug self
+      setup-a-new-bugs-for-a-new-player p-user-id
+      ask parent-player [ create-link-from child-bug [ tie ] set dead? false]
+    ]
+  ]
+end
+
+
+to remove-player
+  ask bugs with [owned-by = hubnet-message-source  and controlled-by-player?] [die]
+  ask players with [user-id = hubnet-message-source] [ die ]
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Handle client interactions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to listen-clients
+  while [ hubnet-message-waiting? ]
+  [
+    hubnet-fetch-message
+    ifelse hubnet-enter-message?
+    [ create-new-player ]
+    [
+      ifelse hubnet-exit-message?
+      [ remove-player ]
+      [ ask players with [user-id = hubnet-message-source] [execute-command hubnet-message-tag hubnet-message ]]
+    ]
+  ]
+end
+
+
+to check-reset-perspective
+   if player-vision != old-player-vision [
+     ask players [
+       hubnet-reset-perspective user-id
+       hubnet-send-follow user-id self player-vision
+     ]
+     set old-player-vision player-vision
+   ]
+end
+
+
+to execute-command [command msg]
+  if command = "View" [ orient-my-turtle command msg ]
+end
+
+
+to execute-turn [new-heading]
+  set heading new-heading
+end
+
+
+to display-labels
+  let b-color 0
+  let energy-range (word  " [" min-energy-of-any-bug " to " max-energy-of-any-bug "]: ")
+
+  ask bugs [
+    set label-color black
+    if show-labels-as = "none" [set label ""]
+    if show-labels-as = "player energy"  [ set label (word round energy) ]
+    if show-labels-as = "energy ranges"  [ set label (word energy-range round energy) ]
+    if show-labels-as = "player name" [
+      ifelse controlled-by-player? [set label owned-by] [set label ""]
+    ]
+    if show-labels-as = "player energy:name" [
+      ifelse controlled-by-player? [set label (word round energy ":" owned-by)] [set label ""]
+    ]
+  ]
+end
+
+
+to orient-my-turtle [name coords]
+  let next-destination-patch patch first coords last coords
+  if patch-here != destination-patch [
+    ask my-agent [ set destination-patch next-destination-patch face destination-patch ]
+  ]
+end
+
+
+to-report my-agent
+  let this-user-id user-id
+  let my-bug nobody
+  set my-bug bugs with [owned-by = this-user-id]
+  report my-bug
+end
+
+
+to-report energy-of-your-bug
+  let this-user-id user-id
+  let this-bug-energy 0
+  if any? bugs with [owned-by = this-user-id] [
+    ask bugs with [owned-by = this-user-id] [set this-bug-energy energy]
+  ]
+  report this-bug-energy
+end
+
+
+to send-this-players-info ;; player procedure
+  ;; update the monitors on the client
+  let message-to-send ""
+  let my-energy energy-of-your-bug
+  let place 1 + (count bugs with [energy > my-energy])
+  let num-ties count bugs with [energy = my-energy]
+  let total-number-bugs count bugs
+  let any-ties ""
+  let out-of (word " out of " total-number-bugs "  ")
+  if num-ties > 1 [set any-ties (word " [" num-ties "-way tie]") ]
+  ifelse include-clients-as-bugs?
+    [set message-to-send (word  place  out-of any-ties)]
+    [set message-to-send "not currently in this competition"]
+  hubnet-send user-id "Your Place in the Competition" message-to-send
+
+end
+
+
+to send-all-info     ;;send common info to this client
+  ask players [send-this-players-info]
+  hubnet-broadcast "time remaining" time-remaining
+end
+
+
+to update-statistics
+  if any? bugs [
+   set min-energy-of-any-bug precision (min [energy] of bugs ) 1
+   set max-energy-of-any-bug precision (max [energy] of bugs ) 1
+  ]
+end
+
+
+; Copyright 2011 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="405" maxPycor="12" updateMode="1" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-12" height="509" showTickCounter="true" patchSize="20.0" fontSize="10" wrappingAllowedY="true" width="508" tickCounterLabel="ticks" maxPxcor="12" minPxcor="-12"></view>
+    <button x="0" y="80" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="60" display="setup">setup</button>
+    <button x="62" y="80" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="73" display="go/stop">go</button>
+    <plot x="0" yMax="10.0" yAxis="bugs" y="420" xMin="0.0" height="120" legend="true" xMax="1000.0" autoplot="true" yMin="0.0" width="400" xAxis="time" display="Population Size">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="bugs">
+        <setup></setup>
+        <update>plotxy ticks count bugs</update>
+      </pen>
+    </plot>
+    <monitor x="0" precision="3" y="375" height="45" fontSize="11" width="75" display="# bugs">count bugs</monitor>
+    <slider x="0" step="1" y="45" height="33" min="0" direction="Horizontal" max="100" default="0.0" variable="initial-#-automated-bugs" width="220" display="initial-#-automated-bugs"></slider>
+    <slider x="225" step="1" y="45" height="33" min="0" direction="Horizontal" max="100" default="100.0" variable="amount-grassland" units="%" width="175" display="amount-grassland"></slider>
+    <slider x="225" step="100" y="10" height="33" min="0" direction="Horizontal" max="3000" default="500.0" variable="length-competition" width="175" display="length-competition"></slider>
+    <switch x="0" y="165" height="33" on="false" variable="automated-bugs-lose-energy?" width="235" display="automated-bugs-lose-energy?"></switch>
+    <switch x="0" y="200" height="33" on="false" variable="automated-bugs-reproduce?" width="235" display="automated-bugs-reproduce?"></switch>
+    <plot x="0" yMax="40.0" yAxis="bugs" y="240" xMin="0.0" height="120" legend="true" xMax="500.0" autoplot="true" yMin="0.0" width="400" xAxis="energy level" display="Energy Levels of Bugs">
+      <setup><![CDATA[let num-bars 20
+ let y-axis-max-histogram  (5 + ((floor (count bugs with [floor (energy / 20) = (item 0 modes [floor (energy / 20)] of bugs)] / 5)) * 5))
+ set-current-plot "Energy Levels of Bugs"
+ plot-pen-reset       
+  ;; autoscale x axis by 500s
+ set-plot-x-range (500 * floor (min-energy-of-any-bug / 500)) (500 + 500 *  (floor (max-energy-of-any-bug / 500)))
+  if y-axis-max-histogram < 10 [set y-axis-max-histogram 10]
+  ;; autoscale y axis by 5s, when above 10
+  set-plot-y-range 0 y-axis-max-histogram   
+  set-histogram-num-bars num-bars
+  set  x-min-histogram plot-x-min
+  set  x-max-histogram plot-x-max
+  set   x-interval-histogram (x-max-histogram - x-min-histogram) / num-bars
+  
+  histogram [ energy ] of bugs]]></setup>
+      <update><![CDATA[let num-bars 20
+ let y-axis-max-histogram  (5 + ((floor (count bugs with [floor (energy / 20) = (item 0 modes [floor (energy / 20)] of bugs)] / 5)) * 5))
+ set-current-plot "Energy Levels of Bugs"
+ plot-pen-reset       
+  ;; autoscale x axis by 500s
+ set-plot-x-range (500 * floor (min-energy-of-any-bug / 500)) (500 + 500 *  (floor (max-energy-of-any-bug / 500)))
+  if y-axis-max-histogram < 10 [set y-axis-max-histogram 10]
+  ;; autoscale y axis by 5s, when above 10
+  set-plot-y-range 0 y-axis-max-histogram   
+  set-histogram-num-bars num-bars
+  set  x-min-histogram plot-x-min
+  set  x-max-histogram plot-x-max
+  set   x-interval-histogram (x-max-histogram - x-min-histogram) / num-bars
+  
+  histogram [ energy ] of bugs]]></update>
+      <pen color="-16777216" legend="true" interval="20.0" mode="1" display="bugs">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <chooser x="260" y="80" height="45" variable="show-labels-as" current="4" width="140" display="show-labels-as">
+      <choice type="string" value="none"></choice>
+      <choice type="string" value="player name"></choice>
+      <choice type="string" value="player energy"></choice>
+      <choice type="string" value="energy ranges"></choice>
+      <choice type="string" value="player energy:name"></choice>
+    </chooser>
+    <slider x="240" step="1" y="165" height="33" min="1" direction="Horizontal" max="10" default="4.0" variable="player-vision" width="160" display="player-vision"></slider>
+    <monitor x="77" precision="17" y="375" height="45" fontSize="11" width="97" display="bugs that died">dead-bugs</monitor>
+    <monitor x="176" precision="17" y="375" height="45" fontSize="11" width="97" display="# offspring">offspring-bugs</monitor>
+    <monitor x="153" precision="0" y="80" height="45" fontSize="11" width="93" display="time remaining">time-remaining</monitor>
+    <switch x="0" y="10" height="33" on="true" variable="include-clients-as-bugs?" width="220" display="include-clients-as-bugs?"></switch>
+    <monitor x="320" precision="17" y="360" height="45" fontSize="11" width="80" display="x-interval">x-interval-histogram</monitor>
+    <switch x="0" y="130" height="33" on="true" variable="automated-bugs-wander?" width="235" display="automated-bugs-wander?"></switch>
+    <slider x="240" step="50" y="130" height="33" min="0" direction="Horizontal" max="200" default="50.0" variable="sprout-delay-time" width="160" display="sprout-delay-time"></slider>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This model shows how competition emerges between individuals in the same population.  In a consumer / producer ecosystem, competition for shared resources emerges whenever there is a limited sappy of those resources.  Such competition may be intentional or unintentional, but similar outcomes result in either case - some individuals outcompete others for those shared resources.
+
+Even when individuals are identical, differences in where and when shared resources in the ecosystem are available will lead to variation in competitive advantages for some individuals over time (some individuals happen to be closer to those resources than other individuals).  This variation in competitive advantage, will enable some individuals to survive while others die.
+
+The degree of competition in an ecosystem depends on the number of individuals in the ecosystem and the amount of resources available per individual. A very small number of individuals may generate very little or no competition (individuals may have all the resources that they need).  However, many individuals will generate intensive competition for resources, such that very few resources are available for each individual and many individuals will die for lack of adequate resources.
+
+## HOW IT WORKS
+
+In this model, you can have two kinds of bugs; bugs controlled by players using HubNet or automated bugs.
+
+Each HubNet player assumes the role of a consumer.  When the HubNet simulation is started after pressing GO, players should try to eat as much grass as they can. A bug controlled by a player may be turned left or right by clicking on a destination  in the client view of the World.  As the controlled bug moves across a green patch, some of the "grass" at the spot is automatically eaten.  Grass grows at a fixed rate, and when it is eaten, a fixed amount of grass energy is deducted from the patch (square) where the grass was eaten and a fixed amount of time must pass before new grass grows back at that spot.
+
+In addition, automated bugs can be included in the model. They wander around the world randomly, eating grass.
+
+When bugs-lose-energy? is on, bugs lose energy at each step and they must eat grass to replenish their energy. When they run out of energy, they die. Automated bugs can be set to reproduce automatically when they have enough energy to have an offspring. In such a case, the offspring and parent split the energy amongst themselves.
+
+## HOW TO USE IT
+
+Make sure you select Mirror 2D view on clients in the HubNet Control Center. Once all the players have joined the simulation through hubnet, press SETUP. To run the activity, press GO.
+
+To start the activity over with the same group of players, stop the model by pressing the GO button again, press the SETUP button, and press GO again.  To run the activity with a new group of players press the RESET button in the Control Center.
+
+The controls included in this model are:
+
+AMOUNT-GRASSLAND: The percentage of patches in the World & View that produce grass.
+
+INITIAL-NUMBER-AUTOMATED-BUGS: The initial size of bug population that is not controlled by a player.
+
+SPROUT-DELAY-TIME:  Controls how long before "eaten" grass starts sprouting and growing back.  Increase this value for large numbers of players to make the competition more difficult (and when there are no automated bugs in the ecosystem).  Decrease this value for small numbers of players and when there are lots of automated bugs in the ecosystem.
+
+LENGTH-COMPETITION:  Determines how long the competition will last. The unit of length is ticks.
+
+INCLUDE-CLIENTS-AS-BUGS?:  When "On", all HubNet connected clients will be given an individual bug to control that is assigned to their client when SETUP is pressed. When this is "Off", the model will run only on your local machine.
+
+AUTOMATED-BUGS-WANDER?:  When "On", automated bugs will turn a random amount left or right (between 30 and -30 degrees from its current heading) each tick.  When "off" the automated bugs will move in a straight line.
+
+AUTOMATED-BUGS-LOSE-ENERGY?: When "On", bugs lose one unit of energy for each tick.
+
+AUTOMATED-BUGS-REPRODUCE?:  When "On", automated bugs will reproduce one offspring when they reach a set threshold of energy. The parent bug's energy will be split between the parent and the offspring. The count of offspring is kept track of in the monitor "# OFFSPRING".
+
+PLAYER-VISION:  Used to set the radius shown when hubnet-send-follow is applied for sending a client view update for each player showing a radius sized Moore neighborhood around the bug the player is controlling.
+
+SHOW-LABELS-AS:  when set to "player name" will show a player name label next to each bug controlled by a client.  When set to "energy levels" will show the amount of energy on the label next to each bug (controlled by clients and automated bugs).  When set to   "energy ranges" will show the range of energy values and the energy value of all bugs in this format "[min, max]: this bug".  When set to "player energy:name" will show the player energy for their bug followed by a colon and then their user name, for only the bugs controlled by clients.
+
+The plots in the model are:
+
+ENERGY LEVELS OF BUGS:  Shows a histogram of bugs and their respective energy levels.
+
+POPULATION SIZE:  Shows the size of the bug population size over time.
+
+X-INTERVAL:  reports whatever the x-interval is for 20 bars in the historgram range.  It is being reported for use in the classroom BEAGLE activity where students build a histogram using the same x-interval as the NetLogo ENERGY LEVELS OF BUGS graph.
+
+Note: Grass squares grow back (become darker green) over time and accumulate more stored energy (food) as they become darker.
+
+## THINGS TO NOTICE
+
+The histogram of ENERGY LEVELS OF BUGS will show that some bugs are more successful at gaining more energy from plants than others.  The histogram will show this when the bugs are intentionally being controlled by players, when they are being randomly controlled by the computer, and any combination of both.
+
+When BUGS-LOSE-ENERGY is set to "off", the histogram will keep drifting further to the right then when it is set to "on".
+
+For large populations of participants or large populations of automated bugs, the histogram for ENERGY LEVELS OF BUGS will tend to approximate a bell shaped curve.  When both participants and automated bugs are present, two histograms tend to form showing a bi-modal bell-shaped distribution, where the intentionally competing participants tend to be in the right shifted bell-shaped distribution and the automated bugs tend to be in the left shifted bell-shaped distribution.
+
+## THINGS TO TRY
+
+If you adjust the PLAYER-VISION, does changing the radius of vision for each player effect their ability to compete?  Does the shape of the histogram change for the competition?
+
+If you adjust the AMOUNT-OF-GRASSLAND, does less grassland affect the shape of the histogram change for the competition?
+
+How does LENGTH-OF-COMPETITION affect the spread of the distribution in the histogram?
+
+## EXTENDING THE MODEL
+
+The model could be extended for some player to control predators and others to control consumers.  Alternately, some players could control consumers on one team (one type of color of bugs) and some players could control consumers on another team (another type of color of bugs).  Such a competition between teams may still tend to result in similar shaped and similar shifted histograms for energy level distributions for each team of bugs.
+
+## NETLOGO FEATURES
+
+Each player gets a different view, attached to their own player turtle, which is in turn attached to a bug they are steering.  These customized views for following a turtle are sent to each client using the hubnet-send-follow command.
+
+## RELATED MODELS
+
+Look the Wolf Sheep Predation model, Bug Hunt Consumers model, Bug Hunt Predation and Bug Hunt Invasive Species model.
+
+## CREDITS AND REFERENCES
+
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/rp/beagle/index.shtml)
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Novak, M. and Wilensky, U. (2011).  NetLogo Bug Hunters Competition HubNet model.  http://ccl.northwestern.edu/netlogo/models/BugHuntersCompetitionHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the HubNet software as:
+
+* Wilensky, U. & Stroup, W. (1999). HubNet. http://ccl.northwestern.edu/netlogo/hubnet.html. Center for Connected Learning and Computer-Based Modeling, Northwestern University. Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2011 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2011 Cite: Novak, M. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="aphid" rotatable="true" editableColorIndex="0">
+      <circle x="129" y="84" marked="true" color="-1920102913" diameter="42" filled="true"></circle>
+      <circle x="96" y="126" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+    </shape>
+    <shape name="aphid-with-parasite" rotatable="true" editableColorIndex="0">
+      <circle x="129" y="84" marked="true" color="-1920102913" diameter="42" filled="true"></circle>
+      <circle x="96" y="126" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="8" y="8" marked="false" color="-684578305" diameter="285" filled="false"></circle>
+    </shape>
+    <shape name="bird" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="170"></point>
+        <point x="136" y="170"></point>
+        <point x="123" y="229"></point>
+        <point x="143" y="244"></point>
+        <point x="156" y="244"></point>
+        <point x="179" y="229"></point>
+        <point x="166" y="170"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="152" y="154"></point>
+        <point x="137" y="154"></point>
+        <point x="125" y="213"></point>
+        <point x="140" y="229"></point>
+        <point x="159" y="229"></point>
+        <point x="179" y="214"></point>
+        <point x="167" y="154"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="140"></point>
+        <point x="136" y="140"></point>
+        <point x="126" y="202"></point>
+        <point x="139" y="214"></point>
+        <point x="159" y="214"></point>
+        <point x="176" y="200"></point>
+        <point x="166" y="140"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="125"></point>
+        <point x="134" y="124"></point>
+        <point x="128" y="188"></point>
+        <point x="140" y="198"></point>
+        <point x="161" y="197"></point>
+        <point x="174" y="188"></point>
+        <point x="166" y="125"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="152" y="86"></point>
+        <point x="227" y="72"></point>
+        <point x="286" y="97"></point>
+        <point x="272" y="101"></point>
+        <point x="294" y="117"></point>
+        <point x="276" y="118"></point>
+        <point x="287" y="131"></point>
+        <point x="270" y="131"></point>
+        <point x="278" y="141"></point>
+        <point x="264" y="138"></point>
+        <point x="267" y="145"></point>
+        <point x="228" y="150"></point>
+        <point x="153" y="147"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="160" y="74"></point>
+        <point x="159" y="61"></point>
+        <point x="149" y="54"></point>
+        <point x="130" y="53"></point>
+        <point x="139" y="62"></point>
+        <point x="133" y="81"></point>
+        <point x="127" y="113"></point>
+        <point x="129" y="149"></point>
+        <point x="134" y="177"></point>
+        <point x="150" y="206"></point>
+        <point x="168" y="179"></point>
+        <point x="172" y="147"></point>
+        <point x="169" y="111"></point>
+      </polygon>
+      <circle x="144" y="55" marked="false" color="255" diameter="7" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="129" y="53"></point>
+        <point x="135" y="58"></point>
+        <point x="139" y="54"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="148" y="86"></point>
+        <point x="73" y="72"></point>
+        <point x="14" y="97"></point>
+        <point x="28" y="101"></point>
+        <point x="6" y="117"></point>
+        <point x="24" y="118"></point>
+        <point x="13" y="131"></point>
+        <point x="30" y="131"></point>
+        <point x="22" y="141"></point>
+        <point x="36" y="138"></point>
+        <point x="33" y="145"></point>
+        <point x="72" y="150"></point>
+        <point x="147" y="147"></point>
+      </polygon>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="75" y="116" marked="true" color="-1920102913" diameter="150" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="egg" rotatable="true" editableColorIndex="0">
+      <circle x="120" y="95" marked="false" color="-1" diameter="60" filled="true"></circle>
+      <circle x="105" y="142" marked="false" color="-1" diameter="90" filled="true"></circle>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="195" y="180"></point>
+        <point x="180" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="180"></point>
+      </polygon>
+    </shape>
+    <shape name="fox" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="72" y="225"></point>
+        <point x="94" y="249"></point>
+        <point x="109" y="252"></point>
+        <point x="119" y="252"></point>
+        <point x="111" y="242"></point>
+        <point x="99" y="241"></point>
+        <point x="87" y="225"></point>
+        <point x="91" y="181"></point>
+        <point x="62" y="112"></point>
+        <point x="43" y="119"></point>
+        <point x="28" y="150"></point>
+        <point x="29" y="164"></point>
+        <point x="58" y="204"></point>
+        <point x="50" y="241"></point>
+        <point x="74" y="271"></point>
+        <point x="84" y="279"></point>
+        <point x="99" y="279"></point>
+        <point x="98" y="267"></point>
+        <point x="87" y="266"></point>
+        <point x="67" y="242"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="210" y="90"></point>
+        <point x="204" y="56"></point>
+        <point x="214" y="42"></point>
+        <point x="222" y="66"></point>
+        <point x="211" y="71"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="181" y="107"></point>
+        <point x="213" y="70"></point>
+        <point x="226" y="63"></point>
+        <point x="257" y="71"></point>
+        <point x="260" y="90"></point>
+        <point x="300" y="120"></point>
+        <point x="289" y="129"></point>
+        <point x="249" y="110"></point>
+        <point x="218" y="135"></point>
+        <point x="209" y="151"></point>
+        <point x="204" y="164"></point>
+        <point x="192" y="179"></point>
+        <point x="169" y="186"></point>
+        <point x="154" y="190"></point>
+        <point x="129" y="190"></point>
+        <point x="89" y="181"></point>
+        <point x="69" y="167"></point>
+        <point x="60" y="112"></point>
+        <point x="124" y="111"></point>
+        <point x="160" y="112"></point>
+        <point x="170" y="105"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="false">
+        <point x="252" y="143"></point>
+        <point x="242" y="141"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="false">
+        <point x="254" y="136"></point>
+        <point x="232" y="137"></point>
+      </polygon>
+      <line endX="89" startY="159" marked="false" color="255" endY="179" startX="80"></line>
+      <polygon color="-1653716737" filled="true" marked="false">
+        <point x="262" y="138"></point>
+        <point x="234" y="149"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="50" y="121"></point>
+        <point x="36" y="119"></point>
+        <point x="24" y="123"></point>
+        <point x="14" y="128"></point>
+        <point x="6" y="143"></point>
+        <point x="8" y="165"></point>
+        <point x="8" y="181"></point>
+        <point x="7" y="197"></point>
+        <point x="4" y="233"></point>
+        <point x="23" y="201"></point>
+        <point x="28" y="184"></point>
+        <point x="30" y="169"></point>
+        <point x="28" y="153"></point>
+        <point x="48" y="145"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="171" y="181"></point>
+        <point x="178" y="263"></point>
+        <point x="187" y="277"></point>
+        <point x="197" y="273"></point>
+        <point x="202" y="267"></point>
+        <point x="187" y="260"></point>
+        <point x="186" y="236"></point>
+        <point x="194" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="223" y="75"></point>
+        <point x="226" y="58"></point>
+        <point x="245" y="44"></point>
+        <point x="244" y="68"></point>
+        <point x="233" y="73"></point>
+      </polygon>
+      <line endX="112" startY="181" marked="false" color="255" endY="185" startX="89"></line>
+      <line endX="41" startY="150" marked="false" color="255" endY="130" startX="31"></line>
+      <polygon color="255" filled="true" marked="false">
+        <point x="230" y="67"></point>
+        <point x="228" y="54"></point>
+        <point x="222" y="62"></point>
+        <point x="224" y="72"></point>
+      </polygon>
+      <line endX="30" startY="150" marked="false" color="255" endY="165" startX="30"></line>
+      <circle x="225" y="76" marked="false" color="-303222273" diameter="22" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="225" y="121"></point>
+        <point x="258" y="150"></point>
+        <point x="267" y="146"></point>
+        <point x="236" y="112"></point>
+      </polygon>
+    </shape>
+    <shape name="fox3" rotatable="false" editableColorIndex="3">
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="90" y="105"></point>
+        <point x="75" y="81"></point>
+        <point x="60" y="75"></point>
+        <point x="44" y="83"></point>
+        <point x="36" y="98"></point>
+        <point x="38" y="120"></point>
+        <point x="38" y="136"></point>
+        <point x="37" y="152"></point>
+        <point x="15" y="180"></point>
+        <point x="53" y="156"></point>
+        <point x="58" y="139"></point>
+        <point x="60" y="124"></point>
+        <point x="58" y="108"></point>
+        <point x="90" y="120"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="196" y="106"></point>
+        <point x="228" y="69"></point>
+        <point x="240" y="60"></point>
+        <point x="263" y="63"></point>
+        <point x="275" y="89"></point>
+        <point x="300" y="110"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="120"></point>
+        <point x="233" y="134"></point>
+        <point x="225" y="150"></point>
+        <point x="225" y="165"></point>
+        <point x="207" y="178"></point>
+        <point x="184" y="185"></point>
+        <point x="169" y="189"></point>
+        <point x="144" y="189"></point>
+        <point x="104" y="180"></point>
+        <point x="84" y="166"></point>
+        <point x="78" y="113"></point>
+        <point x="139" y="110"></point>
+        <point x="175" y="111"></point>
+        <point x="185" y="104"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="252" y="143"></point>
+        <point x="242" y="141"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="254" y="136"></point>
+        <point x="232" y="137"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="262" y="138"></point>
+        <point x="234" y="149"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="195" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="143" y="247"></point>
+        <point x="144" y="263"></point>
+        <point x="159" y="267"></point>
+        <point x="164" y="253"></point>
+        <point x="195" y="225"></point>
+        <point x="225" y="165"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="238" y="75"></point>
+        <point x="240" y="45"></point>
+        <point x="255" y="30"></point>
+        <point x="259" y="68"></point>
+        <point x="248" y="73"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="285" y="135"></point>
+        <point x="297" y="116"></point>
+        <point x="285" y="111"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="135" y="210"></point>
+        <point x="151" y="181"></point>
+        <point x="119" y="165"></point>
+        <point x="105" y="165"></point>
+        <point x="73" y="184"></point>
+        <point x="31" y="183"></point>
+        <point x="-9" y="205"></point>
+        <point x="-9" y="226"></point>
+        <point x="6" y="231"></point>
+        <point x="7" y="214"></point>
+        <point x="38" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="120" y="210"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="218" y="80"></point>
+        <point x="203" y="50"></point>
+        <point x="233" y="65"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="195" y="180"></point>
+        <point x="240" y="210"></point>
+        <point x="270" y="240"></point>
+        <point x="293" y="246"></point>
+        <point x="297" y="231"></point>
+        <point x="283" y="226"></point>
+        <point x="240" y="180"></point>
+        <point x="210" y="165"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="94" y="112"></point>
+        <point x="76" y="119"></point>
+        <point x="60" y="151"></point>
+        <point x="60" y="165"></point>
+        <point x="79" y="197"></point>
+        <point x="78" y="239"></point>
+        <point x="100" y="279"></point>
+        <point x="121" y="279"></point>
+        <point x="126" y="264"></point>
+        <point x="109" y="263"></point>
+        <point x="93" y="232"></point>
+        <point x="120" y="195"></point>
+        <point x="105" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="link" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="link direction" rotatable="true" editableColorIndex="0">
+      <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+      <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+    </shape>
+    <shape name="mouse" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="38" y="162"></point>
+        <point x="24" y="165"></point>
+        <point x="19" y="174"></point>
+        <point x="22" y="192"></point>
+        <point x="47" y="213"></point>
+        <point x="90" y="225"></point>
+        <point x="135" y="230"></point>
+        <point x="161" y="240"></point>
+        <point x="178" y="262"></point>
+        <point x="150" y="246"></point>
+        <point x="117" y="238"></point>
+        <point x="73" y="232"></point>
+        <point x="36" y="220"></point>
+        <point x="11" y="196"></point>
+        <point x="7" y="171"></point>
+        <point x="15" y="153"></point>
+        <point x="37" y="146"></point>
+        <point x="46" y="145"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="289" y="142"></point>
+        <point x="271" y="165"></point>
+        <point x="237" y="164"></point>
+        <point x="217" y="185"></point>
+        <point x="235" y="192"></point>
+        <point x="254" y="192"></point>
+        <point x="259" y="199"></point>
+        <point x="245" y="200"></point>
+        <point x="248" y="203"></point>
+        <point x="226" y="199"></point>
+        <point x="200" y="194"></point>
+        <point x="155" y="195"></point>
+        <point x="122" y="185"></point>
+        <point x="84" y="187"></point>
+        <point x="91" y="195"></point>
+        <point x="82" y="192"></point>
+        <point x="83" y="201"></point>
+        <point x="72" y="190"></point>
+        <point x="67" y="199"></point>
+        <point x="62" y="185"></point>
+        <point x="46" y="183"></point>
+        <point x="36" y="165"></point>
+        <point x="40" y="134"></point>
+        <point x="57" y="115"></point>
+        <point x="74" y="106"></point>
+        <point x="60" y="109"></point>
+        <point x="90" y="97"></point>
+        <point x="112" y="94"></point>
+        <point x="92" y="93"></point>
+        <point x="130" y="86"></point>
+        <point x="154" y="88"></point>
+        <point x="134" y="81"></point>
+        <point x="183" y="90"></point>
+        <point x="197" y="94"></point>
+        <point x="183" y="86"></point>
+        <point x="212" y="95"></point>
+        <point x="211" y="88"></point>
+        <point x="224" y="83"></point>
+        <point x="235" y="88"></point>
+        <point x="248" y="97"></point>
+        <point x="246" y="90"></point>
+        <point x="257" y="107"></point>
+        <point x="255" y="97"></point>
+        <point x="270" y="120"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="234" y="100"></point>
+        <point x="220" y="96"></point>
+        <point x="210" y="100"></point>
+        <point x="214" y="111"></point>
+        <point x="228" y="116"></point>
+        <point x="239" y="115"></point>
+      </polygon>
+      <circle x="246" y="117" marked="false" color="255" diameter="20" filled="true"></circle>
+      <line endX="282" startY="153" marked="true" color="-1920102913" endY="174" startX="270"></line>
+      <line endX="255" startY="153" marked="true" color="-1920102913" endY="173" startX="272"></line>
+      <line endX="268" startY="156" marked="true" color="-1920102913" endY="177" startX="269"></line>
+    </shape>
+    <shape name="rabbit" rotatable="false" editableColorIndex="4">
+      <polygon color="-303222273" filled="true" marked="true">
+        <point x="61" y="150"></point>
+        <point x="76" y="180"></point>
+        <point x="91" y="195"></point>
+        <point x="103" y="214"></point>
+        <point x="91" y="240"></point>
+        <point x="76" y="255"></point>
+        <point x="61" y="270"></point>
+        <point x="76" y="270"></point>
+        <point x="106" y="255"></point>
+        <point x="132" y="209"></point>
+        <point x="151" y="210"></point>
+        <point x="181" y="210"></point>
+        <point x="211" y="240"></point>
+        <point x="196" y="255"></point>
+        <point x="181" y="255"></point>
+        <point x="166" y="247"></point>
+        <point x="151" y="255"></point>
+        <point x="166" y="270"></point>
+        <point x="211" y="270"></point>
+        <point x="241" y="255"></point>
+        <point x="240" y="210"></point>
+        <point x="270" y="225"></point>
+        <point x="285" y="165"></point>
+        <point x="256" y="135"></point>
+        <point x="226" y="105"></point>
+        <point x="166" y="90"></point>
+        <point x="91" y="105"></point>
+      </polygon>
+      <polygon color="-303222273" filled="true" marked="true">
+        <point x="75" y="164"></point>
+        <point x="94" y="104"></point>
+        <point x="70" y="82"></point>
+        <point x="45" y="89"></point>
+        <point x="19" y="104"></point>
+        <point x="4" y="149"></point>
+        <point x="19" y="164"></point>
+        <point x="37" y="162"></point>
+        <point x="59" y="153"></point>
+      </polygon>
+      <polygon color="-303222273" filled="true" marked="true">
+        <point x="64" y="98"></point>
+        <point x="96" y="87"></point>
+        <point x="138" y="26"></point>
+        <point x="130" y="15"></point>
+        <point x="97" y="36"></point>
+        <point x="54" y="86"></point>
+      </polygon>
+      <polygon color="-303222273" filled="true" marked="true">
+        <point x="49" y="89"></point>
+        <point x="57" y="47"></point>
+        <point x="78" y="4"></point>
+        <point x="89" y="20"></point>
+        <point x="70" y="88"></point>
+      </polygon>
+      <circle x="29" y="110" marked="false" color="255" diameter="32" filled="true"></circle>
+      <polygon color="-1491375361" filled="true" marked="false">
+        <point x="0" y="150"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="150"></point>
+      </polygon>
+      <polygon color="-1491375361" filled="true" marked="false">
+        <point x="76" y="90"></point>
+        <point x="97" y="47"></point>
+        <point x="130" y="32"></point>
+      </polygon>
+      <line endX="180" startY="180" marked="false" color="-1920102913" endY="165" startX="165"></line>
+      <line endX="225" startY="165" marked="false" color="-1920102913" endY="165" startX="180"></line>
+    </shape>
+    <shape name="rocks" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="0" y="300"></point>
+        <point x="45" y="150"></point>
+        <point x="105" y="120"></point>
+        <point x="135" y="90"></point>
+        <point x="165" y="60"></point>
+        <point x="195" y="75"></point>
+        <point x="225" y="75"></point>
+        <point x="255" y="165"></point>
+        <point x="300" y="285"></point>
+        <point x="300" y="300"></point>
+      </polygon>
+    </shape>
+    <shape name="wasp" rotatable="true" editableColorIndex="0">
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="195" y="135"></point>
+        <point x="105" y="135"></point>
+        <point x="90" y="150"></point>
+        <point x="90" y="210"></point>
+        <point x="105" y="255"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="285"></point>
+        <point x="195" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="210" y="150"></point>
+        <point x="195" y="135"></point>
+      </polygon>
+      <rectangle endX="212" startY="165" marked="false" color="255" endY="185" startX="90" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="90" y="207"></point>
+        <point x="90" y="226"></point>
+        <point x="210" y="226"></point>
+        <point x="210" y="207"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="103" y="266"></point>
+        <point x="198" y="266"></point>
+        <point x="203" y="246"></point>
+        <point x="96" y="246"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="false">
+        <point x="120" y="135"></point>
+        <point x="105" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="45"></point>
+        <point x="180" y="45"></point>
+        <point x="195" y="60"></point>
+        <point x="195" y="120"></point>
+        <point x="180" y="135"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="false">
+        <point x="150" y="0"></point>
+        <point x="120" y="15"></point>
+        <point x="120" y="45"></point>
+        <point x="180" y="45"></point>
+        <point x="180" y="15"></point>
+      </polygon>
+      <circle x="105" y="15" marked="false" color="255" diameter="30" filled="true"></circle>
+      <circle x="165" y="15" marked="false" color="255" diameter="30" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="180" y="75"></point>
+        <point x="270" y="90"></point>
+        <point x="300" y="150"></point>
+        <point x="300" y="210"></point>
+        <point x="285" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="210" y="120"></point>
+        <point x="180" y="90"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="135" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="165" y="285"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="120" y="75"></point>
+        <point x="30" y="90"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="210"></point>
+        <point x="15" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="90" y="120"></point>
+        <point x="120" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <hubNetClient>
+    <view x="355" maxPycor="12" updateMode="1" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-12" height="500" showTickCounter="true" patchSize="12.0" fontSize="13" wrappingAllowedY="true" width="500" tickCounterLabel="ticks" maxPxcor="12" minPxcor="-12"></view>
+    <monitor x="115" precision="3" y="10" height="49" fontSize="11" width="230" display="Your Place in the Competition"></monitor>
+    <plot x="10" yMax="10.0" yAxis="bugs" y="210" xMin="0.0" height="150" legend="true" xMax="500.0" autoplot="true" yMin="0.0" width="335" xAxis="energy level" display="Energy Levels of Bugs">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="20.0" mode="1" display="bugs">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <monitor x="10" precision="0" y="10" height="49" fontSize="11" width="102" display="time remaining"></monitor>
+    <plot x="10" yMax="10.0" yAxis="bugs" y="60" xMin="0.0" height="150" legend="true" xMax="1000.0" autoplot="true" yMin="0.0" width="335" xAxis="time" display="Population Size">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="bugs">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+  </hubNetClient>
+  <previewCommands>need-to-manually-make-preview-for-this-model</previewCommands>
+</model>

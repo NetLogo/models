@@ -1,0 +1,1379 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="false">
+  <code><![CDATA[globals [
+  colors         ;; the available team colors (don't use all of them for aesthetic reasons)
+  color-names    ;; the colors in words
+  roles          ;; the names of the possible roles on each team
+]
+
+;; each client is represented by a player turtle
+breed [ players player ]
+players-own
+[
+  user-id
+  inventory
+  back-orders       ;; at the end of each week back-orders will be calculated if
+                    ;; your inventory does not meet the demand
+  my-team
+  order             ;; a direct reflection of the value in the ORDERS-TO-PLACE
+                    ;; slider on the client this changes any time the user moves the slider
+  last-received     ;; the last number of cases added to your inventory
+  order-placed?     ;; whether or not you've placed an order this week, once you have placed an
+                    ;; order you cannot change it until the next week. Once all players on a team
+                    ;; have placed an order the week is advanced.
+  role              ;; factory, distributor, wholesaler, or retailer depending on
+                    ;; your place in the chain
+  ordered           ;; the number of cases of root beer ordered this week,
+                    ;; once you have pressed the PLACE-ORDER button on the client
+                    ;; you cannot change this number until next week
+]
+
+;; there are four players per team the team breed
+;; is mainly used to keep track of information
+breed [ teams team ]
+teams-own
+[
+  members       ;; the number of members on the team
+  cost          ;; the instantaneous cost of the entire team at the end of the last week.
+  demand        ;; the number of cases requested by the public
+  last-player   ;; keep track of the last player in the chain so it's easy to add players
+  color-name
+  clock         ;; each team has their own clock since the end of the week occurs
+                ;; only when all players have placed an order
+  last-received ;; the last number of cases added to inventory
+  inventory     ;; the number of cases currently stored by this player
+]
+
+;; there are two types of links in the game
+;; there are links that players use to request root beer
+;; from the players up the chain, the demand links,
+;; and the supply links move the goods from
+;; one player to another.
+
+directed-link-breed [ supply-links supply-link ]
+supply-links-own
+[
+  orders-filled ;; a list PERIODS-OF-DELAY long, each time the source player ships the current order
+                ;; is placed on the end of the list and the order at the beginning of the list is
+                ;; popped off and added to the destination player's inventory
+]
+
+directed-link-breed [ demand-links demand-link ]
+demand-links-own
+[
+  orders-placed  ;; the number of cases requested by the player at the source,
+                 ;; this is the demand for the player at the destination end of the link
+]
+
+;;
+;; Setup Procedures
+;;
+to startup
+  hubnet-reset
+  ;; setup basic appearance globals
+  set-default-shape players "circle"
+  set-default-shape teams "square"
+  set colors [ red blue green violet pink orange brown yellow ]
+  set color-names [ "red" "blue" "green" "violet" "pink" "orange" "brown" "yellow" ]
+  set roles [ "retailer" "distributor" "wholesaler" "factory" ]
+  setup
+end
+
+
+;; start the game over with the same players
+;; initial conditions, each player has placed an order of 4
+;; and has an inventory of 12.
+to setup
+  ask supply-links
+    [ set orders-filled n-values periods-of-delay [ 0 ]  ]
+  ask demand-links
+    [ set orders-placed 4 ]
+  ask teams [
+    set cost 0
+    set clock 1
+    if not any? out-demand-link-neighbors
+    [ die ]
+  ]
+  ask players
+  [
+    set inventory 12
+    set back-orders 0
+    set last-received 0
+    set order-placed? false
+    set color [color] of my-team + 2
+    set ordered 4
+    update-player
+  ]
+  reset-plot
+end
+
+;;
+;; Runtime Procedures
+;;
+
+to go
+  ;; the flow of the activity is completely controlled by actions
+  ;; of the clients. when everyone on the team has placed an order
+  ;; the entire team moves on the next week. Teams may be on different days
+  listen-to-clients
+  every 0.1
+  [
+    display
+  ]
+end
+
+to listen-to-clients
+  while [ hubnet-message-waiting? ]
+  [
+    hubnet-fetch-message
+    ifelse hubnet-enter-message?
+    [ create-new-student ]
+    [
+      ifelse hubnet-exit-message?
+      [ remove-student ]
+      [
+        execute-command hubnet-message-tag
+      ]
+    ]
+  ]
+end
+
+to end-week ;; team procedure
+  ;; calculate the cost for the entire team
+  set cost sum [ inventory * 0.5 + back-orders ] of
+                   players with [ my-team = myself ]
+
+  plot-cost
+  plot-shipped
+  ;; the last player is the factory
+  ask last-player [ plot-orders ]
+
+  ;; update the external demand to the retailer that drives the game
+  ask my-out-demand-links
+  [
+    ;; the demand starts at 4 cases per week. In week 7 it rises to
+    ;; 8 cases and remains there the rest of the time.
+    set orders-placed ifelse-value [clock] of myself <= 5 [ 4 ][ 8 ]
+  ]
+
+  ;; produce the goods at the factory level
+  let orders-requested sum [ orders-placed ] of my-in-demand-links
+
+  ask my-out-supply-links
+  [ set orders-filled lput orders-requested orders-filled ]
+
+  ;; move goods into the factory, even though the factory
+  ;; has the ability to produce an infinite amount of goods
+  ;; there are still PERIODS-OF-DELAY weeks between the time
+  ;; they place the order for goods and the time it is produced.
+  ask out-supply-link-neighbors
+  [
+     set last-received sum [ first orders-filled  ] of my-in-supply-links
+     ask my-in-supply-links [ set orders-filled but-first orders-filled ]
+     set inventory inventory + last-received
+  ]
+
+  ;; everything is purchased on the retailer level
+  set inventory 0
+
+  ;; advance the week
+  set clock clock + 1
+  ;; update the client information for the next round
+  ask players with [ my-team = myself ]
+  [
+    set order-placed? false
+    set color [color] of my-team + 2
+    ask my-out-demand-links [ set orders-placed [ordered] of myself ]
+  ]
+end
+
+to place-order ;; player procedure
+  ;; only change the order if we haven't
+  ;; done so this week as each player can only
+  ;; place 1 order per day and cannot change it
+  ;; once it is placed
+  if not order-placed?
+  [
+    set order-placed? true
+    set color [color] of my-team
+    set ordered order
+    update-player
+  ]
+
+  let teammates players with [ my-team = [my-team] of myself ]
+
+  ;; once the last player has placed an order
+  ;; all players ship and advance the week
+  if not any? teammates with [ not order-placed? ]
+  [
+    ask teammates
+    [
+      ship
+      ask my-out-demand-links
+        [ set orders-placed [ordered] of myself ]
+    ]
+    ask my-team
+    [
+      if clock <= weeks-of-simulation
+      [ end-week ]
+    ]
+    ;; make sure the info on the client gets updated
+    ask teammates
+    [ update-player ]
+  ]
+end
+
+to ship
+  ;; move all the supplies along the chain.
+  ask out-supply-link-neighbors
+  [
+    ;; grab the shipment at the beginning of the list
+    ;; and add it to my inventory
+    set last-received sum [ first orders-filled  ] of my-in-supply-links
+    ask my-in-supply-links
+      [ set orders-filled but-first orders-filled ]
+    set inventory inventory + last-received
+  ]
+
+  ;; determine how many orders you need to send upstream
+  ;; this will be no more than the number of orders requested
+  ;; plus back orders or your inventory whichever is smaller
+  let new-orders [orders-placed] of one-of my-in-demand-links
+  let orders-requested new-orders + back-orders
+
+  ;; determine how much we can send given our current inventory
+  let orders-to-ship min list orders-requested inventory
+
+  ;; if there's not enough inventory they become back-orders
+  set back-orders max list 0 ( back-orders - inventory + new-orders )
+
+  ;; add the shipment to the shipping queue
+  ask my-out-supply-links
+    [ set orders-filled lput orders-to-ship orders-filled ]
+  set inventory inventory - orders-to-ship
+end
+
+;;
+;; HubNet Procedures
+;;
+
+to create-new-student
+  ;; if there are no incomplete teams
+  ;; create a new one
+  if not any? teams with [ members < 4 ]
+  [ create-team ]
+
+  add-student-to one-of teams with [ members < 4 ]
+end
+
+to create-team
+ ;; there is one team per row in the world, if
+ ;; we've run out of rows the user should
+ ;; just make the size of the world larger
+ let p one-of patches with [ pxcor = max-pxcor and not any? teams-here ]
+ ifelse p != nobody
+ [
+  create-teams 1
+  [
+    set members 0
+    set cost 0
+    set demand 4
+    set last-player self
+    move-to p
+    set-color
+    set size 0.5
+    create-plot-pens
+    set clock 1
+  ]
+ ]
+ [ user-message "There is no more space for a new team, please increase the size of the world" ]
+end
+
+;; grab a random color from the list of distinguishable colors
+to set-color
+  ;; if the size of the world is increased we have to reuse colors
+  if length colors = 0
+  [
+    set colors [ red blue green violet pink orange brown yellow ]
+    set color-names [ "red" "blue" "green" "violet" "pink" "orange" "brown" "yellow" ]
+  ]
+  let index random length colors
+  set color item index colors
+  set color-name item index color-names
+  set colors remove-item index colors
+  set color-names remove-item index color-names
+end
+
+to add-student-to [this-team]
+  create-players 1
+  [
+    set user-id hubnet-message-source
+    set label user-id
+    set inventory 12
+    set back-orders 0
+    set order 4
+    set ordered 0
+    ;; attach the new player to the end of the chain.
+    ask [last-player] of this-team
+    [
+       create-demand-link-to myself
+         [ set orders-placed 4 ]
+       create-supply-link-from myself
+         [ set orders-filled n-values periods-of-delay [ 0 ] ]
+    ]
+    ;; set up directly left of the current last player
+    setxy [xcor] of [last-player] of this-team - 1 [ycor] of [last-player] of this-team
+    set my-team this-team
+    set role my-role [members] of my-team
+    ask this-team
+    [
+      set last-player myself
+      set members members + 1
+      ask my-out-supply-links [ die ]
+      ask my-in-demand-links [ die ]
+      create-supply-link-to myself
+        [ set orders-filled n-values periods-of-delay [ 0 ] hide-link ]
+      create-demand-link-from myself
+        [ set orders-placed 4 hide-link ]
+    ]
+    set order-placed? false
+    set color [color] of this-team + 2
+    init-player
+  ]
+end
+
+;; set size appropriate to your position in the chain.
+;; factories are biggest and retailers smallest
+;; report the name of the role
+to-report my-role [degree]
+  set size degree * 0.1 + 0.5
+  report item degree roles
+end
+
+;; if a player leaves the game we may need to
+;; get new roles since the new player will be
+;; added to the end rather than where the last player left.
+to reassign-role
+  let degree [xcor] of my-team - xcor - 1
+  set role my-role degree
+  set role item degree roles
+end
+
+to remove-student
+  ask players with [ user-id = hubnet-message-source ]
+    [ remove-self ]
+end
+
+to remove-self
+  ;; if I am the last player make my neighbor
+  ;; to the right the last player
+  if [last-player] of my-team = self
+  [
+    ask my-team
+    [
+      set last-player [ one-of out-supply-link-neighbors ] of myself
+    ]
+  ]
+
+  ask my-team
+  [
+    set members members - 1
+    ;; if I am the last player take the team with me.
+    if members = 0
+    [
+      ;; return the colors to the available list
+      set colors lput color colors
+      set color-names lput color-name color-names
+      die
+      ;; we've shifted perspective to make the above code
+      ;; simpler so we must use myself to kill the player
+      ;; as well as the team.  if we're the last player in
+      ;; the team we don't have to do the rest of the bookkeeping
+      ;; below so we do want to abort immediately
+      ask myself [ die ]
+    ]
+  ]
+
+  ;; if this was the last player on the team this code never
+  ;; gets executed because the above code kills the turtle
+
+  ;; players up the chain from me move into their
+  ;; new position so there aren't gaps
+  let affected-players players with [ my-team = [my-team] of myself and xcor < [xcor] of myself ]
+  ask affected-players
+    [ set xcor xcor + 1 ]
+
+  ;; link my supply and demand neighbors to
+  ;; each other instead of me.
+  let n one-of out-supply-link-neighbors
+  ask in-supply-link-neighbors
+  [
+    if n != nobody and not out-supply-link-neighbor? n
+    [ create-supply-link-to n
+      [ set orders-filled n-values periods-of-delay [ 0 ] ] ]
+  ]
+
+  set n one-of out-demand-link-neighbors
+  ask in-demand-link-neighbors
+  [
+    if n != nobody and not out-demand-link-neighbor? n
+    [ create-demand-link-to n [] ]
+  ]
+
+  ask affected-players
+  [
+    reassign-role
+    init-player
+  ]
+  die
+end
+
+;; there are only two client actions.
+;; moving the ORDERS-TO-PLACE slider
+;; and placing the order.
+to execute-command [cmd]
+  ask players with [ user-id = hubnet-message-source ]
+  [
+    ;; don't let players keep going once they've reached the
+    ;; end of the simulation
+    if [clock] of my-team <= weeks-of-simulation
+    [
+      ;; catch changes to the slider
+      ifelse hubnet-message-tag = "orders-to-place"
+      [ set order hubnet-message ]
+      ;; lock in the order
+      [ if hubnet-message-tag = "place-order"
+        [
+          ask players with [ user-id = hubnet-message-source ]
+            [ place-order ]
+        ]
+      ]
+    ]
+  ]
+end
+
+;; send everything
+to init-player
+  hubnet-send user-id "team" [color-name] of my-team
+  hubnet-send user-id "role" role
+  update-player
+end
+
+;; send the stuff that changes
+to update-player
+  if [clock] of my-team <= weeks-of-simulation
+  [
+    hubnet-send user-id "demand" [orders-placed] of one-of my-in-demand-links
+    hubnet-send user-id "inventory" inventory
+    hubnet-send user-id "back-orders" back-orders
+    hubnet-send user-id "my-cost" inventory * 0.5 + back-orders
+    hubnet-send user-id "last-amount-shipped" sum [ last orders-filled ] of my-out-supply-links
+
+    hubnet-send user-id "last-amount-received" round last-received
+    hubnet-send user-id "week" round [clock] of my-team
+    hubnet-send user-id "order-placed?" order-placed?
+    hubnet-send user-id "order-placed" ordered
+  ]
+end
+
+;;
+;; Plotting Procedures
+;;
+
+;; use temporary plot pens for each team
+;; so the legend is neat and the plot pen color
+;; matches the color of the team
+to create-plot-pens
+  create-plot-pen "Orders to Factory"
+  create-plot-pen "Cost"
+  create-plot-pen "Orders Shipped"
+end
+
+to create-plot-pen [my-plot]
+  set-current-plot my-plot
+  create-temporary-plot-pen color-name
+  set-plot-pen-color color
+end
+
+to plot-orders
+  set-current-plot "Orders to Factory"
+  plot last-received
+end
+
+to plot-cost
+  set-current-plot "Cost"
+  set-current-plot-pen color-name
+  plot cost
+end
+
+to plot-shipped
+  set-current-plot "Orders Shipped"
+  set-current-plot-pen color-name
+  plot sum [ last orders-filled ] of my-in-supply-links
+end
+
+;; clearing the plot also clears the temporary
+;; plot pens, so recreate them.
+to reset-plot
+  clear-all-plots
+  ask teams [ create-plot-pens ]
+end
+
+
+; Copyright 2003 Uri Wilensky and Walter Stroup.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="317" maxPycor="7" updateMode="1" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="0" height="409" showTickCounter="false" patchSize="50.0" fontSize="12" wrappingAllowedY="false" width="408" tickCounterLabel="ticks" maxPxcor="7" minPxcor="0"></view>
+    <button x="58" y="62" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="103">setup</button>
+    <button x="164" y="62" height="33" disableUntilTicks="false" forever="true" kind="Observer" width="103">go</button>
+    <slider x="75" step="1" y="131" height="33" min="0" direction="Horizontal" max="100" default="30.0" variable="weeks-of-simulation" width="181" display="weeks-of-simulation"></slider>
+    <plot x="317" yMax="10.0" yAxis="orders" y="446" xMin="0.0" height="210" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="299" xAxis="weeks" display="Orders to Factory">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="default">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <plot x="14" yMax="10.0" y="231" xMin="0.0" height="210" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="299" display="Cost">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="default">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <plot x="14" yMax="10.0" y="446" xMin="0.0" height="209" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="299" display="Orders Shipped">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="default">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <slider x="75" step="1" y="96" height="33" min="1" direction="Horizontal" max="10" default="2.0" variable="periods-of-delay" width="181" display="periods-of-delay"></slider>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This is an adaptation of a popular game created at MIT in the early 1960s that shows how small delays in a distribution system can create big problems.  The participants take on one of four roles in a distribution network for root beer -- the factory, the distributor, the wholesaler, or the retailer.  Each participant places and ships orders while trying to keep their costs to minimum. Costs include the holding inventory as well as missing out on sales because you produced too little root beer.
+
+## HOW IT WORKS
+
+The game is played in one-week rounds and the players are dividing into teams of four.  Each team is a supply chain that consists of a retailer, a wholesaler, a distributor, and a factory.  At the beginning of each week, every player on a team faces a demand for root beer that comes from the person downstream from him or her in the supply chain. The demand originates from the (invisible) root beer drinkers who create demand for the retailer every week.
+
+At the end of each week, if you have enough inventory to meet your demand, then the demanded quantity is automatically shipped out of your inventory to the player downstream from you. If you don't have enough cases in inventory to meet demand from the player upstream from you (or from the public if you are the retailer), then a backorder is created.  Each backordered case costs the player $1.00 in lost sales opportunity.  Each case in inventory costs the player $0.50 to store.  The goal of the game is to minimize cost.
+
+As a player, each week you must decide how many cases to order from the person upstream from you. Placing orders creates additional demand for your upstream supplier the next week, but it does not immediately replenish your inventory. There is time lag because of a shipping delay between you and your upstream supplier. (If you are the factory, placing an order is equivalent to producing the root beer, and the lag is due to the time to produce the product.) Once all players have placed orders for the week, time advances to the next week and the product you are shipping goes out the door.  Your cost for the week is also calculated and reported.
+
+## HOW TO USE IT
+
+Press the SETUP button and then the GO button and have all the participants login. Explain that each week, each role needs to ship cases of root beer based on the demand they face, as well as place orders to replenish their inventory to the desired level.  Explain also how costs are accrued and that the goal is to minimize costs.  It is a good idea to play a few weeks together until the participants get acquainted with the client interface and the actions needed in each round.
+
+Buttons and Sliders:
+SETUP - Resets the simulation to the initial conditions and the clock to zero.
+
+GO - Listens for input from clients. Should be pressed to run the simulation.
+
+WEEKS-OF-SIMULATION - Sets the number of rounds in the game.
+
+PERIODS-OF-DELAY - Set the number of weeks between when one player sends an order and the next player in the line receives the order
+
+Plots:
+COST - Plots the instantaneous cost of each team where cost equals $0.50 per case in inventory plus $1.00 per back-ordered case.
+ORDERS SHIPPED - Plots the number of orders shipped from the retailer each week.
+ORDERS TO FACTORY - Plots the number of order produced by the factory each week.
+
+Client Interface:
+Each client is a member of a TEAM identified by a color; all teams have four members. Each client is assigned a ROLE in that team which is determined by his or her position in the supply chain, the first player to login is the retailer and the last is the factory.  Players start out with an initial INVENTORY of 12 and an initial order of 4.
+
+To change the amount of the order you want to place, move the ORDERS-TO-PLACE slider and press the PLACE-ORDER button.  The amount of your last order placed appears in the ORDER-PLACED monitor.  You can only place one order per week, once you have done so the ORDER-PLACED? monitor will display true, and it will not let you place another order until everyone on your team as placed an order, which ends the week. When the week ends everyone ships and you will receive goods from your supplier the amount you receive will be displayed in the LAST-AMOUNT-RECEIVED monitor, and it will be added to your inventory. The amount you ship is displayed in the LAST-AMOUNT-SHIPPED monitor. At the end of the week if your inventory does not meet the demand the extra orders will become BACK-ORDERS. Finally, the order placed by the player that you supply in the previous week will become your new DEMAND, unless you are the retailer, then you will see the true demand of the public.
+
+Your instantaneous cost is displayed in the MY-COST monitor, this includes all goods that you have shipped but have not yet arrived at their intended destination.
+
+## THINGS TO NOTICE
+
+Look at the resulting orders shipped and orders to factory plots.  Are the levels fairly constant or fluctuating?  Have the retailer record the demand he or she faces each week. Are the changes in the orders shipped and orders to the factory plots map similar to the fluctuations in demand?
+
+## THINGS TO TRY
+
+As a team, can you create a strategy that keeps your inventory from fluctuating more than the customer demand? Does it get easier or harder if you increase the PERIODS-OF-DELAY?
+
+## EXTENDING THE MODEL
+
+Create a supply chain that is not linear and has multiple players for each role, perhaps introducing competition within roles.
+
+Create a non-HubNet version of this game using the System Dynamics Modeler.
+
+## NETLOGO FEATURES
+
+This activity uses NetLogo's network support to move the goods from stage to stage.  Each player as a supply link from the player below them in the chain and a demand link from the play above them in the chain.  Orders are placed on the demand links and received on the supply links.
+
+## RELATED MODELS
+
+Investments
+Public Good
+
+## CREDITS AND REFERENCES
+
+For a discussion of the original MIT Beer Game and additional suggestions for discussion points, see http://web.mit.edu/jsterman/www/SDG/beergame.html
+
+For a bibliography of the beer game in academic publications (last revised July 1992), see http://www.solonline.org/?page=Beer_Game_Biblio
+
+For instructions and materials for running the original board game version, see http://www.solonline.org?item_id=456354
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. and Stroup, W. (2003).  NetLogo Root Beer Game HubNet model.  http://ccl.northwestern.edu/netlogo/models/RootBeerGameHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the HubNet software as:
+
+* Wilensky, U. & Stroup, W. (1999). HubNet. http://ccl.northwestern.edu/netlogo/hubnet.html. Center for Connected Learning and Computer-Based Modeling, Northwestern University. Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2003 Uri Wilensky and Walter Stroup.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This activity and associated models and materials were created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
+
+<!-- 2003 Stroup -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="demand link" rotatable="true" editableColorIndex="0">
+      <line endX="105" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+      <line endX="105" startY="300" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.5">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0"></shape>
+      </indicator></shape>
+  </linkShapes>
+  <hubNetClient>
+    <monitor x="159" precision="3" y="61" height="49" fontSize="11" width="107" display="demand"></monitor>
+    <monitor x="209" precision="3" y="113" height="49" fontSize="11" width="107" display="inventory"></monitor>
+    <monitor x="268" precision="3" y="61" height="49" fontSize="11" width="107" display="back-orders"></monitor>
+    <monitor x="20" precision="3" y="10" height="49" fontSize="11" width="107" display="team"></monitor>
+    <slider x="295" step="1.0" y="223" height="33" min="0.0" direction="Horizontal" max="100.0" default="4.0" variable="orders-to-place" width="172" display="orders-to-place"></slider>
+    <note x="326" y="174" height="28" color="0.0" transparent="false" fontSize="11" width="151">cost = $0.50 * inventory + $1.00 * back-orders</note>
+    <monitor x="210" precision="3" y="163" height="49" fontSize="11" width="107" display="my-cost"></monitor>
+    <monitor x="69" precision="3" y="113" height="49" fontSize="11" width="138" display="last-amount-received"></monitor>
+    <monitor x="318" precision="3" y="113" height="49" fontSize="11" width="140" display="last-amount-shipped"></monitor>
+    <button x="189" actionKey="O" y="223" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="105" display="place-order"></button>
+    <monitor x="294" precision="3" y="10" height="49" fontSize="11" width="107" display="week"></monitor>
+    <monitor x="404" precision="3" y="10" height="49" fontSize="11" width="108" display="order-placed?"></monitor>
+    <monitor x="131" precision="3" y="10" height="49" fontSize="11" width="107" display="role"></monitor>
+    <monitor x="82" precision="3" y="215" height="49" fontSize="11" width="105" display="order-placed"></monitor>
+  </hubNetClient>
+  <previewCommands>need-to-manually-make-preview-for-this-model</previewCommands>
+</model>

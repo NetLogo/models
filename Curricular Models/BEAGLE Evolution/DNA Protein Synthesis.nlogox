@@ -1,0 +1,2561 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[;;;;;;;;;;;;; DNA molecules  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; keeps a list of the dna code for a given gene
+breed [genes gene]
+
+;; the pieces that are inside the dna chain
+breed [nucleotides nucleotide]
+
+;; a visualization agent (similar to a promoter protein)
+;; that attaches to every start codon location in a DNA chain
+breed [promoters promoter]
+
+;; a visualization agent that attaches to every stop codon location in a DNA chain
+breed [terminators terminator]
+
+;;;;;;;;;;;;; mRNA molecules  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; the pieces that are inside the mRNA chain
+breed [mRNA-nucleotides mRNA-nucleotide]
+
+;; the tail ends of the mRNA chain
+breed [mRNAs mRNA]
+
+;;;;;;;;;;;;; tRNA molecules  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; the center piece of the tRNA complex
+breed [tRNAs tRNA]
+
+;; the pieces that are inside the tRNA complex
+breed [tRNA-nucleotides tRNA-nucleotide]
+
+;; the top part of the tRNA complex
+breed [amino-acids amino-acid]
+
+;;;;;;;;;;;;; protein molecules  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+breed [proteins protein]                    ;; holds proteins information
+
+;;;;;;;;;;;;; tags for supporting a fine tuned placement of labels ;;;;;;;;;;;;;
+breed [tags tag]
+
+;;;;;;;;;;;;; links ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; the link between an agent and where its label agent is.
+;; This allows fine tuned placement of visualizing of labels
+undirected-link-breed [taglines tagline]
+
+;; the link between adjacent amino acids in a protein.
+;; It will allows the entire protein to be folded up
+;; (not currently implemented)
+directed-link-breed   [backbones backbone]
+
+;;;;;;;;;;;;;;;;;;;turtle variables ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+genes-own            [gene-number strand code start-position end-position]
+mRNAs-own            [gene-number strand code cap-type traveling? released?]
+promoters-own        [gene-number strand]
+terminators-own      [gene-number strand]
+tRNAs-own            [gene-number strand]
+proteins-own         [gene-number strand value]
+amino-acids-own      [gene-number strand value place]
+nucleotides-own      [gene-number strand value place]
+mRNA-nucleotides-own [gene-number strand value place]
+tRNA-nucleotides-own [gene-number strand value place]
+tags-own [
+  value ; the value for the label of the agent it is linked to when visualized.
+]
+
+
+
+;;;;;;;;;;;;;globals ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+globals [
+
+  current-instruction               ;; holds counter value for which instruction is being displayed
+  codon-to-amino-acid-key           ;; holds lookup table for codon triplet to amino acid
+  original-dna-string               ;; holds a string of the original DNA
+  duplicate-dna-string              ;; holds a string of the duplicate DNA.  This changes every time the replicate DNA button is pressed
+
+  ;; position values for visualization
+  duplicate-ribosome-ycor
+  original-ribosome-ycor
+  duplicate-dna-ycor
+  original-dna-ycor
+  nucleotide-spacing
+
+  ;; colors for various agents and states of agents
+  nucleo-tag-color
+  terminator-color
+  gene-color-counter
+
+  ;; counters for the number of genes
+  original-strand-gene-counter
+  duplicate-strand-gene-counter
+  original-display-mrna-counter
+  duplicate-display-mrna-counter
+
+  mRNAs-traveling                    ;; list of mRNAs traveling
+  mRNAs-released                     ;; list of mRNAs released
+
+  ;; for keeping track of user initiated events
+  replicate-dna-event?
+  show-genes-event?
+  event-1-triggered?
+  event-2-triggered?
+  event-3-triggered?
+  event-4-triggered?
+  event-6-triggered?
+  event-7-triggered?
+  event-8-triggered?
+  event-9-triggered?
+  event-1-completed?
+  event-2-completed?
+  event-3-completed?
+  event-4-completed?
+  event-6-completed?
+  event-7-completed?
+  event-8-completed?
+  event-9-completed?
+]
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;setup procedures;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to setup
+  clear-all
+  set replicate-dna-event? false
+  set show-genes-event? false
+
+  set event-1-triggered? false
+  set event-2-triggered? false
+  set event-3-triggered? false
+  set event-4-triggered? false
+  set event-6-triggered? false
+  set event-7-triggered? false
+  set event-8-triggered? false
+  set event-9-triggered? false
+  set event-1-completed? false
+  set event-2-completed? false
+  set event-3-completed? false
+  set event-4-completed? false
+  set event-6-completed? false
+  set event-7-completed? false
+  set event-8-completed? false
+  set event-9-completed? false
+
+
+  set mRNAs-traveling []
+  set mRNAs-released  []
+  set codon-to-amino-acid-key []
+  set original-dna-string ""
+  set duplicate-dna-string ""
+
+  set duplicate-ribosome-ycor -7
+  set original-ribosome-ycor 4
+  set duplicate-dna-ycor -2
+  set original-dna-ycor 1
+  set gene-color-counter 1
+  set nucleotide-spacing .45
+
+  set original-strand-gene-counter 0
+  set duplicate-strand-gene-counter 0
+  set original-display-mrna-counter 0
+  set duplicate-display-mrna-counter 0
+
+  set-default-shape promoters "start"
+  set-default-shape terminators "end"
+  set-default-shape tags "empty"
+
+  set terminator-color      [255 0 0 150]
+  set nucleo-tag-color      [255 255 255 120]
+
+  initialize-codon-to-amino-acid-key
+  setup-starting-dna
+  visualize-all-genes
+  ask patches [set pcolor blue - 4]
+  ask patches with [pycor > 2]  [set pcolor blue - 3.5]
+  ask patches with [pycor < 0]  [set pcolor green - 4]
+  ask patches with [pycor < -3] [set pcolor green - 3.5]
+  show-instruction 1
+  reset-ticks
+end
+
+
+to setup-starting-dna
+  setup-dna-string
+  build-genes-from-dna "original" original-dna-string
+  make-a-nucleotide-chain-for-dna-string "original" original-dna-string
+  place-dna "original"
+  build-mrna-for-each-gene "original"
+  build-protein-from-mrna  "original"
+  place-trnas "original"
+  hide-mrna   "original"
+  hide-trna   "original"
+  hide-genes  "original"
+end
+
+
+
+;; original-dna-string
+to setup-dna-string
+  if initial-dna-string = "from user-created-code" [set original-dna-string dna-string-with-non-nucleotide-characters-replaced user-created-code]
+  if initial-dna-string = "random (short strand)" [
+    let initial-length-dna 12
+    repeat initial-length-dna [set original-dna-string (word original-dna-string random-base-letter-DNA)]
+  ]
+  if initial-dna-string = "random (long strand)"  [
+    let initial-length-dna 56
+    repeat initial-length-dna [set original-dna-string (word original-dna-string random-base-letter-DNA)]
+  ]
+  if initial-dna-string = "no genes (short strand)" [set original-dna-string "ATTATATCGTAG"]
+  if initial-dna-string = "no genes (long strand)"  [set original-dna-string "GATATTTGGTAGCCCGAGAAGTGGTTTTTCAGATAACAGAGGTGGAGCAGCTTTTAG"]
+  if initial-dna-string = "1 short gene"            [set original-dna-string "ATTATGTGGTAG"]
+  if initial-dna-string = "1 long gene"             [set original-dna-string "GGGATGGACACCTTATCATTTGCTACTAGCGACCAGTTTGAGTAGCTTCGTCGGTGA"]
+  if initial-dna-string = "2 sequential genes"      [set original-dna-string "AGTATGAAAACCCACGAGTGGTAGCCCGAGATTGAGATGTGGTTTTTCAGATAACAG"]
+  if initial-dna-string = "2 nested genes"          [set original-dna-string "GTTATGAGGGGGACCCGAGATGTGGTTTTTGAAATAGACAAGTAGACCCTAATAGAC"]
+  if initial-dna-string = "3 sequential genes"      [set original-dna-string "GATATGTGGTAGCCCGAGATGTGGTTTTTCAGATAACAGATGTGGAGCAGCTTTTAG"]
+end
+
+
+to place-dna [strand-type]
+  let dna (turtle-set genes nucleotides promoters terminators)
+  ask dna with [strand = strand-type][
+    if strand-type = "original"  [set ycor original-dna-ycor]
+    if strand-type = "duplicate" [set ycor duplicate-dna-ycor]
+  ]
+end
+
+
+to place-trnas [strand-type]
+  ask tRNAs with [strand = strand-type] [
+    if strand-type = "original"   [set ycor original-ribosome-ycor + 1]
+    if strand-type = "duplicate"  [set ycor duplicate-ribosome-ycor + 1]
+  ]
+end
+
+
+to make-a-nucleotide-chain-for-dna-string [strand-type dna-string]
+  let previous-nucleotide nobody
+  let place-counter 0
+  create-turtles 1 [
+    set heading 90
+    fd 1
+    repeat (length dna-string) [
+        hatch 1 [
+          set breed nucleotides
+          set strand strand-type
+          set value item place-counter dna-string
+          set shape (word "nucleotide-" value)
+          set heading 0
+          set place place-counter
+          attach-tag 5 0.5 value nucleo-tag-color
+          set place-counter place-counter + 1
+          ]
+       fd nucleotide-spacing
+       ]
+   die ;; remove the chromosome builder (a temporary construction turtle)
+  ]
+end
+
+
+
+to build-genes-from-dna [strand-type dna-string]
+  let remaining-dna dna-string
+  let this-item ""
+  let last-item ""
+  let last-last-item ""
+  let triplet ""
+  let item-position 0
+  let last-item-kept length dna-string
+  repeat (length dna-string) [
+    let first-item item 0 remaining-dna
+    set remaining-dna remove-item 0 remaining-dna
+    set last-last-item last-item
+    set last-item this-item
+    set this-item first-item
+    set triplet (word last-last-item last-item this-item)
+    if triplet = "ATG" [
+      create-genes 1 [
+        set hidden? true
+        set strand strand-type
+        if strand = "original"  [
+          set original-strand-gene-counter original-strand-gene-counter + 1
+          set gene-number original-strand-gene-counter
+        ]
+        if strand = "duplicate" [
+          set duplicate-strand-gene-counter duplicate-strand-gene-counter + 1
+          set gene-number duplicate-strand-gene-counter
+        ]
+        set start-position item-position
+        set end-position ((length original-dna-string))
+        set code (word triplet substring dna-string (item-position + 1) ((length dna-string) ) )
+        ]
+     ]
+     set item-position item-position + 1
+  ]
+  ask genes [
+    let end-of-gene? false
+    let triplet-counter 0
+    let new-code code
+    repeat floor (length code / 3)  [
+      let this-triplet (word  (item (0 + (triplet-counter * 3)) code)  (item (1 + (triplet-counter * 3)) code)  (item (2 + (triplet-counter * 3)) code) )
+      if (this-triplet =  "TAG" or this-triplet = "TGA"  or this-triplet = "TAA") and not end-of-gene? [
+        set end-position triplet-counter * 3
+        set new-code substring code 0 end-position
+        set end-of-gene? true
+      ]
+      set triplet-counter triplet-counter + 1
+    ]
+    set triplet-counter 0
+    set end-of-gene? false
+    set code new-code
+  ]
+
+end
+
+
+to build-mRNA-for-each-gene [strand-type]
+  ask genes with [strand = strand-type] [
+    let this-code code
+    let this-gene self
+
+    set heading 90
+    fd .1
+    repeat start-position [fd .45] ;; move over to correct nucleotide location on dna
+
+    let gene-color next-gene-color
+    let gene-color-with-transparency (sentence (extract-rgb gene-color) 110)
+    let gene-color-label (sentence (extract-rgb gene-color) 250)
+    ;; make promoter for start codon
+    hatch 1 [
+      set breed promoters
+      set color gene-color-with-transparency
+      set size 3
+      set hidden? false
+      attach-tag 142 1.7 (word "start:" gene-number) gene-color-label
+      create-backbone-from this-gene [set hidden? true set tie-mode "fixed" tie]
+      ;; make terminator for end codon
+      hatch 1 [
+        set breed terminators
+        fd ((length this-code) * 0.45)
+        attach-tag 142 1.7 (word "end:" gene-number) gene-color-label
+        create-backbone-from this-gene [set hidden? true set tie-mode "fixed" tie]
+      ]
+    ]
+     ;; make start cap for mRNA molecule
+    hatch 1 [
+      let this-mRNA self
+      set breed mRNAs
+      set traveling? false
+      set released? false
+      set code mrna-string-from-dna-string code
+      set cap-type "start"
+      set shape "mrna-start"
+      set hidden? false
+      ;; associate the mRNA molecule with the parent gene
+      create-backbone-from this-gene [set hidden? true set tie-mode "fixed" tie]
+      ;; build a stop cap for the mRNA molecule
+      hatch 1 [
+        set cap-type "stop"
+        set shape "mrna-stop"
+        let nucleotide-counter 0
+        ;; associate the mRNA stop cap with the start cap
+        create-backbone-from this-mRNA  [set hidden? true set tie-mode "fixed" tie]
+        ;; use the stop cap turtle to construct the mRNA nucleotides
+        let code-to-transcribe code
+        repeat length code [
+          hatch 1 [
+            set breed mRNA-nucleotides
+            set value first code-to-transcribe
+            set shape (word "mrna-" value)
+            set heading 180
+            attach-tag 175 0.9 value nucleo-tag-color
+            create-backbone-from this-mRNA  [set hidden? true set tie-mode "fixed" tie]
+          ]
+          set code-to-transcribe remove-item 0 code-to-transcribe
+          fd nucleotide-spacing
+        ]
+      ]
+    ]
+  ]
+end
+
+
+to build-protein-from-mrna [strand-type]
+  ask mRNAs with [cap-type = "start" and strand = strand-type] [
+    let number-of-triplets-in-list floor ((length code) / 3)
+    let this-triplet ""
+    let triplet-counter 0
+    repeat number-of-triplets-in-list   [
+      set this-triplet (word
+        complementary-mRNA-base  (item (0 + (triplet-counter * 3)) code)
+        complementary-mRNA-base  (item (1 + (triplet-counter * 3)) code)
+        complementary-mRNA-base  (item (2 + (triplet-counter * 3)) code)
+        )
+      build-tRNA-for-this-triplet  this-triplet triplet-counter
+      set triplet-counter triplet-counter + 1
+    ]
+  ]
+end
+
+
+
+to build-tRNA-for-this-triplet [this-triplet triplet-counter]
+  let this-tRNA nobody
+  hatch 1 [
+    set breed tRNAs
+    set this-tRNA self
+    set shape "tRNA-core"
+    set size 1.2
+    set heading 0
+    hatch 1 [
+      set breed amino-acids
+      set value  (which-protein-for-this-codon this-triplet)
+      set shape (word "amino-" value)
+      set heading 0
+      set size 2
+      fd 1
+      create-backbone-from this-tRNA  [set hidden? true set tie-mode "free" tie]
+      attach-tag 20 .8 value nucleo-tag-color
+    ]
+    hatch 1 [
+      set breed tRNA-nucleotides
+      set shape (word "trna-" (item 0 this-triplet))
+      set heading -155
+      fd 1.1
+      set heading 0
+      create-backbone-from this-tRNA  [set hidden? true set tie-mode "fixed" tie]
+      hatch 1 [
+        set breed tRNA-nucleotides
+        set shape (word "trna-" (item 1 this-triplet))
+        set heading 90
+        fd .45
+        set heading 0
+        create-backbone-from this-tRNA  [set hidden? true set tie-mode "fixed" tie]
+      ]
+      hatch 1 [
+        set breed tRNA-nucleotides
+        set shape (word "trna-" (item 2 this-triplet))
+        set heading 90
+        fd .90
+        set heading 0
+        create-backbone-from this-tRNA  [set hidden? true set tie-mode "fixed" tie]
+      ]
+    ]
+    fd 1
+    set heading 90
+    fd nucleotide-spacing + ( nucleotide-spacing * 3 * triplet-counter )
+    set heading 0
+  ]
+end
+
+
+;; fine tuned placement of the location of a label for a nucleoside or nucleotide
+to attach-tag [direction displacement label-value color-value]
+  hatch 1 [
+    set heading direction
+    fd displacement
+    set breed tags
+    set label label-value
+    set size 0.1
+    set label-color color-value
+    create-tagline-with myself [set tie-mode "fixed" set hidden? true tie]
+  ]
+end
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;; visibility procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to visualize-all-genes
+   ask (turtle-set promoters terminators)[ask tagline-neighbors [set hidden? not show-genes?] set hidden? not show-genes?]
+end
+
+
+to hide-genes  [strand-type]
+   ask (turtle-set promoters terminators)  with [strand = strand-type] [ask tagline-neighbors [set hidden? true] set hidden? true]
+end
+
+
+to hide-mrna  [strand-type]
+   ask (turtle-set mRNAs mrna-nucleotides) with [strand = strand-type] [ask tagline-neighbors [set hidden? true] set hidden? true]
+end
+
+
+to hide-trna  [strand-type]
+   ask (turtle-set tRNAs trna-nucleotides amino-acids) with [strand = strand-type] [ask tagline-neighbors [set hidden? true] set hidden? true]
+end
+
+
+to show-next-mrna  [strand-type]
+  let these-genes genes with [strand = strand-type]
+  if count these-genes = 0 [display-user-message-no-genes]
+  if strand-type = "original" [
+    set original-display-mrna-counter original-display-mrna-counter + 1
+    if (original-display-mrna-counter > count these-genes) [set original-display-mrna-counter 1]
+    ask mRNAs with [strand = strand-type and cap-type = "start"] [
+      ifelse gene-number != original-display-mrna-counter
+        [ask out-backbone-neighbors [set hidden? true ask tagline-neighbors [set hidden? true] ] set hidden? true]
+        [ask out-backbone-neighbors [set hidden? false ask tagline-neighbors [set hidden? false] ] set hidden? false]
+      set traveling? false set released? false set ycor original-dna-ycor
+    ]
+  ]
+  if strand-type = "duplicate" [
+    set duplicate-display-mrna-counter duplicate-display-mrna-counter + 1
+    if (duplicate-display-mrna-counter > count these-genes) [set duplicate-display-mrna-counter 1]
+    ask mRNAs with [strand = strand-type and cap-type = "start"] [
+      ifelse gene-number != duplicate-display-mrna-counter
+        [ask out-backbone-neighbors [set hidden? true ask tagline-neighbors [set hidden? true] ] set hidden? true]
+        [ask out-backbone-neighbors [set hidden? false ask tagline-neighbors [set hidden? false]] set hidden? false]
+      set traveling? false set released? false set ycor duplicate-dna-ycor
+    ]
+  ]
+end
+
+
+to show-next-trna  [strand-type]
+  let this-gene-number gene-number-for-this-strand strand-type
+  ask mRNAs with [strand = strand-type and cap-type = "start" and released? and gene-number = this-gene-number ] [
+    ask tRNAs with [strand = strand-type] [
+      ifelse gene-number = this-gene-number
+        [ask out-backbone-neighbors [set hidden? false ask tagline-neighbors [set hidden? false] ] set hidden? false]
+        [ask out-backbone-neighbors [set hidden? true ask tagline-neighbors [set hidden? true] ] set hidden? true]
+      ]
+  ]
+end
+
+
+to display-user-message-no-genes
+  user-message "There are no genes in this strand of DNA. A specific sequence of 3 nucleotides is required for a gene"
+end
+
+
+to release-next-protein  [strand-type]
+  let make-protein? false
+  let this-gene-number gene-number-for-this-strand strand-type
+  ask mRNAs with [strand = strand-type and cap-type = "start" and released?  and gene-number = this-gene-number ] [
+
+    ask tRNAs with [strand = strand-type] [
+      ifelse gene-number = this-gene-number
+        [ask out-backbone-neighbors [
+         set make-protein? true
+         set hidden? true
+           ifelse breed = amino-acids
+             [set hidden? false ask tagline-neighbors [set hidden? false] ]
+             [set hidden? true ask tagline-neighbors [set hidden? true] ]
+           ]
+         ]
+         [ask out-backbone-neighbors [set hidden? true ask tagline-neighbors [set hidden? true] ] set hidden? true]
+         set hidden? true
+    ]
+    if make-protein? [make-protein strand-type ]
+  ]
+end
+
+
+to make-protein [strand-type]
+  let this-gene-number gene-number-for-this-strand strand-type
+  let this-protein-value ""
+  let these-amino-acids amino-acids with [breed = amino-acids and strand-type = strand and gene-number = this-gene-number]
+  let ordered-amino-acids sort-on [who] these-amino-acids
+  foreach ordered-amino-acids [ the-amino-acid ->
+    set this-protein-value (word   this-protein-value "-" ([value] of the-amino-acid))
+  ]
+  if not any? proteins with [strand = strand-type and value = this-protein-value] [
+      hatch 1 [set breed proteins set value this-protein-value set hidden? true setxy 0 0]
+  ]
+end
+
+
+to release-next-mRNA-from-nucleus [strand-type]
+  ask mRNAs with [strand = strand-type][set traveling? true set released? false]
+end
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; runtime procedures ;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to go
+  visualize-all-genes
+  ;; these boolean variables keep track of button press events being cued by the user
+  if event-1-triggered? [
+    show-next-mrna "original"
+    set event-1-triggered? false
+    set event-1-completed? true
+    set event-2-completed? false
+    set event-3-completed? false
+    set event-4-completed? false
+  ]
+  if event-2-triggered? and event-1-completed? [
+    release-next-mRNA-from-nucleus "original"
+    set event-2-triggered? false
+    set event-3-completed? false
+    set event-4-completed? false
+  ]
+  if event-3-triggered? and event-2-completed? [
+    show-next-trna "original"
+    set event-3-triggered? false
+    set event-3-completed? true
+    set event-4-completed? false
+  ]
+  if event-4-triggered? and event-3-completed? [
+    release-next-protein "original"
+    set event-4-triggered? false
+    set event-4-completed? true
+  ]
+  if event-6-triggered? [
+    show-next-mrna "duplicate"
+    set event-6-triggered? false
+    set event-6-completed? true
+    set event-7-completed? false
+    set event-8-completed? false
+    set event-9-completed? false
+  ]
+  if event-7-triggered? and event-6-completed? [
+    release-next-mRNA-from-nucleus "duplicate"
+    set event-7-triggered? false
+    set event-8-completed? false
+    set event-9-completed? false
+  ]
+  if event-8-triggered? and event-7-completed? [
+    show-next-trna "duplicate"
+    set event-8-triggered? false
+    set event-8-completed? true
+    set event-9-completed? false
+  ]
+  if event-9-triggered? and event-8-completed? [
+    release-next-protein "duplicate"
+    set event-9-triggered? false
+    set event-9-completed? true
+  ]
+  move-mRNA-molecules-out-of-nucleus
+  tick
+end
+
+
+to move-mRNA-molecules-out-of-nucleus
+  ask mRNAs with [traveling? and cap-type = "start"] [
+    if strand = "original" [
+      if ycor < original-ribosome-ycor [ set ycor ycor + .1 ]
+      if ycor >= original-ribosome-ycor [ set traveling? false set released? true set event-2-completed? true]
+    ]
+    if strand = "duplicate" [
+      if ycor > duplicate-ribosome-ycor [ set ycor ycor - .1]
+      if ycor <= duplicate-ribosome-ycor [ set traveling? false set released? true set event-7-completed? true]
+    ]
+  ]
+end
+
+
+to show-protein-production
+  clear-output
+  let original-proteins proteins with [strand = "original"]
+  output-print "Proteins Produced"
+  output-print (word "from original DNA  = " count original-proteins)
+  output-print "::::::::::::::::::"
+  ask original-proteins [
+    output-print (word "Orig.Gene #" gene-number " > Protein:")
+    output-print value
+    output-print ""
+  ]
+  output-print "=================="
+  let duplicate-proteins  proteins with [strand = "duplicate"]
+  output-print "Proteins Produced"
+  output-print (word "from copy of DNA = " count duplicate-proteins)
+  output-print "::::::::::::::::::"
+  ask duplicate-proteins [
+    output-print (word "Copy.Gene #" gene-number " > Protein:")
+    output-print value
+    output-print ""
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;; make duplicate dna procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to make-duplicate-dna-string
+  let position-counter 0
+  set duplicate-strand-gene-counter 0
+  let clean-duplicate-dna-string original-dna-string
+  let mutating-copy-of-dna-string original-dna-string
+
+    let target-loci random ((length mutating-copy-of-dna-string) - #-nucleotides-affected)
+    let dna-at-target item target-loci mutating-copy-of-dna-string
+    let dna-before-target substring mutating-copy-of-dna-string 0 target-loci
+    let loci-counter 0
+    let dna-at-and-after-target substring mutating-copy-of-dna-string target-loci length mutating-copy-of-dna-string
+
+    if mutation-type = "deletion" [
+      repeat #-nucleotides-affected [
+        set  mutating-copy-of-dna-string remove-item target-loci mutating-copy-of-dna-string
+      ]
+    ]
+    if mutation-type  = "substitution" [
+      repeat #-nucleotides-affected [
+        set mutating-copy-of-dna-string (replace-item (target-loci + loci-counter) mutating-copy-of-dna-string random-base-letter-DNA)
+        set loci-counter loci-counter + 1
+      ]
+    ]
+    if mutation-type  = "insertion" [
+      repeat #-nucleotides-affected [
+        set  dna-at-and-after-target (word random-base-letter-DNA  dna-at-and-after-target)
+      ]
+      set mutating-copy-of-dna-string (word dna-before-target dna-at-and-after-target)
+    ]
+
+ set duplicate-dna-string mutating-copy-of-dna-string
+end
+
+
+to replicate-dna
+  let turtles-to-remove (turtle-set nucleotides mRNAs tRNAs genes promoters terminators amino-acids mrna-nucleotides)
+  ;; (re)build the everything for the duplicate dna
+  ask turtles-to-remove with [strand = "duplicate" ][ask tagline-neighbors [die] die]            ;; wipe out old nucleotides
+  make-duplicate-dna-string
+  build-genes-from-dna "duplicate" duplicate-dna-string
+  make-a-nucleotide-chain-for-dna-string "duplicate" duplicate-dna-string
+  place-dna "duplicate"
+  build-mrna-for-each-gene "duplicate"
+  build-protein-from-mrna "duplicate"
+  place-trnas "duplicate"
+  hide-mrna   "duplicate"
+  hide-trna   "duplicate"
+  hide-genes  "duplicate"
+end
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;; initializing lists and strings ;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to initialize-codon-to-amino-acid-key
+   set codon-to-amino-acid-key [
+     ;;all triplets where the 2nd base is U
+     ["UUU" "Phe"] ["UUC" "Phe"] ["UUA" "Leu"] ["UUG" "Leu"]
+     ["CUU" "Leu"] ["CUC" "Leu"] ["CUA" "Leu"] ["CUG" "Leu"]
+     ["AUU" "Ile"] ["AUC" "Ile"] ["AUA" "Ile"] ["AUG" "Met"]
+     ["GUU" "Val"] ["GUC" "Val"] ["GUA" "Val"] ["GUG" "Val"]
+     ;;all triplets where the 2nd base is C
+     ["UCU" "Ser"] ["UCC" "Ser"] ["UCA" "Ser"] ["UCG" "Ser"]
+     ["CCU" "Pro"] ["CCC" "Pro"] ["CCA" "Pro"] ["CCG" "Pro"]
+     ["ACU" "Thr"] ["ACC" "Thr"] ["ACA" "Thr"] ["ACG" "Thr"]
+     ["GCU" "Ala"] ["GCC" "Ala"] ["GCA" "Ala"] ["GCG" "Ala"]
+     ;;all triplets where the 3rd base is A
+     ["UAU" "Tyr"] ["UAC" "Tyr"] ["UAA" "Stop"] ["UAG" "Stop"]
+     ["CAU" "His"] ["CAC" "His"] ["CAA" "Gln"] ["CAG" "Gln"]
+     ["AAU" "Asn"] ["AAC" "Asn"] ["AAA" "Lys"] ["AAG" "Lys"]
+     ["GAU" "Asp"] ["GAC" "Asp"] ["GAA" "Glu"] ["GAG" "Glu"]
+     ;;all triplets where the 4th base is G
+     ["UGU" "Cys"] ["UGC" "Cys"] ["UGA" "Stop"] ["UGG" "Trp"]
+     ["CGU" "Arg"] ["CGC" "Arg"] ["CGA" "Arg"] ["CGG" "Arg"]
+     ["AGU" "Ser"] ["AGC" "Ser"] ["AGA" "Arg"] ["AGG" "Arg"]
+     ["GGU" "Gly"] ["GGC" "Gly"] ["GGA" "Gly"] ["GGG" "Gly"]
+     ]
+end
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;; reporters ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;; returns values such as "Gly" for "GGA" or "Tyr" for "UAC" using the codon-to-amino-acid-key
+to-report which-protein-for-this-codon [this-codon]
+ report item 1 (item 0 filter [ pair -> first pair = this-codon] codon-to-amino-acid-key )
+end
+
+;;; reports a random base for a nucleotide in DNA
+to-report random-base-letter-DNA
+  let r random 4
+  let letter-to-report ""
+  if r = 0 [set letter-to-report "A"]
+  if r = 1 [set letter-to-report "G"]
+  if r = 2 [set letter-to-report "T"]
+  if r = 3 [set letter-to-report "C"]
+  report letter-to-report
+end
+
+;;; reports a complementary base for a base pairing given the nucleotide from DNA or mRNA
+to-report complementary-mRNA-base [base]
+  let base-to-report ""
+  if base = "A" [set base-to-report "U"]
+  if base = "T" [set base-to-report "A"]
+  if base = "U" [set base-to-report "A"]
+  if base = "G" [set base-to-report "C"]
+  if base = "C" [set base-to-report "G"]
+  report base-to-report
+end
+
+
+;; cycles through next color in base-color list to assign to the next gene
+to-report next-gene-color
+  ifelse gene-color-counter >= (length base-colors) - 1
+   [set gene-color-counter 0]
+   [set gene-color-counter gene-color-counter + 1 ]
+  report (item gene-color-counter base-colors)
+end
+
+
+to-report gene-number-for-this-strand [strand-type]
+  let this-gene-number 0
+  if strand-type = "original"  [set this-gene-number original-display-mrna-counter]
+  if strand-type = "duplicate" [set this-gene-number duplicate-display-mrna-counter]
+  report this-gene-number
+end
+
+
+;; reports the mrna code that gets transcribed from the dna
+to-report mrna-string-from-dna-string [dna-string]
+  let new-string dna-string
+  let next-item 0
+  repeat length dna-string [
+    set new-string (replace-item next-item new-string (complementary-mRNA-base (item next-item new-string))  )
+    set next-item next-item + 1
+  ]
+  report new-string
+end
+
+;; reports a string of dna where any A, G, C, T letter is replaced with a random one of these, and any length beyond
+;; characters is deprecated
+to-report dna-string-with-non-nucleotide-characters-replaced [dna-string]
+  let new-string dna-string
+  let next-item 0
+  repeat length dna-string [
+    set new-string (replace-item next-item new-string (replace-non-nucleotide-character (item next-item new-string))  )
+    set next-item next-item + 1
+  ]
+  if length dna-string > 64 [set new-string substring new-string 0 64]
+  report new-string
+end
+
+;; replaces any A, G, C, T letter is replaced with a random one of these
+to-report replace-non-nucleotide-character [nucleotide-character]
+   let character-to-return nucleotide-character
+   if nucleotide-character != "A" and nucleotide-character != "T" and nucleotide-character != "C" and nucleotide-character != "G"
+     [set character-to-return random-base-letter-DNA]
+   report character-to-return
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;; instructions for players ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to-report current-instruction-label
+  report ifelse-value current-instruction = 0
+    [ "press setup" ]
+    [ (word current-instruction " of " length instructions) ]
+end
+
+
+to next-instruction
+  show-instruction current-instruction + 1
+end
+
+
+to previous-instruction
+  show-instruction current-instruction - 1
+end
+
+
+to show-instruction [ i ]
+  if i >= 1 and i <= length instructions [
+    set current-instruction i
+    clear-output
+    foreach item (current-instruction - 1) instructions output-print
+  ]
+end
+
+
+to-report instructions
+  report [
+    [
+     "You will be simulating the process"
+     "of protein synthesis from DNA that"
+     "occurs in every cell.  And you will"
+     "explore the effects of mutations"
+     "on the proteins that are produced."
+    ]
+    [
+     "When you press SETUP, a single"
+     "strand of an unwound DNA molecule"
+     "appears. This represents the state"
+      "of DNA in the cell nucleus during"
+     "transcription."
+    ]
+    [
+     "To produce proteins, each gene in"
+     "the original DNA strand must be"
+     "transcribed  into an mRNA molecule."
+     "Do this by pressing GO/STOP and"
+     "then the 1-TRANSCRIBE button."
+    ]
+    [
+     "For each mRNA molecule that was"
+     "transcribed, press the 2-RELEASE"
+     "button.  This releases the mRNA"
+     "from the nucleus  into the ribosome"
+     "of the cell."
+    ]
+    [
+     "For each mRNA molecule in the"
+     "ribosome, press the 3-TRANSLATE"
+     "button.  This pairs up molecules"
+     "of tRNA with each set of three"
+     "nucleotides in the mRNA molecule."
+    ]
+    [
+      "For each tRNA chain built, press"
+      "the 4-RELEASE button.  This"
+      "releases the amino acid chain"
+      "from the rest of the tRNA chain,"
+      "leaving behind the protein"
+      "molecule that is produced."
+    ]
+    [
+      "Each time the 1-TRANSCRIBE"
+      "button is pressed, the next gene"
+      "in the original strand of DNA "
+      "will be transcribed.  Press the 1-,"
+      "2-, 3-, 4- buttons and repeat to"
+      "translate each subsequent gene."
+    ]
+    [
+      "When you press the 5-REPLICATE"
+      "THE ORIGINAL DNA button a copy"
+      "of the original DNA will be "
+      "generated for a new cell"
+      "(as in mitosis or meiosis) and"
+      "it will appear in the green."
+    ]
+    [
+      "The replicated DNA will have a"
+      "# of random mutations, set by"
+      "#-NUCLEOTIDES-AFFECTED, each"
+      "mutation of the type set by"
+      "MUTATION-TYPE. Press button 5)"
+      "again to explore possible outcomes."
+    ]
+    [
+      "Now repeat the same transcription,"
+      "release, translation, and release"
+      "process for the DNA in this new"
+      "cell by pressing 6-, 7-, 8-, 9-."
+      "Repeat that sequence again to"
+      "cycle through to the next gene."
+    ]
+    [
+      "If you want to test the outcomes"
+      "for your own DNA code, type any"
+      "sequence of A, G, T, C in the"
+      "USER-CREATED-CODE box and set"
+      "the INITIAL-DNA-STRING to"
+      "“from-user-code”.  Then press"
+      "SETUP and start over again."
+    ]
+  ]
+end
+
+
+
+to reset-completed-events
+
+  if event-1-triggered? or  event-2-triggered? or event-3-triggered? or event-4-triggered? [
+    set event-4-completed? false
+    if event-1-triggered? or  event-2-triggered? or event-3-triggered? [
+      set event-3-completed? false
+      if event-1-triggered? or  event-2-triggered?  [
+        set event-2-completed? false
+        if event-1-triggered?  [ set event-1-completed? false ]
+      ]
+    ]
+  ]
+  if event-6-triggered? or event-7-triggered? or event-8-triggered? or event-9-triggered? [
+    set event-9-completed? false
+    if event-6-triggered? or  event-7-triggered? or event-8-triggered? [
+      set event-8-completed? false
+      if event-6-triggered? or  event-7-triggered?  [
+        set event-7-completed? false
+        if event-6-triggered?  [ set event-6-completed? false ]
+      ]
+    ]
+
+  ]
+
+
+end
+
+
+; Copyright 2012 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="465" maxPycor="7" updateMode="1" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-8" height="393" showTickCounter="true" patchSize="24.0" fontSize="9" wrappingAllowedY="true" width="752" tickCounterLabel="ticks" maxPxcor="30" minPxcor="0"></view>
+    <button x="5" y="10" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="70">setup</button>
+    <button x="75" y="10" height="40" disableUntilTicks="true" forever="true" kind="Observer" width="90" display="go / stop">go</button>
+    <chooser x="5" y="285" height="45" variable="initial-dna-string" current="4" width="250" display="initial-dna-string">
+      <choice type="string" value="from user-created-code"></choice>
+      <choice type="string" value="no genes (short strand)"></choice>
+      <choice type="string" value="no genes (long strand)"></choice>
+      <choice type="string" value="1 short gene"></choice>
+      <choice type="string" value="1 long gene"></choice>
+      <choice type="string" value="2 sequential genes"></choice>
+      <choice type="string" value="2 nested genes"></choice>
+      <choice type="string" value="3 sequential genes"></choice>
+      <choice type="string" value="random (short strand)"></choice>
+      <choice type="string" value="random (long strand)"></choice>
+    </chooser>
+    <input x="5" multiline="false" y="330" height="60" variable="user-created-code" type="string" width="250">AAAAA</input>
+    <button x="265" y="210" height="36" disableUntilTicks="true" forever="false" kind="Observer" width="190" display="5. replicate the original DNA">replicate-dna
+visualize-all-genes</button>
+    <slider x="5" step="1" y="205" height="33" min="1" direction="Horizontal" max="6" default="1.0" variable="#-nucleotides-affected" width="250" display="#-nucleotides-affected"></slider>
+    <chooser x="5" y="240" height="45" variable="mutation-type" current="2" width="120" display="mutation-type">
+      <choice type="string" value="deletion"></choice>
+      <choice type="string" value="insertion"></choice>
+      <choice type="string" value="substitution"></choice>
+    </chooser>
+    <button x="280" y="145" height="34" disableUntilTicks="true" forever="false" kind="Observer" width="90" display="3. translate">if event-2-completed? [
+  set event-3-triggered? true
+  reset-completed-events
+]</button>
+    <button x="280" y="92" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="90" display="1. transcribe">set event-1-triggered? true
+reset-completed-events</button>
+    <button x="370" y="145" height="34" disableUntilTicks="true" forever="false" kind="Observer" width="76" display="4. release">if event-3-completed? [
+  set event-4-triggered? true
+  reset-completed-events
+]</button>
+    <monitor x="295" precision="17" y="30" height="41" fontSize="10" width="57" display="genes">original-strand-gene-counter</monitor>
+    <monitor x="340" precision="17" y="280" height="41" fontSize="10" width="100" display="proteins made">count proteins with [strand = "duplicate"]</monitor>
+    <note x="306" y="263" height="18" color="54.0" transparent="true" fontSize="11" width="156">Replicated DNA in new cell</note>
+    <button x="370" y="92" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="75" display="2. release">if event-1-completed? [
+  set event-2-triggered? true
+  reset-completed-events
+]</button>
+    <output x="5" y="85" height="120" fontSize="12" width="250"></output>
+    <monitor x="291" precision="17" y="280" height="41" fontSize="10" width="50" display="genes">duplicate-strand-gene-counter</monitor>
+    <button x="280" y="340" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="90" display="6. transcribe">set event-6-triggered? true
+reset-completed-events</button>
+    <button x="370" y="340" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="75" display="7. release">if event-6-completed? [
+  set event-7-triggered? true
+  reset-completed-events
+]</button>
+    <button x="280" y="395" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="85" display="8. translate">if event-7-completed? [
+  set event-8-triggered? true
+  reset-completed-events
+]</button>
+    <button x="365" y="395" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="80" display="9. release">if event-8-completed? [
+  set event-9-triggered? true
+  reset-completed-events
+]</button>
+    <note x="336" y="79" height="18" color="103.0" transparent="true" fontSize="9" width="90"><![CDATA[DNA-->mRNA]]></note>
+    <note x="329" y="382" height="18" color="54.0" transparent="true" fontSize="9" width="90"><![CDATA[mRNA-->protein]]></note>
+    <note x="331" y="131" height="18" color="103.0" transparent="true" fontSize="9" width="93"><![CDATA[mRNA-->protein]]></note>
+    <monitor x="346" precision="17" y="30" height="41" fontSize="10" width="95" display="proteins made">count proteins with [strand = "original"]</monitor>
+    <note x="334" y="325" height="18" color="54.0" transparent="true" fontSize="9" width="87"><![CDATA[DNA-->mRNA]]></note>
+    <note x="312" y="12" height="28" color="103.0" transparent="true" fontSize="11" width="134">Original DNA in old cell</note>
+    <note x="272" y="8" height="34" color="14.0" transparent="true" fontSize="16" width="50"><![CDATA[<--]]></note>
+    <switch x="130" y="245" height="33" on="true" variable="show-genes?" width="130" display="show-genes?"></switch>
+    <button x="5" y="395" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="250" display="10.  show protein production summary">show-protein-production</button>
+    <note x="262" y="195" height="21" color="14.0" transparent="true" fontSize="16" width="20"> V</note>
+    <note x="270" y="18" height="186" color="14.0" transparent="true" fontSize="14" width="15">|
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|</note>
+    <note x="274" y="261" height="20" color="14.0" transparent="true" fontSize="16" width="43"><![CDATA[-->]]></note>
+    <note x="270" y="243" height="31" color="14.0" transparent="true" fontSize="14" width="15">|
+</note>
+    <note x="267" y="256" height="20" color="14.0" transparent="true" fontSize="16" width="15">V</note>
+    <button x="145" y="50" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="110" display="next instruction">next-instruction</button>
+    <button x="5" y="50" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="140" display="previous instruction">previous-instruction</button>
+    <monitor x="165" precision="17" y="10" height="41" fontSize="10" width="90" display="instruction #">current-instruction-label</monitor>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This model allows you to explore the effects of deletion, substitution, and insertion mutations on a single strand of DNA and the subsequent outcomes in related protein synthesis in cells.  The model represents effects from mutations that include 1) the number of genes that are encoded in the DNA, 2) the mRNA molecules that are transcribed, and 3) the tRNA molecules that are used to transcribe the mRNA into an amino acid chain, as wells as 4) the subsequent protein that is synthesized.
+
+## HOW IT WORKS
+
+In this model nucleotides are molecules, that when joined together, make up the structural units of DNA.  Visually this appears as single nitrogen base (represented as a colored polygon) and 1 phosphate group (represented as a yellow circle).  Only a single strand of the double stranded DNA molecule is show in this model, as the protein synthesis process starts with the doubled stranded DNA being unwound into two single strands to permit mRNA production.
+
+The nitrogen bases for DNA come in four variations: ([A]denine, [G]uanine, [T]hymine, [C]ytosine) bound to a ribose or deoxyribose backbone.
+
+The same nitrogen bases are used for mRNA and tRNA, as for DNA, except no [T]hymine is used.  Instead it is replaced with [U]racil.
+
+Genes start locations in DNA in this model don't use promoters to initiate transcription of a particular gene, like they do in reality.  Rather, the start codon (encoded by a three letter sequence of nucleotides [ATG], when read from a particular direction),  signals the start of transcription for mRNA.  In reality, ATG start condons are the first codon in mRNA that is translated by ribosome.  Therefore, in reality mRNA often contains additional non-translated nucleotides, before the start codon in mRNA and additional non-translated nucleotides after the stop codons in mRNA.
+
+In this model, however, that complexity of additional "dangling" non-transcribed mRNA has been eliminated by setting the start codon as the site for transcription of DNA to mRNA and the stop codon as the site for ending transcription of DNA to mRNA as well.
+
+In this model, transcription reading of DNA occurs from left to right.   Gene stop locations are encoded either by the first three letter sequence (either [] or [] or []) that is encountered, which is the same reading frame as the ATG sequence at the start of the gene.  Reading frames may be shifted by 0, 1, or 2 nucleotides from the start of the gene.  Stop signals have three possible three nucleotides sequences ([TAG], [TGA], or [TAA])
+
+If the first letter of the three letter sequence for stop has any multiple of 3 nucleotides between it and the last letter of the ATG marking the start, then it is in the same frame of reference and will apply as a stop signal for this gene.  If not, the stop signal is ignored.  If no stop signal is found in the DNA, the gene end will continue until end of the entire DNA strand (the far right side of the DNA in this model).
+
+
+In order for DNA to produce proteins for each gene, the following four steps must be followed by the user, after GO/STOP is pressed to start running the model.
+
+1.  For each gene an mRNA molecule must be transcribed.  This is done by pressing the  1-TRANSCRIBE for genes in the original strand of DNA or 6-TRANSCRIBE for the genes in the duplicated strand of DNA.  Each time this button is pressed, the next gene in the strand of DNA will be transcribed.  When the last gene is reached, then the next gene chosen to transcribe will be the first gene (reading from left to right).
+
+2.  For each mRNA molecule that was transcribed in the original DNA, the 2-RELEASE button must be pressed.  For each mRNA molecule that was transcribed in the duplicated DNA, the 7-RELEASE button must be pressed.  This simulates the release of the mRNA from the nucleus into the ribosome of the cell.
+
+3.  Once the mRNA has finished moving in to the ribosome, the 3-TRANSLATE button must be pressed to translate the mRNA in the original cell and the 8-TRANSLATE button must be pressed to translate the mRNA in the replicated cell.  This pairs a tRNA molecule with each set of three nucleotides in the mRNA molecule.
+
+4.  Once the entire mRNA molecule has been paired with tRNA, the 4-RELEASE button must be pressed to release the amino acid chain from that attached to the tRNA chain in the original cell.  And the 9-RELEASE button must be pressed to release it in the replicated cell.  This amino-acid chain is the protein molecule before it folds up to take on its tertiary structure.
+
+## HOW TO USE IT
+
+NEXT-INSTRUCTION button moves the text in the instruction window forward one "page".
+
+PREVIOUS-INSTRUCTION button moves the text in the instruction window back one "page".
+
+INSTRUCTION # reports the "page" of text in the instruction window being displayed.  These are each of the pages of instructions that the user can page through as they run the model:
+
+Instruction 1: You will be simulating the process of protein synthesis from DNA that occurs in every cell and the effects of mutations on the proteins that are produced.
+
+Instruction 2: When you press SETUP, a single strand of an unwound DNA molecule appears. This represents the state of DNA in the cell nucleus during transcription.
+
+Instruction 3: To produce proteins, each gene in the original DNA strand must be transcribed  into an mRNA molecule.  Do this by pressing  the 1-TRANSCRIBE button.
+
+Instruction 4: For each mRNA molecule that was transcribed, press the 2-RELEASE button.  This releases the mRNA from the nucleus  into the ribosome of the cell.
+
+Instruction 5: For each mRNA molecule in the ribosome, press the 3-TRANSLATE button.  This pairs up tRNA molecules with each set of three nucleotides  in the mRNA molecule.
+
+Instruction 6: For each tRNA chain built, press the 4-RELEASE button.  This releases the amino acid chain from the rest of the tRNA chain, leaving behind the protein molecule that is produced.
+
+Instruction 7: Each time the 1-TRANSCRIBE button is pressed, the next gene in the original strand of DNA will be transcribed.  Press the 1-, 2-, 3-, 4-, buttons and repeat to translate each subsequent gene into a protein.
+
+Instruction 8: When you press the 5-REPLICATE THE ORIGINAL DNA button a copy of the original DNA will be generated for a new cell (as in mitosis or meiosis) and appear in the green.
+
+Instruction 9: The replicated DNA will have a number of random mutations, set by #-NUCLEOTIDES-AFFECTED, each mutation of the type set by MUTATION-TYPE. Press button 5-REPLICATE THE ORIGINAL DNA  again to explore possible outcomes.
+
+Instruction 10: Now repeat the same transcription, release, translation, and release process for the DNA in this new cell.  To do that, press 6-, 7-, 8-, 9- buttons.  Again repeat that sequence to cycle through each gene in this mutated DNA.
+
+Instruction 11: If you want to test the outcomes for your own DNA code, type any sequence of A, G, T, C in the USER-CREATED-CODE  box and set the INITIAL-DNA-STRING
+to “from-user-code”.  The default is set to "AAAAA", but any sequence of letters can be processed.  Strings longer than 64 letters will be trimmed to the first 64 letters and letters that are not A, G, T, or C, will be randomly replaced by one of these letters.
+
+
+Other Setting Information:
+
+SHOW-GENES? controls whether the start and end codons for each gene are visibly tagged in the DNA.
+
+INITIAL-DNA-STRING can be set to "from user-created-code" (see above), or to any of the following: "no genes (short strand)", "no genes (long strand)", "1 short gene", "1 long gene", "2 sequential genes", "2 nested genes", "3 sequential genes", "random (short strand)", "random (long strand)".  Both random settings are fixed length, but random code in that length of DNA.
+
+Buttons 1-4 affect the original cell's DNA.
+Button 5 affects the duplicated DNA that ends up in the new cell
+Buttons 6-9 affect the duplicated cell's DNA
+
+The 10-SHOW PRODUCTION SUMMARY button reports all the proteins that produced in both the original cell and in the duplicated cell.
+
+MUTATION-TYPE can be set to deletion, insertion or substitution.  The number of nucleotides affected is set by #-NUCLEOTIDES-AFFECTED.  So 6 substitutions will place 6 random nucleotides in place of back to back sequence of 6 original nucleotides at a random location in the DNA.  And 4 insertions will add 4 random nucleotides in sequence at a random location in the DNA.  And 3 deletions will delete 3 random nucleotides in sequence at a random location in the DNA.
+
+## THINGS TO NOTICE
+
+Sometimes the end location for 1 gene is the same as for another gene.  This may make it hard to distinguish the numbering of each of the tags for these end locations, since when they are stacked on top of each other at the same location, their text and colors overlap.
+
+Some mutations introduce brand new genes into a strand of DNA.  Some mutations remove an entire gene in a strand of DNA.  Some only affect a few of the amino acids that used in protein synthesis.  Others affect many.  And some mutation affect the non-coding regions of DNA, resulting in no effects in the proteins produced by the cell.
+
+## THINGS TO TRY
+
+Start with a section of DNA with no genes.  How often does a mutation result in the emergence of new gene?
+
+Start with a section of DNA with one or more genes.  How often does a mutation result in the disappearance of an old gene?
+
+Are there certain types of mutations (deletion, insertion, or substitution) that seem to affect the structure of the resulting protein more than others?
+
+Why do certain numbers of nucleotides affected (e.g. 3 and 6) seem to affect some aspects of the genes more frequently and not others?
+
+## EXTENDING THE MODEL
+
+A representation of protein folding could be added to the model (where each neighboring amino acid affects the amount of relative change in orientation to the previous amino acid).
+
+## NETLOGO FEATURES
+
+The model makes use of transparency features in the color channel for the shapes of the start and stop codons in order to allow the user to see the DNA structure beneath them.
+
+The model makes use of "tag" turtles.  These breeds of turtles have no visible shape, but do have text labels displayed.  They are placed at a fine tuned position near the visible turtle it is helping provide a label for and is linked to it.
+
+## RELATED MODELS
+
+DNA Replication Fork is the precursor model to this one.  It shows how two types of mutations (deletion and substitution) cam emerge when DNA is duplicated in mitosis or meiosis through simple unintentional copying errors.
+
+## CREDITS AND REFERENCES
+
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/rp/beagle/index.shtml)
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Novak, M. and Wilensky, U. (2012).  NetLogo DNA Protein Synthesis model.  http://ccl.northwestern.edu/netlogo/models/DNAProteinSynthesis.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2012 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2012 Cite: Novak, M. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="false"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="150"></point>
+        <point x="165" y="165"></point>
+        <point x="165" y="195"></point>
+        <point x="180" y="195"></point>
+        <point x="180" y="225"></point>
+        <point x="195" y="225"></point>
+        <point x="195" y="255"></point>
+        <point x="210" y="255"></point>
+        <point x="210" y="285"></point>
+        <point x="165" y="285"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="255"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="150"></point>
+        <point x="135" y="165"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="195"></point>
+        <point x="120" y="225"></point>
+        <point x="105" y="225"></point>
+        <point x="105" y="255"></point>
+        <point x="90" y="255"></point>
+        <point x="90" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="amino acid" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="105" y="135"></point>
+        <point x="150" y="165"></point>
+        <point x="195" y="135"></point>
+        <point x="195" y="90"></point>
+        <point x="150" y="60"></point>
+        <point x="105" y="90"></point>
+        <point x="105" y="135"></point>
+      </polygon>
+      <line endX="150" startY="210" marked="true" color="-1920102913" endY="180" startX="150"></line>
+      <line endX="195" startY="255" marked="true" color="-1920102913" endY="255" startX="120"></line>
+      <line endX="150" startY="240" marked="true" color="-1920102913" endY="210" startX="150"></line>
+      <circle x="135" y="240" marked="true" color="-1920102913" diameter="30" filled="true"></circle>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="255" y="255"></point>
+        <point x="240" y="270"></point>
+        <point x="195" y="270"></point>
+        <point x="180" y="255"></point>
+        <point x="195" y="240"></point>
+        <point x="240" y="240"></point>
+      </polygon>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="45" y="255"></point>
+        <point x="60" y="270"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="240"></point>
+        <point x="60" y="240"></point>
+      </polygon>
+      <circle x="135" y="195" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+      <circle x="135" y="150" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+      <circle x="90" y="120" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+      <circle x="90" y="75" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+      <circle x="135" y="45" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+      <circle x="180" y="120" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="amino-ala" rotatable="true" editableColorIndex="0">
+      <line endX="194" startY="259" marked="true" color="-1920102913" endY="259" startX="119"></line>
+      <line endX="150" startY="253" marked="true" color="-1920102913" endY="225" startX="149"></line>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="248" y="259"></point>
+        <point x="233" y="274"></point>
+        <point x="188" y="274"></point>
+        <point x="173" y="259"></point>
+        <point x="188" y="244"></point>
+        <point x="233" y="244"></point>
+      </polygon>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="53" y="259"></point>
+        <point x="68" y="274"></point>
+        <point x="113" y="274"></point>
+        <point x="128" y="259"></point>
+        <point x="113" y="244"></point>
+        <point x="68" y="244"></point>
+      </polygon>
+      <circle x="138" y="214" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="138" y="248" marked="true" color="-1920102913" diameter="24" filled="true"></circle>
+    </shape>
+    <shape name="amino-arg" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="75" marked="true" color="-1920102913" endY="75" startX="120"></line>
+      <line endX="194" startY="259" marked="true" color="-1920102913" endY="259" startX="119"></line>
+      <line endX="150" startY="253" marked="true" color="-1920102913" endY="45" startX="149"></line>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="247" y="259"></point>
+        <point x="232" y="274"></point>
+        <point x="187" y="274"></point>
+        <point x="172" y="259"></point>
+        <point x="187" y="244"></point>
+        <point x="232" y="244"></point>
+      </polygon>
+      <circle x="138" y="214" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="138" y="248" marked="true" color="-1920102913" diameter="24" filled="true"></circle>
+      <circle x="137" y="176" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="138" y="102" marked="false" color="-303222273" diameter="24" filled="true"></circle>
+      <circle x="138" y="139" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="53" y="259"></point>
+        <point x="68" y="274"></point>
+        <point x="113" y="274"></point>
+        <point x="128" y="259"></point>
+        <point x="113" y="244"></point>
+        <point x="68" y="244"></point>
+      </polygon>
+      <circle x="138" y="64" marked="true" color="-1920102913" diameter="24" filled="true"></circle>
+      <circle x="108" y="64" marked="false" color="-303222273" diameter="24" filled="true"></circle>
+      <circle x="138" y="27" marked="false" color="-303222273" diameter="24" filled="true"></circle>
+    </shape>
+    <shape name="amino-asn" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="187" marked="true" color="-1920102913" endY="187" startX="120"></line>
+      <line endX="194" startY="259" marked="true" color="-1920102913" endY="259" startX="119"></line>
+      <line endX="150" startY="253" marked="true" color="-1920102913" endY="150" startX="149"></line>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="247" y="259"></point>
+        <point x="232" y="274"></point>
+        <point x="187" y="274"></point>
+        <point x="172" y="259"></point>
+        <point x="187" y="244"></point>
+        <point x="232" y="244"></point>
+      </polygon>
+      <circle x="138" y="214" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="138" y="248" marked="true" color="-1920102913" diameter="24" filled="true"></circle>
+      <circle x="137" y="176" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="138" y="139" marked="false" color="-303222273" diameter="24" filled="true"></circle>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="53" y="259"></point>
+        <point x="68" y="274"></point>
+        <point x="113" y="274"></point>
+        <point x="128" y="259"></point>
+        <point x="113" y="244"></point>
+        <point x="68" y="244"></point>
+      </polygon>
+      <circle x="106" y="175" marked="false" color="764264191" diameter="24" filled="true"></circle>
+    </shape>
+    <shape name="amino-asp" rotatable="true" editableColorIndex="0">
+      <line endX="194" startY="259" marked="true" color="-1920102913" endY="259" startX="119"></line>
+      <line endX="150" startY="253" marked="true" color="-1920102913" endY="120" startX="149"></line>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="247" y="259"></point>
+        <point x="232" y="274"></point>
+        <point x="187" y="274"></point>
+        <point x="172" y="259"></point>
+        <point x="187" y="244"></point>
+        <point x="232" y="244"></point>
+      </polygon>
+      <circle x="138" y="214" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="138" y="248" marked="true" color="-1920102913" diameter="24" filled="true"></circle>
+      <circle x="137" y="176" marked="true" color="-1920102913" diameter="24" filled="true"></circle>
+      <circle x="138" y="102" marked="false" color="764264191" diameter="24" filled="true"></circle>
+      <circle x="138" y="139" marked="false" color="764264191" diameter="24" filled="true"></circle>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="53" y="259"></point>
+        <point x="68" y="274"></point>
+        <point x="113" y="274"></point>
+        <point x="128" y="259"></point>
+        <point x="113" y="244"></point>
+        <point x="68" y="244"></point>
+      </polygon>
+    </shape>
+    <shape name="amino-cys" rotatable="true" editableColorIndex="0">
+      <line endX="194" startY="259" marked="true" color="-1920102913" endY="259" startX="119"></line>
+      <line endX="150" startY="253" marked="true" color="-1920102913" endY="180" startX="149"></line>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="247" y="259"></point>
+        <point x="232" y="274"></point>
+        <point x="187" y="274"></point>
+        <point x="172" y="259"></point>
+        <point x="187" y="244"></point>
+        <point x="232" y="244"></point>
+      </polygon>
+      <circle x="138" y="214" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="138" y="248" marked="true" color="-1920102913" diameter="24" filled="true"></circle>
+      <circle x="137" y="176" marked="false" color="751909887" diameter="24" filled="true"></circle>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="53" y="259"></point>
+        <point x="68" y="274"></point>
+        <point x="113" y="274"></point>
+        <point x="128" y="259"></point>
+        <point x="113" y="244"></point>
+        <point x="68" y="244"></point>
+      </polygon>
+    </shape>
+    <shape name="amino-gln" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="150" marked="true" color="-1920102913" endY="150" startX="120"></line>
+      <line endX="194" startY="259" marked="true" color="-1920102913" endY="259" startX="119"></line>
+      <line endX="150" startY="253" marked="true" color="-1920102913" endY="120" startX="149"></line>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="247" y="259"></point>
+        <point x="232" y="274"></point>
+        <point x="187" y="274"></point>
+        <point x="172" y="259"></point>
+        <point x="187" y="244"></point>
+        <point x="232" y="244"></point>
+      </polygon>
+      <circle x="138" y="214" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="138" y="248" marked="true" color="-1920102913" diameter="24" filled="true"></circle>
+      <circle x="137" y="176" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="138" y="102" marked="false" color="-303222273" diameter="24" filled="true"></circle>
+      <circle x="138" y="139" marked="true" color="-1920102913" diameter="24" filled="true"></circle>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="53" y="259"></point>
+        <point x="68" y="274"></point>
+        <point x="113" y="274"></point>
+        <point x="128" y="259"></point>
+        <point x="113" y="244"></point>
+        <point x="68" y="244"></point>
+      </polygon>
+      <circle x="108" y="139" marked="false" color="764264191" diameter="24" filled="true"></circle>
+    </shape>
+    <shape name="amino-glu" rotatable="true" editableColorIndex="0">
+      <line endX="194" startY="259" marked="true" color="-1920102913" endY="259" startX="119"></line>
+      <line endX="150" startY="253" marked="true" color="-1920102913" endY="75" startX="149"></line>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="247" y="259"></point>
+        <point x="232" y="274"></point>
+        <point x="187" y="274"></point>
+        <point x="172" y="259"></point>
+        <point x="187" y="244"></point>
+        <point x="232" y="244"></point>
+      </polygon>
+      <circle x="138" y="214" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="138" y="248" marked="true" color="-1920102913" diameter="24" filled="true"></circle>
+      <circle x="137" y="176" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="138" y="102" marked="false" color="764264191" diameter="24" filled="true"></circle>
+      <circle x="138" y="139" marked="true" color="-1920102913" diameter="24" filled="true"></circle>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="53" y="259"></point>
+        <point x="68" y="274"></point>
+        <point x="113" y="274"></point>
+        <point x="128" y="259"></point>
+        <point x="113" y="244"></point>
+        <point x="68" y="244"></point>
+      </polygon>
+      <circle x="138" y="64" marked="false" color="764264191" diameter="24" filled="true"></circle>
+    </shape>
+    <shape name="amino-gly" rotatable="true" editableColorIndex="0">
+      <line endX="194" startY="259" marked="true" color="-1920102913" endY="259" startX="119"></line>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="248" y="259"></point>
+        <point x="233" y="274"></point>
+        <point x="188" y="274"></point>
+        <point x="173" y="259"></point>
+        <point x="188" y="244"></point>
+        <point x="233" y="244"></point>
+      </polygon>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="53" y="259"></point>
+        <point x="68" y="274"></point>
+        <point x="113" y="274"></point>
+        <point x="128" y="259"></point>
+        <point x="113" y="244"></point>
+        <point x="68" y="244"></point>
+      </polygon>
+      <circle x="138" y="248" marked="true" color="-1920102913" diameter="24" filled="true"></circle>
+    </shape>
+    <shape name="amino-his" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="195" y="225"></point>
+        <point x="240" y="225"></point>
+        <point x="255" y="180"></point>
+        <point x="217" y="154"></point>
+        <point x="180" y="180"></point>
+      </polygon>
+      <line endX="195" startY="225" marked="true" color="-1920102913" endY="225" startX="150"></line>
+      <line endX="194" startY="259" marked="true" color="-1920102913" endY="259" startX="119"></line>
+      <line endX="150" startY="253" marked="true" color="-1920102913" endY="225" startX="149"></line>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="248" y="259"></point>
+        <point x="233" y="274"></point>
+        <point x="188" y="274"></point>
+        <point x="173" y="259"></point>
+        <point x="188" y="244"></point>
+        <point x="233" y="244"></point>
+      </polygon>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="53" y="259"></point>
+        <point x="68" y="274"></point>
+        <point x="113" y="274"></point>
+        <point x="128" y="259"></point>
+        <point x="113" y="244"></point>
+        <point x="68" y="244"></point>
+      </polygon>
+      <circle x="138" y="214" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="138" y="248" marked="true" color="-1920102913" diameter="24" filled="true"></circle>
+      <circle x="183" y="214" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="228" y="214" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="243" y="169" marked="false" color="-303222273" diameter="24" filled="true"></circle>
+      <circle x="168" y="169" marked="false" color="-303222273" diameter="24" filled="true"></circle>
+      <circle x="206" y="143" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+    </shape>
+    <shape name="amino-ile" rotatable="true" editableColorIndex="0">
+      <line endX="151" startY="226" marked="true" color="-1920102913" endY="226" startX="121"></line>
+      <line endX="194" startY="259" marked="true" color="-1920102913" endY="259" startX="119"></line>
+      <line endX="150" startY="253" marked="true" color="-1920102913" endY="150" startX="149"></line>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="247" y="259"></point>
+        <point x="232" y="274"></point>
+        <point x="187" y="274"></point>
+        <point x="172" y="259"></point>
+        <point x="187" y="244"></point>
+        <point x="232" y="244"></point>
+      </polygon>
+      <circle x="138" y="214" marked="true" color="-1920102913" diameter="24" filled="true"></circle>
+      <circle x="138" y="248" marked="true" color="-1920102913" diameter="24" filled="true"></circle>
+      <circle x="137" y="176" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="138" y="139" marked="false" color="-303222273" diameter="24" filled="true"></circle>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="53" y="259"></point>
+        <point x="68" y="274"></point>
+        <point x="113" y="274"></point>
+        <point x="128" y="259"></point>
+        <point x="113" y="244"></point>
+        <point x="68" y="244"></point>
+      </polygon>
+      <circle x="106" y="214" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+    </shape>
+    <shape name="amino-leu" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="135" marked="true" color="-1920102913" endY="165" startX="105"></line>
+      <line endX="195" startY="165" marked="true" color="-1920102913" endY="135" startX="150"></line>
+      <line endX="150" startY="210" marked="true" color="-1920102913" endY="180" startX="150"></line>
+      <line endX="195" startY="255" marked="true" color="-1920102913" endY="255" startX="120"></line>
+      <line endX="150" startY="240" marked="true" color="-1920102913" endY="210" startX="150"></line>
+      <circle x="135" y="240" marked="true" color="-1920102913" diameter="30" filled="true"></circle>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="255" y="255"></point>
+        <point x="240" y="270"></point>
+        <point x="195" y="270"></point>
+        <point x="180" y="255"></point>
+        <point x="195" y="240"></point>
+        <point x="240" y="240"></point>
+      </polygon>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="45" y="255"></point>
+        <point x="60" y="270"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="240"></point>
+        <point x="60" y="240"></point>
+      </polygon>
+      <circle x="135" y="195" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+      <circle x="135" y="150" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+      <circle x="90" y="120" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+      <circle x="180" y="120" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="amino-lys" rotatable="true" editableColorIndex="0">
+      <line endX="194" startY="259" marked="true" color="-1920102913" endY="259" startX="119"></line>
+      <line endX="150" startY="253" marked="true" color="-1920102913" endY="90" startX="149"></line>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="248" y="259"></point>
+        <point x="233" y="274"></point>
+        <point x="188" y="274"></point>
+        <point x="173" y="259"></point>
+        <point x="188" y="244"></point>
+        <point x="233" y="244"></point>
+      </polygon>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="53" y="259"></point>
+        <point x="68" y="274"></point>
+        <point x="113" y="274"></point>
+        <point x="128" y="259"></point>
+        <point x="113" y="244"></point>
+        <point x="68" y="244"></point>
+      </polygon>
+      <circle x="138" y="214" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="138" y="248" marked="true" color="-1920102913" diameter="24" filled="true"></circle>
+      <circle x="137" y="176" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="138" y="64" marked="false" color="-303222273" diameter="24" filled="true"></circle>
+      <circle x="138" y="102" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="138" y="139" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+    </shape>
+    <shape name="amino-met" rotatable="true" editableColorIndex="0">
+      <line endX="194" startY="259" marked="true" color="-1920102913" endY="259" startX="119"></line>
+      <line endX="150" startY="253" marked="true" color="-1920102913" endY="105" startX="149"></line>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="247" y="259"></point>
+        <point x="232" y="274"></point>
+        <point x="187" y="274"></point>
+        <point x="172" y="259"></point>
+        <point x="187" y="244"></point>
+        <point x="232" y="244"></point>
+      </polygon>
+      <circle x="138" y="214" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="138" y="248" marked="true" color="-1920102913" diameter="24" filled="true"></circle>
+      <circle x="137" y="176" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="138" y="102" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="138" y="139" marked="false" color="751909887" diameter="24" filled="true"></circle>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="53" y="259"></point>
+        <point x="68" y="274"></point>
+        <point x="113" y="274"></point>
+        <point x="128" y="259"></point>
+        <point x="113" y="244"></point>
+        <point x="68" y="244"></point>
+      </polygon>
+    </shape>
+    <shape name="amino-phe" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="119" y="147"></point>
+        <point x="120" y="180"></point>
+        <point x="150" y="195"></point>
+        <point x="180" y="179"></point>
+        <point x="179" y="146"></point>
+        <point x="150" y="131"></point>
+        <point x="119" y="148"></point>
+      </polygon>
+      <line endX="149" startY="224" marked="true" color="-1920102913" endY="194" startX="149"></line>
+      <line endX="194" startY="259" marked="true" color="-1920102913" endY="259" startX="119"></line>
+      <line endX="149" startY="253" marked="true" color="-1920102913" endY="223" startX="149"></line>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="248" y="259"></point>
+        <point x="233" y="274"></point>
+        <point x="188" y="274"></point>
+        <point x="173" y="259"></point>
+        <point x="188" y="244"></point>
+        <point x="233" y="244"></point>
+      </polygon>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="53" y="259"></point>
+        <point x="68" y="274"></point>
+        <point x="113" y="274"></point>
+        <point x="128" y="259"></point>
+        <point x="113" y="244"></point>
+        <point x="68" y="244"></point>
+      </polygon>
+      <circle x="138" y="214" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="138" y="248" marked="true" color="-1920102913" diameter="24" filled="true"></circle>
+      <circle x="138" y="183" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="139" y="120" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="109" y="135" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="109" y="168" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="167" y="135" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="167" y="168" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+    </shape>
+    <shape name="amino-pro" rotatable="true" editableColorIndex="0">
+      <line endX="195" startY="210" marked="true" color="-1920102913" endY="255" startX="210"></line>
+      <line endX="180" startY="210" marked="true" color="-1920102913" endY="180" startX="135"></line>
+      <line endX="210" startY="180" marked="true" color="-1920102913" endY="210" startX="165"></line>
+      <line endX="195" startY="255" marked="true" color="-1920102913" endY="255" startX="120"></line>
+      <line endX="150" startY="210" marked="true" color="-1920102913" endY="255" startX="135"></line>
+      <circle x="135" y="240" marked="true" color="-1920102913" diameter="30" filled="true"></circle>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="255" y="255"></point>
+        <point x="240" y="270"></point>
+        <point x="195" y="270"></point>
+        <point x="180" y="255"></point>
+        <point x="195" y="240"></point>
+        <point x="240" y="240"></point>
+      </polygon>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="45" y="255"></point>
+        <point x="60" y="270"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="240"></point>
+        <point x="60" y="240"></point>
+      </polygon>
+      <circle x="160" y="166" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+      <circle x="120" y="195" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+      <circle x="195" y="195" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="amino-ser" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="210" marked="true" color="-1920102913" endY="180" startX="150"></line>
+      <line endX="195" startY="255" marked="true" color="-1920102913" endY="255" startX="120"></line>
+      <line endX="150" startY="240" marked="true" color="-1920102913" endY="210" startX="150"></line>
+      <circle x="135" y="240" marked="true" color="-1920102913" diameter="30" filled="true"></circle>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="255" y="255"></point>
+        <point x="240" y="270"></point>
+        <point x="195" y="270"></point>
+        <point x="180" y="255"></point>
+        <point x="195" y="240"></point>
+        <point x="240" y="240"></point>
+      </polygon>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="45" y="255"></point>
+        <point x="60" y="270"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="240"></point>
+        <point x="60" y="240"></point>
+      </polygon>
+      <circle x="135" y="195" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+      <circle x="135" y="150" marked="false" color="-528509185" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="amino-thr" rotatable="true" editableColorIndex="0">
+      <line endX="148" startY="190" marked="true" color="-1920102913" endY="190" startX="118"></line>
+      <line endX="194" startY="259" marked="true" color="-1920102913" endY="259" startX="119"></line>
+      <line endX="150" startY="253" marked="true" color="-1920102913" endY="150" startX="149"></line>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="247" y="259"></point>
+        <point x="232" y="274"></point>
+        <point x="187" y="274"></point>
+        <point x="172" y="259"></point>
+        <point x="187" y="244"></point>
+        <point x="232" y="244"></point>
+      </polygon>
+      <circle x="138" y="214" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="138" y="248" marked="true" color="-1920102913" diameter="24" filled="true"></circle>
+      <circle x="137" y="176" marked="true" color="-1920102913" diameter="24" filled="true"></circle>
+      <circle x="138" y="139" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="53" y="259"></point>
+        <point x="68" y="274"></point>
+        <point x="113" y="274"></point>
+        <point x="128" y="259"></point>
+        <point x="113" y="244"></point>
+        <point x="68" y="244"></point>
+      </polygon>
+      <circle x="105" y="177" marked="false" color="764264191" diameter="24" filled="true"></circle>
+    </shape>
+    <shape name="amino-trp" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="204" y="137"></point>
+        <point x="181" y="163"></point>
+        <point x="181" y="194"></point>
+        <point x="225" y="195"></point>
+        <point x="226" y="161"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="224" y="162"></point>
+        <point x="225" y="195"></point>
+        <point x="255" y="210"></point>
+        <point x="285" y="195"></point>
+        <point x="284" y="161"></point>
+        <point x="255" y="146"></point>
+        <point x="224" y="163"></point>
+      </polygon>
+      <line endX="180" startY="224" marked="true" color="-1920102913" endY="197" startX="149"></line>
+      <line endX="194" startY="259" marked="true" color="-1920102913" endY="259" startX="119"></line>
+      <line endX="149" startY="253" marked="true" color="-1920102913" endY="223" startX="149"></line>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="248" y="259"></point>
+        <point x="233" y="274"></point>
+        <point x="188" y="274"></point>
+        <point x="173" y="259"></point>
+        <point x="188" y="244"></point>
+        <point x="233" y="244"></point>
+      </polygon>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="53" y="259"></point>
+        <point x="68" y="274"></point>
+        <point x="113" y="274"></point>
+        <point x="128" y="259"></point>
+        <point x="113" y="244"></point>
+        <point x="68" y="244"></point>
+      </polygon>
+      <circle x="138" y="214" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="138" y="248" marked="true" color="-1920102913" diameter="24" filled="true"></circle>
+      <circle x="243" y="198" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="244" y="135" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="214" y="150" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="214" y="183" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="272" y="150" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="272" y="183" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="169" y="183" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+      <circle x="192" y="125" marked="false" color="1422181631" diameter="24" filled="true"></circle>
+      <circle x="169" y="150" marked="false" color="-684578305" diameter="24" filled="true"></circle>
+    </shape>
+    <shape name="amino-tyr" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="60" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="105" y="135"></point>
+        <point x="150" y="165"></point>
+        <point x="195" y="135"></point>
+        <point x="195" y="90"></point>
+        <point x="150" y="60"></point>
+        <point x="105" y="90"></point>
+        <point x="105" y="135"></point>
+      </polygon>
+      <line endX="150" startY="210" marked="true" color="-1920102913" endY="180" startX="150"></line>
+      <line endX="195" startY="255" marked="true" color="-1920102913" endY="255" startX="120"></line>
+      <line endX="150" startY="240" marked="true" color="-1920102913" endY="210" startX="150"></line>
+      <circle x="135" y="240" marked="true" color="-1920102913" diameter="30" filled="true"></circle>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="255" y="255"></point>
+        <point x="240" y="270"></point>
+        <point x="195" y="270"></point>
+        <point x="180" y="255"></point>
+        <point x="195" y="240"></point>
+        <point x="240" y="240"></point>
+      </polygon>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="45" y="255"></point>
+        <point x="60" y="270"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="240"></point>
+        <point x="60" y="240"></point>
+      </polygon>
+      <circle x="135" y="195" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+      <circle x="135" y="150" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+      <circle x="90" y="120" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+      <circle x="90" y="75" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+      <circle x="135" y="0" marked="false" color="-528509185" diameter="30" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+      <circle x="180" y="120" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+      <circle x="135" y="45" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="amino-val" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="180" marked="true" color="-1920102913" endY="210" startX="105"></line>
+      <line endX="195" startY="210" marked="true" color="-1920102913" endY="180" startX="150"></line>
+      <line endX="150" startY="240" marked="true" color="-1920102913" endY="210" startX="150"></line>
+      <line endX="195" startY="255" marked="true" color="-1920102913" endY="255" startX="120"></line>
+      <line endX="150" startY="240" marked="true" color="-1920102913" endY="210" startX="150"></line>
+      <circle x="135" y="240" marked="true" color="-1920102913" diameter="30" filled="true"></circle>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="255" y="255"></point>
+        <point x="240" y="270"></point>
+        <point x="195" y="270"></point>
+        <point x="180" y="255"></point>
+        <point x="195" y="240"></point>
+        <point x="240" y="240"></point>
+      </polygon>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="45" y="255"></point>
+        <point x="60" y="270"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="240"></point>
+        <point x="60" y="240"></point>
+      </polygon>
+      <circle x="135" y="195" marked="true" color="-1920102913" diameter="30" filled="true"></circle>
+      <circle x="90" y="165" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+      <circle x="180" y="165" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="empty" rotatable="false" editableColorIndex="0"></shape>
+    <shape name="end" rotatable="false" editableColorIndex="2">
+      <polygon color="-244705793" filled="true" marked="true">
+        <point x="130" y="61"></point>
+        <point x="145" y="46"></point>
+        <point x="160" y="46"></point>
+        <point x="175" y="61"></point>
+        <point x="220" y="61"></point>
+        <point x="235" y="46"></point>
+        <point x="250" y="46"></point>
+        <point x="265" y="61"></point>
+        <point x="265" y="226"></point>
+        <point x="250" y="241"></point>
+        <point x="235" y="241"></point>
+        <point x="220" y="226"></point>
+        <point x="175" y="226"></point>
+        <point x="160" y="241"></point>
+        <point x="145" y="241"></point>
+        <point x="130" y="226"></point>
+      </polygon>
+      <polygon color="-1" filled="false" marked="false">
+        <point x="130" y="61"></point>
+        <point x="145" y="46"></point>
+        <point x="160" y="46"></point>
+        <point x="175" y="61"></point>
+        <point x="220" y="61"></point>
+        <point x="235" y="46"></point>
+        <point x="250" y="46"></point>
+        <point x="265" y="61"></point>
+        <point x="265" y="226"></point>
+        <point x="250" y="241"></point>
+        <point x="235" y="241"></point>
+        <point x="220" y="226"></point>
+        <point x="175" y="226"></point>
+        <point x="160" y="241"></point>
+        <point x="145" y="241"></point>
+        <point x="130" y="226"></point>
+      </polygon>
+    </shape>
+    <shape name="helicase" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="150"></point>
+        <point x="180" y="165"></point>
+        <point x="165" y="165"></point>
+        <point x="150" y="180"></point>
+        <point x="135" y="180"></point>
+        <point x="120" y="195"></point>
+        <point x="105" y="195"></point>
+        <point x="90" y="210"></point>
+        <point x="75" y="210"></point>
+        <point x="75" y="165"></point>
+        <point x="105" y="165"></point>
+        <point x="105" y="150"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="150"></point>
+        <point x="180" y="135"></point>
+        <point x="165" y="135"></point>
+        <point x="150" y="120"></point>
+        <point x="135" y="120"></point>
+        <point x="120" y="105"></point>
+        <point x="105" y="105"></point>
+        <point x="90" y="90"></point>
+        <point x="75" y="90"></point>
+        <point x="75" y="135"></point>
+        <point x="105" y="135"></point>
+        <point x="105" y="150"></point>
+      </polygon>
+      <circle x="117" y="117" marked="false" color="-303222273" diameter="66" filled="false"></circle>
+    </shape>
+    <shape name="helicase-expanded" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="210" y="150"></point>
+        <point x="195" y="135"></point>
+        <point x="180" y="135"></point>
+        <point x="165" y="120"></point>
+        <point x="150" y="120"></point>
+        <point x="135" y="105"></point>
+        <point x="120" y="105"></point>
+        <point x="105" y="90"></point>
+        <point x="75" y="90"></point>
+        <point x="90" y="135"></point>
+        <point x="120" y="135"></point>
+        <point x="135" y="150"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="210" y="150"></point>
+        <point x="195" y="165"></point>
+        <point x="180" y="165"></point>
+        <point x="165" y="180"></point>
+        <point x="150" y="180"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="195"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="210"></point>
+        <point x="90" y="165"></point>
+        <point x="120" y="165"></point>
+        <point x="135" y="150"></point>
+      </polygon>
+      <circle x="117" y="117" marked="false" color="-303222273" diameter="66" filled="false"></circle>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="mrna-a" rotatable="true" editableColorIndex="0">
+      <line endX="45" startY="30" marked="false" color="-528509185" endY="60" startX="75"></line>
+      <line endX="90" startY="60" marked="false" color="-528509185" endY="30" startX="120"></line>
+      <circle x="69" y="15" marked="false" color="-528509185" diameter="30" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="180"></point>
+        <point x="150" y="120"></point>
+        <point x="120" y="180"></point>
+        <point x="120" y="60"></point>
+        <point x="180" y="60"></point>
+      </polygon>
+    </shape>
+    <shape name="mrna-c" rotatable="true" editableColorIndex="0">
+      <line endX="75" startY="60" marked="false" color="-528509185" endY="30" startX="45"></line>
+      <line endX="90" startY="61" marked="false" color="-528509185" endY="31" startX="120"></line>
+      <circle x="67" y="15" marked="false" color="-528509185" diameter="30" filled="true"></circle>
+      <polygon color="1422181631" filled="true" marked="false">
+        <point x="180" y="135"></point>
+        <point x="180" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="135"></point>
+        <point x="135" y="165"></point>
+        <point x="165" y="165"></point>
+      </polygon>
+    </shape>
+    <shape name="mrna-g" rotatable="true" editableColorIndex="0">
+      <polygon color="2085659903" filled="true" marked="false">
+        <point x="120" y="60"></point>
+        <point x="120" y="165"></point>
+        <point x="135" y="135"></point>
+        <point x="165" y="135"></point>
+        <point x="180" y="165"></point>
+        <point x="180" y="60"></point>
+      </polygon>
+      <line endX="90" startY="60" marked="false" color="-528509185" endY="30" startX="120"></line>
+      <line endX="75" startY="60" marked="false" color="-528509185" endY="30" startX="45"></line>
+      <circle x="67" y="15" marked="false" color="-528509185" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="mrna-start" rotatable="false" editableColorIndex="0">
+      <polygon color="-528509185" filled="true" marked="false">
+        <point x="150" y="240"></point>
+        <point x="0" y="240"></point>
+        <point x="15" y="270"></point>
+        <point x="30" y="270"></point>
+        <point x="30" y="300"></point>
+        <point x="60" y="300"></point>
+        <point x="60" y="270"></point>
+        <point x="150" y="270"></point>
+      </polygon>
+    </shape>
+    <shape name="mrna-stop" rotatable="false" editableColorIndex="0">
+      <polygon color="-528509185" filled="true" marked="false">
+        <point x="180" y="240"></point>
+        <point x="30" y="240"></point>
+        <point x="30" y="270"></point>
+        <point x="105" y="270"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="135" y="270"></point>
+        <point x="165" y="270"></point>
+      </polygon>
+    </shape>
+    <shape name="mrna-u" rotatable="true" editableColorIndex="0">
+      <polygon color="-684578305" filled="true" marked="false">
+        <point x="120" y="60"></point>
+        <point x="120" y="120"></point>
+        <point x="150" y="180"></point>
+        <point x="180" y="120"></point>
+        <point x="180" y="60"></point>
+      </polygon>
+      <line endX="90" startY="60" marked="false" color="-528509185" endY="30" startX="120"></line>
+      <line endX="75" startY="60" marked="false" color="-528509185" endY="30" startX="45"></line>
+      <circle x="67" y="17" marked="false" color="-528509185" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="nucleoside-tri-a" rotatable="true" editableColorIndex="0">
+      <line endX="90" startY="30" marked="false" color="-1" endY="75" startX="75"></line>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="180"></point>
+        <point x="150" y="120"></point>
+        <point x="120" y="180"></point>
+        <point x="120" y="60"></point>
+        <point x="180" y="60"></point>
+      </polygon>
+      <line endX="90" startY="60" marked="false" color="-1" endY="30" startX="120"></line>
+      <line endX="75" startY="60" marked="false" color="-1" endY="75" startX="45"></line>
+      <circle x="69" y="15" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+      <circle x="69" y="60" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+      <circle x="24" y="45" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="nucleoside-tri-c" rotatable="true" editableColorIndex="0">
+      <line endX="90" startY="30" marked="false" color="-1" endY="75" startX="75"></line>
+      <line endX="90" startY="60" marked="false" color="-1" endY="30" startX="120"></line>
+      <line endX="75" startY="60" marked="false" color="-1" endY="75" startX="45"></line>
+      <circle x="69" y="15" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+      <circle x="69" y="60" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+      <circle x="24" y="45" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+      <polygon color="1422181631" filled="true" marked="false">
+        <point x="120" y="60"></point>
+        <point x="120" y="135"></point>
+        <point x="135" y="165"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="135"></point>
+        <point x="180" y="60"></point>
+      </polygon>
+    </shape>
+    <shape name="nucleoside-tri-g" rotatable="true" editableColorIndex="0">
+      <line endX="90" startY="30" marked="false" color="-1" endY="75" startX="75"></line>
+      <line endX="90" startY="60" marked="false" color="-1" endY="30" startX="120"></line>
+      <line endX="75" startY="60" marked="false" color="-1" endY="75" startX="45"></line>
+      <circle x="69" y="15" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+      <circle x="69" y="60" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+      <circle x="24" y="45" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+      <polygon color="2085659903" filled="true" marked="false">
+        <point x="120" y="60"></point>
+        <point x="120" y="165"></point>
+        <point x="135" y="135"></point>
+        <point x="165" y="135"></point>
+        <point x="180" y="165"></point>
+        <point x="180" y="60"></point>
+      </polygon>
+    </shape>
+    <shape name="nucleoside-tri-t" rotatable="true" editableColorIndex="0">
+      <line endX="90" startY="30" marked="false" color="-1" endY="75" startX="75"></line>
+      <line endX="90" startY="60" marked="false" color="-1" endY="30" startX="120"></line>
+      <line endX="75" startY="60" marked="false" color="-1" endY="75" startX="45"></line>
+      <circle x="69" y="15" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+      <circle x="69" y="60" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+      <circle x="24" y="45" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+      <polygon color="-244705793" filled="true" marked="false">
+        <point x="120" y="60"></point>
+        <point x="120" y="120"></point>
+        <point x="150" y="180"></point>
+        <point x="180" y="120"></point>
+        <point x="180" y="60"></point>
+      </polygon>
+    </shape>
+    <shape name="nucleoside-tri-u" rotatable="true" editableColorIndex="0">
+      <line endX="90" startY="30" marked="false" color="-1" endY="75" startX="75"></line>
+      <line endX="90" startY="60" marked="false" color="-1" endY="30" startX="120"></line>
+      <line endX="75" startY="60" marked="false" color="-1" endY="75" startX="45"></line>
+      <circle x="69" y="15" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+      <circle x="69" y="60" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+      <circle x="24" y="45" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+      <polygon color="-684578305" filled="true" marked="false">
+        <point x="120" y="60"></point>
+        <point x="120" y="120"></point>
+        <point x="150" y="180"></point>
+        <point x="180" y="120"></point>
+        <point x="180" y="60"></point>
+      </polygon>
+    </shape>
+    <shape name="nucleotide-a" rotatable="true" editableColorIndex="0">
+      <line endX="45" startY="30" marked="false" color="-1" endY="60" startX="75"></line>
+      <line endX="90" startY="60" marked="false" color="-1" endY="30" startX="120"></line>
+      <circle x="69" y="15" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="180"></point>
+        <point x="150" y="120"></point>
+        <point x="120" y="180"></point>
+        <point x="120" y="60"></point>
+        <point x="180" y="60"></point>
+      </polygon>
+    </shape>
+    <shape name="nucleotide-c" rotatable="true" editableColorIndex="0">
+      <line endX="75" startY="60" marked="false" color="-1" endY="30" startX="45"></line>
+      <line endX="90" startY="61" marked="false" color="-1" endY="31" startX="120"></line>
+      <circle x="67" y="15" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+      <polygon color="1422181631" filled="true" marked="false">
+        <point x="180" y="135"></point>
+        <point x="180" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="135"></point>
+        <point x="135" y="165"></point>
+        <point x="165" y="165"></point>
+      </polygon>
+    </shape>
+    <shape name="nucleotide-g" rotatable="true" editableColorIndex="0">
+      <polygon color="2085659903" filled="true" marked="false">
+        <point x="120" y="60"></point>
+        <point x="120" y="165"></point>
+        <point x="135" y="135"></point>
+        <point x="165" y="135"></point>
+        <point x="180" y="165"></point>
+        <point x="180" y="60"></point>
+      </polygon>
+      <line endX="90" startY="60" marked="false" color="-1" endY="30" startX="120"></line>
+      <line endX="75" startY="60" marked="false" color="-1" endY="30" startX="45"></line>
+      <circle x="67" y="15" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="nucleotide-t" rotatable="true" editableColorIndex="0">
+      <polygon color="-244705793" filled="true" marked="false">
+        <point x="120" y="60"></point>
+        <point x="120" y="120"></point>
+        <point x="150" y="180"></point>
+        <point x="180" y="120"></point>
+        <point x="180" y="60"></point>
+      </polygon>
+      <line endX="90" startY="60" marked="false" color="-1" endY="30" startX="120"></line>
+      <line endX="75" startY="60" marked="false" color="-1" endY="30" startX="45"></line>
+      <circle x="67" y="17" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="nucleotide-u" rotatable="true" editableColorIndex="0">
+      <polygon color="-684578305" filled="true" marked="false">
+        <point x="120" y="60"></point>
+        <point x="120" y="120"></point>
+        <point x="150" y="180"></point>
+        <point x="180" y="120"></point>
+        <point x="180" y="60"></point>
+      </polygon>
+      <line endX="90" startY="60" marked="false" color="-1" endY="30" startX="120"></line>
+      <line endX="75" startY="60" marked="false" color="-1" endY="30" startX="45"></line>
+      <circle x="67" y="17" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="nucleotide-x" rotatable="true" editableColorIndex="0">
+      <line endX="45" startY="30" marked="false" color="-1" endY="60" startX="75"></line>
+      <line endX="90" startY="60" marked="false" color="-1" endY="30" startX="120"></line>
+      <circle x="69" y="15" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="120" y="60"></point>
+        <point x="120" y="180"></point>
+        <point x="150" y="120"></point>
+        <point x="180" y="180"></point>
+        <point x="180" y="60"></point>
+      </polygon>
+    </shape>
+    <shape name="phosphate" rotatable="true" editableColorIndex="0">
+      <circle x="129" y="135" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="phosphate-pair" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="135" marked="false" color="-1" endY="150" startX="120"></line>
+      <circle x="144" y="135" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+      <circle x="99" y="120" marked="false" color="-303222273" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="polymerase-0" rotatable="false" editableColorIndex="1">
+      <polygon color="-684578305" filled="true" marked="true">
+        <point x="120" y="150"></point>
+        <point x="120" y="60"></point>
+        <point x="90" y="60"></point>
+        <point x="75" y="60"></point>
+        <point x="30" y="60"></point>
+        <point x="0" y="120"></point>
+        <point x="0" y="180"></point>
+        <point x="30" y="240"></point>
+        <point x="75" y="240"></point>
+        <point x="90" y="240"></point>
+        <point x="120" y="240"></point>
+      </polygon>
+      <rectangle endX="120" startY="0" marked="true" color="-684578305" endY="60" startX="90" filled="true"></rectangle>
+      <rectangle endX="120" startY="240" marked="true" color="-684578305" endY="300" startX="90" filled="true"></rectangle>
+      <rectangle endX="180" startY="60" marked="true" color="-684578305" endY="240" startX="120" filled="false"></rectangle>
+      <rectangle endX="300" startY="135" marked="true" color="-684578305" endY="165" startX="120" filled="true"></rectangle>
+    </shape>
+    <shape name="polymerase-1" rotatable="false" editableColorIndex="1">
+      <polygon color="-684578305" filled="true" marked="true">
+        <point x="120" y="150"></point>
+        <point x="120" y="30"></point>
+        <point x="90" y="45"></point>
+        <point x="75" y="60"></point>
+        <point x="30" y="60"></point>
+        <point x="0" y="120"></point>
+        <point x="0" y="180"></point>
+        <point x="30" y="240"></point>
+        <point x="75" y="240"></point>
+        <point x="90" y="240"></point>
+        <point x="120" y="240"></point>
+      </polygon>
+      <rectangle endX="180" startY="30" marked="true" color="-684578305" endY="60" startX="120" filled="true"></rectangle>
+      <rectangle endX="120" startY="240" marked="true" color="-684578305" endY="300" startX="90" filled="true"></rectangle>
+      <rectangle endX="180" startY="60" marked="true" color="-684578305" endY="240" startX="120" filled="false"></rectangle>
+      <rectangle endX="300" startY="135" marked="true" color="-684578305" endY="165" startX="105" filled="true"></rectangle>
+    </shape>
+    <shape name="polymerase-2" rotatable="false" editableColorIndex="1">
+      <polygon color="-684578305" filled="true" marked="true">
+        <point x="120" y="150"></point>
+        <point x="120" y="30"></point>
+        <point x="90" y="45"></point>
+        <point x="75" y="60"></point>
+        <point x="30" y="60"></point>
+        <point x="0" y="120"></point>
+        <point x="0" y="180"></point>
+        <point x="30" y="240"></point>
+        <point x="75" y="240"></point>
+        <point x="90" y="255"></point>
+        <point x="120" y="270"></point>
+      </polygon>
+      <rectangle endX="180" startY="30" marked="true" color="-684578305" endY="60" startX="120" filled="true"></rectangle>
+      <rectangle endX="180" startY="240" marked="true" color="-684578305" endY="270" startX="120" filled="true"></rectangle>
+      <line endX="180" startY="60" marked="true" color="-684578305" endY="240" startX="180"></line>
+      <rectangle endX="300" startY="135" marked="true" color="-684578305" endY="165" startX="120" filled="true"></rectangle>
+    </shape>
+    <shape name="polymerase-3" rotatable="false" editableColorIndex="1">
+      <polygon color="-684578305" filled="true" marked="true">
+        <point x="120" y="150"></point>
+        <point x="120" y="30"></point>
+        <point x="90" y="45"></point>
+        <point x="75" y="60"></point>
+        <point x="30" y="60"></point>
+        <point x="0" y="120"></point>
+        <point x="0" y="180"></point>
+        <point x="30" y="240"></point>
+        <point x="75" y="240"></point>
+        <point x="90" y="255"></point>
+        <point x="120" y="270"></point>
+      </polygon>
+      <rectangle endX="180" startY="30" marked="true" color="-684578305" endY="60" startX="120" filled="true"></rectangle>
+      <rectangle endX="180" startY="240" marked="true" color="-684578305" endY="270" startX="120" filled="true"></rectangle>
+      <rectangle endX="315" startY="135" marked="true" color="-684578305" endY="165" startX="90" filled="true"></rectangle>
+    </shape>
+    <shape name="promoter-expanded" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="150"></point>
+        <point x="135" y="135"></point>
+        <point x="120" y="135"></point>
+        <point x="105" y="120"></point>
+        <point x="90" y="120"></point>
+        <point x="75" y="105"></point>
+        <point x="60" y="105"></point>
+        <point x="45" y="90"></point>
+        <point x="15" y="90"></point>
+        <point x="30" y="135"></point>
+        <point x="60" y="135"></point>
+        <point x="75" y="150"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="150"></point>
+        <point x="135" y="165"></point>
+        <point x="120" y="165"></point>
+        <point x="105" y="180"></point>
+        <point x="90" y="180"></point>
+        <point x="75" y="195"></point>
+        <point x="60" y="195"></point>
+        <point x="45" y="210"></point>
+        <point x="15" y="210"></point>
+        <point x="30" y="165"></point>
+        <point x="60" y="165"></point>
+        <point x="75" y="150"></point>
+      </polygon>
+      <circle x="117" y="117" marked="false" color="-303222273" diameter="66" filled="false"></circle>
+    </shape>
+    <shape name="start" rotatable="false" editableColorIndex="0">
+      <rectangle endX="260" startY="46" marked="false" color="-1" endY="240" startX="125" filled="false"></rectangle>
+      <rectangle endX="260" startY="47" marked="true" color="-1920102913" endY="239" startX="126" filled="true"></rectangle>
+    </shape>
+    <shape name="target" rotatable="true" editableColorIndex="0">
+      <circle x="76" y="76" marked="true" color="-1920102913" diameter="146" filled="false"></circle>
+      <line endX="150" startY="60" marked="true" color="-1920102913" endY="105" startX="150"></line>
+      <line endX="150" startY="195" marked="true" color="-1920102913" endY="240" startX="150"></line>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="trna-a" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="60" marked="false" color="-528509185" endY="30" startX="150"></line>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="180"></point>
+        <point x="150" y="120"></point>
+        <point x="120" y="180"></point>
+        <point x="120" y="60"></point>
+        <point x="180" y="60"></point>
+      </polygon>
+    </shape>
+    <shape name="trna-c" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="61" marked="false" color="-528509185" endY="30" startX="150"></line>
+      <polygon color="1422181631" filled="true" marked="false">
+        <point x="180" y="135"></point>
+        <point x="180" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="135"></point>
+        <point x="135" y="165"></point>
+        <point x="165" y="165"></point>
+      </polygon>
+    </shape>
+    <shape name="trna-core" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="300"></point>
+        <point x="285" y="300"></point>
+        <point x="300" y="270"></point>
+        <point x="300" y="240"></point>
+        <point x="195" y="210"></point>
+        <point x="195" y="150"></point>
+        <point x="210" y="165"></point>
+        <point x="225" y="165"></point>
+        <point x="240" y="150"></point>
+        <point x="240" y="135"></point>
+        <point x="225" y="120"></point>
+        <point x="210" y="120"></point>
+        <point x="195" y="135"></point>
+        <point x="195" y="75"></point>
+        <point x="180" y="75"></point>
+        <point x="180" y="225"></point>
+        <point x="285" y="255"></point>
+        <point x="285" y="270"></point>
+        <point x="270" y="285"></point>
+        <point x="30" y="285"></point>
+        <point x="15" y="270"></point>
+        <point x="15" y="255"></point>
+        <point x="105" y="225"></point>
+        <point x="105" y="135"></point>
+        <point x="90" y="135"></point>
+        <point x="90" y="165"></point>
+        <point x="75" y="150"></point>
+        <point x="60" y="150"></point>
+        <point x="45" y="165"></point>
+        <point x="45" y="180"></point>
+        <point x="60" y="195"></point>
+        <point x="75" y="195"></point>
+        <point x="90" y="180"></point>
+        <point x="90" y="210"></point>
+        <point x="0" y="240"></point>
+        <point x="0" y="270"></point>
+      </polygon>
+    </shape>
+    <shape name="trna-g" rotatable="true" editableColorIndex="0">
+      <polygon color="2085659903" filled="true" marked="false">
+        <point x="120" y="60"></point>
+        <point x="120" y="165"></point>
+        <point x="135" y="135"></point>
+        <point x="165" y="135"></point>
+        <point x="180" y="165"></point>
+        <point x="180" y="60"></point>
+      </polygon>
+      <line endX="150" startY="60" marked="false" color="-528509185" endY="30" startX="150"></line>
+    </shape>
+    <shape name="trna-u" rotatable="true" editableColorIndex="0">
+      <polygon color="-684578305" filled="true" marked="false">
+        <point x="120" y="60"></point>
+        <point x="120" y="120"></point>
+        <point x="150" y="180"></point>
+        <point x="180" y="120"></point>
+        <point x="180" y="60"></point>
+      </polygon>
+      <line endX="150" startY="60" marked="false" color="-528509185" endY="30" startX="150"></line>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>

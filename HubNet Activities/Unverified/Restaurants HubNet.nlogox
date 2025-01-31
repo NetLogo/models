@@ -1,0 +1,1647 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="false">
+  <code><![CDATA[;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Variable and Breed declarations ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+globals [
+ day                  ;; number of days so far
+
+ ;; Color globals
+ colors               ;; list that holds the colors for the student's restaurant
+ color-names          ;; list that holds the names of the colors used for the student's restaurants
+ num-colors           ;; number of different colors in the color list
+ used-colors          ;; list that holds the colors that are already being used
+
+ ;; quick start instructions variables
+ quick-start          ;; current quickstart instruction displayed in the quickstart monitor
+ qs-item              ;; index of the current quickstart instruction
+ qs-items             ;; list of quickstart instructions
+
+ n/a                  ;; unset variable indicator
+]
+
+patches-own [ ]
+
+breed [ restaurants restaurant ]         ;; controlled by the clients
+breed [ customers customer ]             ;; created by the server
+
+customers-own [
+ ;; Customer Preferences
+ customer-cuisine        ;; the preferred cuisine type
+ customer-taste          ;; the preferred quality of the cuisine
+ customer-money          ;; the maximum amount of money the customer can spend on a meal
+
+ ;; Restaurant Appeal
+ appeal               ;; how appealing the restaurant is to the customer
+ persuaded?           ;; has the customer been persuaded to go to a restaurant
+ my-restaurant           ;; by which restaurant has the customer been persuaded
+
+ ;; Eating Patterns
+ energy               ;; amount of energy the customer has
+]
+
+restaurants-own [
+ ;; Owner Information
+ user-id              ;; unique user-id, input by the client when they log in, to identify each student's restaurant
+ auto?                ;; is the owner automated
+ bankrupt?            ;; is the owner bankrupt
+ account-balance      ;; total amount of money the owner has
+
+ ;; Ranking Statistics
+ received-rank?       ;; if given a rank, ranked? is true, otherwise false
+ rank                 ;; rank number according to account balance
+
+ ;; Restaurant Information
+ restaurant-color        ;; color of the restaurant
+
+ ;; Restaurant Taste Profile
+ restaurant-cuisine      ;; the type of cuisine the restaurant serves
+ restaurant-service      ;; the quality of the service
+ restaurant-quality      ;; the quality of the food
+ restaurant-price        ;; the price of a meal at the restaurant
+
+ ;; Restaurant Statistics
+ days-revenue         ;; amount of revenue generated so far today
+ days-cost            ;; amount of costs accumulated so far today
+ days-profit          ;; profit made so far today
+ num-customers        ;; number of customers today
+ profit-customer  ;; avg profit made per customer
+]
+
+;;;;;;;;;;;;;;;;;;;;;
+;; Setup Functions ;;
+;;;;;;;;;;;;;;;;;;;;;
+
+to startup
+  hubnet-reset
+  setup
+end
+
+;; initializes the display and
+;; set parameters for the system
+to setup
+  clear-patches
+  clear-turtles
+  clear-output
+  setup-quick-start
+  reset
+end
+
+;; initializes the display (but does not clear already created restaurants)
+to reset
+  setup-globals
+  setup-consumers
+  clear-all-plots
+  ask restaurants
+  [ reset-owner-variables ]
+  broadcast-system-info
+end
+
+;; initializes the global variables
+to setup-globals
+  reset-ticks
+  set day 0
+
+  set-default-shape customers "person"
+
+  ;; Set the available colors  and their names
+  set colors      [ lime   orange   brown   yellow  turquoise  cyan   sky   blue
+                   violet   magenta   pink  red  green  gray  12 62 102 38 ]
+  set color-names ["lime" "orange" "brown" "yellow" "turquoise" "cyan" "sky" "blue"
+                   "violet" "magenta" "pink" "red" "green" "gray" "maroon" "hunter green" "navy" "sand"]
+  set used-colors []
+  set num-colors length colors
+  set n/a "n/a"
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Customer Setup Functions ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; initializes and creates the customers
+to setup-consumers
+
+  ask customers
+  [ die ]
+
+  create-customers num-consumer
+    [ set energy consumer-energy
+    set persuaded? false
+    set my-restaurant -1
+
+    setxy random-xcor random-ycor
+
+    set appeal 0
+    let chance random 3
+
+    ;; initialize the customer's preferences
+    set customer-money (20 + random 81)
+    set customer-taste (customer-money - 20)
+    ifelse (chance = 0)
+    [ set color red
+      set customer-cuisine "American" ]
+    [ ifelse (chance = 1)
+      [ set color yellow
+        set customer-cuisine "Asian" ]
+      [ set color cyan
+        set customer-cuisine "European" ] ] ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Automated Restaurants Functions ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; creates automated owners
+to create-automated-restaurants [ number ]
+  create-restaurants number
+  [ set user-id who
+    reset-owner-variables
+    set auto? true
+    set color 32
+    set size 2
+    setup-automated-restaurant
+    setup-location ]
+end
+
+;; initializes the automated owner's variables
+to setup-automated-restaurant
+
+  let chance (random 3)
+
+  ;; initializes the automated owner's settings
+  set restaurant-service 5
+  set restaurant-quality (25 + random 50)
+  set restaurant-price (restaurant-quality + 10)
+  ifelse (chance = 0)
+  [ set restaurant-cuisine "American"
+    set shape "restaurant american" ]
+  [ ifelse (chance = 1)
+    [ set restaurant-cuisine "Asian"
+      set shape "restaurant asian" ]
+    [ set restaurant-cuisine "European"
+      set shape "restaurant european" ] ]
+end
+
+;;;;;;;;;;;;;;;;;;
+;; Setup Prompt ;;
+;;;;;;;;;;;;;;;;;;
+
+;; give the user some information about what the setup button does so they can
+;; know whether they want to proceed before actually doing the setup
+to setup-prompt
+ if user-yes-or-no? (word "The SETUP button should only be used when starting "
+             "over with a new group (such as a new set of students) since "
+             "all data is lost.  Use the RE-RUN button for continuing with "
+             "an existing group."
+             "\n\nDo you really want to setup the model?")
+ [ user-message (word "Before closing this dialog, please do the following:"
+                "\n  -Have everyone that is currently logged in, log off and "
+                "then kick all remaining clients with the HubNet Console.")
+   setup ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;; Runtime Functions ;;
+;;;;;;;;;;;;;;;;;;;;;;;
+
+to go
+  listen-to-clients
+  every .5
+  [ broadcast-system-info
+    ask restaurants with [ auto? = false ]
+    [ send-personal-info ] ]
+
+  if not any? restaurants
+  [ user-message "There are no restaurant owners. Log people in or create restaurants."
+    stop ]
+
+  ask restaurants with [ bankrupt? = false ] ;; Let the Restaurants work
+  [ serve-customers
+    attract-customers ]
+
+  ask customers ;; Move the customers
+  [ move-customers ]
+
+  if (ticks mod day-length) = 0 ;; Is it time to end the day?
+  [ set day day + 1
+   plot-disgruntled-customers
+   plot-restaurant-statistics
+   ask restaurants with [ bankrupt? = false ]
+   [ end-day ]
+   if show-rank? and any? restaurants with [auto? = false]
+    [ rank-restaurants ] ]
+  tick
+end
+
+to serve-customers ;; turtle procedure
+ let restaurant# user-id
+ let new-customers 0
+
+ ;; customers update the information of the restaurant where they have decided to dine
+ ask customers with [ (persuaded? = true) and (my-restaurant = restaurant#) ] in-radius 1
+ [ set new-customers new-customers + 1
+   set persuaded? false
+   set my-restaurant -1
+   set appeal 0
+   set energy consumer-energy ]
+
+  set num-customers (num-customers + new-customers)
+  set days-revenue (days-revenue + (new-customers * restaurant-price))
+  set days-cost round (days-cost + (new-customers * service-cost * restaurant-service) + (new-customers * quality-cost * restaurant-quality))
+  set days-profit round (days-revenue - days-cost)
+end
+
+to attract-customers ;; turtle procedure
+  let restaurant# user-id
+  let r-x xcor
+  let r-y ycor
+  let r-cuisine restaurant-cuisine
+  let adj-price (restaurant-price - 0.15 * restaurant-service)
+  let adj-quality (restaurant-quality + 0.15 * restaurant-service)
+  let util-price false
+  let util-quality false
+  let restaurant-appeal false
+
+  ;; Try and persuade customers that are within range
+  ask customers with [ (energy < consumer-threshold) and (customer-cuisine = r-cuisine) ] in-radius 7
+  [
+    set util-price (customer-money - adj-price)
+    set util-quality (adj-quality - customer-taste)
+    if (util-price >= 0) and (util-quality >= 0)
+    [
+       set restaurant-appeal (util-price + util-quality) * 5
+       if (restaurant-appeal > appeal)
+       [ set appeal restaurant-appeal
+         set persuaded? true
+         set my-restaurant restaurant#
+         facexy r-x r-y ] ] ]
+end
+
+;; makes the customers move
+to move-customers ;; customer procedure
+ if persuaded? = false
+ [ rt random-float 45 - random-float 45 ]
+ set energy energy - 1
+ fd 1
+end
+
+;; makes the owner calculate end-of-day figures and initializes
+;; the personal variables for the next day
+to end-day ;; turtle procedure
+
+  if (auto? = false)
+  [ hubnet-send user-id "Number of Customers" num-customers
+    hubnet-send user-id "Day's Profit" days-profit
+    hubnet-send user-id "Day's Revenue" days-revenue
+    hubnet-send user-id "Day's Cost" days-cost ]
+
+  set account-balance round (account-balance + days-profit)
+  set days-cost rent-cost
+  set days-revenue 0
+  set days-profit (days-revenue - days-cost)
+  set num-customers 0
+
+  if (bankruptcy?) ;; If the owner is bankrupt shut his restaurant down
+  [ if (account-balance < 0)
+  [ set bankrupt? true ] ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;; Ranking Functions ;;
+;;;;;;;;;;;;;;;;;;;;;;;
+
+;; ranks owners by their account balance. if there are three players and two of them are tied with the
+;; lower account balance, then they will both be ranked as 3rd place.
+to rank-restaurants
+  let num-ranks (length (remove-duplicates ([account-balance] of restaurants)))
+  let rank# count restaurants
+
+  repeat num-ranks
+  [ let min-rev min [account-balance] of restaurants with [not received-rank?]
+    let rankee restaurants with [account-balance = min-rev]
+    let num-tied count rankee
+    ask rankee
+    [ set rank rank#
+      set received-rank? true ]
+    set rank# rank# - num-tied ]
+
+  ask restaurants
+  [ set received-rank? false ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+;; Plotting Functions ;;
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; plot the number of disgruntled customers
+to plot-disgruntled-customers
+  set-current-plot "Disgruntled Customers"
+  plot disgruntled-consumers
+end
+
+;; plot the restaurant statistics for the user controlled restaurants
+to plot-restaurant-statistics
+    ask restaurants with [ auto? = false ]
+    [ set-current-plot "Profits"
+      set-current-plot-pen user-id
+      plot days-profit
+
+      set-current-plot "# Customers"
+      set-current-plot-pen user-id
+      plot num-customers
+    ]
+
+    set-current-plot "Profits"
+    set-current-plot-pen "avg-profit"
+    plot mean [days-profit] of restaurants
+
+    set-current-plot "# Customers"
+    set-current-plot-pen "avg-custs"
+    plot mean [num-customers] of restaurants
+
+    set-current-plot "Customer Satisfaction"
+    set-current-plot-pen "min."
+    plot min [appeal] of customers
+    set-current-plot-pen "avg."
+    plot mean [appeal] of customers
+    set-current-plot-pen "max."
+    plot max [appeal] of customers
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Calculation Functions ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; reports the number of tavern restaurants in the marketplace
+to-report american-cuisines
+  report count restaurants with [ restaurant-cuisine = "American" ]
+end
+
+;; reports the number of fine dining restaurants in the marketplace
+to-report asian-cuisines
+  report count restaurants with [ restaurant-cuisine = "Asian" ]
+end
+
+;; reports the number of fast food restaurants in the marketplace
+to-report european-cuisines
+  report count restaurants with [ restaurant-cuisine = "European" ]
+end
+
+;; reports the avg profit from all the owners on the current day
+to-report avg-profit/owner
+  report mean [ days-profit ] of restaurants
+end
+
+to-report avg-customers/owner
+  report mean [ num-customers ] of restaurants
+end
+
+;; reports the avg energy of the customers
+to-report avg-energy/customer
+  report mean [ energy ] of customers
+end
+
+;; reports the number of customers that can't find a restaurant that they want to eat at
+to-report disgruntled-consumers
+  report count customers with [ energy < 0 ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Quick Start functions ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; instructions to quickly setup the model, and clients to run this activity
+to setup-quick-start
+  set qs-item 0
+  set qs-items
+  [ "Teacher: Follow these directions to run the HubNet activity."
+    "Press the SETUP button, then Press the INITIAL LOGIN button."
+    "Everyone: Open up a HubNet Client on your machine, input the IP Address of this computer, press ENTER, type your name, and press ENTER."
+    "Teacher: Once everyone has logged in, turn off the INITIAL LOGIN button by pressing it again."
+    "Have the students acquaint themselves with their interface."
+    "Teacher: Press GO to start the simulation."
+    "Each student is a restaurateur. The customers are independent computer agents."
+    "Following are some additional features you might want to adjust for later runs:"
+    "NUM-CUSTOMERS determines the number of customers: set this before you run the game."
+    "The following conditions can be changed either before or while the game is running:"
+    "If SHOW-RANK? is on, the students are able to see their ranking amongst all restaurateurs."
+    "If BANKRUPCY? is on, then students might go bankrupt."
+    "Use the cost sliders, QUALITY-COST, SERVICE-COST and RENT-COST to adjust costs."
+    "CUSTOMER-ENERGY determines the beginning energy of the customer."
+    "CUSTOMER-THRESHOLD determines the threshold at which a customer gets hungry."
+    "To create some automated restaurants set the AUTO-RESTAURANTS slider and press CREATE-AUTOMATED-RESTAURANTS."
+    "Teacher: To rerun the activity with the same group, un-press GO, adjust settings, press RE-RUN then GO."
+    "Teacher: To start the simulation over with a new group, follow our instruction set again."]
+  set quick-start (item qs-item qs-items)
+end
+
+;; view the next item in the quickstart monitor
+to view-next
+  set qs-item qs-item + 1
+  if qs-item >= length qs-items
+  [ set qs-item length qs-items - 1 ]
+  set quick-start (item qs-item qs-items)
+end
+
+;; view the previous item in the quickstart monitor
+to view-prev
+  set qs-item qs-item - 1
+  if qs-item < 0
+  [ set qs-item 0 ]
+  set quick-start (item qs-item qs-items)
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Code for interacting with the clients ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; determines which client sent a command, and what the command was
+to listen-to-clients
+  while [ hubnet-message-waiting? ]
+  [ hubnet-fetch-message
+    ifelse hubnet-enter-message?
+    [ create-new-restaurant hubnet-message-source ]
+    [ ifelse hubnet-exit-message?
+      [ remove-restaurant hubnet-message-source ]
+      [ execute-command hubnet-message-tag ] ] ]
+end
+
+;; NetLogo knows what each student's restaurant patch is supposed to be
+;; doing based on the tag sent by the name Cuisine, Service, Price and Quality
+to execute-command [command]
+  if command = "Cuisine"
+  [ ask restaurants with [ user-id = hubnet-message-source ]
+    [ set restaurant-cuisine hubnet-message
+      ifelse (restaurant-cuisine = "American")
+      [ set shape "restaurant american" ]
+      [ ifelse (restaurant-cuisine = "Asian")
+        [ set shape "restaurant asian" ]
+        [ set shape "restaurant european" ] ] ]
+    stop ]
+  if command = "Service"
+  [ ask restaurants with [ user-id = hubnet-message-source ]
+    [ set restaurant-service hubnet-message
+      set profit-customer round (restaurant-price - ((service-cost * restaurant-service) + (quality-cost * restaurant-quality))) ]
+    stop ]
+  if command = "Quality"
+  [ ask restaurants with [ user-id = hubnet-message-source ]
+    [ set restaurant-quality hubnet-message
+      set profit-customer round (restaurant-price - ((service-cost * restaurant-service) + (quality-cost * restaurant-quality))) ]
+    stop ]
+  if command = "Price"
+  [ ask restaurants with [ user-id = hubnet-message-source ]
+    [ set restaurant-price hubnet-message
+      set profit-customer round (restaurant-price - ((service-cost * restaurant-service) + (quality-cost * restaurant-quality))) ]
+    stop ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Owner Setup Functions ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; creates a new owner
+to create-new-restaurant [ id ]
+  create-restaurants 1
+  [ set user-id id
+    set auto? false
+    reset-owner-variables
+    setup-restaurant
+    setup-location
+    send-personal-info
+  ]
+end
+
+;; sets up the owners personal variables and location
+to setup-restaurant ;; Restaurant procedure
+  let helplist remove used-colors colors
+
+  ifelse empty? helplist
+  [set restaurant-color one-of colors ]
+  [
+   set restaurant-color one-of helplist
+   set used-colors lput restaurant-color used-colors
+  ]
+  set color restaurant-color
+  set size 2
+  set shape one-of ["restaurant american" "restaurant asian" "restaurant european" ]
+  ifelse shape = "restaurant american"
+  [set restaurant-cuisine "American"]
+  [
+   ifelse shape = "restaurant asian"
+   [set restaurant-cuisine "Asian"]
+   [set restaurant-cuisine "European"]
+  ]
+  reset-owner-variables
+end
+
+;; sets up the restaurant's location and premises
+to setup-location   ;; owner procedure
+  setxy ((random (world-width - 2)) + 1)
+        ((random (world-height - 2)) + 1)
+  if any? other restaurants in-radius 3
+  [ setup-location ]
+end
+
+;; reset owners variables to initial values
+to reset-owner-variables  ;; owner procedure
+  set rank n/a
+  set received-rank? false
+  set bankrupt? false
+  set account-balance 2000
+  set days-revenue 0
+  set days-cost rent-cost
+  set days-profit 0
+  set profit-customer 100
+  set num-customers 0
+  set restaurant-price random 50
+  set restaurant-service 50 + random 50
+  set restaurant-quality 50 + random 50
+  if (auto? = false) ;; send the personal info only to clients
+  [ send-personal-info ]
+  ask restaurants with [auto? = false]
+  [
+    ;; Setup the plot pens for the restaurant
+    set-current-plot "Profits"
+    create-temporary-plot-pen user-id
+    set-plot-pen-color restaurant-color
+
+    set-current-plot "# Customers"
+    create-temporary-plot-pen user-id
+    set-plot-pen-color restaurant-color
+  ]
+end
+
+;; delete restaurant once client has exited
+to remove-restaurant [ id ] ;; owner procedure
+  let old-color false
+  ask restaurants with [user-id = id] ;; remove the owner's turtle
+  [ set old-color restaurant-color
+    die ]
+
+  if not any? restaurants with [ color = old-color ] ;; make the unused color available again
+  [ set used-colors remove (position old-color colors) used-colors ]
+end
+
+;; sends the appropriate monitor information back to the client
+to send-personal-info ;; restaurant procedure
+  hubnet-send user-id "Restaurant Color" (color->string color)
+  hubnet-send user-id "Account Balance" account-balance
+  hubnet-send user-id "Profit / Customer" profit-customer
+  hubnet-send user-id "Rank" rank
+  hubnet-send user-id "Bankrupt?" bankrupt?
+  hubnet-send user-id "Cuisine" restaurant-cuisine
+  hubnet-send user-id "Service" restaurant-service
+  hubnet-send user-id "Quality" restaurant-quality
+  hubnet-send user-id "Price" restaurant-price
+end
+
+;; returns string version of color name
+to-report color->string [ color-value ]
+  report item (position color-value colors) color-names
+end
+
+;; sends the appropriate monitor information back to one client
+to send-system-info ;; owner procedure
+  hubnet-send user-id "Day" day
+end
+
+;; broadcasts the appropriate monitor information back to all clients
+to broadcast-system-info
+  hubnet-broadcast "Day" day
+end
+
+
+; Copyright 2004 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="432" maxPycor="10" updateMode="1" wrappingAllowedX="true" y="100" frameRate="30.0" minPycor="-10" height="387" showTickCounter="true" patchSize="18.0" fontSize="10" wrappingAllowedY="true" width="386" tickCounterLabel="ticks" maxPxcor="10" minPxcor="-10"></view>
+    <slider x="3" step="1" y="95" height="33" min="0" direction="Horizontal" max="500" default="350.0" variable="num-consumer" width="155" display="num-consumer"></slider>
+    <slider x="3" step="1" y="129" height="33" min="25" direction="Horizontal" max="50" default="50.0" variable="consumer-energy" width="155" display="consumer-energy"></slider>
+    <button x="3" y="60" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="64" display="Setup">setup-prompt</button>
+    <button x="162" y="60" height="33" disableUntilTicks="false" forever="true" kind="Observer" width="65" display="Go">go</button>
+    <monitor x="3" precision="0" y="10" height="45" fontSize="11" width="816" display="Quick Start Instructions - More in Info Window">quick-start</monitor>
+    <button x="433" y="59" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="110" display="Reset Instructions">setup-quick-start</button>
+    <button x="670" y="59" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="74" display="&lt;&lt; Prev">view-prev</button>
+    <button x="745" y="59" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="74" display="Next &gt;&gt;">view-next</button>
+    <button x="68" y="60" height="33" disableUntilTicks="false" forever="true" kind="Observer" width="90" display="Initial Login">listen-to-clients</button>
+    <switch x="299" y="129" height="33" on="false" variable="bankruptcy?" width="126" display="bankruptcy?"></switch>
+    <switch x="299" y="95" height="33" on="true" variable="show-rank?" width="126" display="show-rank?"></switch>
+    <plot x="217" yMax="100.0" yAxis="$$" y="391" xMin="0.0" height="120" legend="false" xMax="20.0" autoplot="true" yMin="0.0" width="210" xAxis="Days" display="Profits">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="avg-profit">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <plot x="3" yMax="100.0" yAxis="Satis." y="269" xMin="0.0" height="120" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="212" xAxis="Day" display="Customer Satisfaction">
+      <setup></setup>
+      <update></update>
+      <pen color="-955883" legend="true" interval="1.0" mode="0" display="max.">
+        <setup></setup>
+        <update></update>
+      </pen>
+      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="avg.">
+        <setup></setup>
+        <update></update>
+      </pen>
+      <pen color="-7500403" legend="true" interval="1.0" mode="0" display="min.">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <plot x="217" yMax="100.0" yAxis="Custs." y="269" xMin="0.0" height="120" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="210" xAxis="Day" display="Disgruntled Customers">
+      <setup></setup>
+      <update></update>
+      <pen color="-13345367" legend="true" interval="1.0" mode="0" display="custs.">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <monitor x="165" precision="3" y="218" height="45" fontSize="11" width="50" display="Day">day</monitor>
+    <button x="229" y="60" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="92" display="Re-Run">reset</button>
+    <slider x="3" step="1" y="164" height="33" min="10" direction="Horizontal" max="30" default="30.0" variable="consumer-threshold" width="155" display="consumer-threshold"></slider>
+    <slider x="162" step="0.01" y="95" height="33" min="0.01" direction="Horizontal" max="0.5" default="0.2" variable="service-cost" units="$" width="133" display="service-cost"></slider>
+    <slider x="162" step="0.01" y="163" height="33" min="0.01" direction="Horizontal" max="1" default="0.2" variable="quality-cost" units="$" width="133" display="quality-cost"></slider>
+    <slider x="162" step="10" y="129" height="33" min="0" direction="Horizontal" max="200" default="100.0" variable="rent-cost" units="$" width="133" display="rent-cost"></slider>
+    <slider x="3" step="1" y="200" height="33" min="1" direction="Horizontal" max="5" default="5.0" variable="#auto-restaurants" width="155" display="#auto-restaurants"></slider>
+    <button x="3" y="234" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="154" display="Create-Restaurants">create-automated-restaurants #auto-restaurants</button>
+    <monitor x="225" precision="3" y="218" height="45" fontSize="11" width="64" display="American">american-cuisines</monitor>
+    <monitor x="291" precision="3" y="218" height="45" fontSize="11" width="64" display="Asian">asian-cuisines</monitor>
+    <monitor x="356" precision="3" y="218" height="45" fontSize="11" width="64" display="European">european-cuisines</monitor>
+    <plot x="4" yMax="100.0" yAxis="Cust." y="391" xMin="0.0" height="120" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="210" xAxis="Day" display="# Customers">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="avg-custs">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <note x="213" y="200" height="18" color="0.0" transparent="false" fontSize="11" width="217">Number of restaurants by cuisine:</note>
+    <slider x="299" step="1" y="163" height="33" min="1" direction="Horizontal" max="50" default="5.0" variable="day-length" width="126" display="day-length"></slider>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This simulates the competition in a a single industry, in this case the restaurant industry. Each restaurant is controlled by an owner trying to maximize profit. Depending on the owners' decisions, the outcome may demonstrate the Efficient Market Theorem ("Pareto efficiency"): if all the agents within a market look out for their own best interest, it will lead to the most efficient outcome. In this case it means that if the restaurant owners try to maximize their own wealth it will also maximize the customer satisfaction.
+
+## HOW IT WORKS
+
+Students act as restaurant owners. Each student is given one restaurant to control and starts with 2000 dollars in his/her account. There are computer-controlled consumers that move around and may choose to become customers in restaurants of their choice. Their color shows which food they like. For instance, a red client likes food that can be found in the red restaurants ('American' cuisine).
+
+Each day the customers decide to eat at a restaurant. In order to try and persuade the customers to come and eat at their restaurants, the owners (the students) have several options they can control: PRICE, QUALITY, SERVICE, and CUISINE. The PRICE slider sets the price of a meal at the restaurant. The QUALITY slider sets the quality of the meal at the restaurant. The SERVICE slider affects the quality of service and appeal of the restaurant (staff and decor quality). Finally the CUISINE determines the type of food the restaurant serves. The owners may change these variables freely during the day.
+
+The quality and service that restaurant offer as well as renting the space all come at a price to the restaurant owners. These prices per quality and per service are set on the server interface. At the end of the day the profit of each owner is calculated and added to his/her account balance and the process repeats.
+
+Initially, each participant will be feeling their way around the market place with different settings. Then as competition continues with each owner trying to maximize profits, the various restaurants proceed to establish themselves in the market place. While the owners continue to aggressively look to attract the most customers and maximize profits, the customers actually begin to benefit. This can be seen in the three plots: average profit (of restaurants), disgruntled customers, and customer satisfaction. The average profit of the restaurants will decrease as the competition heats up and, due to the competition, the number of disgruntled customers will drop and customer satisfaction will rise.
+
+## HOW TO USE IT
+
+Quickstart Instructions: (these instructions also appear at the top of the Interface)
+Teacher: Follow these directions to run the HubNet activity.
+Press the SETUP button, then Press the INITIAL LOGIN button.
+
+Everyone: Open up a HubNet Client on your machine, input the IP Address of this computer, press ENTER, type your name, and press ENTER.
+
+Teacher: Once everyone has logged in, turn off the INITIAL LOGIN button by pressing it again.
+Have the students acquaint themselves with their interface.
+Teacher: Press GO to start the simulation.
+Each student is a restaurateur. The customers are independent computer agents.
+Following are some additional features you might want to adjust for later runs:
+NUM-CUSTOMERS determines the number of customers: set this before you run the game.
+The following conditions can be changed either before or while the game is running:
+If SHOW-RANK? is on, the students are able to see their ranking amongst all restaurateurs.
+If BANKRUPCY? is on, then students might go bankrupt.
+Use the cost sliders, QUALITY-COST, SERVICE-COST and RENT-COST to adjust costs.
+CUSTOMER-ENERGY determines the beginning energy of the customer.
+CUSTOMER-THRESHOLD determines the threshold at which a customer gets hungry.
+To create some automated restaurants set the AUTO-RESTAURANTS slider and press CREATE-AUTOMATED-RESTAURANTS.
+Teacher: To rerun the activity with the same group, un-press GO, adjust settings, press RE-RUN then GO.
+Teacher: To start the simulation over with a new group, follow our instruction set again.
+
+Buttons:
+SETUP - clears all turtles, patches and plots.  The setup button should only be pressed when beginning a new simulation with a new group of users, otherwise all the data from the old simulation will be lost.
+INITIAL LOGIN - allows users to log into the activity without having to start the simulation.
+GO - runs the simulation.
+RE-RUN - sets up the model to be ready for another run of the simulation with the same users.
+CREATE AUTOMATED RESTAURANTS - creates as many automated restaurants as the '#AUTO-RESTAURANTS' slider is set to.
+RESET INSTRUCTIONS - resets the Quickstart instruction menu to the beginning of the instructions.
+PREV - displays the previous line of the Quickstart instructions in the monitor.
+NEXT - displays the next line of the Quickstart instructions in the monitor.
+
+Sliders:
+NUMBER-CONSUMERS - the total number of consumers in the market place.
+QUALITY-COST - the cost of increasing the quality of the restaurant.
+RENT-COST - the amount of money rent costs each day.
+SERVICE-COST - the cost increase per each point spent on service.
+CUSTOMER-THRESHOLD - the energy level at which customers become hungry.
+CUSTOMER-ENERGY - the energy level at which customers start at and are restored to after eating.
+\#AUTO-RESTAURANTS - the number of automated owners to create. (To create the owners press the CREATE AUTOMATED RESTAURANTS button after adjusting the slider).
+
+Switches:
+SHOW-RANK? - when on, ranks the restaurant owners by their account balance (the rank appears in the clients' monitors only).  When off, the ranks of the owners are not displayed in the clients' monitors.
+BANKRUPTCY? - when on, allows owners to go bankrupt when their account balance goes below zero.
+
+Monitors:
+AMERICAN CUISINES - the number of American cuisines in the market place.
+ASIAN CUISINES - the number of Asian cuisines in the market place.
+EUROPEAN CUISINES - the number of European cuisines in the market place.
+DAY - what day the simulation is in.
+
+Plots:
+CUSTOMER SATISFACTION - plots the maximum, minimum and average restaurant satisfaction of the customers.
+DISGRUNTLED CUSTOMERS - plots the number of consumers who cannot find a restaurant to their liking each day.
+PROFITS - plots the profits over a period of a day of all the user-controlled restaurants as well as an average (in black).
+\# CUSTOMERS - plots the number of customers who attended each user-controlled restaurant over the period of a day as well as an average (in black).
+
+Client Information:
+After login is completed the Restaurants client interface will appear for each of the participants, including a restaurant color which will be displayed in the RESTAURANT COLOR monitor. Participant are each credited with 2000 in their individuals accounts balance and the starting settings PRICE, QUALITY, SERVICE and RESTAURANT TYPE are set to random variables.
+
+The client interface contains a number of monitors which contain personal information regarding the participant. ACCOUNT BALANCE states the amount of money that the participant currently has, and RANK shows the participants ranking out of all the owners based on account balance when the SHOW-RANK? switch is in the 'On' position. When the BANKRUPTCY? switch is on, the BANKRUPT monitor shows whether the restaurant is bankrupt. The PROFIT / CUSTOMER monitor shows the amount of money that is made from each additional customer that the restaurant receives for the current day. DAYS REVENUE and DAYS COST show the amount of revenue and costs accumulated during the current day. The RESTAURANT PROFITS and RESTAURANT CUSTOMERS plots show graphs of all the user controlled restaurants (these two plots mirror two of the four plots on the server interface). Finally, DAY shows the day that the simulation is currently on.
+
+The participant is able to control the restaurant by using the SERVICE, PRICE, and QUALITY sliders as well as the CUISINE choice. The participant is able to change all these settings at any time during the simulation. The SERVICE slider controls the quality of the service (waiting staff) at the restaurant. By increasing the SERVICE slider customers will perceive a better meal and a lower price for the meal, all in all increasing the restaurant's appeal. The choice of CUISINE is crucial as it determines which niche the participant enters in the market. The PRICE and QUALITY sliders set the price and the quality of the meal in the restaurant.
+
+The participants can track their own progress in the RANK monitors and aim for the greatest possible account balance.
+
+## THINGS TO NOTICE
+
+The two things to notice in this simulation are in the two plots. As the simulation goes on there should be a downward trend of the avg. profit due to the increased competition between the restaurants, and more importantly there should be a constant increase in the average customer satisfaction value throughout the simulation. The maximum customer satisfaction should also increase along with the average value, the minimum is dependent however on how many automated owners are used. If the amount of actual participants is fairly low, below 7, and the rest are automated, then the minimum value will never rise, as some customers will be eating at the automated restaurants which don't change their variable. The increase of the average customer satisfaction is the important aspect as it is the emergent phenomena of the free market theorem.
+
+## THINGS TO TRY
+
+Initial Settings:
+Number-Customers: 350
+Show-Rank?: on
+Bankruptcy?: off
+
+Quality-Cost: 0.20
+Rent-Cost: 100
+Service-Cost: 0.20
+
+Customer-Threshold 30
+Customer-Energy 50
+
+Initial Run:
+The first time the simulation is run with the participants, do not allow any collusion between the participants. In other words, make sure that they at least try not to reveal their variable values to their neighbors. This will make the environment more like a free market system.
+
+However you can choose to run the simulation a second time and tell the participants that they are allowed to share their personal variables with all the other participants if they would like.
+
+What differences appear between the plots in the two different simulations? How did the ability to collude with others change the results of the second simulation?
+
+## EXTENDING THE MODEL
+
+Currently, the automated restaurants do not change their product the way that real users of this simulation so. If they did, it would allow the simulation to run smoother with a lower number of actual participants. Add code so that the automated owners will change their variables when they notice their profit decrease by a significant amount.
+
+## NETLOGO FEATURES
+
+This model uses the create-temporary-plot-pen function to plot the the day's profit for all of the user-controlled restaurants.
+
+## RELATED MODELS
+
+See the Social Science models in the NetLogo models library. 'Wealth Distribution,' for example, deals with similar content as this model -- the human economical behavior in a free market. Also see the HubNet activity 'Tragedy of the Commons' for a simulation of economical aggression under the conditions of limited resources.
+
+## CREDITS AND REFERENCES
+
+This model simulates an Economics concept associated with Vilfredo Pareto.
+See V. Pareto, Manuale d'economia politico (Milan,1906).
+
+Thanks to Ben Neidhart for his work on this model.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. (2004).  NetLogo Restaurants HubNet model.  http://ccl.northwestern.edu/netlogo/models/RestaurantsHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the HubNet software as:
+
+* Wilensky, U. & Stroup, W. (1999). HubNet. http://ccl.northwestern.edu/netlogo/hubnet.html. Center for Connected Learning and Computer-Based Modeling, Northwestern University. Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2004 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This activity and associated models and materials were created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
+
+<!-- 2004 -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="restaurant american" rotatable="false" editableColorIndex="0">
+      <circle x="88" y="13" marked="false" color="-1653716737" diameter="123" filled="true"></circle>
+      <rectangle endX="261" startY="204" marked="false" color="-1653716737" endY="275" startX="38" filled="true"></rectangle>
+      <circle x="19" y="49" marked="false" color="-1653716737" diameter="79" filled="true"></circle>
+      <circle x="200" y="49" marked="false" color="-1653716737" diameter="83" filled="true"></circle>
+      <rectangle endX="293" startY="95" marked="false" color="-244705793" endY="247" startX="8" filled="true"></rectangle>
+      <rectangle endX="253" startY="75" marked="false" color="-1" endY="117" startX="46" filled="true"></rectangle>
+      <rectangle endX="240" startY="86" marked="false" color="-244705793" endY="128" startX="57" filled="true"></rectangle>
+      <rectangle endX="269" startY="95" marked="false" color="-244705793" endY="139" startX="32" filled="true"></rectangle>
+      <rectangle endX="278" startY="236" marked="false" color="-1" endY="263" startX="23" filled="true"></rectangle>
+      <rectangle endX="286" startY="214" marked="false" color="-244705793" endY="246" startX="15" filled="true"></rectangle>
+      <rectangle endX="259" startY="237" marked="false" color="-244705793" endY="255" startX="37" filled="true"></rectangle>
+      <rectangle endX="254" startY="73" marked="false" color="-244705793" endY="110" startX="42" filled="true"></rectangle>
+      <rectangle endX="282" startY="235" marked="false" color="-244705793" endY="265" startX="18" filled="true"></rectangle>
+      <rectangle endX="283" startY="105" marked="false" color="-303222273" endY="235" startX="17" filled="true"></rectangle>
+      <rectangle endX="267" startY="225" marked="false" color="-303222273" endY="252" startX="31" filled="true"></rectangle>
+      <rectangle endX="236" startY="84" marked="false" color="-303222273" endY="119" startX="58" filled="true"></rectangle>
+      <circle x="94" y="49" marked="false" color="-303222273" diameter="110" filled="true"></circle>
+      <rectangle endX="284" startY="105" marked="false" color="-684578305" endY="235" startX="15" filled="true"></rectangle>
+      <rectangle endX="239" startY="83" marked="false" color="-684578305" endY="121" startX="55" filled="true"></rectangle>
+      <rectangle endX="270" startY="227" marked="false" color="-684578305" endY="254" startX="27" filled="true"></rectangle>
+      <circle x="96" y="41" marked="false" color="-684578305" diameter="105" filled="true"></circle>
+      <circle x="99" y="114" marked="true" color="-1920102913" diameter="95" filled="true"></circle>
+      <circle x="105" y="120" marked="false" color="255" diameter="90" filled="false"></circle>
+    </shape>
+    <shape name="restaurant asian" rotatable="false" editableColorIndex="0">
+      <circle x="88" y="13" marked="false" color="-1653716737" diameter="123" filled="true"></circle>
+      <rectangle endX="261" startY="204" marked="false" color="-1653716737" endY="275" startX="38" filled="true"></rectangle>
+      <circle x="19" y="49" marked="false" color="-1653716737" diameter="79" filled="true"></circle>
+      <circle x="200" y="49" marked="false" color="-1653716737" diameter="83" filled="true"></circle>
+      <rectangle endX="293" startY="95" marked="false" color="-244705793" endY="247" startX="8" filled="true"></rectangle>
+      <rectangle endX="253" startY="75" marked="false" color="-1" endY="117" startX="46" filled="true"></rectangle>
+      <rectangle endX="240" startY="86" marked="false" color="-244705793" endY="128" startX="57" filled="true"></rectangle>
+      <rectangle endX="269" startY="95" marked="false" color="-244705793" endY="139" startX="32" filled="true"></rectangle>
+      <rectangle endX="278" startY="236" marked="false" color="-1" endY="263" startX="23" filled="true"></rectangle>
+      <rectangle endX="286" startY="214" marked="false" color="-244705793" endY="246" startX="15" filled="true"></rectangle>
+      <rectangle endX="259" startY="237" marked="false" color="-244705793" endY="255" startX="37" filled="true"></rectangle>
+      <rectangle endX="254" startY="73" marked="false" color="-244705793" endY="110" startX="42" filled="true"></rectangle>
+      <rectangle endX="282" startY="235" marked="false" color="-244705793" endY="265" startX="18" filled="true"></rectangle>
+      <rectangle endX="283" startY="105" marked="false" color="-303222273" endY="235" startX="17" filled="true"></rectangle>
+      <rectangle endX="267" startY="225" marked="false" color="-303222273" endY="252" startX="31" filled="true"></rectangle>
+      <rectangle endX="236" startY="84" marked="false" color="-303222273" endY="119" startX="58" filled="true"></rectangle>
+      <circle x="94" y="49" marked="false" color="-303222273" diameter="110" filled="true"></circle>
+      <circle x="105" y="118" marked="true" color="-1920102913" diameter="89" filled="true"></circle>
+      <circle x="105" y="120" marked="false" color="255" diameter="90" filled="false"></circle>
+    </shape>
+    <shape name="restaurant european" rotatable="false" editableColorIndex="0">
+      <circle x="88" y="13" marked="false" color="-1653716737" diameter="123" filled="true"></circle>
+      <rectangle endX="261" startY="204" marked="false" color="-1653716737" endY="275" startX="38" filled="true"></rectangle>
+      <circle x="19" y="49" marked="false" color="-1653716737" diameter="79" filled="true"></circle>
+      <circle x="200" y="49" marked="false" color="-1653716737" diameter="83" filled="true"></circle>
+      <rectangle endX="293" startY="95" marked="false" color="-244705793" endY="247" startX="8" filled="true"></rectangle>
+      <rectangle endX="253" startY="75" marked="false" color="-1" endY="117" startX="46" filled="true"></rectangle>
+      <rectangle endX="240" startY="86" marked="false" color="-244705793" endY="128" startX="57" filled="true"></rectangle>
+      <rectangle endX="269" startY="95" marked="false" color="-244705793" endY="139" startX="32" filled="true"></rectangle>
+      <rectangle endX="278" startY="236" marked="false" color="-1" endY="263" startX="23" filled="true"></rectangle>
+      <rectangle endX="286" startY="214" marked="false" color="-244705793" endY="246" startX="15" filled="true"></rectangle>
+      <rectangle endX="259" startY="237" marked="false" color="-244705793" endY="255" startX="37" filled="true"></rectangle>
+      <rectangle endX="254" startY="73" marked="false" color="-244705793" endY="110" startX="42" filled="true"></rectangle>
+      <rectangle endX="282" startY="235" marked="false" color="-244705793" endY="265" startX="18" filled="true"></rectangle>
+      <rectangle endX="293" startY="94" marked="false" color="-684578305" endY="247" startX="7" filled="true"></rectangle>
+      <rectangle endX="254" startY="73" marked="false" color="-684578305" endY="101" startX="41" filled="true"></rectangle>
+      <rectangle endX="282" startY="243" marked="false" color="-684578305" endY="265" startX="16" filled="true"></rectangle>
+      <rectangle endX="282" startY="104" marked="false" color="1422181631" endY="238" startX="16" filled="true"></rectangle>
+      <rectangle endX="241" startY="81" marked="false" color="1422181631" endY="112" startX="52" filled="true"></rectangle>
+      <rectangle endX="270" startY="229" marked="false" color="1422181631" endY="258" startX="26" filled="true"></rectangle>
+      <circle x="101" y="46" marked="false" color="1422181631" diameter="94" filled="true"></circle>
+      <circle x="100" y="118" marked="true" color="-1920102913" diameter="93" filled="true"></circle>
+      <circle x="105" y="120" marked="false" color="255" diameter="90" filled="false"></circle>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <hubNetClient>
+    <view x="349" maxPycor="10" updateMode="1" wrappingAllowedX="true" y="11" frameRate="30.0" minPycor="-10" height="378" showTickCounter="true" patchSize="12.0" fontSize="13" wrappingAllowedY="true" width="378" tickCounterLabel="ticks" maxPxcor="10" minPxcor="-10"></view>
+    <slider x="6" step="1.0" y="167" height="33" min="1.0" direction="Horizontal" max="100.0" default="50.0" variable="Service" width="128" display="Service"></slider>
+    <slider x="6" step="1.0" y="237" height="33" min="1.0" direction="Horizontal" max="100.0" default="50.0" variable="Price" width="128" display="Price"></slider>
+    <slider x="6" step="1.0" y="202" height="33" min="1.0" direction="Horizontal" max="100.0" default="50.0" variable="Quality" width="128" display="Quality"></slider>
+    <chooser x="6" y="120" height="45" variable="Cuisine" current="0" width="128" display="Cuisine">
+      <choice type="string" value="American"></choice>
+      <choice type="string" value="Asian"></choice>
+      <choice type="string" value="European"></choice>
+    </chooser>
+    <monitor x="9" precision="0" y="10" height="49" fontSize="11" width="104" display="Restaurant Color"></monitor>
+    <monitor x="114" precision="0" y="10" height="49" fontSize="11" width="102" display="Account Balance"></monitor>
+    <monitor x="145" precision="0" y="122" height="49" fontSize="11" width="134" display="Number of Customers"></monitor>
+    <monitor x="9" precision="0" y="63" height="49" fontSize="11" width="50" display="Day"></monitor>
+    <monitor x="264" precision="0" y="64" height="49" fontSize="11" width="77" display="Day's Profit"></monitor>
+    <monitor x="218" precision="3" y="10" height="49" fontSize="11" width="63" display="Bankrupt?"></monitor>
+    <monitor x="145" precision="2" y="173" height="49" fontSize="11" width="134" display="Profit / Customer"></monitor>
+    <plot x="173" yMax="10.0" yAxis="$$" y="272" xMin="0.0" height="120" legend="false" xMax="20.0" autoplot="true" yMin="0.0" width="171" xAxis="Days" display="Profits">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="avg-profit">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <monitor x="284" precision="3" y="10" height="49" fontSize="11" width="57" display="Rank"></monitor>
+    <plot x="6" yMax="100.0" yAxis="Cust." y="272" xMin="0.0" height="120" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="164" xAxis="Day" display="# Customers">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="avg-custs">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <monitor x="86" precision="0" y="64" height="49" fontSize="11" width="97" display="Day's Revenue"></monitor>
+    <monitor x="184" precision="0" y="64" height="49" fontSize="11" width="73" display="Day's Cost"></monitor>
+  </hubNetClient>
+  <previewCommands>need-to-manually-make-preview-for-this-model</previewCommands>
+</model>

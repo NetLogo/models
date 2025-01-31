@@ -1,0 +1,1177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="false">
+  <code><![CDATA[globals [
+  energy-threshold    ;; minimum amount of energy needed by creatures to reproduce
+  all-tags            ;; sorted list of all possible tags
+]
+
+patches-own [
+  well      ;; the amount of resources a patch has
+  max-well  ;; the max amount of resources for that patch
+]
+
+turtles-own [
+  energy    ;; current resource level
+  offense   ;; offense tag
+  defense   ;; defense tag
+  mating    ;; mating tag (can be thought of as identifying a species)
+]
+
+to setup
+  clear-all
+  set energy-threshold 100
+  setup-all-tags-list
+  setup-patches
+  setup-creatures
+  reset-ticks
+end
+
+;; Creates a list of all possible tags (of length 1, 2, or 3)
+to setup-all-tags-list
+  set all-tags []
+  let tag-elements ["a" "b" "c"]
+  foreach tag-elements [ i ->
+    set all-tags lput (list i) all-tags
+    foreach tag-elements [ j ->
+      set all-tags fput (list i j) all-tags
+      foreach tag-elements [ k ->
+        set all-tags fput (list i j k) all-tags
+      ]
+    ]
+  ]
+end
+
+to setup-patches
+  ask patches [
+    set max-well random 50
+    set well max-well
+    recolor-patch
+  ]
+end
+
+to setup-creatures
+  create-turtles init-num-creatures
+  [
+    setxy random-xcor random-ycor
+    set offense one-of all-tags
+    set defense one-of all-tags
+    set mating one-of all-tags
+    set size 0.5   ;; since the patch size is so big make the turtles smaller
+    set energy random energy-threshold
+    recolor-turtle
+  ]
+end
+
+to recolor-turtle  ;; turtle procedure
+  set color tag-color mating
+  set label reduce [ [a b] -> word a b ] (sentence offense "." defense)
+end
+
+to-report tag-color [tag]
+  report 5 + 10 * position tag all-tags
+end
+
+to recolor-patch  ;; patch procedure
+   set pcolor scale-color green well 0 100
+end
+
+to go
+  if not any? turtles [ stop ]
+  ask patches [ replenish ]
+  ask turtles [ grab-resources ]
+  ask turtles [ fight ]
+  ask turtles [ reproduce ]
+  ask turtles [ move ]
+  ask turtles [ replicate ]
+  ask patches [ recolor-patch ]
+  tick
+end
+
+to replenish  ;; patch procedure
+  if well < max-well [
+    set well well + ((max-well - well) * (replenish-speed / 100))
+  ]
+end
+
+;; Get resources from the environment, if you need them.  You don't fight for these,
+;; but instead they are shared with other agents in the same location.
+to grab-resources    ;; turtle procedure
+  if (energy < energy-threshold) and (well > 0) [
+    set energy energy + ( well / count turtles-here )
+    set well well - ( well / count turtles-here )
+  ]
+end
+
+;; Try to get resources from another agent at your location.
+;; This is done by comparing tags.
+;; We compare id numbers to prevent the same pair from fighting
+;; twice during the same tick.
+to fight  ;; turtle procedure
+  let candidates turtles-here with [self > myself]
+  if any? candidates [ match-off-def self one-of candidates ]
+end
+
+;; if there are any other agents at your location, reproduce with them
+;; We compare id numbers to prevent the same pair from fighting
+;; twice during the same tick.
+to reproduce   ;; turtle procedure
+  let candidates turtles-here with [self > myself]
+  if any? candidates [ reproduce-match self one-of candidates ]
+end
+
+to move  ;; turtle procedure
+  set energy energy - 1
+  ifelse energy < 20
+    [ die ]
+    [ rt random-normal 0 20
+      fd random-float 1 ]
+end
+
+to replicate   ;; creature procedure
+  if energy > energy-threshold and random-float 100 < replicate-chance
+  [
+    set energy energy / 2  ;; give half of your energy to your offspring
+    hatch 1
+  ]
+end
+
+;; Creates offspring from mating, including selective mating
+to reproduce-match [agent1 agent2]
+  if ( [energy] of agent1 > energy-threshold ) and
+     ( [energy] of agent2 > energy-threshold )
+  [
+    if (not selective-mating?) or
+        ( ( match-score [mating] of agent1 [offense] of agent2 > mating-selectivity ) and
+          ( match-score [mating] of agent2 [offense] of agent1 > mating-selectivity ) )
+    [
+      hatch 1
+      [
+        set mating mutate cross [mating] of agent1 [mating] of agent2
+        set offense mutate cross [offense] of agent1 [offense] of agent2
+        set defense mutate cross [defense] of agent1 [defense] of agent2
+        setxy random-xcor random-ycor
+        set energy random-normal 50 20
+        recolor-turtle
+      ]
+      ask agent1 [ set energy energy / 2 ]
+      ask agent2 [ set energy energy / 2 ]
+    ]
+  ]
+end
+
+;; This crosses tags during reproduction by walking through
+;; each position of the string.  When the letters from each tag differ at a position
+;; there is an equal chance of it being either one.  When the tags are different lengths,
+;; the additional letters are just appended on to the tage of the offspring.
+to-report cross [tag1 tag2]
+  if length tag1 > length tag2
+    [ report sentence cross sublist tag1 0 length tag2 tag2 sublist tag1 length tag2 length tag1 ]
+  if length tag2 > length tag1
+    [ report sentence cross tag1 sublist tag2 0 length tag1 sublist tag2 length tag1 length tag2 ]
+  report (map [ [t1 t2] -> one-of (list t1 t2)] tag1 tag2)
+end
+
+;; Mutates a given string
+to-report mutate [tag]
+  report map [ letter ->
+    ifelse-value random-float 100 >= mutation-rate
+      [ letter ]
+      [ one-of remove letter ["a" "b" "c"] ]
+  ] tag
+end
+
+;; This procedure determines how resources are transferred between
+;; agents.  The offense tag of an agent1 is matched with the defense
+;; tag of agent 2, and the offense tag of agent2 is matched with the
+;; defense tag of agent1.
+to match-off-def [agent1 agent2]
+
+  ;; match respective offense and defense tags
+  let a1a2 match-score [offense] of agent1  [defense] of agent2
+  let a2a1 match-score [offense] of agent2  [defense] of agent1
+
+  ;; scale resulting scores so that all values are positive
+  set a1a2 a1a2 + 6
+  set a2a1 a2a1 + 6
+
+  ;; Determine how much resource is transferred between the agents.
+  ;; Each agent takes from the other based on the relative magnitude
+  ;; of its match score
+  set a1a2 (a1a2 / 12) * ([energy] of agent2)
+  set a2a1 (a2a1 / 12) * ([energy] of agent1)
+
+  ;; You win some, you lose some.
+  ask agent1 [ set energy energy + a1a2 - a2a1 ]
+  ask agent2 [ set energy energy + a2a1 - a1a2 ]
+
+end
+
+;; This reports a score that represents how well tag 1 matches tag 2.
+;; The match takes places letter by letter -- the first
+;; letters of each tag are compared, then the second letters, and so on.
+;; An adjustment is made for unequal length tags.The resulting "match-score"
+;; is ultimately used to help determine how resources are transferred between agents
+;; or the extent to which a potential mate matches an agent's mating conditions
+to-report match-score [tag1 tag2]
+  if length tag1 > length tag2
+    [ report (length tag2 - length tag1) + match-score sublist tag1 0 length tag2 tag2 ]
+  if length tag2 > length tag1
+    [ report (length tag1 - length tag2) + match-score tag1 sublist tag2 0 length tag1 ]
+  report sum (map [ [letter1 letter2] ->
+    ifelse-value letter1 = letter2 [2] [-2]
+  ] tag1 tag2)
+end
+
+
+; Copyright 2005 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="513" maxPycor="5" updateMode="1" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-5" height="449" showTickCounter="true" patchSize="40.0" fontSize="10" wrappingAllowedY="true" width="448" tickCounterLabel="ticks" maxPxcor="5" minPxcor="-5"></view>
+    <slider x="12" step="25" y="23" height="33" min="25" direction="Horizontal" max="1000" default="400.0" variable="init-num-creatures" width="176" display="init-num-creatures"></slider>
+    <button x="190" y="23" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="89">setup</button>
+    <button x="282" y="23" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="84">go</button>
+    <slider x="329" step="0.1" y="102" height="33" min="0" direction="Horizontal" max="5" default="1.0" variable="replenish-speed" width="175" display="replenish-speed"></slider>
+    <slider x="329" step="0.1" y="68" height="33" min="0" direction="Horizontal" max="10" default="0.0" variable="replicate-chance" units="%" width="175" display="replicate-chance"></slider>
+    <plot x="4" yMax="1.0" y="481" xMin="0.0" height="137" legend="true" xMax="50.0" autoplot="true" yMin="0.0" width="501" xAxis="ticks" display="Speciation">
+      <setup></setup>
+      <update></update>
+      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="species">
+        <setup></setup>
+        <update>plot length remove-duplicates [mating] of turtles</update>
+      </pen>
+      <pen color="-13345367" legend="true" interval="1.0" mode="0" display="offense">
+        <setup></setup>
+        <update>plot length remove-duplicates [offense] of turtles</update>
+      </pen>
+      <pen color="-2064490" legend="true" interval="1.0" mode="0" display="defense">
+        <setup></setup>
+        <update>plot length remove-duplicates [defense] of turtles</update>
+      </pen>
+    </plot>
+    <plot x="345" yMax="1.0" y="342" xMin="0.0" height="137" legend="false" xMax="100.0" autoplot="true" yMin="0.0" width="160" display="Species Counts">
+      <setup>set-plot-x-range 0 length all-tags</setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="1" display="default">
+        <setup></setup>
+        <update><![CDATA[;; The HISTOGRAM primitive doesn't support giving different bars
+;; different colors, so we roll our own histogramming code here.
+plot-pen-reset
+foreach all-tags [ the-tag ->
+  set-plot-pen-color tag-color the-tag
+  plot count turtles with [ mating = the-tag ]
+]]]></update>
+      </pen>
+    </plot>
+    <slider x="329" step="0.1" y="136" height="33" min="0" direction="Horizontal" max="10" default="0.0" variable="mutation-rate" units="%" width="175" display="mutation-rate"></slider>
+    <switch x="137" y="102" height="33" on="false" variable="selective-mating?" width="185" display="selective-mating?"></switch>
+    <plot x="4" yMax="1.0" y="175" xMin="0.0" height="165" legend="true" xMax="50.0" autoplot="true" yMin="0.0" width="501" xAxis="ticks" display="Populations">
+      <setup></setup>
+      <update><![CDATA[set-current-plot-pen "largest species"
+let biggest-mating modes [mating] of turtles
+ifelse (length biggest-mating > 0)
+[
+  set-plot-pen-color first modes [color] of turtles with [first biggest-mating = mating]
+  plot count turtles with [first biggest-mating = mating]
+  set-current-plot-pen "2nd largest"
+  let second-mating modes [mating] of turtles with [first biggest-mating != mating]
+  ifelse (length second-mating > 0 )
+  [
+    set-plot-pen-color first modes [color] of turtles with [first second-mating = mating]
+    plot count turtles with [first second-mating = mating]
+  ]
+  [ plot 0 ]
+ ]
+ [ plot 0 ]]]></update>
+      <pen color="-13345367" legend="true" interval="1.0" mode="0" display="largest species">
+        <setup></setup>
+        <update></update>
+      </pen>
+      <pen color="-6459832" legend="true" interval="1.0" mode="0" display="2nd largest">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <plot x="4" yMax="1.0" y="342" xMin="0.0" height="137" legend="false" xMax="39.0" autoplot="true" yMin="0.0" width="177" display="Offense Tags">
+      <setup>set-plot-x-range 0 length all-tags</setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="1" display="default">
+        <setup></setup>
+        <update>histogram [position offense all-tags] of turtles</update>
+      </pen>
+    </plot>
+    <plot x="183" yMax="1.0" y="342" xMin="0.0" height="137" legend="false" xMax="39.0" autoplot="true" yMin="0.0" width="160" display="Defense Tags">
+      <setup>set-plot-x-range 0 length all-tags</setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="1" display="default">
+        <setup></setup>
+        <update>histogram [position defense all-tags] of turtles</update>
+      </pen>
+    </plot>
+    <slider x="137" step="1" y="136" height="33" min="-6" direction="Horizontal" max="6" default="0.0" variable="mating-selectivity" width="185" display="mating-selectivity"></slider>
+    <monitor x="407" precision="17" y="266" height="45" fontSize="11" width="94" display="total pop.">count turtles</monitor>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+Echo is a model about the evolution of fitness, adapted from John Holland's book _Hidden Order_ (1995).  It can be used to facilitate experiments in a variety of domains where an agent's fitness varies with its context.  This particular adaptation of Echo  has a biological flavor and refers to the agents as "creatures", and groups of agents with identical mating preferences as "species."
+
+With Echo, Holland attempted to codify intuitions about complex adaptive systems into a more rigorous and abstract model.  Holland was inspired by notions from ecological systems research, especially with regards to the dynamics of niches.  How does a change in the population dynamics of an ecosystem create new niches and destroy old ones?  Echo was an attempt to create an abstract model that could facilitate understanding of the interplay of evolutionary and ecological processes.  In Echo, different niches are created where creatures can consume, transform, and exchange resources, but this model is not necessarily just a biological model --- it can also be viewed as a model of other phenomena like the emergence of new markets.
+
+It should be noted that Echo as laid out in _Hidden Order_ is not meant to be a specific model, but rather a framework for building models.  There are a number of mechanisms that are not fully specified in _Hidden Order_ and the description includes multiple different mechanisms that can be implemented.  As a result, there is no model which is "the Echo model" there can only be "an Echo model."  This NetLogo Echo model is one particular instantiation of this framework.
+
+## HOW IT WORKS
+
+Each agent, or creature, has two components -- a reservoir to keep resources it collects, and a chromosome that contains its genetic material and defines its capabilities.
+
+A creature expends resources moving around the world looking for resources.  A creature can gain resources either directly from its environment, or from another creature at its current location.
+
+The amount of resources gained from its environment depends on the amount of available resources and the number of other creatures at its current location.
+
+The amount of resources gained from another creature depends on the match between the creatures' chromosomes.  More precisely, a creature's chromosome is compromised of three "tags" --- an offense tag, a defense tag, and a mating condition tag -- which are represented by strings of "a's", "b's" and "c's".  The amount transferred from one creature to another depends on how closely the first creature's offense tag matches the second creature's defense tag.  However, all interactions, or "fights", between creatures are two-way exchanges --- i.e., both agents match their offense tags to the other's defense tag.  Consequently, resources can be either gained or lost on any given interaction with another agent.  For example, offense tag "aaa" of creature 1 to defense tag "aaa" of creature 2 would be a perfect match. It would entitle creature 1 to all of creature 2 resources, but the second creature could possibly get some, or even all of the resources back based on the match of his offense tag to the other agent's defense tag.
+
+If an agent's resource level drops below a minimum threshold, it dies.
+
+An agent can reproduce only if it has acquired a minimum level of resources.  Reproduction occurs in two ways:  1) simple replication, as determined by the REPLICATE-CHANCE slider, in which case the replicated agent is identical to the parent, and 2) mating with other agents.  By default, an agent can mate with any other agent, resulting in an offspring that contains a mixed set of elements, or a "cross", of both parent's chromosomes.  If the SELECTIVE-MATING? switch is enabled, an agent will not mate with just anyone, but instead only mate with agents whose offense tags match its own mating condition tag.  The similarity between the mating tag and offense tag necessary for a match to occur is determined by the MATING-SELECTIVITY slider.  With either process, it is possible that the characteristics of offspring are not an exact copy or cross of the parent's chromosomes.  Mutations can occur at a rate determined by the MUTATION-RATE slider.
+
+## HOW TO USE IT
+
+Click the SETUP button to setup the world, then click the GO button.  The agents will begin to move, exchange resources, and reproduce.  The sliders allow you to change each of the parameters of the model as described below.  The plots provide an update on the composition of the populations of agents.
+
+The agents are colored by mating tags.  Identical mating tags share the same color; mating tags that are close are similar in color; and so on.  Each creature has its offense and defense tags as its label in the format "offense-tag.defense-tag".  For example, a label of "aab.bcc" represents a creature with an offense tag of "aab" and defense tag of "bcc."
+
+The model includes the following parameters:
+
+NUM-CREATURES --- The number of agents with which to start the simulation.
+
+REPLENISH-SPEED --- The speed at which the resources in the environment replenish.
+
+REPLICATE-CHANCE --- The chance that a creature with sufficient energy will replicate.
+
+SELECTIVE-MATING? --- If 'Off' it is possible for agents to mate with any other agent that has enough energy to reproduce.  If 'On' agents will only mate with other agents whose offense tag matches their own mating tag.
+
+MATING-SELECTIVITY? --- Determines how similar a mating tag and offense tag must be in order for two agents to mate.  Higher, positive numbers are more selective.  '0' is the midpoint.
+
+MUTATION-RATE --- The rate at which a letter in the offense or defense tags of offspring may change during replication.
+
+Here are descriptions of all the plots in the model:
+
+"Offense Tags" --- A histogram of the number of each offense tag currently in existence.
+
+"Defense Tags" --- A histogram of the number of each defense tag currently in existence.
+
+"Species Counts" --- A histogram of the number of each species currently alive.  A species is defined as a group of agents that share an identical mating tag.
+
+"Populations" --- This shows the number of creatures in the two largest species currently in the world.
+
+"Speciation" --- This shows the current total number of different species, the total number of different offense tags, and the total number of different defense tags in the world.
+
+Some other options are described below in THINGS TO TRY.
+
+## THINGS TO NOTICE
+
+Populations often become dynamically stable with several species at oscillating population levels.
+
+Increasing the initial NUM-CREATURES slider does not necessarily result in a larger stable population, indeed the opposite may occur as creatures compete for limited resources.
+
+## THINGS TO TRY
+
+Change REPLENISH-SPEED to examine the impact of making resources more scarce.
+
+See what impact increasing or lowering the MUTATION-RATE and/or switching SELECTIVE-MATING? 'On' has on the number of species that ultimately survive in situation with dynamically stable populations.
+
+## EXTENDING THE MODEL
+
+Add a mechanism that allows selective interaction for the exchange of resources, in addition to selective mating.
+
+Resources could be more nuanced than the simple "energy" variable.  Certain locations in the environment could give off certain resources.  For example, every creature might need at least one "c" resource to live, but only certain wells might give resources of type "c".  Furthermore, resources could be transformed.  For example, one "a" and two "b's" could be turned into a "c" for some cost.
+
+Currently the exchange of resources between two agents is a fight --- a zero-sum exchange.  However, this interaction could be changed to an interaction where both parties can become better off --- a situation that resembles a trade more than a fight.
+
+Holland describes several additional extensions in some detail in Chapter 3 of _Hidden Order_.
+
+## EXTENDING THE MODEL (CATERPILLAR-FLY-ANT)
+
+Holland discusses an interesting example from nature that can be imitated in Echo -- the Caterpillar-Fly-Ant triangle.  The triangle refers to the stable, triangular relation between the three different species: Species 1 --  Flies lay eggs on caterpillars and become prey through their larva.  Species 2 -- Ants are aggressive predators on the flies, but not of caterpillars.  Species 3 -- Caterpillars produce nectar on their skin which ants find very attractive.  The more ants around a caterpillar the less likely it is to be attacked by a predatory fly.  This can be represented in Echo with the following tags:
+
+```text
+ ant - offense: aaa, defense: cb
+ fly - offense: aab, defense: aaa
+ caterpillar - offense: c, defense: aab
+```
+
+Notice that the ants' offense tag matches perfectly with the fly's defense tag, making it a perfect predatory on the fly.  Likewise, the fly's offense tag matches perfectly on the caterpillar making it a perfect predator on the caterpillar.  The ant consumes the nectar of the caterpillar but does not prey on the caterpillar; thus, the ant and caterpillar have tags that result in an exchange of resources.
+
+Try replicating this scenario.  You'll probably want to set SELECTIVE-MATING? to on and MATING-SELECTIVITY to a high value such as 5.  Is it possible to achieve a stable relationship between the three species?  (Are changes to the parameters and/or the rules of the model necessary...?)
+
+To get you started, here's some code for creating a roughly equal number of the three species.  (You may want to experiment with different initial proportions.)  The mating tags are completely different, to discourage interspecies mating.
+
+     create-turtles init-num-creatures
+     [
+       let choice random 3
+       if choice = 0  ; ant
+       [
+         set offense ["a" "a" "a"]
+         set defense ["c" "b"]
+         set mating  ["a" "a" "a"]
+       ]
+       if choice = 1  ; fly
+       [
+         set offense ["a" "a" "b"]
+         set defense ["a" "a" "a"]
+         set mating  ["b" "b" "b"]
+       ]
+       if choice = 2  ; caterpillar
+       [
+         set offense ["c"]
+         set defense ["a" "a" "b"]
+         set mating  ["c" "c" "c"]
+       ]
+     ]
+
+## NETLOGO FEATURES
+
+Tags are represented by lists of strings, so the code is heavily dependent on lists. `map`, `reduce`, and `foreach` are used to do list processing.
+
+## RELATED MODELS
+
+Sample Models > Biology > Evolution > (entire section)
+Sample Models > Biology > Rabbits Grass Weeds
+Sample Models > Biology > Wolf Sheep Predation
+
+## CREDITS AND REFERENCES
+
+Holland, J. (1995). _Hidden Order: How Adaptation Builds Complexity_. Addison-Wesley, Reading, Massachusetts.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. (2005).  NetLogo Echo model.  http://ccl.northwestern.edu/netlogo/models/Echo.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2005 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2005 -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>

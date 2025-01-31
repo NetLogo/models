@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[globals [
+  mammoths-killed-by-humans         ; counter to keep track of the number of mammoths killed by humans
+  mammoths-killed-by-climate-change ; counter to keep track of the number of mammoths killed by climate change
+]
+
+breed [ mammoths mammoth ]
+breed [ humans human ]
+
+humans-own [ settled? ]
+turtles-own [ age ]
+
+to setup
+
+  clear-all
+  ask patches [ set pcolor blue - 0.25 - random-float 0.25 ]
+  import-pcolors "Americas.png"
+  ask patches with [ not shade-of? blue pcolor ] [
+    ; if you're not part of the ocean, you are part of the continent
+    set pcolor green
+  ]
+
+  set-default-shape mammoths "mammoth"
+  create-mammoths number-of-mammoths [
+    set size 2
+    set color brown
+    set age random (30 * 12)  ; average mammoth age is 15
+    move-to one-of patches with [ pcolor = green ]
+  ]
+
+  set-default-shape humans "person"
+  create-humans number-of-humans [
+    set size 2
+    set color yellow
+    move-to one-of patches with [ pcolor = green and pxcor <= 10 ]
+    set heading -5 + random 10 ; generally head east
+    set settled? false
+    set age random (50 * 12) ; average human age is 25
+  ]
+
+  set mammoths-killed-by-climate-change 0
+  set mammoths-killed-by-humans 0
+
+  reset-ticks
+end
+
+to go
+
+  ask patches with [ pcolor = green ] [
+    ; at each step, patches have a small chance
+    ; to become inhospitable for mammoths
+    if random-float 100 < climate-change-decay-chance [
+      set pcolor green + 3
+    ]
+  ]
+
+  ; mammoths move and reproduce
+  ask mammoths [
+    move mammoth-speed
+    ; mammoths reproduce after age 3
+    reproduce (3 * 12) mammoth-birth-rate
+  ]
+  ; humans decide whether to move or settle where
+  ; they are, and then they hunt and reproduce
+  ask humans [
+    let mammoths-nearby mammoths in-radius 5
+    ; humans have a chance of settling proportional to the
+    ; number of mammoths in their immediate vicinity
+    if not settled? and random 100 < count mammoths-nearby [
+      set settled? true
+    ]
+    if not settled? [
+      if any? mammoths-nearby [
+        face min-one-of mammoths-nearby [ distance myself ]
+      ]
+      move human-speed
+    ]
+    if any? mammoths-here [
+      let r random 100
+      if r < 3 [ die ] ; mammoths have a 3% chance of killing the human
+      if r < 3 + odds-of-killing [
+        ask one-of mammoths-here [ die ] ; successfully hunt a mammoth!
+        set mammoths-killed-by-humans mammoths-killed-by-humans + 1
+      ]
+    ]
+    reproduce (12 * 12) human-birth-rate ; humans reproduce after age 12
+  ]
+  die-naturally ; mammoths and humans die if they're old or crowded
+  ask turtles [ set age age + 1 ]
+  tick
+end
+
+to move [ dist ] ; human or mammoth procedure
+  right random 30
+  left random 30
+  ; avoid moving into the ocean or outside the world by turning
+  ; left (-10) or right (10) until the patch ahead is not an ocean patch
+  let turn one-of [ -10 10 ]
+  while [ not land-ahead dist ] [
+    set heading heading + turn
+  ]
+  forward dist
+end
+
+to-report land-ahead [ dist ]
+  let target patch-ahead dist
+  report target != nobody and shade-of? green [ pcolor ] of target
+end
+
+to reproduce [ min-age birth-rate ]
+  if age >= min-age and random 100 < birth-rate [
+    hatch 1 [
+      set age 0
+      if breed = humans [ set settled? false ]
+    ]
+  ]
+end
+
+to die-naturally
+
+  ask humans [
+    ; humans have a 5% chance of dying if they're over 50
+    if age > 50 * 12 and random-float 100 < 5 [ die ]
+    ; they also get another 5% chance of dying if their density is too high
+    if density > 0.75 and random-float 100 < 5 [ die ]
+    ; in addition, all humans have a 0.33% chance of dying.
+    if random-float 100 < 0.33 [ die ]
+  ]
+
+  ask mammoths [
+    ; mammoths have a 5% chance of dying if they're over 30
+    if age > 30 * 12 and random-float 100 < 5 [ die ]
+    ; they also get another 5% chance of dying if their density is too high
+    if density > 0.50 and random-float 100 < 5 [ die ]
+    ; if they are on a patch affected by climate change, they get a 5% chance of dying
+    if [ pcolor ] of patch-here = green + 3 and random-float 100 < 5 [
+      set mammoths-killed-by-climate-change mammoths-killed-by-climate-change + 1
+      die
+    ]
+    ; finally, all mammoths have a 0.33% chance of dying.
+    if random-float 100 < 0.33 [ die ]
+  ]
+
+end
+
+to-report density ; turtle reporter
+  let nearby-turtles (turtle-set turtles-on neighbors turtles-here)
+  report (count nearby-turtles with [ breed = [ breed ] of myself ]) / 9
+end
+
+
+; Copyright 1997 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="375" maxPycor="96" updateMode="1" wrappingAllowedX="false" y="15" frameRate="30.0" minPycor="0" height="591" showTickCounter="true" patchSize="6.0" fontSize="10" wrappingAllowedY="false" width="590" tickCounterLabel="months" maxPxcor="96" minPxcor="0"></view>
+    <monitor x="40" precision="0" y="355" height="45" fontSize="11" width="80" display="years">ticks / 12</monitor>
+    <slider x="10" step="1" y="240" height="33" min="0" direction="Horizontal" max="20" default="10.0" variable="human-birth-rate" units="%" width="355" display="human-birth-rate"></slider>
+    <slider x="10" step="1" y="205" height="33" min="0" direction="Horizontal" max="10" default="2.0" variable="mammoth-birth-rate" units="%" width="355" display="mammoth-birth-rate"></slider>
+    <slider x="10" step="1" y="275" height="33" min="1" direction="Horizontal" max="97" default="12.0" variable="odds-of-killing" units="%" width="355" display="odds-of-killing"></slider>
+    <slider x="10" step="1" y="50" height="33" min="0" direction="Horizontal" max="100" default="50.0" variable="number-of-humans" width="355" display="number-of-humans"></slider>
+    <slider x="10" step="1" y="15" height="33" min="100" direction="Horizontal" max="2000" default="900.0" variable="number-of-mammoths" width="355" display="number-of-mammoths"></slider>
+    <button x="120" y="95" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="60" display="setup">setup</button>
+    <button x="205" y="95" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="60" display="go">go</button>
+    <plot x="10" yMax="10.0" yAxis="Frequency" y="405" xMin="0.0" height="175" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="355" xAxis="Months" display="Population">
+      <setup></setup>
+      <update></update>
+      <pen color="-6459832" legend="true" interval="1.0" mode="0" display="mammoths">
+        <setup></setup>
+        <update>plot count mammoths</update>
+      </pen>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="humans">
+        <setup></setup>
+        <update>plot count humans</update>
+      </pen>
+    </plot>
+    <slider x="10" step="0.05" y="135" height="33" min="0" direction="Horizontal" max="1" default="0.3" variable="human-speed" units="patches" width="355" display="human-speed"></slider>
+    <slider x="10" step="0.05" y="170" height="33" min="0" direction="Horizontal" max="1" default="0.2" variable="mammoth-speed" units="patches" width="355" display="mammoth-speed"></slider>
+    <monitor x="245" precision="17" y="355" height="45" fontSize="11" width="95" display="humans">count humans</monitor>
+    <monitor x="125" precision="17" y="355" height="45" fontSize="11" width="115" display="mammoths">count mammoths</monitor>
+    <slider x="10" step="0.001" y="310" height="33" min="0.001" direction="Horizontal" max="0.1" default="0.003" variable="climate-change-decay-chance" units="%" width="355" display="climate-change-decay-chance"></slider>
+    <plot x="10" yMax="10.0" yAxis="Frequency" y="585" xMin="0.0" height="185" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="355" xAxis="Months" display="Cause of Mammoth Deaths">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="humans">
+        <setup></setup>
+        <update>plot mammoths-killed-by-humans</update>
+      </pen>
+      <pen color="-7500403" legend="true" interval="1.0" mode="0" display="climate change">
+        <setup></setup>
+        <update>plot mammoths-killed-by-climate-change</update>
+      </pen>
+    </plot>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+A prevailing theory says that Native Americans descended from prehistoric hunters who walked from northeast Asia across a land bridge, formed at the end of the Ice Age, to Alaska some 12,000 years ago. Fossil evidence shows that before their arrival, there were large mammals in the Americas. The oldest mammoth fossils date the mammoths to 11,400 years ago, a little over a thousand years after the migration. This model illustrates two theories of how these megafaunal species quickly became extinict: the hunting theory and the climate change theory.
+
+The hunting theory states that Native Americans who arrived in the "New World" were responsible for the extinction of the large mammals of the Americas such as the American lion, tiger and mammoth. This theory is advanced by Jared Diamond in his book: _The Third Chimpanzee_. The basic premise of the theory is that American large mammals evolved without human contact, so they were tame and unafraid of the migrating humans, allowing a high probability of successful hunting by the humans. This could account for the very rapid simultaneous extinction of all American large mammals at roughly the same time as the human arrival.
+
+The climate change theory states that unexpected rapid climate changes associated with [interstadial](https://en.wikipedia.org/wiki/Stadial) warming events occurred during this period, and suggests that the metapopulation structures (e.g. habitat, food and water sources, etc.) necessary to survive such repeated and rapid climatic shifts were susceptible to human impacts.
+
+This model is highly stylized: mammoths are a stand-in for all large mammals that were affected by hunting and climate change. In reality, there were no mammoths in South America. The way climate change operates in the model (by making random patches inhospitable for mammoths) is not realistic either. Still, the model nicely illustrates how NetLogo can be used to compare the effect of two competing processes.
+
+## HOW IT WORKS
+
+Humans enter North America from Alaska. They hunt mammoths and have a high chance of killing them. Mammoths also have a 3% chance of killing humans. Both humans and mammoths reproduce according to the MAMMOTH-BIRTH-RATE and HUMAN-BIRTH-RATE sliders.
+
+Both mammoths and humans die naturally from old age or from too much overcrowding. In addition, based on the CLIMATE-CHANGE-DECAY-CHANCE, each habitable patch has a chance of being affected by climate change. Patches that are affected by climate change turn a light green color and mammoths on these patches have a higher chance of dying naturally.
+
+## HOW TO USE IT?
+
+The NUMBER-OF-MAMMOTHS slider sets the initial number of mammoths.
+
+The NUMBER-OF-HUMANS slider sets the initial number of human hunters.
+
+SETUP initializes the mammoths and people.
+
+GO starts and stops the simulation.
+
+The HUMAN-SPEED slider sets the distance, in patches, that a human can travel each month.
+
+The MAMMOTH-SPEED slider sets the distance, in patches, that a mammoth can travel each month.
+
+The MAMMOTH-BIRTH-RATE slider sets the likelihood of a mammoth reproducing each month.
+
+The HUMAN-BIRTH-RATE slider sets the likelihood of a human reproducing each month.
+
+The ODDS-OF-KILLING slider sets the odds that when a human encounters a mammoth, the mammoth will die.
+
+The CLIMATE-CHANGE-DECAY-CHANCE slider sets the likelihood of a green patch being affect by climate change and becoming inhospitable for mammoths.
+
+The YEARS monitor displays elapsed years in the model.
+
+The COUNT HUMANS monitor shows the current number of humans, and the COUNT MAMMOTHS monitor shows the current number of mammoths.
+
+These counts are also dynamically plotted in the POPULATION plot.
+
+## THINGS TO NOTICE
+
+Notice the rate of migration of the humans. How does that affect the population of mammoths?
+
+Notice the rate of mammoth decline. How many years does it take for them to go extinct?
+
+## THINGS TO TRY
+
+Vary the ODDS-OF-KILLING. How does that affect the mammoth population?
+
+Vary the ratio of MAMMOTH-SPEED and HUMAN-SPEED. How does that affect the mammoth population?
+
+Vary the MAMMOTH-BIRTH-RATE and HUMAN-BIRTH-RATE. How does that affect the mammoth and human populations?
+
+Vary the CLIMATE-CHANGE-DECAY-CHANCE slider. How does that affect the number of mammoth deaths due to hunting?
+
+## EXTENDING THE MODEL
+
+Make separate monitors for North and South America.
+
+What if Central America weren't so narrow?  Do you think that it, or other geographical features, could block human hunters the way this model works?
+
+How would adding islands affect the model?
+
+Make the movement of the humans and mammoths more realistic rather than random.
+
+## NETLOGO FEATURES
+
+The model uses [`import-pcolors`](http://ccl.northwestern.edu/netlogo/docs/dictionary.html#import-pcolors) to load a map of the Americas. This shows how easy it is to model semi-realistic geographical features in NetLogo without having to resort to the [GIS extension](https://ccl.northwestern.edu/netlogo/docs/gis.html), which is very powerful but harder to use.
+
+## CREDITS AND REFERENCES
+
+This model is partly based on the theory expounded by Jared Diamond in:
+Diamond, J. (1993). _The Third Chimpanzee_. Basic Books.
+
+It is also based on the work in:
+Cooper, A., Turney, C., Hughen, K., Brook, B., McDonald, H., & Bradshaw, J. (2015). "Abrubt warming events drove Late Pleistocene Holartic megafaunal turnover." _Science_. American Association for the Advancement of Science.
+
+Thanks to Nicolas Payette for converting this model from StarLogoT to NetLogo.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. (1997).  NetLogo Mammoths model.  http://ccl.northwestern.edu/netlogo/models/Mammoths.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 1997 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This model was created as part of the project: CONNECTED MATHEMATICS: MAKING SENSE OF COMPLEX PHENOMENA THROUGH BUILDING OBJECT-BASED PARALLEL MODELS (OBPML).  The project gratefully acknowledges the support of the National Science Foundation (Applications of Advanced Technologies Program) -- grant numbers RED #9552950 and REC #9632612.
+
+Converted from StarLogoT to NetLogo, 2016.
+
+<!-- 1997 2016 -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1936945921" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="mammoth" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="181"></point>
+        <point x="180" y="196"></point>
+        <point x="165" y="196"></point>
+        <point x="166" y="178"></point>
+        <point x="151" y="148"></point>
+        <point x="151" y="163"></point>
+        <point x="136" y="178"></point>
+        <point x="61" y="178"></point>
+        <point x="45" y="196"></point>
+        <point x="30" y="196"></point>
+        <point x="16" y="178"></point>
+        <point x="16" y="163"></point>
+        <point x="1" y="133"></point>
+        <point x="16" y="103"></point>
+        <point x="46" y="88"></point>
+        <point x="106" y="73"></point>
+        <point x="166" y="58"></point>
+        <point x="196" y="28"></point>
+        <point x="226" y="28"></point>
+        <point x="255" y="78"></point>
+        <point x="271" y="193"></point>
+        <point x="256" y="193"></point>
+        <point x="241" y="118"></point>
+        <point x="226" y="118"></point>
+        <point x="211" y="133"></point>
+      </polygon>
+      <rectangle endX="180" startY="195" marked="true" color="-1920102913" endY="225" startX="165" filled="true"></rectangle>
+      <rectangle endX="45" startY="195" marked="true" color="-1920102913" endY="225" startX="30" filled="true"></rectangle>
+      <rectangle endX="180" startY="225" marked="false" color="255" endY="240" startX="165" filled="true"></rectangle>
+      <rectangle endX="45" startY="225" marked="false" color="255" endY="240" startX="30" filled="true"></rectangle>
+      <line endX="240" startY="90" marked="false" color="255" endY="90" startX="255"></line>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="0" y="165"></point>
+        <point x="0" y="135"></point>
+        <point x="15" y="135"></point>
+        <point x="0" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="224" y="122"></point>
+        <point x="234" y="129"></point>
+        <point x="242" y="135"></point>
+        <point x="260" y="138"></point>
+        <point x="272" y="135"></point>
+        <point x="287" y="123"></point>
+        <point x="289" y="108"></point>
+        <point x="283" y="89"></point>
+        <point x="276" y="80"></point>
+        <point x="267" y="73"></point>
+        <point x="276" y="96"></point>
+        <point x="277" y="109"></point>
+        <point x="269" y="122"></point>
+        <point x="254" y="127"></point>
+        <point x="240" y="119"></point>
+        <point x="229" y="111"></point>
+        <point x="225" y="100"></point>
+        <point x="214" y="112"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>

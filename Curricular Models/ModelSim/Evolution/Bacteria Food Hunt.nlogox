@@ -1,0 +1,2034 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[breed [algae alga]
+breed [bacteria bacterium]
+breed [flagella flagellum]
+breed [dividers divider]
+breed [mouse-cursors mouse-cursor]
+
+directed-link-breed [connectors connector]
+directed-link-breed [cursor-drags cursor-drag]
+
+flagella-own      [direction]
+bacteria-own      [variation energy]
+mouse-cursors-own [time-since-last-move old-xcor old-ycor]
+
+globals [
+  region-1-boundary-color         ;; color of region 1 boundary
+  region-2-boundary-color         ;; color of region 2 boundary
+  region-divider-color            ;; color of divider between regions
+  algae-color                     ;; color of algae
+  bacteria-default-color          ;; color of bacteria when visualize variation setting doesn't apply the 6 color values
+  fixed-cursor-color              ;; color of the mouse cursor when picking up and dragging bacterium
+  rotating-cursor-color           ;; color of the mouse cursor when getting ready to rotate a bacterium
+  fixed-cursor-shape              ;; shape of cursor when picking up and dragging bacterium
+  rotating-cursor-shape           ;; shape of cursor when rotating a bacterium
+  region-divider-shape            ;; shape of divider between left and right region
+  bacteria-size                   ;; size  of bacterium (and flagellum)
+
+  sprout-delay-time               ;; time delay before resprouting algae in a water spot after it has been completely consumed
+  max-algae-energy                ;; maximum amount of algae (food energy) in a patch
+  min-reproduce-energy-bacteria   ;; minimum amount of energy required before bacteria reproduce
+  bacteria-stride                 ;; how far a bacteria moves forward for every flagella it has, every time step
+
+  algae-growth-rate-region-1      ;; how fast algae grows back in region 1  - could be adjusted to represent different light levels
+  algae-growth-rate-region-2      ;; how fast algae grows back in region 2  - could be adjusted to represent different light levels
+  amount-of-algae-bacteria-eat    ;; amount of algae that bacteria eat every time step in the patch they are in
+  regrowth-variability            ;; controls the variability in regrowth rates
+  base-metabolism                 ;; the amount of energy every bacteria loses, regardless of the number of flagella it had
+  right-turn                      ;; the fixed amount of right turn that every bacterium takes every time step
+
+  new-mouse-down-event?           ;; keeps track of whether the state of the mouse click (down or up) has changed since last time the go procedure was run
+]
+
+patches-own [fertile? algae-energy countdown region]
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;SETUP PROCEDURES;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to setup
+  clear-all
+
+  set algae-color             green
+  set bacteria-default-color  [100 100 100 200]
+  set fixed-cursor-color      [0 0 0 50]
+  set rotating-cursor-color   [255 0 0 50]
+  set region-1-boundary-color gray - 1.5
+  set region-2-boundary-color gray - 3.5
+  set region-divider-color    gray + 1
+
+  set-default-shape bacteria "bacteria"
+  set-default-shape flagella "flagella"
+  set fixed-cursor-shape     "circle"
+  set rotating-cursor-shape  "circle 2"
+  set region-divider-shape   "block"
+
+  set bacteria-size 1
+  set min-reproduce-energy-bacteria 100
+  set sprout-delay-time 25
+  set max-algae-energy 100
+  set amount-of-algae-bacteria-eat 5
+  set bacteria-stride 0.01
+  set algae-growth-rate-region-1 25
+  set algae-growth-rate-region-2 25
+  set base-metabolism .30
+  set right-turn 1
+  set new-mouse-down-event? false
+
+  setup-mouse-cursor
+  setup-regions
+  setup-bacteria
+  reset-ticks
+end
+
+to setup-regions
+  let region-1-patches patches with [ pxcor > min-pxcor and pycor < max-pycor and pycor > min-pycor and pxcor < -1 ]
+  let region-2-patches patches with [ pxcor < max-pxcor and pycor < max-pycor and pycor > min-pycor and pxcor > 1 ]
+  let number-patches-with-algae-region-1 (floor (left-resource-distribution *  (count region-1-patches) / 100))
+  let number-patches-with-algae-region-2 (floor (right-resource-distribution * (count region-2-patches) / 100))
+  let patches-in-this-region-with-algae nobody
+
+  let region-height world-height
+  let region-width (world-width - 2) / 2
+  let region-area (region-height * region-width)
+
+  ask patches [
+    set fertile? false
+    set algae-energy 0
+    set pcolor white
+  ]
+  ask region-1-patches [ set region 1 ]
+  ask region-2-patches [ set region 2 ]
+
+  ;; setup boundary walls around each region
+  ask patches with [ region != 1 and region != 2 and pxcor < 0 ] [ set pcolor region-1-boundary-color ]
+  ask patches with [ region != 1 and region != 2 and pxcor > 0 ] [ set pcolor region-2-boundary-color ]
+  ask patches with [ pxcor = 0 ] [
+    sprout 1 [
+      set breed dividers
+      set shape region-divider-shape
+      set color region-divider-color
+      set size 1
+    ]
+  ]
+
+  ;; setup distribution of resources in left region
+  if left-resource-location = "anywhere" [
+    set patches-in-this-region-with-algae n-of number-patches-with-algae-region-1 region-1-patches
+  ]
+  if left-resource-location = "around a central point" [
+    set patches-in-this-region-with-algae min-n-of number-patches-with-algae-region-1 region-1-patches [ distance patch floor (min-pxcor / 2) 0]
+  ]
+  if left-resource-location = "vertical strip left side" [
+    set patches-in-this-region-with-algae region-1-patches with [ pxcor < min-pxcor + round (region-width * left-resource-distribution / 100) ]
+  ]
+  if left-resource-location = "vertical strip right side" [
+    set patches-in-this-region-with-algae region-1-patches with [ pxcor > 0 - round (region-width * left-resource-distribution / 100) ]
+  ]
+  if left-resource-location = "horizontal strip" [
+    set patches-in-this-region-with-algae region-1-patches with [ abs pycor < round ((region-height / 2) * left-resource-distribution / 100) ]
+  ]
+  ask patches-in-this-region-with-algae [
+    set fertile? true
+    set algae-energy max-algae-energy / 2
+  ]
+
+  ;; setup distribution of resources in right region
+  set patches-in-this-region-with-algae nobody
+
+  if right-resource-location = "anywhere" [
+    set patches-in-this-region-with-algae n-of number-patches-with-algae-region-2 region-2-patches
+  ]
+  if right-resource-location = "around a central point" [
+    set patches-in-this-region-with-algae min-n-of number-patches-with-algae-region-2 region-2-patches [ distance patch (floor (max-pxcor / 2) + 1) 0 ]
+  ]
+  if right-resource-location = "vertical strip left side" [
+    set patches-in-this-region-with-algae region-2-patches with [ pxcor < 0 + round (region-width * right-resource-distribution / 100) ]
+  ]
+  if right-resource-location = "vertical strip right side" [
+    set patches-in-this-region-with-algae region-2-patches with [ pxcor > max-pxcor - round (region-width * right-resource-distribution / 100) ]
+  ]
+  if right-resource-location = "horizontal strip" [
+    set patches-in-this-region-with-algae region-2-patches with [ abs pycor < round ((region-height / 2) * right-resource-distribution / 100) ]
+  ]
+  ask patches-in-this-region-with-algae [
+    set fertile? true set algae-energy max-algae-energy / 2
+  ]
+
+  ask patches [ color-water-spots-and-add-algae ]
+  ask patches [ grow-algae ]
+end
+
+;; make patches blue (water colored) and hatch algae in water spots
+to color-water-spots-and-add-algae
+  if fertile? [
+    set pcolor [180 200 230]
+    sprout 1 [
+      set breed algae
+      set shape "algae"
+      set color [90 140 90 150]
+    ]
+  ]
+end
+
+to setup-mouse-cursor
+  create-mouse-cursors 1 [
+    set shape fixed-cursor-shape
+    set color fixed-cursor-color
+    set size 2
+    set hidden? true
+  ]
+end
+
+;; make all the initial variations of the bacteria in each region
+to setup-bacteria
+  foreach [1 2 3 4 5 6] [ this-variation ->
+    foreach [1 2] [ this-region ->
+      create-bacteria initial-#-bacteria-per-variation [
+        set variation this-variation
+        set energy (min-reproduce-energy-bacteria / 2)
+        make-flagella
+        move-to one-of patches with [ region = this-region ]
+      ]
+    ]
+  ]
+  visualize-bacteria
+end
+
+to make-flagella
+  let old-heading heading
+  let cell-variation variation
+  hatch 1 [
+    set breed flagella
+    set color bacteria-default-color
+    set label ""
+    set shape (word "flagella-" cell-variation)
+    bk 0.4
+    set size 1.2
+    set direction 0
+    create-connector-from myself [
+      set tie-mode "fixed"
+      set hidden? true
+      tie
+    ]
+  ]
+  set heading old-heading
+end
+
+to duplicate-population [region-to-duplicate]
+  let xcor-offset 0
+  let region-to-eliminate 0
+  if region-to-duplicate = 1 [
+    set xcor-offset 34
+    set region-to-eliminate 2
+  ]
+  if region-to-duplicate = 2 [
+    set xcor-offset -34
+    set region-to-eliminate 1
+  ]
+  ask bacteria with [ region = region-to-eliminate ] [
+    death
+  ]
+  ask bacteria with [ region = region-to-duplicate ] [
+    hatch 1 [
+      make-flagella
+      set xcor xcor + xcor-offset
+    ]
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;RUNTIME PROCEDURES;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to go
+  ifelse wait-to-drag-bacteria? [
+    check-mouse-interactions
+  ]
+  [
+    bacteria-live
+    ask patches [ replenish-algae ]
+    visualize-bacteria
+    trace-paths
+  ]
+  if not mouse-down? or not mouse-inside? [
+    ask mouse-cursors [
+      set hidden? true
+      ask my-out-links [ die ]
+    ]
+  ]
+  tick
+end
+
+to check-mouse-interactions
+  ask mouse-cursors [
+    setxy mouse-xcor mouse-ycor
+    if region = 0 [
+      ask out-link-neighbors [ death ] ;; remove bacterium if it is dragged outside a region
+    ]
+  ]
+  if mouse-inside? [
+    ask mouse-cursors [
+      check-new-coordinates
+      ifelse mouse-down? [
+        if new-mouse-down-event? [ check-attach-bacteria-to-mouse-cursor ]
+        if not new-mouse-down-event? [
+          set new-mouse-down-event? true
+          set time-since-last-move 0
+          set shape fixed-cursor-shape
+          set color fixed-cursor-color
+          set heading 0
+        ]
+        set time-since-last-move time-since-last-move + 1
+        ;; turn cursor a different color, indicating a rotation of the bacterium it is holding is about to occur
+        if time-since-last-move > 30 [
+          set shape rotating-cursor-shape
+          set color rotating-cursor-color
+          set heading 0
+        ]
+        ;; rotate the bacterium that the cursor is holding
+        if time-since-last-move > 60 [
+          set shape rotating-cursor-shape
+          set color rotating-cursor-color
+          set heading 0 + (time-since-last-move - 60) * 4
+        ]
+      ]
+      [ set new-mouse-down-event? false ]
+      set hidden? (not mouse-down?)
+    ]
+  ]
+  ask mouse-cursors [ set old-xcor mouse-xcor set old-ycor mouse-ycor ]
+end
+
+;;  check to see if the mouse cursor moved?
+to check-new-coordinates
+  if mouse-xcor != old-xcor or mouse-ycor != old-ycor [
+    set time-since-last-move 0
+    set shape fixed-cursor-shape
+    set color fixed-cursor-color
+  ]
+end
+
+;; check to see if any bacteria is attached to the mouse cursor (being moved around or rotated)
+to check-attach-bacteria-to-mouse-cursor
+  let target-bacteria bacteria with [ distance myself <= 1 ]
+  ask my-out-links [ die ]
+  if any? target-bacteria [
+    set target-bacteria min-one-of target-bacteria [ distance myself ]
+    ask target-bacteria [
+      setxy mouse-xcor mouse-ycor
+      create-cursor-drag-from myself [
+        set hidden? true
+        tie
+      ]
+    ]
+  ]
+end
+
+;; adjust the size of the algae to reflect how much food is in that patch
+to grow-algae
+  if fertile? [
+    ask algae-here [
+      ifelse algae-energy >= 5
+        [ set size (algae-energy / max-algae-energy) ]
+        [ set size (5 / max-algae-energy) ]
+    ]
+  ]
+end
+
+;; algae replenishes every time step (photosynthesis)
+to replenish-algae
+  set regrowth-variability 1
+  ;; to change resource restoration variability do the following:
+  ;; set regrowth-variability 1 - none: 100% chance regrowth every step.
+  ;; set regrowth-variability 2 - 1/2 chance to regrow this step, but 2 times as much regrowth when it happens
+  ;; set regrowth-variability 10 - 1/10 chance to regrow this step, but 10 times as much regrowth when it happens
+  set countdown (countdown - 1)
+  ;; fertile patches gain 1 energy unit per turn, up to a maximum max-algae-energy threshold
+  if fertile? and countdown <= 0 and random regrowth-variability = 0 [
+    if region = 1 [ set algae-energy (algae-energy + algae-growth-rate-region-1 * regrowth-variability / 10) ]
+    if region = 2 [ set algae-energy (algae-energy + algae-growth-rate-region-2 * regrowth-variability / 10) ]
+    if algae-energy > max-algae-energy [ set algae-energy max-algae-energy ]
+  ]
+  if not fertile? [ set algae-energy 0 ]
+  if algae-energy < 0 [
+    set algae-energy 0
+    set countdown sprout-delay-time
+  ]
+  grow-algae
+end
+
+to bacteria-live
+  ask bacteria [
+    move-bacteria
+    bacteria-eat-algae
+    reproduce-bacteria
+    if (energy <= 0 ) [death]
+  ]
+end
+
+to move-bacteria
+  let is-ahead-patch-water? false
+  let speed-scalar 0.04 ;; scales the speed of motion of the bacteria
+  let speed variation ;; the speed of the bacteria is directly proportional to the number of flagella it has
+  ;; the deducation energy per turn is a linear relationship, it is function of speed, where the
+  ;;  y-intercept is base-metabolism and the energy-cost-per-flagella is the slope
+  let energy-deduction base-metabolism + (speed * energy-cost-per-flagella)
+  set energy (energy - energy-deduction)  ;; bacteria lose energy as they move
+  ask out-link-neighbors [ move-flagella ]
+  right ((random-float 10 - random-float 10) + right-turn)
+  fd variation * speed-scalar
+  bounce
+end
+
+to bounce ;; turtle procedure
+  let pxcor-patch-ahead [ pxcor ] of patch-ahead 0.1
+  let pycor-patch-ahead [ pycor ] of patch-ahead 0.1
+  if (pxcor-patch-ahead = min-pxcor) or (pxcor-patch-ahead = max-pxcor) or (abs pxcor-patch-ahead = 1)
+    ; reflect heading around x axis
+    [ set heading (- heading) ]
+  if (pycor-patch-ahead = min-pycor) or (pycor-patch-ahead = max-pycor)
+    ; reflect heading around y axis
+    [ set heading (180 - heading) ]
+end
+
+to move-flagella
+  let flagella-swing 15 ;; magnitude of angle that the flagella swing bqck and forth
+  let flagella-speed 60 ;; speed of flagella swinging back and forth
+  let new-swing flagella-swing * sin (flagella-speed * ticks)
+  set heading bacteria-heading + new-swing
+end
+
+to reproduce-bacteria  ;; bacteria procedure
+ if (energy >  min-reproduce-energy-bacteria) [
+    set energy (energy / 2)     ;; split remaining half of energy between parent and offspring
+    hatch 1 [
+      make-flagella
+      rt random 360
+      fd bacteria-stride
+    ]
+  ]
+end
+
+to death ;; death of individual and its attached turtles (the flagella)
+  ask out-link-neighbors [ die ]
+  die
+end
+
+to bacteria-eat-algae  ;; bacteria procedure
+  ;; if there is enough algae to eat at this patch, the bacteria eat it and then gain energy from it.
+  if algae-energy > amount-of-algae-bacteria-eat [
+    ;; algae lose five times as much food energy as the bacteria gains (s trophic level assumption - not 10)
+    set algae-energy (algae-energy - (amount-of-algae-bacteria-eat * 5))
+    set energy energy + amount-of-algae-bacteria-eat  ;; bacteria gain energy by eating
+  ]
+  ;; if all the food from algae is consumed in a patch, set the countdown timer to delay when the algae will grow back in this patch
+  if algae-energy <= amount-of-algae-bacteria-eat [ set countdown sprout-delay-time ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;VISUALIZATION PROCEDURES;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to trace-paths
+  ifelse trace-paths?
+    [ ask bacteria [ pendown ] ]
+    [ clear-drawing
+      ask bacteria [ penup ] ]
+end
+
+to visualize-bacteria
+  ask flagella [
+    set hidden? not member? visualize-variation ["flagella only" "flagella and color"]
+  ]
+  ask bacteria [
+    set hidden? visualize-variation = "none"
+    set color ifelse-value member? visualize-variation ["as color only" "flagella and color"]
+      [ item (variation - 1) (list violet blue (green - 1) brown orange red) ]
+      [ bacteria-default-color ]
+    ;; the bacterium appears to be filled with different amounts of "fuel", using different shapes, based on the bacterium's energy level
+    set shape word "bacteria-" energy-level
+    set label-color black
+    set label ifelse-value visualize-variation = "# flagella as label" [ word variation "   " ] [ "" ]
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;REPORTERS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; reports the heading of a bacterium for the flagellum that are attached to it
+to-report bacteria-heading
+  let this-bacteria-heading 0
+  ask in-link-neighbors  [ set this-bacteria-heading heading ]
+  report this-bacteria-heading
+end
+
+;; reports a whole number of 0 through 9 for the energy level of a bacterium
+to-report energy-level
+  let level 9 -  floor ((2 * min-reproduce-energy-bacteria - energy) * 10 / (2 * min-reproduce-energy-bacteria))
+  if level > 9 [ set level 9 ]
+  if level < 0 [ set level 0 ]
+  report level
+end
+
+
+; Copyright 2015 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="295" maxPycor="18" updateMode="1" wrappingAllowedX="true" y="115" frameRate="30.0" minPycor="-18" height="453" showTickCounter="true" patchSize="12.0" fontSize="10" wrappingAllowedY="true" width="812" tickCounterLabel="ticks" maxPxcor="33" minPxcor="-33"></view>
+    <button x="5" y="10" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="135">setup</button>
+    <button x="145" y="10" height="35" disableUntilTicks="true" forever="true" kind="Observer" width="140" display="go/stop">go</button>
+    <plot x="5" yMax="10.0" yAxis="# bugs" y="315" xMin="0.0" height="140" legend="false" xMax="8.0" autoplot="true" yMin="0.0" width="280" xAxis="# of flagella" display="Bacteria Population in Left Region">
+      <setup></setup>
+      <update><![CDATA[;; the HISTOGRAM primitive can't make a multi-colored histogram,
+;; so instead we plot each bar individually
+clear-plot
+foreach [1 2 3 4 5 6] [ this-variation ->
+  set-current-plot-pen word this-variation  " "
+  plotxy this-variation count bacteria with [variation = this-variation and region = 1]
+]
+if  ( plot-y-max - floor plot-y-max) != 0 [set-plot-y-range 0 floor plot-y-max + 1]]]></update>
+      <pen color="-8630108" legend="true" interval="1.0" mode="1" display="1 ">
+        <setup></setup>
+        <update>plotxy 1 count bacteria with [variation = 1 and region = 1]</update>
+      </pen>
+      <pen color="-13345367" legend="true" interval="1.0" mode="1" display="2 ">
+        <setup></setup>
+        <update>plotxy 2 count bacteria with [variation = 2 and region = 1]</update>
+      </pen>
+      <pen color="-10899396" legend="true" interval="1.0" mode="1" display="3 ">
+        <setup></setup>
+        <update>plotxy 3 count bacteria with [variation = 3 and region = 1]</update>
+      </pen>
+      <pen color="-8431303" legend="true" interval="1.0" mode="1" display="4 ">
+        <setup></setup>
+        <update>plotxy 4 count bacteria with [variation = 4 and region = 1]</update>
+      </pen>
+      <pen color="-955883" legend="true" interval="1.0" mode="1" display="5 ">
+        <setup></setup>
+        <update>plotxy 5 count bacteria with [variation = 5 and region = 1]</update>
+      </pen>
+      <pen color="-2674135" legend="true" interval="1.0" mode="1" display="6 ">
+        <setup></setup>
+        <update>plotxy 6 count bacteria with [variation = 6 and region = 1]</update>
+      </pen>
+    </plot>
+    <plot x="5" yMax="6.0" yAxis="flagella" y="170" xMin="0.0" height="140" legend="true" xMax="1000.0" autoplot="true" yMin="1.0" width="280" xAxis="time" display="Avg. # of flagella vs. Time">
+      <setup></setup>
+      <update></update>
+      <pen color="-7500403" legend="true" interval="1.0" mode="0" display="left">
+        <setup></setup>
+        <update>if any? bacteria with [region = 1] [
+ plotxy ticks mean [variation] of bacteria with [region = 1]]</update>
+      </pen>
+      <pen color="-13816531" legend="true" interval="1.0" mode="0" display="right">
+        <setup></setup>
+        <update>if any? bacteria with [region = 2] [
+  plotxy ticks mean [variation] of bacteria with [region = 2]]</update>
+      </pen>
+    </plot>
+    <monitor x="520" precision="0" y="55" height="45" fontSize="11" width="60" display="bacteria">(count bacteria with [region = 1])</monitor>
+    <slider x="5" step="1" y="48" height="33" min="1" direction="Horizontal" max="10" default="3.0" variable="initial-#-bacteria-per-variation" width="280" display="initial-#-bacteria-per-variation"></slider>
+    <plot x="5" yMax="10.0" yAxis="# bugs" y="455" xMin="0.0" height="135" legend="false" xMax="8.0" autoplot="true" yMin="0.0" width="280" xAxis="# of flagella" display="Bacteria Population in Right Region">
+      <setup></setup>
+      <update><![CDATA[;; the HISTOGRAM primitive can't make a multi-colored histogram,
+;; so instead we plot each bar individually
+clear-plot
+foreach [1 2 3 4 5 6] [ this-variation ->
+  set-current-plot-pen word this-variation " "
+  plotxy this-variation count bacteria with [variation = this-variation and region = 2]
+]
+if  ( plot-y-max - floor plot-y-max) != 0 [set-plot-y-range 0 floor plot-y-max + 1]]]></update>
+      <pen color="-8630108" legend="true" interval="1.0" mode="1" display="1 ">
+        <setup>set-histogram-num-bars 8</setup>
+        <update>plotxy 1 count bacteria with [variation = 1 and region = 2]</update>
+      </pen>
+      <pen color="-13345367" legend="true" interval="1.0" mode="1" display="2 ">
+        <setup>set-histogram-num-bars 8</setup>
+        <update>plotxy 2 count bacteria with [variation = 2 and region = 2]</update>
+      </pen>
+      <pen color="-10899396" legend="true" interval="1.0" mode="1" display="3 ">
+        <setup>set-histogram-num-bars 8</setup>
+        <update>plotxy 3 count bacteria with [variation = 3 and region = 2]</update>
+      </pen>
+      <pen color="-8431303" legend="true" interval="1.0" mode="1" display="4 ">
+        <setup>set-histogram-num-bars 8</setup>
+        <update>plotxy 4 count bacteria with [variation = 4 and region = 2]</update>
+      </pen>
+      <pen color="-955883" legend="true" interval="1.0" mode="1" display="5 ">
+        <setup>set-histogram-num-bars 8</setup>
+        <update>plotxy 5 count bacteria with [variation = 5 and region = 2]</update>
+      </pen>
+      <pen color="-2674135" legend="true" interval="1.0" mode="1" display="6 ">
+        <setup>set-histogram-num-bars 8</setup>
+        <update>plotxy 6 count bacteria with [variation = 6 and region = 2]</update>
+      </pen>
+    </plot>
+    <slider x="295" step="1" y="80" height="33" min="0" direction="Horizontal" max="100" default="100.0" variable="left-resource-distribution" units="%" width="220" display="left-resource-distribution"></slider>
+    <slider x="5" step=".05" y="85" height="33" min=".05" direction="Horizontal" max=".50" default="0.25" variable="energy-cost-per-flagella" width="280" display="energy-cost-per-flagella"></slider>
+    <chooser x="5" y="120" height="45" variable="visualize-variation" current="0" width="145" display="visualize-variation">
+      <choice type="string" value="flagella and color"></choice>
+      <choice type="string" value="flagella only"></choice>
+      <choice type="string" value="as color only"></choice>
+      <choice type="string" value="none"></choice>
+    </chooser>
+    <slider x="825" step="1" y="80" height="33" min="0" direction="Horizontal" max="100" default="0.0" variable="right-resource-distribution" units="%" width="215" display="right-resource-distribution"></slider>
+    <chooser x="295" y="30" height="45" variable="left-resource-location" current="0" width="220" display="left-resource-location">
+      <choice type="string" value="anywhere"></choice>
+      <choice type="string" value="around a central point"></choice>
+      <choice type="string" value="horizontal strip"></choice>
+      <choice type="string" value="vertical strip left side"></choice>
+      <choice type="string" value="vertical strip right side"></choice>
+    </chooser>
+    <chooser x="825" y="30" height="45" variable="right-resource-location" current="1" width="215" display="right-resource-location">
+      <choice type="string" value="anywhere"></choice>
+      <choice type="string" value="around a central point"></choice>
+      <choice type="string" value="horizontal strip"></choice>
+      <choice type="string" value="vertical strip left side"></choice>
+      <choice type="string" value="vertical strip right side"></choice>
+    </chooser>
+    <monitor x="1045" precision="17" y="50" height="45" fontSize="11" width="60" display="bacteria">(count bacteria with [region = 2])</monitor>
+    <note x="900" y="10" height="18" color="0.0" transparent="true" fontSize="13" width="90">Right Region</note>
+    <note x="360" y="10" height="18" color="4.0" transparent="true" fontSize="13" width="105">Left Region</note>
+    <switch x="155" y="120" height="33" on="false" variable="trace-paths?" width="130" display="trace-paths?"></switch>
+    <button x="605" y="80" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="190" display="&gt;&gt; Duplicate Bacteria &gt;&gt;">duplicate-population 1</button>
+    <button x="605" y="45" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="190" display="&lt;&lt; Duplicate Bacteria &lt;&lt;">duplicate-population 2</button>
+    <switch x="605" y="10" height="33" on="false" variable="wait-to-drag-bacteria?" width="190" display="wait-to-drag-bacteria?"></switch>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This is a natural/artificial selection model that shows how counterbalancing forces of natural selection from the abiotic and biotic environment and from the distribution of resources needed for survival affect the outcomes of natural selection.
+
+In this model the population of organisms that is effected by natural selection are single celled bacteria.  These bacteria must harvest food (algae) from the environment in order to survive.
+
+When resources such as food or water are distributed differently and/or when the cost for exhibiting different trait variations (in terms of energy or food required to build, maintain, or operate the structures for this trait variation) varies, the outcomes of natural selection will change.
+
+In some environments it will be more advantageous to have physical structures that enable the organism to travel quickly (but use energy faster) and in other environments it will be more advantageous to have physical structures that enable the organism to travel slowly and use energy at a slower rate.
+
+## HOW IT WORKS
+
+Base metabolism determines how much energy is deducted per time step in a model run for every individual bacteria.  ENERGY COST PER FLAGELLA determines how much energy is expended per flagella on each bug per step - this is a proxy for the increased amounts of kinetic required for moving faster by moving more flagella.  Though kinetic energy is a quadratic function of speed, in this model energy expenditure is a linear function of speed of movement.  More flagella result in faster movement as well as faster energy consumption.
+
+When bacteria travel over patches with algae in them, they consume a portion of the algae in that patch each time step.  When all the food the algae produced in a patch is eaten up, it takes a short while before it begins to grow back.  Only patches that have water in them (blue) will (re)grow algae.
+
+Bacteria gain energy from eating algae.  As bacteria gain energy the inside of them visually fills up (like a gas tank).  When they reach a maximum threshold energy level they can asexually reproduce (mitosis), splitting their energy in half between the parent and offspring.  As bacteria lose energy the energy level in them visually drains down.  When the bacteria energy level reaches 0 it will die.
+
+## HOW TO USE IT
+
+1. Adjust the slider parameters (see below), or use the default settings.
+2. Press the SETUP button.
+4. Press the GO/PAUSE button to begin the model run.
+5. View the BACTERIA POPULATION IN LEFT REGION and BACTERIA POPULATION IN RIGHT REGION histograms to watch for shifts in the distribution of trait variations over time.
+6. View the AVG. # OF FLAGELLA graph for further evidence of changes in the populations over time.
+
+INITIAL-#-BACTERIA-PER-VARIATION is the number of bacteria you start with in each of the six possible variations in flagella number.  The overall population of bacteria is determined by multiplying this value by 6.
+
+ENERGY-COST-PER-FLAGELLA determines how much energy is lost for every flagella that a bacteria has, each time step.  Bacteria with 6 flagella will lose 6 times this value, whereas bacteria with one flagellum will lose 1 times this value.  This energy loss is deducted on top of a base metabolism energy loss for all bacteria each time step.
+
+VISUALIZE-VARIATION helps you apply different visualization cues to see which variation each a bacterium has.  When set to "flagella and color", the number of flagella will appear on each bacterium and these will flap/twist back and forth as the bacteria moves.  The color of the bacteria will correspond to how many flagella it has (red = 6, orange = 5, yellow = 4, green = 3, blue = 2, and violet = 1).  When set to either "flagella only" or "color only" then the other visualization cue is not shown.  When set to "none" neither of these cues is shown.
+
+TRACE-PATHS? is a visualization tool that shows the path that each bacteria travels.  This can be a useful method to determine whether different variations of bacteria tend to travel in different territories, or where they tend to die out from lack of food.
+
+AVG. # OF FLAGELLA VS. TIME shows how the average # of flagella in each region (left and right) is changing over time.  The minimum that a population can have is 1 and the maximum is 6.
+
+BACTERIA IN LEFT REGION is a histogram showing the distribution of bacteria with different numbers of flagella (and therefore different speeds) in the left region.  Color-coding of the histograms corresponds to the number of flagella that those bacteria have (red = 6, orange = 5, yellow = 4, green = 3, blue = 2, and violet = 1).  BACTERIA IN RIGHT REGION is the corresponding histogram for the bacteria in region 2.
+
+LEFT-RESOURCE-LOCATION describes the shape of how water is distributed in the environment.  Wherever water is distributed is also where algae can grow.  The effects of this chooser value will work in combination with the slider value of LEFT-RESOURCE-DISTRIBUTION.  For example, when the prior is set to "anywhere", a random number of spots (determined by the % set by LEFT-RESOURCE-DISTRIBUTION) are filled with water.  When set to "around a central point", the % LEFT-RESOURCE-DISTRIBUTION slider value determines relative size of the circle compared to the entire environment that the water is within.  When set to "horizontal strip", "vertical strip left side", or "vertical strip right side", the LEFT-RESOURCE-DISTRIBUTION slider value determines the relative width of the strip compared to the entire environment.   A corresponding RIGHT-RESOURCE-LOCATION chooser and RIGHT-RESOURCE-DISTRIBUTION slider determine the settings for the right environment.
+
+WAIT-TO-DRAG? allows the user to move and rotate a bacterium with their mouse cursor when it is set to "on".  When set to "on" and GO/STOP is depressed the user can click and drag a bacteria to any location.  If the user drags a bacterium over the edge of the boundary of a region it will die.  If the user clicks and holds down the mouse button over a bacterium, without moving the cursor, the cursor will change colors in a moment, indicating it is getting ready to turn the orientation of the bacterium.  A few moments later the bacterium will start to rotate in a clockwise turn, until the user releases the mouse button.
+
+DUPLICATE BACTERIA >> will remove all existing bacteria from the right region, and then copies an instance (duplicate) of every bacterium from the left region into the right region.
+
+<< DUPLICATE BACTERIA   will remove all existing bacteria from the left region, and then copies an instance (duplicate) of every bacterium from the right region into the left region.
+
+## THINGS TO NOTICE
+
+The histogram for bacteria in each region tends to shift to the right (increasing average speed) with certain combinations of environmental conditions and tend to shift to the left with other combinations, and sometimes shift toward a middle range value for other combinations.
+
+Some variation between model runs in outcomes can be attributed to the random distribution of bacteria in each region.  This genetic drift affects can be reduced by using the DUPLICATE BACTERIA button between regions, to compare outcomes in two regions that have the same environmental conditions and the same distribution of bacteria in the same locations.
+
+The direction of evolutionary pressures in a region may take one direction at first, early in a model run, but then shift direction as the run progresses.  The effect can often be attributed to how the population is changing the environmental conditions.  Sometimes temporary success of one variation leads to a sudden resource collapse or bloom, which exerts an extreme counterbalancing selective pressure on the population.  This can tend to result in things like an initial tendency for a population to become faster, and the long term outcome of natural selection to be for the population to become slower (after the faster variants have been extirpated from population).
+
+## THINGS TO TRY
+
+Compare a uniform distribution of algae to a smaller amount around a fixed point (50% of lower).  Compare a random distribution of algae (e.g. 75% distributed) to a small amount uniformly distributed on the left side of the ecosystem (e.g. 30% on the "left side of the ecosystem")
+
+Compare how changing the INITIAL-#-BACTERIA-PER-VARIATION slider influences the direction of the evolutionary outcome.
+
+Can you create two different outcomes in different regions, simply by changing the distribution of where the resource is located?  How about by changing the amount of the resource?  How about changing both?
+
+## EXTENDING THE MODEL
+
+A sandbox version of the model could be used to give the player of the model the ability to draw the shape of the environment (walls), set region boundaries (in order to define any sub-space in the environment as a region), and modify (paint and erase) the distribution of the resources using the mouse cursor.
+
+## RELATED MODELS
+
+Bacteria Hunt Speeds
+
+## CREDITS AND REFERENCES
+
+This model is part of the Evolution unit of the ModelSim curriculum, sponsored by NSF grant DRL-1020101.
+
+For more information about the project and the curriculum, see the ModelSim project website: http://ccl.northwestern.edu/modelsim/.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Novak, M. and Wilensky, U. (2015).  NetLogo Bacteria Food Hunt model.  http://ccl.northwestern.edu/netlogo/models/BacteriaFoodHunt.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2015 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2015 Cite: Novak, M. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="1-flagella" rotatable="true" editableColorIndex="0">
+      <rectangle endX="159" startY="150" marked="true" color="-1920102913" endY="225" startX="144" filled="true"></rectangle>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="algae" rotatable="false" editableColorIndex="0">
+      <rectangle endX="300" startY="0" marked="true" color="-1920102913" endY="300" startX="0" filled="true"></rectangle>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="bacteria" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="60" y="60"></point>
+        <point x="60" y="210"></point>
+        <point x="75" y="270"></point>
+        <point x="105" y="300"></point>
+        <point x="150" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="225" y="270"></point>
+        <point x="240" y="225"></point>
+        <point x="240" y="60"></point>
+        <point x="225" y="30"></point>
+        <point x="180" y="0"></point>
+        <point x="150" y="0"></point>
+        <point x="120" y="0"></point>
+        <point x="90" y="15"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="75" y="60"></point>
+        <point x="75" y="225"></point>
+        <point x="90" y="270"></point>
+        <point x="105" y="285"></point>
+        <point x="150" y="285"></point>
+        <point x="195" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="60"></point>
+        <point x="210" y="30"></point>
+        <point x="180" y="15"></point>
+        <point x="150" y="15"></point>
+        <point x="120" y="15"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+    </shape>
+    <shape name="bacteria-0" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="60" y="60"></point>
+        <point x="60" y="210"></point>
+        <point x="75" y="270"></point>
+        <point x="105" y="300"></point>
+        <point x="150" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="225" y="270"></point>
+        <point x="240" y="225"></point>
+        <point x="240" y="60"></point>
+        <point x="225" y="30"></point>
+        <point x="180" y="0"></point>
+        <point x="150" y="0"></point>
+        <point x="120" y="0"></point>
+        <point x="90" y="15"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="75" y="60"></point>
+        <point x="75" y="225"></point>
+        <point x="90" y="270"></point>
+        <point x="105" y="285"></point>
+        <point x="150" y="285"></point>
+        <point x="195" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="60"></point>
+        <point x="210" y="30"></point>
+        <point x="180" y="15"></point>
+        <point x="150" y="15"></point>
+        <point x="120" y="15"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+    </shape>
+    <shape name="bacteria-1" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="60" y="60"></point>
+        <point x="60" y="210"></point>
+        <point x="75" y="270"></point>
+        <point x="105" y="300"></point>
+        <point x="150" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="225" y="270"></point>
+        <point x="240" y="225"></point>
+        <point x="240" y="60"></point>
+        <point x="225" y="30"></point>
+        <point x="180" y="0"></point>
+        <point x="150" y="0"></point>
+        <point x="120" y="0"></point>
+        <point x="90" y="15"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="75" y="60"></point>
+        <point x="75" y="225"></point>
+        <point x="90" y="270"></point>
+        <point x="105" y="285"></point>
+        <point x="150" y="285"></point>
+        <point x="195" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="60"></point>
+        <point x="210" y="30"></point>
+        <point x="180" y="15"></point>
+        <point x="150" y="15"></point>
+        <point x="120" y="15"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="270"></point>
+        <point x="105" y="285"></point>
+        <point x="195" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="216" y="254"></point>
+        <point x="84" y="254"></point>
+      </polygon>
+    </shape>
+    <shape name="bacteria-2" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="60" y="60"></point>
+        <point x="60" y="210"></point>
+        <point x="75" y="270"></point>
+        <point x="105" y="300"></point>
+        <point x="150" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="225" y="270"></point>
+        <point x="240" y="225"></point>
+        <point x="240" y="60"></point>
+        <point x="225" y="30"></point>
+        <point x="180" y="0"></point>
+        <point x="150" y="0"></point>
+        <point x="120" y="0"></point>
+        <point x="90" y="15"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="75" y="60"></point>
+        <point x="75" y="225"></point>
+        <point x="90" y="270"></point>
+        <point x="105" y="285"></point>
+        <point x="150" y="285"></point>
+        <point x="195" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="60"></point>
+        <point x="210" y="30"></point>
+        <point x="180" y="15"></point>
+        <point x="150" y="15"></point>
+        <point x="120" y="15"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="270"></point>
+        <point x="105" y="285"></point>
+        <point x="195" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="225" y="225"></point>
+        <point x="75" y="225"></point>
+      </polygon>
+    </shape>
+    <shape name="bacteria-3" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="60" y="60"></point>
+        <point x="60" y="210"></point>
+        <point x="75" y="270"></point>
+        <point x="105" y="300"></point>
+        <point x="150" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="225" y="270"></point>
+        <point x="240" y="225"></point>
+        <point x="240" y="60"></point>
+        <point x="225" y="30"></point>
+        <point x="180" y="0"></point>
+        <point x="150" y="0"></point>
+        <point x="120" y="0"></point>
+        <point x="90" y="15"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="75" y="60"></point>
+        <point x="75" y="225"></point>
+        <point x="90" y="270"></point>
+        <point x="105" y="285"></point>
+        <point x="150" y="285"></point>
+        <point x="195" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="60"></point>
+        <point x="210" y="30"></point>
+        <point x="180" y="15"></point>
+        <point x="150" y="15"></point>
+        <point x="120" y="15"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="285"></point>
+        <point x="90" y="270"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="195"></point>
+        <point x="225" y="195"></point>
+        <point x="225" y="225"></point>
+        <point x="210" y="270"></point>
+        <point x="195" y="285"></point>
+      </polygon>
+    </shape>
+    <shape name="bacteria-4" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="60" y="60"></point>
+        <point x="60" y="210"></point>
+        <point x="75" y="270"></point>
+        <point x="105" y="300"></point>
+        <point x="150" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="225" y="270"></point>
+        <point x="240" y="225"></point>
+        <point x="240" y="60"></point>
+        <point x="225" y="30"></point>
+        <point x="180" y="0"></point>
+        <point x="150" y="0"></point>
+        <point x="120" y="0"></point>
+        <point x="90" y="15"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="75" y="60"></point>
+        <point x="75" y="225"></point>
+        <point x="90" y="270"></point>
+        <point x="105" y="285"></point>
+        <point x="150" y="285"></point>
+        <point x="195" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="60"></point>
+        <point x="210" y="30"></point>
+        <point x="180" y="15"></point>
+        <point x="150" y="15"></point>
+        <point x="120" y="15"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="285"></point>
+        <point x="90" y="270"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="165"></point>
+        <point x="225" y="165"></point>
+        <point x="225" y="225"></point>
+        <point x="210" y="270"></point>
+        <point x="195" y="285"></point>
+      </polygon>
+    </shape>
+    <shape name="bacteria-5" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="60" y="60"></point>
+        <point x="60" y="210"></point>
+        <point x="75" y="270"></point>
+        <point x="105" y="300"></point>
+        <point x="150" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="225" y="270"></point>
+        <point x="240" y="225"></point>
+        <point x="240" y="60"></point>
+        <point x="225" y="30"></point>
+        <point x="180" y="0"></point>
+        <point x="150" y="0"></point>
+        <point x="120" y="0"></point>
+        <point x="90" y="15"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="75" y="60"></point>
+        <point x="75" y="225"></point>
+        <point x="90" y="270"></point>
+        <point x="105" y="285"></point>
+        <point x="150" y="285"></point>
+        <point x="195" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="60"></point>
+        <point x="210" y="30"></point>
+        <point x="180" y="15"></point>
+        <point x="150" y="15"></point>
+        <point x="120" y="15"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="285"></point>
+        <point x="90" y="270"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="135"></point>
+        <point x="225" y="135"></point>
+        <point x="225" y="225"></point>
+        <point x="210" y="270"></point>
+        <point x="195" y="285"></point>
+      </polygon>
+    </shape>
+    <shape name="bacteria-6" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="60" y="60"></point>
+        <point x="60" y="210"></point>
+        <point x="75" y="270"></point>
+        <point x="105" y="300"></point>
+        <point x="150" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="225" y="270"></point>
+        <point x="240" y="225"></point>
+        <point x="240" y="60"></point>
+        <point x="225" y="30"></point>
+        <point x="180" y="0"></point>
+        <point x="150" y="0"></point>
+        <point x="120" y="0"></point>
+        <point x="90" y="15"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="75" y="60"></point>
+        <point x="75" y="225"></point>
+        <point x="90" y="270"></point>
+        <point x="105" y="285"></point>
+        <point x="150" y="285"></point>
+        <point x="195" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="60"></point>
+        <point x="210" y="30"></point>
+        <point x="180" y="15"></point>
+        <point x="150" y="15"></point>
+        <point x="120" y="15"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="285"></point>
+        <point x="90" y="270"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="225" y="225"></point>
+        <point x="210" y="270"></point>
+        <point x="195" y="285"></point>
+      </polygon>
+    </shape>
+    <shape name="bacteria-7" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="60" y="60"></point>
+        <point x="60" y="210"></point>
+        <point x="75" y="270"></point>
+        <point x="105" y="300"></point>
+        <point x="150" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="225" y="270"></point>
+        <point x="240" y="225"></point>
+        <point x="240" y="60"></point>
+        <point x="225" y="30"></point>
+        <point x="180" y="0"></point>
+        <point x="150" y="0"></point>
+        <point x="120" y="0"></point>
+        <point x="90" y="15"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="75" y="60"></point>
+        <point x="75" y="225"></point>
+        <point x="90" y="270"></point>
+        <point x="105" y="285"></point>
+        <point x="150" y="285"></point>
+        <point x="195" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="60"></point>
+        <point x="210" y="30"></point>
+        <point x="180" y="15"></point>
+        <point x="150" y="15"></point>
+        <point x="120" y="15"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="285"></point>
+        <point x="90" y="270"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="75"></point>
+        <point x="225" y="75"></point>
+        <point x="225" y="225"></point>
+        <point x="210" y="270"></point>
+        <point x="195" y="285"></point>
+      </polygon>
+    </shape>
+    <shape name="bacteria-8" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="60" y="60"></point>
+        <point x="60" y="210"></point>
+        <point x="75" y="270"></point>
+        <point x="105" y="300"></point>
+        <point x="150" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="225" y="270"></point>
+        <point x="240" y="225"></point>
+        <point x="240" y="60"></point>
+        <point x="225" y="30"></point>
+        <point x="180" y="0"></point>
+        <point x="150" y="0"></point>
+        <point x="120" y="0"></point>
+        <point x="90" y="15"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="75" y="60"></point>
+        <point x="75" y="225"></point>
+        <point x="90" y="270"></point>
+        <point x="105" y="285"></point>
+        <point x="150" y="285"></point>
+        <point x="195" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="60"></point>
+        <point x="210" y="30"></point>
+        <point x="180" y="15"></point>
+        <point x="150" y="15"></point>
+        <point x="120" y="15"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="286"></point>
+        <point x="90" y="271"></point>
+        <point x="75" y="226"></point>
+        <point x="75" y="61"></point>
+        <point x="83" y="44"></point>
+        <point x="120" y="45"></point>
+        <point x="182" y="46"></point>
+        <point x="219" y="46"></point>
+        <point x="225" y="61"></point>
+        <point x="225" y="226"></point>
+        <point x="210" y="271"></point>
+        <point x="195" y="286"></point>
+      </polygon>
+    </shape>
+    <shape name="bacteria-9" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="60" y="60"></point>
+        <point x="60" y="210"></point>
+        <point x="75" y="270"></point>
+        <point x="105" y="300"></point>
+        <point x="150" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="225" y="270"></point>
+        <point x="240" y="225"></point>
+        <point x="240" y="60"></point>
+        <point x="225" y="30"></point>
+        <point x="180" y="0"></point>
+        <point x="150" y="0"></point>
+        <point x="120" y="0"></point>
+        <point x="90" y="15"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="75" y="60"></point>
+        <point x="75" y="225"></point>
+        <point x="90" y="270"></point>
+        <point x="105" y="285"></point>
+        <point x="150" y="285"></point>
+        <point x="195" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="60"></point>
+        <point x="210" y="30"></point>
+        <point x="180" y="15"></point>
+        <point x="150" y="15"></point>
+        <point x="120" y="15"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="285"></point>
+        <point x="90" y="270"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="60"></point>
+        <point x="90" y="30"></point>
+        <point x="120" y="15"></point>
+        <point x="180" y="15"></point>
+        <point x="210" y="30"></point>
+        <point x="225" y="60"></point>
+        <point x="225" y="225"></point>
+        <point x="210" y="270"></point>
+        <point x="195" y="285"></point>
+      </polygon>
+    </shape>
+    <shape name="bird" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="170"></point>
+        <point x="136" y="170"></point>
+        <point x="123" y="229"></point>
+        <point x="143" y="244"></point>
+        <point x="156" y="244"></point>
+        <point x="179" y="229"></point>
+        <point x="166" y="170"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="152" y="154"></point>
+        <point x="137" y="154"></point>
+        <point x="125" y="213"></point>
+        <point x="140" y="229"></point>
+        <point x="159" y="229"></point>
+        <point x="179" y="214"></point>
+        <point x="167" y="154"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="140"></point>
+        <point x="136" y="140"></point>
+        <point x="126" y="202"></point>
+        <point x="139" y="214"></point>
+        <point x="159" y="214"></point>
+        <point x="176" y="200"></point>
+        <point x="166" y="140"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="125"></point>
+        <point x="134" y="124"></point>
+        <point x="128" y="188"></point>
+        <point x="140" y="198"></point>
+        <point x="161" y="197"></point>
+        <point x="174" y="188"></point>
+        <point x="166" y="125"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="152" y="86"></point>
+        <point x="227" y="72"></point>
+        <point x="286" y="97"></point>
+        <point x="272" y="101"></point>
+        <point x="294" y="117"></point>
+        <point x="276" y="118"></point>
+        <point x="287" y="131"></point>
+        <point x="270" y="131"></point>
+        <point x="278" y="141"></point>
+        <point x="264" y="138"></point>
+        <point x="267" y="145"></point>
+        <point x="228" y="150"></point>
+        <point x="153" y="147"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="160" y="74"></point>
+        <point x="159" y="61"></point>
+        <point x="149" y="54"></point>
+        <point x="130" y="53"></point>
+        <point x="139" y="62"></point>
+        <point x="133" y="81"></point>
+        <point x="127" y="113"></point>
+        <point x="129" y="149"></point>
+        <point x="134" y="177"></point>
+        <point x="150" y="206"></point>
+        <point x="168" y="179"></point>
+        <point x="172" y="147"></point>
+        <point x="169" y="111"></point>
+      </polygon>
+      <circle x="144" y="55" marked="false" color="255" diameter="7" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="129" y="53"></point>
+        <point x="135" y="58"></point>
+        <point x="139" y="54"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="148" y="86"></point>
+        <point x="73" y="72"></point>
+        <point x="14" y="97"></point>
+        <point x="28" y="101"></point>
+        <point x="6" y="117"></point>
+        <point x="24" y="118"></point>
+        <point x="13" y="131"></point>
+        <point x="30" y="131"></point>
+        <point x="22" y="141"></point>
+        <point x="36" y="138"></point>
+        <point x="33" y="145"></point>
+        <point x="72" y="150"></point>
+        <point x="147" y="147"></point>
+      </polygon>
+    </shape>
+    <shape name="block" rotatable="false" editableColorIndex="1">
+      <rectangle endX="120" startY="0" marked="true" color="-684578305" endY="300" startX="0" filled="true"></rectangle>
+      <rectangle endX="180" startY="0" marked="false" color="-1" endY="300" startX="150" filled="true"></rectangle>
+      <rectangle endX="300" startY="0" marked="false" color="-1920102913" endY="300" startX="180" filled="true"></rectangle>
+      <rectangle endX="150" startY="0" marked="false" color="255" endY="300" startX="120" filled="true"></rectangle>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="true" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="0" y="150"></point>
+        <point x="15" y="180"></point>
+        <point x="60" y="150"></point>
+        <point x="15" y="120"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="0"></point>
+        <point x="120" y="15"></point>
+        <point x="150" y="60"></point>
+        <point x="180" y="15"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="300" y="150"></point>
+        <point x="285" y="120"></point>
+        <point x="240" y="150"></point>
+        <point x="285" y="180"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="300"></point>
+        <point x="180" y="285"></point>
+        <point x="150" y="240"></point>
+        <point x="120" y="285"></point>
+      </polygon>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="divider" rotatable="false" editableColorIndex="0">
+      <rectangle endX="150" startY="0" marked="false" color="878553599" endY="300" startX="0" filled="true"></rectangle>
+      <rectangle endX="300" startY="0" marked="true" color="-1920102913" endY="300" startX="150" filled="true"></rectangle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flagella" rotatable="true" editableColorIndex="0">
+      <rectangle endX="159" startY="150" marked="true" color="-1920102913" endY="225" startX="144" filled="true"></rectangle>
+    </shape>
+    <shape name="flagella-1" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="150" marked="true" color="-1920102913" endY="285" startX="150"></line>
+    </shape>
+    <shape name="flagella-2" rotatable="true" editableColorIndex="0">
+      <line endX="105" startY="150" marked="true" color="-1920102913" endY="285" startX="135"></line>
+      <line endX="180" startY="150" marked="true" color="-1920102913" endY="285" startX="165"></line>
+    </shape>
+    <shape name="flagella-3" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="150" marked="true" color="-1920102913" endY="285" startX="150"></line>
+      <line endX="60" startY="150" marked="true" color="-1920102913" endY="270" startX="120"></line>
+      <line endX="240" startY="150" marked="true" color="-1920102913" endY="270" startX="180"></line>
+    </shape>
+    <shape name="flagella-4" rotatable="true" editableColorIndex="0">
+      <line endX="105" startY="150" marked="true" color="-1920102913" endY="285" startX="135"></line>
+      <line endX="180" startY="150" marked="true" color="-1920102913" endY="285" startX="165"></line>
+      <line endX="255" startY="135" marked="true" color="-1920102913" endY="255" startX="195"></line>
+      <line endX="45" startY="135" marked="true" color="-1920102913" endY="255" startX="105"></line>
+    </shape>
+    <shape name="flagella-5" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="150" marked="true" color="-1920102913" endY="285" startX="150"></line>
+      <line endX="60" startY="150" marked="true" color="-1920102913" endY="270" startX="120"></line>
+      <line endX="105" startY="210" marked="true" color="-1920102913" endY="120" startX="15"></line>
+      <line endX="240" startY="150" marked="true" color="-1920102913" endY="270" startX="180"></line>
+      <line endX="195" startY="210" marked="true" color="-1920102913" endY="120" startX="285"></line>
+    </shape>
+    <shape name="flagella-6" rotatable="true" editableColorIndex="0">
+      <line endX="105" startY="150" marked="true" color="-1920102913" endY="285" startX="135"></line>
+      <line endX="180" startY="150" marked="true" color="-1920102913" endY="285" startX="165"></line>
+      <line endX="255" startY="135" marked="true" color="-1920102913" endY="255" startX="195"></line>
+      <line endX="45" startY="135" marked="true" color="-1920102913" endY="255" startX="105"></line>
+      <line endX="210" startY="195" marked="true" color="-1920102913" endY="105" startX="300"></line>
+      <line endX="90" startY="195" marked="true" color="-1920102913" endY="105" startX="0"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>

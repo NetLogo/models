@@ -1,0 +1,1332 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[; All initialization / setup values are derived from real-world figures.
+; I arrived at these values using estimates of resting blood sugar levels
+; (80 mg/dL), post-meal blood sugar levels (120 mg/dL), human blood volume
+; (5L), daily caloric intake (2000 kcal), average nutrient absorption period
+; after a meal (2 hours), and starvation time (3 weeks).  Starting with the
+; observations that the model's resting blood sugar level is about 4000 and
+; adding glucoses at about 400 per tick raises the stable blood sugar by
+; about 1.5 times, it is possible to derive the correspondence between
+; glucose particles and mg glucose as well as reasonable meal sizes, the
+; correspondence between ticks and seconds, meal lengths, metabolic rates,
+; and initial glucose reserves. However, this ideal correspondence results
+; in an enormous initial glucose store (10.5 million) and time to starvation
+; in the model (105k ticks), so I have scaled the glucose energy density
+; correspondence by about 1/25. This means that one tick represents about
+; 7 minutes, and one glucose represents about 25 mg of real glucose,
+; equivalent to 0.1 kcal. This is a fairly high grain size for both time and
+; energy.  This also means that the blood sugar levels in the model are
+; unusually high if scaled up to a real person, but most other times,
+; relationships, and rates correspond properly to the real world within an
+; order of magnitude. Most of the inaccuracies help to mitigate the negative
+; effects of the high grain size noted earlier. I also accelerated starvation
+; for ease of observation by reducing the initial store of glucose.
+
+globals [
+  molecule-size     ; display scaling constant
+  hormone-half-life
+  hormone-mean-life
+  eating?           ; keep track of meal state based on EAT button presses
+  eat-time          ; keep track of ongoing meal duration
+  total-glucose     ; storage variable to record combined blood and stored glucose
+  glucose-baseline  ; average 'normal' number of glucoses in the blood per cell
+  meal-size
+  meal-length
+]
+
+; Set up different cell breeds.
+; We need different cell types to behave differently.
+; This is why cells are turtles rather than patches.
+breed [ liver-cells liver-cell ]
+breed [ pancreatic-cells pancreatic-cell ]
+
+; Set up different molecule breeds
+breed [ glucoses glucose ]
+breed [ insulins insulin ]
+breed [ glucagons glucagon ]
+
+liver-cells-own [ glucose-store ]
+insulins-own [ lifetime ]
+glucagons-own [ lifetime ]
+
+to setup
+  clear-all
+
+  set-default-shape turtles "circle outline"
+  set molecule-size 0.25
+  set eat-time 0
+  set eating? false
+
+  ; These values are calibrated to establish a reasonable correspondence for
+  ; energy density and time between the model and the real world system.
+  ; See the comment at the top of the file for more information.
+  set glucose-baseline 3 ; Controls the normal blood glucose level.
+  set hormone-half-life 2 ; Corresponds to 14 minutes, roughly twice insulin.
+  set hormone-mean-life hormone-half-life / ln 2 ; From exponential distribution.
+  set meal-size 7000 ; Corresponds to about 1/3 of daily caloric intake.
+  set meal-length 17 ; Nutrient absorption period. Corresponds to about 2 hours.
+
+  ; Set up organs
+  make-liver
+  make-pancreas
+
+  let world-area (2 * max-pxcor + 1) * (2 * max-pycor + 1)
+
+  ; Make initial molecules at approximately their stable concentrations.
+  create-glucoses world-area * (glucose-baseline + 1) [
+    random-position
+    set color white
+    set size molecule-size
+  ]
+  ; Hormones typically follow exponential decay, so their lifetimes
+  ; are randomly drawn from an exponential distribution. This also
+  ; makes the least assumptions, since the exponential distribution
+  ; is the maximum-entropy distribution for a fixed, positive mean.
+  create-insulins round (world-area / 3) [
+    random-position
+    set color sky
+    set size molecule-size * 2
+    set lifetime random-exponential hormone-mean-life
+  ]
+  create-glucagons round (world-area / 3) [
+    random-position
+    set color red
+    set size molecule-size * 2
+    set lifetime random-exponential hormone-mean-life
+  ]
+
+  ; keep track of the body's fuel
+  set total-glucose (count glucoses) + sum ([glucose-store] of liver-cells)
+
+  reset-ticks
+end
+
+to go
+  if (total-glucose = 0) [
+    user-message "The body ran out of glucose."
+    stop
+  ]
+
+  ; Keeps track of the EAT button presses
+  if eating? [ add-glucose ]
+
+  ; Liver detects hormones and absorbs / releases glucose
+  ask liver-cells [ adjust-glucose ]
+
+  ; Pancreas detects glucose and maybe releases insulin / glucagon
+  ask pancreatic-cells [ adjust-hormones ]
+
+  metabolize-glucose
+  signal-degradation
+
+  ; Ask signals to move
+  ask insulins [ move ]
+  ask glucagons [ move ]
+  ask glucoses [ move ]
+
+  ; Keep track of the body's fuel
+  set total-glucose (count glucoses) + sum ([glucose-store] of liver-cells)
+
+  tick
+end
+
+;----------- eat button ---------------
+; Adds one meal's worth of glucose over the course of the defined meal time.
+
+; Button procedure
+; Either starts a new meal or extends a current meal.
+to eat
+  set eating? true
+  set eat-time eat-time + meal-length
+end
+
+; Implements eating process. Adds one meal's worth of glucose at
+; a constant rate, spread across the whole length of a meal.
+to add-glucose
+  create-glucoses (meal-size / meal-length) [
+    random-position
+    set color white
+    set size molecule-size
+  ]
+  set eat-time eat-time - 1
+  if eat-time < 1 [ set eating? false ]
+end
+
+;------------ setup helpers ---------------
+
+; Particle procedure
+; Place molecule at random location
+to random-position
+  setxy (min-pxcor + random-float (max-pxcor * 2))
+        (min-pycor + random-float (max-pycor * 2))
+end
+
+; Sets up liver cells
+to make-liver
+  ask patches with [ pxcor < round (max-pxcor / 2) ] [
+    sprout-liver-cells 1 [
+      set shape "square 2"
+      set color brown + 2
+      set glucose-store random-poisson 150 ; Enough to survive for about a week.
+    ]
+  ]
+end
+
+; Sets up pancreatic cells
+to make-pancreas
+  ask patches with [ pxcor >= round (max-pxcor / 2) ] [
+    sprout-pancreatic-cells 1 [
+      set shape "square 2"
+      set color yellow - 1
+    ]
+  ]
+end
+
+; ----------- signal procedures ------------
+
+; Molecule procedure
+to move
+  rt random 90
+  lt random 90
+  fd 1
+end
+
+; Observer procedure
+to signal-degradation
+  ask insulins [
+    set lifetime lifetime - 1
+    if (lifetime <= 0) [ die ]
+  ]
+  ask glucagons [
+    set lifetime lifetime - 1
+    if (lifetime <= 0) [ die ]
+  ]
+end
+
+; Observer procedure
+to metabolize-glucose
+  ifelse (count glucoses >= metabolic-rate) [
+    ask n-of metabolic-rate glucoses [ die ]
+  ] [
+    ask glucoses [ die ]
+  ]
+end
+
+;---------------- cell procedures ---------------
+; Both cell types implement signal sensitivity using the binomial distribution.
+; In this context, each signal's sensitivity slider directly governs the
+; probability that a cell will detect the presence of that signal when it is
+; present. Lowering the sensitivity makes cells more likely to miss signals.
+; The binomial distribution gives the probability that a cell will detect k signals
+; when n signals are present, given a detection probability p for each signal.
+; This can be used to produce likely signal counts (or k's) for a cell with n
+; signal molecules present and a given signal sensitivity.
+
+; Liver procedure
+; Releases or sequesters glucose based on the local hormone concentrations.
+to adjust-glucose
+  ; Detect hormones according to a binomial distribution based on their sensitivities.
+  let insulin-count random-binomial (count insulins-here) insulin-sensitivity
+  let glucagon-count random-binomial (count glucagons-here) glucagon-sensitivity
+
+  ; A positive net signal means we release glucose.
+  ; The stronger the signal (the larger the absolute value),
+  ; the more glucose is released or sequestered.
+  let net-signal glucagon-count - insulin-count
+
+  ; If there is more glucagon signal than insulin signal, release glucose.
+  if net-signal > 0 [
+    ifelse (glucose-store >= net-signal) [
+      ; If there is a lot of glucose stored in the cell, hatch new glucose molecules.
+      hatch-glucoses net-signal [
+        random-position
+        set color white
+        set size molecule-size
+      ]
+      ; Account for the change in stored glucose (net-signal > 0).
+      set glucose-store glucose-store - net-signal
+    ] [
+      ; If there is not enough glucose stored in the cell, release as much as possible.
+      hatch-glucoses glucose-store [
+        random-position
+        set color white
+        set size molecule-size
+      ]
+      set glucose-store 0
+    ]
+  ]
+  ; If there is more insulin signal than glucagon signal, sequester glucose.
+  if net-signal < 0 [
+    ifelse (count glucoses >= abs net-signal) [
+      ; If there's a lot of blood glucose, sequester what you need (net-signal < 0).
+      set glucose-store glucose-store - net-signal
+      ask n-of abs net-signal glucoses [ die ]
+    ] [
+      ; If there's not ehough blood glucose, sequester as much as possible.
+      set glucose-store glucose-store + count glucoses
+      ask glucoses [ die ]
+    ]
+  ]
+end
+
+; Pancreas procedure
+; Produces hormones according to the local glucose concentration.
+
+; Hormones typically follow exponential decay, so their lifetimes
+; are randomly drawn from an exponential distribution. This also
+; makes the least assumptions, since the exponential distribution
+; is the maximum-entropy distribution for a fixed, positive mean.
+to adjust-hormones
+  ; Detect glucose according to a binomial distribution based on the sensitivity.
+  let glucose-count random-binomial (count glucoses-here) glucose-sensitivity
+  ; Signal strength is determined by the difference in concentration from normal.
+  let signal-count abs (glucose-baseline - glucose-count)
+
+  ; If there are too few glucoses...
+  if (glucose-count < glucose-baseline) [
+    ; ...release glucagon molecules.
+    hatch-glucagons signal-count [
+      random-position
+      set color red
+      set size molecule-size * 2
+      set lifetime random-exponential hormone-mean-life
+    ]
+  ]
+  ; If there are too many glucoses...
+  if (glucose-count > glucose-baseline) [
+    ; ...release insulin molecules.
+    hatch-insulins signal-count [
+      random-position
+      set color sky
+      set size molecule-size * 2
+      set lifetime random-exponential hormone-mean-life
+    ]
+  ]
+end
+
+;------------- follow procedures -------------
+
+to follow-glucose
+  watch one-of glucoses
+end
+
+to follow-insulin
+  watch one-of insulins
+end
+
+to follow-glucagon
+  watch one-of glucagons
+end
+
+;---------------- math helpers ----------------
+
+; Returns the outcome of a Bernoulli trial with success probability p.
+; Successes are reported as 1 and failures are reported as 0.
+to-report random-bernoulli [ p ]
+  report ifelse-value random-float 1 < p [1] [0]
+end
+
+; Returns a random number according to the binomial distribution with parameters n and p
+; where n is the number of trials and p is the probability of success in each trial.
+to-report random-binomial [n p]
+  if (n < 0) or not (int n = n) [
+    error "Input n must be a non-negative integer."
+  ]
+  if (p < 0) or (p > 1) [
+    error "Probability p must be between 0 and 1."
+  ]
+
+  ; Sum the number of successes in n Bernoulli trials with success probability p.
+  report sum n-values n [random-bernoulli p]
+end
+
+
+; Copyright 2017 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="395" maxPycor="16" updateMode="1" wrappingAllowedX="true" y="15" frameRate="30.0" minPycor="-16" height="438" showTickCounter="true" patchSize="13.0" fontSize="10" wrappingAllowedY="true" width="437" tickCounterLabel="ticks" maxPxcor="16" minPxcor="-16"></view>
+    <button x="70" y="15" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="75">setup</button>
+    <button x="160" y="15" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="75">go</button>
+    <button x="250" y="15" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="75">eat</button>
+    <slider x="15" step="10" y="105" height="33" min="0" direction="Horizontal" max="200" default="100.0" variable="metabolic-rate" width="175" display="metabolic-rate"></slider>
+    <slider x="15" step="0.05" y="145" height="33" min="0" direction="Horizontal" max="1" default="0.75" variable="glucose-sensitivity" width="175" display="glucose-sensitivity"></slider>
+    <slider x="205" step="0.05" y="105" height="33" min="0" direction="Horizontal" max="1" default="0.75" variable="insulin-sensitivity" width="175" display="insulin-sensitivity"></slider>
+    <slider x="205" step="0.05" y="145" height="33" min="0" direction="Horizontal" max="1" default="0.75" variable="glucagon-sensitivity" width="175" display="glucagon-sensitivity"></slider>
+    <plot x="15" yMax="10.0" yAxis="counts" y="245" xMin="0.0" height="210" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="365" xAxis="ticks" display="signal molecules">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="glucose">
+        <setup></setup>
+        <update>plot (count glucoses)</update>
+      </pen>
+      <pen color="-13791810" legend="true" interval="1.0" mode="0" display="insulin">
+        <setup></setup>
+        <update>plot (count insulins)</update>
+      </pen>
+      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="glucagon">
+        <setup></setup>
+        <update>plot (count glucagons)</update>
+      </pen>
+    </plot>
+    <monitor x="185" precision="17" y="190" height="45" fontSize="11" width="90" display="blood glucose">count glucoses</monitor>
+    <monitor x="15" precision="17" y="190" height="45" fontSize="11" width="75" display="insulin">count insulins</monitor>
+    <monitor x="100" precision="17" y="190" height="45" fontSize="11" width="75" display="glucagon">count glucagons</monitor>
+    <button x="15" y="60" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="115">follow-glucose</button>
+    <button x="140" y="60" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="115">follow-insulin</button>
+    <button x="265" y="60" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="115">follow-glucagon</button>
+    <monitor x="285" precision="17" y="190" height="45" fontSize="11" width="95" display="stored glucose">sum ([glucose-store] of liver-cells)</monitor>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This is an agent-based model of blood glucose regulation by the liver and pancreas through the production of the hormones insulin and glucagon.
+
+This model represents cells as square patches which are either brown (liver cells) or yellow (pancreatic cells), aligning with typical textbook depictions of these organs.  These two tissues work together to regulate the levels of the signal molecules glucose (white dots), insulin (blue dots), and glucagon (red dots) in the bloodstream.  For simplicity, the model does not explicitly show blood vessels, instead representing molecule motion through diffusion.
+
+The model demonstrates how glucose homeostasis is maintained in the body through feedback loops even without direction from a central regulator.  It also demonstrates how a variety of conditions like physical activity, eating, or metabolic disorders can affect this homeostasis.  Under each of these conditions, the blood sugar level emerges from the interactions between cells and signal molecules.
+
+## HOW IT WORKS
+
+This model uses two broad classes of agents.  The first is cells, and the second is signal molecules.
+
+Liver cells (brown squares) and pancreatic cells (yellow squares) are arranged into a body.  In response to low glucose levels, pancreatic cells produce glucagon (red dots). In response to high glucose levels, they produce insulin (blue dots).  Liver cells detect the levels of insulin and glucagon and either sequester glucose (white dots) from the bloodstream or release stored glucose depending on the balance of the hormones. Liver cells also begin with a store of glycogen within themselves which can provision the body for several days.  This system relies on feedback loops between the liver and the pancreas to regulate the level of glucose in the blood.  This creates a dynamic equilibrium which has minor fluctuations but will generally maintain a constant amount of glucose in the bloodstream.
+
+The behavior of the cells is also dependent on their sensitivity to the different signal molecules.  When the cells are not very sensitive to a particular signal, they are not very good at detecting the presence of those signal molecules.  This means it will typically take more of those signal molecules to produce a particular response from the cell.
+
+The signal molecules produced by the cells move through the world by a random walk that simulates their diffusion through the body in the bloodstream.
+
+Over time, the body's metabolism will burn through the glucose in the blood and the glycogen stored in the liver cells.  This glucose can be replenished using the `EAT` button, which simulates nutrients being absorbed by the digestive system after a meal.  This means that glucose will be added in small amounts over time, like in the real world.  Eating several meals all in a row will not add glucose any more quickly, but it will increase the amount of time over which glucose is added.  This mirrors how people take longer to digest after eating more food.
+
+The model has some unavoidable differences from the real world.  For example, real bodies will also have some blood sugar fluctuations, but the fluctuation in this model is mainly because it is has a higher grain size than a real body.  Single ticks in the model correspond to a fairly long time (about 400 seconds), meaning that adjustments in the model take much longer than they would in a real body.  Also, because there are fewer molecules in the model than there are in a body, differences of only one or two molecules can have a much larger impact in the model than they would in a body.
+
+## HOW TO USE IT
+
+This model can be used to examine the effects of a variety of factors on glucose homeostasis.  One of the most common factors that might affect this is activity level or exercise.  You can simulate changes in this by adjusting the `METABOLIC-RATE` slider.  Another common factor that influences homeostasis is eating, which can be simulated by pressing the `EAT` button.
+
+Other interesting factors that can be simulated include metabolic disorders.  These can be simulated by adjusting the `GLUCOSE-SENSITIVITY`, `INSULIN-SENSITIVITY`, and `GLUCAGON-SENSITIVITY` sliders.
+
+This model makes it easy to explore how different factors affect the body's homeostasis and how the body responds to food.  The best way to observe these changes is by looking at the `SIGNAL MOLECULES` plot in the bottom left corner.  Anything you change will affect this plot, which shows the amount of glucose, insulin, and glucagon in the blood over time.
+
+### Buttons
+`SETUP`:  Initializes variables and creates the initial cells and molecules.
+`GO`:  Runs the model.
+`EAT`:  Simulates eating by adding glucose to the bloodstream over a short period.
+
+`FOLLOW-GLUCOSE`:  Highlights a glucose molecule until it is consumed or sequestered.
+`FOLLOW-INSULIN`:  Highlights an insulin molecule until it is broken down.
+`FOLLOW-GLUCAGON`:  Highlights a glucagon molecule until it is broken down.
+
+### Sliders
+`METABOLIC-RATE`:  The number of glucose molecules consumed by the body on each tick.
+`GLUCOSE-SENSITIVITY`:  The probability that pancreatic cells will detect a glucose molecule that is present.
+`INSULIN-SENSITIVITY`:  The probability that liver cells will detect an insulin molecule that is present.
+`GLUCAGON-SENSITIVITY`:  The probability that liver cells will detect a glucagon molecule that is present.
+
+### Monitors
+`INSULIN`:  Shows the number of insulin molecules in the bloodstream.
+`GLUCAGON`:  Shows the number of glucagon molecules in the bloodstream.
+`BLOOD GLUCOSE`:  Shows the number of glucose molecules in the bloodstream.
+`STORED GLUCOSE`:  Shows the number of glucose molecules stored in the liver.
+
+### Plots
+`SIGNAL MOLECULES`:  Shows the counts of glucose, insulin, and glucagon in the bloodstream.
+
+## THINGS TO NOTICE
+
+Look at the `SIGNAL MOLECULES` plot while the model runs.  This plot shows the amount of glucose, insulin, and glucagon in the bloodstream over time.  Do the levels of these molecules change very much over time?
+
+The monitors just above this plot show the current level of each signal molecule in the bloodstream precisely.  The rightmost monitor shows the current amount of glucose stored in the liver.  How does this glucose reserve change over time?  How is this reserve affected by the metabolic rate?  How is it affected by eating?  How does this compare with your real world experience?
+
+Eating can affect several parts of the body.  When you click the `EAT` button, do the glucose, insulin, and glucagon levels in the blood increase or decrease?  How big is this change compared to the baseline levels?  How long does it take before they return to their baseline levels?  Why do you think the levels of these molecules change in this specific way?
+
+What happens if the body goes too long without eating?
+
+Normal blood insulin levels are around 68 pmol/L and normal blood glucagon levels are around 22 pmol/L.  How does this compare to what you see in the model?  Can you explain any differences you observe?
+
+## THINGS TO TRY
+
+The default sensitivity values are meant to mimic a healthy metabolism.  Try to model type 2 diabetes, where the body's ability to detect insulin is dramatically reduced, by changing the sensitivity sliders.  What do you notice about the baseline glucose and hormone levels?  Are they higher or lower than in a healthy metabolism?  How much higher or lower are they?  Why do you think this happens?
+
+When you eat there is a small spike in blood glucose.  How big is the spike compared to the baseline glucose level?  What changes about this spike in a diabetic metabolism as compared to a healthy metabolism?  Is the spike taller in a healthy metabolism or in a diabetic metabolism?  How long does each metabolism take to get back to a normal blood glucose level?
+
+## EXTENDING THE MODEL
+
+In this model all pancreatic cells are identical and release both hormones, but in the body they are differentiated into several types which each release only one hormone.  Does this change the model's behavior?
+
+The sliders in this model can effectively simulate type 2 diabetes, which results from low insulin sensitivity.  How could you model type 1 diabetes, which results from insufficient production of insulin?
+
+There are many other hormones which also play a role in metabolism.  For example, GLP-1 promotes insulin release, cortisol antagonizes insulin, and somatostatin suppresses the release of several hormones including insulin and glucagon.  Does adding more signal molecules noticeably change the regulation of blood glucose?
+
+The bloodstream also carries other nutrients like amino acids or fatty acids, which are regulated and interconverted based on the concentrations of these hormones.  How do these nutrients affect the hormone and glucose levels?  How does the composition of food intake affect hormone and glucose levels?
+
+## NETLOGO FEATURES
+
+NetLogo buttons typically cause a procedure to occur exactly once when the button is pressed or 'forever', meaning once each tick until the button is pressed a second time.  The `EAT` button in conjunction with the `add-glucose` procedure allows a button to run a procedure once every tick for the next N ticks.
+
+This model also implements a new function `random-binomial` in the style of the NetLogo primitives `random-normal`, `random-poisson`, etc. which takes in the defining parameters `n` and `p` and outputs a binomial-distributed random number. This method of combining random number generators to define a new random number generator can be applied generally to form many distributions beyond NetLogo's built in capabilities.
+
+## RELATED MODELS
+
+Checkout some of the other Biology models in the Models Library for similar models of other biological phenomenon.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Woods, P. and Wilensky, U. (2017).  NetLogo Blood Sugar Regulation model.  http://ccl.northwestern.edu/netlogo/models/BloodSugarRegulation.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2017 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2017 Cite: Woods, P. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle outline" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="false" color="255" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="true" color="-1920102913" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="sheep" rotatable="false" editableColorIndex="15">
+      <circle x="203" y="65" marked="true" color="-1" diameter="88" filled="true"></circle>
+      <circle x="70" y="65" marked="true" color="-1" diameter="162" filled="true"></circle>
+      <circle x="150" y="105" marked="true" color="-1" diameter="120" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="218" y="120"></point>
+        <point x="240" y="165"></point>
+        <point x="255" y="165"></point>
+        <point x="278" y="120"></point>
+      </polygon>
+      <circle x="214" y="72" marked="false" color="-1920102913" diameter="67" filled="true"></circle>
+      <rectangle endX="179" startY="223" marked="true" color="-1" endY="298" startX="164" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="45" y="285"></point>
+        <point x="30" y="285"></point>
+        <point x="30" y="240"></point>
+        <point x="15" y="195"></point>
+        <point x="45" y="210"></point>
+      </polygon>
+      <circle x="3" y="83" marked="true" color="-1" diameter="150" filled="true"></circle>
+      <rectangle endX="80" startY="221" marked="true" color="-1" endY="296" startX="65" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="195" y="285"></point>
+        <point x="210" y="285"></point>
+        <point x="210" y="240"></point>
+        <point x="240" y="210"></point>
+        <point x="195" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="276" y="85"></point>
+        <point x="285" y="105"></point>
+        <point x="302" y="99"></point>
+        <point x="294" y="83"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="219" y="85"></point>
+        <point x="210" y="105"></point>
+        <point x="193" y="99"></point>
+        <point x="201" y="83"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="300" startY="0" marked="true" color="-1920102913" endY="300" startX="0" filled="true"></rectangle>
+    </shape>
+    <shape name="square outline" rotatable="false" editableColorIndex="0">
+      <rectangle endX="300" startY="0" marked="false" color="255" endY="300" startX="0" filled="true"></rectangle>
+      <rectangle endX="285" startY="15" marked="true" color="-1920102913" endY="285" startX="15" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="wolf" rotatable="false" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="253" y="133"></point>
+        <point x="245" y="131"></point>
+        <point x="245" y="133"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="2" y="194"></point>
+        <point x="13" y="197"></point>
+        <point x="30" y="191"></point>
+        <point x="38" y="193"></point>
+        <point x="38" y="205"></point>
+        <point x="20" y="226"></point>
+        <point x="20" y="257"></point>
+        <point x="27" y="265"></point>
+        <point x="38" y="266"></point>
+        <point x="40" y="260"></point>
+        <point x="31" y="253"></point>
+        <point x="31" y="230"></point>
+        <point x="60" y="206"></point>
+        <point x="68" y="198"></point>
+        <point x="75" y="209"></point>
+        <point x="66" y="228"></point>
+        <point x="65" y="243"></point>
+        <point x="82" y="261"></point>
+        <point x="84" y="268"></point>
+        <point x="100" y="267"></point>
+        <point x="103" y="261"></point>
+        <point x="77" y="239"></point>
+        <point x="79" y="231"></point>
+        <point x="100" y="207"></point>
+        <point x="98" y="196"></point>
+        <point x="119" y="201"></point>
+        <point x="143" y="202"></point>
+        <point x="160" y="195"></point>
+        <point x="166" y="210"></point>
+        <point x="172" y="213"></point>
+        <point x="173" y="238"></point>
+        <point x="167" y="251"></point>
+        <point x="160" y="248"></point>
+        <point x="154" y="265"></point>
+        <point x="169" y="264"></point>
+        <point x="178" y="247"></point>
+        <point x="186" y="240"></point>
+        <point x="198" y="260"></point>
+        <point x="200" y="271"></point>
+        <point x="217" y="271"></point>
+        <point x="219" y="262"></point>
+        <point x="207" y="258"></point>
+        <point x="195" y="230"></point>
+        <point x="192" y="198"></point>
+        <point x="210" y="184"></point>
+        <point x="227" y="164"></point>
+        <point x="242" y="144"></point>
+        <point x="259" y="145"></point>
+        <point x="284" y="151"></point>
+        <point x="277" y="141"></point>
+        <point x="293" y="140"></point>
+        <point x="299" y="134"></point>
+        <point x="297" y="127"></point>
+        <point x="273" y="119"></point>
+        <point x="270" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="-1" y="195"></point>
+        <point x="14" y="180"></point>
+        <point x="36" y="166"></point>
+        <point x="40" y="153"></point>
+        <point x="53" y="140"></point>
+        <point x="82" y="131"></point>
+        <point x="134" y="133"></point>
+        <point x="159" y="126"></point>
+        <point x="188" y="115"></point>
+        <point x="227" y="108"></point>
+        <point x="236" y="102"></point>
+        <point x="238" y="98"></point>
+        <point x="268" y="86"></point>
+        <point x="269" y="92"></point>
+        <point x="281" y="87"></point>
+        <point x="269" y="103"></point>
+        <point x="269" y="113"></point>
+      </polygon>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>

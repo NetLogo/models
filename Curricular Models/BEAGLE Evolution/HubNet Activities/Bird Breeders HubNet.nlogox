@@ -1,0 +1,3528 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[globals [
+  player-1 player-2 player-3 player-4       ;; player names
+  player-1-cage-color player-2-cage-color   ;; colors for cages (patches) for each player
+  player-3-cage-color player-4-cage-color
+  player-1-tag-color  player-2-tag-color    ;; colors for tags (visualization of where the destination patch is for a moving bird)
+  player-3-tag-color  player-4-tag-color
+
+  genes-to-phenotype                        ;; a list that contains a map of genotypes to phenotypes
+  parent-female  parent-male                ;; the two parents of a breeding event - used for determining genotype of any potential eggs
+
+  frequency-allele-dominant-second-trait    ;; keeps track of allele frequencies in the gene pool of the current population (of birds, but not eggs)
+  frequency-allele-dominant-first-trait
+  frequency-allele-recessive-second-trait
+  frequency-allele-recessive-first-trait
+  frequency-allele-dominant-third-trait
+  frequency-allele-recessive-third-trait
+  frequency-allele-dominant-fourth-trait
+  frequency-allele-recessive-fourth-trait
+
+  #-birds-with-1-target-trait               ;; used for keeping track of phenotype frequencies
+  #-birds-with-2-target-traits
+  #-birds-with-3-target-traits
+  #-birds-with-4-target-traits
+
+  breeding-site-color-1                     ;; colors for the patches that are breeding sites
+  breeding-site-color-2
+  bird-body-color                           ;; color of the bird body shape
+  bird-size                                 ;; size of bird shape
+  egg-size                                  ;; size of egg shape
+  current-instruction                       ;; which instruction the player is viewing
+
+  number-of-goal-birds                      ;; keeps track of how many birds you have currently that have the phenotype combinations you have been trying to breed for.
+  sequencings-performed                     ;; keeps track of the number of DNA sequencings performed
+  sequencings-left                          ;; keeps track of the number of sequencings left
+  number-offspring                          ;; keeps track of number of eggs laid
+  number-hatchings                          ;; keeps track of number of eggs hatched at cages
+  number-releases                           ;; keeps track of number of eggs and birds released into the wild (grass patches)
+  number-matings                            ;; keeps track of number of matings
+  number-selections                         ;; keeps track of number of releases + number of eggs hatched at cages
+  new-selection-event-occurred?             ;; turns true when number-selections increments by 1.  This is used for updating the genotype and phenotype graphs
+]
+
+
+breed [grasses grass]                      ;; used for the shapes on the patches that are considered the "wild"
+breed [DNA-sequencers DNA-sequencer]       ;; used for the shape that shows the location of where DNA tests can be conducted for eggs or birds (test tube shape)
+breed [cages cage]                         ;; used for the shape of cages - black lined square
+breed [selection-tags selection-tag]       ;; the selection tag is a visualization tool - it is assigned to a bird or egg that is selected with the mouse
+breed [destination-flags destination-flag] ;; the destination flag is a visualization tool - it is a turtle showing the target patch where the bird or egg is headed
+breed [karyotype-tags karyotype-tag]         ;; the karyotype tag is a visualization tool - it allows the genotype to be displayed off center of the bird
+breed [birds bird]                         ;; the creature that is being bred
+breed [eggs egg]                           ;; what is laid by birds and must be returned to cages to hatch into birds
+breed [first-traits  first-trait]          ;; shape that is the crest in birds
+breed [second-traits second-trait]         ;; shape that is the wings in birds
+breed [third-traits  third-trait]          ;; shape that determines breast in birds
+breed [fourth-traits  fourth-trait]          ;; shape that determines tail in birds
+breed [players player]                     ;; one player is assigned to each participant
+
+
+
+patches-own [site-id patch-owned-by closed? reserved?]
+players-own [user-id player-number moving-a-bird? origin-patch assigned?]
+
+birds-own [
+  owned-by                                                                ;; birds are owned-by a particular user-id.
+  first-genes second-genes third-genes fourth-genes fifth-genes sex-gene   ;; genetic information is stored in these five variables
+  transporting? breeding? selected? just-bred? sequenced? released?       ;; the state of the bird is stored in these seven variables
+  destination-patch                                                       ;; this variable is used for keeping track of where the bird is moving toward
+  release-counter                                                         ;; counts down to keep track of how to visualize the "fading" out of a released bird
+]
+
+eggs-own  [
+  owned-by                                                                ;; eggs are owned-by a particular user-id.
+  first-genes second-genes third-genes fourth-genes fifth-genes sex-gene   ;; genetic information is stored in these five variables
+  transporting? breeding? selected? just-bred? sequenced? released?       ;; the state of the egg is stored in these seven variables
+  destination-patch                                                       ;; this variable is used for keeping track of where the egg is moving toward
+  release-counter                                                         ;; counts down to keep track of how to visualize the "fading" out of a released egg
+]
+
+;; owned-by corresponds a particular user-id
+dna-sequencers-own    [owned-by]
+selection-tags-own    [owned-by]
+destination-flags-own [owned-by]
+first-traits-own      [owned-by first-genes  ]
+second-traits-own     [owned-by second-genes ]
+third-traits-own      [owned-by third-genes  ]
+;; the fourth trait related to presence of feathers (head cap) is sex linked - it only appears if the individual is male)
+fourth-traits-own     [owned-by fourth-genes fifth-genes sex-gene ]
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;  setup procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to startup
+  setup
+  hubnet-reset
+  make-players
+end
+
+
+to setup
+  ;; these clear commands are used in place of clear all, because SETUP should not remove the players from the simulation
+  clear-patches
+  clear-drawing
+  clear-all-plots
+  clear-non-player-turtles
+  reset-player-numbers
+
+  set parent-female nobody
+  set parent-male nobody
+  set number-of-goal-birds 0
+  set number-selections 0
+  set number-matings 0
+  set number-releases 0
+  set number-hatchings 0
+  set number-offspring 0
+  set sequencings-performed 0
+  set sequencings-left (max-#-of-DNA-tests - sequencings-performed)
+  set new-selection-event-occurred? false
+  set #-birds-with-1-target-trait 0
+  set #-birds-with-2-target-traits 0
+  set #-birds-with-3-target-traits 0
+  set #-birds-with-4-target-traits 0
+  set bird-body-color       [200 200 200 255]
+  set breeding-site-color-1 (gray + 2.0)
+  set breeding-site-color-2 (gray + 4.0)
+  set player-1-cage-color   (pink + 1.5)
+  set player-2-cage-color   (green + 1.5)
+  set player-3-cage-color   (brown + 1.5)
+  set player-4-cage-color   (turquoise + 1.5)
+  set player-1-tag-color   player-1-cage-color  - 5
+  set player-2-tag-color   player-2-cage-color  - 5
+  set player-3-tag-color   player-3-cage-color  - 5
+  set player-4-tag-color   player-4-cage-color  - 5
+  set bird-size 0.8
+  set egg-size  0.55
+
+  set genes-to-phenotype [
+    ;; sets crest colors
+    ["AA" "set color [150 150 150 255]"]
+    ["Aa" "set color [150 150 150 255]"]
+    ["aA" "set color [150 150 150 255]"]
+    ["aa" "set color [0 150 255 255]"]
+    ;; sets wing colors
+    ["BB" "set color [150 150 150 255]"]
+    ["Bb" "set color [150 150 150 255]"]
+    ["bB" "set color [150 150 150 255]"]
+    ["bb" "set color [155 0 100 255]"]
+    ;; sets chest colors
+    ["CC" "set color [150 150 150 255]"]
+    ["Cc" "set color [150 150 150 255]"]
+    ["cC" "set color [150 150 150 255]"]
+    ["cc" "set color [255 0 200 255]"]
+    ;; sets tail colors
+    ["DD" "set color [150 150 150 255]"]
+    ["Dd" "set color [150 150 150 255]"]
+    ["dD" "set color [150 150 150 255]"]
+    ["dd" "set color [255 0 0 255]" ]
+  ]
+
+  set-default-shape birds "bird"
+  set-default-shape first-traits "bird-cap"
+  set-default-shape second-traits "bird-wing"
+  set-default-shape third-traits "bird-breast"
+  set-default-shape fourth-traits "bird-tail"
+  set-default-shape karyotype-tags "karyotype-tag"
+  set-default-shape DNA-sequencers "test-tubes"
+  set-default-shape selection-tags "tag"
+  set-default-shape destination-flags "flag"
+  set-default-shape DNA-sequencers "test-tubes"
+
+  ask patches [set pcolor white set reserved? false]
+  setup-cages
+  setup-DNA-sequencers
+  setup-breeding-sites
+  setup-grasses
+  calculate-all-alleles
+
+  show-instruction 1
+  reset-ticks
+end
+
+
+to make-players
+  let player-number-counter 1
+  create-players 4 [
+    set hidden? true  ;; players are invisible agents
+    set player-number player-number-counter
+    set player-number-counter player-number-counter + 1
+    set user-id ""        ;; this player is currently unassigned to a participant
+    set assigned? false
+  ]
+end
+
+
+to clear-non-player-turtles
+   ask grasses [die]
+   ask cages [die]
+   ask DNA-sequencers [die]
+   ask birds [die]
+   ask eggs [die]
+   ask selection-tags [die]
+   ask destination-flags [die]
+   ask karyotype-tags [die]
+   ask first-traits [die]
+   ask second-traits [die]
+   ask third-traits [die]
+   ask fourth-traits [die]
+end
+
+
+to reset-player-numbers
+  set player-1 ""  set player-2 ""  set player-3 ""   set player-4 ""
+  ask players [
+    if player-number = 1 [set player-1 user-id]
+    if player-number = 2 [set player-2 user-id]
+    if player-number = 3 [set player-3 user-id]
+    if player-number = 4 [set player-4 user-id]
+  ]
+
+end
+
+
+to setup-cages
+   let these-cages nobody
+   ;; make cages and birds for player 1
+   set these-cages patches with [pxcor = -4 and pycor <= 3 and pycor >= -2]
+   ask these-cages [set pcolor player-1-cage-color  set patch-owned-by 1 sprout 1 [set breed cages set shape "cage"]]
+   ask n-of 3 these-cages  [setup-birds]
+   ;; make cages and birds for player 2
+   set these-cages patches with [pxcor <= 3 and pxcor >= -2 and pycor = 5]
+   ask these-cages [set pcolor player-2-cage-color set patch-owned-by 2 sprout 1 [set breed cages set shape "cage"]]
+   ask n-of 3 these-cages  [setup-birds]
+   ;; make cages and birds for player 3
+   set these-cages patches with [pxcor = 5 and pycor >= -2 and pycor <= 3]
+   ask these-cages [set pcolor player-3-cage-color  set patch-owned-by 3 sprout 1 [set breed cages set shape "cage"]]
+   ask n-of 3 these-cages  [setup-birds]
+   ;; make cages and birds for player 4
+   set these-cages patches with [pycor = -4 and pxcor >= -2 and pxcor <= 3]
+   ask these-cages [set pcolor player-4-cage-color set patch-owned-by 4 sprout 1 [set breed cages set shape "cage"]]
+   ask n-of 3 these-cages  [setup-birds]
+end
+
+
+to setup-birds
+   let this-cage patch-owned-by
+   sprout 1 [
+     build-body-base
+     set owned-by this-cage
+     assign-all-genes
+     build-body-parts
+   ]
+end
+
+
+to setup-DNA-sequencers
+  ask patch min-pxcor max-pycor [
+    set patch-owned-by 1
+    sprout 1 [set breed DNA-sequencers]
+  ]
+  ask patch (max-pxcor) max-pycor  [
+    set patch-owned-by 2
+    sprout 1 [set breed DNA-sequencers]
+  ]
+  ask patch max-pxcor min-pycor [
+    set patch-owned-by 3
+    sprout 1 [set breed DNA-sequencers]
+  ]
+  ask patch (min-pxcor ) min-pycor  [
+    set patch-owned-by 4
+    sprout 1 [set breed DNA-sequencers]
+  ]
+  ask DNA-sequencers [
+    set color 68
+    set label-color gray - 2.5
+    set label (word patch-owned-by " ")
+  ]
+end
+
+
+to setup-breeding-sites
+   ask patches with [pxcor >= -2 and pxcor <= -1 and pycor <= 3 and pycor >= 1]
+     [set pcolor breeding-site-color-1   set site-id 1]
+   ask patches with [pxcor >= 0 and pxcor <= 1 and pycor <= 3 and pycor >= 1]
+     [set pcolor breeding-site-color-2    set site-id 2]
+   ask patches with [pxcor >= 2 and pxcor <= 3 and pycor <= 3 and pycor >= 1]
+     [set pcolor breeding-site-color-1    set site-id 3]
+   ask patches with [pxcor >= -2 and pxcor <= -1 and pycor <= 0 and pycor >= -2]
+     [set pcolor breeding-site-color-2  set site-id 4]
+   ask patches with [pxcor >= 0 and pxcor <= 1 and pycor <= 0 and pycor >= -2]
+     [set pcolor breeding-site-color-1 set site-id 5]
+   ask patches with [pxcor >= 2 and pxcor <= 3 and pycor <= 0 and pycor >= -2]
+     [set pcolor breeding-site-color-2 set site-id 6]
+end
+
+
+to setup-grasses
+  ask patches with [is-a-release-site?] [
+    sprout 1 [
+      set breed grasses
+      set shape "grass"
+      set color [50 150 50 150]
+      set heading random 360
+      fd random-float .45   ;; move the grass shape a bit within the patch
+      set size 0.35 + random-float 0.15
+   ]
+   set pcolor [205 235 205]]   ;; set the color of the patch to a light green
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;  runtime procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to go
+  initialize-mating
+  open-eggs
+  check-for-DNA-test
+  update-mating-ready-visualization
+;;  every 0.1 [
+    ask (turtle-set birds eggs) with [released?] [release-this-bird-or-egg]
+    visualize-bird-and-egg-movement
+    ask selection-tags [rt 5]
+    listen-clients
+    if any? players with [assigned?] [send-common-info]
+;;  ]
+  calculate-all-alleles
+  check-for-meeting-goals
+
+  tick
+end
+
+
+to update-mating-ready-visualization
+  ask birds  [
+    ifelse just-bred?
+      [ set shape (word "bird-ready-to-go-home-" which-player-bird-or-egg-is-this? self) ]
+      [ ifelse is-at-mating-site?  [set shape "bird-ready-to-mate"] [set shape "bird-waiting"]]
+  ]
+end
+
+
+to visualize-bird-and-egg-movement
+  ask (turtle-set birds eggs) with [transporting? and destination-patch != nobody] [
+    let bird-owned-by owned-by
+    ifelse distance destination-patch < .25
+      [ setxy [pxcor] of destination-patch [pycor] of destination-patch
+          set transporting? false set breeding? false set selected? false
+          set destination-patch nobody
+          set reserved? false
+          ask destination-flags-here [die]
+          ask selection-tags-here [die]
+          if is-a-release-site? [set released? true]
+          if in-cage? [set just-bred? false]
+      ]
+      [set heading towards destination-patch fd .2 set heading 0]
+  ]
+end
+
+
+to check-for-DNA-test
+    set sequencings-left (max-#-of-DNA-tests - sequencings-performed)
+    if sequencings-left <= 0 [set sequencings-left 0]
+    ask birds with [not sequenced? and is-a-sequencer-site?] [sequence-this-bird]
+end
+
+
+to release-this-bird-or-egg
+  let bird-transparency 0
+  let color-list []
+  set release-counter release-counter - 1
+  let this-release-counter release-counter
+  set color-list but-last color
+  set bird-transparency (release-counter * 60 / 6)
+  set color-list lput bird-transparency color-list
+  set color color-list
+  ask out-link-neighbors [
+     set color-list but-last color
+     set color-list lput bird-transparency color-list
+     set color color-list
+     ask out-link-neighbors [set color color-list]
+  ]
+  remove-this-bird-or-egg
+end
+
+
+to remove-this-bird-or-egg
+  if release-counter <= 0 [
+    set number-releases number-releases + 1
+    ask out-link-neighbors [ask out-link-neighbors [die]]
+    ask out-link-neighbors [die]
+    die
+  ]
+end
+
+
+to sequence-this-bird
+  let tag-label  ( word first-genes second-genes  fourth-genes third-genes sex-gene " ")
+  let this-owner owned-by
+  let this-bird-wing one-of out-link-neighbors with [breed = second-traits]
+  if not sequenced? and is-bird? self [
+    set sequenced? true
+    set heading 0
+    hatch 1 [
+      set breed karyotype-tags
+      set hidden? false
+      set heading 55
+      fd .55
+      set heading 0
+      create-link-from this-bird-wing [set tie-mode "free" tie set hidden? true]
+      set size .2
+      set label tag-label
+      set label-color [255 0 0]
+    ]
+    set sequencings-performed sequencings-performed + 1
+    set sequencings-left (max-#-of-DNA-tests - sequencings-performed)
+  ]
+end
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Handle client interactions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
+to listen-clients
+  while [ hubnet-message-waiting? ]   [
+    hubnet-fetch-message
+    ifelse hubnet-enter-message?
+    [ assign-new-player ]
+    [
+      ifelse hubnet-exit-message?
+      [ remove-player ]
+      [ ask players with [user-id = hubnet-message-source] [  execute-command hubnet-message-tag hubnet-message ]]
+    ]
+  ]
+end
+
+
+to execute-command [command msg]
+  if command = "View" [check-click-on-bird-or-egg msg]
+  if command = "Mouse Up" [ check-release-mouse-button msg]
+end
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;; player enter / exit procedures  ;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to assign-new-player
+  if not any? players with [user-id = hubnet-message-source and assigned?]  [  ;; no players with this id and is assigned
+    ask turtle-set one-of players with [not assigned?] [ set user-id hubnet-message-source set assigned? true]
+  ]
+  reset-player-numbers
+end
+
+
+to remove-player
+  ask players with [user-id = hubnet-message-source] [ set assigned? false set user-id ""]
+  reset-player-numbers
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;  send info to client procedures ;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to send-common-info
+  hubnet-broadcast "Player 1:" player-1
+  hubnet-broadcast "Player 2:" player-2
+  hubnet-broadcast "Player 3:" player-3
+  hubnet-broadcast "Player 4:" player-4
+  hubnet-broadcast "# eggs laid" number-offspring
+  hubnet-broadcast "# of birds/eggs released" number-releases
+  hubnet-broadcast "# matings" number-matings
+  hubnet-broadcast "# of DNA tests remaining" sequencings-left
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;  check for meeting goals procedures ;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to check-for-meeting-goals
+  set new-selection-event-occurred? false
+  let new-number-selections (number-releases + number-hatchings)
+  ;; number-selections updates everytime an action is done that would potentially change the gene pool of the population
+  if new-number-selections > number-selections [
+    set number-selections new-number-selections
+    set new-selection-event-occurred? true
+  ]
+  set number-of-goal-birds count birds with [is-goal-bird-and-in-cage?]
+  if (number-of-goal-birds >= #-of-required-goal-birds)  [ announce-winner]
+end
+
+
+to announce-winner
+  user-message (word "You met your team goal and now can sell your stock of birds to rare pet collectors! Press HALT. Then Press SETUP to play again.")
+  ask patch 2 4 [set plabel "You have met your breeding goal.  Press SETUP to play again." set plabel-color black]
+end
+
+
+
+to calculate-all-alleles
+  ;; check to make sure one of each allele exists somewhere in the starting population
+  ;; otherwise breeding for the target bird would be impossible
+
+  set #-birds-with-1-target-trait  count birds with [ how-many-target-traits = 1]
+  set #-birds-with-2-target-traits count birds with [ how-many-target-traits = 2]
+  set #-birds-with-3-target-traits count birds with [ how-many-target-traits = 3]
+  set #-birds-with-4-target-traits count birds with [ how-many-target-traits = 4]
+
+  set frequency-allele-dominant-first-trait   (count birds with [(item 0 first-genes)  = "A"]) + (count birds with [(item 1 first-genes)  = "A"])
+  set frequency-allele-recessive-first-trait  (count birds with [(item 0 first-genes)  = "a"]) + (count birds with [(item 1 first-genes)  = "a"])
+  set frequency-allele-dominant-second-trait  (count birds with [(item 0 second-genes) = "B"]) + (count birds with [(item 1 second-genes) = "B"])
+  set frequency-allele-recessive-second-trait (count birds with [(item 0 second-genes) = "b"]) + (count birds with [(item 1 second-genes) = "b"])
+  set frequency-allele-dominant-third-trait   (count birds with [(item 0 third-genes)  = "C"]) + (count birds with [(item 1 third-genes)  = "C"])
+  set frequency-allele-recessive-third-trait  (count birds with [(item 0 third-genes)  = "c"]) + (count birds with [(item 1 third-genes)  = "c"])
+  set frequency-allele-dominant-fourth-trait   (count birds with [(item 0 fourth-genes)  = "D"]) + (count birds with [(item 1 fourth-genes)  = "D"])
+  set frequency-allele-recessive-fourth-trait  (count birds with [(item 0 fourth-genes)  = "d"]) + (count birds with [(item 1 fourth-genes)  = "d"])
+
+  if ((both-second-trait-alleles-exist? and
+    both-first-trait-alleles-exist? and
+    both-fourth-alleles-exist? and
+    both-third-trait-alleles-exist? and
+    both-sexes-exist?) = false)
+   [user-message (word "The current of birds in all the cages of all the player does not have"
+    " enough genetic diversity for it to be possible for you to find a way to develop the desired breed."
+    "  Press HALT then press SETUP to start the model over and try again.")
+    ]
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;  breed birds ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to initialize-mating
+  ;; when a female bird lands at a breeding site... it becomes breeding ready
+  ;; when a mate lands at this location eggs are hatched....eggs have an owner (one of two parents)
+  ask birds with [is-ready-for-mating?] [
+    let this-site-id site-id
+    let female-owned-by [owned-by] of self
+    set parent-female self
+    remove-eggs-at-nest
+    if (has-one-mate-in-nest? this-site-id ) [
+      make-eggs this-site-id
+      set just-bred? true
+      set breeding? false
+      ask parent-male [ set just-bred? true set breeding? false]
+      set number-matings number-matings + 1
+    ]
+  ]
+end
+
+
+to remove-eggs-at-nest
+  let this-site-id site-id
+  ask eggs with [site-id = this-site-id and not transporting?] [set number-releases number-releases + 1 die]
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;  make eggs or hatch  convert eggs;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to open-eggs
+  ask eggs with [in-cage? and not transporting? and not breeding? and not selected? ] [
+    build-body-base
+    build-body-parts
+    set number-hatchings number-hatchings + 1
+    reset-egg-or-bird-state
+  ]
+end
+
+
+to make-eggs [this-site-id]  ;; make eggs in all open patches at this breeding site
+   let egg-counter 0
+   let number-of-existing-female-eggs 0
+   let number-of-existing-male-eggs 0
+   let open-patches patches with [site-id = this-site-id and not any? birds-here]  ;;;  number of open patches is equal to number of eggs created
+   ask open-patches  [
+     ifelse egg-counter mod 2 = 0
+        [sprout 1 [make-an-egg parent-female]]   ;; every even egg (0, 2) will be owned by player who contributed the female bird
+        [sprout 1 [make-an-egg parent-male]]     ;; every odd egg  (1, 3) will be owned by player who contribute the male bird
+     set egg-counter egg-counter + 1
+   ]
+   set number-offspring number-offspring + egg-counter
+end
+
+
+to make-an-egg [which-bird]
+  set breed eggs
+  set first-genes inherited-first-genes
+  set third-genes inherited-third-genes
+  set second-genes inherited-second-genes
+  set fourth-genes inherited-fourth-genes
+  set sex-gene inherited-sex-genes
+  reset-egg-or-bird-state
+  set release-counter 6
+  set owned-by which-player-bird-or-egg-is-this? which-bird
+  set shape (word "egg-ready-to-go-home-" owned-by)
+  set color [200 200 255 255]
+  set size egg-size
+  set label-color black
+  set label owned-by
+end
+
+
+to reset-egg-or-bird-state
+  set breeding? false
+  set selected? false
+  set sequenced? false
+  set transporting? false
+  set just-bred? false
+  set released? false
+  set destination-patch nobody
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;  build birds ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to build-body-base
+  set breed birds
+  set shape "bird-waiting"
+  set size bird-size
+  set color bird-body-color
+  set heading 0
+  set transporting? false
+  set breeding? false
+  set just-bred? false
+  set selected? false
+  set sequenced? false
+  set release-counter 6
+  set released? false
+  set destination-patch nobody
+end
+
+
+to assign-all-genes
+  set first-genes  (word random-first-genes random-first-genes)
+  set second-genes (word random-second-genes random-second-genes)
+  set third-genes  (word random-third-genes random-third-genes)
+  set fourth-genes  (word random-fourth-genes random-fourth-genes)
+  set sex-gene random-sex-genes
+end
+
+
+to build-body-parts
+  let body-label owned-by
+  set label ""  ;; temporarily remove the label during building the body parts (so the label is not assigned to the parts)
+  set size bird-size
+  set heading 0
+  if is-male? [
+    hatch 1 [run lookup-phenotype-for-gene first-genes set breed first-traits   create-link-from myself  [tie] ]
+  ]
+  hatch 1 [run lookup-phenotype-for-gene second-genes set breed second-traits  create-link-from myself  [tie] ]
+  hatch 1 [run lookup-phenotype-for-gene fourth-genes  set breed fourth-traits   create-link-from myself  [tie] ]
+  hatch 1 [run lookup-phenotype-for-gene third-genes  set breed third-traits   create-link-from myself  [tie] ]
+  set label-color black
+  set label body-label
+end
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;  select the birds ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;; when a complete mouse drag is finished here is what should occur;
+;; a mouse action number is assigned to the bird or and egg  and the destination patch
+;; the origin patch should hatch a destination-flag to show where the egg or bird/egg is headed.
+;; A selection-tag is also attached to the bird when a bird/egg is clicked on, the bird/egg becomes
+;; selected? = true and a visual selection "selection-tag" is assigned to it.
+
+;; when a mouse drag is released the selected birds is assigned a destination patch (a bird/egg variable)
+;; The patch itself also is given a "reserved?" = true state so that it can not be set as a destination patch by other
+;; mouse drags nor have eggs hatched on it.  And now the bird/egg becomes unselected and becomes a "moving" bird/egg.
+;; moving birds can not be stopped in mid flight (they are not valid birds to be selected)
+;; once moving birds reach their destination patch, the patch is no longer reserved
+
+;; destination patches must be different than origin patches, otherwise if it is the same, then the
+;; bird/egg becomes a non selected bird/egg.
+
+;; when a moving bird/egg reaches the destination patch (or within its radius), the reserved patches for this bird/egg are
+;; cleared to be unreserved (both origin and destination).  The selected bird/egg is the agent then that is assigned
+;; a patch and a destination flag for a valid destination.  Valid destination patches are then switched to reserved
+;; until the bird gets to the patch.  Reserved patches then can not be destinations.
+
+
+to check-click-on-bird-or-egg [msg]
+  let snap-xcor round item 0 msg
+  let snap-ycor round item 1 msg
+  let this-player-number player-number
+  let this-bird-or-egg nobody
+
+  ;; birds-available is agent set of players birds at mouse location
+  let birds-or-eggs-selectable-at-clicked-patch (turtle-set birds eggs) with [pxcor = snap-xcor and pycor = snap-ycor and is-selectable-by-me? this-player-number]
+  if any? birds-or-eggs-selectable-at-clicked-patch    [
+    ;; when a bird is clicked on (mouse down, that is the players bird, the bird becomes a "selected bird"
+    ;; and a visual selection "selection-tag" is assigned to it. All other tags need to be wiped out
+    ;; ask all birds/eggs owned to deselect
+    deselect-all-my-birds-and-eggs this-player-number
+    ask one-of birds-or-eggs-selectable-at-clicked-patch [
+      set-as-only-selected
+      set destination-patch nobody
+      set this-bird-or-egg self
+      hatch 1 [
+        set breed selection-tags set owned-by this-player-number
+        set color (lput 150 extract-rgb (player-tag-and-destination-flag-color this-player-number ) )
+        set heading 0
+        set size 1.0
+        set label ""
+        create-link-from this-bird-or-egg [set hidden? true tie]
+      ]
+    ]
+  ]
+end
+
+
+to check-release-mouse-button [msg]
+  let snap-xcor round item 0 msg
+  let snap-ycor round item 1 msg
+  let is-destination-patch-illegal? true
+  let this-player-number player-number
+  let this-user-id user-id
+  let currently-selected-birds-or-eggs (turtle-set birds eggs) with [selected? and is-bird-or-egg-owned-by-this-player? this-player-number]
+
+  if any? currently-selected-birds-or-eggs [
+    let this-selected-bird-or-egg one-of currently-selected-birds-or-eggs
+    let this-selected-is-an-egg? is-egg? this-selected-bird-or-egg
+    let tag-for-this-destination-flag one-of selection-tags with [owned-by = this-player-number]
+    let possible-destination-patch patch-at snap-xcor snap-ycor
+
+    ask possible-destination-patch [set is-destination-patch-illegal? is-other-players-cage-or-occupied-site? this-player-number this-user-id ]
+
+    ifelse is-destination-patch-illegal? [
+    ;; deselect all bird and start over in detecting selection
+       deselect-all-my-birds-and-eggs this-player-number
+    ]
+    ;; the destination patch is not illegal, so assign destination patch to the bird
+    [
+      ask currently-selected-birds-or-eggs [set destination-patch  possible-destination-patch set-as-only-transporting]
+      ask possible-destination-patch [
+        set reserved? true
+        sprout 1 [
+          set breed destination-flags
+          set owned-by this-user-id
+          set color (lput 150 extract-rgb (player-tag-and-destination-flag-color this-player-number ) )
+          set size 1.0
+        ]
+      ]
+    ]
+  ]
+
+end
+
+
+to set-as-only-selected
+  set transporting? false
+  set selected? true
+  set breeding? false
+end
+
+
+to set-as-only-transporting
+  set transporting? true
+  set selected? false
+  set breeding? false
+end
+
+
+to set-as-only-breeding
+  set transporting? true
+  set selected? false
+  set breeding? false
+end
+
+
+to deselect-all-my-birds-and-eggs [my-player-number]
+   ask (turtle-set birds eggs) with [selected?] [set selected? false]
+   ask selection-tags with [owned-by = my-player-number]  [die]
+end
+
+
+to remove-tags [bird-owned-by]
+  ask selection-tags with [bird-owned-by = owned-by]  [die]
+end
+
+
+to remove-destination-flags [bird-owned-by]
+  ask destination-flags with [bird-owned-by = owned-by]  [die]
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;; genotype & phenotype reporters  ;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to-report inherited-first-genes
+  let mother-loci (random 2)
+  let father-loci (random 2)
+  let mother-allele ""
+  let father-allele ""
+  ask parent-female [set mother-allele (item mother-loci first-genes)]
+  ask parent-male [set father-allele  (item father-loci first-genes)]
+  report (word mother-allele father-allele)
+end
+
+
+to-report inherited-third-genes
+  let mother-loci (random 2)
+  let father-loci (random 2)
+  let mother-allele ""
+  let father-allele ""
+  ask parent-female [set mother-allele (item mother-loci third-genes)]
+  ask parent-male [set father-allele  (item father-loci third-genes)]
+  report (word mother-allele father-allele)
+end
+
+
+to-report inherited-second-genes
+  let mother-loci (random 2)
+  let father-loci (random 2)
+  let mother-allele ""
+  let father-allele ""
+  ask parent-female [set mother-allele (item mother-loci second-genes)]
+  ask parent-male [set father-allele  (item father-loci second-genes)]
+  report (word mother-allele father-allele)
+end
+
+
+to-report inherited-fourth-genes
+  let mother-loci (random 2)
+  let father-loci (random 2)
+  let mother-allele ""
+  let father-allele ""
+  ask parent-female [set mother-allele (item mother-loci fourth-genes)]
+  ask parent-male [set father-allele  (item father-loci fourth-genes)]
+  report (word mother-allele father-allele)
+end
+
+
+to-report inherited-sex-genes
+  let mother-loci (random 2)
+  let father-loci (random 2)
+  let mother-allele ""
+  let father-allele ""
+  ask parent-female [set mother-allele (item mother-loci sex-gene)]
+  ask parent-male [set father-allele  (item father-loci sex-gene)]
+  report (word mother-allele father-allele)
+end
+
+
+to-report random-first-genes
+  ifelse random 2 = 0 [report "A"] [report "a"]
+end
+
+
+to-report random-second-genes
+  ifelse random 2 = 0 [report "B"] [report "b"]
+end
+
+
+to-report random-third-genes
+  ifelse random 2 = 0 [report "C"] [report "c"]
+end
+
+
+to-report random-fourth-genes
+  ifelse random 2 = 0 [report "D"] [report "d"]
+end
+
+
+to-report random-sex-genes  ;; sex chromosomes in birds are designated either W or Z
+  ifelse random 2 = 0 [report "WZ"] [report "ZZ"]
+end
+
+
+to-report is-male?   ;; male birds are the homozygote (this is unlike humans where the male is XY)
+  ifelse sex-gene = "ZZ" [report true] [report false]
+end
+
+
+to-report is-female?  ;; female birds are the heterozygote (this is unlike humans where the female is XX)
+  ifelse sex-gene = "WZ" [report true] [report false]
+end
+
+
+to-report both-sexes-exist?
+  ifelse (any? birds with [is-male?] and any? birds with [is-female?])  [report true] [report false]
+end
+
+
+to-report both-first-trait-alleles-exist?
+  ifelse (frequency-allele-dominant-first-trait > 0 and frequency-allele-recessive-first-trait  > 0)  [report true] [report false]
+end
+
+
+to-report both-second-trait-alleles-exist?
+  ifelse (frequency-allele-dominant-second-trait > 0 and frequency-allele-recessive-second-trait  > 0) [report true] [report false]
+end
+
+
+to-report both-third-trait-alleles-exist?
+  ifelse (frequency-allele-dominant-third-trait > 0 and frequency-allele-recessive-third-trait  > 0) [report true] [report false]
+end
+
+
+to-report both-fourth-alleles-exist?
+  ifelse (frequency-allele-dominant-fourth-trait > 0 and frequency-allele-recessive-fourth-trait  > 0) [report true] [report false]
+end
+
+
+to-report how-many-target-traits  ;; used to determine how many desirable traits a bird has, based on its genotype
+   let #-target-traits 0
+   if first-genes  =  "aa"  [set #-target-traits #-target-traits + 1]
+   if second-genes =  "bb"  [set #-target-traits #-target-traits + 1]
+   if third-genes  =  "cc"  [set #-target-traits #-target-traits + 1]
+   if fourth-genes  =  "dd"  [set #-target-traits #-target-traits + 1]
+   report #-target-traits
+end
+
+
+to-report lookup-phenotype-for-gene [x]
+  let item-counter 0
+  let target-phenotype 0
+  let target-item 0
+  repeat length genes-to-phenotype [   ;; go through the entire genes to phenotype map
+    if (item 0 (item item-counter genes-to-phenotype)) = x
+      [set target-phenotype (item 1 (item item-counter genes-to-phenotype))]   ;; when the genotype is find, assign the corresponding phenotype to target-phenotype
+    set item-counter (item-counter + 1)
+  ]
+  set item-counter 0
+  report target-phenotype
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;; eligibility & state of bird/egg reporters  ;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to-report has-one-mate-in-nest? [this-site-id]
+  let birds-at-site-id birds-on patches with [site-id = this-site-id]
+  let report? false
+  let eligible-males birds-at-site-id with [is-male? and not selected? and not transporting? and not just-bred?]
+  if (count eligible-males = 1)  [
+    set report? true
+    set parent-male one-of eligible-males
+    ask eligible-males [set breeding? true]
+  ]
+  report report?
+end
+
+
+to-report in-cage?
+  ifelse (patch-owned-by != 0) [report true] [report false]
+end
+
+
+to-report is-bird-or-egg-owned-by-this-player? [this-player-number]
+  ifelse this-player-number = owned-by [report true] [report false]
+end
+
+
+to-report is-my-egg? [my-player-number]
+  ifelse my-player-number = owned-by and breed  = eggs [report true] [ report false]
+end
+
+
+to-report which-player-bird-or-egg-is-this? [this-bird]
+  let this-is-owned-by 0
+  ask this-bird [set this-is-owned-by owned-by]
+  report this-is-owned-by
+end
+
+
+to-report player-tag-and-destination-flag-color [this-player-number]
+  let the-color 0
+  if this-player-number = 1 [set the-color player-1-tag-color]
+  if this-player-number = 2 [set the-color player-2-tag-color]
+  if this-player-number = 3 [set the-color player-3-tag-color]
+  if this-player-number = 4 [set the-color player-4-tag-color]
+  report the-color
+end
+
+
+to-report is-selectable-by-me? [my-player-number]
+  ifelse not breeding? and not selected? and not transporting? and is-bird-or-egg-owned-by-this-player? my-player-number
+    [report true]
+    [report false]
+end
+
+
+to-report is-ready-for-mating?
+  let response false
+  if is-female? and is-at-mating-site? and not breeding? and not transporting? and not selected? and not just-bred? and destination-patch = nobody
+    [set response true]
+  report response
+end
+
+
+to-report is-at-mating-site?
+  ifelse site-id != 0 [report true][report false]
+end
+
+
+to-report is-goal-bird-and-in-cage?
+  ifelse ( first-genes = "aa" and second-genes = "bb" and third-genes = "cc" and fourth-genes = "dd" and sex-gene = "ZZ" and breed = birds and is-a-cage?)
+    [report true]
+    [report false]
+end
+
+
+to-report is-other-players-cage-or-occupied-site? [this-player-number this-user-id ]
+  let validity? false
+  if ((patch-owned-by >= 1 and patch-owned-by <= 4) and patch-owned-by != this-player-number) [
+    ;;You can not move a bird/egg to another players cage or dna sequencer
+    set validity? true
+  ]
+  if (any? other birds-here or any? other eggs-here) [
+    ;; You can not move a bird/egg on top of another bird/egg
+    set validity? true
+  ]
+  report validity?
+end
+
+
+to-report is-a-cage?
+  ifelse (patch-owned-by > 0 and patch-owned-by <= 4) [report true] [report false]
+end
+
+
+to-report is-a-release-site?
+   ifelse (patch-owned-by = 0 and site-id = 0) [report true]  [report false]
+end
+
+
+to-report is-a-sequencer-site?
+   ifelse (patch-owned-by = owned-by and any? DNA-sequencers-here) [report true]  [report false]
+end
+
+
+to-report this-players-short-name [this-owned-by]
+  let name-of-player ""
+  if any? players with [player-number = this-owned-by] [
+     ask one-of players with [player-number = this-owned-by] [set name-of-player user-id ]]
+  if length name-of-player > 6 [set name-of-player substring name-of-player 1 7 ]
+  report name-of-player
+end
+
+
+to-report game-not-filled?
+  ifelse count players with [not assigned?] < 4  [report true] [report false]
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;; instructions for players ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+to-report current-instruction-label
+  report ifelse-value (current-instruction = 0)
+    [ "press setup" ]
+    [ (word current-instruction " / " length instructions) ]
+end
+
+to next-instruction
+  show-instruction current-instruction + 1
+end
+
+to previous-instruction
+  show-instruction current-instruction - 1
+end
+
+to show-instruction [ i ]
+  if i >= 1 and i <= length instructions [
+    set current-instruction i
+    clear-output
+    foreach item (current-instruction - 1) instructions output-print
+  ]
+end
+
+to-report instructions
+  report [
+    [
+     "You will be running a selective breeding"
+     "program, attempting to develop a breed "
+     "of fancy looking birds."
+    ]
+    [
+     "There are 4 players working together on"
+     "a team and you are one of them.  Each "
+     "player starts with 3 birds in six of the"
+     "cages they own."
+    ]
+    [
+      "To breed birds, a male and female bird"
+      "must be moved to one of the 6 breeding"
+      "rectangles in the middle of the world."
+    ]
+    [
+      "To do this click on a bird and hold the"
+      "mouse button down the entire time while"
+      "you drag the cursor to the breeding"
+      "rectangle.  Then release the mouse button."
+      "Eggs will appear where birds have bred."
+    ]
+    [
+      "You must move an egg back to your cage to "
+      "hatch it.  Birds that have mated also need"
+      "to be returned to a cage before it is"
+      "ready to mate again"
+    ]
+    [
+      "You can set an egg or a bird that you"
+      "own free.  To do so, click the mouse"
+      "button, and hold and drag the egg or "
+      "bird onto one of the grassy squares."
+      "Then release the mouse button."
+    ]
+    [
+      "You ultimate goal is to breed the"
+      "#-of-required-goal-birds, each"
+      "having a blue head cap, pink chest,"
+      "purple wing and red tail."
+    ]
+    [
+      "See if you can accomplish your goal "
+      "in less matings than other teams."
+      "Press GO if you are ready to begin."
+      "Good luck!"
+    ]
+  ]
+end
+
+
+; Copyright 2011 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="455" maxPycor="5" updateMode="1" wrappingAllowedX="false" y="55" frameRate="30.0" minPycor="-4" height="569" showTickCounter="true" patchSize="56.0" fontSize="10" wrappingAllowedY="false" width="568" tickCounterLabel="ticks" maxPxcor="5" minPxcor="-4"></view>
+    <button x="185" y="45" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="80">setup</button>
+    <button x="265" y="45" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="100" display="go/pause">go</button>
+    <output x="15" y="125" height="100" fontSize="11" width="350"></output>
+    <monitor x="110" precision="17" y="280" height="45" fontSize="11" width="100" display="# of eggs laid">number-offspring</monitor>
+    <monitor x="215" precision="17" y="280" height="45" fontSize="11" width="150" display="# of birds/eggs released">number-releases</monitor>
+    <plot x="20" yMax="20.0" yAxis="#" y="460" xMin="0.0" height="135" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="320" xAxis="# of selections" display="# of Recessive Alleles in Gene Pool">
+      <setup></setup>
+      <update></update>
+      <pen color="-8990512" legend="true" interval="1.0" mode="0" display="a">
+        <setup>plotxy number-selections frequency-allele-recessive-first-trait</setup>
+        <update>if new-selection-event-occurred? [plotxy number-selections frequency-allele-recessive-first-trait]</update>
+      </pen>
+      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="b">
+        <setup>plotxy number-selections frequency-allele-recessive-second-trait</setup>
+        <update>if new-selection-event-occurred? [plotxy number-selections frequency-allele-recessive-second-trait]</update>
+      </pen>
+      <pen color="-1664597" legend="true" interval="1.0" mode="0" display="c">
+        <setup>plotxy number-selections frequency-allele-recessive-third-trait</setup>
+        <update>if new-selection-event-occurred? [plotxy number-selections frequency-allele-recessive-third-trait]</update>
+      </pen>
+      <pen color="-7858858" legend="true" interval="1.0" mode="0" display="d">
+        <setup>plotxy number-selections frequency-allele-recessive-fourth-trait</setup>
+        <update>if new-selection-event-occurred? [plotxy number-selections frequency-allele-recessive-fourth-trait]</update>
+      </pen>
+    </plot>
+    <plot x="20" yMax="20.0" yAxis="#" y="330" xMin="0.0" height="130" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="320" xAxis="# of selections" display="# of Dominant Alleles in Gene Pool">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="A">
+        <setup>plotxy number-selections frequency-allele-dominant-first-trait</setup>
+        <update>if new-selection-event-occurred? 
+[plotxy number-selections frequency-allele-dominant-first-trait]</update>
+      </pen>
+      <pen color="-3026479" legend="true" interval="1.0" mode="0" display="B">
+        <setup>plotxy number-selections frequency-allele-dominant-second-trait</setup>
+        <update>if new-selection-event-occurred? 
+[plotxy number-selections frequency-allele-dominant-second-trait]</update>
+      </pen>
+      <pen color="-3889007" legend="true" interval="1.0" mode="0" display="C">
+        <setup>plotxy number-selections frequency-allele-dominant-third-trait</setup>
+        <update>if new-selection-event-occurred? 
+[plotxy number-selections frequency-allele-dominant-third-trait]</update>
+      </pen>
+      <pen color="-9276814" legend="true" interval="1.0" mode="0" display="D">
+        <setup>plotxy number-selections frequency-allele-dominant-fourth-trait</setup>
+        <update>if new-selection-event-occurred? 
+[plotxy number-selections frequency-allele-dominant-fourth-trait]</update>
+      </pen>
+    </plot>
+    <plot x="20" yMax="10.0" yAxis="# birds" y="595" xMin="0.0" height="135" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="405" xAxis="# of selections" display="# of Birds with # of Desirable Variations">
+      <setup></setup>
+      <update></update>
+      <pen color="-4079321" legend="true" interval="1.0" mode="0" display="1 variation">
+        <setup>plotxy number-selections #-birds-with-1-target-trait</setup>
+        <update>if new-selection-event-occurred? [plotxy number-selections  #-birds-with-1-target-trait]</update>
+      </pen>
+      <pen color="-8330359" legend="true" interval="1.0" mode="0" display="2 variations">
+        <setup>plotxy number-selections #-birds-with-2-target-traits</setup>
+        <update>if new-selection-event-occurred? [plotxy number-selections  #-birds-with-2-target-traits]</update>
+      </pen>
+      <pen color="-12087248" legend="true" interval="1.0" mode="0" display="3 variations">
+        <setup>plotxy number-selections #-birds-with-3-target-traits</setup>
+        <update>if new-selection-event-occurred? [plotxy number-selections #-birds-with-3-target-traits]</update>
+      </pen>
+      <pen color="-14333415" legend="true" interval="1.0" mode="0" display="4 variations">
+        <setup>plotxy number-selections #-birds-with-4-target-traits</setup>
+        <update>if new-selection-event-occurred? [plotxy number-selections #-birds-with-4-target-traits]</update>
+      </pen>
+    </plot>
+    <slider x="195" step="1" y="10" height="33" min="0" direction="Horizontal" max="36" default="16.0" variable="max-#-of-DNA-tests" width="170" display="max-#-of-DNA-tests"></slider>
+    <monitor x="200" precision="17" y="80" height="45" fontSize="11" width="165" display="# of DNA tests remaining">sequencings-left</monitor>
+    <monitor x="370" precision="17" y="340" height="45" fontSize="11" width="83" display="Player 1">player-1</monitor>
+    <monitor x="700" precision="17" y="10" height="45" fontSize="11" width="85" display="Player 2">player-2</monitor>
+    <monitor x="1030" precision="17" y="345" height="45" fontSize="11" width="79" display="Player 3">player-3</monitor>
+    <monitor x="695" precision="17" y="645" height="45" fontSize="11" width="93" display="Player 4">player-4</monitor>
+    <monitor x="15" precision="17" y="80" height="45" fontSize="11" width="185" display="# goal birds you have bred">number-of-goal-birds</monitor>
+    <slider x="15" step="1" y="10" height="33" min="1" direction="Horizontal" max="24" default="12.0" variable="#-of-required-goal-birds" width="185" display="#-of-required-goal-birds"></slider>
+    <monitor x="15" precision="17" y="280" height="45" fontSize="11" width="90" display="# of matings">number-matings</monitor>
+    <button x="245" y="230" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="120">next-instruction</button>
+    <button x="15" y="230" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="140">previous-instruction</button>
+    <monitor x="155" precision="17" y="230" height="45" fontSize="11" width="95" display="instruction #">current-instruction-label</monitor>
+    <slider x="15" step="1" y="45" height="33" min="1" direction="Horizontal" max="4" default="4.0" variable="#-of-players" width="165" display="#-of-players"></slider>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This is a model of a selective breeding program of birds.  In the scenario presented in the model the user assumes the role of a bird breeder, whose goal is to breed a line of  "fancy" looking birds through managing a selective breeding program with other breeders (players).
+
+## HOW IT WORKS
+
+The birds have a simple genetic representation for five traits:  Crest color, wing color, chest color, tail color, and sex.
+
+These traits are represented with genes that have one of two possible alleles each (A or a, B or b, C or c, D or d, and W or Z, for the traits listed above).  Upper case letters represent dominant alleles and lower case represent recessive alleles?.  Therefore the three combinations AA, Aa, and aA result in expression of the trait for A (e.g. gray crest), and only aa results in the expression of the trait for a (e.g. red crest).  Males and Females are determined by whether the bird has ZZ  (male) or WZ (female) genetic information.  One trait, crest color, is sex linked.  Male birds (ZZ) display a crest on their head, while females (WZ) do not (though they still carry the genetic information for how it should be expressed if they were male).
+
+_Here is the genotype to phenotype mapping:_
+Crest color:   (AA, Aa, aA) grey   or   (aa) blue
+Wing color:    (BB, Bb, bB) grey   or   (bb) purple
+Chest color:   (CC, Cc, cC) grey   or   (cc) pink
+Tail color:    (DD, Dd, dD) grey   or   (dd) red
+Sex:            ZZ   male          or    WZ female
+
+Along the edge of the WORLD & VIEW are cages to store birds in.  In the middle of the WORLD & VIEW are six sites to breed birds in.  In the corner of the model is a DNA sequencer that can be used to discover the genotype of a bird.  In the rest of the model are spaces with grass in them where birds or eggs can put to be released into the wild.
+
+## HOW TO USE IT
+
+'Mirror 2D view on clients' MUST be ticked before learners connect their HubNet clients to the model. If learners connect before this is ticked, ask them to disconnect, tick the 'Mirror 2D...' box, and ask them to reconnect.
+
+There are 4 players in this selective breeding scenario.  Each player connects to the model using HubNet.  Each player starts with 3 birds of their own in six cages along the sides of the model. By click-and-dragging their birds to each of the 6 breeding locations (dark gray and light gray rectangles) in the middle of the world, players can breed new birds. In order to hatch the resulting eggs, players must click-and-drag each egg to one of their cages. The genetic makeup of the new birds will reflect the makeup of its parents.
+
+_**How do you determine which birds and eggs are yours?**_
+Birds and eggs have numbers (1-4) corresponding to the player number that owns them.  You can only move birds and eggs that are your player number.
+
+_**How do you breed birds?**_
+Move one male and one female bird into a breeding location.  Hearts will appear on the birds, indicating they are ready to mate.  When two birds with hearts of opposite genders are at a breeding location, they will breed and lay eggs.  After breeding, colored arrows will appear on the birds indicating that they must return to their cages before being ready to return to a new breeding site to breed again. To hatch the newly laid eggs, players must drag the eggs back to their cages. As soon as an egg is put in a player’s cage, the egg is hatched, and the player can decide to keep the bird or set it free.  Ownership of eggs is determined by the ownership of the breeding birds: If a player owns both birds, all the eggs will belong to that player, but if two birds belonging to two different learners breed, each player will own half of the eggs.
+
+_**How do you get rid of extra birds or eggs?**_
+To set a bird or egg free, just click on it and drag it into the green spaces with grass shapes in them and release the mouse button.  You can only set birds free or remove eggs if you own them (they have the same player number on them as you do).
+
+If you move an egg to a breeding site and another bird is there, the egg will disappear (the bird that is there destroys it).  Likewise if you move a new non-parent bird to a mating site that has eggs in it still, the new bird will destroy the eggs that are at that nesting site as it gets ready to mate.
+
+_**How can you find out the genetic information for a given bird or egg?**_
+You can drag a bird or an egg to the corner location that has a picture of a test tube rack is numbered the same as your player number.  That is your DNA sequencer.  If your team of players has any DNA sequencings left, then the bird or egg you drag to the sequencer will be labeled with the genotype of that organism.  Eggs that are dragged to the DNA sequencer also hatch upon arriving there.  There is a limit to the number of times that your team can do this (set by max-#-of-DNA-tests).
+
+_**How can you tell the male birds apart from the female birds?**_
+The male birds have a crown of feather on their head, but the females do not.
+
+
+**Buttons:**
+SETUP:  Press this first to assign a new batch of starting birds to the players.
+GO:     Press this second to start allowing the players to interact with the shared interface in the breeding challenge
+NEXT-INSTRUCTION:  Use this to display the next instruction about how to user the interface and mouse interactions with the birds.
+PREVIOUS-INSTRUCTION:  :  Use this to display the previous instruction about how to user the interface and mouse interactions with the birds.
+
+**Sliders:**
+ #-OF-REQUIRED-GOAL-BIRDS sets the number of goal birds that must be accumulated in the player cages in order to successfully complete the scenario.
+MAX-#-OF-DNA-TEST sets the maximum limit of birds or eggs that can have their genotype shown when dragged to a DNA sequencing patch.
+
+**Monitors:  **
+DNA-TESTS-REMAINING indicates how many times left that you (or another player) can still drag an egg or bird to a DNA sequencer and get the genotype to appear on that agent.  MAX-#-OF-DNA-TEST sets the maximum limit.
+ #-OF-REQUIRED-GOAL-BIRDS indicates how many goal birds have been accumulated in the player cages.
+INSTRUCTION-#: displays which instruction is being displayed out of how many total instructions there are to view.
+ # OF MATINGS:  keeps track of the number of times birds were mated together
+ # OF EGGS LAID:  keeps track of the eggs laid.
+ # OF BIRDS/EGGS RELEASED:  keeps track of the number of birds or eggs you released from the world.
+
+
+**Graphs:**
+NUMBER OF RECESSIVE ALLELES IN GENE POOL graphs the number of recessive alleles (a, b, c, and d) in the gene pool vs. the number of selections (the sum of the # of birds/eggs released + # of eggs hatched).
+NUMBER OF DOMINANT ALLELES IN GENE POOL graphs the number of dominant alleles (A, B, C, and D) in the gene pool vs. the number of selections (the sum of the # of birds/eggs released + # of eggs hatched).
+NUMBER OF BIRDS WITH # OF DESIRABLE VARIATIONS graphs all the phenotype frequencies in the population.  It graphs the number of birds that show 1, 2, 3, and 4 of the 4 possible desirable variations in the traits that you are breeding for.
+
+## THINGS TO NOTICE
+
+Even though birds produce four eggs when they mate, the four eggs may or may not produce the expected probabilities of a theoretical Punnett square.  This is because the expected probabilities represent what would result after an infinite set of crosses.
+
+If additional birds occupy a nesting site, then less than four eggs will be laid, since fewer patches are available.
+
+## THINGS TO TRY
+
+See if you can breed for the fancy bird in the least number of generations.
+
+Write down the breeding plan you followed to create a line of the fancy bird.  Create a pedigree diagram to show the series of generations and breeding events that led to the fancy bird.
+
+Track the changes in the frequency of recessive and dominant alleles.  Compare the general trends in the graph to the fluctuations that appear.  What are some things that cause the fluctuations?
+
+## EXTENDING THE MODEL
+
+The model shows one scenarios of breeding birds.  The bird shapes could be changed to show breeding of other virtual creatures (reptiles, cats, fish, etc)
+
+## NETLOGO FEATURES
+
+Bird Breeders uses NetLogo lists as maps to easily keep track of how genotypes relate to phenotypes.
+
+The order of how breeds are defined, determine which breed appears on top of the others in the WORLD & VIEW.  Earlier defined breeds (such as grasses) are on the bottom layer.  This allows later defined breeds (such as eggs or birds) to move across and in front of them as the travel from cages to breeding sites.
+
+## RELATED MODELS
+
+Plant Hybridization and Fish Tank Genetic Drift from the BEAGLE curricular folder.
+
+## CREDITS AND REFERENCES
+
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/rp/beagle/index.shtml)
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Novak, M. and Wilensky, U. (2011).  NetLogo Bird Breeders HubNet model.  http://ccl.northwestern.edu/netlogo/models/BirdBreedersHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the HubNet software as:
+
+* Wilensky, U. & Stroup, W. (1999). HubNet. http://ccl.northwestern.edu/netlogo/hubnet.html. Center for Connected Learning and Computer-Based Modeling, Northwestern University. Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2011 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2011 Cite: Novak, M. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="bird" rotatable="false" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="0" y="128"></point>
+        <point x="45" y="98"></point>
+        <point x="75" y="98"></point>
+        <point x="105" y="128"></point>
+        <point x="150" y="128"></point>
+        <point x="240" y="143"></point>
+        <point x="285" y="128"></point>
+        <point x="285" y="143"></point>
+        <point x="300" y="158"></point>
+        <point x="240" y="158"></point>
+        <point x="195" y="173"></point>
+        <point x="255" y="203"></point>
+        <point x="210" y="203"></point>
+        <point x="150" y="218"></point>
+        <point x="90" y="203"></point>
+        <point x="60" y="188"></point>
+        <point x="45" y="143"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="0" y="120"></point>
+        <point x="45" y="90"></point>
+        <point x="75" y="90"></point>
+        <point x="105" y="120"></point>
+        <point x="150" y="120"></point>
+        <point x="240" y="135"></point>
+        <point x="285" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="300" y="150"></point>
+        <point x="240" y="150"></point>
+        <point x="195" y="165"></point>
+        <point x="255" y="195"></point>
+        <point x="210" y="195"></point>
+        <point x="150" y="210"></point>
+        <point x="90" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="45" y="135"></point>
+      </polygon>
+      <circle x="38" y="98" marked="false" color="255" diameter="14" filled="true"></circle>
+    </shape>
+    <shape name="bird side" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="0" y="120"></point>
+        <point x="45" y="90"></point>
+        <point x="75" y="90"></point>
+        <point x="105" y="120"></point>
+        <point x="150" y="120"></point>
+        <point x="240" y="135"></point>
+        <point x="285" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="300" y="150"></point>
+        <point x="240" y="150"></point>
+        <point x="195" y="165"></point>
+        <point x="255" y="195"></point>
+        <point x="210" y="195"></point>
+        <point x="150" y="210"></point>
+        <point x="90" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="45" y="135"></point>
+      </polygon>
+      <circle x="38" y="98" marked="false" color="255" diameter="14" filled="true"></circle>
+    </shape>
+    <shape name="bird-all" rotatable="false" editableColorIndex="0">
+      <polygon color="-684578305" filled="true" marked="false">
+        <point x="45" y="90"></point>
+        <point x="15" y="60"></point>
+        <point x="45" y="75"></point>
+        <point x="30" y="45"></point>
+        <point x="60" y="75"></point>
+        <point x="60" y="30"></point>
+        <point x="75" y="75"></point>
+        <point x="90" y="45"></point>
+        <point x="90" y="75"></point>
+        <point x="120" y="60"></point>
+        <point x="90" y="90"></point>
+        <point x="135" y="90"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="0" y="120"></point>
+        <point x="45" y="90"></point>
+        <point x="75" y="90"></point>
+        <point x="105" y="120"></point>
+        <point x="150" y="120"></point>
+        <point x="240" y="135"></point>
+        <point x="285" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="300" y="150"></point>
+        <point x="240" y="150"></point>
+        <point x="195" y="165"></point>
+        <point x="255" y="195"></point>
+        <point x="210" y="195"></point>
+        <point x="150" y="210"></point>
+        <point x="90" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="45" y="135"></point>
+      </polygon>
+      <circle x="38" y="98" marked="false" color="255" diameter="14" filled="true"></circle>
+      <polygon color="-684578305" filled="true" marked="false">
+        <point x="255" y="195"></point>
+        <point x="195" y="165"></point>
+        <point x="165" y="150"></point>
+        <point x="120" y="150"></point>
+        <point x="150" y="180"></point>
+        <point x="210" y="195"></point>
+      </polygon>
+      <polygon color="-684578305" filled="true" marked="false">
+        <point x="60" y="180"></point>
+        <point x="54" y="163"></point>
+        <point x="105" y="180"></point>
+        <point x="150" y="210"></point>
+        <point x="90" y="195"></point>
+      </polygon>
+      <polygon color="-684578305" filled="true" marked="false">
+        <point x="240" y="150"></point>
+        <point x="300" y="150"></point>
+        <point x="285" y="135"></point>
+        <point x="285" y="120"></point>
+        <point x="240" y="135"></point>
+        <point x="255" y="135"></point>
+      </polygon>
+    </shape>
+    <shape name="bird-breast" rotatable="false" editableColorIndex="1">
+      <polygon color="-684578305" filled="true" marked="true">
+        <point x="55" y="196"></point>
+        <point x="76" y="187"></point>
+        <point x="105" y="195"></point>
+        <point x="150" y="240"></point>
+        <point x="90" y="225"></point>
+        <point x="60" y="210"></point>
+      </polygon>
+    </shape>
+    <shape name="bird-cap" rotatable="false" editableColorIndex="1">
+      <polygon color="255" filled="true" marked="false">
+        <point x="46" y="115"></point>
+        <point x="16" y="85"></point>
+        <point x="46" y="100"></point>
+        <point x="31" y="70"></point>
+        <point x="61" y="100"></point>
+        <point x="61" y="55"></point>
+        <point x="76" y="100"></point>
+        <point x="91" y="70"></point>
+        <point x="91" y="100"></point>
+        <point x="121" y="85"></point>
+        <point x="91" y="115"></point>
+        <point x="136" y="115"></point>
+        <point x="91" y="130"></point>
+      </polygon>
+      <polygon color="-684578305" filled="true" marked="true">
+        <point x="45" y="120"></point>
+        <point x="15" y="90"></point>
+        <point x="45" y="105"></point>
+        <point x="30" y="75"></point>
+        <point x="60" y="105"></point>
+        <point x="60" y="60"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="75"></point>
+        <point x="90" y="105"></point>
+        <point x="120" y="90"></point>
+        <point x="90" y="120"></point>
+        <point x="135" y="120"></point>
+        <point x="90" y="135"></point>
+      </polygon>
+    </shape>
+    <shape name="bird-ready-to-go-home-1" rotatable="false" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="0" y="158"></point>
+        <point x="45" y="128"></point>
+        <point x="75" y="128"></point>
+        <point x="105" y="158"></point>
+        <point x="150" y="158"></point>
+        <point x="240" y="173"></point>
+        <point x="285" y="158"></point>
+        <point x="285" y="173"></point>
+        <point x="300" y="188"></point>
+        <point x="240" y="188"></point>
+        <point x="195" y="203"></point>
+        <point x="255" y="233"></point>
+        <point x="210" y="233"></point>
+        <point x="150" y="248"></point>
+        <point x="90" y="233"></point>
+        <point x="60" y="218"></point>
+        <point x="45" y="173"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="0" y="150"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="120"></point>
+        <point x="105" y="150"></point>
+        <point x="150" y="150"></point>
+        <point x="240" y="165"></point>
+        <point x="285" y="150"></point>
+        <point x="285" y="165"></point>
+        <point x="300" y="180"></point>
+        <point x="240" y="180"></point>
+        <point x="195" y="195"></point>
+        <point x="255" y="225"></point>
+        <point x="210" y="225"></point>
+        <point x="150" y="240"></point>
+        <point x="90" y="225"></point>
+        <point x="60" y="210"></point>
+        <point x="45" y="165"></point>
+      </polygon>
+      <circle x="38" y="128" marked="false" color="255" diameter="14" filled="true"></circle>
+      <rectangle endX="60" startY="245" marked="false" color="-528509185" endY="265" startX="29" filled="true"></rectangle>
+      <polygon color="-528509185" filled="true" marked="false">
+        <point x="30" y="285"></point>
+        <point x="30" y="225"></point>
+        <point x="0" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="bird-ready-to-go-home-2" rotatable="false" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="0" y="158"></point>
+        <point x="45" y="128"></point>
+        <point x="75" y="128"></point>
+        <point x="105" y="158"></point>
+        <point x="150" y="158"></point>
+        <point x="240" y="173"></point>
+        <point x="285" y="158"></point>
+        <point x="285" y="173"></point>
+        <point x="300" y="188"></point>
+        <point x="240" y="188"></point>
+        <point x="195" y="203"></point>
+        <point x="255" y="233"></point>
+        <point x="210" y="233"></point>
+        <point x="150" y="248"></point>
+        <point x="90" y="233"></point>
+        <point x="60" y="218"></point>
+        <point x="45" y="173"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="0" y="150"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="120"></point>
+        <point x="105" y="150"></point>
+        <point x="150" y="150"></point>
+        <point x="240" y="165"></point>
+        <point x="285" y="150"></point>
+        <point x="285" y="165"></point>
+        <point x="300" y="180"></point>
+        <point x="240" y="180"></point>
+        <point x="195" y="195"></point>
+        <point x="255" y="225"></point>
+        <point x="210" y="225"></point>
+        <point x="150" y="240"></point>
+        <point x="90" y="225"></point>
+        <point x="60" y="210"></point>
+        <point x="45" y="165"></point>
+      </polygon>
+      <circle x="38" y="128" marked="false" color="255" diameter="14" filled="true"></circle>
+      <rectangle endX="55" startY="254" marked="false" color="751909887" endY="285" startX="35" filled="true"></rectangle>
+      <polygon color="751909887" filled="true" marked="false">
+        <point x="15" y="255"></point>
+        <point x="75" y="255"></point>
+        <point x="45" y="225"></point>
+      </polygon>
+    </shape>
+    <shape name="bird-ready-to-go-home-3" rotatable="false" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="0" y="158"></point>
+        <point x="45" y="128"></point>
+        <point x="75" y="128"></point>
+        <point x="105" y="158"></point>
+        <point x="150" y="158"></point>
+        <point x="240" y="173"></point>
+        <point x="285" y="158"></point>
+        <point x="285" y="173"></point>
+        <point x="300" y="188"></point>
+        <point x="240" y="188"></point>
+        <point x="195" y="203"></point>
+        <point x="255" y="233"></point>
+        <point x="210" y="233"></point>
+        <point x="150" y="248"></point>
+        <point x="90" y="233"></point>
+        <point x="60" y="218"></point>
+        <point x="45" y="173"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="0" y="150"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="120"></point>
+        <point x="105" y="150"></point>
+        <point x="150" y="150"></point>
+        <point x="240" y="165"></point>
+        <point x="285" y="150"></point>
+        <point x="285" y="165"></point>
+        <point x="300" y="180"></point>
+        <point x="240" y="180"></point>
+        <point x="195" y="195"></point>
+        <point x="255" y="225"></point>
+        <point x="210" y="225"></point>
+        <point x="150" y="240"></point>
+        <point x="90" y="225"></point>
+        <point x="60" y="210"></point>
+        <point x="45" y="165"></point>
+      </polygon>
+      <circle x="38" y="128" marked="false" color="255" diameter="14" filled="true"></circle>
+      <rectangle endX="31" startY="245" marked="false" color="-1653716737" endY="265" startX="0" filled="true"></rectangle>
+      <polygon color="-1653716737" filled="true" marked="false">
+        <point x="30" y="285"></point>
+        <point x="30" y="225"></point>
+        <point x="60" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="bird-ready-to-go-home-4" rotatable="false" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="0" y="158"></point>
+        <point x="45" y="128"></point>
+        <point x="75" y="128"></point>
+        <point x="105" y="158"></point>
+        <point x="150" y="158"></point>
+        <point x="240" y="173"></point>
+        <point x="285" y="158"></point>
+        <point x="285" y="173"></point>
+        <point x="300" y="188"></point>
+        <point x="240" y="188"></point>
+        <point x="195" y="203"></point>
+        <point x="255" y="233"></point>
+        <point x="210" y="233"></point>
+        <point x="150" y="248"></point>
+        <point x="90" y="233"></point>
+        <point x="60" y="218"></point>
+        <point x="45" y="173"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="0" y="150"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="120"></point>
+        <point x="105" y="150"></point>
+        <point x="150" y="150"></point>
+        <point x="240" y="165"></point>
+        <point x="285" y="150"></point>
+        <point x="285" y="165"></point>
+        <point x="300" y="180"></point>
+        <point x="240" y="180"></point>
+        <point x="195" y="195"></point>
+        <point x="255" y="225"></point>
+        <point x="210" y="225"></point>
+        <point x="150" y="240"></point>
+        <point x="90" y="225"></point>
+        <point x="60" y="210"></point>
+        <point x="45" y="165"></point>
+      </polygon>
+      <circle x="38" y="128" marked="false" color="255" diameter="14" filled="true"></circle>
+      <rectangle endX="55" startY="240" marked="false" color="496990463" endY="271" startX="35" filled="true"></rectangle>
+      <polygon color="496990463" filled="true" marked="false">
+        <point x="15" y="270"></point>
+        <point x="75" y="270"></point>
+        <point x="45" y="300"></point>
+      </polygon>
+    </shape>
+    <shape name="bird-ready-to-mate" rotatable="false" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="0" y="158"></point>
+        <point x="45" y="128"></point>
+        <point x="75" y="128"></point>
+        <point x="105" y="158"></point>
+        <point x="150" y="158"></point>
+        <point x="240" y="173"></point>
+        <point x="285" y="158"></point>
+        <point x="285" y="173"></point>
+        <point x="300" y="188"></point>
+        <point x="240" y="188"></point>
+        <point x="195" y="203"></point>
+        <point x="255" y="233"></point>
+        <point x="210" y="233"></point>
+        <point x="150" y="248"></point>
+        <point x="90" y="233"></point>
+        <point x="60" y="218"></point>
+        <point x="45" y="173"></point>
+      </polygon>
+      <circle x="15" y="240" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+      <circle x="45" y="240" marked="false" color="-684578305" diameter="30" filled="true"></circle>
+      <polygon color="-684578305" filled="true" marked="false">
+        <point x="15" y="260"></point>
+        <point x="46" y="296"></point>
+        <point x="75" y="260"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="0" y="150"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="120"></point>
+        <point x="105" y="150"></point>
+        <point x="150" y="150"></point>
+        <point x="240" y="165"></point>
+        <point x="285" y="150"></point>
+        <point x="285" y="165"></point>
+        <point x="300" y="180"></point>
+        <point x="240" y="180"></point>
+        <point x="195" y="195"></point>
+        <point x="255" y="225"></point>
+        <point x="210" y="225"></point>
+        <point x="150" y="240"></point>
+        <point x="90" y="225"></point>
+        <point x="60" y="210"></point>
+        <point x="45" y="165"></point>
+      </polygon>
+      <circle x="38" y="128" marked="false" color="255" diameter="14" filled="true"></circle>
+    </shape>
+    <shape name="bird-tail" rotatable="false" editableColorIndex="1">
+      <polygon color="255" filled="true" marked="false">
+        <point x="239" y="189"></point>
+        <point x="298" y="202"></point>
+        <point x="284" y="174"></point>
+        <point x="283" y="157"></point>
+        <point x="239" y="174"></point>
+        <point x="254" y="174"></point>
+      </polygon>
+      <polygon color="-684578305" filled="true" marked="true">
+        <point x="236" y="179"></point>
+        <point x="300" y="195"></point>
+        <point x="281" y="164"></point>
+        <point x="285" y="135"></point>
+        <point x="236" y="164"></point>
+        <point x="251" y="164"></point>
+      </polygon>
+    </shape>
+    <shape name="bird-waiting" rotatable="false" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="0" y="158"></point>
+        <point x="45" y="128"></point>
+        <point x="75" y="128"></point>
+        <point x="105" y="158"></point>
+        <point x="150" y="158"></point>
+        <point x="240" y="173"></point>
+        <point x="285" y="158"></point>
+        <point x="285" y="173"></point>
+        <point x="300" y="188"></point>
+        <point x="240" y="188"></point>
+        <point x="195" y="203"></point>
+        <point x="255" y="233"></point>
+        <point x="210" y="233"></point>
+        <point x="150" y="248"></point>
+        <point x="90" y="233"></point>
+        <point x="60" y="218"></point>
+        <point x="45" y="173"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="0" y="150"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="120"></point>
+        <point x="105" y="150"></point>
+        <point x="150" y="150"></point>
+        <point x="240" y="165"></point>
+        <point x="285" y="150"></point>
+        <point x="285" y="165"></point>
+        <point x="300" y="180"></point>
+        <point x="240" y="180"></point>
+        <point x="195" y="195"></point>
+        <point x="255" y="225"></point>
+        <point x="210" y="225"></point>
+        <point x="150" y="240"></point>
+        <point x="90" y="225"></point>
+        <point x="60" y="210"></point>
+        <point x="45" y="165"></point>
+      </polygon>
+      <circle x="38" y="128" marked="false" color="255" diameter="14" filled="true"></circle>
+    </shape>
+    <shape name="bird-wing" rotatable="false" editableColorIndex="1">
+      <polygon color="-684578305" filled="true" marked="true">
+        <point x="270" y="225"></point>
+        <point x="195" y="180"></point>
+        <point x="150" y="165"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="195"></point>
+        <point x="210" y="225"></point>
+      </polygon>
+      <line endX="135" startY="180" marked="false" color="255" endY="195" startX="120"></line>
+      <line endX="210" startY="195" marked="false" color="255" endY="225" startX="135"></line>
+      <line endX="270" startY="225" marked="false" color="255" endY="225" startX="210"></line>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="cage" rotatable="false" editableColorIndex="0">
+      <rectangle endX="300" startY="0" marked="false" color="255" endY="300" startX="0" filled="false"></rectangle>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="dragon-chest" rotatable="false" editableColorIndex="13">
+      <polygon color="-528509185" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="120"></point>
+        <point x="120" y="150"></point>
+        <point x="120" y="180"></point>
+        <point x="105" y="210"></point>
+        <point x="120" y="240"></point>
+        <point x="120" y="270"></point>
+        <point x="150" y="285"></point>
+        <point x="90" y="285"></point>
+        <point x="45" y="240"></point>
+        <point x="60" y="180"></point>
+        <point x="90" y="150"></point>
+        <point x="105" y="120"></point>
+        <point x="96" y="91"></point>
+      </polygon>
+      <line endX="118" startY="240" marked="false" color="255" endY="240" startX="49"></line>
+      <line endX="120" startY="180" marked="false" color="255" endY="180" startX="60"></line>
+      <line endX="120" startY="270" marked="false" color="255" endY="270" startX="75"></line>
+      <line endX="120" startY="150" marked="false" color="255" endY="150" startX="90"></line>
+      <line endX="120" startY="120" marked="false" color="255" endY="120" startX="105"></line>
+      <line endX="106" startY="210" marked="false" color="255" endY="210" startX="52"></line>
+    </shape>
+    <shape name="dragon-tail-rope" rotatable="false" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="240" y="285"></point>
+        <point x="263" y="264"></point>
+        <point x="283" y="240"></point>
+        <point x="289" y="218"></point>
+        <point x="281" y="206"></point>
+        <point x="266" y="209"></point>
+        <point x="255" y="195"></point>
+        <point x="281" y="193"></point>
+        <point x="297" y="207"></point>
+        <point x="298" y="228"></point>
+        <point x="290" y="248"></point>
+        <point x="273" y="268"></point>
+        <point x="239" y="289"></point>
+      </polygon>
+    </shape>
+    <shape name="dragon-tail-rope-spade" rotatable="false" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="207" y="297"></point>
+        <point x="237" y="252"></point>
+        <point x="237" y="282"></point>
+        <point x="267" y="297"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="236" y="278"></point>
+        <point x="263" y="264"></point>
+        <point x="283" y="240"></point>
+        <point x="289" y="218"></point>
+        <point x="281" y="206"></point>
+        <point x="266" y="209"></point>
+        <point x="255" y="195"></point>
+        <point x="281" y="193"></point>
+        <point x="297" y="207"></point>
+        <point x="298" y="228"></point>
+        <point x="290" y="248"></point>
+        <point x="273" y="268"></point>
+        <point x="239" y="289"></point>
+      </polygon>
+    </shape>
+    <shape name="dragon-tail-spade" rotatable="false" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="260" y="202"></point>
+        <point x="233" y="181"></point>
+        <point x="293" y="196"></point>
+        <point x="248" y="241"></point>
+      </polygon>
+    </shape>
+    <shape name="dragon-tails" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="207" y="297"></point>
+        <point x="237" y="252"></point>
+        <point x="237" y="282"></point>
+        <point x="267" y="297"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="236" y="278"></point>
+        <point x="263" y="264"></point>
+        <point x="283" y="240"></point>
+        <point x="289" y="218"></point>
+        <point x="281" y="206"></point>
+        <point x="266" y="209"></point>
+        <point x="255" y="195"></point>
+        <point x="281" y="193"></point>
+        <point x="297" y="207"></point>
+        <point x="298" y="228"></point>
+        <point x="290" y="248"></point>
+        <point x="273" y="268"></point>
+        <point x="239" y="289"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="260" y="202"></point>
+        <point x="233" y="181"></point>
+        <point x="293" y="196"></point>
+        <point x="248" y="241"></point>
+      </polygon>
+    </shape>
+    <shape name="dragon-teeth" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="45" y="60"></point>
+        <point x="30" y="60"></point>
+        <point x="30" y="120"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="60"></point>
+        <point x="60" y="60"></point>
+        <point x="60" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="dragon-wing-female" rotatable="false" editableColorIndex="2">
+      <polygon color="-684578305" filled="true" marked="false">
+        <point x="36" y="52"></point>
+        <point x="43" y="79"></point>
+        <point x="36" y="96"></point>
+        <point x="25" y="107"></point>
+        <point x="39" y="101"></point>
+        <point x="46" y="95"></point>
+        <point x="53" y="108"></point>
+        <point x="62" y="113"></point>
+        <point x="56" y="93"></point>
+        <point x="47" y="72"></point>
+        <point x="49" y="56"></point>
+      </polygon>
+      <line endX="-45" startY="255" marked="true" color="-244705793" endY="270" startX="-60"></line>
+      <line endX="-45" startY="255" marked="true" color="-244705793" endY="270" startX="-60"></line>
+    </shape>
+    <shape name="dragon-wing-male" rotatable="false" editableColorIndex="2">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="15" y="60"></point>
+        <point x="15" y="105"></point>
+        <point x="30" y="60"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="60" y="60"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="60"></point>
+      </polygon>
+      <line endX="-45" startY="255" marked="true" color="-244705793" endY="270" startX="-60"></line>
+      <line endX="-45" startY="255" marked="true" color="-244705793" endY="270" startX="-60"></line>
+    </shape>
+    <shape name="egg" rotatable="false" editableColorIndex="1">
+      <polygon color="255" filled="true" marked="false">
+        <point x="45" y="150"></point>
+        <point x="46" y="178"></point>
+        <point x="57" y="194"></point>
+        <point x="65" y="205"></point>
+        <point x="88" y="216"></point>
+        <point x="157" y="238"></point>
+        <point x="187" y="240"></point>
+        <point x="224" y="231"></point>
+        <point x="249" y="208"></point>
+        <point x="263" y="172"></point>
+        <point x="264" y="154"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="38" y="143"></point>
+        <point x="39" y="115"></point>
+        <point x="50" y="99"></point>
+        <point x="58" y="88"></point>
+        <point x="81" y="77"></point>
+        <point x="150" y="55"></point>
+        <point x="180" y="53"></point>
+        <point x="217" y="62"></point>
+        <point x="242" y="85"></point>
+        <point x="256" y="121"></point>
+        <point x="257" y="139"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="45" y="154"></point>
+        <point x="46" y="137"></point>
+        <point x="57" y="121"></point>
+        <point x="65" y="110"></point>
+        <point x="88" y="99"></point>
+        <point x="157" y="77"></point>
+        <point x="187" y="75"></point>
+        <point x="224" y="84"></point>
+        <point x="249" y="107"></point>
+        <point x="263" y="143"></point>
+        <point x="264" y="161"></point>
+      </polygon>
+      <polygon color="-684578305" filled="true" marked="true">
+        <point x="37" y="140"></point>
+        <point x="38" y="168"></point>
+        <point x="49" y="184"></point>
+        <point x="57" y="195"></point>
+        <point x="80" y="206"></point>
+        <point x="149" y="228"></point>
+        <point x="179" y="230"></point>
+        <point x="216" y="221"></point>
+        <point x="241" y="198"></point>
+        <point x="255" y="162"></point>
+        <point x="256" y="144"></point>
+      </polygon>
+      <polygon color="-684578305" filled="true" marked="true">
+        <point x="37" y="146"></point>
+        <point x="38" y="129"></point>
+        <point x="49" y="113"></point>
+        <point x="57" y="102"></point>
+        <point x="80" y="91"></point>
+        <point x="149" y="69"></point>
+        <point x="179" y="67"></point>
+        <point x="216" y="76"></point>
+        <point x="241" y="99"></point>
+        <point x="255" y="135"></point>
+        <point x="256" y="153"></point>
+      </polygon>
+    </shape>
+    <shape name="egg-ready-to-go-home-1" rotatable="false" editableColorIndex="1">
+      <polygon color="255" filled="true" marked="false">
+        <point x="45" y="150"></point>
+        <point x="46" y="178"></point>
+        <point x="57" y="194"></point>
+        <point x="65" y="205"></point>
+        <point x="88" y="216"></point>
+        <point x="157" y="238"></point>
+        <point x="187" y="240"></point>
+        <point x="224" y="231"></point>
+        <point x="249" y="208"></point>
+        <point x="263" y="172"></point>
+        <point x="264" y="154"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="38" y="143"></point>
+        <point x="39" y="115"></point>
+        <point x="50" y="99"></point>
+        <point x="58" y="88"></point>
+        <point x="81" y="77"></point>
+        <point x="150" y="55"></point>
+        <point x="180" y="53"></point>
+        <point x="217" y="62"></point>
+        <point x="242" y="85"></point>
+        <point x="256" y="121"></point>
+        <point x="257" y="139"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="45" y="154"></point>
+        <point x="46" y="137"></point>
+        <point x="57" y="121"></point>
+        <point x="65" y="110"></point>
+        <point x="88" y="99"></point>
+        <point x="157" y="77"></point>
+        <point x="187" y="75"></point>
+        <point x="224" y="84"></point>
+        <point x="249" y="107"></point>
+        <point x="263" y="143"></point>
+        <point x="264" y="161"></point>
+      </polygon>
+      <polygon color="-684578305" filled="true" marked="true">
+        <point x="37" y="140"></point>
+        <point x="38" y="168"></point>
+        <point x="49" y="184"></point>
+        <point x="57" y="195"></point>
+        <point x="80" y="206"></point>
+        <point x="149" y="228"></point>
+        <point x="179" y="230"></point>
+        <point x="216" y="221"></point>
+        <point x="241" y="198"></point>
+        <point x="255" y="162"></point>
+        <point x="256" y="144"></point>
+      </polygon>
+      <polygon color="-684578305" filled="true" marked="true">
+        <point x="37" y="146"></point>
+        <point x="38" y="129"></point>
+        <point x="49" y="113"></point>
+        <point x="57" y="102"></point>
+        <point x="80" y="91"></point>
+        <point x="149" y="69"></point>
+        <point x="179" y="67"></point>
+        <point x="216" y="76"></point>
+        <point x="241" y="99"></point>
+        <point x="255" y="135"></point>
+        <point x="256" y="153"></point>
+      </polygon>
+      <polygon color="-528509185" filled="true" marked="false">
+        <point x="0" y="255"></point>
+        <point x="45" y="300"></point>
+        <point x="45" y="210"></point>
+      </polygon>
+      <rectangle endX="90" startY="240" marked="false" color="-528509185" endY="270" startX="45" filled="true"></rectangle>
+    </shape>
+    <shape name="egg-ready-to-go-home-2" rotatable="false" editableColorIndex="1">
+      <polygon color="255" filled="true" marked="false">
+        <point x="45" y="150"></point>
+        <point x="46" y="178"></point>
+        <point x="57" y="194"></point>
+        <point x="65" y="205"></point>
+        <point x="88" y="216"></point>
+        <point x="157" y="238"></point>
+        <point x="187" y="240"></point>
+        <point x="224" y="231"></point>
+        <point x="249" y="208"></point>
+        <point x="263" y="172"></point>
+        <point x="264" y="154"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="38" y="143"></point>
+        <point x="39" y="115"></point>
+        <point x="50" y="99"></point>
+        <point x="58" y="88"></point>
+        <point x="81" y="77"></point>
+        <point x="150" y="55"></point>
+        <point x="180" y="53"></point>
+        <point x="217" y="62"></point>
+        <point x="242" y="85"></point>
+        <point x="256" y="121"></point>
+        <point x="257" y="139"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="45" y="154"></point>
+        <point x="46" y="137"></point>
+        <point x="57" y="121"></point>
+        <point x="65" y="110"></point>
+        <point x="88" y="99"></point>
+        <point x="157" y="77"></point>
+        <point x="187" y="75"></point>
+        <point x="224" y="84"></point>
+        <point x="249" y="107"></point>
+        <point x="263" y="143"></point>
+        <point x="264" y="161"></point>
+      </polygon>
+      <polygon color="-684578305" filled="true" marked="true">
+        <point x="37" y="140"></point>
+        <point x="38" y="168"></point>
+        <point x="49" y="184"></point>
+        <point x="57" y="195"></point>
+        <point x="80" y="206"></point>
+        <point x="149" y="228"></point>
+        <point x="179" y="230"></point>
+        <point x="216" y="221"></point>
+        <point x="241" y="198"></point>
+        <point x="255" y="162"></point>
+        <point x="256" y="144"></point>
+      </polygon>
+      <polygon color="-684578305" filled="true" marked="true">
+        <point x="37" y="146"></point>
+        <point x="38" y="129"></point>
+        <point x="49" y="113"></point>
+        <point x="57" y="102"></point>
+        <point x="80" y="91"></point>
+        <point x="149" y="69"></point>
+        <point x="179" y="67"></point>
+        <point x="216" y="76"></point>
+        <point x="241" y="99"></point>
+        <point x="255" y="135"></point>
+        <point x="256" y="153"></point>
+      </polygon>
+      <polygon color="751909887" filled="true" marked="false">
+        <point x="45" y="210"></point>
+        <point x="0" y="255"></point>
+        <point x="90" y="255"></point>
+      </polygon>
+      <rectangle endX="60" startY="255" marked="false" color="751909887" endY="300" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="egg-ready-to-go-home-3" rotatable="false" editableColorIndex="1">
+      <polygon color="255" filled="true" marked="false">
+        <point x="45" y="150"></point>
+        <point x="46" y="178"></point>
+        <point x="57" y="194"></point>
+        <point x="65" y="205"></point>
+        <point x="88" y="216"></point>
+        <point x="157" y="238"></point>
+        <point x="187" y="240"></point>
+        <point x="224" y="231"></point>
+        <point x="249" y="208"></point>
+        <point x="263" y="172"></point>
+        <point x="264" y="154"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="38" y="143"></point>
+        <point x="39" y="115"></point>
+        <point x="50" y="99"></point>
+        <point x="58" y="88"></point>
+        <point x="81" y="77"></point>
+        <point x="150" y="55"></point>
+        <point x="180" y="53"></point>
+        <point x="217" y="62"></point>
+        <point x="242" y="85"></point>
+        <point x="256" y="121"></point>
+        <point x="257" y="139"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="45" y="154"></point>
+        <point x="46" y="137"></point>
+        <point x="57" y="121"></point>
+        <point x="65" y="110"></point>
+        <point x="88" y="99"></point>
+        <point x="157" y="77"></point>
+        <point x="187" y="75"></point>
+        <point x="224" y="84"></point>
+        <point x="249" y="107"></point>
+        <point x="263" y="143"></point>
+        <point x="264" y="161"></point>
+      </polygon>
+      <polygon color="-684578305" filled="true" marked="true">
+        <point x="37" y="140"></point>
+        <point x="38" y="168"></point>
+        <point x="49" y="184"></point>
+        <point x="57" y="195"></point>
+        <point x="80" y="206"></point>
+        <point x="149" y="228"></point>
+        <point x="179" y="230"></point>
+        <point x="216" y="221"></point>
+        <point x="241" y="198"></point>
+        <point x="255" y="162"></point>
+        <point x="256" y="144"></point>
+      </polygon>
+      <polygon color="-684578305" filled="true" marked="true">
+        <point x="37" y="146"></point>
+        <point x="38" y="129"></point>
+        <point x="49" y="113"></point>
+        <point x="57" y="102"></point>
+        <point x="80" y="91"></point>
+        <point x="149" y="69"></point>
+        <point x="179" y="67"></point>
+        <point x="216" y="76"></point>
+        <point x="241" y="99"></point>
+        <point x="255" y="135"></point>
+        <point x="256" y="153"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="false">
+        <point x="90" y="255"></point>
+        <point x="45" y="210"></point>
+        <point x="45" y="300"></point>
+      </polygon>
+      <rectangle endX="45" startY="240" marked="false" color="-1653716737" endY="270" startX="0" filled="true"></rectangle>
+    </shape>
+    <shape name="egg-ready-to-go-home-4" rotatable="false" editableColorIndex="1">
+      <polygon color="255" filled="true" marked="false">
+        <point x="45" y="150"></point>
+        <point x="46" y="178"></point>
+        <point x="57" y="194"></point>
+        <point x="65" y="205"></point>
+        <point x="88" y="216"></point>
+        <point x="157" y="238"></point>
+        <point x="187" y="240"></point>
+        <point x="224" y="231"></point>
+        <point x="249" y="208"></point>
+        <point x="263" y="172"></point>
+        <point x="264" y="154"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="38" y="143"></point>
+        <point x="39" y="115"></point>
+        <point x="50" y="99"></point>
+        <point x="58" y="88"></point>
+        <point x="81" y="77"></point>
+        <point x="150" y="55"></point>
+        <point x="180" y="53"></point>
+        <point x="217" y="62"></point>
+        <point x="242" y="85"></point>
+        <point x="256" y="121"></point>
+        <point x="257" y="139"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="45" y="154"></point>
+        <point x="46" y="137"></point>
+        <point x="57" y="121"></point>
+        <point x="65" y="110"></point>
+        <point x="88" y="99"></point>
+        <point x="157" y="77"></point>
+        <point x="187" y="75"></point>
+        <point x="224" y="84"></point>
+        <point x="249" y="107"></point>
+        <point x="263" y="143"></point>
+        <point x="264" y="161"></point>
+      </polygon>
+      <polygon color="-684578305" filled="true" marked="true">
+        <point x="37" y="140"></point>
+        <point x="38" y="168"></point>
+        <point x="49" y="184"></point>
+        <point x="57" y="195"></point>
+        <point x="80" y="206"></point>
+        <point x="149" y="228"></point>
+        <point x="179" y="230"></point>
+        <point x="216" y="221"></point>
+        <point x="241" y="198"></point>
+        <point x="255" y="162"></point>
+        <point x="256" y="144"></point>
+      </polygon>
+      <polygon color="-684578305" filled="true" marked="true">
+        <point x="37" y="146"></point>
+        <point x="38" y="129"></point>
+        <point x="49" y="113"></point>
+        <point x="57" y="102"></point>
+        <point x="80" y="91"></point>
+        <point x="149" y="69"></point>
+        <point x="179" y="67"></point>
+        <point x="216" y="76"></point>
+        <point x="241" y="99"></point>
+        <point x="255" y="135"></point>
+        <point x="256" y="153"></point>
+      </polygon>
+      <polygon color="764264191" filled="true" marked="false">
+        <point x="45" y="300"></point>
+        <point x="0" y="255"></point>
+        <point x="90" y="255"></point>
+      </polygon>
+      <rectangle endX="60" startY="210" marked="false" color="764264191" endY="255" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="empty" rotatable="true" editableColorIndex="0"></shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <circle x="116" y="116" marked="true" color="-1920102913" diameter="67" filled="false"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="120" y="165"></point>
+        <point x="75" y="150"></point>
+        <point x="120" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="120"></point>
+        <point x="150" y="75"></point>
+        <point x="165" y="120"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="180" y="135"></point>
+        <point x="225" y="150"></point>
+        <point x="180" y="165"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="150" y="225"></point>
+        <point x="135" y="180"></point>
+      </polygon>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="grass" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="120" y="210"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="210"></point>
+        <point x="165" y="165"></point>
+        <point x="165" y="60"></point>
+        <point x="150" y="0"></point>
+        <point x="150" y="75"></point>
+        <point x="120" y="165"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="150" y="210"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="240"></point>
+        <point x="195" y="225"></point>
+        <point x="195" y="150"></point>
+        <point x="225" y="90"></point>
+        <point x="255" y="60"></point>
+        <point x="300" y="30"></point>
+        <point x="225" y="60"></point>
+        <point x="165" y="120"></point>
+        <point x="150" y="165"></point>
+      </polygon>
+      <polygon color="751909887" filled="true" marked="false">
+        <point x="90" y="225"></point>
+        <point x="105" y="240"></point>
+        <point x="120" y="240"></point>
+        <point x="150" y="225"></point>
+        <point x="135" y="165"></point>
+        <point x="120" y="120"></point>
+        <point x="90" y="75"></point>
+        <point x="45" y="45"></point>
+        <point x="15" y="30"></point>
+        <point x="60" y="75"></point>
+        <point x="90" y="120"></point>
+        <point x="105" y="165"></point>
+      </polygon>
+      <polygon color="751909887" filled="true" marked="false">
+        <point x="270" y="180"></point>
+        <point x="210" y="210"></point>
+        <point x="195" y="225"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="240"></point>
+        <point x="150" y="210"></point>
+        <point x="180" y="195"></point>
+        <point x="225" y="180"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="0" y="210"></point>
+        <point x="45" y="210"></point>
+        <point x="90" y="225"></point>
+        <point x="105" y="240"></point>
+        <point x="135" y="240"></point>
+        <point x="150" y="225"></point>
+        <point x="120" y="195"></point>
+        <point x="60" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="heart" rotatable="false" editableColorIndex="0">
+      <circle x="135" y="43" marked="true" color="-1920102913" diameter="122" filled="true"></circle>
+      <circle x="43" y="43" marked="true" color="-1920102913" diameter="122" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="255" y="120"></point>
+        <point x="240" y="150"></point>
+        <point x="210" y="180"></point>
+        <point x="180" y="210"></point>
+        <point x="150" y="240"></point>
+        <point x="146" y="135"></point>
+      </polygon>
+      <line endX="151" startY="209" marked="true" color="-1920102913" endY="80" startX="150"></line>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="45" y="120"></point>
+        <point x="60" y="150"></point>
+        <point x="90" y="180"></point>
+        <point x="120" y="210"></point>
+        <point x="150" y="240"></point>
+        <point x="154" y="135"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="karyotype-tag" rotatable="false" editableColorIndex="0"></shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="reptile-body" rotatable="false" editableColorIndex="2">
+      <circle x="21" y="10" marked="false" color="-1" diameter="40" filled="true"></circle>
+      <polygon color="-244705793" filled="true" marked="true">
+        <point x="45" y="30"></point>
+        <point x="1" y="50"></point>
+        <point x="15" y="60"></point>
+        <point x="45" y="60"></point>
+        <point x="75" y="75"></point>
+        <point x="90" y="60"></point>
+        <point x="105" y="120"></point>
+        <point x="90" y="150"></point>
+        <point x="60" y="180"></point>
+        <point x="45" y="240"></point>
+        <point x="90" y="285"></point>
+        <point x="150" y="285"></point>
+        <point x="210" y="255"></point>
+        <point x="225" y="225"></point>
+        <point x="255" y="210"></point>
+        <point x="270" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="195"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="225"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="165"></point>
+        <point x="150" y="105"></point>
+        <point x="120" y="45"></point>
+        <point x="90" y="30"></point>
+        <point x="105" y="0"></point>
+        <point x="75" y="15"></point>
+        <point x="75" y="30"></point>
+        <point x="60" y="30"></point>
+        <point x="60" y="15"></point>
+        <point x="30" y="0"></point>
+      </polygon>
+      <circle x="45" y="10" marked="false" color="-1" diameter="40" filled="true"></circle>
+      <circle x="46" y="22" marked="false" color="255" diameter="14" filled="true"></circle>
+      <line endX="-45" startY="255" marked="true" color="-244705793" endY="270" startX="-60"></line>
+      <line endX="-45" startY="255" marked="true" color="-244705793" endY="270" startX="-60"></line>
+      <circle x="20" y="23" marked="false" color="255" diameter="14" filled="true"></circle>
+    </shape>
+    <shape name="reptile-both-spine-scales" rotatable="false" editableColorIndex="2">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="107" y="50"></point>
+        <point x="122" y="20"></point>
+        <point x="152" y="20"></point>
+        <point x="152" y="50"></point>
+        <point x="122" y="65"></point>
+      </polygon>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="126" y="67"></point>
+        <point x="141" y="37"></point>
+        <point x="171" y="37"></point>
+        <point x="171" y="67"></point>
+        <point x="141" y="82"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="136" y="93"></point>
+        <point x="151" y="63"></point>
+        <point x="181" y="63"></point>
+        <point x="181" y="93"></point>
+        <point x="151" y="108"></point>
+      </polygon>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="148" y="119"></point>
+        <point x="163" y="89"></point>
+        <point x="193" y="89"></point>
+        <point x="193" y="119"></point>
+        <point x="163" y="134"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="150" y="150"></point>
+        <point x="165" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="195" y="150"></point>
+        <point x="165" y="165"></point>
+      </polygon>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="150" y="180"></point>
+        <point x="165" y="150"></point>
+        <point x="195" y="150"></point>
+        <point x="195" y="180"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <line endX="-45" startY="255" marked="true" color="-244705793" endY="270" startX="-60"></line>
+      <line endX="-45" startY="255" marked="true" color="-244705793" endY="270" startX="-60"></line>
+    </shape>
+    <shape name="reptile-green-spine-scales" rotatable="false" editableColorIndex="2">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="107" y="50"></point>
+        <point x="122" y="20"></point>
+        <point x="152" y="20"></point>
+        <point x="152" y="50"></point>
+        <point x="122" y="65"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="136" y="93"></point>
+        <point x="151" y="63"></point>
+        <point x="181" y="63"></point>
+        <point x="181" y="93"></point>
+        <point x="151" y="108"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="150" y="150"></point>
+        <point x="165" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="195" y="150"></point>
+        <point x="165" y="165"></point>
+      </polygon>
+      <line endX="-45" startY="255" marked="true" color="-244705793" endY="270" startX="-60"></line>
+      <line endX="-45" startY="255" marked="true" color="-244705793" endY="270" startX="-60"></line>
+    </shape>
+    <shape name="reptile-yellow-spine-scales" rotatable="false" editableColorIndex="2">
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="126" y="67"></point>
+        <point x="141" y="37"></point>
+        <point x="171" y="37"></point>
+        <point x="171" y="67"></point>
+        <point x="141" y="82"></point>
+      </polygon>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="148" y="119"></point>
+        <point x="163" y="89"></point>
+        <point x="193" y="89"></point>
+        <point x="193" y="119"></point>
+        <point x="163" y="134"></point>
+      </polygon>
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="150" y="180"></point>
+        <point x="165" y="150"></point>
+        <point x="195" y="150"></point>
+        <point x="195" y="180"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <line endX="-45" startY="255" marked="true" color="-244705793" endY="270" startX="-60"></line>
+      <line endX="-45" startY="255" marked="true" color="-244705793" endY="270" startX="-60"></line>
+    </shape>
+    <shape name="rooster-all" rotatable="false" editableColorIndex="0">
+      <polygon color="-244705793" filled="true" marked="false">
+        <point x="45" y="30"></point>
+        <point x="15" y="45"></point>
+        <point x="45" y="60"></point>
+        <point x="60" y="165"></point>
+        <point x="135" y="240"></point>
+        <point x="150" y="240"></point>
+        <point x="180" y="210"></point>
+        <point x="270" y="180"></point>
+        <point x="240" y="135"></point>
+        <point x="135" y="120"></point>
+        <point x="105" y="75"></point>
+        <point x="90" y="45"></point>
+        <point x="60" y="30"></point>
+      </polygon>
+      <circle x="38" y="38" marked="false" color="255" diameter="14" filled="true"></circle>
+      <polygon color="-684578305" filled="true" marked="false">
+        <point x="240" y="180"></point>
+        <point x="195" y="165"></point>
+        <point x="165" y="150"></point>
+        <point x="120" y="150"></point>
+        <point x="150" y="180"></point>
+        <point x="210" y="195"></point>
+      </polygon>
+      <polygon color="-684578305" filled="true" marked="false">
+        <point x="45" y="30"></point>
+        <point x="30" y="0"></point>
+        <point x="45" y="15"></point>
+        <point x="45" y="0"></point>
+        <point x="60" y="15"></point>
+        <point x="75" y="0"></point>
+        <point x="75" y="15"></point>
+        <point x="90" y="0"></point>
+        <point x="73" y="39"></point>
+      </polygon>
+      <polygon color="-684578305" filled="true" marked="false">
+        <point x="31" y="50"></point>
+        <point x="25" y="75"></point>
+        <point x="33" y="99"></point>
+        <point x="49" y="78"></point>
+        <point x="46" y="61"></point>
+      </polygon>
+      <polygon color="-684578305" filled="true" marked="false">
+        <point x="225" y="135"></point>
+        <point x="240" y="75"></point>
+        <point x="270" y="30"></point>
+        <point x="300" y="30"></point>
+        <point x="285" y="45"></point>
+        <point x="300" y="45"></point>
+        <point x="285" y="60"></point>
+        <point x="285" y="90"></point>
+        <point x="300" y="75"></point>
+        <point x="285" y="105"></point>
+        <point x="300" y="105"></point>
+        <point x="285" y="120"></point>
+        <point x="300" y="135"></point>
+        <point x="285" y="150"></point>
+        <point x="285" y="165"></point>
+        <point x="270" y="165"></point>
+        <point x="270" y="180"></point>
+        <point x="255" y="180"></point>
+        <point x="240" y="150"></point>
+      </polygon>
+      <line endX="120" startY="240" marked="false" color="-303222273" endY="285" startX="135"></line>
+      <line endX="145" startY="240" marked="false" color="-303222273" endY="270" startX="150"></line>
+      <line endX="75" startY="285" marked="false" color="-303222273" endY="285" startX="120"></line>
+      <line endX="105" startY="285" marked="false" color="-303222273" endY="300" startX="120"></line>
+      <line endX="150" startY="285" marked="false" color="-303222273" endY="300" startX="120"></line>
+      <line endX="171" startY="269" marked="false" color="-303222273" endY="277" startX="146"></line>
+      <line endX="130" startY="270" marked="false" color="-303222273" endY="270" startX="145"></line>
+    </shape>
+    <shape name="site" rotatable="false" editableColorIndex="0">
+      <rectangle endX="300" startY="0" marked="true" color="-1920102913" endY="300" startX="0" filled="true"></rectangle>
+    </shape>
+    <shape name="site-ne" rotatable="false" editableColorIndex="0">
+      <rectangle endX="300" startY="0" marked="true" color="-1920102913" endY="300" startX="0" filled="true"></rectangle>
+      <line endX="300" startY="300" marked="false" color="255" endY="0" startX="300"></line>
+      <line endX="300" startY="0" marked="false" color="255" endY="0" startX="0"></line>
+    </shape>
+    <shape name="site-new" rotatable="false" editableColorIndex="0">
+      <rectangle endX="300" startY="0" marked="true" color="-1920102913" endY="300" startX="0" filled="true"></rectangle>
+    </shape>
+    <shape name="site-nw" rotatable="false" editableColorIndex="0">
+      <rectangle endX="300" startY="0" marked="true" color="-1920102913" endY="300" startX="0" filled="true"></rectangle>
+      <line endX="0" startY="300" marked="false" color="255" endY="0" startX="0"></line>
+      <line endX="300" startY="0" marked="false" color="255" endY="0" startX="0"></line>
+    </shape>
+    <shape name="site-se" rotatable="false" editableColorIndex="0">
+      <rectangle endX="300" startY="0" marked="true" color="-1920102913" endY="300" startX="0" filled="true"></rectangle>
+      <line endX="300" startY="300" marked="false" color="255" endY="0" startX="300"></line>
+      <line endX="285" startY="300" marked="false" color="255" endY="300" startX="-15"></line>
+    </shape>
+    <shape name="site-sw" rotatable="false" editableColorIndex="0">
+      <rectangle endX="300" startY="0" marked="true" color="-1920102913" endY="300" startX="0" filled="true"></rectangle>
+      <line endX="0" startY="300" marked="false" color="255" endY="0" startX="0"></line>
+      <line endX="300" startY="300" marked="false" color="255" endY="300" startX="0"></line>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="tag" rotatable="true" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="298" filled="false"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="135"></point>
+        <point x="255" y="150"></point>
+        <point x="300" y="165"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="0"></point>
+        <point x="150" y="45"></point>
+        <point x="165" y="0"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="300"></point>
+        <point x="150" y="255"></point>
+        <point x="135" y="300"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="0" y="165"></point>
+        <point x="45" y="150"></point>
+        <point x="0" y="135"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="test-tubes" rotatable="false" editableColorIndex="8">
+      <circle x="46" y="37" marked="false" color="-1920102913" diameter="58" filled="false"></circle>
+      <circle x="121" y="37" marked="false" color="-1920102913" diameter="58" filled="false"></circle>
+      <circle x="196" y="37" marked="false" color="-1920102913" diameter="58" filled="false"></circle>
+      <circle x="45" y="210" marked="true" color="1422181631" diameter="60" filled="true"></circle>
+      <circle x="45" y="211" marked="false" color="-1920102913" diameter="60" filled="false"></circle>
+      <rectangle endX="105" startY="165" marked="true" color="1422181631" endY="240" startX="45" filled="true"></rectangle>
+      <line endX="180" startY="90" marked="false" color="255" endY="90" startX="165"></line>
+      <line endX="180" startY="150" marked="false" color="255" endY="150" startX="165"></line>
+      <line endX="180" startY="180" marked="false" color="255" endY="180" startX="165"></line>
+      <circle x="45" y="135" marked="true" color="1422181631" diameter="60" filled="true"></circle>
+      <circle x="45" y="135" marked="false" color="-1920102913" diameter="60" filled="false"></circle>
+      <circle x="45" y="30" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="120" y="210" marked="false" color="-244705793" diameter="60" filled="true"></circle>
+      <circle x="195" y="210" marked="false" color="-303222273" diameter="60" filled="true"></circle>
+      <circle x="120" y="212" marked="false" color="-1920102913" diameter="60" filled="false"></circle>
+      <circle x="195" y="212" marked="false" color="-1920102913" diameter="60" filled="false"></circle>
+      <rectangle endX="180" startY="165" marked="false" color="-244705793" endY="240" startX="120" filled="true"></rectangle>
+      <rectangle endX="255" startY="165" marked="false" color="-303222273" endY="240" startX="195" filled="true"></rectangle>
+      <circle x="120" y="135" marked="false" color="-244705793" diameter="60" filled="true"></circle>
+      <circle x="195" y="135" marked="false" color="-303222273" diameter="60" filled="true"></circle>
+      <circle x="120" y="135" marked="false" color="-1920102913" diameter="60" filled="false"></circle>
+      <circle x="195" y="135" marked="false" color="-1920102913" diameter="60" filled="false"></circle>
+      <circle x="120" y="30" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="195" y="30" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="105" startY="30" marked="false" color="255" endY="60" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="30" marked="false" color="255" endY="60" startX="120" filled="true"></rectangle>
+      <rectangle endX="255" startY="30" marked="false" color="255" endY="60" startX="195" filled="true"></rectangle>
+      <circle x="45" y="8" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="120" y="8" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="195" y="8" marked="false" color="255" diameter="60" filled="true"></circle>
+      <line endX="45" startY="30" marked="false" color="-1920102913" endY="240" startX="45"></line>
+      <line endX="105" startY="30" marked="false" color="-1920102913" endY="240" startX="105"></line>
+      <line endX="120" startY="30" marked="false" color="-1920102913" endY="240" startX="120"></line>
+      <line endX="180" startY="30" marked="false" color="-1920102913" endY="240" startX="180"></line>
+      <line endX="195" startY="30" marked="false" color="-1920102913" endY="240" startX="195"></line>
+      <line endX="255" startY="30" marked="false" color="-1920102913" endY="240" startX="255"></line>
+      <circle x="48" y="4" marked="false" color="-1920102913" diameter="54" filled="false"></circle>
+      <circle x="123" y="4" marked="false" color="-1920102913" diameter="54" filled="false"></circle>
+      <circle x="198" y="4" marked="false" color="-1920102913" diameter="54" filled="false"></circle>
+      <rectangle endX="300" startY="0" marked="false" color="255" endY="300" startX="0" filled="false"></rectangle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <hubNetClient>
+    <monitor x="270" precision="3" y="345" height="49" fontSize="11" width="98" display="Player 1:"></monitor>
+    <monitor x="930" precision="3" y="345" height="49" fontSize="11" width="93" display="Player 3:"></monitor>
+    <monitor x="630" precision="3" y="10" height="49" fontSize="11" width="100" display="Player 2:"></monitor>
+    <monitor x="625" precision="3" y="630" height="49" fontSize="11" width="102" display="Player 4:"></monitor>
+    <monitor x="165" precision="3" y="370" height="49" fontSize="11" width="75" display="# eggs laid"></monitor>
+    <monitor x="10" precision="3" y="320" height="49" fontSize="11" width="155" display="# of birds/eggs released"></monitor>
+    <monitor x="10" precision="3" y="370" height="49" fontSize="11" width="155" display="# of DNA tests remaining"></monitor>
+    <monitor x="165" precision="3" y="320" height="49" fontSize="11" width="74" display="# matings"></monitor>
+    <view x="370" maxPycor="5" updateMode="1" wrappingAllowedX="true" y="65" frameRate="30.0" minPycor="-4" height="560" showTickCounter="true" patchSize="12.0" fontSize="13" wrappingAllowedY="true" width="560" tickCounterLabel="ticks" maxPxcor="5" minPxcor="-4"></view>
+    <plot x="10" yMax="20.0" yAxis="#" y="165" xMin="0.0" height="150" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="340" xAxis="# of selections" display="# of Recessive Alleles in Gene Pool">
+      <setup></setup>
+      <update></update>
+      <pen color="-8990512" legend="true" interval="1.0" mode="0" display="a">
+        <setup></setup>
+        <update></update>
+      </pen>
+      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="b">
+        <setup></setup>
+        <update></update>
+      </pen>
+      <pen color="-1664597" legend="true" interval="1.0" mode="0" display="c">
+        <setup></setup>
+        <update></update>
+      </pen>
+      <pen color="-7858858" legend="true" interval="1.0" mode="0" display="d">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <plot x="10" yMax="20.0" yAxis="#" y="10" xMin="0.0" height="150" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="340" xAxis="# of selections" display="# of Dominant Alleles in Gene Pool">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="A">
+        <setup></setup>
+        <update></update>
+      </pen>
+      <pen color="-3026479" legend="true" interval="1.0" mode="0" display="B">
+        <setup></setup>
+        <update></update>
+      </pen>
+      <pen color="-3889007" legend="true" interval="1.0" mode="0" display="C">
+        <setup></setup>
+        <update></update>
+      </pen>
+      <pen color="-9276814" legend="true" interval="1.0" mode="0" display="D">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <plot x="10" yMax="10.0" yAxis="# birds" y="430" xMin="0.0" height="250" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="345" xAxis="# of selections" display="# of Birds with # of Desirable Variations">
+      <setup></setup>
+      <update></update>
+      <pen color="-4079321" legend="true" interval="1.0" mode="0" display="1 variation">
+        <setup></setup>
+        <update></update>
+      </pen>
+      <pen color="-8330359" legend="true" interval="1.0" mode="0" display="2 variations">
+        <setup></setup>
+        <update></update>
+      </pen>
+      <pen color="-12087248" legend="true" interval="1.0" mode="0" display="3 variations">
+        <setup></setup>
+        <update></update>
+      </pen>
+      <pen color="-14333415" legend="true" interval="1.0" mode="0" display="4 variations">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+  </hubNetClient>
+  <previewCommands>need-to-manually-make-preview-for-this-model</previewCommands>
+</model>

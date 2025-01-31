@@ -1,0 +1,1020 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[globals [
+  row            ;; this variable is the current row processed by the CA
+  colors         ;; the colors corresponding to the 8 states of the CA
+  min-xcor-init  ;; the minimum x-coordinate used for the input patches of the initial state
+  result         ;; the result of the computation - equals the square of the input
+  boards         ;; number of times you've run setup-continue
+]
+
+;; the following patch variables refer to the colors of the 3 focal patches in a neighborhood
+patches-own [ state left-state center-state right-state ]
+
+;; initializes the model
+to setup
+   clear-all
+
+  ;; give user a message if not enough columns to compute the result
+  if input ^ 2 + input + 5 > world-width [user-message "y=You need to increase the world width to compute the square." stop]
+
+  set row max-pycor
+  set boards 0
+  set colors [grey 15 25 35 45 55 65 white]
+
+  ;; identify the last patch before the input patches
+  set min-xcor-init min-pxcor + 2
+
+  create-input-row input ;; create input row
+  set result "none"
+
+  reset-ticks
+end
+
+;; runs the CA from top to bottom of the world
+to go
+  if (row = min-pycor) [ stop ]  ;; stop at the last row
+
+  ask patches with [pycor = row] [
+    ;;; process the current row and set the states of the next row
+    let next-state get-rule-state
+    ask patch-at 0 -1 [set state next-state colorize-states]
+  ]
+
+  if finished-computation? [
+    ;; the number of red patches (state = 1) in the last row is the result
+    set result count patches with [pycor = row and pcolor = red]
+    ;; label the final row on the leftmost patch
+    ask patch (min-pxcor + 2) (row - 1) [set plabel-color white set plabel (max-pycor - row)]
+    stop
+  ]
+
+  set row (row - 1)
+  tick
+end
+
+to create-input-row [number]
+  ask patches [set state -1]  ;; set plabel black (for debugging)
+  ; set top patches to their default state
+  ask patches with [pycor = max-pycor] [ set state 0 ]
+  ; set top patches with x = 1,2, ... input to state 1
+  ask patches with [pycor = max-pycor and pxcor > min-xcor-init and pxcor <= min-xcor-init + input] [set state 1]
+  ; set top patches with x = input + 1 to state 3
+  ask patches with [pycor = max-pycor and pxcor = min-xcor-init + input + 1] [set state 3]
+  ask patches with [state >= 0 ] [colorize-states ]
+end
+
+
+;; reports whether we've finished the computation for the current setup
+to-report finished-computation?
+  report
+  ;; all patches in the current row are boundary states (state = 0 or state = 2) or final states (state = 1),
+  ;; so the results are in
+  all? patches with [pycor = row] [pcolor = orange or pcolor = red or pcolor = grey]
+end
+
+to colorize-states
+  set pcolor item state colors
+end
+
+;; get the state of the patch below
+to-report get-rule-state  ;; patch procedure
+  ;; assign values to patch variables based on current state of the row
+  set left-state [state] of patch-at -1 0
+  set center-state state
+  set right-state [state] of patch-at 1 0
+  if left-state =   0 and right-state =  3                     [report 0]
+  if center-state = 2 and right-state =  3                     [report 3]
+  if center-state = 1 and right-state =  4                     [report 4]
+  if left-state =   0 and center-state = 4                     [report 7]
+  if left-state =   1 and center-state = 4                     [report 6]
+  if left-state =   1 and center-state = 3                     [report 5]
+  if left-state =   2 and center-state = 3                     [report 5]
+  if left-state =   1 and center-state = 1 and right-state = 3 [report 4]
+  if left-state =   5 and center-state = 1                     [report 6]
+  if left-state =   6 and center-state = 1                     [report 6]
+  if left-state =   5 and center-state = 2                     [report 5]
+  if left-state =   6 and center-state = 2                     [report 5]
+  if left-state =   5 and center-state = 0 and right-state = 0 [report 1]
+  if left-state =   6 and center-state = 0 and right-state = 0 [report 1]
+  if left-state =   7 and center-state = 2 and right-state = 6 [report 3]
+  if left-state =   7                                          [report 7]
+  if center-state = 1                                          [report 1]
+  if center-state = 2                                          [report 2]
+  if center-state = 5                                          [report 2]
+  if center-state = 6                                          [report 1]
+  if center-state = 7 and right-state = 1                      [report 1]
+  if center-state = 7 and right-state = 2                      [report 2]
+  report 0 ; default
+end
+
+;; sets up to run the next view
+to setup-continue
+  set boards boards + 1
+  ;; copy cells from the bottom to the top
+  ask patches with [pycor = max-pycor] [
+    set state ([state] of patch pxcor min-pycor)
+  ]
+
+  ask patches with [pycor != max-pycor] [ ;; clear the rest of the patches
+     set state -1 set pcolor grey
+  ]
+
+  set row max-pycor  ;; reset the current row to the top row
+end
+
+
+; Copyright 2022 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="150" maxPycor="45" updateMode="1" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-45" height="646" showTickCounter="true" patchSize="7.0" fontSize="9" wrappingAllowedY="false" width="813" tickCounterLabel="ticks" maxPxcor="57" minPxcor="-57"></view>
+    <button x="20" y="85" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="105">setup</button>
+    <button x="20" y="240" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="105">go</button>
+    <button x="20" y="160" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="105">setup-continue</button>
+    <note x="20" y="50" height="35" color="0.0" transparent="true" fontSize="11" width="125">Start CA from an 
+input row at the top</note>
+    <note x="20" y="130" height="35" color="0.0" transparent="true" fontSize="11" width="130">Start from the end
+of the previous run</note>
+    <slider x="5" step="1" y="10" height="33" min="2" direction="Horizontal" max="10" default="5.0" variable="input" width="135" display="input"></slider>
+    <monitor x="35" precision="1" y="285" height="73" fontSize="18" width="70">result</monitor>
+    <monitor x="5" precision="1" y="365" height="45" fontSize="11" width="58" display="row">max-pycor - row</monitor>
+    <monitor x="70" precision="1" y="365" height="45" fontSize="11" width="70" display="Total rows">boards * world-height + max-pycor - row</monitor>
+    <button x="20" y="200" height="34" disableUntilTicks="true" forever="false" kind="Observer" width="105" display="go once">go</button>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This program models one particular one-dimensional cellular automaton (CA) -- the one known as the "squaring automaton". This CA takes a natural number as input and outputs its square. It is provided here in the NetLogo models library as an example of how a CA can compute arithmetic functions.
+
+What is a Cellular automaton?
+
+A cellular automaton (aka CA) is a computational machine that performs actions based on certain rules.  It can be thought of as a "board" which is divided into cells (such as the square cells of a checkerboard). Each cell has a value for its "state" property, such as 0, 1, 2 ... .  This is called the "state" of the cell. The board is initialized with  cells being assigned a state. A clock is then started and at each "tick" of the clock the rules are "fired" and this results in some cells  changing their state.
+
+There are many kinds of cellular automata. In this model, we explore a one-dimensional CA -- the simplest type of CA. In this case of one-dimensional cellular automata, each row is a world. The top row is initialized so that all cells in that row have states assigned. Each cell  in the top row checks the state of itself and its neighbors to the left and right, and then sets the cell below itself to a state, one of 8 possible states, depending upon the rule. This process results in a new "world" in the second row, which becomes the focal row. This process continues filling successive rows and continues until the bottom of the board.
+
+This model is one of a collection of 1D CA models in NetLogo. It is a more advanced CA model than many of the others, so if you are new to CA, we suggest you look at those first.
+
+In his book, "A New Kind of Science", Stephen Wolfram argues that simple computational devices such as CA lie at the heart of nature's patterns and that CAs are a better tool
+(in the sense of "better" as more closely matched to the physics of the world) than mathematical equations for the purpose of scientifically describing the world.
+
+## HOW IT WORKS
+
+The number of red squares in the initial row equals the input number, and the number of red squares in the final row is the result – the square of the input.
+
+This CA has 8 states, which are referred to by the integers 0 through 7. These states are represented visually by the NetLogo colors `grey`, `red`, `orange`, `brown`, `yellow`, `green`, `lime` and `white`.
+
+As the CA computes, each patch chooses the rule with input consisting of {state of the patch to the left, its own state, state of the patch to the right} and then sets the state of the patch below to the output value according to the CA rules represented below. Each patch looks for the first rule that matches its state and executes that rule. The notation for the rules shows a triple on the left side, the state of the patch to the left, the state of the patch itself and the state of the patch to the right. If the focal patch's state and its neighbor states match the rule, then the state of the patch directly below it becomes the value after the arrow. States marked with "-" match any state.
+
+```text
+
+{ 0, _, 3} → 0
+{ _, 2, 3} → 3
+{ 1, 1, 3} → 4
+{ _, 1, 4} → 4
+{ 1, 3, _} → 5
+{ 2, 3, _} → 5
+{ 0, 4, _} → 7
+{ 1, 4, _} → 6
+{ 7, 2, 6} → 3
+{ 7, _, _} → 7
+{ _, 7, 1} → 1
+{ _, 7, 2} → 2
+{ _, 5, _} → 2
+{ _, 6, _} → 1
+{ 5, 1, _} → 6
+{ 6, 1, _} → 6
+{ 5, 2, _} → 5
+{ 6, 2, _} → 5
+{ 5, 0, 0} → 1
+{ 6, 0, 0} → 1
+{ _, 1, _} → 1
+{ _, 2, _} → 2
+{ _, _, _} → 0
+```
+
+For example, if the current cell is in state 2 and its left neighbor is in state 7 and its right neighbor is in state 6, the cell below it is set to state 3 according to the rule {7, 2, 6} → 3. In the rules above '_' stands for any state. So if the current cell is in state 2 and its left neighbor is in state 6, the cell below it is set to state 5 for all 8 possible right patch states.
+
+If you think carefully about the model you will realize that strictly speaking the rightmost patches do not have a patch that is literally to the right. What we really are referring to is a patch with an x-coordinate that is one more than its own. Because the model has horizontal wrapping this is the leftmost patch with the same y-coordinate. Similarly the concept of left is implemented by subtracting one from the x-coordinate.
+
+## HOW TO USE IT
+
+Initialization & Running:
+First, set the INPUT input slider to the number you want to square. Press SETUP to initialize the first row which represents the initial state of the CA. Press GO ONCE to compute the next state of the CA and display it in the next row. If you press GO the computation will continue until the result is computed, or it displays the last row of patches in the view. If the last row is reached without getting a result, press SETUP-CONTINUE to clear the display of the current computed lines. You can then continue running the model in "wrapped" (last row becomes the first row in the new display) mode by pressing GO or GO ONCE. For larger inputs, you may not get a result for a while. so you'll have to press SETUP-CONTINUE multiple times.
+
+Outputs:
+The RESULT monitor displays "none" until the result has been computed, then it shows the result -- the square of the input.
+The ROW monitor displays the number of rows computed in the current view.
+The TOTAL ROWS monitor displays the total number of rows computed so far including rows computed in previous displays. If the computation is complete in a single invocation of GO, then ROW will equal TOTAL ROWS.
+
+## THINGS TO NOTICE
+
+Check that the number of red squares in the initial row equals the input number, and the number of red squares in the final row is the result -- the square of the input.
+
+Look carefully at the pattern of colors down the rows. What do you see? Is there a pattern of the green patches? The brown patches? The white patches?
+
+How does the number of diagonal white patches relate to the input?
+
+How does the number or size of the groupings of green diagonals relate to the input?
+
+How many rules can you match to patterns in output?
+0 = `grey`, 1 = `red`, 2 = `orange`, 3 = `brown`, 4 = `yellow`, 5 = `green`, 6 =`lime` and 7 =`white`. For example, which rule can you combine with {6, 1, _} → 1 to explain the regions of alternating `red` and `lime`?
+
+Can you find the rule that causes the line below to extend one red patch further to the right?
+
+Thinking about these rules may give you some insights into how the CA works. One important thing to keep in mind is that each patch examines the rules sequentially and executes the first applicable rule. The rule { _, 2, _} → 2 says that the patch below an orange patch should be orange. So why are some patches below orange patches brown? It's because the rule { _, 2, 3} → 3 comes earlier, and that rule says that if an orange patch has a brown patch to the right, the patch below it will be brown. Can you find the rule that explains why some orange patches have green patches below them?
+
+One difference between this NetLogo model and the corresponding CA in Wolfram's book is that the NetLogo model "wraps" around the horizontal boundaries of the world, whereas Wolfram computes the CA as an infinite grid. This model refuses to carry out the computation if the lines would "wrap" because although interesting patterns might emerge, they would not result in the computation of the square of the input. That is why you need to increase the size of the world if the input is greater than 10. You can increase the size of the world up to the available memory on your computer. However, the larger the world, the longer time it will take NetLogo to compute and display the results.
+
+## THINGS TO TRY
+
+Although the input slider only goes to 10 you can make it go to 11 or further. Just type
+`set input 11` in the Command Center.
+
+Notice the slider will display 11. Now press SETUP. You will get an error message.
+Adjust the size of the world and try again.
+
+Can you figure out how wide the world has to be if your input is twelve? Can you generalize your answer to any input.
+Note: when you are exploring you may want to make the patch size smaller.
+
+Plot the input versus the total number of rows. Do the points look like they lie on a line or curve? Can you estimate the total number of rows for the next larger input value? Test your answer with a computation.
+
+## EXTENDING THE MODEL
+
+What if you wanted to observe the behavior of a CA over many iterations without having to click continue every time the CA reaches the bottom of the view? Simply replace the `stop` with `setup-continue` in the go procedure:
+
+      if (row = min-pycor)
+        [ stop ]
+
+with
+
+      if (row = min-pycor)
+        [ setup-continue ]
+
+Can you change the model so that it automatically increases the size of the world to allow the computation to succeed? You may also want to decrease the patch size.
+
+## RELATED MODELS
+
+Life - an example of a two-dimensional cellular automaton
+CA 1D Rule 30 Turtle - the basic rule 30 model implemented using turtles
+CA 1D Rule 90 - the basic rule 90 model
+CA 1D Rule 110 - the basic rule 110 model
+CA 1D Rule 250 - the basic rule 250 model
+CA 1D Elementary- a model that shows all 256 possible simple 1D cellular automata
+CA 1D Totalistic - a model that shows all 2,187 possible 1D 3-color totalistic cellular automata.
+
+## CREDITS AND REFERENCES
+
+The first cellular automaton was conceived by John Von Neumann in the late 1940's for his analysis of machine reproduction under the suggestion of Stanislaw M. Ulam. It was later completed and documented by Arthur W. Burks in the 1960's. Other two-dimensional cellular automata, and particularly the game of "Life," were explored by John Conway in the 1970's. Many others have since researched CA's. In the late 1970's and 1980's Chris Langton, Tom Toffoli and Stephen Wolfram did some notable research. Wolfram classified all 256 one-dimensional two-state single-neighbor cellular automata. In his seminal book, "A New Kind of Science," Wolfram presents many examples of cellular automata and argues for their fundamental importance in doing science.
+
+See also:
+
+Von Neumann, J. and Burks, A. W., Eds, 1966. Theory of Self-Reproducing Automata. University of Illinois Press, Champaign, IL.
+
+Toffoli, T. 1977. Computation and construction universality of reversible cellular automata. J. Comput. Syst. Sci. 15, 213-231.
+
+Langton, C. 1984. Self-reproduction in cellular automata. Physica D 10, 134-144
+
+Wolfram, S. 1986. Theory and Applications of Cellular Automata: Including Selected Papers 1983-1986. World Scientific Publishing Co., Inc., River Edge, NJ.
+.
+
+Wolfram, S. 2002. A New Kind of Science.  Wolfram Media Inc.  Champaign, IL.
+
+The links below refer to the online version of the book.
+
+A New Kind of Science [p. 639] (https://www.wolframscience.com/nks/p639--computations-in-cellular-automata/) includes a greyscale image of the computation for n = 2, 3, 4, 5 and has links to other relevant pages, including the squaring rules.
+The squaring rules (presented in a more compact form than used here) are in A New Kind of Science [p. 1109](https://www.wolframscience.com/nks/notes-11-2--rules-for-the-squaring-cellular-automaton/)
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U., Brandes, A. (2022).  NetLogo CA 1D-Squaring model.  http://ccl.northwestern.edu/netlogo/models/CA1D-Squaring.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2022 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2022 Cite: Wilensky, U., Brandes, A. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup
+repeat world-height - 1 [ go ]</previewCommands>
+</model>

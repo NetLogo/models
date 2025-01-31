@@ -1,0 +1,1424 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[breed [atoms atom]
+breed [fl-ends fl-end] ; turtles at the ends of the force lines, point in direction the force is acting
+undirected-link-breed [fl-links fl-link] ; force line links
+undirected-link-breed [atom-links atom-link] ; links between atoms
+
+atoms-own [
+  fx     ; x-component of force vector
+  fy     ; y-component of force vector
+  vx     ; x-component of velocity vector
+  vy     ; y-component of velocity vector
+  mass   ; mass of atom
+  pinned? ; False if the atom isn't pinned in place, True if it is (for boundaries)
+  ex-force-applied? ; is an external force directly applied to this atom? False if no, True if yes
+  total-PE ; Potential energy of the atom
+]
+
+globals [
+  eps ; used in LJ force. Well depth; measure of how strongly particles attract each other
+  sigma ; used in LJ force. Distance at which intermolecular potential between 2 particles is 0
+  cutoff-dist ; each atom is influenced by its neighbors within this distance (LJ force)
+  dt ; time step for the velocity verlet algorithm
+  sqrt-2-kb-over-m  ; constant. Used when calculating the thermal velocity. Square root of
+                    ; (2 * boltzmann constant / m). It is arbitrary for this simulation since
+                    ; the units are also arbitrary.
+  link-check-dist ; each atom links with neighbors within this distance
+  prev-lattice-view ; the lattice view in the previous time step
+  upper-left-fl ; upper left force line - shear
+  left-fl ; left force line - tension, compression
+  right-edge ; where the right side of the sample is (xcor) - tension,
+             ; compression - used in determining length of sample
+  orig-length ; original length of sample
+  prev-length ; length of sample in previous time step
+  median-ycor ; median ycor of atoms from initial lattice setup
+  top-neck-atoms ; agentset of atoms on the top of the neck (thin region) (tension).
+                 ; Used in calculating stress
+  bottom-neck-atoms ; agentset of atoms on the bottom of the neck (thin region) (tension).
+                    ; Used in calculating stress
+  num-forced-atoms ; number of atoms receiving external force directly
+  unpinned-atoms ; atoms that are not pinned
+  equalizing-LJ-force ; force to counteract LJ forces in the x-direction (tension)
+]
+
+;;;;;;;;;;;;;;;;;;;;;;
+;; Setup Procedures ;;
+;;;;;;;;;;;;;;;;;;;;;;
+
+to setup
+  clear-all
+  set eps .07
+  set sigma .899 ; starts stress-strain curve at about 0
+  set cutoff-dist 5
+  set dt .1
+  set sqrt-2-kb-over-m (1 / 50)
+  set link-check-dist 1.5
+  setup-atoms-and-links-and-force-lines
+  init-velocity
+  update-lattice-view
+  reset-ticks
+end
+
+to setup-atoms-and-links-and-force-lines
+  ; making a symmetrical sample for tension mode
+  if force-mode = "Tension" and atoms-per-column mod 2 = 0 [
+    set atoms-per-column atoms-per-column + 1
+  ]
+  create-atoms atoms-per-row * atoms-per-column [
+    set shape "circle"
+    set color blue
+    set mass 1
+    set pinned? False
+    set ex-force-applied? False
+  ]
+  let x-dist 1 ; the distance between atoms in the x direction
+  let y-dist sqrt (x-dist ^ 2 - (x-dist / 2) ^ 2) ; the distance between rows
+  let ypos (- atoms-per-column * y-dist / 2) ;the y position of the first atom
+  let xpos (- atoms-per-row * x-dist / 2) ;the x position of the first atom
+  let row-number 0 ; row number, starts at 0 for easy modulo division
+  ask atoms [ ; setting up the HCP structure
+    if xpos >= (atoms-per-row * x-dist / 2)  [ ; condition for starting new row
+      set row-number row-number + 1
+      set xpos (- atoms-per-row * x-dist / 2) + (row-number mod 2) * x-dist / 2
+      set ypos ypos + y-dist
+    ]
+    setxy xpos ypos
+    set xpos xpos + x-dist
+  ]
+
+  ; values used in assigning atom positions
+  let ymax max [ycor] of atoms
+  let xmax max [xcor] of atoms
+  let y-min min [ycor] of atoms
+  let x-min min [xcor] of atoms
+  let median-xcor (median [xcor] of atoms)
+  set median-ycor (median [ycor] of atoms)
+
+  (ifelse force-mode = "Shear"[
+    ask atoms with [
+      (
+        (xcor = x-min or
+          xcor = x-min + (1 / 2) or
+          xcor = xmax or
+          xcor = xmax - (1 / 2)
+        )
+        and
+        ( ycor < median-ycor)
+      )
+    ] [
+      set pinned? True
+      ]
+    ]
+    force-mode = "Tension"[
+      ask atoms with [xcor = x-min] [die] ; creating the symmetrical shape
+      set x-min min [xcor] of atoms
+      ask atoms with [
+        (ycor >= ymax - 1 or ycor <= y-min + 1) and
+         xcor <= xmax - 3.5 and
+         xcor >= x-min + 3.5
+      ] [ die ]
+
+      ask atoms with [xcor = xmax or xcor = xmax - .5 ] [set pinned? True]
+      ; defining top and bottom neck agentsets
+      set top-neck-atoms atoms with [xcor <= xmax - 3.5 and xcor >= x-min + 3.5] with-max [ycor]
+      set bottom-neck-atoms atoms with [xcor <= xmax - 3.5 and xcor >= x-min + 3.5] with-min [ycor]
+      ask atoms with [ xcor >= x-min and xcor <= x-min + 3 ][
+        set ex-force-applied? True
+        set shape "circle-dot"
+      ]
+      set num-forced-atoms count atoms with [ex-force-applied?]
+    ]
+    force-mode = "Compression" [
+      ask atoms with [xcor = xmax or xcor = xmax - .5 ] [set pinned? True]
+    ]
+  )
+
+  if create-dislocation? [ ; creating the dislocation
+    let curr-y-cor median-ycor
+    let curr-x-cor median-xcor
+    let ii 0
+    while [ curr-y-cor <= ceiling (ymax) ] [
+      ask atoms with [
+        ycor <= curr-y-cor + y-dist * .75
+        and ycor >= curr-y-cor ] [
+        (ifelse xcor <= curr-x-cor + x-dist * .75
+          and xcor >= curr-x-cor [ die ]
+          xcor >= curr-x-cor [ set xcor xcor - .05 * ii ]
+          xcor < curr-x-cor [ set xcor xcor + .05 * ii ])
+        ]
+      set curr-y-cor curr-y-cor + y-dist
+      set curr-x-cor curr-x-cor - x-dist / 2
+      set ii ii + 1
+    ]
+   ]
+
+  ask atoms [
+    let in-radius-atoms (other atoms in-radius cutoff-dist)
+    update-links in-radius-atoms
+  ]
+  ask atom-links [ ; stylizing/coloring links
+    color-links
+  ]
+
+  (ifelse force-mode = "Tension"  [ ; set up force lines
+    create-fl-ends 2
+    set left-fl x-min
+    set right-edge xmax
+    set orig-length right-edge - left-fl
+    ask one-of fl-ends with [xcor = 0 and ycor = 0] [
+      set xcor left-fl
+      set ycor ymax + 2 ]
+    ask one-of fl-ends with [xcor = 0 and ycor = 0] [
+      set xcor left-fl
+      set ycor y-min - 2
+      create-fl-link-with one-of other fl-ends with [xcor = left-fl]]
+    ask fl-ends [
+      set color white
+      set heading 270
+    ]
+    if force-mode = "Tension" [
+      set prev-length orig-length
+    ]
+  ]
+    force-mode = "Compression" [
+      create-fl-ends 2
+      set left-fl x-min
+      set right-edge xmax
+      set orig-length right-edge - left-fl
+      ask one-of fl-ends with [xcor = 0 and ycor = 0] [
+        set xcor left-fl
+        set ycor max-pycor - 2 ]
+      ask one-of fl-ends with [xcor = 0 and ycor = 0] [
+        set xcor left-fl
+        set ycor min-pycor + 2
+        create-fl-link-with one-of other fl-ends with [xcor = left-fl]]
+      ask fl-ends [
+        set color white
+        set heading 90
+      ]
+    ]
+    force-mode = "Shear" [
+      create-fl-ends 2
+      set upper-left-fl min [xcor] of atoms with [ ycor >= median-ycor ]
+      ask one-of fl-ends with [xcor = 0 and ycor = 0] [
+        set xcor upper-left-fl
+        set ycor ymax + 2 ]
+      ask one-of fl-ends with [xcor = 0 and ycor = 0] [
+        set xcor upper-left-fl
+        set ycor median-ycor
+        hide-turtle
+        create-fl-link-with one-of other fl-ends]
+      ask fl-ends [
+        set color white
+        set heading 90 ]
+  ])
+  ask fl-links [
+    set color white
+  ]
+  ask atoms with [pinned?] [ set shape "circle-x"]
+  set unpinned-atoms atoms with [not pinned?]
+end
+
+to init-velocity ; initializes velocity for each atom based on the initial system-temp. Creates a
+                 ; random aspect in the velocity split between the x velocity and the y velocity
+  let speed-avg sqrt-2-kb-over-m * sqrt system-temp
+  ask unpinned-atoms [
+    let x-portion random-float 1
+    set vx speed-avg * x-portion * positive-or-negative
+    set vy speed-avg * (1 - x-portion) * positive-or-negative]
+  if force-mode = "Tension" [
+    ask atoms with [ ex-force-applied? ]  [
+      set vx 0
+      set vy 0 ]
+  ]
+end
+
+to-report positive-or-negative
+  report ifelse-value random 2 = 0 [-1] [1]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+;; Runtime Procedures ;;
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+to go
+  if lattice-view != prev-lattice-view [ update-lattice-view ]
+  set equalizing-LJ-force 0
+  control-temp
+  ask atom-links [ die ]
+  ; moving happens before velocity and force update in accordance with velocity verlet
+  ask unpinned-atoms [
+    move
+  ]
+  calculate-fl-positions
+  if force-mode = "Tension" and auto-increment-tension? [ adjust-force ]
+  identify-force-atoms
+  ask atoms [
+    update-force-and-velocity-and-links
+  ]
+  ask atom-links [ ; stylizing/coloring links
+    color-links
+  ]
+  tick-advance dt
+  update-plots
+end
+
+to update-lattice-view
+  (ifelse lattice-view = "large-atoms" [
+    ask atoms [
+      show-turtle
+      set size .9
+    ]
+  ]
+  lattice-view = "small-atoms" [
+    ask atoms [
+       show-turtle
+       set size .6
+    ]
+  ]
+  [; lattice-view = hide-atoms
+      ask atoms [ hide-turtle ]
+  ])
+  set prev-lattice-view lattice-view
+end
+
+; this heats or cools the system based on the average temperature of the system compared to the set system-temp
+to control-temp
+  let current-speed-avg mean [ sqrt (vx ^ 2 + vy ^ 2) ] of unpinned-atoms
+  let target-speed-avg sqrt-2-kb-over-m * sqrt system-temp
+  if current-speed-avg != 0 [
+    let scaling-factor target-speed-avg / current-speed-avg
+    ask unpinned-atoms [
+      set vx vx * scaling-factor
+      set vy vy * scaling-factor
+    ]
+  ]
+end
+
+to delete-atoms
+  if mouse-down? [
+    ask atoms with [xcor <= mouse-xcor + .5 and xcor > mouse-xcor - .5
+      and ycor <= mouse-ycor + .433 and ycor > mouse-ycor - .433 ] [die]
+  ]
+  display
+end
+
+to move  ; atom procedure, uses velocity-verlet algorithm
+  set xcor velocity-verlet-pos xcor vx (fx / mass)
+  set ycor velocity-verlet-pos ycor vy (fy / mass)
+  if xcor > max-pxcor or xcor < min-pxcor [
+    die ; kills atoms when they move off the world
+  ]
+end
+
+to calculate-fl-positions ; (calculate new force line positions)
+  ifelse force-mode = "Shear" [
+    set upper-left-fl min [xcor] of atoms with [ ycor >= median-ycor ]
+    ask fl-ends [ set xcor upper-left-fl]
+  ]
+  [ ; force-mode = tension or compression
+    set left-fl min [xcor] of atoms
+    ask fl-ends with [xcor < 0] [ set xcor left-fl ]
+  ]
+  ifelse (f-app + -1 * equalizing-LJ-force) = 0 [
+    ask fl-ends [ hide-turtle ]
+    ask fl-links [ hide-link ]
+  ]
+  [
+    ask fl-ends [ show-turtle ]
+    ask fl-links [ show-link ]
+  ]
+end
+
+; find the atoms closest to the force line that will be the ones receiving the external force
+to identify-force-atoms
+  (ifelse force-mode = "Shear" [
+    ask atoms [ set ex-force-applied?  False ]
+    let forced-atoms atoms with [ ycor >= median-ycor and (distancexy upper-left-fl ycor) <= 1]
+    set num-forced-atoms count forced-atoms
+    ask forced-atoms [
+      set ex-force-applied?  True
+    ]
+    ]
+    force-mode = "Compression" [
+      ask atoms [ set ex-force-applied?  False ]
+      let forced-atoms atoms with [ (distancexy left-fl ycor) <= 1]
+      set num-forced-atoms count forced-atoms
+      ask forced-atoms [
+        set ex-force-applied?  True
+    ]
+  ]) ; for tension, the same atoms in the left shoulder of the sample always receive the force
+end
+
+
+to adjust-force
+  if precision prev-length 6 >= precision (right-edge - left-fl) 6 [
+    set f-app precision (f-app + .0005) 3
+  ]
+  ; increments f-app-auto if the sample has reached an equilibrium or if the
+  ; previous sample length is greater than the current sample length
+  set prev-length (right-edge - left-fl)
+end
+
+to update-force-and-velocity-and-links
+  let new-fx 0
+  let new-fy 0
+  let total-potential-energy 0
+  let in-radius-atoms other atoms in-radius cutoff-dist
+  ask in-radius-atoms [
+    ; each atom calculates the force it feels from its
+    ; neighboring atoms and sums these forces
+    let r distance myself
+    let indiv-PE-and-force (LJ-potential-and-force r)
+    let force item 1 indiv-PE-and-force
+    set total-potential-energy total-potential-energy + item 0 indiv-PE-and-force
+    face myself
+    rt 180
+    set new-fx new-fx + (force * dx)
+    set new-fy new-fy + (force * dy)
+    ]
+  set total-PE total-potential-energy
+
+  if not pinned? [
+    ; adjusting the forces to account for any external applied forces
+    let ex-force 0
+    if ex-force-applied? [
+     if force-mode = "Tension" and auto-increment-tension? [
+        set equalizing-LJ-force equalizing-LJ-force - new-fx
+        set new-fx 0
+        set new-fy 0
+      ]
+      set ex-force report-new-force ]
+    if shape = "circle-dot" and not ex-force-applied? [ set shape "circle" ]
+    set new-fx ex-force + new-fx
+
+    ; updating velocity and force
+    set vx velocity-verlet-velocity vx (fx / mass) (new-fx / mass)
+    set vy velocity-verlet-velocity vy (fy / mass) (new-fy / mass)
+    set fx new-fx
+    set fy new-fy
+  ]
+
+  update-atom-color total-PE
+  update-links in-radius-atoms
+end
+
+to update-atom-color [total-force] ; updating atom color
+  (ifelse update-atom-color? [
+    set-color total-force
+  ]
+   [ set color blue ])
+end
+
+to update-links [in-radius-atoms] ; updating links
+  if show-diagonal-right-links? [
+    set heading 330
+    link-with-atoms-in-cone in-radius-atoms
+  ]
+  if show-diagonal-left-links? [
+    set heading 30
+    link-with-atoms-in-cone in-radius-atoms
+  ]
+  if show-horizontal-links? [
+    set heading 90
+    link-with-atoms-in-cone in-radius-atoms
+  ]
+end
+
+to link-with-atoms-in-cone [atom-set]
+  let in-cone-atoms (atom-set in-cone link-check-dist 60)
+    if any? in-cone-atoms [
+      create-atom-link-with min-one-of in-cone-atoms [distance myself]
+    ]
+end
+
+to-report report-new-force
+  set shape "circle-dot"
+  (ifelse force-mode = "Tension" [
+    report -1 * f-app / num-forced-atoms
+    ]
+    [ ; Shear and Compression
+      report f-app / num-forced-atoms
+    ]
+  )
+end
+
+to-report LJ-potential-and-force [ r ] ; for the force, positive = attractive, negative = repulsive
+  let third-power (sigma / r) ^ 3
+  let sixth-power third-power ^ 2
+  let twelfth-power sixth-power ^ 2
+  let force (-48 * eps / r ) * (twelfth-power - (1 / 2) * sixth-power) + .0001
+  let potential (4 * eps * (twelfth-power - sixth-power)) + .00001
+  report list potential force
+end
+
+to-report velocity-verlet-pos [pos v a]  ; position, velocity and acceleration
+  report pos + v * dt + (1 / 2) * a * (dt ^ 2)
+end
+
+to-report velocity-verlet-velocity [v a new-a]  ; velocity, acceleration, new acceleration
+  report v + (1 / 2) * (new-a + a) * dt
+end
+
+to set-color [v]
+  set color scale-color blue v -.9 0
+end
+
+to-report strain ; tension only
+  report ((right-edge - left-fl) - orig-length) / orig-length
+end
+
+to-report stress ; tension only
+  let avg-max mean [ycor] of top-neck-atoms
+  let avg-min mean [ycor] of bottom-neck-atoms
+  let min-A avg-max - avg-min
+  report (-1 * ((-1 * f-app) + equalizing-LJ-force) / min-A)
+end
+
+to-report report-indiv-ex-force
+  report (f-app + -1 * equalizing-LJ-force) / num-forced-atoms
+end
+
+to-report report-total-ex-force
+  report f-app + -1 * equalizing-LJ-force
+end
+
+to color-links
+  set thickness .25 ; necessary because the links die and reform every tick
+  let min-eq-bond-len .991
+  let max-eq-bond-len 1.00907
+  (ifelse
+    link-length < min-eq-bond-len [
+      let tmp-len sqrt(min-eq-bond-len - link-length)
+      let tmp-color extract-rgb scale-color red tmp-len 1 -.2
+      set color insert-item 3 tmp-color (125 + (1 + tmp-len) * 30) ]
+    link-length > max-eq-bond-len [
+      let tmp-len sqrt (link-length - max-eq-bond-len)
+      let tmp-color extract-rgb scale-color yellow tmp-len 1 -.2
+      set color insert-item 3 tmp-color (125 + (1 + tmp-len) * 30)]
+    [ let tmp-color extract-rgb white
+      set color insert-item 3 tmp-color 125 ])
+end
+
+
+; Copyright 2020 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="220" maxPycor="16" updateMode="1" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-16" height="669" showTickCounter="true" patchSize="20.0" fontSize="10" wrappingAllowedY="false" width="668" tickCounterLabel="ticks" maxPxcor="16" minPxcor="-16"></view>
+    <button x="9" y="257" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="86">setup</button>
+    <button x="103" y="257" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="85">go</button>
+    <chooser x="35" y="10" height="45" variable="force-mode" current="1" width="138" display="force-mode">
+      <choice type="string" value="Shear"></choice>
+      <choice type="string" value="Tension"></choice>
+      <choice type="string" value="Compression"></choice>
+    </chooser>
+    <slider x="14" step=".001" y="341" height="33" min="0" direction="Horizontal" max=".4" default="0.079" variable="system-temp" width="172" display="system-temp"></slider>
+    <slider x="14" step=".1" y="384" height="33" min="0" direction="Horizontal" max="30" default="5.201" variable="f-app" units="N" width="172" display="f-app"></slider>
+    <switch x="17" y="128" height="33" on="false" variable="create-dislocation?" width="159" display="create-dislocation?"></switch>
+    <switch x="895" y="65" height="33" on="false" variable="update-atom-color?" width="230" display="update-atom-color?"></switch>
+    <chooser x="895" y="10" height="45" variable="lattice-view" current="1" width="165" display="lattice-view">
+      <choice type="string" value="large-atoms"></choice>
+      <choice type="string" value="small-atoms"></choice>
+      <choice type="string" value="hide-atoms"></choice>
+    </chooser>
+    <switch x="895" y="100" height="33" on="true" variable="show-diagonal-right-links?" width="230" display="show-diagonal-right-links?"></switch>
+    <switch x="895" y="135" height="33" on="true" variable="show-diagonal-left-links?" width="230" display="show-diagonal-left-links?"></switch>
+    <switch x="895" y="170" height="33" on="true" variable="show-horizontal-links?" width="230" display="show-horizontal-links?"></switch>
+    <slider x="11" step="1" y="169" height="33" min="5" direction="Horizontal" max="20" default="18.0" variable="atoms-per-row" width="172" display="atoms-per-row"></slider>
+    <slider x="11" step="1" y="211" height="33" min="5" direction="Horizontal" max="20" default="13.0" variable="atoms-per-column" width="172" display="atoms-per-column"></slider>
+    <monitor x="905" precision="3" y="220" height="45" fontSize="11" width="210" display="external force per forced atom (N)">report-indiv-ex-force</monitor>
+    <plot x="895" yMax="0.1" yAxis="stress" y="270" xMin="0.0" height="150" legend="false" xMax="0.05" autoplot="true" yMin="0.0" width="235" xAxis="strain" display="Stress-Strain Curve - Tension">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="2" display="default">
+        <setup></setup>
+        <update>if force-mode = "Tension" [ plotxy strain stress ]</update>
+      </pen>
+    </plot>
+    <monitor x="895" precision="5" y="425" height="45" fontSize="11" width="126" display="total external force (N)">report-total-ex-force</monitor>
+    <monitor x="1032" precision="5" y="425" height="45" fontSize="11" width="116" display="sample length (rm)">right-edge - left-fl</monitor>
+    <note x="1153" y="425" height="70" color="0.0" transparent="true" fontSize="11" width="145"><![CDATA[<- in terms of the 
+equilibrium interatomic 
+distance between 
+two atoms (rm)]]></note>
+    <note x="888" y="480" height="18" color="0.0" transparent="true" fontSize="11" width="150"></note>
+    <note x="888" y="480" height="28" color="0.0" transparent="true" fontSize="11" width="150">Color Key
+Links:</note>
+    <note x="898" y="505" height="18" color="13.0" transparent="true" fontSize="11" width="175">high compression: dark red</note>
+    <note x="898" y="520" height="18" color="18.0" transparent="true" fontSize="11" width="270">low compression: light red (+ grey tone)</note>
+    <note x="897" y="534" height="18" color="5.0" transparent="true" fontSize="11" width="150">equilibrium: grey</note>
+    <note x="897" y="547" height="28" color="0.0" transparent="true" fontSize="11" width="270">low tension: light yellow (+ grey tone)</note>
+    <note x="898" y="563" height="18" color="44.0" transparent="true" fontSize="11" width="160">high tension: dark yellow</note>
+    <note x="888" y="580" height="18" color="0.0" transparent="true" fontSize="11" width="155">Atoms:</note>
+    <note x="898" y="595" height="18" color="103.0" transparent="true" fontSize="11" width="270">low potential energy: dark blue</note>
+    <note x="898" y="610" height="28" color="107.0" transparent="true" fontSize="11" width="285"><![CDATA[high potential energy: light blue (-> white)]]></note>
+    <note x="898" y="625" height="81" color="0.0" transparent="true" fontSize="11" width="260">pinned atoms (do not move): black cross
+atoms affected by an external force: 
+black dot, near a white line with 
+arrows on the end</note>
+    <switch x="5" y="60" height="33" on="true" variable="auto-increment-tension?" width="210" display="auto-increment-tension?"></switch>
+    <note x="50" y="104" height="18" color="0.0" transparent="true" fontSize="11" width="150">(^ Tension only)</note>
+    <button x="47" y="299" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="104" display="delete-atoms">delete-atoms</button>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This model allows the user to observe the effects of external forces on a close-packed 2D crystal lattice. It also gives a qualitative image of stress/strain fields around edge dislocations. An edge dislocation is a type of crystal defect that is comprised of an extra half-plane inserted into a lattice. They are an important feature of almost all materials because they facilitate deformation. In this model, an edge dislocation can be initialized within the material, and shear, tension, or compression forces can be applied to the material.
+
+This is a Molecular Dynamics simulation, meaning an interatomic potential governs the energy and motion of each atom. Here, we are using the Lennard-Jones potential. Atoms attempt to minimize their potential energy by moving to an equilibrium distance away from the atoms surrounding them, which means that the atoms are moved in response to the force they feel from the surrounding atoms. The position and velocity of the atoms are updated every time step with the velocity Verlet algorithm.
+
+## HOW IT WORKS
+
+### Interatomic Forces
+
+The Lennard-Jones potential shows that there is an equilibrium distance between two atoms where the potential energy of each atom is minimized. If the atoms are farther than this equilibrium distance, they will attract each other. If they are closer, they will repel each other. The potential is given by:
+
+V = 4 * eps ((sigma / r)<sup>12</sup> - (sigma / r)<sup>6</sup>)
+
+In this formula:
+- "V" is the potential between two particles.
+- "eps", or epsilon, is the depth of the potential well.
+- "sigma" is the distance where the inter-particle potential is zero.
+- "r" is the distance between the centers of the two particles.
+
+Taking the derivative of this potential equation yields an equation for force. A negative force means the atoms repel each other and a positive force means they attract.
+
+In this model, each atom calculates the force felt from its neighbors in a 5 unit radius. This is to reduce the number of calculations and thus allow the simulation to run faster; after this distance, the force is extremely weak, and therefore it is acceptable to ignore interactions beyond this point. These forces are summed and then divided by the particle's mass to yield an acceleration, which is passed into the velocity Verlet algorithm. This algorithm is a numerical method that integrates Newton's equations of motion. Both the velocity of an atom and the position of an atom after one time step are calculated.
+
+### External Forces
+
+External forces are applied by adding a term to the total LJ force felt from neighboring atoms. This force varies based on the FORCE-MODE. Atoms acted on directly by an external force are marked with a black "X". Pinned atoms, or atoms that do not move, are marked with a black dot. These atoms are excluded from updating position and velocity via the velocity Verlet algorithm.
+
+In SHEAR mode, F-APP will be exerted left-to-right on atoms in the upper left of the material, while the bordering atoms on the bottom half of the crystal are pinned and do not move. The pinning of the bottom atoms represents the bottom of the material being clamped or otherwise held in place, so F-APP cannot simply rotate the lattice.
+
+In TENSION mode, F-APP is exerted leftwards on the left side of the sample. The sample shape is different in tension mode to replicate the samples used in tensile testing. The atoms in the left shoulder are all acted on directly by the external force. If AUTO-INCREMENT-TENSION? is turned on, a force to "counteract" or "equalize" the forces from Lennard-Jones interactions is first applied to shoulder atoms. Then, an additional leftwards force is applied. This creates a smooth stress-strain curve and allows for deformation to occur in the neck region instead of the shoulder region. Shoulder region deformation would be negligible in a real life tensile test. In this simulation, the atoms farthest to the right (border of the right shoulder) are pinned. Note, this is the only mode in which the STRESS - STRAIN CURVE is plotted.
+
+In COMPRESSION mode, F-APP is exerted rightwards on the left side of the sample. The bordering atoms on the right side are pinned.
+
+To help visualize external forces exerted, the white line bookended by two arrows (or one, if in shear mode) shows where the external force is applied. The arrows point in the direction the force acts. In SHEAR and COMPRESSION, atoms within 1 unit of the force line are affected.
+
+In this simulation, the temperature is controlled in order to reduce erratic motion from the atoms. This is done by calculating the thermal speed of the material, which entails finding the mean speed of the atoms. The thermal speed is related to temperature, so the thermal speed using the user-set system temperature is calculated. This is defined as the target speed and the current thermal speed of the material is the current speed. The target speed is divided by the current speed and the velocity of each atom is multiplied by this scaling factor.
+
+## HOW TO USE IT
+
+Before clicking the SETUP button, you first need to select the FORCE-MODE (SHEAR / TENSION / COMPRESSION), whether you’d like a dislocation initialized (CREATE-DISLOCATION?), and the size of the crystal (ATOMS-PER-ROW / ATOMS-PER-COLUMN). If you are in the TENSION FORCE-MODE, you will also need to select whether you'd like the force to be automatically increased or you'd like to control the force manually (AUTO-INCREMENT-TENSION?).
+
+FORCE-MODE allows the user to apply shear, tension, or compression forces to the crystal. Refer back to the External Forces subsection of the HOW IT WORKS section for a description of how the forces are applied.
+
+AUTO-INCREMENT-TENSION? (TENSION mode only) will automatically increase F-APP by .0005 N if the current sample length is equal to the sample length during the previous time step or if the current sample length is shorter than the sample length during the previous time step. This is useful for producing a stress-strain curve. You can start at F-APP = 0 N and allow the simulation to run until fracture occurs.
+
+CREATE-DISLOCATION? allows the user to initialize an edge dislocation in the top half of the lattice. It is not how the dislocation would exist within the material in an equilibrium state. Although the dislocation may exist in a metastable state within this simulation, that is due to the pinning of atoms. In an unpinned material, the dislocation would usually propagate out in lattices of these nano sizes due to surface effects and the Lennard-Jones potential governing atomic motion (however, this propagation is temperature dependent so at low enough temperatures it may be possible to form a metastable dislocation).
+
+ATOMS-PER-ROW sets the number of atoms horizontally in the lattice, while ATOMS-PER-COLUMN sets the number of atoms vertically in the lattice.
+
+These are all of the settings that need to be selected prior to SETUP. The other settings can also be selected before SETUP, but they are able to be changed mid-simulation, while the aforementioned settings are not. The functions of the other settings are listed below.
+
+LATTICE-VIEW provides three options for observing the crystal lattice. LARGE-ATOMS shows atoms that nearly touch each other in equilibrium which helps to visualize close packing. SMALL-ATOMS shows atoms with a reduced diameter which can be used with links to see both atomic movement and regions of tension and compression in the crystal. HIDE-ATOMS allows the user to hide the atoms completely and only use the links to visualize deformation within the material.
+
+SYSTEM-TEMP sets the temperature of the system.
+
+F-APP is the external applied force on the material. It is the total force applied, not the individual force on each atom. The actual numbers are arbitrary, since the Lennard-Jones force has not been calibrated to model a real material. The units are in Newtons.
+
+DELETE-ATOMS allows the user to delete atoms by clicking on them in the display. If the button is pressed, clicking on the View will delete atoms. If it is not pressed, clicking will do nothing.
+
+UPDATE-ATOM-COLOR? controls whether the color of the atoms is updated. The color is an indicator of the potential energy of each atom from Lennard-Jones interactions. A lighter color means the atom has a higher potential whereas a darker color indicates a lower potential.
+
+DIAGONAL-RIGHT-LINKS?, DIAGONAL-LEFT-LINKS?, and HORIZONTAL-LINKS? all provide additional ways to visualize what is happening in the lattice. They are not meant to represent bonds between atoms. The options controlling DIAGONAL-RIGHT-LINKS? and DIAGONAL-LEFT-LINKS?  are particularly useful for identifying where the extra half plane is located in the plane. The links are colored based on their deviation from an equilibrium range of lengths. If the link (the distance between two atoms) is shorter than the equilibrium range, the link will be colored a shade of red and the atoms are compressed in this direction. If the link is longer than the equilibrium range, the link will be colored a shade of yellow. If a link is within the equilibrium range, it is colored grey. See the Color Key on the interface for a more thorough explanation.
+
+The monitor EXTERNAL FORCE PER FORCED ATOM displays the individual force that each atom directly being influenced by the external force is experiencing (in the case of TENSION mode when AUTO-INCREMENT-TENSION? is on, this is the average individual force). CURRENT F-APP is the total external force on the sample (in SHEAR, COMPRESSION, and TENSION without AUTO-INCREMENT-TENSION?, this is the same as the F-APP slider value). SAMPLE LENGTH is the length of the sample from end to end. It is in terms of the equilibrium interatomic distance between two atoms (rm). The stress-strain curve only works for TENSION mode and can be used with AUTO-INCREMENT-TENSION?.
+
+## THINGS TO NOTICE
+
+SHEAR Mode
+
+As the material deforms, how does the edge dislocation travel?
+
+Where are the areas of tension and compression around the edge dislocation?
+
+TENSION Mode
+
+When the material deforms, does it do so randomly or are there observable preferences for deformation in the material?
+
+How does the stress-strain curve correspond to elastic deformation within the material?
+
+How does changing the temperature affect the deformation patterns within the material?
+
+COMPRESSION Mode
+
+When the material deforms, are there sections of atoms that maintain their original shape? Or is the deformation completely random?
+
+## THINGS TO TRY
+
+In SHEAR mode, initialize an edge dislocation and apply the smallest force possible to deform the material. Does the material continue to deform after the edge dislocation propagates out? What force is require to deform the material after the initial edge dislocation has propagated out?
+
+In TENSION mode, samples with larger numbers of atoms per row and smaller numbers of atoms per column are generally best for observing deformation/fracture (For example, 18 atoms per row and 13 atoms per column). Increasing the number of atoms per column also works well; you just want to maintain a sample with a long "neck" area. To produce a stress-strain curve, set F-APP to 0 N and turn AUTO-INCREMENT-TENSION? on. While running the simulation at a lower temperature creates a smoother stress-strain curve, the slip behavior differs for low and high temperatures, so it is worthwhile to run the simulation with both.
+
+While running the simulation, pay attention to the different directions of links. Are tension and compression concentrated in certain areas? Do they differ in different directions?
+
+Create vacancies with the sample in tension and compression by deleting atoms. Does this change how the material deforms?
+
+Create a second edge dislocation in the shear mode by deleting atoms. How does this change material deformation?
+
+## EXTENDING THE MODEL
+
+Add a slider to vary eps (epsilon). How does changing eps affect deformation? Are smaller or larger forces needed to deform the material as eps increases? Does the material observably deform differently?
+
+Color the atoms according to a different property than their potential energy. Suggestions include according to the magnitude of force felt or the direction of the net force on each atom.
+
+Apply forces in different directions than the ones provided. Does the material deform in the same way? Why or why not?
+
+(Advanced) Add in another type of atom. Give this atom different properties, such as a different mass, or a different radius. You will need to store a separate eps and sigma for each atom and their different types of interactions. For example, if you have A and B atoms, you will need to have an A-A eps and sigma, an A-B eps and sigma, and a B-B eps and sigma.
+
+## RELATED MODELS
+
+The Lennard-Jones model
+
+## NETLOGO FEATURES
+
+When a particle moves off of the edge of the world, it doesn't re-appear by wrapping onto the other side (as in most other NetLogo models). We would use this world wrapping feature to create periodic boundary conditions if we wanted to model a bulk material.
+
+Link coloring uses the transparency feature in order to create greyish shades. In order to make links in tension (yellow) and compression (red) that are very close to equilibrium (grey) visually close to equilibrium, they are more transparent in order to produce a grey hue. The farther away a link is from equilibrium, the more opaque it is.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Cetin, S.,  Kelter, J. and Wilensky, U. (2020).  NetLogo Dislocation Motion and Deformation model.  http://ccl.northwestern.edu/netlogo/models/DislocationMotionandDeformation.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2020 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2020 Cite: Cetin, S.,  Kelter, J. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="circle-dot" rotatable="true" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="88" y="88" marked="false" color="255" diameter="124" filled="true"></circle>
+    </shape>
+    <shape name="circle-x" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <rectangle endX="315" startY="120" marked="false" color="255" endY="165" startX="0" filled="true"></rectangle>
+      <rectangle endX="180" startY="-15" marked="false" color="255" endY="300" startX="135" filled="true"></rectangle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>

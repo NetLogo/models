@@ -1,0 +1,1232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="false">
+  <code><![CDATA[globals
+[
+  start-energy      ;; constant used to initialize turtles
+
+  colors            ;; list that holds the colors used for students' turtles
+  color-names       ;; list that holds the names of the colors used for students' turtles
+  all-shapes        ;; list that holds all the possible shapes used in the game
+]
+
+breed [ icons icon ]
+breed [ androids android ]
+breed [ students student ]
+
+androids-own
+[
+  predator?
+  energy
+]
+
+students-own
+[
+  user-id
+  my-icon
+  predator?
+  energy
+  step-size
+]
+
+icons-own
+[
+  color-name
+]
+
+;;
+;; Setup Procedures
+;;
+to startup
+  ;; standard hubnet setup code
+  hubnet-reset
+
+  ;; setup the model itself
+  setup-vars
+  setup
+end
+
+;; initialize the global variables used throughout
+;; this only needs to be called once during startup
+to setup-vars
+  set start-energy 10
+  set colors (list white orange red yellow
+                    (violet + 1) (sky + 1) pink )
+  set color-names ["white" "orange" "red" "yellow"
+                   "purple" "blue" "pink" ]
+  set all-shapes [ "diamond" "heart" "pentagon" "square" "circle" "triangle" "rhombus" ]
+end
+
+;; return all students to initial state and randomize locations
+;; kill all androids
+to setup
+  reset-ticks
+  clear-all-plots
+  setup-patches
+
+  ;; reset the students to a new location with new energy
+  ask students
+  [
+    move-to one-of patches
+    face one-of neighbors4
+    set energy start-energy
+    ifelse predator?
+    [ set shape "wolf" ]
+    [ set shape "sheep" ]
+    ask my-icon [ move-to myself ]
+    send-info-to-client
+  ]
+
+  ;; kill all the androids
+  ask androids
+    [ die ]
+end
+
+;; make grass on half the patches.
+to setup-patches
+  ask patches
+  [
+    ifelse random 2 = 0
+      [ set pcolor green - 3 ]
+      [ set pcolor brown - 2 ]
+  ]
+end
+
+;; create a new android prey
+to add-prey
+  create-androids 1
+  [
+    move-to one-of patches
+    set color gray
+    face one-of neighbors4
+    set predator? false
+    set shape "sheep"
+    set energy start-energy
+  ]
+end
+
+;; create a new android predator
+to add-predators
+  create-androids 1
+  [
+    move-to one-of patches
+    face one-of neighbors4
+    set color black
+    set predator? true
+    set energy start-energy
+    set shape "wolf"
+  ]
+end
+
+;;
+;; Runtime Procedures
+;;
+
+;; the main procedure
+to go
+  ;; listen to the hubnet client
+  every 0.1
+  [
+    listen-clients
+    display
+  ]
+
+  ;; if wander? is true then the androids wander around the landscape
+  if wander?
+    [ androids-wander ]
+
+  ;; the delay below keep plants from growing too fast
+  ;; and predator/prey from losing points too fast
+  every 3
+  [
+    if any? turtles
+    [
+      plants-regrow
+      ask students
+      [
+        set energy energy - 0.5
+        if energy <= 0
+        [ student-die ]
+        update-energy-monitor
+      ]
+      do-plot
+    ]
+    tick
+  ]
+end
+
+;; android animals should move at random
+to androids-wander
+
+  ;; only execute at android-delay rate to keep the androids from moving too fast
+  every android-delay
+  [
+    ask androids
+    [
+      face one-of neighbors4
+      fd 1
+      ifelse not predator?
+      [
+        eat-grass
+        reproduce-android-prey
+      ]
+      [
+        eat-prey
+        reproduce-android-predator
+      ]
+      set energy energy - 0.5
+      if energy <= 0
+        [ die ]
+    ]
+  ]
+end
+
+;; turtle procedure
+;; creates a new android near the old one
+to reproduce-android-prey
+  if random-float 100 < prey-reproduce [
+    set energy (energy / 2)
+    hatch 1 [ rt random-float 360 fd 1 ]
+  ]
+end
+
+;; turtle procedure
+;; creates a new android near the old one
+to reproduce-android-predator
+  if random-float 100 < predator-reproduce [
+    set energy (energy / 2 )
+    hatch 1 [ rt random-float 360 fd 1 ]
+  ]
+end
+
+;; regrow the grass
+to plants-regrow
+  let brown-patches patches with [ pcolor = brown - 2 ]
+
+  ;; only regrow until the entire world is full
+  ifelse count brown-patches > plant-regrowth-rate
+  [
+    ask n-of plant-regrowth-rate brown-patches
+      [ set pcolor green - 3 ]
+  ]
+  [
+    ask brown-patches [ set pcolor green - 3 ]
+  ]
+end
+
+;; turtle procedure
+;; if you are a predator consume a prey
+to eat-prey
+  let eaten-prey one-of other turtles-here with [ breed != icons and not predator? and energy > 0 ]
+  if eaten-prey != nobody
+  [
+    set energy energy + predator-gain-from-food
+    ;; prey lose energy equal to one "life" when they are eaten
+    ;; which is the amount of energy that everyone starts with.
+    ask eaten-prey
+      [ set energy max list 0 energy - start-energy ]
+  ]
+end
+
+;; turtle procedure
+;; if you are are a prey eat some grass
+to eat-grass
+  ;; make the colors a little darker to contrast
+  ;; with the icon colors.
+  if pcolor = green - 3
+  [
+    set energy energy + prey-gain-from-food
+    set pcolor brown - 2
+  ]
+end
+
+;; force all students to become prey
+to make-students-prey
+  ask students [
+    set predator? false
+    set shape "sheep"
+    set color grey
+    send-info-to-client
+    hubnet-send user-id "status" "You are now prey"
+  ]
+end
+
+;; force all students to become predators
+to make-students-predators
+  ask students [
+    set predator? true
+    set shape "wolf"
+    set color black
+    send-info-to-client
+    hubnet-send user-id "status" "You are now a predator"
+  ]
+end
+
+;;
+;; HubNet Procedures
+;;
+
+;; get commands from the clients
+to listen-clients
+  while [ hubnet-message-waiting? ]
+  [
+    hubnet-fetch-message
+    ifelse hubnet-enter-message?
+    [ create-new-student ]
+    [
+      ifelse hubnet-exit-message?
+      [ remove-student ]
+      [ execute-command hubnet-message-tag ]
+    ]
+  ]
+end
+
+;; how to execute a command that was received
+to execute-command [ command ]
+  ask students with [ user-id = hubnet-message-source ]
+  [
+    ;; animals can only move if they have energy
+    ;; and can only recreate themselves if they are dead
+    ifelse energy > 0
+    [
+      if command = "up"
+      [ execute-move 0 ]
+      if command = "down"
+      [ execute-move 180 ]
+      if command = "right"
+      [ execute-move 90 ]
+      if command = "left"
+      [ execute-move 270 ]
+    ]
+    [
+      if command = "recreate as predator"
+      [
+        setup-student-vars true
+        send-info-to-client
+        hubnet-send user-id "status" "You are now a predator"
+      ]
+      if command = "recreate as prey"
+      [
+        setup-student-vars false
+        send-info-to-client
+        hubnet-send user-id "status" "You are now prey"
+      ]
+    ]
+    if command = "Change Appearance"
+    [ execute-change-turtle ]
+    if command = "step-size"
+    [
+      set step-size hubnet-message
+    ]
+  ]
+end
+
+to student-die
+  set shape "face sad"
+  send-info-to-client
+  update-energy-monitor
+end
+
+;; create a new student agent
+to create-new-student
+  create-students 1
+  [
+    init-student
+    send-info-to-client
+  ]
+end
+
+;; turtle procedure
+;; initialize the student agent
+to init-student
+  set user-id hubnet-message-source
+  move-to one-of patches
+  create-icon
+  setup-student-vars random 2 = 0
+end
+
+;; to create the variables for a student agent
+to setup-student-vars [is-predator?]  ;; turtle procedure
+  set predator? is-predator?
+  ifelse predator?
+  [ set shape "wolf" ]
+  [ set shape "sheep" ]
+  face one-of neighbors4
+  set step-size 1
+  set energy start-energy
+end
+
+;; turtle procedure
+;; create the icon for each student
+to create-icon
+  let parent self
+  hatch-icons 1
+  [
+    ask parent [ set my-icon myself ]
+    move-to parent
+    set-unique-shape-and-color
+    set size 1.5
+  ]
+end
+
+;; turtle procedure
+;; make sure each student has a unique shape and color
+to set-unique-shape-and-color
+  set color one-of colors
+  set shape one-of all-shapes
+  set color-name item (position color colors) color-names
+end
+
+;; sends the appropriate monitor information back to the client
+to send-info-to-client
+  hubnet-send user-id "You are a:" (word [color-name] of my-icon " " [shape] of my-icon)
+  hubnet-send user-id "Located at:" (word "(" pxcor "," pycor ")")
+  hubnet-send user-id "role" my-role
+  update-energy-monitor
+end
+
+;; turtle procedure
+;; specify the role
+to-report my-role
+  if energy <= 0
+    [ report "dead" ]
+  report ifelse-value shape = "wolf" [ "predator" ][ "prey" ]
+end
+
+;; show the appropriate amount of energy
+to update-energy-monitor
+  hubnet-send user-id "energy" max list 0 precision energy 2
+  if energy <= 0
+  [
+    hubnet-send user-id "role" my-role
+    hubnet-send user-id "status" "You died, you may recreate as a predator or prey"
+  ]
+end
+
+;; remove students that are no longer connected
+to remove-student
+  ask students with [ user-id = hubnet-message-source ]
+  [
+    ask my-icon [ die ]
+    die
+  ]
+end
+
+;; turtle procedure
+;; move the student agent
+to execute-move [ new-heading ]
+  set heading new-heading
+  fd step-size
+  set energy energy - 0.5
+  ask my-icon
+  [
+    set heading new-heading
+    fd [step-size] of myself
+  ]
+  ifelse predator?
+    [ eat-prey ]
+    [ eat-grass ]
+  update-energy-monitor
+  hubnet-send user-id "Located at:" (word "(" pxcor "," pycor ")")
+  if energy <= 0
+  [ student-die ]
+end
+
+;; turtle procedure
+;; change the icon
+to execute-change-turtle
+  show-turtle
+  ask my-icon [ set-unique-shape-and-color ]
+  hubnet-send user-id "You are a:" (word ([color-name] of my-icon) " " [shape] of my-icon)
+end
+
+;;
+;; Plotting Procedure
+;;
+to do-plot
+  let players turtles with [ breed != icons ]
+  set-current-plot "Average Energy"  ;;this plots the total energy of prey, and of predators
+  set-current-plot-pen "Predators"
+  ifelse any? players with [ predator? ]
+    [ plot mean [ energy ] of  players with [ predator? ] ]
+    [ plot 0 ]
+
+  set-current-plot-pen "Prey"
+  ifelse any? players with [ not predator? ]
+    [ plot mean [ energy ] of players with [ not predator? ] ]
+    [ plot 0 ]
+
+  set-current-plot "Population"
+  set-current-plot-pen "Predators"
+  plot count players with [ predator? ]
+
+  set-current-plot-pen "Prey"
+  plot count players with [ not predator? ]
+end
+
+
+; Copyright 2002 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="438" maxPycor="10" updateMode="1" wrappingAllowedX="false" y="41" frameRate="30.0" minPycor="-10" height="534" showTickCounter="true" patchSize="25.0" fontSize="10" wrappingAllowedY="false" width="533" tickCounterLabel="ticks" maxPxcor="10" minPxcor="-10"></view>
+    <button x="119" y="21" height="36" disableUntilTicks="false" forever="false" kind="Observer" width="85" display="setup">setup</button>
+    <button x="206" y="21" height="36" disableUntilTicks="false" forever="true" kind="Observer" width="85">go</button>
+    <button x="65" y="91" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="139">add-prey</button>
+    <plot x="28" yMax="100.0" yAxis="points" y="315" xMin="0.0" height="197" legend="false" xMax="25.0" autoplot="true" yMin="0.0" width="365" xAxis="time" display="Average Energy">
+      <setup></setup>
+      <update></update>
+      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="predators">
+        <setup></setup>
+        <update></update>
+      </pen>
+      <pen color="-10899396" legend="true" interval="1.0" mode="0" display="prey">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <slider x="206" step="0.1" y="91" height="33" min="0" direction="Horizontal" max="10" default="0.4" variable="android-delay" units="seconds" width="194" display="android-delay"></slider>
+    <switch x="206" y="59" height="33" on="true" variable="wander?" width="147" display="wander?"></switch>
+    <button x="65" y="59" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="139">add-predators</button>
+    <slider x="181" step="1" y="212" height="33" min="0" direction="Horizontal" max="20" default="10.0" variable="predator-gain-from-food" units="energy" width="225" display="predator-gain-from-food"></slider>
+    <slider x="181" step="1" y="245" height="33" min="0" direction="Horizontal" max="10" default="2.0" variable="prey-gain-from-food" units="energy" width="225" display="prey-gain-from-food"></slider>
+    <slider x="93" step="1" y="280" height="33" min="0" direction="Horizontal" max="100" default="5.0" variable="plant-regrowth-rate" units="patches" width="231" display="plant-regrowth-rate"></slider>
+    <monitor x="130" precision="0" y="162" height="45" fontSize="11" width="74" display="predators">count androids with [ predator? ] + count students with [ predator? ]</monitor>
+    <monitor x="206" precision="3" y="162" height="45" fontSize="11" width="73" display="prey">count androids with [ not predator? ] + count students with [ not predator? ]
+</monitor>
+    <button x="14" y="245" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="166">make-students-prey</button>
+    <button x="14" y="212" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="166">make-students-predators</button>
+    <plot x="28" yMax="10.0" y="514" xMin="0.0" height="197" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="365" display="Population">
+      <setup></setup>
+      <update></update>
+      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="predators">
+        <setup></setup>
+        <update></update>
+      </pen>
+      <pen color="-10899396" legend="true" interval="1.0" mode="0" display="prey">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <slider x="10" step="0.1" y="126" height="33" min="0" direction="Horizontal" max="100" default="5.0" variable="predator-reproduce" units="%" width="194" display="predator-reproduce"></slider>
+    <slider x="206" step="0.1" y="126" height="33" min="0" direction="Horizontal" max="100" default="4.0" variable="prey-reproduce" units="%" width="194" display="prey-reproduce"></slider>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This model simulates a predator-prey relationship.  The population consists of wolf packs (predators) and sheep herds (prey), some controlled by students via HubNet clients and some androids controlled by the computer.  The wolves gain energy from consuming sheep, and the sheep gain energy from consuming grass (a primary producer).  The model allows students to examine simple population dynamics like those modeled through the Lotka-Volterra equations in a participatory way.
+
+## HOW IT WORKS
+
+Predators and prey move around the world, searching for food.  Prey eat plants (green areas), while predators eat prey.  All animals gain energy by finding food and expend energy in the search for food.  Prey also lose energy when predators catch them. Each predator agent can be thought of as a pack of wolves and each prey can be thought of a herd of sheep.  Prey can be caught by predators a few at a time before they ultimately die out.  In other words, a prey agent does not die the very first time they run into a predator.  The grass is also a limited resource; it regrows at a fixed rate.  Android predators and prey can wander around the world at random, while student predators and prey are directed through the HubNet clients.
+
+If an animal's energy gets too low it dies. If a student controls the animal, that student is given the option to "recreate" as a predator or prey.  Until the student "recreates" they cannot interact with the rest of the system, i.e. they cannot be eaten, they cannot eat, and they cannot move.  By recreating the students have some control over the populations in the world and can dramatically shift the population dynamics.  If the energy of an android goes below zero the android merely dies.  However, androids do have the ability to reproduce, which student agents do not.  Every tick each prey has a PREY-REPRODUCE chance of creating a new prey, and each predator has a PREDATOR-REPRODUCE chance of creating a new predator.
+
+## HOW TO USE IT
+
+To start the game first press the SETUP button then press the GO button and ask the students to log in.  You may also want to create android predators or prey using the ADD-PREDATORS and ADD-PREY buttons.  You can control the movement of the androids using the WANDER? switch (which determines whether they move at all) and the ANDROID-DELAY slider (which determines how many seconds elapse between android movements).
+
+The total number of PREDATORS and PREY, including both students and androids are displayed in the corresponding monitors.  You can control the amount of energy each animal gains from consuming food by using the PREDATOR-GAIN-FROM-FOOD and the PREY-GAIN-FROM-FOOD sliders.  PLANT-REGROWTH-RATE brown areas regrow grass at every tick in the model.  Thus modifying this slider controls the amount of grass that is available for the sheep to consume.
+
+If you wish to change all the students to either predators or prey press the MAKE-STUDENTS-PREDATORS or MAKE-STUDENTS-PREY buttons.  These buttons do not affect androids.
+
+To start the game over press the SETUP button, this will return all students to initial energy levels and place them at a new random position.  It will kill all the androids and clear the plots.
+
+AVERAGE ENERGY plots the average energy of all predators in red, and all prey in green, this includes androids.  POPULATION plots the total of each type of animal.
+
+Client Information
+
+After logging in, the client interface will appear for the students, and if GO is pressed in NetLogo they will be assigned a role as predator or prey at random.  Their character will consist of an animal indicator, a wolf if they are a predator or a sheep if they are prey, and an icon.  The icon is their unique identifier so it's easy to distinguish themselves from other animals.  A description of the icon will appear in the YOU ARE A: monitor.  If the student does not like the shape and/or color of their icon they can hit the CHANGE APPEARANCE button at any time to change to another random icon.
+
+The student controls the movement of their turtle with the UP, DOWN, LEFT, and RIGHT buttons (they can also use the hot-keys as short cuts) and the STEP-SIZE slider.  Clicking any of the directional buttons (or using the hot-keys) will cause their turtle to move in the respective direction a distance of STEP-SIZE.
+
+ENERGY for the appropriate animal is displayed in the monitor of same name.  If the energy is zero or less, then the agent dies.  The ROLE monitor will display "dead", the animal indicator shape will appear as a sad face, and the STATUS monitor will indicate that the student should recreate as a predator or prey.  After s/he selects one s/he cannot switch roles until the animal dies again.
+
+## THINGS TO NOTICE
+
+Predators may find it better to stay together.  Prey, however, may learn to stay more scattered, so as to not become easy prey to a large group of predators.
+
+At first students may find it advantageous to be predators but if many students become predators, the balance will shift and it may be more advantageous to "recreate" as a prey.
+
+## THINGS TO TRY
+
+Try changing the amount of energy gained from food for both predators and prey, at what point does it cease to be advantageous to be a predator?
+
+Try to balance out the system so that no predators or prey go hungry.
+
+Change the PLANT-REGROWTH-RATE slider.  How does this affect the balance between the predators and prey?
+
+## EXTENDING THE MODEL
+
+Try making the androids move toward food rather than moving randomly.
+
+There is no cost for changing the step-size for a student agent.  Is there a way a larger step-size could "cost" the agent something?
+
+## NETLOGO FEATURES
+
+Because so much information must be conveyed through the appearance of each turtle, each player is actually made up of two turtles; one turtle's shape is either a wolf or a sheep to indicate whether it is a predator or prey.  Behind the first turtle is an icon turtle that helps students distinguish themselves from other players (and androids).  Thus though each student is viewed as one agent, they are actually made up of two turtles.
+
+## RELATED MODELS
+
+The various Wolf-Sheep models are non-HubNet versions of a similar model.  Also see the Bug Hunter model and the Guppy model for other HubNet models that explore population dynamics.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. (2002).  NetLogo Predator Prey Game HubNet model.  http://ccl.northwestern.edu/netlogo/models/PredatorPreyGameHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the HubNet software as:
+
+* Wilensky, U. & Stroup, W. (1999). HubNet. http://ccl.northwestern.edu/netlogo/hubnet.html. Center for Connected Learning and Computer-Based Modeling, Northwestern University. Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2002 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This activity and associated models and materials were created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
+
+<!-- 2002 -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="cat" rotatable="false" editableColorIndex="0">
+      <line endX="210" startY="240" marked="true" color="-1920102913" endY="240" startX="285"></line>
+      <line endX="165" startY="300" marked="true" color="-1920102913" endY="255" startX="195"></line>
+      <line endX="90" startY="240" marked="true" color="-1920102913" endY="240" startX="15"></line>
+      <line endX="195" startY="285" marked="true" color="-1920102913" endY="240" startX="285"></line>
+      <line endX="135" startY="300" marked="true" color="-1920102913" endY="255" startX="105"></line>
+      <line endX="150" startY="270" marked="false" color="255" endY="285" startX="150"></line>
+      <line endX="15" startY="75" marked="false" color="255" endY="120" startX="15"></line>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="15"></point>
+        <point x="285" y="30"></point>
+        <point x="255" y="30"></point>
+        <point x="225" y="75"></point>
+        <point x="195" y="60"></point>
+        <point x="255" y="15"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="285" y="135"></point>
+        <point x="210" y="135"></point>
+        <point x="180" y="150"></point>
+        <point x="180" y="45"></point>
+        <point x="285" y="90"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="120" y="45"></point>
+        <point x="120" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="45"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="180" y="195"></point>
+        <point x="165" y="300"></point>
+        <point x="240" y="285"></point>
+        <point x="255" y="225"></point>
+        <point x="285" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="180" y="225"></point>
+        <point x="195" y="285"></point>
+        <point x="165" y="300"></point>
+        <point x="150" y="300"></point>
+        <point x="150" y="255"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="195"></point>
+        <point x="195" y="165"></point>
+        <point x="225" y="150"></point>
+        <point x="255" y="135"></point>
+        <point x="285" y="135"></point>
+        <point x="285" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="135"></point>
+        <point x="90" y="135"></point>
+        <point x="120" y="150"></point>
+        <point x="120" y="45"></point>
+        <point x="15" y="90"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="120" y="195"></point>
+        <point x="135" y="300"></point>
+        <point x="60" y="285"></point>
+        <point x="45" y="225"></point>
+        <point x="15" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="120" y="225"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="300"></point>
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="195"></point>
+        <point x="105" y="165"></point>
+        <point x="75" y="150"></point>
+        <point x="45" y="135"></point>
+        <point x="15" y="135"></point>
+        <point x="15" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="285" y="120"></point>
+        <point x="270" y="90"></point>
+        <point x="285" y="15"></point>
+        <point x="300" y="15"></point>
+      </polygon>
+      <line endX="105" startY="285" marked="true" color="-1920102913" endY="240" startX="15"></line>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="30" y="90"></point>
+        <point x="15" y="15"></point>
+        <point x="0" y="15"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="0" y="15"></point>
+        <point x="15" y="30"></point>
+        <point x="45" y="30"></point>
+        <point x="75" y="75"></point>
+        <point x="105" y="60"></point>
+        <point x="45" y="15"></point>
+      </polygon>
+      <line endX="209" startY="262" marked="false" color="255" endY="262" startX="164"></line>
+      <line endX="208" startY="231" marked="false" color="255" endY="261" startX="223"></line>
+      <line endX="91" startY="262" marked="false" color="255" endY="262" startX="136"></line>
+      <line endX="92" startY="231" marked="false" color="255" endY="261" startX="77"></line>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="diamond" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="17"></point>
+        <point x="270" y="149"></point>
+        <point x="151" y="272"></point>
+        <point x="30" y="152"></point>
+      </polygon>
+    </shape>
+    <shape name="dog" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="165"></point>
+        <point x="300" y="195"></point>
+        <point x="270" y="210"></point>
+        <point x="183" y="204"></point>
+        <point x="180" y="240"></point>
+        <point x="165" y="270"></point>
+        <point x="165" y="300"></point>
+        <point x="120" y="300"></point>
+        <point x="0" y="240"></point>
+        <point x="45" y="165"></point>
+        <point x="75" y="90"></point>
+        <point x="75" y="45"></point>
+        <point x="105" y="15"></point>
+        <point x="135" y="45"></point>
+        <point x="165" y="45"></point>
+        <point x="180" y="15"></point>
+        <point x="225" y="15"></point>
+        <point x="255" y="30"></point>
+        <point x="225" y="30"></point>
+        <point x="210" y="60"></point>
+        <point x="225" y="90"></point>
+        <point x="225" y="105"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="0" y="240"></point>
+        <point x="120" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="165" y="285"></point>
+        <point x="120" y="285"></point>
+        <point x="10" y="221"></point>
+      </polygon>
+      <line endX="180" startY="60" marked="false" color="255" endY="45" startX="210"></line>
+      <line endX="90" startY="45" marked="false" color="255" endY="90" startX="90"></line>
+      <line endX="105" startY="90" marked="false" color="255" endY="105" startX="90"></line>
+      <line endX="135" startY="105" marked="false" color="255" endY="60" startX="105"></line>
+      <line endX="135" startY="45" marked="false" color="255" endY="60" startX="90"></line>
+      <line endX="135" startY="60" marked="false" color="255" endY="45" startX="135"></line>
+      <line endX="151" startY="203" marked="false" color="255" endY="203" startX="181"></line>
+      <line endX="105" startY="201" marked="false" color="255" endY="171" startX="150"></line>
+      <circle x="171" y="88" marked="false" color="255" diameter="34" filled="true"></circle>
+      <circle x="261" y="162" marked="false" color="255" diameter="30" filled="false"></circle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="1">
+      <circle x="8" y="8" marked="false" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="heart" rotatable="false" editableColorIndex="0">
+      <circle x="31" y="30" marked="true" color="-1920102913" diameter="122" filled="true"></circle>
+      <circle x="147" y="32" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="51" y="135"></point>
+        <point x="151" y="243"></point>
+        <point x="250" y="133"></point>
+        <point x="264" y="105"></point>
+        <point x="169" y="84"></point>
+        <point x="108" y="84"></point>
+        <point x="44" y="118"></point>
+        <point x="44" y="126"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="46" y="131"></point>
+        <point x="150" y="242"></point>
+        <point x="49" y="114"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="44" y="130"></point>
+        <point x="150" y="242"></point>
+        <point x="38" y="105"></point>
+        <point x="36" y="112"></point>
+      </polygon>
+    </shape>
+    <shape name="monster" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="75" y="150"></point>
+        <point x="90" y="195"></point>
+        <point x="210" y="195"></point>
+        <point x="225" y="150"></point>
+        <point x="255" y="120"></point>
+        <point x="255" y="45"></point>
+        <point x="180" y="0"></point>
+        <point x="120" y="0"></point>
+        <point x="45" y="45"></point>
+        <point x="45" y="120"></point>
+      </polygon>
+      <circle x="165" y="60" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="75" y="60" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="225" y="150"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="285"></point>
+        <point x="255" y="300"></point>
+        <point x="255" y="210"></point>
+        <point x="180" y="165"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="75" y="150"></point>
+        <point x="15" y="195"></point>
+        <point x="15" y="285"></point>
+        <point x="45" y="300"></point>
+        <point x="45" y="210"></point>
+        <point x="120" y="165"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="210" y="210"></point>
+        <point x="225" y="285"></point>
+        <point x="195" y="285"></point>
+        <point x="165" y="165"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="210"></point>
+        <point x="75" y="285"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="165"></point>
+      </polygon>
+      <rectangle endX="165" startY="165" marked="true" color="-1920102913" endY="270" startX="135" filled="true"></rectangle>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="rhombus" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="100" y="51"></point>
+        <point x="291" y="50"></point>
+        <point x="189" y="221"></point>
+        <point x="2" y="222"></point>
+      </polygon>
+    </shape>
+    <shape name="shark" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="283" y="153"></point>
+        <point x="288" y="149"></point>
+        <point x="271" y="146"></point>
+        <point x="301" y="145"></point>
+        <point x="300" y="138"></point>
+        <point x="247" y="119"></point>
+        <point x="190" y="107"></point>
+        <point x="104" y="117"></point>
+        <point x="54" y="133"></point>
+        <point x="39" y="134"></point>
+        <point x="10" y="99"></point>
+        <point x="9" y="112"></point>
+        <point x="19" y="142"></point>
+        <point x="9" y="175"></point>
+        <point x="10" y="185"></point>
+        <point x="40" y="158"></point>
+        <point x="69" y="154"></point>
+        <point x="64" y="164"></point>
+        <point x="80" y="161"></point>
+        <point x="86" y="156"></point>
+        <point x="132" y="160"></point>
+        <point x="209" y="164"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="199" y="161"></point>
+        <point x="152" y="166"></point>
+        <point x="137" y="164"></point>
+        <point x="169" y="154"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="188" y="108"></point>
+        <point x="172" y="83"></point>
+        <point x="160" y="74"></point>
+        <point x="156" y="76"></point>
+        <point x="159" y="97"></point>
+        <point x="153" y="112"></point>
+      </polygon>
+      <circle x="256" y="129" marked="false" color="255" diameter="12" filled="true"></circle>
+      <line endX="222" startY="134" marked="false" color="255" endY="150" startX="222"></line>
+      <line endX="217" startY="134" marked="false" color="255" endY="150" startX="217"></line>
+      <line endX="212" startY="134" marked="false" color="255" endY="150" startX="212"></line>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="78" y="125"></point>
+        <point x="62" y="118"></point>
+        <point x="63" y="130"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="121" y="157"></point>
+        <point x="105" y="161"></point>
+        <point x="101" y="156"></point>
+        <point x="106" y="152"></point>
+      </polygon>
+    </shape>
+    <shape name="sheep" rotatable="false" editableColorIndex="0">
+      <rectangle endX="210" startY="75" marked="false" color="-1" endY="225" startX="30" filled="true"></rectangle>
+      <circle x="135" y="75" marked="false" color="-1" diameter="150" filled="true"></circle>
+      <rectangle endX="219" startY="225" marked="false" color="255" endY="286" startX="166" filled="true"></rectangle>
+      <rectangle endX="120" startY="225" marked="false" color="255" endY="285" startX="62" filled="true"></rectangle>
+      <circle x="207" y="88" marked="false" color="255" diameter="92" filled="true"></circle>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="squirrel" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="87" y="267"></point>
+        <point x="106" y="290"></point>
+        <point x="145" y="292"></point>
+        <point x="157" y="288"></point>
+        <point x="175" y="292"></point>
+        <point x="209" y="292"></point>
+        <point x="207" y="281"></point>
+        <point x="190" y="276"></point>
+        <point x="174" y="277"></point>
+        <point x="156" y="271"></point>
+        <point x="154" y="261"></point>
+        <point x="157" y="245"></point>
+        <point x="151" y="230"></point>
+        <point x="156" y="221"></point>
+        <point x="171" y="209"></point>
+        <point x="214" y="165"></point>
+        <point x="231" y="171"></point>
+        <point x="239" y="171"></point>
+        <point x="263" y="154"></point>
+        <point x="281" y="137"></point>
+        <point x="294" y="136"></point>
+        <point x="297" y="126"></point>
+        <point x="295" y="119"></point>
+        <point x="279" y="117"></point>
+        <point x="241" y="145"></point>
+        <point x="242" y="128"></point>
+        <point x="262" y="132"></point>
+        <point x="282" y="124"></point>
+        <point x="288" y="108"></point>
+        <point x="269" y="88"></point>
+        <point x="247" y="73"></point>
+        <point x="226" y="72"></point>
+        <point x="213" y="76"></point>
+        <point x="208" y="88"></point>
+        <point x="190" y="112"></point>
+        <point x="151" y="107"></point>
+        <point x="119" y="117"></point>
+        <point x="84" y="139"></point>
+        <point x="61" y="175"></point>
+        <point x="57" y="210"></point>
+        <point x="65" y="231"></point>
+        <point x="79" y="253"></point>
+        <point x="65" y="243"></point>
+        <point x="46" y="187"></point>
+        <point x="49" y="157"></point>
+        <point x="82" y="109"></point>
+        <point x="115" y="93"></point>
+        <point x="146" y="83"></point>
+        <point x="202" y="49"></point>
+        <point x="231" y="13"></point>
+        <point x="181" y="12"></point>
+        <point x="142" y="6"></point>
+        <point x="95" y="30"></point>
+        <point x="50" y="39"></point>
+        <point x="12" y="96"></point>
+        <point x="0" y="162"></point>
+        <point x="23" y="250"></point>
+        <point x="68" y="275"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="237" y="85"></point>
+        <point x="249" y="84"></point>
+        <point x="255" y="92"></point>
+        <point x="246" y="95"></point>
+      </polygon>
+      <line endX="213" startY="82" marked="false" color="255" endY="93" startX="221"></line>
+      <line endX="266" startY="119" marked="false" color="255" endY="124" startX="253"></line>
+      <line endX="278" startY="110" marked="false" color="255" endY="116" startX="278"></line>
+      <line endX="135" startY="229" marked="false" color="255" endY="211" startX="149"></line>
+      <line endX="115" startY="211" marked="false" color="255" endY="207" startX="134"></line>
+      <line endX="106" startY="207" marked="false" color="255" endY="211" startX="117"></line>
+      <line endX="131" startY="268" marked="false" color="255" endY="290" startX="91"></line>
+      <line endX="213" startY="82" marked="false" color="255" endY="79" startX="220"></line>
+      <line endX="294" startY="126" marked="false" color="255" endY="128" startX="286"></line>
+      <line endX="206" startY="284" marked="false" color="255" endY="285" startX="193"></line>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="152" y="2"></point>
+        <point x="196" y="105"></point>
+        <point x="297" y="106"></point>
+        <point x="215" y="176"></point>
+        <point x="248" y="277"></point>
+        <point x="151" y="209"></point>
+        <point x="56" y="278"></point>
+        <point x="87" y="172"></point>
+        <point x="4" y="107"></point>
+        <point x="108" y="104"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wolf" rotatable="false" editableColorIndex="0">
+      <rectangle endX="105" startY="105" marked="false" color="255" endY="165" startX="15" filled="true"></rectangle>
+      <rectangle endX="105" startY="90" marked="false" color="255" endY="105" startX="45" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="60" y="90"></point>
+        <point x="83" y="44"></point>
+        <point x="104" y="90"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="67" y="90"></point>
+        <point x="82" y="59"></point>
+        <point x="97" y="89"></point>
+      </polygon>
+      <rectangle endX="59" startY="93" marked="false" color="-1" endY="105" startX="48" filled="true"></rectangle>
+      <rectangle endX="55" startY="96" marked="false" color="255" endY="101" startX="51" filled="true"></rectangle>
+      <rectangle endX="15" startY="121" marked="false" color="255" endY="135" startX="0" filled="true"></rectangle>
+      <rectangle endX="60" startY="136" marked="false" color="255" endY="151" startX="15" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="15" y="136"></point>
+        <point x="23" y="149"></point>
+        <point x="31" y="136"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="30" y="151"></point>
+        <point x="37" y="136"></point>
+        <point x="43" y="151"></point>
+      </polygon>
+      <rectangle endX="263" startY="120" marked="false" color="255" endY="195" startX="105" filled="true"></rectangle>
+      <rectangle endX="259" startY="195" marked="false" color="255" endY="201" startX="108" filled="true"></rectangle>
+      <rectangle endX="252" startY="201" marked="false" color="255" endY="210" startX="114" filled="true"></rectangle>
+      <rectangle endX="243" startY="210" marked="false" color="255" endY="214" startX="120" filled="true"></rectangle>
+      <rectangle endX="255" startY="114" marked="false" color="255" endY="120" startX="115" filled="true"></rectangle>
+      <rectangle endX="248" startY="108" marked="false" color="255" endY="114" startX="128" filled="true"></rectangle>
+      <rectangle endX="225" startY="105" marked="false" color="255" endY="108" startX="150" filled="true"></rectangle>
+      <rectangle endX="155" startY="214" marked="false" color="255" endY="270" startX="132" filled="true"></rectangle>
+      <rectangle endX="132" startY="260" marked="false" color="255" endY="270" startX="110" filled="true"></rectangle>
+      <rectangle endX="232" startY="214" marked="false" color="255" endY="270" startX="210" filled="true"></rectangle>
+      <rectangle endX="210" startY="260" marked="false" color="255" endY="270" startX="189" filled="true"></rectangle>
+      <line endX="281" startY="127" marked="false" color="255" endY="155" startX="263"></line>
+      <line endX="281" startY="155" marked="false" color="255" endY="192" startX="281"></line>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <hubNetClient>
+    <view x="300" maxPycor="10" updateMode="1" wrappingAllowedX="true" y="19" frameRate="30.0" minPycor="-10" height="420" showTickCounter="true" patchSize="12.0" fontSize="13" wrappingAllowedY="true" width="420" tickCounterLabel="ticks" maxPxcor="10" minPxcor="-10"></view>
+    <button x="108" actionKey="W" y="158" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="92" display="up"></button>
+    <button x="108" actionKey="S" y="226" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="92" display="down"></button>
+    <button x="201" actionKey="D" y="193" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="72" display="right"></button>
+    <button x="35" actionKey="A" y="192" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="72" display="left"></button>
+    <slider x="108" step="1.0" y="192" height="33" min="1.0" direction="Horizontal" max="5.0" default="1.0" variable="step-size" width="92" display="step-size"></slider>
+    <monitor x="158" precision="3" y="106" height="49" fontSize="11" width="92" display="Located at:"></monitor>
+    <monitor x="82" precision="3" y="21" height="49" fontSize="11" width="150" display="You are a:"></monitor>
+    <button x="83" y="72" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="150" display="Change Appearance"></button>
+    <monitor x="108" precision="0" y="260" height="49" fontSize="11" width="92" display="energy"></monitor>
+    <monitor x="8" precision="3" y="311" height="49" fontSize="11" width="289" display="status"></monitor>
+    <button x="79" y="363" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="157" display="recreate as predator"></button>
+    <button x="79" y="397" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="157" display="recreate as prey"></button>
+    <monitor x="64" precision="3" y="106" height="49" fontSize="11" width="92" display="role"></monitor>
+  </hubNetClient>
+  <previewCommands>need-to-manually-make-preview-for-this-model</previewCommands>
+</model>

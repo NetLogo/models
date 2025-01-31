@@ -1,0 +1,1510 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[globals [
+  tick-delta
+  max-tick-delta
+  gravity
+  min-piston-height
+  piston-height
+  piston-vel
+  piston-mass
+  pressure
+  init-avg-speed
+  flask-bottom-ycor
+  flask-abs-xcor
+  flask-height
+  balloon-bottom-ycor
+  balloon-abs-xcor
+  Zn-increment
+  init-gas-speed
+  height-history
+]
+
+;; Describe different agent breeds
+breed [ Zns Zn ]
+breed [ Zn-ions Zn-ion ]
+breed [ hydroniums hydronium ]
+breed [ dihydrogens dihydrogen ]
+breed [ pistons piston ]
+breed [ flashes flash ]
+
+;; Describe breed internal variables
+
+hydroniums-own [ speed ]
+Zn-ions-own [ speed ]
+dihydrogens-own [
+  speed mass energy
+  last-collision
+]
+pistons-own [ speed mass energy ]
+flashes-own [ birthday ]
+
+
+to setup
+  clear-all
+
+  initialize-variables
+
+  make-flask-and-water
+  make-balloon
+  make-piston
+
+  make-Zn
+  make-HCl
+
+  reset-ticks
+end
+
+to go
+  if piston-height >= max-pycor - balloon-bottom-ycor [
+    user-message "The balloon reached the top of the chamber. The simulation will stop."
+    stop
+  ]
+
+  ask hydroniums [
+    bounce-flask
+    move
+  ]
+  ask hydroniums [ check-for-reaction-hydronium ]
+
+  ask Zn-ions [
+    bounce-flask
+    move
+  ]
+
+  ask dihydrogens [
+    if if-flask? [bounce-flask]
+    if in-balloon? [bounce-balloon]
+    move
+  ]
+  ask dihydrogens with [in-balloon?]  [ check-for-collision ]
+
+
+  ask Zns [sink]
+  move-piston
+  update-balloon
+
+  ;; Utility and updating
+  tick-advance tick-delta
+
+  simulate-brownian-motion
+
+  calculate-tick-delta
+  ;; we check for pcolor = black to make sure flashes that are left behind by the piston die
+  ask flashes with [ticks - birthday > 0.4 or pcolor = black] [ die ]
+
+end
+
+;; ----- VARIABLE MANIPULATION -----
+
+to initialize-variables
+  set flask-bottom-ycor -35
+  set flask-height 20
+  set flask-abs-xcor 15
+  set balloon-bottom-ycor (flask-bottom-ycor + flask-height - 1)
+  set balloon-abs-xcor 6
+  set Zn-increment 5 ;; increment for the num-Zn slider
+  set-default-shape turtles "circle"
+  set-default-shape flashes "square"
+  set init-gas-speed 10
+  set max-tick-delta 1 / (init-gas-speed + 1)
+  set gravity 0.05
+  set min-piston-height 3
+  set piston-height min-piston-height
+  set piston-vel 0
+  set piston-mass 600
+  set height-history n-values 10 [0]
+end
+
+to calculate-tick-delta
+  ;; tick-delta is calculated in such way that even the fastest
+  ;; particle (or the piston) will jump at most 1 patch length in a
+  ;; tick. As particles jump (speed * tick-delta) at every
+  ;; tick, making tick length the inverse of the speed of the
+  ;; fastest particle (1/max speed) assures that. Having each particle
+  ;; advance at most one patch-length is necessary for them not to
+  ;; "jump over" a wall or the piston.
+  let turtles-with-speed turtles with [(breed != Zns) and (breed != flashes)]
+  ifelse any? turtles-with-speed with [speed > 0]
+    [ set tick-delta min list
+                            (1 / (ceiling max ([speed] of turtles-with-speed)))
+                            max-tick-delta ]
+    [ set tick-delta max-tick-delta ]
+end
+
+to calculate-height
+  set height-history lput piston-height but-first height-history
+end
+
+;; ----- BOUNDARY SETUP -----
+
+to make-flask-and-water
+  let flask-top flask-bottom-ycor + flask-height
+  ;; bottom
+  ask patches with [
+    (abs pxcor <= flask-abs-xcor) and
+    (pycor = flask-bottom-ycor) ] [
+      set pcolor white
+  ]
+  ;; walls
+  ask patches with [
+    (abs pxcor = flask-abs-xcor) and
+    (pycor >= flask-bottom-ycor) and
+    (pycor <= flask-top) ] [
+      set pcolor white
+  ]
+  ;; top
+  ask patches with [
+    (abs pxcor <= flask-abs-xcor) and
+    (abs pxcor >= balloon-abs-xcor) and
+    (pycor = flask-top) ] [
+      set pcolor white
+  ]
+  ;; water in the flask
+  ask patches with [
+    (abs pxcor < flask-abs-xcor) and
+    (pycor > flask-bottom-ycor) and
+    (pycor < flask-top) ] [
+      set pcolor blue
+  ]
+end
+
+to make-balloon
+  ask patches with [
+    (abs pxcor = balloon-abs-xcor) and
+    (pycor > balloon-bottom-ycor + 1) and
+    (pycor <= balloon-bottom-ycor + min-piston-height) ] [
+      set pcolor orange
+  ]
+end
+
+to update-balloon
+  ask patches with [pycor > [pycor] of one-of pistons] [ set pcolor black ]
+  ask patches with [(pycor = [pycor] of one-of pistons) and (abs pxcor = balloon-abs-xcor)] [ set pcolor orange ]
+end
+
+;; ----- PARTICLE PROCEDURES -----
+
+to-report if-flask?
+  report [pcolor] of patch-here = blue
+end
+
+to-report in-balloon?
+  report [pcolor] of patch-here = black
+end
+
+to sink ; Zn procedure
+  set heading 180
+  if [pcolor = blue and not any? Zns-here] of patch-ahead 1 [
+    fd 1
+  ]
+end
+
+to simulate-brownian-motion
+  if floor ticks > floor (ticks - tick-delta) [
+    ; simulate brownian motion while preserving simulation speed
+    ask turtles [
+      if (breed = hydroniums)  [
+
+      ]
+      if (breed = dihydrogens and [pcolor = blue] of patch-here) [
+        set heading 0  ; so they float
+        rt (random 180) - 90
+      ]
+    ]
+    calculate-height
+    update-plots
+  ]
+end
+
+to make-Zn
+  ;; define a block based on the amt-Zn slider
+  let range-xcor (num-Zn / Zn-increment)
+  let max-xcor (ceiling (range-xcor / 2))
+  let min-xcor (max-xcor - range-xcor - 1)
+  ask patches with [
+    (pycor > flask-bottom-ycor) and
+    (pycor <= flask-bottom-ycor + Zn-increment) and
+    (pxcor > min-xcor) and
+    (pxcor < max-xcor) ] [
+    ;; create zinc atoms
+    sprout-Zns 1 [
+      set size 1
+      set color gray
+    ]
+  ]
+end
+
+to make-HCl
+  create-hydroniums num-HCl [  ; HCl is put into the flask, but it disassociatees into hydronium and chloride ions. We don't visualize the chlorides
+    set speed 1
+    random-position
+    set color green
+
+  ]
+end
+
+;; place particle at random location inside the water not on zinc
+to random-position  ;; particle procedure
+  setxy ((1 - flask-abs-xcor)  + random-float (2 * flask-abs-xcor - 2))
+        ((flask-bottom-ycor + Zn-increment + 1) + random-float (flask-height - Zn-increment - 2))
+end
+
+to bounce-flask
+  ;; get the coordinates of the patch we'll be on if we go forward 1
+  let new-patch patch-ahead 1
+  let new-px [pxcor] of new-patch
+  let new-py [pycor] of new-patch
+
+  ; if we're not about to hit a wall (patch color hasn't changed), we don't need to do any further checks
+  if ([pcolor] of new-patch = blue) [ stop ]
+
+  ; check: hitting left or right wall?
+  if (abs new-px = flask-abs-xcor) [ ; if so, reflect heading around x axis
+      ;;  if the particle is hitting a vertical wall, only the horizontal component of the speed vector can change.
+      set heading (- heading)
+  ]
+
+  ; check: hitting bottom wall or top wall?
+  if new-py = flask-bottom-ycor or (new-py = flask-bottom-ycor + flask-height) [
+
+    ifelse breed = dihydrogens [
+      ifelse [pcolor] of new-patch = white [
+        ;;  if the particle is hitting a horizontal wall, only the vertical component of the speed vector can change.
+        set heading (180 - heading)
+      ] [
+        ; if a dihydrogen is going to enter the gas phase, we speed it up
+        set speed init-gas-speed
+      ]
+    ] [
+      ;;  if the particle is hitting a horizontal wall, only the vertical component of the speed vector can change.
+      set heading (180 - heading)
+    ]
+
+  ]
+
+
+end
+
+to bounce-balloon  ;; particles procedure
+  ;; get the coordinates of the patch we'll be on if we go forward 1
+  let new-patch patch-ahead 1
+  let new-px [pxcor] of new-patch
+  let new-py [pycor] of new-patch
+  ; if we're not about to hit a wall (yellow patch) or piston (orange patch)
+  ; we don't need to do any further checks
+  if ([pcolor] of new-patch = black)
+    [ stop ]
+
+  ; check: hitting left or right wall?
+  if (abs new-px = balloon-abs-xcor)
+    ; if so, reflect heading around x axis
+    [
+      ;;  if the particle is hitting a vertical wall, only the horizontal component of the speed
+      ;;  vector can change.  The change in velocity for this component is 2 * the speed of the particle,
+      ;; due to the reversing of direction of travel from the collision with the wall
+      set heading (- heading) ]
+
+  ; check: hitting top or bottom wall? (Should never hit top, but this would handle it.)
+  if ((new-py = balloon-bottom-ycor) or (new-py = max-pycor))
+  [
+    ;;  if the particle is hitting a horizontal wall, only the vertical component of the speed
+    ;;  vector can change.  The change in velocity for this component is 2 * the speed of the particle,
+    ;; due to the reversing of direction of travel from the collision with the wall
+    set heading (180 - heading)
+  ]
+
+  ; check: hitting piston?
+  if (new-py = [pycor] of one-of pistons)
+  [
+    ;;  if the particle is hitting the piston, only the vertical component of the speed
+    ;;  vector can change.  The change in velocity for this component is 2 * the speed of the particle,
+    ;; due to the reversing of direction of travel from the collision with the wall
+    ;; make sure that each particle finishes exchanging energy before any others can
+    exchange-energy-with-piston
+  ]
+  if (new-py != balloon-bottom-ycor)
+  [
+    ask patch new-px new-py
+      [ sprout-flashes 1 [
+        set color pcolor - 2
+        set birthday ticks
+        set heading 0
+      ]
+    ]
+  ]
+end
+
+to move
+  if (breed = dihydrogens) and (patch-ahead (speed * tick-delta) != patch-here) [
+    set last-collision nobody
+  ]
+  jump (speed * tick-delta)
+end
+
+to check-for-reaction-hydronium
+  if count Zns-here = 1 and count other hydroniums-here >= 1 [
+    hatch-dihydrogens 1 [
+      set color yellow
+      set size 0.8
+      set mass 1
+        set speed 1
+        set energy (0.5 * mass * (speed ^ 2))
+        set last-collision nobody
+    ]
+
+    ask one-of Zns-here [ ; the Zn turns into an ion
+      set breed Zn-ions
+      set size 0.7
+      set speed 1
+      set heading random-float 360
+    ]
+
+    ; The two hydroniums "die" (they turned into a dihydrogen)
+    ask one-of other hydroniums-here [die]
+    die
+
+  ]
+end
+
+
+to check-for-collision  ;; particle procedure
+  ;; Here we impose a rule that collisions only take place when there
+  ;; are exactly two particles per patch.  We do this because when the
+  ;; student introduces new particles from the side, we want them to
+  ;; form a uniform wavefront.
+  ;;
+  ;; Why do we want a uniform wavefront?  Because it is actually more
+  ;; realistic.  (And also because the curriculum uses the uniform
+  ;; wavefront to help teach the relationship between particle collisions,
+  ;; wall hits, and pressure.)
+  ;;
+  ;; Why is it realistic to assume a uniform wavefront?  Because in reality,
+  ;; whether a collision takes place would depend on the actual headings
+  ;; of the particles, not merely on their proximity.  Since the particles
+  ;; in the wavefront have identical speeds and near-identical headings,
+  ;; in reality they would not collide.  So even though the two-particles
+  ;; rule is not itself realistic, it produces a realistic result.  Also,
+  ;; unless the number of particles is extremely large, it is very rare
+  ;; for three or more particles to land on the same patch (for example,
+  ;; with 400 particles it happens less than 1% of the time).  So imposing
+  ;; this additional rule should have only a negligible effect on the
+  ;; aggregate behavior of the system.
+  ;;
+  ;; Why does this rule produce a uniform wavefront?  The particles all
+  ;; start out on the same patch, which means that without the only-two
+  ;; rule, they would all start colliding with each other immediately,
+  ;; resulting in much random variation of speeds and headings.  With
+  ;; the only-two rule, they are prevented from colliding with each other
+  ;; until they have spread out a lot.  (And in fact, if you observe
+  ;; the wavefront closely, you will see that it is not completely smooth,
+  ;; because some collisions eventually do start occurring when it thins out while fanning.)
+
+  if count other dihydrogens-here = 1
+  [
+    ;; the following conditions are imposed on collision candidates:
+    ;;   1. they must have a lower who number than my own, because collision
+    ;;      code is asymmetrical: it must always happen from the point of view
+    ;;      of just one particle.
+    ;;   2. they must not be the same particle that we last collided with on
+    ;;      this patch, so that we have a chance to leave the patch after we've
+    ;;      collided with someone.
+    let candidate one-of other dihydrogens-here with
+      [who < [who] of myself and myself != last-collision]
+    ;; we also only collide if one of us has non-zero speed. It's useless
+    ;; (and incorrect, actually) for two particles with zero speed to collide.
+    if (candidate != nobody) and (speed > 0 or [speed] of candidate > 0)
+    [
+      collide-with candidate
+      set last-collision candidate
+      ask candidate [ set last-collision myself ]
+    ]
+  ]
+end
+
+to collide-with [ other-particle ] ;; particle procedure
+  ;;; PHASE 1: initial setup
+
+  ;; for convenience, grab some quantities from other-particle
+  let mass2 [mass] of other-particle
+  let speed2 [speed] of other-particle
+  let heading2 [heading] of other-particle
+
+  ;; since particles are modeled as zero-size points, theta isn't meaningfully
+  ;; defined. we can assign it randomly without affecting the model's outcome.
+  let theta (random-float 360)
+
+
+  ;;; PHASE 2: convert velocities to theta-based vector representation
+
+  ;; now convert my velocity from speed/heading representation to components
+  ;; along theta and perpendicular to theta
+  let v1t (speed * cos (theta - heading))
+  let v1l (speed * sin (theta - heading))
+
+  ;; do the same for other-particle
+  let v2t (speed2 * cos (theta - heading2))
+  let v2l (speed2 * sin (theta - heading2))
+
+
+  ;;; PHASE 3: manipulate vectors to implement collision
+
+  ;; compute the velocity of the system's center of mass along theta
+  let vcm (((mass * v1t) + (mass2 * v2t)) / (mass + mass2) )
+
+  ;; now compute the new velocity for each particle along direction theta.
+  ;; velocity perpendicular to theta is unaffected by a collision along theta,
+  ;; so the next two lines actually implement the collision itself, in the
+  ;; sense that the effects of the collision are exactly the following changes
+  ;; in particle velocity.
+  set v1t (2 * vcm - v1t)
+  set v2t (2 * vcm - v2t)
+
+
+  ;;; PHASE 4: convert back to normal speed/heading
+
+  ;; now convert my velocity vector into my new speed and heading
+  set speed sqrt ((v1t ^ 2) + (v1l ^ 2))
+  set energy (0.5 * mass * speed ^ 2)
+  ;; if the magnitude of the velocity vector is 0, atan is undefined. but
+  ;; speed will be 0, so heading is irrelevant anyway. therefore, in that
+  ;; case we'll just leave it unmodified.
+  if v1l != 0 or v1t != 0
+    [ set heading (theta - (atan v1l v1t)) ]
+
+  ;; and do the same for other-particle
+  ask other-particle [
+    set speed sqrt ((v2t ^ 2) + (v2l ^ 2))
+    set energy (0.5 * mass * (speed ^ 2))
+    if v2l != 0 or v2t != 0
+      [ set heading (theta - (atan v2l v2t)) ]
+  ]
+end
+
+;; ----- PISTON -----
+
+to make-piston
+  ask patches with [(pycor = balloon-bottom-ycor + min-piston-height) and
+                    (abs pxcor < balloon-abs-xcor)]
+  [ sprout-pistons 1
+    [ set color orange
+      set heading 0
+      set pcolor color
+      set size 0
+    ]
+  ]
+end
+
+to move-piston
+  let old-piston-vel piston-vel
+  set piston-vel (old-piston-vel - gravity * tick-delta)    ;;apply gravity
+  let movement-amount ((old-piston-vel * tick-delta) - (gravity * (0.5 * (tick-delta  ^ 2))))
+  ;; Setting the pcolor makes the piston look like a wall to the particles.
+  ask pistons
+  [ set pcolor black
+    while [(piston-vel * tick-delta) >= 1.0]
+      [ calculate-tick-delta ]
+    ;; If the piston will end up between the minimum and maximum heights...
+    ifelse ((piston-height + movement-amount <= max-pycor - 1 - balloon-bottom-ycor) and
+            (piston-height + movement-amount > min-piston-height))
+    [
+      fd movement-amount
+      set piston-height ([ycor] of one-of pistons - balloon-bottom-ycor)
+    ]
+    [
+      ;; If the piston will exceed the maximum height...
+      if (piston-height + movement-amount > max-pycor - 1 - balloon-bottom-ycor)
+      [
+        set ycor max-pycor
+        set piston-height (max-pycor - balloon-bottom-ycor)
+        if (piston-vel > 0) [ set piston-vel 0 ]
+      ]
+      ;; If the piston will end up below the minimum height...
+      if (piston-height + movement-amount <= min-piston-height)
+      [
+        set ycor (balloon-bottom-ycor + min-piston-height)
+        set piston-height min-piston-height
+        if (piston-vel < 0) [ set piston-vel 0 ]
+      ]
+    ]
+    set speed piston-vel ;; just used for tick-delta calculations
+    set pcolor color
+    if (any? dihydrogens-here)
+    [
+      ask dihydrogens-here
+      [
+        let direction -1
+        ;if (old-piston-vel > 0) [ set direction 1 ]
+        ;;if (old-piston-vel <= 0) [ set direction -1 ]
+        set ycor (pycor + direction)
+        ;;  if the particle is hitting the piston, only the vertical component of the speed
+        ;;  vector can change.  The change in velocity for this component is 2 * the speed of the particle,
+        ;; due to the reversing of direction of travel from the collision with the wall
+        ;; make sure that each particle finishes exchanging energy before any others can
+        exchange-energy-with-piston
+      ]
+    ]
+  ]
+end
+
+to exchange-energy-with-piston  ;; particle procedure -- piston and particle exchange energy
+  let vx (speed * dx)         ;;only along x-axis
+  let vy (speed * dy)         ;;only along y-axis
+  let old-vy vy
+  let old-piston-vel piston-vel
+  set piston-vel ((((piston-mass - mass) / (piston-mass + mass)) * old-piston-vel) +
+                  (((2 * mass) / (piston-mass + mass)) * old-vy))
+  set vy ((((2 * piston-mass) / (piston-mass + mass)) * old-piston-vel) -
+         (((piston-mass - mass) / (piston-mass + mass)) * old-vy))
+  set speed (sqrt ((vx ^ 2) + (vy ^ 2)))
+  set energy (0.5 * mass * (speed  ^ 2))
+  set heading atan vx vy
+end
+
+
+; Copyright 2022 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="350" maxPycor="38" updateMode="1" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-38" height="471" showTickCounter="true" patchSize="6.0" fontSize="10" wrappingAllowedY="true" width="254" tickCounterLabel="ticks" maxPxcor="20" minPxcor="-20"></view>
+    <button x="5" y="90" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="80">setup</button>
+    <button x="90" y="90" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="80">go</button>
+    <slider x="5" step="Zn-increment" y="10" height="33" min="0" direction="Horizontal" max="100" default="50.0" variable="num-Zn" width="172" display="num-Zn"></slider>
+    <slider x="5" step="1" y="50" height="33" min="0" direction="Horizontal" max="100" default="50.0" variable="num-HCl" width="172" display="num-HCl"></slider>
+    <plot x="5" yMax="10.0" yAxis="Num H2" y="135" xMin="0.0" height="145" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="325" xAxis="Time" display="Gas Produced">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="default">
+        <setup></setup>
+        <update>plot count dihydrogens</update>
+      </pen>
+    </plot>
+    <plot x="5" yMax="60.0" yAxis="Size" y="290" xMin="0.0" height="145" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="325" xAxis="Time" display="Balloon Size">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="default">
+        <setup></setup>
+        <update>plot mean height-history</update>
+      </pen>
+    </plot>
+    <monitor x="190" precision="2" y="80" height="45" fontSize="11" width="92" display="H2 Molecules">count dihydrogens</monitor>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This model simulates the production of hydrogen gas through the reaction of zinc metal with hydrochloric acid.
+
+## HOW IT WORKS
+
+Zinc metal (non-moving gray circles) sits at the bottom of a flask (outlined in white) filled with an aqueous solution of hydrochloric acid (HCl). Since HCl is a relatively strong acid, in solution it dissociates into Chloride Cl<sup>-</sup> ions (not shown) and hydrogen ions which each join a water molecule to form a hydronium H<sub>3</sub>O<sup>+</sup> ion (green circles). When two of these ions encounter a zinc atom, they react to produce a ZnCl<sub>2</sub> molecule and a hydrogen H<sub>2</sub> molecule (yellow circles). The ZnCl<sub>2</sub> in solution breaks down into zinc ions (small moving gray circles) and Chloride ions (not shown). The hydrogen molecules escape the solution and begin to exert pressure on a balloon attached to the flask’s top (outlined in orange). Based on the pressure in the balloon, its size will increase or decrease.
+
+The full reaction is normally written as follows:
+> Zn(s) + 2HCl(aq) → ZnCl<sub>2</sub>(aq) + H<sub>2</sub>(g)
+
+We can also write it with HCl and ZnCl<sub>2</sub> split into the ions they form in solution:
+
+> Zn(s) + 2H<sub>3</sub>O<sup>+</sup>(aq) + 2Cl<sup>-</sup>(aq) → Zn<sup>2+</sup>(aq) + 2Cl<sup>-</sup>(aq) + H<sub>2</sub>(g)
+
+Note that the Cl<sup>-</sup> ions don't change, which is why they aren't visualized in the model.
+
+**Note**: the balloon size fluctuates a lot in the model. This is due to the very small number of hydrogen molecules in the model. Due to the small number, random fluctuations can change the instantaneous pressure on the balloon by a lot. In a real balloon, the number of hydrogen molecules is so huge that the fluctuations in pressure are negligible.
+
+## HOW TO USE IT
+
+### BUTTONS
+
+`SETUP`: Creates the flask, balloon, and all of the molecules in them.
+`GO`: Starts the simulation, allowing the molecules to move and react.
+
+### INPUTS
+
+`NUM-ZN`: Determines the number of zinc metal atoms in the flask at the start of the simulation.
+`NUM-HCL`: Determines the number of hydrochloric acid molecules in the flask at the start of the simulation.
+
+
+### OUTPUTS
+
+`H2 MOLECULES`: Displays the number of hydrogen gas molecules that have been produced.
+`GAS PRODUCED`: Plots the amount of hydrogen gas in the balloon over time.
+`BALLOON SIZE`: Plots the height of the balloon over time.
+
+## THINGS TO NOTICE
+
+Pay attention to how the different molecules move.  Do some molecules move faster than others?  Do all of the molecules move in straight lines?  Try to explain each of these observations and how they relate to reality.
+
+## THINGS TO TRY
+
+Adjust the sliders for `NUM-ZN` and `NUM-HCL`. Pay attention to the amount of hydrogen gas produced. Can you work out how the values for `NUM-ZN` and `NUM-HCL` affect the amount of gas?
+
+Observe the model to see where the reaction is taking place. Why isn’t it happening in other places?
+
+## EXTENDING THE MODEL
+
+The current implementation of the balloon is not very mechanistically realistic.  Try to improve this by adding a gas surrounding the balloon to balance the pressure from the gas inside of it.
+
+## NETLOGO FEATURES
+
+This model uses partial ticks and the `tick-advance` primitive to ensure that molecules never move more than one patch per update.  This makes sure they can't skip through the walls of the flask or balloon.
+
+This model also uses a global variable as a slider parameter, in this case using `zn-increment` as the slider increment for the `MOLS-ZN` slider.  The model uses the `startup` procedure to ensure that this is properly initialized as soon as the model loads.
+
+## RELATED MODELS
+
+This model is similar to several of the **GasLab** and **Connected Chemistry** models in the Models Library, particularly the **GasLab Adiabatic Piston** model.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Levy, S., Kelter, J. and Wilensky, U. (2022).  NetLogo Hydrogen Gas Production model.  http://ccl.northwestern.edu/netlogo/models/HydrogenGasProduction.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2022 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2022 Cite: Levy, S., Kelter, J. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="sheep" rotatable="false" editableColorIndex="15">
+      <circle x="203" y="65" marked="true" color="-1" diameter="88" filled="true"></circle>
+      <circle x="70" y="65" marked="true" color="-1" diameter="162" filled="true"></circle>
+      <circle x="150" y="105" marked="true" color="-1" diameter="120" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="218" y="120"></point>
+        <point x="240" y="165"></point>
+        <point x="255" y="165"></point>
+        <point x="278" y="120"></point>
+      </polygon>
+      <circle x="214" y="72" marked="false" color="-1920102913" diameter="67" filled="true"></circle>
+      <rectangle endX="179" startY="223" marked="true" color="-1" endY="298" startX="164" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="45" y="285"></point>
+        <point x="30" y="285"></point>
+        <point x="30" y="240"></point>
+        <point x="15" y="195"></point>
+        <point x="45" y="210"></point>
+      </polygon>
+      <circle x="3" y="83" marked="true" color="-1" diameter="150" filled="true"></circle>
+      <rectangle endX="80" startY="221" marked="true" color="-1" endY="296" startX="65" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="195" y="285"></point>
+        <point x="210" y="285"></point>
+        <point x="210" y="240"></point>
+        <point x="240" y="210"></point>
+        <point x="195" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="276" y="85"></point>
+        <point x="285" y="105"></point>
+        <point x="302" y="99"></point>
+        <point x="294" y="83"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="219" y="85"></point>
+        <point x="210" y="105"></point>
+        <point x="193" y="99"></point>
+        <point x="201" y="83"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="wolf" rotatable="false" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="253" y="133"></point>
+        <point x="245" y="131"></point>
+        <point x="245" y="133"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="2" y="194"></point>
+        <point x="13" y="197"></point>
+        <point x="30" y="191"></point>
+        <point x="38" y="193"></point>
+        <point x="38" y="205"></point>
+        <point x="20" y="226"></point>
+        <point x="20" y="257"></point>
+        <point x="27" y="265"></point>
+        <point x="38" y="266"></point>
+        <point x="40" y="260"></point>
+        <point x="31" y="253"></point>
+        <point x="31" y="230"></point>
+        <point x="60" y="206"></point>
+        <point x="68" y="198"></point>
+        <point x="75" y="209"></point>
+        <point x="66" y="228"></point>
+        <point x="65" y="243"></point>
+        <point x="82" y="261"></point>
+        <point x="84" y="268"></point>
+        <point x="100" y="267"></point>
+        <point x="103" y="261"></point>
+        <point x="77" y="239"></point>
+        <point x="79" y="231"></point>
+        <point x="100" y="207"></point>
+        <point x="98" y="196"></point>
+        <point x="119" y="201"></point>
+        <point x="143" y="202"></point>
+        <point x="160" y="195"></point>
+        <point x="166" y="210"></point>
+        <point x="172" y="213"></point>
+        <point x="173" y="238"></point>
+        <point x="167" y="251"></point>
+        <point x="160" y="248"></point>
+        <point x="154" y="265"></point>
+        <point x="169" y="264"></point>
+        <point x="178" y="247"></point>
+        <point x="186" y="240"></point>
+        <point x="198" y="260"></point>
+        <point x="200" y="271"></point>
+        <point x="217" y="271"></point>
+        <point x="219" y="262"></point>
+        <point x="207" y="258"></point>
+        <point x="195" y="230"></point>
+        <point x="192" y="198"></point>
+        <point x="210" y="184"></point>
+        <point x="227" y="164"></point>
+        <point x="242" y="144"></point>
+        <point x="259" y="145"></point>
+        <point x="284" y="151"></point>
+        <point x="277" y="141"></point>
+        <point x="293" y="140"></point>
+        <point x="299" y="134"></point>
+        <point x="297" y="127"></point>
+        <point x="273" y="119"></point>
+        <point x="270" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="-1" y="195"></point>
+        <point x="14" y="180"></point>
+        <point x="36" y="166"></point>
+        <point x="40" y="153"></point>
+        <point x="53" y="140"></point>
+        <point x="82" y="131"></point>
+        <point x="134" y="133"></point>
+        <point x="159" y="126"></point>
+        <point x="188" y="115"></point>
+        <point x="227" y="108"></point>
+        <point x="236" y="102"></point>
+        <point x="238" y="98"></point>
+        <point x="268" y="86"></point>
+        <point x="269" y="92"></point>
+        <point x="281" y="87"></point>
+        <point x="269" y="103"></point>
+        <point x="269" y="113"></point>
+      </polygon>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>

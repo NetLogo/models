@@ -1,0 +1,1116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="false">
+  <code><![CDATA[globals
+[
+  max-grain    ; maximum amount any patch can hold
+  gini-index-reserve
+  lorenz-points
+]
+
+patches-own
+[
+  grain-here      ; the current amount of grain on this patch
+  max-grain-here  ; the maximum amount of grain this patch can hold
+]
+
+turtles-own
+[
+  age              ; how old a turtle is
+  wealth           ; the amount of grain a turtle has
+  life-expectancy  ; maximum age that a turtle can reach
+  metabolism       ; how much grain a turtle eats each time
+  vision           ; how many patches ahead a turtle can see
+]
+
+;;;
+;;; SETUP AND HELPERS
+;;;
+
+to setup
+  clear-all
+  ;; set global variables to appropriate values
+  set max-grain 50
+  ;; call other procedures to set up various parts of the world
+  setup-patches
+  setup-turtles
+  update-lorenz-and-gini
+  reset-ticks
+end
+
+;; set up the initial amounts of grain each patch has
+to setup-patches
+  ;; give some patches the highest amount of grain possible --
+  ;; these patches are the "best land"
+  ask patches
+    [ set max-grain-here 0
+      if (random-float 100.0) <= percent-best-land
+        [ set max-grain-here max-grain
+          set grain-here max-grain-here ] ]
+  ;; spread that grain around the window a little and put a little back
+  ;; into the patches that are the "best land" found above
+  repeat 5
+    [ ask patches with [max-grain-here != 0]
+        [ set grain-here max-grain-here ]
+      diffuse grain-here 0.25 ]
+  repeat 10
+    [ diffuse grain-here 0.25 ]          ;; spread the grain around some more
+  ask patches
+    [ set grain-here floor grain-here    ;; round grain levels to whole numbers
+      set max-grain-here grain-here      ;; initial grain level is also maximum
+      recolor-patch ]
+end
+
+to recolor-patch  ;; patch procedure -- use color to indicate grain level
+  set pcolor scale-color yellow grain-here 0 max-grain
+end
+
+;; set up the initial values for the turtle variables
+to setup-turtles
+  set-default-shape turtles "person"
+  create-turtles num-people
+    [ move-to one-of patches  ;; put turtles on patch centers
+      set size 1.5  ;; easier to see
+      set-initial-turtle-vars ]
+  recolor-turtles
+end
+
+to set-initial-turtle-vars
+  face one-of neighbors4
+  set life-expectancy life-expectancy-min +
+                        random (life-expectancy-max - life-expectancy-min + 1)
+  set metabolism 1 + random metabolism-max
+  set wealth metabolism + random 50
+  set vision 1 + random max-vision
+  set age random life-expectancy
+end
+
+;; Set the class of the turtles -- if a turtle has less than a third
+;; the wealth of the richest turtle, color it red.  If between one
+;; and two thirds, color it green.  If over two thirds, color it blue.
+to recolor-turtles
+  let max-wealth max [wealth] of turtles
+  ask turtles
+    [ ifelse (wealth <= max-wealth / 3)
+        [ set color red ]
+        [ ifelse (wealth <= (max-wealth * 2 / 3))
+            [ set color green ]
+            [ set color blue ] ] ]
+end
+
+;;;
+;;; GO AND HELPERS
+;;;
+
+to go
+  ask turtles
+    [ turn-towards-grain ]  ;; choose direction holding most grain within the turtle's vision
+  harvest
+  ask turtles
+    [ move-eat-age-die ]
+  recolor-turtles
+
+  ;; grow grain every grain-growth-interval clock ticks
+  if ticks mod grain-growth-interval = 0
+    [ ask patches [ grow-grain ] ]
+
+  update-lorenz-and-gini
+  tick
+end
+
+;; determine the direction which is most profitable for each turtle in
+;; the surrounding patches within the turtles' vision
+to turn-towards-grain  ;; turtle procedure
+  set heading 0
+  let best-direction 0
+  let best-amount grain-ahead
+  set heading 90
+  if (grain-ahead > best-amount)
+    [ set best-direction 90
+      set best-amount grain-ahead ]
+  set heading 180
+  if (grain-ahead > best-amount)
+    [ set best-direction 180
+      set best-amount grain-ahead ]
+  set heading 270
+  if (grain-ahead > best-amount)
+    [ set best-direction 270
+      set best-amount grain-ahead ]
+  set heading best-direction
+end
+
+to-report grain-ahead  ;; turtle procedure
+  let total 0
+  let how-far 1
+  repeat vision
+    [ set total total + [grain-here] of patch-ahead how-far
+      set how-far how-far + 1 ]
+  report total
+end
+
+to grow-grain  ;; patch procedure
+  ;; if a patch does not have it's maximum amount of grain, add
+  ;; num-grain-grown to its grain amount
+  if (grain-here < max-grain-here)
+    [ set grain-here grain-here + num-grain-grown
+      ;; if the new amount of grain on a patch is over its maximum
+      ;; capacity, set it to its maximum
+      if (grain-here > max-grain-here)
+        [ set grain-here max-grain-here ]
+      recolor-patch ]
+end
+
+;; each turtle harvests the grain on its patch.  if there are multiple
+;; turtles on a patch, divide the grain evenly among the turtles
+to harvest
+  ; have turtles harvest before any turtle sets the patch to 0
+  ask turtles
+    [ set wealth floor (wealth + (grain-here / (count turtles-here))) ]
+  ;; now that the grain has been harvested, have the turtles make the
+  ;; patches which they are on have no grain
+  ask turtles
+    [ set grain-here 0
+      recolor-patch ]
+end
+
+to move-eat-age-die  ;; turtle procedure
+  fd 1
+  ;; consume some grain according to metabolism
+  set wealth (wealth - metabolism)
+  ;; grow older
+  set age (age + 1)
+  ;; check for death conditions: if you have no grain or
+  ;; you're older than the life expectancy or if some random factor
+  ;; holds, then you "die" and are "reborn" (in fact, your variables
+  ;; are just reset to new random values)
+  if (wealth < 0) or (age >= life-expectancy)
+    [ set-initial-turtle-vars ]
+end
+
+;; this procedure recomputes the value of gini-index-reserve
+;; and the points in lorenz-points for the Lorenz and Gini-Index plots
+to update-lorenz-and-gini
+  let sorted-wealths sort [wealth] of turtles
+  let total-wealth sum sorted-wealths
+  let wealth-sum-so-far 0
+  let index 0
+  set gini-index-reserve 0
+  set lorenz-points []
+
+  ;; now actually plot the Lorenz curve -- along the way, we also
+  ;; calculate the Gini index.
+  ;; (see the Info tab for a description of the curve and measure)
+  repeat num-people [
+    set wealth-sum-so-far (wealth-sum-so-far + item index sorted-wealths)
+    set lorenz-points lput ((wealth-sum-so-far / total-wealth) * 100) lorenz-points
+    set index (index + 1)
+    set gini-index-reserve
+      gini-index-reserve +
+      (index / num-people) -
+      (wealth-sum-so-far / total-wealth)
+  ]
+end
+
+
+; Copyright 1998 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="184" maxPycor="25" updateMode="1" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-25" height="417" showTickCounter="true" patchSize="8.0" fontSize="10" wrappingAllowedY="true" width="416" tickCounterLabel="ticks" maxPxcor="25" minPxcor="-25"></view>
+    <button x="8" y="256" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="76" display="setup">setup</button>
+    <button x="105" y="256" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="70" display="go">go</button>
+    <slider x="8" step="1" y="72" height="33" min="1" direction="Horizontal" max="15" default="5.0" variable="max-vision" width="168" display="max-vision"></slider>
+    <slider x="8" step="1" y="301" height="33" min="1" direction="Horizontal" max="10" default="1.0" variable="grain-growth-interval" width="168" display="grain-growth-interval"></slider>
+    <slider x="8" step="1" y="106" height="33" min="1" direction="Horizontal" max="25" default="15.0" variable="metabolism-max" width="168" display="metabolism-max"></slider>
+    <slider x="8" step="1" y="38" height="33" min="2" direction="Horizontal" max="1000" default="250.0" variable="num-people" width="168" display="num-people"></slider>
+    <slider x="8" step="1" y="208" height="33" min="5" direction="Horizontal" max="25" default="10.0" variable="percent-best-land" units="%" width="168" display="percent-best-land"></slider>
+    <slider x="8" step="1" y="174" height="33" min="1" direction="Horizontal" max="100" default="83.0" variable="life-expectancy-max" width="168" display="life-expectancy-max"></slider>
+    <plot x="3" yMax="250.0" yAxis="Turtles" y="454" xMin="0.0" height="180" legend="true" xMax="50.0" autoplot="true" yMin="0.0" width="252" xAxis="Time" display="Class Plot">
+      <setup>set-plot-y-range 0 num-people</setup>
+      <update></update>
+      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="low">
+        <setup></setup>
+        <update>plot count turtles with [color = red]</update>
+      </pen>
+      <pen color="-10899396" legend="true" interval="1.0" mode="0" display="mid">
+        <setup></setup>
+        <update>plot count turtles with [color = green]</update>
+      </pen>
+      <pen color="-13345367" legend="true" interval="1.0" mode="0" display="up">
+        <setup></setup>
+        <update>plot count turtles with [color = blue]</update>
+      </pen>
+    </plot>
+    <slider x="8" step="1" y="335" height="33" min="1" direction="Horizontal" max="10" default="4.0" variable="num-grain-grown" width="168" display="num-grain-grown"></slider>
+    <slider x="8" step="1" y="140" height="33" min="1" direction="Horizontal" max="100" default="1.0" variable="life-expectancy-min" width="168" display="life-expectancy-min"></slider>
+    <plot x="257" yMax="250.0" yAxis="Turtles" y="454" xMin="0.0" height="180" legend="false" xMax="3.0" autoplot="false" yMin="0.0" width="212" xAxis="Classes" display="Class Histogram">
+      <setup>set-plot-y-range 0 num-people</setup>
+      <update></update>
+      <pen color="-2674135" legend="true" interval="1.0" mode="1" display="default">
+        <setup></setup>
+        <update>plot-pen-reset
+set-plot-pen-color red
+plot count turtles with [color = red]
+set-plot-pen-color green
+plot count turtles with [color = green]
+set-plot-pen-color blue
+plot count turtles with [color = blue]</update>
+      </pen>
+    </plot>
+    <plot x="471" yMax="100.0" yAxis="Wealth %" y="454" xMin="0.0" height="180" legend="true" xMax="100.0" autoplot="false" yMin="0.0" width="201" xAxis="Pop %" display="Lorenz Curve">
+      <setup></setup>
+      <update></update>
+      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="lorenz">
+        <setup></setup>
+        <update>plot-pen-reset
+set-plot-pen-interval 100 / num-people
+plot 0
+foreach lorenz-points plot</update>
+      </pen>
+      <pen color="-16777216" legend="true" interval="100.0" mode="0" display="equal">
+        <setup>plot 0
+plot 100</setup>
+        <update></update>
+      </pen>
+    </plot>
+    <plot x="674" yMax="1.0" yAxis="Gini" y="454" xMin="0.0" height="180" legend="false" xMax="50.0" autoplot="true" yMin="0.0" width="234" xAxis="Time" display="Gini-Index v. Time">
+      <setup></setup>
+      <update></update>
+      <pen color="-13345367" legend="true" interval="1.0" mode="0" display="default">
+        <setup></setup>
+        <update>plot (gini-index-reserve / num-people) / 0.5</update>
+      </pen>
+    </plot>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This model simulates the distribution of wealth.  "The rich get richer and the poor get poorer" is a familiar saying that expresses inequity in the distribution of wealth.  In this simulation, we see Pareto's law, in which there are a large number of "poor" or red people, fewer "middle class" or green people, and many fewer "rich" or blue people.
+
+## HOW IT WORKS
+
+This model is adapted from Epstein & Axtell's "Sugarscape" model. It uses grain instead of sugar.  Each patch has an amount of grain and a grain capacity (the amount of grain it can grow).  People collect grain from the patches, and eat the grain to survive.  How much grain each person accumulates is his or her wealth.
+
+The model begins with a roughly equal wealth distribution.  The people then wander around the landscape gathering as much grain as they can.  Each person attempts to move in the direction where the most grain lies.  Each time tick, each person eats a certain amount of grain.  This amount is called their metabolism.  People also have a life expectancy.  When their lifespan runs out, or they run out of grain, they die and produce a single offspring.  The offspring has a random metabolism and a random amount of grain, ranging from the poorest person's amount of grain to the richest person's amount of grain.  (There is no inheritance of wealth.)
+
+To observe the equity (or the inequity) of the distribution of wealth, a graphical tool called the Lorenz curve is utilized.  We rank the population by their wealth and then plot the percentage of the population that owns each percentage of the wealth (e.g. 30% of the wealth is owned by 50% of the population).  Hence the ranges on both axes are from 0% to 100%.
+
+Another way to understand the Lorenz curve is to imagine a society of 100 people with a fixed amount of wealth available.  Each individual is 1% of the population.  Rank the individuals in order of their wealth from greatest to least: the poorest individual would have the lowest ranking of 1 and so forth.  Then plot the proportion of the rank of an individual on the y-axis and the portion of wealth owned by this particular individual and all the individuals with lower rankings on the x-axis.  For example, individual Y with a ranking of 20 (20th poorest in society) would have a percentage ranking of 20% in a society of 100 people (or 100 rankings) --- this is the point on the y-axis.  The corresponding plot on the x-axis is the proportion of the wealth that this individual with ranking 20 owns along with the wealth owned by all the individuals with lower rankings (from rankings 1 to 19).  A straight line with a 45 degree incline at the origin (or slope of 1) is a Lorenz curve that represents perfect equality --- everyone holds an equal part of the available wealth.  On the other hand, should only one family or one individual hold all of the wealth in the population (i.e. perfect inequity), then the Lorenz curve will be a backwards "L" where 100% of the wealth is owned by the last percentage proportion of the population.  In practice, the Lorenz curve actually falls somewhere between the straight 45 degree line and the backwards "L".
+
+For a numerical measurement of the inequity in the distribution of wealth, the Gini index (or Gini coefficient) is derived from the Lorenz curve.  To calculate the Gini index, find the area between the 45 degree line of perfect equality and the Lorenz curve.  Divide this quantity by the total area under the 45 degree line of perfect equality (this number is always 0.5 --- the area of 45-45-90 triangle with sides of length 1).  If the Lorenz curve is the 45 degree line then the Gini index would be 0; there is no area between the Lorenz curve and the 45 degree line.  If, however, the Lorenz curve is a backwards "L", then the Gini-Index would be 1 --- the area between the Lorenz curve and the 45 degree line is 0.5; this quantity divided by 0.5 is 1.  Hence, equality in the distribution of wealth is measured on a scale of 0 to 1 --- more inequity as one travels up the scale.  Another way to understand (and equivalently compute) the Gini index, without reference to the Lorenz curve, is to think of it as the mean difference in wealth between all possible pairs of people in the population, expressed as a proportion of the average wealth (see Deltas, 2003 for more).
+
+## HOW TO USE IT
+
+The PERCENT-BEST-LAND slider determines the initial density of patches that are seeded with the maximum amount of grain.  This maximum is adjustable via the MAX-GRAIN variable in the SETUP procedure in the procedures window.  The GRAIN-GROWTH-INTERVAL slider determines how often grain grows.  The NUM-GRAIN-GROWN slider sets how much grain is grown each time GRAIN-GROWTH-INTERVAL allows grain to be grown.
+
+The NUM-PEOPLE slider determines the initial number of people.  LIFE-EXPECTANCY-MIN is the shortest number of ticks that a person can possibly live.  LIFE-EXPECTANCY-MAX is the longest number of ticks that a person can possibly live.  The METABOLISM-MAX slider sets the highest possible amount of grain that a person could eat per clock tick.  The MAX-VISION slider is the furthest possible distance that any person could see.
+
+GO starts the simulation.  The TIME ELAPSED monitor shows the total number of clock ticks since the last setup.  The CLASS PLOT shows a line plot of the number of people in each class over time.  The CLASS HISTOGRAM shows the same information in the form of a histogram.  The LORENZ CURVE plot shows the Lorenz curve of the population at a particular time as well as the 45 degree line of equality.  The GINI-INDEX V. TIME plot shows the Gini index at the time that the Lorenz curve is drawn.  The LORENZ CURVE and the GINI-INDEX V. TIME plots are updated every 5 passes through the GO procedure.
+
+## THINGS TO NOTICE
+
+Notice the distribution of wealth.  Are the classes equal?
+
+This model usually demonstrates Pareto's Law, in which most of the people are poor, fewer are middle class, and very few are rich.  Why does this happen?
+
+Do poor families seem to stay poor?  What about the rich and the middle class people?
+
+Watch the CLASS PLOT to see how long it takes for the classes to reach stable values.
+
+As time passes, does the distribution get more equalized or more skewed?  (Hint: observe the Gini index plot.)
+
+Try to find resources from the U.S. Government Census Bureau for the U.S.'s Gini coefficient.  Are the Gini coefficients that you calculate from the model comparable to those of the Census Bureau?  Why or why not?
+
+Is there a trend in the plotting of the Gini index with respect to time?  Does the plot oscillate?  Or does it stabilize to a certain number?
+
+## THINGS TO TRY
+
+Are there any settings that do not result in a demonstration of Pareto's Law?
+
+Play with the NUM-GRAIN-GROWN slider, and see how this affects the distribution of wealth.
+
+How much does the LIFE-EXPECTANCY-MAX matter?
+
+Change the value of the MAX-GRAIN variable (in the `setup` procedure in the Code tab).  Do outcomes differ?
+
+Experiment with the PERCENT-BEST-LAND and NUM-PEOPLE sliders.  How do these affect the outcome of the distribution of wealth?
+
+Try having all the people start in one location. See what happens.
+
+Try setting everyone's initial wealth as being equal.  Does the initial endowment of an individual still arrive at an unequal distribution in wealth?  Is it less so when setting random initial wealth for each individual?
+
+Try setting all the individual's wealth and vision to being equal.  Do you still arrive at an unequal distribution of wealth?  Is it more equal in the measure of the Gini index than with random endowments of vision?
+
+## EXTENDING THE MODEL
+
+Have each newborn inherit a percentage of the wealth of its parent.
+
+Add a switch or slider which has the patches grow back all or a percentage of their grain capacity, rather than just one unit of grain.
+
+Allow the grain to give an advantage or disadvantage to its carrier, such as every time some grain is eaten or harvested, pollution is created.
+
+Would this model be the same if the wealth were randomly distributed (as opposed to a gradient)?  Try different landscapes, making SETUP buttons for each new landscape.
+
+Try allowing metabolism or vision or another characteristic to be inherited.  Will we see any sort of evolution?  Will the "fittest" survive? If not, why not?
+
+We said above that "there is no inheritance of wealth" in the model, but that is not entirely true. New turtles are born in the same location as their parents. If grain is plentiful relative to the population at this location, they inherit a good starting situation. Try moving the turtles to a random patch when they are born. Does that lead to a more equitable distribution of wealth?
+
+Try adding in seasons into the model.  That is to say have the grain grow better in a section of the landscape during certain times and worse at others.
+
+How could you change the model to achieve wealth equality?
+
+The way the procedures are set up now, one person will sometimes follow another.  You can see this by setting the number of people relatively low, such as 50 or 100, and having a long life expectancy.  Why does this phenomenon happen?  Try adding code to prevent this from occurring.  (Hint: When and how do people check to see which direction they should move in?)
+
+## NETLOGO FEATURES
+
+Examine how the landscape of color is created --- note the use of the `scale-color` reporter.  Each patch is given a value, and `scale-color` reports a color for each patch that is scaled according to its value.
+
+Note the use of lists in drawing the Lorenz Curve and computing the Gini index.
+
+## CREDITS AND REFERENCES
+
+This model is based on a model described in Epstein, J. & Axtell R. (1996). Growing Artificial Societies: Social Science from the Bottom Up. Washington, DC: Brookings Institution Press.
+
+For an explanation of Pareto's Law, see https://en.wikipedia.org/wiki/Pareto_principle.
+
+For more on the calculation of the Gini index see:
+
+ * Deltas, George (2003).  The Small-Sample Bias of the Gini Coefficient:  Results and Implications for Empirical Research.  The Review of Economics and Statistics, February 2003, 85(1): 226-234.
+
+In particular, note that if one is calculating the Gini index of a sample for the purpose of estimating the value for a larger population, a small correction factor to the method used here may be needed for small samples.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. (1998).  NetLogo Wealth Distribution model.  http://ccl.northwestern.edu/netlogo/models/WealthDistribution.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 1998 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This model was created as part of the project: CONNECTED MATHEMATICS: MAKING SENSE OF COMPLEX PHENOMENA THROUGH BUILDING OBJECT-BASED PARALLEL MODELS (OBPML).  The project gratefully acknowledges the support of the National Science Foundation (Applications of Advanced Technologies Program) -- grant numbers RED #9552950 and REC #9632612.
+
+This model was converted to NetLogo as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227. Converted from StarLogoT to NetLogo, 2001.
+
+<!-- 1998 2001 -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="30" startY="150" marked="true" color="-1920102913" endY="225" startX="150"></line>
+          <line endX="270" startY="150" marked="true" color="-1920102913" endY="225" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>

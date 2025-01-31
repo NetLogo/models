@@ -1,0 +1,1356 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[breed [ rich a-rich ]
+breed [ poor a-poor ]
+breed [ jobs job ] ;; jobs are places of employment held by many people
+
+rich-own [utility-r]
+poor-own [utility-p]
+jobs-own [utility]
+patches-own [quality price sd-dist]
+globals [counter view-mode min-poor-util max-poor-util min-rich-util max-rich-util ]
+
+;;
+;; Setup Procedures
+;;
+
+to setup
+  clear-all
+  set view-mode "quality"
+  setup-jobs
+  setup-patches
+  setup-rich
+  setup-poor
+  ask patches [ update-patch-color ]
+  reset-ticks
+end
+
+to setup-jobs
+  create-jobs 1
+  ask jobs
+  [
+    set color red
+    set shape "circle"
+    set size 2
+  ]
+end
+
+to setup-patches
+  ask patches [
+    set quality 40
+    set price 40
+  ]
+  ask patches
+  [
+    set sd-dist min [distance myself] of jobs
+  ]
+end
+
+to setup-rich
+  create-rich 5
+  ask rich
+  [
+    set color 126
+    set shape "box"
+    let radius 10
+    setxy ( ( radius / 2 ) - random-float ( radius * 1.0 ) ) ( ( radius / 2 ) - random-float ( radius * 1.0 ) )
+    raise-price
+    raise-value
+  ]
+end
+
+to setup-poor
+  create-poor 5
+  ask poor
+  [
+    set color 105
+    set shape "box"
+    let radius 10
+    setxy ( ( radius / 2 ) - random-float ( radius * 1.0 ) ) ( ( radius / 2 ) - random-float ( radius * 1.0 ) )
+    decrease-price
+    decrease-value
+  ]
+
+end
+
+to decrease-value
+  ask patch-here [ set quality ( quality * 0.95 ) ]
+  ask patches in-radius 1 [ set quality ( quality * 0.96 ) ]
+  ask patches in-radius 2 [ set quality ( quality * 0.97 ) ]
+  ask patches in-radius 3 [ set quality ( quality * 0.98 ) ]
+  ask patches in-radius 4 [ set quality ( quality * 0.99 )
+    if (quality < 1) [ set quality 1]
+  ]
+
+end
+
+to raise-price
+  ask patch-here [ set price ( price * 1.05 ) ]
+  ask patches in-radius 1 [ set price ( price * 1.04 ) ]
+  ask patches in-radius 2 [ set price ( price * 1.03 ) ]
+  ask patches in-radius 3 [ set price ( price * 1.02 ) ]
+  ask patches in-radius 4 [ set price ( price * 1.01 )
+   if price > 100 [ set price 100 ] ]
+end
+
+to raise-value
+  ask patch-here [ set quality ( quality * 1.05 ) ]
+  ask patches in-radius 1 [ set quality ( quality * 1.04 ) ]
+  ask patches in-radius 2 [ set quality ( quality * 1.03 ) ]
+  ask patches in-radius 3 [ set quality ( quality * 1.02 ) ]
+  ask patches in-radius 4 [ set quality ( quality * 1.01 )
+    if quality > 100 [ set quality 100 ]
+  ]
+end
+
+to decrease-price
+  ask patch-here [ set price ( price * 0.95 ) ]
+  ask patches in-radius 1 [ set price ( price * 0.96 ) ]
+  ask patches in-radius 2 [ set price ( price * 0.97 ) ]
+  ask patches in-radius 3 [ set price ( price * 0.98 ) ]
+  ask patches in-radius 4 [ set price ( price * 0.99 )
+    if (price < 1) [ set price 1]
+  ]
+end
+
+;;
+;; Runtime Procedures
+;;
+
+to go
+  locate-poor
+  locate-rich
+  if counter > residents-per-job
+  [
+    locate-service
+    set counter 0
+  ]
+  if count (rich) >= 20 [kill-rich]
+  if count (poor) >= 20 [kill-poor]
+  if count (jobs) >= max-jobs [kill-service]
+  update-view
+  tick
+end
+
+to locate-poor
+  set counter ( counter + poor-per-step )
+  create-poor poor-per-step
+  [
+    set color 105
+    set shape "box"
+    evaluate-poor
+    decrease-value
+    decrease-price
+  ]
+end
+
+to locate-rich
+  set counter ( counter + rich-per-step )
+  create-rich rich-per-step
+  [
+    set color 126
+    set shape "box"
+    evaluate-rich
+    raise-price
+    raise-value
+  ]
+end
+
+to evaluate-poor
+  let candidate-patches n-of number-of-tests patches
+  set candidate-patches candidate-patches with [ not any? turtles-here ]
+  if (not any? candidate-patches)
+    [ stop ]
+
+  ;; we use a hedonistic utility function for our agents, shown below
+  ;; basically, poor people are looking for inexpensive real estate, close to jobs
+  let best-candidate max-one-of candidate-patches
+    [ patch-utility-for-poor ]
+  move-to best-candidate
+  set utility-p [ patch-utility-for-poor ] of best-candidate
+end
+
+to-report patch-utility-for-poor
+    report ( ( 1 / (sd-dist / 100 + 0.1) ) ^ ( 1 - poor-price-priority ) ) * ( ( 1 / price ) ^ ( 1 + poor-price-priority ) )
+end
+
+to evaluate-rich
+  let candidate-patches n-of number-of-tests patches
+  set candidate-patches candidate-patches with [ not any? turtles-here ]
+  if (not any? candidate-patches)
+    [ stop ]
+
+  ;; we use a hedonistic utility function for our agents, shown below
+  ;; basically, rich people are looking for good quality real estate, close to jobs
+  let best-candidate max-one-of candidate-patches
+        [ patch-utility-for-rich ]
+  move-to best-candidate
+  set utility-r [ patch-utility-for-rich ] of best-candidate
+end
+
+to-report patch-utility-for-rich
+  report ( ( 1 / (sd-dist + 0.1) ) ^ ( 1 - rich-quality-priority ) ) * ( quality ^ ( 1 + rich-quality-priority) )
+end
+
+to kill-poor
+  repeat ( death-rate )
+  [
+    ;always kill the person that's been around the longest
+    ask min-one-of poor [who]
+      [ die ]
+  ]
+end
+
+to kill-rich
+  repeat ( death-rate)
+  [
+    ;always kill the person that's been around the longest
+    ask min-one-of rich [who]
+      [ die ]
+  ]
+end
+
+to kill-service
+  ; always kill the oldest job
+  ask min-one-of jobs [who]
+    [ die ]
+  ask patches
+    [ set sd-dist min [distance myself + .01] of jobs ]
+end
+
+to locate-service
+  let empty-patches patches with [ not any? turtles-here ]
+
+  if any? empty-patches
+  [
+    ask one-of empty-patches
+    [
+      sprout-jobs 1
+      [
+        set color red
+        set shape "circle"
+        set size 2
+        evaluate-job
+      ]
+    ]
+    ask patches
+      [ set sd-dist min [distance myself + .01] of jobs ]
+  ]
+end
+
+to evaluate-job
+  let candidate-patches n-of number-of-tests patches
+  set candidate-patches candidate-patches with [ not any? turtles-here ]
+  if (not any? candidate-patches)
+    [ stop ]
+
+  ;; In this model, we assume that jobs move toward where the money is.
+  ;; The validity of this assumption in a real-world setting is worthy of skepticism.
+  ;;
+  ;; However, it may not be entirely unreasonable. For instance, places with higher real
+  ;; estate values are more likely to have affluent people nearby that will spend money
+  ;; at retail commercial shops.
+  ;;
+  ;; On the other hand, companies would like to pay less rent, and so they may prefer to buy
+  ;; land at low real-estate values
+  ;; (particularly true for industrial sectors, which have no need for consumers nearby)
+  let best-candidate max-one-of candidate-patches [ price ]
+  move-to best-candidate
+  set utility [ price ] of best-candidate
+end
+
+;;
+;; Visualization Procedures
+;;
+
+to update-view
+  if (view-mode = "poor-utility" or view-mode = "rich-utility")
+  [
+    let poor-util-list [ patch-utility-for-poor ] of patches
+    set min-poor-util min poor-util-list
+    set max-poor-util max poor-util-list
+
+    let rich-util-list [ patch-utility-for-rich ] of patches
+    set min-rich-util min rich-util-list
+    set max-rich-util max rich-util-list
+  ]
+
+  ask patches [ update-patch-color ]
+end
+
+to update-patch-color
+  ;; the particular constants we use to scale the colors in the display
+  ;; are mainly chosen for visual appeal
+  ifelse view-mode = "quality"
+  [
+    set pcolor scale-color green quality 1 100
+  ][
+  ifelse view-mode = "price"
+  [
+    set pcolor scale-color yellow price 0 100
+  ][
+  ifelse view-mode = "dist"
+  [
+    set pcolor scale-color blue sd-dist  ( 0.45 * ( max-pxcor * 1.414 ) ) ( 0.05 * ( max-pxcor * 1.414 ) )
+  ][
+  ifelse view-mode = "poor-utility"
+  [
+    ; use a logarithm for coloring, so we see better gradation
+    set pcolor scale-color sky ln patch-utility-for-poor ln min-poor-util ln max-poor-util
+  ][
+  if view-mode = "rich-utility"
+  [
+    ; use a logarithm for coloring, so we see better gradation
+    set pcolor scale-color pink ln patch-utility-for-rich ln min-rich-util ln max-rich-util
+  ]]]]]
+end
+
+
+; Copyright 2007 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="350" maxPycor="44" updateMode="1" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-44" height="454" showTickCounter="true" patchSize="5.0" fontSize="10" wrappingAllowedY="false" width="453" tickCounterLabel="ticks" maxPxcor="44" minPxcor="-44"></view>
+    <button x="60" y="15" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="78">setup</button>
+    <button x="140" y="15" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="76">go</button>
+    <slider x="10" step="1" y="140" height="33" min="0" direction="Horizontal" max="30" default="15.0" variable="number-of-tests" width="160" display="number-of-tests"></slider>
+    <plot x="10" yMax="20.0" yAxis="# cells" y="285" xMin="0.0" height="200" legend="true" xMax="100.0" autoplot="true" yMin="0.0" width="325" xAxis="time" display="Travel Distance">
+      <setup></setup>
+      <update></update>
+      <pen color="-3508570" legend="true" interval="1.0" mode="0" display="rich">
+        <setup></setup>
+        <update>plot median [ min [distance myself] of jobs ] of rich</update>
+      </pen>
+      <pen color="-14070903" legend="true" interval="1.0" mode="0" display="poor">
+        <setup></setup>
+        <update>plot median [ min [distance myself] of jobs ] of poor</update>
+      </pen>
+    </plot>
+    <button x="218" y="15" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="78" display="go-once">go</button>
+    <button x="35" y="60" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="90" display="view price">set view-mode "price"
+update-view</button>
+    <button x="130" y="60" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="90" display="view quality">set view-mode "quality"
+update-view</button>
+    <slider x="10" step="10" y="175" height="33" min="0" direction="Horizontal" max="500" default="100.0" variable="residents-per-job" width="160" display="residents-per-job"></slider>
+    <slider x="175" step="1" y="210" height="33" min="0" direction="Horizontal" max="15" default="5.0" variable="poor-per-step" width="160" display="poor-per-step"></slider>
+    <slider x="175" step="1" y="245" height="33" min="0" direction="Horizontal" max="15" default="5.0" variable="rich-per-step" width="160" display="rich-per-step"></slider>
+    <button x="225" y="60" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="90" display="view dist">set view-mode "dist"
+update-view</button>
+    <slider x="175" step=".1" y="140" height="33" min="-1" direction="Horizontal" max="1" default="0.0" variable="poor-price-priority" width="160" display="poor-price-priority"></slider>
+    <slider x="175" step="0.1" y="175" height="33" min="-1" direction="Horizontal" max="1" default="0.0" variable="rich-quality-priority" width="160" display="rich-quality-priority"></slider>
+    <slider x="10" step="1" y="210" height="33" min="5" direction="Horizontal" max="20" default="10.0" variable="max-jobs" width="160" display="max-jobs"></slider>
+    <slider x="10" step="1" y="245" height="33" min="0" direction="Horizontal" max="15" default="4.0" variable="death-rate" width="160" display="death-rate"></slider>
+    <monitor x="810" precision="17" y="11" height="45" fontSize="11" width="75" display="# of jobs">count jobs</monitor>
+    <monitor x="810" precision="17" y="61" height="45" fontSize="11" width="75" display="population">count poor + count rich</monitor>
+    <button x="54" y="99" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="115" display="view rich-utility">set view-mode "rich-utility"
+update-view</button>
+    <button x="175" y="100" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="119" display="view poor-utility">set view-mode "poor-utility"
+update-view</button>
+    <monitor x="810" precision="17" y="111" height="45" fontSize="11" width="75" display="poor pop">count poor</monitor>
+    <monitor x="810" precision="17" y="161" height="45" fontSize="11" width="75" display="rich pop">count rich</monitor>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This model explores residential land-usage patterns from an economic perspective, using the socio-economic status of the agents to determine their preferences for choosing a location to live.  It models the growth of two populations, one rich and one poor, who settle based on three properties of the landscape: the perceived quality, the cost of living, and the proximity to services (large red dots). These same properties then change based on where the different populations settle.
+
+The model ultimately shows the segregation of populations based on income, the clustering of services in more affluent areas, and how people's attitude can lead either to a cluster condition (emphasis on proximity), or a condition of sprawl (emphasis on cost or quality).
+
+## HOW IT WORKS
+
+Job sites (shown as red circles on the map) are created and destroyed.  People (shown as small blue and pink squares) move in and move out.  These people want to live near to jobs, but also consider the price (cost of living) and quality of prospective locations.  But let's get more specific.
+
+When a new place of employment comes into the world, it randomly samples some number of locations (controlled by the NUMBER-OF-TESTS slider), and chooses the one with the highest price (i.e. land-value).  This may seem irrational at first, but the assumption this model makes is that jobs move toward where the wealth is.  If there is more money in a certain area, then there are more affluent people to spend that money on goods and services.
+
+The validity of this assumption in a real-world setting is worthy of skepticism.  For instance, companies also wish to pay less rent or property tax, and so alternatively one could argue that they would be seeking the least expensive piece of land to occupy.  This seems particularly true for the industrial sector, which has no need for consumers to be nearby.
+
+In any case, the reader is encouraged to carefully examine all assumptions, challenge them, and perhaps extend the model to incorporate assumptions that are more plausible in his/her view.  A model's predictions are only as good as the assumptions that underlie them.
+
+Each "tick" of the model, some number of new poor people (controlled by the POOR-PER-STEP slider) and new rich people (controlled by the RICH-PER-STEP slider) enter into the world.  When people enter the world, they randomly sample some number of locations, and choose to inhabit the one that maximizes "utility" for them, which is given by a hedonistic utility function.
+
+There are two fundamentally different types of people in this model -- "poor" people (shown in blue) and "rich" people (shown in pink), and they have differing priorities.  Both types of people wish to be located close to a place of employment.  However, rich people seek a location that has good quality, heedless of price, whereas poor people seek locations with low price, disregarding quality.
+
+The last important rule of the model is the effect that agents have on the land they inhabit.  Rich people moving into an area cause the land price and quality to increase, whereas poor people cause the land price and quality to decrease.  Nearby land attributes are affected as well, with the effect diminishing over distance.
+
+## HOW TO USE IT
+
+Click the SETUP button first, to set up the model.  All land in the world has the same price and quality.  One job location is placed in the middle of the world, and several rich and poor people are spread out nearby it, which immediately affect the quality and price of the land they inhabit, as well as nearby land.
+
+Click the GO button to start the simulation.  To step through the simulation one "tick" at a time, use the GO-ONCE button.
+
+There are five view modes, which are controlled by the buttons VIEW PRICE, VIEW QUALITY, VIEW DIST., VIEW RICH-UTILITY, and VIEW-POOR-UTILITY
+
+VIEW PRICE displays the land-price value of each location, with white being a high price, black being a low price, and the various shades of yellow are in between.
+
+VIEW QUALITY displays the quality value of each location, with white being a high quality, black being a low quality, and the various shades of green are in between.
+
+VIEW DIST. displays the distance from each location to a place of employment.  Brighter colors demonstrate closeness.
+
+VIEW RICH-UTILITY displays the utility that rich people assign to each location on the map.  Lighter values designate better utility, and darker values designate worse utility.  Note that the highest utility areas may still be vacant, since each agent only samples a small set of the patches in the world
+
+VIEW-POOR-UTILITY displays the utility that poor people assign to each location on the map.  Lighter values designate better utility, and darker values designate worse utility.
+
+The NUMBER-OF-TESTS slider affects how many locations each agent looks at when choosing a location that optimizes the agent's utility.
+
+The RESIDENTS-PER-JOB slider determines how often a new place of employment is created in the world.  For every RESIDENTS-PER-JOB people, a new place of employment appears.
+
+There is,  however,  a maximum number of places of employment, which is controlled by the MAX-JOBS slider.
+
+Some number of poor people enter the world each time step, as determined by the POOR-PER-STEP slider.  Likewise, some number of rich people (determined by the RICH-PER-STEP slider) enter the world.
+
+Some number of poor people and rich people disappear from the world each turn, as well, which is determined by the DEATH-RATE slider.  Although it is called "death rate", it should not be taken literally -- it merely represents the disappearance of agents from the world that is being considered by the model, which could be caused by a number of factors (such as emigration).  If DEATH-RATE is set to 5, this means that both 5 rich people and 5 poor people disappear each time step.  The agents removed are always those that have been in the world for the longest period of time.
+
+The priorities of the poor people can be adjusted with the POOR-PRICE-PRIORITY slider.  If this slider is set to -1, this means that poor people do not care about price at all, and are only interested in being close to employment.  If this slider is set to 1, then poor people only care about price, and do not concern themselves with job locations.  Setting the slider at 0 balances these two factors.
+
+Similarly, the priorities of rich people can be adjusted with the RICH-QUALITY-PRIORITY slider.  On this slider, -1 means that rich people care only about having a short commute to their jobs, and not about the quality of the land, whereas 1 means that they care only about quality, and are not concerned with distance to employment.  Again, 0 represents an equal balance of these priorities.
+
+The TRAVEL DISTANCE plot shows the average distance that poor and rich people must travel to reach the nearest point of employment.  Apart from the interesting visual patterns that form in the view, this plot is the most important output of the model.
+
+The # OF JOBS monitor tells how many places of employment are currently in the world.
+
+The POPULATION monitor tells how many total people there are in the world, and the POOR POP and RICH POP monitors give the poor and rich population sizes respectively.
+
+## THINGS TO NOTICE
+
+Do the VIEW PRICE mode and the VIEW QUALITY mode look very similar?  Apart from the fact that one is green, and the other is yellow, they might be showing identical values?  To test this, you can right click (or control-click on a Mac computer) on one of the patches in the view and choose "inspect patch XX YY".  You can do this for several patches, and you will find that the price and quality are always the same.  In this model, whenever quality goes up or down, price changes in direct proportion.
+
+What if NUMBER-OF-TESTS is small?  Is the population more or less densely centered around the jobs?  What if NUMBER-OF-TESTS is large?
+
+Change the viewing mode to distance-from-jobs, by clicking the VIEW DIST button.  Watch the model run, and the lines that form where gradients from two different jobs come together and overlap.  These shapes are related to Voronoi polygons.  You can learn more about them by looking at the "Voronoi" model in the NetLogo model library.
+
+Even if the DEATH-RATE is set such that more people are leaving the world than entering it, the model does not allow the population to die out entirely -- instead, the population will stay small.  If you grow the population for a while, and then raise the DEATH-RATE to balance out rich and poor people entering the world, then you can hold the population constant.  In this case, you might view the scenario as the same people relocating within the model, rather than new people entering and old people leaving.
+
+## THINGS TO TRY
+
+After letting the model run for a while, try switching back and forth between the VIEW POOR-UTILITY and VIEW RICH-UTILITY display modes.  How many places that are dark for rich are bright for poor?  Is there usually an inverse relationship?  Are there places which both rich and poor find desirable, and if so, where are they?  What if you move both priority sliders to the left?
+
+Try drastically changing the POOR-PRICE-PRIORITY and RICH-QUALITY-PRIORITY sliders.  Do rich people always have the shorter distances to employment, or do poor people sometimes have the shorter distances?
+
+## EXTENDING THE MODEL
+
+As noted above in the THINGS TO NOTICE section, in this model price and quality of land are locked together, always holding the same values.  Extend this model so that this isn't always the case.  For example, you might make it so that when new people move into an area of the model, they only affect the quality of nearby locations in a small radius, whereas they affect the price of a broader circle of cells.
+
+## NETLOGO FEATURES
+
+This model makes use of NetLogo's breeds to differentiate rich agents, poor agents, and job agents.
+
+Extensive use is also made of the SCALE-COLOR primitive, which allows for the three different view modes of the model.
+
+## RELATED MODELS
+
+This model is related to all of the other models in the "Urban Suite".  In particular, this model shows elements of the concept of positive feedback, which is demonstrated in the "Urban Suite - Positive Feedback" model.
+
+It might also be interesting to compare it to the models "Wealth Distribution" and "Voronoi".
+
+## CREDITS AND REFERENCES
+
+This model was loosely based on a model originally written by William Rand and Derek Robinson as part of the Sluce Project at the University of Michigan.  For more about the original model (SOME) that was the basis for this model, please see:
+
+Brown D.G., Robinson D.T., Nassauer J.I., An L., Page S.E., Low B., Rand W., Zellner M., and R. Riolo (In Press) "Exurbia from the Bottom-Up: Agent-Based Modeling and Empirical Requirements." Geoforum.
+
+This model was developed during the Sprawl/Swarm Class at Illinois Institute of Technology in Fall 2006 under the supervision of Sarah Dunn and Martin Felsen, by the following group of students: Danil Nagy and Bridget Dodd.  See http://www.sprawlcity.us/ for more details.
+
+Further modifications and refinements were made by members of the Center for Connected Learning and Computer-Based Modeling before releasing it as an Urban Suite model.
+
+The Urban Suite models were developed as part of the Procedural Modeling of Cities project, under the sponsorship of NSF ITR award 0326542, Electronic Arts & Maxis.
+
+Please see the project web site ([http://ccl.northwestern.edu/cities/](http://ccl.northwestern.edu/cities/)) for more information.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Felsen, M. and Wilensky, U. (2007).  NetLogo Urban Suite - Economic Disparity model.  http://ccl.northwestern.edu/netlogo/models/UrbanSuite-EconomicDisparity.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2007 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2007 Cite: Felsen, M. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="ant" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="136" y="61"></point>
+        <point x="129" y="46"></point>
+        <point x="144" y="30"></point>
+        <point x="119" y="45"></point>
+        <point x="124" y="60"></point>
+        <point x="114" y="82"></point>
+        <point x="97" y="37"></point>
+        <point x="132" y="10"></point>
+        <point x="93" y="36"></point>
+        <point x="111" y="84"></point>
+        <point x="127" y="105"></point>
+        <point x="172" y="105"></point>
+        <point x="189" y="84"></point>
+        <point x="208" y="35"></point>
+        <point x="171" y="11"></point>
+        <point x="202" y="35"></point>
+        <point x="204" y="37"></point>
+        <point x="186" y="82"></point>
+        <point x="177" y="60"></point>
+        <point x="180" y="44"></point>
+        <point x="159" y="32"></point>
+        <point x="170" y="44"></point>
+        <point x="165" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="95"></point>
+        <point x="135" y="103"></point>
+        <point x="139" y="117"></point>
+        <point x="125" y="149"></point>
+        <point x="137" y="180"></point>
+        <point x="135" y="196"></point>
+        <point x="150" y="204"></point>
+        <point x="166" y="195"></point>
+        <point x="161" y="180"></point>
+        <point x="174" y="150"></point>
+        <point x="158" y="116"></point>
+        <point x="164" y="102"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="149" y="186"></point>
+        <point x="128" y="197"></point>
+        <point x="114" y="232"></point>
+        <point x="134" y="270"></point>
+        <point x="149" y="282"></point>
+        <point x="166" y="270"></point>
+        <point x="185" y="232"></point>
+        <point x="171" y="195"></point>
+        <point x="149" y="186"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="225" y="66"></point>
+        <point x="230" y="107"></point>
+        <point x="159" y="122"></point>
+        <point x="161" y="127"></point>
+        <point x="234" y="111"></point>
+        <point x="236" y="106"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="78" y="58"></point>
+        <point x="99" y="116"></point>
+        <point x="139" y="123"></point>
+        <point x="137" y="128"></point>
+        <point x="95" y="119"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="48" y="103"></point>
+        <point x="90" y="147"></point>
+        <point x="129" y="147"></point>
+        <point x="130" y="151"></point>
+        <point x="86" y="151"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="65" y="224"></point>
+        <point x="92" y="171"></point>
+        <point x="134" y="160"></point>
+        <point x="135" y="164"></point>
+        <point x="95" y="175"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="235" y="222"></point>
+        <point x="210" y="170"></point>
+        <point x="163" y="162"></point>
+        <point x="161" y="166"></point>
+        <point x="208" y="174"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="249" y="107"></point>
+        <point x="211" y="147"></point>
+        <point x="168" y="147"></point>
+        <point x="168" y="150"></point>
+        <point x="213" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="bee" rotatable="true" editableColorIndex="0">
+      <polygon color="-303222273" filled="true" marked="false">
+        <point x="151" y="152"></point>
+        <point x="137" y="77"></point>
+        <point x="105" y="67"></point>
+        <point x="89" y="67"></point>
+        <point x="66" y="74"></point>
+        <point x="48" y="85"></point>
+        <point x="36" y="100"></point>
+        <point x="24" y="116"></point>
+        <point x="14" y="134"></point>
+        <point x="0" y="151"></point>
+        <point x="15" y="167"></point>
+        <point x="22" y="182"></point>
+        <point x="40" y="206"></point>
+        <point x="58" y="220"></point>
+        <point x="82" y="226"></point>
+        <point x="105" y="226"></point>
+        <point x="134" y="222"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="150"></point>
+        <point x="149" y="128"></point>
+        <point x="149" y="114"></point>
+        <point x="155" y="98"></point>
+        <point x="178" y="80"></point>
+        <point x="197" y="80"></point>
+        <point x="217" y="81"></point>
+        <point x="233" y="95"></point>
+        <point x="242" y="117"></point>
+        <point x="246" y="141"></point>
+        <point x="247" y="151"></point>
+        <point x="245" y="177"></point>
+        <point x="234" y="195"></point>
+        <point x="218" y="207"></point>
+        <point x="206" y="211"></point>
+        <point x="184" y="211"></point>
+        <point x="161" y="204"></point>
+        <point x="151" y="189"></point>
+        <point x="148" y="171"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="246" y="151"></point>
+        <point x="241" y="119"></point>
+        <point x="240" y="96"></point>
+        <point x="250" y="81"></point>
+        <point x="261" y="78"></point>
+        <point x="275" y="87"></point>
+        <point x="282" y="103"></point>
+        <point x="277" y="115"></point>
+        <point x="287" y="121"></point>
+        <point x="299" y="150"></point>
+        <point x="286" y="180"></point>
+        <point x="277" y="189"></point>
+        <point x="283" y="197"></point>
+        <point x="281" y="210"></point>
+        <point x="270" y="222"></point>
+        <point x="256" y="222"></point>
+        <point x="243" y="212"></point>
+        <point x="242" y="192"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="115" y="70"></point>
+        <point x="129" y="74"></point>
+        <point x="128" y="223"></point>
+        <point x="114" y="224"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="89" y="67"></point>
+        <point x="74" y="71"></point>
+        <point x="74" y="224"></point>
+        <point x="89" y="225"></point>
+        <point x="89" y="67"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="43" y="91"></point>
+        <point x="31" y="106"></point>
+        <point x="31" y="195"></point>
+        <point x="45" y="211"></point>
+      </polygon>
+      <line endX="213" startY="144" marked="false" color="-1" endY="70" startX="200"></line>
+      <line endX="213" startY="70" marked="false" color="-1" endY="45" startX="213"></line>
+      <line endX="203" startY="45" marked="false" color="-1" endY="26" startX="214"></line>
+      <line endX="185" startY="26" marked="false" color="-1" endY="22" startX="204"></line>
+      <line endX="170" startY="22" marked="false" color="-1" endY="25" startX="185"></line>
+      <line endX="159" startY="26" marked="false" color="-1" endY="37" startX="169"></line>
+      <line endX="156" startY="37" marked="false" color="-1" endY="55" startX="159"></line>
+      <line endX="199" startY="55" marked="false" color="-1" endY="143" startX="157"></line>
+      <line endX="162" startY="141" marked="false" color="-1" endY="227" startX="200"></line>
+      <line endX="163" startY="227" marked="false" color="-1" endY="241" startX="162"></line>
+      <line endX="171" startY="241" marked="false" color="-1" endY="249" startX="163"></line>
+      <line endX="190" startY="249" marked="false" color="-1" endY="254" startX="171"></line>
+      <line endX="203" startY="253" marked="false" color="-1" endY="248" startX="192"></line>
+      <line endX="218" startY="249" marked="false" color="-1" endY="235" startX="205"></line>
+      <line endX="200" startY="235" marked="false" color="-1" endY="144" startX="218"></line>
+    </shape>
+    <shape name="bird1" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="2" y="6"></point>
+        <point x="2" y="39"></point>
+        <point x="270" y="298"></point>
+        <point x="297" y="298"></point>
+        <point x="299" y="271"></point>
+        <point x="187" y="160"></point>
+        <point x="279" y="75"></point>
+        <point x="276" y="22"></point>
+        <point x="100" y="67"></point>
+        <point x="31" y="0"></point>
+      </polygon>
+    </shape>
+    <shape name="bird2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="2" y="4"></point>
+        <point x="33" y="4"></point>
+        <point x="298" y="270"></point>
+        <point x="298" y="298"></point>
+        <point x="272" y="298"></point>
+        <point x="155" y="184"></point>
+        <point x="117" y="289"></point>
+        <point x="61" y="295"></point>
+        <point x="61" y="105"></point>
+        <point x="0" y="43"></point>
+      </polygon>
+    </shape>
+    <shape name="boat1" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="63" y="162"></point>
+        <point x="90" y="207"></point>
+        <point x="223" y="207"></point>
+        <point x="290" y="162"></point>
+      </polygon>
+      <rectangle endX="157" startY="32" marked="false" color="-1653716737" endY="162" startX="150" filled="true"></rectangle>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="150" y="34"></point>
+        <point x="131" y="49"></point>
+        <point x="145" y="47"></point>
+        <point x="147" y="48"></point>
+        <point x="149" y="49"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="158" y="33"></point>
+        <point x="230" y="157"></point>
+        <point x="182" y="150"></point>
+        <point x="169" y="151"></point>
+        <point x="157" y="156"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="149" y="55"></point>
+        <point x="88" y="143"></point>
+        <point x="103" y="139"></point>
+        <point x="111" y="136"></point>
+        <point x="117" y="139"></point>
+        <point x="126" y="145"></point>
+        <point x="130" y="147"></point>
+        <point x="139" y="147"></point>
+        <point x="146" y="146"></point>
+        <point x="149" y="55"></point>
+      </polygon>
+    </shape>
+    <shape name="boat2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="63" y="162"></point>
+        <point x="90" y="207"></point>
+        <point x="223" y="207"></point>
+        <point x="290" y="162"></point>
+      </polygon>
+      <rectangle endX="157" startY="32" marked="false" color="-1653716737" endY="162" startX="150" filled="true"></rectangle>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="150" y="34"></point>
+        <point x="131" y="49"></point>
+        <point x="145" y="47"></point>
+        <point x="147" y="48"></point>
+        <point x="149" y="49"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="157" y="54"></point>
+        <point x="175" y="79"></point>
+        <point x="174" y="96"></point>
+        <point x="185" y="102"></point>
+        <point x="178" y="112"></point>
+        <point x="194" y="124"></point>
+        <point x="196" y="131"></point>
+        <point x="190" y="139"></point>
+        <point x="192" y="146"></point>
+        <point x="211" y="151"></point>
+        <point x="216" y="154"></point>
+        <point x="157" y="154"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="74"></point>
+        <point x="146" y="91"></point>
+        <point x="139" y="99"></point>
+        <point x="143" y="114"></point>
+        <point x="141" y="123"></point>
+        <point x="137" y="126"></point>
+        <point x="131" y="129"></point>
+        <point x="132" y="139"></point>
+        <point x="142" y="136"></point>
+        <point x="126" y="142"></point>
+        <point x="119" y="147"></point>
+        <point x="148" y="147"></point>
+      </polygon>
+    </shape>
+    <shape name="boat3" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="63" y="162"></point>
+        <point x="90" y="207"></point>
+        <point x="223" y="207"></point>
+        <point x="290" y="162"></point>
+      </polygon>
+      <rectangle endX="157" startY="32" marked="false" color="-1653716737" endY="162" startX="150" filled="true"></rectangle>
+      <polygon color="878553599" filled="true" marked="false">
+        <point x="150" y="34"></point>
+        <point x="131" y="49"></point>
+        <point x="145" y="47"></point>
+        <point x="147" y="48"></point>
+        <point x="149" y="49"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="158" y="37"></point>
+        <point x="172" y="45"></point>
+        <point x="188" y="59"></point>
+        <point x="202" y="79"></point>
+        <point x="217" y="109"></point>
+        <point x="220" y="130"></point>
+        <point x="218" y="147"></point>
+        <point x="204" y="156"></point>
+        <point x="158" y="156"></point>
+        <point x="161" y="142"></point>
+        <point x="170" y="123"></point>
+        <point x="170" y="102"></point>
+        <point x="169" y="88"></point>
+        <point x="165" y="62"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="149" y="66"></point>
+        <point x="142" y="78"></point>
+        <point x="139" y="96"></point>
+        <point x="141" y="111"></point>
+        <point x="146" y="139"></point>
+        <point x="148" y="147"></point>
+        <point x="110" y="147"></point>
+        <point x="113" y="131"></point>
+        <point x="118" y="106"></point>
+        <point x="126" y="71"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="45" y="255"></point>
+        <point x="255" y="255"></point>
+        <point x="255" y="45"></point>
+        <point x="45" y="45"></point>
+      </polygon>
+    </shape>
+    <shape name="butterfly1" rotatable="true" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="76"></point>
+        <point x="138" y="91"></point>
+        <point x="138" y="284"></point>
+        <point x="150" y="296"></point>
+        <point x="162" y="286"></point>
+        <point x="162" y="91"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="164" y="106"></point>
+        <point x="184" y="79"></point>
+        <point x="205" y="61"></point>
+        <point x="236" y="48"></point>
+        <point x="259" y="53"></point>
+        <point x="279" y="86"></point>
+        <point x="287" y="119"></point>
+        <point x="289" y="158"></point>
+        <point x="278" y="177"></point>
+        <point x="256" y="182"></point>
+        <point x="164" y="181"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="136" y="110"></point>
+        <point x="119" y="82"></point>
+        <point x="110" y="71"></point>
+        <point x="85" y="61"></point>
+        <point x="59" y="48"></point>
+        <point x="36" y="56"></point>
+        <point x="17" y="88"></point>
+        <point x="6" y="115"></point>
+        <point x="2" y="147"></point>
+        <point x="15" y="178"></point>
+        <point x="134" y="178"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="46" y="181"></point>
+        <point x="28" y="227"></point>
+        <point x="50" y="255"></point>
+        <point x="77" y="273"></point>
+        <point x="112" y="283"></point>
+        <point x="135" y="274"></point>
+        <point x="135" y="180"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="185"></point>
+        <point x="254" y="184"></point>
+        <point x="272" y="224"></point>
+        <point x="255" y="251"></point>
+        <point x="236" y="267"></point>
+        <point x="191" y="283"></point>
+        <point x="164" y="276"></point>
+      </polygon>
+      <line endX="159" startY="47" marked="true" color="-1920102913" endY="82" startX="167"></line>
+      <line endX="145" startY="47" marked="true" color="-1920102913" endY="81" startX="136"></line>
+      <circle x="165" y="45" marked="true" color="-1920102913" diameter="8" filled="true"></circle>
+      <circle x="134" y="45" marked="true" color="-1920102913" diameter="6" filled="true"></circle>
+      <circle x="133" y="44" marked="true" color="-1920102913" diameter="7" filled="true"></circle>
+      <circle x="133" y="43" marked="true" color="-1920102913" diameter="8" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="35" y="35" marked="true" color="-1920102913" diameter="230" filled="true"></circle>
+    </shape>
+    <shape name="link" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="link direction" rotatable="true" editableColorIndex="0">
+      <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+      <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="155" y="20" marked="true" color="-1920102913" diameter="63" filled="true"></circle>
+      <rectangle endX="217" startY="79" marked="true" color="-1920102913" endY="164" startX="158" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="158" y="81"></point>
+        <point x="110" y="129"></point>
+        <point x="131" y="143"></point>
+        <point x="158" y="109"></point>
+        <point x="165" y="110"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="216" y="83"></point>
+        <point x="267" y="123"></point>
+        <point x="248" y="143"></point>
+        <point x="215" y="107"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="167" y="163"></point>
+        <point x="145" y="234"></point>
+        <point x="183" y="234"></point>
+        <point x="183" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="163"></point>
+        <point x="195" y="233"></point>
+        <point x="227" y="233"></point>
+        <point x="206" y="159"></point>
+      </polygon>
+    </shape>
+    <shape name="sheep" rotatable="false" editableColorIndex="15">
+      <rectangle endX="270" startY="75" marked="true" color="-1" endY="225" startX="90" filled="true"></rectangle>
+      <circle x="15" y="75" marked="true" color="-1" diameter="150" filled="true"></circle>
+      <rectangle endX="134" startY="225" marked="false" color="255" endY="286" startX="81" filled="true"></rectangle>
+      <rectangle endX="238" startY="225" marked="false" color="255" endY="285" startX="180" filled="true"></rectangle>
+      <circle x="1" y="88" marked="false" color="255" diameter="92" filled="true"></circle>
+    </shape>
+    <shape name="spacecraft" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="180" y="135"></point>
+        <point x="255" y="255"></point>
+        <point x="225" y="240"></point>
+        <point x="150" y="180"></point>
+        <point x="75" y="240"></point>
+        <point x="45" y="255"></point>
+        <point x="120" y="135"></point>
+      </polygon>
+    </shape>
+    <shape name="thin-arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="120" y="150"></point>
+        <point x="120" y="293"></point>
+        <point x="180" y="293"></point>
+        <point x="180" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="truck-down" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="225" y="30"></point>
+        <point x="225" y="270"></point>
+        <point x="120" y="270"></point>
+        <point x="105" y="210"></point>
+        <point x="60" y="180"></point>
+        <point x="45" y="30"></point>
+        <point x="105" y="60"></point>
+        <point x="105" y="30"></point>
+      </polygon>
+      <polygon color="2085659903" filled="true" marked="false">
+        <point x="195" y="75"></point>
+        <point x="195" y="120"></point>
+        <point x="240" y="120"></point>
+        <point x="240" y="75"></point>
+      </polygon>
+      <polygon color="2085659903" filled="true" marked="false">
+        <point x="195" y="225"></point>
+        <point x="195" y="180"></point>
+        <point x="240" y="180"></point>
+        <point x="240" y="225"></point>
+      </polygon>
+    </shape>
+    <shape name="truck-left" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="120" y="135"></point>
+        <point x="225" y="135"></point>
+        <point x="225" y="210"></point>
+        <point x="75" y="210"></point>
+        <point x="75" y="165"></point>
+        <point x="105" y="165"></point>
+      </polygon>
+      <polygon color="2085659903" filled="true" marked="false">
+        <point x="90" y="210"></point>
+        <point x="105" y="225"></point>
+        <point x="120" y="210"></point>
+      </polygon>
+      <polygon color="2085659903" filled="true" marked="false">
+        <point x="180" y="210"></point>
+        <point x="195" y="225"></point>
+        <point x="210" y="210"></point>
+      </polygon>
+    </shape>
+    <shape name="truck-right" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="180" y="135"></point>
+        <point x="75" y="135"></point>
+        <point x="75" y="210"></point>
+        <point x="225" y="210"></point>
+        <point x="225" y="165"></point>
+        <point x="195" y="165"></point>
+      </polygon>
+      <polygon color="2085659903" filled="true" marked="false">
+        <point x="210" y="210"></point>
+        <point x="195" y="225"></point>
+        <point x="180" y="210"></point>
+      </polygon>
+      <polygon color="2085659903" filled="true" marked="false">
+        <point x="120" y="210"></point>
+        <point x="105" y="225"></point>
+        <point x="90" y="210"></point>
+      </polygon>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="138" y="75"></point>
+        <point x="162" y="75"></point>
+        <point x="165" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="225" y="142"></point>
+        <point x="195" y="135"></point>
+        <point x="195" y="187"></point>
+        <point x="225" y="195"></point>
+        <point x="225" y="225"></point>
+        <point x="195" y="217"></point>
+        <point x="195" y="202"></point>
+        <point x="105" y="202"></point>
+        <point x="105" y="217"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="195"></point>
+        <point x="105" y="187"></point>
+        <point x="105" y="135"></point>
+        <point x="75" y="142"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="wolf" rotatable="false" editableColorIndex="0">
+      <rectangle endX="105" startY="105" marked="true" color="-1920102913" endY="165" startX="15" filled="true"></rectangle>
+      <rectangle endX="105" startY="90" marked="true" color="-1920102913" endY="105" startX="45" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="60" y="90"></point>
+        <point x="83" y="44"></point>
+        <point x="104" y="90"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="67" y="90"></point>
+        <point x="82" y="59"></point>
+        <point x="97" y="89"></point>
+      </polygon>
+      <rectangle endX="59" startY="93" marked="false" color="-1" endY="105" startX="48" filled="true"></rectangle>
+      <rectangle endX="55" startY="96" marked="false" color="255" endY="101" startX="51" filled="true"></rectangle>
+      <rectangle endX="15" startY="121" marked="false" color="255" endY="135" startX="0" filled="true"></rectangle>
+      <rectangle endX="60" startY="136" marked="false" color="255" endY="151" startX="15" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="15" y="136"></point>
+        <point x="23" y="149"></point>
+        <point x="31" y="136"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="30" y="151"></point>
+        <point x="37" y="136"></point>
+        <point x="43" y="151"></point>
+      </polygon>
+      <rectangle endX="263" startY="120" marked="true" color="-1920102913" endY="195" startX="105" filled="true"></rectangle>
+      <rectangle endX="259" startY="195" marked="true" color="-1920102913" endY="201" startX="108" filled="true"></rectangle>
+      <rectangle endX="252" startY="201" marked="true" color="-1920102913" endY="210" startX="114" filled="true"></rectangle>
+      <rectangle endX="243" startY="210" marked="true" color="-1920102913" endY="214" startX="120" filled="true"></rectangle>
+      <rectangle endX="255" startY="114" marked="true" color="-1920102913" endY="120" startX="115" filled="true"></rectangle>
+      <rectangle endX="248" startY="108" marked="true" color="-1920102913" endY="114" startX="128" filled="true"></rectangle>
+      <rectangle endX="225" startY="105" marked="true" color="-1920102913" endY="108" startX="150" filled="true"></rectangle>
+      <rectangle endX="155" startY="214" marked="true" color="-1920102913" endY="270" startX="132" filled="true"></rectangle>
+      <rectangle endX="132" startY="260" marked="true" color="-1920102913" endY="270" startX="110" filled="true"></rectangle>
+      <rectangle endX="232" startY="214" marked="true" color="-1920102913" endY="270" startX="210" filled="true"></rectangle>
+      <rectangle endX="210" startY="260" marked="true" color="-1920102913" endY="270" startX="189" filled="true"></rectangle>
+      <line endX="281" startY="127" marked="true" color="-1920102913" endY="155" startX="263"></line>
+      <line endX="281" startY="155" marked="true" color="-1920102913" endY="192" startX="281"></line>
+    </shape>
+    <shape name="wolf-left" rotatable="false" editableColorIndex="3">
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="117" y="97"></point>
+        <point x="91" y="74"></point>
+        <point x="66" y="74"></point>
+        <point x="60" y="85"></point>
+        <point x="36" y="85"></point>
+        <point x="38" y="92"></point>
+        <point x="44" y="97"></point>
+        <point x="62" y="97"></point>
+        <point x="81" y="117"></point>
+        <point x="84" y="134"></point>
+        <point x="92" y="147"></point>
+        <point x="109" y="152"></point>
+        <point x="136" y="144"></point>
+        <point x="174" y="144"></point>
+        <point x="174" y="103"></point>
+        <point x="143" y="103"></point>
+        <point x="134" y="97"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="87" y="80"></point>
+        <point x="79" y="55"></point>
+        <point x="76" y="79"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="81" y="75"></point>
+        <point x="70" y="58"></point>
+        <point x="73" y="82"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="99" y="131"></point>
+        <point x="76" y="152"></point>
+        <point x="76" y="163"></point>
+        <point x="96" y="182"></point>
+        <point x="104" y="182"></point>
+        <point x="109" y="173"></point>
+        <point x="102" y="167"></point>
+        <point x="99" y="173"></point>
+        <point x="87" y="159"></point>
+        <point x="104" y="140"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="107" y="138"></point>
+        <point x="107" y="186"></point>
+        <point x="98" y="190"></point>
+        <point x="99" y="196"></point>
+        <point x="112" y="196"></point>
+        <point x="115" y="190"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="116" y="140"></point>
+        <point x="114" y="189"></point>
+        <point x="105" y="137"></point>
+      </polygon>
+      <rectangle endX="114" startY="150" marked="true" color="-1653716737" endY="192" startX="109" filled="true"></rectangle>
+      <rectangle endX="116" startY="143" marked="true" color="-1653716737" endY="191" startX="111" filled="true"></rectangle>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="168" y="106"></point>
+        <point x="184" y="98"></point>
+        <point x="205" y="98"></point>
+        <point x="218" y="115"></point>
+        <point x="218" y="137"></point>
+        <point x="186" y="164"></point>
+        <point x="196" y="176"></point>
+        <point x="195" y="194"></point>
+        <point x="178" y="195"></point>
+        <point x="178" y="183"></point>
+        <point x="188" y="183"></point>
+        <point x="169" y="164"></point>
+        <point x="173" y="144"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="207" y="140"></point>
+        <point x="200" y="163"></point>
+        <point x="206" y="175"></point>
+        <point x="207" y="192"></point>
+        <point x="193" y="189"></point>
+        <point x="192" y="177"></point>
+        <point x="198" y="176"></point>
+        <point x="185" y="150"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="214" y="134"></point>
+        <point x="203" y="168"></point>
+        <point x="192" y="148"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="204" y="151"></point>
+        <point x="203" y="176"></point>
+        <point x="193" y="148"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="207" y="103"></point>
+        <point x="221" y="98"></point>
+        <point x="236" y="101"></point>
+        <point x="243" y="115"></point>
+        <point x="243" y="128"></point>
+        <point x="256" y="142"></point>
+        <point x="239" y="143"></point>
+        <point x="233" y="133"></point>
+        <point x="225" y="115"></point>
+        <point x="214" y="114"></point>
+      </polygon>
+    </shape>
+    <shape name="wolf-right" rotatable="false" editableColorIndex="3">
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="170" y="127"></point>
+        <point x="200" y="93"></point>
+        <point x="231" y="93"></point>
+        <point x="237" y="103"></point>
+        <point x="262" y="103"></point>
+        <point x="261" y="113"></point>
+        <point x="253" y="119"></point>
+        <point x="231" y="119"></point>
+        <point x="215" y="143"></point>
+        <point x="213" y="160"></point>
+        <point x="208" y="173"></point>
+        <point x="189" y="187"></point>
+        <point x="169" y="190"></point>
+        <point x="154" y="190"></point>
+        <point x="126" y="180"></point>
+        <point x="106" y="171"></point>
+        <point x="72" y="171"></point>
+        <point x="73" y="126"></point>
+        <point x="122" y="126"></point>
+        <point x="144" y="123"></point>
+        <point x="159" y="123"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="201" y="99"></point>
+        <point x="214" y="69"></point>
+        <point x="215" y="99"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="207" y="98"></point>
+        <point x="223" y="71"></point>
+        <point x="220" y="101"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="184" y="172"></point>
+        <point x="189" y="234"></point>
+        <point x="203" y="238"></point>
+        <point x="203" y="246"></point>
+        <point x="187" y="247"></point>
+        <point x="180" y="239"></point>
+        <point x="171" y="180"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="197" y="174"></point>
+        <point x="204" y="220"></point>
+        <point x="218" y="224"></point>
+        <point x="219" y="234"></point>
+        <point x="201" y="232"></point>
+        <point x="195" y="225"></point>
+        <point x="179" y="179"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="78" y="167"></point>
+        <point x="95" y="187"></point>
+        <point x="95" y="208"></point>
+        <point x="79" y="220"></point>
+        <point x="92" y="234"></point>
+        <point x="98" y="235"></point>
+        <point x="100" y="249"></point>
+        <point x="81" y="246"></point>
+        <point x="76" y="241"></point>
+        <point x="61" y="212"></point>
+        <point x="65" y="195"></point>
+        <point x="52" y="170"></point>
+        <point x="45" y="150"></point>
+        <point x="44" y="128"></point>
+        <point x="55" y="121"></point>
+        <point x="69" y="121"></point>
+        <point x="81" y="135"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="48" y="143"></point>
+        <point x="58" y="141"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="46" y="136"></point>
+        <point x="68" y="137"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="45" y="129"></point>
+        <point x="35" y="142"></point>
+        <point x="37" y="159"></point>
+        <point x="53" y="192"></point>
+        <point x="47" y="210"></point>
+        <point x="62" y="238"></point>
+        <point x="80" y="237"></point>
+      </polygon>
+      <line endX="59" startY="237" marked="false" color="255" endY="213" startX="74"></line>
+      <line endX="59" startY="213" marked="false" color="255" endY="212" startX="59"></line>
+      <line endX="67" startY="211" marked="false" color="255" endY="192" startX="58"></line>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="38" y="138"></point>
+        <point x="66" y="149"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="46" y="128"></point>
+        <point x="33" y="120"></point>
+        <point x="21" y="118"></point>
+        <point x="11" y="123"></point>
+        <point x="3" y="138"></point>
+        <point x="5" y="160"></point>
+        <point x="13" y="178"></point>
+        <point x="9" y="192"></point>
+        <point x="0" y="199"></point>
+        <point x="20" y="196"></point>
+        <point x="25" y="179"></point>
+        <point x="24" y="161"></point>
+        <point x="25" y="148"></point>
+        <point x="45" y="140"></point>
+      </polygon>
+      <polygon color="-1653716737" filled="true" marked="true">
+        <point x="67" y="122"></point>
+        <point x="96" y="126"></point>
+        <point x="63" y="144"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>

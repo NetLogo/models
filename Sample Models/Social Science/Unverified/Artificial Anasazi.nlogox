@@ -1,0 +1,1547 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[breed [ historical-settlements historical-settlement ] ; historical occupation
+breed [ households household ]
+breed [ water-points water-point ]
+
+patches-own [
+  water-source
+  zone
+  zone-pcolor
+  apdsi
+  hydro
+  quality
+  maize-zone
+  yield
+  base-yield
+  num-occupying-farms
+  num-occupying-households
+]
+
+historical-settlements-own [
+  sarg                 ; an ID number relating to data collected by the
+                       ;   "Southwestern Anthropological Research Group"
+                       ;   (unused by the simulation, left for reference)
+  meter-north          ; real world location measurements
+  meter-east           ; real world location measurements
+  start-date           ; historical start date
+  end-date             ; historical end date
+  median-date          ; historical median date
+  settlement-type      ; extra historical data from the file (unused)
+  settlement-size      ; extra historical data from the file (unused)
+  description          ; extra historical data from the file (unused)
+  room-count           ; extra historical data from the file (unused)
+  elevation            ; extra historical data from the file (unused)
+  baseline-households  ; baseline number of households
+  number-of-households ; "current" number of households
+]
+
+households-own [
+  farm-x
+  farm-y
+  farm-plot
+  last-harvest
+  estimate
+  age
+  fertility-age
+  aged-corn-stocks
+  nutrition-need
+  nutrition-need-remaining]
+
+water-points-own [
+  sarg
+  meter-north
+  meter-east
+  water-type
+  start-date
+  end-date
+]
+
+globals [
+  year
+  min-death-age
+  max-death-age
+  min-fertility-ends-age
+  max-fertility-ends-age
+  min-fertility
+  max-fertility
+  household-min-nutrition-need
+  household-max-nutrition-need
+  min-fertility-age
+  max-fertility-age
+  household-min-initial-age
+  household-max-initial-age
+  household-min-initial-corn
+  household-max-initial-corn
+  potential
+  potential-farms
+  best-farm streams-exist?
+  alluvium-exist?
+  farm-sites-available
+  total-households
+  historical-total-households
+  environment-data
+  apdsi-data
+  map-data
+  settlements-data
+  water-data
+  typical-household-size
+  base-nutrition-need
+  maize-gift-to-child
+  water-source-distance
+  years-of-stock
+]
+
+to setup
+  clear-all
+  set-default-shape historical-settlements "house"
+  set-default-shape households "person"
+  load-map-data
+  set streams-exist? false
+  set alluvium-exist? false
+  set year 800
+
+  ; variable that count the number of sites available for farming
+  set farm-sites-available 0
+
+  ask patches [
+    set water-source 0
+    set quality ((random-normal 0 1) * harvest-variance) + 1.0
+    if quality < 0 [ set quality 0 ]
+  ]
+  set typical-household-size 5 ; a household consist of 5 persons
+  set base-nutrition-need 160   ; a person needs 160 kg of food (corn) each year
+
+  ; The original model allowed for many of these parameters to take on a range of
+  ; values, rather than just a single value. To simplify the model interface, and
+  ; keep the number of parameters modest, most of these "min- and max-"  variables
+  ; are set to matching values during SETUP. The min/max variables are left here in
+  ; the code, in case you want to explore more variation in these parameters.
+  set household-min-nutrition-need (base-nutrition-need * typical-household-size)
+  set household-max-nutrition-need (base-nutrition-need * typical-household-size)
+
+  ; when household agents can start to reproduce. (reproduction means here
+  ; that a daughter leaves the household to start a new household)
+  set min-fertility-age 16
+
+  set max-fertility-age 16
+  set min-death-age death-age ;maximum age of a household
+  set max-death-age death-age
+  set min-fertility-ends-age fertility-ends-age ; agent stop reproducing at this age
+  set max-fertility-ends-age fertility-ends-age
+  set min-fertility fertility ; probability that a fertile agent reproduces
+  set max-fertility fertility
+  set maize-gift-to-child 0.33 ; a new household gets part of the storage of the parent household
+  set water-source-distance 16.0 ; agents like to live within a certain distance of the water
+  set years-of-stock 2 ; number of years corn that can be stored.
+  set household-min-initial-age 0 ; to determine ages of initial households
+  set household-max-initial-age 29
+  set household-min-initial-corn 2000 ; to determine storage of initial households
+  set household-max-initial-corn 2400
+
+  ask historical-settlements [ hide-turtle ] ; don't show historical sites
+  water ; calculate water availability for initial timestep
+  calculate-yield ; calculate yeild
+  ask patches [ set base-yield yield * quality ]
+
+  determine-potential-farms ; determine how many farms could be on the land
+  ; initialization of 14 households (based on the initial data) and put them randomly on the landscape
+  create-households 14 [
+    set farm-x random 80
+    set farm-y random 120
+    init-household
+  ]
+  estimate-harvest
+  show-settlements-on-map
+  set historical-total-households 0
+  if historic-view? [ show-historical-population ]
+  reset-ticks
+end
+
+to go
+  if year > 1350 [ stop ]
+  set historical-total-households 0
+  set total-households 0
+  calculate-yield
+
+  ; potential amount of households based on level of base-yield (dependent on PSDI and water availability)
+  set potential count patches with [ base-yield >= household-min-nutrition-need ]
+
+  if historic-view? [ show-historical-population ]
+  calculate-harvest-consumption
+  check-death
+  estimate-harvest
+  ask households [
+    ; agents who expect not to have sufficient food next timestep move to a new spot
+    ; (if available). If no spots are available, they leave the system.
+    if estimate < nutrition-need [
+      ; we have to check everytime whether locations are available for moving agents.
+      ; Could be implemented more efficiently by only updating selected info
+      determine-potential-farms
+      ask patch farm-x farm-y [ set num-occupying-farms 0 ]
+      find-farm-and-settlement
+    ]
+  ]
+  determine-potential-farms
+  ask households [
+    if (age > fertility-age) and
+      (age <= fertility-ends-age) and
+      (random-float 1.0 < fertility) [
+      if length potential-farms > 0 [
+        determine-potential-farms
+        fissioning
+      ]
+    ]
+  ]
+  set total-households count households
+  water
+  show-settlements-on-map
+  set year year + 1
+  tick
+end
+
+to init-household
+  ; Initialization of households which derive initial storage, age, amount of
+  ; nutrients needed, etc. This procedure also finds a spot for the farming
+  ; plots and settlements on the initial landscape
+  set best-farm self
+  set aged-corn-stocks []
+  set aged-corn-stocks fput (household-min-initial-corn + random-float (household-max-initial-corn - household-min-initial-corn)) aged-corn-stocks
+  set aged-corn-stocks fput (household-min-initial-corn + random-float (household-max-initial-corn - household-min-initial-corn)) aged-corn-stocks
+  set aged-corn-stocks fput (household-min-initial-corn + random-float (household-max-initial-corn - household-min-initial-corn)) aged-corn-stocks
+  set farm-plot self
+  set age household-min-initial-age + random (household-max-initial-age - household-min-initial-age)
+  set nutrition-need household-min-nutrition-need + random (household-max-nutrition-need - household-min-nutrition-need)
+  set fertility-age min-fertility-age + random (max-fertility-age - min-fertility-age)
+  set death-age min-death-age + random (max-death-age - min-death-age)
+  set fertility-ends-age min-fertility-ends-age + random (max-fertility-ends-age - min-fertility-ends-age)
+  set fertility min-fertility + random-float (max-fertility - min-fertility)
+  set last-harvest 0
+  find-farm-and-settlement
+end
+
+to find-farm-and-settlement
+  ; find a new spot for the settlement (might remain the same location as before)
+  let still-hunting? true
+  let x 0
+  let y 0
+  ifelse length potential-farms = 0 [ ; If there were no potential farms, the agent is removed from the system.
+    ask patch-here [ set num-occupying-households num-occupying-households - 1 ]
+    ask patch farm-x farm-y [ set num-occupying-farms 0 ]
+    die
+  ]
+  [ ; otherwise (there are potential farm spots), we proceed to find a suitable one
+    set best-farm determine-best-farm
+    let best-yield [ yield ] of best-farm
+    set farm-x [ pxcor ] of best-farm
+    set farm-y [ pycor ] of best-farm
+    set farm-plot best-farm
+    ask patch farm-x farm-y [
+      set num-occupying-farms 1
+    ]
+    if count patches with [ water-source = 1 and num-occupying-farms = 0 and yield < best-yield ] > 0 [
+      ;if there are cells with water which are not farmed and in a zone that is less productive than the zone where the favorite farm plot is located
+      ask min-one-of patches with [ water-source = 1 and num-occupying-farms = 0 and yield < best-yield ] [ distance best-farm ] [ ; find the most nearby spot
+        if distance best-farm <= water-source-distance [set x pxcor set y pycor set still-hunting? false]
+      ]
+      if not still-hunting? [
+        ask min-one-of patches with [ num-occupying-farms = 0 and hydro <= 0 ] [ distancexy x y ] [ ; if the favorite location is nearby move to that spot
+          set x pxcor
+          set y pycor
+          set num-occupying-households num-occupying-households + 1
+        ]
+      ]
+    ]
+    if still-hunting? [ ; if no settlement is found yet
+      ; find a location that is not farmed with nearby water (but this might be in the same zone as the farm plot)
+      ask min-one-of patches with [ num-occupying-farms = 0 ] [ distance best-farm ] [
+        if distance best-farm <= water-source-distance [
+          set x pxcor
+          set y pycor
+          set still-hunting? false
+        ]
+      ]
+      if not still-hunting?  [
+        ask min-one-of patches with [ num-occupying-farms = 0 and hydro <= 0 ] [ distancexy x y ] [
+          set x pxcor
+          set y pycor
+          set num-occupying-households num-occupying-households + 1
+        ]
+      ]
+    ]
+    if still-hunting? [ ; if still no settlement is found try to find a location that is not farmed even if this is not close to water
+      ask min-one-of patches with [ num-occupying-farms = 0 ] [ distance best-farm ] [
+        set x pxcor
+        set y pycor
+        set still-hunting? false
+      ]
+      if not still-hunting? [
+        ask min-one-of patches with [ num-occupying-farms = 0 and hydro <= 0 ] [ distancexy x y ] [
+          set x pxcor
+          set y pycor
+          set num-occupying-households num-occupying-households + 1
+        ]
+      ]
+    ]
+    if still-hunting? [ ;if no possible settlement is found, leave the system
+      ask patch farm-x farm-y [ set num-occupying-farms 0 ]
+      die ; note: once the running agent dies, it stops executing code
+    ]
+    set xcor x
+    set ycor y
+    ask patch-here [
+      set num-occupying-households num-occupying-households + 1
+    ]
+  ]
+end
+
+to determine-potential-farms
+  ;; Determine the list of potential locations for a farm to move to.
+  ;; A potential location to farm is a place where nobody is farming
+  ;;   and where the base-yield is higher than the minimum amount of food needed
+  ;;   and where nobody has build a settlement
+  set potential-farms []
+  ask patches with [(zone != "Empty") and (num-occupying-farms = 0) and (num-occupying-households = 0) and (base-yield >= household-min-nutrition-need) ] [
+    set potential-farms lput self potential-farms
+  ]
+  set farm-sites-available length potential-farms
+end
+
+to-report determine-best-farm
+  ; the agent likes to go to the potential farm which is closest nearby existing farm
+  let existing-farm patch farm-x farm-y
+  let distance-to-best 1000
+  foreach potential-farms [ farm ->
+    ask farm [
+      if distance existing-farm < distance-to-best [
+        set best-farm self
+        set distance-to-best distance existing-farm
+      ]
+    ]
+  ]
+  if length potential-farms > 0 [
+    set potential-farms remove best-farm potential-farms
+  ]
+  report best-farm
+end
+
+to fissioning
+  ; creates a new agent and update relevant info from new and parent agent. Agent will farm at a nearby available location
+  let ys years-of-stock
+  while [ ys > -1 ] [
+    set aged-corn-stocks replace-item ys aged-corn-stocks ((1 - maize-gift-to-child) * (item ys aged-corn-stocks))
+    set ys ys - 1
+  ]
+  hatch 1 [
+    init-household
+    set age 0 ;override the value derived in init-household since this will be a fresh household
+    set ys years-of-stock
+    while [ ys > -1 ] [
+      set aged-corn-stocks replace-item ys aged-corn-stocks ((maize-gift-to-child / (1 - maize-gift-to-child)) * (item ys aged-corn-stocks))
+      set ys ys - 1
+    ]
+  ]
+end
+
+to load-map-data
+  ifelse ( file-exists? "data/map.txt" ) [
+    set map-data []
+    file-open "data/map.txt"
+    while [ not file-at-end? ] [
+      set map-data sentence map-data (list (list file-read))
+    ]
+    file-close
+  ]
+  [ user-message "There is no map.txt file in the data directory!" ]
+
+  ;; the map data file is stored in specific order, so we have to assign it to patches in that order,
+  ;; which is accomplished by manipulating the yy and xx variables each time through the loop.
+  let yy 119
+  let xx 0
+  foreach map-data [ map-values ->
+    let map-value first map-values
+    if map-value = 0  [ ask patch xx yy [ set zone-pcolor black set zone "General"     set maize-zone "Yield_2"   ] ] ; General Valley
+    if map-value = 10 [ ask patch xx yy [ set zone-pcolor red   set zone "North"       set maize-zone "Yield_1"   ] ] ; North Valley
+    if map-value = 15 [ ask patch xx yy [ set zone-pcolor white set zone "North Dunes" set maize-zone "Sand_dune" ] ] ; North Valley ; Dunes
+    if map-value = 20 [ ask patch xx yy [ set zone-pcolor gray  set zone "Mid"
+      ifelse xx <= 74
+        [ ask patch xx yy [ set maize-zone "Yield_1" ] ]
+        [ ask patch xx yy [ set maize-zone "Yield_2" ] ]
+      ]
+    ] ; Mid Valley
+    if map-value = 25 [ ask patch xx yy [ set zone-pcolor white  set zone "Mid Dunes" set maize-zone "Sand_dune" ] ] ; Mid Valley ; Dunes
+    if map-value = 30 [ ask patch xx yy [ set zone-pcolor yellow set zone "Natural"   set maize-zone "No_Yield"  ] ] ; Natural
+    if map-value = 40 [ ask patch xx yy [ set zone-pcolor blue   set zone "Uplands"   set maize-zone "Yield_3"   ] ] ; Uplands Arable
+    if map-value = 50 [ ask patch xx yy [ set zone-pcolor pink   set zone "Kinbiko"   set maize-zone "Yield_1"   ] ] ; Kinbiko Canyon
+    if map-value = 60 [ ask patch xx yy [ set zone-pcolor white  set zone "Empty"     set maize-zone "Empty"     ] ] ; Empty
+    ifelse yy > 0
+      [ set yy yy - 1 ]
+      [ set xx xx + 1 set yy 119 ]
+  ]
+  ask patches [ set pcolor zone-pcolor ]
+
+  ; The order of the data from the file is:
+  ;  SARG number, meters north, meters east, start date, end date, median date (1950 - x), type, size, description, room count, elevation, baseline households
+  ifelse file-exists? "data/settlements.txt" [
+    set settlements-data []
+    file-open "data/settlements.txt"
+    while [ not file-at-end? ] [
+      set settlements-data sentence settlements-data (list (n-values 12 [ file-read ]))
+    ]
+    file-close
+  ]
+  [ user-message "There is no settlements.txt file in the data directory!" ]
+
+  foreach settlements-data [ settlement-data ->
+    create-historical-settlements 1 [
+      set sarg item 0 settlement-data
+      set meter-north item 1 settlement-data
+      set meter-east item 2 settlement-data
+      set start-date item 3 settlement-data
+      set end-date item 4 settlement-data
+      set median-date (1950 - item 5 settlement-data)
+      set settlement-type item 6 settlement-data
+      set settlement-size item 7 settlement-data
+      set description item 8 settlement-data
+      set room-count item 9 settlement-data
+      set elevation item 10 settlement-data
+      set baseline-households item 11 settlement-data
+    ]
+  ]
+
+  ; number, meters north, meters east, type, start date, end date
+  ifelse file-exists? "data/water.txt" [
+    set water-data []
+    file-open "data/water.txt"
+    while [ not file-at-end? ] [
+      set water-data sentence water-data (list (n-values 6 [file-read]))
+    ]
+    file-close
+  ]
+  [ user-message "There is no water.txt file in the data directory!" ]
+
+  foreach water-data [ data ->
+    create-water-points 1 [
+      set sarg item 0 data
+      set meter-north item 1 data
+      set meter-east item 2 data
+      set water-type item 3 data
+      set start-date item 4 data
+      set end-date item 5 data
+    ]
+  ]
+
+  ask water-points [
+    set xcor 24.5 + int ((meter-east - 2392) / 93.5)
+    set ycor 45 + int (37.6 + ((meter-north - 7954) / 93.5))
+    hide-turtle
+  ]
+
+  ; Import adjusted pdsi.
+  ifelse file-exists? "data/adjustedPDSI.txt" [
+    set apdsi-data []
+    file-open "data/adjustedPDSI.txt"
+    while [ not file-at-end? ] [
+      set apdsi-data sentence apdsi-data (list file-read)
+    ]
+    file-close
+  ]
+  [ user-message "There is no adjustedPDSI.txt file in the data directory!" ]
+
+ ; Import environment
+ ifelse file-exists? "data/environment.txt" [
+   set environment-data []
+   file-open "data/environment.txt"
+   while [ not file-at-end? ] [
+     set environment-data sentence environment-data (list (n-values 15 [ file-read ]))
+   ]
+   file-close
+ ]
+ [ user-message "There is no environment.txt file in the data directory!" ]
+
+ ask patches [
+   set num-occupying-farms 0
+   set num-occupying-households 0
+ ]
+end
+
+to water
+  ; define for each location when water is available
+  ifelse ((year >= 280 and year < 360) or (year >= 800 and year < 930) or (year >= 1300 and year < 1450))
+    [ set streams-exist? 1 ]
+    [ set streams-exist? 0 ]
+  ifelse (((year >= 420) and (year < 560)) or ((year >= 630) and (year < 680)) or ((year >= 980) and (year < 1120)) or ((year >= 1180) and (year < 1230)))
+    [ set alluvium-exist? 1 ]
+    [ set alluvium-exist? 0 ]
+
+  ask patches [
+    set water-source 0
+    if (alluvium-exist? = 1) and ((zone = "General") or (zone = "North") or (zone = "Mid") or (zone = "Kinbiko")) [
+      set water-source 1
+    ]
+    if (streams-exist? = 1) and (zone = "Kinbiko") [
+      set water-source 1
+    ]
+  ]
+
+  ask (patch-set (patch 72 114) (patch 70 113) (patch 69 112) (patch 68 111) (patch 67 110) (patch 66 109) (patch 65 108) (patch 65 107)) [
+    set water-source 1
+  ]
+
+  ask water-points [
+    if water-type = 2 [
+      ask patch xcor ycor [ set water-source 1 ]
+    ]
+    if water-type = 3 [
+      if year >= start-date and year <= end-date [
+        ask patch xcor ycor [ set water-source 1 ]
+      ]
+    ]
+  ]
+
+  if map-view = "water sources" [
+    ask patches [
+      ifelse water-source = 1
+        [ set pcolor blue ]
+        [ set pcolor white ]
+    ]
+  ]
+end
+
+to calculate-yield
+  ; calculate the yield and whether water is available for each patch based on the APDSI and water availability data.
+  let generalapdsi item (year - 200) apdsi-data
+  let northapdsi item (1100 + year) apdsi-data
+  let midapdsi item (2400 + year) apdsi-data
+  let naturalapdsi item (3700 + year) apdsi-data
+  let uplandapdsi item (3700 + year) apdsi-data
+  let kinbikoapdsi item (1100 + year) apdsi-data
+
+  let generalhydro item 1 (item (year - 382) environment-data)
+  let northhydro item 4 (item (year - 382) environment-data)
+  let midhydro item 7 (item (year - 382) environment-data)
+  let naturalhydro item 10 (item (year - 382) environment-data)
+  let uplandhydro item 10 (item (year - 382) environment-data)
+  let kinbikohydro item 13 (item (year - 382) environment-data)
+
+  ask patches [
+    if zone = "General" [ set apdsi generalapdsi ]
+    if zone = "North"   [ set apdsi northapdsi   ]
+    if zone = "Mid"     [ set apdsi midapdsi     ]
+    if zone = "Natural" [ set apdsi naturalapdsi ]
+    if zone = "Upland"  [ set apdsi uplandapdsi  ]
+    if zone = "Kinbiko" [ set apdsi kinbikoapdsi ]
+
+    if zone = "General" [ set hydro generalhydro ]
+    if zone = "North"   [ set hydro northhydro   ]
+    if zone = "Mid"     [ set hydro midhydro     ]
+    if zone = "Natural" [ set hydro naturalhydro ]
+    if zone = "Upland"  [ set hydro uplandhydro  ]
+    if zone = "Kinbiko" [ set hydro kinbikohydro ]
+
+    if maize-zone = "No_Yield" or maize-zone = "Empty" [ set yield 0 ]
+    if maize-zone = "Yield_1" [
+      if apdsi >=  3.0 [ set yield 1153 ]
+      if apdsi >=  1.0 and apdsi < 3.0 [ set yield 988 ]
+      if apdsi >  -1.0 and apdsi < 1.0 [ set yield 821 ]
+      if apdsi >  -3.0 and apdsi <= -1.0 [ set yield 719 ]
+      if apdsi <= -3.0 [ set yield 617 ]
+    ]
+
+    if maize-zone = "Yield_2" [
+      if apdsi >=  3.0 [ set yield 961 ]
+      if apdsi >=  1.0 and apdsi < 3.0 [ set yield 824 ]
+      if apdsi >  -1.0 and apdsi < 1.0 [ set yield 684 ]
+      if apdsi >  -3.0 and apdsi <= -1.0 [ set yield 599 ]
+      if apdsi <= -3.0 [ set yield 514 ]
+    ]
+
+    if maize-zone = "Yield_3" [
+      if apdsi >=  3.0 [ set yield 769 ]
+      if apdsi >=  1.0 and apdsi < 3.0 [ set yield 659 ]
+      if apdsi >  -1.0 and apdsi < 1.0 [ set yield 547 ]
+      if apdsi > -3.0 and apdsi <= -1.0 [ set yield 479 ]
+      if apdsi <= -3.0 [ set yield 411 ]
+    ]
+
+    if maize-zone = "Sand_dune" [
+      if apdsi >=  3.0 [ set yield 1201 ]
+      if apdsi >=  1.0 and apdsi < 3.0 [ set yield 1030 ]
+      if apdsi >  -1.0 and apdsi < 1.0 [ set yield 855 ]
+      if apdsi >  -3.0 and apdsi <= -1.0 [ set yield 749 ]
+      if apdsi <= -3.0 [ set yield 642 ]
+    ]
+
+    if map-view = "yield" [ set pcolor (40 + base-yield / 140) ]
+    if map-view = "zones" [ set pcolor zone-pcolor ]
+  ]
+end
+
+to estimate-harvest
+  ; calculate the expected level of food available for agent based on current stocks of corn and estimate of harvest of next year (equal to actual amount current year)
+  ask households [
+    let total 0
+    let ys years-of-stock - 1
+    while [ ys > -1 ] [
+      set total total + item ys aged-corn-stocks
+      set ys ys - 1
+    ]
+    set estimate total + last-harvest
+  ]
+end
+
+to calculate-harvest-consumption
+  ; calculate first for each cell the base yield, and then the actual harvest of households. Update the stocks of corn available in storage.
+  ask patches [ set base-yield (yield * quality * harvest-adjustment) ]
+  ask households [
+    set last-harvest [ base-yield ] of patch farm-x farm-y * (1 + ((random-normal 0 1) * harvest-variance))
+    set aged-corn-stocks replace-item 2 aged-corn-stocks (item 1 aged-corn-stocks)
+    set aged-corn-stocks replace-item 1 aged-corn-stocks (item 0 aged-corn-stocks)
+    set aged-corn-stocks replace-item 0 aged-corn-stocks last-harvest
+    set nutrition-need-remaining nutrition-need
+    set age age + 1
+  ]
+
+  ; for each household calculate how much nutrients they can derive from harvest and stored corn
+  ask households [
+    let ys years-of-stock
+    while [ys > -1] [
+      ifelse (item ys aged-corn-stocks) >= nutrition-need-remaining [
+        set aged-corn-stocks replace-item ys aged-corn-stocks (item ys aged-corn-stocks - nutrition-need-remaining)
+        set nutrition-need-remaining 0
+      ]
+      [ set nutrition-need-remaining (nutrition-need-remaining - item ys aged-corn-stocks)
+        set aged-corn-stocks replace-item ys aged-corn-stocks 0
+      ]
+      set ys ys - 1
+    ]
+  ]
+end
+
+to check-death
+  ; agents who have not sufficient food derived or are older than death-age are removed from the system
+  ask households [
+    if nutrition-need-remaining > 0 or age > death-age [
+      ask patch farm-x farm-y [ set num-occupying-farms 0 ]
+      ask patch-here [ set num-occupying-households num-occupying-households - 1 ]
+      die
+    ]
+  ]
+end
+
+to show-historical-population
+  ; define the location and amount of households according to observations.
+  ask historical-settlements [
+    if settlement-type = 1 [
+      set number-of-households 0
+      ifelse year >= start-date and year < end-date [
+        show-turtle
+        if year > median-date [
+          if year != median-date [
+            set number-of-households ceiling (baseline-households * (end-date - year) / (end-date - median-date))
+            if number-of-households < 1 [
+              set number-of-households 1
+            ]
+          ]
+        ]
+        if year <= median-date [
+          if median-date != start-date [
+            set number-of-households ceiling (baseline-households * (year - start-date) / (median-date - start-date))
+            if number-of-households < 1 [
+              set number-of-households 1
+            ]
+          ]
+        ]
+      ]
+      [ hide-turtle ]
+      set historical-total-households historical-total-households + number-of-households
+      set xcor (24.5 + (meter-east - 2392) / 93.5) ; this is a translation from the input data in meters into location on the map.
+      set ycor 45 + (37.6 + (meter-north - 7954) / 93.5)
+      set size 2 * sqrt number-of-households ; using SQRT makes area of the turtle proportional to the number of households
+    ]
+  ]
+end
+
+to show-settlements-on-map
+  ; visualize the locations of farming and settlements
+  if map-view = "occupancy" [
+    ask patches [
+      ifelse num-occupying-households > 0 [
+        set pcolor red
+      ]
+      [ ifelse num-occupying-farms = 1
+          [ set pcolor yellow ]
+          [ set pcolor black ]
+      ]
+    ]
+  ]
+end
+
+
+; Copyright 2010 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="480" maxPycor="119" updateMode="1" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="0" height="489" showTickCounter="true" patchSize="4.0" fontSize="10" wrappingAllowedY="true" width="328" tickCounterLabel="year" maxPxcor="79" minPxcor="0"></view>
+    <button x="280" y="30" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="90">setup</button>
+    <button x="280" y="70" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="90">go</button>
+    <plot x="10" yMax="10.0" y="245" xMin="0.0" height="275" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="455" display="Population">
+      <setup></setup>
+      <update></update>
+      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="sim. households">
+        <setup></setup>
+        <update>plot total-households</update>
+      </pen>
+      <pen color="-13345367" legend="true" interval="1.0" mode="0" display="historical data">
+        <setup></setup>
+        <update>plot historical-total-households</update>
+      </pen>
+    </plot>
+    <chooser x="245" y="165" height="45" variable="map-view" current="0" width="147" display="map-view">
+      <choice type="string" value="zones"></choice>
+      <choice type="string" value="water sources"></choice>
+      <choice type="string" value="yield"></choice>
+      <choice type="string" value="occupancy"></choice>
+    </chooser>
+    <slider x="15" step="0.01" y="145" height="33" min="0" direction="Horizontal" max="1" default="0.54" variable="harvest-adjustment" width="180" display="harvest-adjustment"></slider>
+    <slider x="15" step="0.01" y="185" height="33" min="0" direction="Horizontal" max="1" default="0.4" variable="harvest-variance" width="181" display="harvest-variance"></slider>
+    <slider x="20" step="1" y="90" height="33" min="26" direction="Horizontal" max="40" default="38.0" variable="death-age" width="172" display="death-age"></slider>
+    <slider x="20" step="1" y="10" height="33" min="26" direction="Horizontal" max="36" default="34.0" variable="fertility-ends-age" width="172" display="fertility-ends-age"></slider>
+    <slider x="20" step="0.001" y="50" height="33" min="0" direction="Horizontal" max="0.2" default="0.155" variable="fertility" width="172" display="fertility"></slider>
+    <switch x="245" y="115" height="33" on="true" variable="historic-view?" width="147" display="historic-view?"></switch>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This model simulates the population dynamics in the Long house Valley in Arizona between 800 and 1400. It is based on archaeological records of occupation in Long House Valley and shows that environmental variability alone can not explain the population collapse around 1350. The model is a replication of the work of Dean et al. (see references below).
+
+## HOW IT WORKS
+
+### Agents and the environment
+
+Each agent represents a household of five persons. Each household makes annual decisions on where to farm and where to settle. A household has an age, and a stock of food surplus
+previous years. Each cell represents a 100 meter by 100 meter space. Each cell is within one of the different zones of land: General Valley Floor, North Valley Floor, Midvalley Floor, Arable Uplands, Uplands Non-Arable, Kinbiko Canyon or Dunes. These zones have agricultural productivity that is determined by the Palmer Drought Severity Index (PDSI).
+
+### Initialization
+
+The initial number of households is 14. Each household is initialized by setting a household age from the uniform distribution [0, 29] and by setting the value of the corn stocks by the uniform distribution [2000, 2400].  The quality of the soil of the cells is initialized by adding a number drawn from the normal distribution with standard deviation specified by HARVEST-VARIANCE.
+
+
+### Process overview
+
+Every year the following sequence of calculations is performed:
+
+  1. calculate the harvest for each household
+  2. if agent derives not sufficient food from harvest and storage or the age is beyond maximum age of household the agent is removed from the system
+  3. calculate the estimated harvest for next year based on corn in stock and actual harvest from current year
+  4. agents who expect not to derive the required amount of food next year will move to a new farm location.
+  5. find a farm plot
+  6. find a plot to settle nearby
+  7. if a household is older than the minimum fission age, there is a probability pf, that a new household is generated. The new household will derive an endowment of a fraction of the corn stock.
+  8. update water sources based on input data
+  9. the household's age increases by one year
+
+### Design concepts
+  * _Adaptation_. Agents adjust the location of farming and housing if they expect that current location is not sufficient next year.
+  * _Prediction_. The prediction of harvest next year is the same as the experienced harvest from this year.
+  * _Fitness_. Fitness of agent is determined by the amount of harvest derived and amount of corn in storage. An agent is either considered to be "fit" or not fit. If not sufficient food is available, it is removed from the system.
+  * _Interaction_. Agents do not interact directly. Indirectly they interact by occupying potential farm plot. Agents represent households. In the model, reproduction is modeled at the household level.  Based on the age of the household and the availability of food, a household may give birth to an offspring household, which is representing a daughter who leaves the house and starts a new household (immediately with 3 children that require 160 kg corn per year).  These abstraction is simplistic, but still captures the essence of reproduction and population growth.
+  * _Stochasticity_.  Initial conditions of cells and agents, and the order in which agents are updated.
+
+## HOW TO USE IT?
+
+If you click on SETUP the model will load the data files and initialize the model. If you click on GO the simulation will start. You can adjust a number of sliders before you click on SETUP to initialize the model for different values.
+The slider HARVEST-ADJUSTMENT is the fraction of the harvest that is kept after harvesting the corn. The rest is assumed the be lost in the harvesting process. The default value is around 60%. If you increase this number much more agents than the historical record is able to live in the valley.
+The slider HARVEST-VARIANCE is used to create variation of quality of cells and temporal variability in harvest for each cell. If you have variance of the harvest some agents are lucky one year and need to use their storage another year. If there is no variance many agents will leave the valley at once when there is a bad year.
+The slider DEATH-AGE represents the maximum number of years an agent can exists. A lower number will reduce the population size.
+The slider FERTILITY-ENDS-AGE represents the maximum age of an agent to be able to produce offspring. A lower number will reduce the population size.
+The slider FERTILITY is the annual probability an agent gets offspring. A lower probability will reduce the population size.
+
+
+POPULATION GRAPH: the blue line shows the historical data, while the red line the simulated population size.
+
+**Maps**. With the MAP-VIEW chooser you can select different ways to view the landscape on the right.
+
+  * ZONES: this will show you the different land cover zones.
+    * Black: General Valley Floor
+    * Red: North Valley Floor
+    * White: Mid and North Dunes
+    * Gray: Midvalley Floor
+    * Yellow: Non-Arable Uplands
+    * Blue: Arable Uplands
+    * Pink: Kinbiko Canyon
+  * WATER SOURCES: this will show you the different surface water sources like springs. This is changing over time due to input data on retrodicted environmental history. Households will chose new locations based on being nearby water sources.
+  * YIELD: Each cell is colors on the amount of yield can be derived from the cell. The more yield the lighter the color.
+  * OCCUPANCY: yellow cells are use for agriculture, red cells for settlements
+
+If HISTORIC-VIEW? is on you will see the locations of settlements according to the data. The settlements are shown as houses, and the size (area of the house shape) is proportional the number of households on that location.
+
+## BSD LICENSE
+
+Copyright 1998-2007 The Brookings Institution, NuTech Solutions,Inc., Metascape LLC, and contributors.  All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+* Neither the names of The Brookings Institution, NuTech Solutions,Inc. or Metascape LLC nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+## CREDITS AND REFERENCES
+
+NetLogo replication of Artificial Anasazi model by Jeffrey S. Dean, George J. Gumerman, Joshua M. Epstein, Robert Axtell, Alan C. Swedlund, Miles Parker, and Steven McCarroll
+
+This model is a lightly adapted version of the prior replication work of Marco Janssen (with help of Sean Bergin and Allen Lee) who reimplemented the Artificial Anasazi model in NetLogo (the original model was written in Ascape).
+
+The code of this complex historical model is in the process of being refined by the NetLogo team, and still differs greatly from the usual standards of the Models Library.
+
+Janssen's version of the model is available at: https://www.comses.net/codebases/2222/releases/1.1.0/. (Furthermore, this "Info tab" is adapted from the ODD model documentation that accompanies that model.)
+
+Janssen's replication is discussed further in the following academic journal paper, which curious readers are highly encouraged to examine:
+
+Janssen, Marco A. (2009). Understanding Artificial Anasazi. Journal of Artificial Societies and Social Simulation 12(4)13 <http://jasss.soc.surrey.ac.uk/12/4/13.html>.
+
+Some follow-up work on calibration and sensitivity analysis of this model is published in:
+
+Stonedahl, F., & Wilensky, U. (2010). Evolutionary Robustness Checking in the Artificial Anasazi Model. Proceedings of the AAAI Fall Symposium on Complex Adaptive Systems: Resilience, Robustness, and Evolvability. November 11-13, 2010. Arlington, VA. (Available:  http://ccl.northwestern.edu/papers/2010/Stonedahl%20and%20Wilensky.pdf)
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Stonedahl, F. and Wilensky, U. (2010).  NetLogo Artificial Anasazi model.  http://ccl.northwestern.edu/netlogo/models/ArtificialAnasazi.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2010 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2010 Cite: Stonedahl, F. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="link" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="link direction" rotatable="true" editableColorIndex="0">
+      <line endX="30" startY="150" marked="true" color="-1920102913" endY="225" startX="150"></line>
+      <line endX="270" startY="150" marked="true" color="-1920102913" endY="225" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>

@@ -1,0 +1,2457 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[globals [
+  tick-delta                        ;; how much we advance the tick counter this time through
+  max-tick-delta                    ;; the largest tick-delta is allowed to be
+  init-avg-speed init-avg-energy    ;; initial averages
+  avg-speed avg-energy              ;; current average
+  avg-energy-green                  ;; average energy of green particles (used to calculate the temperature)
+  avg-energy-orange                 ;; average energy of orange particles (used to calculate the temperature)
+  avg-energy-purple                 ;; average energy of purple (violet) particles (used to calculate the temperature)
+  toggle-red-state                  ;; keeps track of whether the toggle red wall button was pressed (and whether these walls are open or closed)
+  toggle-blue-state                 ;; keeps track of whether the toggle blue wall button was pressed (and whether these walls are open or closed)
+  particles-to-add                  ;; number of particles to add when using the mouse / cursor to add particles
+  min-particle-energy
+  max-particle-energy
+  particle-size
+  plunger-move
+  plunger-up-force
+  plunger-up-forces
+  plunger-down-force
+  plunger-down-forces
+  plunger-up-force-color
+  plunger-down-force-color
+
+  box-max-pxcor
+  syringe-left-x
+  syringe-right-x
+  syringe-top-y
+  syringe-bottom-y
+
+  syringe-region
+  syringe-border
+  syringe-upper
+  syringe-lower
+  plunger-move-factor
+  plunger-plot-start
+  p-force-plot-start
+
+  area-measurement
+  region1
+  region-one-seed
+  r1-upper
+  r1-lower
+  region2
+  region-two-seed
+  r2-upper
+  r2-lower
+  region-one-volume
+  region-two-volume
+  particles-on-1
+  particles-on-2
+
+  initial-#-particles
+  initial-gas-temperature
+
+  vals ;;grapher
+  max-force ;;grapher
+  margin ;;grapher
+  axis-components ;;grapher axis agentset
+  ready-to-run?
+  time-c
+  current-force
+  interrupt?
+  override-plots?
+  experiment-plunger-start-line
+
+  root-url-for-export
+  last-saved-filename
+]
+
+breed [ particles particle ]
+breed [ walls wall ]
+
+
+breed [ plungers plunger ]
+breed [ forces force ]
+breed [ flashes flash ]
+breed [ erasers eraser ]
+breed [ arrowheads arrowhead ]
+
+particles-own [
+  speed mass energy          ;; particles info
+  last-collision
+  color-type                 ;; type of particle (green, orange, purple)
+]
+walls-own [
+  energy
+  valve-1?
+  valve-2?
+  pressure?
+  surface-energy
+]
+erasers-own [ pressure? ]
+flashes-own [ birthday ]
+forces-own [ my-plunger my-f ]
+
+
+; grapher
+breed [ signs sign ]
+breed [ cursors cursor ]
+
+to setup
+  clear-all
+
+  set last-saved-filename ""
+
+  set initial-#-particles 0
+  set initial-gas-temperature 250
+  set plunger-move 0
+  set plunger-up-force 0
+  set plunger-down-force 0
+  set plunger-plot-start 0
+  set p-force-plot-start 0
+  set plunger-up-forces [ 0 ]
+  set plunger-down-forces [ 0 ]
+  set plunger-up-force-color   [100 100 255 160]
+  set plunger-down-force-color [255 100 100 160]
+  set particle-size 1.0
+  set max-tick-delta 0.02
+  set particles-to-add 2
+  set-default-shape flashes "square"
+  set-default-shape walls "wall"
+  set-default-shape erasers "eraser"
+  set-default-shape arrowheads "default"
+
+  set-default-shape plungers "wall"
+
+  set min-particle-energy 0
+  set max-particle-energy 10000
+
+  create-erasers 1 [ set hidden? true set pressure? true set size 3 set color white ]
+
+  set box-max-pxcor -1
+  make-box
+  make-particles
+
+  ask particles [ update-particle-speed-visualization ]
+
+  set init-avg-speed avg-speed
+  set init-avg-energy avg-energy
+
+  update-variables
+
+  set region1 no-patches
+  set region2 no-patches
+  set region-one-seed no-patches
+  set region-two-seed no-patches
+  set r1-upper false
+  set r2-upper false
+  set r1-lower false
+  set r2-lower false
+  set syringe-region no-patches
+  set syringe-border no-patches
+  set syringe-upper no-patches
+  set syringe-lower no-patches
+  set syringe-left-x -21
+  set syringe-right-x -7
+  set syringe-top-y  15
+  set syringe-bottom-y -15
+
+  set vals []
+  set max-force 10
+  set margin 2
+  set ready-to-run? false
+  set time-c 0
+  set current-force 0
+  set interrupt? false
+  set override-plots? false
+
+  set plunger-move-factor .5 ; 0.01  now that we are multiplying by tick-advance, which is at normal temps approx .02
+
+  setup-syringe
+  set axis-components no-turtles
+  setup-axes
+  reset-ticks
+end
+
+
+to go
+  if (interrupt? = true) [ stop ]
+  ; FOR SYRINGE plunger-move is the amount that the plunger will move when this "turn" is up.
+  set plunger-move 0
+  set plunger-up-force 0
+  set plunger-down-force 0
+
+  mouse-action
+  if mouse-interaction = "none - let particles move"  [
+    ask particles [ bounce ]
+    ask particles [ move ]
+    ask particles [ check-for-collision ]
+    ask particles with [any? walls-here] [ rewind-to-bounce ]
+    ask particles with [any? walls-here] [ remove-from-walls ]
+  ]
+  tick-advance tick-delta
+  calculate-tick-delta
+
+  ask flashes [ update-flash-visualization ]
+  ask particles [ update-particle-speed-visualization ]
+
+  update-variables
+  update-plots
+
+  ;; FOR SYRINGE
+  if any? plungers [ move-plunger ]
+
+  display
+end
+
+
+to update-variables
+  if any? particles [
+    set avg-speed  mean [speed] of particles
+    set avg-energy mean [energy] of particles
+  ]
+  if any? particles with [color-type = green]
+    [set avg-energy-green mean [energy] of particles with [color-type = green]]
+  if any? particles with [color-type = orange]
+    [set avg-energy-orange mean [energy] of particles with [color-type = orange]]
+  if any? particles with [color-type = violet]
+    [set avg-energy-purple mean [energy] of particles with [color-type = violet]]
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;WALL INTERACTION;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to toggle-red-wall
+  ifelse toggle-red-state = "closed"
+      [ask walls with [valve-1?] [set hidden? true] set toggle-red-state "open"]
+  [ask walls with [valve-1?] [set hidden? false] set toggle-red-state "closed"]
+
+  ;;need to recalculate measured regions if there were any red walls
+  if any? walls with [valve-1?] [
+    if any? region1 [ ask region-one-seed  [  rebuild-region-one ] ]
+    if any? region2 [ ask region-two-seed [  rebuild-region-two ] ]
+  ]
+end
+
+to toggle-blue-wall
+  ifelse toggle-blue-state = "closed"
+      [ask walls with [valve-2?] [set hidden? true] set toggle-blue-state "open"]
+  [ask walls with [valve-2?] [set hidden? false] set toggle-blue-state "closed"]
+
+  ;; need to recalculate measured regions if there were any blue walls
+  if any? walls with [valve-2?] [
+    if any? region1 [ ask region-one-seed [  rebuild-region-one ] ]
+    if any? region2 [ ask region-two-seed [  rebuild-region-two ] ]
+  ]
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;GAS MOLECULES MOVEMENT;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to bounce
+  let this-patch patch-here
+  let new-px 0
+  let new-py 0
+  let hit-angle 0
+  let hit-plunger-angle 0
+  let visible-wall nobody
+  ;; NEW FOR SYRINGE
+  let visible-plunger nobody
+  ;; get the coordinates of the patch we'll be on if we go forward 1
+  let bounce-patch  min-one-of walls in-cone ((sqrt (2)) / 2) 180 with [myself != this-patch] [distance myself ]
+
+  ;; NEW FOR SYRINGE
+  let bounce-syringe min-one-of plungers in-cone ((sqrt (2)) / 2) 180  [distance myself ]
+
+  if bounce-patch != nobody [
+    set new-px [pxcor] of bounce-patch
+    set new-py [pycor] of bounce-patch
+    set visible-wall walls-on bounce-patch
+
+    if any? visible-wall with [not hidden?] and distance bounce-patch != 0 [
+      set hit-angle towards bounce-patch
+      ifelse (hit-angle <= 135 and hit-angle >= 45) or (hit-angle <= 315 and hit-angle >= 225)
+        [set heading (- heading) ]
+      [set heading (180 - heading) ]
+      if show-wall-hits? [
+        ask patch new-px new-py [ make-a-flash ]
+      ]
+    ]
+  ]
+
+
+  ;; NEW FOR SYRINGE
+  if bounce-syringe != nobody [
+    set new-px [xcor] of bounce-syringe
+    set new-py [ycor] of bounce-syringe
+    ; set visible-plunger plungers-on bounce-syringe-patch
+    if distancexy new-px new-py != 0 [   ;any? visible-plunger  and distance bounce-syringe-patch != 0 [
+      let delta-y ((  (cos heading) * speed ) * plunger-move-factor)
+      set plunger-move plunger-move + delta-y
+      ifelse (delta-y > 0) [
+        set plunger-up-force plunger-up-force + delta-y
+      ][
+        set plunger-down-force plunger-down-force + delta-y
+      ]
+      set heading (180 - heading)
+      if show-wall-hits? [
+        ask patch new-px new-py [ make-a-flash ]
+      ]
+    ]
+  ]
+
+end
+
+
+to move-plunger
+  ask forces [
+    set plunger-move plunger-move + my-f ;.001
+  ]
+  ;; the plunger-move value is based on a tick
+  ;; since we're moving at fractions of ticks, we need to multiply by tick-delta
+  set plunger-move plunger-move * tick-delta
+  set plunger-up-forces lput plunger-up-force plunger-up-forces
+  set plunger-down-forces lput plunger-down-force plunger-down-forces
+  if (length plunger-up-forces > 200) [ set plunger-up-forces butfirst plunger-up-forces ]
+  if (length plunger-down-forces > 200) [ set plunger-down-forces butfirst plunger-down-forces ]
+
+  if plunger-move != 0 [
+    let oy [ycor] of one-of plungers
+    let py oy + plunger-move
+
+    ifelse (plunger-move > 0) [
+      if (py < syringe-top-y - 1) [
+        ask particles with [xcor > syringe-left-x and xcor < syringe-right-x and (abs(ycor - oy) + abs(py - ycor) = abs(py - oy))][
+          set ycor py + .5
+        ]
+        ask plungers [ set ycor py ]
+      ]
+    ][
+      if ( py > syringe-bottom-y + 1 ) [
+        ask particles with [ xcor > syringe-left-x and xcor < syringe-right-x and (abs(ycor - oy) + abs(py - ycor) = abs(py - oy))][
+          set ycor py - .5
+        ]
+        ask plungers [ set ycor py ]
+      ]
+    ]
+  ]
+
+  ask forces [
+    ifelse my-f > 0 [
+      set ycor [ycor] of my-plunger - .5
+    ][
+      set ycor [ycor] of my-plunger + .5
+    ]
+  ]
+
+  set region1 (region1 with [ not member? self syringe-region ])
+  set region2 (region2 with [ not member? self syringe-region ])
+  let key-y round [ycor] of one-of plungers
+  if (r1-upper ) [ set region1 (patch-set region1 (syringe-region with [ pycor > key-y ])) ]
+  if (r1-lower ) [ set region1 (patch-set region1 (syringe-region with [ pycor < key-y ])) ]
+  if (r2-upper ) [ set region2 (patch-set region2 (syringe-region with [ pycor > key-y ])) ]
+  if (r2-lower ) [ set region2 (patch-set region2 (syringe-region with [ pycor < key-y ])) ]
+
+  set region-one-volume count region1 * 10
+  set region-two-volume count region2 * 10
+  set particles-on-1 count particles-on region1
+  set particles-on-2 count particles-on region2
+end
+
+to rewind-to-bounce  ;; particles procedure
+                     ;; attempts to deal with particle penetration by rewinding the particle path back to a point
+                     ;; where it is about to hit a wall
+                     ;; the particle path is reversed 49% of the previous tick-delta it made,
+                     ;; then particle collision with the wall is detected again.
+                     ;; and the particle bounces off the wall using the remaining 51% of the tick-delta.
+                     ;; this use of slightly more of the tick-delta for forward motion off the wall, helps
+                     ;; insure the particle doesn't get stuck inside the wall on the bounce.
+
+  let bounce-patch nobody
+
+  ;; FOR SYRINGE
+  let bounce-patch-syringe nobody
+
+  let hit-angle 0
+  let this-patch nobody
+  let new-px 0
+  let new-py 0
+  let visible-wall nobody
+  let visible-plunger nobody
+
+  bk (speed) * tick-delta * .49
+  set this-patch  patch-here
+
+  set bounce-patch  min-one-of walls in-cone ((sqrt (2)) / 2) 180 with [self != this-patch] [distance myself ]
+  set bounce-patch-syringe  min-one-of plungers in-cone ((sqrt (2)) / 2) 180 with [self != this-patch] [distance myself ]
+
+  if bounce-patch != nobody [
+    set new-px [pxcor] of bounce-patch
+    set new-py [pycor] of bounce-patch
+    set visible-wall walls-on bounce-patch
+
+    if any? visible-wall with [not hidden?] and distance bounce-patch != 0 [
+      set hit-angle towards bounce-patch
+
+      ifelse (hit-angle <= 135 and hit-angle >= 45) or (hit-angle <= 315 and hit-angle >= 225)
+        [set heading (- heading) ]
+        [set heading (180 - heading) ]
+
+      if show-wall-hits? [
+        ask patch new-px new-py [
+          sprout-flashes 1 [
+            set color gray - 2
+            set birthday ticks
+          ]
+        ]
+      ]
+    ]
+  ]
+
+  if bounce-patch-syringe != nobody [
+    ;  show "got here"  ;this happens SO RARELY that i wonder if i've done something wrong.
+    set new-px [pxcor] of bounce-patch-syringe
+    set new-py [pycor] of bounce-patch-syringe
+    set visible-plunger plungers-on bounce-patch-syringe
+
+    if any? visible-plunger and distance bounce-patch-syringe != 0 [
+      set hit-angle towards bounce-patch-syringe
+
+      ifelse (hit-angle <= 135 and hit-angle >= 45) or (hit-angle <= 315 and hit-angle >= 225)
+        [set heading (- heading) ]
+      [set heading (180 - heading) ]
+
+      if show-wall-hits? [
+        ask patch new-px new-py
+        [ sprout-flashes 1 [
+          set color gray - 2
+          set birthday ticks
+          ]
+        ]
+      ]
+  ]]
+  fd (speed) * tick-delta * .51
+end
+
+
+to move  ;; particles procedure
+  if patch-ahead (speed * tick-delta) != patch-here
+    [ set last-collision nobody ]
+  jump (speed * tick-delta)
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;GAS MOLECULES COLLISIONS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;from GasLab
+
+to calculate-tick-delta
+  ;; tick-delta is calculated in such way that even the fastest
+  ;; particles will jump at most 1 patch delta in a ticks tick. As
+  ;; particles jump (speed * tick-delta) at every ticks tick, making
+  ;; tick delta the inverse of the speed of the fastest particles
+  ;; (1/max speed) assures that. Having each particles advance at most
+  ; one patch-delta is necessary for it not to "jump over" a wall
+  ; or another particles.
+  ifelse any? particles with [speed > 0]
+    [ set tick-delta min list (1 / (ceiling max [speed] of particles )) max-tick-delta ]
+  [ set tick-delta max-tick-delta ]
+end
+
+
+to check-for-collision  ;; particles procedure
+                        ;; Here we impose a rule that collisions only take place when there
+                        ;; are exactly two particles per patch.  We do this because when the
+                        ;; student introduces new particles from the side, we want them to
+                        ;; form a uniform wavefront.
+                        ;;
+                        ;; Why do we want a uniform wavefront?  Because it is actually more
+                        ;; realistic.  (And also because the curriculum uses the uniform
+                        ;; wavefront to help teach the relationship between particles collisions,
+                        ;; wall hits, and pressure.)
+                        ;;
+                        ;; Why is it realistic to assume a uniform wavefront?  Because in reality,
+                        ;; whether a collision takes place would depend on the actual headings
+                        ;; of the particles, not merely on their proximity.  Since the particles
+                        ;; in the wavefront have identical speeds and near-identical headings,
+                        ;; in reality they would not collide.  So even though the two-particles
+                        ;; rule is not itself realistic, it produces a realistic result.  Also,
+                        ;; unless the number of particles is extremely large, it is very rare
+                        ;; for three or  particles to land on the same patch (for example,
+                        ;; with 400 particles it happens less than 1% of the time).  So imposing
+                        ;; this additional rule should have only a negligible effect on the
+                        ;; aggregate behavior of the system.
+                        ;;
+                        ;; Why does this rule produce a uniform wavefront?  The particles all
+                        ;; start out on the same patch, which means that without the only-two
+                        ;; rule, they would all start colliding with each other immediately,
+                        ;; resulting in much random variation of speeds and headings.  With
+                        ;; the only-two rule, they are prevented from colliding with each other
+                        ;; until they have spread out a lot.  (And in fact, if you observe
+                        ;; the wavefront closely, you will see that it is not completely smooth,
+                        ;; because  collisions eventually do start occurring when it thins out while fanning.)
+
+  if count  other particles-here  in-radius 1 = 1
+  [
+    ;; the following conditions are imposed on collision candidates:
+    ;;   1. they must have a lower who number than my own, because collision
+    ;;      code is asymmetrical: it must always happen from the point of view
+    ;;      of just one particles.
+    ;;   2. they must not be the same particles that we last collided with on
+    ;;      this patch, so that we have a chance to leave the patch after we've
+    ;;      collided with someone.
+    let candidate one-of other particles-here with
+      [who < [who] of myself and myself != last-collision]
+    ;; we also only collide if one of us has non-zero speed. It's useless
+    ;; (and incorrect, actually) for two particles with zero speed to collide.
+    if (candidate != nobody) and (speed > 0 or [speed] of candidate > 0)
+    [
+      collide-with candidate
+      set last-collision candidate
+      ask candidate [ set last-collision myself ]
+    ]
+  ]
+end
+
+;; implements a collision with another particles.
+;;
+;; THIS IS THE HEART OF THE particles SIMULATION, AND YOU ARE STRONGLY ADVISED
+;; NOT TO CHANGE IT UNLESS YOU REALLY UNDERSTAND WHAT YOU'RE DOING!
+;;
+;; The two particles colliding are self and other-particles, and while the
+;; collision is performed from the point of view of self, both particles are
+;; modified to reflect its effects. This is somewhat complicated, so I'll
+;; give a general outline here:
+;;   1. Do initial setup, and determine the heading between particles centers
+;;      (call it theta).
+;;   2. Convert the representation of the velocity of each particles from
+;;      speed/heading to a theta-based vector whose first component is the
+;;      particle's speed along theta, and whose second component is the speed
+;;      perpendicular to theta.
+;;   3. Modify the velocity vectors to reflect the effects of the collision.
+;;      This involves:
+;;        a. computing the velocity of the center of mass of the whole system
+;;           along direction theta
+;;        b. updating the along-theta components of the two velocity vectors.
+;;   4. Convert from the theta-based vector representation of velocity back to
+;;      the usual speed/heading representation for each particles.
+;;   5. Perform final cleanup and update derived quantities.
+to collide-with [ other-particles ] ;; particles procedure
+                                    ;;; PHASE 1: initial setup
+
+  ;; for convenience, grab  quantities from other-particles
+  let mass2 [mass] of other-particles
+  let speed2 [speed] of other-particles
+  let heading2 [heading] of other-particles
+
+  ;; since particles are modeled as zero-size points, theta isn't meaningfully
+  ;; defined. we can assign it randomly without affecting the model's outcome.
+  let theta (random-float 360)
+
+
+
+  ;;; PHASE 2: convert velocities to theta-based vector representation
+
+  ;; now convert my velocity from speed/heading representation to components
+  ;; along theta and perpendicular to theta
+  let v1t (speed * cos (theta - heading))
+  let v1l (speed * sin (theta - heading))
+
+  ;; do the same for other-particles
+  let v2t (speed2 * cos (theta - heading2))
+  let v2l (speed2 * sin (theta - heading2))
+
+
+
+  ;;; PHASE 3: manipulate vectors to implement collision
+
+  ;; compute the velocity of the system's center of mass along theta
+  let vcm (((mass * v1t) + (mass2 * v2t)) / (mass + mass2) )
+
+  ;; now compute the new velocity for each particles along direction theta.
+  ;; velocity perpendicular to theta is unaffected by a collision along theta,
+  ;; so the next two lines actually implement the collision itself, in the
+  ;; sense that the effects of the collision are exactly the following changes
+  ;; in particles velocity.
+  set v1t (2 * vcm - v1t)
+  set v2t (2 * vcm - v2t)
+
+
+
+  ;;; PHASE 4: convert back to normal speed/heading
+
+  ;; now convert my velocity vector into my new speed and heading
+  set speed sqrt ((v1t ^ 2) + (v1l ^ 2))
+  set energy (0.5 * mass * speed ^ 2)
+  ;; if the magnitude of the velocity vector is 0, atan is undefined. but
+  ;; speed will be 0, so heading is irrelevant anyway. therefore, in that
+  ;; case we'll just leave it unmodified.
+  if v1l != 0 or v1t != 0
+    [ set heading (theta - (atan v1l v1t)) ]
+
+  ;; and do the same for other-particle
+  ask other-particles [
+    set speed sqrt ((v2t ^ 2) + (v2l ^ 2))
+    set energy (0.5 * mass * (speed ^ 2))
+    if v2l != 0 or v2t != 0
+      [ set heading (theta - (atan v2l v2t)) ]
+  ]
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;  mouse interaction procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to visualize-cursor
+
+
+end
+
+to mouse-action
+  let snap-xcor 0
+  let snap-ycor 0
+  let orig-xcor 0
+  let orig-ycor 0
+  let eraser-window-walls nobody
+  let eraser-window-particles nobody
+  set orig-xcor mouse-xcor
+  set orig-ycor mouse-ycor
+  set snap-xcor round orig-xcor
+  set snap-ycor round orig-ycor
+
+  if mouse-inside?
+  [
+    ifelse ( mouse-xcor < box-max-pxcor - 2 )
+    [
+      ask erasers [
+        if mouse-inside? [setxy orig-xcor orig-ycor]
+        ifelse mouse-down?
+        [set color [225 225 255 225] ]
+        [set color [225 225 255 150] ]
+        if mouse-inside? [
+          set shape "none"
+          if mouse-interaction = "draw basic wall" or mouse-interaction = "draw red removable wall" or mouse-interaction = "draw blue removable wall"
+          [set shape "add wall"]
+          if mouse-interaction = "big eraser"
+          [set shape "eraser"]
+          if mouse-interaction = "add purple particles" or mouse-interaction = "add green particles" or mouse-interaction = "add orange particles" [
+            ask erasers [set shape "add particles"] ]
+          if mouse-interaction = "paint particles purple" or mouse-interaction = "paint particles green" or mouse-interaction = "paint particles orange" [
+            ask erasers [set shape "spray paint"] ]
+          if mouse-interaction = "speed up particles" or mouse-interaction = "slow down particles" [
+            ask erasers [set shape "spray paint"] ]
+        ]
+        set hidden? not mouse-inside?
+      ]
+
+      if mouse-down? [
+        ask patches with [pxcor = snap-xcor and pycor = snap-ycor] [
+          set eraser-window-walls walls-on neighbors
+          set eraser-window-walls eraser-window-walls with [not pressure?]
+          set eraser-window-particles particles-on neighbors
+
+          if mouse-interaction = "draw basic wall" and not member? self syringe-region and not member? self syringe-border [
+            if not any? walls-here with [color = yellow][
+              ask walls-here [die]
+              sprout-walls 1 [
+                set color gray
+                initialize-this-wall
+              ]
+            ]
+          ]
+          if mouse-interaction = "draw red removable wall"  and not member? self syringe-region and not member? self syringe-border [
+            set toggle-red-state "open"
+            toggle-red-wall
+            if not any? walls-here with [color = yellow][
+              ask walls-here [die]
+              sprout-walls 1 [
+                set color red
+                initialize-this-wall set valve-1? true
+              ]
+            ]
+          ]
+          if mouse-interaction = "draw blue removable wall" and not member? self syringe-region and not member? self syringe-border [
+            set toggle-blue-state "open"
+            toggle-blue-wall
+            if not any? walls-here with [color = yellow][
+              ask walls-here [die]
+              sprout-walls 1 [
+                set color blue
+                initialize-this-wall set valve-2? true
+              ]
+            ]
+          ]
+
+
+          ;      if mouse-interaction = "add upward force" [
+          ;        if any? plungers with [ ycor > snap-ycor and xcor = snap-xcor ]
+          ;        [
+          ;          let n user-one-of "How Many Newtons of Force?" [ 1 2 3 4 5 6 7 8 9 ]
+          ;          sprout-forces 1 [
+          ;            set xcor orig-xcor
+          ;            set my-plunger one-of plungers with [ ycor > snap-ycor and xcor = snap-xcor ]
+          ;            set ycor [ycor] of my-plunger - .5
+          ;            set shape "force"
+          ;            set heading 0
+          ;            set my-f n
+          ;            set color plunger-up-force-color
+          ;            set size (n + 2)
+          ;          ]
+          ;        ]
+          ;      ]
+          ;
+          ;
+          ;      if mouse-interaction = "add downward force" [
+          ;        if any? plungers with [ ycor < snap-ycor and xcor = snap-xcor ]
+          ;        [
+          ;          let n user-one-of "How Many Newtons of Force?" [ 1 2 3 4 5 6 7 8 9 ]
+          ;          sprout-forces 1 [
+          ;            set xcor orig-xcor
+          ;            set my-plunger one-of plungers with [ ycor < snap-ycor and xcor = snap-xcor ]
+          ;            set ycor [ycor] of my-plunger + .5
+          ;            set shape "force"
+          ;            set heading 180
+          ;            set my-f -1 * n
+          ;            set color plunger-down-force-color
+          ;            set size n + 1
+          ;          ]
+          ;        ]
+          ;      ]
+
+
+          if mouse-interaction = "choose region 1" [
+            set region-one-seed patch-set self
+            rebuild-region-one
+          ]
+
+          if mouse-interaction = "choose region 2" [
+            set region-two-seed patch-set self
+            rebuild-region-two
+          ]
+
+
+
+          if mouse-interaction = "big eraser" [
+            ask eraser-window-walls [ if (color != ( gray - 2)) [die ]]
+            ask eraser-window-particles [die]
+          ]
+
+          ;;;;; addition of particles by mouse / cursor actions ;;;;;;;;
+          if mouse-interaction = "add purple particles" or mouse-interaction = "add green particles" or mouse-interaction = "add orange particles" [
+            sprout particles-to-add [
+              setup-particles
+              jump random-float 2
+              if mouse-interaction = "add purple particles" [set color-type violet color-particle-and-link]
+              if mouse-interaction = "add orange particles" [set color-type orange color-particle-and-link]
+              if mouse-interaction = "add green particles"  [set color-type green  color-particle-and-link]
+              update-particle-speed-visualization
+            ]
+          ]
+
+          ;;;;; painting (recoloring) of particles by mouse / cursor actions ;;;;;;;;
+          if mouse-interaction = "paint particles purple" or mouse-interaction = "paint particles green" or mouse-interaction = "paint particles orange" [
+            ask eraser-window-particles [
+              if mouse-interaction = "paint particles purple" [set color-type violet color-particle-and-link]
+              if mouse-interaction = "paint particles orange" [set color-type orange color-particle-and-link]
+              if mouse-interaction = "paint particles green"  [set color-type green color-particle-and-link]
+              update-particle-speed-visualization
+            ]
+          ]
+
+          if mouse-interaction = "speed up particles" or mouse-interaction = "slow down particles" [
+            ask eraser-window-particles [
+              let max-speed 20
+              if mouse-interaction = "speed up particles" [ if speed < max-speed [ set speed (speed * 1.05) ] ]
+              if mouse-interaction = "slow down particles" [ set speed (speed / 1.05)]
+            ]
+          ]
+        ]
+        ask particles with [any? walls-here] [remove-from-walls] ;; deal with any walls drawn on top of particles
+      ]
+
+
+    ] ;if mouse in syringe sandbox
+    [
+      ;mouse outside syringe sandbox but in view
+    ]
+  ]; end mouse in view code
+end
+
+;;patch procedure-externalized for when walls change
+to rebuild-region-one
+  ask region1 [ set pcolor black ]
+  let old-region1 no-patches
+  set region1 patch-set self
+  let news patch-set self
+  while [count region1 > count old-region1]
+  [
+    set old-region1 region1
+    let old-news news
+    set news no-patches
+    ask old-news ;region1
+    [
+      set news (patch-set news (neighbors4 with [ not member? self region1 and count ( walls-here with [hidden? = false]) = 0 and count plungers-here = 0 ]) )
+      ;set region1 (patch-set region1 news)
+    ]
+    set region1 (patch-set region1 news)
+    ask region1 [ set pcolor brown - 3 ]
+    display
+  ]
+  set r1-upper false
+  set r1-lower false
+  ask syringe-upper [ if member? self region1 [ set r1-upper true ]  ]
+  ask syringe-lower [ if member? self region1 [ set r1-lower true ]  ]
+  ask region1 [ set pcolor black ]
+end
+
+to rebuild-region-two
+  ask region2 [ set pcolor black ]
+  let old-region2 no-patches
+  set region2 patch-set self
+  let news patch-set self
+  while [count region2 > count old-region2]
+  [
+    set old-region2 region2
+    let old-news news
+    set news no-patches
+    ask old-news
+    [
+      set news (patch-set news (neighbors4 with [ not member? self region2 and count ( walls-here with [hidden? = false]) = 0 and count plungers-here = 0 ]) )
+      ;set region1 (patch-set region1 news)
+    ]
+    set region2 (patch-set region2 news)
+    ask region2 [ set pcolor violet - 3 ]
+    display
+  ]
+  set r2-upper false
+  set r2-lower false
+  ask syringe-upper [ if member? self region2 [ set r2-upper true ]  ]
+  ask syringe-lower [ if member? self region2 [ set r2-lower true ]  ]
+  ask region2 [ set pcolor black ]
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;; particle speed and flash visualization procedures ;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to make-a-flash
+  sprout-flashes 1 [
+    set color [150 150 150 255]
+    set birthday ticks
+  ]
+end
+
+
+to update-flash-visualization
+  if (ticks - birthday > 0.4)  [ die ]
+  set color lput (255 - (255 * (ticks - birthday ) / 0.4)) [150 150 150]
+end
+
+
+to update-particle-speed-visualization
+  if visualize-particle-speed = "no" [ recolornone ]
+  if visualize-particle-speed = "arrows" [ scale-arrowheads]
+  if visualize-particle-speed = "different shades" [ recolorshade ]
+end
+
+
+to recolorshade
+  let this-link my-out-links
+  ask this-link [set hidden? true]
+  ifelse speed < 27
+  [ set color color-type - 3 + speed / 3 ]
+  [ set color color-type + 4.999 ]
+end
+
+
+to recolornone
+  let this-link my-out-links
+  ask this-link [set hidden? true]
+  set color color-type
+end
+
+
+to color-particle-and-link
+  let this-link my-out-links
+  let this-color-type color-type
+  set color this-color-type
+  ask this-link [set color this-color-type]
+end
+
+
+to scale-arrowheads
+  let this-xcor xcor
+  let this-ycor ycor
+  let this-speed speed
+  let this-heading heading
+  let this-arrowhead out-link-neighbors
+  let this-link my-out-links
+  ask this-link [set hidden? false]
+  ask this-arrowhead [
+    set xcor this-xcor
+    set ycor this-ycor
+    set heading this-heading
+    fd .5 + this-speed / 3
+  ]
+end
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;; initialization procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+to make-box
+  ask patches with [(pycor = min-pycor or pycor = max-pycor or pxcor = min-pxcor or pxcor = box-max-pxcor) ]
+    [ sprout-walls 1 [set color yellow initialize-this-wall set pressure? true] ]
+end
+
+
+to initialize-this-wall
+  set valve-1? false
+  set valve-2? false
+  set pressure? false
+end
+
+
+to make-particles
+  create-particles initial-#-particles
+  [
+    setup-particles
+    random-position
+  ]
+end
+
+
+to setup-particles  ;; particles procedure
+  set breed particles
+  set shape "circle"
+  set size particle-size
+  set energy initial-gas-temperature
+  set color-type green
+  set color color-type
+  set mass 10
+  hatch-arrowheads 1 [set hidden? true create-link-from myself [tie]]
+  set speed speed-from-energy
+  set last-collision nobody
+end
+
+
+;; Place particles at random, but they must not be placed on top of wall atoms..
+to random-position
+  let open-patches nobody
+  let open-patch nobody
+  set open-patches patches with [not any? turtles-here and pxcor != max-pxcor and pxcor != min-pxcor and pycor != min-pycor and pycor != max-pycor]
+  set open-patch one-of open-patches
+  if open-patch = nobody [
+    user-message "No open patches found.  Exiting."
+    stop
+  ]
+  setxy ([pxcor] of open-patch) ([pycor] of open-patch)
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;; wall penetration error handling procedure ;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; if particles actually end up within the wall
+to remove-from-walls
+  let this-wall walls-here with [not hidden?]
+  if count this-wall != 0 [
+    let available-patches patches with [not any? walls-here]
+    let closest-patch nobody
+    if (any? available-patches) [
+      set closest-patch min-one-of available-patches [distance myself]
+      if ( distance closest-patch != 0)
+      [
+        set heading towards closest-patch
+        setxy ([pxcor] of closest-patch)  ([pycor] of closest-patch)
+      ]
+    ]
+  ]
+
+  let this-plunger plungers-here
+  if count this-plunger != 0 [
+    let available-patches patches with [not any? walls-here]
+    let closest-patch nobody
+    if (any? available-patches) [
+      set closest-patch min-one-of available-patches [distance myself]
+      if ( distance closest-patch != 0 )
+      [
+        set heading towards closest-patch
+        setxy ([pxcor] of closest-patch)  ([pycor] of closest-patch)
+      ]
+    ]
+  ]
+end
+
+
+;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ADDED FOR SYRINGE;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+to setup-syringe
+  if not any? plungers
+  [
+    ask patches with [ (pxcor = syringe-left-x or pxcor = syringe-right-x) and (pycor >= syringe-bottom-y and pycor <= syringe-top-y) ]
+    [ sprout-walls 1 [ set color gray - 2 initialize-this-wall] ]
+    ask patches with [ ((pxcor = syringe-left-x or pxcor = syringe-right-x or pxcor = syringe-left-x + 1 or pxcor = syringe-right-x - 1)
+                           and ( pycor = syringe-bottom-y - 1 or pycor = syringe-top-y + 1)) ]
+    [ sprout-walls 1 [ set color gray - 2 initialize-this-wall] ]
+
+
+    ;  ask patches with [ (pxcor = syringe-left-x + 1 or pxcor = syringe-right-x - 1) and (pycor = syringe-bottom-y or pycor = syringe-top-y) ]
+    ;  [ sprout 1 [ set breed walls set color gray - 2 initialize-this-wall] ]
+
+    ask patches with [ (pxcor > syringe-left-x and pxcor < syringe-right-x) and ( pycor = 0 ) ]
+    [ sprout-plungers 1 [ set color sky ] ]
+    set syringe-region patches with [ pxcor > syringe-left-x and pxcor < syringe-right-x and pycor >= syringe-bottom-y and pycor <= syringe-top-y ]
+    set syringe-border patches with [ (pxcor = syringe-left-x or pxcor = syringe-right-x or pxcor = syringe-left-x + 1 or pxcor = syringe-right-x - 1)
+      and ((pycor >= syringe-bottom-y and pycor <= syringe-top-y) or (pycor = syringe-bottom-y - 1 or pycor = syringe-top-y + 1)) ]
+    set syringe-upper patches with [ pxcor > syringe-left-x and pxcor < syringe-right-x and ( pycor =  syringe-top-y + 1 or pycor = syringe-top-y)]
+    set syringe-lower patches with [ pxcor > syringe-left-x and pxcor < syringe-right-x and (pycor = syringe-bottom-y - 1  or pycor = syringe-bottom-y)]
+
+  ]
+
+end
+
+to remove-all-forces
+  ask forces [ die  ]
+end
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;SYRINGE;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;REPORTERS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to-report speed-from-energy
+  report sqrt (2 * energy / mass)
+end
+
+to-report energy-from-speed
+  report (mass * speed * speed / 2)
+end
+
+
+to-report limited-particle-energy
+  let limited-energy energy
+  if limited-energy > max-particle-energy [set limited-energy max-particle-energy]
+  if limited-energy < min-particle-energy [set limited-energy min-particle-energy]
+  report limited-energy
+end
+
+
+
+
+
+;;GRAPHER
+to setup-axes
+  ;  clear-patches
+  ;  clear-turtles
+  ;  clear-all-plots
+  ;  set ok-to-go? false
+
+
+  ask axis-components [ die ]
+  set axis-components no-turtles
+  ask patches with [ pxcor > box-max-pxcor ] [ set pcolor  gray + 3]
+
+  create-cursors 1 [
+    set shape "line"
+    setxy box-max-pxcor + margin 0
+    set heading 0
+    set color black
+    set size 2 * max-pycor
+    set axis-components (turtle-set axis-components self)
+  ]
+
+  set margin 2
+  ;y-axis
+  create-turtles 1 [
+    set shape "line"
+    setxy box-max-pxcor + margin 0
+    set heading 0
+    set color black
+    set size 2 * max-pycor
+    set axis-components (turtle-set axis-components self)
+  ]
+
+
+  ;top arrow
+  create-turtles 1 [
+    setxy box-max-pxcor + margin  max-pycor - 1.5
+    set heading 0
+    set color black
+    set size 3
+    set axis-components (turtle-set axis-components self)
+    ;top y-axis label
+    hatch-signs 1
+    [ set size .1
+      setxy xcor + 11 ycor - 1
+      set label "force (upward)"
+      set label-color black
+      set axis-components (turtle-set axis-components self)
+    ]
+    ;bottom y axis label
+    hatch-signs 1
+    [ set size .1
+      setxy xcor + 12.2 min-pycor + 1
+      set label-color black
+      set label "force (downward)"
+      set axis-components (turtle-set axis-components self)
+    ]
+  ]
+
+  ;x-axis
+  create-turtles 1 [
+    set shape "line half"
+    setxy box-max-pxcor + margin 0
+    set heading 90
+    set color black
+    set size 2 * (max-pxcor - xcor)
+    set axis-components (turtle-set axis-components self)
+  ]
+
+
+  ;  create-turtles 1 [
+  ;    setxy box-max-pxcor 0
+  ;    set shape "line"
+  ;    set heading 0
+  ;    set color white
+  ;    set size 2
+  ;    hatch-signs 1
+  ;   [
+  ;     set size .1
+  ;     set ycor ycor + 3
+  ;     set label "unit"
+  ;   ]
+  ;  ]
+
+  ;y-axis tick label
+  create-turtles 1 [
+    set shape "line"
+    set heading 90
+    set color black
+    set size 2
+    setxy box-max-pxcor + margin patch-y-for 5
+    set axis-components (turtle-set axis-components self)
+    hatch-signs 1
+    [
+      set size .1
+      setxy xcor + 3.25 ycor - .5
+      set label-color black
+      set label "1N"
+      set axis-components (turtle-set axis-components self)
+    ]
+  ]
+
+  ;y-axis tick label
+  create-turtles 1 [
+    set shape "line"
+    set heading 90
+    set color black
+    set size 2
+    setxy box-max-pxcor + margin patch-y-for -5
+    set axis-components (turtle-set axis-components self)
+    hatch-signs 1
+    [
+      set size .1
+      setxy xcor + 3.25 ycor - 1.5
+      set label-color black
+      set label "-1N"
+      set axis-components (turtle-set axis-components self)
+    ]
+  ]
+
+
+  ;x-axis arrow label
+  create-turtles 1 [
+    setxy max-pxcor - margin + 1 0
+    set heading 90
+    set color black
+    set size 3
+    set axis-components (turtle-set axis-components self)
+    hatch-signs 1
+    [ set size .1
+      setxy xcor + 1 ycor - 3.5
+      set label-color black
+      set label "time  "
+      set axis-components (turtle-set axis-components self)
+    ]
+  ]
+
+  ifelse ( is-list? vals and length vals = 51 )
+  [
+  ]
+  [
+    set vals n-values 48 [0]
+    ask patches with [ pxcor >= box-max-pxcor + margin  and pycor = 0  and pxcor < max-pxcor - margin] [ set pcolor gray + 2 ]
+  ]
+
+
+end
+
+to draw-graph
+  if (interrupt? = true) [ stop ]
+  if (mouse-down? and mouse-xcor > box-max-pxcor and mouse-xcor < max-pxcor - margin)
+  [
+    let p patch mouse-xcor mouse-ycor
+    let px [pxcor] of p
+    let py [pycor] of p
+    if (px >= box-max-pxcor + margin and px < max-pxcor - margin)
+    [
+      ;show (word "item: " (floor ((px - (box-max-pxcor + margin))  )))
+      set vals replace-item (floor ((px - (box-max-pxcor + margin)) )) vals (logical-y-for py)
+      paint-patches px py
+    ]
+    ;show vals
+    display
+  ]
+end
+
+
+to paint-patches [ px py ]
+  ask patches with [ pxcor = px ] ;[ (pxcor - px) <= 2 and (pxcor - px) >= 0 ]
+  [
+    ifelse ( abs(py - pycor) + abs(pycor) = abs(py) )
+    [if ( pycor < py) [set pcolor [100 100 255]]
+      if ( pycor > py) [set pcolor [255 100 100]]]
+    [set pcolor gray + 3]
+  ]
+end
+
+to-report eval-function [ xval ]
+  let index  round (xval ) ;*  ( (length vals - 1) / (2 * part-radius)) )
+  report item index vals
+end
+
+to-report patch-y-for [ logical-y ]
+  report (logical-y / max-force) * max-pycor
+end
+
+to-report logical-y-for [ patch-y ]
+  report ( patch-y / max-pycor ) * max-force
+end
+
+
+to setup-graph-run
+  set interrupt? false
+  set mouse-interaction "none - let particles move"
+  ;set plot-moving-average? true
+  ask forces [ die ]
+  create-forces 1 [
+    set xcor (syringe-left-x + syringe-right-x ) / 2
+    set my-plunger one-of plungers with [ xcor = [xcor] of myself]
+    set ycor [ycor] of my-plunger - .5
+    set shape "force"
+    set heading 0
+    set my-f 0
+    set color plunger-up-force-color
+    set size 0 + 2
+    set label 0
+  ]
+  ask cursors
+  [ set xcor box-max-pxcor + margin ]
+  set time-c box-max-pxcor + margin
+  set current-force 0
+
+  update-arrows-for-force current-force
+
+  set run? true
+  set ready-to-run? true
+end
+
+to play-graph
+  every .2
+    [
+      let keep-going? true
+      ifelse ( time-c < max-pxcor - margin - .5 and run? = true)
+      [
+        ask cursors
+        [ set xcor time-c ]
+
+        ;save current velocity
+        let old-force current-force
+        set current-force item (round time-c) vals
+        ;only tell the force-arrow(s) to change if desired velocity has changed.
+        if (old-force != current-force) [ update-arrows-for-force current-force ]
+
+        set time-c time-c + .1 ;+ tick-delta
+                             ;show (word "time : " time-c " value " current-force)
+        display
+      ]
+      [
+        set current-force 0
+        update-arrows-for-force current-force
+        ask cursors
+        [ set xcor box-max-pxcor + margin ]
+        set keep-going? false
+        set ready-to-run? false
+        ;set plot-moving-average? false
+        set p-force-plot-start -1
+        set plunger-plot-start -1
+        ask forces [ die ]
+        stop
+      ]
+
+  ]
+end
+
+
+
+to update-arrows-for-force [forcenow ]
+  ask forces
+  [
+    set my-f forcenow * 10 * tick-delta  ;;5 is scaling of the graph area. tick delta is b/c this is applied over time.
+    set size abs (forcenow) + 2
+    set label ""; (precision forcenow 2)
+
+    ifelse (forcenow > 0)
+    [
+      set ycor [ycor] of my-plunger - .5
+      set heading 0
+      set color plunger-up-force-color
+    ]
+    [
+      set ycor [ycor] of my-plunger + .5
+      set heading 180
+      set color plunger-down-force-color
+    ]
+  ]
+end
+
+to prepare-for-run
+  set experiment-plunger-start-line [ycor] of one-of plungers
+  set interrupt? true
+  set mouse-interaction "big eraser"
+  set override-plots? true
+  ;set plot-moving-average? false
+  set-current-plot "Plunger Level"
+  set-plot-x-range round (ticks + 1) round (ticks + length vals )
+  set-current-plot "Forces on Syringe Plunger"
+  set-plot-x-range round (ticks + 1) round (ticks + length vals )
+  set-current-plot "Forces on Syringe Plunger"
+  let min-y  (min  vals) * 10 * tick-delta
+  let max-y  (max  vals) * 10 * tick-delta
+  set min-y min (list -2 min-y )
+  set max-y max (list 2 max-y )
+  set-plot-y-range (min-y) (max-y )
+end
+
+
+; Copyright 2010 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="175" maxPycor="30" updateMode="1" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-30" height="436" showTickCounter="true" patchSize="7.0" fontSize="10" wrappingAllowedY="false" width="554" tickCounterLabel="ticks" maxPxcor="50" minPxcor="-27"></view>
+    <button x="5" y="100" height="45" disableUntilTicks="true" forever="true" kind="Observer" width="165" display="go/stop/add elements">go</button>
+    <button x="5" y="10" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="165">setup</button>
+    <chooser x="5" y="149" height="45" variable="mouse-interaction" current="0" width="165" display="mouse-interaction">
+      <choice type="string" value="none - let particles move"></choice>
+      <choice type="string" value="draw basic wall"></choice>
+      <choice type="string" value="draw red removable wall"></choice>
+      <choice type="string" value="draw blue removable wall"></choice>
+      <choice type="string" value="big eraser"></choice>
+      <choice type="string" value="slow down particles"></choice>
+      <choice type="string" value="speed up particles"></choice>
+      <choice type="string" value="paint particles purple"></choice>
+      <choice type="string" value="paint particles green"></choice>
+      <choice type="string" value="paint particles orange"></choice>
+      <choice type="string" value="add green particles"></choice>
+      <choice type="string" value="add purple particles"></choice>
+      <choice type="string" value="add orange particles"></choice>
+    </chooser>
+    <button x="5" y="209" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="165" display="remove/replace blue wall">toggle-blue-wall</button>
+    <switch x="5" y="440" height="33" on="true" variable="show-wall-hits?" width="165" display="show-wall-hits?"></switch>
+    <button x="5" y="249" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="165" display="remove/replace red wall">toggle-red-wall</button>
+    <chooser x="5" y="395" height="45" variable="visualize-particle-speed" current="0" width="165" display="visualize-particle-speed">
+      <choice type="string" value="no"></choice>
+      <choice type="string" value="different shades"></choice>
+      <choice type="string" value="arrows"></choice>
+    </chooser>
+    <button x="5" y="510" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="165" display="watch &amp; trace a particle">if any? particles [
+  clear-drawing
+  ask particles [penup]
+  let this-particle one-of particles
+  ask this-particle [pendown]
+  watch this-particle
+]</button>
+    <button x="5" y="545" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="165" display="ride a particle">if any? particles [
+  clear-drawing
+  ride one-of particles
+  ask particles [pen-up]
+  ]</button>
+    <button x="5" y="475" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="165" display="reset perspective">clear-drawing
+ask particles [penup]
+reset-perspective</button>
+    <button x="5" y="289" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="165" display="Clear External Forces">remove-all-forces</button>
+    <plot x="735" yMax="15.0" yAxis="Plunger Level" y="10" xMin="0.0" height="180" legend="true" xMax="10.0" autoplot="true" yMin="-15.0" width="480" xAxis="tick reading" display="Plunger Level">
+      <setup></setup>
+      <update>;set-plot-x-range (round (plunger-plot-start - 1)) (round (ticks + 1))</update>
+      <pen color="-14454117" legend="true" interval="1.0" mode="0" display="plunger-level">
+        <setup></setup>
+        <update>plotxy ticks  precision [ycor] of one-of plungers 2</update>
+      </pen>
+      <pen color="-7500403" legend="true" interval="1.0" mode="0" display="plunger-start-level">
+        <setup></setup>
+        <update>plotxy ticks experiment-plunger-start-line</update>
+      </pen>
+    </plot>
+    <plot x="735" yMax="2.0" yAxis="Force-Level" y="255" xMin="0.0" height="165" legend="true" xMax="10.0" autoplot="true" yMin="-2.0" width="480" xAxis="tick reading" display="Forces on Syringe Plunger">
+      <setup></setup>
+      <update>;set-plot-x-range (round (p-force-plot-start - 1)) (round (ticks + 1))</update>
+      <pen color="-7500403" legend="true" interval="1.0" mode="0" display="zero line">
+        <setup></setup>
+        <update>plotxy ticks 0</update>
+      </pen>
+      <pen color="-14439633" legend="true" interval="1.0" mode="0" display="External Forces">
+        <setup></setup>
+        <update>if ready-to-run? = true [plotxy ticks (sum [my-f] of forces)]</update>
+      </pen>
+      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="Net Particle Forces">
+        <setup></setup>
+        <update><![CDATA[let n length plunger-up-forces
+ if n > length plunger-down-forces [ set n length plunger-down-forces ]
+  let net mean sublist plunger-up-forces (n - num-ave) n + mean sublist plunger-down-forces (n - num-ave) n
+ plotxy ticks precision net 2
+]]></update>
+      </pen>
+      <pen color="-955883" legend="true" interval="1.0" mode="0" display="Sum of Forces">
+        <setup></setup>
+        <update><![CDATA[  let n length plunger-up-forces
+  if n > length plunger-down-forces [ set n length plunger-down-forces ]
+  let net mean sublist plunger-up-forces (n - num-ave) n + mean sublist plunger-down-forces (n - num-ave) n
+ ; if (UseForceSensorReading = true)
+ ; [ set net net + port-reading ];(force-on-port port-for-force-sensor / 100) ]
+  if ( ready-to-run? = true)
+  [ set net net + sum [ my-f ] of forces ]
+  plotxy ticks  net]]></update>
+      </pen>
+    </plot>
+    <button x="480" y="510" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="180" display="draw force vs time graph">draw-graph</button>
+    <button x="715" y="545" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="210" display="Run Experiment">ifelse (ready-to-run? = true)
+[
+ go
+ play-graph
+]
+[
+  setup-graph-run
+  set p-force-plot-start ticks
+  set plunger-plot-start ticks
+]</button>
+    <button x="480" y="545" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="180" display="reset axes">setup-axes</button>
+    <button x="715" y="510" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="210" display="Prepare for Experimental Run">prepare-for-run</button>
+    <monitor x="735" precision="17" y="195" height="53" fontSize="13" width="115" display="Plunger Level">precision [ycor] of one-of plungers 2</monitor>
+    <button x="1110" y="195" height="50" disableUntilTicks="true" forever="false" kind="Observer" width="105" display="Restart Plotting">set experiment-plunger-start-line [ycor] of one-of plungers
+set plunger-plot-start ticks
+set p-force-plot-start ticks</button>
+    <monitor x="835" precision="17" y="425" height="45" fontSize="11" width="95" display="Particles Dnwrd">precision mean plunger-down-forces 2</monitor>
+    <monitor x="735" precision="17" y="425" height="45" fontSize="11" width="95" display="Particles Upwrd">precision mean plunger-up-force 2</monitor>
+    <note x="940" y="545" height="96" color="0.0" transparent="true" fontSize="12" width="270">TIP:  Before running your experiment, 
+make sure that the system has 
+reached an equilibrium state.</note>
+    <slider x="935" step="1" y="425" height="33" min="10" direction="Horizontal" max="200" default="10.0" variable="num-ave" width="145" display="num-ave"></slider>
+    <note x="475" y="485" height="18" color="14.0" transparent="true" fontSize="13" width="220">DRAW FORCE vs TIME GRAPH</note>
+    <note x="735" y="485" height="18" color="14.0" transparent="true" fontSize="13" width="215">RUN A TIMED EXPERIMENT</note>
+    <note x="215" y="485" height="18" color="14.0" transparent="true" fontSize="13" width="230">SAVE AND LOAD WORLD STATES</note>
+    <button x="215" y="505" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="205" display="save">export-world user-input "Save as:"</button>
+    <button x="215" y="545" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="205" display="load">let file user-file
+if file != "" [ import-world file ]</button>
+    <note x="15" y="370" height="18" color="14.0" transparent="true" fontSize="13" width="160">VISUALIZE PARTICLES</note>
+    <switch x="935" y="510" height="33" on="true" variable="run?" width="210" display="run?"></switch>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This model enables students to draw a model to "sketch" representations of syringe-like systems to explore concepts related to gas behavior and gas particles. It also enables students to simulate an experiment by drawing a force-time graph for the plunger of syringe.
+
+This model is part of the Particulate Nature of Matter (PNoM) Curricular Unit. Most of the models in PNoM use the same basic rules for simulating the behavior of gases. Each model highlights different features of how gas behavior is related to gas particle behavior and adds new features to the model.
+
+In all of the models, gas particles are assumed to move and to collide, both with each other and with objects such as walls.
+
+In this model, particles can be added, color coded, and sped up or slowed down, by drawing with the mouse cursor in the WORLD. Also, additional types of removable and replaceable walls can be added to either end of the syringe. The plunger in the middle moves according to the forces applied on it by the gas molecules.
+
+## HOW IT WORKS
+
+The particles are modeled as hard balls with no internal energy except that which is due to their motion. Collisions between particles are elastic. The total kinetic energy of the two particles after the encounter is equal to their total kinetic energy before the encounter. Collisions with the wall are not. When a particle hits the wall, it bounces off the wall but does not loose any energy to the wall. It does not gain any energy from the wall either. The plunger moves according to the total force applied on it by the particles at any given instance.
+
+The exact way two particles collide is as follows:
+1. A particle moves in a straight line without changing its speed, unless it collides with another particle or bounces off the wall.
+2. Two particles "collide" if they find themselves on the same patch. In this model, two turtles are aimed so that they will collide at the origin.
+3. An angle of collision for the particles is chosen, as if they were two solid balls that hit, and this angle describes the direction of the line connecting their centers.
+4. The particles exchange momentum and energy only along this line, conforming to the conservation of momentum and energy for elastic collisions.
+5. Each particle is assigned its new speed, heading, and energy.
+
+## HOW TO USE IT
+
+### Buttons
+SETUP - sets up the initial conditions set on the sliders.
+GO/STOP/ADD ELEMENTS - runs and stops the model.
+REMOVE/REPLACE RED WALL - toggles the red walls on and off.
+REMOVE/REPLACE BLUE WALL - toggles the blue walls on and off.
+CLEAR EXTERNAL FORCES - removes the effect of external forces drawn through the force - time graph.
+WATCH-AND-TRACE-A-PARTICLE - highlights a particle and puts its pen down.
+RESET-PERSPECTIVE - used for re-centering the WORLD after riding or watching a particle.
+RIDE-A-PARTICLE - attaches the viewpoint of the observer to a particle.
+RESTART PLOTTING - clean the plots and restart drawing the plots from then on.
+SAVE - saves the current state of the model to an external file (You will need to provide a model name after clicking this button).
+LOAD - loads a previously saved model state file from the computer (You will need to choose a file after clicking this button).
+
+### Switches
+SHOW-WALL-HITS? - turn visualization of when particles hit the walls (as flashes) ON or OFF.
+
+### Choosers
+VISUALIZE-PARTICLE-SPEED - allows you to visualize particle speeds. For example, selecting "arrows", creates a representation of each particle velocity using a scalar arrow. Selecting "shades" creates representation of each particle speed using a brighter (faster) or darker (slower) shade of the particle's color.
+
+MOUSE-INTERACTION - sets the type of interaction the user can do with the mouse in the WORLD. Possible settings include:
+"none - let the particles interact" - particles move about.
+"draw basic wall" - adds a gray wall under the mouse cursor.
+"draw red removable wall" - adds a red wall under the mouse cursor which can be alternatively removed and replaced (like a valve) using the REMOVE/REPLACE RED WALL.
+"draw green removable wall" - adds a green wall under the mouse cursor which can be alternatively removed and replaced (like a valve) using the REMOVE/REPLACE GREEN WALL.
+"big eraser" - erases all objects (except the yellow box boundary walls) under the mouse cursor.
+"slow down particles" - reduce the current speed of the particles by 10%.
+"speed up particles" - increase the current speed of the particles by 10%.
+"paint particles green" - recolors the particles under the mouse cursor green (other settings include orange and purple).
+"add green particles" - adds a couple of new particles under the mouse cursor (other settings include orange and purple).
+
+### Running an experiment using force-time graph
+The gray area with X and Y axes next to the syringe model enables you to draw a force-time graph and then run the model to simulate the effects of pushing and/or pulling the syringe's plunger on the whole system.
+
+DRAW FORCE VS TIME GRAPH - click this button to start drawing on the right side of the view. You can click on any gray point to draw the graph. You need to click this button again once you are done drawing.
+RESET AXES - cleans the previous force-time drawing.
+PREPARE FOR EXPERIMENTAL RUN - cleans the plots and prepares the model for running the experiment based on the force-time drawing.
+RUN EXPERIMENT - runs the experiment.
+
+## THINGS TO NOTICE
+
+The mouse interaction can be used while the model is running as well as when it is stopped.
+
+Transparency is used to model flashes of where pressure was transferred to the wall by fading away the color of the flash at locations where a particle hit the wall.
+
+## THINGS TO TRY
+
+Create a model of hot and cold gasses on two sides of the plunger with walls. Explore the effects of temperature on the behavior of the plunger.
+
+Create a model of how the plunger position changes after one of the walls of the plunger is removed.
+
+Simulate the effects of pulling the plunger by putting a lot of particles on both sides of the plunger, closing one side of the syringe with a wall, waiting for the plunger position to stabilize, and finally removing some particles from the closed side of the syringe.
+
+## RELATED MODELS
+
+* GasLab Models
+* Connected Chemistry models.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Novak, M., Brady, C., Holbert, N., Soylu, F. and Wilensky, U. (2010).  NetLogo PNoM 4 Virtual Syringe Force Graph model.  http://ccl.northwestern.edu/netlogo/models/PNoM4VirtualSyringeForceGraph.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+To cite the Particulate Nature of Matter curriculum as a whole, please use:
+
+* Novak, M., Brady, C., Holbert, N., Soylu, F. and Wilensky, U. (2010). Particulate Nature of Matter curriculum.  http://ccl.northwestern.edu/curriculum/pnom/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+Thanks to Umit Aslan and Mitchell Estberg for updating these models for inclusion the in Models Library.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2010 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2010 PNoM Cite: Novak, M., Brady, C., Holbert, N., Soylu, F. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="add particles" rotatable="false" editableColorIndex="1">
+      <circle x="60" y="60" marked="true" color="-684578305" diameter="180" filled="false"></circle>
+      <circle x="36" y="36" marked="true" color="-684578305" diameter="228" filled="false"></circle>
+    </shape>
+    <shape name="add wall" rotatable="false" editableColorIndex="0">
+      <rectangle endX="210" startY="90" marked="true" color="-1920102913" endY="210" startX="90" filled="false"></rectangle>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="carbon" rotatable="true" editableColorIndex="0">
+      <circle x="68" y="83" marked="false" color="-303222273" diameter="134" filled="true"></circle>
+    </shape>
+    <shape name="carbon-activated" rotatable="true" editableColorIndex="0">
+      <circle x="68" y="83" marked="false" color="-303222273" diameter="134" filled="true"></circle>
+      <line endX="135" startY="90" marked="false" color="-684578305" endY="210" startX="135"></line>
+    </shape>
+    <shape name="carbon2" rotatable="true" editableColorIndex="0">
+      <circle x="30" y="45" marked="false" color="-244705793" diameter="210" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="1">
+      <circle x="30" y="30" marked="true" color="-684578305" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="16" y="16" marked="true" color="-1920102913" diameter="270" filled="true"></circle>
+      <circle x="46" y="46" marked="false" color="255" diameter="210" filled="true"></circle>
+    </shape>
+    <shape name="clock" rotatable="true" editableColorIndex="0">
+      <circle x="30" y="30" marked="true" color="-1920102913" diameter="240" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="31"></point>
+        <point x="128" y="75"></point>
+        <point x="143" y="75"></point>
+        <point x="143" y="150"></point>
+        <point x="158" y="150"></point>
+        <point x="158" y="75"></point>
+        <point x="173" y="75"></point>
+      </polygon>
+      <circle x="135" y="135" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="co2" rotatable="true" editableColorIndex="0">
+      <circle x="83" y="165" marked="false" color="764264191" diameter="134" filled="true"></circle>
+      <circle x="83" y="0" marked="false" color="764264191" diameter="134" filled="true"></circle>
+      <circle x="83" y="83" marked="false" color="-303222273" diameter="134" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="eraser" rotatable="false" editableColorIndex="0">
+      <rectangle endX="300" startY="0" marked="true" color="-1920102913" endY="300" startX="0" filled="true"></rectangle>
+      <rectangle endX="300" startY="0" marked="false" color="-1" endY="300" startX="0" filled="false"></rectangle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="force" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="150"></point>
+        <point x="75" y="210"></point>
+        <point x="120" y="210"></point>
+        <point x="120" y="300"></point>
+        <point x="180" y="300"></point>
+        <point x="180" y="210"></point>
+        <point x="225" y="210"></point>
+      </polygon>
+      <polygon color="-1" filled="false" marked="false">
+        <point x="150" y="150"></point>
+        <point x="75" y="210"></point>
+        <point x="120" y="210"></point>
+        <point x="120" y="300"></point>
+        <point x="180" y="300"></point>
+        <point x="180" y="210"></point>
+        <point x="225" y="210"></point>
+      </polygon>
+    </shape>
+    <shape name="heater-a" rotatable="false" editableColorIndex="0">
+      <rectangle endX="300" startY="0" marked="true" color="-1920102913" endY="300" startX="0" filled="true"></rectangle>
+      <rectangle endX="210" startY="90" marked="false" color="255" endY="210" startX="90" filled="true"></rectangle>
+    </shape>
+    <shape name="heater-b" rotatable="false" editableColorIndex="0">
+      <rectangle endX="300" startY="0" marked="true" color="-1920102913" endY="300" startX="0" filled="true"></rectangle>
+      <rectangle endX="135" startY="30" marked="false" color="255" endY="135" startX="30" filled="true"></rectangle>
+      <rectangle endX="270" startY="165" marked="false" color="255" endY="270" startX="165" filled="true"></rectangle>
+    </shape>
+    <shape name="hex" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="0" y="150"></point>
+        <point x="75" y="30"></point>
+        <point x="225" y="30"></point>
+        <point x="300" y="150"></point>
+        <point x="225" y="270"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+    </shape>
+    <shape name="hex-valve" rotatable="false" editableColorIndex="0">
+      <rectangle endX="300" startY="0" marked="true" color="-1920102913" endY="300" startX="0" filled="false"></rectangle>
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="105" y="60"></point>
+        <point x="45" y="150"></point>
+        <point x="105" y="240"></point>
+        <point x="195" y="240"></point>
+        <point x="255" y="150"></point>
+        <point x="195" y="60"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="nitrogen" rotatable="true" editableColorIndex="0">
+      <circle x="83" y="135" marked="false" color="1504722175" diameter="134" filled="true"></circle>
+      <circle x="83" y="45" marked="false" color="1504722175" diameter="134" filled="true"></circle>
+    </shape>
+    <shape name="none" rotatable="true" editableColorIndex="0"></shape>
+    <shape name="oxygen" rotatable="true" editableColorIndex="0">
+      <circle x="83" y="135" marked="false" color="764264191" diameter="134" filled="true"></circle>
+      <circle x="83" y="45" marked="false" color="764264191" diameter="134" filled="true"></circle>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="spray paint" rotatable="false" editableColorIndex="0">
+      <circle x="164" y="67" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="82" y="37" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="127" y="37" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="96" y="59" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="52" y="82" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="22" y="112" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="52" y="142" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="29" y="204" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="127" y="112" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="112" y="142" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="81" y="204" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="149" y="168" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="200" y="40" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="257" y="91" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="207" y="93" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="190" y="132" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="233" y="161" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="247" y="189" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="135" y="193" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="187" y="219" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="234" y="232" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="176" y="261" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="144" y="249" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="146" y="279" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+      <circle x="87" y="249" marked="true" color="-1920102913" diameter="16" filled="true"></circle>
+    </shape>
+    <shape name="spray particles" rotatable="true" editableColorIndex="0">
+      <circle x="54" y="84" marked="true" color="-1920102913" diameter="42" filled="true"></circle>
+      <circle x="189" y="114" marked="true" color="-1920102913" diameter="42" filled="true"></circle>
+      <circle x="99" y="174" marked="true" color="-1920102913" diameter="42" filled="true"></circle>
+      <circle x="189" y="234" marked="true" color="-1920102913" diameter="42" filled="true"></circle>
+      <circle x="159" y="9" marked="true" color="-1920102913" diameter="42" filled="true"></circle>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="valve-1" rotatable="false" editableColorIndex="0">
+      <rectangle endX="300" startY="0" marked="true" color="-1920102913" endY="300" startX="0" filled="false"></rectangle>
+      <rectangle endX="180" startY="120" marked="true" color="-1920102913" endY="180" startX="120" filled="false"></rectangle>
+    </shape>
+    <shape name="valve-2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="300" startY="0" marked="true" color="-1920102913" endY="300" startX="0" filled="false"></rectangle>
+      <rectangle endX="120" startY="120" marked="true" color="-1920102913" endY="180" startX="60" filled="false"></rectangle>
+      <rectangle endX="225" startY="120" marked="true" color="-1920102913" endY="180" startX="165" filled="false"></rectangle>
+    </shape>
+    <shape name="valve-hex" rotatable="false" editableColorIndex="0">
+      <rectangle endX="300" startY="0" marked="true" color="-1920102913" endY="300" startX="0" filled="false"></rectangle>
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="105" y="60"></point>
+        <point x="45" y="150"></point>
+        <point x="105" y="240"></point>
+        <point x="195" y="240"></point>
+        <point x="255" y="150"></point>
+        <point x="195" y="60"></point>
+      </polygon>
+    </shape>
+    <shape name="valve-triangle" rotatable="false" editableColorIndex="0">
+      <rectangle endX="300" startY="0" marked="true" color="-1920102913" endY="300" startX="0" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="45"></point>
+        <point x="30" y="240"></point>
+        <point x="270" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="valves" rotatable="false" editableColorIndex="0">
+      <rectangle endX="300" startY="0" marked="true" color="-1920102913" endY="300" startX="0" filled="false"></rectangle>
+    </shape>
+    <shape name="wall" rotatable="false" editableColorIndex="0">
+      <rectangle endX="300" startY="0" marked="true" color="-1920102913" endY="300" startX="0" filled="true"></rectangle>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>

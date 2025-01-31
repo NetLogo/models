@@ -1,0 +1,1567 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[globals
+[
+  ;; variables used to assign colors and shape to clients
+  shape-names                     ;; list that holds the names of the shapes a critter can have
+  colors                          ;; list that holds the colors used for clients' critters
+  color-names                     ;; list that holds the names of the colors used for clients' critters
+  max-possible-codes              ;; total number of possible unique shape/color combinations
+  longevity-leader-info           ;; holds user-id and if the species is not extinct, the shape and color name
+  longevity-leader-age-and-status ;; holds age of the species and whether it is extinct or alive
+  max-critter-lifespan            ;; the max number of ticks a critter can live
+  birth-cost                      ;; the amount of energy needed to give birth
+  dt                              ;; a time scaling unit used in the simulation to adjust how quickly events are rendered.
+  player-spam-countdown           ;; the number of ticks a player must wait before placing a new species
+  #-environment-changes           ;; the number of times the environment has changed
+  events                          ;; a string holding a description of all the automatic environment changes that occurred in grass growth and max-grass
+  total-species-created           ;; the total number of species created
+  max-species-age                 ;; the maximum age of all species created
+]
+
+
+breed [ clients client]            ;; one for each client that logs in, for book-keeping
+breed [ species-logs species-log ] ;; one for each client, that logs in.  It keeps track of all the species that have been created and tested by the client.
+breed [ critters critter ]         ;; all the creatures in the ecosystem
+
+
+clients-own
+[
+  user-id                        ;; unique id, input by the client when they log in, to identify each client turtle
+  ; we have to keep track of the values from the client interface, whenever they change
+  ; although we do not pass them on to critters they have already created.
+  gray-out-others?               ;; if false, only this client's critters will be colored
+  show-energy?                   ;; if true, display the energy level for each individual critter of this client's species
+  placing-spam-countdown         ;; the number of ticks this client must wait before placing a new species
+  placements-made                ;; the number of species this client has placed
+
+  population-size                ;; the number of critters this client has
+  current-longevity              ;; the age of this client's current species
+  max-longevity                  ;; the age of the oldest species this client has created
+
+  speed                          ;; how fast this client's critters move
+  behavior-dna                   ;; the pattern of steps that this client's critters move in
+  birthing-level                 ;; the energy level each individual must reach before reproducing as well as
+                                 ;; how much energy is split between the parent and the offspring when this occurs
+  carnivore?                     ;; if true, this client's species can eat other critters
+]
+
+critters-own
+[
+  age                            ;; the number of ticks this critter has been alive for
+  energy                         ;; this critter's energy level
+  creator-id                     ;; number to identify the creator of this critter
+  species-id                     ;; number to identify this species
+
+  ;;these variables are similar to the variables in clients-own with the same name
+  speed
+  behavior-dna
+  birthing-level
+  carnivore?
+
+  current-action                 ;; this critter's current action from their behavior-dna
+  action-index                   ;; the list index of this critter's current action in their behavior-dna
+  movement-counter               ;; a counter that ticks down for a certain number of tics for each action in the
+                                 ;; critters movement.  This allows the participants to be able to see the critters turning
+                                 ;; and sliding forward or backward fluidly.
+  movement-delta                 ;; the distance the critter moves
+  species-start-tick             ;; the time (number of ticks) when this critter was made
+]
+
+species-logs-own
+[
+  creator-id                     ;; number to identify the creator of this species
+  species-id                     ;; number to identify this species
+  age                            ;; the number of ticks this species has been alive for
+  created-on                     ;; the time (number of ticks) when this species was made
+  last-alive-on                  ;; the time (number of ticks) when this species was last alive
+  extinct?                       ;; if true, this species is no longer alive
+]
+
+patches-own [
+  sugar                          ;; the amount of nutrients available on a patch
+]
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Setup Procedures ;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to startup
+  clear-all
+  hubnet-reset
+  setup-vars
+end
+
+to reset-client-stats
+      set placements-made 0
+      set population-size 0
+      set current-longevity 0
+      set max-longevity 0
+end
+
+to setup
+  clear-patches
+  clear-all-plots
+  clear-output
+
+  ask clients [
+    reset-client-stats
+  ]
+  ask critters [ die ]
+  ask species-logs [die]
+  reset-ticks
+  setup-patches
+  repeat minimum-random-species
+  [
+    add-random-critter
+  ]
+
+  set longevity-leader-info "-----"
+  set longevity-leader-age-and-status "-----"
+
+  set max-critter-lifespan 1000
+  set birth-cost .15
+  set dt .5
+  set player-spam-countdown 25
+  set events []
+  set #-environment-changes 0
+  set total-species-created 0
+  set max-species-age 0
+end
+
+to setup-patches
+  ask patches [
+    set sugar random (max-grass / 5)
+    recolor-patch
+  ]
+end
+
+
+
+to add-random-critter
+  create-critters 1 [
+    randomize-critter
+    initialize-critter
+    let shape-color-code unused-shape-color-code
+    set-shape-and-color-by-code shape-color-code
+    set creator-id first-unused-bot-name
+    set energy birthing-level * 0.75
+    make-a-species-log
+  ]
+end
+
+to make-a-species-log
+   set total-species-created total-species-created + 1
+   set species-id total-species-created
+   hatch 1  [
+      set breed species-logs
+      set hidden? true
+      set created-on ticks
+      set last-alive-on ticks
+      set extinct? false
+      ]
+end
+
+
+;; just for random bot critters
+to randomize-critter
+  set speed (1 + random 10) / 10
+  set birthing-level (5 + random 46)
+  set behavior-dna reduce [ [i action-letter] -> word i action-letter] n-values 30 [random-action-letter]
+  set carnivore? (random 100 < 20)  ; 20% chance of being a carnivore
+end
+
+;; initialization actions that are common to bot & player-controlled critters
+to initialize-critter
+  let empty-patches patches with [ not any? critters-here ]
+  ifelse (any? empty-patches)
+    [ move-to one-of empty-patches ]
+    [ setxy random-xcor random-ycor ]
+  set heading one-of [ 0 90 180 270 ]
+  set age 0
+  set species-start-tick ticks
+  set movement-counter 0
+  set action-index -1
+  if (carnivore?) [ set size size * 1.4 ]
+end
+
+to-report first-unused-bot-name
+  let bot-num 1
+  while [any? critters with [ creator-id = (word "bot" bot-num "*") ] ]
+  [ set bot-num bot-num + 1 ]
+  report (word "bot" bot-num "*")
+end
+
+to-report random-action-letter
+  report one-of ["F" "F" "R" "L" "*"]
+end
+
+;; initialize global variables
+to setup-vars
+  set shape-names [ "box" "star" "wheel" "target" "cat" "dog"
+                   "butterfly" "leaf" "car" "airplane"
+                   "monster" "key" "cow skull" "ghost"
+                   "cactus" "moon" "heart"]
+  set colors      (list (white - 1) brown red (orange + 1) (violet + 1) (magenta) (sky + 1) yellow cyan 137)
+  set color-names ["white" "brown" "red" "orange" "purple" "magenta" "blue" "yellow" "cyan" "pink"]
+  set max-possible-codes (length colors * length shape-names)
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+;; Runtime Procedures ;;
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+to go
+  every 0.01
+  [
+    calc-leader-stats
+    ; possibly add a random critter of a new species at every 20th tick
+    if (ticks mod 20 = 0) and (random 50 < 1 or species-count < minimum-random-species)
+    [
+      add-random-critter
+    ]
+    ;; move turtles
+    ask clients [update-client-stats]
+    ask critters
+    [
+      set age age + dt
+      if (movement-counter <= 0)
+      [
+        set action-index (action-index + 1) mod (length behavior-dna)
+        set current-action item action-index behavior-dna
+        if (current-action = "f") [ set current-action "F" ]
+        if (current-action = "r") [ set current-action "R" ]
+        if (current-action = "l") [ set current-action "L" ]
+        if (current-action = "*" or not member? current-action "FRL")
+        [ set current-action one-of ["F" "R" "L"] ]
+        ifelse (current-action = "F")
+        [
+          ifelse (speed = 0)
+          [ set movement-counter 1000000 ]
+          [ set movement-counter round (1.0 / (speed * dt)) ]
+          set movement-delta 1.0 / movement-counter
+          ; make sure we're facing one of the four cardinal directions, before moving forward
+          set heading (round (heading / 90)) * 90
+        ][
+        if (current-action = "R" or current-action = "L")
+        [
+          ifelse (speed = 0)
+          [ set movement-counter 1000000 ]
+          [ set movement-counter round (90 / (90 * speed * dt)) ]
+
+          set movement-delta 90 / movement-counter
+        ]]
+
+      ]
+      set movement-counter movement-counter - 1
+      ifelse (current-action = "F")
+      [
+        ;; move and expend energy
+        ifelse (can-move? movement-delta)
+        [
+          forward movement-delta
+        ]
+        [
+          set movement-counter 0 ; critter tried to go forward but can't, so instead of beating its head
+                                 ; against the wall for a long time, it skips to its next action
+        ]
+        ifelse (carnivore?)
+        [
+          set energy energy - (speed / 5 + 0.05) * dt  ; speed is less energy-expensive for carnivores.
+        ]
+        [
+          set energy energy - (speed + 0.05) * dt  ; lose energy based on speed, and -0.05 base metabolism
+        ]
+      ][
+        ifelse (current-action = "R")
+          [ right movement-delta ]
+          [ left movement-delta ]
+        ; turning costs much less energy than movement,
+        set energy energy - (speed / 5) * dt
+        ; we only take away base metabolism for carnivores, b/c we don't want them to sit forever!
+        if (carnivore?)
+        [ set energy energy - 0.02 * dt ]
+      ]
+
+      ;; eat
+      ifelse (carnivore?)
+      [
+        ;; don't eat anything of same color
+        let prey critters-here with [ color != [color] of myself ]
+        if any? prey
+        [
+          let victim one-of prey
+          set energy energy + [ energy ] of victim
+          ask victim [ die ]
+        ]
+      ]
+      [ ; herbivore
+        set energy energy + sugar
+        ask patch-here [
+          set sugar 0
+          recolor-patch
+        ]
+      ]
+      if (energy > birthing-level)
+      [
+        hatch 1 [
+          set heading random 360
+          if (can-move? 0.3)
+            [ fd 0.3  ]
+          set heading one-of [0 90 180 270 ]
+          set age 0
+          ; extra 0.25 penalty helps balance against critter-bomb low-birth-threshold tactics
+          set energy (([energy] of myself) / 2) * (1.0 - birth-cost) - 0.25
+          set movement-counter 0
+          set action-index -1
+        ]
+        set energy energy / 2
+      ]
+      if (energy < 0 or age > max-critter-lifespan)
+      [
+        add-sugar (2 + energy / 2) ; give back some nutrients to the world, as the organism decomposes
+        if (carnivore?)
+          [ add-sugar 3 ] ; more from a carnivore corpse
+        recolor-patch
+        die
+      ]
+    ]
+
+    ask n-of ((grass-growth / 100)  * dt * count patches ) patches  [
+      add-sugar 0.1
+      recolor-patch
+    ]
+
+     update-species-logs ;; keep historical record of all species
+
+    ; we do hubnet commands right before a tick, because the override lists get set here,
+    ; and the display gets updated after a tick.
+    listen-clients
+
+    if (ticks mod 100 = 0) and random 10 = 0 and  environment-changes? [change-environmental-conditions]
+
+    tick
+  ]
+end
+
+
+to add-sugar [ n ]
+  ifelse sugar + n > max-grass
+  [ set sugar max-grass ]
+  [ set sugar sugar + n ]
+end
+
+
+to recolor-patch
+  set pcolor scale-color green sugar 0 100
+end
+
+
+to change-environmental-conditions
+     let growth-rate-change random 100 - random 100 ;sets growth-rate-change to a number between -99 and 99
+     let max-grass-change random 80 - random 80 ;sets max-grass-change to a number between -79 and 79
+     let old-max-grass max-grass
+     let old-grass-growth grass-growth
+
+     set grass-growth grass-growth + growth-rate-change
+     if grass-growth < 10 [set grass-growth 10]
+     if grass-growth > 100 [set grass-growth 100]
+
+     set max-grass max-grass + max-grass-change
+     if max-grass > 100 [set max-grass 100]
+     if max-grass < 10 [set max-grass 10]
+     let this-event (word "time: " ticks )
+     set events lput  ( word  this-event " ggr: " grass-growth " mgpp: " max-grass) events
+     set #-environment-changes #-environment-changes + 1
+      output-print (word "Environmental change (time:" ticks ", grass-growth:" grass-growth ", max-grass:" max-grass )
+
+end
+
+
+to update-species-logs
+  ask species-logs [
+     let this-creator-id creator-id
+     let this-species-id species-id
+     let this-extinct-status extinct?
+     ifelse any? critters with [creator-id = this-creator-id and this-species-id = species-id]
+       [set last-alive-on ticks ]
+       [if not extinct? [set extinct? true]]
+     set age (last-alive-on - created-on)
+   ]
+  if any? species-logs [ set max-species-age max [age] of species-logs ]
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;; HubNet Procedures ;;
+;;;;;;;;;;;;;;;;;;;;;;;
+
+;; determines which client sent a command, and what the command was
+to listen-clients
+  while [ hubnet-message-waiting? ]
+  [
+    hubnet-fetch-message
+    ifelse hubnet-enter-message?
+    [ create-new-client ]
+    [
+      ifelse hubnet-exit-message?
+      [ remove-client ]
+      [
+        ask clients with [ user-id = hubnet-message-source ]
+          [ execute-command hubnet-message-tag ]
+      ]
+    ]
+  ]
+
+  ask clients  [ send-info-to-client ]
+  if any? clients [broadcast-info-to-clients]
+end
+
+
+to create-new-client
+  create-clients 1
+  [
+    setup-client-vars
+    send-info-to-client
+  ]
+end
+
+
+;; sets the turtle variables to appropriate initial values
+to setup-client-vars  ;; turtle procedure
+  hide-turtle
+  set user-id hubnet-message-source
+  change-shape-and-color
+  setxy random-xcor random-ycor
+  set heading one-of [0 90 180 270]
+  set speed 1.0
+  set behavior-dna "FFFFL"
+  set birthing-level 25
+  set carnivore? false
+  set gray-out-others? false
+  set show-energy? false
+  set placing-spam-countdown 0
+  reset-client-stats
+end
+
+
+to execute-command [command]
+  if command = "speed"
+  [ set speed hubnet-message           stop  ]
+  if command = "behavior-dna"
+  [ set behavior-dna hubnet-message    stop  ]
+  if command = "birthing-level"
+  [ set birthing-level hubnet-message  stop  ]
+  if command = "carnivore?"
+  [ set carnivore? hubnet-message      stop  ]
+  if command = "gray-out-others?"
+  [
+    set gray-out-others? hubnet-message
+    if (gray-out-others? = false)
+    [ hubnet-clear-override user-id critters "color" ]
+    stop
+  ]
+  if command = "show-energy?"
+  [
+    set show-energy? hubnet-message
+    if (show-energy? = false)
+    [ hubnet-clear-override user-id critters "label" ]
+    stop
+  ]
+  if command = "Place New Species"
+  [
+    if (placing-spam-countdown = 0) and (placements-made < #-placements-per-client)
+    [
+      ; we make them wait a while before hitting PLACE again.
+      set placing-spam-countdown player-spam-countdown
+      set placements-made placements-made + 1
+      ask my-critters [ die ]
+      hatch-critters 1 [
+        ; inherits variables: speed, behavior-dna, birthing-level, carnivore?, and color
+        ; automatically from the client, via the hatch-critters statement
+        set shape [shape] of myself ; shape not inherited via "hatch-critters"
+        set creator-id user-id-to-creator-id ([user-id] of myself)
+        set energy 30
+        initialize-critter
+        show-turtle ; otherwise critter inherits invisibility from the client
+        make-a-species-log
+      ]
+    ]
+    stop
+  ]
+  if command = "Change Shape"
+  [
+    change-shape-and-color
+    stop
+  ]
+  if command = "follow-a-critter?"
+  [
+    ifelse (hubnet-message)
+    [
+      if any? my-critters
+        [ hubnet-send-follow user-id (one-of my-critters) 10 ]
+    ]
+    [ hubnet-reset-perspective user-id ]
+    stop
+  ]
+end
+
+to remove-client
+  ask clients with [user-id = hubnet-message-source]
+  [
+    ask my-critters [
+      set creator-id (word creator-id "*")
+    ]
+    die
+  ]
+end
+
+
+
+
+to set-shape-and-color-by-code [ code ]
+  set shape item (code mod length shape-names) shape-names
+  set color item (code / length shape-names) colors
+end
+
+
+
+to update-client-stats
+  set population-size count-my-critters
+  set current-longevity longevity-of-this-species
+  set max-longevity max-longevity-of-all-my-species
+end
+
+
+
+;; sends the appropriate monitor information back to the client
+to send-info-to-client
+  if (placing-spam-countdown > 0) [ set placing-spam-countdown placing-spam-countdown - 1 ]
+  hubnet-send user-id "Countdown until you can place again:" placing-spam-countdown
+  hubnet-send user-id "# of species left you can introduce" (#-placements-per-client - placements-made)
+  hubnet-send user-id "Your Current Species Size" population-size
+  hubnet-send user-id "Your Current Species Longevity"  current-longevity
+  hubnet-send user-id "Your Max. Species Longevity"  max-longevity
+
+  if (gray-out-others?)  [ hubnet-send-override user-id critters with [ creator-id != (user-id-to-creator-id [user-id] of myself)] "color" [gray - 2] ]
+  if (show-energy?)      [ hubnet-send-override user-id my-critters "label" [ (word round energy "     ") ]  ]
+end
+
+
+to broadcast-info-to-clients
+  if any? clients [
+    hubnet-broadcast "# Alive Species" species-count
+    hubnet-broadcast "# Extinct Species" count species-logs with [extinct?]
+
+    hubnet-broadcast "Species Longevity Leader" longevity-leader-info
+    hubnet-broadcast "Longevity Record" longevity-leader-age-and-status
+    hubnet-broadcast "time" ticks
+  ]
+end
+
+
+to calc-leader-stats
+  if any? species-logs [
+    let leader-log max-one-of species-logs [age]  ;; pull out a log
+    let leader-species-extinct? [extinct?] of leader-log
+    let leader-id [creator-id] of leader-log
+    let leader-shape ""
+    let leader-status ""
+    ifelse leader-species-extinct?
+       [set leader-shape "" set leader-status "extinct"]
+       [set leader-shape  [(word (color-string color) " " shape)] of one-of critters with [creator-id = leader-id] set leader-status "alive"]
+
+    set longevity-leader-age-and-status (word [age] of leader-log " (" leader-status ")")
+    set longevity-leader-info (word leader-id ": " leader-shape)
+  ]
+end
+
+
+to change-shape-and-color
+  set-shape-and-color-by-code unused-shape-color-code
+  hubnet-send user-id "Your critter shape:" (word (color-string color) " " shape)
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Reporters   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to-report longevity-of-this-species
+  let p-user-id user-id
+  let p-value-to-report 0
+  if any? species-logs with [creator-id = p-user-id and extinct? = false] [
+   set p-value-to-report [age] of species-logs with [creator-id = p-user-id and extinct? = false]
+   set p-value-to-report item 0 p-value-to-report
+  ]
+  report p-value-to-report
+end
+
+
+to-report max-longevity-of-all-my-species
+  let p-user-id user-id
+  let p-value-to-report 0
+  if any? species-logs with [creator-id = p-user-id] [
+   set p-value-to-report max [age] of species-logs with [creator-id = p-user-id]
+  ]
+  report p-value-to-report
+end
+
+
+to-report my-critters
+  report critters with [ creator-id = (user-id-to-creator-id [user-id] of myself )]
+end
+
+
+to-report count-my-critters
+  report count my-critters
+end
+
+
+to-report age-of-my-critters
+    ifelse any? critters with [ creator-id = (user-id-to-creator-id [user-id] of myself )]
+        [report max [age] of critters with [ creator-id = (user-id-to-creator-id [user-id] of myself )]]
+        [report 0]
+end
+
+
+;; translates a client turtle's shape and color into a code
+to-report my-shape-color-code
+  let shape-pos (position shape shape-names)
+  let color-pos (position color colors)
+  if (shape-pos = false or color-pos = false)
+    [ report false ]
+  report shape-pos + (length shape-names) * color-pos
+end
+
+
+to-report unused-shape-color-code
+  let used-codes remove-duplicates ([my-shape-color-code] of turtles)
+  let new-code random max-possible-codes
+  while [ member? new-code used-codes ]
+  [ set new-code random max-possible-codes ]
+  report new-code
+end
+
+
+to-report user-id-to-creator-id [ uid ]
+  report remove "*" uid
+end
+
+
+;; report the string version of the turtle's color
+to-report color-string [color-value]
+  report item (position color-value colors) color-names
+end
+
+
+to-report species-list
+  report remove-duplicates [ creator-id ] of critters
+end
+
+
+to-report species-count
+  report length species-list
+end
+
+
+; Copyright 2011 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="505" maxPycor="16" updateMode="1" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-16" height="504" showTickCounter="true" patchSize="15.0" fontSize="10" wrappingAllowedY="true" width="563" tickCounterLabel="ticks" maxPxcor="18" minPxcor="-18"></view>
+    <button x="115" y="10" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="110" display="go/stop">go</button>
+    <slider x="5" step="1" y="162" height="33" min="0" direction="Horizontal" max="25" default="0.0" variable="minimum-random-species" width="220" display="minimum-random-species"></slider>
+    <button x="5" y="10" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="110">setup</button>
+    <slider x="120" step="5" y="45" height="33" min="10" direction="Horizontal" max="100" default="42.0" variable="max-grass" width="105" display="max-grass"></slider>
+    <slider x="5" step="1" y="45" height="33" min="1" direction="Horizontal" max="100" default="31.0" variable="grass-growth" width="115" display="grass-growth"></slider>
+    <monitor x="130" precision="17" y="470" height="45" fontSize="11" width="125" display="# alive species">species-count</monitor>
+    <plot x="231" yMax="100.0" yAxis="percent of living critters" y="10" xMin="0.0" height="460" legend="true" xMax="500.0" autoplot="true" yMin="0.0" width="270" xAxis="time" display="population">
+      <setup></setup>
+      <update><![CDATA[if (ticks mod 5 = 0 and ticks != 0) [
+  if (ticks mod 2000 = 0)
+  [
+    clear-all-plots
+    set-plot-x-range (ticks) / dt (ticks + 500) / dt
+  ]
+  if (ticks mod 2000) > 500  ; don't change the range until we've plotted all the way across once
+  [
+    set-plot-x-range (ticks - 500) / dt ticks / dt  ; only show the last 500 ticks
+  ]
+
+  foreach sort species-list [ the-creator-id ->
+    let crits critters with [ creator-id = the-creator-id ]
+    ; create-temporary-plot-pen will either create the pen, or set it current if it exists
+    create-temporary-plot-pen the-creator-id
+
+    let col [color] of one-of crits
+    if (col mod 10 > 7) ; make the whitish colors more visible on the plot
+      [ set col col - 1 ]
+    set-plot-pen-color col
+    plotxy (ticks / dt) (count crits) * 100 / count critters
+  ]
+  ]]]></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="-players-">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <slider x="4" step="1" y="197" height="33" min="0" direction="Horizontal" max="25" default="10.0" variable="#-placements-per-client" width="220" display="#-placements-per-client"></slider>
+    <monitor x="380" precision="17" y="470" height="45" fontSize="11" width="120" display="time">ticks</monitor>
+    <switch x="5" y="80" height="33" on="true" variable="environment-changes?" width="220" display="environment-changes?"></switch>
+    <monitor x="5" precision="17" y="116" height="45" fontSize="11" width="167" display="# environmental changes">#-environment-changes</monitor>
+    <monitor x="5" precision="17" y="470" height="45" fontSize="11" width="125" display="# extinct species">count species-logs - species-count</monitor>
+    <monitor x="255" precision="17" y="470" height="45" fontSize="11" width="125" display=" longevity record">longevity-leader-age-and-status</monitor>
+    <plot x="5" yMax="5.0" yAxis="#" y="350" xMin="0.0" height="120" legend="false" xMax="100.0" autoplot="true" yMin="0.0" width="220" xAxis="% of competition time" display="# extinct species">
+      <setup></setup>
+      <update>set-current-plot-pen "extinct"
+histogram ([100 * age / ticks] of species-logs with [extinct?])</update>
+      <pen color="-8053223" legend="true" interval="5.0" mode="1" display="extinct">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <plot x="5" yMax="5.0" yAxis="#" y="232" xMin="0.0" height="120" legend="false" xMax="100.0" autoplot="true" yMin="0.0" width="220" xAxis="% of competition time" display="# alive species">
+      <setup></setup>
+      <update>set-current-plot-pen "alive"
+histogram ([100 * age / ticks] of species-logs with [not extinct?])</update>
+      <pen color="-10899396" legend="true" interval="5.0" mode="1" display="alive">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <output x="5" y="515" height="60" fontSize="10" width="495"></output>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This model simulates competition between many different species in a complex ecosystem. The outcome of the competition shows that when all individuals in a population are identical to each other, the competitive advantage of a species will continue to change compared to other species when the environmental conditions keep changing.
+
+The model can be set so that the computer randomly adds new species into the ecosystem as well.  Since different species outcompete each other at different times in a changing environment, this tends to result in the eventual disappearance of some species in the ecosystem over time.
+
+Any attempt by a participant to create an "optimal design" for a species is doomed to eventual failure and extinction if the model is run long enough.  This outcome suggests that the inclusion of evolutionary mechanisms (such as random mutations in offspring) might lead to some species that can survive longer in the ecosystem without going extinct than any species with a purposefully designed combination of unchanging traits.
+
+## HOW IT WORKS
+
+### Species
+
+Participants use the HubNet client interface to interact with the model and design new types of critters to test in the ecosystem. A single critter can be designed and then released into the environment at a time.  As this critter gains energy, it can reproduce offspring, which in turn can reproduce more offspring when they gain enough energy.  Each new offspring will have identical trait variations as the original ancestor critter, as each offspring is reproduced asexually from a single parent. All the descendants from the first ancestor critter are defined as being part of the same species.
+
+New critter species can be designed to follow different patterns of movement, have different speeds at which they move around the ecosystem, and have different energy levels required for giving birth to an offspring. Each new design you test can be either a herbivore or a carnivore.  A single individual is what is released into the ecosystem by the participants when a participant tests a new critter design.  Since your entire species of critters will have identical traits, the same shape and color of all the offspring of the critter design you test will also look the same.
+
+When a participant releases an individual with a new critter design into the ecosystem, all of the critters of the previous species are instantly removed from the ecosystem.
+
+### Ecosystem
+
+Activity leaders use the model interface to set up the ecosystem. The interface allows them to set the amount of grass that can grow and how fast it grows. These changes are attempting to represent the effects of variation of rainfall in time and space. The environmental conditions can be set to be fixed or varying in the ecosystem. When environmental conditions vary, the grass growth and speed values shift from time to time.
+
+As new critters are added and/or as the environmental conditions change, the stability of the ecosystem changes. New selective pressures may emerge with each change, which in turn leads to different levels of competitive advantage for a given combinations of traits. Over time, a design that gave a competitive advantage in one environment is likely to have less of a competitive advantage in another environment.
+
+Since individuals show no trait variation different from their ancestors, evolution does not occur in this model. When evolution does not occur, species designed to have a strong competitive edge for one set of environmental conditions are destined to go extinct when environmental changes are large enough or frequent enough. So, all species introduced into the ecosystem eventually go extinct as the environment keeps changing and new species are introduced.
+
+In the real world, the traits of individuals in a species don't remain fixed.  New traits that have never appeared before emerge in populations.  This occurs because offspring can incur mutations that give them different traits from their ancestors.  Though mutations are random, they introduce new trait variations into a population.   In a way, mutation serves like a "random design changer".  As many minor random design changes emerge in a population from mutations, some are bound to result in individuals that have a greater competitive advantage than the ancestors.  This permits species to keep "unintentionally" experimenting with alternate design plans as the environment changes.  Some such species continue to evolve over time, so that offspring can appear and behave very differently than their original ancestors.  In the real world then, while some species may go extinct, others continue to evolve to accumulate beneficial trait variations as the environment keeps changing.
+
+## HOW TO USE IT
+
+### Activity Leader
+
+In the HubNet Control Center, press SETUP and GO once all clients have connected to the model. Once the model is running place a check mark next to both "Mirror 2D view on clients" and "Mirror plots on clients (experimental)". _Note: these options should always be unchecked before you press SETUP._  If you don't follow this order for checking these options after pressing SETUP an error will occur in the experimental plotting code.
+
+#### Model sliders and switches:
+
+GRASS-GROWTH controls how fast the grass grows back on each patch.
+
+MAX-GRASS sets the % of patches that grow grass. 50% would allow only half the patches to grow grass.
+
+ENVIRONMENT-CHANGES? when turned to "off" keeps MAX-GRASS and GRASS-GROWTH levels set to whatever values the user left them at in the interface. When turned to "on", those levels will shift occasionally to random values picked by the computer.
+
+MINIMUM-RANDOM-SPECIES adjusts the number of random species the computer adds. When one of the species goes extinct, another randomly generated species replaces it. When set to 0, only species that client participants add will be in the ecosystem.
+
+\# ENVIRONMENTAL CHANGES keeps track of the number of automatic (computer selected) shifts in the MAX-GRASS and GRASS-GROWTH levels occurred.
+
+PLACEMENTS-PER-CLIENT sets the maximum number of critter designs each client can release and test in the ecosystem.
+
+\# ALIVE SPECIES is a histogram of the number of current species that are alive by % of time that they are alive for the simulation.  For short model runs, there may be some species that are alive for 100% of the time the simulation ran.  For long model runs it becomes progressively less likely that any species will be alive for 100% of the time of the model run.  The histogram will cluster to the left the longer the model runs.
+
+\# EXTINCT SPECIES is a histogram of the number of species that died by % of time that they are alive for the simulation.  The longer the model runs, the smaller the percent of time that the extinct species were alive for.  Species that came into existence at the start of the model run and went extinct just before the model run ended will appear clustered toward the right side of the histogram.  Species that came into existence at any point in the model run and then went extinct shortly after will tend to cluster toward the left side of the histogram.
+
+### HubNet Participant
+
+Open up a HubNet client on your machine and type your user name, select this activity and press ENTER.
+
+#### Client sliders, input boxes, and buttons:
+
+CHANGE SHAPE randomly changes the shape of the critters you are going to release. The newly assigned shape will show up in the YOUR CRITTER SHAPE monitor.
+
+BEHAVIOR-DNA allows you to input a string of characters that describe the pattern of steps that the critters move in (F = forward, L = left, R = right, * = random).
+
+SPEED controls how fast the critters move. Faster moving critters use up energy more quickly.
+
+BIRTHING-LEVEL controls the energy level each individual must reach before reproducing as well as how much energy is split between the parent and the offspring when this occurs.
+
+CARNIVORE? controls whether the species eats other critters (set the value to "On") or the species eats grass (set the value to "Off").
+
+PLACE NEW SPECIES this button releases one new individual that has the trait variations specified by YOUR CRITTER SHAPE, BEHAVIOR-DNA, SPEED, BIRTHING-LEVEL, and CARNIVORE?. When a new species is placed, that client's old species is automatically removed from the ecosystem.
+
+#### Client Switches:
+
+GRAY-OUT-OTHERS? controls whether to display the colors of all the species for the client (set the value to "On") or keep the color of client's species visible and turning all other species gray (set the value to "Off").
+
+FOLLOW-A-CRITTER? controls whether the client's view remains looking at the entire ecosystem (set the value to "Off") or attaches to a single randomly selected critter (set the value of "On").
+
+SHOW-ENERGY? displays the energy level for each individual critter of your species when set to "On".
+
+#### Client Monitors:
+
+YOUR CURRENT SPECIES LONGEVITY reports how long the current species has existed (elapsed time) in the ecosystem.
+
+YOUR MAX. SPECIES LONGEVITY reports the longest existence for any species you have tested in this ecosystem for this model run.
+
+YOUR CURRENT SPECIES SIZE reports how many individuals are in the current species.
+
+SPECIES LONGEVITY LEADER reports which participant has the record for the longest lasting species.
+
+### Common to Both Participant Leader and Client Views
+
+POPULATION graphs all the population percentages for each species on the same axis (percent of living creatures vs. time). Population percentages are a calculation of what number of individuals in the ecosystem belong to this species / total individuals in all species in the ecosystem * 100. So a level of 50% for one species graph would mean that half of the individuals from all species in the ecosystem are of that one species.
+
+LONGEVITY RECORD reports the record for the longest lasting species (elapsed time) in this model run.
+
+TIME reports how much time has elapsed in this model run.
+
+ALIVE SPECIES reports how many species are currently in this ecosystem.
+
+EXTINCT SPECIES reports how many species have died out completely in this ecosystem.
+
+## THINGS TO NOTICE
+
+No matter how successful a critter design is at one instant in the ecosystem, its level of success will soon change as the ecosystem starts changing. Eventually, if the new species are continually being "tested out" in the environment enough times, one of them will end up outcompeting the current "native species".
+
+The important evolutionary outcome here is that if species can't evolve, they are doomed to extinction if they must go head to head with alternate "designs" in a changing environment. Also, people who test multiple designs within the environment are more likely to strike upon a relatively successful design (at least in the short term), than those who stick with only one design.
+
+And the most intentional design by a participant will still eventually get outcompeted and driven to extinction by many random designs thrown into the competition over a long period of time by the computer.
+
+## THINGS TO TRY
+
+Use the model with an entire class to serve as an introduction to the topic of the mechanisms of evolution. If a student develops a successful design (that lasts for an entire simulation run or until the end of the lesson), keep the model running overnight with a large value set for MINIMUM-RANDOM-SPECIES and with the ENVIRONMENT-CHANGE? switch set to "On".
+
+## EXTENDING THE MODEL
+
+One or more computer generated species could be given the ability to generate mutations that cause minor changes in the traits of the offspring. Longevity experiments could be conducted to compare the success of computer generated, evolving species to the success of purposefully designed "fixed trait" species created by participants.
+
+## NETLOGO FEATURES
+
+The population graph updates to have a continually rolling x-axis.  This means that when a new maximum x-value is reached, that x-value becomes the new x-minimum value and the plots are wiped clean and the x-axis is reset with same x range as before, but the new minimum and maximum values.
+
+The command hubnet-send-override is used to change the appearance of agents in the client view, so that each client can customized what is displayed for that client.  This allows clients to "gray out" species that aren't their own in their client view or turn on labels for the agents in their view only.
+
+## CREDITS AND REFERENCES
+
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/rp/beagle/index.shtml)
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Stonedahl, F., Novak, M. and Wilensky, U. (2011).  NetLogo Critter Designers HubNet model.  http://ccl.northwestern.edu/netlogo/models/CritterDesignersHubNet.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the HubNet software as:
+
+* Wilensky, U. & Stroup, W. (1999). HubNet. http://ccl.northwestern.edu/netlogo/hubnet.html. Center for Connected Learning and Computer-Based Modeling, Northwestern University. Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2011 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2011 Cite: Stonedahl, F., Novak, M. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="android" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="210" y="90"></point>
+        <point x="240" y="195"></point>
+        <point x="210" y="210"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+      <circle x="110" y="3" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="88"></point>
+        <point x="120" y="193"></point>
+        <point x="105" y="240"></point>
+        <point x="105" y="298"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="210"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="298"></point>
+        <point x="195" y="240"></point>
+        <point x="180" y="193"></point>
+        <point x="195" y="88"></point>
+      </polygon>
+      <rectangle endX="172" startY="81" marked="true" color="-1920102913" endY="96" startX="127" filled="true"></rectangle>
+      <rectangle endX="165" startY="33" marked="false" color="255" endY="60" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="90"></point>
+        <point x="60" y="195"></point>
+        <point x="90" y="210"></point>
+        <point x="135" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <rectangle endX="207" startY="135" marked="true" color="-1920102913" endY="224" startX="92" filled="true"></rectangle>
+      <circle x="158" y="53" marked="true" color="-1920102913" diameter="134" filled="true"></circle>
+      <circle x="165" y="180" marked="true" color="-1920102913" diameter="90" filled="true"></circle>
+      <circle x="45" y="180" marked="true" color="-1920102913" diameter="90" filled="true"></circle>
+      <circle x="8" y="53" marked="true" color="-1920102913" diameter="134" filled="true"></circle>
+      <line endX="253" startY="189" marked="false" color="255" endY="189" startX="43"></line>
+      <rectangle endX="165" startY="60" marked="true" color="-1920102913" endY="285" startX="135" filled="true"></rectangle>
+      <circle x="165" y="15" marked="true" color="-1920102913" diameter="30" filled="true"></circle>
+      <circle x="105" y="15" marked="true" color="-1920102913" diameter="30" filled="true"></circle>
+      <line endX="135" startY="30" marked="true" color="-1920102913" endY="60" startX="120"></line>
+      <line endX="180" startY="60" marked="true" color="-1920102913" endY="30" startX="165"></line>
+      <line endX="135" startY="60" marked="false" color="255" endY="285" startX="135"></line>
+      <line endX="165" startY="285" marked="false" color="255" endY="60" startX="165"></line>
+    </shape>
+    <shape name="cactus" rotatable="true" editableColorIndex="0">
+      <rectangle endX="175" startY="30" marked="true" color="-1920102913" endY="177" startX="135" filled="true"></rectangle>
+      <rectangle endX="100" startY="105" marked="true" color="-1920102913" endY="214" startX="67" filled="true"></rectangle>
+      <rectangle endX="251" startY="89" marked="true" color="-1920102913" endY="167" startX="217" filled="true"></rectangle>
+      <rectangle endX="220" startY="151" marked="true" color="-1920102913" endY="185" startX="157" filled="true"></rectangle>
+      <rectangle endX="148" startY="189" marked="true" color="-1920102913" endY="233" startX="94" filled="true"></rectangle>
+      <rectangle endX="184" startY="162" marked="true" color="-1920102913" endY="297" startX="135" filled="true"></rectangle>
+      <circle x="219" y="76" marked="true" color="-1920102913" diameter="28" filled="true"></circle>
+      <circle x="138" y="7" marked="true" color="-1920102913" diameter="34" filled="true"></circle>
+      <circle x="67" y="93" marked="true" color="-1920102913" diameter="30" filled="true"></circle>
+      <circle x="201" y="145" marked="true" color="-1920102913" diameter="40" filled="true"></circle>
+      <circle x="69" y="193" marked="true" color="-1920102913" diameter="40" filled="true"></circle>
+    </shape>
+    <shape name="car" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="180" y="0"></point>
+        <point x="164" y="21"></point>
+        <point x="144" y="39"></point>
+        <point x="135" y="60"></point>
+        <point x="132" y="74"></point>
+        <point x="106" y="87"></point>
+        <point x="84" y="97"></point>
+        <point x="63" y="115"></point>
+        <point x="50" y="141"></point>
+        <point x="50" y="165"></point>
+        <point x="60" y="225"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="225" y="300"></point>
+        <point x="225" y="0"></point>
+        <point x="180" y="0"></point>
+      </polygon>
+      <circle x="180" y="30" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="80" y="138"></point>
+        <point x="78" y="168"></point>
+        <point x="135" y="166"></point>
+        <point x="135" y="91"></point>
+        <point x="105" y="106"></point>
+        <point x="96" y="111"></point>
+        <point x="89" y="120"></point>
+      </polygon>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="47" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="cat" rotatable="true" editableColorIndex="0">
+      <line endX="210" startY="240" marked="true" color="-1920102913" endY="240" startX="285"></line>
+      <line endX="165" startY="300" marked="true" color="-1920102913" endY="255" startX="195"></line>
+      <line endX="90" startY="240" marked="true" color="-1920102913" endY="240" startX="15"></line>
+      <line endX="195" startY="285" marked="true" color="-1920102913" endY="240" startX="285"></line>
+      <line endX="135" startY="300" marked="true" color="-1920102913" endY="255" startX="105"></line>
+      <line endX="150" startY="270" marked="false" color="255" endY="285" startX="150"></line>
+      <line endX="15" startY="75" marked="false" color="255" endY="120" startX="15"></line>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="15"></point>
+        <point x="285" y="30"></point>
+        <point x="255" y="30"></point>
+        <point x="225" y="75"></point>
+        <point x="195" y="60"></point>
+        <point x="255" y="15"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="285" y="135"></point>
+        <point x="210" y="135"></point>
+        <point x="180" y="150"></point>
+        <point x="180" y="45"></point>
+        <point x="285" y="90"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="120" y="45"></point>
+        <point x="120" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="45"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="180" y="195"></point>
+        <point x="165" y="300"></point>
+        <point x="240" y="285"></point>
+        <point x="255" y="225"></point>
+        <point x="285" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="180" y="225"></point>
+        <point x="195" y="285"></point>
+        <point x="165" y="300"></point>
+        <point x="150" y="300"></point>
+        <point x="150" y="255"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="195"></point>
+        <point x="195" y="165"></point>
+        <point x="225" y="150"></point>
+        <point x="255" y="135"></point>
+        <point x="285" y="135"></point>
+        <point x="285" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="135"></point>
+        <point x="90" y="135"></point>
+        <point x="120" y="150"></point>
+        <point x="120" y="45"></point>
+        <point x="15" y="90"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="120" y="195"></point>
+        <point x="135" y="300"></point>
+        <point x="60" y="285"></point>
+        <point x="45" y="225"></point>
+        <point x="15" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="120" y="225"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="300"></point>
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="195"></point>
+        <point x="105" y="165"></point>
+        <point x="75" y="150"></point>
+        <point x="45" y="135"></point>
+        <point x="15" y="135"></point>
+        <point x="15" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="285" y="120"></point>
+        <point x="270" y="90"></point>
+        <point x="285" y="15"></point>
+        <point x="300" y="15"></point>
+      </polygon>
+      <line endX="105" startY="285" marked="true" color="-1920102913" endY="240" startX="15"></line>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="30" y="90"></point>
+        <point x="15" y="15"></point>
+        <point x="0" y="15"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="0" y="15"></point>
+        <point x="15" y="30"></point>
+        <point x="45" y="30"></point>
+        <point x="75" y="75"></point>
+        <point x="105" y="60"></point>
+        <point x="45" y="15"></point>
+      </polygon>
+      <line endX="209" startY="262" marked="false" color="255" endY="262" startX="164"></line>
+      <line endX="208" startY="231" marked="false" color="255" endY="261" startX="223"></line>
+      <line endX="91" startY="262" marked="false" color="255" endY="262" startX="136"></line>
+      <line endX="92" startY="231" marked="false" color="255" endY="261" startX="77"></line>
+    </shape>
+    <shape name="cow skull" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="90"></point>
+        <point x="75" y="105"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="210"></point>
+        <point x="105" y="285"></point>
+        <point x="195" y="285"></point>
+        <point x="225" y="210"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="105"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="150"></point>
+        <point x="90" y="195"></point>
+        <point x="90" y="150"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="150"></point>
+        <point x="210" y="195"></point>
+        <point x="210" y="150"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="105" y="285"></point>
+        <point x="135" y="270"></point>
+        <point x="150" y="285"></point>
+        <point x="165" y="270"></point>
+        <point x="195" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="240" y="150"></point>
+        <point x="263" y="143"></point>
+        <point x="278" y="126"></point>
+        <point x="287" y="102"></point>
+        <point x="287" y="79"></point>
+        <point x="280" y="53"></point>
+        <point x="273" y="38"></point>
+        <point x="261" y="25"></point>
+        <point x="246" y="15"></point>
+        <point x="227" y="8"></point>
+        <point x="241" y="26"></point>
+        <point x="253" y="46"></point>
+        <point x="258" y="68"></point>
+        <point x="257" y="96"></point>
+        <point x="246" y="116"></point>
+        <point x="229" y="126"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="60" y="150"></point>
+        <point x="37" y="143"></point>
+        <point x="22" y="126"></point>
+        <point x="13" y="102"></point>
+        <point x="13" y="79"></point>
+        <point x="20" y="53"></point>
+        <point x="27" y="38"></point>
+        <point x="39" y="25"></point>
+        <point x="54" y="15"></point>
+        <point x="73" y="8"></point>
+        <point x="59" y="26"></point>
+        <point x="47" y="46"></point>
+        <point x="42" y="68"></point>
+        <point x="43" y="96"></point>
+        <point x="54" y="116"></point>
+        <point x="71" y="126"></point>
+      </polygon>
+    </shape>
+    <shape name="dog" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="0"></point>
+        <point x="195" y="0"></point>
+        <point x="210" y="30"></point>
+        <point x="204" y="117"></point>
+        <point x="240" y="120"></point>
+        <point x="270" y="135"></point>
+        <point x="300" y="135"></point>
+        <point x="300" y="180"></point>
+        <point x="240" y="300"></point>
+        <point x="165" y="255"></point>
+        <point x="90" y="225"></point>
+        <point x="45" y="225"></point>
+        <point x="15" y="195"></point>
+        <point x="45" y="165"></point>
+        <point x="45" y="135"></point>
+        <point x="15" y="120"></point>
+        <point x="15" y="75"></point>
+        <point x="30" y="45"></point>
+        <point x="30" y="75"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="75"></point>
+        <point x="105" y="75"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="240" y="300"></point>
+        <point x="300" y="180"></point>
+        <point x="300" y="135"></point>
+        <point x="285" y="135"></point>
+        <point x="285" y="180"></point>
+        <point x="221" y="290"></point>
+      </polygon>
+      <line endX="45" startY="90" marked="false" color="255" endY="120" startX="60"></line>
+      <line endX="90" startY="210" marked="false" color="255" endY="210" startX="45"></line>
+      <line endX="105" startY="210" marked="false" color="255" endY="195" startX="90"></line>
+      <line endX="60" startY="195" marked="false" color="255" endY="165" startX="105"></line>
+      <line endX="60" startY="210" marked="false" color="255" endY="165" startX="45"></line>
+      <line endX="45" startY="165" marked="false" color="255" endY="165" startX="60"></line>
+      <line endX="203" startY="119" marked="false" color="255" endY="149" startX="203"></line>
+      <line endX="171" startY="150" marked="false" color="255" endY="195" startX="201"></line>
+      <circle x="88" y="95" marked="false" color="255" diameter="34" filled="true"></circle>
+      <circle x="162" y="9" marked="false" color="255" diameter="30" filled="false"></circle>
+    </shape>
+    <shape name="ghost" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="165"></point>
+        <point x="13" y="164"></point>
+        <point x="-2" y="149"></point>
+        <point x="0" y="135"></point>
+        <point x="-2" y="119"></point>
+        <point x="0" y="105"></point>
+        <point x="15" y="75"></point>
+        <point x="30" y="75"></point>
+        <point x="58" y="104"></point>
+        <point x="43" y="119"></point>
+        <point x="43" y="134"></point>
+        <point x="58" y="134"></point>
+        <point x="73" y="134"></point>
+        <point x="88" y="104"></point>
+        <point x="73" y="44"></point>
+        <point x="78" y="14"></point>
+        <point x="103" y="-1"></point>
+        <point x="193" y="-1"></point>
+        <point x="223" y="29"></point>
+        <point x="208" y="89"></point>
+        <point x="208" y="119"></point>
+        <point x="238" y="134"></point>
+        <point x="253" y="119"></point>
+        <point x="240" y="105"></point>
+        <point x="238" y="89"></point>
+        <point x="240" y="75"></point>
+        <point x="255" y="60"></point>
+        <point x="270" y="60"></point>
+        <point x="283" y="74"></point>
+        <point x="300" y="90"></point>
+        <point x="298" y="104"></point>
+        <point x="298" y="119"></point>
+        <point x="300" y="135"></point>
+        <point x="285" y="135"></point>
+        <point x="285" y="150"></point>
+        <point x="268" y="164"></point>
+        <point x="238" y="179"></point>
+        <point x="208" y="164"></point>
+        <point x="208" y="194"></point>
+        <point x="238" y="209"></point>
+        <point x="253" y="224"></point>
+        <point x="268" y="239"></point>
+        <point x="268" y="269"></point>
+        <point x="238" y="299"></point>
+        <point x="178" y="299"></point>
+        <point x="148" y="284"></point>
+        <point x="103" y="269"></point>
+        <point x="58" y="284"></point>
+        <point x="43" y="299"></point>
+        <point x="58" y="269"></point>
+        <point x="103" y="254"></point>
+        <point x="148" y="254"></point>
+        <point x="193" y="254"></point>
+        <point x="163" y="239"></point>
+        <point x="118" y="209"></point>
+        <point x="88" y="179"></point>
+        <point x="73" y="179"></point>
+        <point x="58" y="164"></point>
+      </polygon>
+      <line endX="215" startY="253" marked="false" color="255" endY="253" startX="189"></line>
+      <circle x="102" y="30" marked="false" color="255" diameter="30" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="165" y="105"></point>
+        <point x="135" y="105"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="105"></point>
+        <point x="135" y="75"></point>
+        <point x="165" y="75"></point>
+        <point x="195" y="105"></point>
+        <point x="180" y="120"></point>
+      </polygon>
+      <circle x="160" y="30" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="heart" rotatable="true" editableColorIndex="0">
+      <circle x="152" y="19" marked="true" color="-1920102913" diameter="134" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="105"></point>
+        <point x="240" y="105"></point>
+        <point x="270" y="135"></point>
+        <point x="150" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="105"></point>
+        <point x="60" y="105"></point>
+        <point x="30" y="135"></point>
+        <point x="150" y="270"></point>
+      </polygon>
+      <line endX="150" startY="270" marked="true" color="-1920102913" endY="135" startX="150"></line>
+      <rectangle endX="180" startY="90" marked="true" color="-1920102913" endY="135" startX="135" filled="true"></rectangle>
+      <circle x="14" y="19" marked="true" color="-1920102913" diameter="134" filled="true"></circle>
+    </shape>
+    <shape name="key" rotatable="true" editableColorIndex="0">
+      <rectangle endX="150" startY="0" marked="true" color="-1920102913" endY="210" startX="120" filled="true"></rectangle>
+      <rectangle endX="195" startY="0" marked="true" color="-1920102913" endY="30" startX="135" filled="true"></rectangle>
+      <rectangle endX="195" startY="75" marked="true" color="-1920102913" endY="105" startX="135" filled="true"></rectangle>
+      <circle x="60" y="150" marked="true" color="-1920102913" diameter="150" filled="true"></circle>
+      <circle x="90" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+    </shape>
+    <shape name="leaf" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="monster" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="75" y="150"></point>
+        <point x="90" y="195"></point>
+        <point x="210" y="195"></point>
+        <point x="225" y="150"></point>
+        <point x="255" y="120"></point>
+        <point x="255" y="45"></point>
+        <point x="180" y="0"></point>
+        <point x="120" y="0"></point>
+        <point x="45" y="45"></point>
+        <point x="45" y="120"></point>
+      </polygon>
+      <circle x="165" y="60" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="75" y="60" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="225" y="150"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="285"></point>
+        <point x="255" y="300"></point>
+        <point x="255" y="210"></point>
+        <point x="180" y="165"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="75" y="150"></point>
+        <point x="15" y="195"></point>
+        <point x="15" y="285"></point>
+        <point x="45" y="300"></point>
+        <point x="45" y="210"></point>
+        <point x="120" y="165"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="210" y="210"></point>
+        <point x="225" y="285"></point>
+        <point x="195" y="285"></point>
+        <point x="165" y="165"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="210"></point>
+        <point x="75" y="285"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="165"></point>
+      </polygon>
+      <rectangle endX="165" startY="165" marked="true" color="-1920102913" endY="270" startX="135" filled="true"></rectangle>
+    </shape>
+    <shape name="moon" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="289" y="208"></point>
+        <point x="252" y="99"></point>
+        <point x="206" y="51"></point>
+        <point x="146" y="31"></point>
+        <point x="84" y="56"></point>
+        <point x="37" y="108"></point>
+        <point x="21" y="153"></point>
+        <point x="16" y="209"></point>
+        <point x="43" y="161"></point>
+        <point x="87" y="121"></point>
+        <point x="129" y="105"></point>
+        <point x="175" y="106"></point>
+        <point x="208" y="121"></point>
+        <point x="242" y="149"></point>
+      </polygon>
+    </shape>
+    <shape name="star" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="true" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <rectangle endX="165" startY="15" marked="true" color="-1920102913" endY="150" startX="135" filled="true"></rectangle>
+    </shape>
+    <shape name="wheel" rotatable="true" editableColorIndex="0">
+      <circle x="15" y="15" marked="true" color="-1920102913" diameter="270" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="270" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="90" startY="40" marked="true" color="-1920102913" endY="255" startX="216"></line>
+      <line endX="255" startY="84" marked="true" color="-1920102913" endY="210" startX="40"></line>
+      <line endX="255" startY="216" marked="true" color="-1920102913" endY="90" startX="40"></line>
+      <line endX="210" startY="40" marked="true" color="-1920102913" endY="255" startX="84"></line>
+      <circle x="120" y="0" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <hubNetClient>
+    <view x="247" maxPycor="16" updateMode="1" wrappingAllowedX="true" y="46" frameRate="30.0" minPycor="-16" height="429" showTickCounter="true" patchSize="12.0" fontSize="13" wrappingAllowedY="true" width="481" tickCounterLabel="ticks" maxPxcor="18" minPxcor="-18"></view>
+    <slider x="107" step="0.01" y="157" height="33" min="0.0" direction="Horizontal" max="2.0" default="1.0" variable="speed" width="133" display="speed"></slider>
+    <monitor x="6" precision="3" y="10" height="49" fontSize="11" width="136" display="Your critter shape:"></monitor>
+    <button x="144" y="10" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="95" display="Change Shape"></button>
+    <monitor x="12" precision="3" y="525" height="49" fontSize="11" width="189" display="Your Current Species Size"></monitor>
+    <button x="114" y="303" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="127" display="Place New Species"></button>
+    <note x="13" y="301" height="63" color="14.0" transparent="true" fontSize="11" width="102">WARNING: placing a new species will remove all your current critters.</note>
+    <input x="9" multiline="true" y="87" height="60" variable="behavior-dna" type="string" width="225">FFFFL</input>
+    <note x="17" y="68" height="18" color="93.0" transparent="true" fontSize="10" width="230">F=Forward, R=Right, L=Left, *=Random</note>
+    <note x="5" y="162" height="30" color="93.0" transparent="true" fontSize="10" width="100">More speed uses energy more quickly.</note>
+    <slider x="107" step="1.0" y="199" height="33" min="5.0" direction="Horizontal" max="50.0" default="25.0" variable="birthing-level" width="133" display="birthing-level"></slider>
+    <note x="5" y="204" height="30" color="23.0" transparent="true" fontSize="10" width="117">Energy collected for reproduction.</note>
+    <switch x="250" y="10" height="33" on="false" variable="gray-out-others?" width="160" display="gray-out-others?"></switch>
+    <monitor x="474" precision="3" y="478" height="49" fontSize="11" width="112" display="# Alive Species"></monitor>
+    <switch x="409" y="10" height="33" on="false" variable="follow-a-critter?" width="166" display="follow-a-critter?"></switch>
+    <switch x="106" y="244" height="33" on="false" variable="carnivore?" width="132" display="carnivore?"></switch>
+    <monitor x="202" precision="3" y="526" height="49" fontSize="11" width="240" display="Species Longevity Leader"></monitor>
+    <monitor x="13" precision="3" y="477" height="49" fontSize="11" width="189" display="Your Current Species Longevity"></monitor>
+    <plot x="732" yMax="100.0" yAxis="percent of living critters" y="10" xMin="0.0" height="562" legend="true" xMax="500.0" autoplot="true" yMin="0.0" width="288" xAxis="time" display="population">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="-players-">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <monitor x="10" precision="3" y="363" height="49" fontSize="11" width="225" display="Countdown until you can place again:"></monitor>
+    <note x="5" y="244" height="45" color="53.0" transparent="true" fontSize="10" width="99">Carnivores won't eat critters of their own color.</note>
+    <switch x="575" y="10" height="33" on="false" variable="show-energy?" width="150" display="show-energy?"></switch>
+    <monitor x="204" precision="3" y="477" height="49" fontSize="11" width="238" display="Your Max. Species Longevity"></monitor>
+    <monitor x="10" precision="3" y="413" height="49" fontSize="11" width="225" display="# of species left you can introduce"></monitor>
+    <monitor x="615" precision="3" y="527" height="49" fontSize="11" width="109" display="time"></monitor>
+    <note x="7" y="284" height="18" color="0.0" transparent="true" fontSize="11" width="240">:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::</note>
+    <monitor x="590" precision="3" y="477" height="49" fontSize="11" width="109" display="# Extinct Species"></monitor>
+    <monitor x="446" precision="3" y="528" height="49" fontSize="11" width="168" display="Longevity Record"></monitor>
+  </hubNetClient>
+  <previewCommands>need-to-manually-make-preview-for-this-model</previewCommands>
+</model>

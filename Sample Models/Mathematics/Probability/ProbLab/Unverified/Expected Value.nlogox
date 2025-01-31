@@ -1,0 +1,1296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="false">
+  <code><![CDATA[globals [
+  ratio-list ; list of ratio-unit sliders
+  my-sample-size ; keeps track of the original sample-size
+  #patches ;; keeps the number of patches, so don't have to recalculate all the time
+
+  ;; outputs that will be printed in the monitors
+  expected-value-calculation
+  expected-value
+  ratio-monitor-list ; the "% in Population" monitors pick items from ratio-monitor-list
+
+  the-little-guy ; wanders around picking tiles to turn over
+
+  all-totals ; list of the totals from each run
+
+  colors ; list of the colors given for each number of marbles
+
+  target-color ; the default base color of the display
+
+  little-guy-color ; the color of the little-guy
+]
+
+patches-own [ value index ] ; how many marbles are under the tile
+
+breed [ outlines outline ]
+breed [ little-guys little-guy ]
+
+little-guys-own [ values ] ; list of numbers in the running total of the sample
+
+to startup
+  set expected-value-calculation ""
+end
+
+to setup
+  clear-all
+  set expected-value-calculation ""
+  setup-misc-globals ; collects ratio-unit sliders, etc.
+  ;;checks for all 0s
+  if sum ratio-list = 0 [ user-message "Cannot set all ratio-units sliders to 0"  stop ]
+  setup-patches ; sets the values and colors of the patches
+  setup-little-guy
+  setup-monitors ; sets the global variables the monitors display
+  set all-totals lput ( [sum values] of the-little-guy ) all-totals
+  reset-ticks
+end
+
+to go
+  clear-selection
+  ask little-guys
+  [
+    get-ready-for-next-sample
+    repeat my-sample-size
+    [
+      set values ( lput value values )
+      select-patch
+      let prev-heading heading
+      fd 1
+      rt one-of [ -90 0 90 ]
+    ]
+  ]
+  set all-totals lput ( [sum values] of the-little-guy ) all-totals
+  tick
+end
+
+;; collects ratio-unit sliders, sets colors, etc.
+to setup-misc-globals
+  set ratio-list ( list ratio-0-units
+                        ratio-1-units
+                        ratio-2-units
+                        ratio-3-units
+                        ratio-4-units
+                        ratio-5-units
+                        ratio-6-units )
+
+  set my-sample-size sample-size
+  set #patches count patches
+
+  set all-totals []
+
+  set little-guy-color 94
+
+  ;; sets the range of patch colors from dark to light
+  set target-color green
+  set colors ( list (target-color - 4.5)
+                    (target-color - 3)
+                    (target-color - 1.5)
+                     target-color
+                    (target-color + 1.5)
+                    (target-color + 3)
+                    (target-color + 4.5) )
+end
+
+;; sets the values and colors of the patches
+to setup-patches
+  ;;makes all patches have no value
+  ask patches [ set value -1 ]
+  let cur-val 0
+
+  ;;finds the number of patches of each type that need to be printed:
+  ;;makes the percentages, multiplies them by the number of patches
+  let list-of-nums map [ ratio -> ratio / (sum ratio-list) * #patches] ratio-list
+  ;;rounds the numbers of patches with a specific value
+  let r-list-of-nums map round list-of-nums
+
+  ;;tweaks the values, either in the positive or in the negative direction,
+  ;;for the sum to equal to the number of patches on the display
+  let nums setup-patches-polish list-of-nums r-list-of-nums
+
+  ;;prints out the values on random patches that are not already taken
+  foreach nums [ n ->
+    ask n-of n patches with [ value = -1 ]
+    [ set value cur-val ]
+    set cur-val cur-val + 1
+  ]
+
+  ;;if population to be shown, shows in block, then scrambles
+  ifelse setup-apart?
+  [
+    print-out nums
+    display
+    wait 2
+    repeat (#patches / 4) [
+      disperse
+      display
+    ]
+    ask patches [ set value position pcolor colors ]
+  ]
+  ;;colors the patches from their given values
+  [ recolor-patches ]
+end
+
+;;tweaks the values so that they add up to the number of patches
+;;(in the positive or negative direction)
+to-report setup-patches-polish [ list-of-nums r-list-of-nums ]
+  ;;tweaks the values, either in the positive or in the negative direction,
+  ;;for the sum to equal to the number of patches on the display:
+  ;;if the sum is below the number of patches, then searches for the highest remainder to round up
+  while [sum r-list-of-nums < #patches]
+  [
+    let remainders map [ n -> remainder (n * #patches) #patches] list-of-nums
+    ;;finds the position of the maximum remainder
+    let pos-of-max position (max remainders) remainders
+    ;;updates the list of numbers of each type of patch
+    set r-list-of-nums (replace-item pos-of-max r-list-of-nums ((item pos-of-max r-list-of-nums) + 1))
+    set list-of-nums (replace-item pos-of-max list-of-nums (floor (item pos-of-max list-of-nums) + 1))
+  ]
+  ;;if the sum is above the number of patches, then searches for the lowest remainder to round up
+  ;;to prevent a bug that would make 0 always be the minimum remainder, all the 0's are changed
+  ;;to large numbers, for them to not become negative
+  while [sum r-list-of-nums > #patches]
+  [
+    let remainders map [ n -> remainder (n * #patches) #patches ] list-of-nums
+    ;;remainders1 makes sure that the 0 is not deemed the minimum remainder, but
+    ;;looks for minimum remainder above 0
+    let remainders1 []
+    foreach remainders [ the-remainder ->
+      ifelse the-remainder = 0
+      [ set remainders1 (lput #patches remainders1) ]
+      [ set remainders1 (lput the-remainder remainders1) ]
+    ]
+    ;;finds the position of the minimum remainder
+    let pos-of-min position (min remainders1) remainders1
+    ;;updates the list of numbers of each type of patch
+    set r-list-of-nums (replace-item pos-of-min r-list-of-nums ((item pos-of-min r-list-of-nums) - 1))
+    set list-of-nums (replace-item pos-of-min list-of-nums (floor (item pos-of-min list-of-nums)))
+  ]
+  report r-list-of-nums
+end
+
+;;shows the populations separately
+to print-out [ list-of-nums ]
+  ;;indexes the patches (from left to right, down to up), if had not already done so
+  ask patches [ set index ((pxcor + max-pxcor) * (max-pxcor * 2 + 1) + (pycor + max-pycor)) ]
+
+  ;;shows the separated populations
+  let patch-now 0
+  let temp 0
+  foreach list-of-nums [ n ->
+    repeat n
+    [
+      ask patches with [index = patch-now] [ set pcolor item temp colors ]
+      set patch-now patch-now + 1
+    ]
+    set temp temp + 1
+  ]
+end
+
+;;asks all the patches to switch its color with one of its neighbors
+to disperse
+  ask patches
+  [
+    let other-patch one-of neighbors4
+    let temp-color pcolor
+    set pcolor [pcolor] of other-patch
+    ask other-patch [ set pcolor temp-color ]
+  ]
+end
+
+;;colors the patches according to their value
+to recolor-patches
+  ifelse black-out? [ ask patches [ set pcolor 0 ] ] [ ask patches [ set pcolor item value colors ] ]
+end
+
+to setup-little-guy
+  create-little-guys 1 [
+    hide-turtle
+    set color little-guy-color
+    set shape "person"
+    move-to one-of patches
+    face one-of neighbors4
+    set values []
+    show-turtle
+  ]
+  set the-little-guy one-of little-guys
+end
+
+;; sets the global variables the monitors display
+to setup-monitors
+  ;; the "% in Population" monitors pick items from ratio-monitor-list
+  set ratio-monitor-list map [ ratio ->
+    (word ratio "/" (sum ratio-list) " = "
+      precision (100 * ratio / (sum ratio-list)) 1
+  "%")
+  ] ratio-list
+  set expected-value my-sample-size * sum map [ i ->
+    i * item i ratio-list / (sum ratio-list)
+  ] [ 0 1 2 3 4 5 6 ]
+  set expected-value-calculation word my-sample-size " * ("
+  foreach [ 0 1 2 3 4 5 ] [ i ->
+    set expected-value-calculation (word expected-value-calculation
+      i " * " item i ratio-list "/" (sum ratio-list) " + ")
+  ]
+  ;; we separated out the "6 case" because we don't add a "+", but we do add a ") ="
+  set expected-value-calculation (word expected-value-calculation
+                                       6 " * " item 6 ratio-list "/" (sum ratio-list) ") = ")
+end
+
+
+;; clears the red from the patches chosen before
+to clear-selection
+  recolor-patches
+  ask turtles with [ breed = outlines ] [ die ]
+end
+
+to get-ready-for-next-sample ;; little-guy procedure
+  slide-to-random-patch
+  face one-of neighbors4
+  set values []
+end
+
+to slide-to-random-patch ;; little-guy procedure
+  let random-patch one-of patches
+  while [ patch-here != random-patch ] [
+    face random-patch
+    fd 1
+  ]
+  setxy pxcor pycor
+end
+
+;; highlights the point given to it
+to select-patch ;; little-guy procedure
+  let shapes-list (list "outline"
+                        "outline1"
+                        "outline2"
+                        "outline3"
+                        "outline4"
+                        "outline5"
+                        "outline6")
+  ask patch-here
+  [
+    set pcolor item value colors
+    sprout 1
+    [
+      set breed outlines
+      ;; set the shape and label correctly.
+      ifelse die-nums?
+      [
+        ;; if die-nums? the shape holds the value and there are no labels
+        set shape (item value shapes-list)
+      ]
+      [
+        ;; if not die-nums? the shape doesn't hold the label, so set the label
+        set shape "outline"
+        ;; sets label color to be opposite color in the list of colors
+        set label-color item ((value + 2) mod length colors) colors
+        ;; the " " on the end pushes the label into the middle of the patch
+        set label word value " "
+      ]
+    ]
+  ]
+end
+
+to plot-vert-line [ x-coord ]
+  plotxy x-coord plot-y-min
+  plot-pen-down
+  plotxy x-coord plot-y-max
+  plot-pen-up
+end
+
+
+; Copyright 2004 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="253" maxPycor="7" updateMode="1" wrappingAllowedX="true" y="64" frameRate="30.0" minPycor="-7" height="474" showTickCounter="true" patchSize="31.0" fontSize="20" wrappingAllowedY="true" width="473" tickCounterLabel="ticks" maxPxcor="7" minPxcor="-7"></view>
+    <note x="73" y="310" height="19" color="0.0" transparent="false" fontSize="11" width="50">Regular</note>
+    <note x="67" y="160" height="18" color="0.0" transparent="false" fontSize="11" width="52">Darkest</note>
+    <note x="73" y="212" height="19" color="0.0" transparent="false" fontSize="11" width="46">Darker</note>
+    <note x="73" y="260" height="20" color="0.0" transparent="false" fontSize="11" width="53">Darkish</note>
+    <note x="73" y="360" height="19" color="0.0" transparent="false" fontSize="11" width="53">Lightish</note>
+    <note x="73" y="410" height="19" color="0.0" transparent="false" fontSize="11" width="48">Lighter</note>
+    <note x="73" y="462" height="20" color="0.0" transparent="false" fontSize="11" width="50">Lightest</note>
+    <button x="4" y="12" height="36" disableUntilTicks="false" forever="false" kind="Observer" width="117" display="Setup">setup</button>
+    <slider x="3" step="1" y="181" height="33" min="0" direction="Horizontal" max="10" default="1.0" variable="ratio-1-units" width="117" display="ratio-1-units"></slider>
+    <slider x="4" step="1" y="229" height="33" min="0" direction="Horizontal" max="10" default="6.0" variable="ratio-2-units" width="116" display="ratio-2-units"></slider>
+    <slider x="3" step="1" y="279" height="33" min="0" direction="Horizontal" max="10" default="5.0" variable="ratio-3-units" width="117" display="ratio-3-units"></slider>
+    <slider x="3" step="1" y="329" height="33" min="0" direction="Horizontal" max="10" default="0.0" variable="ratio-4-units" width="116" display="ratio-4-units"></slider>
+    <slider x="4" step="1" y="379" height="33" min="0" direction="Horizontal" max="10" default="4.0" variable="ratio-5-units" width="116" display="ratio-5-units"></slider>
+    <monitor x="845" precision="2" y="12" height="45" fontSize="11" width="113" display="Mean of Samples">sum all-totals / length all-totals</monitor>
+    <monitor x="128" precision="0" y="171" height="45" fontSize="11" width="120" display="% in Population">item 1 ratio-monitor-list</monitor>
+    <monitor x="128" precision="0" y="221" height="45" fontSize="11" width="120" display="% in Population">item 2 ratio-monitor-list</monitor>
+    <monitor x="128" precision="0" y="271" height="45" fontSize="11" width="120" display="% in Population">item 3 ratio-monitor-list</monitor>
+    <monitor x="128" precision="0" y="321" height="45" fontSize="11" width="120" display="% in Population">item 4 ratio-monitor-list</monitor>
+    <monitor x="128" precision="0" y="371" height="45" fontSize="11" width="120" display="% in Population">item 5 ratio-monitor-list</monitor>
+    <switch x="5" y="527" height="33" on="false" variable="black-out?" width="117" display="black-out?"></switch>
+    <switch x="5" y="488" height="33" on="false" variable="die-nums?" width="117" display="die-nums?"></switch>
+    <monitor x="844" precision="0" y="336" height="45" fontSize="11" width="115" display="This Sample Total">[sum values] of the-little-guy</monitor>
+    <monitor x="731" precision="0" y="336" height="45" fontSize="11" width="110" display="# of Runs">length all-totals</monitor>
+    <slider x="128" step="1" y="488" height="33" min="1" direction="Horizontal" max="20" default="10.0" variable="sample-size" width="120" display="sample-size"></slider>
+    <button x="127" y="50" height="36" disableUntilTicks="true" forever="false" kind="Observer" width="120" display="Go Once">go</button>
+    <button x="4" y="50" height="36" disableUntilTicks="true" forever="false" kind="Observer" width="117" display="Clear Selection">clear-selection</button>
+    <note x="9" y="94" height="28" color="0.0" transparent="false" fontSize="11" width="232">Note: Press SETUP to apply
+slider changes</note>
+    <plot x="731" yMax="10.0" y="389" xMin="20.0" height="171" legend="false" xMax="40.0" autoplot="true" yMin="0.0" width="228" display="Sample Totals">
+      <setup></setup>
+      <update><![CDATA[;; changes range
+if length all-totals > 0 and length all-totals mod 20 = 0 [
+  set-plot-x-range min all-totals max all-totals + 1
+]]]></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="1" display="Sample Count">
+        <setup></setup>
+        <update><![CDATA[plot-pen-reset
+histogram all-totals
+let maxbar modes all-totals
+let maxrange filter [ total -> total = item 0 maxbar ] all-totals
+set-plot-y-range 0 length maxrange]]></update>
+      </pen>
+      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="Expected Value">
+        <setup>plot-vert-line expected-value</setup>
+        <update>plot-pen-reset
+plot-vert-line expected-value</update>
+      </pen>
+      <pen color="-10899396" legend="true" interval="1.0" mode="0" display="Mean">
+        <setup></setup>
+        <update>plot-pen-reset
+plot-vert-line ((sum all-totals) / (length all-totals))</update>
+      </pen>
+    </plot>
+    <monitor x="731" precision="3" y="12" height="45" fontSize="11" width="111" display="Expected Value">expected-value</monitor>
+    <plot x="731" yMax="50.0" y="64" xMin="0.0" height="267" legend="false" xMax="10.0" autoplot="true" yMin="20.0" width="227" display="Cumulative Mean">
+      <setup>;; makes a line on the graph, signifying the theoretical expected value
+set-plot-y-range round expected-value - 10  round expected-value + 10</setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="Average">
+        <setup></setup>
+        <update>plot sum all-totals / length all-totals</update>
+      </pen>
+      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="Expected Value">
+        <setup>plotxy plot-x-min expected-value
+plotxy plot-x-max expected-value</setup>
+        <update><![CDATA[if length all-totals > 10 [ plot expected-value ]]]></update>
+      </pen>
+    </plot>
+    <slider x="3" step="1" y="129" height="33" min="0" direction="Horizontal" max="10" default="0.0" variable="ratio-0-units" width="117" display="ratio-0-units"></slider>
+    <monitor x="128" precision="0" y="121" height="45" fontSize="11" width="120" display="% in Population">item 0 ratio-monitor-list</monitor>
+    <slider x="4" step="1" y="431" height="33" min="0" direction="Horizontal" max="10" default="0.0" variable="ratio-6-units" width="116" display="ratio-6-units"></slider>
+    <monitor x="128" precision="0" y="421" height="45" fontSize="11" width="120" display="% in Population">item 6 ratio-monitor-list</monitor>
+    <monitor x="253" precision="0" y="12" height="45" fontSize="11" width="475" display="Expected Value Calculation">expected-value-calculation</monitor>
+    <button x="127" y="12" height="36" disableUntilTicks="true" forever="true" kind="Observer" width="120" display="Go">go</button>
+    <switch x="129" y="527" height="33" on="true" variable="setup-apart?" width="119" display="setup-apart?"></switch>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+In this model you run experiments that demonstrate the mathematical idea "expected value" (sometimes called "expectation value"). There is a set of different possible outcomes, and each of these outcomes has a different value. The model predicts the expected value based on the probabilities of each of these outcomes. The user can then take samples from the population and compare them to the values predicted by the model.
+
+This model is a part of the ProbLab curriculum. The ProbLab Curriculum is currently under development at the CCL. For more information about the ProbLab Curriculum please refer to http://ccl.northwestern.edu/curriculum/ProbLab/.
+
+## PEDAGOGICAL NOTE
+
+Expected-value analyses look at the 'value' of outcomes in probability experiments in terms of some utilitarian framework, such as money or points. As in life, some events are more significant to us, not just because they happen rarely or often. In that sense, expected-value simulations go beyond looking just at chance -- they introduces a 'worth' factor (weight, coefficient) associated with each type of experimental outcome. That is, these simulations examine not only the issue of what I should expect, but also, what it would be worth for me.  For instance, if I draw 12 coins randomly from a sack containing an equal number of pennies, nickels, dimes, and quarters, we could talk about which 12 'coins' I could expect to get (a nominal classification) -- 3 'pennies,' 3 'nickels,' 3 'dimes,' and 3 'quarters,' on average. But we could extend the discussion to how much money I would get, that is, what would be the 'value' of my draw. To do this, we'd have to multiply the expected frequency of each type of coin by its value:
+3 * 1 + 3 * 5 + 3 * 10 + 3 * 25 = 123 cents.
+
+A more general way of putting this all together -- the sample size (12), the probabilities of each coin (1/4 for each of them), and the value of each coin (1, 5, 10, and 25) -- is:
+12 * (1 * 1/4 + 5 * 1/4 + 10 * 1/4 + 25 * 1/4) = 123 cents.
+
+Thus, the term 'expected value' may be defined as the sum of the products of the value of each possible event and the probability of that possible event.
+
+## HOW IT WORKS
+
+The analogy utilized for the model is one of a tiled playground, with a certain number of marbles beneath each tile (0, 1, 2, 3, 4, 5 or 6 marbles).  A wandering kid flips up some tiles at every go and counts up the marbles found beneath the tiles. That's a "sample."  The kid cannot see the color of the tiles -- the colors are for us.
+
+The idea of 'expected value' is that if we know how many tiles have 0, 1, 2,... or 6 marbles beneath them, then we can formulate an educated guess of how many marbles the wandering kid will find, on average. It's similar to asking, 'How many marbles are there on average under each tile?' We need to somehow take into account the chance of getting each one of the marble sets.
+
+In the setting-up phase of using this model, you get to set up the relative number of tiles hiding 0 marbles, 1 marble, 2 marbles, ... and 6 marbles. We set the ratio between the number of tiles hiding each set of marbles. The computer program will do much of the calculations for us, but here's the gist of what it does:
+
+Let's say that we set the sliders to the following ratio units: 0 : 1 : 6 : 5 : 0 : 4 : 0.
+
+The number '5,' for example, indicates our value setting for marble sets of exactly 3 marbles. You can see immediately that the chance of getting a '2' (6 ratio units) is greater than the chance of getting a '3' (5 ratio units). But in order to determine just how big the chance is of getting each marble set, we need to state the ratio units relative to each other. We need a common denominator. In this particular setting, there is a total of 16 'ratio units': 0 + 1 + 6 + 5 + 0 + 4 + 0 = 16.  Now we can say, for instance, that there is a 4/16 chance of getting a 5-marble set. That is a 25% chance of striking upon a tile that has exactly 5 marbles beneath it. We can also say that these sets of 5 marbles contribute .25 * 5, that is, 1.25 marbles, to the overall average marble-value of a single tile in the playground. Similarly, we can say there is a 5/16 chance of getting a set of 3, a 0/16 chance of getting 6-marble set, etc. If we sum up all pairs of 'value' and 'probability,' we get:
+(0 * 0/16) + (1 * 1/16) + (2 * 6/16) + (3 * 5/16) + (4 * 0/16) + (5 * 4/16) + (6 * 0/16) = 48/16 = 3 marbles per tile.
+
+This tells us that on any single pick within these settings, you should expect to find, on average, 3 marbles. "3" is our expected value. Thus, if you were to flip over 10 tiles, you should expect to find a total of 30 marbles.
+
+## HOW TO USE IT
+
+Begin by choosing ratios of marble sets (or just use the default settings). Click SETUP, and watch the information updated in the view. Below are more features of the models that will let you change the way it looks and runs.
+
+Sliders:
+RATIO-0-UNITS, RATIO-1-UNITS, RATIO-2-UNITS, RATIO-3-UNITS, RATIO-4-UNITS, RATIO-5-UNITS, RATIO-6-UNITS -- settings for the distribution of 'marble sets' (= 'points'). Note that the ratios are set in proportion to each other (See 'THINGS TO TRY'). (The labels under the sliders let the user know that the highest value is the lightest tile color, while the lowest value is the darkest tile color.)
+
+SAMPLE-SIZE -- sets the number of tiles selected by the wandering kid at each run.  Note that the kid can turn over the same tile more than once. This won't be visible in the view.
+
+Switches:
+SETUP-APART? -- if 'On,' when SETUP is pressed, the display initially separates the population by point value, to illustrate the relative number of patches of different values.  After a 3 second pause, the model scrambles the populations, producing a randomized display.
+
+DIE-NUMS? -- if 'On,' you will see the marbles and not only colors, when the tiles are flipped over; if 'Off,' you'll see the colors and the numerical value assigned to them.
+
+BLACK-OUT? -- if 'On,' you will only see the tiles the kid selected in the present sample; if 'Off,' you will always see all the tiles. In any case, the kid does not see the colors. The 'black-out' feature makes this model more coherent with S.A.M.P.L.E.R., a participatory simulation in ProbLab.
+
+Buttons:
+SETUP -- initializes variables, re-colors the tiles, and resets the monitors and the graphs.
+
+GO ONCE -- picks a starting point randomly among the tiles in the view, sends the kid for a single run over random tiles, counts up the total number of marbles found, and graphs this total, that is, 'bumps up' the histogram at the corresponding value.
+
+CLEAR SELECTION -- re-covers the tiles that have been flipped (does not re-initialize variables).
+
+GO -- does everything that the GO ONCE button does, but over and over, until turned off, that is, until you press on it again.
+
+Monitors:
+% IN POPULATION -- shows the distribution percentage of each marble-set in the population, including the calculation that illustrates how that percentage was obtained. For instance, if the RATIO-3-UNITS's % IN POPULATION monitor is at 50%, then roughly half of all the tiles will have exactly 3 marbles beneath them.
+
+EXPECTATION VALUE CALCULATION -- This monitor shows the calculation of the expected number of marbles that the kid will find beneath all the tiles the kid flips in a sample. The calculation first determines the value of the 'average tile' and then multiplies this value by the number of tiles in the kid's sample (how many tiles the kid flips). Thus, 'average value' * 'sample-size' = total expected value of sample. The formula for the expectation calculation is:
+sample-size * (0 * (ratio-0-units / ratios-total) + 1 * (ratio-1-units / ratios-total) + 2 * (ratio-2-units / ratios-total) + 3 * (ratio-3-units / ratios-total) + 4 * (ratio-4-units / ratios-total) + 5 * (ratio-5-units / ratios-total) + 6 * (ratio-6-units / ratios-total))
+
+EXPECTED VALUE -- shows the result of the EXPECTED VALUE CALCULATION
+
+MEAN OF SAMPLES-- monitors the cumulative average number of points obtained in a sample (so it keeps updating for each sample).
+
+\# OF RUNS -- monitors the number of times the tiles were selected and counted as a sample.
+
+POINT TOTAL -- monitors the total number of marbles in the current sample. (updates the total as each tile is selected).
+
+Plots:
+SAMPLE TOTALS -- plots the frequency of each point-total of a run.  The green vertical line represents the average sample total, while the red vertical line represents the expected sample total.
+
+CUMULATIVE MEAN -- plots the average number of points obtained in a single run in black against the expected value in red.
+
+## THINGS TO NOTICE
+
+If the model is slowed down, using the bar on top of the display, one may see that the sample total is added on every time that the wandering kid selects another tile. Thus, one may monitor the running total for the current run of the kid.
+
+A feature of this model is that the wandering kid may resample the same tiles during a single run. While the kid cannot go back to a tile it just selected, it can potentially go in a circle and come back to such a tile. This may skew the average away from the expected value, which does not account for such re-sampling (see 'EXTENDING THE MODEL,' below).
+
+## THINGS TO TRY
+
+Run the model under different setting of the three switches.  Why does DIE-NUMS? help
+one visualize the model better in some situations and under some settings, while not
+in others?
+
+The relative ratios of the various marble sets are determined by relative values of all of the sliders on the left.  In other words, if one sets RATIO-0-UNIT : RATIO-2-UNITS : ..., : RATIO-6-UNITS to 1 : 1 : 1 : 1 : 1 : 1 : 1, it is going to mean the same to the computer as the setting of 2 : 2 : 2 : 2 : 2 : 2 : 2 or 5 : 5 : 5 : 5 : 5 : 5 : 5.  The sliders are designed to allow an exploration of a rich range of proportions of the different marble sets.  Try extending the maximum value of the RATIO sliders, to obtain a richer range of proportions of marble sets.
+
+Change the target-color to some color other than green. Change the 'little-guy-color,' which alters the color of the wandering kid.
+
+Set the ratio-0-units to 0. Set all the other ratio sliders to some value, for instance 2. (It doesn't matter which, as long as they are the same.) Press SETUP. The model now simulates the sample space of dice, which do not have a '0,' and for which each 1-thru-6 value is equally likely to occur.
+
+Set the ratios of the 0 and 1 to some non-zero value. Set the ratios of 2, 3, 4, 5 and 6 to 0. Press SETUP. This produces a sample space of a Boolean type ('true' or 'false'). This sample space would be coherent with the S.A.M.P.L.E.R. model of ProbLab, where tiles are either green (true) or blue (false), without in-between values.
+
+Set the ratios of 5 and 6 to 0. Set the other ratios to non-zero values. Press SETUP. The model produces a sample space that could be seen as a tessellation of '4-blocks,' which appear in the 9-Block Stalagmite model of ProbLab. In that model, blocks have either 0, 1, 2, 3, or all 4 squares with the target-color.
+
+## EXTENDING THE MODEL
+
+Add and change code so that the wandering kid cannot re-sample within a single sample.
+
+Add and change code so that the wandering kid cannot re-sample within a single run of many samples.
+
+Add a monitor that show the % difference between the expected value and the mean of samples.
+
+Add another unit-value slider. It could for 7, so you'd need to create a die shape with 7 dots on it and integrate that die shape and its name into the lists in the code. You could possibly create a 'negative value,' which could be interpreted as an added expense, like owing marbles.
+
+## RELATED MODELS
+
+This model is closely related to a variety of models in the ProbLab curriculum. As described in the 'THINGS TO TRY' section, one may set the ratios up so that they mirror the sample population of other models in the curriculum, including 9-Block Stalagmite and S.A.M.P.L.E.R. For instance, if one sets BLACK-OUT? to 'On,' this model would produce an effect that is similar to that of S.A.M.P.L.E.R., where one chooses a certain number of tiles and doesn't see any of the other tiles in the population.
+
+## CREDITS AND REFERENCES
+
+This model is a part of the ProbLab curriculum. The ProbLab Curriculum is currently under development at Northwestern's Center for Connected Learning and Computer-Based Modeling. . For more information about the ProbLab Curriculum please refer to http://ccl.northwestern.edu/curriculum/ProbLab/.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Abrahamson, D. and Wilensky, U. (2004).  NetLogo Expected Value model.  http://ccl.northwestern.edu/netlogo/models/ExpectedValue.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2004 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This model was created as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
+
+<!-- 2004 Cite: Abrahamson, D. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="outline" rotatable="false" editableColorIndex="0">
+      <rectangle endX="315" startY="-15" marked="false" color="-684578305" endY="15" startX="0" filled="true"></rectangle>
+      <rectangle endX="15" startY="0" marked="false" color="-684578305" endY="375" startX="-15" filled="true"></rectangle>
+      <rectangle endX="360" startY="285" marked="false" color="-684578305" endY="330" startX="0" filled="true"></rectangle>
+      <rectangle endX="360" startY="-90" marked="true" color="-1920102913" endY="300" startX="300" filled="true"></rectangle>
+      <rectangle endX="345" startY="-60" marked="false" color="-684578305" endY="285" startX="285" filled="true"></rectangle>
+    </shape>
+    <shape name="outline1" rotatable="false" editableColorIndex="0">
+      <rectangle endX="30" startY="0" marked="false" color="-684578305" endY="300" startX="0" filled="true"></rectangle>
+      <rectangle endX="360" startY="270" marked="false" color="-684578305" endY="360" startX="30" filled="true"></rectangle>
+      <rectangle endX="300" startY="-15" marked="false" color="-684578305" endY="270" startX="270" filled="true"></rectangle>
+      <rectangle endX="270" startY="0" marked="false" color="-684578305" endY="30" startX="15" filled="true"></rectangle>
+      <circle x="129" y="129" marked="false" color="-684578305" diameter="42" filled="true"></circle>
+    </shape>
+    <shape name="outline2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="30" startY="0" marked="false" color="-684578305" endY="300" startX="0" filled="true"></rectangle>
+      <rectangle endX="360" startY="270" marked="false" color="-684578305" endY="360" startX="30" filled="true"></rectangle>
+      <rectangle endX="300" startY="-15" marked="false" color="-684578305" endY="270" startX="270" filled="true"></rectangle>
+      <rectangle endX="270" startY="0" marked="false" color="-684578305" endY="30" startX="15" filled="true"></rectangle>
+      <circle x="69" y="189" marked="false" color="-684578305" diameter="42" filled="true"></circle>
+      <circle x="189" y="69" marked="false" color="-684578305" diameter="42" filled="true"></circle>
+    </shape>
+    <shape name="outline3" rotatable="false" editableColorIndex="0">
+      <rectangle endX="30" startY="0" marked="false" color="-684578305" endY="300" startX="0" filled="true"></rectangle>
+      <rectangle endX="360" startY="270" marked="false" color="-684578305" endY="360" startX="30" filled="true"></rectangle>
+      <rectangle endX="300" startY="-15" marked="false" color="-684578305" endY="270" startX="270" filled="true"></rectangle>
+      <rectangle endX="270" startY="0" marked="false" color="-684578305" endY="30" startX="15" filled="true"></rectangle>
+      <circle x="69" y="189" marked="false" color="-684578305" diameter="42" filled="true"></circle>
+      <circle x="129" y="129" marked="false" color="-684578305" diameter="42" filled="true"></circle>
+      <circle x="189" y="69" marked="false" color="-684578305" diameter="42" filled="true"></circle>
+    </shape>
+    <shape name="outline4" rotatable="false" editableColorIndex="0">
+      <rectangle endX="30" startY="0" marked="false" color="-684578305" endY="300" startX="0" filled="true"></rectangle>
+      <rectangle endX="360" startY="270" marked="false" color="-684578305" endY="360" startX="30" filled="true"></rectangle>
+      <rectangle endX="300" startY="-15" marked="false" color="-684578305" endY="270" startX="270" filled="true"></rectangle>
+      <rectangle endX="270" startY="0" marked="false" color="-684578305" endY="30" startX="15" filled="true"></rectangle>
+      <circle x="69" y="69" marked="false" color="-684578305" diameter="42" filled="true"></circle>
+      <circle x="189" y="69" marked="false" color="-684578305" diameter="42" filled="true"></circle>
+      <circle x="69" y="189" marked="false" color="-684578305" diameter="42" filled="true"></circle>
+      <circle x="189" y="189" marked="false" color="-684578305" diameter="42" filled="true"></circle>
+    </shape>
+    <shape name="outline5" rotatable="false" editableColorIndex="0">
+      <rectangle endX="30" startY="0" marked="false" color="-684578305" endY="300" startX="0" filled="true"></rectangle>
+      <rectangle endX="360" startY="270" marked="false" color="-684578305" endY="360" startX="30" filled="true"></rectangle>
+      <rectangle endX="300" startY="-15" marked="false" color="-684578305" endY="270" startX="270" filled="true"></rectangle>
+      <rectangle endX="270" startY="0" marked="false" color="-684578305" endY="30" startX="15" filled="true"></rectangle>
+      <circle x="69" y="69" marked="false" color="-684578305" diameter="42" filled="true"></circle>
+      <circle x="189" y="69" marked="false" color="-684578305" diameter="42" filled="true"></circle>
+      <circle x="69" y="189" marked="false" color="-684578305" diameter="42" filled="true"></circle>
+      <circle x="189" y="189" marked="false" color="-684578305" diameter="42" filled="true"></circle>
+      <circle x="129" y="129" marked="false" color="-684578305" diameter="42" filled="true"></circle>
+    </shape>
+    <shape name="outline6" rotatable="false" editableColorIndex="0">
+      <rectangle endX="30" startY="0" marked="false" color="-684578305" endY="300" startX="0" filled="true"></rectangle>
+      <rectangle endX="360" startY="270" marked="false" color="-684578305" endY="360" startX="30" filled="true"></rectangle>
+      <rectangle endX="300" startY="-15" marked="false" color="-684578305" endY="270" startX="270" filled="true"></rectangle>
+      <rectangle endX="270" startY="0" marked="false" color="-684578305" endY="30" startX="15" filled="true"></rectangle>
+      <circle x="69" y="69" marked="false" color="-684578305" diameter="42" filled="true"></circle>
+      <circle x="189" y="69" marked="false" color="-684578305" diameter="42" filled="true"></circle>
+      <circle x="69" y="189" marked="false" color="-684578305" diameter="42" filled="true"></circle>
+      <circle x="189" y="189" marked="false" color="-684578305" diameter="42" filled="true"></circle>
+      <circle x="69" y="129" marked="false" color="-684578305" diameter="42" filled="true"></circle>
+      <circle x="189" y="129" marked="false" color="-684578305" diameter="42" filled="true"></circle>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup go</previewCommands>
+</model>

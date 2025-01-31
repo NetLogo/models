@@ -1,0 +1,1246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[;; two different materials or phases
+breed [ element1s element1 ]  ;; element1 is the main material
+breed [ element2s element2 ]  ;; element2 is the materials which is
+                              ;; dispersed inside element1 (second-phase particles)
+
+element1s-own [
+  neighbors-6   ;; agentset of 6 neighboring cells
+]
+
+turtles-own [
+  neighboring-turtles  ;; agentset of surrounding atoms
+  sides-exposed        ;; number of sides exposed to walls  (between 0 and 4)
+]
+
+globals [
+  logtime                          ;; log of time
+  colors                           ;; used both to color turtles, and for histogram
+  xmax                             ;; max x size
+  ymax                             ;; max y size
+  average-grain-size               ;; average grain size
+  logaverage-grain-size            ;; log of average grain size (for plotting)
+  initial-loggrain-size            ;; For grain growth exponent calculation and graphing
+  initial-logtime                  ;; For grain growth exponent calculation and graphing
+  grain-growth-exponent            ;; Grain growth exponent
+  update-plots?                    ;; boolean for updating plots immediately
+]
+
+;; setup checks whether user has chosen "import image" or random in the chooser-widget
+to setup
+  if starting-point = "Random Arrangement" [
+    makes-initial-box-random
+  ]
+  if starting-point = "Import Image" [
+    import-image
+  ]
+  reset-ticks
+end
+
+to setup-hex-grid
+  ;; setup the hexagonal grid in which atoms will be placed
+  ;; and creates turtles
+  set-default-shape element2s "square 2"
+
+  ask patches [
+    sprout 1 [
+      ;; if there is a second element, create the corresponding atoms
+      ifelse (percent-element2 > random 100) [
+        ;; element2 is the fixed second-phase particle
+        set breed element2s
+        set color white
+        set heading 360
+      ]
+      [
+        ;; element1 is the main material which grows grains
+        set breed element1s
+        set shape atom-shape
+        set color random 139
+        ;; to ensure that the colors are distinct, we only let
+        ;; colors deviate from base color by plus or minus 3
+        set color one-of base-colors - 3 + random 6
+        set heading color
+      ]
+      ;; shift even columns down
+      if pxcor mod 2 = 0  [ set ycor ycor - 0.5 ]
+    ]
+  ]
+
+  ; the two lines below are for NetLogo 3D. Uncomment them, if you are using NetLogo 3D.
+  ; ask element1s [ set shape3d "sphere" ]
+  ; ask element2s [ set shape3d "cube" ]
+
+  ;; now set up the neighbors6 agentsets
+  ask element1s [
+    ;; define neighborhood of atoms
+    ifelse pxcor mod 2 = 0
+      [ set neighbors-6 element1s-on patches at-points [[0 1] [1 0] [1 -1] [0 -1] [-1 -1] [-1 0]] ]
+      [ set neighbors-6 element1s-on patches at-points [[0 1] [1 1] [1  0] [0 -1] [-1  0] [-1 1]] ]
+  ]
+end
+
+;; makes initial box for image import
+to makes-initial-box
+  setup-hex-grid
+end
+
+;; makes initial box for random arrangement
+to makes-initial-box-random
+  clear-all
+  setup-hex-grid
+end
+
+;; import image into turtles
+to import-image
+  clear-all
+  let file user-file
+  if file = false [ stop ]
+  ;; imports image into patches
+  import-pcolors file
+  ;; converts the square grid to an hex grid
+  makes-initial-box
+
+  ;; transfers the image to the turtles. Rounds the color values to be integers.
+  ask turtles [
+    set color round pcolor
+    set heading color
+  ]
+
+  ;; erases the patches (sets their color back to black),
+  ask patches [ set pcolor black ]
+  reset-ticks
+end
+
+
+to define-neighboring-turtles
+  ;; defines neighboring turtles. Some are "off" because atoms are in hexagons
+  ask turtles [
+    set neighboring-turtles (turtles at-points [
+      [-1  1] [ 0  1] [1  1]
+      [-1  0] [ 0  0] [1  0]
+      [-1 -1] [ 0 -1] [1 -1]
+    ])
+  ]
+end
+
+
+to go
+  ;;initiates grain growth
+  let total-atoms count turtles
+
+  ;; stops when there is just one grain
+  if average-grain-size >= total-atoms [ stop ]
+
+  ;;limits grain growth to element1, element2 represent the stationary second-phase particles
+  ask element1s [grain-growth]
+
+;  ;; calculates grain variables at a given frequency to save CPU processing
+;  ;; we + 1 to ticks to put it in sync with plots (that are updated in 'tick')
+;  if remainder (ticks + 1) ticks-per-measurement = 0 [
+;    count-grains-and-measure-grain-size
+;  ]
+
+  ;; advance Monte Carlo Steps (simulation time)
+  ;; one Monte Carlo Step represents 'n' reorientation attemps,
+  ;; where 'n' is the total number of atoms
+  tick
+end
+
+to count-grains-and-measure-grain-size
+  ;; we only do this for ticks > 0 since we can't take log of 0
+  if ticks > 0 [
+    set logtime log ticks 10
+  ]
+  grain-count
+  if average-grain-size != 0 [
+    set logaverage-grain-size (log (average-grain-size) 10)
+  ]
+  ;; we set the initial log time and grain size at 20 (we don't start
+  ;; calculating grain size until then to give the system a bit of time to stabilize
+  if ticks = 20 [
+    set initial-logtime logtime
+    set initial-loggrain-size logaverage-grain-size
+  ]
+  ;; only initiates grain size calculation after 20 ticks
+  if ticks > 20 [
+    ;; calculate the angular coefficient of the grain growth curve
+    ;; since it is a log-log plot, it's the grain growth exponent
+    set grain-growth-exponent (-1 * ((logaverage-grain-size - initial-loggrain-size) /
+      (initial-logtime - logtime)))
+  ]
+end
+
+
+to grain-count
+  ;; count number of grains based on the number of linear intercepts
+
+  let orientation-for-intercept-count 90 ;; direction of intercepts count
+  let intercepts 0
+  let total-atoms count turtles
+
+  ;; asking only elements1 with xcor less than 24
+  ;; those at 24 are on the 'edge of the world' which means
+  ;; that they will never have neighbors to their right.
+  ;; we therefore simply ignore them for this purpose.
+  ask element1s with [ xcor < 24 ] [
+    ;; checks if there is a turtle to the right for the intercept calculation
+    let target-patch patch-at-heading-and-distance orientation-for-intercept-count 1
+    ifelse target-patch != nobody and any? turtles-on target-patch [
+      ;; If there is a turtle, checks if the heading is different.
+      let right-neighbor one-of turtles-on target-patch
+      if heading != [ heading ] of right-neighbor [
+        ;; If heading is different, add 1 to 'intercepts'.
+        set intercepts (intercepts + 1)
+      ]
+    ]
+    [
+      ;; if there is no turtle, simply add 1 to 'intercepts'.
+      ;; A turtle/nothing interface is considered as grain boundary.
+      set intercepts (intercepts + 1)
+    ]
+  ]
+  ;; we add one to intercepts so that zero intercepts = one grain, one intercept = 2 grains, etc.
+  set average-grain-size total-atoms / (intercepts + 1)
+end
+
+
+;; Grain growth procedure - free energy minimization
+;; if another random crystallographic heading minimizes energy, switches headings, otherwise keeps the same.
+to grain-growth
+  ;; if atom has no neighbors, it is surrounded by element2s, and will not change its orientation
+  if not any? neighbors-6 [ stop ]
+
+  ;; calculates the PRESENT free energy
+  let present-heading (heading)
+  let present-free-energy count neighbors-6 with [ heading != present-heading ]
+
+  ;; chooses a random orientation
+  let future-heading ([heading] of (one-of neighbors-6))
+
+  ;; calculates the FUTURE free energy, with the random orientation just chosen
+  let future-free-energy count neighbors-6 with [ heading != future-heading ]
+
+  ;; compares PRESENT and FUTURE free-energies; the lower value "wins"
+  ifelse future-free-energy <= present-free-energy
+    [ set heading future-heading ]
+    [ if (annealing-temperature > random-float 100) [ set heading (future-heading) ] ]
+  ;; this last line simulates thermal agitation (adds more randomness to the simulation)
+
+  ;;update the color of the atoms
+  set color heading
+end
+
+;; drawing procedure
+to turtle-draw
+  if mouse-down? [    ;; reports true or false to indicate whether mouse button is down
+    ask patch mouse-xcor mouse-ycor [
+      ask element1s in-radius brush-size [
+        set color read-from-string draw-color
+        set heading color
+      ]
+    ]
+    display
+  ]
+end
+
+;; in the drawing mode, erases the whole "canvas" with red
+to erase-all
+  ask element1s [
+    set color red
+    set heading color
+  ]
+end
+
+
+; Copyright 2005 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="735" maxPycor="24" updateMode="1" wrappingAllowedX="false" y="30" frameRate="60.0" minPycor="-24" height="401" showTickCounter="true" patchSize="8.0" fontSize="10" wrappingAllowedY="false" width="400" tickCounterLabel="ticks" maxPxcor="24" minPxcor="-24"></view>
+    <note x="35" y="10" height="70" color="0.0" transparent="false" fontSize="11" width="285">Model starting point (you can start from a
+random arrangement or a picture from a
+microscope. You can also determine if you
+want a certain percentage of a second
+element, sometimes called grain refiner)</note>
+    <slider x="340" step="1.0" y="440" height="33" min="0.0" direction="Horizontal" max="100.0" default="0.0" variable="annealing-temperature" units="%" width="262" display="annealing-temperature"></slider>
+    <button x="550" y="325" height="34" disableUntilTicks="true" forever="false" kind="Observer" width="155" display="measure grains now">count-grains-and-measure-grain-size
+set update-plots? true</button>
+    <monitor x="605" precision="3" y="50" height="45" fontSize="11" width="100" display="Grain Size">average-grain-size</monitor>
+    <button x="30" y="510" height="40" disableUntilTicks="true" forever="true" kind="Observer" width="122" display="go">go</button>
+    <slider x="30" step="1" y="135" height="33" min="0" direction="Horizontal" max="99" default="0.0" variable="percent-element2" units="%" width="185" display="percent-element2"></slider>
+    <monitor x="605" precision="2" y="145" height="45" fontSize="11" width="100" display="Log Grain Size">logaverage-grain-size</monitor>
+    <monitor x="605" precision="2" y="98" height="45" fontSize="11" width="100" display="Log time">logtime</monitor>
+    <monitor x="605" precision="2" y="250" height="45" fontSize="11" width="118" display="Growth exponent">grain-growth-exponent</monitor>
+    <note x="30" y="491" height="18" color="0.0" transparent="false" fontSize="11" width="139">Run model</note>
+    <note x="340" y="410" height="25" color="14.0" transparent="true" fontSize="18" width="300">Annealing Temperature</note>
+    <chooser x="30" y="245" height="45" variable="atom-shape" current="0" width="125" display="atom-shape">
+      <choice type="string" value="hex"></choice>
+      <choice type="string" value="hexline"></choice>
+      <choice type="string" value="thin-line"></choice>
+      <choice type="string" value="line"></choice>
+      <choice type="string" value="spikes90"></choice>
+      <choice type="string" value="default"></choice>
+    </chooser>
+    <button x="160" y="245" height="45" disableUntilTicks="false" forever="false" kind="Observer" width="139" display="apply shape">ask element1s [set shape atom-shape]</button>
+    <button x="30" y="370" height="33" disableUntilTicks="false" forever="true" kind="Observer" width="122" display="draw">turtle-draw</button>
+    <button x="30" y="409" height="45" disableUntilTicks="false" forever="false" kind="Observer" width="123" display="erase all">erase-all</button>
+    <slider x="156" step="1.0" y="370" height="33" min="1.0" direction="Horizontal" max="6.0" default="3.0" variable="brush-size" width="139" display="brush-size"></slider>
+    <note x="30" y="320" height="41" color="0.0" transparent="false" fontSize="11" width="285">Draw/edit grains (this is optional, you can use
+this to "draw" new grain structures, or edit
+the grains at any point during the simulation)</note>
+    <chooser x="156" y="409" height="45" variable="draw-color" current="0" width="139" display="draw-color">
+      <choice type="string" value="yellow"></choice>
+      <choice type="string" value="green"></choice>
+      <choice type="string" value="cyan"></choice>
+      <choice type="string" value="blue"></choice>
+      <choice type="string" value="red"></choice>
+    </chooser>
+    <note x="346" y="307" height="18" color="0.0" transparent="false" fontSize="11" width="132">Grain measurement</note>
+    <note x="345" y="10" height="25" color="14.0" transparent="false" fontSize="18" width="355">Grain size plot and calculations</note>
+    <note x="34" y="200" height="45" color="0.0" transparent="false" fontSize="11" width="290">Change the shape of atoms (different shapes
+might help visualize the atomic planes, or the
+proportion of different types of grains)</note>
+    <button x="157" y="510" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="135" display="go once">go</button>
+    <chooser x="30" y="85" height="45" variable="starting-point" current="0" width="185" display="starting-point">
+      <choice type="string" value="Random Arrangement"></choice>
+      <choice type="string" value="Import Image"></choice>
+    </chooser>
+    <button x="218" y="85" height="83" disableUntilTicks="false" forever="false" kind="Observer" width="80">setup</button>
+    <note x="345" y="365" height="41" color="0.0" transparent="true" fontSize="11" width="210">This slider determines how often
+the grain size is measured</note>
+    <note x="344" y="478" height="75" color="0.0" transparent="true" fontSize="11" width="405">A high annealing temperature makes some atoms randomly jump
+to the next grain. When it is zero, only the energetically favorable
+jumps will happen. Temperature here is represented as a relative
+value -- a percentage of random jumps out of the possible jumps.
+100% means that all the jumps are random.</note>
+    <note x="30" y="175" height="18" color="0.0" transparent="true" fontSize="11" width="290">_____________________________________________</note>
+    <note x="30" y="295" height="26" color="0.0" transparent="true" fontSize="11" width="295">_____________________________________________</note>
+    <note x="30" y="465" height="18" color="0.0" transparent="true" fontSize="11" width="295">_____________________________________________</note>
+    <note x="5" y="75" height="36" color="14.0" transparent="true" fontSize="30" width="25">1</note>
+    <note x="3" y="225" height="36" color="14.0" transparent="true" fontSize="30" width="20">2</note>
+    <note x="3" y="375" height="36" color="14.0" transparent="true" fontSize="30" width="25">3</note>
+    <note x="3" y="500" height="36" color="14.0" transparent="true" fontSize="30" width="25">4</note>
+    <slider x="345" step="1" y="325" height="33" min="1" direction="Horizontal" max="200" default="50.0" variable="ticks-per-measurement" width="197" display="ticks-per-measurement"></slider>
+    <plot x="345" yMax="1.0" yAxis="Log grain size" y="50" xMin="0.0" height="245" legend="false" xMax="1.0" autoplot="true" yMin="0.0" width="250" xAxis="Log time" display="Grain Size (log-log)">
+      <setup></setup>
+      <update>;; only update this as often as we have specified below
+;; we have to subtract one because the tick command is always
+;; "one step ahead" of the rest of the go-procedure
+if remainder ticks ticks-per-measurement != 0 and not update-plots? [ stop ]
+count-grains-and-measure-grain-size
+set update-plots? false</update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="default">
+        <setup></setup>
+        <update>plotxy logtime logaverage-grain-size</update>
+      </pen>
+    </plot>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+Most materials are not continuous arrangements of atoms. Rather, they are composed of thousands or millions of microscopic crystals, known as grains.  This model shows how the configuration and sizes of these grains change over time.  Grain size is a very important characteristic for evaluating the mechanical properties of materials; it is exhaustively studied in metallurgy and materials science.
+
+Usually this kind of study is made by careful analysis and comparison of pictures taken in microscopes, sometimes with the help of image analysis software.  Recently, as the processing power of computers has increased, a new and promising approach has been made possible: computer simulation of grain growth.
+
+Anderson, Srolovitz et al. proposed the most widely known and employed theory for computer modeling and simulation of grain growth, using the Monte Carlo method. Instead of considering the grains as spheres, and being obliged to make numerous geometrical approximations, Anderson proposed that the computer would simulate the behavior of each individual atom in the system. Each atom would follow a very simple rule: it will always try to have, in its immediate neighborhood, as many atoms as possible with the same orientation as it. It will do so by randomly (hence Monte Carlo) re-orienting itself and seeing if it is more stable than it was before. If it is, it will stay in its new orientation, and if not, it will revert back to its previous orientation.
+
+This model is part of the MaterialSim (Blikstein & Wilensky, 2004) curricular package. To learn more about MaterialSim, see http://ccl.northwestern.edu/rp/materialsim/index.shtml.
+
+## HOW IT WORKS
+
+The basic algorithm of the simulation is simple: each atom continuously tries to be as stable as possible.  Its stability is based on the number of neighbors with similar orientations: the more similar neighbors, the more stable it is. If it has only few similar neighbors, it will try to relocate to a more stable position.  The steps for each tick in the model are:
+
+1. Choose a random atom.
+2. Ask that atom to calculate its present energy (based on its stability).  The atom does this by counting how many similar neighbors it has.
+3. The atom then chooses at random one of its neighbors, and orients itself in the same direction as that neighbor.
+4. The same atom then calculates its energy, based on this new, tentative orientation.
+5. Finally the atom compares the energy levels in each of the two states: the lowest value "wins", i.e., the more similar neighbors, the more stable the atom is.
+6. Repeat steps 1-6.
+
+The **annealing-temperature** slider controls the probability of maintaining a reorientation that yields less stability.  The **percent-element2** slider defines the percentage of second-phase particles to be created when the user setups the simulation.  Those particles are not movable and are not subject to grain growth. Atoms with element2-particles as neighbors will see them as dissimilar.
+
+Note that the actual number of atoms is small compared to a real metal sample.  Also, real materials are three-dimensional, while this model is 2D.
+
+## HOW TO USE IT
+
+### (1) Simulation starting point.
+**starting-point**: You can start from a random arrangement or a picture from a microscope.  File formats accepted are: `.jpg`, `.png`, `.bmp`, and `.gif`. The image will be automatically resized to fit into the world, but maintaining its original aspect ratio. Note that the image MUST HAVE THE SAME ASPECT RATIO AS THE WORLD. In other words, if the world is square, the image should be square as well. Prior to importing the image, it is recommended to clean it up using an image editing software (increase contrast, remove noise).  Try to experiment various combinations of values for the view's size and the patch size to get the best results
+
+**percent-element2**: You can also determine if you want a certain percentage of a second element, sometimes called grain refiner.
+
+**setup**: Sets up the model as indicated.
+
+### (2) Change the shape of atoms.
+
+Different shapes might help visualize the atomic planes, or the proportion of different types of grains.
+
+**atom-shape**: Choose which shape you want.
+
+**apply-shape**: Re-draws all the atoms with the shape you chose.
+
+### (3) Draw/edit grains (optional)
+
+You can use this to "draw" new grain structures, or edit the grains at any point during the simulation.
+
+**draw**: When this button is pressed down, you can change the color (orientation) of atoms in the model.
+
+**brush-size**: This determines how many atoms’ orientation you change at a time.
+
+**erase-all**:  This changes the orientation of all atoms.
+
+**draw-color**: Here you can change the color (and orientation) that that you change atoms to, when you draw on them.
+
+### (4) Run Model.
+
+You can choose to have the model keep repeating the steps (as described above) or to run just one tick. Running just one tick will allow you to see more clearly what happens over time.
+
+**annealing-temperature**: changes the probability of non-favorable orientation flips to happen.  A 10% value, for instance, means that 10% of non-favorable flips will be maintained.  This mimics the effect of higher temperatures.
+
+### Grain size plot and calculations
+
+**ticks-per-measurement **: to increase the model's speed, the user can choose not to calculate grain size at every time step.  If grain size is calculated at every ten time units (20, 30, 40 etc.), the performance is slightly increased.  This only affects the plot and the monitors, but not the actual simulation.
+
+**measure grains now**: if the user feels there is too much time between each grain measurement, and wants to calculate it immediately, this button can be used.
+
+### Plots and monitors
+
+**Grain Size (log-log)**: Grain size vs. time, in a log-log scale.  Under normal conditions (**annealing-temperature** = 0 and **percent-element2** = 0), this plot should be a straight line with an angular coefficient of approximately 0.5.
+
+**Grain Size**: grain size
+
+**Log Time**: log of ticks in the simulation so far
+
+**Log Grain Size**: Log of the grain size
+
+**growth-exponent**: the angular coefficient of the **Grain Size (log-log)** plot.  This number should approach 0.5 with **annealing-temperature** = 0 and **percent-element2** = 0.
+
+## THINGS TO NOTICE
+
+When you setup with a random orientation and run the simulation, notice that the speed of growth decreases with time.  Toward the end of the simulation, you might see just two or three grains that fight with each other for along time.  One will eventually prevail, but this logarithmic decrease of speed is an important characteristic of grain growth.  That is why the **Grain Size (log-log) plot is a straight line in a "log-log" scale.
+Notice also that if you draw two grains, one concave and one convex, their boundary will tend to be a straight line, if you let the simulation run long enough.  Every curved boundary is unstable because many atoms at its interface will have more different than equal neighbors.
+
+## THINGS TO TRY
+
+Increase the value of the **annealing-temperature** slider. What happens to the **Grain Size (log-log)** plot, and to the boundaries' shapes?
+
+Try to increase the **percent-element2** slider to 5%.  Then choose “random arrangement” and click **setup**, and **go**. What happens to grain growth? Now try several values (1, 3, 5, 7, 9%), for instance.  What happens with the final grain size? What about the **Grain Size (log-log) plot and the **Growth Exponent**?
+
+One advanced use of this model would be to get a digital picture of a real metallic sample, reduce noise and increase contrast with image editing programs, and load into this model using the **Import Image** feature in the starting-point chooser.  Don't forget to update the width and height of the view's size to accommodate the picture, and also to change the patch size in order to be able to see the whole sample.
+
+## EXTENDING THE MODEL
+
+This model assumes that the misorientation between two grains has no effect on their growth rates.  Two grains with a very similar crystallographic orientation have the same growth rate as grains whose orientations differ by a lot.  Try to take the angular misorientation into consideration.
+
+When we insert second-phase particles, all of them have the same size.  Try to create a slider that changes the size of these particles.
+
+## NETLOGO FEATURES
+
+Rather than containing all of the code that updates variables used for plotting, the **Grain Size (log-log)** plot calls a procedure that does this. The reason is that there is quite a lot of code, and it would be difficult to work with inside the plot. Notice also that this code updates the global variables shown in the monitors to the right of the plot.
+
+The model uses a hexagonal grid as opposed to the usual, square one. It also uses different shapes for different visualization purposes. Finally, it uses the `import-pcolors` primitive for image import.
+
+## RELATED MODELS
+
+Crystallization Basic
+Crystallization Directed
+Crystallization Moving
+
+## CREDITS AND REFERENCES
+
+This model is part of the MaterialSim (Blikstein & Wilensky, 2004) curricular package. To learn more about MaterialSim, see http://ccl.northwestern.edu/rp/materialsim/index.shtml.
+
+Two papers describing the use of this model in education are:
+Blikstein, P. & Wilensky, U. (2005) Less is More: Agent-Based Simulation as a Powerful Learning Tool in Materials Science.  The IV International Conference on Autonomous Agents and Multiagent Systems. Utrecht, Netherlands.
+
+Blikstein, P. & Wilensky, U. (2004) MaterialSim: An agent-based simulation toolkit for Materials Science learning. (PDF, 1.5 MB) Proceedings of the International Conference on Engineering Education. Gainesville, Florida.
+
+The core algorithm of the model was developed at the University of Sao Paulo and published in:  Blikstein, P. and Tschiptschin, A. P. Monte Carlo simulation of grain growth (II). Materials Research, Sao Carlos, 2 (3), p. 133-138, jul. 1999.
+
+Available for download at: https://www.scielo.br/j/mr/a/78pTMnZ8Kb6Pw6XTTw3SJ8g/?lang=en. See also http://www.pmt.usp.br/paulob/montecarlo/ for more information (in Portuguese).
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Blikstein, P. and Wilensky, U. (2005).  NetLogo MaterialSim Grain Growth model.  http://ccl.northwestern.edu/netlogo/models/MaterialSimGrainGrowth.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2005 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2005 Cite: Blikstein, P. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circ" rotatable="true" editableColorIndex="0">
+      <circle x="10" y="11" marked="true" color="-1920102913" diameter="278" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="hex" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="0" y="150"></point>
+        <point x="75" y="30"></point>
+        <point x="225" y="30"></point>
+        <point x="300" y="150"></point>
+        <point x="225" y="270"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+    </shape>
+    <shape name="hexline" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="0" y="150"></point>
+        <point x="75" y="30"></point>
+        <point x="225" y="30"></point>
+        <point x="300" y="150"></point>
+        <point x="225" y="270"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <rectangle endX="182" startY="47" marked="false" color="-1" endY="252" startX="121" filled="true"></rectangle>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <rectangle endX="165" startY="0" marked="true" color="-1920102913" endY="315" startX="135" filled="true"></rectangle>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="rectangle" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="67" y="36"></point>
+        <point x="67" y="262"></point>
+        <point x="235" y="262"></point>
+        <point x="235" y="35"></point>
+      </polygon>
+    </shape>
+    <shape name="spikes90" rotatable="true" editableColorIndex="0">
+      <circle x="61" y="62" marked="true" color="-1920102913" diameter="177" filled="true"></circle>
+      <line endX="131" startY="66" marked="true" color="-1920102913" endY="154" startX="135"></line>
+      <rectangle endX="166" startY="-4" marked="true" color="-1920102913" endY="68" startX="135" filled="true"></rectangle>
+      <rectangle endX="219" startY="132" marked="true" color="-1920102913" endY="134" startX="142" filled="true"></rectangle>
+      <rectangle endX="304" startY="136" marked="true" color="-1920102913" endY="165" startX="196" filled="true"></rectangle>
+      <rectangle endX="68" startY="135" marked="true" color="-1920102913" endY="166" startX="-9" filled="true"></rectangle>
+      <rectangle endX="132" startY="176" marked="true" color="-1920102913" endY="226" startX="131" filled="true"></rectangle>
+      <rectangle endX="165" startY="225" marked="true" color="-1920102913" endY="313" startX="135" filled="true"></rectangle>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="286" startY="15" marked="true" color="-1920102913" endY="285" startX="15" filled="true"></rectangle>
+      <line endX="293" startY="6" marked="false" color="-1" endY="6" startX="6"></line>
+      <line endX="293" startY="6" marked="false" color="-1" endY="293" startX="293"></line>
+      <line endX="8" startY="292" marked="false" color="-1" endY="292" startX="293"></line>
+      <line endX="8" startY="292" marked="false" color="-1" endY="6" startX="8"></line>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="t" rotatable="true" editableColorIndex="0">
+      <rectangle endX="256" startY="47" marked="true" color="-1920102913" endY="75" startX="46" filled="true"></rectangle>
+      <rectangle endX="167" startY="76" marked="true" color="-1920102913" endY="297" startX="135" filled="true"></rectangle>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="thin-line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>

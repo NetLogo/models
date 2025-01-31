@@ -1,0 +1,2057 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[breed [fish a-fish]
+
+;; fish parts include fins, tails, and spots - all of
+;; which are tied and attached to the main fish body
+breed [fish-parts a-fish-part]
+
+;; fish are tied to somatic-cells.  Fish are what
+;; wander about (the body of the organism),
+;; while the somatic cell contains all the
+;; genetic information of the organism
+breed [somatic-cells somatic-cell]
+
+;; sex cells that are hatched from somatic cells
+;; through a simplified form of meiosis
+breed [gamete-cells gamete-cell]
+
+;; alleles are tied to somatic cells or gamete
+;; cells - 1 allele is assigned to one chromosome
+breed [alleles allele]
+
+breed [fish-bones a-fish-bones]     ;; used for visualization of fish death
+breed [fish-zygotes a-fish-zygote]  ;; used for visualization of a fish mating event
+
+;; used for visualization of different types of mouse actions the user can do in the
+;; fish tank - namely removing fish and adding/subtracting dividers
+breed [mouse-cursors mouse-cursor]
+
+fish-own          [sex bearing]
+somatic-cells-own [sex]
+gamete-cells-own  [sex]
+fish-bones-own    [countdown]
+alleles-own       [gene value owned-by-fish? side]
+
+patches-own [type-of-patch divider-here?]
+
+globals [
+
+  ;; for keeping track of the # of alleles of each type
+  #-big-B-alleles  #-small-b-alleles
+  #-big-T-alleles  #-small-t-alleles
+  #-big-F-alleles  #-small-f-alleles
+  #-big-G-alleles  #-small-g-alleles
+  #-y-chromosomes  #-x-chromosomes
+
+  ;; globals for keeping track of default values for
+  ;; shapes and colors used for phenotypes
+  water-color
+  green-dorsal-fin-color  no-green-dorsal-fin-color
+  yellow-tail-fin-color   no-yellow-tail-fin-color
+  male-color              female-color
+  spots-shape             no-spots-shape
+  forked-tail-shape       no-forked-tail-shape
+
+  ;;  globals for keeping track of phenotypes
+  #-of-green-dorsal-fins  #-of-no-green-dorsal-fins
+  #-of-yellow-tail-fins   #-of-no-yellow-tail-fins
+  #-of-spots              #-of-no-spots
+  #-of-forked-tails       #-of-no-forked-tails
+  #-of-males              #-of-females
+
+  ;; keeps track of whether the mouse button was down on last tick
+  mouse-continuous-down?
+
+  num-fish-removed
+  num-fish-born
+  num-fish-in-tank
+  fish-forward-step      ;; size of movement steps each tick
+  gamete-forward-step    ;; size of movement steps each tick
+
+  ;; used for spacing the chromosomes out in the
+  ;; karyotypes of the somatic cells and gametes
+  intra-chromosome-pair-spacing
+  inter-chromosome-pair-spacing
+
+  size-of-karyotype-background-for-cells
+
+  initial-#-females
+  initial-#-males
+]
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;; setup procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to setup
+  clear-all
+  set mouse-continuous-down? false
+  set intra-chromosome-pair-spacing 0.20
+  set inter-chromosome-pair-spacing 0.55
+  set fish-forward-step 0.04
+  set num-fish-removed 0
+  set num-fish-born 0
+  set num-fish-in-tank 0
+
+  ;; the size of the large pink rectangle used as the
+  ;; background for the cell or karyotype of the cell
+  set size-of-karyotype-background-for-cells 5.2
+
+  set initial-#-females (floor ((initial-females / 100) * carrying-capacity))
+  set initial-#-males carrying-capacity - initial-#-females
+
+  set green-dorsal-fin-color    [90 255 90 255]
+  set no-green-dorsal-fin-color [176 196 222 255]
+  set yellow-tail-fin-color     [255 255 0 255]
+  set no-yellow-tail-fin-color  [176 196 255 255]
+  set female-color              [255 150 150 255]
+  set male-color                [150 150 255 255]
+  set water-color               blue - 1.5
+
+  set spots-shape                 "fish-spots"
+  set no-spots-shape              "none"
+  set forked-tail-shape           "fish-forked-tail"
+  set no-forked-tail-shape        "fish-no-forked-tail"
+  set-default-shape fish          "fish-body"
+  set-default-shape somatic-cells "cell-somatic"
+  set-default-shape fish-bones    "fish-bones"
+
+  create-mouse-cursors 1 [
+    set shape "x"
+    set hidden? true
+    set color red
+    set heading 0
+  ]
+
+  set-tank-regions
+  create-initial-gene-pool
+  create-initial-fish
+  visualize-tank
+  visualize-fish-and-alleles
+  reset-ticks
+end
+
+
+to set-tank-regions
+  let min-pycor-edge min-pycor  let max-pycor-edge max-pycor
+  let water-patches nobody
+  ask patches [
+    set divider-here? false
+    set type-of-patch "water"
+    ;; water edge are the patches right up against the tank wall on the inside of the
+    ;; tank - they are used to determine whether to turn the fish around as they are
+    ;; moving about the tank
+    if pycor =  (max-pycor-edge - 2) or
+      pycor = (min-pycor-edge + 2) or
+      pxcor = left-side-of-water-in-tank or
+      pxcor = right-side-of-water-in-tank [
+      set type-of-patch "water-edge"
+    ]
+    if pycor >= (max-pycor-edge - 1) [
+      set type-of-patch "air"
+    ]
+    if pxcor <= (left-side-of-water-in-tank - 1) or
+      pxcor >= (right-side-of-water-in-tank + 1) or
+      pycor <= (min-pycor-edge + 1) [
+      set type-of-patch "tank-wall"
+    ]
+    if pycor = (max-pycor-edge) or
+      pycor = (min-pycor-edge) or
+      pxcor = (left-side-of-water-in-tank - 2) or
+      pxcor >= (right-side-of-water-in-tank + 2) [
+      set type-of-patch "air"
+    ]
+  ]
+  set water-patches  patches with [type-of-patch = "water"]
+end
+
+
+to create-initial-gene-pool
+  let num-big-alleles 0
+  let initial-number-fish (carrying-capacity)
+
+  set num-big-alleles  round ((initial-alleles-big-b * 2 *  initial-number-fish) / 100)
+  make-initial-alleles-for-gene 1 "B" "b" num-big-alleles
+  set num-big-alleles  round ((initial-alleles-big-t * 2 *  initial-number-fish) / 100)
+  make-initial-alleles-for-gene 2 "T" "t" num-big-alleles
+  set num-big-alleles  round ((initial-alleles-big-f * 2 *  initial-number-fish) / 100)
+  make-initial-alleles-for-gene 3 "F" "f" num-big-alleles
+  set num-big-alleles  round ((initial-alleles-big-g * 2 *  initial-number-fish) / 100)
+  make-initial-alleles-for-gene 4 "G" "g" num-big-alleles
+
+  make-initial-alleles-for-gene 5 "Y" "X" initial-#-males
+end
+
+
+to create-initial-fish
+  ;; makes the cells for the initial fish
+  create-somatic-cells initial-#-males [set sex "male"]
+  create-somatic-cells initial-#-females [set sex "female"]
+  ask somatic-cells [setup-new-somatic-cell-attributes]
+  ;; randomly sorts out the gene pool to each somatic cell
+  distribute-gene-pool-to-somatic-cells
+  ;; grows the body parts from the resulting genotype, and distributes the fish
+  ask somatic-cells [grow-fish-parts-from-somatic-cell]
+  distribute-fish-in-tank
+end
+
+
+to setup-new-somatic-cell-attributes
+  ;; somatic cells are the same as body cells - they are the rectangle shape that is
+  ;; tied to the fish and chromosomes that looks like a karyotype
+  set heading 0
+  set breed somatic-cells
+  set color [100 100 100 100]
+  set size size-of-karyotype-background-for-cells
+  set hidden? true
+end
+
+
+to distribute-fish-in-tank
+   let water-patches patches with [type-of-patch = "water"]
+   let water-patch nobody
+   ask fish [
+     move-to one-of water-patches
+   ]
+end
+
+
+to make-initial-alleles-for-gene [gene-number allele-1 allele-2 num-big-alleles ]
+  let initial-number-fish initial-#-males + initial-#-females
+  create-alleles 2 * (initial-number-fish) [
+    set gene gene-number
+    set shape (word "gene-" gene-number)
+    set heading 0
+    set owned-by-fish? false
+    set value allele-2
+    set color  [0 0 0 255]
+    set label-color color
+    set label (word value "     " )
+  ]
+  ;; after coloring all the alleles with black band on chromosomes with the
+  ;; dominant allele label, now go back and select the correct proportion of
+  ;; these to recolor code as recessive alleles with white bands on chromosomes
+  ;; and add recessive letter label
+  ask n-of num-big-alleles  alleles with [gene = gene-number] [
+    set value allele-1
+    set color [220 220 220 255]
+    set label (word value "     " )
+    set label-color color
+    ]
+end
+
+
+
+to distribute-gene-pool-to-somatic-cells
+  ;; randomly selects some chromosomes for this cell
+  let this-somatic-cell nobody
+  let last-sex-allele ""
+
+  ask somatic-cells [
+    set this-somatic-cell self
+    foreach [ 1 2 3 4 ] [ n ->
+      ;; assign one of the alleles to appear on the left side of the chromosome pair
+      position-and-link-alleles self n "left"
+      ;; assign the other allele to appear on the right side
+      position-and-link-alleles self n "right"
+    ]
+
+    ;; now assign the sex chromosome pair, putting one of the Xs on the left,
+    ;; and the other chromosome (whether it is an X or } on the right
+    ask one-of alleles with [not owned-by-fish? and gene = 5 and value = "X"] [
+       set owned-by-fish? true
+       set size 1.2
+       set xcor ((inter-chromosome-pair-spacing * 4) + .1)
+       set ycor -0.4
+       set side "left"
+       create-link-from this-somatic-cell  [
+         set hidden? true
+         set tie-mode "fixed"
+         tie
+       ]
+    ]
+    ifelse sex = "male" [ set last-sex-allele "Y" ] [ set last-sex-allele "X" ]
+    ask one-of alleles with [
+      not owned-by-fish? and gene = 5 and value = last-sex-allele
+    ] [
+      set owned-by-fish? true
+      set size 1.2
+      set xcor ((inter-chromosome-pair-spacing * 4) + intra-chromosome-pair-spacing + .1)
+      set ycor -0.4
+      set side "right"
+      create-link-from this-somatic-cell [
+        set hidden? true
+        set tie-mode "fixed"
+        tie
+      ]
+    ]
+  ]
+end
+
+
+to position-and-link-alleles [this-somatic-cell gene-number which-side]
+  let pair-shift-right 0
+  let side-shift 0
+
+  ;; adjusts the spacing between chromosome pairs (1-4( so that one of each pair
+  ;; is moved to the left and one of each pair is moved to the right
+  ifelse which-side = "right"
+    [ set side-shift intra-chromosome-pair-spacing ]
+    [ set side-shift 0 ]
+  set pair-shift-right ((inter-chromosome-pair-spacing * gene-number) - .45)
+
+  ask one-of alleles with [not owned-by-fish? and gene = gene-number] [
+    set owned-by-fish? true
+    set side which-side
+    set size 1.2
+    set xcor ([xcor] of this-somatic-cell + (pair-shift-right + side-shift))
+    set ycor ([ycor] of this-somatic-cell - 0.4)
+    create-link-from this-somatic-cell [
+      set hidden? true
+      set tie-mode "fixed"
+      tie
+    ]
+  ]
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;; runtime-procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to go
+   wander
+   update-statistics
+   detect-fish-outside-the-water
+   detect-and-move-fish-at-inside-tank-boundary
+   auto-selection
+   clean-up-fish-bones
+   if auto-replace? [find-potential-mates]
+   move-gametes-together
+   convert-zygote-into-somatic-cell
+   detect-mouse-selection-event
+   visualize-fish-and-alleles
+
+   visualize-tank
+   tick
+end
+
+
+to auto-selection
+  if auto-replace? [
+    ;; use EVERY to limit the rate of selection
+    ;; to slow things down for visualization purposes
+    every 0.25 [
+      ;;let under-carrying-capacity carrying-capacity -  num-fish-in-tank
+      if any? fish [
+        ask one-of fish [
+          if both-sexes-in-this-fishs-tank-region? [
+            remove-this-fish
+          ]
+        ]
+      ]
+    ]
+  ]
+end
+
+
+
+to move-gametes-together
+  ;; moves the male sex cell (gamete) toward its target
+  ;; female sex cell it will fertilize (zygote).
+  let my-zygote nobody
+  let distance-to-zygote 0
+  ;; if the user as the see-sex-cells? switch on then slow down their motion
+  ifelse see-sex-cells? [ set gamete-forward-step 0.08] [ set gamete-forward-step 1.0]
+
+   ask gamete-cells [
+     set my-zygote one-of fish-zygotes with [in-link-neighbor? myself]
+     set distance-to-zygote distance my-zygote
+     if distance-to-zygote > 0
+      [ face my-zygote
+        ifelse distance-to-zygote > gamete-forward-step [fd gamete-forward-step ] [fd distance-to-zygote]
+        set heading 0
+      ]
+   ]
+end
+
+
+to convert-zygote-into-somatic-cell
+  ;; upon arriving at the female sex cell the male sex cell will fertilize
+  ;; it and disappear the zygote (shown as a heart) will convert into a
+  ;; somatic cell and a fish will immediately appear (skipping the time
+  ;; it takes for the embryo to form)
+  let female-sex-cell-alleles nobody
+  let male-sex-cell-alleles nobody
+  let male-gamete nobody
+  let female-gamete nobody
+  let this-somatic-cell nobody
+
+  ask fish-zygotes [
+   set male-gamete gamete-cells with [out-link-neighbor? myself and sex = "male"]
+   set female-gamete gamete-cells with [out-link-neighbor? myself and sex = "female"]
+   if any? male-gamete and any? female-gamete [
+     if distance one-of male-gamete <= .01 and distance one-of female-gamete <= .01  [
+       ;; close enough for fertilization to be complete
+       setup-new-somatic-cell-attributes
+       set this-somatic-cell self
+       ask male-gamete [
+         set male-sex-cell-alleles alleles-that-belong-to-this-gamete
+         die
+       ]
+       ask female-gamete [
+         set female-sex-cell-alleles alleles-that-belong-to-this-gamete
+         die
+       ]
+       ask male-sex-cell-alleles [
+         create-link-from this-somatic-cell [
+           set hidden? true
+           set tie-mode "fixed"
+           tie
+         ]
+       ]
+       ask female-sex-cell-alleles [
+         create-link-from this-somatic-cell [
+           set hidden? true
+           set tie-mode "fixed"
+           tie
+         ]
+       ]
+       align-alleles-for-this-somatic-cell this-somatic-cell
+       set sex sex-phenotype
+       grow-fish-parts-from-somatic-cell
+       set num-fish-born num-fish-born + 1
+     ]
+   ]
+ ]
+end
+
+
+to align-alleles-for-this-somatic-cell [this-zygote]
+  ;; when gametes merge they may both have chromosomes on the right
+  ;; (for each matching pair) or both on the left
+  ;; this procedure moves one of them over if that is the case
+  let all-alleles alleles with [in-link-neighbor? this-zygote]
+  foreach [1 2 3 4 5] [ this-gene ->
+    if count all-alleles with [gene = this-gene and side = "left"]  > 1 [
+      ask one-of all-alleles with [gene = this-gene] [
+        set heading 90
+        forward intra-chromosome-pair-spacing
+        set side "right"
+      ]
+    ]
+    if count all-alleles with [gene = this-gene and side = "right"] > 1 [
+      ask one-of all-alleles with [gene = this-gene] [
+        set heading 90
+        back
+        intra-chromosome-pair-spacing
+        set side "left"
+      ]
+    ]
+  ]
+end
+
+
+to find-potential-mates
+  let mom nobody
+  let dad nobody
+  let xcor-dad 0
+  let turtles-in-this-region nobody
+  let potential-mates nobody
+  let all-fish-and-fish-zygotes nobody
+
+  if any? somatic-cells with [sex = "male"] [
+    ask one-of somatic-cells with [ sex = "male" ] [
+      set dad self
+      set xcor-dad xcor
+    ]
+    ask dad [
+      ;; if  parent genetic information for sexual reproduction
+      ;; still exists in the gene pool in this region
+      set turtles-in-this-region other-turtles-in-this-turtles-tank-region
+    ]
+    set all-fish-and-fish-zygotes turtles-in-this-region with [
+      breed = fish or breed = fish-zygotes
+    ]
+    set potential-mates turtles-in-this-region with [
+      breed = somatic-cells and sex = "female"
+    ]
+    if any? potential-mates [
+       ask one-of potential-mates  [ set mom self ]
+       ;;; only reproduce up to the carrying capacity in this region allowed
+       let this-carrying-capacity  carrying-capacity-in-this-region xcor-dad
+       if count all-fish-and-fish-zygotes < this-carrying-capacity [
+         reproduce-offspring-from-these-two-parents mom dad
+       ]
+    ]
+  ]
+end
+
+
+to reproduce-offspring-from-these-two-parents [mom dad]
+  let child nobody
+    ask mom [
+      hatch 1 [
+       set heading 0
+       set breed fish-zygotes
+       set size 1
+       set shape "heart"
+       set color red
+       set child self
+      ]
+
+    ]
+    ask mom [ link-alleles-to-gametes-and-gametes-to-zygote child ]
+    ask dad [ link-alleles-to-gametes-and-gametes-to-zygote child ]
+end
+
+
+to link-alleles-to-gametes-and-gametes-to-zygote [child]
+  let this-new-gamete-cell nobody
+  hatch 1 [
+    set breed gamete-cells
+    set heading 0
+    create-link-to child [set hidden? false] ;; link these gametes to the child
+    ifelse sex = "male"
+      [set shape "cell-gamete-male"]
+      [set shape "cell-gamete-female"]
+
+       set this-new-gamete-cell self
+    ]
+
+  foreach [1 2 3 4 5] [ this-gene ->
+    ask n-of 1 alleles with [in-link-neighbor? myself and  gene = this-gene]
+    [hatch 1 [set owned-by-fish? false
+       create-link-from this-new-gamete-cell  [set hidden? true  set tie-mode "fixed" tie]
+      ]
+    ]
+  ]
+
+end
+
+
+to wander
+  ask fish [
+    set heading bearing
+    rt random-float 70 lt random-float 70
+    set bearing heading
+    fd fish-forward-step
+    set heading 0
+    ]
+  ask somatic-cells [set heading 0]
+end
+
+
+
+to detect-fish-outside-the-water
+     ask fish with [type-of-patch != "water" and type-of-patch != "water-edge"] [  remove-this-fish  ]
+end
+
+
+to detect-and-move-fish-at-inside-tank-boundary
+   let nearest-water-patch nobody
+   let water-patches patches with [type-of-patch = "water" and not divider-here?]
+   ask fish [
+    set nearest-water-patch  min-one-of water-patches [distance myself]
+    if type-of-patch = "tank-wall" or type-of-patch = "water-edge"   [
+      set heading towards nearest-water-patch
+      fd fish-forward-step * 2
+      set heading 0
+      set bearing  random-float 360
+    ]
+    if divider-here? [move-to nearest-water-patch]
+   ]
+end
+
+
+to clean-up-fish-bones
+  let bone-transparency 0
+  let color-list []
+   ask fish-bones [  ;;; fade away progressively the fish bone shape until the countdown in complete
+     set countdown countdown - 1
+     set bone-transparency (countdown * 255 / 50)
+     set color-list lput bone-transparency [255 255 255]
+     set color color-list
+     if countdown <= 0 [die]
+   ]
+end
+
+
+to remove-this-fish
+ set num-fish-removed num-fish-removed + 1
+ hatch 1 [
+   ;; make the fish bones for visualization of this fishes death
+   set breed fish-bones
+   set color white
+   set countdown 25
+ ]
+ ask out-link-neighbors [
+   ;; ask the somatic cells and the fish-parts and the alleles attached to this fish to die first
+   ask out-link-neighbors [ die ]
+   die
+ ]
+ die
+end
+
+
+to detect-mouse-selection-event
+
+  let p-mouse-xcor mouse-xcor
+  let p-mouse-ycor mouse-ycor
+  let p-type-of-patch [type-of-patch] of patch p-mouse-xcor p-mouse-ycor
+  let mouse-was-just-down? mouse-down?
+
+  ask mouse-cursors [
+    setxy p-mouse-xcor p-mouse-ycor
+    ;;;;;;  cursor visualization ;;;;;;;;;;;;
+    if (p-type-of-patch = "water") [
+      set hidden? false
+      set shape "x"
+      set label-color white
+      set label "remove fish"
+    ]
+    if divider-here? and p-type-of-patch = "tank-wall" [
+      set hidden? false
+      set shape "subtract divider"
+      set label-color white
+      set label "remove divider"
+    ]
+    if not divider-here? and p-type-of-patch = "tank-wall" [
+      set hidden? false
+      set shape "add divider"
+      set label-color white
+      set label "add divider"
+    ]
+    if (p-type-of-patch != "water" and p-type-of-patch != "tank-wall") [
+      set hidden? true
+      set shape "x"
+      set label ""
+    ]
+    ;;;;; cursor actions ;;;;;;;;;;;;;;;
+    if mouse-was-just-down? [
+      ask fish-here [remove-this-fish]
+    ]
+    if (mouse-was-just-down? and
+      not mouse-continuous-down? and
+      p-type-of-patch = "tank-wall" and
+      pycor = (min-pycor + 1) and
+      pxcor > (min-pxcor + 1) and
+      pxcor < (max-pxcor - 1)) [
+      set divider-here? not divider-here?
+      let divider-xcor pxcor
+      ask patches with [
+        (type-of-patch = "water" or type-of-patch = "water-edge") and
+        pxcor = divider-xcor
+      ] [
+        set divider-here? not divider-here?
+      ]
+    ]
+    ifelse not mouse-inside? [set hidden? true][set hidden? false]
+  ]
+
+  ifelse mouse-was-just-down?
+    [ set mouse-continuous-down? true ]
+    [ set mouse-continuous-down? false ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;; calculate statistics procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to update-statistics
+  set num-fish-in-tank (count fish )
+
+  set #-big-B-alleles   count alleles with [value = "B"]
+  set #-small-b-alleles count alleles with [value = "b"]
+  set #-big-T-alleles   count alleles with [value = "T"]
+  set #-small-t-alleles count alleles with [value = "t"]
+  set #-big-F-alleles   count alleles with [value = "F"]
+  set #-small-f-alleles count alleles with [value = "f"]
+  set #-big-G-alleles   count alleles with [value = "G"]
+  set #-small-g-alleles count alleles with [value = "g"]
+  set #-y-chromosomes   count alleles with [value = "Y"]
+  set #-x-chromosomes   count alleles with [value = "X"]
+
+  set #-of-green-dorsal-fins     count fish-parts with [color = green-dorsal-fin-color]
+  set #-of-no-green-dorsal-fins  count fish-parts with [color = no-green-dorsal-fin-color]
+  set #-of-yellow-tail-fins      count fish-parts with [color = yellow-tail-fin-color]
+  set #-of-no-yellow-tail-fins   count fish-parts with [color = no-yellow-tail-fin-color]
+  set #-of-spots               count fish-parts with [shape = spots-shape and hidden? = false]
+  set #-of-no-spots            count fish-parts with [shape = spots-shape and hidden? = true]
+  set #-of-forked-tails        count fish-parts with [shape = forked-tail-shape]
+  set #-of-no-forked-tails     count fish-parts with [shape = no-forked-tail-shape]
+  set #-of-males               count fish with [sex = "male"]
+  set #-of-females             count fish with [sex = "female"]
+
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;; visualization-procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to visualize-tank
+   ask patches with [(type-of-patch = "water" or type-of-patch = "water-edge")] [
+     ifelse not divider-here?
+       [ set pcolor water-color ]
+       [ set pcolor gray - 3.5 ]
+   ]
+   ask patches with [type-of-patch = "tank-wall" ] [
+     ifelse not divider-here?
+       [ set pcolor gray - 3 ]
+       [ set pcolor gray - 4 ]
+     ]
+   ask patches with [type-of-patch = "air" ] [
+     set pcolor gray + 3
+   ]
+end
+
+
+to visualize-fish-and-alleles
+  ifelse see-body-cells? [
+    ask somatic-cells [
+      set hidden? false
+      ask alleles with [ in-link-neighbor? myself ] [
+        set hidden? false
+      ]
+    ]
+  ] [
+    ask somatic-cells [
+      set hidden? true
+      ask alleles with [ in-link-neighbor? myself ] [
+        set hidden? true
+      ]
+    ]
+  ]
+  ifelse see-sex-cells? [
+    ask gamete-cells [
+      set hidden? false
+      ask alleles with [ in-link-neighbor? myself ] [
+        set hidden? false
+      ]
+    ]
+    ask fish-zygotes [
+      set hidden? false
+    ]
+  ] [
+    ask gamete-cells [
+      set hidden? true
+      ask alleles with [ in-link-neighbor? myself ] [
+        set hidden? true
+      ]
+    ]
+    ask fish-zygotes [
+      set hidden? true
+    ]
+  ]
+  ifelse see-fish? [
+    ask fish [
+      set hidden? false
+    ]
+    ask fish-parts [
+      set hidden? false
+    ]
+  ] [
+    ask fish [
+      set hidden? true
+    ]
+    ask fish-parts [
+      set hidden? true
+    ]
+  ]
+end
+
+
+to grow-fish-parts-from-somatic-cell
+  let this-fish-body nobody
+
+  hatch 1 [
+    set breed fish
+    set bearing  random-float 360
+    set heading 0
+    set size 1
+    set this-fish-body self
+    if sex = "male" [set color male-color]
+    if sex = "female" [set color female-color]
+  ]
+  create-link-from  this-fish-body  [
+    ;; somatic cell will link to the fish body -
+    ;; thus following the fish body around as it moves
+    set hidden? true
+    set tie-mode "fixed"
+    tie
+  ]
+
+  hatch 1 [
+    set breed fish-parts  ;;;make tail
+    set breed fish-parts
+    set size 1
+    set shape tail-shape-phenotype
+    set color tail-color-phenotype
+    set heading -90 fd .4
+    create-link-from this-fish-body [
+      ;; fish-parts will link to the fish body -
+      ;; thus following the fish body around as it moves
+      set hidden? true
+      set tie-mode "fixed"
+      tie
+    ]
+  ]
+  hatch 1 [                      ;;;make fins
+    set breed fish-parts
+    set size 1
+    set shape "fish-fins"
+    set color dorsal-fin-color-phenotype
+    create-link-from this-fish-body  [
+      ;; fish-parts will link to the fish body -
+      ;; thus following the fish body around as it moves
+      set hidden? true
+      set tie-mode "fixed"
+      tie
+    ]
+  ]
+
+  hatch 1 [                      ;;;make spots
+    set breed fish-parts
+    set size 1
+    set shape rear-spots-phenotype
+    set color [ 0 0 0 255]
+    create-link-from this-fish-body [
+      ;; fish-parts will link to the fish body -
+      ;; thus following the fish body around as it moves
+      set hidden? true
+      set tie-mode "fixed"
+      tie
+    ]
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;; phenotype reporters ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to-report has-at-least-one-dominant-set-of-instructions-for [dominant-allele]
+  let this-somatic-cell self
+  let #-of-dominant-alleles count alleles with [in-link-neighbor? this-somatic-cell  and value = dominant-allele]
+  ifelse #-of-dominant-alleles > 0  [report true][report false]   ;; if it has at least one set of instructions (DNA) on how to build the protein reports true
+end
+
+
+to-report tail-shape-phenotype
+  let this-shape ""
+  let this-fish  myself
+  ask myself ;; the somatic-cell
+  [
+    ifelse  has-at-least-one-dominant-set-of-instructions-for "F"
+       [set this-shape forked-tail-shape]      ;; tail fin forking results if protein is produced
+       [set this-shape no-forked-tail-shape]   ;; no tail fin forking results if protein is not produced (underlying tissue is continuous triangle shape)
+  ]
+  report this-shape
+end
+
+
+to-report rear-spots-phenotype
+  let this-spots-shape ""
+  ask myself
+  [
+    ifelse has-at-least-one-dominant-set-of-instructions-for "B"
+       [set this-spots-shape spots-shape]    ;; spots on the rear of the fish result if protein is produced
+       [set this-spots-shape no-spots-shape]     ;; no spots on the rear of the fish result if protein is not produced
+  ]
+  report this-spots-shape
+end
+
+
+to-report dorsal-fin-color-phenotype
+  let this-color []
+  ask myself
+  [
+    ifelse  has-at-least-one-dominant-set-of-instructions-for "G"
+      [set this-color green-dorsal-fin-color  ]      ;; green color results in dorsal fins if protein is produced
+      [set this-color no-green-dorsal-fin-color ]    ;; no green color results in dorsal fins if protein is not produced (underlying tissue color is grayish)
+  ]
+  report this-color
+end
+
+
+to-report tail-color-phenotype
+  let this-color []
+  let this-fish  myself
+  ask myself
+  [
+    ifelse  has-at-least-one-dominant-set-of-instructions-for "T"
+       [set this-color yellow-tail-fin-color ]     ;; yellow color results in tail fins results if protein is produced
+       [set this-color no-yellow-tail-fin-color ]  ;; yellow color results in tail fins if protein is not produced (underlying tissue is continuous triangle shape)
+  ]
+  report this-color
+end
+
+
+to-report sex-phenotype
+  let this-sex ""
+  let this-cell self
+  ifelse  has-at-least-one-dominant-set-of-instructions-for "Y"
+     [set this-sex "male"]
+     [set this-sex "female"]
+   report this-sex
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;; other reporters ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+to-report alleles-that-belong-to-this-gamete
+  report alleles with [in-link-neighbor? myself]
+end
+
+
+to-report left-side-of-water-in-tank
+  report (min-pxcor) + 2
+end
+
+
+to-report right-side-of-water-in-tank
+  report  (max-pxcor) - 2
+end
+
+
+
+to-report other-turtles-in-this-turtles-tank-region
+  ;; when dividers are up, it reports how many turtles are in this region for this turtle
+  let turtles-in-this-region nobody
+  let xcor-of-this-turtle xcor
+  let this-region-left-side left-side-of-water-in-tank
+  let this-region-right-side right-side-of-water-in-tank
+  let dividers-to-the-right patches with [divider-here? and pxcor > xcor-of-this-turtle]
+  let dividers-to-the-left  patches with [divider-here? and pxcor < xcor-of-this-turtle]
+
+  if any? dividers-to-the-right [set this-region-right-side min [pxcor] of dividers-to-the-right ]
+  if any? dividers-to-the-left  [set this-region-left-side max [pxcor] of dividers-to-the-left   ]
+
+  set turtles-in-this-region turtles with [xcor >= this-region-left-side and xcor <= this-region-right-side]
+  report turtles-in-this-region
+end
+
+
+to-report both-sexes-in-this-fishs-tank-region?
+  let fish-in-this-region other-turtles-in-this-turtles-tank-region with [breed = fish]
+  let male-fish-in-this-region fish-in-this-region with [sex = "male"]
+  let female-fish-in-this-region fish-in-this-region with [sex = "female"]
+  ifelse (any? male-fish-in-this-region and any? female-fish-in-this-region ) [report true] [report false]
+end
+
+
+
+to-report carrying-capacity-in-this-region [this-xcor]
+  let this-region-left-side left-side-of-water-in-tank
+  let this-region-right-side right-side-of-water-in-tank
+  let dividers-to-the-right patches with [divider-here? and pxcor > this-xcor]
+  let dividers-to-the-left  patches with [divider-here? and pxcor < this-xcor]
+
+  if any? dividers-to-the-right [ set this-region-right-side min [pxcor] of dividers-to-the-right ]
+  if any? dividers-to-the-left  [ set this-region-left-side max [pxcor] of dividers-to-the-left   ]
+  let tank-capacity-of-this-region (this-region-right-side - this-region-left-side) * carrying-capacity / 25
+  report tank-capacity-of-this-region
+end
+
+
+; Copyright 2011 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="610" maxPycor="15" updateMode="1" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="0" height="457" showTickCounter="true" patchSize="28.0" fontSize="10" wrappingAllowedY="false" width="848" tickCounterLabel="ticks" maxPxcor="29" minPxcor="0"></view>
+    <slider x="185" step="1" y="150" height="33" min="0" direction="Horizontal" max="100" default="50.0" variable="initial-alleles-big-b" units="%" width="180" display="initial-alleles-big-b"></slider>
+    <button x="15" y="10" height="34" disableUntilTicks="false" forever="false" kind="Observer" width="78">setup</button>
+    <switch x="15" y="135" height="33" on="false" variable="see-body-cells?" width="160" display="see-body-cells?"></switch>
+    <button x="95" y="10" height="34" disableUntilTicks="true" forever="true" kind="Observer" width="80" display="go/stop">go</button>
+    <slider x="185" step="1" y="505" height="33" min="0" direction="Horizontal" max="100" default="50.0" variable="initial-alleles-big-t" units="%" width="180" display="initial-alleles-big-t"></slider>
+    <slider x="185" step="1" y="270" height="33" min="0" direction="Horizontal" max="100" default="50.0" variable="initial-alleles-big-g" units="%" width="180" display="initial-alleles-big-g"></slider>
+    <slider x="185" step="1" y="390" height="33" min="0" direction="Horizontal" max="100" default="50.0" variable="initial-alleles-big-f" units="%" width="180" display="initial-alleles-big-f"></slider>
+    <plot x="370" yMax="10.0" yAxis="# of" y="370" xMin="0.0" height="120" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="235" xAxis="time" display="Tail Shape Alleles">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="big-F">
+        <setup></setup>
+        <update>plotxy ticks #-big-f-alleles</update>
+      </pen>
+      <pen color="-4539718" legend="true" interval="1.0" mode="0" display="small-f">
+        <setup></setup>
+        <update>plotxy ticks #-small-f-alleles</update>
+      </pen>
+    </plot>
+    <plot x="370" yMax="10.0" yAxis="# of" y="490" xMin="0.0" height="120" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="235" xAxis="time" display="Tail Color Alleles">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="big-T">
+        <setup></setup>
+        <update>plotxy ticks #-big-t-alleles</update>
+      </pen>
+      <pen color="-4539718" legend="true" interval="1.0" mode="0" display="small-t">
+        <setup></setup>
+        <update>plotxy ticks #-small-t-alleles</update>
+      </pen>
+    </plot>
+    <plot x="370" yMax="10.0" yAxis="# of" y="250" xMin="0.0" height="120" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="235" xAxis="time" display="Dorsal Fin Color Alleles">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="big-G">
+        <setup></setup>
+        <update>plotxy ticks #-big-g-alleles</update>
+      </pen>
+      <pen color="-4539718" legend="true" interval="1.0" mode="0" display="small-g">
+        <setup></setup>
+        <update>plotxy ticks #-small-g-alleles</update>
+      </pen>
+    </plot>
+    <plot x="370" yMax="10.0" yAxis="# of" y="10" xMin="0.0" height="120" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="235" xAxis="time" display="Sex Chromosomes">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="X">
+        <setup></setup>
+        <update>plotxy ticks #-x-chromosomes</update>
+      </pen>
+      <pen color="-4539718" legend="true" interval="1.0" mode="0" display="Y">
+        <setup></setup>
+        <update>plotxy ticks #-y-chromosomes</update>
+      </pen>
+    </plot>
+    <slider x="15" step="1" y="50" height="33" min="2" direction="Horizontal" max="60" default="30.0" variable="carrying-capacity" width="160" display="carrying-capacity"></slider>
+    <note x="201" y="561" height="32" color="0.0" transparent="true" fontSize="10" width="156"><![CDATA[TT / Tt / tT --> yellow tail
+              tt --> no yellow]]></note>
+    <note x="200" y="543" height="30" color="37.0" transparent="true" fontSize="12" width="165"><![CDATA[Genotype -->  Phenotype]]></note>
+    <note x="200" y="65" height="19" color="37.0" transparent="true" fontSize="12" width="166"><![CDATA[Genotype ---> Phenotype]]></note>
+    <note x="194" y="186" height="19" color="37.0" transparent="true" fontSize="12" width="162"><![CDATA[Genotype --> Phenotype]]></note>
+    <note x="204" y="303" height="18" color="37.0" transparent="true" fontSize="12" width="171"><![CDATA[Genotype --> Phenotype
+]]></note>
+    <note x="200" y="423" height="19" color="37.0" transparent="true" fontSize="12" width="164"><![CDATA[Genotype --> Phenotype]]></note>
+    <plot x="611" yMax="10.0" y="490" xMin="0.0" height="120" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="298" display="dorsal fin &amp; spotting variations">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="spots">
+        <setup></setup>
+        <update>plotxy ticks #-of-spots</update>
+      </pen>
+      <pen color="-5987164" legend="true" interval="1.0" mode="0" display="no spots">
+        <setup></setup>
+        <update>plotxy ticks #-of-no-spots</update>
+      </pen>
+      <pen color="-8330359" legend="true" interval="1.0" mode="0" display="green dorsal">
+        <setup></setup>
+        <update>plotxy ticks #-of-green-dorsal-fins</update>
+      </pen>
+      <pen color="-11033397" legend="true" interval="1.0" mode="0" display="no green">
+        <setup></setup>
+        <update>plotxy ticks #-of-no-green-dorsal-fins</update>
+      </pen>
+    </plot>
+    <note x="207" y="444" height="34" color="0.0" transparent="true" fontSize="10" width="162"><![CDATA[FF / Ff / fF --> forked tail
+             ff --> no fork]]></note>
+    <note x="195" y="320" height="28" color="0.0" transparent="true" fontSize="10" width="170"><![CDATA[GG / Gg / gG --> green dorsal fin
+                gg --> no green fin]]></note>
+    <plot x="370" yMax="10.0" yAxis="# alleles" y="130" xMin="0.0" height="120" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="235" xAxis="time" display="Body Spot Alleles">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="big-B">
+        <setup></setup>
+        <update>plotxy ticks #-big-b-alleles</update>
+      </pen>
+      <pen color="-4539718" legend="true" interval="1.0" mode="0" display="small-b">
+        <setup></setup>
+        <update>plotxy ticks #-small-b-alleles</update>
+      </pen>
+    </plot>
+    <note x="241" y="85" height="33" color="0.0" transparent="true" fontSize="10" width="114"><![CDATA[XX  --> female
+XY  --> male]]></note>
+    <note x="200" y="205" height="41" color="0.0" transparent="true" fontSize="10" width="182"><![CDATA[BB / Bb / bB  -->  black spots
+              bb  --> no black spots]]></note>
+    <switch x="15" y="100" height="33" on="true" variable="see-fish?" width="160" display="see-fish?"></switch>
+    <switch x="15" y="170" height="33" on="false" variable="see-sex-cells?" width="160" display="see-sex-cells?"></switch>
+    <plot x="911" yMax="10.0" y="490" xMin="0.0" height="120" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="272" display="tail fin variations">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="forked tail">
+        <setup></setup>
+        <update>plotxy ticks #-of-forked-tails</update>
+      </pen>
+      <pen color="-4539718" legend="true" interval="1.0" mode="0" display="no fork">
+        <setup></setup>
+        <update>plotxy ticks #-of-no-forked-tails</update>
+      </pen>
+      <pen color="-4079321" legend="true" interval="1.0" mode="0" display="yellow tail">
+        <setup></setup>
+        <update>plotxy ticks #-of-yellow-tail-fins</update>
+      </pen>
+      <pen color="-13791810" legend="true" interval="1.0" mode="0" display="no yellow">
+        <setup></setup>
+        <update>plotxy ticks #-of-no-yellow-tail-fins</update>
+      </pen>
+    </plot>
+    <plot x="1186" yMax="10.0" yAxis="# of" y="490" xMin="0.0" height="120" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="272" xAxis="time" display="# of males &amp; females">
+      <setup></setup>
+      <update></update>
+      <pen color="-4757638" legend="true" interval="1.0" mode="0" display="females">
+        <setup></setup>
+        <update>plotxy ticks #-of-females</update>
+      </pen>
+      <pen color="-11033397" legend="true" interval="1.0" mode="0" display="males">
+        <setup></setup>
+        <update>plotxy ticks #-of-males</update>
+      </pen>
+    </plot>
+    <monitor x="45" precision="0" y="365" height="45" fontSize="11" width="100" display="fish removed">num-fish-removed</monitor>
+    <switch x="14" y="268" height="33" on="true" variable="auto-replace?" width="160" display="auto-replace?"></switch>
+    <button x="15" y="230" height="34" disableUntilTicks="true" forever="false" kind="Observer" width="160" display="Randomly replace a fish">ask one-of fish [ remove-this-fish]
+find-potential-mates</button>
+    <monitor x="45" precision="0" y="320" height="45" fontSize="11" width="100" display="fish in tank">num-fish-in-tank</monitor>
+    <slider x="185" step="1" y="30" height="33" min="0" direction="Horizontal" max="100" default="50.0" variable="initial-females" units="%" width="180" display="initial-females"></slider>
+    <monitor x="45" precision="0" y="410" height="45" fontSize="11" width="100" display="fish born">num-fish-born</monitor>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This is a genetic drift model that shows how gene frequencies change in a population due to purely random events.  The effect of random selection of certain individuals in a population (either through death or through reproduction) and/or the effect of random selection as to which chromosome (from every chromosome pair) end up being sorted into each gamete (sex cells), results in the loss or gains of alleles in the population.
+
+Over multiple generations this shift in gene distribution leads to alleles becoming progressively more rare or more common (or disappearing completely) in a population. This effect is called genetic drift.
+
+The underlying mechanism of random selection generates different outcomes than in  natural selection (where individual traits and genes are selected for the advantages they confer on the survival and reproduction of individuals).  In addition to natural selection, however, this random selection and resulting effects of genetic drift is one of the primary mechanisms, which drive evolution.  It is also believed to be one of the mechanisms, which contributes to speciation.
+
+## HOW IT WORKS
+
+The fish have a simple genetic representation for five traits: sex (and corresponding body color), spotting, dorsal fin color, tail shape, and tail color.
+
+These traits are represented with genes that have one of two possible alleles each (X or Y, B or b, G or g, F or f, and T or f, for the traits listed above). Upper case letters represent dominant alleles and lower case represent recessive alleles.  Therefore the three combinations BB, Bb, and bB result in expression of the trait for B (e.g. black spots), and only bb results in the expression of the trait for b (e.g. no black spots). Males and Females are determined by whether the bird has XY (male) or XX (female).  Body color is trait determined by what sex the fish is.  Females are salmon colored and males are blue colored.
+
+Here is the genotype to phenotype mapping:
+Spotting: (BB, Bb, bB) yes or (bb) no
+Dorsal Fin Color: (GG, Gg, gG) green or (bb) non-green (gray)
+Tail Fin Shape: (FF, Ff, fF) forked or (ff) no fork
+Tail color: (TT, Tt, tT) yellow or (tt) non-yellow (gray)
+
+A male fish can interbreed with a female fish in the same region of the tank.  By default the tank is all one large region.  But dividers can be added to the tank to split the tank up into separate regions.
+
+The genotype for each fish is represented as a karyotype of a body cell.  A visualization of the chromosome pairs (one pair for each gene) and the corresponding band showing the location of the gene on the chromosome can be seen in the model.
+
+The arrows and hearts in the model represent the movement and recombination of alleles through sexual reproduction.  Arrows represent the movement of the male sex cell to the female sex cell.  The heart represents a fertilization event that will occur when that male sex cell reaches the randomly selected female sex cell.  A karyotype of the alleles in both the body cells (somatic cells) and/or the sex cells (gametes) for all the fish involved in reproduction can also be visualized as this process is occurring.
+
+The model has two random selection mechanisms used for driving the effects of genetic drift.  One of these is the AUTO-REPLACE switch.  It is used to continually remove a randomly selected individual from the population and replace it with an offspring from a randomly selected pair of parents.
+
+## HOW TO USE IT
+
+Press SETUP and you will see the resulting phenotypes in the fish based on the random distribution of the % of each type of allele you have set initially.  Make sure the SEE-FISH? switch is set to "on".
+
+When you run the model the fish in the fish tank begin to move around.  If you click on a fish, that fish will die and be removed.  If AUTO-REPLACE is set to the "On", then one male fish and one female fish will be randomly chosen from the remaining population to reproduce a replacement offspring.  This process will be visible by an arrow from the male, moving toward a heart on the female (if the SEE-SEX-CELLS? is set to "on").  When the arrow collapses down into the heart, the heart will turn into a new fish.
+
+
+CARRYING-CAPACITY: of the population sets the carrying capacity of the tank. Whatever this is set to, the population will automatically reproduce (if AUTO-REPLACE? is "on") or die off to reach this level.
+
+INITIAL-FEMALES: sets the % of initial females put in the tank.  The initial number of females is the % of the carrying-capacity.
+
+INITIAL-ALLELES-BIG-B: sets the % of alleles related to the gene for black spots in the population that will have the recessive "b" allele.  The % of alleles that will have the dominant "B" (large B) allele will be = (100% - INITIAL-ALLELES-BIG-B).
+
+INITIAL-ALLELES-BIG-G: sets the % of alleles related to the gene for green dorsal fin in the population that will have the "G" allele.  The % of alleles that will have the "G" (large G) allele will be = (100% - INITIAL-ALLELES-BIG-G).
+
+INITIAL-ALLELES-BIG-F: sets the % of alleles related to the gene for forked tail in the population that will have the "f" allele.  The % of alleles that will have the "F" (large F) allele will be = (100% - INITIAL-ALLELES-BIG-F).
+
+INITIAL-ALLELES-BIG-T: sets the % of alleles related to the gene for yellow tail in the population that will have the "t" allele.  The % of alleles that will have the "T" (large T) allele will be = (100% - INITIAL-ALLELES-BIG-T).
+
+SEE-FISH?: when turned "on" allows you to see the fish and their phenotypes.  It may be useful to turn it "off" though when looking at the genotypes (SEE-BODY-CELLS? or SEE-SEX-CELLS) as there may be too much visual information with everything on.
+
+SEE-BODY-CELLS?: when it is set to "on" a karyotype of all the chromosomes in the body cells for this fish will be shown.  Each chromosome has a band on it that is either black or light gray.  If it is black it represents the dominant version of the allele for a given gene and if it is light gray it represents the recessive version.  Letters (Capital for dominant and lower case for recessive) are also shown below the chromosome.  Chromosome pairs for each gene have matching lengths.  And, all but the chromosomes for sex also have matching colors.
+
+SEE-SEX-CELLS?: when it is set to "on", a karyotype of all the chromosomes in each sex cell will be shown.  When reproduction occurs, a sex cell from the male (sperm) must travel to the sex cell from the female (egg).  Sex cells contain half the genetic information of a body cell, and 1 allele for each gene (which is shown as 1 chromosome from each chromosome pair).  The male sex cell is shown as a triangle whose upper left corner makes a right angle.  The female sex cell is shown as a triangle whose lower right corner makes a right angle.  When both triangles meet, they form a whole rectangle and a whole karyotype for a fish.  At this point the heart disappears, the sex cells disappears, and a new body cells of a new fish (and the corresponding new fish) appears.  This entire process is shown as occurring outside the fish, to allow the user to watch the flow of alleles from somatic cells into gametes and back into the new offspring's somatic cells.  This process of "gene flow" is referred to in other mechanisms and phenomena related to evolution.  Here that flow can actually be visualized.  In the model the reproductive process is visualized outside the fish.  In reality, insemination occurs when a sperm cell and an egg cell merge inside a female fish.
+
+RANDOMLY-REPLACE-A-FISH: is a button that when pressed will have the computer select a fish at random to remove and replace it with a new one through reproduction between two randomly selected fish remaining in the population (a male and female). If there are no males or females in the tank, then no fish can be born to replace the fish (there aren't two parents available), and only a fish will be removed but not replaced when that is the case.
+
+You can add dividers to break the tank up into smaller regions, by clicking on the bottom of the tank using your mouse cursor.  The mouse cursor will turn to an up arrow when you are able to do this.  To remove the divider that you put up, hover your mouse cursor over the same spot on the bottom of the tank and the it will turn to a down arrow.  Click the mouse button when you see this down arrow to remove the divider.  When dividers are added, the carrying capacity of each region of the tank is calculated to be the fraction of the water in that portion of the tank out of the whole tank's water times the CARRYING-CAPACITY slider value.
+
+AUTO-REPLACE?: when turned "on" will cause the computer select a fish at random to remove and replace it with a new one every .25 seconds.  The new fish will be an offspring of two randomly selected fish remaining in the population (one male and one female parent).  This can only occur if there is at least one male and at least one female available in that section of the fish tank.  For example, if a tank is divided into two regions, and the right region has only males, and the left region has both males and females, auto-replace will replace fish on the right side only.   If no region has both males and females, then no fish will be replaced in any part of the tank, even when AUTO-REPLACE? is set to "On".
+
+## THINGS TO NOTICE
+
+When fish are randomly replaced fluctuation in the proportion of each allele in the population will occur  This is because only 1 of every two alleles for a gene is passed on to an offspring, and the process of separating out which allele is passed on through a gamete (via. meiosis) is fundamentally a random outcome.  When fluctuations bring the number of alleles down to zero, that allele is gone from the fish population and can't return.
+
+Randomly selecting individuals out of the population and/or randomly producing new offspring will eventually result in this loss of diversity in the gene pool of the population, eventually leading to a single gene or trait in the population.  This process and resulting outcome is referred to as genetic drift.
+
+Larger populations take longer to lose diversity than smaller ones.
+
+Likewise, alleles that are less frequent in a population are more likely to disappear from the population more quickly than those that are more frequent.
+
+Bottle neck affects can be simulated by sweeping the population size down to very low levels and then allowing it to return to higher population sizes.  This can be done by reducing the size of the fish tank and the allowing it to become big again.  Each time the population is reduced to only a few fish, that even increases the chances that one or more alleles have removed from the population and that the remaining population now has less diversity in its traits than its ancestors.
+
+Bottle necks can also be created by adding dividers in the fish tank to separate the main population into smaller sub populations.
+
+One limiting bottleneck factor to notice is related to the proportion of males and females.  A population can be very large overall, but if it only has one or two males than the males end up being a potential bottle neck for what type of genes can be passed on. This is also true if the population has only one or two females.
+
+When pressing SETUP for the same initial conditions for the % of each allele observer will notice that fluctuations occur in the phenotypes of the fish, even as no fluctuations have occurred in frequency of each allele in the gene pool of the population.  This is because of the rules of Mendelian genetics.  Imagine that we have two fish in a population that contains 50% of the alleles as "g" (no instructions for producing the protein for making the green pigmentation of the tail) and 50% of the alleles as "G" (instructions for producing the protein for making the green pigmentation of the tail.  A population where one fish has a GG genotype and the other has a gg genotype would have phenotypes of one fish with a green tail and one without.  But a population where one fish has a Gg genotype and the other has a Gg genotype would have both fish with green tails.  In both populations, however, the number of each type of allele in the gene pool is the same.  This type of fluctuation occurs from generation to generation in the fish.
+
+## THINGS TO TRY
+
+You can watch random selection occur by "random selection" by turning on an auto replace process (which will steadily remove four fish from the population and replace them with new offspring fish from the population every second).
+
+You can set the % of each type of allele you wish to start off with in the gene pool of the population, as well as the % of males and females. If you don't include at least 1 male and 1 female the population will not be able to reproduce.
+
+Try intentionally selecting a particular phenotype to remove from the fish and keep selecting to see how many selections it takes to remove all that variants from the population.  If the trait variation you are trying to remove is apparent only when two recessive alleles are present, you may see the trait resurface in future generations (due to the recombination of the recessive alleles in offspring). Watch the graphs to see if you have removed the corresponding alleles completely.
+
+Try predicting the resulting phenotype of an offspring fish, by turning SEE-FISH? and SEE-BODY-CELLS to "off" and SEE-SEX-CELLS? "on".  As the sex cells are moving toward each other, pause the model (by pressing GO/STOP).  Look at the rules for genotype ---> phenotype mapping and write your prediction down for the phenotype of the offspring.  Switch the SEE-FISH? back to "on" and resume the model, to see if your prediction was correct.
+
+Vary the size of the initial fish tank to explore how fast genetic drift occurs in different population sizes.
+
+Simulate the reduction the effects of a disease, temporary loss of habitat, temporary loss of food, etc.. by reducing the carrying capacity of the ecosystem for a brief time.  Do this by reducing the size of the fish tank to sweep away some portion of the fish (e.g. over half of them).  Then simulate the ecosystem returning to it previous stable state, by increasing the fish tank size to it previous level.
+
+Try adding barriers in the fish tank (by clicking on the black bottom of the fish tank) to geographically isolate portions of the population from one another.  You can cause the isolated sub population to lose diversity of traits and alleles, but the overall population to keep the allele diversity needed for any variation.
+
+## NETLOGO FEATURES
+
+Transparency is used to visualize the death of fish.  When a fish dies, the fish shape is removed and a bone shape appears and then gradually fades to transparent when a fish is removed from the population.
+
+Directional links are used to visualize the transmission of a gamete to a "fertilization event" (shown as a heart)
+
+Tie is used to build hierarchies of shapes that belong to parent shapes.  For example, sex cells and body cells have parent shapes (karyotypes) thank have other shapes linked to them (chromosomes - which represent the alleles).  And the fish shape has fish parts that are linked to it, each part a phenotype determined by the genetic information of the body cell of the parent.
+
+## EXTENDING THE MODEL
+
+It might be useful to add the code that allows you to drag agents (fish) around using a mouse cursor.  That way you could move a fish from one region to another to explore what happens when a pioneer brings in new genes into a gene pool from a previously isolated population.
+
+## RELATED MODELS
+
+GenDrift models in the Genetic Drift folder, under Biology
+Bug Hunt Drift, under BEAGLE Evolution folder, under Curricular Resources
+
+## CREDITS AND REFERENCES
+
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/rp/beagle/index.shtml)
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Novak, M. and Wilensky, U. (2011).  NetLogo Fish Tank Genetic Drift model.  http://ccl.northwestern.edu/netlogo/models/FishTankGeneticDrift.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2011 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2011 Cite: Novak, M. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="add divider" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="0" y="180"></point>
+        <point x="45" y="225"></point>
+        <point x="150" y="135"></point>
+        <point x="255" y="240"></point>
+        <point x="300" y="195"></point>
+        <point x="150" y="60"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="cell-gamete-female" rotatable="false" editableColorIndex="0">
+      <polygon color="-528509185" filled="true" marked="false">
+        <point x="150" y="210"></point>
+        <point x="300" y="210"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+      <rectangle endX="300" startY="150" marked="false" color="-1" endY="210" startX="150" filled="false"></rectangle>
+    </shape>
+    <shape name="cell-gamete-male" rotatable="false" editableColorIndex="13">
+      <polygon color="1422181631" filled="true" marked="false">
+        <point x="150" y="150"></point>
+        <point x="150" y="210"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+      <rectangle endX="300" startY="150" marked="false" color="-1" endY="210" startX="150" filled="false"></rectangle>
+    </shape>
+    <shape name="cell-somatic" rotatable="false" editableColorIndex="0">
+      <rectangle endX="300" startY="150" marked="false" color="-528509185" endY="210" startX="150" filled="true"></rectangle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish-body" rotatable="false" editableColorIndex="11">
+      <polygon color="2085659903" filled="true" marked="true">
+        <point x="15" y="135"></point>
+        <point x="151" y="92"></point>
+        <point x="226" y="96"></point>
+        <point x="280" y="134"></point>
+        <point x="292" y="161"></point>
+        <point x="292" y="175"></point>
+        <point x="287" y="185"></point>
+        <point x="270" y="210"></point>
+        <point x="195" y="225"></point>
+        <point x="151" y="227"></point>
+        <point x="15" y="165"></point>
+      </polygon>
+      <circle x="236" y="125" marked="false" color="255" diameter="34" filled="true"></circle>
+      <line endX="264" startY="143" marked="false" color="-1" endY="132" startX="256"></line>
+    </shape>
+    <shape name="fish-bones" rotatable="false" editableColorIndex="15">
+      <rectangle endX="210" startY="150" marked="true" color="-1" endY="165" startX="45" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="210" y="180"></point>
+        <point x="210" y="210"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="180"></point>
+        <point x="285" y="165"></point>
+        <point x="285" y="150"></point>
+        <point x="270" y="120"></point>
+        <point x="225" y="90"></point>
+        <point x="195" y="135"></point>
+        <point x="210" y="165"></point>
+      </polygon>
+      <circle x="236" y="110" marked="false" color="255" diameter="34" filled="true"></circle>
+      <line endX="195" startY="90" marked="true" color="-1" endY="210" startX="180"></line>
+      <line endX="180" startY="90" marked="true" color="-1" endY="210" startX="150"></line>
+      <line endX="150" startY="105" marked="true" color="-1" endY="210" startX="120"></line>
+      <line endX="120" startY="120" marked="true" color="-1" endY="195" startX="90"></line>
+      <line endX="75" startY="135" marked="true" color="-1" endY="180" startX="60"></line>
+    </shape>
+    <shape name="fish-fins" rotatable="false" editableColorIndex="2">
+      <polygon color="-244705793" filled="true" marked="true">
+        <point x="45" y="0"></point>
+        <point x="75" y="45"></point>
+        <point x="71" y="103"></point>
+        <point x="75" y="120"></point>
+        <point x="165" y="105"></point>
+        <point x="120" y="30"></point>
+      </polygon>
+      <polygon color="-244705793" filled="true" marked="true">
+        <point x="75" y="180"></point>
+        <point x="45" y="240"></point>
+        <point x="90" y="225"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+    </shape>
+    <shape name="fish-forked-tail" rotatable="false" editableColorIndex="5">
+      <polygon color="1504722175" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="105" y="75"></point>
+        <point x="45" y="0"></point>
+        <point x="75" y="90"></point>
+        <point x="105" y="150"></point>
+        <point x="75" y="195"></point>
+        <point x="45" y="300"></point>
+        <point x="105" y="225"></point>
+        <point x="150" y="165"></point>
+      </polygon>
+    </shape>
+    <shape name="fish-no-forked-tail" rotatable="false" editableColorIndex="1">
+      <polygon color="-684578305" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="120" y="60"></point>
+        <point x="75" y="0"></point>
+        <point x="60" y="75"></point>
+        <point x="60" y="150"></point>
+        <point x="60" y="210"></point>
+        <point x="75" y="300"></point>
+        <point x="120" y="240"></point>
+        <point x="150" y="165"></point>
+      </polygon>
+    </shape>
+    <shape name="fish-spots" rotatable="false" editableColorIndex="15">
+      <circle x="84" y="129" marked="true" color="-1" diameter="12" filled="true"></circle>
+      <circle x="66" y="161" marked="true" color="-1" diameter="12" filled="true"></circle>
+      <circle x="92" y="162" marked="true" color="-1" diameter="22" filled="true"></circle>
+      <circle x="114" y="99" marked="true" color="-1" diameter="24" filled="true"></circle>
+      <circle x="39" y="129" marked="true" color="-1" diameter="24" filled="true"></circle>
+      <circle x="129" y="144" marked="true" color="-1" diameter="12" filled="true"></circle>
+    </shape>
+    <shape name="fish-ventral-fin" rotatable="false" editableColorIndex="11">
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="60" y="180"></point>
+        <point x="15" y="240"></point>
+        <point x="75" y="225"></point>
+        <point x="90" y="270"></point>
+        <point x="150" y="210"></point>
+      </polygon>
+    </shape>
+    <shape name="gene-1" rotatable="false" editableColorIndex="15">
+      <rectangle endX="150" startY="60" marked="false" color="1422181631" endY="165" startX="135" filled="true"></rectangle>
+      <rectangle endX="150" startY="105" marked="true" color="-1" endY="135" startX="135" filled="true"></rectangle>
+    </shape>
+    <shape name="gene-2" rotatable="false" editableColorIndex="15">
+      <rectangle endX="150" startY="75" marked="false" color="-303222273" endY="150" startX="135" filled="true"></rectangle>
+      <rectangle endX="150" startY="90" marked="true" color="-1" endY="135" startX="135" filled="true"></rectangle>
+    </shape>
+    <shape name="gene-3" rotatable="false" editableColorIndex="15">
+      <rectangle endX="150" startY="75" marked="false" color="-528509185" endY="135" startX="135" filled="true"></rectangle>
+      <rectangle endX="150" startY="75" marked="true" color="-1" endY="105" startX="135" filled="true"></rectangle>
+    </shape>
+    <shape name="gene-4" rotatable="false" editableColorIndex="15">
+      <rectangle endX="150" startY="75" marked="false" color="751909887" endY="135" startX="135" filled="true"></rectangle>
+      <rectangle endX="150" startY="105" marked="true" color="-1" endY="135" startX="135" filled="true"></rectangle>
+    </shape>
+    <shape name="gene-5" rotatable="false" editableColorIndex="15">
+      <rectangle endX="150" startY="60" marked="true" color="-1" endY="150" startX="135" filled="true"></rectangle>
+    </shape>
+    <shape name="gene-y" rotatable="false" editableColorIndex="15">
+      <rectangle endX="150" startY="60" marked="true" color="-1" endY="105" startX="135" filled="true"></rectangle>
+    </shape>
+    <shape name="heart" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="60" y="105"></point>
+        <point x="60" y="135"></point>
+        <point x="90" y="180"></point>
+        <point x="120" y="210"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="90" filled="true"></circle>
+      <circle x="150" y="60" marked="true" color="-1920102913" diameter="90" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="240" y="105"></point>
+        <point x="240" y="135"></point>
+        <point x="210" y="180"></point>
+        <point x="180" y="210"></point>
+        <point x="150" y="225"></point>
+        <point x="150" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="none" rotatable="true" editableColorIndex="0"></shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="sheep" rotatable="false" editableColorIndex="0">
+      <rectangle endX="180" startY="225" marked="true" color="-1920102913" endY="285" startX="151" filled="true"></rectangle>
+      <rectangle endX="75" startY="225" marked="true" color="-1920102913" endY="285" startX="47" filled="true"></rectangle>
+      <rectangle endX="210" startY="75" marked="true" color="-1920102913" endY="225" startX="15" filled="true"></rectangle>
+      <circle x="135" y="75" marked="true" color="-1920102913" diameter="150" filled="true"></circle>
+      <circle x="165" y="76" marked="false" color="255" diameter="116" filled="true"></circle>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="285" startY="15" marked="true" color="-1920102913" endY="285" startX="15" filled="true"></rectangle>
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="subtract divider" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="0" y="120"></point>
+        <point x="45" y="75"></point>
+        <point x="150" y="165"></point>
+        <point x="255" y="60"></point>
+        <point x="300" y="105"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>

@@ -1,0 +1,1472 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[globals [
+  background-color               ;; colors of the background of the view
+  column-color                   ;;   ...
+  target-color                   ;; and of the two possible colors in samples
+  other-color                    ;;   ...
+  num-target-color               ;; how many of the squares (patches) in
+                                 ;; the sample are of the favored color
+  sample-right-xcor              ;; the x-coordinate of the moving sample
+                                 ;; (not the magnified sample)
+
+  sample-location-patch-agentset ;; patches where the moving sample will sprout
+  token-right-sample-dude        ;; bottom-left turtle in the moving sample
+  token-left-sample-dude         ;; bottom-left turtle in the moving sample
+  stop-all?                      ;; Boolean variable for stopping the experiment
+
+  popping?
+
+  left-sample-summary-value      ;; helps figure out which column to drop in
+
+  ; for the histograms
+  individual-4-blocks-list
+  categorized-4-blocks-list
+]
+
+patches-own [ column ]
+
+breed [ column-kids column-kid ]
+column-kids-own [ binomial-coefficient sample-list ]
+
+breed [ sample-dudes sample-dude ]
+sample-dudes-own [distance-for-jump ]
+
+breed [ baby-dudes baby-dude ]
+
+;; these two breeds make the left-hand stuff
+breed [ left-column-kids left-column-kid ]
+breed [ left-sample-dudes left-sample-dude ]
+
+breed [ left-dummies left-dummy ] ;; they're hatched when the left-sample-dudes die.
+                                  ;; they stick around (unless "bumped")
+
+;; Instead of having the sample-dudes stamp, they're going to create
+;; a sample-organizer. The sample-organizers are going to have a better idea
+;; of which specific sample the sample-dudes represented. Also, this way we
+;; can kill the old sample dudes to help the new ones find their place.
+breed [ sample-organizers sample-organizer ]
+sample-organizers-own [
+  sample-values
+  original-pycor
+]
+
+
+to go
+
+  if stop-all? [
+    ifelse stop-at-top? [
+      stop
+    ] [
+      bump-down
+    ]
+  ]
+
+  let popped? popping?
+  if popped? [ unpop ]
+
+  ;; The model keeps track of which different combinations
+  ;; have been discovered. Each column-kid reports whether
+  ;; or not its column has all the possible combinations.
+  ;; When bound? is true, a report from ALL column-kids
+  ;; that their columns are full will stop the run.
+  sample
+  drop-in-bin
+
+  if popped? [ pop ]
+
+  tick
+  plot-it
+end
+
+to go-org
+  go
+  organize-results
+end
+
+;; global controls the popping visuals
+to pop
+  set popping? true
+  recolor-columns
+end
+
+to unpop
+  set popping? false
+  recolor-columns
+end
+
+;; different color for each sample-summary-value
+to-report popping-color ;; sample-organizers procedure
+  report 15 + ((sample-summary-value * 10) mod 120)
+end
+
+;; each 4-block gets a value greenness in the individual spots count for this much:
+;; 84
+;; 21
+to-report sample-summary-value ;; sample-organizers reporter
+  let result 0
+  let power-of-two 3
+  foreach sample-values [ sample-value ->
+    if sample-value = 1 [
+      set result result + 2 ^ power-of-two
+    ]
+    set power-of-two power-of-two - 1
+  ]
+  report result
+end
+
+to-report sample-patches ; sample-organizers procedure
+  let result []
+  foreach [0 1] [ i ->
+    foreach [0 1] [ j ->
+      set result lput patch-at j (- i) result
+    ]
+  ]
+  report result
+end
+
+to display-sample ; sample-organizers procedure
+  let patch-popping-color popping-color
+  (foreach sample-values sample-patches [ [sample-value sample-patch] ->
+    ask sample-patch [
+      ifelse popping? [
+        set pcolor patch-popping-color
+      ] [
+        ifelse sample-value = 1 [
+          set pcolor target-color
+        ] [
+          set pcolor other-color
+        ]
+      ]
+    ]
+  ])
+end
+
+to recolor-columns
+  reset-column-colors
+  ask sample-organizers [
+    display-sample
+  ]
+end
+
+to reset-column-colors ; column-kids procedure
+  ask column-kids [
+    ask patches with [
+      pcolor != black and
+      (pxcor = [ pxcor ] of myself or pxcor = [ pxcor ] of myself - 1)
+    ] [
+      set pcolor [pcolor] of myself
+    ]
+  ]
+end
+
+to make-a-sample-organizer ; sample-dudes procedure
+  hatch-sample-organizers 1 [
+    hide-turtle
+    set sample-values map [ the-sample-dude ->
+      ifelse-value [ color ] of the-sample-dude = target-color [ 1 ] [ 0 ]
+    ] sorted-sample-dudes
+    display-sample
+    set heading 180
+    set categorized-4-blocks-list lput column categorized-4-blocks-list
+  ]
+end
+
+to organize-results
+  ask sample-organizers [
+    if original-pycor = 0 [
+      set original-pycor pycor
+    ]
+  ]
+  ask column-kids [
+    organize-column
+  ]
+  recolor-columns
+end
+
+to organize-column ; column-kids procedure
+  let column-organizers sample-organizers with [
+    pxcor + 1 = [pxcor] of myself
+  ]
+  let organizers sort-by [ [organizer-1 organizer-2] ->
+    [ sample-summary-value ] of organizer-1 < [ sample-summary-value ] of organizer-2
+  ] [ self ] of column-organizers
+  let ycors sort [ pycor ] of column-organizers
+  (foreach organizers ycors [ [the-organizer the-ycor] ->
+    ask the-organizer [ set ycor the-ycor ]
+  ])
+end
+
+to disorganize-results
+ ask sample-organizers [
+   set ycor original-pycor
+ ]
+ recolor-columns
+end
+
+;; This procedure colors the view, divides patches into columns
+;; of equal length ( plus a single partition column), and numbers
+;; these columns, beginning from the left, 0, 1, 2, 3, etc.
+to setup
+  clear-all
+  reset-ticks
+  clear-output
+  set background-color white - 1
+  set-default-shape left-dummies "big square"
+  set column-color grey
+  set target-color green
+  set other-color blue
+
+  set popping? false
+
+  ;; determines the location of the sample array
+  ;; beginning one column to the left of the histogram
+  set sample-right-xcor 12
+
+  ;; assigns each patch with a column number. Each column
+  ;; is as wide as the value set in the 'side' slider
+  ask patches [
+    set pcolor background-color
+    ;; The following both centers the columns
+    ;; and assigns a column number to each patch
+    ;; We use "side + 1" and not just "side" so
+    ;; as to create an empty column between samples
+    set column floor ((pxcor - ((5 * (3)) / 1)) / (3))
+    if ((column < 0 and column > -3) or column >= 5 or column < -3 - 15) [
+      set column -100
+    ]
+    if column < 0 and column != -100 [
+      set column column + 18
+    ]
+  ]
+
+  ;; leave one-patch strips between the columns empty
+  ask patches with [ [ column ] of patch-at -1 0 != column ] [
+   ;; so that they do not take part in commands that report relevant column numbers
+    set column -100
+  ]
+
+  ;; colors the columns with two shades of some color, alternately
+  ask patches [
+    if column != -100 [
+      ifelse int (column / 2) = column / 2
+        [ set pcolor column-color ]
+        [ set pcolor column-color - 1 ]
+      ;; do some funky switching of columns so that
+      ;; the 2-zs are next the the 2-zs, etc.
+      if column < 0 and column != -100 [
+        set column item position column [
+          0    1 2 3 4    5 6 7 8  9 10    11 12 13 14      15
+        ] [
+          0    1 2 4 8    3 5 9 6 10 12     7 11 13 14      15
+        ]
+      ]
+    ]
+  ]
+
+  ;; This draws the base-line and creates a sample-kids
+  ;; turtle at the base of each column
+  ask patches with [
+    ;; The base line is several patches above the column labels.
+    (pycor = -1 * max-pycor + 5) and
+    (column != -100)
+  ] [
+    ;; make sure only the grouped guys do this
+    if pxcor > 9 [
+      set pcolor black
+      ;; find the leftmost patch in the column...
+      if [ column ] of patch-at -1 0 != column [
+        ;; ...then move over to the right of the column
+        ask patch (pxcor + 2 - 1) (-1 * max-pycor + 1) [
+          set plabel column
+        ]
+        ;; ...then move over to the middle of the column
+        ask patch (pxcor + floor 1) (-1 * max-pycor + 1) [
+          sprout 1 [
+            hide-turtle
+            set color pcolor
+            set breed column-kids
+            set sample-list []
+            ;; each column-kid knows how many different combinations his column has
+            set binomial-coefficient item column binomrow 4
+          ]
+        ]
+      ]
+    ]
+
+    if pxcor < 9 [
+      set pcolor black
+      ;; find the leftmost patch in the column...
+      if [ column ] of patch-at -1 0 != column [
+        ;; ...then move over to the middle of the column
+        ask patch (pxcor + floor 1 ) (-1 * max-pycor + 1) [
+          sprout 1 [
+            hide-turtle
+            set color pcolor
+            set breed left-column-kids
+          ]
+        ]
+      ]
+    ]
+  ]
+
+  set stop-all? false
+  set num-target-color false
+
+  ;; again, instead of just accumulating and calling histogram,
+  ;; we have to build our own because of the averaging pen
+  set individual-4-blocks-list n-values 16 [ 0 ]
+  set categorized-4-blocks-list []
+
+end
+
+to bump-down
+  ;; last row of grouped guys
+  ask sample-organizers with-min [ pycor ] [ die ]
+  ;; last row of individual guys means doing the following twice
+  ask left-dummies with-min [ pycor ] [ die ]
+  ask left-dummies with-min [ pycor ] [ die ]
+
+  ;; then move everyone down
+  ask sample-organizers [ fd 3 ]
+  ask left-dummies [ fd 3 ]
+  recolor-columns
+end
+
+;; This procedure creates a square sample of dimensions
+;; side-times-side, e.g., 3-by-3, located to the left of
+;; the columns. Each patch in this sample sprouts a turtle.
+;; The color of the sample-dudes in this square are either
+;; target-color or other-color, based on a random algorithm
+;; (see below)
+to sample
+  ;; creates a square agentset of as many sample-dudes as determined
+  ;; by the 'side' slider, positioning these sample sample-dudes at
+  ;; the top of the screen and to the left of the histogram columns
+  set sample-location-patch-agentset patches with [
+    (pxcor <= sample-right-xcor) and
+    (pxcor > sample-right-xcor - 2) and
+    (pycor > (max-pycor - 2))
+  ]
+  foreach sort sample-location-patch-agentset [ the-patch-agentset ->
+    ask the-patch-agentset [
+      sprout 1 [
+        hide-turtle
+        set breed sample-dudes
+        setxy pxcor pycor
+        ;; Each turtle in the sample area chooses randomly
+        ;; between the target-color and the other color.
+        ;; The higher you have set the probability slider, the
+        ;; higher the chance the turtle will get the target color
+        ifelse random 100 < probability-to-be-target-color
+          [ set color target-color ]
+          [ set color other-color ]
+        show-turtle
+      ]
+      sprout 1 [
+        hide-turtle
+        set breed left-sample-dudes
+        setxy pxcor pycor
+        set color [color] of one-of sample-dudes-here
+        show-turtle
+      ]
+    ]
+  ]
+
+  ;; to find the correct column to go to
+  set left-sample-summary-value calculate-left-sample-summary-value
+
+  ;; num-target-color reports how many sample-dudes
+  ;; in the random sample are of the target color
+  set num-target-color count sample-dudes with [ color = target-color ]
+end
+
+;; This procedure moves the random sample sideways to its column
+;; and then down above other previous samples in that column.
+to drop-in-bin
+  find-your-column
+  descend
+end
+
+;; The random sample moves to the right until it is in
+;; its correct column, that is, until it is in the column
+;; that collects samples which have exactly as many
+;; sample-dudes of the target color as this sample has.
+;; The rationale is that the as long as the sample is not
+;; in its column, it keeps moving sideways. So, if the
+;; sample has 9 sample-dudes (3-by-3) and is moving sideways,
+;; but 6 of them are not yet in their correct column,
+;; the sample keeps moving. When all of the 9 sample-dudes
+;; are the sample's correct column, this procedure stops.
+to find-your-column
+  ask sample-dudes [ set heading 90 ]
+  ask left-sample-dudes [ set heading -90 ]
+  while [
+    count sample-dudes with [ column = num-target-color ] != 4  or
+    count left-sample-dudes with [ column = left-sample-summary-value ] != 4
+  ] [
+    if count sample-dudes with [ column = num-target-color ] != 4 [
+      ask sample-dudes [
+        fd 1
+      ]
+    ]
+    if count left-sample-dudes with [ column = left-sample-summary-value ] != 4 [
+      ask left-sample-dudes [
+        fd 1
+      ]
+    ]
+  ]
+end
+
+;; Moves the sample downwards along the column until it is either
+;; on the base line or exactly over another sample in that column.
+to descend
+  let right-lowest-in-sample min [ pycor ] of sample-dudes
+  let left-lowest-in-sample min [ pycor ] of left-sample-dudes
+  ask sample-dudes [ set heading 180 ]
+  ask left-sample-dudes [ set heading 180 ]
+
+  ;; The lowest row in the square sample is in charge of checking
+  ;; whether or not the sample has arrived all the way down
+  ;; In order to determine who this row is -- as the samples keeps
+  ;; moving down -- we find a turtle with the lowest y coordinate
+  ;; checks whether the row directly below the sample's lowest row
+  ;; is available to keep moving down
+  set token-right-sample-dude
+    one-of sample-dudes with [ pycor = right-lowest-in-sample ]
+  set token-left-sample-dude
+    one-of left-sample-dudes with [ pycor = left-lowest-in-sample ]
+  while [
+    free-below? token-right-sample-dude or (free-below? token-left-sample-dude and
+      [ [ not any? left-dummies-here ] of patch-at 0 -2 ] of token-left-sample-dude)
+  ] [
+    if free-below? token-right-sample-dude [
+      ;; As in find-your-column, shift the sample one row down
+      ask sample-dudes [ fd 1 ]
+      ;; Instead of establishing again the lowest row in the sample, the
+      ;; y coordinate of the row gets smaller by 1 because the sample is
+      ;; now one row lower than when it started this 'while' procedure
+      set right-lowest-in-sample (right-lowest-in-sample - 1)
+    ]
+
+    if free-below? token-left-sample-dude and
+      [ [ not any? left-dummies-here ] of patch-at 0 -2 ] of token-left-sample-dude [
+      ask left-sample-dudes [ fd 1 ]
+      ;; Instead of establishing again the lowest row in the sample, the
+      ;; y coordinate of the row gets smaller by 1 because the sample is
+      ;; now one row lower than when it started this 'while' procedure
+      set left-lowest-in-sample ( left-lowest-in-sample - 1 )
+    ]
+  ]
+  ; keep track of results for the histogram
+  ask one-of left-sample-dudes [
+    let i position column [0  1 2 4 8  3 5 9 6 10 12  7 11 13 14  15]
+    set individual-4-blocks-list
+      replace-item i individual-4-blocks-list ((item i individual-4-blocks-list) + 1)
+  ]
+  ask left-sample-dudes [
+    hatch 1 [
+      set breed left-dummies
+      set size 1.25
+      set heading 180
+    ]
+    die
+  ]
+
+
+  ;; Once sample-dudes have reached as low down in the column
+  ;; as they can go (they are on top of either the base line
+  ;; or a previous sample) they might color the patch with
+  ;; their own color before they "die."
+  finish-off
+
+  ;; If the column has been stacked up so far that it is near
+  ;; the top of the screen, the whole supra-procedure stops
+  ;; and so the experiment ends
+  set stop-all?
+    (max-pycor - right-lowest-in-sample < 3) or
+    (max-pycor - left-lowest-in-sample < 3)
+end
+
+to-report free-below? [ dude ]
+  report
+    ([ [ pcolor ] of patch-at 0 -2 ] of dude) != black and
+    ([ [ pcolor ] of patch-at 0 -2 ] of dude) != target-color and
+    ([ [ pcolor ] of patch-at 0 -2 ] of dude) != other-color
+end
+
+to-report sorted-sample-dudes
+  report sort-by [ [sample-dude-1 sample-dude-2] ->
+    (([pxcor] of sample-dude-1 < [pxcor] of sample-dude-2) and ([pycor] of sample-dude-1 = [pycor] of sample-dude-2)) or
+    (([pycor] of sample-dude-1 > [pycor] of sample-dude-2))
+  ] sample-dudes
+end
+
+;; using lots of code from the grouped side stuff
+to-report calculate-left-sample-summary-value
+  let sorted-left-sample-dudes
+  sort-by [ [sample-dude-1 sample-dude-2] ->
+    (([pxcor] of sample-dude-1 < [pxcor] of sample-dude-2) and ([pycor] of sample-dude-1 = [pycor] of sample-dude-2)) or
+    (([pycor] of sample-dude-1 > [pycor] of sample-dude-2))
+  ] left-sample-dudes
+  let left-sample-values map [ the-sample-dude ->
+    ifelse-value [color] of the-sample-dude = target-color [1] [0]
+  ] sorted-left-sample-dudes
+  let result 0
+  let power-of-two 3
+  foreach left-sample-values [ sample-value ->
+    if sample-value = 1 [
+      set result result + 2 ^ power-of-two
+    ]
+    set power-of-two power-of-two - 1
+  ]
+  report result
+end
+
+to finish-off
+  ;; creates local list of the colors of this specific sample,
+  ;; for instance the color combination of a 9-square,
+  ;; beginning from its top-left corner and running to the
+  ;; right and then taking the next row and so on
+  ;; might be "green green red green red green"
+  ;; need to use map and sort instead of values-from cause of
+  ;; the new randomized agentsets in 3.1pre2
+  let sample-color-combination map [ the-sample-dude -> [color] of the-sample-dude ] sorted-sample-dudes
+
+  ;; determines which turtle lives at the bottom of the column where the sample is
+  let this-column-kid one-of column-kids with [
+    column = [ column ] of token-right-sample-dude
+  ]
+
+  ;; make the upper left sample-dude create a sample-organizer
+  let the-sample-sample-dude max-one-of sample-dudes with-min [ pxcor ] [ pycor ]
+
+  ;; accepts to list only new samples and makes a previously
+  ;; encountered sample if keep-duplicates? is on
+  ifelse not member? sample-color-combination [sample-list] of this-column-kid
+  [
+    ask the-sample-sample-dude [
+      make-a-sample-organizer
+    ]
+    ask sample-dudes [
+      die
+    ]
+  ]
+  [
+    ask the-sample-sample-dude [
+      make-a-sample-organizer
+    ]
+    ask sample-dudes [
+      die
+    ]
+  ]
+  ask this-column-kid [
+    set sample-list fput sample-color-combination sample-list
+  ]
+end
+
+;; procedure for calculating the row of coefficients
+;; column-kids needs their coefficient so as to judge
+;; if their column has all the possible different combinations
+to-report binomrow [ n ]
+  if n = 0 [ report [ 1 ] ]
+  let prevrow binomrow (n - 1)
+  report (map [ [a b] -> a + b ] (fput 0 prevrow) (lput 0 prevrow))
+end
+
+;; reports the proportion of the sample space that has been generated up to now
+to-report %-full
+  ifelse samples-found = 0
+    [ report precision 0 0 ]
+    [ report precision (samples-found / (2 ^ 4)) 3 ]
+end
+
+to-report samples-found
+  report sum [ length remove-duplicates sample-list ] of column-kids
+end
+
+to-report total-samples-to-find
+  report precision (2 ^ 4) 0
+end
+
+to plot-it
+  set-current-plot "Individual 4-Blocks"
+  set-current-plot-pen "default"
+  plot-pen-reset
+  ; have to go through instead of calling histogram, because of the averaging pen
+  foreach individual-4-blocks-list [ individual-4-block ->
+    plot individual-4-block
+  ]
+  set-plot-y-range 0 max individual-4-blocks-list
+
+  set-current-plot "Categorized 4-Blocks"
+  histogram categorized-4-blocks-list
+  let maxbar modes categorized-4-blocks-list
+  let maxrange filter [ categorized-4-block -> categorized-4-block = item 0 maxbar ] categorized-4-blocks-list
+  set-plot-y-range 0 length maxrange
+end
+
+
+; Copyright 2009 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="455" maxPycor="91" updateMode="1" wrappingAllowedX="true" y="15" frameRate="30.0" minPycor="-91" height="558" showTickCounter="true" patchSize="3.0" fontSize="10" wrappingAllowedY="true" width="281" tickCounterLabel="ticks" maxPxcor="45" minPxcor="-45"></view>
+    <slider x="10" step="1" y="15" height="33" min="0" direction="Horizontal" max="100" default="50.0" variable="probability-to-be-target-color" units="%" width="235" display="probability-to-be-target-color"></slider>
+    <button x="170" y="95" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="75" display="Go">go</button>
+    <button x="90" y="95" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="75" display="Go Once">go</button>
+    <button x="10" y="135" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="155" display="Organize Results">organize-results</button>
+    <button x="10" y="175" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="155" display="Disorganize Results">disorganize-results</button>
+    <button x="170" y="135" height="75" disableUntilTicks="true" forever="true" kind="Observer" width="75" display="Go-org">go-org</button>
+    <button x="10" y="215" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="115" display="Paint">pop</button>
+    <button x="130" y="215" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="115" display="Un-Paint">unpop</button>
+    <switch x="45" y="55" height="33" on="false" variable="stop-at-top?" width="163" display="stop-at-top?"></switch>
+    <plot x="250" yMax="10.0" y="15" xMin="0.0" height="579" legend="false" xMax="16.0" autoplot="true" yMin="0.0" width="200" display="Individual 4-Blocks">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="1" display="default">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <plot x="745" yMax="10.0" y="15" xMin="0.0" height="579" legend="false" xMax="5.0" autoplot="true" yMin="0.0" width="200" display="Categorized 4-Blocks">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="1" display="default">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <button x="10" y="95" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="75" display="Setup">setup</button>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This model is designed to help students understand the "shape" of the binomial distribution as resulting from how the elemental events are pooled into aggregate events. The model simulates a probability experiment that involves taking samples consisting of four independent binomial events that are each like a coin. Actual experimental outcomes from running this simulation are shown simultaneously in two representations.
+
+Both representations are stacked dot plots of the samples themselves ("stalagmites"), and each of these has a corresponding histogram to its side. There are two stalagmites, because one stalagmite stacks the samples according to their particular configuration (permutation), whereas the other stalagmite stacks them by pooling together unique configurations with similar numbers of singleton events of the same value (combinations). The user is to appreciate relations between the two pairs by noting that they are transformations of each other.
+
+## PEDAGOGICAL NOTE
+
+If you toss four coins, what is the chance of getting exactly three heads? To figure out the answer with precision, we need to know all the possible compound events in this experiment, that is, all the unique configurations of four coin states -- whether each is heads (H) or tails (T). To make sense of the list, below, imagine that you have tagged the coins with little identifiers, such as "A", "B", "C", and "D", and you always list the state of these four coins according to the order "ABCD".
+
+```text
+HHHH
+HHHT
+HHTH
+HTHH
+THHH
+HHTT
+HTHT
+HTTH
+THTH
+TTHH
+THHT
+TTTH
+TTHT
+THTT
+HTTT
+TTTT
+```
+
+Assuming fair coins, all the sixteen compound events, above, are equally likely (equiprobable).  But we could pool them indiscriminately into their five sets so as to form five aggregates that are heteroprobable:
+
+```text
+4H0T
+3H1T
+2H2T
+1H3T
+0H4T
+```
+
+The likelihood of the four coins landing as each of these five aggregate events are related as 1:4:6:4:1, reflecting the number of unique compounds events in each.  And yet, most aggregate representations, such as histograms, do not make explicit this relation between the two different ways of parsing the sample space -- as sixteen equiprobable elemental events or as five heteroprobable aggregate events.  Consequently, students are liable to miss out on opportunities to make sense of the conventional aggregate representation
+
+This model is a part of the ProbLab curriculum.  The ProbLab Curriculum is currently under development at the CCL.  For more information about the ProbLab Curriculum please refer to http://ccl.northwestern.edu/curriculum/ProbLab/.
+
+## HOW IT WORKS
+
+When you press GO, a sample of four tiny squares, which each can be either green or blue in accord with the probability setting, is "born" at the top of the View, between the two stalagmite sets.  This compound sample is then "cloned", with one clone traveling left to the 16-columned stalagmite set, and the other clone traveling right toward the 5-columned stalagmite set.  For each set, the model computes the appropriate chute for that compound event, in accord with its unique spatial configuration of green and blue squares (for the left-hand set) or only the number of green squares in the compound (in the right-hand set).  (See the section above, "PEDAGOGICAL NOTE", for examples of two such sets, for the case of four coins.)  As the sample accumulate in their respective columns, in each of the two stalagmite sets, it gradually becomes apparent that the sets have different "destinies".  For example, for a P = .5 setting, the left-hand set is converging on a flat distribution, whereas the right-hand set takes on the characteristic binomial shape.  The two histograms that flank the View offer the conventional representations of these two simultaneous parsings of the experiment.
+
+## HOW TO USE IT
+
+Buttons:
+SETUP prepares the view, including erasing the coloration from a previous run of the experiment.
+GO continually runs experiments according to the values you have set in the sliders.
+GO ONCE runs only one experiment.
+GO-ORG runs experiments while grouping samples in each chute by the particular combination each 4-block exhibits.
+DISORGANIZE-RESULTS groups results in each chute by combination.
+ORGANIZE-RESULTS ungroups results so that the blocks show up in each chute according to the order they appeared.
+
+Sliders:
+PROBABILITY-TO-BE-TARGET-COLOR determines the chance of each square (turtle) in the sample compound event to be green.  A value of 50 means that each turtle has an equal chance of being green or blue, a value of 80 means that each turtle has a 80% chance of being green (and a 20% chance of being blue).
+
+Switches:
+STOP-AT-TOP? determines whether experiments will continue to be run once the samples in any given column reach the top of the View frame.
+
+Plots:
+INDIVIDUAL 4-BLOCKS plots in sixteen columns the number of times each one of the sixteen elemental compound events has been sampled.
+CATEGORIZED 4-BLOCKS plots in five columns the number of times each of the five aggregated compound events has been sampled (0green-4blue, 1green-3blue, 2green-2blue, 3green-1blue, 4green-0blue).
+
+Set the sliders according to the values you want, press SETUP, and then press GO.
+
+## THINGS TO NOTICE
+
+The histograms that flank the View each correspond with the stalagmite set closest to them. Both the histogram and the stalagmite set on the left each has 16 columns, whereas the histogram and the stalagmite set on the right each has 5 columns.
+
+## THINGS TO TRY
+
+Slow the model down considerably and now press Setup and then Go. Look up at the top of the View between the two stalagmite sets. Locate the four-squared sample that sprouts there and follow as it is cloned into samples that travel left and right and then fall down their appropriate chute.
+
+Using the default switch and slider settings, press Setup and then Go. Look closely at the stalagmite on the right-hand side of the View. Note what happens when one of the columns reaches the top. Because there is no more room for this column to grow, all the other columns fall down a row. Eventually, only one or two columns (according to the probability settings and the number of samples you have taken), will remain visible.
+
+Set the probability slider at .5 and press Go. What are you noticing about the shape of each of the two histograms?
+
+Set KEEP-REPEATS? to Off, STOP-AT-ALL-FOUND? to On, and STOP-AT-TOP? to Off. Try to guess what you will get in each of the stalagmite sets, and then press Go.
+
+## RELATED MODELS
+
+Some of the other ProbLab (curricular) models, including SAMPLER -- HubNet Participatory Simulation -- feature related visuals and activities.  In Stochastic Patchwork and especially in 9-Blocks you will see the same 3-by-3 array of green-or-blue squares.  In the 9-Block Stalagmite model, when 'keep-duplicates?' is set to 'Off' and the y-axis value of the view is set to 260, we get the whole sample space without any duplicates.  In the Stochastic Patchwork model and especially in 9-Blocks model, we see frequency distribution histograms.  These histograms compare in interesting ways with the shape of the combinations tower in this model.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Abrahamson, D. and Wilensky, U. (2009).  NetLogo 4 Block Two Stalagmites model.  http://ccl.northwestern.edu/netlogo/models/4BlockTwoStalagmites.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2009 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2009 Cite: Abrahamson, D. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="big square" rotatable="true" editableColorIndex="0">
+      <rectangle endX="300" startY="0" marked="true" color="-1920102913" endY="300" startX="0" filled="true"></rectangle>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="link" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="link direction" rotatable="true" editableColorIndex="0">
+      <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+      <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup
+repeat 150 [ go ]</previewCommands>
+</model>

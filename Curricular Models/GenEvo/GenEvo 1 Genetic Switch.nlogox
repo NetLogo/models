@@ -1,0 +1,1662 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[globals [
+  ; Simulation constants
+  cell-width                 ; the width of the cell
+  cell-height                ; the height of the cell
+  cell-color                 ; the color of the cell
+  cell-wall                  ; a patch set that contains the patches on the cell wall
+  cell-patches               ; a patch set that contains the patches inside the cell
+  operon                     ; a patch set that contains the operon patches
+  promoter                   ; a patch set that contains the patches that represent the promoter
+  operator                   ; a patch set that contains the patches that represent the operator
+  terminator                 ; a patch set that contains the patches that represent the terminator
+  LacZ-production-num        ; number of LacZ proteins produced per transcription event
+  LacZ-production-cost       ; cost incurred by the cell to produce one molecule of LacZ protein
+  LacY-production-num        ; number of LacZ proteins produced per transcription event
+  LacY-production-cost       ; cost incurred by the cell to produce one molecule of LacZ protein
+  initial-energy             ; initial energy of the cell
+  lactose-upper-limit        ; a variable to set the lactose quantity in the external environment
+
+  ; Global (cellular) properties
+  energy                           ; keeps track of the energy of the cell
+  ticks-at-start-of-cell-division  ; to keep track of cell division time
+  ticks-at-end-of-cell-division    ; to keep track of cell division time
+  cell-division-time               ; time taken for the cell to divide
+  division-number                  ; a counter to keep track of number of cell division events
+  inhibited?                       ; boolean for whether or not the operator is inhibited
+]
+
+breed [ LacIs LacI ]         ; the LacI repressor protein (purple proteins)
+breed [ LacZs LacZ ]         ; the LacZ beta-galactosidase enzyme (light red proteins)
+breed [ LacYs LacY ]         ; the LacY lactose permease enzyme (light red rectangles)
+breed [ RNAPs RNAP ]         ; RNA Polymerase (brown proteins) that binds to the DNA and synthesizes mRNA
+breed [ lactoses lactose ]   ; lactose molecules (gray)
+
+breed [ mask-turtles mask-turtle ]   ; turtles to mask the background during animation of cell division
+breed [ daughter-cell-turtles daughter-cell-turtle ]  ; turtles to animate cell division process
+
+LacIs-own [
+  partner                ; if it's a LacI complex, then partner is a lactose molecule
+  bound-to-operator?     ; a boolean to track if a LacI is bound to DNA as an inhibitor of transcription
+]
+
+RNAPs-own [
+  on-DNA?     ; a boolean to track if a RNAP is transcribing the DNA
+]
+
+lactoses-own [
+  partner     ; a partner is a LacI molecule with which a lactose molecule forms a complex
+  inside?     ; a boolean to track if a lactose molecule is inside the cell
+]
+
+to setup
+  clear-all
+
+  ; Set all of our constant global variables
+  set cell-width 44
+  set cell-height 16
+  set initial-energy 1000
+  set lactose-upper-limit 1500
+  set LacZ-production-num 5
+  set LacZ-production-cost 10
+  set LacY-production-num 5
+  set LacY-production-cost 10
+
+  ; Initialize all of our global property variables
+  set energy initial-energy
+  set ticks-at-start-of-cell-division 0
+  set division-number 0
+  set inhibited? false
+
+  draw-cell
+
+  ; add the necessary proteins to the cell
+  create-LacIs LacI-number [
+    set bound-to-operator? false
+    set partner nobody
+    set-shape
+    gen-xy-inside-inside
+  ]
+  create-RNAPs RNAP-number [
+    set on-DNA? false
+    set-shape
+    gen-xy-inside-inside
+  ]
+
+  if not LevelSpace? [
+    if lactose? [ update-lactose lactose-upper-limit ] ; add lactose if ON
+  ]
+  reset-ticks
+end
+
+to reset   ;; to reset the parameters to default setting
+  set LacI-number 25
+  set RNAP-number 25
+  set LacI-bond-leakage 0.02
+  set LacI-lactose-binding-chance 0.99991
+  set LacI-lactose-separation-chance 0.001
+  set LacY-degradation-chance 4.0E-4
+  set LacZ-degradation-chance 1.0E-4
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;  Runtime Procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to go
+  go-LacIs
+  go-LacYs
+  go-LacZs
+  go-lactoses
+  go-RNAPs
+
+  ; if glucose? is ON, we get a steady stream of energy
+  if glucose? [ set energy energy + 10 ]
+  ; but it takes energy to maintain all of the proteins so consume some energy
+  set energy (energy - (count RNAPs + count LacIs + count LacZs) / 100 )
+
+  ; If we're in LevelSpace, then let the population model control division and lactose distribution.
+  if not LevelSpace? [
+    if lactose? [ update-lactose lactose-upper-limit ]
+
+    ; if we've doubled our energy, then divide
+    if (energy > 2 * initial-energy) [ divide-cell ]
+
+    ; if we're out of energy, die
+    if (energy < 0) [ user-message "The cell has run out of energy. It's dead!" stop ]
+  ]
+  show-switch-color
+  tick
+end
+
+; controls the random movement of all turtles. If you're headed towards the cell wall, just turn until you're not
+to move ; turtle procedure
+  rt random-float 360
+  while [ (member? patch-ahead 1 cell-wall) or (member? patch-ahead 2 cell-wall) ] [ rt random-float 360 ]
+  forward 1
+end
+
+; procedure for movement and molecular interactions of LacI proteins
+to go-LacIs
+
+  ; a LacI bound with the operator might dissociate from the operator
+  ask LacIs with [ bound-to-operator? ] [
+    if (random-float 1 < LacI-bond-leakage) [
+      dissociate-from-operator
+    ]
+  ]
+
+  ; LacIs with partners might dissociate from their partners
+  ask LacIs with [ partner != nobody ] [
+     if (random-float 1 < LacI-lactose-separation-chance) [
+      ask partner [
+        set partner nobody
+        move-to myself
+        set-shape
+        forward 1
+      ]
+      set partner nobody
+      set-shape
+      forward -1
+    ]
+  ]
+
+  ; LacIs without partners either bind with the operator
+  ask LacIs with [ partner = nobody ] [
+    ifelse (not inhibited?) and ((member? patch-here operator) or (member? patch-ahead 1 operator)) [
+      set bound-to-operator? true
+      set inhibited? true
+      set heading 0
+      setxy -12 1
+    ] [ ; or maybe bind with a lactose
+      if (count lactoses-here with [ partner = nobody ] > 0  and (random-float 1 < LacI-lactose-binding-chance)) [
+        set partner one-of lactoses-here with [ partner = nobody ]
+        set-shape
+        ask partner [
+          set partner myself
+          set-shape
+        ]
+        dissociate-from-operator ; if necessary, dissociate from the operator
+      ]
+    ]
+  ]
+
+  ask LacIs with [ not bound-to-operator? ] [ move ]
+end
+
+; procedure for LacIs to dissociate from the operator
+to dissociate-from-operator ; LacI procedure
+  if (bound-to-operator?) [
+    set bound-to-operator? false
+    set inhibited? false
+    forward 3
+  ]
+end
+
+; procedure for movement and interactions of LacY proteins
+to go-LacYs
+  ask LacYs [
+    ; if LacY hits the cellwall, it gets installed on the cell wall
+    ifelse (member? patch-ahead 2 cell-wall) [
+      ask patch-ahead 2 [ set pcolor (red + 2) ]
+      die
+    ]
+    ; otherwise we just move normally
+    [ move ]
+  ]
+  ; each tick, the installed LacYs have a chance of degrading
+  ask patches with [pcolor = (red + 2)] [
+    if (random-float 1 < LacY-degradation-chance) [ set pcolor cell-color ]
+  ]
+end
+
+; procedure for movement and interactions of LacZ proteins
+to go-LacZs
+  ; LacZs near lactose can digest that lactose and produce energy
+  ask LacZs with [ any? lactoses in-radius 1 with [ partner = nobody ] ] [
+    ask lactoses in-radius 2 with [ partner = nobody ] [
+      set energy energy + 10
+      die
+    ]
+  ]
+  ask LacZs [
+    move
+    if (random-float 1 < LacZ-degradation-chance) [ die ] ; there's a chance LacZ degrades
+  ]
+end
+
+; procedure for movement and interactions of lactose molecules
+to go-lactoses
+  ; any lactoses near an installed LacY get pumped into the cell
+  ask lactoses with [ ([ pcolor ] of patch-ahead 2 = (red + 2)) and not inside? ] [
+    move-to patch-ahead 2 set heading towards patch 0 0 ; make sure the lactose gets inside the cell
+    fd 3
+    set inside? true
+  ]
+
+  ask lactoses [ move ]
+end
+
+
+; procedure for movement and molecular interactions of RNAPs
+to go-RNAPs
+  ; In the presence of glucose, the probability of trancription is less.
+  let transcription-probability ifelse-value glucose? [ 0.1 ] [ 1 ]
+
+  ; If any RNAPs are close to the promoter and the operator is not inhibited
+  if (not inhibited?) [
+    ask RNAPs with [ (member? patch-here promoter) or (member? patch-ahead 1 promoter) or (member? patch-ahead 2 promoter) ] [
+      if random-float 1 < transcription-probability [
+         ; then start moving along the DNA to model transcription
+         setxy xcor 1
+         set heading 90
+         set on-dna? true
+      ]
+    ]
+  ]
+
+  ; If any RNAPs are in the process of transcribing (on-dna?) move them along
+  ask RNAPs with [ on-dna? ] [
+    forward 1
+    ; when you reach the terminator, synthesize the proteins
+    if (member? patch-here terminator) [
+      synthesize-proteins
+      set on-dna? false
+      gen-xy-inside-inside
+    ]
+  ]
+
+  ; Any other RNAPs just move around the cell
+  ask RNAPs with [ not on-dna? ] [
+    move
+    ; Because our DNA is fixed within the cell,  RNAPs at both ends of the
+    ; of the cell are moved to a random position inside the cell
+    if (xcor > (cell-width - 3) or xcor < (- cell-width + 3)) [ gen-xy-inside-inside ]
+  ]
+end
+
+; procedure to synthesize proteins upon dna transcription
+to synthesize-proteins
+  hatch-LacYs LacY-production-num [
+    gen-xy-inside-inside
+    set-shape
+  ]
+  hatch-LacZs LacZ-production-num [
+    gen-xy-inside-inside
+    set-shape
+  ]
+  set energy energy - (LacY-production-cost * LacY-production-num) - (LacZ-production-cost * LacZ-production-num)
+end
+
+; procedure to simulate cell division; each type of turtle (except RNAPs and LacIs) population is halved
+to divide-cell
+  animate-cell-division
+
+  ask n-of (count lactoses with [ inside? and partner = nobody ] / 2) lactoses with [ inside? and partner = nobody ] [ die ]
+  ask n-of (count LacYs / 2) LacYs [ die ]
+  ask n-of (count LacZs / 2) LacZs [ die ]
+  ask n-of (count patches with [pcolor = (red + 2) ] / 2)patches with [pcolor = (red + 2)] [set pcolor cell-color]
+
+  set energy energy / 2
+  set division-number division-number + 1
+  set ticks-at-end-of-cell-division ticks
+  set cell-division-time (ticks-at-end-of-cell-division - ticks-at-start-of-cell-division)
+  set ticks-at-start-of-cell-division ticks
+end
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;  Helper Procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; procedure that sets patches for the cell, the cell-wall, and the
+; regions of the DNA; although it looks complicated, really we're just
+; addressing a bunch of patch-sets
+to draw-cell
+  set cell-wall ( patch-set
+    ; the vertical part of the cell wall
+    (patches with [
+      (pycor = cell-height or pycor = (- cell-height))
+       and
+      (pxcor > (-(cell-width + 1)) and pxcor < (cell-width + 1))
+    ])
+    ; the horizontal part of the cell wall
+    (patches with [
+       (pxcor = cell-width or pxcor = (- cell-width))
+        and
+       (pycor > (-(cell-height + 1)) and pycor < (cell-height + 1))
+     ])
+  )
+  set-cell-color brown
+
+  ; patches inside the cell-wall are set white.
+  set cell-patches patches with [
+    (pycor > (- cell-height) and pycor < cell-height)
+     and
+    (pxcor > (- cell-width)  and pxcor < cell-width)
+  ]
+  ask cell-patches [ set pcolor white ]
+
+  ; the operon patches are blue
+  set operon patches with [ (pycor > -1 and pycor < 2) and (pxcor > -10 and pxcor < 17) ]
+  ask operon [ set pcolor blue ]
+
+  ; promoter is green
+  set promoter patches with [ (pycor > -1 and pycor < 2) and (pxcor > -22 and pxcor < -14) ]
+  ask promoter [ set pcolor green ]
+
+  ; operator is orange
+  set operator patches with [
+   ((pycor = 0) and (pxcor > -15 and pxcor < -9))
+    or
+   (( pycor = 1) and (( pxcor = -10) or ( pxcor = -12) or ( pxcor = -14)))
+  ]
+  ask operator [ set pcolor orange ]
+
+  ; the terminator patches are gray
+  set terminator patches with [
+    ((pycor > -1) and (pycor < 2))
+     and
+    ((pxcor > 16 and pxcor < 19))
+  ]
+  ask terminator [ set pcolor gray ]
+end
+
+; procedure to animate the process of cell division
+to animate-cell-division
+
+  create-mask-turtles 1 [
+    set size 1000
+    set color black
+    set shape "square"
+  ]
+
+  ask cell-wall [
+    sprout-daughter-cell-turtles 1 [
+      set color cell-color + 2
+      set shape "square"
+      set size 2
+      set heading 45
+    ]
+  ]
+
+  ask cell-wall [
+    sprout-daughter-cell-turtles 1 [
+      set color cell-color + 2
+      set shape "square"
+      set size 2
+      set heading 225
+    ]
+  ]
+
+  ask cell-patches [
+    sprout-daughter-cell-turtles 1 [
+      set color pcolor
+      set shape "square"
+      set size 2
+      set heading 45
+    ]
+  ]
+
+  ask cell-patches [
+    sprout-daughter-cell-turtles 1 [
+      set color pcolor
+      set shape "square"
+      set size 2
+      set heading 225
+    ]
+  ]
+
+  ask (patch-set operon promoter operator terminator) [
+    sprout-daughter-cell-turtles 1 [
+      set color [ pcolor ] of myself + 2
+      set shape "square"
+      set size 2
+      set heading 45
+    ]
+  ]
+
+  ask (patch-set operon promoter operator terminator) [
+    sprout-daughter-cell-turtles 1 [
+      set color [ pcolor ] of myself + 2
+      set shape "square"
+      set size 2
+      set heading 225
+    ]
+  ]
+
+  ask (turtle-set LacYs LacZs RNAPs LacIs lactoses with [inside?]) [
+    hatch 1 [
+      gen-xy-inside-inside
+      set breed daughter-cell-turtles
+      set shape [shape] of myself
+      set color [color] of myself + 2
+      set heading 45
+    ]
+  ]
+
+  ask (turtle-set LacYs LacZs RNAPs LacIs lactoses with [inside?]) [
+    hatch 1 [
+      gen-xy-inside-inside
+      set breed daughter-cell-turtles
+      set shape [shape] of myself
+      set color [color] of myself + 2
+      set heading 225
+    ]
+  ]
+
+  repeat 23 [
+    ask daughter-cell-turtles [ fd 1 ]
+    display
+  ]
+
+  ask mask-turtles [ die ]
+  ask daughter-cell-turtles [ die ]
+end
+
+
+; procedure that assigns a specific shape to an agent based on breed
+to set-shape ; turtle procedure
+  if breed = LacIs [
+    set size 6
+    ifelse partner = nobody [
+      set shape "LacI"
+    ][ ; if you have a partner, you're a LacI-lactose-complex
+      set shape "LacI-lactose-complex"
+      set size 6
+    ]
+  ]
+  if breed = RNAPs [
+    set size 5
+    set shape "RNAP"
+    set color brown
+  ]
+  if breed = lactoses [
+    ifelse partner = nobody [
+      set size 2
+      set shape "pentagon"
+      set hidden? false
+    ][ ; if you have a partner, you're invisible!
+      set hidden? true
+     ]
+  ]
+  if breed = LacYs [
+    set shape "pump"
+    set color (red + 2)
+    set size 3
+  ]
+  if breed = LacZs [
+    set shape "protein2"
+    set color (red + 2)
+    set size 4
+  ]
+end
+
+; to keep the lactose amount constant if the lactose? switch is on
+to update-lactose [ upper-limit ]
+    let num-lactose-outside count lactoses with [ not inside? ]
+    ifelse num-lactose-outside > upper-limit [
+      ask n-of (num-lactose-outside - upper-limit) lactoses with [ not inside? ] [ die ]
+    ][
+      create-lactoses (upper-limit - num-lactose-outside) [
+        gen-xy-inside-outside
+        set inside? false
+        set partner nobody
+        set-shape
+      ]
+    ]
+end
+
+; procedure to place a molecule inside the cell
+to gen-xy-inside-inside ; turtle procedure
+  setxy random-xcor random-ycor
+  while [ not member? patch-here cell-patches] [
+    setxy random-xcor random-ycor
+  ]
+end
+
+; procedure to place a molecule outside the cell
+to gen-xy-inside-outside ; turtle procedure
+  setxy random-xcor random-ycor
+  while [(member? patch-here cell-wall) or (member? patch-here cell-patches)] [
+    setxy random-xcor random-ycor
+  ]
+end
+
+; procedure to set the color of the cell wall. (this is a separate procedure because
+; in LevelSpace, the cell wall color needs to be assigned)
+to set-cell-color [ the-color ]
+  set cell-color the-color
+  ask cell-wall [ set pcolor the-color ]
+end
+
+to show-switch-color
+  if count lacZs <= 10 [
+    ask cell-patches [ set pcolor white ]
+  ]
+  if count lacZs > 10 and count lacZs <= 20 [
+    ask cell-patches [ set pcolor 99 ]
+  ]
+  if count lacZs > 20 and count lacZs <= 30 [
+    ask cell-patches [ set pcolor 98 ]
+  ]
+  if count lacZs > 30 [
+    ask cell-patches [ set pcolor 97 ]
+  ]
+  ask operon [ set pcolor blue ]
+  ask promoter [ set pcolor green ]
+  ask operator [ set pcolor orange ]
+  ask terminator [ set pcolor gray ]
+end
+
+
+; to convert the string for export-interface 'date-and-time' command to work on windows machines
+to-report replace-all [target replacement str]
+  let acc str
+  while [position target acc != false] [
+    set acc (replace-item (position target acc) acc replacement)
+  ]
+  report acc
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;  LevelSpace Procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; procedure to setup the cell according to parameters passed in from the population model
+to set-initial-variables [ the-list ]
+
+  ; 'the-list' is the following list of numbers (or counts) and booleans
+  ; [ cell-color initial-energy energy initial-LacYs initial-LacYs-inserted initial-LacZs
+  ;    initial-LacI-lactose-complexes initial-lactose-inside initial-lactose-outside
+  ;    glucose?-setting lactose?-setting ]
+
+  ; we use NetLogo's `item` primitive to directly select elements of the list
+  set LevelSpace?      true
+  set-cell-color       item 0 the-list
+  set initial-energy   item 1 the-list
+  set energy           initial-energy
+  set lactose?         item 8 the-list
+  set glucose?         item 9 the-list
+
+  ; create the necessary turtles
+  ask n-of (item 3 the-list) cell-wall [ set pcolor red + 2 ]
+  create-LacYs (item 2 the-list) [ gen-xy-inside-inside ]
+  create-LacZs (item 4 the-list) [ gen-xy-inside-inside ]
+  create-lactoses (item 6 the-list) [
+    set inside? true
+    set partner nobody
+    gen-xy-inside-inside
+  ]
+  ask n-of (item 5 the-list) LacIs [
+    hatch-lactoses 1 [
+      set inside? true
+      set partner myself
+      ask partner [ set partner myself ]
+    ]
+  ]
+  ask turtles [ set-shape ]
+end
+
+; procedure to extract list of variables to use in the population model when using LevelSpace
+to-report send-variables-list
+  report (list (energy) (count LacYs) (count (patches with [pcolor = red + 2])) (count LacZs)
+      (count (LacIs with [ partner != nobody ])) (count (lactoses with [ (inside?) and (partner = nobody) ])) (count (lactoses with [ not inside? ])))
+end
+
+
+; Copyright 2016 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="330" maxPycor="33" updateMode="1" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-33" height="344" showTickCounter="true" patchSize="5.0" fontSize="12" wrappingAllowedY="true" width="613" tickCounterLabel="ticks" maxPxcor="60" minPxcor="-60"></view>
+    <button x="10" y="10" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="80">setup</button>
+    <button x="95" y="10" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="80">go</button>
+    <slider x="10" step="0.001" y="360" height="33" min="0" direction="Horizontal" max="0.1" default="0.02" variable="LacI-bond-leakage" width="155" display="LacI-bond-leakage"></slider>
+    <slider x="10" step="0.00001" y="400" height="33" min="0.99990" direction="Horizontal" max="1" default="0.99991" variable="LacI-lactose-binding-chance" width="315" display="LacI-lactose-binding-chance"></slider>
+    <slider x="10" step="0.0001" y="480" height="33" min="0" direction="Horizontal" max="0.01" default="4.0E-4" variable="LacY-degradation-chance" width="315" display="LacY-degradation-chance"></slider>
+    <slider x="170" step="1" y="320" height="33" min="1" direction="Horizontal" max="50" default="25.0" variable="LacI-number" width="155" display="LacI-number"></slider>
+    <slider x="170" step="1" y="360" height="33" min="0" direction="Horizontal" max="50" default="25.0" variable="RNAP-number" width="155" display="RNAP-number"></slider>
+    <slider x="10" step="0.001" y="440" height="33" min="0" direction="Horizontal" max="0.01" default="0.001" variable="LacI-lactose-separation-chance" width="315" display="LacI-lactose-separation-chance"></slider>
+    <slider x="10" step="0.0001" y="520" height="33" min="0" direction="Horizontal" max="0.01" default="1.0E-4" variable="LacZ-degradation-chance" width="315" display="LacZ-degradation-chance"></slider>
+    <switch x="180" y="10" height="33" on="false" variable="lactose?" width="145" display="lactose?"></switch>
+    <plot x="640" yMax="10.0" yAxis="Number of Ticks" y="360" xMin="0.0" height="195" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="305" xAxis="Time" display="Cell Division Time">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="default">
+        <setup></setup>
+        <update><![CDATA[if division-number > 0 [ plot cell-division-time ]]]></update>
+      </pen>
+    </plot>
+    <switch x="180" y="45" height="33" on="true" variable="glucose?" width="145" display="glucose?"></switch>
+    <plot x="330" yMax="10.0" yAxis="Frequency" y="360" xMin="0.0" height="195" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="305" xAxis="Time" display="LacZ Number">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="default">
+        <setup></setup>
+        <update>plot count LacZs</update>
+      </pen>
+    </plot>
+    <switch x="50" y="180" height="33" on="false" variable="LevelSpace?" width="140" display="LevelSpace?"></switch>
+    <plot x="10" yMax="1000.0" y="85" xMin="0.0" height="230" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="315" display="Energy">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="default">
+        <setup></setup>
+        <update>plot energy</update>
+      </pen>
+    </plot>
+    <button x="10" y="45" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="165" display="save screenshot">export-interface (word "GenEvo 1 Genetic Switch " (replace-all ":" "-" date-and-time) ".png")</button>
+    <monitor x="755" precision="17" y="490" height="45" fontSize="11" width="177" display="average-cell-division-time"><![CDATA[ifelse-value (division-number > 0) [
+  precision (ticks-at-end-of-cell-division / division-number) 0
+][
+ "n/a"
+]]]></monitor>
+    <button x="10" y="320" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="155" display="reset">reset</button>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This model simulates a complex phenomenon in molecular biology: the “switching” (on and off) of genes depending on environmental conditions. Through molecular interactions between specific regulatory proteins and specific DNA sequences, each regulated gene is turn on or off in response to environmental stimuli.
+
+Specifically, it is a model of the [lac-operon](https://en.wikipedia.org/wiki/Lac_operon) of a bacterium (E. coli.), which is responsible for the uptake and digestion of lactose, when lactose is the preferred energy source in the environment. It simulates the regulation of synthesis of the enzymes [permease (LacY)](https://en.wikipedia.org/wiki/Lactose_permease) and [beta-galactosidase (LacZ)](https://en.wikipedia.org/wiki/Beta-galactosidase).
+
+## HOW IT WORKS
+
+This genetic switch is in essence, a positive feedback loop. It is responsible for regulating the synthesis of proteins (LacZ and LacY in this model) required to conduct the uptake and digestion of lactose.
+
+In this model, there are in fact two sugars: glucose and lactose. Glucose is "preferred" as an energy source over lactose. When there is glucose and/or no lactose in the surrounding environment, the genetic switch is at an _off steady-state_. This is because the repressor protein [LacI](https://en.wikipedia.org/wiki/Lac_repressor) prevents (mostly) the bacteria from producing the proteins, by binding to the [operator site](https://en.wikipedia.org/wiki/Operon#General_structure) of the DNA. In this steady state, relatively little permease (LacY) and beta-galactosidase (LacZ) are produced.
+
+When lactose is introduced to the outside environment, the lactose molecules enter into the bacterial cell through permease proteins (LacYs). Some lactose molecules that enter the cell bind to LacIs, preventing LacIs from binding to the operator site of the DNA. This, in turn, causes more LacYs to be produced. The LacYs get inserted into the cell-wall, which causes more lactose to enter the cell, thus creating a positive feedback loop. The LacZs, meanwhile digest lactose molecules inside the cell to produce energy.
+
+The genetic switch is turned on, when there is lactose and no glucose in the environment. Turning on of the switch is represented by changing the color of the cell to shades of blue color.
+
+The effect of glucose (through [cAMP](https://en.wikipedia.org/wiki/Cyclic_adenosine_monophosphate)) is only implicitly modelled. The rate at which LacZ and LacI are produced reduces significantly when glucose is present.
+
+### Important Proteins
+1. *RNAP* – These are RNA polymerases that synthesize mRNA from DNA. These are represented by brown blobs in the model. This model does not include mRNAs.
+2. *LacI* – The purple-colored shapes in the model represent a repressor (LacI proteins). They bind to the operator region (see below) of the DNA and do not let RNAP to pass along the gene, thus stopping protein synthesis. When lactose binds to LacI, they form LacI-lactose complexes (shown by a purple shape with a grey dot attached to it). These complexes cannot bind to the operator region of the DNA.
+3. *LacY* – These are shown in the model as light red rectangles. They are produced when an RNAP passes along the gene. When they hit the cell-wall, they get installed on the cell-wall (shown by light patches). Lactose (grey pentagons) from the outside environment is transported inside the cell through these light red patches.
+4. *LacZ* – These are shown as light red colored proteins. They are present inside the cell. When they collide with a lactose molecule, the lactose molecule is digested and energy is produced.
+
+### DNA Regions
+There are four important DNA regions in this model:
+
+1. *Promoter* – This region is indicated by the color green. As an RNAP binds to the promoter region and if the operator is free, it moves along DNA to start transcription.
+2. *Operator* – This region is indicated by the color orange. The repressor protein, LacI, binds to this region and prevents RNAP from moving along the DNA.
+3. *Operon* – This is indicated by the color blue. This is where lacY and lacZ genes are. This model includes only these two genes of the operon.
+4. *Terminator* – This is indicated by the color grey. RNAP separates from the DNA when it reaches this region.
+
+As RNAP moves along the gene, LacY and LacZ proteins are produced (five molecules per transcription). We do not show translation by ribosomes in this model.
+
+### Energy of the cell
+Producing and maintaining the protein machinery for a cell takes energy. So as a cell produces proteins and maintains those proteins (RNAPs, LacIs and LacZs), its energy decreases.
+
+Energy of the cell increases when lactose inside the cell is digested.
+
+### Cell division
+When the energy of the cell doubles from its initial value, it splits into two daughter cells. Each of these cells has half of the energy of the original cell as well as half the number of each type of protein in the original cell.
+
+## HOW TO USE IT
+
+### To setup
+
+Each slider controls a certain aspect of this genetic regulation circuit. Refer to the Sliders Section for more information on the function of each variable.
+
+Once all the sliders are set to the desired levels, the user should click SETUP to initialize the cell.
+
+### To run
+
+To observe the switching behavior of the genetic switch, set GLUCOSE? to ON and LACTOSE? to OFF. Let the simulation run for a few hundred ticks. Observe the changes in the energy of the cell as time progresses and cell divides. The energy drops to half when a cell divides.
+
+To run the simulation faster, uncheck the 'view updates' box for several thousand ticks. Observe the LacZ production in the graph. It varies because of the stochastic nature of the molecular interactions in the cell. This variability even when the switch "is off" is why genetic switches are referred to as "leaky".
+
+Set GLUCOSE? to OFF and LACTOSE? to ON to see the behavior of the genetic switch by observing change in the LacZ production.
+
+While molecular interactions (micro) are best observed through running the simulation with 'view updates' checked, to observe cellular behavior (macro), 'view updates' should be unchecked and the simulation should be run for several thousand ticks.
+
+### Buttons
+
+The SETUP button initializes the model.
+
+The GO button runs the simulation until the cell dies.
+
+### Switches
+
+LACTOSE?  - If ON, lactose is added to the external medium (outside of the cell)
+
+GLUCOSE?  - If ON, glucose is added to the external medium. Glucose is implicitly modelled meaning that when GLUCOSE? is ON, energy of a cell increases at a constant rate (10 units/tick). In addition, since glucose is a "preferred energy source", the lac promoter is less active when GLUCOSE? is ON.
+
+### Sliders
+
+LACI-NUMBER - Sets the number of LacIs
+
+RNAP-NUMBER - Sets the number of RNAPs
+
+LACI-BOND-LEAKAGE - This is the chance a LacI molecule bonded to the operator detaches from the operator
+
+LACI-LACTOSE-BINDING-CHANCE - Sets the chance that a lactose and a LacI come together to form a LacI-lactose complex
+
+LACI-LACTOSE-SEPARATION-CHANCE - Sets the chance that a LacI-lactose complex separates
+
+LACY-DEGRADATION-CHANCE - Sets the chance of degradation of a LacY that is installed on the cell-wall
+
+LACZ-DEGRADATION-CHANCE - Sets the chance of degradation of a LacZ molecules in the cell
+
+### Plots
+
+Energy – Plots the amount of energy in the cell over time
+
+lacZ Number – Plots the number of LacZ molecules inside a cell
+
+Cell Division Time – Plots the number of ticks between two cell division events. It can be used as a growth rate indicator. Shorter cell division time indicates higher growth rate.
+
+## THINGS TO NOTICE
+
+Notice the three parts of the molecular mechanism involved in the control of the genetic switch:
+1. Uptake of lactose from outside to inside through LacY
+2. Repression by LacI in absence of lactose
+3. Formation of LacI-lactose complex in presence of lactose and removal of repression
+
+Notice the changes in energy of the cells when lactose is added (that is, when LACTOSE? is ON and when LACTOSE? is OFF).
+
+Notice the energy changes when a cell divides.
+
+Notice the changes in the Average Cell Division Time as time progresses.
+
+Notice the effect of changes in the environmental conditions (ON/OFF of GLUCOSE? and LACTOSE? on the Average Cell Division Time and the LacZ Number.
+
+## THINGS TO TRY
+
+Try to make the genetic switch more sensitive to the environmental conditions. It should be "on" only when lactose is present and "off" otherwise. You can do this be changing the slider parameters.
+
+If the cell starts to uptake lactose and produce energy faster, does the Average Cell Division Time also decrease?
+
+## EXTENDING THE MODEL
+
+In real life, cells aren't flat! See if you can extend the model into three-dimensions with NetLogo 3D.
+
+## NETLOGO FEATURES
+
+This model uses NetLogo's `with` primitive extensively. This is because, although the different proteins are represented by different `breeds`, the proteins also exist in various states.
+
+## RELATED MODELS
+
+* GenEvo Curricular Models
+* GenDrift Sample Models
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Dabholkar, S., Bain, C. and Wilensky, U. (2016).  NetLogo GenEvo 1 Genetic Switch model.  http://ccl.northwestern.edu/netlogo/models/GenEvo1GeneticSwitch.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+To cite the GenEvo Systems Biology curriculum as a whole, please use:
+
+* Dabholkar, S. & Wilensky, U. (2016). GenEvo Systems Biology curriculum. http://ccl.northwestern.edu/curriculum/genevo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2016 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2016 GenEvo Cite: Dabholkar, S., Bain, C. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="180" y="15"></point>
+        <point x="164" y="21"></point>
+        <point x="144" y="39"></point>
+        <point x="135" y="60"></point>
+        <point x="132" y="74"></point>
+        <point x="106" y="87"></point>
+        <point x="84" y="97"></point>
+        <point x="63" y="115"></point>
+        <point x="50" y="141"></point>
+        <point x="50" y="165"></point>
+        <point x="60" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="165" y="285"></point>
+        <point x="225" y="285"></point>
+        <point x="225" y="15"></point>
+        <point x="180" y="15"></point>
+      </polygon>
+      <circle x="180" y="30" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="80" y="138"></point>
+        <point x="78" y="168"></point>
+        <point x="135" y="166"></point>
+        <point x="135" y="91"></point>
+        <point x="105" y="106"></point>
+        <point x="96" y="111"></point>
+        <point x="89" y="120"></point>
+      </polygon>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="47" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="hello" rotatable="true" editableColorIndex="0"></shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="laci" rotatable="true" editableColorIndex="0">
+      <polygon color="2085659903" filled="true" marked="false">
+        <point x="120" y="120"></point>
+        <point x="135" y="135"></point>
+        <point x="150" y="135"></point>
+        <point x="165" y="120"></point>
+        <point x="270" y="120"></point>
+        <point x="270" y="180"></point>
+        <point x="210" y="180"></point>
+        <point x="210" y="210"></point>
+        <point x="165" y="210"></point>
+        <point x="165" y="180"></point>
+        <point x="120" y="180"></point>
+        <point x="120" y="210"></point>
+        <point x="75" y="210"></point>
+        <point x="75" y="180"></point>
+        <point x="15" y="180"></point>
+        <point x="15" y="120"></point>
+        <point x="120" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="laci-lactose-complex" rotatable="true" editableColorIndex="9">
+      <polygon color="2085659903" filled="true" marked="false">
+        <point x="15" y="135"></point>
+        <point x="15" y="210"></point>
+        <point x="150" y="210"></point>
+        <point x="270" y="210"></point>
+        <point x="270" y="135"></point>
+        <point x="165" y="135"></point>
+        <point x="150" y="150"></point>
+        <point x="135" y="150"></point>
+        <point x="120" y="135"></point>
+        <point x="75" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="135" y="150"></point>
+        <point x="150" y="150"></point>
+        <point x="165" y="135"></point>
+        <point x="150" y="120"></point>
+        <point x="135" y="120"></point>
+        <point x="120" y="135"></point>
+      </polygon>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="1">
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="150" y="90"></point>
+        <point x="90" y="135"></point>
+        <point x="120" y="195"></point>
+        <point x="180" y="195"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="protein" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="165" y="75"></point>
+        <point x="135" y="75"></point>
+        <point x="135" y="90"></point>
+        <point x="165" y="105"></point>
+        <point x="165" y="75"></point>
+        <point x="165" y="60"></point>
+        <point x="135" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="120"></point>
+        <point x="180" y="90"></point>
+        <point x="150" y="75"></point>
+        <point x="150" y="105"></point>
+        <point x="180" y="135"></point>
+        <point x="165" y="135"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="135"></point>
+        <point x="195" y="105"></point>
+        <point x="195" y="105"></point>
+        <point x="165" y="105"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="90"></point>
+        <point x="180" y="75"></point>
+        <point x="165" y="75"></point>
+        <point x="150" y="90"></point>
+        <point x="165" y="105"></point>
+        <point x="150" y="120"></point>
+        <point x="135" y="150"></point>
+        <point x="120" y="150"></point>
+        <point x="120" y="165"></point>
+        <point x="150" y="165"></point>
+        <point x="180" y="165"></point>
+        <point x="165" y="135"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="165" y="150"></point>
+        <point x="165" y="165"></point>
+        <point x="150" y="180"></point>
+        <point x="135" y="165"></point>
+        <point x="120" y="195"></point>
+        <point x="150" y="210"></point>
+        <point x="165" y="180"></point>
+        <point x="180" y="165"></point>
+        <point x="150" y="165"></point>
+        <point x="135" y="150"></point>
+        <point x="135" y="165"></point>
+        <point x="120" y="165"></point>
+        <point x="120" y="210"></point>
+        <point x="150" y="195"></point>
+        <point x="180" y="195"></point>
+        <point x="180" y="180"></point>
+        <point x="195" y="165"></point>
+        <point x="165" y="150"></point>
+        <point x="165" y="150"></point>
+        <point x="210" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="150" y="180"></point>
+        <point x="135" y="210"></point>
+        <point x="120" y="225"></point>
+        <point x="150" y="225"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="135" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="150" y="135"></point>
+        <point x="150" y="150"></point>
+        <point x="180" y="150"></point>
+        <point x="150" y="120"></point>
+        <point x="120" y="135"></point>
+        <point x="135" y="105"></point>
+        <point x="105" y="105"></point>
+        <point x="180" y="135"></point>
+        <point x="210" y="150"></point>
+        <point x="105" y="120"></point>
+        <point x="105" y="135"></point>
+        <point x="210" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="protein2" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="60"></point>
+        <point x="60" y="210"></point>
+        <point x="240" y="210"></point>
+        <point x="150" y="60"></point>
+        <point x="150" y="60"></point>
+      </polygon>
+    </shape>
+    <shape name="pump" rotatable="true" editableColorIndex="0">
+      <rectangle endX="195" startY="60" marked="true" color="-1920102913" endY="240" startX="105" filled="true"></rectangle>
+    </shape>
+    <shape name="rnap" rotatable="true" editableColorIndex="10">
+      <circle x="45" y="75" marked="true" color="878553599" diameter="150" filled="true"></circle>
+      <circle x="105" y="75" marked="true" color="878553599" diameter="150" filled="true"></circle>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>need-to-manually-make-preview-for-this-model</previewCommands>
+</model>

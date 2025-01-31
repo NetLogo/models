@@ -1,0 +1,1477 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="true">
+  <code><![CDATA[globals [
+  food-color                     ; Color of food.
+  bacteria-color                 ; Color of bacteria.
+  virus-color                    ; Color of viruses.
+  bacteria-size                  ; Size of bacteria, also virus scale factor.
+
+  sprout-delay-time              ; Time for food to regrow after being consumed.
+  max-food-energy                ; Max amount of food energy per patch.
+  min-reproduce-energy           ; Min energy required for bacteria to reproduce.
+
+  food-growth-rate               ; How fast food is replenished on average.
+  food-bacteria-eat              ; Amount of food bacteria eat each time step.
+  regrowth-variability           ; Adjusts regrowth rates (see replenish-food).
+
+  virus-replication-rate         ; Number of viruses created in a lytic cycle.
+
+  virus-history                  ; Required for plot housekeeping.
+                                 ; This can be removed if 1) a primitive to get all
+                                 ; current plot pens as a list is added, or 2) a
+                                 ; way to remove temporary plot pens without also
+                                 ; clearing the plot or that pen's trail is added.
+  plot-virus                     ; Required for clean switching on coevolution plot.
+]
+
+breed [ foods food ]
+breed [ bacteria bacterium ]
+breed [ viruses virus ]
+
+viruses-own [ sequence ]
+bacteria-own [ energy array ]
+
+patches-own [ food-energy countdown ]
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; SETUP PROCEDURES ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to setup
+  clear-all
+
+  set food-color     [90 140 90 150]
+  set bacteria-color  orange
+  set virus-color     violet
+
+  set-default-shape bacteria "bacteria"
+  set-default-shape viruses  "virus"
+  set-default-shape foods    "food"
+
+  set bacteria-size 1
+
+  set min-reproduce-energy 100
+  set sprout-delay-time 25
+  set max-food-energy 100
+  set food-bacteria-eat 25
+  set food-growth-rate 25
+  set regrowth-variability 1
+
+  set virus-replication-rate 20
+
+  setup-world
+  setup-virus-plot
+  reset-ticks
+end
+
+to setup-world
+  ask patches [
+    set food-energy max-food-energy / 2
+    set countdown 0
+    ; Make patches blue (water colored) and hatch food in water spots
+    set pcolor [180 200 230]
+    sprout-foods 1 [ set color food-color ]
+  ]
+
+  ask patches [ grow-food ]
+
+  create-bacteria initial-bacteria [
+    set size bacteria-size
+    set color bacteria-color
+    set energy random-normal (min-reproduce-energy / 2) (min-reproduce-energy / 10)
+    set array []
+    random-position
+  ]
+  create-viruses initial-viruses [
+    set size bacteria-size / 2
+    set color virus-color
+    set sequence random max-virus-types
+    random-position
+  ]
+end
+
+to random-position
+  setxy (min-pxcor + random-float (max-pxcor * 2))
+        (min-pycor + random-float (max-pycor * 2))
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; RUNTIME PROCEDURES ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to go
+  if count bacteria < 1 [ stop ]
+  if count viruses < 1 [ stop ]
+  bacteria-live
+  viruses-live
+  ask patches [ replenish-food ]
+  update-virus-plot
+  tick
+end
+
+;----------------------------- BACTERIA PROCEDURES -----------------------------
+
+to bacteria-live
+  ask bacteria [
+    move-bacteria
+    bacteria-eat-food
+    reproduce-bacteria
+    spacer-loss
+    if (energy <= 0 ) [ die ]
+  ]
+end
+
+to move-bacteria ; Bacteria procedure
+  set energy (energy - 1)  ; Bacteria lose energy as they move
+  rt random-float 90
+  lt random-float 90
+  fd 0.25  ; The lower the speed, the less severe the population oscillations are.
+end
+
+to bacteria-eat-food ; Bacteria procedure
+  ; If there is enough food on this patch, the bacteria eat it and gain energy.
+  if food-energy > food-bacteria-eat [
+    ; Bacteria gain 1/5 the energy of the food they eat (trophic level assumption)
+    set food-energy (food-energy - food-bacteria-eat)
+    set energy energy + food-bacteria-eat / 5  ; bacteria gain energy by eating
+  ]
+  ; If all the food is consumed in a patch, set the countdown timer
+  ; to delay when the food will grow back in this patch.
+  if food-energy <= food-bacteria-eat [ set countdown sprout-delay-time ]
+end
+
+to reproduce-bacteria ; Bacteria procedure
+ if (energy >  min-reproduce-energy) [
+    set energy (energy / 2)  ; Parent keeps half the cell's energy
+    ; Variable inheritance gives the daughter half the cell's energy too
+    hatch 1 [
+      rt random 360
+      fd 0.25
+    ]
+  ]
+end
+
+to spacer-loss ; Bacteria procedure
+  if not empty? array and random-float 100 < spacer-loss-chance [
+    ; Spacers loss is FIFO and we add to the front of the array.
+    set array but-last array
+  ]
+end
+
+;------------------------------ VIRUS PROCEDURES -------------------------------
+
+to viruses-live
+  ask viruses [
+    move-virus
+    infect
+    maybe-degrade
+  ]
+end
+
+to move-virus
+  rt random-float 90
+  lt random-float 90
+  fd 0.10
+end
+
+to infect
+  let target one-of bacteria-here
+  if (target != nobody) and (random-float 100 < infection-chance) [
+    ifelse crispr? [
+      ; If the bacteria have functioning CRISPR systems...
+      ifelse member? sequence ([ array ] of target) [
+        ; If the bacterium has the viral sequence in its CRISPR array,
+        ; there is a very large chance that the virus dies.
+        let succeed-chance 8 ; % chance the virus kills the bacterium and replicates
+        let degrade-chance 83 ; % chance the virus gets cleaved or degraded
+        let add-chance 9     ; % chance the virus gets caught and added to the array
+        let random-roll random-float (succeed-chance + degrade-chance + add-chance)
+        (ifelse
+          ; Sometimes the virus will successfully reproduce.
+          random-roll < succeed-chance [ replicate target ]
+          ; Sometimes the bacterium will catch the virus and degrade it.
+          random-roll < succeed-chance + degrade-chance [ die ]
+          [ ask target [ set array fput [sequence] of myself array ] die ])
+      ] [
+        ; If the virus isn't in the CRISPR array, it can still get caught.
+        ; New chances after reducing dimer production:
+        let succeed-chance 30 ; % chance the virus kills the bacterium and replicates
+        let degrade-chance 55 ; % chance the virus gets cleaved or degraded
+        let add-chance 15     ; % chance the virus gets caught and added to the array
+        let random-roll random-float (succeed-chance + degrade-chance + add-chance)
+        (ifelse
+          ; Sometimes the virus will successfully reproduce.
+          random-roll < succeed-chance [ replicate target ]
+          ; Sometimes the bacterium will catch the virus and degrade it.
+          random-roll < succeed-chance + degrade-chance [ die ]
+          [ ask target [ set array fput [sequence] of myself array ] die ])
+      ]
+    ] [
+      ; If the bacteria do not have functioning CRISPR systems, the bacteria
+      ; still have non-specific antiviral defenses that may help.
+      let succeed-chance 50 ; % chance the virus kills the bacterium and replicates
+      let degrade-chance 50 ; % chance the virus gets cleaved or degraded
+      let random-roll random-float (succeed-chance + degrade-chance)
+      (ifelse
+        ; Sometimes the bacterium will catch the virus and degrade it.
+        random-roll < degrade-chance [ die ] [ replicate target ])
+    ]
+  ]
+end
+
+to replicate [ host ]
+  ask host [ die ]
+  ; Small chance viruses will mutate when they replicate
+  ; As long as sequence is a random int, there is a ~5% chance of mutation
+  if random-float 1 < 0.05 [ set sequence random max-virus-types ]
+  ; Since the initial virus doesn't die in the model but would IRL, subtract 1.
+  hatch virus-replication-rate - 1
+end
+
+
+to maybe-degrade
+  if random-float 100 < 1 [ die ]
+end
+
+;------------------------------ FOOD PROCEDURES -------------------------------
+
+; Food replenishes every time step (e.g. photosynthesis, etc.)
+to replenish-food
+  ; To change resource restoration variability do the following:
+  ; In setup, set regrowth-variability n
+  ; - 1/n chance to regrow this tick
+  ; - n times as much regrowth as normal when it happens
+  set countdown (countdown - 1)
+  ; Fertile patches gain 1 energy unit per turn, up to max-food-energy threshold
+  if countdown <= 0 and random regrowth-variability = 0 [
+    set food-energy (food-energy + food-growth-rate * regrowth-variability / 10)
+    if food-energy > max-food-energy [ set food-energy max-food-energy ]
+  ]
+  if food-energy < 0 [
+    set food-energy 0
+    set countdown sprout-delay-time
+  ]
+  grow-food
+end
+
+; Adjust the size of the food to reflect how much food is in that patch
+to grow-food
+  ask foods-here [
+    ifelse food-energy >= 5 [
+      set size (food-energy / max-food-energy)
+    ] [
+      set size (5 / max-food-energy)
+    ]
+  ]
+end
+
+;------------------------------ PLOT PROCEDURES --------------------------------
+
+to setup-virus-plot ; Observer procedure
+  set plot-virus plotted-virus
+  set-current-plot "Virus Relative Abundance"
+  ; Record each existing virus type.
+  set virus-history remove-duplicates [sequence] of viruses
+  ; Create pens for each existing virus type.
+  foreach virus-history [ seq ->
+    ; Cast the sequence to a string and use that as the pen's name.
+    create-temporary-plot-pen word seq ""
+    set-plot-pen-color one-of base-colors + one-of [-2 0 2]
+    plotxy 0 (100 * (count viruses with [sequence = seq]) / (max list 1 count viruses))
+  ]
+end
+
+to update-virus-plot
+  set-current-plot "Virus Relative Abundance"
+  ; Record any new viruses that may have arisen from mutation.
+  set virus-history remove-duplicates sentence ([sequence] of viruses) virus-history
+  foreach virus-history [ seq ->
+    ; Cast the sequence to a string and use that as the pen's name.
+    let pen-name word seq ""
+    ; Switch to that pen if it exists, create a new one if it doesn't.
+    ifelse plot-pen-exists? pen-name [
+      set-current-plot-pen pen-name
+    ] [
+      create-temporary-plot-pen pen-name
+      set-plot-pen-color one-of base-colors + one-of [-2 0 2]
+    ]
+    ; After setting the appropriate pen as current, plot the next point.
+    plotxy (ticks + 1) (100 * (count viruses with [sequence = seq]) / (max list 1 count viruses))
+  ]
+end
+
+; Called in the 'Plot update commands' block of the histogram plots.
+; Adjusts the x and y ranges of the histogram dynamically based on the input data.
+to update-histogram-ranges [ input-list interval ]
+  ; If the input list is empty, let the plot use its default ranges.
+  ; Otherwise, adjust the plot axis ranges to fit the input data.
+  if not empty? input-list [
+    ; Adjust the x range to include the whole input data set.
+    ; The x range expands with the data, but never contracts.
+    let plot-upper-bound max list plot-x-max (interval + max input-list)
+    let plot-lower-bound min list plot-x-min min input-list
+    set-plot-x-range plot-lower-bound plot-upper-bound
+
+    ; Adjust the y range based on the input data, avoiding constant shifts.
+    ; Find the max bar height using the mode(s) of the input data.
+    let list-modes-unique modes input-list
+    let list-modes-enumerated filter [ i -> member? i list-modes-unique ] input-list
+    let max-bar-height (length list-modes-enumerated) / (length list-modes-unique)
+    ; The y range should be about 150% of the max bar height, within a tolerance.
+    let grow-threshold ceiling (1.05 * max-bar-height)  ; Bar > 95% of the y max
+    let shrink-threshold floor (2 * max-bar-height)     ; Bar < 50% of the y max
+    if (plot-y-max <= grow-threshold) or (plot-y-max >= shrink-threshold) [
+      set-plot-y-range 0 ceiling (1.5 * max-bar-height) ; Bar = 67% of the y max
+    ]
+  ]
+end
+
+
+; Copyright 2019 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="810" maxPycor="16" updateMode="1" wrappingAllowedX="true" y="15" frameRate="30.0" minPycor="-16" height="471" showTickCounter="true" patchSize="14.0" fontSize="10" wrappingAllowedY="true" width="470" tickCounterLabel="ticks" maxPxcor="16" minPxcor="-16"></view>
+    <slider x="100" step="1" y="15" height="33" min="0" direction="Horizontal" max="100" default="50.0" variable="initial-bacteria" width="145" display="initial-bacteria"></slider>
+    <slider x="100" step="10" y="60" height="33" min="0" direction="Horizontal" max="1000" default="250.0" variable="initial-viruses" width="145" display="initial-viruses"></slider>
+    <button x="15" y="15" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="75">setup</button>
+    <button x="15" y="60" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="75">go</button>
+    <plot x="15" yMax="10.0" y="105" xMin="0.0" height="175" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="250" display="Microbe Populations">
+      <setup></setup>
+      <update><![CDATA[; Don't scroll until the end of an autoscale window.
+if ticks > 715
+[
+  ; scroll the range of the plot so
+  ; only the last 715 ticks are visible
+  set-plot-x-range (ticks - 715) ticks
+]]]></update>
+      <pen color="-955883" legend="true" interval="1.0" mode="0" display="Bacteria">
+        <setup></setup>
+        <update>plot count bacteria</update>
+      </pen>
+      <pen color="-8630108" legend="true" interval="1.0" mode="0" display="Viruses">
+        <setup></setup>
+        <update>plot count viruses</update>
+      </pen>
+    </plot>
+    <plot x="15" yMax="10.0" yAxis="% Abundance" y="290" xMin="0.0" height="195" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="540" xAxis="Ticks" display="Virus Relative Abundance">
+      <setup></setup>
+      <update><![CDATA[; Don't scroll until the end of an autoscale window.
+if ticks > 715
+[
+  ; scroll the range of the plot so
+  ; only the last 715 ticks are visible
+  set-plot-x-range (ticks - 715) ticks
+]]]></update>
+    </plot>
+    <slider x="255" step="0.1" y="60" height="33" min="0" direction="Horizontal" max="10" default="5.0" variable="infection-chance" units="%" width="145" display="infection-chance"></slider>
+    <slider x="255" step="1" y="15" height="33" min="1" direction="Horizontal" max="100" default="50.0" variable="max-virus-types" width="145" display="max-virus-types"></slider>
+    <monitor x="590" precision="2" y="255" height="45" fontSize="11" width="105" display="Avg. Array Length">mean [length array] of bacteria</monitor>
+    <plot x="565" yMax="10.0" yAxis="Frequency" y="310" xMin="0.0" height="175" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="235" xAxis="Array Length" display="Array Histogram">
+      <setup></setup>
+      <update>update-histogram-ranges ([ length array ] of bacteria) 1</update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="1" display="default">
+        <setup></setup>
+        <update>histogram [ length array ] of bacteria</update>
+      </pen>
+    </plot>
+    <plot x="275" yMax="10.0" yAxis="Frequency" y="105" xMin="0.0" height="175" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="280" xAxis="Sequence ID" display="Sequence Histogram">
+      <setup></setup>
+      <update>update-histogram-ranges sentence ([sequence] of viruses) (ifelse-value empty? [array] of bacteria [ [] ] [ reduce sentence [array] of bacteria ]) 1</update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="1" display="Viruses">
+        <setup></setup>
+        <update>histogram [sequence] of viruses</update>
+      </pen>
+      <pen color="-2674135" legend="true" interval="1.0" mode="1" display="Arrays">
+        <setup></setup>
+        <update>histogram (ifelse-value empty? [array] of bacteria [ [] ] [ reduce sentence [array] of bacteria ])</update>
+      </pen>
+    </plot>
+    <slider x="410" step="0.1" y="15" height="33" min="0" direction="Horizontal" max="2" default="1.0" variable="spacer-loss-chance" units="%" width="145" display="spacer-loss-chance"></slider>
+    <monitor x="705" precision="2" y="255" height="45" fontSize="11" width="75" display="Std. Dev.">standard-deviation [length array] of bacteria</monitor>
+    <switch x="410" y="60" height="33" on="true" variable="crispr?" width="145" display="crispr?"></switch>
+    <plot x="565" yMax="10.0" yAxis="% Abundance" y="15" xMin="0.0" height="185" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="235" display="CRISPR-Virus Coevolution">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="Viruses">
+        <setup></setup>
+        <update>plot 100 * (count viruses with [sequence = plot-virus]) / (max list 1 count viruses)</update>
+      </pen>
+      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="Arrays">
+        <setup></setup>
+        <update><![CDATA[let total-arrays reduce sentence [array] of bacteria
+let virus-instances filter [ i -> i = plot-virus ] total-arrays
+plot 100 * length virus-instances / (max list 1 length total-arrays)]]></update>
+      </pen>
+    </plot>
+    <button x="565" y="210" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="95" display="plot-new-virus">set-current-plot "CRISPR-Virus Coevolution"
+clear-plot
+set plot-virus plotted-virus</button>
+    <slider x="670" step="1" y="210" height="33" min="0" direction="Horizontal" max="max-virus-types - 1" default="35.0" variable="plotted-virus" width="130" display="plotted-virus"></slider>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This model illustrates the evolutionary dynamics of populations of bacteria and viruses in the presence and absence of CRISPR systems. It can be thought of as a microscope slide with about 5 nanoliters of seawater on it, resulting in a layer about 1 bacterium thick. Viruses greatly outnumber bacteria in this environment, so bacteria must have ways to defend themselves from infection in order to survive. Many bacteria have some innate, nonspecific immunity that can help them defend against viruses, but it is not always effective.
+
+Bacteria were recently found to also employ adaptive immunity in their constant struggle against viruses. This adaptive system is called CRISPR. With it, bacteria are able keep a heritable genetic record of past infection attempts, which makes them and their descendants much more effective at fending off future infections by the same or similar viruses. This is made possible through a system that specifically recognizes the genomes of past viruses using DNA samples called **spacers** stored in a **CRISPR array** and cleaves it using a targeted protein complex.
+
+Because CRISPR systems are very effective at protecting bacteria from viruses they have encountered before, there is high selection pressure on viruses to evade them. CRISPR systems rely on tight matching between the recorded sample in the array and the invading nucleic acid, so viruses are able to avoid recognition through mutations in their genes. Once enough mutations have accumulated, the CRISPR system will no longer recognize the virus until the bacterium gets a new DNA sample. Because viral evolution happens quickly, bacteria and viruses are locked in an evolutionary arms race surrounding bacterial defense systems like CRISPR. This process of evasion and reacquisition results in very interesting coevolutionary dynamics.
+
+## HOW IT WORKS
+
+There are two main types of agents in this model, which are bacteria (visualized as colored ovals) and viruses (visualized as small, spiky balls).
+
+Bacteria wander the world randomly, eating food (visualized as green patches) to gain energy as they move. Bacteria will die if they run out of energy, for example by going too long without encountering food, and they will divide if they accumulate enough energy. When they divide, the two daughter cells each get a copy of the parent cell's CRISPR array. Bacteria also have a small chance on each clock tick to lose a spacer from their array. Spacers in an array are acquired and lost in a 'first in, first out' order, so when bacteria lose spacers they lose the oldest ones first. In real ecosystems, this helps the bacteria focus on the most recent viral threats.
+
+Viruses also wander the world randomly. There is a small chance for them to degrade over time. When they encounter a bacterium, they have a chance to infect it. When they infect a bacterium, there are several possible outcomes. If the infection is successful, the bacterium will die and the virus will reproduce in a burst, creating many new viruses each with a chance for mutation. If the bacterium fights off the infection, either with CRISPR or its innate defenses, then the virus dies. When the bacterium defends itself successfully, there is also a small chance for it to add a spacer recognizing this virus to its CRISPR array.
+
+There are many kinds of virus in the simulation. Each kind of virus has a different DNA sequence, which is what CRISPR systems can use to try to recognize them. If the sequence of a virus is in a bacterium's CRISPR array, it will be much more likely that the bacterium will be able to fight off the infection.
+
+## HOW TO USE IT
+
+This model can be used to investigate several aspects of CRISPR systems.  One example is to examine the effects of CRISPR on the coevolutionary dynamics and stability of the bacterial and viral populations.  Another example is to look at how CRISPR evolution changes when faced with different levels of viral diversity, viral infectivity, or spacer loss. See the **What is it?** section above for an explanation of spacers.
+
+### Buttons
+
+#### `SETUP`
+Initializes variables and creates the initial bacteria and viruses.
+
+#### `GO`
+Runs the model.
+
+#### `PLOT-NEW-VIRUS`
+Resets the `CRISPR-VIRUS COEVOLUTION` plot and changes it to focus on the virus selected using the `PLOTTED-VIRUS` slider.
+
+### Sliders and Switches
+
+#### `INITIAL-BACTERIA`
+This slider controls the number of bacteria in the initial population when the model is set up.
+
+#### `INITIAL-VIRUSES`
+This slider controls the number of viruses in the initial population when the model is set up.
+
+#### `MAX-VIRUS-TYPES`
+This slider controls the diversity of the viruses in the population.
+
+#### `INFECTION-CHANCE`
+This slider controls the probability that a virus will attempt to infect a bacterium when they are on the same patch.
+
+#### `SPACER-LOSS-CHANCE`
+This slider controls the rate at which spacers can be lost from a bacterial CRISPR array. It is the probability that a bacterium will lose a spacer on each tick.
+
+#### `CRISPR?`
+This switch controls whether or not the bacteria have functioning CRISPR systems in the model. When `CRISPR?` is on, all bacteria use CRISPR systems to fight off viral infection. When `CRISPR?` is off, bacteria must rely on innate immunity, which is often less effective.
+
+#### `PLOTTED-VIRUS`
+This slider allows the user to choose a new virus to focus on in the `CRISPR-VIRUS COEVOLUTION` plot. The plot will not switch over to the newly selected virus until the `PLOT-NEW-VIRUS` button is clicked.
+
+### Plots and Monitors
+
+#### `MICROBE POPULATIONS`
+Plots the population sizes for bacteria and viruses over time.
+
+#### `SEQUENCE HISTOGRAM`
+Shows the absolute frequency of each virus type both in the virus population (black) and in bacterial CRISPR arrays (red).
+
+#### `VIRUS RELATIVE ABUNDANCE`
+Plots the relative abundance of each of the extant virus types as a percentage of the current total population size.
+
+#### `CRISPR-VIRUS COEVOLUTION`
+Plots the relative abundance of a single type of virus in the overall viral population and the prevalence of spacers from that viral type in the CRISPR arrays of the bacteria. This can illustrate the coevolutionary dynamics between viruses and bacteria leading to fluctuations in the prevalence of the virus over time. The virus to be plotted can be chosen using the `PLOT-NEW-VIRUS` and `PLOTTED-VIRUS` widgets.
+
+#### `ARRAY HISTOGRAM`
+Shows a histogram of the current distribution of the length of bacterial CRISPR arrays. Summary statistics are provided in the `AVG. ARRAY LENGTH` and `STD. DEV.` monitors.
+
+#### `AVG. ARRAY LENGTH`
+Shows the mean length of bacterial CRISPR arrays.
+
+#### `STD. DEV.`
+Shows the standard deviation of the lengths of bacterial CRISPR arrays.
+
+## THINGS TO NOTICE
+
+First, take some time to watch the agents move around and familiarize yourself with the overall patterns that emerge. When people study bacteria and viruses living in the environment, they often treat the samples as having little spatial variability, with bacteria and viruses being spread evenly throughout. Does this seem like a reasonable assumption or not? Do you see microenvironments which vary in the amount of viruses, bacteria, and food that they contain? Does this pattern stay the same over time, or does it shift?
+
+Next, look at the Microbe Populations plot. When the population stabilizes, there should be roughly two orders of magnitude between the viral and bacterial population levels. This approximates the relative population levels in seawater. Does this surprise you? Why do you think this is the case?
+
+After the populations stabilize, look at the Sequence Histogram. The black bars represent the virus population, and the red bars represent the population of spacers held in the bacteria's CRISPR arrays. How much do the histograms overlap? Is there a correlation between frequency in the population and frequency in the CRISPR arrays? Does this make sense based on what you know about the system?
+
+Next look at the Virus Relative Abundance plot. As the Sequence Histogram shows the current abundance of each virus type, this plot shows the virus types' relative abundance over time. Most of the time, most of the viruses are at relatively low abundance. Do you see a pattern across the different viruses? What tends to happen after a virus becomes more abundant?
+
+To examine this question in more detail, look at the CRISPR-Virus Coevolution plot. To make the most of this plot, use the Sequence Histogram to identify a virus that is prevalent in the population, then adjust the `PLOTTED-VIRUS` slider to match it. The virus type is the value on the x-axis of the histogram where the bar is plotted. Click the `PLOT-NEW-VIRUS` button and run the model. As the virus becomes more prevalent in the population (black line), what happens to its prevalence in CRISPR arrays (red line)? What happens to the virus when it is common in CRISPR arrays?
+
+As time goes on, bacteria begin to accumulate spacers in their CRISPR arrays. This can be seen by watching the Array Histogram and its associated summary statistic monitors change over time. Does the distribution of array lengths seem to converge to anything over time?
+
+## THINGS TO TRY
+
+There are several interesting comparisons to make between a population with CRISPR and one without it. This is accomplished by toggling the `CRISPR?` switch. For example, when the bacteria have CRISPR systems, both the bacterial and viral populations are mostly constant. Is this the case when the `CRISPR?` switch is off? Does this surprise you? Similarly, when the bacteria have CRISPR, there are many types of virus which are mostly at fairly low abundance (see the Sequence Histogram and the Virus Relative Abundance plot). How does this change when CRISPR is not present?
+
+The viral diversity in the ecosystem also has interesting effects, which can be seen by manipulating the `MAX-VIRUS-TYPES` slider. How do the stable population levels change when there is high or low viral diversity? What about the distribution of CRISPR array lengths? Does high viral diversity result in longer or shorter of CRISPR arrays on average? Is CRISPR a more effective defense when there is high or low diversity? How would you tell?
+
+## EXTENDING THE MODEL
+
+There are several interesting aspects of real bacterial and viral ecosystems that have been left out of this model for simplicity, but may have interesting effects. A few of these questions are listed below.
+
+CRISPR arrays in this model are transferred between bacteria through linear descent. The only way for a bacterium to have resistance to a virus is if it or one of its direct ancestors encountered that virus. Real bacteria can transfer CRISPR systems between each other using _horizontal gene transfer_, where bacteria can share copies of their genes with other bacteria that are not part of their line of descent. How would this affect coevolutionary dynamics?
+
+The current model has two settings with respect to the presence or absence of CRISPR. In one case, every bacterium has a working CRISPR system. In the other case, no bacteria have a working CRISPR system. In real ecosystems, the bacterial population is a mix of these two, where some but not all species use CRISPR. Does the presence of CRISPR in some species help protect those species without it, analogous to herd immunity in animals? If so, what is the threshold for this to be effective?
+
+Sometimes viruses are able to successfully infect bacteria even when the bacterium has an active CRISPR system that recognizes that virus. In this model, when this happens, the virus reproduces like normal. In reality, the CRISPR system may be able to cleave some of the newly produced viruses before they are released, lowering the size of the resulting viral burst. How would this affect the viral population?
+
+The viruses in this model are _lytic_, meaning when they infect a cell they reproduce until the cell dies and releases the new viral particles. While this is true for many viruses, there are also some which are _lysogenic_. These viruses can insert their DNA into the bacterium's genome. This allows them to 'reproduce' when the bacterium divides, and then revert back to the lytic process described above when their host is in poor health. After the viral DNA is inserted into the bacterial genome, CRISPR may cleave the genome, resulting in the bacterium's death, or simply suppress viral replication when the virus attempts to become lytic again. How would this capability affect the ecosystem's dynamics?
+
+This model assumes that all bacteria regulate CRISPR in the same way, which is constant over time. In reality, different bacteria will have different regulation of CRISPR and may adapt their regulatory strategies over generations. What heritable traits could be introduced to allow the bacteria more evolutionary freedom? How might each bacterium's current store of energy affect its regulation of the CRISPR system?
+
+In this model it is possible for bacteria to lose all of their spacers, but it is not possible for them to lose the CRISPR system entirely, and there is no cost to the bacteria for having a CRISPR system. In reality, there is a fitness cost associated with maintaining a working CRISPR system, both from the material cost of producing the components and the decreased ability to take up new beneficial genes through horizontal gene transfer. This provides a balance to the fitness benefit of increased viral resistance. If such a cost were introduced, what conditions would be necessary to maintain CRISPR in the population?
+
+## NETLOGO FEATURES
+
+This model makes heavy use of temporary plot pens for the `VIRUS RELATIVE ABUNDANCE` plot. This allows for plotting an arbitrary number of series on the plot and ensures that it is not necessary to know the exact number ahead of time. It also allows for changing the number of series on the plot during the run of the model.
+
+This model employs a supplementary function to improve auto scaling behavior for histograms. By default, histograms only autoscale the y-axis. The `update-histogram-ranges` function used here implements x-axis auto scaling which can increase but never decrease the range, similar to the default y-axis auto scaling. It also implements y-axis scaling which can increase or decrease the plot's range. This makes the histogram always take up most of the plot area while keeping the entire histogram visible and minimizing the number of rescaling events.
+
+## RELATED MODELS
+
+CRISPR Ecosystem LevelSpace
+CRISPR Bacterium
+CRISPR Bacterium LevelSpace
+
+## CREDITS AND REFERENCES
+
+For general information about CRISPR, visit https://sites.tufts.edu/crispr/ or see the review below:
+
+  * Barrangou, R. & Marraffini, L. A. CRISPR-Cas Systems: Prokaryotes Upgrade to Adaptive Immunity. _Molecular Cell_ **54**, 234–244 (2014).
+
+For more information about CRISPR-driven coevolution in bacteria and viruses, see the articles below:
+
+  * Iranzo, J., Lobkovsky, A. E., Wolf, Y. I. & Koonin, E. V. Evolutionary Dynamics of the Prokaryotic Adaptive Immunity System CRISPR-Cas in an Explicit Ecological Context. _Journal of Bacteriology_ **195**, 3834–3844 (2013).
+  * Paez-Espino, D. et al. CRISPR Immunity Drives Rapid Phage Genome Evolution in _Streptococcus thermophilus_. _mBio_ **6**, e00262-15 (2015).
+  * Sun, C. L. et al. Phage mutations in response to CRISPR diversification in a bacterial population: Strong selection events as host-phage populations establish. _Environmental Microbiology_ **15**, 463–470 (2013).
+
+For more information about potential extensions to the model, see the articles below:
+
+  * Bondy-Denomy, J. & Davidson, A. R. To acquire or resist: the complex biological effects of CRISPR–Cas systems. _Trends in Microbiology_ **22**, 218–225 (2014).
+  * Edgar, R. & Qimron, U. The _Escherichia coli_ CRISPR System Protects from λ Lysogenization, Lysogens, and Prophage Induction. _Journal of Bacteriology_ **192**, 6291–6294 (2010).
+  * Goldberg, G. W., Jiang, W., Bikard, D. & Marraffini, L. A. Conditional tolerance of temperate phages via transcription-dependent CRISPR-Cas targeting. _Nature_ **514**, 633–637 (2014).
+  * Strotskaya, A. et al. The action of _Escherichia coli_ CRISPR–Cas system on lytic bacteriophages with different lifestyles and development strategies. _Nucleic Acids Research_ **gkx042** (2017). doi:10.1093/nar/gkx042
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Woods, P. and Wilensky, U. (2019).  NetLogo CRISPR Ecosystem model.  http://ccl.northwestern.edu/netlogo/models/CRISPREcosystem.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2019 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2019 Cite: Woods, P. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="bacteria" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="false" marked="true">
+        <point x="105" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="225" y="270"></point>
+        <point x="240" y="210"></point>
+        <point x="240" y="60"></point>
+        <point x="210" y="15"></point>
+        <point x="180" y="0"></point>
+        <point x="120" y="0"></point>
+        <point x="90" y="15"></point>
+        <point x="60" y="60"></point>
+        <point x="60" y="210"></point>
+        <point x="75" y="270"></point>
+        <point x="105" y="300"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="120" y="15"></point>
+        <point x="180" y="15"></point>
+        <point x="210" y="30"></point>
+        <point x="225" y="60"></point>
+        <point x="225" y="225"></point>
+        <point x="210" y="270"></point>
+        <point x="195" y="285"></point>
+        <point x="105" y="285"></point>
+        <point x="90" y="270"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="60"></point>
+        <point x="90" y="30"></point>
+        <point x="120" y="15"></point>
+        <point x="180" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="food" rotatable="false" editableColorIndex="0">
+      <rectangle endX="300" startY="0" marked="true" color="-1920102913" endY="300" startX="0" filled="true"></rectangle>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="sheep" rotatable="false" editableColorIndex="15">
+      <circle x="203" y="65" marked="true" color="-1" diameter="88" filled="true"></circle>
+      <circle x="70" y="65" marked="true" color="-1" diameter="162" filled="true"></circle>
+      <circle x="150" y="105" marked="true" color="-1" diameter="120" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="218" y="120"></point>
+        <point x="240" y="165"></point>
+        <point x="255" y="165"></point>
+        <point x="278" y="120"></point>
+      </polygon>
+      <circle x="214" y="72" marked="false" color="-1920102913" diameter="67" filled="true"></circle>
+      <rectangle endX="179" startY="223" marked="true" color="-1" endY="298" startX="164" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="45" y="285"></point>
+        <point x="30" y="285"></point>
+        <point x="30" y="240"></point>
+        <point x="15" y="195"></point>
+        <point x="45" y="210"></point>
+      </polygon>
+      <circle x="3" y="83" marked="true" color="-1" diameter="150" filled="true"></circle>
+      <rectangle endX="80" startY="221" marked="true" color="-1" endY="296" startX="65" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="195" y="285"></point>
+        <point x="210" y="285"></point>
+        <point x="210" y="240"></point>
+        <point x="240" y="210"></point>
+        <point x="195" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="276" y="85"></point>
+        <point x="285" y="105"></point>
+        <point x="302" y="99"></point>
+        <point x="294" y="83"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="219" y="85"></point>
+        <point x="210" y="105"></point>
+        <point x="193" y="99"></point>
+        <point x="201" y="83"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="virus" rotatable="true" editableColorIndex="0">
+      <circle x="45" y="45" marked="true" color="-1920102913" diameter="210" filled="true"></circle>
+      <circle x="135" y="0" marked="true" color="-1920102913" diameter="30" filled="true"></circle>
+      <circle x="135" y="270" marked="true" color="-1920102913" diameter="30" filled="true"></circle>
+      <circle x="270" y="135" marked="true" color="-1920102913" diameter="30" filled="true"></circle>
+      <circle x="0" y="135" marked="true" color="-1920102913" diameter="30" filled="true"></circle>
+      <circle x="15" y="60" marked="true" color="-1920102913" diameter="30" filled="true"></circle>
+      <circle x="60" y="15" marked="true" color="-1920102913" diameter="30" filled="true"></circle>
+      <circle x="15" y="210" marked="true" color="-1920102913" diameter="30" filled="true"></circle>
+      <circle x="60" y="255" marked="true" color="-1920102913" diameter="30" filled="true"></circle>
+      <circle x="210" y="255" marked="true" color="-1920102913" diameter="30" filled="true"></circle>
+      <circle x="210" y="15" marked="true" color="-1920102913" diameter="30" filled="true"></circle>
+      <circle x="255" y="60" marked="true" color="-1920102913" diameter="30" filled="true"></circle>
+      <circle x="255" y="210" marked="true" color="-1920102913" diameter="30" filled="true"></circle>
+      <line endX="105" startY="30" marked="true" color="-1920102913" endY="75" startX="75"></line>
+      <line endX="150" startY="15" marked="true" color="-1920102913" endY="60" startX="150"></line>
+      <line endX="75" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <line endX="225" startY="150" marked="true" color="-1920102913" endY="150" startX="285"></line>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="225" startX="150"></line>
+      <line endX="75" startY="75" marked="true" color="-1920102913" endY="105" startX="30"></line>
+      <line endX="195" startY="30" marked="true" color="-1920102913" endY="75" startX="225"></line>
+      <line endX="225" startY="75" marked="true" color="-1920102913" endY="105" startX="270"></line>
+      <line endX="75" startY="225" marked="true" color="-1920102913" endY="195" startX="30"></line>
+      <line endX="105" startY="270" marked="true" color="-1920102913" endY="225" startX="75"></line>
+      <line endX="195" startY="270" marked="true" color="-1920102913" endY="225" startX="225"></line>
+      <line endX="225" startY="225" marked="true" color="-1920102913" endY="195" startX="270"></line>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="wolf" rotatable="false" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="253" y="133"></point>
+        <point x="245" y="131"></point>
+        <point x="245" y="133"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="2" y="194"></point>
+        <point x="13" y="197"></point>
+        <point x="30" y="191"></point>
+        <point x="38" y="193"></point>
+        <point x="38" y="205"></point>
+        <point x="20" y="226"></point>
+        <point x="20" y="257"></point>
+        <point x="27" y="265"></point>
+        <point x="38" y="266"></point>
+        <point x="40" y="260"></point>
+        <point x="31" y="253"></point>
+        <point x="31" y="230"></point>
+        <point x="60" y="206"></point>
+        <point x="68" y="198"></point>
+        <point x="75" y="209"></point>
+        <point x="66" y="228"></point>
+        <point x="65" y="243"></point>
+        <point x="82" y="261"></point>
+        <point x="84" y="268"></point>
+        <point x="100" y="267"></point>
+        <point x="103" y="261"></point>
+        <point x="77" y="239"></point>
+        <point x="79" y="231"></point>
+        <point x="100" y="207"></point>
+        <point x="98" y="196"></point>
+        <point x="119" y="201"></point>
+        <point x="143" y="202"></point>
+        <point x="160" y="195"></point>
+        <point x="166" y="210"></point>
+        <point x="172" y="213"></point>
+        <point x="173" y="238"></point>
+        <point x="167" y="251"></point>
+        <point x="160" y="248"></point>
+        <point x="154" y="265"></point>
+        <point x="169" y="264"></point>
+        <point x="178" y="247"></point>
+        <point x="186" y="240"></point>
+        <point x="198" y="260"></point>
+        <point x="200" y="271"></point>
+        <point x="217" y="271"></point>
+        <point x="219" y="262"></point>
+        <point x="207" y="258"></point>
+        <point x="195" y="230"></point>
+        <point x="192" y="198"></point>
+        <point x="210" y="184"></point>
+        <point x="227" y="164"></point>
+        <point x="242" y="144"></point>
+        <point x="259" y="145"></point>
+        <point x="284" y="151"></point>
+        <point x="277" y="141"></point>
+        <point x="293" y="140"></point>
+        <point x="299" y="134"></point>
+        <point x="297" y="127"></point>
+        <point x="273" y="119"></point>
+        <point x="270" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="-1" y="195"></point>
+        <point x="14" y="180"></point>
+        <point x="36" y="166"></point>
+        <point x="40" y="153"></point>
+        <point x="53" y="140"></point>
+        <point x="82" y="131"></point>
+        <point x="134" y="133"></point>
+        <point x="159" y="126"></point>
+        <point x="188" y="115"></point>
+        <point x="227" y="108"></point>
+        <point x="236" y="102"></point>
+        <point x="238" y="98"></point>
+        <point x="268" y="86"></point>
+        <point x="269" y="92"></point>
+        <point x="281" y="87"></point>
+        <point x="269" y="103"></point>
+        <point x="269" y="113"></point>
+      </polygon>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>

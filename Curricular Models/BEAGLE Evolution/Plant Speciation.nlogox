@@ -1,0 +1,1216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="false">
+  <code><![CDATA[turtles-own [ tolerance fitness flower-time seedling? will-die? ]
+patches-own [ metal barrier? ]
+
+globals [
+   day                             ;; monitor value
+   year                            ;; current year
+   old-year                        ;; previous year
+   end-of-days-counter             ;;
+   transition-time?                ;;
+   old-visualize-time-steps-state  ;; allows for switching between visualization modes during model run
+   chance-death-per-year           ;; the probability that the plant will die this year
+   chance-seed-dispersal           ;; the probability that a newborn plant grows in a patch adjacent to its parents', instead of in the same patch.
+   average-number-offspring        ;; avg. number of seeds dispersed by the plant when it does disperse them
+   percent-same-flowering-time
+]
+
+to setup
+  clear-all
+  ;; initialize globals
+  set day 0
+  set old-year 0
+  set year 0
+  set end-of-days-counter 0
+  set percent-same-flowering-time 0
+  set chance-death-per-year 10 ;; set to 10% by default
+  set chance-seed-dispersal 50 ;; set to 50% by default
+  set average-number-offspring 3
+  set transition-time? false
+  set old-visualize-time-steps-state visualize-time-steps
+
+  ;color the frontier
+  ask patches [
+    set barrier? false
+    setup-two-regions
+    set pcolor calc-patch-color metal
+  ]
+
+  ;spawn the initial population -- carrying-capacity-per-patch allows more than plant at this patch
+  ask patches with [pxcor = min-pxcor] [
+    sprout plants-per-patch [
+      if initial-tolerance = "all no tolerance" [set tolerance 0]
+      if initial-tolerance = "all full tolerance" [set tolerance 100]
+      if initial-tolerance = "random tolerances" [set tolerance random-float 100]
+      set flower-time (365 / 2)
+      set heading random 360
+      fd random-float .5
+      set fitness 1
+      set shape "plant"
+      set seedling? false
+      set will-die? false
+      set color calc-plant-color tolerance
+    ]
+  ]
+  reset-ticks
+end
+
+
+to setup-two-regions
+  ;; set the metal value based on the width designated by the frontier-sharpness slider value
+  set metal precision (100 / (1 + exp (frontier-sharpness * ((max-pxcor + min-pxcor) / 2 - pxcor)))) 0
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;; RUNTIME PROCEDURES ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to go
+   check-labels
+   ;; if visualization switched during model run, redraw plants
+   if old-visualize-time-steps-state != visualize-time-steps [
+     ask turtles [
+       redraw-plants-as-full-sized-plants
+     ]
+   ]
+
+  if visualize-time-steps = "years" [
+    set day 0 ;; always at day 0 in years mode
+    set year year + 1
+    ask turtles [ redraw-plants-as-full-sized-plants  ]
+    do-start-of-new-year-events
+  ]
+
+  if visualize-time-steps = "days" [
+    visualize-bloom
+    do-end-of-days-events
+  ]
+  tick
+end
+
+to do-start-of-new-year-events
+  if year > old-year [
+    do-reproduction
+    mark-turtles-to-kill
+    kill-marked-turtles
+    set old-year year
+  ]
+end
+
+to do-end-of-days-events
+  ifelse day = 365 [  ;; at end of year
+    if transition-time? = false  [
+      do-reproduction
+      mark-turtles-to-kill
+      set transition-time? true
+    ]
+    ;; 10 ticks of transition time will elapse between years when visualize-time-steps is in "day" mode
+    ;; this transition time is for animation events to show death and growth of new plants before the next
+    ;; year begins. It is done before day 0 of the new year so that these visualizations do not interfere
+    ;; with flower time speciation mechanisms in the model
+
+    if transition-time? [
+      set end-of-days-counter end-of-days-counter + 1
+      ;; grow the new plants to be visible for the next season
+      ask turtles with [seedling?] [visualize-seedling-growth]
+      ;; shrink and fade the plants that are going to die
+      ask turtles with [will-die?] [set size (1 - (end-of-days-counter / 10))]
+
+      if end-of-days-counter > 9 [  ;; start a new year
+        set year year + 1
+        set end-of-days-counter 0
+        set transition-time? false
+        set day 0
+        ask turtles [turn-seedlings-into-full-plants]
+        kill-marked-turtles
+      ]
+    ]
+  ]
+
+  ;; the else event
+  [set day day + 1]
+end
+
+;; make babies
+to do-reproduction
+  ask turtles [
+    ;; construct list of potential mates based on pollen-radius slider
+    let potential-mates []
+    let nearby-turtles turtles
+    if (pollen-radius < (max-pxcor - min-pxcor)) [set nearby-turtles turtles in-radius pollen-radius]
+    let num-candidates 10
+    ifelse count nearby-turtles < 10 [ set potential-mates (sort nearby-turtles) ]
+                                     [ set potential-mates (sort (n-of 10 nearby-turtles))
+                                       set potential-mates (fput self potential-mates)]
+
+    ;; pick mate randomly weighted by compatibility
+    let compatibilities map [ potential-mate -> compatibility self potential-mate] potential-mates
+    let mate (pick-weighted (potential-mates) (compatibilities))
+
+    ;; spawn children
+    hatch (random-poisson average-number-offspring) [
+      set seedling? true
+      set will-die? false
+      ifelse visualize-time-steps = "days" [ set size 0.0] [set size 1.0]
+
+      ;combine parents' genes and give average value of to the child
+      if genetics-model = "avg. genotype" [
+        set tolerance (tolerance + [tolerance] of mate) / 2
+        set flower-time (flower-time + [flower-time] of mate) / 2
+      ]
+
+      ;mutate tolerance gene
+      if (random-float 100) < chance-tolerance-mutation [
+        set tolerance (tolerance + (random-normal 0 tolerance-mutation-stdev))
+      ;; set tolerance (tolerance + random tolerance-mutation - random tolerance-mutation)
+      ]
+
+      ;mutate flowering time gene
+      if (random-float 100) < chance-flower-time-mutation [
+        set flower-time (flower-time + (random-normal 0 flower-time-mutation-stdev))
+      ]
+
+      ;; keeps values from going above a min and max
+      if tolerance < 0 [ set tolerance  0 ]
+      if tolerance > 100 [ set tolerance 100 ]
+      if flower-time < 0 [ set flower-time 0 ]
+      if flower-time > 365 [ set flower-time 365 ]
+
+      ;change color and label to reflect metal tolerance
+      set color calc-plant-color tolerance
+      check-turtle-label
+      migrate-this-plant
+    ]
+
+   if plant-type = "annual" [set will-die? true] ;end of the generation
+  ]
+end
+
+;kill ill-adapted turtles and fix solve overpopulation
+to mark-turtles-to-kill
+  ask turtles [
+    let t tolerance / 100
+    let m metal / 100
+    ;; Fitness is a linear function dependent on tolerance whose slope and y-intercept
+    ;; vary linearly with respect to an increases in metal amount.
+    ;; This linear function would have the following slopes in various metal levels:
+    ;; (i.e. negative slope in clean ground -> high tolerance is bad
+    ;;       positive slope in dirty ground -> high tolerance is good
+    ;;       zero     slope in between      -> no benefit or disadvantage to any level of tolerance )
+
+    ;; This is a model of a "tradeoff", where specializing in one variation of trait is advantageous
+    ;; in one environmental extreme, but specializing in another variation of the trait is advantageous in a different
+    ;; environmental extreme. Intermediate "hybridization" or averaging between both variations is disadvantageous
+    ;; in both environments or at the very least it is not advantageous in either extreme environment.
+    ;; Such tradeoff models can lead to speciation when other traits permit a population to reproductively
+    ;; fragment and isolate itself into non-interbreeding sub populations.
+
+    ;; This makes for a hyperbolic paraboloid or saddle shaped function that is dependent on metal amount and
+    ;; tolerance.  A general form of this fitness function would be the following:
+    ;; set fitness ((1 +  (A * t * m + B * t * m - C * t * m) - ( A * t + B * m) ) )
+    ;; where fitness is 1 at clean ground and no tolerance
+    ;; A is the penalty (0 to 1) for having tolerance in clean ground, therefore fitness is (1 - A)
+    ;; B is the penalty (0 to 1) for having the highest level of metal in the ground and no tolerance, therefore fitness is (1 - B)
+    ;; C is the penalty (0 to 1) for having the highest tolerance in the highest level of metal, therefore fitness is (1 - C)
+    ;; As long as C is less than both B and A, then you will have a fitness function that can be used in this section
+    ;; The fitness function has been hard coded here to use A = .4 and B = .4 and C = 0
+
+       set fitness (1 - m) * (1 - .4 * t) + m * (1 - .4 * (1 - t))
+
+    ;; survival probability based on fitness
+    if (random-float 1) > (fitness) [set will-die? true]
+    ;; survival probability based on fixed number of additional deaths-a-year
+    if random-float 100 < chance-death-per-year [set will-die? true]
+  ]
+
+  ;; In overpopulated patches, kill the least fit plant until we are down to the carrying capacity
+  ask patches [
+    let overpopulation ((count turtles-here) - plants-per-patch)
+    if overpopulation > 0 [
+      ask (min-n-of overpopulation turtles-here [fitness]) [
+        set will-die? true
+      ]
+    ]
+  ]
+end
+
+to migrate-this-plant ;; turtle procedure
+  ;; Some plants grow in patch adjacent to the parent plant. This represents migration from seed dispersal
+  if (random-float 100) < chance-seed-dispersal [
+    move-to one-of neighbors
+    rt random 360  fd random-float 0.45  ;;spread out plants that are on the same patch
+  ]
+end
+
+to kill-marked-turtles
+    ask turtles with [will-die?] [die]
+end
+
+to turn-seedlings-into-full-plants
+         if seedling? [set seedling? false]
+         redraw-plants-as-full-sized-plants
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;; visualization procedures ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+to check-labels
+  ask patches [
+  ifelse show-labels-as = "metal in soil"
+    [set plabel metal]
+    [set plabel ""]
+  ]
+  ask turtles [ check-turtle-label ]
+end
+
+to check-turtle-label
+  if show-labels-as = "metal tolerance" [ set label precision tolerance 0 ]
+  if show-labels-as = "flower time"  [ set label precision flower-time 0 ]
+  if show-labels-as = "none" [ set label "" ]
+end
+
+to redraw-plants-as-full-sized-plants ;; turtle procedure
+  set shape "plant"
+  set size 1
+end
+
+to visualize-seedling-growth ;; turtle procedure
+  if seedling? [set size (end-of-days-counter / 10) ]
+end
+
+to visualize-bloom
+  ask turtles [
+    ;; If day of the year is greater than this plants flower time and less than the flower time plus the length of flower time, then it is in the
+    ;; the flowering time window and a flower should be located here
+    ifelse day >= (flower-time  ) and day <= (flower-time + (flower-duration)  )
+       [ set shape "flower"]
+       [ set shape "plant" ]
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;; reporters  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; make a random choice from <options> weighted by <weights>
+;; where highly weighted choices are more likely to be selected than others
+to-report pick-weighted [ options weights ]
+  let wsum 0
+  foreach weights [ weight ->
+    set wsum (wsum + weight)
+  ]
+  let wret wsum * (random-float 1)
+  let ret 0
+  set wsum 0
+  foreach weights [ weight ->
+    set wsum (wsum + weight)
+    if wsum > wret [ report (item ret options) ]
+    set ret (ret + 1)
+  ]
+end
+
+;; compatibility is a decreasing function of the difference in flowering times
+;; since plants that have more of an overlap between flower-times are more likely
+;; they will pollinate one another
+to-report compatibility [ t1 t2 ]
+  let diff abs ([flower-time] of t1 - [flower-time] of t2)
+  ifelse diff < flower-duration [ report (flower-duration - diff) ] [ report 0 ]
+end
+
+;; calculate the patch color based on the presence of metal in the soil
+to-report calc-patch-color [ m ]
+  report rgb 0 (255 * (1 - (m / 100)) / 2) (255 * (m / 100) / 2)
+end
+
+to-report calc-plant-color [ t ]
+  let black-pcolor rgb 0 0 0
+  ifelse barrier?
+    [report black-pcolor]
+    [report rgb 0 (255 * (1 - (t / 100)) ) (255 * (t / 100) )]
+end
+
+
+; Copyright 2012 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="512" maxPycor="9" updateMode="1" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="0" height="269" showTickCounter="true" patchSize="26.0" fontSize="10" wrappingAllowedY="false" width="684" tickCounterLabel="ticks" maxPxcor="25" minPxcor="0"></view>
+    <button x="8" y="10" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="63" display="setup">setup</button>
+    <button x="74" y="10" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="89" display="go">go</button>
+    <slider x="385" step="1" y="308" height="33" min="0" direction="Horizontal" max="100" default="10.0" variable="chance-tolerance-mutation" units="%" width="202" display="chance-tolerance-mutation"></slider>
+    <slider x="385" step="1" y="342" height="33" min="0" direction="Horizontal" max="50" default="20.0" variable="tolerance-mutation-stdev" width="202" display="tolerance-mutation-stdev"></slider>
+    <plot x="345" yMax="50.0" yAxis="#" y="60" xMin="0.0" height="120" legend="false" xMax="110.0" autoplot="true" yMin="0.0" width="165" xAxis="metal tolerance" display="tolerances">
+      <setup></setup>
+      <update></update>
+      <pen color="-10899396" legend="true" interval="5.0" mode="1" display="left">
+        <setup></setup>
+        <update><![CDATA[histogram [tolerance] of turtles with [xcor < (min-pxcor + max-pxcor) / 2]]]></update>
+      </pen>
+      <pen color="-13345367" legend="true" interval="5.0" mode="1" display="right">
+        <setup></setup>
+        <update><![CDATA[histogram [tolerance] of turtles with [xcor > (min-pxcor + max-pxcor) / 2]]]></update>
+      </pen>
+    </plot>
+    <slider x="9" step="1" y="273" height="33" min="1" direction="Horizontal" max="5" default="2.0" variable="plants-per-patch" width="152" display="plants-per-patch"></slider>
+    <slider x="9" step=".1" y="241" height="33" min=".1" direction="Horizontal" max="2" default="1.0" variable="frontier-sharpness" width="153" display="frontier-sharpness"></slider>
+    <plot x="167" yMax="10.0" yAxis="#" y="60" xMin="0.0" height="120" legend="false" xMax="380.0" autoplot="true" yMin="0.0" width="178" xAxis="flowering time" display="flower-times">
+      <setup></setup>
+      <update></update>
+      <pen color="-10899396" legend="true" interval="15.0" mode="1" display="left">
+        <setup></setup>
+        <update><![CDATA[histogram [flower-time ] of turtles with [xcor < (min-pxcor + max-pxcor) / 2]]]></update>
+      </pen>
+      <pen color="-13345367" legend="true" interval="15.0" mode="1" display="right">
+        <setup></setup>
+        <update><![CDATA[histogram [flower-time ] of turtles with [xcor > (min-pxcor + max-pxcor) / 2]]]></update>
+      </pen>
+    </plot>
+    <slider x="167" step="1" y="307" height="33" min="0" direction="Horizontal" max="100" default="10.0" variable="chance-flower-time-mutation" units="%" width="214" display="chance-flower-time-mutation"></slider>
+    <slider x="168" step="1" y="342" height="33" min="0" direction="Horizontal" max="100" default="10.0" variable="flower-time-mutation-stdev" width="212" display="flower-time-mutation-stdev"></slider>
+    <slider x="8" step="1" y="307" height="33" min="0" direction="Horizontal" max="50" default="30.0" variable="pollen-radius" width="154" display="pollen-radius"></slider>
+    <plot x="345" yMax="100.0" yAxis="tolerance" y="179" xMin="0.0" height="120" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="165" xAxis="generations" display="avg. tolerance">
+      <setup></setup>
+      <update></update>
+      <pen color="-10899396" legend="true" interval="1.0" mode="0" display="left">
+        <setup></setup>
+        <update><![CDATA[if any? turtles with [ xcor < (min-pxcor + max-pxcor) / 2] [
+  plotxy year (mean [tolerance] of turtles with [xcor < (min-pxcor + max-pxcor) / 2])
+  ]]]></update>
+      </pen>
+      <pen color="-13345367" legend="true" interval="1.0" mode="0" display="right">
+        <setup></setup>
+        <update><![CDATA[if any? turtles with [ xcor > (min-pxcor + max-pxcor) / 2] [
+  plotxy year (mean [tolerance] of turtles with [xcor > (min-pxcor + max-pxcor) / 2])
+  ]]]></update>
+      </pen>
+    </plot>
+    <plot x="167" yMax="100.0" yAxis="%" y="180" xMin="0.0" height="120" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="179" xAxis="generations" display="simultaneous flowering">
+      <setup></setup>
+      <update></update>
+      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="default">
+        <setup></setup>
+        <update><![CDATA[if any? turtles with [ xcor > (min-pxcor + max-pxcor) / 2] and any? turtles with [ xcor < (min-pxcor + max-pxcor) / 2]  [
+  let n 0
+  let m 0
+  let avg mean [tolerance] of turtles
+  repeat 500 [
+    let r one-of turtles with [xcor > (min-pxcor + max-pxcor) / 2]
+    let s one-of turtles with [xcor < (min-pxcor + max-pxcor) / 2]
+    if ( abs ([flower-time] of r - [flower-time] of s) < flower-duration ) [ set m (m + 1) ]
+    set n (n + 1)
+  ]
+  set percent-same-flowering-time precision ((m / n) * 100) 1
+  plotxy year (m / n) * 100
+]]]></update>
+      </pen>
+    </plot>
+    <slider x="8" step="1" y="342" height="33" min="0" direction="Horizontal" max="30" default="20.0" variable="flower-duration" units="days" width="155" display="flower-duration"></slider>
+    <monitor x="318" precision="1" y="10" height="45" fontSize="11" width="57">day</monitor>
+    <monitor x="372" precision="17" y="10" height="45" fontSize="11" width="102" display="years">year</monitor>
+    <chooser x="12" y="187" height="45" variable="show-labels-as" current="0" width="146" display="show-labels-as">
+      <choice type="string" value="none"></choice>
+      <choice type="string" value="metal in soil"></choice>
+      <choice type="string" value="metal tolerance"></choice>
+      <choice type="string" value="flower time"></choice>
+    </chooser>
+    <chooser x="164" y="10" height="45" variable="visualize-time-steps" current="1" width="151" display="visualize-time-steps">
+      <choice type="string" value="days"></choice>
+      <choice type="string" value="years"></choice>
+    </chooser>
+    <chooser x="11" y="49" height="45" variable="plant-type" current="1" width="146" display="plant-type">
+      <choice type="string" value="perennial"></choice>
+      <choice type="string" value="annual"></choice>
+    </chooser>
+    <chooser x="11" y="95" height="45" variable="initial-tolerance" current="0" width="147" display="initial-tolerance">
+      <choice type="string" value="all no tolerance"></choice>
+      <choice type="string" value="all full tolerance"></choice>
+      <choice type="string" value="random tolerances"></choice>
+    </chooser>
+    <chooser x="11" y="141" height="45" variable="genetics-model" current="0" width="147" display="genetics-model">
+      <choice type="string" value="avg. genotype"></choice>
+      <choice type="string" value="sex linked genes"></choice>
+    </chooser>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This is a model of parapatric speciation, where two subpopulations of a species split into two non-interbreeding species while still remaining in contact with each other. This is in contrast to allopatric speciation, where two geographically separated subpopulations of a species diverge into two separate species. The specific situation modeled is that of the speciation of a metal-tolerant variety of plant on the boundary between clean and contaminated ground.
+
+The model is inspired by a paper by Antonovics (2006) which describes a real-life example of a subpopulation of a species of grass on the boundary of a contaminated region that has developed an offset flowering time from the surrounding grass.
+
+For a short relevant background reading try https://en.wikipedia.org/wiki/Speciation
+
+## HOW IT WORKS
+
+The model simulates individual plant organisms that inhabit a rectangular grid of patches. Each tick, the model simulates either one day in a year of a plant or one year (a complete generation of plant life): the currently existing plants fertilize each other, produce offspring, and may die (depending if the plants are set to be annual or perennial plants).
+
+The environment the plants inhabited has two zones: the left zone (green) is normal earth, but the right zone (blue) is contaminated with metals from a nearby mine. The initial population can live there but has little tolerance for metals and prefers the clean zone on the left. Tolerance for metals is a heritable attribute that can change via mutation and recombination over the generations. Plants with a low tolerance for metals are best suited to live on the left side of the environment, and those with a high tolerance are best suited to live on the right side.
+
+Plants also have a flowering time, which determines which other plants the plant can fertilize and be fertilized by. Plants that do not flower during any of the same days of the year cannot fertilize each other.  Plants that flower on more of the same days have a better chance of fertilizing each other than plants that flower on less of the same days.  While plants can fertilize themselves, only plants within a certain radius can fertilize each other.
+
+Metal tolerance and flowering time are represented as real numbers; metal tolerance is always between 0.0 (very low tolerance) and 1.0 (very high tolerance).
+
+The key mechanism that drives speciation to emerge in this model is a fitness function. This fitness function (f) is dependent on metal in the ground (m) and tolerance of the plant to metal (t).  Metal tolerance slows plant growth down in healthy soil, but allows it to survive and grow in soil with heavy metal concentrations.
+
+Fitness is a hyperbolic paraboloid function that can be visualized as a linear function dependent on tolerance whose slope and y-intercept also vary linearly with respect to increases in metal in the soil.  This linear function would have the following slopes in various metal levels:
+
+  - negative slope in clean ground -> high tolerance is bad
+  - positive slope in dirty ground -> high tolerance is good
+  - slope of zero: in between -> no benefit or disadvantage to any tolerance level
+
+This is a model of a "tradeoff", where specializing in one variation of a trait is advantageous in one environmental extreme, but specializing in another variation of the trait is advantageous in a different environmental extreme. Intermediate "hybridization," or averaging between both variations, is disadvantageous in both environments or at least not advantageous in any.  Such tradeoff models can lead to speciation when other traits permit a population to reproductively fragment and isolate itself into non-interbreeding sub populations.
+
+The hyperbolic paraboloid or saddle shaped function that is used in the model is dependent on metal amount and tolerance.  A general form of this fitness function would be the following:
+  fitness =  (1 +  (A * t * m + B * t * m - C * t * m) - ( A * t + B * m) )
+
+  - where fitness is 1 at clean ground and no tolerance
+  - A is the penalty (0 to 1) for having tolerance in clean ground: so fitness is (1 - A)
+  - B is the penalty (0 to 1) for having the highest level of metal in the ground and no tolerance, so  fitness is (1 - B)
+  - C is the penalty (0 to 1) for having the highest tolerance in the highest level of metal, so fitness is (1 - C)
+
+As long as C is less than both B and A, then you will have a fitness function that may drive the emergence of speciation. The fitness function has been hard coded in the model to use A = .4 and B = .4 and C = 0 :
+
+       set fitness (1 - m) * (1 - .4 * t) + m * (1 - .4 * (1 - t))
+
+## HOW TO USE IT
+
+PLANT-TYPE: When set to "annual", all old plants die at the end of the year. "Perennial" allows some old plants to remain behind to re-flower the next year.
+
+VISUALIZE-TIME-STEPS: This can be set to "days" so that the flowering of the plants can be visualized during the year and the growth of seedlings and death of old plants can be visualized at the end of the year.  When set to "years" the model skips these visualizations and runs much quicker.
+
+GENETICS-MODEL: Allows you to change the recombination rules for sexual reproduction.  If set to "avg. genotype", the parent genotypes are averaged in the offspring.  This is a simplification of hybridization outcomes. Speciation should be more difficult to achieve at this setting since variation is removed more readily than using Mendelian genetics models (that retain variation in genotype over many generations through recessive alleles).  However, speciation can still emerge at this setting.  If set to "sex linked genes" the genotype is inherited from the male (pollen) only.
+
+SHOW-LABELS-AS: Shows the value for "metal in soil" for each patch, the "metal tolerance" for each plants", or the "flowering time" for each plant.
+
+FRONTIER-SHARPNESS: Controls the width of the gradient between the clean and contaminated sides of the environment.
+
+FLOWER-DURATION: This slider determines how long a flower is open--two plants whose flowering times are separated by more than this margin cannot fertilize each other. Even when two plants flower close enough together to fertilize each other, fertilization is less likely the larger the difference in flowering time.
+
+PLANTS-PER-PATCH: The maximum number of plants that can live on the same patch. If there are too many plants in a patch those least fitted to the local metal concentrations will die.
+
+CHANCE-TOLERANCE-MUTATION, CHANCE-FLOWER-TIME-MUTATION, FLOWER-TIME-MUTATION-STDEV, AND TOLERANCE-MUTATION-STDEV:  These sliders control the probability and magnitude of mutations in metal tolerance and flowering time.
+
+
+
+There are a variety of plots. The histograms show the distribution of metal tolerance and flowering time for plants on the left and right side of the environment. Graphs on the right show the mean tolerance and flowering time for the left and right sides of the environment over time. The "simultaneous flowering" graph shows the probability that a randomly chosen plant from the left flowers at the same time as a randomly chosen plant from the right--that is, the probability that they can fertilize each other. If this nears 0 speciation has occurred--the left and right sides are no longer interbreeding. Though the model only rarely reaches this value as 0, it does often achieve stable states very close to 0, showing that the first step in speciation has been achieved -- that a population has split into two sub-populations that are co-evolving behavior to reinforce sexual isolation from one another.
+
+## THINGS TO NOTICE
+
+The simplest case is to turn off all recombination and run the model with the default settings.  Notice that metal tolerance mutations will accumulate in a few individuals before simultaneous flower time begins to drop.  Speciation (sexual isolation) emerges after specialization of the population into two groups, to decrease gene flow between the groups and further increase odds of survival for offspring.
+
+When the whole population interbreeds there is a homogenizing force that keeps the plants on the right from becoming too metal tolerant--their genes are constantly diluted by genes from the intolerant left-side plants. Eventually, there will be a runaway effect where the left and right sides develop somewhat different flowering times (due to genetic drift), which decreases the flow of genes between the sides allowing the right to develop higher metal tolerance. This makes it increasingly disadvantageous to breed with left-side plants, creating selection pressure to increase the difference in flowering times further until the left and right are completely non-interbreeding and thus might be called separate species--this is called "reproductive isolation", the last step of speciation.
+
+## THINGS TO TRY
+
+If you decide to run the model with plants as annuals, decrease the DEATH-PER-YEAR (to around 10%) so that enough plants (including seedlings) are alive for the next generation, and increase the DEATH-PER-YEAR value if running with plants as perennials (so that old plants die off more readily and don't remain in ground blocking out new arrivals).
+
+If you change the FRONTIER-SHARPNESS to make a more gradual shift in metal concentrations between the left and right sides of the environment, speciation will still emerge.
+
+Sometimes flower-times for one population become isolated between two sub-groups in the other population, making for 3 effectively non-interbreeding sub-populations.  This shows how one speciation event can fragment the reproductive compatibility of the other population leading to even more possible species.
+
+Because of what is described above, parapatric speciation (in which two budding species continue to exchange genes as they diverge) is a rare form of speciation. More commonly accepted is the idea of allopatric speciation, which avoids these difficulties by positing that species arise when two subpopulations are separated completely, so that they cannot exchange genes and there is no homogenizing force preventing them from developing reproductive isolation. However, the process observed in the model where partial reproductive isolation allows increased differentiation due to selection, which in turn encourages more complete reproductive isolation, is often held to "reinforce" allopatric speciation when the two separated subpopulations come back into contact with each other.
+
+Playing with the other parameters of the model can alter the details of what happens; in particular the flow of genes between the sides is affected by fertilization-radius and flower-duration in proportion to the world size.
+
+## EXTENDING THE MODEL
+
+Allopatric speciation could be modeled by introducing physical barriers into the environment.
+
+## NETLOGO FEATURES
+
+Complex plotting procedures:  The histograms plot the populations of two regions each with a different color pen.
+
+## RELATED MODELS
+
+All the models from the BEAGLE curriculum.
+
+## CREDITS AND REFERENCES
+
+This model is a part of the BEAGLE curriculum (http://ccl.northwestern.edu/rp/beagle/index.shtml)
+
+Antonovics, J. (2006). "Evolution in closely adjacent plant populations X: long-term persistence of reproductive isolation at a mine boundary". Heredity, 97(1), p33-37.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Novak, M., McGlynn, G. and Wilensky, U. (2012).  NetLogo Plant Speciation model.  http://ccl.northwestern.edu/netlogo/models/PlantSpeciation.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2012 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2012 Cite: Novak, M., McGlynn, G. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="6">
+      <line endX="146" startY="255" marked="true" color="751909887" endY="267" startX="84"></line>
+      <line endX="136" startY="241" marked="true" color="751909887" endY="264" startX="123"></line>
+      <line endX="152" startY="193" marked="true" color="751909887" endY="202" startX="121"></line>
+      <line endX="180" startY="225" marked="true" color="751909887" endY="210" startX="150"></line>
+      <line endX="204" startY="210" marked="true" color="751909887" endY="160" startX="180"></line>
+      <line endX="223" startY="199" marked="true" color="751909887" endY="196" startX="186"></line>
+      <line endX="224" startY="214" marked="true" color="751909887" endY="226" startX="171"></line>
+      <line endX="200" startY="277" marked="true" color="751909887" endY="254" startX="151"></line>
+      <line endX="85" startY="192" marked="true" color="751909887" endY="168" startX="122"></line>
+      <line endX="114" startY="199" marked="true" color="751909887" endY="147" startX="138"></line>
+      <line endX="94" startY="240" marked="true" color="751909887" endY="221" startX="122"></line>
+      <line endX="151" startY="303" marked="true" color="751909887" endY="228" startX="146"></line>
+      <line endX="150" startY="224" marked="true" color="751909887" endY="105" startX="152"></line>
+      <circle x="103" y="73" marked="false" color="-303222273" diameter="32" filled="true"></circle>
+      <circle x="133" y="103" marked="false" color="-303222273" diameter="32" filled="true"></circle>
+      <circle x="133" y="43" marked="false" color="-303222273" diameter="32" filled="true"></circle>
+      <circle x="163" y="73" marked="false" color="-303222273" diameter="32" filled="true"></circle>
+      <circle x="116" y="53" marked="false" color="-303222273" diameter="32" filled="true"></circle>
+      <circle x="152" y="53" marked="false" color="-303222273" diameter="32" filled="true"></circle>
+      <circle x="153" y="91" marked="false" color="-303222273" diameter="32" filled="true"></circle>
+      <circle x="115" y="91" marked="false" color="-303222273" diameter="32" filled="true"></circle>
+      <circle x="135" y="75" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="6">
+      <line endX="146" startY="255" marked="true" color="751909887" endY="267" startX="84"></line>
+      <line endX="136" startY="241" marked="true" color="751909887" endY="264" startX="123"></line>
+      <line endX="152" startY="193" marked="true" color="751909887" endY="202" startX="121"></line>
+      <line endX="180" startY="225" marked="true" color="751909887" endY="210" startX="150"></line>
+      <line endX="204" startY="210" marked="true" color="751909887" endY="160" startX="180"></line>
+      <line endX="223" startY="199" marked="true" color="751909887" endY="196" startX="186"></line>
+      <line endX="224" startY="214" marked="true" color="751909887" endY="226" startX="171"></line>
+      <line endX="200" startY="277" marked="true" color="751909887" endY="254" startX="151"></line>
+      <line endX="85" startY="192" marked="true" color="751909887" endY="168" startX="122"></line>
+      <line endX="114" startY="199" marked="true" color="751909887" endY="147" startX="138"></line>
+      <line endX="94" startY="240" marked="true" color="751909887" endY="221" startX="122"></line>
+      <line endX="151" startY="303" marked="true" color="751909887" endY="228" startX="146"></line>
+      <line endX="150" startY="224" marked="true" color="751909887" endY="105" startX="152"></line>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>

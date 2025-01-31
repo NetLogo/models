@@ -1,0 +1,1719 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="false">
+  <code><![CDATA[breed [ employment-centers employment-center ]
+breed [ service-centers service-center ]
+breed [ builders builder ]
+breed [ second-order-builders second-order-builder ]
+breed [ third-order-builders third-order-builder ]
+breed [ migrants migrant ]
+breed [ rings ring ]
+breed [ nodes node ]
+
+migrants-own [ income savings works origin resident-since living-expenses ]
+patches-own [ land-value water electricity occupied transport ctr elevation colonia]
+builders-own [ too-close energy weight block-size origin]
+second-order-builders-own [ energy weight origin]
+third-order-builders-own [ energy weight origin ]
+
+globals [ values weights marginal-value marginal-weight crossed third-phase max-cost setup-done? ]
+
+to setup
+
+  if setup-done? = true [ ; note that setup-done? is 0 after clear-all
+    user-message (word
+      "Setup of the cityscape is already completed. "
+      "Press GO if you want to run the simulation "
+      "or CLEAR if you want to start over.")
+    stop
+  ]
+
+  tick
+
+  generate-cityscape
+
+  if any? employment-centers and not any? migrants [
+    initial-condition
+  ]
+
+  if any? migrants with [ size = .65 ] [
+    ask patches [
+      set land-value precision land-value 2
+    ]
+    initial-condition-2
+  ]
+
+  if third-phase = "go" [
+    economics
+  ]
+
+  if third-phase = "stop" [
+    ask patches [
+      set land-value precision land-value 2
+    ]
+    reset-ticks
+    set setup-done? true
+    stop
+  ]
+end
+
+to generate-cityscape
+
+  if ticks = 1 [
+    generate-topography
+    let center-region patches with [
+      abs pxcor < (max-pxcor - 20) and
+      abs pycor < (max-pycor - 20)
+    ]
+    ask patches [
+      set water 10.0
+      set electricity 1.0
+      set occupied "no"
+      set transport 1.5
+    ]
+    ask n-of #-service-centers center-region [
+      set land-value 35
+      ask neighbors [ set land-value 35 ]
+      ask patches in-radius 20 [ set elevation 9.9 ]
+      set water 2.0
+      set electricity 3.0
+      set transport 1.0
+      ask neighbors [
+        set water 2.0
+        set electricity 3.0
+        set transport 1.0
+      ]
+      sprout-service-centers 1 [
+        set shape "eyeball"
+        set size 5
+        set color 4
+      ]
+      sprout-builders round (random-normal 4 1) [
+        set label (who + 1)
+        set heading random-normal (label * (360 / count builders)) 20
+        set energy random-normal 75 15
+        set block-size round random-normal 2 .15
+        set weight .9
+        set pen-size 1.5
+        pen-down
+      ]
+    ]
+
+    ask service-centers [
+      ask builders-here [
+        set origin (list myself)
+      ]
+    ]
+
+    towards-other-centers
+  ]
+
+  ask builders [
+    set too-close []
+    fd 1
+    set color 6
+    if ticks mod 20 = 0 [ set heading random-normal heading 3 ]
+    set weight weight - .02
+    set weight precision weight 3
+    set land-value (weight * 12)
+    set transport .75
+    set ctr "+"
+    ask patches in-radius 8 [ set ctr "+" ]
+  ]
+
+  ask builders [
+    let ticks-list map [ n -> n * block-size ] [ 1 3 7 10 ]
+    if member? ticks ticks-list [ generate-second-order ]
+    if patch-ahead 2 = nobody [ die ]
+    if [ transport ] of patch-ahead 2 = .75 [
+      fd 2
+      die
+    ]
+  ]
+
+  let first-phase-limit round (random-normal 100 10)
+
+  ask second-order-builders [
+    set label ""
+    if energy != 0 [ fd .5 ]
+    pen-down
+    set color 7
+    set pen-size 1
+    set weight weight - .001
+    set weight precision weight 3
+    set land-value (weight * 7)
+    set water 2.0
+    set electricity 3.0
+    set transport 1.0
+    if weight < 0 [ set weight 0 ]
+    if round heading mod 15 < 5 or round heading mod 15 > 10 [
+      set heading heading + round (random-normal 5 10)
+    ]
+
+    if ctr = "+" and distance one-of service-centers < 60 [
+      set energy energy - .5
+    ]
+    if ctr != "+" [
+      set energy energy - 1
+      if distance one-of service-centers > 60 [ set energy energy - 2 ]
+    ]
+    if energy < .5 [ set energy 0 ]
+    if energy = 0 [ die ]
+
+    if patch-ahead 1 = nobody [ die ]
+
+    if [ elevation ] of patch-ahead 1 < 9.9 [
+      fd .5
+      die
+    ]
+
+    if [ land-value ] of patch-ahead 1 != 0 [
+      fd .5
+      die
+    ]
+
+    if [ transport ] of patch-ahead 1 = .75 [
+      fd 1
+      die
+    ]
+
+    if ticks < first-phase-limit and energy = 0 [ die ]
+
+    if ticks mod round (random-normal 5 1) = 0 and energy != 0 [
+      hatch-third-order-builders 1 [
+        right 90
+        set energy (random-normal energy 2) + 2
+      ]
+      hatch-third-order-builders 1 [
+        left 90
+        set energy (random-normal energy 2) + 2
+      ]
+    ]
+  ]
+
+  ask third-order-builders [
+    set label ""
+    if energy != 0 [ fd .5 ]
+    pen-down
+    set color 7
+    set pen-size 1
+    set weight weight - .0007
+    set weight precision weight 3
+    set land-value weight * 7
+    set water 2.0
+    set electricity 3.0
+    set transport 1.0
+    if weight > .3 [
+      ask patches in-radius 2 [ set electricity 3.0 ]
+    ]
+
+    if weight < 0 [ set weight 0 ]
+
+    if round heading mod 15 < 5 or round heading mod 15 > 10 [
+      set heading heading + round (random-normal 5 10)
+    ]
+
+    if ctr = "+" and distance one-of service-centers < 60 [
+      set energy energy - .5
+    ]
+
+    if ctr != "+" [
+      set energy energy - 1
+    ]
+
+    if distance one-of service-centers > 60 [
+      set energy energy - 2
+    ]
+
+    if energy < .5 [ set energy 0 ]
+
+    if ticks mod round (random-normal 3.75 .25) = 0 and energy != 0 [
+      hatch 1 [
+        right 90
+        set energy (random-normal energy 2) + 2
+      ]
+      hatch 1 [
+        left 90
+        set energy (random-normal energy 2) + 2
+      ]
+    ]
+
+    if patch-ahead 1 = nobody [ die ]
+
+    if [ elevation ] of patch-ahead 1 < 9.9 [ die ]
+
+    if [ transport ] of patch-ahead 1 = .75 [
+      fd .5
+      die
+    ]
+
+    if [ land-value ] of patch-ahead 1 != 0 [
+      fd 1
+      die
+    ]
+  ]
+
+  let all-builders (turtle-set builders second-order-builders third-order-builders)
+  ask all-builders with [ abs pxcor = max-pxcor or abs pycor = max-pycor ] [
+    die
+  ]
+
+  if ticks > 10 and any? third-order-builders [
+    set values mean [ land-value ] of third-order-builders
+    set weights mean [ weight ] of third-order-builders
+  ]
+
+  if not any? builders and any? third-order-builders and all? third-order-builders [ energy = 0 ] [
+    adjust
+  ]
+
+  if any? employment-centers [ stop ]
+end
+
+to adjust
+  repeat 7 [ diffuse land-value 1 ]
+  ask patches with [ land-value < 0 ] [
+    set land-value 0
+  ]
+  ask patches [
+    set land-value precision land-value 2
+  ]
+  set values mean [ land-value ] of third-order-builders
+  set marginal-value values
+  set weights mean [ weight ] of third-order-builders
+  set marginal-weight weights
+  ask third-order-builders [
+    die
+  ]
+  if #-service-centers > 1 [
+    ask service-centers [
+      set size round (land-value - 3)
+      if size < 2 [ set size 2 ]
+    ]
+  ]
+  maquiladoras
+  stop
+end
+
+to generate-topography
+  ask patches [ set elevation 9.9 ]
+  let topography n-of ((random 4) + 2) patches with [
+    abs pxcor < (max-pxcor - 20) and abs pycor < (max-pycor - 20)
+  ]
+  repeat 3 [
+    ask topography [
+      set elevation 8
+      ask n-of 15 patches in-radius (random-normal 15 3) [
+        set elevation 8
+      ]
+      ask one-of neighbors [
+        set elevation 8
+        ask n-of 13 patches in-radius (random-normal 8 2) [
+          set elevation 8
+        ]
+      ]
+    ]
+  ]
+  repeat 2 [
+    ask patches with [ (count neighbors with [ elevation = 8 ]) > 2 ] [
+      set elevation 8
+    ]
+  ]
+  ask patches with [ elevation = 8 and (count neighbors with [ elevation = 8 ]) < 2 ] [
+    set elevation 9.9
+  ]
+  repeat 1 [
+    diffuse elevation 1
+  ]
+end
+
+to towards-other-centers
+  if #-service-centers > 1 [
+    ask service-centers [
+      let my-roads builders with [ member? myself origin ]
+      ask one-of my-roads [
+        set heading towards one-of service-centers with [
+          not member? self [ origin ] of myself
+        ]
+      ]
+    ]
+  ]
+end
+
+to generate-second-order
+  hatch-second-order-builders 1 [
+    right 90
+    set energy random energy
+  ]
+  hatch-second-order-builders 1 [
+    left 90
+    set energy random energy
+  ]
+end
+
+to maquiladoras
+  let roads patches with [ transport = .75 ]
+  let industrial-candidate patches with [
+    land-value < .75 and land-value > .05
+    and abs pycor < (max-pycor - 5)
+    and abs pxcor < (max-pxcor - 5)
+    and [ land-value ] of (max-one-of neighbors [ land-value ]) < .6 and land-value > .015
+    and transport != .75
+    and elevation = 9.9
+    and any? roads with [ distance myself < 6 ]
+    and not any? roads with [ distance myself < 3 ]
+    and transport != .75
+  ]
+
+  if (count industrial-candidate < #-maquiladoras) [
+    user-message "Warning: unable to create all employment centers, insufficient candidate patches."
+  ]
+
+  create-employment-centers #-maquiladoras [
+    set shape "factory"
+    set label ""
+    set color 95
+    set size 7
+    let industrial-site one-of industrial-candidate with [
+      not any? employment-centers with [ distance myself < 5 ]
+    ]
+    if industrial-site != nobody [
+      move-to industrial-site
+    ]
+    set water "0.0"
+    set electricity "0.0"
+    set transport "0.0"
+  ]
+
+  ask employment-centers [
+    ask other employment-centers-here [
+      die
+    ]
+  ]
+
+  ask industrial-candidate with [ any? employment-centers-here ] [
+    set occupied "maquiladora"
+    ask neighbors [
+      set occupied "maquiladora"
+      ask neighbors [
+        set occupied "maquiladora"
+      ]
+    ]
+  ]
+
+end
+
+to initial-condition
+  let potential-irregular-lots patches with [
+    occupied = "no"
+    and occupied != "maquiladora"
+    and transport != .75
+    and not any? employment-centers in-radius 10
+    and elevation > 8.5
+    and land-value <= (values - .35)
+    and land-value > (values) / 45
+    and any? patches with [ water = 2 and (distance myself) < 6 ]
+  ]
+  ask potential-irregular-lots [
+    set ctr "p-i-lots"
+  ]
+
+  let floating-population (round (((count patches with [ water = 2 and electricity = 3 ]) * init-density) / 6))
+
+  ask n-of (floating-population / 5) potential-irregular-lots [
+    sprout-migrants 1 [
+      set size .65
+      set shape "circle"
+      set origin one-of [ "oaxaca" "jalisco" "zacatecas" "mexico" ]
+      set occupied [ origin ] of self
+      set works []
+      set (works) lput (min-one-of employment-centers [ distance myself ]) (works)
+      set resident-since round (random-normal 8 2)
+    ]
+  ]
+  stop
+end
+
+to initial-condition-2
+  if any? migrants with [ size = .65 ] [
+    ask one-of migrants with [ size = .65 ] [
+      set size .6
+      repeat 4 [
+        ask patch-set one-of patches in-radius 3 with [ occupied = "no" and occupied != "maquiladora" and elevation > 8.5 ] [
+          sprout-migrants 1 [
+            set shape "circle"
+            set size .6
+            set color red
+            set origin one-of [ "oaxaca" "jalisco" "zacatecas" "mexico"]
+            set occupied origin
+            set color red
+            set works [] set (works) lput (min-one-of employment-centers [ distance myself ]) (works)
+            set resident-since round (random-normal 8 2)
+            get-costs
+          ]
+        ]
+      ]
+    ]
+  ]
+
+  ask migrants [
+    ifelse color-code? = true [
+      if origin = "oaxaca"    [ set color pink ]
+      if origin = "jalisco"   [ set color orange ]
+      if origin = "zacatecas" [ set color blue ]
+      if origin = "mexico"    [ set color green ]
+    ] [
+      set color black
+    ]
+  ]
+
+  ask migrants [ set occupied origin ]
+  if not any? migrants with [ size = .65 ] [
+    set third-phase "go"
+    stop
+  ]
+
+end
+
+to economics
+  ask migrants [
+    ask patches in-radius (4 - (colonia-size) / 2) [
+      set colonia colonia - .5
+    ]
+    get-costs
+    set max-cost max [ living-expenses ] of migrants
+    set income precision (random-normal max-cost 3) 2
+    set income precision (income) 2 set living-expenses precision (living-expenses) 2
+  ]
+  ask migrants with [ income < living-expenses ] [
+    while [ income < living-expenses ] [
+      set living-expenses living-expenses - 1
+    ]
+  ]
+  if not any? migrants with [ income < living-expenses ] [
+    set third-phase "stop"
+    stop
+  ]
+end
+
+to update-display
+  if visual-update = "off" [
+    ask patches [ set pcolor white ]
+  ]
+  if visual-update = "land value gradient" [
+    ask patches [ set pcolor land-value ]
+  ]
+  if visual-update = "units with no water" [
+    ask patches with [ water = 10 and any? migrants-here ] [
+      set pcolor 67
+    ]
+  ]
+  if visual-update = "units with no electricity" [
+    ask patches with [ electricity = 1 and any? migrants-here ] [
+      set pcolor 127
+    ]
+  ]
+  if visual-update = "elevation" [
+    ask patches [ set pcolor elevation + 50 ]
+  ]
+  if visual-update = "colonias" [
+    ask patches with [ colonia = 0 ] [ set colonia 9.9 ]
+    ask patches with [ colonia != 0 and colonia > -10 ] [ set pcolor colonia + 10 ]
+    ask patches with [ colonia < -9.9 ] [ set pcolor 0 ]
+  ]
+
+  ifelse color-code? = true [
+    ask migrants [
+      if origin = "oaxaca" [ set color pink ]
+      if origin = "jalisco" [ set color orange ]
+      if origin = "zacatecas" [ set color blue ]
+      if origin = "mexico" [ set color green ]
+    ]
+  ] [
+    ifelse visual-update = "land value gradient" [
+      ask migrants with [ shape = "circle" ] [ set color white ]
+    ] [
+      ask migrants with [ shape = "circle" ] [ set color black ]
+    ]
+  ]
+
+end
+
+to go
+
+  if setup-done? != true [
+    user-message (word
+      "Setup of the cityscape is not completed. "
+      "Press CITYSCAPE and let it run until it stops "
+      "before trying to press GO again.")
+    stop
+  ]
+
+  tick
+
+  if any? third-order-builders [
+    set values (mean [ land-value ] of third-order-builders)
+    set weights (mean [ weight ] of third-order-builders)
+  ]
+  set max-cost max [ living-expenses ] of migrants
+
+  update-display
+  ask migrants [
+    set savings precision (savings) 2
+    set living-expenses precision (living-expenses) 2
+  ]
+
+  ;show "About to migrate"
+  if ticks mod migration-ticks = 0 [ migrate-static ]
+
+  ask migrants [ set occupied origin ]
+
+  if ticks mod 15 = 0 [
+    ask migrants [
+      set resident-since resident-since + 1
+      set resident-since round resident-since
+    ]
+  ]
+
+  ;show "About to grow the city"
+  ask third-order-builders [ set hidden? not city-growth? ]
+
+  ;show "About to regulate"
+  if city-growth? [ regulate ]
+
+  ;show "About to call grow-city"
+  if city-growth? [
+    if ticks mod building-ticks = 0 [ grow-city ]
+  ]
+
+  ;show "About to call on third-order builders"
+  if city-growth? and ticks mod (building-ticks * 2) = 0 [
+    ask third-order-builders [
+      hatch 1 [
+        right 90
+        set weight marginal-weight
+      ]
+      hatch 1 [
+        left 90
+        set weight marginal-weight
+      ]
+    ]
+  ]
+
+  ;show "About to update patch values"
+  ask patches [
+    if land-value < 0 [ set land-value 0 ]
+    if not any? migrants-here and occupied != "maquiladora" [ set occupied "no" ]
+    if colonia > -.1 [ set colonia 9.9 ]
+  ]
+
+  ask turtles with [ abs pxcor = max-pxcor or abs pycor = max-pycor ] [ die ]
+
+  ;show "About to regularize"
+  regularize
+
+  ;show "About to cross borders"
+  cross
+
+  ;show "About to earn and spend"
+  ask migrants [ earn-spend ]
+
+  ;show "About to move"
+  move
+end
+
+to migrate-static
+  ask one-of migrants [
+    let my-patch patch-here
+    let newcomer one-of patches in-radius 1.5 with [
+      occupied = "no"
+      and elevation > 8.5
+      and land-value <= [ land-value ] of my-patch
+    ]
+    if newcomer != nobody [
+      hatch 1 [
+        move-to newcomer
+      ]
+      set occupied origin
+      set shape "circle"
+      set resident-since 0
+      get-costs
+      set income precision (random-normal 55 3) 2
+      set savings precision (random-normal 15 5) 2
+      get-costs
+      ask patches in-radius (4 - colonia-size) [ set colonia colonia - .5 ]
+    ]
+  ]
+end
+
+to move
+  ask migrants with [ resident-since > 5 ] [
+    if water = 10.0 and savings > required-capital [
+      let somewhere-nice one-of patches in-radius 50 with [
+        water = 2.0
+        and electricity = 3.0
+        and land-value < ([ savings ] of myself * 0.0010)
+      ]
+      if somewhere-nice != nobody [
+        face somewhere-nice
+        jump distance somewhere-nice
+        set color red
+        set size .8
+        set savings (savings - (land-value / 0.0010))
+        get-costs
+      ]
+    ]
+  ]
+end
+
+to cross
+  if ticks mod crossing-ticks = 0 [
+    ask one-of migrants [
+      set color 108
+      set size 15
+      die
+    ]
+    set crossed crossed + 1
+  ]
+end
+
+to regularize
+
+  let colonias one-of patches with [
+    colonia < (-14 - colonia-size)
+    and (any? migrants-on neighbors) = true
+    and pxcor < (max-pxcor - 4) and pycor < (max-pycor - 4)
+    and (count rings with [ distance myself < 15 ]) = 0
+  ]
+
+  if (count rings) < 5 and colonias != nobody [
+    ask colonias [
+      sprout-rings 1 [
+        set color 27
+        set shape "loop"
+      ]
+    ]
+  ]
+
+  ask rings [
+    set size abs ((mean [ colonia ] of (migrants in-radius 10 )) ^ 2 ) / 3
+    if size < 3 [ die ]
+    if (count patches in-radius 8 with [ water = 10 ]) < 5  [ die ]
+    if not any? third-order-builders in-radius 6 [
+      let buildit one-of patches in-radius size with [
+        (abs (land-value) - values) < .25
+        and any? migrants-here = true
+        and water = 10
+        and not any? third-order-builders-here
+      ]
+      if buildit != nobody [
+        ask buildit [
+          sprout-third-order-builders 1 [
+            set size 1
+            set color red
+            set weight marginal-weight
+            face min-one-of migrants [ distance myself ]
+            set origin myself
+          ]
+        ]
+      ]
+    ]
+  ]
+end
+
+to grow-city
+  ask third-order-builders [
+    fd .75
+    pen-down
+    set pen-size 1
+    set weight weight - .05
+    set weight precision weight 3
+    ask other migrants-here [ get-costs ]
+    set land-value (weight * 3)
+    set water 2.0
+    set electricity 3.0
+    set transport 1.0
+    set colonia colonia + .15
+    ask neighbors [ set colonia (colonia + .15) ]
+  ]
+end
+
+to regulate
+  ask third-order-builders [
+    if patch-ahead 1 = nobody [ die ]
+    if [ transport ] of patch-ahead 1 = .75 [
+      fd 1
+      die
+    ]
+    if [ land-value ] of patch-ahead 1 > land-value [
+      fd .5
+      die
+    ]
+    if [ occupied ] of patch-ahead 1 = "maquiladora" [ die ]
+    if not any? migrants-on patch-ahead 1 [ die ]
+    if not any? rings in-radius 8 [ die ]
+  ]
+end
+
+to earn-spend
+  set savings precision (savings + income - living-expenses) 2
+  if savings < 7 [ set savings 0.0 ]
+end
+
+to get-costs
+  let food 27.0
+  let other-utilities 8.0
+  let my-workplace one-of employment-centers with [ member? self [ works ] of myself ]
+  let transport-costs (transport * ((distance one-of service-centers / 30) + distance my-workplace / 25))
+  set living-expenses (land-value + electricity + water + food + transport-costs + other-utilities)
+end
+
+
+; Copyright 2007 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="287" maxPycor="57" updateMode="1" wrappingAllowedX="false" y="11" frameRate="30.0" minPycor="-57" height="469" showTickCounter="true" patchSize="4.0" fontSize="10" wrappingAllowedY="false" width="692" tickCounterLabel="ticks" maxPxcor="85" minPxcor="-85"></view>
+    <slider x="5" step="1" y="150" height="33" min="1" direction="Horizontal" max="8" default="8.0" variable="#-maquiladoras" width="165" display="#-maquiladoras"></slider>
+    <slider x="5" step="1" y="185" height="33" min="1" direction="Horizontal" max="3" default="3.0" variable="#-service-centers" width="165" display="#-service-centers"></slider>
+    <button x="175" y="10" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="74" display="3  go">go</button>
+    <button x="75" y="10" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="95" display="2  cityscape">setup</button>
+    <button x="5" y="10" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="65" display="1  clear">clear-all
+ask patches [ set pcolor white ]
+reset-ticks</button>
+    <slider x="5" step="1" y="80" height="33" min="1" direction="Horizontal" max="20" default="3.0" variable="migration-ticks" units="ticks" width="165" display="migration-ticks"></slider>
+    <chooser x="5" y="410" height="45" variable="visual-update" current="0" width="140" display="visual-update">
+      <choice type="string" value="off"></choice>
+      <choice type="string" value="elevation"></choice>
+      <choice type="string" value="land value gradient"></choice>
+      <choice type="string" value="colonias"></choice>
+      <choice type="string" value="units with no water"></choice>
+      <choice type="string" value="units with no electricity"></choice>
+    </chooser>
+    <switch x="150" y="418" height="33" on="true" variable="color-code?" width="123" display="color-code?"></switch>
+    <switch x="5" y="460" height="33" on="false" variable="city-growth?" width="140" display="city-growth?"></switch>
+    <monitor x="287" precision="3" y="506" height="45" fontSize="11" width="60" display="builders">count third-order-builders</monitor>
+    <monitor x="352" precision="2" y="506" height="45" fontSize="11" width="55" display="values">values</monitor>
+    <slider x="5" step="0.5" y="360" height="33" min="0.5" direction="Horizontal" max="6" default="6.0" variable="building-ticks" width="165" display="building-ticks"></slider>
+    <slider x="5" step="0.1" y="220" height="33" min="0.5" direction="Horizontal" max="1" default="0.7" variable="init-density" width="165" display="init-density"></slider>
+    <monitor x="542" precision="0" y="506" height="45" fontSize="11" width="58" display="no water">( ( count patches with [ (any? migrants-here) = 
+true and water = 10.0
+ ] ) * 100) / 
+((count patches with [ water = 2.0 and 
+electricity = 3.0]) * init-density)
+</monitor>
+    <monitor x="607" precision="0" y="506" height="45" fontSize="11" width="65" display="no power">( ( count patches with [ occupied != "no" and 
+occupied != "maquiladora" and electricity = 1.0
+ ] ) * 100) / 
+((count patches with [ water = 2.0 and 
+electricity = 3.0]) * init-density)
+</monitor>
+    <monitor x="677" precision="3" y="506" height="45" fontSize="11" width="105" display="irregular settlers">count migrants</monitor>
+    <slider x="5" step="0.25" y="290" height="33" min="0" direction="Horizontal" max="2" default="2.0" variable="colonia-size" width="165" display="colonia-size"></slider>
+    <slider x="5" step="1" y="115" height="33" min="1" direction="Horizontal" max="20" default="15.0" variable="crossing-ticks" units="ticks" width="165" display="crossing-ticks"></slider>
+    <monitor x="412" precision="1" y="506" height="45" fontSize="11" width="60" display="marginal">marginal-value</monitor>
+    <monitor x="787" precision="0" y="506" height="45" fontSize="11" width="60">crossed</monitor>
+    <monitor x="477" precision="3" y="506" height="45" fontSize="11" width="58">weights</monitor>
+    <button x="5" y="45" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="65" display="inspect"><![CDATA[inspect min-one-of migrants [ income ]
+inspect one-of migrants with [ savings != 0 ]
+inspect one-of patches with [ count migrants-here > 0]
+]]></button>
+    <slider x="5" step="10" y="255" height="33" min="150" direction="Horizontal" max="1200" default="500.0" variable="required-capital" width="165" display="required-capital"></slider>
+    <button x="75" y="45" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="95" display="add node"><![CDATA[if mouse-down? 
+    [  ask patch mouse-xcor mouse-ycor [
+       sprout-nodes 1 [ set size 3 set shape "loop" 
+       set color red
+       set water 2.0 set electricity 3.0 set transport 1.0
+       set land-value (weights)
+       ask patches in-radius carrying-capacity with
+     [ occupied != "maquiladora" and land-value < marginal-value ]
+        [ set water 2.0 set electricity 3.0 set transport 1.0
+          set land-value (weights) 
+          - (((distance min-one-of nodes [ 
+           distance myself ]) / carrying-capacity) * .15) 
+           ] ] ]
+       display ]]]></button>
+    <slider x="5" step="1" y="325" height="33" min="1" direction="Horizontal" max="6" default="6.0" variable="carrying-capacity" width="165" display="carrying-capacity"></slider>
+    <monitor x="5" precision="0" y="506" height="45" fontSize="11" width="110" display="savings">mean [ savings  ] of migrants with [ size = .6 ]</monitor>
+    <monitor x="121" precision="3" y="506" height="45" fontSize="11" width="117" display="savings node">mean [ savings  ] of migrants with [ size = .8 ]</monitor>
+    <button x="150" y="460" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="123" display="update-now">update-display</button>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This model simulates various socio-economic realities of low-income residents of the City of Tijuana for the purpose of creating propositional design interventions.
+
+The Tijuana Bordertowns model allows input of migration rates and border crossing rates relative to employment and service centers in order to define population types (i.e. migrants or full-time residents). Population densities relative to block sizes are adjustable via the interface in order to steer the simulation toward specific land-uses such as urban centers or peripheral (rural) development. The rate of residential building is adjustable based upon relative community size, land value (approximate), required (per-capita) capital and the carrying capacity of (potentially) existing infrastructure.
+
+The model also simulates detailed information about each agent in the simulation. During or after the simulation is run, specific agents can be inspected to determine their current income (if any), savings (if any), living expenses, job (if any), origin (from where they migrated) and the time (in years) they have lived in Tijuana. In addition, during or after the simulation is run, patches the agents occupy can also be inspected to identify the existence of infrastructural features such as water, electricity and roads. In all cases, information about agents and patches continually changes during the simulation based upon interrelated feedback.
+
+## HOW IT WORKS
+
+A CITYSCAPE is generated, spreading out from a city center.  Each patch is assigned a land-value, and a level of electrical, water and transportation service.  A road network is drawn, and maquiladoras are placed at the edge of the city.
+
+An initial set of migrants are created at the edge of the city on "irregular" patches, meaning those patches with a low land-value, near water and away from maquiladoras.  A second set of migrants is created in the neighboring patches.  This establishes the base population of the irregular settlements.  The migrants also have a state of original, such as Jalisco or Oaxaca.
+
+Then each migrant is assigned a living-expanses values, which is determined by the value of the land they occupy, food and other utility costs, as well as the electrical, water, and transportation.  Food and other utility costs are constant for all agents.  The electrical and water costs are determined by the patches values.  Transportation is determined by their distance to service centers (like shopping centers), the distance to the maquiladoras they work at, and the access to transportation services their patch has.
+
+With each model tick, new migrants move into patches next to existing migrants, some migrants cross the border, some migrants move into nicer locations once they have sufficient savings, and all of them participate in the economy, earning and spending money, as well as saving if possible.
+
+New migrants will enter in unoccupied spaces adjacent to migrants who came from their home state.
+
+Migrants that move will look for a patch in their area with electrical and water services, which is affordable to them.
+
+Groups of migrants form colonias.  The size of these colonias is determined by the COLONIA-SIZE slider.  The larger the value, the larger the colonia.  Colonias with sufficient density will be targeted for regularization.  New electrical, water and transportation services will be developed for them.
+
+## HOW TO USE IT
+
+Press CLEAR to clear the screen and prepare for the simulation
+
+Press CITYSCAPE to draw an initial city.  After it completes the city the button will de-activate.  Do not use the GO button until after CITYSCAPE has completed its process, and the button has deactivated!
+
+Press GO to run the simulation. (Only after you have run CLEAR, and let CITYSCAPE run to completion).
+
+The INSPECT button pops up agent inspectors for the migrant with the least income, one migrant with savings above 0, and a patch with migrants living on it.
+
+The ADD-NODE forever button allows you to click on a patch and create a service node, which has electrical, water, and transportation services.
+
+MIGRATION-TICKS determines how many ticks of the model between waves of immigrants.
+
+CROSSING-TICKS determined how many ticks of the model before a percentage of residents cross the border and leave the town.
+
+\#-MAQUILADORAS sets the number of maquiladoras, which are created at the edge of the city when the city is created during the CITYSCAPE step.
+
+\#-SERVICE-CENTERS determines the number of service centers (shown as large circles in the view) that are created when the city is created.
+
+INIT-DENSITY determines the initial number of migrants at the start of a model run.
+
+REQUIRED-CAPITAL determines how much savings a migrant must have before moving from their current location to a new location.
+
+COLONIA-SIZE determines the size of a region that can become a colonia.  A larger size means larger colonias.
+
+CARRYING-CAPACITY determines how large of an area a new node, created with the ADD-NODE button, effects.  A new node will add services to patches in that area.
+
+BUILDING-TICKS determines how many ticks of the model between building when areas are regularized
+
+The VISUAL-UPDATE chooser allows additional visualization of various aspects of the state of the model, including "elevation", "land value gradient", "colonias", "units with no water", and "units with no electricity".  If GO is running, then the view will update in real-time.  Otherwise, push the UPDATE-NOW button after choosing a new visualization mode.
+
+If the COLOR-CODE? switch is ON, then migrants will be colored on the basis of their  origin ( "oaxaca" is pink, "jalisco" is orange, "zacatecas" is blue, and "mexico" is green]).  If it is OFF, then all migrants are shown in black (or white, in "land value gradient" visualization mode).
+
+The CITY-GROWTH? switch determines whether the city continues to grow as the model progresses.
+
+## THINGS TO NOTICE
+
+Colonias will eventually build their own infrastructure if CITY-GROWTH is on.
+
+Adding a node with the ADD-NODE button will attract migrants to that area.
+
+## THINGS TO TRY
+
+Try setting the MIGRATION-TICKS to a lower value, thus increasing the number of migrants.  Increate CROSSING-TICKS so that fewer people leave.
+
+Try using the ADD-NODE button to add a bunch of nodes to an area to make it attractive.
+
+## EXTENDING THE MODEL
+
+Add a button that allows the creation of colonias in explicit locations.
+
+## RELATED MODELS
+
+This model is related to all of the other models in the "Urban Suite".
+
+## CREDITS AND REFERENCES
+
+The original version of this model was developed during the Sprawl/Swarm Class at Illinois Institute of Technology in Fall 2006 under the supervision of Sarah Dunn and Martin Felsen, by the following student: Federico Diaz De Leon.  See http://www.sprawlcity.us/ for more information about this course.
+
+Further modification and documentation was performed by members of the Center for Connected Learning and Computer-Based Modeling before releasing it as an Urban Suite model.
+
+The Urban Suite models were developed as part of the Procedural Modeling of Cities project, under the sponsorship of NSF ITR award 0326542, Electronic Arts & Maxis.
+
+Please see the project web site ( http://ccl.northwestern.edu/cities/ ) for more information.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* De Leon, F.D., Felsen, M. and Wilensky, U. (2007).  NetLogo Urban Suite - Tijuana Bordertowns model.  http://ccl.northwestern.edu/netlogo/models/UrbanSuite-TijuanaBordertowns.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2007 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2007 Cite: De Leon, F.D., Felsen, M. -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="eyeball" rotatable="false" editableColorIndex="0">
+      <circle x="15" y="13" marked="true" color="-1920102913" diameter="262" filled="true"></circle>
+      <circle x="22" y="20" marked="false" color="-1" diameter="248" filled="true"></circle>
+      <circle x="63" y="61" marked="true" color="-1920102913" diameter="162" filled="true"></circle>
+      <circle x="93" y="91" marked="false" color="-1" diameter="102" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="factory" rotatable="false" editableColorIndex="0">
+      <circle x="162" y="14" marked="true" color="-1920102913" diameter="23" filled="true"></circle>
+      <circle x="129" y="19" marked="true" color="-1920102913" diameter="42" filled="true"></circle>
+      <circle x="105" y="40" marked="true" color="-1920102913" diameter="32" filled="true"></circle>
+      <circle x="37" y="73" marked="true" color="-1920102913" diameter="32" filled="true"></circle>
+      <circle x="55" y="38" marked="true" color="-1920102913" diameter="54" filled="true"></circle>
+      <rectangle endX="285" startY="194" marked="true" color="-1920102913" endY="270" startX="76" filled="true"></rectangle>
+      <rectangle endX="270" startY="210" marked="false" color="-1" endY="240" startX="90" filled="true"></rectangle>
+      <line endX="90" startY="195" marked="true" color="-1920102913" endY="255" startX="90"></line>
+      <line endX="120" startY="195" marked="true" color="-1920102913" endY="255" startX="120"></line>
+      <line endX="150" startY="195" marked="true" color="-1920102913" endY="240" startX="150"></line>
+      <line endX="180" startY="195" marked="true" color="-1920102913" endY="255" startX="180"></line>
+      <line endX="210" startY="210" marked="true" color="-1920102913" endY="240" startX="210"></line>
+      <line endX="240" startY="210" marked="true" color="-1920102913" endY="240" startX="240"></line>
+      <line endX="270" startY="225" marked="true" color="-1920102913" endY="225" startX="90"></line>
+      <circle x="60" y="43" marked="false" color="-1" diameter="44" filled="true"></circle>
+      <rectangle endX="78" startY="228" marked="true" color="-1920102913" endY="270" startX="14" filled="true"></rectangle>
+      <circle x="57" y="75" marked="false" color="-1" diameter="12" filled="true"></circle>
+      <circle x="41" y="77" marked="false" color="-1" diameter="24" filled="true"></circle>
+      <rectangle endX="59" startY="100" marked="true" color="-1920102913" endY="231" startX="36" filled="true"></rectangle>
+      <circle x="96" y="21" marked="true" color="-1920102913" diameter="42" filled="true"></circle>
+      <circle x="101" y="26" marked="false" color="-1" diameter="32" filled="true"></circle>
+      <circle x="96" y="44" marked="false" color="-1" diameter="12" filled="true"></circle>
+      <circle x="99" y="49" marked="false" color="-1" diameter="12" filled="true"></circle>
+      <circle x="110" y="45" marked="false" color="-1" diameter="22" filled="true"></circle>
+      <circle x="134" y="24" marked="false" color="-1" diameter="32" filled="true"></circle>
+      <circle x="126" y="36" marked="false" color="-1" diameter="16" filled="true"></circle>
+      <circle x="166" y="18" marked="false" color="-1" diameter="14" filled="true"></circle>
+      <circle x="162" y="26" marked="false" color="-1" diameter="8" filled="true"></circle>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="loop" rotatable="false" editableColorIndex="0">
+      <circle x="28" y="28" marked="true" color="-1920102913" diameter="244" filled="false"></circle>
+      <circle x="44" y="44" marked="true" color="-1920102913" diameter="212" filled="false"></circle>
+      <circle x="43" y="43" marked="true" color="-1920102913" diameter="214" filled="false"></circle>
+      <circle x="42" y="42" marked="true" color="-1920102913" diameter="216" filled="false"></circle>
+      <circle x="41" y="41" marked="true" color="-1920102913" diameter="218" filled="false"></circle>
+      <circle x="40" y="40" marked="true" color="-1920102913" diameter="220" filled="false"></circle>
+      <circle x="39" y="39" marked="true" color="-1920102913" diameter="222" filled="false"></circle>
+      <circle x="38" y="38" marked="true" color="-1920102913" diameter="224" filled="false"></circle>
+      <circle x="37" y="37" marked="true" color="-1920102913" diameter="226" filled="false"></circle>
+      <circle x="36" y="36" marked="true" color="-1920102913" diameter="228" filled="false"></circle>
+      <circle x="35" y="35" marked="true" color="-1920102913" diameter="230" filled="false"></circle>
+      <circle x="34" y="34" marked="true" color="-1920102913" diameter="232" filled="false"></circle>
+      <circle x="33" y="33" marked="true" color="-1920102913" diameter="234" filled="false"></circle>
+      <circle x="32" y="32" marked="true" color="-1920102913" diameter="236" filled="false"></circle>
+      <circle x="31" y="31" marked="true" color="-1920102913" diameter="238" filled="false"></circle>
+      <circle x="30" y="30" marked="true" color="-1920102913" diameter="240" filled="false"></circle>
+      <circle x="29" y="29" marked="true" color="-1920102913" diameter="242" filled="false"></circle>
+      <circle x="27" y="27" marked="true" color="-1920102913" diameter="246" filled="false"></circle>
+      <circle x="26" y="26" marked="true" color="-1920102913" diameter="248" filled="false"></circle>
+      <circle x="25" y="25" marked="true" color="-1920102913" diameter="250" filled="false"></circle>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands><![CDATA[ask patches [ set pcolor white ]
+reset-ticks
+setup while [ticks > 0] [ setup ]
+repeat 25 [ go ]]]></previewCommands>
+</model>

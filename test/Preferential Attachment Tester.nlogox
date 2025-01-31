@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0" snapToGrid="false">
+  <code><![CDATA[;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Setup Procedures ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;
+
+to setup
+  clear-all
+  set-default-shape turtles "circle"
+  ;; make the initial network of two turtles and an edge
+  make-node nobody        ;; first node, unattached
+  make-node turtle 0      ;; second node, attached to first node
+  reset-ticks
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;;; Main Procedures ;;;
+;;;;;;;;;;;;;;;;;;;;;;;
+
+to go
+  ;; new edge is green, old edges are gray
+  ask links [ set color gray ]
+  make-node find-partner         ;; find partner & use it as attachment
+                                 ;; point for new node
+  tick
+  if layout? [ layout ]
+end
+
+;; used for creating a new node
+to make-node [old-node]
+  crt 1
+  [
+    set color red
+    if old-node != nobody
+      [ create-link-with old-node [ set color green ]
+        ;; position the new node near its partner
+        move-to old-node
+        rt random 360
+        fd 8
+      ]
+  ]
+end
+
+;; This code is borrowed from Lottery Example (in the Code Examples
+;; section of the Models Library).
+;; The idea behind the code is a bit tricky to understand.
+;; Basically we take the sum of the degrees (number of connections)
+;; of the turtles, and that's how many "tickets" we have in our lottery.
+;; Then we pick a random "ticket" (a random number).  Then we step
+;; through the turtles to figure out which node holds the winning ticket.
+to-report find-partner
+  let total random-float sum [count link-neighbors] of turtles
+  let partner nobody
+  ask turtles
+  [
+    let nc count link-neighbors
+    ;; if there's no winner yet...
+    if partner = nobody
+    [
+      ifelse nc > total
+        [ set partner self ]
+        [ set total total - nc ]
+    ]
+  ]
+  report partner
+end
+
+;;;;;;;;;;;;;;
+;;; Layout ;;;
+;;;;;;;;;;;;;;
+
+;; resize-nodes, change back and forth from size based on degree to a size of 1
+to resize-nodes
+  ifelse not any? turtles with [size > 1]
+  [
+    ;; a node is a circle with diameter determined by
+    ;; the SIZE variable; using SQRT makes the circle's
+    ;; area proportional to its degree
+    ask turtles [ set size sqrt count link-neighbors ]
+  ]
+  [
+    ask turtles [ set size 1 ]
+  ]
+end
+
+to layout
+  ;; the number 3 here is arbitrary; more repetitions slows down the
+  ;; model, but too few gives poor layouts
+  repeat 3 [
+    layout-spring turtles links 0.5 1.0 0.4
+  ]
+end
+
+to-report bad-intersections [t1 t2]
+  let i intersection t1 t2
+  if length i = 0
+    [ report  false ]
+  set i map [ [n] -> precision n 1 ] i
+  if i = [list precision xcor 1 precision ycor 1] of end1
+    [ report false ]
+  if i = [list precision xcor 1 precision ycor 1] of end2
+    [ report false ]
+  show (word t1 " " t2 " " i)
+  report true
+end
+
+;; reports a two-item list of x and y coordinates, or an empty
+;; list if no intersection is found
+to-report intersection [t1 t2]
+  let is-t1-vertical? ([link-heading] of t1 = 0 or [link-heading] of t1 = 180)
+  let is-t2-vertical? ([link-heading] of t2 = 0 or [link-heading] of t2 = 180)
+
+  ;; is t1 vertical? if so, swap the two turtles
+  if is-t1-vertical?
+  [
+    ifelse is-t2-vertical?
+      [ report [] ]
+      [ report intersection t2 t1 ]
+  ]
+
+  let m1 [tan (90 - link-heading)] of t1
+
+  ;; is t2 vertical? if so, handle specially
+  if is-t2-vertical? [
+    ;; represent t1 line in slope-intercept form (y=mx+c)
+    let c1 [link-ycor - link-xcor * m1] of t1
+    ;; t2 is vertical so we know x already
+    let x [link-xcor] of t2
+    ;; solve for y
+    let y m1 * x + c1
+    ;; check if intersection point lies on both segments
+    if not [x-within? x] of t1 [ report [] ]
+    if not [y-within? y] of t2 [ report [] ]
+    report list x y
+  ]
+
+  let m2 [tan (90 - link-heading)] of t2
+
+  ;; treat parallel/collinear lines as non-intersecting
+  if m1 = m2 [ report [] ]
+
+  ;; now handle the normal case where neither turtle is vertical;
+  ;; start by representing lines in slope-intercept form (y=mx+c)
+  let c1 [link-ycor - link-xcor * m1] of t1
+  let c2 [link-ycor - link-xcor * m2] of t2
+  ;; now solve for x
+  let x (c2 - c1) / (m1 - m2)
+  ;; check if intersection point lies on both segments
+  if not [x-within? x] of t1 [ report [] ]
+  if not [x-within? x] of t2 [ report [] ]
+  report list x (m1 * x + c1)
+end
+
+to-report x-within? [x]  ;; turtle procedure
+  report abs (link-xcor - x) <= abs (link-length / 2 * sin link-heading)
+end
+
+to-report y-within? [y]  ;; turtle procedure
+  report abs (link-ycor - y) <= abs (link-length / 2 * cos link-heading)
+end
+
+to-report link-xcor
+  report ([xcor] of end1 + [xcor] of end2) / 2
+end
+
+to-report link-ycor
+  report ([ycor] of end1 + [ycor] of end2) / 2
+end]]></code>
+  <widgets>
+    <view x="345" maxPycor="45" updateMode="1" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-45" height="802" showTickCounter="true" patchSize="8.7143" fontSize="10" wrappingAllowedY="false" width="801" tickCounterLabel="ticks" maxPxcor="45" minPxcor="-45"></view>
+    <button x="6" y="25" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="66">setup</button>
+    <button x="93" y="64" height="33" disableUntilTicks="false" forever="true" kind="Observer" width="77">go</button>
+    <button x="6" y="64" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="85" display="go-once">go</button>
+    <switch x="187" y="64" height="33" on="false" variable="layout?" width="146" display="layout?"></switch>
+    <monitor x="237" precision="3" y="100" height="45" fontSize="11" width="79" display="# of nodes">count turtles</monitor>
+    <button x="7" y="102" height="33" disableUntilTicks="false" forever="true" kind="Observer" width="102" display="redo layout">layout</button>
+    <button x="115" y="102" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="110" display="resize nodes">resize-nodes</button>
+  </widgets>
+  <info></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>
