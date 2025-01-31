@@ -104,8 +104,7 @@ object ModelResaver {
     }
 
     def visitFile(path: Path, attrs: BasicFileAttributes): FileVisitResult = {
-      val fileName = path.getFileName.toString
-      if (fileName.endsWith(".nlogo") || fileName.endsWith(".nlogo3d"))
+      if (path.getFileName.toString.endsWith(".nlogox"))
         resave(path)
       FileVisitResult.CONTINUE
     }
