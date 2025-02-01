@@ -1095,4 +1095,33 @@ Commercial licenses are also available. To inquire about commercial licenses, pl
   <previewCommands>setup
 setup-aggregate
 repeat 75 [ go step-aggregate ]</previewCommands>
+  <systemDynamics dt="0.001">
+    <stock name="sheepStock" allowNegative="false" x="270" y="100">initial-number-sheep ;; taken from agent model's slider</stock>
+    <stock name="wolfStock" allowNegative="true" x="352" y="246">initial-number-wolves ;; taken from agent model's slider</stock>
+    <reservoir x="15" y="105"></reservoir>
+    <rate name="sheep-births" bivalent="false" startFigure="2" endFigure="0">sheepStock * sheep-birth-rate</rate>
+    <rate name="sheep-deaths" bivalent="false" startFigure="0" endFigure="5">sheepStock * ( predation-rate * wolfStock )</rate>
+    <reservoir x="543" y="105"></reservoir>
+    <reservoir x="47" y="251"></reservoir>
+    <rate name="wolves-births" bivalent="false" startFigure="6" endFigure="1">wolfStock * ( predation-rate * predator-efficiency ) * sheepStock</rate>
+    <rate name="wolves-deaths" bivalent="false" startFigure="1" endFigure="9">wolfStock * predator-death-rate</rate>
+    <reservoir x="553" y="249"></reservoir>
+    <converter name="predation-rate" x="287" y="176">predationRate</converter>
+    <converter name="predator-efficiency" x="83" y="175">predatorEfficiency</converter>
+    <converter name="predator-death-rate" x="427" y="178">wolves-death-rate</converter>
+    <converter name="sheep-birth-rate" x="198" y="21">;; convert from agent's percentage
+;; representation to decimal
+sheep-reproduce / 100</converter>
+    <binding startFigure="13" endFigure="3"></binding>
+    <binding startFigure="0" endFigure="3"></binding>
+    <binding startFigure="11" endFigure="7"></binding>
+    <binding startFigure="10" endFigure="4"></binding>
+    <binding startFigure="0" endFigure="4"></binding>
+    <binding startFigure="1" endFigure="4"></binding>
+    <binding startFigure="12" endFigure="8"></binding>
+    <binding startFigure="1" endFigure="7"></binding>
+    <binding startFigure="10" endFigure="7"></binding>
+    <binding startFigure="1" endFigure="8"></binding>
+    <binding startFigure="0" endFigure="7"></binding>
+  </systemDynamics>
 </model>

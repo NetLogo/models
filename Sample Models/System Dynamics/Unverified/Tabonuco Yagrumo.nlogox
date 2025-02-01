@@ -915,4 +915,64 @@ Commercial licenses are also available. To inquire about commercial licenses, pl
       </constants>
     </experiment>
   </experiments>
+  <systemDynamics dt="1.0">
+    <stock name="gaps" allowNegative="false" x="435" y="33">;; since we don't know what order
+;; stocks are initialized in, we have 
+;; to explicitly maintain a unity 
+;; between gaps/tabonuco/yagrumo
+0.6</stock>
+    <stock name="tabonuco" allowNegative="false" x="46" y="345">;; if you change this, be sure to update
+;; gaps initial value
+0.2</stock>
+    <stock name="yagrumo" allowNegative="false" x="826" y="347">;; if you change this, be sure to update
+;; gaps initial value
+0.2</stock>
+    <rate name="tabonuco-outgrows-yagrumo" bivalent="false" startFigure="2" endFigure="1">tabonuco-growth-rate *  yagrumo   * tabonuco</rate>
+    <converter name="hurricane-interval" x="489" y="268">user-hurricane-interval</converter>
+    <converter name="yagrumo-growth-rate" x="748" y="148">0.20</converter>
+    <converter name="disturbance" x="435" y="209">;; We always have at least 0.001 disturbance,
+;; If hurricane interval is above 0, then
+;; we have a hurricane strike at a regular
+;; otherwise we have a single hurricane strike
+;; at time 0
+0.001 + ifelse-value hurricane-interval = 0
+  [ pulse hurricane-strength 0 0]
+  [ pulse hurricane-strength hurricane-interval hurricane-interval ]
+</converter>
+    <converter name="tabonuco-growth-rate" x="291" y="271">0.065</converter>
+    <binding startFigure="4" endFigure="6"></binding>
+    <binding startFigure="1" endFigure="3"></binding>
+    <binding startFigure="2" endFigure="3"></binding>
+    <binding startFigure="7" endFigure="3"></binding>
+    <converter name="amount-of-tabonuco" x="297" y="527">tabonuco * 226.3</converter>
+    <converter name="nitrogen" x="443" y="582">2.96 * ( amount-of-tabonuco + 2.1 * amount-of-yagrumo )</converter>
+    <converter name="amount-of-yagrumo" x="572" y="515">yagrumo * 226.3</converter>
+    <converter name="carbon" x="446" y="423">amount-of-tabonuco + amount-of-yagrumo</converter>
+    <converter name="productivity" x="571" y="422">;; this is the equivalent of derivn(carbon, 1)
+;; in Stella, however we have to explicitly
+;; track the previous value, see the GO procedure
+ifelse-value previous-carbon = 0
+ [ 0 ]
+ [ max (list 0 ( ( carbon - previous-carbon) / dt ) )] </converter>
+    <binding startFigure="1" endFigure="12"></binding>
+    <binding startFigure="2" endFigure="14"></binding>
+    <binding startFigure="12" endFigure="15"></binding>
+    <binding startFigure="12" endFigure="13"></binding>
+    <binding startFigure="14" endFigure="13"></binding>
+    <binding startFigure="14" endFigure="15"></binding>
+    <binding startFigure="15" endFigure="16"></binding>
+    <rate name="tabonuco-grows" bivalent="false" startFigure="0" endFigure="1">tabonuco-growth-rate * tabonuco *  gaps - ( disturbance * tabonuco )</rate>
+    <rate name="yagrumo-grows" bivalent="false" startFigure="0" endFigure="2">yagrumo-growth-rate * yagrumo * MAX (LIST 0 ( gaps - tabonuco-grows ) ) - ( disturbance * yagrumo )</rate>
+    <binding startFigure="7" endFigure="24"></binding>
+    <binding startFigure="5" endFigure="25"></binding>
+    <binding startFigure="0" endFigure="24"></binding>
+    <binding startFigure="0" endFigure="25"></binding>
+    <binding startFigure="6" endFigure="24"></binding>
+    <binding startFigure="6" endFigure="25"></binding>
+    <binding startFigure="1" endFigure="24"></binding>
+    <binding startFigure="2" endFigure="25"></binding>
+    <binding startFigure="24" endFigure="25"></binding>
+    <converter name="hurricane-strength" x="422" y="125">user-hurricane-strength</converter>
+    <binding startFigure="35" endFigure="6"></binding>
+  </systemDynamics>
 </model>

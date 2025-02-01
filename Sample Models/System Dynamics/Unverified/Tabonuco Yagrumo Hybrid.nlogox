@@ -1012,4 +1012,70 @@ Commercial licenses are also available. To inquire about commercial licenses, pl
     </shape>
   </linkShapes>
   <previewCommands>setup repeat 75 [ go ]</previewCommands>
+  <systemDynamics dt="1.0">
+    <stock name="tabonuco-stock" allowNegative="false" x="198" y="268">;; if you change this, be sure to update
+;; gaps initial value
+count patches * 0.2</stock>
+    <stock name="yagrumo-stock" allowNegative="false" x="545" y="272">;; if you change this, be sure to update
+;; gaps initial value
+count patches * 0.2</stock>
+    <converter name="hurricane-interval" x="441" y="503">user-hurricane-interval</converter>
+    <converter name="disturbance" x="357" y="418">;; We always have at least 0.001 disturbance,
+;; If hurricane frequency is above 0, then
+;; we have a hurricane strike at a regular
+;; otherwise we have a single hurricane strike
+;; at time 0
+0.001 + ifelse-value hurricane-interval = 0
+  [ pulse hurricane-strength 0 0]
+  [ pulse hurricane-strength hurricane-interval hurricane-interval ]
+</converter>
+    <binding startFigure="2" endFigure="3"></binding>
+    <converter name="amount-of-tabonuco" x="289" y="112">tabonuco-stock</converter>
+    <converter name="nitrogen" x="347" y="185">2.96 * ( amount-of-tabonuco + 2.1 * amount-of-yagrumo )</converter>
+    <converter name="amount-of-yagrumo" x="459" y="112">yagrumo-stock</converter>
+    <converter name="carbon" x="351" y="35">amount-of-tabonuco + amount-of-yagrumo</converter>
+    <converter name="productivity" x="472" y="28">;; this is the equivalent of derivn(carbon, 1)
+;; in Stella, however we have to explicitly
+;; track the previous value, see the GO procedure
+ifelse-value previous-carbon = 0
+ [ 0 ]
+ [ max (list 0 ( ( carbon - previous-carbon) / dt ) )] </converter>
+    <binding startFigure="0" endFigure="5"></binding>
+    <binding startFigure="1" endFigure="7"></binding>
+    <binding startFigure="5" endFigure="8"></binding>
+    <binding startFigure="5" endFigure="6"></binding>
+    <binding startFigure="7" endFigure="6"></binding>
+    <binding startFigure="7" endFigure="8"></binding>
+    <binding startFigure="8" endFigure="9"></binding>
+    <converter name="hurricane-strength" x="259" y="516">user-hurricane-strength</converter>
+    <binding startFigure="17" endFigure="3"></binding>
+    <reservoir x="39" y="147"></reservoir>
+    <rate name="tabonuco-grows" bivalent="false" startFigure="19" endFigure="0">;; global updated by agent portion of model
+tabonuco-growth</rate>
+    <rate name="tabonuco-dies" bivalent="false" startFigure="0" endFigure="22">;; global updated by agent portion of model
+tabonuco-death</rate>
+    <reservoir x="176" y="504"></reservoir>
+    <rate name="yagrumo-dies" bivalent="false" startFigure="1" endFigure="24">;; global updated by agent portion of model
+yagrumo-death</rate>
+    <reservoir x="644" y="500"></reservoir>
+    <binding startFigure="3" endFigure="21"></binding>
+    <binding startFigure="3" endFigure="23"></binding>
+    <reservoir x="792" y="173"></reservoir>
+    <rate name="yagrumo-grows" bivalent="false" startFigure="27" endFigure="1">;; global updated by agent portion of model
+yagrumo-growth</rate>
+    <binding startFigure="0" endFigure="20"></binding>
+    <binding startFigure="1" endFigure="28"></binding>
+    <rate name="tabonuco-outgrows-yagrumo" bivalent="false" startFigure="1" endFigure="0">;; global variable updated by agent portion
+;; of model, see agent-tabonuco-conversion
+;; for details
+converted-to-tabonuco</rate>
+    <binding startFigure="1" endFigure="31"></binding>
+    <binding startFigure="0" endFigure="31"></binding>
+    <converter name="tabonuco-outgrowth-rate" x="306" y="333">0.065</converter>
+    <binding startFigure="34" endFigure="31"></binding>
+    <converter name="tabonuco-growth-rate" x="104" y="88">0.065</converter>
+    <binding startFigure="36" endFigure="20"></binding>
+    <converter name="yagrumo-growth-rate" x="675" y="112">0.20</converter>
+    <binding startFigure="38" endFigure="28"></binding>
+  </systemDynamics>
 </model>
