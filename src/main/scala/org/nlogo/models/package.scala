@@ -99,10 +99,6 @@ package object models {
     def previewCommands: PreviewCommands = model
       .optionalSectionValue[PreviewCommands]("org.nlogo.modelsection.previewcommands")
       .get // let it crash if preview commands are not loaded
-    def sections = {
-      val sectionSeparator = "@#$#@#$#@"
-      (content + sectionSeparator + "\n").split(quote(sectionSeparator) + "\\n")
-    }
     def widgetSources: Seq[String] =
       model.widgets.collect {
         case Button(Some(source), _, _, _, _, _, _, _, _, _)   => Seq(source)
