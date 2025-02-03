@@ -49,7 +49,7 @@ package object models {
       workspace.silent = true
       val loader = fileformat.standardLoader(workspace.compiler.utilities)
       val modelDir = new File(".")
-      val extensions = Array("nlogo", "nlogo3d")
+      val extensions = Array("nlogox", "nlogox3d")
       listFiles(modelDir, extensions, true).asScala
         .filterNot { f => extensions.map(".tmp." + _).exists(f.getName.endsWith) }
         .map { f => (f, loader.readModel(f.toURI), Try(readFileToString(f))) }
@@ -81,7 +81,7 @@ package object models {
     def compressedName = name.replaceAll(" ", "")
     def isIABM = file.getPath.contains("IABM")
     def baseName = if (name.endsWith(" 3D")) name.replaceFirst(" 3D$", "") else name
-    def is3D = getExtension(file.getName) == "nlogo3d"
+    def is3D = getExtension(file.getName) == "nlogox3d"
     def quotedPath = "\"" + file.getCanonicalPath + "\""
     def previewFile = new File(removeExtension(file.getPath) + ".png")
     def infoTabParts = InfoTabParts.fromContent(model.info)
