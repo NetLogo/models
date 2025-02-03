@@ -19,7 +19,7 @@ def hasActualCode(line:String):Boolean =
 
 val hash = collection.mutable.HashMap[String,Int]()
 for {
-   path <- Process(Seq("find", "./", "-name", "*.nlogo", "-o", "-name", "*.nlogo3d", "-o", "-name", "*.nlogox")).lineStream
+   path <- Process(Seq("find", "./", "-name", "*.nlogo", "-o", "-name", "*.nlogo3d", "-o", "-name", "*.nlogox", "-o", "-name", "*.nlogox3d")).lineStream
     name = path.split("/").last.stripSuffix(".nlogo")
     if !path.containsSlice("/System Dynamics/")
     // The below exception was likely due to the fact that the GasLab models are
