@@ -50,7 +50,7 @@ object InfoTabParts {
     val content = sections
       .map { case (title, text) => s"## $title\n\n$text" }
       .mkString("", "\n\n", "\n\n") +
-      legalSnippet.getOrElse("") + "\n"
+      legalSnippet.getOrElse("")
     InfoTabParts(content, sections, legalSnippet)
   }
 }

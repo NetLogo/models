@@ -87,7 +87,7 @@ case class LegalInfo(model: Model) {
     .dropWhile(_.startsWith(";"))
     .dropWhile(_.isEmpty)
     .reverse
-    .mkString("\n") + "\n\n\n" + codeCopyright + "\n"
+    .mkString("\n") + "\n\n\n" + codeCopyright
 
   def modelCitation: String = {
     val builder = new StringBuilder
