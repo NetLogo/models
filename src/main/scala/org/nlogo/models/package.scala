@@ -3,26 +3,22 @@ package org.nlogo
 import java.io.File
 import java.util.regex.Pattern.quote
 
+import org.apache.commons.io.FileUtils.{ listFiles, readFileToString }
+import org.apache.commons.io.FilenameUtils.{ getExtension, removeExtension }
+
+import org.nlogo.api.{ LabProtocol, PreviewCommands, XMLReader }
+import org.nlogo.core.{ Button, Model, Monitor, Slider }
+import org.nlogo.fileformat.FileFormat
+import org.nlogo.headless.{ HeadlessWorkspace, Main }
+import org.nlogo.models.InfoTabParts
+
 import scala.Boolean
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 import scala.util.Try
 
-import org.apache.commons.io.FileUtils.listFiles
-import org.apache.commons.io.FileUtils.readFileToString
-import org.apache.commons.io.FilenameUtils.getExtension
-import org.apache.commons.io.FilenameUtils.removeExtension
-import org.nlogo.api.LabProtocol
-import org.nlogo.api.PreviewCommands
-import org.nlogo.core.Button
-import org.nlogo.core.Model
-import org.nlogo.core.Monitor
-import org.nlogo.core.Slider
-import org.nlogo.headless.HeadlessWorkspace
-import org.nlogo.models.InfoTabParts
-
 package object models {
 
-  org.nlogo.headless.Main.setHeadlessProperty()
+  Main.setHeadlessProperty()
 
   lazy val onLocal: Boolean = Option(System.getProperty("org.nlogo.onLocal")).getOrElse("true").toBoolean
 
@@ -47,7 +43,7 @@ package object models {
     val workspace = HeadlessWorkspace.newInstance
     try {
       workspace.silent = true
-      val loader = fileformat.standardLoader(workspace.compiler.utilities)
+      val loader = FileFormat.standardAnyLoader(true, workspace.compiler.utilities)
       val modelDir = new File(".")
       val extensions = Array("nlogox", "nlogox3d")
       listFiles(modelDir, extensions, true).asScala

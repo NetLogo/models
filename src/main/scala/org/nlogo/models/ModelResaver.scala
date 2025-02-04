@@ -7,12 +7,14 @@ import scala.util.{ Failure, Success }
 
 import org.nlogo.core.{ Femto, LiteralParser, Model }
 import org.nlogo.api.{ NetLogoLegacyDialect, NetLogoThreeDDialect, Version }
-import org.nlogo.workspace.{ OpenModel, OpenModelFromURI, SaveModel }
-import org.nlogo.workspace.OpenModel.{ Controller => OpenModelController }
-import org.nlogo.workspace.SaveModel.{ Controller => SaveModelController }
-import org.nlogo.fileformat, fileformat.{ FailedConversionResult, NLogoFormat }
+import org.nlogo.workspace.{ OpenModel, OpenModelFromURI, SaveModel },
+  OpenModel.{ Controller => OpenModelController },
+  SaveModel.{ Controller => SaveModelController }
+import org.nlogo.fileformat.{ FailedConversionResult, FileFormat, NLogoFormat }
+import org.nlogo.workspace.ModelsLibrary.modelsRoot
 import org.nlogo.headless.HeadlessWorkspace
-import org.nlogo.sdm.{ NLogoSDMFormat, SDMAutoConvertable }
+import org.nlogo.sdm.SDMAutoConvertable
+import org.nlogo.sdm.gui.NLogoGuiSDMFormat
 
 /**
  *
@@ -35,7 +37,7 @@ import org.nlogo.sdm.{ NLogoSDMFormat, SDMAutoConvertable }
  *
  */
 
-/**
+ /**
  *
  * Addendum: All models in the library are now supported. (Isaac B 2/2/25)
  *
@@ -51,12 +53,19 @@ object ModelResaver3d {
 object ModelResaver {
   def main(args: Array[String]): Unit = {
     System.setProperty("org.nlogo.preferHeadless", "true")
+
+    if (args.length > 0) resaveModels(args.toSeq)
+    else                 resaveAllModels()
+  }
+
+  def resaveModels(paths: Seq[String]): Unit = {
+    val modelPaths = paths.map((s: String) => Paths.get(s))
     System.setProperty("java.awt.headless", "true")
-    resaveAllModels()
+    modelPaths.foreach(p => resaveModel(p))
   }
 
   def resaveAllModels(): Unit = {
-    traverseModels(Paths.get("."), resaveModel _)
+    traverseModels(Paths.get(modelsRoot), resaveModel _)
   }
 
   lazy val literalParser =
@@ -66,11 +75,11 @@ object ModelResaver {
     val ws = HeadlessWorkspace.newInstance
     try {
       val converter =
-        fileformat.converter(ws.getExtensionManager, ws.getLibraryManager, ws.getCompilationEnvironment,
-          literalParser, fileformat.defaultAutoConvertables :+ SDMAutoConvertable) _
+        FileFormat.converter(ws.getExtensionManager, ws.getLibraryManager, ws.getCompilationEnvironment,
+          literalParser, FileFormat.defaultAutoConvertables :+ SDMAutoConvertable) _
       val modelLoader =
-        fileformat.standardLoader(ws.compiler.utilities)
-          .addSerializer[Array[String], NLogoFormat](new NLogoSDMFormat())
+        FileFormat.standardAnyLoader(false, ws.compiler.utilities)
+          .addSerializer[Array[String], NLogoFormat](new NLogoGuiSDMFormat())
       val controller = new ResaveController(modelPath.toUri)
       val dialect =
         if (modelPath.toString.toUpperCase.endsWith("3D")) NetLogoThreeDDialect

@@ -8,30 +8,6 @@ import org.nlogo.core.Output
 import org.nlogo.core.TextBox
 
 class BadInterfacesTests extends TestModels {
-
-  val allowedLengths = Map(
-    "BUTTON" -> (11, 16),
-    "SLIDER" -> (12, 14),
-    "SWITCH" -> (10, 10),
-    "MONITOR" -> (9, 10),
-    "GRAPHICS-WINDOW" -> (10, 28),
-    "TEXTBOX" -> (6, 9),
-    "CHOICE" -> (9, 9),
-    "CHOOSER" -> (9, 9),
-    "OUTPUT" -> (5, 6),
-    "INPUTBOX" -> (8, 10),
-    "PLOT" -> (14, 999999)) // any number of pens
-
-  testModels("Widget sections should have proper lengths") { model =>
-    for {
-      widgetDefinition <- model.sections(1).split("\n\n")
-      kind = widgetDefinition.split("\n").head
-      (min, max) <- allowedLengths.get(kind)
-      len = widgetDefinition.split("\n").size
-      if len < min || len > max
-    } yield s"$kind (min: $min, max: $max) has length $len"
-  }
-
   testModels("Output widgets should have reasonably sized font") { model =>
     for {
       output <- model.widgets.collect { case w: Output => w }
@@ -45,7 +21,7 @@ class BadInterfacesTests extends TestModels {
     for {
       note <- model.widgets.collect { case w: TextBox=> w }
       text <- note.display.toSeq
-      noteWidth = note.right - note.left
+      noteWidth = note.width
       font = new Font(Fonts.platformFont, Font.PLAIN, note.fontSize)
       fontMetrics = graphics.getFontMetrics(font)
       line <- text.linesIterator

@@ -6,7 +6,7 @@ class ModelFileTests extends TestModels {
     testLines(_.content, _ contains "\t", _ => "")
   }
 
-  testModels("Models should not countain trailing whitespace") {
+  testModels("Models should not contain trailing whitespace") {
     testLines(_.content, line => line != line.replaceAll("\\s+$", ""), _ => "")
   }
 

@@ -1,11 +1,14 @@
 package org.nlogo.models
 
+import java.io.StringWriter
 import java.util.regex.Pattern.quote
 
-import scala.collection.immutable.ListMap
-
 import org.apache.commons.io.FileUtils
-import org.nlogo.core.Model
+
+import org.nlogo.core.{ Femto, LiteralParser, Model }
+import org.nlogo.fileformat.FileFormat
+
+import scala.collection.immutable.ListMap
 
 object Notarizer {
 
@@ -22,20 +25,21 @@ object Notarizer {
         InfoTabParts.CopyrightAndLicense.name -> legal.copyrightAndLicence
       )
     ).filter(_._2.nonEmpty)
-    val newInfo = InfoTabParts.fromSections(newSections, infoTabParts.legalSnippet)
+    val newInfo = InfoTabParts.fromSections(newSections, infoTabParts.legalSnippet).content
     val newCode = legal.code
-    val sectionSeparator = "@#$#@#$#@"
-    val originalContent = FileUtils.readFileToString(model.file, "UTF-8")
-    val sections = (originalContent + sectionSeparator + "\n").split(quote(sectionSeparator) + "\\n")
-    val Array(
-      code, interface, infoString, turtleShapes, version,
-      previewCommands, systemDynamics, behaviorSpace,
-      hubNetClient, linkShapes, modelSettings) = sections
-    Seq(
-      newCode, interface, newInfo.content, turtleShapes, version,
-      previewCommands, systemDynamics, behaviorSpace,
-      hubNetClient, linkShapes, modelSettings)
-      .mkString("", sectionSeparator + "\n", sectionSeparator + "\n")
+
+    val writer = new StringWriter
+
+    val loader =
+      FileFormat.standardXMLLoader(false, Femto.scalaSingleton[LiteralParser]("org.nlogo.parse.CompilerUtilities"))
+
+    loader.saveToWriter(model.copy(info = newInfo, code = newCode), writer)
+
+    val str = writer.toString
+
+    writer.close()
+
+    str
   }
 
   def main(args: Array[String]): Unit =
