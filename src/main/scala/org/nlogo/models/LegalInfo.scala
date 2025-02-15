@@ -293,7 +293,7 @@ case class LegalInfo(model: Model) {
         builder.append("or send a letter to Creative Commons, 559 Nathan Abbott Way, ")
         builder.append("Stanford, California 94305, USA.\n")
         builder.append("\n")
-        builder.append("Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.\n")
+        builder.append("Commercial licenses are also available. To inquire about commercial licenses, please contact netlogo-commercial-admin@ccl.northwestern.edu.\n")
         builder.append("\n")
       } else { // default license is CC BY-NC-SA
         builder.append(copyrightString + "\n")
@@ -306,7 +306,7 @@ case class LegalInfo(model: Model) {
         builder.append("or send a letter to Creative Commons, 559 Nathan Abbott Way, ")
         builder.append("Stanford, California 94305, USA.\n")
         builder.append("\n")
-        builder.append("Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.\n")
+        builder.append("Commercial licenses are also available. To inquire about commercial licenses, please contact netlogo-commercial-admin@ccl.northwestern.edu.\n")
         builder.append("\n")
       }
       if (keywords.contains("3D"))
