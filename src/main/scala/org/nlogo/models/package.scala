@@ -98,8 +98,8 @@ package object models {
     def widgetSources: Seq[String] =
       model.widgets.collect {
         case Button(Some(source), _, _, _, _, _, _, _, _, _)   => Seq(source)
-        case Slider(_, _, _, _, _, _, min, max, _, step, _, _) => Seq(min, max, step)
-        case Monitor(Some(source), _, _, _, _, _, _, _)        => Seq(source)
+        case Slider(_, _, _, _, _, _, _, min, max, _, step, _, _) => Seq(min, max, step)
+        case Monitor(Some(source), _, _, _, _, _, _, _, _)        => Seq(source)
       }.flatten
     def plotSources: Seq[String] =
       model.plots.flatMap { plot =>

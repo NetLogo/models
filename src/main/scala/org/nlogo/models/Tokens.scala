@@ -19,11 +19,11 @@ class Tokens(model: Model) {
     model.widgets.collect {
       case Button(Some(source), _, _, _, _, _, _, _, _, _) =>
         tokenize(source)
-      case Switch(Some(variable), _, _, _, _, _, _) =>
+      case Switch(Some(variable), _, _, _, _, _, _, _) =>
         tokenize(variable)
-      case Slider(Some(variable), _, _, _, _, _, min, max, _, step, _, _) =>
+      case Slider(Some(variable), _, _, _, _, _, _, min, max, _, step, _, _) =>
         Seq(variable, min, max, step).flatMap(tokenize)
-      case Monitor(Some(source), _, _, _, _, _, _, _) =>
+      case Monitor(Some(source), _, _, _, _, _, _, _, _) =>
         tokenize(source)
     }.flatten
 
