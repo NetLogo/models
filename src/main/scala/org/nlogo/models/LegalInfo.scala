@@ -51,7 +51,7 @@ case class LegalInfo(model: Model) {
   for (k <- keywords)
     require(validKeywords.contains(k), "invalid keyword: " + k)
 
-  val isCodeExample = model.file.getPath.contains("Code Examples\\")
+  val isCodeExample = model.file.getPath.contains("Code Examples/") || model.file.getPath.contains("Code Examples\\")
 
   if (keywords.contains("specialCE"))
     require(isCodeExample, "specialCE keyword is only for code examples")
