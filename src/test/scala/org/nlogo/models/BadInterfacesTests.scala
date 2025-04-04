@@ -2,6 +2,7 @@ package org.nlogo.models
 
 import java.awt.Font
 import java.awt.image.BufferedImage
+import javax.swing.JLabel
 
 import org.nlogo.awt.Fonts
 import org.nlogo.core.Output
@@ -15,20 +16,17 @@ class BadInterfacesTests extends TestModels {
     } yield s"OUTPUT has font size ${output.fontSize}"
   }
 
-  testModels("Textboxes (i.e., notes) should be wide enough") { model =>
-    val graphics = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB).createGraphics
-    val bufferPct = 3 // how much of a safety buffer do we want to keep for wider fonts?
+  testModels("Textboxes (i.e., notes) should be tall enough to fit their content") { model =>
     for {
       note <- model.widgets.collect { case w: TextBox=> w }
       text <- note.display.toSeq
-      noteWidth = note.width
-      font = new Font(Fonts.platformFont, Font.PLAIN, note.fontSize)
-      fontMetrics = graphics.getFontMetrics(font)
-      line <- text.linesIterator
-      lineWidth = fontMetrics.stringWidth(line)
-      desiredWidth = (lineWidth + lineWidth * (bufferPct / 100.0)).ceil.toInt
-      if noteWidth < desiredWidth
-    } yield s"Line width is $lineWidth px but note width is $noteWidth px. " +
-      s"It should be $desiredWidth px to get a $bufferPct% buffer:\n    $line"
+      noteHeight = note.height
+      dummyLabel = new JLabel(s"<html>$text</html>") {
+        setFont(getFont.deriveFont(note.fontSize.toFloat))
+      }
+      desiredHeight = dummyLabel.getPreferredSize.height
+      if noteHeight < desiredHeight
+    } yield s"Content height is $desiredHeight px but note height is $noteHeight px. " +
+            s"It should be $desiredHeight px to properly fit the content:\n$text"
   }
 }
