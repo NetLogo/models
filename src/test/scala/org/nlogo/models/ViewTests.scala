@@ -54,8 +54,7 @@ class ViewTests extends TestModels {
     val minx = model.view.minPxcor
     val miny = model.view.minPycor
     val (worldWidth, worldHeight) = (maxx - minx + 1, maxy - miny + 1)
-    // take control strip and gray border into account
-    val (extraWidth, extraHeight) = (8, 9)
+    val (extraWidth, extraHeight) = (4, 4)
     var problems = Seq[String]()
     if (maxx < 0 || minx > 0 || maxy < 0 || miny > 0)
       problems +:= "bad world dimensions: " + (maxx, minx, maxy, miny)
