@@ -23,7 +23,7 @@ class Tokens(model: Model) {
         tokenize(variable)
       case Slider(Some(variable), _, _, _, _, _, _, min, max, _, step, _, _) =>
         Seq(variable, min, max, step).flatMap(tokenize)
-      case Monitor(Some(source), _, _, _, _, _, _, _, _) =>
+      case Monitor(Some(source), _, _, _, _, _, _, _, _, _) =>
         tokenize(source)
     }.flatten
 
