@@ -1,14 +1,22 @@
 package org.nlogo.models
 
-import scala.collection.GenIterable
-import scala.collection.GenSeq
-import scala.util.Try
-
 import org.nlogo.api.Version
 import org.nlogo.core.Model
-import org.scalatest.FunSuite
 
-trait TestModels extends FunSuite {
+import org.scalatest.{ Args, FunSuite, Status, SucceededStatus }
+
+import scala.collection.{ GenIterable, GenMap, GenSeq }
+import scala.util.Try
+
+abstract class TestModels extends FunSuite {
+
+  private var nameFilter: Option[String] = None
+
+  override def runTest(name: String, args: Args): Status = {
+    nameFilter = args.configMap.get("model").map(_.toString.toLowerCase)
+
+    super.runTest(name, args)
+  }
 
   def testModels(
     testName: String,
@@ -16,17 +24,17 @@ trait TestModels extends FunSuite {
     includeOtherDimension: Boolean = false,
     filter: Model => Boolean = _ => true)(testFun: Model => GenIterable[Any]): Unit = {
     val models =
-      (if (includeTestModels) allModels else libraryModels)
-        .filter(includeOtherDimension || _.is3D == Version.is3D)
-        .filter(filter)
+      (if (includeTestModels) allModelsNamed else libraryModelsNamed)
+        .filterKeys(includeOtherDimension || _.is3D == Version.is3D)
+        .filterKeys(filter)
     testModels(models, testName)(testFun)
   }
 
-  def testModels(models: GenIterable[Model], testName: String)(testFun: Model => GenIterable[Any]): Unit =
+  def testModels(models: GenMap[Model, String], testName: String)(testFun: Model => GenIterable[Any]): Unit =
     test(testName) {
       val allFailures: GenSeq[String] =
         (for {
-          model <- models
+          model <- models.filterKeys(model => nameFilter.map(models(model).toLowerCase.contains).getOrElse(true)).keys
           failures <- Try(testFun(model))
             .recover { case e => Seq(e.toString + "\n" + e.getStackTrace.mkString("\n")) }
             .toOption

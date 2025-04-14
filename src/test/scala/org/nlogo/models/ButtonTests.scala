@@ -14,7 +14,7 @@ import org.nlogo.core.Model
 
 class ButtonTests extends TestModels {
 
-  val models = libraryModels.filter { model =>
+  val models = libraryModelsNamed.filterKeys { model =>
     (model.is3D == Version.is3D) &&
       (model.isCompilable) &&
       (!Set(
@@ -53,11 +53,11 @@ class ButtonTests extends TestModels {
   }
 
   val buttons: ParMap[Model, Iterable[Button]] =
-    models.map { model =>
+    models.map { case (model, _) =>
       model -> model.widgets.collect { case b: Button => b }
     }(collection.breakOut)
 
-  testModels(buttons.keys, "Buttons should be disabled until ticks start if they trigger a runtime error") { model =>
+  testModels(models, "Buttons should be disabled until ticks start if they trigger a runtime error") { model =>
     for {
       button <- buttons(model)
       source <- button.source
@@ -66,7 +66,7 @@ class ButtonTests extends TestModels {
     } yield "\"" + button.display.getOrElse(source) + "\" button: " + exception.getMessage
   }
 
-  testModels(buttons.keys,
+  testModels(models,
     "If any button is disabled until ticks start, ensure at least one enabled button that resets ticks") {
       model =>
         for {

@@ -68,6 +68,9 @@ package object models {
   val allModels: Iterable[Model] = modelFiles.keys.toSeq
   val libraryModels: Iterable[Model] = allModels.filterNot(_.isTestModel)
 
+  val allModelsNamed: Map[Model, String] = modelFiles.mapValues(_.getName)
+  val libraryModelsNamed: Map[Model, String] = modelFiles.mapValues(_.getName)
+
   implicit class EnrichedModel(val model: Model) {
     def file = modelFiles(model)
     def content = modelContent(model)
