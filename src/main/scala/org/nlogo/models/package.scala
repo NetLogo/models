@@ -47,8 +47,7 @@ package object models {
       val modelDir = new File(".")
       val extensions = Array("nlogox", "nlogox3d")
       listFiles(modelDir, extensions, true).asScala
-        .filterNot { f => extensions.map(".tmp." + _).exists(f.getName.endsWith) }
-        .filterNot { f => f.getParentFile.getName.endsWith("benchmarks") }
+        .filterNot { f => extensions.map(".tmp." + _).exists(f.getName.endsWith) || f.toString.contains("test") }
         .map { f => (f, loader.readModel(f.toURI), Try(readFileToString(f))) }
     } finally workspace.dispose()
   }
