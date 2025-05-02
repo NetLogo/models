@@ -1229,10 +1229,10 @@ end
 ; Copyright 2010 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="175" maxPycor="30" updateMode="1" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-30" height="431" showTickCounter="true" patchSize="7.0" fontSize="10" wrappingAllowedY="false" width="550" tickCounterLabel="ticks" maxPxcor="50" minPxcor="-27"></view>
-    <button x="5" y="120" height="50" disableUntilTicks="true" forever="true" kind="Observer" width="165" display="go/stop/add elements">go</button>
-    <button x="5" y="10" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="165">setup</button>
-    <chooser x="5" y="174" height="45" variable="mouse-interaction" current="0" width="165" sizeVersion="0" display="mouse-interaction">
+    <view x="175" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-30" height="431" showTickCounter="true" patchSize="7.0" fontSize="10" wrappingAllowedY="false" width="550" tickCounterLabel="ticks" maxPycor="30" updateMode="1" maxPxcor="50" minPxcor="-27"></view>
+    <button x="5" y="120" height="50" disableUntilTicks="true" forever="true" kind="Observer" display="go/stop/add elements" width="165" sizeVersion="0">go</button>
+    <button x="5" y="10" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="165" sizeVersion="0">setup</button>
+    <chooser x="5" y="174" height="45" variable="mouse-interaction" current="0" display="mouse-interaction" width="165" sizeVersion="0">
       <choice type="string" value="none - let particles move"></choice>
       <choice type="string" value="draw basic wall"></choice>
       <choice type="string" value="draw red removable wall"></choice>
@@ -1248,58 +1248,58 @@ end
       <choice type="string" value="add orange particles"></choice>
       <choice type="string" value="choose heat/cool region"></choice>
     </chooser>
-    <button x="5" y="290" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="165" display="remove/replace blue wall">toggle-blue-wall</button>
-    <switch x="5" y="465" height="33" on="true" variable="show-wall-hits?" width="165" sizeVersion="0" display="show-wall-hits?"></switch>
-    <button x="5" y="250" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="165" display="remove/replace red wall">toggle-red-wall</button>
-    <chooser x="5" y="420" height="45" variable="visualize-particle-speed" current="2" width="165" sizeVersion="0" display="visualize-particle-speed">
+    <button x="5" y="290" height="33" disableUntilTicks="true" forever="false" kind="Observer" display="remove/replace blue wall" width="165" sizeVersion="0">toggle-blue-wall</button>
+    <switch x="5" y="465" height="33" on="true" variable="show-wall-hits?" display="show-wall-hits?" width="165" sizeVersion="0"></switch>
+    <button x="5" y="250" height="33" disableUntilTicks="true" forever="false" kind="Observer" display="remove/replace red wall" width="165" sizeVersion="0">toggle-red-wall</button>
+    <chooser x="5" y="420" height="45" variable="visualize-particle-speed" current="2" display="visualize-particle-speed" width="165" sizeVersion="0">
       <choice type="string" value="no"></choice>
       <choice type="string" value="different shades"></choice>
       <choice type="string" value="arrows"></choice>
     </chooser>
-    <button x="5" y="570" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="165" display="watch &amp; trace a particle">if any? particles [
+    <button x="5" y="570" height="33" disableUntilTicks="true" forever="false" kind="Observer" display="watch &amp; trace a particle" width="165" sizeVersion="0">if any? particles [
   clear-drawing
   ask particles [penup]
   let this-particle one-of particles
   ask this-particle [pendown]
   watch this-particle
 ]</button>
-    <button x="5" y="535" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="165" display="ride a particle">if any? particles [
+    <button x="5" y="535" height="33" disableUntilTicks="true" forever="false" kind="Observer" display="ride a particle" width="165" sizeVersion="0">if any? particles [
   clear-drawing
   ride one-of particles
   ask particles [pen-up]
   ]</button>
-    <button x="5" y="500" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="165" display="reset perspective">clear-drawing
+    <button x="5" y="500" height="33" disableUntilTicks="true" forever="false" kind="Observer" display="reset perspective" width="165" sizeVersion="0">clear-drawing
 ask particles [penup]
 reset-perspective</button>
-    <monitor x="775" precision="17" y="580" height="53" fontSize="13" width="125" sizeVersion="0" display="Region Volume">(word " " region-one-volume " units^3")</monitor>
-    <monitor x="710" precision="17" y="625" height="53" fontSize="13" width="130" sizeVersion="0" display="Particles in Region">(word " " (particles-on-1)  " particles")</monitor>
-    <button x="710" y="500" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="255" display="Identify Region to be Heated/Cooled">if any? region1 [
+    <monitor x="775" precision="17" y="580" height="53" fontSize="13" display="Region Volume" width="125" sizeVersion="0">(word " " region-one-volume " units^3")</monitor>
+    <monitor x="710" precision="17" y="625" height="53" fontSize="13" display="Particles in Region" width="130" sizeVersion="0">(word " " (particles-on-1)  " particles")</monitor>
+    <button x="710" y="500" height="33" disableUntilTicks="true" forever="false" kind="Observer" display="Identify Region to be Heated/Cooled" width="255" sizeVersion="0">if any? region1 [
 ask region1 [ set pcolor brown - 3 ]
 display
 wait 1
 ask region1 [ set pcolor black ]
 ]</button>
-    <monitor x="840" precision="17" y="625" height="53" fontSize="13" width="130" sizeVersion="0" display="Region Density">(word precision (particles-on-1 / region-one-volume) 3  " p/u^3")</monitor>
-    <plot x="735" yMax="15.0" yAxis="Plunger Level" y="10" xMin="0.0" height="220" legend="true" xMax="10.0" autoplot="true" yMin="-15.0" width="480" sizeVersion="0" xAxis="tick reading" display="Plunger Level">
+    <monitor x="840" precision="17" y="625" height="53" fontSize="13" display="Region Density" width="130" sizeVersion="0">(word precision (particles-on-1 / region-one-volume) 3  " p/u^3")</monitor>
+    <plot x="735" autoPlotX="true" yMax="15.0" autoPlotY="true" yAxis="Plunger Level" y="10" xMin="0.0" height="220" legend="true" xMax="10.0" yMin="-15.0" xAxis="tick reading" display="Plunger Level" width="480" sizeVersion="0">
       <setup></setup>
       <update>;set-plot-x-range (round (plunger-plot-start - 1)) (round (ticks + 1))</update>
-      <pen color="-14454117" legend="true" interval="1.0" mode="0" display="plunger-level">
+      <pen interval="1.0" mode="0" display="plunger-level" color="-14454117" legend="true">
         <setup></setup>
         <update>if any? plungers [plotxy ticks  precision [ycor] of one-of plungers 2]</update>
       </pen>
-      <pen color="-7500403" legend="true" interval="1.0" mode="0" display="plunger-start-level">
+      <pen interval="1.0" mode="0" display="plunger-start-level" color="-7500403" legend="true">
         <setup></setup>
         <update>plotxy ticks experiment-plunger-start-line</update>
       </pen>
     </plot>
-    <plot x="735" yMax="2.0" yAxis="Force-Level" y="230" xMin="0.0" height="220" legend="true" xMax="10.0" autoplot="true" yMin="-2.0" width="480" sizeVersion="0" xAxis="tick reading" display="Forces on Syringe Plunger">
+    <plot x="735" autoPlotX="true" yMax="2.0" autoPlotY="true" yAxis="Force-Level" y="230" xMin="0.0" height="220" legend="true" xMax="10.0" yMin="-2.0" xAxis="tick reading" display="Forces on Syringe Plunger" width="480" sizeVersion="0">
       <setup></setup>
       <update>;set-plot-x-range (round (p-force-plot-start - 1)) (round (ticks + 1))</update>
-      <pen color="-7500403" legend="true" interval="1.0" mode="0" display="zero line">
+      <pen interval="1.0" mode="0" display="zero line" color="-7500403" legend="true">
         <setup></setup>
         <update>plotxy ticks 0</update>
       </pen>
-      <pen color="-6917194" legend="true" interval="1.0" mode="0" display="net particle forces  ">
+      <pen interval="1.0" mode="0" display="net particle forces  " color="-6917194" legend="true">
         <setup></setup>
         <update><![CDATA[if ticks > 0 [
 let n length plunger-up-forces
@@ -1307,7 +1307,7 @@ let n length plunger-up-forces
   let net mean sublist plunger-up-forces (n - num-ave) n + mean sublist plunger-down-forces (n - num-ave) n
  plotxy ticks precision net 2 ]]]></update>
       </pen>
-      <pen color="-11053225" legend="true" interval="1.0" mode="0" display="Sum of Forces">
+      <pen interval="1.0" mode="0" display="Sum of Forces" color="-11053225" legend="true">
         <setup></setup>
         <update><![CDATA[if ticks > 0 [
   let n length plunger-up-forces
@@ -1321,8 +1321,8 @@ let n length plunger-up-forces
   ]]]></update>
       </pen>
     </plot>
-    <button x="485" y="500" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="190" display="draw temp vs time graph">draw-graph</button>
-    <button x="1010" y="590" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="210" display="Run Experiment">ifelse (ready-to-run? = true)
+    <button x="485" y="500" height="33" disableUntilTicks="true" forever="true" kind="Observer" display="draw temp vs time graph" width="190" sizeVersion="0">draw-graph</button>
+    <button x="1010" y="590" height="33" disableUntilTicks="true" forever="true" kind="Observer" display="Run Experiment" width="210" sizeVersion="0">ifelse (ready-to-run? = true)
 [
  set mouse-interaction "none - let particles move"
  go
@@ -1333,16 +1333,16 @@ let n length plunger-up-forces
   set p-force-plot-start ticks
   set plunger-plot-start ticks
 ]</button>
-    <button x="485" y="535" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="190" display="reset axes">setup-axes</button>
-    <switch x="1010" y="645" height="33" on="true" variable="run?" width="210" sizeVersion="0" display="run?"></switch>
-    <button x="1010" y="500" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="210" display="Prepare for Experimental Run">prepare-for-run</button>
-    <monitor x="1220" precision="17" y="10" height="53" fontSize="13" width="115" sizeVersion="0" display="Plunger Level">precision [ycor] of one-of plungers 2</monitor>
-    <button x="1220" y="210" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="115" display="Restart Plotting">set experiment-plunger-start-line [ycor] of one-of plungers
+    <button x="485" y="535" height="33" disableUntilTicks="true" forever="false" kind="Observer" display="reset axes" width="190" sizeVersion="0">setup-axes</button>
+    <switch x="1010" y="645" height="33" on="true" variable="run?" display="run?" width="210" sizeVersion="0"></switch>
+    <button x="1010" y="500" height="33" disableUntilTicks="true" forever="false" kind="Observer" display="Prepare for Experimental Run" width="210" sizeVersion="0">prepare-for-run</button>
+    <monitor x="1220" precision="17" y="10" height="53" fontSize="13" display="Plunger Level" width="115" sizeVersion="0">precision [ycor] of one-of plungers 2</monitor>
+    <button x="1220" y="210" height="40" disableUntilTicks="true" forever="false" kind="Observer" display="Restart Plotting" width="115" sizeVersion="0">set experiment-plunger-start-line [ycor] of one-of plungers
 set plunger-plot-start ticks
 set p-force-plot-start ticks</button>
-    <monitor x="1220" precision="17" y="365" height="45" fontSize="11" width="120" sizeVersion="0" display="Particles Dnwrd">precision mean plunger-down-forces 2</monitor>
-    <monitor x="1220" precision="17" y="315" height="45" fontSize="11" width="120" sizeVersion="0" display="Particles Upwrd">precision mean plunger-up-forces 2</monitor>
-    <note x="1235" y="495" height="115" backgroundDark="0" textColorLight="-16777216" backgroundLight="0" fontSize="12" width="145">TIP: Before running
+    <monitor x="1220" precision="17" y="365" height="45" fontSize="11" display="Particles Dnwrd" width="120" sizeVersion="0">precision mean plunger-down-forces 2</monitor>
+    <monitor x="1220" precision="17" y="315" height="45" fontSize="11" display="Particles Upwrd" width="120" sizeVersion="0">precision mean plunger-up-forces 2</monitor>
+    <note x="1235" y="495" height="115" backgroundDark="0" fontSize="12" width="145" markdown="false" textColorLight="-16777216" backgroundLight="0">TIP: Before running
 your experiment
 make sure that
 the system has
@@ -1350,20 +1350,20 @@ reached an
 equilibrium
 state.
 </note>
-    <slider x="1220" step="1" y="415" height="33" min="10" direction="Horizontal" max="200" default="100.0" variable="num-ave" width="120" sizeVersion="0" display="num-ave"></slider>
-    <button x="230" y="500" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="195" display="save">export-world user-input "Save as:"
+    <slider x="1220" step="1" y="415" max="200" display="num-ave" height="33" min="10" direction="Horizontal" default="100.0" variable="num-ave" width="120" sizeVersion="0"></slider>
+    <button x="230" y="500" height="33" disableUntilTicks="true" forever="false" kind="Observer" display="save" width="195" sizeVersion="0">export-world user-input "Save as:"
 </button>
-    <button x="230" y="540" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="195" display="load">let file user-file
+    <button x="230" y="540" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="load" width="195" sizeVersion="0">let file user-file
 if file != "" [ import-world file ]</button>
-    <note x="225" y="480" height="18" backgroundDark="0" textColorLight="-5298144" backgroundLight="0" fontSize="13" width="235">SAVE AND LOAD WORLD STATES</note>
-    <note x="495" y="480" height="18" backgroundDark="0" textColorLight="-5298144" backgroundLight="0" fontSize="13" width="220">DRAW TEMP vs TIME GRAPH</note>
-    <note x="1030" y="480" height="18" backgroundDark="0" textColorLight="-5298144" backgroundLight="0" fontSize="13" width="205">RUN A TIMED EXPERIMENT</note>
-    <note x="20" y="400" height="18" backgroundDark="0" textColorLight="-5298144" backgroundLight="0" fontSize="13" width="195">VISUALIZE PARTICLES</note>
-    <note x="730" y="480" height="18" backgroundDark="0" textColorLight="-5298144" backgroundLight="0" fontSize="13" width="260">REGION TO BE HEATED / COOLED</note>
-    <monitor x="710" precision="17" y="535" height="53" fontSize="13" width="135" sizeVersion="0" display="Ave Temp in Region">(word precision (mean [ energy ] of particles-on region1) 2 " degrees")</monitor>
-    <monitor x="845" precision="17" y="535" height="53" fontSize="13" width="120" sizeVersion="0" display="Ave Part Speed">(word precision (mean [ speed ] of particles-on region1) 2 " u")</monitor>
-    <note x="1010" y="630" height="18" backgroundDark="0" textColorLight="-2674135" backgroundLight="0" fontSize="11" width="260">Switch to halt an ongoing experiment</note>
-    <monitor x="1010" precision="17" y="535" height="53" fontSize="13" width="210" sizeVersion="0" display="Experiment: Initial Temperature">show-initial-temp</monitor>
+    <note x="225" y="480" height="18" backgroundDark="0" fontSize="13" width="235" markdown="false" textColorLight="-5298144" backgroundLight="0">SAVE AND LOAD WORLD STATES</note>
+    <note x="495" y="480" height="18" backgroundDark="0" fontSize="13" width="220" markdown="false" textColorLight="-5298144" backgroundLight="0">DRAW TEMP vs TIME GRAPH</note>
+    <note x="1030" y="480" height="18" backgroundDark="0" fontSize="13" width="205" markdown="false" textColorLight="-5298144" backgroundLight="0">RUN A TIMED EXPERIMENT</note>
+    <note x="20" y="400" height="18" backgroundDark="0" fontSize="13" width="195" markdown="false" textColorLight="-5298144" backgroundLight="0">VISUALIZE PARTICLES</note>
+    <note x="730" y="480" height="18" backgroundDark="0" fontSize="13" width="260" markdown="false" textColorLight="-5298144" backgroundLight="0">REGION TO BE HEATED / COOLED</note>
+    <monitor x="710" precision="17" y="535" height="53" fontSize="13" display="Ave Temp in Region" width="135" sizeVersion="0">(word precision (mean [ energy ] of particles-on region1) 2 " degrees")</monitor>
+    <monitor x="845" precision="17" y="535" height="53" fontSize="13" display="Ave Part Speed" width="120" sizeVersion="0">(word precision (mean [ speed ] of particles-on region1) 2 " u")</monitor>
+    <note x="1010" y="630" height="18" backgroundDark="0" fontSize="11" width="260" markdown="false" textColorLight="-2674135" backgroundLight="0">Switch to halt an ongoing experiment</note>
+    <monitor x="1010" precision="17" y="535" height="53" fontSize="13" display="Experiment: Initial Temperature" width="210" sizeVersion="0">show-initial-temp</monitor>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 

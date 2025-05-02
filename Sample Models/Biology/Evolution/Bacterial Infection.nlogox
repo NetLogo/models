@@ -337,10 +337,10 @@ end
 ; Copyright 2016 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="415" maxPycor="10" updateMode="1" wrappingAllowedX="true" y="100" frameRate="30.0" minPycor="-10" height="277" showTickCounter="true" patchSize="13.0" fontSize="10" wrappingAllowedY="true" width="641" tickCounterLabel="minutes" maxPxcor="24" minPxcor="-24"></view>
-    <button x="40" y="10" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="75">setup</button>
-    <button x="120" y="10" height="41" disableUntilTicks="true" forever="true" kind="Observer" width="90" display="go/pause">go</button>
-    <plot x="15" yMax="16.0" yAxis="# of indiv." y="150" xMin="3.0" height="160" legend="false" xMax="7.0" autoplot="true" yMin="0.0" width="195" sizeVersion="0" xAxis="# pores" display="Patient A">
+    <view x="415" wrappingAllowedX="true" y="100" frameRate="30.0" minPycor="-10" height="277" showTickCounter="true" patchSize="13.0" fontSize="10" wrappingAllowedY="true" width="641" tickCounterLabel="minutes" maxPycor="10" updateMode="1" maxPxcor="24" minPxcor="-24"></view>
+    <button x="40" y="10" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="75" sizeVersion="0">setup</button>
+    <button x="120" y="10" height="41" disableUntilTicks="true" forever="true" kind="Observer" display="go/pause" width="90" sizeVersion="0">go</button>
+    <plot x="15" autoPlotX="true" yMax="16.0" autoPlotY="true" yAxis="# of indiv." y="150" xMin="3.0" height="160" legend="false" xMax="7.0" yMin="0.0" xAxis="# pores" display="Patient A" width="195" sizeVersion="0">
       <setup>make-variation-pens 1 ; 1 means use bar mode</setup>
       <update><![CDATA[;; the `histogram` primitive can't make a multi-colored histogram,
 ;; so instead we plot each bar individually
@@ -353,7 +353,7 @@ if (plot-y-max - floor plot-y-max) != 0 [
   set-plot-y-range 0 floor plot-y-max + 1
 ]]]></update>
     </plot>
-    <plot x="215" yMax="16.0" yAxis="# of indiv." y="150" xMin="3.0" height="160" legend="false" xMax="7.0" autoplot="true" yMin="0.0" width="195" sizeVersion="0" xAxis="# pores" display="Patient B">
+    <plot x="215" autoPlotX="true" yMax="16.0" autoPlotY="true" yAxis="# of indiv." y="150" xMin="3.0" height="160" legend="false" xMax="7.0" yMin="0.0" xAxis="# pores" display="Patient B" width="195" sizeVersion="0">
       <setup>make-variation-pens 1 ; 1 means use bar mode</setup>
       <update><![CDATA[;; the `histogram` primitive can't make a multi-colored histogram,
 ;; so instead we plot each bar individually
@@ -366,52 +366,52 @@ if (plot-y-max - floor plot-y-max) != 0 [
   set-plot-y-range 0 floor plot-y-max + 1
 ]]]></update>
     </plot>
-    <note x="825" y="485" height="18" backgroundDark="0" textColorLight="-16777216" backgroundLight="0" fontSize="12" width="190">Initial Infection for Patient B</note>
-    <note x="500" y="485" height="18" backgroundDark="0" textColorLight="-16777216" backgroundLight="0" fontSize="12" width="195">Initial Infection for Patient A</note>
-    <slider x="180" step="0.5" y="60" height="33" min="0.5" direction="Horizontal" max="4" default="2.0" variable="reproduce-every" units="hrs" width="200" sizeVersion="0" display="reproduce-every"></slider>
-    <button x="415" y="10" height="45" disableUntilTicks="true" forever="false" kind="Observer" width="140" display="manual dose A">dose-region "A" a-dosage
+    <note x="825" y="485" height="18" backgroundDark="0" fontSize="12" width="190" markdown="false" textColorLight="-16777216" backgroundLight="0">Initial Infection for Patient B</note>
+    <note x="500" y="485" height="18" backgroundDark="0" fontSize="12" width="195" markdown="false" textColorLight="-16777216" backgroundLight="0">Initial Infection for Patient A</note>
+    <slider x="180" step="0.5" y="60" max="4" display="reproduce-every" height="33" min="0.5" direction="Horizontal" default="2.0" variable="reproduce-every" units="hrs" width="200" sizeVersion="0"></slider>
+    <button x="415" y="10" height="45" disableUntilTicks="true" forever="false" kind="Observer" display="manual dose A" width="140" sizeVersion="0">dose-region "A" a-dosage
 set doses-given-to-a doses-given-to-a + 1</button>
-    <monitor x="305" precision="17" y="10" height="45" fontSize="11" width="70" sizeVersion="0" display="# of hrs">#-hours</monitor>
-    <monitor x="235" precision="17" y="10" height="45" fontSize="11" width="65" sizeVersion="0" display="# of days">#-days</monitor>
-    <plot x="15" yMax="16.0" yAxis="# of indiv." y="310" xMin="0.0" height="185" legend="false" xMax="100.0" autoplot="true" yMin="0.0" width="195" sizeVersion="0" xAxis="time (min.)" display="population in A vs. time">
+    <monitor x="305" precision="17" y="10" height="45" fontSize="11" display="# of hrs" width="70" sizeVersion="0">#-hours</monitor>
+    <monitor x="235" precision="17" y="10" height="45" fontSize="11" display="# of days" width="65" sizeVersion="0">#-days</monitor>
+    <plot x="15" autoPlotX="true" yMax="16.0" autoPlotY="true" yAxis="# of indiv." y="310" xMin="0.0" height="185" legend="false" xMax="100.0" yMin="0.0" xAxis="time (min.)" display="population in A vs. time" width="195" sizeVersion="0">
       <setup>make-variation-pens 0 ; 0 means use line mode</setup>
       <update><![CDATA[foreach [ 3 4 5 6 ] [ v ->
   set-current-plot-pen (word v)
   plotxy ticks item (v - 3) bacteria-counts-region-a
 ]]]></update>
     </plot>
-    <button x="755" y="10" height="45" disableUntilTicks="true" forever="false" kind="Observer" width="140" display="manual dose B">dose-region "B" b-dosage
+    <button x="755" y="10" height="45" disableUntilTicks="true" forever="false" kind="Observer" display="manual dose B" width="140" sizeVersion="0">dose-region "B" b-dosage
 set doses-given-to-b doses-given-to-b + 1</button>
-    <slider x="415" step="50" y="60" height="33" min="50" direction="Horizontal" max="200" default="50.0" variable="a-dosage" units="mg" width="140" sizeVersion="0" display="a-dosage"></slider>
-    <slider x="755" step="50" y="60" height="33" min="50" direction="Horizontal" max="200" default="50.0" variable="b-dosage" units="mg" width="140" sizeVersion="0" display="b-dosage"></slider>
-    <slider x="560" step="2" y="60" height="33" min="4" direction="Horizontal" max="24" default="4.0" variable="dose-a-every" units="hrs" width="155" sizeVersion="0" display="dose-a-every"></slider>
-    <slider x="900" step="4" y="60" height="33" min="4" direction="Horizontal" max="24" default="4.0" variable="dose-b-every" units="hrs" width="160" sizeVersion="0" display="dose-b-every"></slider>
-    <monitor x="55" precision="17" y="100" height="45" fontSize="11" width="112" sizeVersion="0" display="doses given to A">doses-given-to-a</monitor>
-    <monitor x="255" precision="17" y="100" height="45" fontSize="11" width="112" sizeVersion="0" display="doses given to B">doses-given-to-b</monitor>
-    <switch x="40" y="60" height="33" on="true" variable="reproduce?" width="135" sizeVersion="0" display="reproduce?"></switch>
-    <chooser x="560" y="10" height="45" variable="auto-dose-A?" current="0" width="155" sizeVersion="0" display="auto-dose-A?">
+    <slider x="415" step="50" y="60" max="200" display="a-dosage" height="33" min="50" direction="Horizontal" default="50.0" variable="a-dosage" units="mg" width="140" sizeVersion="0"></slider>
+    <slider x="755" step="50" y="60" max="200" display="b-dosage" height="33" min="50" direction="Horizontal" default="50.0" variable="b-dosage" units="mg" width="140" sizeVersion="0"></slider>
+    <slider x="560" step="2" y="60" max="24" display="dose-a-every" height="33" min="4" direction="Horizontal" default="4.0" variable="dose-a-every" units="hrs" width="155" sizeVersion="0"></slider>
+    <slider x="900" step="4" y="60" max="24" display="dose-b-every" height="33" min="4" direction="Horizontal" default="4.0" variable="dose-b-every" units="hrs" width="160" sizeVersion="0"></slider>
+    <monitor x="55" precision="17" y="100" height="45" fontSize="11" display="doses given to A" width="112" sizeVersion="0">doses-given-to-a</monitor>
+    <monitor x="255" precision="17" y="100" height="45" fontSize="11" display="doses given to B" width="112" sizeVersion="0">doses-given-to-b</monitor>
+    <switch x="40" y="60" height="33" on="true" variable="reproduce?" display="reproduce?" width="135" sizeVersion="0"></switch>
+    <chooser x="560" y="10" height="45" variable="auto-dose-A?" current="0" display="auto-dose-A?" width="155" sizeVersion="0">
       <choice type="string" value="no, skip all dosing"></choice>
       <choice type="string" value="yes, skip no doses"></choice>
       <choice type="string" value="yes, but skip dose 2"></choice>
       <choice type="string" value="yes, but skip dose 3"></choice>
       <choice type="string" value="yes, but skip dose 4"></choice>
     </chooser>
-    <chooser x="900" y="10" height="45" variable="auto-dose-B?" current="0" width="160" sizeVersion="0" display="auto-dose-B?">
+    <chooser x="900" y="10" height="45" variable="auto-dose-B?" current="0" display="auto-dose-B?" width="160" sizeVersion="0">
       <choice type="string" value="no, skip all dosing"></choice>
       <choice type="string" value="yes, skip no doses"></choice>
       <choice type="string" value="yes, but skip dose 2"></choice>
       <choice type="string" value="yes, but skip dose 3"></choice>
       <choice type="string" value="yes, but skip dose 4"></choice>
     </chooser>
-    <slider x="425" step="1" y="410" height="33" min="0" direction="Horizontal" max="16" default="4.0" variable="init#-3pores-a" width="150" sizeVersion="0" display="init#-3pores-a"></slider>
-    <slider x="425" step="1" y="445" height="33" min="0" direction="Horizontal" max="16" default="4.0" variable="init#-4pores-a" width="150" sizeVersion="0" display="init#-4pores-a"></slider>
-    <slider x="580" step="1" y="410" height="33" min="0" direction="Horizontal" max="16" default="4.0" variable="init#-5pores-a" width="150" sizeVersion="0" display="init#-5pores-a"></slider>
-    <slider x="580" step="1" y="445" height="33" min="0" direction="Horizontal" max="16" default="4.0" variable="init#-6pores-a" width="150" sizeVersion="0" display="init#-6pores-a"></slider>
-    <slider x="755" step="1" y="410" height="33" min="0" direction="Horizontal" max="16" default="4.0" variable="init#-3pores-b" width="150" sizeVersion="0" display="init#-3pores-b"></slider>
-    <slider x="755" step="1" y="445" height="33" min="0" direction="Horizontal" max="16" default="4.0" variable="init#-4pores-b" width="150" sizeVersion="0" display="init#-4pores-b"></slider>
-    <slider x="910" step="1" y="410" height="33" min="0" direction="Horizontal" max="16" default="4.0" variable="init#-5pores-b" width="150" sizeVersion="0" display="init#-5pores-b"></slider>
-    <slider x="910" step="1" y="445" height="33" min="0" direction="Horizontal" max="16" default="4.0" variable="init#-6pores-b" width="150" sizeVersion="0" display="init#-6pores-b"></slider>
-    <plot x="215" yMax="16.0" yAxis="# indiv." y="310" xMin="0.0" height="185" legend="false" xMax="100.0" autoplot="true" yMin="0.0" width="195" sizeVersion="0" xAxis="time (min)." display="population in B vs. time">
+    <slider x="425" step="1" y="410" max="16" display="init#-3pores-a" height="33" min="0" direction="Horizontal" default="4.0" variable="init#-3pores-a" width="150" sizeVersion="0"></slider>
+    <slider x="425" step="1" y="445" max="16" display="init#-4pores-a" height="33" min="0" direction="Horizontal" default="4.0" variable="init#-4pores-a" width="150" sizeVersion="0"></slider>
+    <slider x="580" step="1" y="410" max="16" display="init#-5pores-a" height="33" min="0" direction="Horizontal" default="4.0" variable="init#-5pores-a" width="150" sizeVersion="0"></slider>
+    <slider x="580" step="1" y="445" max="16" display="init#-6pores-a" height="33" min="0" direction="Horizontal" default="4.0" variable="init#-6pores-a" width="150" sizeVersion="0"></slider>
+    <slider x="755" step="1" y="410" max="16" display="init#-3pores-b" height="33" min="0" direction="Horizontal" default="4.0" variable="init#-3pores-b" width="150" sizeVersion="0"></slider>
+    <slider x="755" step="1" y="445" max="16" display="init#-4pores-b" height="33" min="0" direction="Horizontal" default="4.0" variable="init#-4pores-b" width="150" sizeVersion="0"></slider>
+    <slider x="910" step="1" y="410" max="16" display="init#-5pores-b" height="33" min="0" direction="Horizontal" default="4.0" variable="init#-5pores-b" width="150" sizeVersion="0"></slider>
+    <slider x="910" step="1" y="445" max="16" display="init#-6pores-b" height="33" min="0" direction="Horizontal" default="4.0" variable="init#-6pores-b" width="150" sizeVersion="0"></slider>
+    <plot x="215" autoPlotX="true" yMax="16.0" autoPlotY="true" yAxis="# indiv." y="310" xMin="0.0" height="185" legend="false" xMax="100.0" yMin="0.0" xAxis="time (min)." display="population in B vs. time" width="195" sizeVersion="0">
       <setup>make-variation-pens 0 ; 0 means use line mode</setup>
       <update><![CDATA[foreach [ 3 4 5 6 ] [ v ->
   set-current-plot-pen (word v)

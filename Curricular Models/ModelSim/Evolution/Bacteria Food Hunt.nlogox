@@ -477,10 +477,10 @@ end
 ; Copyright 2015 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="295" maxPycor="18" updateMode="1" wrappingAllowedX="true" y="115" frameRate="30.0" minPycor="-18" height="448" showTickCounter="true" patchSize="12.0" fontSize="10" wrappingAllowedY="true" width="808" tickCounterLabel="ticks" maxPxcor="33" minPxcor="-33"></view>
-    <button x="5" y="10" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="135">setup</button>
-    <button x="145" y="10" height="35" disableUntilTicks="true" forever="true" kind="Observer" width="140" display="go/stop">go</button>
-    <plot x="5" yMax="10.0" yAxis="# bugs" y="315" xMin="0.0" height="140" legend="false" xMax="8.0" autoplot="true" yMin="0.0" width="280" sizeVersion="0" xAxis="# of flagella" display="Bacteria Population in Left Region">
+    <view x="295" wrappingAllowedX="true" y="115" frameRate="30.0" minPycor="-18" height="448" showTickCounter="true" patchSize="12.0" fontSize="10" wrappingAllowedY="true" width="808" tickCounterLabel="ticks" maxPycor="18" updateMode="1" maxPxcor="33" minPxcor="-33"></view>
+    <button x="5" y="10" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="135" sizeVersion="0">setup</button>
+    <button x="145" y="10" height="35" disableUntilTicks="true" forever="true" kind="Observer" display="go/stop" width="140" sizeVersion="0">go</button>
+    <plot x="5" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="# bugs" y="315" xMin="0.0" height="140" legend="false" xMax="8.0" yMin="0.0" xAxis="# of flagella" display="Bacteria Population in Left Region" width="280" sizeVersion="0">
       <setup></setup>
       <update><![CDATA[;; the HISTOGRAM primitive can't make a multi-colored histogram,
 ;; so instead we plot each bar individually
@@ -490,48 +490,48 @@ foreach [1 2 3 4 5 6] [ this-variation ->
   plotxy this-variation count bacteria with [variation = this-variation and region = 1]
 ]
 if  ( plot-y-max - floor plot-y-max) != 0 [set-plot-y-range 0 floor plot-y-max + 1]]]></update>
-      <pen color="-8630108" legend="true" interval="1.0" mode="1" display="1 ">
+      <pen interval="1.0" mode="1" display="1 " color="-8630108" legend="true">
         <setup></setup>
         <update>plotxy 1 count bacteria with [variation = 1 and region = 1]</update>
       </pen>
-      <pen color="-13345367" legend="true" interval="1.0" mode="1" display="2 ">
+      <pen interval="1.0" mode="1" display="2 " color="-13345367" legend="true">
         <setup></setup>
         <update>plotxy 2 count bacteria with [variation = 2 and region = 1]</update>
       </pen>
-      <pen color="-10899396" legend="true" interval="1.0" mode="1" display="3 ">
+      <pen interval="1.0" mode="1" display="3 " color="-10899396" legend="true">
         <setup></setup>
         <update>plotxy 3 count bacteria with [variation = 3 and region = 1]</update>
       </pen>
-      <pen color="-8431303" legend="true" interval="1.0" mode="1" display="4 ">
+      <pen interval="1.0" mode="1" display="4 " color="-8431303" legend="true">
         <setup></setup>
         <update>plotxy 4 count bacteria with [variation = 4 and region = 1]</update>
       </pen>
-      <pen color="-955883" legend="true" interval="1.0" mode="1" display="5 ">
+      <pen interval="1.0" mode="1" display="5 " color="-955883" legend="true">
         <setup></setup>
         <update>plotxy 5 count bacteria with [variation = 5 and region = 1]</update>
       </pen>
-      <pen color="-2674135" legend="true" interval="1.0" mode="1" display="6 ">
+      <pen interval="1.0" mode="1" display="6 " color="-2674135" legend="true">
         <setup></setup>
         <update>plotxy 6 count bacteria with [variation = 6 and region = 1]</update>
       </pen>
     </plot>
-    <plot x="5" yMax="6.0" yAxis="flagella" y="170" xMin="0.0" height="140" legend="true" xMax="1000.0" autoplot="true" yMin="1.0" width="280" sizeVersion="0" xAxis="time" display="Avg. # of flagella vs. Time">
+    <plot x="5" autoPlotX="true" yMax="6.0" autoPlotY="true" yAxis="flagella" y="170" xMin="0.0" height="140" legend="true" xMax="1000.0" yMin="1.0" xAxis="time" display="Avg. # of flagella vs. Time" width="280" sizeVersion="0">
       <setup></setup>
       <update></update>
-      <pen color="-7500403" legend="true" interval="1.0" mode="0" display="left">
+      <pen interval="1.0" mode="0" display="left" color="-7500403" legend="true">
         <setup></setup>
         <update>if any? bacteria with [region = 1] [
  plotxy ticks mean [variation] of bacteria with [region = 1]]</update>
       </pen>
-      <pen color="-13816531" legend="true" interval="1.0" mode="0" display="right">
+      <pen interval="1.0" mode="0" display="right" color="-13816531" legend="true">
         <setup></setup>
         <update>if any? bacteria with [region = 2] [
   plotxy ticks mean [variation] of bacteria with [region = 2]]</update>
       </pen>
     </plot>
-    <monitor x="520" precision="0" y="55" height="45" fontSize="11" width="60" sizeVersion="0" display="bacteria">(count bacteria with [region = 1])</monitor>
-    <slider x="5" step="1" y="48" height="33" min="1" direction="Horizontal" max="10" default="3.0" variable="initial-#-bacteria-per-variation" width="280" sizeVersion="0" display="initial-#-bacteria-per-variation"></slider>
-    <plot x="5" yMax="10.0" yAxis="# bugs" y="455" xMin="0.0" height="135" legend="false" xMax="8.0" autoplot="true" yMin="0.0" width="280" sizeVersion="0" xAxis="# of flagella" display="Bacteria Population in Right Region">
+    <monitor x="520" precision="0" y="55" height="45" fontSize="11" display="bacteria" width="60" sizeVersion="0">(count bacteria with [region = 1])</monitor>
+    <slider x="5" step="1" y="48" max="10" display="initial-#-bacteria-per-variation" height="33" min="1" direction="Horizontal" default="3.0" variable="initial-#-bacteria-per-variation" width="280" sizeVersion="0"></slider>
+    <plot x="5" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="# bugs" y="455" xMin="0.0" height="135" legend="false" xMax="8.0" yMin="0.0" xAxis="# of flagella" display="Bacteria Population in Right Region" width="280" sizeVersion="0">
       <setup></setup>
       <update><![CDATA[;; the HISTOGRAM primitive can't make a multi-colored histogram,
 ;; so instead we plot each bar individually
@@ -541,61 +541,61 @@ foreach [1 2 3 4 5 6] [ this-variation ->
   plotxy this-variation count bacteria with [variation = this-variation and region = 2]
 ]
 if  ( plot-y-max - floor plot-y-max) != 0 [set-plot-y-range 0 floor plot-y-max + 1]]]></update>
-      <pen color="-8630108" legend="true" interval="1.0" mode="1" display="1 ">
+      <pen interval="1.0" mode="1" display="1 " color="-8630108" legend="true">
         <setup>set-histogram-num-bars 8</setup>
         <update>plotxy 1 count bacteria with [variation = 1 and region = 2]</update>
       </pen>
-      <pen color="-13345367" legend="true" interval="1.0" mode="1" display="2 ">
+      <pen interval="1.0" mode="1" display="2 " color="-13345367" legend="true">
         <setup>set-histogram-num-bars 8</setup>
         <update>plotxy 2 count bacteria with [variation = 2 and region = 2]</update>
       </pen>
-      <pen color="-10899396" legend="true" interval="1.0" mode="1" display="3 ">
+      <pen interval="1.0" mode="1" display="3 " color="-10899396" legend="true">
         <setup>set-histogram-num-bars 8</setup>
         <update>plotxy 3 count bacteria with [variation = 3 and region = 2]</update>
       </pen>
-      <pen color="-8431303" legend="true" interval="1.0" mode="1" display="4 ">
+      <pen interval="1.0" mode="1" display="4 " color="-8431303" legend="true">
         <setup>set-histogram-num-bars 8</setup>
         <update>plotxy 4 count bacteria with [variation = 4 and region = 2]</update>
       </pen>
-      <pen color="-955883" legend="true" interval="1.0" mode="1" display="5 ">
+      <pen interval="1.0" mode="1" display="5 " color="-955883" legend="true">
         <setup>set-histogram-num-bars 8</setup>
         <update>plotxy 5 count bacteria with [variation = 5 and region = 2]</update>
       </pen>
-      <pen color="-2674135" legend="true" interval="1.0" mode="1" display="6 ">
+      <pen interval="1.0" mode="1" display="6 " color="-2674135" legend="true">
         <setup>set-histogram-num-bars 8</setup>
         <update>plotxy 6 count bacteria with [variation = 6 and region = 2]</update>
       </pen>
     </plot>
-    <slider x="295" step="1" y="80" height="33" min="0" direction="Horizontal" max="100" default="100.0" variable="left-resource-distribution" units="%" width="220" sizeVersion="0" display="left-resource-distribution"></slider>
-    <slider x="5" step=".05" y="85" height="33" min=".05" direction="Horizontal" max=".50" default="0.25" variable="energy-cost-per-flagella" width="280" sizeVersion="0" display="energy-cost-per-flagella"></slider>
-    <chooser x="5" y="120" height="45" variable="visualize-variation" current="0" width="145" sizeVersion="0" display="visualize-variation">
+    <slider x="295" step="1" y="80" max="100" display="left-resource-distribution" height="33" min="0" direction="Horizontal" default="100.0" variable="left-resource-distribution" units="%" width="220" sizeVersion="0"></slider>
+    <slider x="5" step=".05" y="85" max=".50" display="energy-cost-per-flagella" height="33" min=".05" direction="Horizontal" default="0.25" variable="energy-cost-per-flagella" width="280" sizeVersion="0"></slider>
+    <chooser x="5" y="120" height="45" variable="visualize-variation" current="0" display="visualize-variation" width="145" sizeVersion="0">
       <choice type="string" value="flagella and color"></choice>
       <choice type="string" value="flagella only"></choice>
       <choice type="string" value="as color only"></choice>
       <choice type="string" value="none"></choice>
     </chooser>
-    <slider x="825" step="1" y="80" height="33" min="0" direction="Horizontal" max="100" default="0.0" variable="right-resource-distribution" units="%" width="215" sizeVersion="0" display="right-resource-distribution"></slider>
-    <chooser x="295" y="30" height="45" variable="left-resource-location" current="0" width="220" sizeVersion="0" display="left-resource-location">
+    <slider x="825" step="1" y="80" max="100" display="right-resource-distribution" height="33" min="0" direction="Horizontal" default="0.0" variable="right-resource-distribution" units="%" width="215" sizeVersion="0"></slider>
+    <chooser x="295" y="30" height="45" variable="left-resource-location" current="0" display="left-resource-location" width="220" sizeVersion="0">
       <choice type="string" value="anywhere"></choice>
       <choice type="string" value="around a central point"></choice>
       <choice type="string" value="horizontal strip"></choice>
       <choice type="string" value="vertical strip left side"></choice>
       <choice type="string" value="vertical strip right side"></choice>
     </chooser>
-    <chooser x="825" y="30" height="45" variable="right-resource-location" current="1" width="215" sizeVersion="0" display="right-resource-location">
+    <chooser x="825" y="30" height="45" variable="right-resource-location" current="1" display="right-resource-location" width="215" sizeVersion="0">
       <choice type="string" value="anywhere"></choice>
       <choice type="string" value="around a central point"></choice>
       <choice type="string" value="horizontal strip"></choice>
       <choice type="string" value="vertical strip left side"></choice>
       <choice type="string" value="vertical strip right side"></choice>
     </chooser>
-    <monitor x="1045" precision="17" y="50" height="45" fontSize="11" width="60" sizeVersion="0" display="bacteria">(count bacteria with [region = 2])</monitor>
-    <note x="900" y="10" height="18" backgroundDark="0" textColorLight="-16777216" backgroundLight="0" fontSize="13" width="90">Right Region</note>
-    <note x="360" y="10" height="18" backgroundDark="0" textColorLight="-9276814" backgroundLight="0" fontSize="13" width="105">Left Region</note>
-    <switch x="155" y="120" height="33" on="false" variable="trace-paths?" width="130" sizeVersion="0" display="trace-paths?"></switch>
-    <button x="605" y="80" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="190" display="&gt;&gt; Duplicate Bacteria &gt;&gt;">duplicate-population 1</button>
-    <button x="605" y="45" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="190" display="&lt;&lt; Duplicate Bacteria &lt;&lt;">duplicate-population 2</button>
-    <switch x="605" y="10" height="33" on="false" variable="wait-to-drag-bacteria?" width="190" sizeVersion="0" display="wait-to-drag-bacteria?"></switch>
+    <monitor x="1045" precision="17" y="50" height="45" fontSize="11" display="bacteria" width="60" sizeVersion="0">(count bacteria with [region = 2])</monitor>
+    <note x="900" y="10" height="18" backgroundDark="0" fontSize="13" width="90" markdown="false" textColorLight="-16777216" backgroundLight="0">Right Region</note>
+    <note x="360" y="10" height="18" backgroundDark="0" fontSize="13" width="105" markdown="false" textColorLight="-9276814" backgroundLight="0">Left Region</note>
+    <switch x="155" y="120" height="33" on="false" variable="trace-paths?" display="trace-paths?" width="130" sizeVersion="0"></switch>
+    <button x="605" y="80" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="&gt;&gt; Duplicate Bacteria &gt;&gt;" width="190" sizeVersion="0">duplicate-population 1</button>
+    <button x="605" y="45" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="&lt;&lt; Duplicate Bacteria &lt;&lt;" width="190" sizeVersion="0">duplicate-population 2</button>
+    <switch x="605" y="10" height="33" on="false" variable="wait-to-drag-bacteria?" display="wait-to-drag-bacteria?" width="190" sizeVersion="0"></switch>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 

@@ -960,30 +960,30 @@ end
 ; Copyright 2010 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="195" maxPycor="30" updateMode="1" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-30" height="431" showTickCounter="true" patchSize="7.0" fontSize="10" wrappingAllowedY="false" width="200" tickCounterLabel="ticks" maxPxcor="0" minPxcor="-27"></view>
-    <button x="10" y="70" height="50" disableUntilTicks="false" forever="true" kind="Observer" width="165" display="go/stop">go</button>
-    <button x="10" y="10" height="46" disableUntilTicks="false" forever="false" kind="Observer" width="165" display="setup/reset">setup</button>
-    <chooser x="10" y="220" height="45" variable="visualize-particle-speed" current="2" width="165" sizeVersion="0" display="visualize-particle-speed">
+    <view x="195" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-30" height="431" showTickCounter="true" patchSize="7.0" fontSize="10" wrappingAllowedY="false" width="200" tickCounterLabel="ticks" maxPycor="30" updateMode="1" maxPxcor="0" minPxcor="-27"></view>
+    <button x="10" y="70" height="50" disableUntilTicks="false" forever="true" kind="Observer" display="go/stop" width="165" sizeVersion="0">go</button>
+    <button x="10" y="10" height="46" disableUntilTicks="false" forever="false" kind="Observer" display="setup/reset" width="165" sizeVersion="0">setup</button>
+    <chooser x="10" y="220" height="45" variable="visualize-particle-speed" current="2" display="visualize-particle-speed" width="165" sizeVersion="0">
       <choice type="string" value="no"></choice>
       <choice type="string" value="arrows"></choice>
       <choice type="string" value="different shades"></choice>
     </chooser>
-    <plot x="420" yMax="100.0" yAxis="volume (mL)" y="10" xMin="0.0" height="425" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="360" sizeVersion="0" xAxis="ticks" display="Volume">
+    <plot x="420" autoPlotX="true" yMax="100.0" autoPlotY="true" yAxis="volume (mL)" y="10" xMin="0.0" height="425" legend="true" xMax="10.0" yMin="0.0" xAxis="ticks" display="Volume" width="360" sizeVersion="0">
       <setup></setup>
       <update>if (experiment-running? != true)
 [ set-plot-x-range (round (plunger-plot-start - 1)) (round (ticks + 1)) ]</update>
-      <pen color="-7500403" legend="true" interval="1.0" mode="0" display="starting volume">
+      <pen interval="1.0" mode="0" display="starting volume" color="-7500403" legend="true">
         <setup></setup>
         <update>plotxy ticks experiment-plunger-start-line * 2 + 50  </update>
       </pen>
-      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="volume">
+      <pen interval="1.0" mode="0" display="volume" color="-2674135" legend="true">
         <setup></setup>
         <update>plotxy ticks  precision [ycor] of one-of plungers 2 * 2 + 50</update>
       </pen>
     </plot>
-    <monitor x="10" precision="17" y="385" height="53" fontSize="13" width="165" sizeVersion="0" display="Volume">word (precision ([ycor] of one-of plungers * 2 + 50) 2) " mL"</monitor>
-    <slider x="10" step="1" y="175" height="33" min="0" direction="Horizontal" max="100" default="21.0" variable="gas-temperature" units="C" width="165" sizeVersion="0" display="gas-temperature"></slider>
-    <button x="10" y="132" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="165" display="reset temperature"><![CDATA[set gas-temperature 23
+    <monitor x="10" precision="17" y="385" height="53" fontSize="13" display="Volume" width="165" sizeVersion="0">word (precision ([ycor] of one-of plungers * 2 + 50) 2) " mL"</monitor>
+    <slider x="10" step="1" y="175" max="100" display="gas-temperature" height="33" min="0" direction="Horizontal" default="21.0" variable="gas-temperature" units="C" width="165" sizeVersion="0"></slider>
+    <button x="10" y="132" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="reset temperature" width="165" sizeVersion="0"><![CDATA[set gas-temperature 23
 ask walls with [
       pycor = syringe-bottom-y - 1
      and pxcor > syringe-left-x + 1
