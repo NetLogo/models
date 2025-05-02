@@ -100,7 +100,7 @@ package object models {
       .get // let it crash if preview commands are not loaded
     def widgetSources: Seq[String] =
       model.widgets.collect {
-        case Button(Some(source), _, _, _, _, _, _, _, _, _)      => Seq(source)
+        case Button(Some(source), _, _, _, _, _, _, _, _, _, _)   => Seq(source)
         case Slider(_, _, _, _, _, _, _, min, max, _, step, _, _) => Seq(min, max, step)
         case Monitor(Some(source), _, _, _, _, _, _, _, _, _)     => Seq(source)
       }.flatten
