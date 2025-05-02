@@ -238,66 +238,66 @@ end
 ; Copyright 2023 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="210" maxPycor="45" updateMode="1" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-45" height="550" showTickCounter="true" patchSize="6.0" fontSize="5" wrappingAllowedY="true" width="550" tickCounterLabel="ticks" maxPxcor="45" minPxcor="-45"></view>
-    <button x="5" y="107" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="63">setup</button>
-    <button x="75" y="107" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="63" display="go once">go</button>
-    <button x="143" y="107" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="63">go</button>
-    <slider x="22" step="1" y="22" height="33" min="1" direction="Horizontal" max="1000" default="1000.0" variable="num-monomers" width="172" sizeVersion="0" display="num-monomers"></slider>
-    <slider x="21" step="1" y="64" height="33" min="1" direction="Horizontal" max="100" default="30.0" variable="num-radical-initiators" width="172" sizeVersion="0" display="num-radical-initiators"></slider>
-    <slider x="20" step="1" y="166" height="33" min="1" direction="Horizontal" max="100" default="100.0" variable="num-add" width="172" sizeVersion="0" display="num-add"></slider>
-    <button x="47" y="212" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="112">add-monomers</button>
-    <button x="32" y="253" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="140">add-radical-initiators</button>
-    <slider x="19" step="1" y="313" height="33" min="0" direction="Horizontal" max="100" default="0.0" variable="disproportionation-prob" width="174" sizeVersion="0" display="disproportionation-prob"></slider>
-    <plot x="784" yMax="0.0" yAxis="Number of Molecules" y="24" xMin="0.0" height="239" legend="true" xMax="0.0" autoplot="false" yMin="0.0" width="377" sizeVersion="0" xAxis="Molecular Weight" display="Molecular Weight Distribution">
+    <view x="210" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-45" height="550" showTickCounter="true" patchSize="6.0" fontSize="5" wrappingAllowedY="true" width="550" tickCounterLabel="ticks" maxPycor="45" updateMode="1" maxPxcor="45" minPxcor="-45"></view>
+    <button x="5" y="107" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="63" sizeVersion="0">setup</button>
+    <button x="75" y="107" height="33" disableUntilTicks="true" forever="false" kind="Observer" display="go once" width="63" sizeVersion="0">go</button>
+    <button x="143" y="107" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="63" sizeVersion="0">go</button>
+    <slider x="22" step="1" y="22" max="1000" display="num-monomers" height="33" min="1" direction="Horizontal" default="1000.0" variable="num-monomers" width="172" sizeVersion="0"></slider>
+    <slider x="21" step="1" y="64" max="100" display="num-radical-initiators" height="33" min="1" direction="Horizontal" default="30.0" variable="num-radical-initiators" width="172" sizeVersion="0"></slider>
+    <slider x="20" step="1" y="166" max="100" display="num-add" height="33" min="1" direction="Horizontal" default="100.0" variable="num-add" width="172" sizeVersion="0"></slider>
+    <button x="47" y="212" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="112" sizeVersion="0">add-monomers</button>
+    <button x="32" y="253" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="140" sizeVersion="0">add-radical-initiators</button>
+    <slider x="19" step="1" y="313" max="100" display="disproportionation-prob" height="33" min="0" direction="Horizontal" default="0.0" variable="disproportionation-prob" width="174" sizeVersion="0"></slider>
+    <plot x="784" autoPlotX="false" yMax="0.0" autoPlotY="false" yAxis="Number of Molecules" y="24" xMin="0.0" height="239" legend="true" xMax="0.0" yMin="0.0" xAxis="Molecular Weight" display="Molecular Weight Distribution" width="377" sizeVersion="0">
       <setup>set-plot-x-range 0 (round (num-monomers * 0.1))
 set-plot-y-range 0 (round (num-radical-initiators * 0.7))</setup>
       <update>if (any? initiators) and (ticks mod 100) = 0 [
 set-plot-x-range 0 ([molecular-weight] of max-one-of initiators [molecular-weight])
 ]</update>
-      <pen color="-16777216" legend="true" interval="1.0" mode="1" display="histogram">
+      <pen interval="1.0" mode="1" display="histogram" color="-16777216" legend="true">
         <setup>set-histogram-num-bars 8</setup>
         <update>histogram [molecular-weight] of initiators with [track-mw?]
 if (any? initiators) and (ticks mod 100) = 0 [
 set-histogram-num-bars 8
 ]</update>
       </pen>
-      <pen color="-2674135" legend="true" interval="1.0" mode="0" display="number avg mw">
+      <pen interval="1.0" mode="0" display="number avg mw" color="-2674135" legend="true">
         <setup></setup>
         <update>plot-pen-reset
 plotxy num-avg-molecular-weight plot-y-min
 plotxy num-avg-molecular-weight plot-y-max</update>
       </pen>
-      <pen color="-13345367" legend="true" interval="1.0" mode="0" display="weight avg mw">
+      <pen interval="1.0" mode="0" display="weight avg mw" color="-13345367" legend="true">
         <setup></setup>
         <update>plot-pen-reset
 plotxy wgt-avg-molecular-weight plot-y-min
 plotxy wgt-avg-molecular-weight plot-y-max</update>
       </pen>
     </plot>
-    <note x="20" y="390" height="26" backgroundDark="0" textColorLight="-16777216" backgroundLight="0" fontSize="12" width="150"><![CDATA[Shape & Color Key
+    <note x="20" y="390" height="26" backgroundDark="0" fontSize="12" width="150" markdown="false" textColorLight="-16777216" backgroundLight="0"><![CDATA[Shape & Color Key
 
 ]]></note>
-    <note x="45" y="415" height="18" backgroundDark="0" textColorLight="-8275240" backgroundLight="0" fontSize="11" width="150">monomers: sky blue</note>
-    <note x="46" y="435" height="18" backgroundDark="0" textColorLight="-5825686" backgroundLight="0" fontSize="11" width="150">radical mers: magenta</note>
-    <note x="45" y="455" height="18" backgroundDark="0" textColorLight="-14454117" backgroundLight="0" fontSize="11" width="150">saturated mers: teal</note>
-    <note x="45" y="475" height="26" backgroundDark="0" textColorLight="-612749" backgroundLight="0" fontSize="11" width="175">radical initiators: light orange</note>
-    <note x="45" y="495" height="18" backgroundDark="0" textColorLight="-6995700" backgroundLight="0" fontSize="11" width="150">initiators: dark orange</note>
-    <monitor x="785" precision="1" y="277" height="45" fontSize="11" width="116" sizeVersion="0" display="Number Avg MW">num-avg-molecular-weight</monitor>
-    <monitor x="911" precision="1" y="277" height="45" fontSize="11" width="114" sizeVersion="0" display="Weight Avg MW">wgt-avg-molecular-weight</monitor>
-    <monitor x="1035" precision="2" y="277" height="45" fontSize="11" width="126" sizeVersion="0" display="Polydispersity Index">wgt-avg-molecular-weight / num-avg-molecular-weight</monitor>
-    <plot x="786" yMax="0.1" yAxis="# / volume" y="337" xMin="0.0" height="190" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="239" sizeVersion="0" xAxis="ticks" display="Monomer Concentration">
+    <note x="45" y="415" height="18" backgroundDark="0" fontSize="11" width="150" markdown="false" textColorLight="-8275240" backgroundLight="0">monomers: sky blue</note>
+    <note x="46" y="435" height="18" backgroundDark="0" fontSize="11" width="150" markdown="false" textColorLight="-5825686" backgroundLight="0">radical mers: magenta</note>
+    <note x="45" y="455" height="18" backgroundDark="0" fontSize="11" width="150" markdown="false" textColorLight="-14454117" backgroundLight="0">saturated mers: teal</note>
+    <note x="45" y="475" height="26" backgroundDark="0" fontSize="11" width="175" markdown="false" textColorLight="-612749" backgroundLight="0">radical initiators: light orange</note>
+    <note x="45" y="495" height="18" backgroundDark="0" fontSize="11" width="150" markdown="false" textColorLight="-6995700" backgroundLight="0">initiators: dark orange</note>
+    <monitor x="785" precision="1" y="277" height="45" fontSize="11" display="Number Avg MW" width="116" sizeVersion="0">num-avg-molecular-weight</monitor>
+    <monitor x="911" precision="1" y="277" height="45" fontSize="11" display="Weight Avg MW" width="114" sizeVersion="0">wgt-avg-molecular-weight</monitor>
+    <monitor x="1035" precision="2" y="277" height="45" fontSize="11" display="Polydispersity Index" width="126" sizeVersion="0">wgt-avg-molecular-weight / num-avg-molecular-weight</monitor>
+    <plot x="786" autoPlotX="true" yMax="0.1" autoPlotY="true" yAxis="# / volume" y="337" xMin="0.0" height="190" legend="false" xMax="10.0" yMin="0.0" xAxis="ticks" display="Monomer Concentration" width="239" sizeVersion="0">
       <setup></setup>
       <update></update>
-      <pen color="-16777216" legend="true" interval="1.0" mode="0" display="default">
+      <pen interval="1.0" mode="0" display="default" color="-16777216" legend="true">
         <setup></setup>
         <update>plot (count unsaturated-mers with [monomer?]) / (world-width * world-height)</update>
       </pen>
     </plot>
-    <note x="20" y="465" height="23" backgroundDark="0" textColorLight="-612749" backgroundLight="0" fontSize="25" width="25">■</note>
-    <note x="20" y="485" height="31" backgroundDark="0" textColorLight="-6995700" backgroundLight="0" fontSize="25" width="25">■</note>
-    <note x="20" y="445" height="31" backgroundDark="0" textColorLight="-14454117" backgroundLight="0" fontSize="25" width="25">●</note>
-    <note x="20" y="425" height="31" backgroundDark="0" textColorLight="-5825686" backgroundLight="0" fontSize="25" width="25">●</note>
-    <note x="20" y="405" height="31" backgroundDark="0" textColorLight="-8275240" backgroundLight="0" fontSize="25" width="25">●</note>
+    <note x="20" y="465" height="23" backgroundDark="0" fontSize="25" width="25" markdown="false" textColorLight="-612749" backgroundLight="0">■</note>
+    <note x="20" y="485" height="31" backgroundDark="0" fontSize="25" width="25" markdown="false" textColorLight="-6995700" backgroundLight="0">■</note>
+    <note x="20" y="445" height="31" backgroundDark="0" fontSize="25" width="25" markdown="false" textColorLight="-14454117" backgroundLight="0">●</note>
+    <note x="20" y="425" height="31" backgroundDark="0" fontSize="25" width="25" markdown="false" textColorLight="-5825686" backgroundLight="0">●</note>
+    <note x="20" y="405" height="31" backgroundDark="0" fontSize="25" width="25" markdown="false" textColorLight="-8275240" backgroundLight="0">●</note>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 

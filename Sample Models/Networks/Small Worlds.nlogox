@@ -360,50 +360,50 @@ end
 ; Copyright 2015 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="10" maxPycor="17" updateMode="1" wrappingAllowedX="false" y="50" frameRate="30.0" minPycor="-17" height="424" showTickCounter="false" patchSize="12.0" fontSize="10" wrappingAllowedY="false" width="424" tickCounterLabel="ticks" maxPxcor="17" minPxcor="-17"></view>
-    <slider x="120" step="1" y="10" height="33" min="10" direction="Horizontal" max="100" default="31.0" variable="num-nodes" width="315" sizeVersion="0" display="num-nodes"></slider>
-    <plot x="445" yMax="1.0" y="235" xMin="0.0" height="179" legend="false" xMax="1.0" autoplot="true" yMin="0.0" width="265" sizeVersion="0" xAxis="fraction of edges rewired" display="Network Properties Rewire-One">
+    <view x="10" wrappingAllowedX="false" y="50" frameRate="30.0" minPycor="-17" height="424" showTickCounter="false" patchSize="12.0" fontSize="10" wrappingAllowedY="false" width="424" tickCounterLabel="ticks" maxPycor="17" updateMode="1" maxPxcor="17" minPxcor="-17"></view>
+    <slider x="120" step="1" y="10" max="100" display="num-nodes" height="33" min="10" direction="Horizontal" default="31.0" variable="num-nodes" width="315" sizeVersion="0"></slider>
+    <plot x="445" autoPlotX="true" yMax="1.0" autoPlotY="true" y="235" xMin="0.0" height="179" legend="false" xMax="1.0" yMin="0.0" xAxis="fraction of edges rewired" display="Network Properties Rewire-One" width="265" sizeVersion="0">
       <setup></setup>
       <update>if not rewire-one? [ stop ]</update>
-      <pen color="-65485" legend="true" interval="1.0" mode="2" display="apl">
+      <pen interval="1.0" mode="2" display="apl" color="-65485" legend="true">
         <setup></setup>
         <update>plotxy number-rewired / count links
        average-path-length / average-path-length-of-lattice</update>
       </pen>
-      <pen color="-10899396" legend="true" interval="1.0" mode="2" display="cc">
+      <pen interval="1.0" mode="2" display="cc" color="-10899396" legend="true">
         <setup></setup>
         <update>;; note: dividing by initial value to normalize the plot
 plotxy number-rewired / count links
        clustering-coefficient / clustering-coefficient-of-lattice</update>
       </pen>
     </plot>
-    <button x="445" y="200" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="265">rewire-one</button>
-    <slider x="715" step="0.01" y="420" height="33" min="0" direction="Horizontal" max="1" default="1.0" variable="rewiring-probability" width="275" sizeVersion="0" display="rewiring-probability"></slider>
-    <button x="715" y="200" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="275">rewire-all</button>
-    <monitor x="445" precision="3" y="120" height="45" fontSize="11" width="545" sizeVersion="0" display="highlighted node properties">highlight-string</monitor>
-    <button x="445" y="85" height="33" disableUntilTicks="false" forever="true" kind="Observer" width="545">highlight</button>
-    <monitor x="50" precision="3" y="485" height="45" fontSize="11" width="172" sizeVersion="0" display="clustering-coefficient (cc)">clustering-coefficient</monitor>
-    <monitor x="225" precision="3" y="485" height="45" fontSize="11" width="172" sizeVersion="0" display="average-path-length (apl)">average-path-length</monitor>
-    <plot x="715" yMax="1.0" y="235" xMin="0.0" height="179" legend="false" xMax="1.0" autoplot="true" yMin="0.0" width="275" sizeVersion="0" xAxis="rewiring probability" display="Network Properties Rewire-All">
+    <button x="445" y="200" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="265" sizeVersion="0">rewire-one</button>
+    <slider x="715" step="0.01" y="420" max="1" display="rewiring-probability" height="33" min="0" direction="Horizontal" default="1.0" variable="rewiring-probability" width="275" sizeVersion="0"></slider>
+    <button x="715" y="200" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="275" sizeVersion="0">rewire-all</button>
+    <monitor x="445" precision="3" y="120" height="45" fontSize="11" display="highlighted node properties" width="545" sizeVersion="0">highlight-string</monitor>
+    <button x="445" y="85" height="33" disableUntilTicks="false" forever="true" kind="Observer" width="545" sizeVersion="0">highlight</button>
+    <monitor x="50" precision="3" y="485" height="45" fontSize="11" display="clustering-coefficient (cc)" width="172" sizeVersion="0">clustering-coefficient</monitor>
+    <monitor x="225" precision="3" y="485" height="45" fontSize="11" display="average-path-length (apl)" width="172" sizeVersion="0">average-path-length</monitor>
+    <plot x="715" autoPlotX="true" yMax="1.0" autoPlotY="true" y="235" xMin="0.0" height="179" legend="false" xMax="1.0" yMin="0.0" xAxis="rewiring probability" display="Network Properties Rewire-All" width="275" sizeVersion="0">
       <setup></setup>
       <update>if not rewire-all? [ stop ]</update>
-      <pen color="-2674135" legend="true" interval="1.0" mode="2" display="apl">
+      <pen interval="1.0" mode="2" display="apl" color="-2674135" legend="true">
         <setup></setup>
         <update>;; note: dividing by value at initial value to normalize the plot
 plotxy rewiring-probability
        average-path-length / average-path-length-of-lattice</update>
       </pen>
-      <pen color="-10899396" legend="true" interval="1.0" mode="2" display="cc">
+      <pen interval="1.0" mode="2" display="cc" color="-10899396" legend="true">
         <setup></setup>
         <update>;; note: dividing by initial value to normalize the plot
 plotxy rewiring-probability
        clustering-coefficient / clustering-coefficient-of-lattice</update>
       </pen>
     </plot>
-    <button x="11" y="10" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="105" display="setup">setup</button>
-    <note x="535" y="420" height="66" backgroundDark="0" textColorLight="-10899396" backgroundLight="0" fontSize="14" width="205">• - Clustering Coefficient
+    <button x="11" y="10" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="setup" width="105" sizeVersion="0">setup</button>
+    <note x="535" y="420" height="66" backgroundDark="0" fontSize="14" width="205" markdown="false" textColorLight="-10899396" backgroundLight="0">• - Clustering Coefficient
 </note>
-    <note x="535" y="440" height="31" backgroundDark="0" textColorLight="-2674135" backgroundLight="0" fontSize="14" width="220">• - Average Path Length</note>
+    <note x="535" y="440" height="31" backgroundDark="0" fontSize="14" width="220" markdown="false" textColorLight="-2674135" backgroundLight="0">• - Average Path Length</note>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 

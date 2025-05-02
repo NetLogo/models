@@ -344,28 +344,28 @@ end
 ; Copyright 2017 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="245" maxPycor="14" updateMode="1" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-14" height="555" showTickCounter="true" patchSize="19.0" fontSize="10" wrappingAllowedY="false" width="555" tickCounterLabel="ticks" maxPxcor="14" minPxcor="-14"></view>
-    <button x="10" y="260" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="66" display="setup">setup</button>
-    <button x="80" y="260" height="33" disableUntilTicks="true" forever="false" kind="Observer" width="82" display="go-once">go</button>
-    <plot x="810" yMax="100.0" y="10" xMin="0.0" height="150" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="375" sizeVersion="0" display="Seller Asking Prices (min, average, max)">
+    <view x="245" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-14" height="555" showTickCounter="true" patchSize="19.0" fontSize="10" wrappingAllowedY="false" width="555" tickCounterLabel="ticks" maxPycor="14" updateMode="1" maxPxcor="14" minPxcor="-14"></view>
+    <button x="10" y="260" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="setup" width="66" sizeVersion="0">setup</button>
+    <button x="80" y="260" height="33" disableUntilTicks="true" forever="false" kind="Observer" display="go-once" width="82" sizeVersion="0">go</button>
+    <plot x="810" autoPlotX="true" yMax="100.0" autoPlotY="true" y="10" xMin="0.0" height="150" legend="false" xMax="10.0" yMin="0.0" display="Seller Asking Prices (min, average, max)" width="375" sizeVersion="0">
       <setup></setup>
       <update><![CDATA[let top (floor ifelse-value average-price = 0 [max [asking-price] of sellers] [average-price * 2])
 set-plot-y-range 0 ifelse-value top < 1 [1] [top]]]></update>
-      <pen color="-13345367" legend="true" interval="1.0" mode="0" display="avg-asking-price">
+      <pen interval="1.0" mode="0" display="avg-asking-price" color="-13345367" legend="true">
         <setup></setup>
         <update><![CDATA[let ss (sellers with [items-for-sale > 0])
 ifelse (count ss = 0)
 [ plot 0 ]
 [ plot mean [asking-price] of ss ]]]></update>
       </pen>
-      <pen color="-5325092" legend="true" interval="1.0" mode="0" display="min-asking-price">
+      <pen interval="1.0" mode="0" display="min-asking-price" color="-5325092" legend="true">
         <setup></setup>
         <update><![CDATA[let ss (sellers with [items-for-sale > 0])
 ifelse (count ss = 0)
 [ plot 0 ]
 [ plot min [asking-price] of ss ]]]></update>
       </pen>
-      <pen color="-5325092" legend="true" interval="1.0" mode="0" display="max-asking-price">
+      <pen interval="1.0" mode="0" display="max-asking-price" color="-5325092" legend="true">
         <setup></setup>
         <update><![CDATA[let ss (sellers with [items-for-sale > 0])
 ifelse (count ss = 0)
@@ -373,45 +373,45 @@ ifelse (count ss = 0)
 [ plot max [asking-price] of ss ]]]></update>
       </pen>
     </plot>
-    <button x="165" y="260" height="34" disableUntilTicks="true" forever="true" kind="Observer" width="64" display="go">go</button>
-    <plot x="812" yMax="10.0" y="317" xMin="0.0" height="166" legend="true" xMax="10.0" autoplot="true" yMin="0.0" width="373" sizeVersion="0" display="Items">
+    <button x="165" y="260" height="34" disableUntilTicks="true" forever="true" kind="Observer" display="go" width="64" sizeVersion="0">go</button>
+    <plot x="812" autoPlotX="true" yMax="10.0" autoPlotY="true" y="317" xMin="0.0" height="166" legend="true" xMax="10.0" yMin="0.0" display="Items" width="373" sizeVersion="0">
       <setup></setup>
       <update></update>
-      <pen color="-13345367" legend="true" interval="1.0" mode="0" display="items-for-sale">
+      <pen interval="1.0" mode="0" display="items-for-sale" color="-13345367" legend="true">
         <setup></setup>
         <update>plot sum [items-for-sale] of sellers</update>
       </pen>
-      <pen color="-5825686" legend="true" interval="1.0" mode="0" display="want-to-buy">
+      <pen interval="1.0" mode="0" display="want-to-buy" color="-5825686" legend="true">
         <setup></setup>
         <update>plot sum [want-to-buy] of buyers</update>
       </pen>
-      <pen color="-7500403" legend="true" interval="1.0" mode="0" display="total-sales">
+      <pen interval="1.0" mode="0" display="total-sales" color="-7500403" legend="true">
         <setup></setup>
         <update>plot total-sales</update>
       </pen>
     </plot>
-    <slider x="39" step="25" y="11" height="33" min="0" direction="Horizontal" max="500" default="500.0" variable="starting-money" width="173" sizeVersion="0" display="starting-money"></slider>
-    <monitor x="823" precision="2" y="493" height="45" fontSize="11" width="136" sizeVersion="0" display="Average Sale Price $">average-price</monitor>
-    <monitor x="963" precision="1" y="493" height="45" fontSize="11" width="167" sizeVersion="0" display="% of Starting Money Used">percent-money-taken</monitor>
-    <plot x="811" yMax="100.0" y="163" xMin="0.0" height="151" legend="false" xMax="10.0" autoplot="true" yMin="0.0" width="374" sizeVersion="0" display="Buyer Willing-to-Pay (min, average, max)">
+    <slider x="39" step="25" y="11" max="500" display="starting-money" height="33" min="0" direction="Horizontal" default="500.0" variable="starting-money" width="173" sizeVersion="0"></slider>
+    <monitor x="823" precision="2" y="493" height="45" fontSize="11" display="Average Sale Price $" width="136" sizeVersion="0">average-price</monitor>
+    <monitor x="963" precision="1" y="493" height="45" fontSize="11" display="% of Starting Money Used" width="167" sizeVersion="0">percent-money-taken</monitor>
+    <plot x="811" autoPlotX="true" yMax="100.0" autoPlotY="true" y="163" xMin="0.0" height="151" legend="false" xMax="10.0" yMin="0.0" display="Buyer Willing-to-Pay (min, average, max)" width="374" sizeVersion="0">
       <setup></setup>
       <update><![CDATA[let top floor ifelse-value average-price = 0 [max [asking-price] of sellers] [average-price * 2]
 set-plot-y-range 0 ifelse-value top < 1 [1] [top]]]></update>
-      <pen color="-5825686" legend="true" interval="1.0" mode="0" display="avg-willing">
+      <pen interval="1.0" mode="0" display="avg-willing" color="-5825686" legend="true">
         <setup></setup>
         <update><![CDATA[let bs (buyers with [want-to-buy > 0 and money > 0])
 ifelse (count bs = 0)
 [ plot 0 ]
 [ plot mean [willing-to-pay] of bs ]]]></update>
       </pen>
-      <pen color="-2382653" legend="true" interval="1.0" mode="0" display="max-willing">
+      <pen interval="1.0" mode="0" display="max-willing" color="-2382653" legend="true">
         <setup></setup>
         <update><![CDATA[let bs (buyers with [want-to-buy > 0 and money > 0])
 ifelse (count bs = 0)
 [ plot 0 ]
 [ plot max [willing-to-pay] of bs ]]]></update>
       </pen>
-      <pen color="-2382653" legend="true" interval="1.0" mode="0" display="min-willing">
+      <pen interval="1.0" mode="0" display="min-willing" color="-2382653" legend="true">
         <setup></setup>
         <update><![CDATA[let bs (buyers with [want-to-buy > 0 and money > 0])
 ifelse (count bs = 0)
@@ -419,36 +419,36 @@ ifelse (count bs = 0)
 [ plot min [willing-to-pay] of bs ]]]></update>
       </pen>
     </plot>
-    <chooser x="3" y="52" height="45" variable="supply-amount" current="0" width="111" sizeVersion="0" display="supply-amount">
+    <chooser x="3" y="52" height="45" variable="supply-amount" current="0" display="supply-amount" width="111" sizeVersion="0">
       <choice type="string" value="high"></choice>
       <choice type="string" value="low"></choice>
     </chooser>
-    <chooser x="121" y="52" height="45" variable="supply-distribution" current="1" width="118" sizeVersion="0" display="supply-distribution">
+    <chooser x="121" y="52" height="45" variable="supply-distribution" current="1" display="supply-distribution" width="118" sizeVersion="0">
       <choice type="string" value="concentrated"></choice>
       <choice type="string" value="even"></choice>
     </chooser>
-    <chooser x="3" y="98" height="45" variable="demand-amount" current="1" width="111" sizeVersion="0" display="demand-amount">
+    <chooser x="3" y="98" height="45" variable="demand-amount" current="1" display="demand-amount" width="111" sizeVersion="0">
       <choice type="string" value="low"></choice>
       <choice type="string" value="high"></choice>
     </chooser>
-    <chooser x="121" y="98" height="45" variable="demand-distribution" current="1" width="118" sizeVersion="0" display="demand-distribution">
+    <chooser x="121" y="98" height="45" variable="demand-distribution" current="1" display="demand-distribution" width="118" sizeVersion="0">
       <choice type="string" value="concentrated"></choice>
       <choice type="string" value="even"></choice>
     </chooser>
-    <chooser x="42" y="152" height="45" variable="seller-behavior" current="0" width="159" sizeVersion="0" display="seller-behavior">
+    <chooser x="42" y="152" height="45" variable="seller-behavior" current="0" display="seller-behavior" width="159" sizeVersion="0">
       <choice type="string" value="normal"></choice>
       <choice type="string" value="desperate"></choice>
       <choice type="string" value="random"></choice>
       <choice type="string" value="mix of all"></choice>
     </chooser>
-    <chooser x="42" y="199" height="45" variable="buyer-behavior" current="0" width="159" sizeVersion="0" display="buyer-behavior">
+    <chooser x="42" y="199" height="45" variable="buyer-behavior" current="0" display="buyer-behavior" width="159" sizeVersion="0">
       <choice type="string" value="normal"></choice>
       <choice type="string" value="desperate"></choice>
       <choice type="string" value="random"></choice>
       <choice type="string" value="mix of all"></choice>
     </chooser>
-    <switch x="5" y="350" height="33" on="true" variable="stars?" width="103" sizeVersion="0" display="stars?"></switch>
-    <switch x="5" y="310" height="33" on="false" variable="sellers-ignore-full-buyers?" width="226" sizeVersion="0" display="sellers-ignore-full-buyers?"></switch>
+    <switch x="5" y="350" height="33" on="true" variable="stars?" display="stars?" width="103" sizeVersion="0"></switch>
+    <switch x="5" y="310" height="33" on="false" variable="sellers-ignore-full-buyers?" display="sellers-ignore-full-buyers?" width="226" sizeVersion="0"></switch>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
