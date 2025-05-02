@@ -17,7 +17,7 @@ class Tokens(model: Model) {
 
   def widgetTokens: Seq[Token] =
     model.widgets.collect {
-      case Button(Some(source), _, _, _, _, _, _, _, _, _) =>
+      case Button(Some(source), _, _, _, _, _, _, _, _, _, _) =>
         tokenize(source)
       case Switch(Some(variable), _, _, _, _, _, _, _) =>
         tokenize(variable)
