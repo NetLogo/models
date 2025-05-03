@@ -13,6 +13,7 @@ javaOptions ++= Seq(
   "-Dorg.nlogo.onLocal=" + Option(System.getProperty("org.nlogo.onLocal")).getOrElse("false"),
   "-Dorg.nlogo.is3d=" + Option(System.getProperty("org.nlogo.is3d")).getOrElse("false"),
   "-Dcom.sun.media.jai.disableMediaLib=true", // see https://github.com/NetLogo/GIS-Extension/issues/4
+  "-Dnetlogo.extensions.dir=" + (baseDirectory.value.getParentFile / "extensions").getAbsolutePath.toString,
   "-Xmx4G"
 )
 
