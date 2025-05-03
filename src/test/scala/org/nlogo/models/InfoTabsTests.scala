@@ -2,7 +2,8 @@ package org.nlogo.models
 
 import java.util.{ ArrayList => JArrayList }
 
-import scala.collection.JavaConverters._
+import scala.collection.immutable.ArraySeq
+import scala.jdk.CollectionConverters.IterableHasAsScala
 import scala.language.postfixOps
 import scala.util.{ Failure, Try }
 
@@ -39,7 +40,7 @@ class InfoTabsTests extends TestModels {
   val maxLen = 700
   testModels(s"Length of first paragraph of WHAT IS IT should be >= $minLen and <= $maxLen") { model =>
     for {
-      paragraph <- model.infoTabParts.sectionMap.get(whatIsIt).map(_.linesIterator.next)
+      paragraph <- model.infoTabParts.sectionMap.get(whatIsIt).map(_.linesIterator.next())
       length = paragraph.length
       if length <= minLen || length > maxLen
     } yield s"Length is $length in ${model.quotedPath}"
@@ -47,7 +48,7 @@ class InfoTabsTests extends TestModels {
 
   test("First paragraph of WHAT IS IT should be unique") {
     val failures = for {
-      (optWhatItIs, groupedModels) <- libraryModels.groupBy(_.infoTabParts.sectionMap.get(whatIsIt).map(_.linesIterator.next))
+      (optWhatItIs, groupedModels) <- libraryModels.groupBy(_.infoTabParts.sectionMap.get(whatIsIt).map(_.linesIterator.next()))
       whatItIs <- optWhatItIs
       if groupedModels.size > 1
     } yield whatItIs + "\n  " + groupedModels.map(_.quotedPath).mkString("\n  ")
@@ -106,8 +107,9 @@ class InfoTabsTests extends TestModels {
         def getErrors(node: Node): Seq[(String, String)] =
           node match {
             case f: FencedCodeBlock if f.getInfo.trim.isEmpty =>
-              check(f.getContentChars.toString)
-            case i: IndentedCodeBlock => check(i.getContentChars.toString)
+              ArraySeq.unsafeWrapArray(check(f.getContentChars.toString))
+            case i: IndentedCodeBlock =>
+              ArraySeq.unsafeWrapArray(check(i.getContentChars.toString))
             case other => other.getChildren.asScala.flatMap(s => getErrors(s)).toSeq
           }
 

@@ -5,7 +5,7 @@ import java.io.File
 import java.lang.{ ProcessBuilder => JProcessBuilder }
 import java.nio.file.{ Files, Path, Paths }
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters.ListHasAsScala
 import scala.sys.process.ProcessBuilder
 import scala.sys.process.ProcessLogger
 import scala.sys.process.stringSeqToProcess
@@ -53,7 +53,7 @@ class SpellCheckTests extends TestModels with BeforeAndAfterAll {
     val tmpPath = Files.createTempFile(model.file.getName, ".txt")
     val contentWithoutEscapes = escapes.foldLeft(model.content)(_.replace(_, " "))
     Files.write(tmpPath, contentWithoutEscapes.getBytes("UTF-8"))
-    val lines = model.content.linesIterator.zipWithIndex.toStream
+    val lines = model.content.linesIterator.zipWithIndex.to(LazyList)
     val (runCheck, outFile) = aspell(tmpPath)
     runCheck.start().waitFor()
     Files.readAllLines(outFile)

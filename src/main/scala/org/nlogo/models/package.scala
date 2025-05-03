@@ -13,7 +13,7 @@ import org.nlogo.headless.{ HeadlessWorkspace, Main }
 import org.nlogo.models.InfoTabParts
 
 import scala.Boolean
-import scala.collection.JavaConverters.collectionAsScalaIterableConverter
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.util.Try
 
 package object models {
@@ -56,20 +56,20 @@ package object models {
     (for {
       (file, modelTry, _) <- modelTries
       model <- modelTry.toOption
-    } yield model -> file)(collection.breakOut)
+    } yield model -> file).toMap
 
   val modelContent: Map[Model, String] =
     (for {
       (file, modelTry, contentTry) <- modelTries
       model <- modelTry.toOption
       content <- contentTry.toOption
-    } yield model -> content)(collection.breakOut)
+    } yield model -> content).toMap
 
   val allModels: Iterable[Model] = modelFiles.keys.toSeq
   val libraryModels: Iterable[Model] = allModels.filterNot(_.isTestModel)
 
-  val allModelsNamed: Map[Model, String] = modelFiles.mapValues(_.getName)
-  val libraryModelsNamed: Map[Model, String] = modelFiles.mapValues(_.getName)
+  val allModelsNamed: Map[Model, String] = modelFiles.view.mapValues(_.getName).toMap
+  val libraryModelsNamed: Map[Model, String] = modelFiles.view.mapValues(_.getName).toMap
 
   implicit class EnrichedModel(val model: Model) {
     def file = modelFiles(model)

@@ -1,8 +1,8 @@
 package org.nlogo.models
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-class NameTests extends FunSuite {
+class NameTests extends AnyFunSuite {
 
   test("There should be no duplicate model names") {
     val duplicates = libraryModels.groupBy(_.name).filter(_._2.size > 1)

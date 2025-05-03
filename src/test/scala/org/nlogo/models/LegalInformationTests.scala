@@ -4,7 +4,7 @@ import java.io.ByteArrayInputStream
 
 import difflib.DiffUtils
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters.{ ListHasAsScala, SeqHasAsJava }
 import scala.io.Source
 import scala.util.Try
 
@@ -26,7 +26,7 @@ class LegalInformationTests extends TestModels {
   }
 
   testModels("Model file should be identical to output of Notarizer") { model =>
-    val savedLines = Source.fromFile(model.file.getPath).getLines.toSeq.asJava
+    val savedLines = Source.fromFile(model.file.getPath).getLines().toSeq.asJava
     for {
       notarizedModel <- Try(Notarizer.notarize(model)).toOption
       patch = DiffUtils.diff(savedLines, notarizedModel.linesIterator.toSeq.asJava)

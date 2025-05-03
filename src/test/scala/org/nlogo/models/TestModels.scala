@@ -3,12 +3,12 @@ package org.nlogo.models
 import org.nlogo.api.Version
 import org.nlogo.core.Model
 
-import org.scalatest.{ Args, FunSuite, Status, SucceededStatus }
+import org.scalatest.{ Args, Status, SucceededStatus }
+import org.scalatest.funsuite.AnyFunSuite
 
-import scala.collection.{ GenIterable, GenMap, GenSeq }
 import scala.util.Try
 
-abstract class TestModels extends FunSuite {
+abstract class TestModels extends AnyFunSuite {
 
   private var nameFilter: Option[String] = None
 
@@ -22,25 +22,25 @@ abstract class TestModels extends FunSuite {
     testName: String,
     includeTestModels: Boolean = false,
     includeOtherDimension: Boolean = false,
-    filter: Model => Boolean = _ => true)(testFun: Model => GenIterable[Any]): Unit = {
+    filter: Model => Boolean = _ => true)(testFun: Model => Iterable[Any]): Unit = {
     val models =
       (if (includeTestModels) allModelsNamed else libraryModelsNamed)
-        .filterKeys(includeOtherDimension || _.is3D == Version.is3D)
-        .filterKeys(filter)
+        .view.filterKeys(includeOtherDimension || _.is3D == Version.is3D)
+        .filterKeys(filter).toMap
     testModels(models, testName)(testFun)
   }
 
-  def testModels(models: GenMap[Model, String], testName: String)(testFun: Model => GenIterable[Any]): Unit =
+  def testModels(models: Map[Model, String], testName: String)(testFun: Model => Iterable[Any]): Unit =
     test(testName) {
-      val allFailures: GenSeq[String] =
+      val allFailures: Iterable[String] =
         (for {
-          model <- models.filterKeys(model => nameFilter.map(models(model).toLowerCase.contains).getOrElse(true)).keys
+          model <- models.view.filterKeys(model => nameFilter.map(models(model).toLowerCase.contains).getOrElse(true)).keys
           failures <- Try(testFun(model))
             .recover { case e => Seq(e.toString + "\n" + e.getStackTrace.mkString("\n")) }
             .toOption
           if failures.nonEmpty
           descriptions = failures.map(_.toString).filterNot(_.isEmpty).map("  " + _)
-        } yield (model.quotedPath +: descriptions.toSeq).mkString("\n"))(collection.breakOut)
+        } yield (model.quotedPath +: descriptions.toSeq).mkString("\n"))
 
       if (allFailures.nonEmpty)
         fail(allFailures.toArray.sorted.mkString("", "\n", s"\n(${allFailures.size} failing models)"))
@@ -52,7 +52,7 @@ abstract class TestModels extends FunSuite {
     (for {
       (line, lineNumber) <- section(model).linesIterator.zipWithIndex
       if p(line)
-    } yield "  " + msg(line) + "line %4d |".format(lineNumber) + line).toIterable
+    } yield "  " + msg(line) + "line %4d |".format(lineNumber) + line).iterator.to(Iterable)
   }
 
 }

@@ -1,6 +1,7 @@
 package org.nlogo.models
 
 import scala.collection.parallel.ParMap
+import scala.collection.parallel.CollectionConverters.IterableIsParallelizable
 import scala.util.Try
 
 import org.nlogo.api.SimpleJobOwner
@@ -14,7 +15,7 @@ import org.nlogo.core.Model
 
 class ButtonTests extends TestModels {
 
-  val models = libraryModelsNamed.filterKeys { model =>
+  val models = libraryModelsNamed.view.filterKeys { model =>
     (model.is3D == Version.is3D) &&
       (model.isCompilable) &&
       (!Set(
@@ -24,7 +25,7 @@ class ButtonTests extends TestModels {
         "2.5d Patch View Example", "2.5d Turtle View Example", // https://github.com/NetLogo/View2.5D/issues/4
         "Python Flocking Clusters" // issues with sklearn install on GitHub Actions
       ).contains(model.name))
-  }.par
+  }.par.toMap
 
   def run(model: Model, button: Button): Try[World] = Try {
     withWorkspace(model) { ws =>
@@ -55,9 +56,9 @@ class ButtonTests extends TestModels {
   val buttons: ParMap[Model, Iterable[Button]] =
     models.map { case (model, _) =>
       model -> model.widgets.collect { case b: Button => b }
-    }(collection.breakOut)
+    }.toMap
 
-  testModels(models, "Buttons should be disabled until ticks start if they trigger a runtime error") { model =>
+  testModels(models.seq, "Buttons should be disabled until ticks start if they trigger a runtime error") { model =>
     for {
       button <- buttons(model)
       source <- button.source
@@ -66,7 +67,7 @@ class ButtonTests extends TestModels {
     } yield "\"" + button.display.getOrElse(source) + "\" button: " + exception.getMessage
   }
 
-  testModels(models,
+  testModels(models.seq,
     "If any button is disabled until ticks start, ensure at least one enabled button that resets ticks") {
       model =>
         for {

@@ -1,12 +1,13 @@
 package org.nlogo.models
 
-import java.awt.Font
+import java.awt.{ Dimension, Font, Rectangle }
 import java.io.File
+import java.lang.RuntimeException
 import java.util.Date
 
-import org.jfree.chart.labels.ItemLabelAnchor
-import org.jfree.chart.labels.ItemLabelPosition
-import org.jfree.chart.labels.StandardCategoryItemLabelGenerator
+import org.jfree.chart.{ ChartFactory, JFreeChart }
+import org.jfree.data.category.DefaultCategoryDataset
+import org.jfree.chart.labels.{ ItemLabelAnchor, ItemLabelPosition, StandardCategoryItemLabelGenerator }
 import org.jfree.chart.plot.PlotOrientation
 import org.jfree.chart.renderer.category.BarRenderer
 import org.jfree.chart.title.TextTitle
@@ -14,60 +15,51 @@ import org.jfree.graphics2d.svg.SVGGraphics2D
 import org.jfree.graphics2d.svg.SVGUtils
 import org.jfree.ui.TextAnchor
 
-import scalax.chart.Chart
-import scalax.chart.api.BarChart
-
 object Stats {
 
   def exportPrimitivesUsagePlot(): Unit = {
 
-    val data = libraryModels
-      .flatMap(model =>
-        try new Tokens(model).primitiveTokenNames.distinct.map(_ -> model)
-        catch {
-          case e: java.lang.RuntimeException =>
-            Console.err.println(model.file.getPath)
-            e.printStackTrace()
-            Seq.empty
-        }
-      )
-      .groupBy(_._1).mapValues(_.size)
-      .toSeq
-      .sortBy(t => (0 - t._2, t._1))
+    val data = new DefaultCategoryDataset
 
-    val chart   = BarChart(data)
-    chart.title = "Usage of primitives in the Models Library"
-    chart.peer.removeLegend()
-    chart.peer.addSubtitle(new TextTitle(new Date().toString))
+    libraryModels.flatMap { model =>
+      try {
+        new Tokens(model).primitiveTokenNames.distinct.map(_ -> model)
+      } catch {
+        case e: RuntimeException =>
+          Console.err.println(model.file.getPath)
+          e.printStackTrace()
+          Seq()
+      }
+    }.groupBy(_._1).view.mapValues(_.size).toSeq.sortBy(t => (0 - t._2, t._1)).foreach {
+      case (name, count) => data.addValue(count, "", name)
+      case _ =>
+    }
+
+    val chart = ChartFactory.createBarChart("Usage of primitives in the Models Library", null, "Number of models",
+                                            data, PlotOrientation.HORIZONTAL, false, false, false)
+    chart.addSubtitle(new TextTitle(new Date().toString))
 
     val renderer = new BarRenderer
     renderer.setShadowVisible(false)
     renderer.setDrawBarOutline(true)
     renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator)
     renderer.setBaseItemLabelsVisible(true)
-    renderer.setBasePositiveItemLabelPosition(
-      new ItemLabelPosition(ItemLabelAnchor.OUTSIDE3, TextAnchor.CENTER_LEFT)
-    )
+    renderer.setBasePositiveItemLabelPosition(new ItemLabelPosition(ItemLabelAnchor.OUTSIDE3, TextAnchor.CENTER_LEFT))
 
-    val plot = chart.peer.getCategoryPlot
+    val plot = chart.getCategoryPlot
     plot.setRenderer(renderer)
-    plot.setOrientation(PlotOrientation.HORIZONTAL)
-    plot.getRangeAxis.setLabel("Number of models")
     plot.getDomainAxis.setTickLabelFont(new Font("Monospaced", Font.PLAIN, 12))
     plot.getDomainAxis.setUpperMargin(0.005)
     plot.getDomainAxis.setLowerMargin(0.005)
-    saveAsSVG(chart, "test/stats/usage_of_primitives.svg", (1000, 4500))
+    saveAsSVG(chart, "test/stats/usage_of_primitives.svg", 1000, 4500)
   }
 
   // shouldn't be needed anymore once
   // https://github.com/wookietreiber/scala-chart/issues/12
   // makes it into a scala-chart release
-  def saveAsSVG(chart: Chart, file: String, resolution: (Int, Int)): Unit = {
-    val (width, height) = resolution
+  def saveAsSVG(chart: JFreeChart, file: String, width: Int, height: Int): Unit = {
     val g2 = new SVGGraphics2D(width, height)
-    chart.peer.draw(g2, new java.awt.Rectangle(
-      new java.awt.Dimension(width, height))
-    )
+    chart.draw(g2, new Rectangle(new Dimension(width, height)))
     val svg = g2.getSVGElement
     g2.dispose()
     SVGUtils.writeToSVG(new File(file), svg)

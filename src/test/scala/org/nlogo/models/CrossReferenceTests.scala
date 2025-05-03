@@ -5,11 +5,11 @@ import java.nio.file.{ Files, Paths }
 
 import com.typesafe.config.{ Config, ConfigFactory }
 
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters.ListHasAsScala
 
-class CrossReferenceTests extends FunSuite {
+class CrossReferenceTests extends AnyFunSuite {
 
   val crossReference = ConfigFactory.parseFile(new File("crossReference.conf"))
 

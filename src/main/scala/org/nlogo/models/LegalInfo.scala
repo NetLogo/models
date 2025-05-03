@@ -104,7 +104,7 @@ case class LegalInfo(model: Model) {
     builder.append("Center for Connected Learning and Computer-Based Modeling, ")
     if (model.isIABM) builder.append("Northwestern Institute on Complex Systems, ")
     builder.append("Northwestern University, Evanston, IL.")
-    builder.result
+    builder.result()
   }
 
   val acknowledgment: Option[String] = {
@@ -143,7 +143,7 @@ case class LegalInfo(model: Model) {
         builder.append("Design guidelines for agent based model visualization. ")
         builder.append("Journal of Artificial Societies and Social Simulation (JASSS), 12(2), 1. ")
         builder.append("http://ccl.northwestern.edu/papers/2009/Kornhauser,Wilensky&Rand_DesignGuidelinesABMViz.pdf.")
-        Some(builder.result)
+        Some(builder.result())
       case _ => None
     }
   }

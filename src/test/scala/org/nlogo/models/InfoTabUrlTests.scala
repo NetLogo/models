@@ -7,7 +7,8 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
-import scala.collection.JavaConverters._
+import scala.collection.parallel.CollectionConverters.IterableIsParallelizable
+import scala.jdk.CollectionConverters.IterableHasAsScala
 import scala.util.Try
 
 import com.vladsch.flexmark.Extension
@@ -21,12 +22,12 @@ import org.apache.commons.validator.routines.UrlValidator.ALLOW_2_SLASHES
 import org.nlogo.api.Version
 import org.nlogo.core.Model
 import org.scalatest.BeforeAndAfterAll
-import org.scalatest.FunSuite
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.concurrent.ScalaFutures
 
 import org.asynchttpclient.{ DefaultAsyncHttpClient, DefaultAsyncHttpClientConfig, Response }
 
-class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll {
+class InfoTabUrlTests extends AnyFunSuite with ScalaFutures with BeforeAndAfterAll {
 
   private val parserBuilder = {
     val options = new MutableDataSet()
@@ -66,7 +67,8 @@ class InfoTabUrlTests extends FunSuite with ScalaFutures with BeforeAndAfterAll 
     .filter(_.is3D == Version.is3D)
     .flatMap(m => linksInMarkdown(m.info).map(_ -> m)) // (link, model) pairs
     .groupBy(_._1) // group by links
-    .mapValues(_.unzip._2) // keep only models in the map's values
+    .view.mapValues(_.unzip._2) // keep only models in the map's values
+    .toMap
 
   val builder = new DefaultAsyncHttpClientConfig.Builder()
   val client = new DefaultAsyncHttpClient(builder.build())
