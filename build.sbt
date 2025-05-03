@@ -18,19 +18,6 @@ javaOptions ++= Seq(
 
 fork := true
 
-lazy val installExtensions = TaskKey[Unit]("install bundled extensions so we can test models that use them")
-installExtensions := {
-  val main = "org.nlogo.workspace.ExtensionInstaller"
-  // We even install the extensions we can't or won't test just to avoid compile errors with them.
-  // -Jeremy B May 2021
-  val args = Seq("arduino", "array", "bitmap", "csv", "gis", "gogo", "ls", "matrix", "nw", "palette", "profiler", "py", "r", "resource", "rnd", "sound", "table", "time", "vid", "view2.5d")
-  val s = streams.value
-  val cp = (Test / dependencyClasspath).value
-  (Test / run / runner).value.run(main, cp.files, args, s.log)
-}
-
-(Test / test) := (Test / test).dependsOn(installExtensions).value
-
 libraryDependencies ++= Seq(
   "org.nlogo" % "netlogo" % netLogoVersion,
   "org.scalatest" %% "scalatest" % "3.2.19" % Test,
@@ -47,5 +34,6 @@ libraryDependencies ++= Seq(
   "com.typesafe" % "config" % "1.3.1" % "test",
   "com.vladsch.flexmark" % "flexmark" % "0.20.0" % "test",
   "com.vladsch.flexmark" % "flexmark-ext-autolink" % "0.20.0" % "test",
-  "com.vladsch.flexmark" % "flexmark-util" % "0.20.0" % "test"
+  "com.vladsch.flexmark" % "flexmark-util" % "0.20.0" % "test",
+  "org.json4s" %% "json4s-jackson" % "4.0.7"
 )

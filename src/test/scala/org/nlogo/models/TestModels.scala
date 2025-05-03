@@ -30,11 +30,18 @@ abstract class TestModels extends AnyFunSuite {
     testModels(models, testName)(testFun)
   }
 
+  // the following models use the import-a extension, which is not bundled
+  private def excludeModel(path: String): Boolean = {
+    path.contains("Calorimetry") ||
+    path.contains("Resource Example")
+  }
+
   def testModels(models: Map[Model, String], testName: String)(testFun: Model => Iterable[Any]): Unit =
     test(testName) {
       val allFailures: Iterable[String] =
         (for {
-          model <- models.view.filterKeys(model => nameFilter.map(models(model).toLowerCase.contains).getOrElse(true)).keys
+          model <- models.view.filterKeys(model =>
+            nameFilter.map(models(model).toLowerCase.contains).getOrElse(true) && !excludeModel(models(model))).keys
           failures <- Try(testFun(model))
             .recover { case e => Seq(e.toString + "\n" + e.getStackTrace.mkString("\n")) }
             .toOption
