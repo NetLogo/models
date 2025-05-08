@@ -15,7 +15,7 @@ class VersionTests extends TestModels {
   def allModelFailures: Iterable[(File, Throwable)] =
     modelTries.flatMap {
       case (file, modelTry, contentTry) =>
-        def failureSeq = (_: Try[_]).failed.toOption.toSeq.map(file -> _)
+        def failureSeq = (_: Try[?]).failed.toOption.toSeq.map(file -> _)
         failureSeq(modelTry) ++ failureSeq(contentTry)
     }
 

@@ -142,7 +142,7 @@ class InfoTabUrlTests extends AnyFunSuite with ScalaFutures with BeforeAndAfterA
               success
             case sc if sc >= 500 && sc < 600 =>
               request(link, timeout)
-            case sc if exceptions.get(sc).filter(_.exists(link startsWith _)).isDefined =>
+            case sc if exceptions.get(sc).filter(_.exists(link.startsWith)).isDefined =>
               success
             case sc => failure(
               "Got response status code " + sc + ". Headers:\n" +

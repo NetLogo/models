@@ -93,8 +93,8 @@ package object models {
       !(neverCompilable.contains(name) || (!onLocal && notCompilableOnTestServer.contains(name)))
     }
     def protocols: Seq[LabProtocol] = model
-      .optionalSectionValue("org.nlogo.modelsection.behaviorspace")
-      .getOrElse(Seq.empty)
+      .optionalSectionValue("org.nlogo.modelsection.behaviorspace").map(_.asInstanceOf[Seq[LabProtocol]])
+      .getOrElse(Seq())
     def previewCommands: PreviewCommands = model
       .optionalSectionValue[PreviewCommands]("org.nlogo.modelsection.previewcommands")
       .get // let it crash if preview commands are not loaded

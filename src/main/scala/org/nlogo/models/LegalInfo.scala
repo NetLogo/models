@@ -36,7 +36,10 @@ case class LegalInfo(model: Model) {
   val infoTabParts = model.infoTabParts
 
   val (year: Int, year2: Option[Int], keywords: List[String], cite: String) = {
-    val Some(pattern(y1, y2, keys, _, cite)) = infoTabParts.legalSnippet
+    val(y1, y2, keys, cite) = infoTabParts.legalSnippet match {
+      case Some(pattern(y1, y2, keys, _, cite)) => (y1, y2, keys, cite)
+      case _ => throw new IllegalStateException
+    }
     (y1.toInt,
       if (y2 == null) None else Some(y2.trim.toInt),
       if (keys == null) List() else keys.split("""\s""").map(_.trim).filter(!_.isEmpty).toList,
@@ -94,9 +97,9 @@ case class LegalInfo(model: Model) {
     val authors = cite match {
       case "" if keywords.contains("Stroup") =>
         "Wilensky, U. and Stroup, W."
-      case ""                            => "Wilensky, U."
-      case _ if cite contains "Wilensky" => cite
-      case _                             => cite + " and Wilensky, U."
+      case ""                             => "Wilensky, U."
+      case _ if cite.contains("Wilensky") => cite
+      case _                              => cite + " and Wilensky, U."
     }
     builder.append(authors)
     builder.append(" (" + year + ").  NetLogo " + model.name + " model.  ")

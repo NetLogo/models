@@ -59,7 +59,7 @@ class SpellCheckTests extends TestModels with BeforeAndAfterAll {
     Files.readAllLines(outFile)
       .asScala
       .distinct
-      .map(typo => typo -> lines.filter(_._1 contains typo).map(_._2 + 1))
+      .map(typo => typo -> lines.filter(_._1.contains(typo)).map(_._2 + 1))
       .sortBy(_._2.head) // sort by line number of first occurrence
       .map { case (t, ns) => s"  $t (${ns.mkString(", ")})" }
   }
