@@ -1,6 +1,6 @@
 lazy val netLogoVersion = "7.0.0-beta0"
 
-scalaVersion := "2.13.16"
+scalaVersion := "3.7.0"
 
 scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation", "-Xfatal-warnings")
 

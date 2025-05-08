@@ -32,7 +32,6 @@ object Stats {
       }
     }.groupBy(_._1).view.mapValues(_.size).toSeq.sortBy(t => (0 - t._2, t._1)).foreach {
       case (name, count) => data.addValue(count, "", name)
-      case _ =>
     }
 
     val chart = ChartFactory.createBarChart("Usage of primitives in the Models Library", null, "Number of models",

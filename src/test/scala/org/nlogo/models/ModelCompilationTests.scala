@@ -1,7 +1,7 @@
 package org.nlogo.models
 
 import scala.annotation.migration
-import scala.collection.JavaConverters.mapAsScalaMapConverter
+import scala.jdk.CollectionConverters.MapHasAsScala
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
