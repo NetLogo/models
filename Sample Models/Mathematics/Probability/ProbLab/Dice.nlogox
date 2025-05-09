@@ -173,19 +173,28 @@ end
 ; Copyright 2004 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="430" maxPycor="18" updateMode="1" wrappingAllowedX="false" y="65" frameRate="30.0" minPycor="-18" height="416" showTickCounter="true" patchSize="11.0" fontSize="12" wrappingAllowedY="false" width="371" tickCounterLabel="ticks" maxPxcor="16" minPxcor="-16"></view>
-    <monitor x="82" precision="3" y="196" height="45" fontSize="11" width="82" sizeVersion="0" display="+ # Rolls">count-steps</monitor>
-    <monitor x="230" precision="3" y="195" height="45" fontSize="11" width="92" sizeVersion="0" display="Combinations">count-combi-successes</monitor>
-    <switch x="275" y="75" height="33" on="false" variable="single-success?" width="145" sizeVersion="0" display="single-success?"></switch>
-    <monitor x="9" precision="0" y="196" height="45" fontSize="11" width="70" sizeVersion="0" display="#Samples">samples-counter</monitor>
-    <monitor x="325" precision="3" y="195" height="45" fontSize="11" width="93" sizeVersion="0" display="Permutations">count-permis-successes</monitor>
-    <note x="232" y="177" height="18" textColorLight="-16777216" fontSize="11" width="175">Successes in this sample:</note>
-    <button x="7" y="61" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="110" display="Setup">setup</button>
-    <button x="7" y="96" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="110" display="Pick Values">pick-values</button>
-    <button x="7" y="131" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="110" display="Roll Dice">search</button>
-    <monitor x="7" precision="0" y="10" height="45" fontSize="11" width="795" sizeVersion="0" display="Instructions">instructions</monitor>
-    <monitor x="10" precision="2" y="440" height="45" fontSize="11" width="115" sizeVersion="0" display="Mean-Combination">mean #combi-successes-per-sample-list</monitor>
-    <plot x="9" yMax="50.0" yAxis="count" y="246" xMin="0.0" height="185" legend="true" xMax="16.0" autoplot="true" yMin="0.0" width="410" sizeVersion="0" xAxis="successes per sample" display="Successes-per-Sample Distributions">
+    <view x="500" maxPycor="18" updateMode="1" wrappingAllowedX="false" y="190" frameRate="30.0" minPycor="-18" height="374" showTickCounter="true" patchSize="10.0" fontSize="12" wrappingAllowedY="false" width="334" tickCounterLabel="ticks" maxPxcor="16" minPxcor="-16"></view>
+    <button x="5" y="110" height="35" disableUntilTicks="true" forever="true" kind="Observer" width="110" display="Pick Values">pick-values</button>
+    <button x="5" y="150" height="35" disableUntilTicks="true" forever="true" kind="Observer" width="110" display="Roll Dice">search</button>
+    <slider x="120" step="10" y="130" height="55" min="0" direction="Horizontal" max="10000" default="5000.0" variable="total-samples" width="200" display="total-samples"></slider>
+    <slider x="120" step="10" y="70" height="55" min="10" direction="Horizontal" max="1000" default="10.0" variable="sample-size" width="200" display="sample-size"></slider>
+    <chooser x="325" y="130" height="55" variable="analysis-type" current="0" width="165" display="analysis-type">
+      <choice type="string" value="Permutations"></choice>
+      <choice type="string" value="Combination"></choice>
+      <choice type="string" value="Both"></choice>
+    </chooser>
+    <switch x="325" y="70" height="55" on="true" variable="single-success?" width="165" display="single-success?"></switch>
+    <monitor x="7" precision="0" y="10" height="55" fontSize="11" width="830" display="Instructions">instructions</monitor>
+    <monitor x="500" precision="0" y="70" height="55" fontSize="11" width="100" display="#Samples">samples-counter</monitor>
+    <monitor x="500" precision="3" y="130" height="55" fontSize="11" width="100" display="+ # Rolls">count-steps</monitor>
+    <monitor x="730" precision="3" y="130" height="55" fontSize="11" width="105" display="Permutations">count-permis-successes</monitor>
+    <button x="5" y="70" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="110" display="Setup">setup</button>
+    <button x="610" y="360" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="111" display="Hide/Reveal">ask user-dice [ set hidden? (not hidden?) ]</button>
+    <monitor x="730" precision="3" y="70" height="55" fontSize="11" width="105" display="Combinations">count-combi-successes</monitor>
+    <monitor x="5" precision="2" y="510" height="55" fontSize="11" width="135" display="Mean-Combination">mean #combi-successes-per-sample-list</monitor>
+    <monitor x="145" precision="2" y="510" height="55" fontSize="11" width="145" display="Mean-Permutations">mean #permis-successes-per-sample-list</monitor>
+    <monitor x="295" precision="2" y="510" height="55" fontSize="11" width="195" display="Combinations : Permutations">ratio</monitor>
+    <plot x="5" yMax="50.0" yAxis="count" y="190" xMin="0.0" height="315" legend="true" xMax="16.0" autoplot="true" yMin="0.0" width="485" xAxis="successes per sample" display="Successes-per-Sample Distributions">
       <setup></setup>
       <update><![CDATA[if ticks > 0 [
 ifelse analysis-type = "Both"
@@ -225,17 +234,8 @@ ifelse analysis-type = "Both"
 ]</update>
       </pen>
     </plot>
-    <monitor x="125" precision="2" y="440" height="45" fontSize="11" width="122" sizeVersion="0" display="Mean-Permutations">mean #permis-successes-per-sample-list</monitor>
-    <monitor x="245" precision="2" y="440" height="45" fontSize="11" width="175" sizeVersion="0" display="Combinations : Permutations">ratio</monitor>
-    <slider x="125" step="10" y="85" height="33" min="10" direction="Horizontal" max="1000" default="10.0" variable="sample-size" width="143" sizeVersion="0" display="sample-size"></slider>
-    <slider x="125" step="10" y="120" height="33" min="0" direction="Horizontal" max="10000" default="5000.0" variable="total-samples" width="143" sizeVersion="0" display="total-samples"></slider>
-    <chooser x="275" y="120" height="45" variable="analysis-type" current="0" width="145" sizeVersion="0" display="analysis-type">
-      <choice type="string" value="Permutations"></choice>
-      <choice type="string" value="Combination"></choice>
-      <choice type="string" value="Both"></choice>
-    </chooser>
-    <switch x="325" y="395" height="33" on="true" variable="bars?" width="91" sizeVersion="0" display="bars?"></switch>
-    <button x="565" y="275" height="34" disableUntilTicks="true" forever="false" kind="Observer" width="111" display="Hide/Reveal">ask user-dice [ set hidden? (not hidden?) ]</button>
+    <switch x="400" y="465" height="40" on="true" variable="bars?" width="90" display="bars?"></switch>
+    <note x="635" y="105" height="45" textColorDark="-1" backgroundDark="0" textColorLight="-16777216" backgroundLight="0" fontSize="14" width="110">Successes in the Sample:</note>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
