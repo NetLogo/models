@@ -321,12 +321,40 @@ end
 ; Copyright 2019 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="810" wrappingAllowedX="true" y="15" frameRate="30.0" minPycor="-16" height="466" showTickCounter="true" patchSize="14.0" fontSize="10" wrappingAllowedY="true" width="466" tickCounterLabel="ticks" maxPycor="16" updateMode="1" maxPxcor="16" minPxcor="-16"></view>
-    <slider x="100" step="1" y="15" max="100" display="initial-bacteria" height="33" min="0" direction="Horizontal" default="50.0" variable="initial-bacteria" width="145" sizeVersion="0"></slider>
-    <slider x="100" step="10" y="60" max="1000" display="initial-viruses" height="33" min="0" direction="Horizontal" default="250.0" variable="initial-viruses" width="145" sizeVersion="0"></slider>
-    <button x="15" y="15" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="75" sizeVersion="0">setup</button>
-    <button x="15" y="60" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="75" sizeVersion="0">go</button>
-    <plot x="15" autoPlotX="true" yMax="10.0" autoPlotY="true" y="105" xMin="0.0" height="175" legend="true" xMax="10.0" yMin="0.0" display="Microbe Populations" width="250" sizeVersion="0">
+    <view x="815" wrappingAllowedX="true" y="7" frameRate="30.0" minPycor="-16" height="466" showTickCounter="true" patchSize="14.0" fontSize="10" wrappingAllowedY="true" width="466" tickCounterLabel="ticks" maxPycor="16" updateMode="1" maxPxcor="16" minPxcor="-16"></view>
+    <slider x="240" step="0.1" y="60" max="10" width="165" display="infection-chance" height="50" min="0" direction="Horizontal" default="5.0" variable="infection-chance" units="%"></slider>
+    <slider x="85" step="10" y="60" max="1000" width="150" display="initial-viruses" height="50" min="0" direction="Horizontal" default="250.0" variable="initial-viruses"></slider>
+    <button x="5" y="60" height="50" disableUntilTicks="true" forever="true" kind="Observer" width="75">go</button>
+    <slider x="240" step="1" y="7" max="100" width="165" display="max-virus-types" height="50" min="1" direction="Horizontal" default="50.0" variable="max-virus-types"></slider>
+    <slider x="85" step="1" y="7" max="100" width="150" display="initial-bacteria" height="50" min="0" direction="Horizontal" default="50.0" variable="initial-bacteria"></slider>
+    <button x="5" y="7" height="50" disableUntilTicks="false" forever="false" kind="Observer" width="75">setup</button>
+    <slider x="5" step="0.1" y="115" max="2" width="230" display="spacer-loss-chance" height="50" min="0" direction="Horizontal" default="1.0" variable="spacer-loss-chance" units="%"></slider>
+    <switch x="275" y="115" height="50" on="true" variable="crispr?" width="85" display="crispr?"></switch>
+    <plot x="575" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="% Abundance" y="7" xMin="0.0" height="240" legend="true" xMax="10.0" yMin="0.0" width="235" display="CRISPR-Virus Coevolution">
+      <setup></setup>
+      <update></update>
+      <pen interval="1.0" mode="0" display="Viruses" color="-16777216" legend="true">
+        <setup></setup>
+        <update>plot 100 * (count viruses with [sequence = plot-virus]) / (max list 1 count viruses)</update>
+      </pen>
+      <pen interval="1.0" mode="0" display="Arrays" color="-2674135" legend="true">
+        <setup></setup>
+        <update><![CDATA[let total-arrays reduce sentence [array] of bacteria
+let virus-instances filter [ i -> i = plot-virus ] total-arrays
+plot 100 * length virus-instances / (max list 1 length total-arrays)]]></update>
+      </pen>
+    </plot>
+    <plot x="575" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="Frequency" y="320" xMin="0.0" height="195" legend="false" xMax="10.0" yMin="0.0" width="235" xAxis="Array Length" display="Array Histogram">
+      <setup></setup>
+      <update>update-histogram-ranges ([ length array ] of bacteria) 1</update>
+      <pen interval="1.0" mode="1" display="default" color="-16777216" legend="true">
+        <setup></setup>
+        <update>histogram [ length array ] of bacteria</update>
+      </pen>
+    </plot>
+    <monitor x="710" precision="2" y="255" height="60" fontSize="11" width="100" display="Std. Dev.">standard-deviation [length array] of bacteria</monitor>
+    <monitor x="575" precision="2" y="255" height="60" fontSize="11" width="130" display="Avg. Array Length">mean [length array] of bacteria</monitor>
+    <plot x="5" autoPlotX="true" yMax="10.0" autoPlotY="true" y="175" xMin="0.0" height="220" legend="true" xMax="10.0" yMin="0.0" width="280" display="Microbe Populations">
       <setup></setup>
       <update><![CDATA[; Don't scroll until the end of an autoscale window.
 if ticks > 715
@@ -344,7 +372,7 @@ if ticks > 715
         <update>plot count viruses</update>
       </pen>
     </plot>
-    <plot x="15" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="% Abundance" y="290" xMin="0.0" height="195" legend="false" xMax="10.0" yMin="0.0" xAxis="Ticks" display="Virus Relative Abundance" width="540" sizeVersion="0">
+    <plot x="5" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="% Abundance" y="400" xMin="0.0" height="195" legend="false" xMax="10.0" yMin="0.0" width="565" xAxis="Ticks" display="Virus Relative Abundance">
       <setup></setup>
       <update><![CDATA[; Don't scroll until the end of an autoscale window.
 if ticks > 715
@@ -354,18 +382,7 @@ if ticks > 715
   set-plot-x-range (ticks - 715) ticks
 ]]]></update>
     </plot>
-    <slider x="255" step="0.1" y="60" max="10" display="infection-chance" height="33" min="0" direction="Horizontal" default="5.0" variable="infection-chance" units="%" width="145" sizeVersion="0"></slider>
-    <slider x="255" step="1" y="15" max="100" display="max-virus-types" height="33" min="1" direction="Horizontal" default="50.0" variable="max-virus-types" width="145" sizeVersion="0"></slider>
-    <monitor x="590" precision="2" y="255" height="45" fontSize="11" display="Avg. Array Length" width="105" sizeVersion="0">mean [length array] of bacteria</monitor>
-    <plot x="565" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="Frequency" y="310" xMin="0.0" height="175" legend="false" xMax="10.0" yMin="0.0" xAxis="Array Length" display="Array Histogram" width="235" sizeVersion="0">
-      <setup></setup>
-      <update>update-histogram-ranges ([ length array ] of bacteria) 1</update>
-      <pen interval="1.0" mode="1" display="default" color="-16777216" legend="true">
-        <setup></setup>
-        <update>histogram [ length array ] of bacteria</update>
-      </pen>
-    </plot>
-    <plot x="275" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="Frequency" y="105" xMin="0.0" height="175" legend="true" xMax="10.0" yMin="0.0" xAxis="Sequence ID" display="Sequence Histogram" width="280" sizeVersion="0">
+    <plot x="290" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="Frequency" y="175" xMin="0.0" height="220" legend="true" xMax="10.0" yMin="0.0" width="280" xAxis="Sequence ID" display="Sequence Histogram">
       <setup></setup>
       <update>update-histogram-ranges sentence ([sequence] of viruses) (ifelse-value empty? [array] of bacteria [ [] ] [ reduce sentence [array] of bacteria ]) 1</update>
       <pen interval="1.0" mode="1" display="Viruses" color="-16777216" legend="true">
@@ -377,27 +394,10 @@ if ticks > 715
         <update>histogram (ifelse-value empty? [array] of bacteria [ [] ] [ reduce sentence [array] of bacteria ])</update>
       </pen>
     </plot>
-    <slider x="410" step="0.1" y="15" max="2" display="spacer-loss-chance" height="33" min="0" direction="Horizontal" default="1.0" variable="spacer-loss-chance" units="%" width="145" sizeVersion="0"></slider>
-    <monitor x="705" precision="2" y="255" height="45" fontSize="11" display="Std. Dev." width="75" sizeVersion="0">standard-deviation [length array] of bacteria</monitor>
-    <switch x="410" y="60" height="33" on="true" variable="crispr?" display="crispr?" width="145" sizeVersion="0"></switch>
-    <plot x="565" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="% Abundance" y="15" xMin="0.0" height="185" legend="true" xMax="10.0" yMin="0.0" display="CRISPR-Virus Coevolution" width="235" sizeVersion="0">
-      <setup></setup>
-      <update></update>
-      <pen interval="1.0" mode="0" display="Viruses" color="-16777216" legend="true">
-        <setup></setup>
-        <update>plot 100 * (count viruses with [sequence = plot-virus]) / (max list 1 count viruses)</update>
-      </pen>
-      <pen interval="1.0" mode="0" display="Arrays" color="-2674135" legend="true">
-        <setup></setup>
-        <update><![CDATA[let total-arrays reduce sentence [array] of bacteria
-let virus-instances filter [ i -> i = plot-virus ] total-arrays
-plot 100 * length virus-instances / (max list 1 length total-arrays)]]></update>
-      </pen>
-    </plot>
-    <button x="565" y="210" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="plot-new-virus" width="95" sizeVersion="0">set-current-plot "CRISPR-Virus Coevolution"
+    <button x="420" y="47" height="50" disableUntilTicks="false" forever="false" kind="Observer" width="150" display="plot-new-virus">set-current-plot "CRISPR-Virus Coevolution"
 clear-plot
 set plot-virus plotted-virus</button>
-    <slider x="670" step="1" y="210" max="max-virus-types - 1" display="plotted-virus" height="33" min="0" direction="Horizontal" default="35.0" variable="plotted-virus" width="130" sizeVersion="0"></slider>
+    <slider x="420" step="1" y="100" max="max-virus-types - 1" width="150" display="plotted-virus" height="50" min="0" direction="Horizontal" default="35.0" variable="plotted-virus"></slider>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
