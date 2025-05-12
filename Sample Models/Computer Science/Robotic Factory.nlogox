@@ -333,13 +333,11 @@ end
 ; Copyright 2021 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="210" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-16" height="796" showTickCounter="true" patchSize="24.0" fontSize="10" wrappingAllowedY="false" width="796" tickCounterLabel="ticks" maxPycor="16" updateMode="1" maxPxcor="16" minPxcor="-16"></view>
-    <button x="30" y="10" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="setup" width="65" sizeVersion="0">setup
-setup</button>
-    <button x="100" y="10" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="63" sizeVersion="0">go</button>
-    <monitor x="20" precision="17" y="105" height="45" fontSize="11" display="Products Ready for Van" width="155" sizeVersion="0">sum [ supply ] of storages</monitor>
-    <slider x="5" step="1" y="215" max="1000" display="full-charge" height="33" min="0" direction="Horizontal" default="350.0" variable="full-charge" units="energy" width="200" sizeVersion="0"></slider>
-    <plot x="1026" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="Percentage of Time" y="12" xMin="0.0" height="150" legend="false" xMax="10.0" yMin="0.0" xAxis="Time" display="Percentage Time Robots Idle" width="200" sizeVersion="0">
+    <view x="260" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-16" height="679" showTickCounter="true" patchSize="20.455" fontSize="10" wrappingAllowedY="false" width="679" tickCounterLabel="ticks" maxPycor="16" updateMode="1" maxPxcor="16" minPxcor="-16"></view>
+    <slider x="5" step="1" y="264" max="1000" width="250" display="full-charge" height="50" min="0" direction="Horizontal" default="350.0" variable="full-charge" units="energy"></slider>
+    <slider x="5" step="1" y="316" max="300" width="250" display="just-in-time-supply-robot" height="50" min="0" direction="Horizontal" default="150.0" variable="just-in-time-supply-robot"></slider>
+    <slider x="5" step="1" y="212" max="20" width="250" display="number-of-robots" height="50" min="3" direction="Horizontal" default="5.0" variable="number-of-robots"></slider>
+    <plot x="945" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="Percentage of Time" y="12" xMin="0.0" height="150" legend="false" xMax="10.0" yMin="0.0" width="342" xAxis="Time" display="Percentage Time Robots Idle">
       <setup></setup>
       <update></update>
       <pen interval="1.0" mode="0" display="default" color="-16777216" legend="true">
@@ -349,9 +347,23 @@ setup</button>
 ]]]></update>
       </pen>
     </plot>
-    <switch x="5" y="335" height="33" on="true" variable="make-trails?" display="make-trails?" width="200" sizeVersion="0"></switch>
-    <monitor x="20" precision="17" y="55" height="45" fontSize="11" display="New Sheets" width="155" sizeVersion="0">sum [ supply ] of loading-docks</monitor>
-    <plot x="1026" autoPlotX="true" yMax="4.0" autoPlotY="true" yAxis="Percent of Robots" y="168" xMin="0.0" height="150" legend="false" xMax="600.0" yMin="0.0" xAxis="Time" display="Robots' Energy" width="200" sizeVersion="0">
+    <plot x="945" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="Orders" y="165" xMin="0.0" height="185" legend="true" xMax="10.0" yMin="0.0" width="342" xAxis="Time" display="Outstanding Orders">
+      <setup></setup>
+      <update></update>
+      <pen interval="1.0" mode="0" display="Total Orders" color="-16777216" legend="true">
+        <setup></setup>
+        <update>plot count orders</update>
+      </pen>
+      <pen interval="1.0" mode="0" display="Deluxe Orders" color="-7500403" legend="true">
+        <setup></setup>
+        <update>plot count orders with [ type-of-order = 1 ]</update>
+      </pen>
+      <pen interval="1.0" mode="0" display="Standard Orders" color="-2674135" legend="true">
+        <setup></setup>
+        <update>plot count orders with [ type-of-order = 0 ]</update>
+      </pen>
+    </plot>
+    <plot x="945" autoPlotX="true" yMax="4.0" autoPlotY="true" yAxis="Percent of Robots" y="355" xMin="0.0" height="180" legend="false" xMax="600.0" yMin="0.0" width="342" xAxis="Time" display="Robots' Energy">
       <setup></setup>
       <update></update>
       <pen interval="1.0" mode="1" display="default" color="-16777216" legend="true">
@@ -359,9 +371,7 @@ setup</button>
         <update>histogram [ energy ] of robots</update>
       </pen>
     </plot>
-    <slider x="5" step="1" y="250" max="300" display="just-in-time-supply-robot" height="33" min="0" direction="Horizontal" default="150.0" variable="just-in-time-supply-robot" width="200" sizeVersion="0"></slider>
-    <switch x="5" y="295" height="33" on="true" variable="show-agent-name?" display="show-agent-name?" width="200" sizeVersion="0"></switch>
-    <plot x="1026" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="Supply" y="322" xMin="0.0" height="150" legend="true" xMax="10.0" yMin="0.0" xAxis="Time" display="Supply of Machines" width="293" sizeVersion="0">
+    <plot x="945" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="Supply" y="540" xMin="0.0" height="185" legend="true" xMax="10.0" yMin="0.0" width="342" xAxis="Time" display="Supply of Machines">
       <setup></setup>
       <update></update>
       <pen interval="1.0" mode="0" display="Finishers" color="-16777216" legend="true">
@@ -381,23 +391,13 @@ setup</button>
         <update>plot sum [ supply ] of loading-docks</update>
       </pen>
     </plot>
-    <plot x="1230" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="Orders" y="12" xMin="0.0" height="151" legend="true" xMax="10.0" yMin="0.0" xAxis="Time" display="Outstanding Orders" width="342" sizeVersion="0">
-      <setup></setup>
-      <update></update>
-      <pen interval="1.0" mode="0" display="Total Orders" color="-16777216" legend="true">
-        <setup></setup>
-        <update>plot count orders</update>
-      </pen>
-      <pen interval="1.0" mode="0" display="Deluxe Orders" color="-7500403" legend="true">
-        <setup></setup>
-        <update>plot count orders with [ type-of-order = 1 ]</update>
-      </pen>
-      <pen interval="1.0" mode="0" display="Standard Orders" color="-2674135" legend="true">
-        <setup></setup>
-        <update>plot count orders with [ type-of-order = 0 ]</update>
-      </pen>
-    </plot>
-    <slider x="5" step="1" y="180" max="20" display="number-of-robots" height="33" min="3" direction="Horizontal" default="5.0" variable="number-of-robots" width="200" sizeVersion="0"></slider>
+    <switch x="25" y="376" height="37" on="true" variable="show-agent-name?" width="200" display="show-agent-name?"></switch>
+    <switch x="25" y="420" height="37" on="true" variable="make-trails?" width="200" display="make-trails?"></switch>
+    <monitor x="45" precision="17" y="142" height="60" fontSize="11" width="155" display="Products Ready for Van">sum [ supply ] of storages</monitor>
+    <monitor x="45" precision="17" y="77" height="60" fontSize="11" width="155" display="New Sheets">sum [ supply ] of loading-docks</monitor>
+    <button x="125" y="20" height="45" disableUntilTicks="true" forever="true" kind="Observer" width="75">go</button>
+    <button x="45" y="20" height="45" disableUntilTicks="false" forever="false" kind="Observer" width="75" display="setup">setup
+setup</button>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
