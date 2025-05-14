@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<model version="NetLogo 7.0.0-beta0" snapToGrid="true">
+<model version="NetLogo 7.0.0-beta1" snapToGrid="true">
   <code><![CDATA[globals [
   ; these are setup-only variables, used to make changing the model easier
   min-price
@@ -344,10 +344,41 @@ end
 ; Copyright 2017 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="245" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-14" height="555" showTickCounter="true" patchSize="19.0" fontSize="10" wrappingAllowedY="false" width="555" tickCounterLabel="ticks" maxPycor="14" updateMode="1" maxPxcor="14" minPxcor="-14"></view>
-    <button x="10" y="260" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="setup" width="66" sizeVersion="0">setup</button>
-    <button x="80" y="260" height="33" disableUntilTicks="true" forever="false" kind="Observer" display="go-once" width="82" sizeVersion="0">go</button>
-    <plot x="810" autoPlotX="true" yMax="100.0" autoPlotY="true" y="10" xMin="0.0" height="150" legend="false" xMax="10.0" yMin="0.0" display="Seller Asking Prices (min, average, max)" width="375" sizeVersion="0">
+    <view x="270" wrappingAllowedX="false" y="7" frameRate="30.0" minPycor="-14" height="555" showTickCounter="true" patchSize="19.0" fontSize="10" wrappingAllowedY="false" width="555" tickCounterLabel="ticks" maxPycor="14" updateMode="1" maxPxcor="14" minPxcor="-14"></view>
+    <slider x="5" step="25" y="7" max="500" width="260" display="starting-money" height="50" min="0" direction="Horizontal" default="500.0" variable="starting-money"></slider>
+    <chooser x="5" y="60" height="60" variable="supply-amount" current="0" width="120" display="supply-amount">
+      <choice type="string" value="high"></choice>
+      <choice type="string" value="low"></choice>
+    </chooser>
+    <chooser x="130" y="60" height="60" variable="supply-distribution" current="1" width="135" display="supply-distribution">
+      <choice type="string" value="concentrated"></choice>
+      <choice type="string" value="even"></choice>
+    </chooser>
+    <chooser x="5" y="125" height="60" variable="demand-amount" current="1" width="120" display="demand-amount">
+      <choice type="string" value="low"></choice>
+      <choice type="string" value="high"></choice>
+    </chooser>
+    <chooser x="130" y="125" height="60" variable="demand-distribution" current="1" width="135" display="demand-distribution">
+      <choice type="string" value="concentrated"></choice>
+      <choice type="string" value="even"></choice>
+    </chooser>
+    <chooser x="50" y="190" height="60" variable="seller-behavior" current="0" width="165" display="seller-behavior">
+      <choice type="string" value="normal"></choice>
+      <choice type="string" value="desperate"></choice>
+      <choice type="string" value="random"></choice>
+      <choice type="string" value="mix of all"></choice>
+    </chooser>
+    <button x="90" y="330" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="82" display="go-once">go</button>
+    <button x="175" y="330" height="35" disableUntilTicks="true" forever="true" kind="Observer" width="64" display="go">go</button>
+    <chooser x="50" y="255" height="60" variable="buyer-behavior" current="0" width="165" display="buyer-behavior">
+      <choice type="string" value="normal"></choice>
+      <choice type="string" value="desperate"></choice>
+      <choice type="string" value="random"></choice>
+      <choice type="string" value="mix of all"></choice>
+    </chooser>
+    <switch x="20" y="375" height="37" on="false" variable="sellers-ignore-full-buyers?" width="220" display="sellers-ignore-full-buyers?"></switch>
+    <switch x="80" y="420" height="37" on="true" variable="stars?" width="103" display="stars?"></switch>
+    <plot x="830" autoPlotX="true" yMax="100.0" autoPlotY="true" y="7" xMin="0.0" height="150" legend="false" xMax="10.0" yMin="0.0" width="375" display="Seller Asking Prices (min, average, max)">
       <setup></setup>
       <update><![CDATA[let top (floor ifelse-value average-price = 0 [max [asking-price] of sellers] [average-price * 2])
 set-plot-y-range 0 ifelse-value top < 1 [1] [top]]]></update>
@@ -373,27 +404,7 @@ ifelse (count ss = 0)
 [ plot max [asking-price] of ss ]]]></update>
       </pen>
     </plot>
-    <button x="165" y="260" height="34" disableUntilTicks="true" forever="true" kind="Observer" display="go" width="64" sizeVersion="0">go</button>
-    <plot x="812" autoPlotX="true" yMax="10.0" autoPlotY="true" y="317" xMin="0.0" height="166" legend="true" xMax="10.0" yMin="0.0" display="Items" width="373" sizeVersion="0">
-      <setup></setup>
-      <update></update>
-      <pen interval="1.0" mode="0" display="items-for-sale" color="-13345367" legend="true">
-        <setup></setup>
-        <update>plot sum [items-for-sale] of sellers</update>
-      </pen>
-      <pen interval="1.0" mode="0" display="want-to-buy" color="-5825686" legend="true">
-        <setup></setup>
-        <update>plot sum [want-to-buy] of buyers</update>
-      </pen>
-      <pen interval="1.0" mode="0" display="total-sales" color="-7500403" legend="true">
-        <setup></setup>
-        <update>plot total-sales</update>
-      </pen>
-    </plot>
-    <slider x="39" step="25" y="11" max="500" display="starting-money" height="33" min="0" direction="Horizontal" default="500.0" variable="starting-money" width="173" sizeVersion="0"></slider>
-    <monitor x="823" precision="2" y="493" height="45" fontSize="11" display="Average Sale Price $" width="136" sizeVersion="0">average-price</monitor>
-    <monitor x="963" precision="1" y="493" height="45" fontSize="11" display="% of Starting Money Used" width="167" sizeVersion="0">percent-money-taken</monitor>
-    <plot x="811" autoPlotX="true" yMax="100.0" autoPlotY="true" y="163" xMin="0.0" height="151" legend="false" xMax="10.0" yMin="0.0" display="Buyer Willing-to-Pay (min, average, max)" width="374" sizeVersion="0">
+    <plot x="830" autoPlotX="true" yMax="100.0" autoPlotY="true" y="160" xMin="0.0" height="151" legend="false" xMax="10.0" yMin="0.0" width="374" display="Buyer Willing-to-Pay (min, average, max)">
       <setup></setup>
       <update><![CDATA[let top floor ifelse-value average-price = 0 [max [asking-price] of sellers] [average-price * 2]
 set-plot-y-range 0 ifelse-value top < 1 [1] [top]]]></update>
@@ -419,36 +430,25 @@ ifelse (count bs = 0)
 [ plot min [willing-to-pay] of bs ]]]></update>
       </pen>
     </plot>
-    <chooser x="3" y="52" height="45" variable="supply-amount" current="0" display="supply-amount" width="111" sizeVersion="0">
-      <choice type="string" value="high"></choice>
-      <choice type="string" value="low"></choice>
-    </chooser>
-    <chooser x="121" y="52" height="45" variable="supply-distribution" current="1" display="supply-distribution" width="118" sizeVersion="0">
-      <choice type="string" value="concentrated"></choice>
-      <choice type="string" value="even"></choice>
-    </chooser>
-    <chooser x="3" y="98" height="45" variable="demand-amount" current="1" display="demand-amount" width="111" sizeVersion="0">
-      <choice type="string" value="low"></choice>
-      <choice type="string" value="high"></choice>
-    </chooser>
-    <chooser x="121" y="98" height="45" variable="demand-distribution" current="1" display="demand-distribution" width="118" sizeVersion="0">
-      <choice type="string" value="concentrated"></choice>
-      <choice type="string" value="even"></choice>
-    </chooser>
-    <chooser x="42" y="152" height="45" variable="seller-behavior" current="0" display="seller-behavior" width="159" sizeVersion="0">
-      <choice type="string" value="normal"></choice>
-      <choice type="string" value="desperate"></choice>
-      <choice type="string" value="random"></choice>
-      <choice type="string" value="mix of all"></choice>
-    </chooser>
-    <chooser x="42" y="199" height="45" variable="buyer-behavior" current="0" display="buyer-behavior" width="159" sizeVersion="0">
-      <choice type="string" value="normal"></choice>
-      <choice type="string" value="desperate"></choice>
-      <choice type="string" value="random"></choice>
-      <choice type="string" value="mix of all"></choice>
-    </chooser>
-    <switch x="5" y="350" height="33" on="true" variable="stars?" display="stars?" width="103" sizeVersion="0"></switch>
-    <switch x="5" y="310" height="33" on="false" variable="sellers-ignore-full-buyers?" display="sellers-ignore-full-buyers?" width="226" sizeVersion="0"></switch>
+    <plot x="830" autoPlotX="true" yMax="10.0" autoPlotY="true" y="315" xMin="0.0" height="166" legend="true" xMax="10.0" yMin="0.0" width="373" display="Items">
+      <setup></setup>
+      <update></update>
+      <pen interval="1.0" mode="0" display="items-for-sale" color="-13345367" legend="true">
+        <setup></setup>
+        <update>plot sum [items-for-sale] of sellers</update>
+      </pen>
+      <pen interval="1.0" mode="0" display="want-to-buy" color="-5825686" legend="true">
+        <setup></setup>
+        <update>plot sum [want-to-buy] of buyers</update>
+      </pen>
+      <pen interval="1.0" mode="0" display="total-sales" color="-7500403" legend="true">
+        <setup></setup>
+        <update>plot total-sales</update>
+      </pen>
+    </plot>
+    <monitor x="1005" precision="1" y="490" height="60" fontSize="11" width="167" display="% of Starting Money Used">percent-money-taken</monitor>
+    <monitor x="865" precision="2" y="490" height="60" fontSize="11" width="136" display="Average Sale Price $">average-price</monitor>
+    <button x="20" y="330" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="66" display="setup">setup</button>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
