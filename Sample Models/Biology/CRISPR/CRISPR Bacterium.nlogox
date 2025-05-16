@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<model version="NetLogo 7.0.0-beta0" snapToGrid="true">
+<model version="NetLogo 7.0.0-beta1" snapToGrid="true">
   <code><![CDATA[globals [
   ; Housekeeping variables
   cell-wall  ; Patch-set containing cell wall patches for boundary checking
@@ -387,12 +387,22 @@ end
 ; Copyright 2019 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="190" wrappingAllowedX="false" y="20" frameRate="30.0" minPycor="-8" height="327" showTickCounter="true" patchSize="19.0" fontSize="10" wrappingAllowedY="false" width="631" tickCounterLabel="ticks" maxPycor="8" updateMode="1" maxPxcor="16" minPxcor="-16"></view>
-    <button x="20" y="20" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="80" sizeVersion="0">setup</button>
-    <button x="110" y="20" height="40" disableUntilTicks="true" forever="true" kind="Observer" width="70" sizeVersion="0">go</button>
-    <monitor x="430" precision="17" y="505" height="45" fontSize="11" display="Viruses" width="70" sizeVersion="0">count viruses</monitor>
-    <monitor x="775" precision="17" y="505" height="45" fontSize="11" display="Length" width="50" sizeVersion="0">length array</monitor>
-    <plot x="190" autoPlotX="true" yMax="10.0" autoPlotY="true" y="355" xMin="0.0" height="140" legend="true" xMax="10.0" yMin="0.0" display="CRISPR System Elements" width="310" sizeVersion="0">
+    <view x="205" wrappingAllowedX="false" y="7" frameRate="30.0" minPycor="-8" height="327" showTickCounter="true" patchSize="19.0" fontSize="10" wrappingAllowedY="false" width="631" tickCounterLabel="ticks" maxPycor="8" updateMode="1" maxPxcor="16" minPxcor="-16"></view>
+    <button x="5" y="7" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="80">setup</button>
+    <slider x="5" step="1" y="285" max="30" width="195" display="initial-array-size" height="50" min="1" direction="Horizontal" default="15.0" variable="initial-array-size"></slider>
+    <slider x="5" step="1" y="340" max="100" width="195" display="max-virus-types" height="50" min="1" direction="Horizontal" default="30.0" variable="max-virus-types"></slider>
+    <switch x="5" y="155" height="37" on="false" variable="labels?" width="195" display="labels?"></switch>
+    <note x="5" y="195" backgroundDark="0" fontSize="12" width="195" markdown="false" height="86" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Even after a successful
+infection, turn labels on
+and off by toggling
+the switch and
+pressing go.</note>
+    <button x="5" y="105" height="45" disableUntilTicks="true" forever="false" kind="Observer" width="195" display="random-infection">infect random max-virus-types</button>
+    <button x="5" y="55" height="45" disableUntilTicks="true" forever="false" kind="Observer" width="195">common-infection</button>
+    <slider x="5" step="1" y="395" max="10" width="195" display="guide-unbind-chance" height="50" min="0" direction="Horizontal" default="5.0" variable="guide-unbind-chance" units="%"></slider>
+    <slider x="5" step="1" y="450" max="100" width="195" display="processivity" height="50" min="0" direction="Horizontal" default="80.0" variable="processivity" units="%"></slider>
+    <slider x="5" step="1" y="505" max="100" width="195" display="crispr-function" height="50" min="0" direction="Horizontal" default="20.0" variable="crispr-function" units="%"></slider>
+    <plot x="205" autoPlotX="true" yMax="10.0" autoPlotY="true" y="340" xMin="0.0" height="185" legend="true" xMax="10.0" yMin="0.0" width="310" display="CRISPR System Elements">
       <setup></setup>
       <update></update>
       <pen interval="1.0" mode="0" display="Guide RNAs" color="-10899396" legend="true">
@@ -412,7 +422,12 @@ end
         <update>plot count cas-dimers</update>
       </pen>
     </plot>
-    <plot x="520" autoPlotX="true" yMax="10.0" autoPlotY="true" y="355" xMin="0.0" height="140" legend="true" xMax="10.0" yMin="0.0" display="Guide RNAs" width="305" sizeVersion="0">
+    <monitor x="205" precision="17" y="530" height="60" fontSize="11" width="100" display="Guide RNAs">count guide-rnas</monitor>
+    <monitor x="205" precision="17" y="595" height="60" fontSize="11" width="140" display="Virus event monitor">virus-event</monitor>
+    <note x="60" y="595" backgroundDark="0" fontSize="12" width="170" markdown="false" height="60" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">The virus event monitor
+shows what interactions
+are taking place.</note>
+    <plot x="520" autoPlotX="true" yMax="10.0" autoPlotY="true" y="340" xMin="0.0" height="185" legend="true" xMax="10.0" yMin="0.0" width="315" display="Guide RNAs">
       <setup>set-plot-x-range 0 max-virus-types</setup>
       <update>update-histogram-ranges sentence ([sequence] of guide-rnas) (array) 1</update>
       <pen interval="1.0" mode="1" display="RNAs" color="-16777216" legend="true">
@@ -424,28 +439,13 @@ end
         <update>histogram array</update>
       </pen>
     </plot>
-    <slider x="20" step="1" y="300" max="30" display="initial-array-size" height="33" min="1" direction="Horizontal" default="15.0" variable="initial-array-size" width="160" sizeVersion="0"></slider>
-    <slider x="20" step="1" y="345" max="100" display="max-virus-types" height="33" min="1" direction="Horizontal" default="30.0" variable="max-virus-types" width="160" sizeVersion="0"></slider>
-    <monitor x="520" precision="17" y="505" height="45" fontSize="11" display="Bacterial CRISPR Array" width="245" sizeVersion="0">array</monitor>
-    <monitor x="190" precision="17" y="505" height="45" fontSize="11" display="Guide RNAs" width="70" sizeVersion="0">count guide-rnas</monitor>
-    <monitor x="270" precision="17" y="505" height="45" fontSize="11" display="Cas9s" width="70" sizeVersion="0">count cas9s</monitor>
-    <monitor x="350" precision="17" y="505" height="45" fontSize="11" display="Cas1/2s" width="70" sizeVersion="0">count cas-dimers</monitor>
-    <slider x="20" step="1" y="435" max="100" display="processivity" height="33" min="0" direction="Horizontal" default="80.0" variable="processivity" units="%" width="160" sizeVersion="0"></slider>
-    <slider x="20" step="1" y="480" max="100" display="crispr-function" height="33" min="0" direction="Horizontal" default="20.0" variable="crispr-function" units="%" width="160" sizeVersion="0"></slider>
-    <button x="20" y="70" height="45" disableUntilTicks="true" forever="false" kind="Observer" width="160" sizeVersion="0">common-infection</button>
-    <button x="20" y="125" height="45" disableUntilTicks="true" forever="false" kind="Observer" display="random-infection" width="160" sizeVersion="0">infect random max-virus-types</button>
-    <monitor x="520" precision="17" y="560" height="45" fontSize="11" display="Viral sequences" width="305" sizeVersion="0">sort [sequence] of viruses</monitor>
-    <switch x="20" y="180" height="33" on="false" variable="labels?" display="labels?" width="160" sizeVersion="0"></switch>
-    <monitor x="190" precision="17" y="560" height="45" fontSize="11" display="Virus event monitor" width="310" sizeVersion="0">virus-event</monitor>
-    <slider x="20" step="1" y="390" max="10" display="guide-unbind-chance" height="33" min="0" direction="Horizontal" default="5.0" variable="guide-unbind-chance" units="%" width="160" sizeVersion="0"></slider>
-    <note x="20" y="220" height="86" backgroundDark="0" fontSize="12" width="185" markdown="false" textColorLight="-16777216" backgroundLight="0">Even after a successful
-infection, turn labels on
-and off by toggling
-the switch and
-pressing go.</note>
-    <note x="20" y="555" height="60" backgroundDark="0" fontSize="12" width="170" markdown="false" textColorLight="-16777216" backgroundLight="0">The virus event monitor
-shows what interactions
-are taking place.</note>
+    <monitor x="415" precision="17" y="530" height="60" fontSize="11" width="100" display="Cas1/2s">count cas-dimers</monitor>
+    <monitor x="310" precision="17" y="530" height="60" fontSize="11" width="100" display="Cas9s">count cas9s</monitor>
+    <monitor x="365" precision="17" y="595" height="60" fontSize="11" width="100" display="Viruses">count viruses</monitor>
+    <monitor x="735" precision="17" y="530" height="60" fontSize="11" width="100" display="Length">length array</monitor>
+    <monitor x="520" precision="17" y="530" height="60" fontSize="11" width="210" display="Bacterial CRISPR Array">array</monitor>
+    <monitor x="520" precision="17" y="595" height="60" fontSize="11" width="315" display="Viral sequences">sort [sequence] of viruses</monitor>
+    <button x="90" y="7" height="40" disableUntilTicks="true" forever="true" kind="Observer" width="110">go</button>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
