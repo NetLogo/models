@@ -486,30 +486,33 @@ end
 ; Copyright 2005 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="272" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-40" height="409" showTickCounter="true" patchSize="5.0" fontSize="20" wrappingAllowedY="false" width="409" tickCounterLabel="ticks" maxPycor="40" updateMode="1" maxPxcor="40" minPxcor="-40"></view>
-    <button x="4" y="10" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="93" sizeVersion="0">setup</button>
-    <slider x="0" step="1" y="45" max="250" display="initial-number-particles" height="33" min="1" direction="Horizontal" default="60.0" variable="initial-number-particles" width="190" sizeVersion="0"></slider>
-    <button x="98" y="10" height="33" disableUntilTicks="true" forever="true" kind="Observer" display="go/pause" width="90" sizeVersion="0">go</button>
-    <slider x="0" step="0.5" y="120" max="10" display="largest-particle-size" height="33" min="1" direction="Horizontal" default="6.0" variable="largest-particle-size" width="190" sizeVersion="0"></slider>
-    <slider x="0" step="0.5" y="84" max="5" display="smallest-particle-size" height="33" min="1" direction="Horizontal" default="2.0" variable="smallest-particle-size" width="190" sizeVersion="0"></slider>
-    <monitor x="5" precision="2" y="155" height="45" fontSize="11" display="average speed" width="96" sizeVersion="0">avg-speed</monitor>
-    <plot x="5" autoPlotX="true" yMax="10.0" autoPlotY="true" y="250" xMin="0.0" height="195" legend="false" xMax="10.0" yMin="0.0" display="Speed Counts" width="263" sizeVersion="0">
-      <setup>set-plot-y-range 0 100</setup>
+    <view x="330" wrappingAllowedX="false" y="7" frameRate="30.0" minPycor="-40" height="469" showTickCounter="true" patchSize="5.741" fontSize="20" wrappingAllowedY="false" width="469" tickCounterLabel="ticks" maxPycor="40" updateMode="1" maxPxcor="40" minPxcor="-40"></view>
+    <slider x="35" step="0.5" y="113" max="10" width="250" display="largest-particle-size" height="50" min="1" direction="Horizontal" default="6.0" variable="largest-particle-size"></slider>
+    <plot x="810" autoPlotX="true" yMax="10.0" autoPlotY="true" y="7" xMin="0.0" height="205" legend="false" xMax="200.0" yMin="0.0" width="344" display="Energy Histogram">
+      <setup>set-plot-x-range 0 ceiling (0.5 * (init-particle-speed * 2) * (init-particle-speed * 2) * max-particle-mass)
+set-plot-y-range 0 ceiling (count particles / 6)
+
+set-current-plot-pen "particles"
+set-histogram-num-bars 40
+set-current-plot-pen "init-avg-energy"
+draw-vert-line init-avg-energy</setup>
       <update></update>
-      <pen interval="1.0" mode="0" display="fast" color="-2674135" legend="true">
+      <pen interval="1.0" mode="1" display="particles" color="-11053225" legend="true">
         <setup></setup>
-        <update>plotxy ticks percent-fast</update>
+        <update>histogram [energy] of particles</update>
       </pen>
-      <pen interval="1.0" mode="0" display="medium" color="-10899396" legend="true">
+      <pen interval="1.0" mode="0" display="avg-energy" color="-7500403" legend="true">
         <setup></setup>
-        <update>plotxy ticks percent-medium</update>
+        <update>plot-pen-reset   draw-vert-line avg-energy</update>
       </pen>
-      <pen interval="1.0" mode="0" display="slow" color="-13345367" legend="true">
+      <pen interval="1.0" mode="0" display="init-avg-energy" color="-16777216" legend="true">
         <setup></setup>
-        <update>plotxy ticks percent-slow</update>
+        <update></update>
       </pen>
     </plot>
-    <plot x="6" autoPlotX="true" yMax="10.0" autoPlotY="true" y="449" xMin="0.0" height="155" legend="false" xMax="10.0" yMin="0.0" display="Speed Histogram" width="334" sizeVersion="0">
+    <monitor x="880" precision="2" y="215" height="60" fontSize="11" width="103" display="average-energy">avg-energy</monitor>
+    <monitor x="990" precision="2" y="215" height="60" fontSize="11" width="100" display="average speed">avg-speed</monitor>
+    <plot x="810" autoPlotX="true" yMax="10.0" autoPlotY="true" y="280" xMin="0.0" height="195" legend="false" xMax="10.0" yMin="0.0" width="344" display="Speed Histogram">
       <setup>set-plot-x-range 0 ceiling (init-particle-speed * 2)
 set-plot-y-range 0 ceiling (count particles / 6)
 set-current-plot-pen "medium"
@@ -542,32 +545,29 @@ draw-vert-line init-avg-speed</setup>
         <update></update>
       </pen>
     </plot>
-    <plot x="343" autoPlotX="true" yMax="10.0" autoPlotY="true" y="449" xMin="0.0" height="155" legend="false" xMax="200.0" yMin="0.0" display="Energy Histogram" width="344" sizeVersion="0">
-      <setup>set-plot-x-range 0 ceiling (0.5 * (init-particle-speed * 2) * (init-particle-speed * 2) * max-particle-mass)
-set-plot-y-range 0 ceiling (count particles / 6)
-
-set-current-plot-pen "particles"
-set-histogram-num-bars 40
-set-current-plot-pen "init-avg-energy"
-draw-vert-line init-avg-energy</setup>
+    <plot x="10" autoPlotX="true" yMax="10.0" autoPlotY="true" y="215" xMin="0.0" height="195" legend="false" xMax="10.0" yMin="0.0" width="310" display="Speed Counts">
+      <setup>set-plot-y-range 0 100</setup>
       <update></update>
-      <pen interval="1.0" mode="1" display="particles" color="-11053225" legend="true">
+      <pen interval="1.0" mode="0" display="fast" color="-2674135" legend="true">
         <setup></setup>
-        <update>histogram [energy] of particles</update>
+        <update>plotxy ticks percent-fast</update>
       </pen>
-      <pen interval="1.0" mode="0" display="avg-energy" color="-7500403" legend="true">
+      <pen interval="1.0" mode="0" display="medium" color="-10899396" legend="true">
         <setup></setup>
-        <update>plot-pen-reset   draw-vert-line avg-energy</update>
+        <update>plotxy ticks percent-medium</update>
       </pen>
-      <pen interval="1.0" mode="0" display="init-avg-energy" color="-16777216" legend="true">
+      <pen interval="1.0" mode="0" display="slow" color="-13345367" legend="true">
         <setup></setup>
-        <update></update>
+        <update>plotxy ticks percent-slow</update>
       </pen>
     </plot>
-    <monitor x="102" precision="2" y="154" height="45" fontSize="11" display="average-energy" width="103" sizeVersion="0">avg-energy</monitor>
-    <monitor x="5" precision="0" y="205" height="45" fontSize="11" display="% fast" width="77" sizeVersion="0">percent-fast</monitor>
-    <monitor x="85" precision="0" y="205" height="45" fontSize="11" display="% medium" width="96" sizeVersion="0">percent-medium</monitor>
-    <monitor x="185" precision="0" y="205" height="45" fontSize="11" display="% slow" width="83" sizeVersion="0">percent-slow</monitor>
+    <monitor x="115" precision="0" y="415" height="60" fontSize="11" width="100" display="% medium">percent-medium</monitor>
+    <monitor x="220" precision="0" y="415" height="60" fontSize="11" width="100" display="% slow">percent-slow</monitor>
+    <monitor x="10" precision="0" y="415" height="60" fontSize="11" width="100" display="% fast">percent-fast</monitor>
+    <slider x="35" step="1" y="7" max="250" width="250" display="initial-number-particles" height="50" min="1" direction="Horizontal" default="60.0" variable="initial-number-particles"></slider>
+    <slider x="35" step="0.5" y="60" max="5" width="250" display="smallest-particle-size" height="50" min="1" direction="Horizontal" default="2.0" variable="smallest-particle-size"></slider>
+    <button x="170" y="170" height="40" disableUntilTicks="true" forever="true" kind="Observer" width="100" display="go/pause">go</button>
+    <button x="65" y="169" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="99">setup</button>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 

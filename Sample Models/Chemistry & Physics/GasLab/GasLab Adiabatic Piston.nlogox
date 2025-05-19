@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<model version="NetLogo 7.0.0-beta0" snapToGrid="false">
+<model version="NetLogo 7.0.0-beta0" snapToGrid="true">
   <code><![CDATA[globals
 [
   tick-delta                      ;; how much we advance the tick counter this time through
@@ -451,26 +451,24 @@ end
 ; Copyright 1997 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="294" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-40" height="328" showTickCounter="true" patchSize="4.0" fontSize="10" wrappingAllowedY="false" width="328" tickCounterLabel="ticks" maxPycor="40" updateMode="1" maxPxcor="40" minPxcor="-40"></view>
-    <button x="7" y="43" height="33" disableUntilTicks="true" forever="true" kind="Observer" display="go/stop" width="86" sizeVersion="0">go</button>
-    <button x="7" y="10" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="86" sizeVersion="0">setup</button>
-    <slider x="95" step="1" y="10" max="1000" display="number-of-particles" height="33" min="1" direction="Horizontal" default="100.0" variable="number-of-particles" width="195" sizeVersion="0"></slider>
-    <plot x="651" autoPlotX="true" yMax="100.0" autoPlotY="true" yAxis="pressure" y="171" xMin="0.0" height="179" legend="false" xMax="20.0" yMin="0.0" xAxis="time" display="Pressure vs. Time" width="238" sizeVersion="0">
-      <setup></setup>
+    <view x="275" wrappingAllowedX="false" y="7" frameRate="30.0" minPycor="-40" height="328" showTickCounter="true" patchSize="4.0" fontSize="10" wrappingAllowedY="false" width="328" tickCounterLabel="ticks" maxPycor="40" updateMode="1" maxPxcor="40" minPxcor="-40"></view>
+    <slider x="5" step="1" y="7" max="1000" width="250" display="number-of-particles" height="50" min="1" direction="Horizontal" default="100.0" variable="number-of-particles"></slider>
+    <button x="40" y="65" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="90">setup</button>
+    <button x="135" y="65" height="40" disableUntilTicks="true" forever="true" kind="Observer" width="90" display="go/stop">go</button>
+    <slider x="5" step="1" y="110" max="20" width="250" display="init-particle-speed" height="50" min="1" direction="Horizontal" default="10.0" variable="init-particle-speed"></slider>
+    <slider x="5" step="1" y="165" max="20" width="250" display="particle-mass" height="50" min="1" direction="Horizontal" default="1.0" variable="particle-mass"></slider>
+    <slider x="5" step="1" y="220" max="100" width="250" display="box-height" height="50" min="20" direction="Horizontal" default="95.0" variable="box-height" units="%"></slider>
+    <slider x="5" step="1" y="275" max="100" width="250" display="box-width" height="50" min="20" direction="Horizontal" default="80.0" variable="box-width" units="%"></slider>
+    <slider x="5" step="100" y="330" max="5000" width="250" display="piston-mass" height="50" min="100" direction="Horizontal" default="3500.0" variable="piston-mass"></slider>
+    <plot x="615" autoPlotX="true" yMax="70.0" autoPlotY="true" yAxis="height" y="10" xMin="0.0" height="170" legend="false" xMax="50.0" yMin="0.0" width="238" xAxis="time" display="Piston Height vs. Time">
+      <setup>set-plot-y-range 0 (2 * raw-height)</setup>
       <update></update>
-      <pen interval="1.0" mode="0" display="default" color="-955883" legend="true">
+      <pen interval="1.0" mode="0" display="height" color="-13345367" legend="true">
         <setup></setup>
-        <update>plotxy ticks (mean pressure-history)</update>
+        <update>plotxy ticks piston-height</update>
       </pen>
     </plot>
-    <monitor x="16" precision="1" y="386" height="45" fontSize="11" display="average speed" width="106" sizeVersion="0">avg-speed</monitor>
-    <monitor x="16" precision="1" y="439" height="45" fontSize="11" display="average energy" width="107" sizeVersion="0">avg-energy</monitor>
-    <slider x="8" step="1" y="108" max="20" display="init-particle-speed" height="33" min="1" direction="Horizontal" default="10.0" variable="init-particle-speed" width="175" sizeVersion="0"></slider>
-    <slider x="9" step="1" y="156" max="20" display="particle-mass" height="33" min="1" direction="Horizontal" default="1.0" variable="particle-mass" width="172" sizeVersion="0"></slider>
-    <slider x="10" step="1" y="205" max="100" display="box-height" height="33" min="20" direction="Horizontal" default="95.0" variable="box-height" units="%" width="172" sizeVersion="0"></slider>
-    <slider x="10" step="1" y="253" max="100" display="box-width" height="33" min="20" direction="Horizontal" default="80.0" variable="box-width" units="%" width="172" sizeVersion="0"></slider>
-    <slider x="11" step="100" y="301" max="5000" display="piston-mass" height="33" min="100" direction="Horizontal" default="3500.0" variable="piston-mass" width="172" sizeVersion="0"></slider>
-    <plot x="653" autoPlotX="true" yMax="40000.0" autoPlotY="true" yAxis="energy" y="358" xMin="0.0" height="177" legend="true" xMax="50.0" yMin="0.0" xAxis="time" display="Energy vs. Time" width="239" sizeVersion="0">
+    <plot x="615" autoPlotX="true" yMax="40000.0" autoPlotY="true" yAxis="energy" y="375" xMin="0.0" height="190" legend="true" xMax="50.0" yMin="0.0" width="239" xAxis="time" display="Energy vs. Time">
       <setup>set-plot-y-range 0 max list 1 (tot-particle-energy * 2)</setup>
       <update></update>
       <pen interval="1.0" mode="0" display="Total" color="-16777216" legend="true">
@@ -486,24 +484,25 @@ end
         <update>plotxy ticks piston-energy</update>
       </pen>
     </plot>
-    <plot x="651" autoPlotX="true" yMax="70.0" autoPlotY="true" yAxis="height" y="11" xMin="0.0" height="150" legend="false" xMax="50.0" yMin="0.0" xAxis="time" display="Piston Height vs. Time" width="238" sizeVersion="0">
-      <setup>set-plot-y-range 0 (2 * raw-height)</setup>
+    <plot x="615" autoPlotX="true" yMax="100.0" autoPlotY="true" yAxis="pressure" y="185" xMin="0.0" height="185" legend="false" xMax="20.0" yMin="0.0" width="238" xAxis="time" display="Pressure vs. Time">
+      <setup></setup>
       <update></update>
-      <pen interval="1.0" mode="0" display="height" color="-13345367" legend="true">
+      <pen interval="1.0" mode="0" display="default" color="-955883" legend="true">
         <setup></setup>
-        <update>plotxy ticks piston-height</update>
+        <update>plotxy ticks (mean pressure-history)</update>
       </pen>
     </plot>
-    <monitor x="186" precision="1" y="437" height="45" fontSize="11" display="velocity" width="98" sizeVersion="0">piston-vel</monitor>
-    <monitor x="480" precision="1" y="494" height="45" fontSize="11" display="total system energy" width="123" sizeVersion="0">total-energy</monitor>
-    <monitor x="296" precision="1" y="493" height="45" fontSize="11" display="total energy" width="116" sizeVersion="0">piston-energy</monitor>
-    <monitor x="186" precision="1" y="383" height="45" fontSize="11" display="height" width="99" sizeVersion="0">piston-height</monitor>
-    <monitor x="16" precision="1" y="493" height="45" fontSize="11" display="total energy" width="106" sizeVersion="0">tot-particle-energy</monitor>
-    <monitor x="294" precision="1" y="384" height="45" fontSize="11" display="potential energy" width="117" sizeVersion="0">piston-potential-energy</monitor>
-    <monitor x="295" precision="1" y="438" height="45" fontSize="11" display="kinetic energy" width="116" sizeVersion="0">piston-kinetic-energy</monitor>
-    <note x="17" y="363" height="18" textColorLight="-16777216" fontSize="11" width="72" markdown="false">Particles</note>
-    <note x="187" y="362" height="18" textColorLight="-16777216" fontSize="11" width="70" markdown="false">Piston</note>
-    <note x="479" y="473" height="18" textColorLight="-16777216" fontSize="11" width="150" markdown="false">System</note>
+    <note x="11" y="390" backgroundDark="0" fontSize="11" width="72" markdown="false" height="20" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Particles</note>
+    <monitor x="10" precision="1" y="480" height="60" fontSize="11" width="107" display="average energy">avg-energy</monitor>
+    <monitor x="120" precision="1" y="445" height="60" fontSize="11" width="106" display="total energy">tot-particle-energy</monitor>
+    <monitor x="255" precision="1" y="480" height="60" fontSize="11" width="100" display="velocity">piston-vel</monitor>
+    <monitor x="360" precision="1" y="480" height="60" fontSize="11" width="116" display="kinetic energy">piston-kinetic-energy</monitor>
+    <note x="255" y="395" backgroundDark="0" fontSize="11" width="70" markdown="false" height="18" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Piston</note>
+    <monitor x="10" precision="1" y="415" height="60" fontSize="11" width="106" display="average speed">avg-speed</monitor>
+    <monitor x="360" precision="1" y="415" height="60" fontSize="11" width="117" display="potential energy">piston-potential-energy</monitor>
+    <monitor x="255" precision="1" y="415" height="60" fontSize="11" width="100" display="height">piston-height</monitor>
+    <monitor x="480" precision="1" y="450" height="60" fontSize="11" width="116" display="total energy">piston-energy</monitor>
+    <monitor x="860" precision="1" y="405" height="60" fontSize="11" width="135" display="total system energy">total-energy</monitor>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
