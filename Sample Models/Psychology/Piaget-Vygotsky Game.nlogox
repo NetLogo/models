@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<model version="NetLogo 7.0.0-beta0" snapToGrid="true">
+<model version="NetLogo 7.0.0-beta1" snapToGrid="true">
   <code><![CDATA[globals [
   target     ; the target line in the middle
   max-dist   ; the maximum distance to that wall
@@ -238,16 +238,25 @@ end
 ; Copyright 2005 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="14" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-25" height="259" showTickCounter="true" patchSize="5.0" fontSize="10" wrappingAllowedY="false" width="609" tickCounterLabel="ticks" maxPycor="25" updateMode="0" maxPxcor="60" minPxcor="-60"></view>
-    <chooser x="16" y="391" height="45" variable="strategy" current="3" display="strategy" width="100" sizeVersion="0">
+    <view x="265" wrappingAllowedX="false" y="5" frameRate="30.0" minPycor="-25" height="259" showTickCounter="true" patchSize="5.0" fontSize="10" wrappingAllowedY="false" width="609" tickCounterLabel="ticks" maxPycor="25" updateMode="0" maxPxcor="60" minPxcor="-60"></view>
+    <slider x="10" step="10" y="5" max="50" width="250" display="number-of-players" height="50" min="10" direction="Horizontal" default="30.0" variable="number-of-players"></slider>
+    <slider x="10" step="1" y="61" max="100" width="250" display="attempts-per-run" height="50" min="1" direction="Horizontal" default="30.0" variable="attempts-per-run"></slider>
+    <switch x="85" y="168" height="37" on="true" variable="trails?" width="90" display="trails?"></switch>
+    <slider x="10" step="5" y="277" max="60" width="250" display="ZPD" height="50" min="0" direction="Horizontal" default="15.0" variable="ZPD"></slider>
+    <slider x="10" step="2" y="333" max="18" width="250" display="#-vygotskiian-neighbors" height="50" min="2" direction="Horizontal" default="4.0" variable="#-vygotskiian-neighbors"></slider>
+    <slider x="10" step="1" y="389" max="30" width="250" display="move-error" height="50" min="0" direction="Horizontal" default="4.0" variable="move-error"></slider>
+    <switch x="10" y="445" height="37" on="true" variable="randomize-strategy-each-run?" width="250" display="randomize-strategy-each-run?"></switch>
+    <switch x="10" y="488" height="37" on="false" variable="stop-after-each-run?" width="250" display="stop-after-each-run?"></switch>
+    <button x="180" y="117" height="45" disableUntilTicks="true" forever="false" kind="Observer" width="80" display="go once">go</button>
+    <button x="10" y="117" height="45" disableUntilTicks="false" forever="false" kind="Observer" width="75">setup</button>
+    <button x="90" y="117" height="45" disableUntilTicks="true" forever="true" kind="Observer" width="85">go</button>
+    <chooser x="10" y="211" height="60" variable="strategy" current="2" width="250" display="strategy">
       <choice type="string" value="Random"></choice>
       <choice type="string" value="Piagetian"></choice>
       <choice type="string" value="Vygotskiian"></choice>
       <choice type="string" value="P-V"></choice>
     </chooser>
-    <button x="15" y="305" height="45" disableUntilTicks="false" forever="false" kind="Observer" width="110" sizeVersion="0">setup</button>
-    <button x="130" y="305" height="45" disableUntilTicks="true" forever="true" kind="Observer" width="90" sizeVersion="0">go</button>
-    <plot x="324" autoPlotX="true" yMax="50.0" autoPlotY="true" yAxis="Distance From Target" y="303" xMin="1.0" height="245" legend="true" xMax="30.0" yMin="0.0" xAxis="Attempts" display="Avg Distance From Target" width="305" sizeVersion="0">
+    <plot x="270" autoPlotX="true" yMax="50.0" autoPlotY="true" yAxis="Distance From Target" y="275" xMin="1.0" height="252" legend="true" xMax="30.0" yMin="0.0" width="605" xAxis="Attempts" display="Avg Distance From Target">
       <setup>set-plot-x-range 1 attempts-per-run</setup>
       <update><![CDATA[if attempts > 0 [
   set-current-plot-pen strategy
@@ -270,12 +279,7 @@ end
         <update></update>
       </pen>
     </plot>
-    <slider x="15" step="10" y="355" max="50" display="number-of-players" height="33" min="10" direction="Horizontal" default="30.0" variable="number-of-players" width="150" sizeVersion="0"></slider>
-    <slider x="215" step="1" y="395" max="30" display="move-error" height="33" min="0" direction="Horizontal" default="4.0" variable="move-error" width="100" sizeVersion="0"></slider>
-    <switch x="225" y="440" height="33" on="true" variable="trails?" display="trails?" width="90" sizeVersion="0"></switch>
-    <button x="225" y="305" height="45" disableUntilTicks="true" forever="false" kind="Observer" display="go once" width="90" sizeVersion="0">go</button>
-    <switch x="15" y="480" height="33" on="true" variable="randomize-strategy-each-run?" display="randomize-strategy-each-run?" width="300" sizeVersion="0"></switch>
-    <plot x="635" autoPlotX="true" yMax="15.0" autoPlotY="true" y="11" xMin="0.0" height="535" legend="true" xMax="4.0" yMin="0.0" display="Strategy Avgs" width="238" sizeVersion="0">
+    <plot x="880" autoPlotX="true" yMax="15.0" autoPlotY="true" y="5" xMin="0.0" height="520" legend="true" xMax="4.0" yMin="0.0" width="395" display="Strategy Avgs">
       <setup></setup>
       <update></update>
       <pen interval="1.0" mode="1" display="Random" color="-10899396" legend="true">
@@ -307,10 +311,6 @@ end
 ]</update>
       </pen>
     </plot>
-    <slider x="15" step="2" y="440" max="18" display="#-vygotskiian-neighbors" height="33" min="2" direction="Horizontal" default="4.0" variable="#-vygotskiian-neighbors" width="205" sizeVersion="0"></slider>
-    <slider x="120" step="5" y="395" max="60" display="ZPD" height="33" min="0" direction="Horizontal" default="15.0" variable="ZPD" width="92" sizeVersion="0"></slider>
-    <slider x="170" step="1" y="355" max="100" display="attempts-per-run" height="33" min="1" direction="Horizontal" default="30.0" variable="attempts-per-run" width="145" sizeVersion="0"></slider>
-    <switch x="15" y="515" height="33" on="false" variable="stop-after-each-run?" display="stop-after-each-run?" width="300" sizeVersion="0"></switch>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 

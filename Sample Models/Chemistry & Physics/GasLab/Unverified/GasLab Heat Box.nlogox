@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<model version="NetLogo 7.0.0-beta0" snapToGrid="false">
+<model version="NetLogo 7.0.0-beta1" snapToGrid="true">
   <code><![CDATA[globals
 [
   tick-delta                      ;; how much we advance the tick counter this time through
@@ -432,11 +432,20 @@ end
 ; Copyright 2002 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="325" wrappingAllowedX="false" y="11" frameRate="30.0" minPycor="-40" height="328" showTickCounter="true" patchSize="4.0" fontSize="10" wrappingAllowedY="false" width="328" tickCounterLabel="ticks" maxPycor="40" updateMode="1" maxPxcor="40" minPxcor="-40"></view>
-    <button x="7" y="43" height="33" disableUntilTicks="true" forever="true" kind="Observer" display="go/stop" width="86" sizeVersion="0">go</button>
-    <button x="7" y="10" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="86" sizeVersion="0">setup</button>
-    <slider x="96" step="1" y="10" max="1000" display="number-of-particles" height="33" min="1" direction="Horizontal" default="100.0" variable="number-of-particles" width="222" sizeVersion="0"></slider>
-    <plot x="779" autoPlotX="true" yMax="100.0" autoPlotY="true" yAxis="pressure" y="197" xMin="0.0" height="179" legend="false" xMax="20.0" yMin="0.0" xAxis="time" display="Pressure vs. Time" width="238" sizeVersion="0">
+    <view x="355" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-40" height="364" showTickCounter="true" patchSize="4.444444444444445" fontSize="10" wrappingAllowedY="false" width="364" tickCounterLabel="ticks" maxPycor="40" updateMode="1" maxPxcor="40" minPxcor="-40"></view>
+    <plot x="780" autoPlotX="true" yMax="100.0" autoPlotY="true" yAxis="temperature" y="5" xMin="0.0" height="189" legend="false" xMax="100.0" yMin="0.0" width="239" xAxis="time" display="Temperature vs. Time">
+      <setup></setup>
+      <update></update>
+      <pen interval="1.0" mode="0" display="outside" color="-13345367" legend="true">
+        <setup></setup>
+        <update>plotxy ticks outside-temperature</update>
+      </pen>
+      <pen interval="1.0" mode="0" display="inside" color="-6459832" legend="true">
+        <setup></setup>
+        <update>plotxy ticks avg-energy</update>
+      </pen>
+    </plot>
+    <plot x="780" autoPlotX="true" yMax="100.0" autoPlotY="true" yAxis="pressure" y="200" xMin="0.0" height="186" legend="false" xMax="20.0" yMin="0.0" width="238" xAxis="time" display="Pressure vs. Time">
       <setup></setup>
       <update></update>
       <pen interval="1.0" mode="0" display="default" color="-955883" legend="true">
@@ -444,9 +453,7 @@ end
         <update>plotxy ticks (mean pressure-history)</update>
       </pen>
     </plot>
-    <monitor x="156" precision="0" y="315" height="45" fontSize="11" display="pressure" width="152" sizeVersion="0">pressure</monitor>
-    <monitor x="11" precision="2" y="315" height="45" fontSize="11" display="wall hits per particle" width="135" sizeVersion="0">wall-hits-per-particle</monitor>
-    <plot x="781" autoPlotX="true" yMax="1.0" autoPlotY="true" y="383" xMin="0.0" height="185" legend="false" xMax="20.0" yMin="0.0" display="Wall Hits per Particle" width="238" sizeVersion="0">
+    <plot x="780" autoPlotX="true" yMax="1.0" autoPlotY="true" y="390" xMin="0.0" height="192" legend="false" xMax="20.0" yMin="0.0" width="238" display="Wall Hits per Particle">
       <setup></setup>
       <update></update>
       <pen interval="1.0" mode="0" display="default" color="-16777216" legend="true">
@@ -454,10 +461,23 @@ end
         <update><![CDATA[if ticks > 1[plotxy ticks wall-hits-per-particle]]]></update>
       </pen>
     </plot>
-    <switch x="96" y="44" height="33" on="false" variable="one-side?" display="one-side?" width="118" sizeVersion="0"></switch>
-    <slider x="7" step="5" y="81" max="400" display="outside-temperature" height="33" min="5" direction="Horizontal" default="50.0" variable="outside-temperature" width="182" sizeVersion="0"></slider>
-    <monitor x="11" precision="1" y="260" height="45" fontSize="11" display="average speed" width="135" sizeVersion="0">avg-speed</monitor>
-    <plot x="522" autoPlotX="false" yMax="10.0" autoPlotY="false" yAxis="count" y="383" xMin="0.0" height="186" legend="false" xMax="800.0" yMin="0.0" xAxis="energy" display="Energy Histogram" width="254" sizeVersion="0">
+    <plot x="8" autoPlotX="true" yMax="100.0" autoPlotY="true" yAxis="count (%)" y="390" xMin="0.0" height="192" legend="false" xMax="100.0" yMin="0.0" width="250" xAxis="time" display="Speed Counts">
+      <setup>set-plot-y-range 0 100</setup>
+      <update></update>
+      <pen interval="1.0" mode="0" display="fast" color="-2674135" legend="true">
+        <setup></setup>
+        <update>plotxy ticks percent-fast</update>
+      </pen>
+      <pen interval="1.0" mode="0" display="medium" color="-10899396" legend="true">
+        <setup></setup>
+        <update>plotxy ticks percent-medium</update>
+      </pen>
+      <pen interval="1.0" mode="0" display="slow" color="-13345367" legend="true">
+        <setup></setup>
+        <update>plotxy ticks percent-slow</update>
+      </pen>
+    </plot>
+    <plot x="520" autoPlotX="false" yMax="10.0" autoPlotY="false" yAxis="count" y="389" xMin="0.0" height="193" legend="false" xMax="800.0" yMin="0.0" width="254" xAxis="energy" display="Energy Histogram">
       <setup>set-plot-x-range 0 (0.5 * (init-particle-speed * 2) * (init-particle-speed * 2) * particle-mass)
 set-plot-y-range 0 ceiling (number-of-particles / 4)</setup>
       <update></update>
@@ -483,37 +503,7 @@ draw-vert-line avg-energy</update>
         <update></update>
       </pen>
     </plot>
-    <monitor x="156" precision="1" y="260" height="45" fontSize="11" display="average energy" width="151" sizeVersion="0">avg-energy</monitor>
-    <plot x="10" autoPlotX="true" yMax="100.0" autoPlotY="true" yAxis="count (%)" y="383" xMin="0.0" height="185" legend="false" xMax="100.0" yMin="0.0" xAxis="time" display="Speed Counts" width="250" sizeVersion="0">
-      <setup>set-plot-y-range 0 100</setup>
-      <update></update>
-      <pen interval="1.0" mode="0" display="fast" color="-2674135" legend="true">
-        <setup></setup>
-        <update>plotxy ticks percent-fast</update>
-      </pen>
-      <pen interval="1.0" mode="0" display="medium" color="-10899396" legend="true">
-        <setup></setup>
-        <update>plotxy ticks percent-medium</update>
-      </pen>
-      <pen interval="1.0" mode="0" display="slow" color="-13345367" legend="true">
-        <setup></setup>
-        <update>plotxy ticks percent-slow</update>
-      </pen>
-    </plot>
-    <plot x="778" autoPlotX="true" yMax="100.0" autoPlotY="true" yAxis="temperature" y="12" xMin="0.0" height="182" legend="false" xMax="100.0" yMin="0.0" xAxis="time" display="Temperature vs. Time" width="239" sizeVersion="0">
-      <setup></setup>
-      <update></update>
-      <pen interval="1.0" mode="0" display="outside" color="-13345367" legend="true">
-        <setup></setup>
-        <update>plotxy ticks outside-temperature</update>
-      </pen>
-      <pen interval="1.0" mode="0" display="inside" color="-6459832" legend="true">
-        <setup></setup>
-        <update>plotxy ticks avg-energy</update>
-      </pen>
-    </plot>
-    <switch x="214" y="44" height="33" on="true" variable="collide?" display="collide?" width="103" sizeVersion="0"></switch>
-    <plot x="267" autoPlotX="false" yMax="100.0" autoPlotY="false" yAxis="count" y="383" xMin="0.0" height="186" legend="false" xMax="50.0" yMin="0.0" xAxis="speed" display="Speed Histogram" width="251" sizeVersion="0">
+    <plot x="265" autoPlotX="false" yMax="100.0" autoPlotY="false" yAxis="count" y="390" xMin="0.0" height="193" legend="false" xMax="50.0" yMin="0.0" width="251" xAxis="speed" display="Speed Histogram">
       <setup>set-plot-x-range 0 (init-particle-speed * 2)
 set-plot-y-range 0 ceiling (number-of-particles / 6)</setup>
       <update></update>
@@ -539,6 +529,16 @@ draw-vert-line avg-speed</update>
         <update></update>
       </pen>
     </plot>
+    <monitor x="10" precision="2" y="314" height="60" fontSize="11" width="135" display="wall hits per particle">wall-hits-per-particle</monitor>
+    <monitor x="155" precision="0" y="314" height="60" fontSize="11" width="152" display="pressure">pressure</monitor>
+    <slider x="40" step="5" y="113" max="400" width="250" display="outside-temperature" height="50" min="5" direction="Horizontal" default="50.0" variable="outside-temperature"></slider>
+    <button x="71" y="173" height="45" disableUntilTicks="false" forever="false" kind="Observer" width="90">setup</button>
+    <button x="170" y="173" height="45" disableUntilTicks="true" forever="true" kind="Observer" width="90" display="go/stop">go</button>
+    <switch x="40" y="68" height="37" on="false" variable="one-side?" width="118" display="one-side?"></switch>
+    <slider x="41" step="1" y="13" max="1000" width="250" display="number-of-particles" height="50" min="1" direction="Horizontal" default="100.0" variable="number-of-particles"></slider>
+    <monitor x="10" precision="1" y="247" height="60" fontSize="11" width="135" display="average speed">avg-speed</monitor>
+    <monitor x="155" precision="1" y="247" height="60" fontSize="11" width="151" display="average energy">avg-energy</monitor>
+    <switch x="173" y="68" height="37" on="true" variable="collide?" width="115" display="collide?"></switch>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 

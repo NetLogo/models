@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<model version="NetLogo 7.0.0-beta0" snapToGrid="false">
+<model version="NetLogo 7.0.0-beta1" snapToGrid="true">
   <code><![CDATA[globals
 [
   tick-delta                      ;; how much we advance the tick counter this time through
@@ -273,22 +273,15 @@ end
 ; Copyright 1997 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="399" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-60" height="367" showTickCounter="true" patchSize="3.0" fontSize="10" wrappingAllowedY="false" width="367" tickCounterLabel="ticks" maxPycor="60" updateMode="1" maxPxcor="60" minPxcor="-60"></view>
-    <monitor x="85" precision="1" y="323" height="45" fontSize="11" display="average speed" width="113" sizeVersion="0">avg-speed</monitor>
-    <monitor x="200" precision="1" y="323" height="45" fontSize="11" display="total energy" width="113" sizeVersion="0">total-energy</monitor>
-    <slider x="16" step="15" y="75" max="345" display="collision-angle" height="33" min="15" direction="Horizontal" default="150.0" variable="collision-angle" units="degrees" width="366" sizeVersion="0"></slider>
-    <slider x="15" step="1" y="151" max="20" display="init-pink-speed" height="33" min="1" direction="Horizontal" default="15.0" variable="init-pink-speed" width="180" sizeVersion="0"></slider>
-    <slider x="15" step="1" y="186" max="20" display="pink-mass" height="33" min="1" direction="Horizontal" default="1.0" variable="pink-mass" width="179" sizeVersion="0"></slider>
-    <slider x="16" step="15" y="112" max="345" display="reflection-angle" height="33" min="0" direction="Horizontal" default="225.0" variable="reflection-angle" units="degrees" width="366" sizeVersion="0"></slider>
-    <slider x="205" step="1" y="152" max="20" display="init-blue-speed" height="33" min="1" direction="Horizontal" default="6.0" variable="init-blue-speed" width="179" sizeVersion="0"></slider>
-    <slider x="205" step="1" y="187" max="20" display="blue-mass" height="33" min="1" direction="Horizontal" default="4.0" variable="blue-mass" width="179" sizeVersion="0"></slider>
-    <button x="14" y="17" height="44" disableUntilTicks="false" forever="false" kind="Observer" width="85" sizeVersion="0">setup</button>
-    <monitor x="38" precision="1" y="271" height="45" fontSize="11" display="speed of pink" width="123" sizeVersion="0">[speed] of turtle 0</monitor>
-    <monitor x="231" precision="1" y="269" height="45" fontSize="11" display="speed of blue" width="128" sizeVersion="0">[speed] of turtle 1</monitor>
-    <monitor x="39" precision="1" y="221" height="45" fontSize="11" display="energy of pink" width="123" sizeVersion="0">[energy] of turtle 0</monitor>
-    <monitor x="231" precision="1" y="222" height="45" fontSize="11" display="energy of blue" width="128" sizeVersion="0">[energy] of turtle 1</monitor>
-    <switch x="399" y="410" height="33" on="false" variable="show-center-of-mass?" display="show-center-of-mass?" width="183" sizeVersion="0"></switch>
-    <plot x="30" autoPlotX="true" yMax="20.0" autoPlotY="true" yAxis="speed" y="376" xMin="0.0" height="183" legend="true" xMax="5.0" yMin="0.0" xAxis="time" display="Speeds" width="336" sizeVersion="0">
+    <view x="455" wrappingAllowedX="false" y="15" frameRate="30.0" minPycor="-60" height="367" showTickCounter="true" patchSize="3.0" fontSize="10" wrappingAllowedY="false" width="367" tickCounterLabel="ticks" maxPycor="60" updateMode="1" maxPxcor="60" minPxcor="-60"></view>
+    <slider x="4" step="15" y="15" max="345" width="215" display="collision-angle" height="50" min="15" direction="Horizontal" default="300.0" variable="collision-angle" units="degrees"></slider>
+    <slider x="225" step="15" y="15" max="345" width="220" display="reflection-angle" height="50" min="0" direction="Horizontal" default="225.0" variable="reflection-angle" units="degrees"></slider>
+    <slider x="4" step="1" y="70" max="20" width="215" display="init-pink-speed" height="50" min="1" direction="Horizontal" default="15.0" variable="init-pink-speed"></slider>
+    <slider x="5" step="1" y="125" max="20" width="214" display="pink-mass" height="50" min="1" direction="Horizontal" default="1.0" variable="pink-mass"></slider>
+    <slider x="225" step="1" y="70" max="20" width="220" display="init-blue-speed" height="50" min="1" direction="Horizontal" default="6.0" variable="init-blue-speed"></slider>
+    <slider x="225" step="1" y="125" max="20" width="220" display="blue-mass" height="50" min="1" direction="Horizontal" default="4.0" variable="blue-mass"></slider>
+    <monitor x="40" precision="1" y="260" height="60" fontSize="11" width="123" display="energy of pink">[energy] of turtle 0</monitor>
+    <plot x="40" autoPlotX="true" yMax="20.0" autoPlotY="true" yAxis="speed" y="390" xMin="0.0" height="220" legend="true" xMax="5.0" yMin="0.0" width="375" xAxis="time" display="Speeds">
       <setup></setup>
       <update>ifelse after-collision?
    [set plot-clock (ticks - (tick-delta))]
@@ -309,12 +302,19 @@ end
   [ plotxy plot-clock ([speed] of turtle 0) ]</update>
       </pen>
     </plot>
-    <button x="299" y="18" height="45" disableUntilTicks="true" forever="true" kind="Observer" display="go" width="82" sizeVersion="0">go-mode</button>
-    <chooser x="105" y="17" height="45" variable="run-mode" current="0" display="run-mode" width="187" sizeVersion="0">
+    <monitor x="290" precision="1" y="260" height="60" fontSize="11" width="128" display="energy of blue">[energy] of turtle 1</monitor>
+    <monitor x="290" precision="1" y="325" height="60" fontSize="11" width="128" display="speed of blue">[speed] of turtle 1</monitor>
+    <monitor x="40" precision="1" y="325" height="60" fontSize="11" width="123" display="speed of pink">[speed] of turtle 0</monitor>
+    <monitor x="170" precision="1" y="325" height="60" fontSize="11" width="113" display="average speed">avg-speed</monitor>
+    <monitor x="170" precision="1" y="260" height="60" fontSize="11" width="113" display="total energy">total-energy</monitor>
+    <chooser x="5" y="180" height="60" variable="run-mode" current="0" width="215" display="run-mode">
       <choice type="string" value="one-collision"></choice>
       <choice type="string" value="all-collision-angles"></choice>
       <choice type="string" value="all-reflection-angles"></choice>
     </chooser>
+    <button x="245" y="190" height="44" disableUntilTicks="false" forever="false" kind="Observer" width="85">setup</button>
+    <button x="335" y="190" height="45" disableUntilTicks="true" forever="true" kind="Observer" width="82" display="go">go-mode</button>
+    <switch x="545" y="395" height="37" on="false" variable="show-center-of-mass?" width="183" display="show-center-of-mass?"></switch>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 

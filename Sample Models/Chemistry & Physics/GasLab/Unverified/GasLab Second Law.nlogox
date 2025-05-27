@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<model version="NetLogo 7.0.0-beta0" snapToGrid="false">
+<model version="NetLogo 7.0.0-beta1" snapToGrid="true">
   <code><![CDATA[globals [
   fast average slow               ;; current counts
   avg-speed avg-energy            ;; current averages
@@ -223,14 +223,14 @@ end
 ; Copyright 2002 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="254" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-35" height="288" showTickCounter="true" patchSize="4.0" fontSize="10" wrappingAllowedY="false" width="288" tickCounterLabel="ticks" maxPycor="35" updateMode="1" maxPxcor="35" minPxcor="-35"></view>
-    <slider x="7" step="10" y="119" max="500" display="number" height="33" min="10" direction="Horizontal" default="100.0" variable="number" units="particles" width="242" sizeVersion="0"></slider>
-    <button x="133" y="76" height="33" disableUntilTicks="true" forever="true" kind="Observer" display="go" width="116" sizeVersion="0">go</button>
-    <button x="8" y="41" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="setup (corner)" width="117" sizeVersion="0">setup "corner"</button>
-    <slider x="7" step="1" y="152" max="20" display="propeller-radius" height="33" min="0" direction="Horizontal" default="17.0" variable="propeller-radius" width="242" sizeVersion="0"></slider>
-    <button x="132" y="41" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="setup (one side)" width="117" sizeVersion="0">setup "one side"</button>
-    <button x="8" y="76" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="setup (both sides)" width="117" sizeVersion="0">setup "both sides"</button>
-    <plot x="7" autoPlotX="true" yMax="100.0" autoPlotY="true" yAxis="# particles" y="195" xMin="0.0" height="214" legend="true" xMax="20.0" yMin="0.0" xAxis="time" display="Particle Counts" width="242" sizeVersion="0">
+    <view x="262" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-35" height="288" showTickCounter="true" patchSize="4.0" fontSize="10" wrappingAllowedY="false" width="288" tickCounterLabel="ticks" maxPycor="35" updateMode="1" maxPxcor="35" minPxcor="-35"></view>
+    <slider x="5" step="10" y="15" max="500" width="250" display="number" height="50" min="10" direction="Horizontal" default="100.0" variable="number" units="particles"></slider>
+    <slider x="5" step="1" y="75" max="20" width="250" display="propeller-radius" height="50" min="0" direction="Horizontal" default="15.0" variable="propeller-radius"></slider>
+    <button x="6" y="130" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="117" display="setup (corner)">setup "corner"</button>
+    <button x="5" y="175" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="117" display="setup (both sides)">setup "both sides"</button>
+    <button x="130" y="175" height="35" disableUntilTicks="true" forever="true" kind="Observer" width="116" display="go">go</button>
+    <button x="130" y="130" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="117" display="setup (one side)">setup "one side"</button>
+    <plot x="5" autoPlotX="true" yMax="100.0" autoPlotY="true" yAxis="# particles" y="215" xMin="0.0" height="221" legend="true" xMax="20.0" yMin="0.0" width="242" xAxis="time" display="Particle Counts">
       <setup></setup>
       <update></update>
       <pen interval="1.0" mode="0" display="left" color="-955883" legend="true">
@@ -242,7 +242,7 @@ end
         <update>plot right-count</update>
       </pen>
     </plot>
-    <plot x="7" autoPlotX="true" yMax="8.0" autoPlotY="true" yAxis="velocity" y="409" xMin="0.0" height="214" legend="false" xMax="20.0" yMin="-8.0" xAxis="time" display="Propeller Velocity" width="242" sizeVersion="0">
+    <plot x="5" autoPlotX="true" yMax="8.0" autoPlotY="true" yAxis="velocity" y="440" xMin="0.0" height="221" legend="false" xMax="20.0" yMin="-8.0" width="242" xAxis="time" display="Propeller Velocity">
       <setup>set-plot-y-range ceiling (number / -25) ceiling (number / 25)
 auto-plot-off
 set-current-plot-pen "x-axis"
@@ -259,11 +259,15 @@ auto-plot-on</setup>
         <update></update>
       </pen>
     </plot>
-    <note x="319" y="335" height="74" textColorLight="-16777216" fontSize="11" width="459" markdown="false">RULES:
-- Particle crossing left to right pushes propeller clockwise.
-- Particle crossing right to left pushes propeller counterclockwise.
-- Propeller slows down over time as work is extracted from the system.</note>
-    <plot x="491" autoPlotX="true" yMax="8.0" autoPlotY="true" yAxis="pressure" y="409" xMin="0.0" height="214" legend="true" xMax="20.0" yMin="0.0" xAxis="time" display="Pressures" width="242" sizeVersion="0">
+    <plot x="255" autoPlotX="true" yMax="1.0" autoPlotY="true" yAxis="entropy" y="440" xMin="0.0" height="221" legend="true" xMax="20.0" yMin="0.0" width="242" xAxis="time" display="Entropy">
+      <setup></setup>
+      <update></update>
+      <pen interval="1.0" mode="0" display="entropy" color="-2674135" legend="true">
+        <setup>plot 100 * (1 / calculate-order)</setup>
+        <update>plot 100 * 1 / calculate-order</update>
+      </pen>
+    </plot>
+    <plot x="505" autoPlotX="true" yMax="8.0" autoPlotY="true" yAxis="pressure" y="440" xMin="0.0" height="221" legend="true" xMax="20.0" yMin="0.0" width="242" xAxis="time" display="Pressures">
       <setup>set-plot-y-range 0 ceiling (number / 25)</setup>
       <update></update>
       <pen interval="1.0" mode="0" display="left" color="-955883" legend="true">
@@ -275,15 +279,12 @@ auto-plot-on</setup>
         <update>plot right-pressure</update>
       </pen>
     </plot>
-    <plot x="249" autoPlotX="true" yMax="1.0" autoPlotY="true" yAxis="entropy" y="409" xMin="0.0" height="214" legend="true" xMax="20.0" yMin="0.0" xAxis="time" display="Entropy" width="242" sizeVersion="0">
-      <setup></setup>
-      <update></update>
-      <pen interval="1.0" mode="0" display="entropy" color="-2674135" legend="true">
-        <setup>plot 100 * (1 / calculate-order)</setup>
-        <update>plot 100 * 1 / calculate-order</update>
-      </pen>
-    </plot>
-    <plot x="552" autoPlotX="true" yMax="1.0" autoPlotY="true" y="41" xMin="-1.0" height="203" legend="false" xMax="1.0" yMin="-1.0" display="Propeller" width="228" sizeVersion="0">
+    <note x="260" y="345" backgroundDark="0" fontSize="11" width="459" markdown="true" height="91" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">RULES:
+
+- Particle crossing left to right pushes propeller clockwise.
+- Particle crossing right to left pushes propeller counterclockwise.
+- Propeller slows down over time as work is extracted from the system.</note>
+    <plot x="560" autoPlotX="true" yMax="1.0" autoPlotY="true" y="50" xMin="-1.0" height="210" legend="false" xMax="1.0" yMin="-1.0" width="228" display="Propeller">
       <setup></setup>
       <update></update>
       <pen interval="1.0" mode="0" display="default" color="-16777216" legend="true">
