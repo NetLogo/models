@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<model version="NetLogo 7.0.0-beta0" snapToGrid="true">
+<model version="NetLogo 7.0.0-beta2" snapToGrid="true">
   <code><![CDATA[breed [ output-shapes output-shape ]
 breed [ fish a-fish ]
 
@@ -232,12 +232,20 @@ end
 ; Copyright 2004 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="122" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-9" height="444" showTickCounter="true" patchSize="40.0" fontSize="10" wrappingAllowedY="false" width="444" tickCounterLabel="ticks" maxPycor="1" updateMode="1" maxPxcor="5" minPxcor="-5"></view>
-    <button x="7" y="37" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="109" sizeVersion="0">setup</button>
-    <button x="7" y="245" height="33" disableUntilTicks="true" forever="true" kind="Observer" display="reveal genes" width="109" sizeVersion="0">reveal-genes</button>
-    <button x="8" y="180" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="108" sizeVersion="0">go</button>
-    <button x="7" y="88" height="33" disableUntilTicks="true" forever="false" kind="Observer" display="add fish" width="109" sizeVersion="0">add-fish 10</button>
-    <plot x="580" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="occurrences" y="325" xMin="0.0" height="155" legend="true" xMax="5.0" yMin="0.0" xAxis="# green squares in block" display="4-Block Distribution" width="330" sizeVersion="0">
+    <view x="160" wrappingAllowedX="false" y="7" frameRate="30.0" minPycor="-9" height="444" showTickCounter="true" patchSize="40.0" fontSize="10" wrappingAllowedY="false" width="444" tickCounterLabel="ticks" maxPycor="1" updateMode="1" maxPxcor="5" minPxcor="-5"></view>
+    <chooser x="5" y="395" height="60" variable="mate-with" current="0" width="150" display="mate-with">
+      <choice type="string" value="Any Fish"></choice>
+      <choice type="string" value="Same Body"></choice>
+      <choice type="string" value="Same Fin"></choice>
+      <choice type="string" value="Same Both"></choice>
+    </chooser>
+    <slider x="5" step="1" y="335" max="10" width="150" display="life-span" height="55" min="1" direction="Horizontal" default="5.0" variable="life-span"></slider>
+    <button x="5" y="115" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="150" display="go once">go</button>
+    <button x="5" y="60" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="150" display="add fish">add-fish 10</button>
+    <button x="5" y="155" height="35" disableUntilTicks="true" forever="true" kind="Observer" width="150">go</button>
+    <button x="5" y="210" height="35" disableUntilTicks="true" forever="true" kind="Observer" width="150" display="reveal genes">reveal-genes</button>
+    <monitor x="1025" precision="2" y="125" height="60" fontSize="11" width="120" display="Average Block">mean z-distr</monitor>
+    <plot x="923" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="occurrences" y="185" xMin="0.0" height="265" legend="true" xMax="5.0" yMin="0.0" width="325" xAxis="# green squares in block" display="4-Block Distribution">
       <setup></setup>
       <update>set z-distr [ read-from-string item 1 my-genes ] of fish</update>
       <pen interval="1.0" mode="1" display="Count" color="-16777216" legend="true">
@@ -259,10 +267,7 @@ if z-distr != [] [
 ]</update>
       </pen>
     </plot>
-    <slider x="5" step="1" y="375" max="10" display="life-span" height="33" min="1" direction="Horizontal" default="5.0" variable="life-span" width="109" sizeVersion="0"></slider>
-    <monitor x="840" precision="2" y="380" height="45" fontSize="11" display="Ave Block" width="65" sizeVersion="0">mean z-distr</monitor>
-    <button x="8" y="142" height="33" disableUntilTicks="true" forever="false" kind="Observer" display="go once" width="108" sizeVersion="0">go</button>
-    <plot x="577" autoPlotX="true" yMax="100.0" autoPlotY="true" yAxis="Percentage" y="174" xMin="0.0" height="148" legend="true" xMax="10.0" yMin="0.0" xAxis="# of iterations" display="Percent Fish by Properties" width="330" sizeVersion="0">
+    <plot x="610" autoPlotX="true" yMax="100.0" autoPlotY="true" yAxis="Percentage" y="185" xMin="0.0" height="265" legend="true" xMax="10.0" yMin="0.0" width="310" xAxis="# of iterations" display="Percent Fish by Properties">
       <setup></setup>
       <update></update>
       <pen interval="1.0" mode="0" display="G-body G-fin" color="-10899396" legend="true">
@@ -282,21 +287,16 @@ if z-distr != [] [
         <update>plotxy ticks ifelse-value any? fish [ 100 * count fish with [ color = blue and shape = res-shape ] / count fish ] [ 0 ]</update>
       </pen>
     </plot>
-    <chooser x="5" y="414" height="45" variable="mate-with" current="0" display="mate-with" width="109" sizeVersion="0">
-      <choice type="string" value="Any Fish"></choice>
-      <choice type="string" value="Same Body"></choice>
-      <choice type="string" value="Same Fin"></choice>
-      <choice type="string" value="Same Both"></choice>
-    </chooser>
-    <monitor x="610" precision="0" y="10" height="45" fontSize="11" display="G-body G-fin" width="86" sizeVersion="0">count fish with [ color = green and (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1)]</monitor>
-    <monitor x="700" precision="3" y="10" height="45" fontSize="11" display="G-body B-fin" width="84" sizeVersion="0">count fish with [ color = green and not (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1)]</monitor>
-    <monitor x="610" precision="0" y="62" height="45" fontSize="11" display="B-body G-fin" width="86" sizeVersion="0">count fish with [ color = blue and (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1)]</monitor>
-    <monitor x="700" precision="0" y="62" height="45" fontSize="11" display="B-body B-fin" width="84" sizeVersion="0">count fish with [ color = blue and not (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1)]</monitor>
-    <monitor x="610" precision="0" y="120" height="45" fontSize="11" display="Total     G-fin" width="86" sizeVersion="0">count fish with [ read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1 ]</monitor>
-    <monitor x="700" precision="0" y="120" height="45" fontSize="11" display="Total     B-fin" width="85" sizeVersion="0">count fish with [ not (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1) ]</monitor>
-    <monitor x="793" precision="0" y="62" height="45" fontSize="11" display="B-body Total" width="80" sizeVersion="0">count fish with [ color = blue ]</monitor>
-    <monitor x="793" precision="0" y="10" height="45" fontSize="11" display="G-body Total" width="80" sizeVersion="0">count fish with [ color = green ]</monitor>
-    <monitor x="793" precision="0" y="120" height="45" fontSize="11" display="Total fish" width="80" sizeVersion="0">count fish</monitor>
+    <monitor x="610" precision="0" y="125" height="60" fontSize="11" width="100" display="Total     G-fin">count fish with [ read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1 ]</monitor>
+    <monitor x="715" precision="0" y="125" height="60" fontSize="11" width="100" display="Total     B-fin">count fish with [ not (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1) ]</monitor>
+    <monitor x="715" precision="0" y="65" height="60" fontSize="11" width="100" display="B-body B-fin">count fish with [ color = blue and not (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1)]</monitor>
+    <monitor x="821" precision="0" y="7" height="60" fontSize="11" width="100" display="G-body Total">count fish with [ color = green ]</monitor>
+    <monitor x="821" precision="0" y="65" height="60" fontSize="11" width="100" display="B-body Total">count fish with [ color = blue ]</monitor>
+    <monitor x="821" precision="0" y="125" height="60" fontSize="11" width="100" display="Total fish">count fish</monitor>
+    <monitor x="715" precision="3" y="7" height="60" fontSize="11" width="100" display="G-body B-fin">count fish with [ color = green and not (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1)]</monitor>
+    <monitor x="610" precision="0" y="65" height="60" fontSize="11" width="100" display="B-body G-fin">count fish with [ color = blue and (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1)]</monitor>
+    <monitor x="610" precision="0" y="7" height="60" fontSize="11" width="100" display="G-body G-fin">count fish with [ color = green and (read-from-string (item 5 my-genes) = 1 or read-from-string (item 6 my-genes) = 1)]</monitor>
+    <button x="4" y="7" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="151">setup</button>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 

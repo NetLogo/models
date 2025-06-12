@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<model version="NetLogo 7.0.0-beta0" snapToGrid="false">
+<model version="NetLogo 7.0.0-beta2" snapToGrid="true">
   <code><![CDATA[breed [ wanderers wanderer ]    ;; turtles in Equidistant-Point that walk out from green patches
 breed [ darts dart ]           ;; turtles in Epicenter: They all emerge from the middle
 
@@ -246,18 +246,24 @@ end
 ; Copyright 2004 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="420" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-2" height="389" showTickCounter="false" patchSize="77.0" fontSize="16" wrappingAllowedY="false" width="389" tickCounterLabel="ticks" maxPycor="2" updateMode="0" maxPxcor="2" minPxcor="-2"></view>
-    <button x="6" y="48" height="37" disableUntilTicks="false" forever="true" kind="Observer" display="Select Square" width="157" sizeVersion="0">select-squares</button>
-    <button x="6" y="198" height="50" disableUntilTicks="false" forever="true" kind="Observer" display="Find Equidistant Point" width="158" sizeVersion="0">find-equidistant-point</button>
-    <button x="6" y="10" height="34" disableUntilTicks="false" forever="false" kind="Observer" display="Setup" width="157" sizeVersion="0">setup</button>
-    <switch x="6" y="253" height="33" on="true" variable="single-success?" display="single-success?" width="158" sizeVersion="0"></switch>
-    <monitor x="173" precision="3" y="10" height="45" fontSize="11" display="#Successes" width="80" sizeVersion="0">length attempts-list</monitor>
-    <monitor x="256" precision="0" y="10" height="45" fontSize="11" display="#Attempts" width="80" sizeVersion="0">sum attempts-list + attempts</monitor>
-    <monitor x="342" precision="2" y="10" height="45" fontSize="11" display="Frequency" width="73" sizeVersion="0">cumulative-frequency</monitor>
-    <monitor x="201" precision="2" y="191" height="45" fontSize="11" display="Mean #Attempts to Success" width="182" sizeVersion="0">mean attempts-list</monitor>
-    <button x="7" y="346" height="34" disableUntilTicks="false" forever="false" kind="Observer" display="Epicenter" width="156" sizeVersion="0">epicenter</button>
-    <slider x="6" step="100" y="288" max="10000" display="sample-size" height="33" min="0" direction="Horizontal" default="1000.0" variable="sample-size" width="157" sizeVersion="0"></slider>
-    <plot x="171" autoPlotX="true" yMax="4.0" autoPlotY="true" yAxis="count" y="306" xMin="0.0" height="120" legend="false" xMax="15.0" yMin="0.0" xAxis="#successes" display="#Successes Per Sample" width="242" sizeVersion="0">
+    <view x="490" wrappingAllowedX="false" y="7" frameRate="30.0" minPycor="-2" height="389" showTickCounter="false" patchSize="77.0" fontSize="16" wrappingAllowedY="false" width="389" tickCounterLabel="ticks" maxPycor="2" updateMode="0" maxPxcor="2" minPxcor="-2"></view>
+    <button x="5" y="417" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="156" display="Epicenter">epicenter</button>
+    <chooser x="5" y="455" height="60" variable="display-results" current="1" width="155" display="display-results">
+      <choice type="string" value="by-total"></choice>
+      <choice type="string" value="by-%"></choice>
+    </chooser>
+    <button x="5" y="45" height="37" disableUntilTicks="false" forever="true" kind="Observer" width="157" display="Select Square">select-squares</button>
+    <button x="5" y="85" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="78" display="Preset 1">preset1</button>
+    <button x="85" y="85" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="78" display="Preset 2">preset2</button>
+    <button x="85" y="125" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="78" display="Preset 4">preset4</button>
+    <button x="85" y="165" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="78" display="Preset 6">preset6</button>
+    <button x="5" y="125" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="78" display="Preset 3">preset3</button>
+    <button x="5" y="165" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="78" display="Preset 5">preset5</button>
+    <button x="5" y="205" height="50" disableUntilTicks="false" forever="true" kind="Observer" width="158" display="Find Equidistant Point">find-equidistant-point</button>
+    <switch x="5" y="260" height="40" on="true" variable="single-success?" width="158" display="single-success?"></switch>
+    <slider x="5" step="100" y="300" max="10000" width="160" display="sample-size" height="55" min="0" direction="Horizontal" default="1000.0" variable="sample-size"></slider>
+    <monitor x="170" precision="3" y="7" height="60" fontSize="11" width="100" display="#Successes">length attempts-list</monitor>
+    <plot x="170" autoPlotX="true" yMax="4.0" autoPlotY="true" yAxis="count" y="350" xMin="0.0" height="160" legend="false" xMax="15.0" yMin="0.0" width="310" xAxis="#successes" display="#Successes Per Sample">
       <setup></setup>
       <update></update>
       <pen interval="1.0" mode="1" display="#Successes Per Sample" color="-6459832" legend="true">
@@ -269,8 +275,8 @@ end
         <update></update>
       </pen>
     </plot>
-    <monitor x="171" precision="3" y="255" height="45" fontSize="11" display="Samples Taken Up To Now" width="242" sizeVersion="0">samples-count</monitor>
-    <plot x="173" autoPlotX="true" yMax="4.0" autoPlotY="true" yAxis="count" y="71" xMin="0.0" height="120" legend="false" xMax="10.0" yMin="0.0" xAxis="#attempts" display="Attempts Until Success" width="241" sizeVersion="0">
+    <monitor x="235" precision="2" y="220" height="60" fontSize="11" width="182" display="Mean #Attempts to Success">mean attempts-list</monitor>
+    <plot x="171" autoPlotX="true" yMax="4.0" autoPlotY="true" yAxis="count" y="65" xMin="0.0" height="150" legend="false" xMax="10.0" yMin="0.0" width="310" xAxis="#attempts" display="Attempts Until Success">
       <setup></setup>
       <update></update>
       <pen interval="1.0" mode="1" display="attempts until success" color="-13791810" legend="true">
@@ -282,16 +288,10 @@ end
         <update></update>
       </pen>
     </plot>
-    <button x="6" y="89" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="Preset 1" width="78" sizeVersion="0">preset1</button>
-    <button x="85" y="89" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="Preset 2" width="78" sizeVersion="0">preset2</button>
-    <button x="6" y="123" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="Preset 3" width="78" sizeVersion="0">preset3</button>
-    <button x="85" y="123" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="Preset 4" width="78" sizeVersion="0">preset4</button>
-    <chooser x="7" y="381" height="45" variable="display-results" current="1" display="display-results" width="156" sizeVersion="0">
-      <choice type="string" value="by-total"></choice>
-      <choice type="string" value="by-%"></choice>
-    </chooser>
-    <button x="6" y="158" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="Preset 5" width="78" sizeVersion="0">preset5</button>
-    <button x="85" y="158" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="Preset 6" width="78" sizeVersion="0">preset6</button>
+    <monitor x="380" precision="2" y="7" height="60" fontSize="11" width="100" display="Frequency">cumulative-frequency</monitor>
+    <monitor x="275" precision="0" y="7" height="60" fontSize="11" width="100" display="#Attempts">sum attempts-list + attempts</monitor>
+    <monitor x="170" precision="3" y="290" height="60" fontSize="11" width="310" display="Samples Taken Up To Now">samples-count</monitor>
+    <button x="5" y="7" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="157" display="Setup">setup</button>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 

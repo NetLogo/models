@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<model version="NetLogo 7.0.0-beta0" snapToGrid="false">
+<model version="NetLogo 7.0.0-beta2" snapToGrid="true">
   <code><![CDATA[globals [
   ;; the-short-list is a list of the addends for the current total
   ;; it is used to display the addends in the command center, and it is initialized for each new search
@@ -131,27 +131,19 @@ end
 ; Copyright 2004 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="6" wrappingAllowedX="true" y="47" frameRate="30.0" minPycor="-1" height="28" showTickCounter="true" patchSize="8.0" fontSize="10" wrappingAllowedY="true" width="812" tickCounterLabel="ticks" maxPycor="1" updateMode="1" maxPxcor="50" minPxcor="-50"></view>
-    <button x="6" y="10" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="Setup" width="90" sizeVersion="0">setup</button>
-    <button x="102" y="10" height="33" disableUntilTicks="true" forever="true" kind="Observer" display="Go" width="89" sizeVersion="0">go</button>
-    <plot x="179" autoPlotX="true" yMax="10.0" autoPlotY="true" y="192" xMin="0.0" height="127" legend="false" xMax="100.0" yMin="0.0" display="Addends" width="220" sizeVersion="0">
-      <setup></setup>
-      <update></update>
-      <pen interval="1.0" mode="1" display="list" color="-16777216" legend="true">
-        <setup></setup>
-        <update></update>
-      </pen>
-    </plot>
-    <monitor x="72" precision="0" y="192" height="45" fontSize="11" display="Running Total" width="101" sizeVersion="0">sum the-short-list</monitor>
-    <monitor x="7" precision="0" y="272" height="45" fontSize="11" display="Successes So Far" width="120" sizeVersion="0">successes-so-far</monitor>
-    <slider x="21" step="1" y="102" max="100" display="target-total" height="33" min="2" direction="Horizontal" default="72.0" variable="target-total" width="800" sizeVersion="0"></slider>
-    <slider x="290" step="100" y="10" max="10000" display="num-successes" height="33" min="0" direction="Horizontal" default="10000.0" variable="num-successes" width="180" sizeVersion="0"></slider>
-    <monitor x="7" precision="3" y="192" height="45" fontSize="11" display="Addend" width="62" sizeVersion="0">addend</monitor>
-    <button x="195" y="10" height="34" disableUntilTicks="false" forever="false" kind="Observer" display="Add Once" width="90" sizeVersion="0">go</button>
-    <switch x="695" y="11" height="33" on="true" variable="wait-at-full?" display="wait-at-full?" width="129" sizeVersion="0"></switch>
-    <monitor x="439" precision="3" y="271" height="45" fontSize="11" display="Mean #Addends Per Total" width="159" sizeVersion="0">(length the-long-list) / (successes-so-far)</monitor>
-    <switch x="475" y="11" height="33" on="true" variable="diminishing-sample-space?" display="diminishing-sample-space?" width="216" sizeVersion="0"></switch>
-    <plot x="604" autoPlotX="true" yMax="10.0" autoPlotY="true" y="191" xMin="1.0" height="129" legend="false" xMax="10.0" yMin="0.0" display="#Addends Per Total" width="221" sizeVersion="0">
+    <view x="5" wrappingAllowedX="true" y="69" frameRate="30.0" minPycor="-1" height="28" showTickCounter="true" patchSize="8.0" fontSize="10" wrappingAllowedY="true" width="812" tickCounterLabel="ticks" maxPycor="1" updateMode="1" maxPxcor="50" minPxcor="-50"></view>
+    <button x="193" y="7" height="55" disableUntilTicks="false" forever="false" kind="Observer" width="90" display="Add Once">go</button>
+    <button x="100" y="7" height="55" disableUntilTicks="true" forever="true" kind="Observer" width="89" display="Go">go</button>
+    <button x="4" y="7" height="55" disableUntilTicks="false" forever="false" kind="Observer" width="90" display="Setup">setup</button>
+    <slider x="285" step="100" y="7" max="10000" width="180" display="num-successes" height="55" min="0" direction="Horizontal" default="10000.0" variable="num-successes"></slider>
+    <switch x="470" y="7" height="55" on="true" variable="diminishing-sample-space?" width="205" display="diminishing-sample-space?"></switch>
+    <switch x="680" y="7" height="55" on="true" variable="wait-at-full?" width="135" display="wait-at-full?"></switch>
+    <slider x="5" step="1" y="105" max="100" width="815" display="target-total" height="55" min="2" direction="Horizontal" default="72.0" variable="target-total"></slider>
+    <monitor x="110" precision="0" y="225" height="60" fontSize="11" width="120" display="Running Total">sum the-short-list</monitor>
+    <monitor x="5" precision="0" y="285" height="60" fontSize="11" width="225" display="Successes So Far">successes-so-far</monitor>
+    <monitor x="5" precision="3" y="225" height="60" fontSize="11" width="100" display="Addend">addend</monitor>
+    <monitor x="5" precision="3" y="165" height="60" fontSize="11" width="815" display="Previous List of Included Addends">previous-short-list</monitor>
+    <plot x="460" autoPlotX="true" yMax="10.0" autoPlotY="true" y="225" xMin="1.0" height="150" legend="false" xMax="10.0" yMin="0.0" width="230" display="#Addends Per Total">
       <setup></setup>
       <update></update>
       <pen interval="1.0" mode="1" display="default" color="-16777216" legend="true">
@@ -159,7 +151,15 @@ end
         <update></update>
       </pen>
     </plot>
-    <monitor x="7" precision="3" y="140" height="45" fontSize="11" display="Previous List of Included Addends" width="818" sizeVersion="0">previous-short-list</monitor>
+    <plot x="235" autoPlotX="true" yMax="10.0" autoPlotY="true" y="225" xMin="0.0" height="150" legend="false" xMax="100.0" yMin="0.0" width="220" display="Addends">
+      <setup></setup>
+      <update></update>
+      <pen interval="1.0" mode="1" display="list" color="-16777216" legend="true">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <monitor x="370" precision="3" y="380" height="60" fontSize="11" width="180" display="Mean #Addends Per Total">(length the-long-list) / (successes-so-far)</monitor>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
