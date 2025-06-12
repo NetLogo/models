@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<model version="NetLogo 7.0.0-beta0" snapToGrid="true">
+<model version="NetLogo 7.0.0-beta2" snapToGrid="true">
   <code><![CDATA[globals [
   left-side                                 ;; left side of the membrane
   right-side                                ;; right side of the membrane
@@ -425,20 +425,18 @@ end
 ; Copyright 2012 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="275" wrappingAllowedX="true" y="30" frameRate="30.0" minPycor="-20" height="332" showTickCounter="true" patchSize="8.0" fontSize="10" wrappingAllowedY="true" width="812" tickCounterLabel="ticks" maxPycor="20" updateMode="1" maxPxcor="50" minPxcor="-50"></view>
-    <button x="20" y="10" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="65" sizeVersion="0">setup</button>
-    <button x="90" y="10" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="65" sizeVersion="0">go</button>
-    <chooser x="20" y="50" height="45" variable="solute-type" current="0" display="solute-type" width="135" sizeVersion="0">
+    <view x="340" wrappingAllowedX="true" y="30" frameRate="30.0" minPycor="-20" height="332" showTickCounter="true" patchSize="8.0" fontSize="10" wrappingAllowedY="true" width="812" tickCounterLabel="ticks" maxPycor="20" updateMode="1" maxPxcor="50" minPxcor="-50"></view>
+    <button x="20" y="10" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="65">setup</button>
+    <button x="90" y="10" height="35" disableUntilTicks="true" forever="true" kind="Observer" width="65">go</button>
+    <chooser x="20" y="52" height="60" variable="solute-type" current="0" width="135" display="solute-type">
       <choice type="string" value="Sugar"></choice>
       <choice type="string" value="Sodium Chloride"></choice>
       <choice type="string" value="Magnesium Chloride"></choice>
       <choice type="string" value="Aluminum Chloride"></choice>
     </chooser>
-    <slider x="20" step="1" y="100" max="100" display="solute-left" height="33" min="1" direction="Horizontal" default="100.0" variable="solute-left" width="125" sizeVersion="0"></slider>
-    <output x="160" y="50" height="45" fontSize="12" width="110"></output>
-    <monitor x="20" precision="0" y="140" height="45" fontSize="11" display="Water # Left" width="80" sizeVersion="0"><![CDATA[count solvents with [pxcor < split]]]></monitor>
-    <monitor x="180" precision="0" y="140" height="45" fontSize="11" display="Water # Right" width="85" sizeVersion="0"><![CDATA[count solvents with [pxcor > split]]]></monitor>
-    <plot x="20" autoPlotX="true" yMax="150.0" autoPlotY="true" yAxis="Amount" y="290" xMin="0.0" height="130" legend="true" xMax="10.0" yMin="50.0" xAxis="Ticks" display="Water#" width="245" sizeVersion="0">
+    <slider x="20" step="1" y="117" max="100" width="150" display="solute-left" height="50" min="1" direction="Horizontal" default="100.0" variable="solute-left"></slider>
+    <monitor x="20" precision="0" y="174" height="60" fontSize="11" width="100" display="Water # Left"><![CDATA[count solvents with [pxcor < split]]]></monitor>
+    <plot x="20" autoPlotX="true" yMax="150.0" autoPlotY="true" yAxis="Amount" y="369" xMin="0.0" height="137" legend="true" xMax="10.0" yMin="50.0" width="245" xAxis="Ticks" display="Water#">
       <setup></setup>
       <update></update>
       <pen interval="1.0" mode="0" display="left" color="-16777216" legend="true">
@@ -450,13 +448,15 @@ end
         <update><![CDATA[plotxy ticks count solvents with [pxcor > split]]]></update>
       </pen>
     </plot>
-    <slider x="145" step="1" y="100" max="100" display="solute-right" height="33" min="1" direction="Horizontal" default="25.0" variable="solute-right" width="125" sizeVersion="0"></slider>
-    <monitor x="105" precision="2" y="165" height="45" fontSize="11" display="Membrane" width="70" sizeVersion="0">split</monitor>
-    <monitor x="20" precision="17" y="190" height="45" fontSize="11" display="Solute # Left" width="80" sizeVersion="0"><![CDATA[count solutes with [pxcor < split]]]></monitor>
-    <monitor x="180" precision="17" y="190" height="45" fontSize="11" display="Solute # Right" width="85" sizeVersion="0"><![CDATA[count solutes with [pxcor > split]]]></monitor>
-    <monitor x="20" precision="0" y="240" height="45" fontSize="11" display="Stuck Left" width="80" sizeVersion="0"><![CDATA[count particles with [xcor < split and linked? = true]]]></monitor>
-    <monitor x="180" precision="0" y="240" height="45" fontSize="11" display="Stuck Right" width="85" sizeVersion="0"><![CDATA[count particles with [xcor > split and linked? = true]]]></monitor>
-    <monitor x="105" precision="2" y="215" height="45" fontSize="11" display="Average" width="70" sizeVersion="0">mean membrane-list</monitor>
+    <monitor x="125" precision="2" y="199" height="60" fontSize="11" width="100" display="Membrane">split</monitor>
+    <monitor x="20" precision="17" y="239" height="60" fontSize="11" width="100" display="Solute # Left"><![CDATA[count solutes with [pxcor < split]]]></monitor>
+    <monitor x="20" precision="0" y="304" height="60" fontSize="11" width="100" display="Stuck Left"><![CDATA[count particles with [xcor < split and linked? = true]]]></monitor>
+    <monitor x="125" precision="2" y="264" height="60" fontSize="11" width="100" display="Average">mean membrane-list</monitor>
+    <monitor x="230" precision="0" y="175" height="60" fontSize="11" width="100" display="Water # Right"><![CDATA[count solvents with [pxcor > split]]]></monitor>
+    <monitor x="230" precision="0" y="305" height="60" fontSize="11" width="100" display="Stuck Right"><![CDATA[count particles with [xcor > split and linked? = true]]]></monitor>
+    <monitor x="230" precision="17" y="240" height="60" fontSize="11" width="100" display="Solute # Right"><![CDATA[count solutes with [pxcor > split]]]></monitor>
+    <slider x="170" step="1" y="115" max="100" width="150" display="solute-right" height="50" min="1" direction="Horizontal" default="25.0" variable="solute-right"></slider>
+    <output x="170" y="65" height="45" fontSize="12" width="110"></output>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
