@@ -98,6 +98,7 @@ case class LegalInfo(model: Model) {
       case "" if keywords.contains("Stroup") =>
         "Wilensky, U. and Stroup, W."
       case ""                             => "Wilensky, U."
+      case _ if keywords.contains("ONLY") => cite
       case _ if cite.contains("Wilensky") => cite
       case _                              => cite + " and Wilensky, U."
     }
