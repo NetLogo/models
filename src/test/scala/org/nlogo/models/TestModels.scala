@@ -33,7 +33,10 @@ abstract class TestModels extends AnyFunSuite {
   // the following models use the import-a extension, which is not bundled
   private def excludeModel(path: String): Boolean = {
     path.contains("Calorimetry") ||
-    path.contains("Resource Example")
+    path.contains("Resource Example") ||
+    path.contains("Bug Hunt Camouflage") ||
+    path.contains("Mammoths") ||
+    path.contains("Robotic Factory")
   }
 
   def testModels(models: Map[Model, String], testName: String)(testFun: Model => Iterable[Any]): Unit =
