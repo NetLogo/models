@@ -140,17 +140,16 @@ end
 ; Copyright 1997 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="153" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-50" height="307" showTickCounter="true" patchSize="3.0" fontSize="10" wrappingAllowedY="true" width="307" tickCounterLabel="ticks" maxPycor="50" updateMode="1" maxPxcor="50" minPxcor="-50"></view>
-    <button x="16" y="75" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="setup-random" width="121" sizeVersion="0">setup false</button>
-    <plot x="233" autoPlotX="true" yMax="100.0" autoPlotY="true" yAxis="difference" y="346" xMin="0.0" height="179" legend="false" xMax="20.0" yMin="0.0" xAxis="time" display="Successive Differences" width="260" sizeVersion="0">
-      <setup>set-plot-y-range 0 precision (count patches / 100) -2</setup>
-      <update></update>
-      <pen interval="1.0" mode="0" display="default" color="-2674135" legend="true">
-        <setup></setup>
-        <update>plot clique - previous-clique</update>
-      </pen>
-    </plot>
-    <plot x="496" autoPlotX="true" yMax="2.0" autoPlotY="true" yAxis="ratio" y="346" xMin="0.0" height="179" legend="false" xMax="20.0" yMin="0.0" xAxis="time" display="Successive Ratios" width="216" sizeVersion="0">
+    <view x="186" wrappingAllowedX="true" y="11" frameRate="30.0" minPycor="-50" height="307" showTickCounter="true" patchSize="3.0" fontSize="10" wrappingAllowedY="true" width="307" tickCounterLabel="ticks" maxPycor="50" updateMode="1" maxPxcor="50" minPxcor="-50"></view>
+    <slider x="8" step="0.1" y="91" max="10" width="163" display="init-clique" height="50" min="0" direction="Horizontal" default="0.1" variable="init-clique"></slider>
+    <button x="8" y="190" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="80" display="step">go</button>
+    <button x="93" y="190" height="35" disableUntilTicks="true" forever="true" kind="Observer" width="78" display="go">go</button>
+    <button x="8" y="51" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="163" display="setup-random">setup false</button>
+    <button x="8" y="11" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="163" display="setup-one">setup true</button>
+    <monitor x="8" precision="3" y="238" height="60" fontSize="11" width="163" display="clique %">(clique / count patches)
+  * 100</monitor>
+    <switch x="8" y="146" height="40" on="false" variable="eight-mode?" width="163" display="eight-mode?"></switch>
+    <plot x="533" autoPlotX="true" yMax="2.0" autoPlotY="true" yAxis="ratio" y="329" xMin="0.0" height="186" legend="false" xMax="20.0" yMin="0.0" width="234" xAxis="time" display="Successive Ratios">
       <setup></setup>
       <update></update>
       <pen interval="1.0" mode="0" display="default" color="-2674135" legend="true">
@@ -158,7 +157,7 @@ end
         <update>ifelse previous-clique = 0 [ plot 1 ] [ plot clique / previous-clique ]</update>
       </pen>
     </plot>
-    <plot x="9" autoPlotX="true" yMax="100.0" autoPlotY="true" yAxis="percent" y="346" xMin="0.0" height="179" legend="false" xMax="20.0" yMin="0.0" xAxis="time" display="Rumor Spread" width="223" sizeVersion="0">
+    <plot x="8" autoPlotX="true" yMax="100.0" autoPlotY="true" yAxis="percent" y="329" xMin="0.0" height="186" legend="false" xMax="20.0" yMin="0.0" width="239" xAxis="time" display="Rumor Spread">
       <setup></setup>
       <update></update>
       <pen interval="1.0" mode="0" display="default" color="-2674135" legend="true">
@@ -166,23 +165,24 @@ end
         <update>plot (clique / count patches) * 100</update>
       </pen>
     </plot>
-    <button x="1" y="202" height="33" disableUntilTicks="true" forever="false" kind="Observer" display="step" width="77" sizeVersion="0">go</button>
-    <slider x="2" step="0.1" y="118" max="10" display="init-clique" height="33" min="0" direction="Horizontal" default="0.1" variable="init-clique" width="148" sizeVersion="0"></slider>
-    <switch x="2" y="152" height="33" on="false" variable="eight-mode?" display="eight-mode?" width="147" sizeVersion="0"></switch>
-    <button x="16" y="41" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="setup-one" width="121" sizeVersion="0">setup true</button>
-    <button x="79" y="202" height="33" disableUntilTicks="true" forever="true" kind="Observer" display="go" width="69" sizeVersion="0">go</button>
-    <button x="499" y="115" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="color: normal" width="146" sizeVersion="0">set color-mode 0
+    <plot x="260" autoPlotX="true" yMax="100.0" autoPlotY="true" yAxis="difference" y="329" xMin="0.0" height="186" legend="false" xMax="20.0" yMin="0.0" width="260" xAxis="time" display="Successive Differences">
+      <setup>set-plot-y-range 0 precision (count patches / 100) -2</setup>
+      <update></update>
+      <pen interval="1.0" mode="0" display="default" color="-2674135" legend="true">
+        <setup></setup>
+        <update>plot clique - previous-clique</update>
+      </pen>
+    </plot>
+    <button x="504" y="10" height="35" disableUntilTicks="true" forever="true" kind="Observer" width="206">spread-rumor-with-mouse</button>
+    <button x="504" y="58" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="206" display="color: normal">set color-mode 0
 ask patches
   [ recolor ]</button>
-    <button x="499" y="149" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="color: when heard" width="146" sizeVersion="0">set color-mode 1
+    <button x="504" y="97" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="206" display="color: when heard">set color-mode 1
 ask patches
   [ recolor ]</button>
-    <button x="499" y="183" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="color: times heard" width="146" sizeVersion="0">set color-mode 2
+    <button x="504" y="136" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="206" display="color: times heard">set color-mode 2
 ask patches
   [ recolor ]</button>
-    <monitor x="26" precision="3" y="253" height="45" fontSize="11" display="clique %" width="90" sizeVersion="0">(clique / count patches)
-  * 100</monitor>
-    <button x="483" y="55" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="181" sizeVersion="0">spread-rumor-with-mouse</button>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
