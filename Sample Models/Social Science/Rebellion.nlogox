@@ -161,21 +161,27 @@ end
 ; Copyright 2004 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="325" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="0" height="404" showTickCounter="true" patchSize="10.0" fontSize="10" wrappingAllowedY="true" width="404" tickCounterLabel="ticks" maxPycor="39" updateMode="1" maxPxcor="39" minPxcor="0"></view>
-    <button x="10" y="205" height="33" disableUntilTicks="false" forever="false" kind="Observer" width="70" sizeVersion="0">setup</button>
-    <button x="10" y="250" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="70" sizeVersion="0">go</button>
-    <slider x="10" step="0.01" y="300" max="1.0" display="government-legitimacy" height="33" min="0.0" direction="Horizontal" default="0.82" variable="government-legitimacy" width="200" sizeVersion="0"></slider>
-    <slider x="10" step="1.0" y="335" max="50.0" display="max-jail-term" height="33" min="0.0" direction="Horizontal" default="30.0" variable="max-jail-term" units="turns" width="200" sizeVersion="0"></slider>
-    <monitor x="210" precision="3" y="410" height="45" fontSize="11" display="active (red)" width="90" sizeVersion="0">count agents with [active?]</monitor>
-    <slider x="10" step=".1" y="125" max="10.0" display="vision" height="33" min="0.0" direction="Horizontal" default="7.0" variable="vision" units="patches" width="205" sizeVersion="0"></slider>
-    <monitor x="115" precision="1" y="410" height="45" fontSize="11" display="jailed (black)" width="90" sizeVersion="0"><![CDATA[count agents with [jail-term > 0]]]></monitor>
-    <slider x="9" step="0.1" y="47" max="100.0" display="initial-cop-density" height="33" min="0.0" direction="Horizontal" default="4.0" variable="initial-cop-density" units="%" width="205" sizeVersion="0"></slider>
-    <monitor x="10" precision="1" y="410" height="45" fontSize="11" display="quiet (green)" width="100" sizeVersion="0">count agents with [not active? and jail-term = 0]</monitor>
-    <switch x="10" y="370" height="33" on="true" variable="movement?" display="movement?" width="139" sizeVersion="0"></switch>
-    <monitor x="180" precision="3" y="200" height="45" fontSize="11" display="# of cops" width="83" sizeVersion="0">count cops</monitor>
-    <slider x="9" step="1.0" y="86" max="100.0" display="initial-agent-density" height="33" min="0.0" direction="Horizontal" default="70.0" variable="initial-agent-density" units="%" width="205" sizeVersion="0"></slider>
-    <monitor x="95" precision="3" y="200" height="45" fontSize="11" display="# of agents" width="82" sizeVersion="0">count agents</monitor>
-    <plot x="10" autoPlotX="true" yMax="150.0" autoPlotY="true" yAxis="agents" y="458" xMin="0.0" height="160" legend="true" xMax="20.0" yMin="0.0" xAxis="time" display="All agent types" width="335" sizeVersion="0">
+    <view x="270" wrappingAllowedX="true" y="9" frameRate="30.0" minPycor="0" height="404" showTickCounter="true" patchSize="10.0" fontSize="10" wrappingAllowedY="true" width="404" tickCounterLabel="ticks" maxPycor="39" updateMode="1" maxPxcor="39" minPxcor="0"></view>
+    <note x="10" y="10" backgroundDark="0" fontSize="14" width="101" markdown="false" height="20" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Initial Settings</note>
+    <slider x="9" step="0.1" y="36" max="100.0" width="205" display="initial-cop-density" height="50" min="0.0" direction="Horizontal" default="4.0" variable="initial-cop-density" units="%"></slider>
+    <slider x="9" step="1.0" y="89" max="100.0" width="205" display="initial-agent-density" height="50" min="0.0" direction="Horizontal" default="70.0" variable="initial-agent-density" units="%"></slider>
+    <slider x="10" step=".1" y="143" max="10.0" width="205" display="vision" height="50" min="0.0" direction="Horizontal" default="7.0" variable="vision" units="patches"></slider>
+    <button x="10" y="209" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="70">setup</button>
+    <button x="87" y="209" height="35" disableUntilTicks="true" forever="true" kind="Observer" width="70">go</button>
+    <button x="164" y="209" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="94" display="watch one">set visualization "3D"
+ask max-one-of agents [grievance]
+  [ set size 2 watch-me ]</button>
+    <monitor x="136" precision="3" y="248" height="61" fontSize="11" width="121" display="# of cops">count cops</monitor>
+    <monitor x="9" precision="3" y="248" height="61" fontSize="11" width="121" display="# of agents">count agents</monitor>
+    <switch x="9" y="423" height="40" on="true" variable="movement?" width="248" display="movement?"></switch>
+    <slider x="9" step="1.0" y="368" max="50.0" width="248" display="max-jail-term" height="50" min="0.0" direction="Horizontal" default="30.0" variable="max-jail-term" units="turns"></slider>
+    <slider x="9" step="0.01" y="313" max="1.0" width="248" display="government-legitimacy" height="50" min="0.0" direction="Horizontal" default="0.82" variable="government-legitimacy"></slider>
+    <chooser x="9" y="468" height="60" variable="visualization" current="0" width="248" display="visualization">
+      <choice type="string" value="2D"></choice>
+      <choice type="string" value="3D"></choice>
+    </chooser>
+    <monitor x="10" precision="1" y="537" height="60" fontSize="11" width="107" display="quiet (green)">count agents with [not active? and jail-term = 0]</monitor>
+    <plot x="10" autoPlotX="true" yMax="150.0" autoPlotY="true" yAxis="agents" y="604" xMin="0.0" height="167" legend="true" xMax="20.0" yMin="0.0" width="335" xAxis="time" display="All agent types">
       <setup></setup>
       <update></update>
       <pen interval="1.0" mode="0" display="quiet" color="-10899396" legend="true">
@@ -191,14 +197,8 @@ end
         <update>plot count agents with [active?]</update>
       </pen>
     </plot>
-    <note x="10" y="26" height="18" textColorLight="-16777216" fontSize="11" width="90" markdown="false">Initial settings</note>
-    <button x="85" y="250" height="33" disableUntilTicks="true" forever="false" kind="Observer" display="watch one" width="94" sizeVersion="0">set visualization "3D"
-ask max-one-of agents [grievance]
-  [ set size 2 watch-me ]</button>
-    <chooser x="180" y="250" height="45" variable="visualization" current="0" display="visualization" width="138" sizeVersion="0">
-      <choice type="string" value="2D"></choice>
-      <choice type="string" value="3D"></choice>
-    </chooser>
+    <monitor x="238" precision="3" y="539" height="60" fontSize="11" width="107" display="active (red)">count agents with [active?]</monitor>
+    <monitor x="124" precision="1" y="537" height="60" fontSize="11" width="107" display="jailed (black)"><![CDATA[count agents with [jail-term > 0]]]></monitor>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
