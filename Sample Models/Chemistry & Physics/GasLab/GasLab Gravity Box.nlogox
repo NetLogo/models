@@ -371,7 +371,7 @@ end
 ; Copyright 2002 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="335" wrappingAllowedX="true" y="7" frameRate="30.0" minPycor="0" height="486" showTickCounter="true" patchSize="6.0" fontSize="10" wrappingAllowedY="false" width="486" tickCounterLabel="ticks" maxPycor="80" updateMode="1" maxPxcor="40" minPxcor="-40"></view>
+    <view x="335" wrappingAllowedX="true" y="3" frameRate="30.0" minPycor="0" height="409" showTickCounter="true" patchSize="5.0" fontSize="10" wrappingAllowedY="false" width="409" tickCounterLabel="ticks" maxPycor="80" updateMode="1" maxPxcor="40" minPxcor="-40"></view>
     <monitor x="160" precision="1" y="334" height="60" fontSize="11" width="122" display="average energy">avg-energy</monitor>
     <button x="160" y="230" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="103" display="clear trace">clear-drawing</button>
     <switch x="205" y="180" height="40" on="true" variable="collide?" width="75" display="collide?"></switch>
@@ -386,7 +386,34 @@ end
     <monitor x="10" precision="0" y="401" height="60" fontSize="11" width="100" display="% fast">percent-fast</monitor>
     <monitor x="33" precision="2" y="334" height="60" fontSize="11" width="122" display="average speed">avg-speed</monitor>
     <button x="120" y="178" height="45" disableUntilTicks="true" forever="true" kind="Observer" width="80" display="go/stop">go</button>
-    <plot x="13" autoPlotX="true" yMax="100.0" autoPlotY="true" yAxis="count (%)" y="467" xMin="0.0" height="196" legend="true" xMax="20.0" yMin="0.0" width="249" xAxis="time" display="Speed Counts">
+    <plot x="563" autoPlotX="true" yMax="500.0" autoPlotY="true" yAxis="temperature" y="499" xMin="0.0" height="171" legend="false" xMax="160.0" yMin="0.0" width="265" xAxis="height" display="Aggregate Temperature">
+      <setup>set-plot-x-range 0 (max-pycor * 2)
+set aggregate-list n-values (max-pycor / 2) [0]</setup>
+      <update></update>
+      <pen interval="4.0" mode="1" display="default" color="-10899396" legend="true">
+        <setup></setup>
+        <update>plot-pen-reset   draw-aggregate-graph aggregate-list</update>
+      </pen>
+    </plot>
+    <plot x="10" autoPlotX="false" yMax="160.0" autoPlotY="false" yAxis="count" y="497" xMin="0.0" height="171" legend="false" xMax="160.0" yMin="0.0" width="279" xAxis="height" display="Density Histogram">
+      <setup>set-plot-x-range 0 (max-pycor * 2)
+set-plot-y-range 0 (max-pxcor * 2)
+set-histogram-num-bars round (max-pxcor / 2)</setup>
+      <update></update>
+      <pen interval="1.0" mode="1" display="default" color="-10899396" legend="true">
+        <setup></setup>
+        <update>histogram [ycor + max-pycor] of particles</update>
+      </pen>
+    </plot>
+    <plot x="299" autoPlotX="true" yMax="500.0" autoPlotY="true" yAxis="temperature" y="499" xMin="0.0" height="171" legend="false" xMax="160.0" yMin="0.0" width="253" xAxis="height" display="Temperature vs. Height">
+      <setup>set-plot-x-range 0 (max-pycor * 2)</setup>
+      <update></update>
+      <pen interval="4.0" mode="1" display="default" color="-10899396" legend="true">
+        <setup></setup>
+        <update>plot-pen-reset   draw-energy-graph</update>
+      </pen>
+    </plot>
+    <plot x="841" autoPlotX="true" yMax="100.0" autoPlotY="true" yAxis="count (%)" y="7" xMin="0.0" height="214" legend="true" xMax="20.0" yMin="0.0" width="498" xAxis="time" display="Speed Counts">
       <setup>set-plot-y-range 0 100</setup>
       <update></update>
       <pen interval="1.0" mode="0" display="fast" color="-2674135" legend="true">
@@ -402,7 +429,7 @@ end
         <update>plotxy ticks percent-slow</update>
       </pen>
     </plot>
-    <plot x="270" autoPlotX="false" yMax="40.0" autoPlotY="false" yAxis="count" y="467" xMin="0.0" height="196" legend="true" xMax="20.0" yMin="0.0" width="264" xAxis="speed" display="Speed Histogram">
+    <plot x="841" autoPlotX="false" yMax="40.0" autoPlotY="false" yAxis="count" y="230" xMin="0.0" height="219" legend="true" xMax="20.0" yMin="0.0" width="498" xAxis="speed" display="Speed Histogram">
       <setup>set-plot-x-range 0 (init-particle-speed * 3)
 set-plot-y-range 0 ceiling (number-of-particles / 10)</setup>
       <update></update>
@@ -427,7 +454,7 @@ set-plot-y-range 0 ceiling (number-of-particles / 10)</setup>
         <update></update>
       </pen>
     </plot>
-    <plot x="542" autoPlotX="false" yMax="10.0" autoPlotY="false" yAxis="count" y="466" xMin="0.0" height="196" legend="true" xMax="400.0" yMin="0.0" width="243" xAxis="energy" display="Energy Histogram">
+    <plot x="841" autoPlotX="false" yMax="10.0" autoPlotY="false" yAxis="count" y="459" xMin="0.0" height="211" legend="true" xMax="400.0" yMin="0.0" width="498" xAxis="energy" display="Energy Histogram">
       <setup>set-plot-x-range 0 (0.5 * (init-particle-speed * 3) * (init-particle-speed * 3) * particle-mass)
 set-plot-y-range 0 ceiling (number-of-particles / 10)</setup>
       <update></update>
@@ -450,33 +477,6 @@ set-plot-y-range 0 ceiling (number-of-particles / 10)</setup>
       <pen interval="1.0" mode="0" display="init-avg-energy" color="-16777216" legend="true">
         <setup>draw-vert-line init-avg-energy</setup>
         <update></update>
-      </pen>
-    </plot>
-    <plot x="800" autoPlotX="true" yMax="500.0" autoPlotY="true" yAxis="temperature" y="465" xMin="0.0" height="196" legend="false" xMax="160.0" yMin="0.0" width="225" xAxis="height" display="Aggregate Temperature">
-      <setup>set-plot-x-range 0 (max-pycor * 2)
-set aggregate-list n-values (max-pycor / 2) [0]</setup>
-      <update></update>
-      <pen interval="4.0" mode="1" display="default" color="-10899396" legend="true">
-        <setup></setup>
-        <update>plot-pen-reset   draw-aggregate-graph aggregate-list</update>
-      </pen>
-    </plot>
-    <plot x="800" autoPlotX="true" yMax="500.0" autoPlotY="true" yAxis="temperature" y="242" xMin="0.0" height="215" legend="false" xMax="160.0" yMin="0.0" width="225" xAxis="height" display="Temperature vs. Height">
-      <setup>set-plot-x-range 0 (max-pycor * 2)</setup>
-      <update></update>
-      <pen interval="4.0" mode="1" display="default" color="-10899396" legend="true">
-        <setup></setup>
-        <update>plot-pen-reset   draw-energy-graph</update>
-      </pen>
-    </plot>
-    <plot x="800" autoPlotX="false" yMax="160.0" autoPlotY="false" yAxis="count" y="11" xMin="0.0" height="223" legend="false" xMax="160.0" yMin="0.0" width="227" xAxis="height" display="Density Histogram">
-      <setup>set-plot-x-range 0 (max-pycor * 2)
-set-plot-y-range 0 (max-pxcor * 2)
-set-histogram-num-bars round (max-pxcor / 2)</setup>
-      <update></update>
-      <pen interval="1.0" mode="1" display="default" color="-10899396" legend="true">
-        <setup></setup>
-        <update>histogram [ycor + max-pycor] of particles</update>
       </pen>
     </plot>
   </widgets>
