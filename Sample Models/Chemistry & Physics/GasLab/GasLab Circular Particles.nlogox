@@ -486,9 +486,32 @@ end
 ; Copyright 2005 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="330" wrappingAllowedX="false" y="7" frameRate="30.0" minPycor="-40" height="486" showTickCounter="true" patchSize="6.0" fontSize="20" wrappingAllowedY="false" width="486" tickCounterLabel="ticks" maxPycor="40" updateMode="1" maxPxcor="40" minPxcor="-40"></view>
+    <view x="330" wrappingAllowedX="false" y="7" frameRate="30.0" minPycor="-40" height="490" showTickCounter="true" patchSize="6.0" fontSize="20" wrappingAllowedY="false" width="490" tickCounterLabel="ticks" maxPycor="40" updateMode="1" maxPxcor="40" minPxcor="-40"></view>
     <slider x="35" step="0.5" y="113" max="10" width="250" display="largest-particle-size" height="50" min="1" direction="Horizontal" default="6.0" variable="largest-particle-size"></slider>
-    <plot x="810" autoPlotX="true" yMax="10.0" autoPlotY="true" y="7" xMin="0.0" height="205" legend="false" xMax="200.0" yMin="0.0" width="344" display="Energy Histogram">
+    <plot x="10" autoPlotX="true" yMax="10.0" autoPlotY="true" y="215" xMin="0.0" height="195" legend="false" xMax="10.0" yMin="0.0" width="310" display="Speed Counts">
+      <setup>set-plot-y-range 0 100</setup>
+      <update></update>
+      <pen interval="1.0" mode="0" display="fast" color="-2674135" legend="true">
+        <setup></setup>
+        <update>plotxy ticks percent-fast</update>
+      </pen>
+      <pen interval="1.0" mode="0" display="medium" color="-10899396" legend="true">
+        <setup></setup>
+        <update>plotxy ticks percent-medium</update>
+      </pen>
+      <pen interval="1.0" mode="0" display="slow" color="-13345367" legend="true">
+        <setup></setup>
+        <update>plotxy ticks percent-slow</update>
+      </pen>
+    </plot>
+    <monitor x="115" precision="0" y="415" height="60" fontSize="11" width="100" display="% medium">percent-medium</monitor>
+    <monitor x="220" precision="0" y="415" height="60" fontSize="11" width="100" display="% slow">percent-slow</monitor>
+    <monitor x="10" precision="0" y="415" height="60" fontSize="11" width="100" display="% fast">percent-fast</monitor>
+    <slider x="35" step="1" y="7" max="250" width="250" display="initial-number-particles" height="50" min="1" direction="Horizontal" default="60.0" variable="initial-number-particles"></slider>
+    <slider x="35" step="0.5" y="60" max="5" width="250" display="smallest-particle-size" height="50" min="1" direction="Horizontal" default="2.0" variable="smallest-particle-size"></slider>
+    <button x="170" y="170" height="40" disableUntilTicks="true" forever="true" kind="Observer" width="100" display="go/pause">go</button>
+    <button x="65" y="169" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="99">setup</button>
+    <plot x="825" autoPlotX="true" yMax="10.0" autoPlotY="true" y="5" xMin="0.0" height="205" legend="false" xMax="200.0" yMin="0.0" width="344" display="Energy Histogram">
       <setup>set-plot-x-range 0 ceiling (0.5 * (init-particle-speed * 2) * (init-particle-speed * 2) * max-particle-mass)
 set-plot-y-range 0 ceiling (count particles / 6)
 
@@ -510,9 +533,7 @@ draw-vert-line init-avg-energy</setup>
         <update></update>
       </pen>
     </plot>
-    <monitor x="880" precision="2" y="215" height="60" fontSize="11" width="103" display="average-energy">avg-energy</monitor>
-    <monitor x="990" precision="2" y="215" height="60" fontSize="11" width="100" display="average speed">avg-speed</monitor>
-    <plot x="810" autoPlotX="true" yMax="10.0" autoPlotY="true" y="280" xMin="0.0" height="195" legend="false" xMax="10.0" yMin="0.0" width="344" display="Speed Histogram">
+    <plot x="825" autoPlotX="true" yMax="10.0" autoPlotY="true" y="280" xMin="0.0" height="195" legend="false" xMax="10.0" yMin="0.0" width="344" display="Speed Histogram">
       <setup>set-plot-x-range 0 ceiling (init-particle-speed * 2)
 set-plot-y-range 0 ceiling (count particles / 6)
 set-current-plot-pen "medium"
@@ -545,29 +566,8 @@ draw-vert-line init-avg-speed</setup>
         <update></update>
       </pen>
     </plot>
-    <plot x="10" autoPlotX="true" yMax="10.0" autoPlotY="true" y="215" xMin="0.0" height="195" legend="false" xMax="10.0" yMin="0.0" width="310" display="Speed Counts">
-      <setup>set-plot-y-range 0 100</setup>
-      <update></update>
-      <pen interval="1.0" mode="0" display="fast" color="-2674135" legend="true">
-        <setup></setup>
-        <update>plotxy ticks percent-fast</update>
-      </pen>
-      <pen interval="1.0" mode="0" display="medium" color="-10899396" legend="true">
-        <setup></setup>
-        <update>plotxy ticks percent-medium</update>
-      </pen>
-      <pen interval="1.0" mode="0" display="slow" color="-13345367" legend="true">
-        <setup></setup>
-        <update>plotxy ticks percent-slow</update>
-      </pen>
-    </plot>
-    <monitor x="115" precision="0" y="415" height="60" fontSize="11" width="100" display="% medium">percent-medium</monitor>
-    <monitor x="220" precision="0" y="415" height="60" fontSize="11" width="100" display="% slow">percent-slow</monitor>
-    <monitor x="10" precision="0" y="415" height="60" fontSize="11" width="100" display="% fast">percent-fast</monitor>
-    <slider x="35" step="1" y="7" max="250" width="250" display="initial-number-particles" height="50" min="1" direction="Horizontal" default="60.0" variable="initial-number-particles"></slider>
-    <slider x="35" step="0.5" y="60" max="5" width="250" display="smallest-particle-size" height="50" min="1" direction="Horizontal" default="2.0" variable="smallest-particle-size"></slider>
-    <button x="170" y="170" height="40" disableUntilTicks="true" forever="true" kind="Observer" width="100" display="go/pause">go</button>
-    <button x="65" y="169" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="99">setup</button>
+    <monitor x="1005" precision="2" y="215" height="60" fontSize="11" width="100" display="average speed">avg-speed</monitor>
+    <monitor x="895" precision="2" y="215" height="60" fontSize="11" width="103" display="average-energy">avg-energy</monitor>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
