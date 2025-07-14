@@ -1,169 +1,410 @@
 <?xml version="1.0" encoding="utf-8"?>
 <model version="NetLogo 7.0.0-beta2" snapToGrid="false">
-  <code><![CDATA[turtles-own [dist           ;; distance from 'goal' in current state
-             diff           ;; modified distance to x and y intercepts in current state
-             old-diff]      ;; modified distance to x and y intercepts in last state
+  <code><![CDATA[extensions [ palette ]
 
-globals [cx                 ;; x-cor of the circle's center
-         cy                 ;; y-cor of the circle's center
-         f0x                ;; x-cor of focus 0 (for ellipse)
-         f0y                ;; y-cor of focus 0 (for ellipse)
-         f1x                ;; x-cor of focus 1 (for ellipse)
-         f1y                ;; y-cor of focus 1 (for ellipse)
-         state]             ;; flag to alternate which focus user is moving
+breed [ foci focus ]
+breed [ conic-parts conic-part ]
+breed [ directrices directrix ]
+breed [ projections projection  ]
 
+conic-parts-own [
+  parab-diff  ; abs(perpendicular distance to directrix)  - (distance to focus)
+              ; parab-diff = 0 when turtle is exactly on the parabola
+]
+
+; Globals declared in widgets
+; num-turtles               ;; number of conic-parts turtles to create
+
+globals [
+  the-focus               ;; the focus of the parabola
+  the-directrix           ;; directrix of the parabola
+  distance-turtle         ;; the conic-part for which "conic-distance" will be shown - or nobody
+  the-proj                ;; the projection of the distance-turtle on the directrix, - or nobody
+  ;; recent-mouse-x and -y are used to filter out redundant mouse down events
+  recent-mouse-x          ;; rounded x-cor of most recent mouse click
+  recent-mouse-y          ;; rounded y-cor of most recent mouse click
+  CONIC-EPS               ;; a turtle will will stop when its parab-diff is <= CONIC-EPS
+  MOUSE-CLICK-CLOSENESS   ;; how close mouse click must be to focus for dragging
+  DISTANCE-LINK-COLOR     ;;  color of distance links
+  DISTANCE-LINK-THICKNESS ;;  thickness of distance links
+]
 
 to setup
   clear-all
-  ask patch 0 0 [ set pcolor white ]
-  create-turtles num-turtles [
-    set color green
-    setxy random-xcor random-ycor
+  set CONIC-EPS         0.04
+  set DISTANCE-LINK-COLOR     red
+  set DISTANCE-LINK-THICKNESS 1.5
+  set MOUSE-CLICK-CLOSENESS   3
+
+  ; there is no recent mouse-click, so make coordinates outside the world
+  set recent-mouse-x max-pxcor + 1
+  set recent-mouse-y max-pycor + 1
+
+; The focus and directrix are placed randomly
+  create-foci 1 [
+    setxy mean list random-xcor random-xcor  mean list random-xcor random-xcor
+    set color white
+    set shape "circle"
+    set size 2
+    set the-focus self
   ]
+
+  create-directrices 1 [
+    ; random location, slightly centered
+    setxy mean list random-xcor random-xcor  mean list random-xcor random-xcor
+    set the-directrix self
+    set heading random-float 180
+    ; The perpendicular distance from the focus to the directrix should be positive
+    ; in order for the movement logic to be consistent
+    if compute-perp-distance [ xcor ] of the-focus [ ycor ] of the-focus < 0 [
+      set heading subtract-headings heading 180 ]
+    set shape "line"
+    set size world-width * 3
+    set color white
+  ]
+
+  create-conic-parts num-turtles [
+    setxy random-xcor random-ycor
+    set color green
+    set shape "circle"
+    set size 1
+    set parab-diff 0
+  ]
+
+  ; The projection-turtle is always hidden
+  ; It exists so a link to it can be created.
+  create-projections 1 [
+    set the-proj self
+    hide-turtle
+  ]
+
+  ; the distance turtle is created on demand
+  set distance-turtle nobody
   reset-ticks
 end
 
-to watch-mouse-1  ;; turns focus white where mouse is clicked
-  if mouse-down? [
-    clear-patches
-    set cx round mouse-xcor
-    set cy round mouse-ycor
-    ask patch cx cy [ set pcolor white ]
-  ]
-end
-
-to watch-mouse-2  ;; turns two foci white
-  if not mouse-down? [ stop ]
-  let mousex (round mouse-xcor)
-  let mousey (round mouse-ycor)
-  if [pcolor] of patch mousex mousey = white [ stop ]
-  ask patches [ set pcolor black ]
-  ifelse (state = 0)
-    [set f0x (round mouse-xcor)
-     set f0y (round mouse-ycor)
-     set state 1]
-    [set f1x (round mouse-xcor)
-     set f1y (round mouse-ycor)
-     set state 0]
-  ask patch f0x f0y [ set pcolor white ]
-  ask patch f1x f1y [ set pcolor white ]
-end
-
 to go
-  ifelse mouse-down? [
-    ifelse not second-focus?
-      [watch-mouse-1]
-      [watch-mouse-2]
+  handle-select-and-drag
+  ask conic-parts [ move-conic-parts ]
+  adjust-dist-links-labels
+  project-on-the-directrix
+ tick
+end
+
+; Compute the perpendicular distance from a turtle to the directrix
+; This distance will be negative for turtles on the opposite side of
+; the directrix from the focus
+to-report compute-perp-turtle-distance [ the-turtle ]
+  report compute-perp-distance  [ xcor ] of the-turtle [ ycor ] of the-turtle
+end
+
+; Compute the perpendicular distance from a location to the directrix
+; This distance will be negative for locations on the opposite side of
+; the directrix from the focus
+to-report compute-perp-distance [ the-xcor the-ycor ]
+  let value 0
+  ask the-directrix [
+    let the-angle towardsxy  the-xcor the-ycor
+    let angle-diff subtract-headings heading the-angle
+    let the-distance distancexy   the-xcor the-ycor
+    set value the-distance * sin angle-diff
   ]
-  [ ask turtles [ move-turtles ] ]
-  tick
+  report value
 end
 
-to move-turtles ; turtle procedure
-  let old-dist dist
-  ifelse not second-focus?
-    [set dist (distancexy cx cy)]
-    [set dist ((distancexy f0x f0y) + (distancexy f1x f1y)) / 2]
-  ifelse ((round dist) = constant)
-   [stop]
-   [ifelse ((dist < old-dist) and (dist > constant))
-     [fd 1]
-     [ifelse ((dist > old-dist) and (dist < constant))
-       [fd 1]
-       [rt random-float 360 fd 1]]]
+; Compute the difference between distance of the turtle (given its location) to the focus
+; and its perpendicular distance to the directrix
+
+; focal-distance  = distance from turtle to focus
+; perp-dist       = perpendicular distance of turtle from the directrix
+; parab-diff      = y-difference - focal-distance
+; abs(parab-diff) <= CONIC-EPS turtle is on the parabola
+; parab-diff      >  CONIC-EPS turtle is 'inside' the parabola
+;                 and decreases as the turtle gets closer to the parabola
+; parab-diff      < -CONIC-EPS turtle is 'outside' the parabola
+;                 and increases as the turtle gets closer to the parabola
+to-report compute-parab-diff [ the-xcor the-ycor ]
+  report abs compute-perp-distance the-xcor the-ycor - distance the-focus
+end
+
+; If a focus has been selected move it to the mouse location.
+to handle-select-and-drag
+  ; Should only be called if mouse is down, but be careful.
+  if mouse-down? [
+    let mouse-x (round mouse-xcor)
+    let mouse-y (round mouse-ycor)
+    ; For each mouse click mouse-down? may remain true for multiple calls to this
+    ; procedure,so we should ignore the subsequent calls until the mouse
+    ; coordinates change
+    if (mouse-x != recent-mouse-x) or  (mouse-y != recent-mouse-y) [
+      set recent-mouse-x mouse-x
+      set recent-mouse-y mouse-y
+
+      ; if the mouse is near the focus
+      ifelse distance-to-focus mouse-x mouse-y < 4 [
+        ask the-focus [ setxy mouse-x mouse-y ]]
+      [
+        ; if the mouse is near the directrix, move directrix location perpendicularly
+        let perp-dist compute-perp-distance mouse-x mouse-y
+        if  perp-dist < 3 [
+          ask the-directrix [ setxy  xcor - dy * perp-dist ycor + dx * perp-dist]
+        ]
+      ]
+    ]
+  ]
+end
+
+; Reverse direction if it is not possible to go forward (turtle is near an edge).
+to turn-if-cant-move [ dist ] ; turtle procedure
+  if not can-move? dist [ rt 180 ]
 end
 
 
-; Copyright 1998 Uri Wilensky.
-; See Info tab for full copyright and license.]]></code>
+; Indicate status of last move by turtle
+; Value    Meaning
+; 2        Turtle is within CONIC-EPS of parabola.
+; 1        Turtle is closer to the parabola.
+; 0        Turtle is nearly same distance from parabola.
+; -1       Turtle is further from parabola.
+to-report update-turtle-status [ the-old-parab-diff the-parab-diff ]
+  ; could set up constants for the 4 values
+  let value (ifelse-value
+    abs (the-parab-diff) <= CONIC-EPS                        [ 2 ] ;
+    ; You can experiment with removing CONIC-EPS from the following conditions. What do you
+    ; notice about the conic-part turtles that are slow to approach the parabola?
+    abs (the-parab-diff - the-old-parab-diff) <=  CONIC-EPS  [ 0 ]
+    the-parab-diff > 0 and
+    the-parab-diff >= the-old-parab-diff  + CONIC-EPS        [ -1 ]
+    the-parab-diff < 0 and
+    the-parab-diff <= the-old-parab-diff  - CONIC-EPS        [ -1 ]
+                                                             [ 1 ])
+  report value
+end
+
+; Move the turtles that will form the parabola.
+; Move randomly if the turtle is not getting closer to the parabola.
+; Stop if within CONIC-EPS of parabola.
+; Move forward if distance to the parabola is decreasing.
+to move-conic-parts ; turtle procedure
+  let old-parab-diff parab-diff
+  set parab-diff compute-parab-diff xcor ycor
+  let status update-turtle-status old-parab-diff parab-diff
+  ; turn randomly if not getting closer to goal
+  if status = 0 or status = -1 [ rt random-float 360 ]
+  ; Turtle moves if it is not within CONIC-EPS of desired "distance".
+  if not (status = 2) [
+    turn-if-cant-move 1
+    fd 1
+  ]
+end
+
+; Reports the distance from the focus to the given point.
+to-report distance-to-focus [x y]
+  report [ distancexy x y ] of the-focus
+end
+
+
+to create-distance-turtle
+  clear-any-distance-turtle
+
+  ;; establish a random conic part as the distance turtle
+  set distance-turtle one-of conic-parts
+  ask distance-turtle [
+    create-link-with the-focus
+    create-link-with the-proj
+    ask my-links [
+      set color DISTANCE-LINK-COLOR
+      set thickness DISTANCE-LINK-THICKNESS ]
+  ]
+  project-on-the-directrix
+  adjust-dist-links-labels
+end
+
+; If a distance turtle exists, remove its links
+; and set the distance-turtle variable to nobody
+to clear-any-distance-turtle
+  if distance-turtle != nobody [
+    ; need to decommision a distance turtle
+    ask distance-turtle [ ask my-links [ die ]]
+    set distance-turtle nobody
+    ; the turtle still exists as a conic part
+  ]
+end
+
+; Adjust link distance labels if they exist
+to adjust-dist-links-labels
+  if distance-turtle != nobody [
+  ask distance-turtle [
+      ask my-links [
+        set label precision (.5 * link-length) 1
+      ]
+    ]
+  ]
+end
+
+; Compute location where distance turtle projects perpendicularly onto the directrix.
+; If that point is inside the world, move the invisible projection turtle there
+; and display its links
+; If it doesn't project inside the world, hide the links.
+to project-on-the-directrix
+  if distance-turtle != nobody [
+    let distance-turtle-angle [ towards distance-turtle ] of the-directrix
+    let distance-angle-diff subtract-headings [ heading ] of the-directrix
+      distance-turtle-angle
+    let distance-turtle-distance [ distance distance-turtle ] of the-directrix
+    let proj-xcor [ pxcor ] of the-directrix  +
+      [ dx ] of the-directrix * distance-turtle-distance * cos distance-angle-diff
+    let proj-ycor [ pycor ] of the-directrix  +
+      [ dy ] of the-directrix * distance-turtle-distance * cos distance-angle-diff
+
+    ask the-proj [
+      ifelse  patch proj-xcor proj-ycor = nobody [
+        ask my-links [ hide-link ]
+      ]
+      [ setxy proj-xcor proj-ycor
+        ask my-links [ show-link]
+      ]
+    ]
+  ]
+end
+
+; Reports a string showing the difference calculation
+to-report explain-parabola-difference
+  let the-focus-diff [ precision distance the-focus 1 ] of distance-turtle
+  let perpendicular-distance precision abs compute-perp-turtle-distance distance-turtle 1
+  let the-parab-diff precision [ parab-diff ] of distance-turtle 1
+  report (word the-parab-diff " = abs( " perpendicular-distance ") - " the-focus-diff )
+end
+
+; Reports true if ticks are being counted.
+; Used here to determine if the startup procedure has been run
+to-report ticks-started?
+  let val false
+  carefully [
+    if ticks >= 0 [
+      set val true ]]
+  [ ]
+  report val
+end
+
+; Reports the distance between two points.
+to-report distance-points [x1 y1 x2 y2]
+  let dist 0
+  ask patch x1 y1 [set dist distancexy x2 y2]
+  report dist
+end]]></code>
   <widgets>
-    <view x="286" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-20" height="332" showTickCounter="true" patchSize="8.0" fontSize="10" wrappingAllowedY="false" width="332" tickCounterLabel="ticks" maxPycor="20" updateMode="1" maxPxcor="20" minPxcor="-20"></view>
-    <slider x="10" step="1" y="36" max="2000" display="num-turtles" height="33" min="1" direction="Horizontal" default="800.0" variable="num-turtles" width="266" sizeVersion="0"></slider>
-    <slider x="15" step="1" y="182" max="20" display="constant" height="33" min="0" direction="Horizontal" default="13.0" variable="constant" width="260" sizeVersion="0"></slider>
-    <button x="67" y="88" height="34" disableUntilTicks="false" forever="false" kind="Observer" width="61" sizeVersion="0">setup</button>
-    <switch x="71" y="221" height="33" on="false" variable="second-focus?" display="second-focus?" width="153" sizeVersion="0"></switch>
-    <button x="139" y="88" height="34" disableUntilTicks="true" forever="true" kind="Observer" width="81" sizeVersion="0">go</button>
-    <note x="59" y="134" height="39" textColorLight="-16777216" fontSize="11" width="193" markdown="false">To set a focus, click on a patch.</note>
+    <view x="343" wrappingAllowedX="false" y="19" frameRate="30.0" minPycor="-80" height="483" showTickCounter="true" patchSize="3.0" fontSize="10" wrappingAllowedY="false" width="483" tickCounterLabel="ticks" maxPycor="80" updateMode="1" maxPxcor="80" minPxcor="-80"></view>
+    <monitor x="365" precision="1" y="529" height="60" fontSize="11" width="439" display="'conic distance' of distance turtle">ifelse-value not ticks-started? or ticks = 0 or distance-turtle = nobody
+[ "" ]
+[ explain-parabola-difference ]</monitor>
+    <slider x="32" step="1" y="11" max="2000" width="221" display="num-turtles" height="50" min="1" direction="Horizontal" default="1500.0" variable="num-turtles"></slider>
+    <button x="54" y="71" height="41" disableUntilTicks="false" forever="false" kind="Observer" width="78">setup</button>
+    <button x="148" y="71" height="41" disableUntilTicks="true" forever="true" kind="Observer" width="80">go</button>
+    <button x="61" y="136" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="155" display="Refresh Particles">; clear-any-distance-turtle
+ask conic-parts [ 
+  setxy random-xcor random-ycor 
+]</button>
+    <button x="60" y="268" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="161" display="Clear Distance Turtle">clear-any-distance-turtle</button>
+    <button x="60" y="205" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="158" display="New Distance Turtle">create-distance-turtle</button>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
+This model displays a conic section: the parabola. The ancient Greeks called circles, ellipses, hyperbolas and parabolas conic sections because they can be generated geometrically by taking different cross sections of a cone.  Later the conic sections were described algebraically as quadratic curves. In this model, the parabola shape is emergent, generated by the behavior of turtles that are trying to satisfy a distance criterion as below. There are two addtional models that demonstrate the use of an agent-based approach to exploring conic sections: Emergent Shapes - Ellipse, and Emergent Shapes - Hyperbola.
+  
+A parabola is the set of all points that are the same distance from a point (focus) and a line (directrix).
 
-The model displays two basic conic sections: circles and ellipses. The figures are generated behaviorally as opposed to algebraically --- the turtles attempt to behave like points on the specified shape.
+Here's an equivalent and less abstract description that may be easier to understand. Pick a point in the plane and call it the focus of the parabola. Choose a line and call it the directrix. Now pick any point in the plane and draw the line segment between that point and the focus. Draw the line segment from the point to the directrix that makes a right angle to the line. (This is the shortest such segment.)  Measure the length of each of these 2 line segments. If the lengths are then the point you chose is on the parabola. If not, then it isn't. The shape made by all the points for which the two distances are equal is the parabola.
+
 
 ## HOW IT WORKS
-
-A circle is the set of all points at a certain distance (radius) from a central point.  An ellipse is the set of points such that the sum of the distances to two points is constant.  These two points are called foci. The CONSTANT slider corresponds to the radius for circles and to the sum of distances to the foci for each turtle.
-
-As an illustration of this, imagine a string loosely looped around two nails, each representing a focus.  If you pull the string tight with a pencil point and move the pencil point around the foci, you will draw an ellipse.
-
-The ancient Greeks discovered that each conic section can be found by taking a cross section of one or two cones with their points pointing toward each other.  A circle results from taking a slice that is perpendicular to the axis, while an ellipse results from taking a slice of one cone that is not perpendicular to the axis. Similarly, a parabola results from a cross section that passes through one cone in a vertical fashion, such that the plane of the cut is parallel to one face. A hyperbola results from a vertical section that passes through both cones.
-
-The turtles use feedback to make decisions about how they behave. They set out in random directions, and then they receive information as to whether or not they are getting closer to where they want to be. If they are getting closer, they continue moving forward in the direction they are going. If they are moving farther away, they set out in a new random direction. This process is akin to the children's game of "Hot & Cold", in which players are told whether they are getting "hotter" or "colder" in relation to a hidden goal.
+In this model the turtles use feedback to make decisions about how to behave. They set out in random directions and then act on information as to whether or not they are getting closer to where they want to be. If they are getting closer, they continue moving forward in the direction they are going. If they are moving farther away, they set out in a new random direction.
 
 ## HOW TO USE IT
 
-### Circles
+### Create a Parabola
+Select the number of turtles with the NUM-TURTLES slider.
+Press SETUP. A white circle (the focus) and a white line segment (the visible part of the directrix) will appear, as will green turtles in random locations.
+Press the GO button. The turtles will move until they form a parabola.
 
-- Select the number of turtles with the TURTLES slider.
-- Press SETUP.
-- Make sure the SECOND-FOCUS switch is set to OFF.
-- Press the MOVE-TURTLES button. Adjust the radius of the circle with the CONSTANT slider. The turtles will automatically correct themselves as you change both CONSTANT and the location of the center. You can change the circle's center by clicking on a new point.
+### Change the Parabola
+You can move either the focus or the directrix by clicking on it and dragging it.
 
-### Ellipses
+### The Distance Turtle
+A "distance turtle" is a randomly chosen turtle used to display the conic "distance." The distance turtle can only be visualized after both the focus and the directrix of the parabola have been chosen. The distance turtle has one red line segment connecting it 
+to the foci, and one red line segment connecting to the directrix at a right angle. Each segment is labeled with its length. The distance turtle will be on the
+parabola when this difference is zero. The turtle is 'inside' the parabola if the
+difference is positive, and 'outside' if it is negative.
+If the location where distance turtle projects perpendicularly onto the directrix
+is outside the world the corresponding red segment is hidden.
 
-- Select the number of turtles with the TURTLES slider.
-- Press SETUP.
-- Make sure the SECOND-FOCUS switch is set to ON.
-- Press the MOVE-TURTLES button. As for a circle, the size of the ellipse can be modified with CONSTANT, and new foci can be picked by clicking the mouse.
+#### The Monitor
+The monitor labeled "'conic distance' of distance turtle" shows the relevant values. An example would be "25.1 =
+abs(-32.9) - 7.8". The perpendicular distance from the distance turtle to the
+directrix is positive when the focus and distance turtle are on the same side of
+the directrix, and negative when they are on opposite sides.
+ 
+#### New Distance Turtle Button
+Pressing the button activates a new distance turtle. If there is an existing distance turtle, it is replaced.
+
+#### Clear Distance Turtle Button
+If a distance turtle exists it will be deactivated and its red line segments will be removed.
+
+### Refresh Turtles Button
+This button moves the small green turtles to random locations.
+If there is a distance turtle it will persist.
 
 ## THINGS TO NOTICE
-
-When forming a circle, turtles try to attain a distance of CONSTANT (a value determined by the user with a slider) from a center that the user determines by pointing and clicking (as explained above).
-
-When forming an ellipse, turtles try to attain a combined distance of 2 * CONSTANT from the two foci, again determined by the user's points and clicks.  If the foci are too far apart, there be no way to satisfy this condition.  What do the turtles do then?
+When forming a parabola turtles adjust their positions so that they are equidistant from the focus and the directrix. The distance from a point on the parabola to the directrix is measured along a line segment perpendicular to the directrix.
 
 ## THINGS TO TRY
+You may be able to get a better feeling for the turtles’ behavior if only a few turtles are alive at a time. Try setting num-turtles to a small value (like 16 or 1) and watching the turtles.
 
-You may be able to get a better feeling for the turtles' behavior if only a few turtles are alive one time. Try setting num-turtles to a small value (like 16 or 1) and watching the turtles.
+Create  a distance turtle. Note the value of the lengths of the two red line segments. They are equal. Now click the "New Distance Turtle" button. Notice that the distance values have changed, but are still equal.
 
-Both of these conic sections can be observed by shining a flashlight at a cone and looking at its shadow.  Can you figure out at what angles the cone must be held?
+The constant CONIC-EPS is set in the SETUP procedure. It determines how nearly  equidistant between the focus and the directrix the turtles have to be before they stop. Change its value — what do you see? Why? Be sure to try some integer values.
 
 ## EXTENDING THE MODEL
+Add a switch which allows the parabola to wrap the screen instead of stopping at the screen edge.
 
-If you have access to StarLogoT (NetLogo's Macintosh-only predecessor), look at the StarLogoT model 'emergent-circle'. Watch how the turtles react with each other- something that is missing from 'Conic Sections'. Implement this emergent behavior for one or both of the conics in this project.
+Add a button that moves the focus by a fixed distance in a random direction.
+
+Add a switch that makes the distance turtle or the segments that extend from it change color depending on whether the conic distance has increased, decreased or stayed the same after its most recent step.
 
 ## NETLOGO FEATURES
-
 The mouse primitives are used for handling interaction with the user.
+Link commands are used to display distances from the distance turtle.
+The ifelse-value primitive is used to set condition
+dependent values.
+The dx and dy primitives are used to give the amount by which the directrix's xcor and ycor would change) if the turtle were to take one step forward in its current heading.
+The "carefully" primitive is used to avoid an error when
+testing if ticks have been started.
+
+## RELATED MODELS
+Emergent Shapes - Ellipse
+Emergent Shapes - Hyperbola
 
 ## HOW TO CITE
-
 If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
 
 For the model itself:
 
-* Wilensky, U. (1998).  NetLogo Conic Sections 1 model.  http://ccl.northwestern.edu/netlogo/models/ConicSections1.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Wilensky, U. & Brandes, A. (1998; 2024).  NetLogo Emergent Shapes -  Parabola.  http://ccl.northwestern.edu/netlogo/models/ConicSections-Parabola.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
 * Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 ## COPYRIGHT AND LICENSE
-
 Copyright 1998 Uri Wilensky.
+ 
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License. To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
 
-![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
 
-This model is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+This model is based on an earlier model that was was created as part of the project: CONNECTED MATHEMATICS: MAKING SENSE OF COMPLEX PHENOMENA THROUGH BUILDING OBJECT-BASED PARALLEL MODELS (OBPML). The project gratefully acknowledges the support of the National Science Foundation (Applications of Advanced Technologies Program) – grant numbers RED #9552950 and REC #9632612.
 
-NetLogo itself is free software for non-commercial use under the terms of the GNU General Public License ([see full license information here](https://ccl.northwestern.edu/netlogo/docs/copyright.html)).
-
-To inquire about commercial licenses for either NetLogo or specific models from the models library, please contact netlogo-commercial-admin@ccl.northwestern.edu.
-
-This model was created as part of the project: CONNECTED MATHEMATICS: MAKING SENSE OF COMPLEX PHENOMENA THROUGH BUILDING OBJECT-BASED PARALLEL MODELS (OBPML).  The project gratefully acknowledges the support of the National Science Foundation (Applications of Advanced Technologies Program) -- grant numbers RED #9552950 and REC #9632612.
-
-This model was converted to NetLogo as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227. Converted from StarLogoT to NetLogo, 2001.
-
-<!-- 1998 2001 -->]]></info>
+This model was converted to NetLogo as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) – grant numbers REC #9814682 and REC-0126227.
+ ]]></info>
   <turtleShapes>
     <shape name="default" rotatable="true" editableColorIndex="0">
       <polygon color="-1920102913" filled="true" marked="true">
@@ -590,6 +831,19 @@ This model was converted to NetLogo as part of the projects: PARTICIPATORY SIMUL
     <shape name="line half" rotatable="true" editableColorIndex="0">
       <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
     </shape>
+    <shape name="line with origin" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+      <circle x="150" y="150" marked="true" color="-1920102913" diameter="0" filled="true"></circle>
+      <circle x="150" y="150" marked="true" color="-1920102913" diameter="0" filled="true"></circle>
+      <circle x="135" y="150" marked="true" color="-1920102913" diameter="0" filled="true"></circle>
+      <circle x="135" y="135" marked="true" color="-1920102913" diameter="0" filled="true"></circle>
+      <circle x="150" y="150" marked="true" color="-1920102913" diameter="0" filled="true"></circle>
+      <circle x="135" y="135" marked="true" color="-1920102913" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="line with tick" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+      <line endX="165" startY="150" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
     <shape name="pentagon" rotatable="false" editableColorIndex="0">
       <polygon color="-1920102913" filled="true" marked="true">
         <point x="150" y="15"></point>
@@ -678,6 +932,47 @@ This model was converted to NetLogo as part of the projects: PARTICIPATORY SIMUL
         <point x="150" y="15"></point>
         <point x="180" y="45"></point>
         <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="sheep" rotatable="false" editableColorIndex="15">
+      <circle x="203" y="65" marked="true" color="-1" diameter="88" filled="true"></circle>
+      <circle x="70" y="65" marked="true" color="-1" diameter="162" filled="true"></circle>
+      <circle x="150" y="105" marked="true" color="-1" diameter="120" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="218" y="120"></point>
+        <point x="240" y="165"></point>
+        <point x="255" y="165"></point>
+        <point x="278" y="120"></point>
+      </polygon>
+      <circle x="214" y="72" marked="false" color="-1920102913" diameter="67" filled="true"></circle>
+      <rectangle endX="179" startY="223" marked="true" color="-1" endY="298" startX="164" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="45" y="285"></point>
+        <point x="30" y="285"></point>
+        <point x="30" y="240"></point>
+        <point x="15" y="195"></point>
+        <point x="45" y="210"></point>
+      </polygon>
+      <circle x="3" y="83" marked="true" color="-1" diameter="150" filled="true"></circle>
+      <rectangle endX="80" startY="221" marked="true" color="-1" endY="296" startX="65" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="195" y="285"></point>
+        <point x="210" y="285"></point>
+        <point x="210" y="240"></point>
+        <point x="240" y="210"></point>
+        <point x="195" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="276" y="85"></point>
+        <point x="285" y="105"></point>
+        <point x="302" y="99"></point>
+        <point x="294" y="83"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="219" y="85"></point>
+        <point x="210" y="105"></point>
+        <point x="193" y="99"></point>
+        <point x="201" y="83"></point>
       </polygon>
     </shape>
     <shape name="square" rotatable="false" editableColorIndex="0">
@@ -833,6 +1128,89 @@ This model was converted to NetLogo as part of the projects: PARTICIPATORY SIMUL
       <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
       <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
       <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="wolf" rotatable="false" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="253" y="133"></point>
+        <point x="245" y="131"></point>
+        <point x="245" y="133"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="2" y="194"></point>
+        <point x="13" y="197"></point>
+        <point x="30" y="191"></point>
+        <point x="38" y="193"></point>
+        <point x="38" y="205"></point>
+        <point x="20" y="226"></point>
+        <point x="20" y="257"></point>
+        <point x="27" y="265"></point>
+        <point x="38" y="266"></point>
+        <point x="40" y="260"></point>
+        <point x="31" y="253"></point>
+        <point x="31" y="230"></point>
+        <point x="60" y="206"></point>
+        <point x="68" y="198"></point>
+        <point x="75" y="209"></point>
+        <point x="66" y="228"></point>
+        <point x="65" y="243"></point>
+        <point x="82" y="261"></point>
+        <point x="84" y="268"></point>
+        <point x="100" y="267"></point>
+        <point x="103" y="261"></point>
+        <point x="77" y="239"></point>
+        <point x="79" y="231"></point>
+        <point x="100" y="207"></point>
+        <point x="98" y="196"></point>
+        <point x="119" y="201"></point>
+        <point x="143" y="202"></point>
+        <point x="160" y="195"></point>
+        <point x="166" y="210"></point>
+        <point x="172" y="213"></point>
+        <point x="173" y="238"></point>
+        <point x="167" y="251"></point>
+        <point x="160" y="248"></point>
+        <point x="154" y="265"></point>
+        <point x="169" y="264"></point>
+        <point x="178" y="247"></point>
+        <point x="186" y="240"></point>
+        <point x="198" y="260"></point>
+        <point x="200" y="271"></point>
+        <point x="217" y="271"></point>
+        <point x="219" y="262"></point>
+        <point x="207" y="258"></point>
+        <point x="195" y="230"></point>
+        <point x="192" y="198"></point>
+        <point x="210" y="184"></point>
+        <point x="227" y="164"></point>
+        <point x="242" y="144"></point>
+        <point x="259" y="145"></point>
+        <point x="284" y="151"></point>
+        <point x="277" y="141"></point>
+        <point x="293" y="140"></point>
+        <point x="299" y="134"></point>
+        <point x="297" y="127"></point>
+        <point x="273" y="119"></point>
+        <point x="270" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="-1" y="195"></point>
+        <point x="14" y="180"></point>
+        <point x="36" y="166"></point>
+        <point x="40" y="153"></point>
+        <point x="53" y="140"></point>
+        <point x="82" y="131"></point>
+        <point x="134" y="133"></point>
+        <point x="159" y="126"></point>
+        <point x="188" y="115"></point>
+        <point x="227" y="108"></point>
+        <point x="236" y="102"></point>
+        <point x="238" y="98"></point>
+        <point x="268" y="86"></point>
+        <point x="269" y="92"></point>
+        <point x="281" y="87"></point>
+        <point x="269" y="103"></point>
+        <point x="269" y="113"></point>
+      </polygon>
     </shape>
     <shape name="x" rotatable="false" editableColorIndex="0">
       <polygon color="-1920102913" filled="true" marked="true">

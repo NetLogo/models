@@ -1,171 +1,364 @@
 <?xml version="1.0" encoding="utf-8"?>
-<model version="NetLogo 7.0.0-beta2" snapToGrid="false">
-  <code><![CDATA[globals [
-  f0x    ;; xcor of focus 0 (for hyperbola)
-  f0y    ;; ycor of focus 0 (for hyperbola)
-  f1x    ;; xcor of focus 1 (for hyperbola)
-  f1y    ;; ycor of focus 1 (for hyperbola)
-  state  ;; flag to alternate between different values in mouse code
+<model version="NetLogo 7.0.0-beta2" snapToGrid="true">
+  <code><![CDATA[breed [l-atoms l-atom]            ;; lattice atoms
+breed [d-atoms d-atom]            ;; diffusing atoms
+breed [graph-points graph-point]  ;; these are used to draw the graph when sketching a concentration profile
+
+graph-points-own [
+  num-d-atoms        ;; the number of diffusing atoms at this graph-point's x-position
+  concentration      ;; the concentration of diffusing atoms at this graph-point's x-position.
 ]
 
-turtles-own [
-  dist     ;; distance from 'goal' in current state
-  diff     ;; modified distance to x and y intercepts in current state
+globals [
+  graph-min-ycor       ;; the ycor which the bottom of the graph when sketching a concentration profile
+  sorted-graph-points  ;; a list to hold the graph-points in sorted order for plotting purposes
 ]
 
+
+;*********************************************
+;*************SETUP PROCEDURES****************
+;*********************************************
 to setup
   clear-all
-  set f0x 0
-  set f0y 0
-  set f1x 0
-  set f1y 0
-  set state 0
-  create-turtles num-turtles [
-    set color green
-    setxy random-xcor random-ycor
+
+  set-default-shape turtles "circle"
+  set graph-min-ycor (max-pycor - 25)
+
+  ; Create lattice atoms
+  ask patches with [pxcor < max-pxcor] [
+    sprout-l-atoms 1 [
+      set color blue
+      set size 0.9
+      set heading 45
+      fd (sqrt 2) / 2
+    ]
   ]
-  move-focus-directrix 0 0
+
+  ; Initialize bulk concentration
+  ask patches with [pxcor <= (min-pxcor + initial-columns-populated)] [
+    ;; Create an atom with probability equal to the intial bulk concentration
+    if random-float 1 < initial-bulk-concentration [
+      create-d-atom
+    ]
+  ]
+
+  ; Initialize surface concentrations
+  if constant-left-surface? [set-constant-left-surface]
+  if constant-right-surface? [set-constant-right-surface]
+
+  ; Create the graph for drawing concentration profiles
+  create-axes
+  create-graph-pnts
+  hide-graph
+  calc-concentration
+
   reset-ticks
 end
 
+
+; patch procedure to create a diffusing atom
+to create-d-atom
+    sprout-d-atoms 1 [
+      set color yellow
+      set size .3
+    ]
+end
+
+;******************************************
+;*************GO PROCEDURES****************
+;******************************************
+
 to go
-   ifelse mouse-down?
-   [ move-focus-directrix round mouse-xcor round mouse-ycor  ]
-   [
-     ask turtles [ move-turtles ]
-     set state (state + 1) mod 2
-   ]
+  (ifelse
+    go-mode = "simulate" [simulate]
+    go-mode = "draw-profile" [draw-profile]
+  )
+end
+
+
+; observer procedure to run the simulation. This would normally be
+; the go procedure but since there are two go-modes, the code for
+; running the simulation is in this procedure
+to simulate
+  if ticks = 0 [
+    hide-graph
+    ask l-atoms [show-turtle]
+  ]
+
+  if ticks >= max-ticks [stop]
+
+  ; The core of the diffusion model is diffusing atoms executing a random walk
+  ask d-atoms [random-walk]
+
+  ; If either of the surfaces are being held at constant concentration, it needs to be set
+  if constant-left-surface? [set-constant-left-surface]
+  if constant-right-surface? [set-constant-right-surface]
+
+  calc-concentration
   tick
 end
 
-to move-turtles
-  ifelse directrix?
-    [ parab ]
-    [ hyperb ]
+
+; turtle procedure for atoms  to random walk
+to random-walk
+  ; This random-walk procedure picks a direction and then moves to that site if it is open.
+  ; It is important to use this instead of `move-to one-of neighbors4`, so that boundary atoms
+  ; have the same probability of moving inwards as non-boundary atoms have to move outwards.
+  ; Using `move-to one-of neighbors4` would result in boundary atoms having only three neighbors
+  ; and therefore a higher  probability of moving inwards than non-boundary atoms with four neighbrs
+  ; have of moving outwards.
+
+  set heading one-of [0 90 180 270]  ; turn to one of 4 neighbors
+  let neighbor patch-ahead 1
+  if neighbor != nobody and not any? d-atoms-on neighbor [
+    move-to neighbor
+  ]
 end
 
-to hyperb  ;;turtle procedure
-;;  ask patches with [pycor = f1y] [ set pcolor black ]
-  let old-dist dist
-  ;;distance between two foci at const
-  set dist abs ((distancexy f0x f0y) - (distancexy f1x f1y))
 
-  ;;find location to stop
-  if round dist = const [ stop ]
-  ifelse (dist < old-dist) and (dist > const)
-  [ fd 1 ]
-  [
-    ifelse (dist > old-dist) and (dist < const)
-    [ fd 1 ]
-    [
-      rt random-float 360
-      fd 1
+; procedure to set the left surface concentration based on the left-surface-concentration slider
+to set-constant-left-surface
+  ask patches with [pxcor = min-pxcor] [
+    ask d-atoms-here [die] ;; First remove all atoms on the surface
+    if random-float 1 < left-surface-concentration [ ;; Create an atoms on surface with probability equal to surface-concentration
+      create-d-atom
     ]
   ]
 end
 
-to parab   ;; turtle procedure
-  let old-diff diff
-  set dist distancexy f0x f0y
-  let intx xcor
-  let inty f1y
-  ;;distance from directrix
-  set diff (distancexy intx inty) - dist
 
-  ;; locate position to stop
-  if (abs diff) < 1 [ stop ]
-  if (abs diff) > (abs old-diff)
-    [ rt random-float 360 ]
-  if not can-move? 1
-    [ rt 180 ]
-  fd 1
-end
-
-to move-focus-directrix [ x y ]
-  ifelse state = 0
-  [
-   set f0x x
-   set f0y y
+; procedure to set the right surface concentration based on the right-surface-concentration slider
+to set-constant-right-surface
+  ask patches with [pxcor = max-pxcor] [
+    ask d-atoms-here [die]  ;; First remove all atoms on the surface
+    if random-float 1 < right-surface-concentration [ ;; Create an atoms on surface with probability equal to surface-concentration
+      create-d-atom
+    ]
   ]
-  [
-   set f1x x
-   set f1y y
-  ]
-  clear-patches
-  ask patch f0x f0y [ set pcolor white ]
-  ifelse directrix?
-    [ ask patches with [pycor = f1y] [ set pcolor white ] ]
-    ;; ask patches with [pycor = f1y] [ set pcolor black ]
-    [ ask patch f1x f1y [ set pcolor white ] ]
 end
 
 
-; Copyright 1998 Uri Wilensky.
+;************************************************************************
+;*************CALCULATE AND PLOT CONCENTRATION PROFILE CODE**************
+;************************************************************************
+
+; procedure to calculate the concentration of d-atoms at each x-location and set the concentration
+; variable of each corresponding graph-point agent
+to calc-concentration
+  ask graph-points [set num-d-atoms 0]
+  ask d-atoms [
+    let my-pxcor pxcor
+    ask graph-points with [pxcor = my-pxcor] [set num-d-atoms num-d-atoms + 1]
+  ]
+  ask graph-points [
+    set concentration num-d-atoms / world-height
+    set ycor ycor-from-concentration
+  ]
+end
+
+; procedure to plot the concentration based on stored concentration variables
+; of the graph points. It is defined here rather than directly in the plot
+; so it can be resused multiple times.
+to plot-concentration
+  foreach sorted-graph-points [gp -> ask gp [plotxy pxcor concentration]]
+end
+
+
+;********************************************************************
+;*****************DRAW CONCENTRATIAON PROFILE CODE*******************
+;********************************************************************
+
+
+; hides the graph the user sketches with
+to hide-graph
+  ask turtles with [any? my-links] [set hidden? true]
+  ask links [set hidden? true]
+end
+
+; shows the graph the user sketches with
+to show-graph
+  ask turtles with [any? my-links] [set hidden? false]
+  ask links [set hidden? false]
+end
+
+; Create the graph-point agents that make up the user-sketched graph
+to create-graph-pnts
+
+  ; create a graph-point at each x-position
+  ask patches with [pycor = graph-min-ycor] [
+    sprout-graph-points 1 [
+      set color yellow
+      set size 0.5
+    ]
+  ]
+
+  ; link the graph points together so that they form a single curve
+  ask graph-points [
+    create-links-with other graph-points with [abs (xcor - [xcor] of myself) = 1] [
+      set thickness 0.3
+      set color yellow
+    ]
+  ]
+
+  set sorted-graph-points sort-on [pxcor] graph-points ; for plotting the graph
+end
+
+
+; procedure to allow the user to sketch a concentration profile
+to draw-profile
+  ask l-atoms [hide-turtle] ; hide the lattice atoms
+  show-graph
+  setup-plots ; reset the plots since we are resetting the concentration profile by doing this
+
+  if mouse-down? and mouse-ycor >= graph-min-ycor [
+    let prev-concentration 0
+
+    ask graph-points with [pxcor = round mouse-xcor] [ ; get the graph point at the user's mouse position
+      set ycor mouse-ycor  ; move up to the mouse position
+      set prev-concentration concentration
+      set concentration concentration-from-ycor
+
+      if prev-concentration != concentration [ ; if the concentration has changed (mouse moved)
+        let my-pxcor pxcor
+        ; reset the number of d-atoms at this x-position to match the concentration
+        ask d-atoms with [pxcor = my-pxcor] [die]
+        ask up-to-n-of (world-height * concentration) patches with [pxcor = my-pxcor] [create-d-atom]
+      ]
+    ]
+  ]
+  reset-ticks
+end
+
+
+; graph-point procedure to calculate the concentration represented by its ycor
+to-report concentration-from-ycor
+  report precision ((graph-min-ycor - ycor) / graph-min-ycor) 2
+end
+
+; graph-point procedure to calculate what its ycor should be based on its concentration
+to-report ycor-from-concentration
+  report  graph-min-ycor * (1 - concentration)
+end
+
+
+; create the axes for the graph to sketch concentrations
+to create-axes
+  let origin-turtle nobody
+
+  ; create a turtle for the origin
+  crt 1 [
+    setxy (min-pxcor) graph-min-ycor
+    set origin-turtle self
+    set size 0
+  ]
+
+  ; create a turtle for the end of the x-axis and connect it with the origin
+  crt 1 [
+    setxy max-pxcor graph-min-ycor
+    create-link-with origin-turtle [set thickness 0.2 set color white]
+    set size 0
+  ]
+
+  ; create a turtle for the end of the y-axis and connect it with the origin
+  crt 1 [
+    setxy min-pxcor max-pycor
+    create-link-with origin-turtle [set thickness 0.2 set color white]
+    set size 0
+  ]
+end
+
+
+; Copyright 2025 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="242" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-20" height="373" showTickCounter="true" patchSize="9.0" fontSize="10" wrappingAllowedY="false" width="373" tickCounterLabel="ticks" maxPycor="20" updateMode="1" maxPxcor="20" minPxcor="-20"></view>
-    <button x="15" y="76" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="setup" width="97" sizeVersion="0">setup</button>
-    <button x="123" y="76" height="33" disableUntilTicks="true" forever="true" kind="Observer" width="106" sizeVersion="0">go</button>
-    <slider x="9" step="1" y="156" max="20" display="const" height="33" min="0" direction="Horizontal" default="6.0" variable="const" width="222" sizeVersion="0"></slider>
-    <switch x="64" y="120" height="33" on="true" variable="directrix?" display="directrix?" width="118" sizeVersion="0"></switch>
-    <slider x="10" step="1" y="36" max="2000" display="num-turtles" height="33" min="0" direction="Horizontal" default="1353.0" variable="num-turtles" width="222" sizeVersion="0"></slider>
+    <view x="308" wrappingAllowedX="false" y="235" frameRate="30.0" minPycor="-200" height="2432" showTickCounter="true" patchSize="12.1" fontSize="10" wrappingAllowedY="true" width="496" tickCounterLabel="ticks" maxPycor="0" updateMode="1" maxPxcor="40" minPxcor="0"></view>
+    <slider x="10" step=".01" y="5" max="1" width="225" display="initial-bulk-concentration" height="50" min="0" direction="Horizontal" default="0.8" variable="initial-bulk-concentration"></slider>
+    <slider x="10" step="1" y="60" max="world-width - 1" width="225" display="initial-columns-populated" height="50" min="0" direction="Horizontal" default="10.0" variable="initial-columns-populated"></slider>
+    <button x="10" y="240" height="59" disableUntilTicks="true" forever="true" kind="Observer" width="107">go</button>
+    <input x="125" multiline="false" y="240" height="60" variable="max-ticks" type="number" width="113">1000.0</input>
+    <button x="30" y="305" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="179" display="show/hide lattice atoms">ask l-atoms [set hidden? not hidden?]</button>
+    <switch x="10" y="350" height="40" on="false" variable="constant-left-surface?" width="222" display="constant-left-surface?"></switch>
+    <slider x="10" step=".01" y="395" max="1" width="222" display="left-surface-concentration" height="50" min="0" direction="Horizontal" default="0.7" variable="left-surface-concentration"></slider>
+    <switch x="10" y="460" height="40" on="false" variable="constant-right-surface?" width="222" display="constant-right-surface?"></switch>
+    <slider x="10" step=".01" y="505" max="1" width="222" display="right-surface-concentration" height="50" min="0" direction="Horizontal" default="0.0" variable="right-surface-concentration"></slider>
+    <button x="75" y="120" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="90">setup</button>
+    <chooser x="10" y="165" height="60" variable="go-mode" current="0" width="115" display="go-mode">
+      <choice type="string" value="simulate"></choice>
+      <choice type="string" value="draw-profile"></choice>
+    </chooser>
+    <note x="125" y="170" backgroundDark="0" fontSize="10" width="160" markdown="false" height="55" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Select "draw-profile" and click and drag in the world to change the concentration profile. </note>
+    <plot x="288" autoPlotX="false" yMax="1.0" autoPlotY="false" y="5" xMin="0.0" height="220" legend="true" xMax="1.0" yMin="0.0" width="523" display="Concentration Profile">
+      <setup>clear-plot
+set-plot-x-range min-pxcor max-pxcor
+
+</setup>
+      <update></update>
+      <pen interval="1.0" mode="0" display="current" color="-7171555" legend="true">
+        <setup></setup>
+        <update>plot-pen-reset
+plot-concentration
+</update>
+      </pen>
+      <pen interval="1.0" mode="0" display="initial" color="-4539718" legend="true">
+        <setup></setup>
+        <update>if ticks = 0 [plot-concentration]</update>
+      </pen>
+      <pen interval="1.0" mode="0" display="after 15 ticks" color="-7500403" legend="true">
+        <setup></setup>
+        <update>if ticks = 15 [plot-concentration]</update>
+      </pen>
+    </plot>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
-The model displays two basic conic sections: hyperbolas and parabolas.  The figures are generated behaviorally as opposed to algebraically - the turtles attempt to behave like points on the specified shape. The partner to this model is called "Conic Sections 1".
-
-A parabola is the set of all points that are the same distance from a point (focus) and a line (directrix).  A hyperbola is based on the same idea as is a parabola except that it is reflected over the directrix.
-
-The ancient Greeks discovered that each conic section can be found by taking a cross section of one or two cones with their points pointing toward each other.  A circle results from taking a slice that is perpendicular to the axis, while an ellipse results from taking a slice of one cone that is not perpendicular to the axis. Similarly, a parabola results from a cross section that passes through one cone in a vertical fashion, such that the plane of the cut is parallel to one face. A hyperbola results from a vertical section that passes through both cones.
+This is a model of "interstitial" diffusion in solids. The atoms of many solids arrange themselves in an ordered structure called a lattice, and the spaces between the atoms are called "interstitial sites." Smaller atoms that are about the size of the interstitial sites can then diffuse into these sites, which will change the properties of the material. For example, steel is mostly iron with a small fraction of the interstitial sites filled by carbon atoms.
 
 ## HOW IT WORKS
 
-The turtles use feedback to make decisions about how they behave. They set out in random directions, and then they receive information as to whether or not they are getting closer to where they want to be. If they are getting closer, they continue moving forward in the direction they are going. If they are moving farther away, they set out in a new random direction. This process is akin to the children's game of "Hot and Cold", in which players are told whether they are getting "hotter" or "colder" in relation to a hidden goal.
+Large blue atoms are created on the corners of patches to form a lattice. The interstitial sites between the lattice atoms are then made up of patches. Small yellow atoms diffuse on the interstitial sites (on patches). Each tick, the diffusing atoms pick a random direction to jump to. If the neighboring interstitial site in that direction is empty, they jump to it, otherwise they stay put.
+
+The concentration profile graph shows the fraction of interstitial sites that are filled by diffusing atoms. Note, that in real materials, usually on a small fraction of interstitial sites are filled, but in this model a large number, or even all of them can be filled. The grey line shows the concentration at the beginning of the run (or right after you finished sketching a concentration profile) and the yellow line shows the current concentration profile. The x-position on the concentration profile graph lines up with x-position in the view of the atoms.
 
 ## HOW TO USE IT
 
-### Hyperbolas
+Press SETUP to initialize the model. The number on the INITIAL-COLUMNS-POPULATED slider determines how many columns of interstitial sites start with atoms on them. The initial concentration of diffusing atoms in these columsn is set by the INITIAL-BULK-CONCENTRATION slider.
 
-- Select the number of turtles with the NUM-TURTLES slider.
-- Press SETUP.
-- Make sure the DIRECTRIX? switch is set to OFF.
-- Press GO
-- click at two points in the view to set the foci
+You can use the DRAW-PROFILE button to sketch a concentration profile. The interstitial sites at each x-position will be filled with a certain probability based on how high the concentration profile is that you drew.
 
-### Parabolas
+The GO button will run the model.
 
-- Select the number of turtles with the NUM-TURTLES slider.
-- Press SETUP.
-- Make sure the DIRECTRIX? switch is set to TRUE.
-- Press GO
-- click at two different locations in the view to set the directrix and the focus.
+HIDE/SHOW LATTICE ATOMS will toggle the visibility of the blue lattice atoms.
+
+CONSTANT-LEFT-SURFACE? and CONSTANT-RIGHT-SURFACE? determine if the left and right sides of the model are maintained at a constant concentration of diffusing atoms. It is common when materials scientists and engineers process materials to put them in an environment that keeps the concentration of diffusing atoms constant at the surface. For example, immersing a piece of iron in carbon powder would maintain a high surface concentration of diffusing carbon atoms. Conversely, putting the iron in a vacuum would maintain the surface concentration at zero. LEFT-SURFACE-CONCENTRATION and RIGHT-SURFACE-CONCENTRATION determine what each surface's concentration is maintained at, if that surface has a constant concentration.
 
 ## THINGS TO NOTICE
 
-When forming a hyperbola, turtles adjust their positions from two user-defined foci so that the difference between their distances from the foci attains a
-value of CONSTANT.
-
-When forming a parabola, turtles move to an equal distance from the directrix to the focus.
+- Can you predict whether the concentration profile will move up or down at each x-position? What does this depend on?
+- Notice how quickly or slowly the concentration profile changes at each x-position. What does this depend on?
+- The concentration profile will tend to change in one direction, but there are random fluctuations. Why?
 
 ## THINGS TO TRY
 
-Adjust the slope of the parabola's directrix or the value of CONSTANT for the hyperbola while the turtles are still moving. See how they react to the changes in their environment.
-
-You may be able to get a better feeling for the turtles' behavior if only a few turtles are in the world at one time.  Try setting num to a small value (like 16 or 1), and watching the turtles.
-
-Both of these conic sections can be observed by shining a flashlight at a cone and looking at its shadow.  Can you figure out at what angles the cone must be held?
+- Try turning constant surface concentration off. What happens in the long run?
+- Try setting both surfaces to different constant concentrations. What happens? Try out different combinations.
 
 ## EXTENDING THE MODEL
 
-Look at the StarLogoT model 'emergent-circle'. Watch how the turtles react with each other- something that is missing from 'Conic Sections'. Implement this emergent behavior for one or all of the conics in this project.
+- Try making the probability of jumping to a new site dependent on temperature
+- Try removing some of the lattice atoms and making the probability of jumping to a new site dependent on the number of lattice atoms neighboring that site
 
 ## NETLOGO FEATURES
 
-Like more traditional programming languages (e.g. Java), NetLogo can have procedures that report a value to the caller. The command used is called `report` --- it takes one input, the value to be reported. Look at the function `pos`. It takes two inputs, `x` and `y`, and reports a boolean.
+To get good statistics on the fraction of interstitial sites filled, this model extends really far in the y-direction. You have to scroll down to see how far the model world actually extends. This is unusual, because normally the whole model world is visible at once.
+
+This model also uses `mouse-down?`, `mouse-ycor`, and `mouse-xcor` to detect when the user is clicking the mouse and where it is to draw a concentration profile when the GO-MODE is set to "draw-profile".
+
+The Concentration Profile graph uses if statements with the number of ticks to plot the concentrations at certain points in time and not change after tha.
 
 ## RELATED MODELS
 
-Conic Sections 1
+Solid Diffusion
+Random Grid Walk Example
 
 ## HOW TO CITE
 
@@ -173,7 +366,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* Wilensky, U. (1998).  NetLogo Conic Sections 2 model.  http://ccl.northwestern.edu/netlogo/models/ConicSections2.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Kelter, J. Emery, J. and Wilensky, U. (2025).  NetLogo Interstitial Diffusion model.  http://ccl.northwestern.edu/netlogo/models/InterstitialDiffusion.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
@@ -181,7 +374,7 @@ Please cite the NetLogo software as:
 
 ## COPYRIGHT AND LICENSE
 
-Copyright 1998 Uri Wilensky.
+Copyright 2025 Uri Wilensky.
 
 ![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
 
@@ -191,11 +384,7 @@ NetLogo itself is free software for non-commercial use under the terms of the GN
 
 To inquire about commercial licenses for either NetLogo or specific models from the models library, please contact netlogo-commercial-admin@ccl.northwestern.edu.
 
-This model was created as part of the project: CONNECTED MATHEMATICS: MAKING SENSE OF COMPLEX PHENOMENA THROUGH BUILDING OBJECT-BASED PARALLEL MODELS (OBPML).  The project gratefully acknowledges the support of the National Science Foundation (Applications of Advanced Technologies Program) -- grant numbers RED #9552950 and REC #9632612.
-
-This model was converted to NetLogo as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227. Converted from StarLogoT to NetLogo, 2001.
-
-<!-- 1998 2001 -->]]></info>
+<!-- 2025 Cite: Kelter, J. Emery, J. -->]]></info>
   <turtleShapes>
     <shape name="default" rotatable="true" editableColorIndex="0">
       <polygon color="-1920102913" filled="true" marked="true">
@@ -712,6 +901,47 @@ This model was converted to NetLogo as part of the projects: PARTICIPATORY SIMUL
         <point x="165" y="90"></point>
       </polygon>
     </shape>
+    <shape name="sheep" rotatable="false" editableColorIndex="15">
+      <circle x="203" y="65" marked="true" color="-1" diameter="88" filled="true"></circle>
+      <circle x="70" y="65" marked="true" color="-1" diameter="162" filled="true"></circle>
+      <circle x="150" y="105" marked="true" color="-1" diameter="120" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="218" y="120"></point>
+        <point x="240" y="165"></point>
+        <point x="255" y="165"></point>
+        <point x="278" y="120"></point>
+      </polygon>
+      <circle x="214" y="72" marked="false" color="-1920102913" diameter="67" filled="true"></circle>
+      <rectangle endX="179" startY="223" marked="true" color="-1" endY="298" startX="164" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="45" y="285"></point>
+        <point x="30" y="285"></point>
+        <point x="30" y="240"></point>
+        <point x="15" y="195"></point>
+        <point x="45" y="210"></point>
+      </polygon>
+      <circle x="3" y="83" marked="true" color="-1" diameter="150" filled="true"></circle>
+      <rectangle endX="80" startY="221" marked="true" color="-1" endY="296" startX="65" filled="true"></rectangle>
+      <polygon color="-1" filled="true" marked="true">
+        <point x="195" y="285"></point>
+        <point x="210" y="285"></point>
+        <point x="210" y="240"></point>
+        <point x="240" y="210"></point>
+        <point x="195" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="276" y="85"></point>
+        <point x="285" y="105"></point>
+        <point x="302" y="99"></point>
+        <point x="294" y="83"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="false">
+        <point x="219" y="85"></point>
+        <point x="210" y="105"></point>
+        <point x="193" y="99"></point>
+        <point x="201" y="83"></point>
+      </polygon>
+    </shape>
     <shape name="square" rotatable="false" editableColorIndex="0">
       <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
     </shape>
@@ -866,6 +1096,89 @@ This model was converted to NetLogo as part of the projects: PARTICIPATORY SIMUL
       <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
       <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
     </shape>
+    <shape name="wolf" rotatable="false" editableColorIndex="0">
+      <polygon color="255" filled="true" marked="false">
+        <point x="253" y="133"></point>
+        <point x="245" y="131"></point>
+        <point x="245" y="133"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="2" y="194"></point>
+        <point x="13" y="197"></point>
+        <point x="30" y="191"></point>
+        <point x="38" y="193"></point>
+        <point x="38" y="205"></point>
+        <point x="20" y="226"></point>
+        <point x="20" y="257"></point>
+        <point x="27" y="265"></point>
+        <point x="38" y="266"></point>
+        <point x="40" y="260"></point>
+        <point x="31" y="253"></point>
+        <point x="31" y="230"></point>
+        <point x="60" y="206"></point>
+        <point x="68" y="198"></point>
+        <point x="75" y="209"></point>
+        <point x="66" y="228"></point>
+        <point x="65" y="243"></point>
+        <point x="82" y="261"></point>
+        <point x="84" y="268"></point>
+        <point x="100" y="267"></point>
+        <point x="103" y="261"></point>
+        <point x="77" y="239"></point>
+        <point x="79" y="231"></point>
+        <point x="100" y="207"></point>
+        <point x="98" y="196"></point>
+        <point x="119" y="201"></point>
+        <point x="143" y="202"></point>
+        <point x="160" y="195"></point>
+        <point x="166" y="210"></point>
+        <point x="172" y="213"></point>
+        <point x="173" y="238"></point>
+        <point x="167" y="251"></point>
+        <point x="160" y="248"></point>
+        <point x="154" y="265"></point>
+        <point x="169" y="264"></point>
+        <point x="178" y="247"></point>
+        <point x="186" y="240"></point>
+        <point x="198" y="260"></point>
+        <point x="200" y="271"></point>
+        <point x="217" y="271"></point>
+        <point x="219" y="262"></point>
+        <point x="207" y="258"></point>
+        <point x="195" y="230"></point>
+        <point x="192" y="198"></point>
+        <point x="210" y="184"></point>
+        <point x="227" y="164"></point>
+        <point x="242" y="144"></point>
+        <point x="259" y="145"></point>
+        <point x="284" y="151"></point>
+        <point x="277" y="141"></point>
+        <point x="293" y="140"></point>
+        <point x="299" y="134"></point>
+        <point x="297" y="127"></point>
+        <point x="273" y="119"></point>
+        <point x="270" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="-1" y="195"></point>
+        <point x="14" y="180"></point>
+        <point x="36" y="166"></point>
+        <point x="40" y="153"></point>
+        <point x="53" y="140"></point>
+        <point x="82" y="131"></point>
+        <point x="134" y="133"></point>
+        <point x="159" y="126"></point>
+        <point x="188" y="115"></point>
+        <point x="227" y="108"></point>
+        <point x="236" y="102"></point>
+        <point x="238" y="98"></point>
+        <point x="268" y="86"></point>
+        <point x="269" y="92"></point>
+        <point x="281" y="87"></point>
+        <point x="269" y="103"></point>
+        <point x="269" y="113"></point>
+      </polygon>
+    </shape>
     <shape name="x" rotatable="false" editableColorIndex="0">
       <polygon color="-1920102913" filled="true" marked="true">
         <point x="270" y="75"></point>
@@ -905,11 +1218,5 @@ This model was converted to NetLogo as part of the projects: PARTICIPATORY SIMUL
       </indicator>
     </shape>
   </linkShapes>
-  <previewCommands>setup
-set f0x 12
-set f0y 10
-set f1x 0
-set f1y -13
-ask (patch-set patch f0x f0y patch f1x f1y) [ set pcolor white ]
-ask turtles [ repeat 25 [ move-turtles ] ]</previewCommands>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
 </model>
