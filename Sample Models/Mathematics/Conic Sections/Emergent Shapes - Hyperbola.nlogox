@@ -1,0 +1,1086 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0.0-beta2" snapToGrid="true">
+  <code><![CDATA[; Globals declared in widgets
+; num-turtles               ;; number of conic-parts turtles to create
+; conic-constant            ;; constant used to define the conic section - the absolute value
+                            ;;   of the distances of the point to the foci
+
+breed [ foci focus ]
+breed [ conic-parts conic-part ]
+conic-parts-own [ conic-dist ]  ;;absolute value of the difference of the distances to foci
+
+globals [
+         selected-focus          ;; the focus selected for dragging - or "nobody"
+         distance-turtle         ;; the conic-part for which "conic-distance" will be shown - or nobody
+         new-distance-turtle?    ;; true if a new distance turtle is wanted, but at least one focus is still needed
+                                 ;; mouse-x and mouse-y are used to filter out redundant mouse down events
+         recent-mouse-x          ;; rounded x-cor of most recent mouse click
+         recent-mouse-y          ;; rounded y-cor of most recent mouse click
+         MOUSE-CLICK-CLOSENESS   ;; how close mouse click must be to focus for dragging
+         CONIC-EPS               ;; how close conic-dist must be to conic-constant for a turtle to stop
+         BACKGROUND-COLOR        ;; color of background
+         CONIC-PART-COLOR        ;; color of conic-parts turtles that move to form conic section
+         CONIC-PART-SHAPE        ;; shape of conic-parts turtles
+         CONIC-PART-SIZE         ;; size of conic-parts turtles
+         FOCUS-COLOR             ;; color of circle or hyperbola focus turtles
+         FOCUS-SHAPE             ;; shape of focus turtles
+         FOCUS-SIZE              ;; size of focus turtles
+         DISTANCE-LINK-COLOR     ;; color of distance links
+         DISTANCE-LINK-THICKNESS ;; thickness of distance links
+]
+
+
+to setup
+  clear-all
+  initialize-values
+  color-background-patches
+  create-conic-parts num-turtles [
+    set color CONIC-PART-COLOR
+    set shape CONIC-PART-SHAPE
+    set size CONIC-PART-SIZE
+    setxy random-xcor random-ycor
+  ]
+
+  ; there is no recent mouse-click, so make coordinates outside the world
+  set recent-mouse-x max-pxcor + 1
+  set recent-mouse-y max-pycor + 1
+
+  ; no focus exists or is selected initially
+  set selected-focus nobody
+
+  ; no distance turtle exists initially
+  set distance-turtle nobody
+  set new-distance-turtle? false
+
+  reset-ticks
+end
+
+to initialize-values
+  set CONIC-EPS               0.05
+  set BACKGROUND-COLOR        black
+  set CONIC-PART-COLOR        green
+  set CONIC-PART-SHAPE        "circle"
+  set CONIC-PART-SIZE         1
+  set FOCUS-COLOR             white
+  set FOCUS-SHAPE             "circle"
+  set FOCUS-SIZE              2
+  set DISTANCE-LINK-COLOR     red
+  set DISTANCE-LINK-THICKNESS 1.5
+  set MOUSE-CLICK-CLOSENESS   3
+end
+
+to go
+  ; On mouse click create a focus if there are not enough, or drag an existing focus
+  ifelse mouse-down?
+    [ create-or-move-focus-if-mouse-down ]
+    ; otherwise, make sure any previously selected focus is deselected
+    [ set selected-focus nobody ]
+
+  ; Move the conic-parts turtles.
+  ask conic-parts [ move-conic-parts ]
+  adjust-dist-links-labels
+  tick
+end
+
+; The mouse is down. A new focus is created if needed.
+; Moves a conic focus if the mouse is nearby (mouse dragging).
+to create-or-move-focus-if-mouse-down
+  if mouse-down? [
+    let mouse-x (round mouse-xcor)
+    let mouse-y (round mouse-ycor)
+    ; For each mouse click mouse-down? may remain true for multiple calls to this
+    ; procedure,so we should ignore the subsequent calls until the mouse
+    ; coordinates change
+    if (mouse-x != recent-mouse-x) or  (mouse-y != recent-mouse-y) [
+      set recent-mouse-x mouse-x
+      set recent-mouse-y mouse-y
+
+      ifelse need-a-focus? [
+        create-foci 1 [
+          setxy mouse-xcor mouse-ycor
+          set color FOCUS-COLOR
+          set shape FOCUS-SHAPE
+          set size FOCUS-SIZE
+        ]
+        ; If the second focus was created, and the need for a
+        ; distance turtle is pending, create one.
+          if not need-a-focus? and new-distance-turtle?
+          [ create-distance-turtle ]
+      ]
+      ; Move focus if it is near a mouse
+      [
+        handle-select-and-drag
+      ]
+    ]
+  ]
+end
+
+; If a focus has been selected move it to the mouse location.
+to handle-select-and-drag
+  ; if no turtle is selected-focus
+  ifelse selected-focus = nobody  [
+    ; pick the closest turtle
+    set selected-focus min-one-of foci [distancexy mouse-xcor mouse-ycor]
+    ; check whether or not it's close enough
+    if [ distancexy mouse-xcor mouse-ycor ] of selected-focus > MOUSE-CLICK-CLOSENESS [
+      set selected-focus nobody ; if not, don't select it
+    ]
+  ]
+  [
+    ; if a turtle is selected-focus, move it to the mouse
+    ask selected-focus [ setxy mouse-xcor mouse-ycor ]
+  ]
+end
+
+; Move the turtles that will form the conic.
+; Move randomly if there is no focus, or turtle is getting further from distance
+;  to conic.
+; Stop if within CONIC-EPS of desired "distance".
+; Move forward if distance to conic is decreasing.
+to move-conic-parts ; turtle procedure
+  ; move randomly if a focus is needed
+  ifelse need-a-focus?
+  [ rt random-float 360 turn-if-cant-move 1 fd 1]
+  [ let old-conic-dist conic-dist
+    set conic-dist compute-conic-dist
+    ; Turtle stops if it is within CONIC-EPS of desired "distance"
+    ; If the turtle is not reducing the "distance" make a random turn and move
+    ; forward, otherwise just move forward
+    if (abs (conic-constant - conic-dist) > CONIC-EPS) [
+      if ((conic-dist = old-conic-dist) or
+        ((conic-dist < old-conic-dist) and (conic-dist < conic-constant)) or
+        ((conic-dist > old-conic-dist) and (conic-dist > conic-constant)))
+      [ rt random-float 360 ]
+      turn-if-cant-move 1
+      fd 1
+    ]
+  ]
+end
+
+; Reverse direction if it is not possible to go forward (turtle is near an edge).
+to turn-if-cant-move [ dist ] ; turtle procedure
+  if not can-move? dist [ rt 180 ]
+end
+
+; Set color of patches.
+to color-background-patches
+  ask patches [ set pcolor BACKGROUND-COLOR ]
+end
+
+; This distance is the difference between the greater and smaller distances of the
+;   conic-part turtle to the foci.
+to-report compute-conic-dist ; turtle procedure
+  let foci-dists [ distance myself ] of foci
+  report (max foci-dists - min foci-dists)
+end
+
+to-report need-a-focus?
+  report count foci < 2
+end
+
+; Reports a string showing the distance calculation to be displayed in a textbook
+to-report explain-hyperbola-distance
+  let the-conic-dist [ precision conic-dist 1 ] of distance-turtle
+  let focal-distances map [d -> [ precision (distance distance-turtle) 1 ] of d ] sort foci
+  report (word the-conic-dist " = abs( "  item 0 focal-distances " - " item 1 focal-distances
+    ") = abs(difference of distances to foci)")
+end
+
+; Create a distance turtle both foci have be specified.
+; Otherwise set variable so distance-turtle will be created later.
+to create-distance-turtle
+  ifelse need-a-focus? [
+    set new-distance-turtle? true ]
+  [
+    clear-any-distance-turtle
+
+    ;; establish a random conic part as the distance turtle
+    set distance-turtle one-of conic-parts
+    ask distance-turtle [
+      create-links-with foci
+      ask my-links [
+        set color DISTANCE-LINK-COLOR
+        set thickness DISTANCE-LINK-THICKNESS ]
+    ]
+    adjust-dist-links-labels
+  ]
+end
+
+; If a distance turtle exists, remove its links
+; and set the distance-turtle variable to nobody
+to clear-any-distance-turtle
+  if distance-turtle != nobody [
+    ; need to decommision a distance turtle
+    ask distance-turtle [ ask my-links [ die ]]
+    set distance-turtle nobody
+    ; the turtle still exists as a conic part
+  ]
+  set new-distance-turtle? false
+end
+
+; Adjust link distance labels if they exist
+to adjust-dist-links-labels
+  if distance-turtle != nobody [
+    ask distance-turtle [ ask my-links [
+      set label precision link-length 1]
+    ]
+  ]
+end
+
+; Report the hyperbola specific distance of the distance turtle
+to-report conic-distance-of-distance-turtle
+    report [ conic-dist ] of distance-turtle
+end
+
+; Reports true if ticks are being counted.
+; Used here to determine if the startup procedure has been run.
+to-report ticks-started?
+  let val false
+  carefully [
+    if ticks >= 0 [
+      set val true ]]
+  [ ]
+  report val
+end
+
+
+; Copyright 1998 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="375" wrappingAllowedX="false" y="15" frameRate="30.0" minPycor="-80" height="483" showTickCounter="true" patchSize="3.0" fontSize="10" wrappingAllowedY="false" width="483" tickCounterLabel="ticks" maxPycor="80" updateMode="1" maxPxcor="80" minPxcor="-80"></view>
+    <slider x="50" step="1" y="45" max="4000" width="266" display="num-turtles" height="50" min="1" direction="Horizontal" default="2500.0" variable="num-turtles"></slider>
+    <button x="185" y="110" height="45" disableUntilTicks="true" forever="true" kind="Observer" width="85">go</button>
+    <button x="90" y="110" height="45" disableUntilTicks="false" forever="false" kind="Observer" width="80">setup</button>
+    <slider x="50" step="1" y="170" max="50" width="266" display="conic-constant" height="50" min="5" direction="Horizontal" default="37.0" variable="conic-constant"></slider>
+    <note x="50" y="250" backgroundDark="0" fontSize="12" width="265" markdown="false" height="95" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Click SETUP and then GO.
+Click two  locations for placing foci to create the hyperbola.
+
+To move focus drag it with the mouse.</note>
+    <button x="55" y="455" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="157" display="Clear Distance Turtle">clear-any-distance-turtle</button>
+    <button x="55" y="405" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="157" display="New Distance Turtle">create-distance-turtle</button>
+    <button x="55" y="360" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="157" display="Refresh Particles">ask conic-parts [ 
+  setxy random-xcor random-ycor 
+]</button>
+    <monitor x="430" precision="1" y="505" height="60" fontSize="12" width="370" display="conic distance of distance turtle">ifelse-value not ticks-started? or (distance-turtle = nobody)
+[ "" ]
+[ explain-hyperbola-distance ]</monitor>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+This model displays a conic section: the hyperbola. The ancient Greeks called circles, ellipses, hyperbolas and parabolas conic sections because they can be generated geometrically by taking different cross sections of a cone.  Later the conic sections were described algebraically as quadratic curves. In this model, the hyperbola shape is emergent, generated by the behavior of turtles that are trying to satisfy a distance criterion as below.  There are two additional models that demonstrate the use of an agent-based approach to exploring conic sections: Emergent Shapes - Ellipse, and Emergent Shapes - Parabola. You may find it helpful to explore the Ellipse model first because the geometry is easier to visualize. 
+
+A hyperbola is the set of points such that the absolute value of the difference of the distances to two fixed points (the foci) is constant. The constant is represented in this model by the variable CONIC-CONSTANT. 
+
+Here's an equivalent and less abstract description that may be easier to understand. Pick any two points in the plane and call them the foci of the hyperbola.  Choose a number that will be referred to as the "conic constant." Now pick any point in the plane and draw the 2 line segments between that point and each of the foci. Measure the length of each of these 2 line segments and substract the smaller length from the bigger length. If the number is equal to the conic constant than the point you chose is on the hyperbola. If not, then it isn't. The shape made by all the points for which their calculation is equal to the conic constant is the hyperbola.
+
+Both the ellipse and the hyperbola are defined in terms of two fixed points (the foci) and a "conic constant." To decide if a point is on the conic section you compute the distance of the point to each of the foci. For an ellipse the sum of these distances must equal the "conic constant."  For a hyperbola subtracting the smaller distance from the larger one must equal the "conic constant."
+
+## HOW IT WORKS
+
+In this model the turtles use feedback to make decisions about how to behave. They set out in random directions and then act on information as to whether or not they are getting closer to where they want to be. If they are getting closer, they continue moving forward in the direction they are going. If they are moving farther away, they set out in a new random direction.
+
+
+## HOW TO USE IT
+
+### Create a Hyperbola
+- Select the number of turtles with the NUM-TURTLES slider.
+- Use the slider to select the CONIC-CONSTANT. This corresponds to the absolute value of the difference of the distances to the two foci.
+- Press SETUP. The turtles will appear in random locations.
+- Press the GO button. The turtles will take small random steps at each tick.
+- Click a location to set one focus of the hyperbola. The turtles will continue to take small random steps at each tick.
+- Click a different location to set the other focus of the hyperbola. The turtles will move until they form a hyperbola.
+
+### Change the Hyperbola
+- Change the CONIC-CONSTANT using the slider. The turtles will automatically adjust themselves.
+-  You can move either focus by clicking on it and dragging it. 
+
+
+### The Distance Turtle
+A "distance turtle" is a randomly chosen turtle used to display the conic "distance." The distance turtle can only be visualized after both foci of the hyperbola have been selected. The distance turtle has red line segments connecting it to each of the foci. Each segment is labeled with its length. The absolute value of the difference between the lengths is always equal to the conic distance set by the slider.
+
+#### The Monitor
+The monitor labeled "conic distance of distance turtle" shows and explains the conic distance. An example would be "25.1 = 32.9 - 7.8 =  abs(difference of distances to foci).
+ 
+#### New Distance Turtle Button
+If the conic has been specified a new distance turtle is activated. If a distance turtle already exists it is replaced. If the hyperbola has not been specified, the distance turtle will be activated after the second focus is chosen.
+
+#### Clear Distance Turtle Button
+If a distance turtle exists it will be deactivated and its red line segments will be removed.
+
+### Refresh Turtles Button
+This button moves the small green turtles to random locations.
+If there is a distance turtle, it will persist.
+
+
+## THINGS TO NOTICE
+
+When forming a hyperbola, turtles adjust their positions so that the absolute value of the difference of the distances to the two user-defined foci equals the  CONIC-CONSTANT (a value determined by the user with a slider). If the foci are too close together, there is no way to satisfy this condition. What do the turtles do then?
+
+## THINGS TO TRY
+
+Once you've made a hyperbola, play arpound with moving its foci. What hapens  to the green turtles when you move the foci?
+
+You may be able to get a better feeling for the turtles' behavior if only a few turtles are alive at a time. Try setting num-turtles to a small value (like 16 or 1) and watching the turtles. 
+You can also slow down (or speed up) the movement of the turtles by either using the speed slider on the interface tool bar, or by clicking on "Settings..." and changing the frame rate.
+
+Create  a distance turtle. Calculate the absolute value of the difference between the labeled lengths of its 2 red line segments. Now move one of the focuses. Recalculate the difference between the lengths of its 2 red lines. Did the calculated number change? Why do you think it stayed the same?
+
+The constant CONIC-EPS is set in the SETUP procedure. It determines how close the turtles have to be to their ideal 'distance' (the absolute value of the difference of distances to its foci) before they stop. Change its value --- what do you see? Why? Be sure to try some integer values.
+
+## EXTENDING THE MODEL
+
+Add a switch which allows the hyperbola to wrap the screen instead of stopping at the screen edge.
+
+Add a button that moves one focus by a fixed distance in a random direction.
+
+Add a switch that makes the distance turtle or the segments that extend from it change color depending on whether the conic distance has increased, decreased or stayed the same after its most recent step.
+
+## NETLOGO FEATURES
+
+The mouse primitives are used for handling interaction with the user.
+Link commands are used to display distances from the distance turtle.
+The ifelse-value primitive is used to set condition dependent values.
+The "carefully" primitive is used to avoid an error when testing if ticks have been started.
+
+## RELATED MODELS
+
+Emergent Shapes -  Ellipse
+Emergent Shapes -  Parabola
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. & Brandes, A. (1998; 2024).  NetLogo Emergent Shapes -  Hyperbola.  http://ccl.northwestern.edu/netlogo/models/ConicSections-Hyperbola.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 1998 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+This model is based on an earlier model that was created as part of the project: CONNECTED MATHEMATICS: MAKING SENSE OF COMPLEX PHENOMENA THROUGH BUILDING OBJECT-BASED PARALLEL MODELS (OBPML).  The project gratefully acknowledges the support of the National Science Foundation (Applications of Advanced Technologies Program) -- grant numbers RED #9552950 and REC #9632612.
+
+This model was converted to NetLogo as part of the projects: PARTICIPATORY SIMULATIONS: NETWORK-BASED DESIGN FOR SYSTEMS LEARNING IN CLASSROOMS and/or INTEGRATED SIMULATION AND MODELING ENVIRONMENT. The project gratefully acknowledges the support of the National Science Foundation (REPP & ROLE programs) -- grant numbers REC #9814682 and REC-0126227.
+
+<!-- 1998 2001 -->]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>
