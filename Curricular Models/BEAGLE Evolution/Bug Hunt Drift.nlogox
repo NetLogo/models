@@ -178,11 +178,25 @@ end
 ; Copyright 2009 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="325" wrappingAllowedX="true" y="15" frameRate="30.0" minPycor="-12" height="504" showTickCounter="true" patchSize="20.0" fontSize="16" wrappingAllowedY="true" width="504" tickCounterLabel="ticks" maxPycor="12" updateMode="1" maxPxcor="12" minPxcor="-12"></view>
-    <monitor x="5" precision="0" y="190" height="45" fontSize="11" display="bugs removed" width="100" sizeVersion="0">total-removed</monitor>
-    <button x="5" y="15" height="45" disableUntilTicks="false" forever="false" kind="Observer" width="70" sizeVersion="0">setup</button>
-    <button x="80" y="15" height="45" disableUntilTicks="true" forever="true" kind="Observer" width="70" sizeVersion="0">go</button>
-    <plot x="5" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="# Bugs" y="240" xMin="0.0" height="132" legend="true" xMax="8.0" yMin="0.0" xAxis="variation" display="Current Bug Population" width="310" sizeVersion="0">
+    <view x="330" wrappingAllowedX="true" y="15" frameRate="30.0" minPycor="-12" height="504" showTickCounter="true" patchSize="20.0" fontSize="16" wrappingAllowedY="true" width="504" tickCounterLabel="ticks" maxPycor="12" updateMode="1" maxPxcor="12" minPxcor="-12"></view>
+    <button x="5" y="15" height="45" disableUntilTicks="false" forever="false" kind="Observer" width="70">setup</button>
+    <button x="80" y="15" height="45" disableUntilTicks="true" forever="true" kind="Observer" width="70">go</button>
+    <slider x="5" step="1" y="80" max="10" width="310" display="initial-bugs-each-variation" height="50" min="1" direction="Horizontal" default="10.0" variable="initial-bugs-each-variation"></slider>
+    <chooser x="5" y="135" height="60" variable="selection-mechanism" current="1" width="310" display="selection-mechanism">
+      <choice type="string" value="keep randomly selecting"></choice>
+      <choice type="string" value="user selects bug to remove"></choice>
+      <choice type="string" value="user selects which bug has offspring"></choice>
+    </chooser>
+    <button x="5" y="200" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="310" display="randomly remove &amp; replace one">auto-select</button>
+    <chooser x="155" y="15" height="60" variable="variation-visualization" current="1" width="160" display="variation-visualization">
+      <choice type="string" value="color"></choice>
+      <choice type="string" value="number"></choice>
+      <choice type="string" value="none"></choice>
+    </chooser>
+    <monitor x="215" precision="0" y="245" height="60" fontSize="11" width="100" display="total bugs">(count bugs)</monitor>
+    <monitor x="5" precision="0" y="245" height="60" fontSize="11" width="100" display="bugs removed">total-removed</monitor>
+    <monitor x="110" precision="17" y="245" height="60" fontSize="11" width="100" display="offspring born">total-offspring</monitor>
+    <plot x="5" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="# Bugs" y="310" xMin="0.0" height="220" legend="true" xMax="8.0" yMin="0.0" width="310" xAxis="variation" display="Current Bug Population">
       <setup></setup>
       <update>;; the HISTOGRAM primitive can't make a multi-colored histogram,
 ;; so instead we plot each bar individually, after clearing the plot
@@ -212,8 +226,7 @@ clear-plot</update>
         <update>plotxy 6 count bugs with [color-variation = 6]</update>
       </pen>
     </plot>
-    <monitor x="215" precision="0" y="190" height="45" fontSize="11" display="total bugs" width="100" sizeVersion="0">(count bugs)</monitor>
-    <plot x="5" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="# Bugs" y="375" xMin="0.0" height="131" legend="true" xMax="8.0" yMin="0.0" xAxis="variation" display="Bugs Removed" width="310" sizeVersion="0">
+    <plot x="5" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="# Bugs" y="535" xMin="0.0" height="217" legend="true" xMax="8.0" yMin="0.0" width="310" xAxis="variation" display="Bugs Removed">
       <setup></setup>
       <update>clear-plot</update>
       <pen interval="1.0" mode="1" display="1" color="-8630108" legend="true">
@@ -241,15 +254,7 @@ clear-plot</update>
         <update>plotxy 6 total-type-6-removed</update>
       </pen>
     </plot>
-    <slider x="5" step="1" y="65" max="10" display="initial-bugs-each-variation" height="33" min="1" direction="Horizontal" default="10.0" variable="initial-bugs-each-variation" width="310" sizeVersion="0"></slider>
-    <chooser x="5" y="100" height="45" variable="selection-mechanism" current="1" display="selection-mechanism" width="310" sizeVersion="0">
-      <choice type="string" value="keep randomly selecting"></choice>
-      <choice type="string" value="user selects bug to remove"></choice>
-      <choice type="string" value="user selects which bug has offspring"></choice>
-    </chooser>
-    <monitor x="110" precision="17" y="190" height="45" fontSize="11" display="offspring born" width="100" sizeVersion="0">total-offspring</monitor>
-    <button x="5" y="150" height="35" disableUntilTicks="true" forever="false" kind="Observer" display="randomly remove &amp; replace one" width="310" sizeVersion="0">auto-select</button>
-    <plot x="5" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="# Bugs" y="510" xMin="0.0" height="133" legend="true" xMax="10.0" yMin="0.0" xAxis="time" display="Number of Bugs vs. Time" width="310" sizeVersion="0">
+    <plot x="320" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="# Bugs" y="535" xMin="0.0" height="217" legend="true" xMax="10.0" yMin="0.0" width="310" xAxis="time" display="Number of Bugs vs. Time">
       <setup></setup>
       <update></update>
       <pen interval="1.0" mode="0" display="1" color="-8630108" legend="true">
@@ -277,11 +282,6 @@ clear-plot</update>
         <update>plotxy ticks count bugs with [color-variation = 6]</update>
       </pen>
     </plot>
-    <chooser x="155" y="15" height="45" variable="variation-visualization" current="1" display="variation-visualization" width="160" sizeVersion="0">
-      <choice type="string" value="color"></choice>
-      <choice type="string" value="number"></choice>
-      <choice type="string" value="none"></choice>
-    </chooser>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
