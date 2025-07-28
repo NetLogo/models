@@ -1026,9 +1026,9 @@ end
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
     <view x="175" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-30" height="431" showTickCounter="true" patchSize="7.0" fontSize="10" wrappingAllowedY="false" width="200" tickCounterLabel="ticks" maxPycor="30" updateMode="1" maxPxcor="0" minPxcor="-27"></view>
-    <button x="5" y="100" height="45" disableUntilTicks="false" forever="true" kind="Observer" display="go/stop/add elements" width="165" sizeVersion="0">go</button>
-    <button x="5" y="10" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="165" sizeVersion="0">setup</button>
-    <chooser x="5" y="145" height="45" variable="mouse-interaction" current="0" display="mouse-interaction" width="165" sizeVersion="0">
+    <button x="5" y="105" height="45" disableUntilTicks="false" forever="true" kind="Observer" width="165" display="go/stop/add elements">go</button>
+    <button x="5" y="10" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="165">setup</button>
+    <chooser x="5" y="155" height="60" variable="mouse-interaction" current="0" width="165" display="mouse-interaction">
       <choice type="string" value="none - let particles move"></choice>
       <choice type="string" value="draw basic wall"></choice>
       <choice type="string" value="draw red removable wall"></choice>
@@ -1043,30 +1043,24 @@ end
       <choice type="string" value="add purple particles"></choice>
       <choice type="string" value="add orange particles"></choice>
     </chooser>
-    <button x="5" y="245" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="remove/replace blue wall" width="165" sizeVersion="0">toggle-blue-wall</button>
-    <switch x="175" y="525" height="33" on="true" variable="show-wall-hits?" display="show-wall-hits?" width="150" sizeVersion="0"></switch>
-    <button x="5" y="210" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="remove/replace red wall" width="165" sizeVersion="0">toggle-red-wall</button>
-    <chooser x="175" y="475" height="45" variable="visualize-particle-speed" current="0" display="visualize-particle-speed" width="150" sizeVersion="0">
-      <choice type="string" value="no"></choice>
-      <choice type="string" value="different shades"></choice>
-      <choice type="string" value="arrows"></choice>
-    </chooser>
-    <button x="5" y="490" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="watch &amp; trace a particle" width="165" sizeVersion="0">if any? particles [
+    <button x="5" y="280" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="165" display="remove/replace blue wall">toggle-blue-wall</button>
+    <button x="5" y="235" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="165" display="remove/replace red wall">toggle-red-wall</button>
+    <button x="5" y="542" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="165" display="watch &amp; trace a particle">if any? particles [
   clear-drawing
   ask particles [penup]
   let this-particle one-of particles
   ask this-particle [pendown]
   watch this-particle
 ]</button>
-    <button x="5" y="525" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="ride a particle" width="165" sizeVersion="0">if any? particles [
+    <button x="5" y="587" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="165" display="ride a particle">if any? particles [
   clear-drawing
   ride one-of particles
   ask particles [pen-up]
   ]</button>
-    <button x="5" y="455" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="reset perspective" width="165" sizeVersion="0">clear-drawing
+    <button x="5" y="497" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="165" display="reset perspective">clear-drawing
 ask particles [penup]
 reset-perspective</button>
-    <plot x="385" autoPlotX="true" yMax="15.0" autoPlotY="true" yAxis="Plunger Level" y="65" xMin="0.0" height="165" legend="true" xMax="10.0" yMin="-15.0" xAxis="tick reading" display="Plunger Level" width="480" sizeVersion="0">
+    <plot x="385" autoPlotX="true" yMax="15.0" autoPlotY="true" yAxis="Plunger Level" y="75" xMin="0.0" height="191" legend="true" xMax="10.0" yMin="-15.0" width="480" xAxis="tick reading" display="Plunger Level">
       <setup></setup>
       <update>if (experiment-running? != true)
 [ set-plot-x-range (round (plunger-plot-start - 1)) (round (ticks + 1)) ]</update>
@@ -1079,7 +1073,7 @@ reset-perspective</button>
         <update>plotxy ticks  precision [ycor] of one-of plungers 2 </update>
       </pen>
     </plot>
-    <plot x="385" autoPlotX="true" yMax="2.0" autoPlotY="true" yAxis="Force-Level" y="240" xMin="0.0" height="155" legend="true" xMax="10.0" yMin="-2.0" xAxis="tick reading" display="Forces on Syringe Plunger" width="480" sizeVersion="0">
+    <plot x="385" autoPlotX="true" yMax="2.0" autoPlotY="true" yAxis="Force-Level" y="276" xMin="0.0" height="217" legend="true" xMax="10.0" yMin="-2.0" width="480" xAxis="tick reading" display="Forces on Syringe Plunger">
       <setup></setup>
       <update>if (experiment-running? != true)
 [ set-plot-x-range (round (p-force-plot-start - 1)) (round (ticks + 1)) ]</update>
@@ -1111,9 +1105,9 @@ let n length plunger-up-forces
  ]]]></update>
       </pen>
     </plot>
-    <button x="385" y="505" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="Start Experiment" width="210" sizeVersion="0">prepare-for-run</button>
-    <monitor x="385" precision="17" y="10" height="53" fontSize="13" display="Plunger Level" width="115" sizeVersion="0">precision [ycor] of one-of plungers 2</monitor>
-    <button x="760" y="10" height="50" disableUntilTicks="false" forever="false" kind="Observer" display="Restart Plotting" width="105" sizeVersion="0">let go-on true
+    <button x="385" y="620" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="210" display="Start Experiment">prepare-for-run</button>
+    <monitor x="385" precision="17" y="10" height="60" fontSize="13" width="115" display="Plunger Level">precision [ycor] of one-of plungers 2</monitor>
+    <button x="760" y="10" height="50" disableUntilTicks="false" forever="false" kind="Observer" width="105" display="Restart Plotting">let go-on true
 if (experiment-running? = true)
 [
   set go-on user-yes-or-no? "Do you want to interrupt the current experiment?"
@@ -1124,15 +1118,21 @@ set experiment-plunger-start-line [ycor] of one-of plungers
 set plunger-plot-start ticks
 set p-force-plot-start ticks
 ]</button>
-    <monitor x="605" precision="17" y="400" height="45" fontSize="11" display="Particles Dnwrd" width="95" sizeVersion="0">precision mean plunger-down-forces 2</monitor>
-    <monitor x="505" precision="17" y="400" height="45" fontSize="11" display="Particles Upwrd" width="95" sizeVersion="0">precision mean plunger-up-forces 2</monitor>
-    <slider x="385" step="1" y="540" max="100" display="experiment-length" height="33" min="0" direction="Horizontal" default="50.0" variable="experiment-length" units="ticks" width="210" sizeVersion="0"></slider>
-    <button x="635" y="505" height="33" disableUntilTicks="true" forever="false" kind="Observer" display="save" width="95" sizeVersion="0">export-world user-input "Save as:"</button>
-    <button x="740" y="505" height="33" disableUntilTicks="true" forever="false" kind="Observer" display="load" width="105" sizeVersion="0">let file user-file
+    <monitor x="650" precision="17" y="498" height="60" fontSize="11" width="100" display="Particles Dnwrd">precision mean plunger-down-forces 2</monitor>
+    <monitor x="545" precision="17" y="498" height="60" fontSize="11" width="100" display="Particles Upwrd">precision mean plunger-up-forces 2</monitor>
+    <slider x="385" step="1" y="665" max="100" width="210" display="experiment-length" height="50" min="0" direction="Horizontal" default="50.0" variable="experiment-length" units="ticks"></slider>
+    <button x="635" y="618" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="95" display="save">export-world user-input "Save as:"</button>
+    <button x="740" y="618" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="105" display="load">let file user-file
 if file != "" [ import-world file ]</button>
-    <note x="390" y="480" height="18" backgroundDark="0" fontSize="13" width="230" markdown="false" textColorLight="-2674135" backgroundLight="0">RUNNING A TIMED EXPERIMENT</note>
-    <note x="650" y="480" height="18" backgroundDark="0" fontSize="13" width="230" markdown="false" textColorLight="-2674135" backgroundLight="0">SAVING AND LOADING STATES</note>
-    <slider x="385" step="1" y="400" max="200" display="num-ave" height="33" min="10" direction="Horizontal" default="100.0" variable="num-ave" width="110" sizeVersion="0"></slider>
+    <note x="390" y="595" backgroundDark="0" fontSize="13" width="230" markdown="false" height="18" textColorDark="-1" textColorLight="-2674135" backgroundLight="0">RUNNING A TIMED EXPERIMENT</note>
+    <note x="650" y="593" backgroundDark="0" fontSize="13" width="230" markdown="false" height="18" textColorDark="-1" textColorLight="-2674135" backgroundLight="0">SAVING AND LOADING STATES</note>
+    <slider x="385" step="1" y="498" max="200" width="150" display="num-ave" height="50" min="10" direction="Horizontal" default="100.0" variable="num-ave"></slider>
+    <chooser x="175" y="497" height="60" variable="visualize-particle-speed" current="0" width="150" display="visualize-particle-speed">
+      <choice type="string" value="no"></choice>
+      <choice type="string" value="different shades"></choice>
+      <choice type="string" value="arrows"></choice>
+    </chooser>
+    <switch x="175" y="560" height="40" on="true" variable="show-wall-hits?" width="150" display="show-wall-hits?"></switch>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
