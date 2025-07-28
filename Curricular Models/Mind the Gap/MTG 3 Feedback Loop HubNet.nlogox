@@ -389,12 +389,27 @@ end
 ; Copyright 2018 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="214" wrappingAllowedX="true" y="10" frameRate="20.0" minPycor="0" height="504" showTickCounter="true" patchSize="10.0" fontSize="10" wrappingAllowedY="true" width="504" tickCounterLabel="ticks" maxPycor="49" updateMode="1" maxPxcor="49" minPxcor="0"></view>
-    <button x="1" y="85" height="47" disableUntilTicks="false" forever="false" kind="Observer" width="101" sizeVersion="0">setup</button>
-    <button x="109" y="85" height="47" disableUntilTicks="true" forever="true" kind="Observer" width="101" sizeVersion="0">go</button>
-    <button x="365" y="525" height="33" disableUntilTicks="true" forever="false" kind="Observer" display="show-world" width="105" sizeVersion="0">ask patches [ set pcolor true-color ]</button>
-    <button x="476" y="525" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="hide-world" width="100" sizeVersion="0">ask patches [ set pcolor gray ]</button>
-    <plot x="725" autoPlotX="false" yMax="100.0" autoPlotY="false" yAxis="Wealth %" y="175" xMin="0.0" height="173" legend="false" xMax="100.0" yMin="0.0" xAxis="Pop %" display="Lorenz curve" width="183" sizeVersion="0">
+    <view x="220" wrappingAllowedX="true" y="10" frameRate="20.0" minPycor="0" height="504" showTickCounter="true" patchSize="10.0" fontSize="10" wrappingAllowedY="true" width="504" tickCounterLabel="ticks" maxPycor="49" updateMode="1" maxPxcor="49" minPxcor="0"></view>
+    <button x="365" y="525" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="105" display="show-world">ask patches [ set pcolor true-color ]</button>
+    <button x="476" y="525" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="100" display="hide-world">ask patches [ set pcolor gray ]</button>
+    <slider x="4" step="5" y="11" max="100" width="205" display="tuition" height="50" min="0" direction="Horizontal" default="0.0" variable="tuition" units="Sugar"></slider>
+    <button x="5" y="105" height="47" disableUntilTicks="false" forever="false" kind="Observer" width="101">setup</button>
+    <button x="110" y="105" height="47" disableUntilTicks="true" forever="true" kind="Observer" width="101">go</button>
+    <monitor x="5" precision="1" y="185" height="60" fontSize="11" width="210" display="sugar-mean">mean [sugar] of students</monitor>
+    <plot x="730" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="Wealth" y="10" xMin="0.0" height="175" legend="false" xMax="10.0" yMin="0.0" width="230" xAxis="People" display="Wealth distribution">
+      <setup>set-plot-x-range 0 count turtles</setup>
+      <update><![CDATA[clear-plot
+if any? students [
+set-plot-x-range 0 count turtles
+let bar-list sort-on [sugar] turtles
+foreach bar-list [the-turtle -> ask the-turtle [plotxy position self bar-list sugar]]
+]]]></update>
+      <pen interval="1.0" mode="1" display="default" color="-16777216" legend="true">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
+    <plot x="730" autoPlotX="false" yMax="100.0" autoPlotY="false" yAxis="Wealth %" y="190" xMin="0.0" height="175" legend="false" xMax="100.0" yMin="0.0" width="230" xAxis="Pop %" display="Lorenz curve">
       <setup></setup>
       <update></update>
       <pen interval="100.0" mode="0" display="equal" color="-7500403" legend="true">
@@ -414,7 +429,7 @@ foreach lorenz-points plot
 ]</update>
       </pen>
     </plot>
-    <plot x="725" autoPlotX="true" yMax="1.0" autoPlotY="true" yAxis="Gini" y="355" xMin="0.0" height="165" legend="false" xMax="100.0" yMin="0.0" xAxis="Time" display="Gini index vs. time" width="183" sizeVersion="0">
+    <plot x="730" autoPlotX="true" yMax="1.0" autoPlotY="true" yAxis="Gini" y="370" xMin="0.0" height="175" legend="false" xMax="100.0" yMin="0.0" width="230" xAxis="Time" display="Gini index vs. time">
       <setup></setup>
       <update></update>
       <pen interval="1.0" mode="0" display="default" color="-13345367" legend="true">
@@ -424,21 +439,6 @@ plot (gini-index-reserve / count turtles) * 2
 ]</update>
       </pen>
     </plot>
-    <plot x="724" autoPlotX="true" yMax="10.0" autoPlotY="true" yAxis="Wealth" y="10" xMin="0.0" height="159" legend="false" xMax="10.0" yMin="0.0" xAxis="People" display="Wealth distribution" width="184" sizeVersion="0">
-      <setup>set-plot-x-range 0 count turtles</setup>
-      <update><![CDATA[clear-plot
-if any? students [
-set-plot-x-range 0 count turtles
-let bar-list sort-on [sugar] turtles
-foreach bar-list [the-turtle -> ask the-turtle [plotxy position self bar-list sugar]]
-]]]></update>
-      <pen interval="1.0" mode="1" display="default" color="-16777216" legend="true">
-        <setup></setup>
-        <update></update>
-      </pen>
-    </plot>
-    <monitor x="1" precision="1" y="168" height="45" fontSize="11" display="sugar-mean" width="210" sizeVersion="0">mean [sugar] of students</monitor>
-    <slider x="4" step="5" y="11" max="100" display="tuition" height="33" min="0" direction="Horizontal" default="0.0" variable="tuition" units="Sugar" width="205" sizeVersion="0"></slider>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
@@ -1566,7 +1566,7 @@ To inquire about commercial licenses for either NetLogo or specific models from 
     <button x="79" actionKey="S" y="224" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="down" width="69" sizeVersion="0"></button>
     <button x="10" actionKey="A" y="224" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="left" width="69" sizeVersion="0"></button>
     <button x="148" actionKey="D" y="224" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="right" width="69" sizeVersion="0"></button>
-    <view x="226" wrappingAllowedX="true" y="67" frameRate="30.0" minPycor="0" height="438" showTickCounter="true" patchSize="12.0" fontSize="13" wrappingAllowedY="true" width="440" tickCounterLabel="ticks" maxPycor="49" updateMode="1" maxPxcor="49" minPxcor="0"></view>
+    <view x="226" wrappingAllowedX="true" y="67" frameRate="30.0" minPycor="0" height="438" showTickCounter="true" patchSize="10.0" fontSize="13" wrappingAllowedY="true" width="440" tickCounterLabel="ticks" maxPycor="49" updateMode="1" maxPxcor="49" minPxcor="0"></view>
     <monitor x="6" precision="0" y="10" height="49" fontSize="11" display="message" width="660" sizeVersion="0"></monitor>
     <monitor x="8" precision="2" y="111" height="49" fontSize="11" display="sugar" width="210" sizeVersion="0"></monitor>
     <button x="11" actionKey="H" y="275" height="33" disableUntilTicks="false" forever="false" kind="Observer" display="harvest" width="207" sizeVersion="0"></button>
