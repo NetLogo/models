@@ -58,11 +58,11 @@ class ViewTests extends TestModels {
     var problems = Seq[String]()
     if (maxx < 0 || minx > 0 || maxy < 0 || miny > 0)
       problems +:= "bad world dimensions: " + (maxx, minx, maxy, miny)
-    val computedWidth = extraWidth + model.view.patchSize * worldWidth
+    val computedWidth = (extraWidth + model.view.patchSize * worldWidth).toInt
     val actualWidth = model.view.width
     if (computedWidth != actualWidth)
       problems +:= "computed width: " + computedWidth + ", actual width: " + actualWidth
-    val computedHeight = extraHeight + model.view.patchSize * worldHeight
+    val computedHeight = (extraHeight + model.view.patchSize * worldHeight).toInt
     val actualHeight = model.view.height
     if (computedHeight != actualHeight)
       problems +:= "computed height: " + computedHeight + ", actual height: " + actualHeight
