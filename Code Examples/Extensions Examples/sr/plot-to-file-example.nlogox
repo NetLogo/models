@@ -21,25 +21,24 @@ extensions [sr]
 to test-plot
   clear-all
   sr:setup
-  crt 10
+  create-turtles 10
   [
     set xcor random-xcor
     set ycor random-ycor
   ]
 
   (sr:set-agent "agentlist" turtles "who" "xcor" "ycor")
-  print "create a plot into file..."
 
   ;; create a pdf with the plot
   let evalstring (word "pdf('" plotfile ".pdf')" )
-  show evalstring
+
   sr:run evalstring
   sr:run "plot(agentlist$xcor,agentlist$ycor)"
   sr:run "dev.off()"
 
   ;; create a jpeg with the plot
   set evalstring (word "jpeg('" plotfile ".jpeg')" )
-  show evalstring
+
   sr:run evalstring
 
   sr:run "plot(agentlist$xcor,agentlist$ycor)"

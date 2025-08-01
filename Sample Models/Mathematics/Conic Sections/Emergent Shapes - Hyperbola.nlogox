@@ -16,17 +16,17 @@ globals [
                                  ;; mouse-x and mouse-y are used to filter out redundant mouse down events
          recent-mouse-x          ;; rounded x-cor of most recent mouse click
          recent-mouse-y          ;; rounded y-cor of most recent mouse click
-         MOUSE-CLICK-CLOSENESS   ;; how close mouse click must be to focus for dragging
-         CONIC-EPS               ;; how close conic-dist must be to conic-constant for a turtle to stop
-         BACKGROUND-COLOR        ;; color of background
-         CONIC-PART-COLOR        ;; color of conic-parts turtles that move to form conic section
-         CONIC-PART-SHAPE        ;; shape of conic-parts turtles
-         CONIC-PART-SIZE         ;; size of conic-parts turtles
-         FOCUS-COLOR             ;; color of circle or hyperbola focus turtles
-         FOCUS-SHAPE             ;; shape of focus turtles
-         FOCUS-SIZE              ;; size of focus turtles
-         DISTANCE-LINK-COLOR     ;; color of distance links
-         DISTANCE-LINK-THICKNESS ;; thickness of distance links
+         mouse-click-closeness   ;; how close mouse click must be to focus for dragging
+         conic-eps               ;; how close conic-dist must be to conic-constant for a turtle to stop
+         background-color        ;; color of background
+         conic-part-color        ;; color of conic-parts turtles that move to form conic section
+         conic-part-shape        ;; shape of conic-parts turtles
+         conic-part-size         ;; size of conic-parts turtles
+         focus-color             ;; color of circle or hyperbola focus turtles
+         focus-shape             ;; shape of focus turtles
+         focus-size              ;; size of focus turtles
+         distance-link-color     ;; color of distance links
+         distance-link-thickness ;; thickness of distance links
 ]
 
 
@@ -35,9 +35,9 @@ to setup
   initialize-values
   color-background-patches
   create-conic-parts num-turtles [
-    set color CONIC-PART-COLOR
-    set shape CONIC-PART-SHAPE
-    set size CONIC-PART-SIZE
+    set color conic-part-color
+    set shape conic-part-shape
+    set size conic-part-size
     setxy random-xcor random-ycor
   ]
 
@@ -56,17 +56,17 @@ to setup
 end
 
 to initialize-values
-  set CONIC-EPS               0.05
-  set BACKGROUND-COLOR        black
-  set CONIC-PART-COLOR        green
-  set CONIC-PART-SHAPE        "circle"
-  set CONIC-PART-SIZE         1
-  set FOCUS-COLOR             white
-  set FOCUS-SHAPE             "circle"
-  set FOCUS-SIZE              2
-  set DISTANCE-LINK-COLOR     red
-  set DISTANCE-LINK-THICKNESS 1.5
-  set MOUSE-CLICK-CLOSENESS   3
+  set conic-eps               0.05
+  set background-color        black
+  set conic-part-color        green
+  set conic-part-shape        "circle"
+  set conic-part-size         1
+  set focus-color             white
+  set focus-shape             "circle"
+  set focus-size              2
+  set distance-link-color     red
+  set distance-link-thickness 1.5
+  set mouse-click-closeness   3
 end
 
 to go
@@ -98,9 +98,9 @@ to create-or-move-focus-if-mouse-down
       ifelse need-a-focus? [
         create-foci 1 [
           setxy mouse-xcor mouse-ycor
-          set color FOCUS-COLOR
-          set shape FOCUS-SHAPE
-          set size FOCUS-SIZE
+          set color focus-color
+          set shape focus-shape
+          set size focus-size
         ]
         ; If the second focus was created, and the need for a
         ; distance turtle is pending, create one.
@@ -122,7 +122,7 @@ to handle-select-and-drag
     ; pick the closest turtle
     set selected-focus min-one-of foci [distancexy mouse-xcor mouse-ycor]
     ; check whether or not it's close enough
-    if [ distancexy mouse-xcor mouse-ycor ] of selected-focus > MOUSE-CLICK-CLOSENESS [
+    if [ distancexy mouse-xcor mouse-ycor ] of selected-focus > mouse-click-closeness [
       set selected-focus nobody ; if not, don't select it
     ]
   ]
@@ -135,7 +135,7 @@ end
 ; Move the turtles that will form the conic.
 ; Move randomly if there is no focus, or turtle is getting further from distance
 ;  to conic.
-; Stop if within CONIC-EPS of desired "distance".
+; Stop if within conic-eps of desired "distance".
 ; Move forward if distance to conic is decreasing.
 to move-conic-parts ; turtle procedure
   ; move randomly if a focus is needed
@@ -143,10 +143,10 @@ to move-conic-parts ; turtle procedure
   [ rt random-float 360 turn-if-cant-move 1 fd 1]
   [ let old-conic-dist conic-dist
     set conic-dist compute-conic-dist
-    ; Turtle stops if it is within CONIC-EPS of desired "distance"
+    ; Turtle stops if it is within conic-eps of desired "distance"
     ; If the turtle is not reducing the "distance" make a random turn and move
     ; forward, otherwise just move forward
-    if (abs (conic-constant - conic-dist) > CONIC-EPS) [
+    if (abs (conic-constant - conic-dist) > conic-eps) [
       if ((conic-dist = old-conic-dist) or
         ((conic-dist < old-conic-dist) and (conic-dist < conic-constant)) or
         ((conic-dist > old-conic-dist) and (conic-dist > conic-constant)))
@@ -164,7 +164,7 @@ end
 
 ; Set color of patches.
 to color-background-patches
-  ask patches [ set pcolor BACKGROUND-COLOR ]
+  ask patches [ set pcolor background-color ]
 end
 
 ; This distance is the difference between the greater and smaller distances of the
@@ -199,8 +199,8 @@ to create-distance-turtle
     ask distance-turtle [
       create-links-with foci
       ask my-links [
-        set color DISTANCE-LINK-COLOR
-        set thickness DISTANCE-LINK-THICKNESS ]
+        set color distance-link-color
+        set thickness distance-link-thickness ]
     ]
     adjust-dist-links-labels
   ]
@@ -324,7 +324,7 @@ You can also slow down (or speed up) the movement of the turtles by either using
 
 Create  a distance turtle. Calculate the absolute value of the difference between the labeled lengths of its 2 red line segments. Now move one of the focuses. Recalculate the difference between the lengths of its 2 red lines. Did the calculated number change? Why do you think it stayed the same?
 
-The constant CONIC-EPS is set in the SETUP procedure. It determines how close the turtles have to be to their ideal 'distance' (the absolute value of the difference of distances to its foci) before they stop. Change its value --- what do you see? Why? Be sure to try some integer values.
+The constant conic-eps is set in the SETUP procedure. It determines how close the turtles have to be to their ideal 'distance' (the absolute value of the difference of distances to its foci) before they stop. Change its value --- what do you see? Why? Be sure to try some integer values.
 
 ## EXTENDING THE MODEL
 

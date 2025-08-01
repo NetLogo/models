@@ -59,11 +59,9 @@ to go
   sr:set-agent "highland" highland_bugs "fitness"
 
   sr:run "w <- wilcox.test(lowland$fitness, highland$fitness, exact=FALSE)"
-  print sr:runresult "w$p.value"
+  output-print sr:runresult "w$p.value"
 
-  set-current-plot "Wilcoxon Rank Sum Test"
-  plot sr:runresult "w$p.value"
-
+  update-plots
 end]]></code>
   <widgets>
     <view x="403" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-16" height="297" showTickCounter="true" patchSize="8.9" fontSize="10" wrappingAllowedY="true" width="297" tickCounterLabel="ticks" maxPycor="16" updateMode="0" maxPxcor="16" minPxcor="-16"></view>
@@ -71,12 +69,13 @@ end]]></code>
     <button x="77" y="11" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="63">go</button>
     <plot x="7" autoPlotX="true" yMax="1.0" autoPlotY="true" yAxis="p-value" y="50" xMin="0.0" height="293" legend="false" xMax="1.0" yMin="0.0" width="388" xAxis="time" display="Wilcoxon Rank Sum Test">
       <setup></setup>
-      <update></update>
+      <update>plot sr:runresult "w$p.value"</update>
       <pen interval="1.0" mode="0" display="default" color="-16777216" legend="true">
         <setup></setup>
         <update></update>
       </pen>
     </plot>
+    <output x="7" y="350" height="61" fontSize="12" width="216"></output>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 

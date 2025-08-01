@@ -24,7 +24,7 @@ to setup
   clear-all
   sr:setup
   ;; create turtles with weight and height randomly from weibull and beta distribution
-  crt 40
+  create-turtles 40
   [
     set weight sr:runresult "rweibull(1,1)"
     set height sr:runresult "rbeta(1,1,1)"
@@ -46,22 +46,7 @@ to go
 
   sr:run "c <- cor.test(turtles$weight, turtles$height, method = 'spearm', alternative = 'g')"
 
-  ;; this is changed from original code which had
-  ;; let rho sr:runresult "c$p.value"
-  ;; let p sr:runresult "c$estimate"
-  let estimate  sr:runresult "c$estimate"
-  let rho item 1 (item 0 estimate)
-  let p sr:runresult "c$p.value"
-
-  ;; plot spearman's rho and dot, if significant
-  set-current-plot "Spearman's rho"
-  set-current-plot-pen "rho"
-  plot rho
-  if (p < 0.05)
-  [
-    set-current-plot-pen "p"
-    plotxy (ticks - 1) (rho + 0.15)
-  ]
+  update-plots
 end]]></code>
   <widgets>
     <view x="468" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-16" height="166" showTickCounter="true" patchSize="4.91" fontSize="10" wrappingAllowedY="true" width="166" tickCounterLabel="ticks" maxPycor="16" updateMode="0" maxPxcor="16" minPxcor="-16"></view>
@@ -69,7 +54,21 @@ end]]></code>
     <button x="536" y="208" height="35" disableUntilTicks="false" forever="true" kind="Observer" width="63">go</button>
     <plot x="5" autoPlotX="true" yMax="1.0" autoPlotY="true" yAxis="rho" y="10" xMin="0.0" height="310" legend="false" xMax="10.0" yMin="-1.0" width="458" xAxis="time" display="Spearman's rho">
       <setup></setup>
-      <update></update>
+      <update><![CDATA[;; this is changed from original code which had
+;; let rho sr:runresult "c$p.value"
+;; let p sr:runresult "c$estimate"
+let estimate  sr:runresult "c$estimate"
+let rho item 1 (item 0 estimate)
+let p sr:runresult "c$p.value"
+
+;; plot spearman's rho and dot, if significant
+set-current-plot-pen "rho"
+plot rho
+if (p < 0.05)
+[
+  set-current-plot-pen "p"
+  plotxy (ticks - 1) (rho + 0.15)
+]]]></update>
       <pen interval="1.0" mode="0" display="rho" color="-16777216" legend="true">
         <setup></setup>
         <update></update>

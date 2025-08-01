@@ -29,18 +29,9 @@ to test-pcf1
   sr:run "p <- pcf(simdat)"
   sr:run "K <- Kest(simdat)"
   sr:run "p2 <- pcf(K)"
-  let pcf_r (sr:runresult "p2$pcf")
-  let r (sr:runresult "p2$r")
-
-  let pcf (map [ [?1 ?2] -> list ?1 ?2 ] r pcf_r)
-
+  
   clear-plot
-  foreach pcf
-  [ [?1] ->
-    set-current-plot "pair correlation function"
-    plotxy (item 0 ?1) (item 1 ?1)
-  ]
-
+  update-plots
 end
 
 
@@ -67,7 +58,7 @@ to test-pcf2
   ;; Assigns an R-point-pattern from the locations of the turtles and calculates the pair correlation function.
   sr:run "library(spatstat)"
 
-  crt 20
+  create-turtles 20
   [
     set xcor random-xcor
     set ycor random-ycor
@@ -85,18 +76,9 @@ to test-pcf2
   sr:run "p <- pcf(agppp)"
   sr:run "K <- Kest(agppp)"
   sr:run "p2 <- pcf(K)"
-  let pcf_r (sr:runresult "p2$pcf")
-  let r (sr:runresult "p2$r")
-
-  let pcf (map [ [?1 ?2] -> list ?1 ?2 ] r pcf_r)
 
   clear-plot
-  foreach pcf
-  [ [?1] ->
-    set-current-plot "pair correlation function"
-    plotxy (item 0 ?1) (item 1 ?1)
-  ]
-
+  update-plots
 end]]></code>
   <widgets>
     <view x="400" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="0" height="433" showTickCounter="true" patchSize="13.0" fontSize="10" wrappingAllowedY="true" width="433" tickCounterLabel="ticks" maxPycor="32" updateMode="0" maxPxcor="32" minPxcor="0"></view>
@@ -104,7 +86,15 @@ end]]></code>
     <button x="8" y="53" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="82">test-pcf1</button>
     <plot x="9" autoPlotX="true" yMax="1.0" autoPlotY="true" yAxis="pcf(r)" y="100" xMin="0.0" height="255" legend="false" xMax="1.0" yMin="0.0" width="383" xAxis="r" display="pair correlation function">
       <setup></setup>
-      <update></update>
+      <update><![CDATA[let pcf_r (sr:runresult "p2$pcf")
+let r (sr:runresult "p2$r")
+
+let pcf (map [ [?1 ?2] -> list ?1 ?2 ] r pcf_r)
+  
+foreach pcf
+[ ?1 ->
+  plotxy (item 0 ?1) (item 1 ?1)
+]]]></update>
       <pen interval="1.0" mode="0" display="default" color="-16777216" legend="true">
         <setup></setup>
         <update></update>

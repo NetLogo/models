@@ -23,18 +23,18 @@ globals [
   ;; recent-mouse-x and -y are used to filter out redundant mouse down events
   recent-mouse-x          ;; rounded x-cor of most recent mouse click
   recent-mouse-y          ;; rounded y-cor of most recent mouse click
-  CONIC-EPS               ;; a turtle will will stop when its parab-diff is <= CONIC-EPS
-  MOUSE-CLICK-CLOSENESS   ;; how close mouse click must be to focus for dragging
-  DISTANCE-LINK-COLOR     ;;  color of distance links
-  DISTANCE-LINK-THICKNESS ;;  thickness of distance links
+  conic-eps               ;; a turtle will will stop when its parab-diff is <= conic-eps
+  mouse-click-closeness   ;; how close mouse click must be to focus for dragging
+  distance-link-color     ;;  color of distance links
+  distance-link-thickness ;;  thickness of distance links
 ]
 
 to setup
   clear-all
-  set CONIC-EPS         0.04
-  set DISTANCE-LINK-COLOR     red
-  set DISTANCE-LINK-THICKNESS 1.5
-  set MOUSE-CLICK-CLOSENESS   3
+  set conic-eps         0.04
+  set distance-link-color     red
+  set distance-link-thickness 1.5
+  set mouse-click-closeness   3
 
   ; there is no recent mouse-click, so make coordinates outside the world
   set recent-mouse-x max-pxcor + 1
@@ -118,10 +118,10 @@ end
 ; focal-distance  = distance from turtle to focus
 ; perp-dist       = perpendicular distance of turtle from the directrix
 ; parab-diff      = y-difference - focal-distance
-; abs(parab-diff) <= CONIC-EPS turtle is on the parabola
-; parab-diff      >  CONIC-EPS turtle is 'inside' the parabola
+; abs(parab-diff) <= conic-eps turtle is on the parabola
+; parab-diff      >  conic-eps turtle is 'inside' the parabola
 ;                 and decreases as the turtle gets closer to the parabola
-; parab-diff      < -CONIC-EPS turtle is 'outside' the parabola
+; parab-diff      < -conic-eps turtle is 'outside' the parabola
 ;                 and increases as the turtle gets closer to the parabola
 to-report compute-parab-diff [ the-xcor the-ycor ]
   report abs compute-perp-distance the-xcor the-ycor - distance the-focus
@@ -162,28 +162,28 @@ end
 
 ; Indicate status of last move by turtle
 ; Value    Meaning
-; 2        Turtle is within CONIC-EPS of parabola.
+; 2        Turtle is within conic-eps of parabola.
 ; 1        Turtle is closer to the parabola.
 ; 0        Turtle is nearly same distance from parabola.
 ; -1       Turtle is further from parabola.
 to-report update-turtle-status [ the-old-parab-diff the-parab-diff ]
   ; could set up constants for the 4 values
   let value (ifelse-value
-    abs (the-parab-diff) <= CONIC-EPS                        [ 2 ] ;
-    ; You can experiment with removing CONIC-EPS from the following conditions. What do you
+    abs (the-parab-diff) <= conic-eps                        [ 2 ] ;
+    ; You can experiment with removing conic-eps from the following conditions. What do you
     ; notice about the conic-part turtles that are slow to approach the parabola?
-    abs (the-parab-diff - the-old-parab-diff) <=  CONIC-EPS  [ 0 ]
+    abs (the-parab-diff - the-old-parab-diff) <=  conic-eps  [ 0 ]
     the-parab-diff > 0 and
-    the-parab-diff >= the-old-parab-diff  + CONIC-EPS        [ -1 ]
+    the-parab-diff >= the-old-parab-diff  + conic-eps        [ -1 ]
     the-parab-diff < 0 and
-    the-parab-diff <= the-old-parab-diff  - CONIC-EPS        [ -1 ]
+    the-parab-diff <= the-old-parab-diff  - conic-eps        [ -1 ]
                                                              [ 1 ])
   report value
 end
 
 ; Move the turtles that will form the parabola.
 ; Move randomly if the turtle is not getting closer to the parabola.
-; Stop if within CONIC-EPS of parabola.
+; Stop if within conic-eps of parabola.
 ; Move forward if distance to the parabola is decreasing.
 to move-conic-parts ; turtle procedure
   let old-parab-diff parab-diff
@@ -191,7 +191,7 @@ to move-conic-parts ; turtle procedure
   let status update-turtle-status old-parab-diff parab-diff
   ; turn randomly if not getting closer to goal
   if status = 0 or status = -1 [ rt random-float 360 ]
-  ; Turtle moves if it is not within CONIC-EPS of desired "distance".
+  ; Turtle moves if it is not within conic-eps of desired "distance".
   if not (status = 2) [
     turn-if-cant-move 1
     fd 1
@@ -213,8 +213,8 @@ to create-distance-turtle
     create-link-with the-focus
     create-link-with the-proj
     ask my-links [
-      set color DISTANCE-LINK-COLOR
-      set thickness DISTANCE-LINK-THICKNESS ]
+      set color distance-link-color
+      set thickness distance-link-thickness ]
   ]
   project-on-the-directrix
   adjust-dist-links-labels
@@ -361,7 +361,7 @@ You may be able to get a better feeling for the turtles’ behavior if only a fe
 
 Create  a distance turtle. Note the value of the lengths of the two red line segments. They are equal. Now click the "New Distance Turtle" button. Notice that the distance values have changed, but are still equal.
 
-The constant CONIC-EPS is set in the SETUP procedure. It determines how nearly  equidistant between the focus and the directrix the turtles have to be before they stop. Change its value — what do you see? Why? Be sure to try some integer values.
+The constant conic-eps is set in the SETUP procedure. It determines how nearly  equidistant between the focus and the directrix the turtles have to be before they stop. Change its value — what do you see? Why? Be sure to try some integer values.
 
 ## EXTENDING THE MODEL
 Add a switch which allows the parabola to wrap the screen instead of stopping at the screen edge.

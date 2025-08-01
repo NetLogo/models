@@ -39,7 +39,7 @@ to setup
   sr:run "library(spatstat)"
 
   ;; create 20 turtles at random positions
-  crt 20
+  create-turtles 20
   [
     set xcor random-xcor
     set ycor random-ycor
@@ -65,31 +65,31 @@ to go
   ;; calculate Ripley's K function
   sr:run "K <- Kest(agppp)"
 
-  ;; get results from R
-  let ripl_k sr:runresult "K$iso"
-  let r sr:runresult "K$r"
-  let theo sr:runresult "K$theo"
-
-  ;; combine results into a multidimensional list for plotting
-  let ripl (map [ [?1 ?2 ?3] -> (list ?1 ?2 ?3) ] r ripl_k theo)
-
-  ;; plot the results
   clear-plot
-  foreach ripl
-  [ [?1] ->
-    set-current-plot "Ripley's K function"
-    set-current-plot-pen "K(r)"
-    plotxy (item 0 ?1) (item 1 ?1)
-    set-current-plot-pen "theo"
-    plotxy (item 0 ?1) (item 2 ?1)
-  ]
+  update-plots
 end]]></code>
   <widgets>
     <view x="479" wrappingAllowedX="true" y="57" frameRate="30.0" minPycor="-16" height="321" showTickCounter="true" patchSize="9.61" fontSize="10" wrappingAllowedY="true" width="321" tickCounterLabel="ticks" maxPycor="16" updateMode="0" maxPxcor="16" minPxcor="-16"></view>
     <button x="7" y="97" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="63">go</button>
     <plot x="75" autoPlotX="true" yMax="1.0" autoPlotY="true" yAxis="K(r)" y="55" xMin="0.0" height="355" legend="false" xMax="1.0" yMin="0.0" width="353" xAxis="r" display="Ripley's K function">
       <setup></setup>
-      <update></update>
+      <update><![CDATA[;; get results from R
+let ripl_k sr:runresult "K$iso"
+let r sr:runresult "K$r"
+let theo sr:runresult "K$theo"
+
+;; combine results into a multidimensional list for plotting
+let ripl (map [ [?1 ?2 ?3] -> (list ?1 ?2 ?3) ] r ripl_k theo)
+
+;; plot the results
+foreach ripl
+[ ?1 ->
+  set-current-plot "Ripley's K function"
+  set-current-plot-pen "K(r)"
+  plotxy (item 0 ?1) (item 1 ?1)
+  set-current-plot-pen "theo"
+  plotxy (item 0 ?1) (item 2 ?1)
+]]]></update>
       <pen interval="1.0" mode="0" display="K(r)" color="-16777216" legend="true">
         <setup></setup>
         <update></update>

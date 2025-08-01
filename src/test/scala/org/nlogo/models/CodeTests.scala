@@ -453,6 +453,7 @@ class CodeTests extends TestModels {
     "GasLab Moving Piston",
     "GasLab Second Law",
     "Histo Blocks",
+    "Interstitial Diffusion",
     "Minority Game",
     "Prob Graphs Basic",
     "Robby the Robot",
