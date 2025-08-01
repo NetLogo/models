@@ -71,7 +71,17 @@ class PreviewImagesTests extends TestModels {
     "Mandelian Inheritance",
     "Discrete Event Mousetrap",
     "Calorimetry",
-    "Robotic Factory" // `import-drawing` doesn't seem to work as a preview command
+    "Robotic Factory", // `import-drawing` doesn't seem to work as a preview command
+    "boxplot-example",
+    "datafile-example",
+    "diversity-example",
+    "example1",
+    "interactiveShell",
+    "package-example",
+    "patchesToRMatrix",
+    "plot-example1",
+    "plot-to-file-example",
+    "rscript-example"
   )
   testModels("Models should have manual previews only if needed or permitted") { m =>
     if (manualPreviewNeeded.exists(m.file.getPath.contains))
