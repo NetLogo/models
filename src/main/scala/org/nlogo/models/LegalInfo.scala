@@ -114,7 +114,7 @@ case class LegalInfo(model: Model) {
   val acknowledgment: Option[String] = {
     val iabm = """.*\/IABM Textbook\/chapter ([0-9])\/.*""".r
     val altViz = """.*\/Alternative Visualizations/(.*) - .*""".r
-    model.file.getPath match {
+    model.file.getPath.replace("\\", "/") match {
       case iabm(chapter) =>
         Vector("Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight")
           .lift(chapter.toInt)

@@ -75,7 +75,7 @@ package object models {
     def file = modelFiles(model)
     def content = modelContent(model)
     def isTestModel = file.getCanonicalPath.startsWith(new File("test/").getCanonicalPath)
-    def name = file.getPath.reverse.dropWhile(_ != '.').tail.takeWhile(_ != '/').reverse.mkString
+    def name = file.getPath.reverse.dropWhile(_ != '.').tail.takeWhile(c => c != '/' && c != '\\').reverse.mkString
     def isHubNet = name.contains("HubNet")
     def compressedName = name.replaceAll(" ", "")
     def isIABM = file.getPath.contains("IABM")

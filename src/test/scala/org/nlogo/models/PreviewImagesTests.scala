@@ -20,7 +20,7 @@ class PreviewImagesTests extends TestModels {
 
   val ignoredLines = readFileToString(new File(".gitignore"), "UTF-8").linesIterator.toSeq
   val ignored = ignoredLines.toSet
-  def isInGitIgnore(m: Model) = ignored.contains(m.previewFile.getPath.drop(1))
+  def isInGitIgnore(m: Model) = ignored.contains(m.previewFile.getPath.drop(1).replace("\\", "/"))
 
   val manualPreviewNeeded = Set(
     "HubNet", "/sound/", "/ls/", "GoGo", "Arduino"
@@ -74,7 +74,7 @@ class PreviewImagesTests extends TestModels {
     "Robotic Factory" // `import-drawing` doesn't seem to work as a preview command
   )
   testModels("Models should have manual previews only if needed or permitted") { m =>
-    if (manualPreviewNeeded.exists(m.file.getPath.contains))
+    if (manualPreviewNeeded.exists(m.file.getPath.replace("\\", "/").contains))
       if (m.previewCommands != Manual)
         Some("should need manual preview")
       else

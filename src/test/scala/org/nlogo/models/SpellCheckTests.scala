@@ -25,9 +25,14 @@ import org.scalatest.BeforeAndAfterAll
  */
 class SpellCheckTests extends TestModels with BeforeAndAfterAll {
 
-  override def beforeAll() =
-    if (Seq("which", "aspell").!(ProcessLogger(_ => ())) != 0)
+  override def beforeAll(): Unit = {
+    if (System.getProperty("os.name").toLowerCase.startsWith("win")) {
+      if (Seq("where", "aspell").!(ProcessLogger(_ => ())) != 0)
+        throw new Exception("aspell not installed!")
+    } else if (Seq("which", "aspell").!(ProcessLogger(_ => ())) != 0) {
       throw new Exception("aspell not installed!")
+    }
+  }
 
   val dictPath = new File(getClass.getResource("/modelwords.txt").toURI).getPath
   def aspell(inPath: Path): (JProcessBuilder, Path) = {
