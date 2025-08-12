@@ -58,20 +58,25 @@ end
 
 to setup-connections                                    ; Establish social links among consumers based on average social connections
   let num-links (avg-connections * num-consumers) / 2
-  while [ count links < num-links ]                     ; Continue creating links until the desired number is reached
-    [ ask one-of consumers [
-       let target min-one-of (other consumers with [ not link-neighbor? myself ]) [ distance myself ]; Find the nearest consumer not already linked to the current consumer
-       if target != nobody [ create-link-with target ]  ; Create a link if a valid target is found
-      ]
+  while [ count links < num-links ] [                    ; Continue creating links until the desired number is reached
+    ask one-of consumers [
+      ; Find the nearest consumer not already linked to the current consumer
+      let target min-one-of (other consumers with [ not link-neighbor? myself ]) [ distance myself ]
+      if target != nobody [ create-link-with target ]  ; Create a link if a valid target is found
     ]
+  ]
   update-link-appearance
 end
 
 to update-link-appearance                               ; Adjust link colors based on norm-influence and information-exchange values
   ask links [
-   ifelse norm-influence = 0 and information-exchange = 0
-     [ set color gray + 2]                              ; Set links to a visible light gray when both norm-influence and information-exchange are 0
-     [ set color scale-color black (1 - (norm-influence + information-exchange)) 0.5 1 ]; Scale link color to black based on value of norm-influence and information-exchange
+   ifelse norm-influence = 0 and information-exchange = 0 [
+      ; Set links to a visible light gray when both norm-influence and information-exchange are 0
+      set color gray + 2
+    ] [
+      ; Scale link color to black based on value of norm-influence and information-exchange
+      set color scale-color black (1 - (norm-influence + information-exchange)) 0.5 1
+    ]
   ]
 end
 
@@ -163,12 +168,12 @@ end
 ; Copyright 2024 Uri Wilensky.
 ; See Info tab for full copyright and license.]]></code>
   <widgets>
-    <view x="240" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-25" height="520" showTickCounter="true" patchSize="10.2" fontSize="10" wrappingAllowedY="false" width="520" tickCounterLabel="ticks" maxPycor="25" updateMode="1" maxPxcor="25" minPxcor="-25"></view>
+    <view x="240" wrappingAllowedX="false" y="11" frameRate="30.0" minPycor="-25" height="514" showTickCounter="true" patchSize="10.0" fontSize="10" wrappingAllowedY="false" width="514" tickCounterLabel="ticks" maxPycor="25" updateMode="1" maxPxcor="25" minPxcor="-25"></view>
     <note x="5" y="10" backgroundDark="0" fontSize="14" width="186" markdown="false" height="18" textColorDark="-1" textColorLight="-5298144" backgroundLight="0">Community Settings</note>
     <slider x="5" step="10" y="35" max="1000" width="220" display="num-consumers" height="50" min="0" direction="Horizontal" default="100.0" variable="num-consumers"></slider>
     <slider x="5" step="1" y="90" max="10" width="220" display="avg-connections" height="50" min="0" direction="Horizontal" default="5.0" variable="avg-connections"></slider>
     <slider x="5" step="10" y="145" max="100" width="220" display="initial-%-orange-product" height="50" min="0" direction="Horizontal" default="50.0" variable="initial-%-orange-product" units="%"></slider>
-    <button x="5" y="205" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="70" display="setup">SETUP</button>
+    <button x="5" y="205" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="70">setup</button>
     <button x="155" y="205" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="70" display="go-once">go</button>
     <button x="80" y="205" height="40" disableUntilTicks="true" forever="true" kind="Observer" width="70" display="go">go</button>
     <slider x="5" step="0.05" y="290" max="1" width="220" display="norm-influence" height="50" min="0" direction="Horizontal" default="0.15" variable="norm-influence"></slider>
@@ -453,7 +458,7 @@ If you mention this model or the NetLogo software in a publication, we ask that 
 
 For the model itself:
 
-* ONLY Jager, W.,  Wang, S. and Wilensky, U. (2024).  NetLogo Consumer Choice model.  http://ccl.northwestern.edu/netlogo/models/ConsumerChoice.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+* Jager, W., Wang, S. (2024).  NetLogo Consumer Choice model.  http://ccl.northwestern.edu/netlogo/models/ConsumerChoice.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
 
 Please cite the NetLogo software as:
 
@@ -471,9 +476,7 @@ NetLogo itself is free software for non-commercial use under the terms of the GN
 
 To inquire about commercial licenses for either NetLogo or specific models from the models library, please contact netlogo-commercial-admin@ccl.northwestern.edu.
 
-<!-- 2024 ONLY Cite: Jager, W., Wang, S. -->
-
-]]></info>
+<!-- 2024 ONLY Cite: Jager, W., Wang, S. -->]]></info>
   <turtleShapes>
     <shape name="default" rotatable="true" editableColorIndex="0">
       <polygon color="-1920102913" filled="true" marked="true">
