@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<model version="NetLogo 7.0.0-beta2" snapToGrid="true">
-  <code>;; Plot Example of R-extension
+<model version="NetLogo 7.0.0-beta2" snapToGrid="false">
+  <code><![CDATA[;; Spearman's Rho example of R-extension
 ;;
 ;;
 ;; by Jan C. Thiele
@@ -14,85 +14,97 @@
 ;;
 ;; Copyright: 2011, J.C. Thiele
 
+;; Converted to run with the SimpleR-Extension
 
 extensions [sr]
 
+turtles-own [weight height]
 
-to test-plot
+to setup
   clear-all
   sr:setup
-  create-turtles 10
+  ;; create turtles with weight and height randomly from weibull and beta distribution
+  create-turtles 40
   [
-    set xcor random-xcor
-    set ycor random-ycor
+    set weight sr:runresult "rweibull(1,1)"
+    set height sr:runresult "rbeta(1,1,1)"
   ]
+  reset-ticks
+end
 
-  (sr:set-agent "agentlist" turtles "who" "xcor" "ycor")
+to go
+  tick
+  ;; change weight and height of turtles randomly from weibull distribution
+  ask turtles
+  [
+    set weight weight + sr:runresult "rweibull(1,1)"
+    set height height + sr:runresult "rweibull(1,2)"
+  ]
+  ;; create R list from turtles
+  (sr:set-agent "turtles" turtles "weight" "height")
+  ;; calculate correlation between weight and height
 
-  ;; create a pdf with the plot
-  let evalstring (word "pdf('" plotfile ".pdf')" )
+  sr:run "c <- cor.test(turtles$weight, turtles$height, method = 'spearm', alternative = 'g')"
 
-  sr:run evalstring
-  sr:run "plot(agentlist$xcor,agentlist$ycor)"
-  sr:run "dev.off()"
-
-  ;; create a jpeg with the plot
-  set evalstring (word "jpeg('" plotfile ".jpeg')" )
-
-  sr:run evalstring
-
-  sr:run "plot(agentlist$xcor,agentlist$ycor)"
-  sr:run "dev.off()"
+  update-plots
 end
 
 
 ; Public Domain:
 ; To the extent possible under law, Uri Wilensky has waived all
-; copyright and related or neighboring rights to this model.</code>
+; copyright and related or neighboring rights to this model.]]></code>
   <widgets>
-    <view x="230" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-16" height="433" showTickCounter="true" patchSize="13.0" fontSize="10" wrappingAllowedY="true" width="433" tickCounterLabel="ticks" maxPycor="16" updateMode="1" maxPxcor="16" minPxcor="-16"></view>
-    <button x="10" y="30" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="190" display="Choose file">set plotfile user-new-file</button>
-    <button x="10" y="245" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="79">test-plot</button>
-    <note x="10" y="195" backgroundDark="0" fontSize="12" width="215" markdown="false" height="40" textColorDark="-1" textColorLight="-16777216" backgroundLight="0"><![CDATA[test-plot  creates scatter plots  named
-<plotfile>.pdf and <plotfile>.jpg]]></note>
-    <input x="10" multiline="false" y="75" height="60" variable="plotfile" type="string" width="190">plot-output.pdf</input>
-    <note x="10" y="140" backgroundDark="0" fontSize="11" width="215" markdown="false" height="28" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">If editing plotfile, don't use backslashes</note>
+    <view x="468" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-16" height="169" showTickCounter="true" patchSize="5.0" fontSize="10" wrappingAllowedY="true" width="169" tickCounterLabel="ticks" maxPycor="16" updateMode="1" maxPxcor="16" minPxcor="-16"></view>
+    <button x="469" y="208" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="63">setup</button>
+    <button x="536" y="208" height="35" disableUntilTicks="true" forever="true" kind="Observer" width="63">go</button>
+    <plot x="5" autoPlotX="true" yMax="1.0" autoPlotY="true" yAxis="rho" y="10" xMin="0.0" height="310" legend="false" xMax="10.0" yMin="-1.0" width="458" xAxis="time" display="Spearman's rho">
+      <setup></setup>
+      <update><![CDATA[;; this is changed from original code which had
+;; let rho sr:runresult "c$p.value"
+;; let p sr:runresult "c$estimate"
+let estimate  sr:runresult "c$estimate"
+let rho item 1 (item 0 estimate)
+let p sr:runresult "c$p.value"
+
+;; plot spearman's rho and dot, if significant
+set-current-plot-pen "rho"
+plot rho
+if (p < 0.05)
+[
+  set-current-plot-pen "p"
+  plotxy (ticks - 1) (rho + 0.15)
+]]]></update>
+      <pen interval="1.0" mode="0" display="rho" color="-16777216" legend="true">
+        <setup></setup>
+        <update></update>
+      </pen>
+      <pen interval="1.0" mode="2" display="p" color="-2674135" legend="true">
+        <setup></setup>
+        <update></update>
+      </pen>
+    </plot>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
-This section could give a general understanding of what the model is trying to show or explain.
+This model demonstrates how to use the R function `cor.test` to test the correlation between two values, specifically using the Spearman method.
 
 ## HOW IT WORKS
 
-This section could explain what rules the agents use to create the overall behavior of the model.
+Each turtle is assigned a weight and height, which are generated randomly from the Weibull and Beta distributions, respectively. The model then uses the R function `cor.test` to test the correlation between the weight and height of the turtles, displaying the result in the `Spearman's rho` plot.
 
 ## HOW TO USE IT
 
-This section could explain how to use the model, including a description of each of the items in the interface tab.
-
-## THINGS TO NOTICE
-
-This section could give some ideas of things for the user to notice while running the model.
-
-## THINGS TO TRY
-
-This section could give some ideas of things for the user to try to do (move sliders, switches, etc.) with the model.
+To initialize the R environment and create the turtles, click the `setup` button. Then, click the `go` button to run the model.
 
 ## EXTENDING THE MODEL
 
-This section could give some ideas of things to add or change in the procedures tab to make the model more complicated, detailed, accurate, etc.
-
-## NETLOGO FEATURES
-
-This section could point out any especially interesting or unusual features of NetLogo that the model makes use of, particularly in the Procedures tab.  It might also point out places where workarounds were needed because of missing features.
+To extend the model, you can try generating the weight and height values from other distributions, to see how that changes the result of the correlation test.
 
 ## RELATED MODELS
 
-This section could give the names of models in the NetLogo Models Library or elsewhere which are of related interest.
+For more examples of the Simple R Extension, see the other example models in the `sr` folder.
 
 ## CREDITS AND REFERENCES
-
-This section could contain a reference to the model's URL on the web if it has one, as well as any other necessary credits or references.
 
 <!-- 2025 -->]]></info>
   <turtleShapes>
@@ -804,5 +816,5 @@ This section could contain a reference to the model's URL on the web if it has o
       </indicator>
     </shape>
   </linkShapes>
-  <previewCommands>test-plot</previewCommands>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
 </model>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<model version="NetLogo 7.0.0-beta2" snapToGrid="false">
-  <code>;; Boxplot example of R-extension
+<model version="NetLogo 7.0.0-beta2" snapToGrid="true">
+  <code>;; Plot Example of R-extension
 ;;
 ;;
 ;; by Jan C. Thiele
@@ -14,74 +14,35 @@
 ;;
 ;; Copyright: 2011, J.C. Thiele
 
-;; Converted to run with the SimpleR-Extension
 
 extensions [sr]
 
-to activate-javagd-plot-device
+
+to test-plot
   clear-all
   sr:setup
-  sr:set-plot-device
-  reset-ticks
-  ; this model doesn't use ticks, but this disables the buttons until after
-  ; this procedure has been run
-end
-
-
-to test
-  ;a new empty local list
-  let mylist []
-
-  ; fill the list with 50 random values
-  repeat 50 [
-    set mylist fput random-normal 10 20 mylist
+  create-turtles 10
+  [
+    set xcor random-xcor
+    set ycor random-ycor
   ]
 
-  ; show the list in the Output widget
-  output-print mylist
+  (sr:set-agent "agentlist" turtles "who" "xcor" "ycor")
 
-  ; send the list into a new R dataframe (with one column named v1)
-  (sr:set-data-frame "df1" "v1" mylist)
+  ;; create a pdf with the plot
+  let evalstring (word "pdf('" plotfile ".pdf')" )
 
-  ; create a boxplot of the dataframe.
-  ; since the dataframe has just one column, there is just one box.
-  sr:run "boxplot(df1)"
-
-end
-
-
-
-to test2
-  ;two new empty local lists
-  let mylist1 []
-  let mylist2 []
-
-  ; fill the list with 50 random values
-  repeat 50 [
-    set mylist1 fput random-normal 10 20 mylist1
-    set mylist2 fput random-normal 15 15 mylist2
-  ]
-
-  ; send the list into a new R dataframe (with one column named v1)
-  (sr:set-data-frame "df1" "v1" mylist1 "v2" mylist2)
-
-  ; create a boxplot of the dataframe.
-  ; since the dataframe has just one column, there is just one box.
-  sr:run "boxplot(df1)"
-
-end
-
-
-
-
-;; copied from the plot example...
-
-to dev-off
+  sr:run evalstring
+  sr:run "plot(agentlist$xcor,agentlist$ycor)"
   sr:run "dev.off()"
-end
 
-to r-idle ;; a "forever" method
-  sr:run "Sys.sleep(0.01)"
+  ;; create a jpeg with the plot
+  set evalstring (word "jpeg('" plotfile ".jpeg')" )
+
+  sr:run evalstring
+
+  sr:run "plot(agentlist$xcor,agentlist$ycor)"
+  sr:run "dev.off()"
 end
 
 
@@ -89,53 +50,35 @@ end
 ; To the extent possible under law, Uri Wilensky has waived all
 ; copyright and related or neighboring rights to this model.</code>
   <widgets>
-    <view x="550" wrappingAllowedX="true" y="12" frameRate="30.0" minPycor="-16" height="169" showTickCounter="true" patchSize="5.0" fontSize="10" wrappingAllowedY="true" width="169" tickCounterLabel="ticks" maxPycor="16" updateMode="1" maxPxcor="16" minPxcor="-16"></view>
-    <button x="18" y="240" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="63">test</button>
-    <button x="18" y="136" height="35" disableUntilTicks="true" forever="true" kind="Observer" width="63">r-idle</button>
-    <button x="18" y="348" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="63">test2</button>
-    <button x="18" y="14" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="189">activate-javagd-plot-device</button>
-    <button x="18" y="450" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="73">dev-off</button>
-    <note x="18" y="69" backgroundDark="0" fontSize="11" width="459" markdown="false" height="47" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">activate this button, if you want to have the R plot window active (this will create an empty loop for R, that it will stay active). If you want to save the boxplot in a file without seeing it in the R window, you don't need this button.</note>
-    <note x="18" y="191" backgroundDark="0" fontSize="11" width="459" markdown="false" height="29" textColorDark="-1" textColorLight="-16777216" backgroundLight="0"><![CDATA[this button will create a temp. list, send it to R and creates a boxplot (into the standard grafics output -> the R Plot Window).]]></note>
-    <note x="18" y="295" backgroundDark="0" fontSize="11" width="459" markdown="false" height="33" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">this button will create two temp. lists, put them both into one R data.frame and creates a boxplot over both columns.</note>
-    <note x="18" y="403" backgroundDark="0" fontSize="11" width="459" markdown="false" height="27" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">this button will close the graphics device (here: the plot window). But you can also just close the window.</note>
-    <output x="526" y="204" height="61" fontSize="12" width="216"></output>
+    <view x="230" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-16" height="433" showTickCounter="true" patchSize="13.0" fontSize="10" wrappingAllowedY="true" width="433" tickCounterLabel="ticks" maxPycor="16" updateMode="1" maxPxcor="16" minPxcor="-16"></view>
+    <button x="10" y="30" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="190" display="Choose file">set plotfile user-new-file</button>
+    <button x="10" y="245" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="79">test-plot</button>
+    <note x="10" y="195" backgroundDark="0" fontSize="12" width="215" markdown="false" height="40" textColorDark="-1" textColorLight="-16777216" backgroundLight="0"><![CDATA[test-plot  creates scatter plots  named
+<plotfile>.pdf and <plotfile>.jpg]]></note>
+    <input x="10" multiline="false" y="75" height="60" variable="plotfile" type="string" width="190">plot-output</input>
+    <note x="10" y="140" backgroundDark="0" fontSize="11" width="215" markdown="false" height="28" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">If editing plotfile, don't use backslashes</note>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
-This section could give a general understanding of what the model is trying to show or explain.
+This model demonstrates how to export an R plot to a file, both as an image and as a PDF.
 
 ## HOW IT WORKS
 
-This section could explain what rules the agents use to create the overall behavior of the model.
+The model uses the R function `plot` to create a scatter plot of the turtle positions, which is then exported to an image with the R function `jpeg` and to a PDF with the R function `pdf`.
 
 ## HOW TO USE IT
 
-This section could explain how to use the model, including a description of each of the items in the interface tab.
-
-## THINGS TO NOTICE
-
-This section could give some ideas of things for the user to notice while running the model.
-
-## THINGS TO TRY
-
-This section could give some ideas of things for the user to try to do (move sliders, switches, etc.) with the model.
+First, select your desired output file name (without an extension!) in the `plotfile` input widget. You can either type directly into the input field or click the `Choose file` button, which will open a file chooser dialog. Then, click the `test-plot` button to initialize the R environment, create the turtles, and create and export the plot.
 
 ## EXTENDING THE MODEL
 
-This section could give some ideas of things to add or change in the procedures tab to make the model more complicated, detailed, accurate, etc.
-
-## NETLOGO FEATURES
-
-This section could point out any especially interesting or unusual features of NetLogo that the model makes use of, particularly in the Procedures tab.  It might also point out places where workarounds were needed because of missing features.
+To extend the model, you can try setting the color of each point in the scatter plot to the color of the corresponding turtle. You can also try exporting other types of plots to a file.
 
 ## RELATED MODELS
 
-This section could give the names of models in the NetLogo Models Library or elsewhere which are of related interest.
+For more examples of the Simple R Extension, see the other example models in the `sr` folder.
 
 ## CREDITS AND REFERENCES
-
-This section could contain a reference to the model's URL on the web if it has one, as well as any other necessary credits or references.
 
 <!-- 2025 -->]]></info>
   <turtleShapes>
@@ -654,13 +597,6 @@ This section could contain a reference to the model's URL on the web if it has o
         <point x="165" y="90"></point>
       </polygon>
     </shape>
-    <shape name="sheep" rotatable="false" editableColorIndex="0">
-      <rectangle endX="180" startY="225" marked="true" color="-1920102913" endY="285" startX="151" filled="true"></rectangle>
-      <rectangle endX="75" startY="225" marked="true" color="-1920102913" endY="285" startX="47" filled="true"></rectangle>
-      <rectangle endX="210" startY="75" marked="true" color="-1920102913" endY="225" startX="15" filled="true"></rectangle>
-      <circle x="135" y="75" marked="true" color="-1920102913" diameter="150" filled="true"></circle>
-      <circle x="165" y="76" marked="false" color="255" diameter="116" filled="true"></circle>
-    </shape>
     <shape name="square" rotatable="false" editableColorIndex="0">
       <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
     </shape>
@@ -854,5 +790,5 @@ This section could contain a reference to the model's URL on the web if it has o
       </indicator>
     </shape>
   </linkShapes>
-  <previewCommands>activate-javagd-plot-device test</previewCommands>
+  <previewCommands>test-plot</previewCommands>
 </model>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <model version="NetLogo 7.0.0-beta2" snapToGrid="false">
-  <code><![CDATA[;; Linear Regression example of R-extension
+  <code>;; InteractiveShell Example of R-extension
 ;;
 ;;
 ;; by Jan C. Thiele
@@ -18,145 +18,71 @@
 
 extensions [sr]
 
-patches-own
-[ food-items ]
-
-turtles-own
-[
-  memory ;; list of items-found of the last 20 days
-]
 
 to setup
   clear-all
   sr:setup
-  ;; create initial food sources on patches
-  create-food-sources
-  ;; create 10 turtles with random initial memory of collected food items
+
   create-turtles 10
   [
     set xcor random-xcor
     set ycor random-ycor
-    set heading random 360
-    set memory []
-    repeat 20
-    [
-      set memory lput random 5 memory
-    ]
   ]
 
-  ;; setup an R vector for the x variable
-  sr:run "x <- seq(1,20)"
-
+  ; send turtle variables to R
+  (sr:set-agent-data-frame "ag.df" turtles "who" "xcor" "ycor")
 end
 
-to go
 
-  ask turtles
-  [
-    ;; send the memory to R
-    sr:set "y" memory
-    ;; fit a linear model
-    sr:run "fm <- lm(y ~ x)"
-    ;; get the results back from R
-    let bb sr:runresult "fm$coefficient[1]"
-    let xx sr:runresult "fm$coefficient[2]"
-
-    let b item 1 item 0 bb
-    let x item 1 item 0 xx
-
-    ;; make a forecast for the next day
-    let forecast b + x * 11
-    if forecast < 0
-    [ set forecast 0 ]
-    output-show forecast
-
-    let items-found 0
-    ; move steps, depending on forecast, i.e. motivation and nutritional condition
-    repeat (forecast)
-    [
-      move-to patch-at-heading-and-distance random 90 1
-      if ([food-items] of patch-here > 0)
-      [
-        ;; collect food items of patch
-        ask patch-here
-        [
-          set items-found items-found + food-items
-          set food-items 0
-        ]
-      ]
-    ]
-    ;; add the current value to the memory
-    set memory lput items-found memory
-    ;; delete the oldest memory value
-    set memory remove-item 0 memory
-    ;; if turtle is 20 days without food -> die!
-    if (sum memory <= 0)
-    [ die ]
-  ]
-
-  create-food-sources
-end
-
-to create-food-sources
-  ask n-of 30 patches
-  [
-    set food-items random 15
-  ]
-  ask patches
-  [
-    ifelse (food-items > 0)
-    [ set pcolor yellow ]
-    [ set pcolor black ]
-  ]
+to open-interactiveshell
+  ; open interactiveShell
+  sr:show-console
 end
 
 
 ; Public Domain:
 ; To the extent possible under law, Uri Wilensky has waived all
-; copyright and related or neighboring rights to this model.]]></code>
+; copyright and related or neighboring rights to this model.</code>
   <widgets>
-    <view x="142" wrappingAllowedX="true" y="7" frameRate="30.0" minPycor="0" height="334" showTickCounter="true" patchSize="30.0" fontSize="10" wrappingAllowedY="true" width="334" tickCounterLabel="ticks" maxPycor="10" updateMode="1" maxPxcor="10" minPxcor="0"></view>
-    <button x="10" y="26" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="63">setup</button>
-    <button x="11" y="69" height="35" disableUntilTicks="false" forever="true" kind="Observer" width="63">go</button>
-    <monitor x="15" precision="17" y="122" height="60" fontSize="11" width="100">count turtles</monitor>
-    <output x="504" y="37" height="417" fontSize="12" width="332"></output>
-    <note x="506" y="8" backgroundDark="0" fontSize="12" width="150" markdown="false" height="25" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Forecast for next day</note>
+    <view x="526" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-16" height="268" showTickCounter="true" patchSize="8.0" fontSize="10" wrappingAllowedY="true" width="268" tickCounterLabel="ticks" maxPycor="16" updateMode="1" maxPxcor="16" minPxcor="-16"></view>
+    <note x="15" y="67" backgroundDark="0" fontSize="11" width="415" markdown="false" height="163" textColorDark="-1" textColorLight="-16777216" backgroundLight="0"><![CDATA[Click the button and try the following commands in the interactiveShell:
+# show the content of global environment
+ls()
+# show the content of the local NetLogo environment
+ls(nl.env)
+# copy the local variable ag.df to global environment
+ag.df.glob <- get("ag.df",nl.env)
+# show structure of new variable
+str(ag.df.glob)
+
+]]></note>
+    <button x="16" y="14" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="79">setup
+</button>
+    <button x="8" y="254" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="148">open-interactiveshell</button>
+    <note x="8" y="302" backgroundDark="0" fontSize="11" width="363" markdown="false" height="56" textColorDark="-1" textColorLight="-16777216" backgroundLight="0"><![CDATA[Note: If you want to assign a variable into the global environment you could use in NetLogo the "<<-" operator, like x <<- 10.2
+]]></note>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
-This section could give a general understanding of what the model is trying to show or explain.
+This model demonstrates the use of the interactive shell provided with the Simple R extension.
 
 ## HOW IT WORKS
 
-This section could explain what rules the agents use to create the overall behavior of the model.
+When the interactive shell is set up, the model creates a set of turtles and assigns it to the local R variable `ag.df`. This variable can then be used in Simple R primitives such as `sr:run`, in addition to the interactive shell.
 
 ## HOW TO USE IT
 
-This section could explain how to use the model, including a description of each of the items in the interface tab.
-
-## THINGS TO NOTICE
-
-This section could give some ideas of things for the user to notice while running the model.
+First click the `setup` button, which will create the turtles and set up the R environment. Then, click the `open-interactiveshell` button, or select the "Pop-out Interpreter" option from the "SimpleR Extension" menu. Start by typing the commands indicated in the note widget under the `setup` button.
 
 ## THINGS TO TRY
 
-This section could give some ideas of things for the user to try to do (move sliders, switches, etc.) with the model.
-
-## EXTENDING THE MODEL
-
-This section could give some ideas of things to add or change in the procedures tab to make the model more complicated, detailed, accurate, etc.
-
-## NETLOGO FEATURES
-
-This section could point out any especially interesting or unusual features of NetLogo that the model makes use of, particularly in the Procedures tab.  It might also point out places where workarounds were needed because of missing features.
+Try using other R commands in the interactive shell, such as the statistical functions demonstrated in the other Simple R example models.
 
 ## RELATED MODELS
 
-This section could give the names of models in the NetLogo Models Library or elsewhere which are of related interest.
+For more examples of the Simple R Extension, see the other example models in the `sr` folder.
 
 ## CREDITS AND REFERENCES
-
-This section could contain a reference to the model's URL on the web if it has one, as well as any other necessary credits or references.
 
 <!-- 2025 -->]]></info>
   <turtleShapes>
@@ -868,5 +794,5 @@ This section could contain a reference to the model's URL on the web if it has o
       </indicator>
     </shape>
   </linkShapes>
-  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+  <previewCommands>setup</previewCommands>
 </model>

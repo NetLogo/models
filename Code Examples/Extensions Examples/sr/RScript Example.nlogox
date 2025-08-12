@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <model version="NetLogo 7.0.0-beta2" snapToGrid="false">
-  <code><![CDATA[;; Package Example of R-extension
+  <code>;; RScript Example of R-extension
 ;;
 ;;
 ;; by Jan C. Thiele
@@ -18,131 +18,52 @@
 
 extensions [sr]
 
-to test-pcf1
-  sr:setup
 
-  ;; creates a plot of the pair correlation function (after Stoyan)
-  ;; for the example dataset "simdat"
-  sr:run "library(spatstat)"
-
-  sr:run "data(simdat)"
-  sr:run "p <- pcf(simdat)"
-  sr:run "K <- Kest(simdat)"
-  sr:run "p2 <- pcf(K)"
-
-  clear-plot
-  update-plots
-end
-
-
-to test-pcf2
+to test
   clear-all
-
-  ;; comment out the next line if you want new behavior each time
-  random-seed 42415
-
-  ;;If you do comment it out
-  ;;If you may get the error
-  ;;Extension exception: object 'agppp' not found
-  ;;error while observer running SR:RUN
-  ;;  called by procedure GO
-  ;;  called by Button 'go'
-  ;;
-  ;;it is probably because when   sr:run revalstring
-  ;;was executed there was an error
-  ;;which produced a message in the command center such as
-  ;;Warning from R environment:  3 points were rejected as lying outside the specified window
-
   sr:setup
-  ;; creates 20 turtles and distribute them over the world randomly.
-  ;; Assigns an R-point-pattern from the locations of the turtles and calculates the pair correlation function.
-  sr:run "library(spatstat)"
+  ;; file contains a function with the name "x" which calculates the geometric mean of a vector
+  let evalstring (word "source('" path "')")
+  sr:run evalstring
 
-  create-turtles 20
-  [
-    set xcor random-xcor
-    set ycor random-ycor
-  ]
-
-  (sr:set-agent-data-frame "agentset" turtles "who" "xcor" "ycor")
-
-  let owin-x (word "c(" min-pxcor "," max-pxcor ")")
-  let owin-y (word "c(" min-pycor "," max-pycor ")")
-
-  let revalstring (word "agppp <- ppp(agentset$xcor, agentset$ycor, " owin-x "," owin-y ")")
-
-  sr:run revalstring
-
-  sr:run "p <- pcf(agppp)"
-  sr:run "K <- Kest(agppp)"
-  sr:run "p2 <- pcf(K)"
-
-  clear-plot
-  update-plots
+  ;; we can use the loaded function "x" now:
+  output-print "The geometric mean of"
+  output-print "vector 1,...,10 is:"
+  output-print sr:runresult "x(seq(1:10))"
 end
 
 
 ; Public Domain:
 ; To the extent possible under law, Uri Wilensky has waived all
-; copyright and related or neighboring rights to this model.]]></code>
+; copyright and related or neighboring rights to this model.</code>
   <widgets>
-    <view x="400" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="0" height="433" showTickCounter="true" patchSize="13.0" fontSize="10" wrappingAllowedY="true" width="433" tickCounterLabel="ticks" maxPycor="32" updateMode="1" maxPxcor="32" minPxcor="0"></view>
-    <note x="7" y="19" backgroundDark="0" fontSize="17" width="337" markdown="false" height="42" textColorDark="-1" textColorLight="-2674135" backgroundLight="0">R-Package "spatstat" has to be installed!</note>
-    <button x="8" y="53" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="82">test-pcf1</button>
-    <plot x="9" autoPlotX="true" yMax="1.0" autoPlotY="true" yAxis="pcf(r)" y="100" xMin="0.0" height="255" legend="false" xMax="1.0" yMin="0.0" width="383" xAxis="r" display="pair correlation function">
-      <setup></setup>
-      <update><![CDATA[let pcf_r (sr:runresult "p2$pcf")
-let r (sr:runresult "p2$r")
-
-let pcf (map [ [?1 ?2] -> list ?1 ?2 ] r pcf_r)
-
-foreach pcf
-[ ?1 ->
-  plotxy (item 0 ?1) (item 1 ?1)
-]]]></update>
-      <pen interval="1.0" mode="0" display="default" color="-16777216" legend="true">
-        <setup></setup>
-        <update></update>
-      </pen>
-    </plot>
-    <button x="197" y="55" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="83">clear-plot</button>
-    <button x="99" y="54" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="85">test-pcf2</button>
+    <view x="343" wrappingAllowedX="true" y="6" frameRate="30.0" minPycor="-16" height="433" showTickCounter="true" patchSize="13.0" fontSize="10" wrappingAllowedY="true" width="433" tickCounterLabel="ticks" maxPycor="16" updateMode="1" maxPxcor="16" minPxcor="-16"></view>
+    <button x="18" y="46" height="54" disableUntilTicks="false" forever="false" kind="Observer" width="270" display="choose path to rfunction1.r in R extension">set path user-file</button>
+    <output x="18" y="264" height="77" fontSize="12" width="216"></output>
+    <input x="18" multiline="false" y="104" height="60" variable="path" type="string" width="236">rfunction1.r</input>
+    <button x="18" y="170" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="63">test</button>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
-This section could give a general understanding of what the model is trying to show or explain.
+This model demonstrates how to use the R function `source` to run an R script that is saved to an external file.
 
 ## HOW IT WORKS
 
-This section could explain what rules the agents use to create the overall behavior of the model.
+The model loads the R source from the specified file and runs it with the R function `source`, displaying the output in the output widget.
 
 ## HOW TO USE IT
 
-This section could explain how to use the model, including a description of each of the items in the interface tab.
-
-## THINGS TO NOTICE
-
-This section could give some ideas of things for the user to notice while running the model.
+First, select your desired R script file in the `path` input widget. You can enter the path directly into the input field, or you can click the `choose path...` button to open a file chooser dialog. Then, click the `test` button, which will run your script and display the output in the output widget.
 
 ## THINGS TO TRY
 
-This section could give some ideas of things for the user to try to do (move sliders, switches, etc.) with the model.
-
-## EXTENDING THE MODEL
-
-This section could give some ideas of things to add or change in the procedures tab to make the model more complicated, detailed, accurate, etc.
-
-## NETLOGO FEATURES
-
-This section could point out any especially interesting or unusual features of NetLogo that the model makes use of, particularly in the Procedures tab.  It might also point out places where workarounds were needed because of missing features.
+Try using your own R script instead of the one provided with NetLogo.
 
 ## RELATED MODELS
 
-This section could give the names of models in the NetLogo Models Library or elsewhere which are of related interest.
+For more examples of the Simple R Extension, see the other example models in the `sr` folder.
 
 ## CREDITS AND REFERENCES
-
-This section could contain a reference to the model's URL on the web if it has one, as well as any other necessary credits or references.
 
 <!-- 2025 -->]]></info>
   <turtleShapes>
@@ -854,5 +775,5 @@ This section could contain a reference to the model's URL on the web if it has o
       </indicator>
     </shape>
   </linkShapes>
-  <previewCommands>test-pcf2</previewCommands>
+  <previewCommands>test</previewCommands>
 </model>

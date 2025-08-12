@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <model version="NetLogo 7.0.0-beta2" snapToGrid="false">
-  <code><![CDATA[;; Ripley's K example of R-extension
+  <code><![CDATA[;; patches to RMatrix example of R-extension
 ;;
 ;;
 ;; by Jan C. Thiele
@@ -16,59 +16,38 @@
 
 ;; Converted to run with the SimpleR-Extension
 
-;If you get the error
-;Extension exception: object 'agppp' not found
-;error while observer running SR:RUN
-;  called by procedure GO
-;  called by Button 'go'
-;
-;it is probably because when   sr:run revalstring
-;was executed there was an error
-;which produced a message in the command center such as
-;Warning from R environment:  3 points were rejected as lying outside the specified window
-
-
 extensions [sr]
 
 to setup
   clear-all
-  ;; If you use this random seed you won't get an error
-  ;;random-seed 1971
   sr:setup
-  ;; load R package spatstat for spatial statistics
-  sr:run "library(spatstat)"
 
-  ;; create 20 turtles at random positions
-  create-turtles 20
+  ; create patches with random color
+  ask patches
   [
-    set xcor random-xcor
-    set ycor random-ycor
+    set pcolor random 250
   ]
 
   reset-ticks
 end
 
-to go
-  ;; let the turtles walk around randomly
-  ask turtles
-  [
-    right random 360
-    forward random 10
-  ]
+to send-patches-to-r
+  ; send patches color to data.frame
+   (sr:set-agent-data-frame "patches" patches "pxcor" "pycor" "pcolor")
+end
 
-  ;; send agent variables into an R data-frame
-  (sr:set-agent-data-frame "agentset" turtles "who" "xcor" "ycor")
+to create-matrix
+  ; get worlds dimension and send it to R
+  sr:set "xdim" world-width
+  ; create matrix from data.frame column pcolor
+  sr:run "m1 <- matrix(patches$pcolor, xdim)"
+  ; transpose matrix
+  sr:run "m1 <- t(m1)"
 
-  ;; create point pattern with vectors of x- and y-coordinates of turtles and the dimension of the window/world
-  let revalstring (word "agppp <- ppp(agentset$xcor, agentset$ycor, c(" min-pxcor "," max-pxcor "), c(" min-pycor "," max-pycor ") )")
-
-  sr:run revalstring
-
-  ;; calculate Ripley's K function
-  sr:run "K <- Kest(agppp)"
-
-  clear-plot
-  update-plots
+  ; open interactive shell
+  sr:show-console
+  ; print the matrix into the interactive shell output window
+  sr:run "print(m1)"
 end
 
 
@@ -76,74 +55,36 @@ end
 ; To the extent possible under law, Uri Wilensky has waived all
 ; copyright and related or neighboring rights to this model.]]></code>
   <widgets>
-    <view x="479" wrappingAllowedX="true" y="57" frameRate="30.0" minPycor="-16" height="334" showTickCounter="true" patchSize="10.0" fontSize="10" wrappingAllowedY="true" width="334" tickCounterLabel="ticks" maxPycor="16" updateMode="1" maxPxcor="16" minPxcor="-16"></view>
-    <button x="7" y="97" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="63">go</button>
-    <plot x="75" autoPlotX="true" yMax="1.0" autoPlotY="true" yAxis="K(r)" y="55" xMin="0.0" height="355" legend="false" xMax="1.0" yMin="0.0" width="353" xAxis="r" display="Ripley's K function">
-      <setup></setup>
-      <update><![CDATA[;; get results from R
-let ripl_k sr:runresult "K$iso"
-let r sr:runresult "K$r"
-let theo sr:runresult "K$theo"
-
-;; combine results into a multidimensional list for plotting
-let ripl (map [ [?1 ?2 ?3] -> (list ?1 ?2 ?3) ] r ripl_k theo)
-
-;; plot the results
-foreach ripl
-[ ?1 ->
-  set-current-plot "Ripley's K function"
-  set-current-plot-pen "K(r)"
-  plotxy (item 0 ?1) (item 1 ?1)
-  set-current-plot-pen "theo"
-  plotxy (item 0 ?1) (item 2 ?1)
-]]]></update>
-      <pen interval="1.0" mode="0" display="K(r)" color="-16777216" legend="true">
-        <setup></setup>
-        <update></update>
-      </pen>
-      <pen interval="1.0" mode="0" display="theo" color="-2674135" legend="true">
-        <setup></setup>
-        <update></update>
-      </pen>
-    </plot>
-    <note x="9" y="13" backgroundDark="0" fontSize="17" width="367" markdown="false" height="32" textColorDark="-1" textColorLight="-2674135" backgroundLight="0">R-Package "spatstat" has to be installed!</note>
-    <button x="8" y="56" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="63">setup</button>
+    <view x="210" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="0" height="94" showTickCounter="true" patchSize="30.0" fontSize="10" wrappingAllowedY="true" width="154" tickCounterLabel="ticks" maxPycor="2" updateMode="1" maxPxcor="2" minPxcor="-2"></view>
+    <button x="7" y="21" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="63">setup</button>
+    <button x="7" y="64" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="124">send-patches-to-r</button>
+    <button x="8" y="108" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="162" display="create and show matrix">create-matrix</button>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
-This section could give a general understanding of what the model is trying to show or explain.
+This model demonstrates how to create an R matrix using the Simple R extension.
 
 ## HOW IT WORKS
 
-This section could explain what rules the agents use to create the overall behavior of the model.
+This model shows an example of how you can create an R matrix from the world's patch colors. The resulting matrix has the same dimensions as the world, and each element contains the corresponding patch's `pcolor` as a NetLogo number.
 
 ## HOW TO USE IT
 
-This section could explain how to use the model, including a description of each of the items in the interface tab.
-
-## THINGS TO NOTICE
-
-This section could give some ideas of things for the user to notice while running the model.
+To initialize the R environment and set up the patches, click the `setup` button. Then, to create the R matrix, click `send-patches-to-r`. Finally, to display the resulting matrix, click `create and show matrix`.
 
 ## THINGS TO TRY
 
-This section could give some ideas of things for the user to try to do (move sliders, switches, etc.) with the model.
+Try changing the world dimensions to see how the resulting R matrix changes.
 
 ## EXTENDING THE MODEL
 
-This section could give some ideas of things to add or change in the procedures tab to make the model more complicated, detailed, accurate, etc.
-
-## NETLOGO FEATURES
-
-This section could point out any especially interesting or unusual features of NetLogo that the model makes use of, particularly in the Procedures tab.  It might also point out places where workarounds were needed because of missing features.
+To extend the model, you can try performing some sort of data analysis on the generated R matrix. For example, you could calculate the mean patch color. You can also try adding a procedure that reads the patch colors back in from the R matrix and sets the corresponding patch colors in the view.
 
 ## RELATED MODELS
 
-This section could give the names of models in the NetLogo Models Library or elsewhere which are of related interest.
+For more examples of the Simple R Extension, see the other example models in the `sr` folder.
 
 ## CREDITS AND REFERENCES
-
-This section could contain a reference to the model's URL on the web if it has one, as well as any other necessary credits or references.
 
 <!-- 2025 -->]]></info>
   <turtleShapes>
@@ -862,5 +803,5 @@ This section could contain a reference to the model's URL on the web if it has o
       </indicator>
     </shape>
   </linkShapes>
-  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+  <previewCommands>setup send-patches-to-r create-matrix</previewCommands>
 </model>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<model version="NetLogo 7.0.0-beta2" snapToGrid="false">
-  <code><![CDATA[;; patches to RMatrix example of R-extension
+<model version="NetLogo 7.0.0-beta2" snapToGrid="true">
+  <code><![CDATA[;; DataFile Example of R-extension
 ;;
 ;;
 ;; by Jan C. Thiele
@@ -18,36 +18,64 @@
 
 extensions [sr]
 
-to setup
+turtles-own [test]
+
+to create-and-write-data
   clear-all
   sr:setup
-
-  ; create patches with random color
-  ask patches
+  create-turtles 30
   [
-    set pcolor random 250
+    set xcor random-xcor
+    set ycor random-ycor
   ]
 
+  (sr:set-agent-data-frame "ag" turtles "who" "xcor" "ycor")
+
+  let evalstring (word "write.table(ag ,file='" path "')")
+  sr:run evalstring
   reset-ticks
 end
 
-to send-patches-to-r
-  ; send patches color to data.frame
-   (sr:set-agent-data-frame "patches" patches "pxcor" "pycor" "pcolor")
+
+to load-and-show-data
+  clear-all
+
+  let evalstring (word "ag <- read.table(file='" path "')")
+  sr:run evalstring
+
+  let xc sr:runresult "ag$xcor"
+  let yc  sr:runresult "ag$ycor"
+
+  let xypos (map [ [?1 ?2] -> list ?1 ?2 ] xc yc)
+
+  foreach xypos
+  [ ?1 ->
+    create-turtles 1
+    [
+      set xcor (item 0 ?1)
+      set ycor (item 1 ?1)
+    ]
+  ]
 end
 
-to create-matrix
-  ; get worlds dimension and send it to R
-  sr:set "xdim" world-width
-  ; create matrix from data.frame column pcolor
-  sr:run "m1 <- matrix(patches$pcolor, xdim)"
-  ; transpose matrix
-  sr:run "m1 <- t(m1)"
 
-  ; open interactive shell
-  sr:show-console
-  ; print the matrix into the interactive shell output window
-  sr:run "print(m1)"
+to write-data-with-vector-dataframe
+  clear-all
+
+  create-turtles 30
+  [
+    set xcor random-xcor
+    set ycor random-ycor
+    set test (list random 10 random 20 random 30)
+  ]
+
+  (sr:set-agent-data-frame "ag" turtles "who" "xcor" "ycor" "test")
+
+  ; mark column test as class "AsIs"
+  sr:run "ag$test <- I(ag$test)"
+
+  let evalstring (word "write.table(ag ,file='" path "')")
+  sr:run evalstring
 end
 
 
@@ -55,46 +83,37 @@ end
 ; To the extent possible under law, Uri Wilensky has waived all
 ; copyright and related or neighboring rights to this model.]]></code>
   <widgets>
-    <view x="210" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="0" height="94" showTickCounter="true" patchSize="30.0" fontSize="10" wrappingAllowedY="true" width="154" tickCounterLabel="ticks" maxPycor="2" updateMode="1" maxPxcor="2" minPxcor="-2"></view>
-    <button x="7" y="21" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="63">setup</button>
-    <button x="7" y="64" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="124">send-patches-to-r</button>
-    <button x="8" y="108" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="162" display="create and show matrix">create-matrix</button>
+    <view x="254" wrappingAllowedX="true" y="10" frameRate="30.0" minPycor="-16" height="433" showTickCounter="true" patchSize="13.0" fontSize="10" wrappingAllowedY="true" width="433" tickCounterLabel="ticks" maxPycor="16" updateMode="1" maxPxcor="16" minPxcor="-16"></view>
+    <button x="8" y="152" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="215">create-and-write-data</button>
+    <input x="5" multiline="false" y="57" height="60" variable="path" type="string" width="216">datafile.txt</input>
+    <button x="8" y="196" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="215">load-and-show-data</button>
+    <button x="9" y="350" height="35" disableUntilTicks="true" forever="false" kind="Observer" width="219">write-data-with-vector-dataframe</button>
+    <note x="11" y="258" backgroundDark="0" fontSize="11" width="222" markdown="false" height="81" textColorDark="-1" textColorLight="-16777216" backgroundLight="0">Note: The R-Extension allows you to create a data.frame with a vector in each row of a column. This is not common in data.frames. Therefore, you have to mark this column as class "AsIs" by using the I(x) function for this column if you want to use write.table.</note>
+    <button x="5" y="14" height="35" disableUntilTicks="false" forever="false" kind="Observer" width="215" display="select path">set path user-new-file</button>
   </widgets>
   <info><![CDATA[## WHAT IS IT?
 
-This section could give a general understanding of what the model is trying to show or explain.
+This model demonstrates the use of the `write.table` and `read.table` functions in R, showing how they can be used to save and load turtle positions.
 
 ## HOW IT WORKS
 
-This section could explain what rules the agents use to create the overall behavior of the model.
+When writing to a file, the model creates a set of turtles and writes their positions to the specified file. When reading a file, the model loads the positions from the specified file, creating a new turtle for each position.
 
 ## HOW TO USE IT
 
-This section could explain how to use the model, including a description of each of the items in the interface tab.
+First, select your desired output file in the `path` input widget. You can type a path directly into the input field, or you can click the `select path` button to open a file chooser dialog. After selecting an output file, click the `create-and-write-data` button. To load the turtle positions back in, clear the world with `clear-turtles`, then click the `load-and-show-data` button.
 
-## THINGS TO NOTICE
-
-This section could give some ideas of things for the user to notice while running the model.
-
-## THINGS TO TRY
-
-This section could give some ideas of things for the user to try to do (move sliders, switches, etc.) with the model.
+For a more advanced writing example, you can use the `write-data-with-vector-dataframe` button to write the value of a turtle variable to the file along with each turtle's position. Note that the additional variable cannot be loaded after writing.
 
 ## EXTENDING THE MODEL
 
-This section could give some ideas of things to add or change in the procedures tab to make the model more complicated, detailed, accurate, etc.
-
-## NETLOGO FEATURES
-
-This section could point out any especially interesting or unusual features of NetLogo that the model makes use of, particularly in the Procedures tab.  It might also point out places where workarounds were needed because of missing features.
+Try extending the `create-and-write-data` and `load-and-show-data` procedures to allow writing and loading additional turtle variables, such as `heading` or `color`. For a more advanced extension, you can also try adding a procedure to load the data created by the `write-data-with-vector-dataframe` button.
 
 ## RELATED MODELS
 
-This section could give the names of models in the NetLogo Models Library or elsewhere which are of related interest.
+For more examples of the Simple R Extension, see the other example models in the `sr` folder.
 
 ## CREDITS AND REFERENCES
-
-This section could contain a reference to the model's URL on the web if it has one, as well as any other necessary credits or references.
 
 <!-- 2025 -->]]></info>
   <turtleShapes>
@@ -613,13 +632,6 @@ This section could contain a reference to the model's URL on the web if it has o
         <point x="165" y="90"></point>
       </polygon>
     </shape>
-    <shape name="sheep" rotatable="false" editableColorIndex="0">
-      <rectangle endX="180" startY="225" marked="true" color="-1920102913" endY="285" startX="151" filled="true"></rectangle>
-      <rectangle endX="75" startY="225" marked="true" color="-1920102913" endY="285" startX="47" filled="true"></rectangle>
-      <rectangle endX="210" startY="75" marked="true" color="-1920102913" endY="225" startX="15" filled="true"></rectangle>
-      <circle x="135" y="75" marked="true" color="-1920102913" diameter="150" filled="true"></circle>
-      <circle x="165" y="76" marked="false" color="255" diameter="116" filled="true"></circle>
-    </shape>
     <shape name="square" rotatable="false" editableColorIndex="0">
       <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
     </shape>
@@ -813,5 +825,5 @@ This section could contain a reference to the model's URL on the web if it has o
       </indicator>
     </shape>
   </linkShapes>
-  <previewCommands>setup send-patches-to-r create-matrix</previewCommands>
+  <previewCommands>create-and-write-data load-and-show-data</previewCommands>
 </model>
