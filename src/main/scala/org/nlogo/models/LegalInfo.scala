@@ -14,7 +14,7 @@ object LegalInfo {
   val pattern =
     """<!-- (\d\d\d\d)( \d\d\d\d)?(( \w+)*)( Cite: .*)? -->""".r
   val validKeywords = List(
-    "MIT", "Wilensky", "specialCE", "MAC", "Steiner",
+    "MIT", "Wilensky", "specialCE", "MAC", "ONLY", "Steiner",
     "Stroup", "3D", "NIELS", "ConChem", "CC0", "BYSA",
     "GenEvo", "MTG", "PNoM", "MAM2019", "MAM2021", "CTSTEM")
   val hubnetCitation =
