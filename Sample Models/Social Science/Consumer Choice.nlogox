@@ -1,0 +1,1187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<model version="NetLogo 7.0.0-beta2" snapToGrid="true">
+  <code><![CDATA[breed [ consumers consumer ]
+
+consumers-own [
+  choice               ; Selected product by the consumer: 0 for orange or 1 for blue
+  satisfaction         ; Levels of satisfaction based on product quality
+  personal-experience  ; Consumer's personal experience from using products
+  utilities            ; Overall utilities from personal experiences and information gathered from neighbors
+]
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Setup Procedures ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;
+to setup
+  clear-all
+  ask patches [set pcolor white]
+  setup-consumers
+  setup-connections
+  reset-ticks
+end
+
+to setup-consumers
+  set-default-shape turtles "circle"
+  create-consumers num-consumers [
+    setxy random-xcor random-ycor
+    ; Randomly assign consumers to be either orange or blue product consumers
+    ifelse random 100 < initial-%-orange-product [
+      ; Orange product consumer initialization
+      set choice 0                                ; Set choice to 0 for orange product
+      set utilities [1 0]                         ; Initial utilities for choosing orange
+    ] [
+      ; Blue product consumer initialization
+      set choice 1                                ; Set choice to 1 for blue product
+      set utilities [0 1]                           ; Initial utilities for choosing blue
+    ]
+
+    ; Set initial satisfaction based on consumer's choice
+    set satisfaction satisfaction-formation       ; Initial satisfaction based on product quality
+    set personal-experience [0 0]                 ; Initial experience (no prior consumption)
+
+    ; Update consumer appearance (color, shape, and size)
+    update-consumer-appearance
+  ]
+end
+
+to update-consumer-appearance                     ; Adjust appearance based on consumer's product choice
+  ifelse choice = 0 [
+    ; Appearance for orange product consumers
+    set color orange
+    set size 0.5 * (1 + 4 * quality-orange); Size based on quality of the orange product
+  ] [
+    ; Appearance for blue product consumers
+    set color blue
+    set size 0.5 * (1 + 4 * quality-blue)  ; Size based on quality of the blue product
+  ]
+end
+
+to setup-connections                                    ; Establish social links among consumers based on average social connections
+  let num-links (avg-connections * num-consumers) / 2
+  while [ count links < num-links ]                     ; Continue creating links until the desired number is reached
+    [ ask one-of consumers [
+       let target min-one-of (other consumers with [ not link-neighbor? myself ]) [ distance myself ]; Find the nearest consumer not already linked to the current consumer
+       if target != nobody [ create-link-with target ]  ; Create a link if a valid target is found
+      ]
+    ]
+  update-link-appearance
+end
+
+to update-link-appearance                               ; Adjust link colors based on norm-influence and information-exchange values
+  ask links [
+   ifelse norm-influence = 0 and information-exchange = 0
+     [ set color gray + 2]                              ; Set links to a visible light gray when both norm-influence and information-exchange are 0
+     [ set color scale-color black (1 - (norm-influence + information-exchange)) 0.5 1 ]; Scale link color to black based on value of norm-influence and information-exchange
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;;; Main Procedures ;;;
+;;;;;;;;;;;;;;;;;;;;;;;
+to go
+  consume                                        ; Consumers make a choice between the two products
+  update-utilities                               ; Update consumers' utiltiy based on the information
+  update-link-appearance                         ; Adjust link appearance to reflect changes in norm-influence or information-exchange
+  tick                                           ; Advance the simulation by one tick
+end
+
+to consume
+  ask consumers [
+    ; Decide whether to stick with current product, explore new options, or choose based on utilities
+    (ifelse
+      random-float 1 < item choice satisfaction [ set choice choice ] ; Higher satisfaction -> more likely to stick with current product
+      random-float 1 < exploration [set choice 1 - choice]            ; If not satisfied, maybe try randomly switching to other product
+      item 0 utilities != item 1 utilities [                          ; If not satisfied and not randomly exploring, pick product with higher utilities
+          set choice ifelse-value (item 0 utilities > item 1 utilities) [0] [1]
+      ]
+    )
+
+    ; Update consumers' satisfaction and appearance based on their choice
+    set satisfaction satisfaction-formation
+    update-consumer-appearance
+  ]
+end
+
+to update-utilities           ; Calculates utilities by combining personal experiences and information gathered from neighbors
+  ask consumers [
+    foreach [0 1] [option ->
+      ; Update personal experience based on current choice
+      if choice = option [
+        set personal-experience replace-item choice personal-experience (item choice quality-products)
+      ]
+
+      ; Gather product quality info from neighbors based on information-exchange probability.
+      ; Currently, we assume that neighbor-info is fully updated if any linked neighbors have chosen the same product (as option)
+      let neighbor-info 0     ; Stores product quality information from neighbors during calculations
+      if (random-float 1 <= information-exchange) and (any? link-neighbors with [choice = option]) [
+        set neighbor-info item option quality-products
+      ]
+
+      ; Update norm-utilities based on observed neighbor choices
+      let norm-util 0         ; Stores norm-based utilities during calculations
+      if any? link-neighbors [
+        set norm-util (count link-neighbors with [choice = option] / count link-neighbors)
+      ]
+      ; Combine personal experience with neighbor information to create temporary product utility
+      let self-info item option personal-experience
+      let prod-util (self-info + neighbor-info) / 2
+
+      ; Integrate product utility with norm-based utility using norm-influence
+      set utilities replace-item option utilities (norm-influence * norm-util + (1 - norm-influence) * prod-util)
+    ]
+  ]
+end
+
+;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;Reporters ;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;
+to-report quality-products       ; Report the quality of products
+  report list quality-orange quality-blue
+end
+
+to-report satisfaction-formation
+  ; We assume that the satisfaction derived from consuming a product has a logarithmic relationship with its quality.
+  ; Alternatively, satisfaction could also follow a linear relationship with product quality.
+  let satis-temp [0 0]
+  set satis-temp replace-item choice satis-temp (log (1 + 9 * item choice quality-products) 10)   ; Logarithmic transformation
+  ;set satis-temp replace-item choice satis-temp (item choice quality-products)                   ; Linear transformation
+  report satis-temp
+end
+
+to-report consumer-cluster  ; Cluster analysis to assess clustering between the agent and neighboring agents
+  let cluster-list []       ; Initialize an empty list to store cluster values
+  ask consumers [
+    let num-neighbors count link-neighbors                                       ; Count the number of neighboring agents
+    let num-same count link-neighbors with [ choice = [choice] of myself ]       ; Count neighbors with the same choice
+    let a-cluster ifelse-value (num-neighbors = 0) [0] [num-same / num-neighbors]; Calculate the cluster value, defaulting to 0 if there are no neighbors
+    set cluster-list lput a-cluster cluster-list                                 ; Add the cluster value to the list
+  ]
+  report (sum cluster-list / num-consumers)                                      ; Return the average clustering value
+end
+
+
+; Copyright 2024 Uri Wilensky.
+; See Info tab for full copyright and license.]]></code>
+  <widgets>
+    <view x="240" wrappingAllowedX="false" y="10" frameRate="30.0" minPycor="-25" height="520" showTickCounter="true" patchSize="10.2" fontSize="10" wrappingAllowedY="false" width="520" tickCounterLabel="ticks" maxPycor="25" updateMode="1" maxPxcor="25" minPxcor="-25"></view>
+    <note x="5" y="10" backgroundDark="0" fontSize="14" width="186" markdown="false" height="18" textColorDark="-1" textColorLight="-5298144" backgroundLight="0">Community Settings</note>
+    <slider x="5" step="10" y="35" max="1000" width="220" display="num-consumers" height="50" min="0" direction="Horizontal" default="100.0" variable="num-consumers"></slider>
+    <slider x="5" step="1" y="90" max="10" width="220" display="avg-connections" height="50" min="0" direction="Horizontal" default="5.0" variable="avg-connections"></slider>
+    <slider x="5" step="10" y="145" max="100" width="220" display="initial-%-orange-product" height="50" min="0" direction="Horizontal" default="50.0" variable="initial-%-orange-product" units="%"></slider>
+    <button x="5" y="205" height="40" disableUntilTicks="false" forever="false" kind="Observer" width="70" display="setup">SETUP</button>
+    <button x="155" y="205" height="40" disableUntilTicks="true" forever="false" kind="Observer" width="70" display="go-once">go</button>
+    <button x="80" y="205" height="40" disableUntilTicks="true" forever="true" kind="Observer" width="70" display="go">go</button>
+    <slider x="5" step="0.05" y="290" max="1" width="220" display="norm-influence" height="50" min="0" direction="Horizontal" default="0.15" variable="norm-influence"></slider>
+    <slider x="5" step="0.05" y="550" max="1" width="220" display="quality-blue" height="50" min="0" direction="Horizontal" default="0.5" variable="quality-blue"></slider>
+    <note x="0" y="470" backgroundDark="0" fontSize="14" width="165" markdown="false" height="19" textColorDark="-1" textColorLight="-5298144" backgroundLight="0">Product Settings</note>
+    <note x="10" y="265" backgroundDark="0" fontSize="14" width="115" markdown="false" height="18" textColorDark="-1" textColorLight="-5298144" backgroundLight="0">Agent Settings</note>
+    <slider x="5" step="0.05" y="345" max="1" width="220" display="information-exchange" height="50" min="0" direction="Horizontal" default="0.05" variable="information-exchange"></slider>
+    <slider x="5" step="0.01" y="400" max="1" width="220" display="exploration" height="50" min="0" direction="Horizontal" default="0.01" variable="exploration"></slider>
+    <slider x="5" step="0.05" y="495" max="1" width="220" display="quality-orange" height="50" min="0" direction="Horizontal" default="0.5" variable="quality-orange"></slider>
+    <plot x="770" autoPlotX="true" yMax="10.0" autoPlotY="true" y="9" xMin="0.0" height="260" legend="false" xMax="10.0" yMin="0.0" width="410" xAxis="ticks" display="market-shares">
+      <setup></setup>
+      <update></update>
+      <pen interval="1.0" mode="0" display="orange" color="-955883" legend="true">
+        <setup></setup>
+        <update>plot count turtles with [choice = 0]</update>
+      </pen>
+      <pen interval="1.0" mode="0" display="blue" color="-13345367" legend="true">
+        <setup></setup>
+        <update>plot count turtles with [choice = 1]</update>
+      </pen>
+    </plot>
+    <plot x="770" autoPlotX="true" yMax="1.0" autoPlotY="true" y="283" xMin="0.0" height="255" legend="false" xMax="10.0" yMin="0.0" width="410" xAxis="ticks" display="consumers-clustering">
+      <setup></setup>
+      <update></update>
+      <pen interval="1.0" mode="0" display="default" color="-16777216" legend="true">
+        <setup></setup>
+        <update>plot consumer-cluster</update>
+      </pen>
+    </plot>
+  </widgets>
+  <info><![CDATA[## WHAT IS IT?
+
+This model simulates how social influence and habits affect the sales-dynamics of a market with two competing products with changeble quality. Social influence can be informative (learning from others about the product) and normative (being influenced to behave like others). Agents can explore the quality of a product (learning by trying). They also can ask friends about the quality of a product (social learning). The total utility they get from using a product not only depends on the quality of this product (product utility), but also on abiding to the norm by using the same product as a majority of their friends (norm-based utility).
+
+Information and norms are communicated through personal network of friends, the size of which can be varied. More social influence can be seen as deeper gray connecting lines.
+
+The more satisfied the agents are with a product (product utility), the less they invest in exploration and information exchange, thus displaying more habitual behaviour.
+
+The model produces a graph showing the market shares of the two products over time. Also the consumers clustering is depicted, a higher score indicating networks of friends increasingly use the same product.
+
+The model can generate different market dynamics, such as the clustering of consumption due to norms, tipping points and normative lock-ins, where a higher quality product goes against the norm.
+
+## HOW IT WORKS
+
+DURING GO
+
+During the model's operation, agents choose between two products: the **blue** and the **orange**.The more satisfied they are with a product, the more likely they habitually stay with it. The less satified they get, the more likely they are to switch to another product or select an alternative that offers greater total utility. This total utility combines the product's quality and the norms formed within the community.
+
+Increasing product quality makes the agents more satisfied. However, a consumer's choice of product is influenced not only by their personal experience but also by information obtained from their friends and the norms established. When the norm gets more important, consumers are more likely to choose the same product as their friends (connected agents).
+
+The total utility of a product is thus a weighted combination of its quality and abiding to the norm. When the **norm-influence** is zero, agents select on the basis of product quality alone. Their personal experience with the product’s quality, along with the information they receive from friends—through **information-exchange** —affects their choices. The higher the **information-exchange**, the more likely agents are to obtain quality information from their friends. Additionally, as the **norm-influence** grows stronger, agents derive more utility from choosing the same product as their friends, even if its quality is lower.
+
+If half of an agent's friends use blue and the other half orange, the norm is indeterminate, and the agent will not experience norm-based utility from either of the products. In such a situation product quality will be decisive, even when the **norm-influence** is high. However, if a large majority of friends use e.g., blue, the norm-based utility of blue will be high.
+
+The less satisfaction an agent gets from using the product, the more likely it tries to get information on the alternative product. Two strategies can be used here. The first strategy is **exploration**, where an agent tries the other product and obtains the actual information on the product quality. The second strategy is **information-exchange** among agents. As mentioned earlier, in addition to **norm-influence**, **information-exchange** plays a key role in shaping utility formation. In this strategy, agents share the product quality they memorize with their friends. Note that if a product quality has changed, not all agents may be aware of it, and hence outdated information on product quality may be shared.
+
+If **exploration** and **information-exchange** operate at a low level, because the agents are very satisfied with a high quality product, they may behave very habitually. As a consequence, they may miss out on changes in product quality. Especially a quality increase of the alternative product may go unnoticed.
+
+The **norm-influence** and **information-exchange** reflect the two key social influence mechanisms of information sharing and normative pressures (e.g. Cialdini & Goldstein, 2004). The more these social influences play a role, the deeper grey the connections between the agents are, thus representing the importance of social influence in the network.
+
+## HOW TO USE IT
+
+### COMMUNITY SETTINGS
+
+**num-consumers** sets the number of agents in the simulation, which is 100 in the default setting.
+
+**avg-social-connections** represents the average number of connections (links), that consumers establish with one another. The functioning of information exchange and the influence of norms operate through these connections. By default, the agents are initially set to have five connections. It's important to note that this average value of connections does not imply that every agent will have exactly this number. Some will have more and some less. The default setting is 5.
+
+**`initial-%-orange-product`** parameter represents the percentage of agents initially favoring the **`orange `** product. The default setting is 50.
+
+
+### AGENT SETTINGS
+
+**`norm-influence`** determines how likely agents are to conform to the choices of those they are connected with. When **`norm-influence`** is set to 0.0, agents do not conform to the choices of their connections and instead select the product with the highest quality. On the other hand, a value of 1.0 means that agents entirely base their decision on the product choice of the majority of their connections, disregarding product quality. Values between 0.0 and 1.0 indicate that agents are somewhat influenced by social norms, with varying levels of conformity. The default **`norm-influence`** is set at 0.15.
+
+**`information-exchange`** determines the likelihood that agents seek information from their connections about the quality of the product they are using. Even if an agent has already experienced both products, information from others can still influence them, as product quality may vary over time. For example, a value of 1 means agents will always inquire, whereas a value of 0.05 means there is a 5% chance of making such an inquiry. This social learning process allows agents to update their knowledge of (adjusted) product quality through information obtained from their connections. The default setting is 0.05.
+
+**`exploration`** empowers consumers to venture beyond their typical or habitual choices and opt for alternative products. At each tick, a specific number of consumers are randomly selected to experiment with new products, and this number is contingent upon the parameter--**`exploration`**. A higher value of **`exploration`** indicates a greater number of individuals willing to explore new products. The default setting is 0.05.
+
+Changing the settings for **`norm-influence`**, **`information-exchange`** and **`exploration`** allows for experimentation with different (combinations) of informational and normative influence.
+
+### QUALITY SETTINGS
+
+Quality of a product determines how satisfied an agent is with a product.
+
+**`quality-orange-`** allows for the selection of the quality of the **`orange `** product, ranging from 0 (low) to 1 (high), with 0.5 as the default.
+
+**`quality-blue-`** allows for the selection of the quality of the **`blue `** product, ranging from 0 (low) to 1 (high), with 0.5 as the default.
+
+When agents consume a high quality product, they will be more satisfied, and as a consequence engage less in exploration and information-exchange. A higher quality is visualised by increasing product size.
+
+In the default setting, the agents can choose between equal products of moderate quality, meaning that they will not develop very strong habits. The **`norm-influence`** is set at 0.15, making them a but sensitive for what their friends are choosing. Both **`information-exchange`** and **`exploration`** are set at 0.05, causing them to occasionally check the quality of the alternative product, either by asking a friend, or by independent search. Despite having equal products, the market is unstable. Due to the impact of norms, clusters emerge of agents choosing the same, and these clusters may grow and shrink at their frontiers, where agents experience conflicting social pressures.
+
+### SETUP & OPERATION
+
+**`setup`** creates the agents using the specifications given above.
+
+**`go`** initiates the continuous operation of the model.
+
+**`go-once`** facilitates the model to run for a single tick.
+
+While the model is running, you have the flexibility to modify the settings related to the agents and products (below the setup and go buttons), enabling real-time adjustments and experimentation to observe the direct impact of these modifications on the behavior and outcomes of the model.
+
+### SIMULATION OUTPUT
+
+Two graphs show how the market as a whole is behaving.
+
+**`market-shares`** tracks the evolving number of agents opting for the **orange ** and the **blue ** products over a given period.
+
+**`consumers-clustering`** is a metric showing the extent to which agents on average align their product choices with their connections. It quantifies the average similarity between a consumer's choice and the choice of its connections, aggregated over all agents. This gives a metric indicating if a market is composed of different groups sharing preferences, or a more individualistic distribution of preferences.
+
+## THINGS TO NOTICE
+
+By increasing the normative influence, you can witness agents aligning their product choices, and forming groups using the similar product (clustering). This phenomenon becomes evident not only through direct observation but also in the clustering graph, which visually represents the formation of clusters based on shared product preferences.
+
+If **`norm-influence`**, **`information-exchange`**, and **`exploration`** are set at 0, no effect is present whatsoever, and changes in product quality will not be seen by the agents. This describes a market where consumers don’t seek out new products, exchange information, or observe what others are buying. In essence, it’s a market of complete isolation, where consumers repeatedly purchase the same products without influence or variation.
+
+In a market where the norm is more important, agents respond slower to changes in product quality. Can you provide examples of real-life product markets that behave like that?
+
+When norms are more important, and one product dominates the market, improving the quality of the alternative product may not result in a significant boost in sales, despite its superior quality. This is because the strong norm in favour of the dominating product prevents agents from switching. This phenomenon, known as **social lock-in**, occurs when a superior product fails to gain traction due to conservative adherence to existing norms. Can you think of examples of social lock-ins in society?
+
+## THINGS TO TRY
+
+### EXPERIMENT 1: THE IMPACT OF PRODUCT QUALITY
+
+Use the following settings in the interface:
+
+- **`num-consumers = 100`**
+- **`avg-social-connections = 5`**
+- **`initial-%-orange-product = 50`**
+- **`norm-influence = 0`**
+- **`information-exchange = 0`**
+- **`exploration = 0.05`**
+- **`quality-orange = 0.1`**
+- **`quality-blue = 0.1`**
+
+Click on **go** to start the experiment. Through exploration the agents find out if the quality of a product has changed.
+
+During **go** you can click on **setup** to repeat this simulation with the same starting condition. On the go you can also change the sliders, creating different conditions.
+
+The quality of both products is very low, as can be seen by the small orange and blue s. Now change **`quality-orange`** to 0.15. You observe that the agents quickly start using orange after detecting it is of higher quality. Setting **`quality-blue`** at 0.15 causes the market shares to become more equal again.
+
+Now set **`quality-orange = 0.9`** and **`quality-blue = 0.9`**. Due to the high quality of the products, the agents will be satisfied and less likely to obtain information. Now change **`quality-orange = 0.95`**. You observe that the increase in market share for the orange product goes much slower. Due to their satisfaction, the agents do not obtain information that often, and habitually persist in their behavior. High quality products produce satisfaction, causing habits to emerge where agents are less likely to spot better alternatives when they arise.
+
+Do you know examples of markets where habits play a dominating role? And in what markets do habits hardly play a role? Can you think of examples where a superior product failed due to existing habits?
+
+### EXPERIMENT 2: THE EFFECT OF INFORMATION EXCHANGE
+
+Use the following settings in the interface:
+
+- **`num-consumers = 100`**
+- **`avg-social-connections = 5`**
+- **`initial-%-orange-product = 50`**
+- **`norm-influence = 0`**
+- **`information-exchange = 0.2`**
+- **`exploration = 0.0`**
+- **`quality-orange = 0.5`**
+- **`quality-blue = 0.5`**
+
+Click on go to start the experiment. After a short while, increase **`quality-orange`** to 0.7. What do you observe? Wait for all the agents consuming the orange product. Now increase **`quality-blue`** to .80. You will notice that the agents continue using the orange product, despite the blue product offers higher quality. Can you explain why? Now allow them to explore by setting **`exploration`** at .01. Can you explain why the agents now quickly switch towards the blue product? As a tip: think about what the agents remember about product qualities.
+
+
+### EXPERIMENT 3: THE EFFECT OF NORMS
+
+Use the following settings in the interface:
+
+- **`num-consumers = 100`**
+- **`avg-social-connections = 5`**
+- **`initial-%-orange-product = 50`**
+- **`norm-influence = 0.5`**
+- **`information-exchange = 0.05`**
+- **`exploration = 0`**
+- **`quality-orange = 0.5`**
+- **`quality-blue = 0.5`**
+
+Click on **go** to start the experiment. Observe what is happening, both with the emergence of groups using the same product, as the market shares of the products. Run this experiment several times (click setup) to see what is happening. Can you explain why clusters emerge of agents using the same product? Can you explain why sometimes the orange or blue product conquer a large market share? Can you relate this to a real-world market?
+
+Now set **`quality-orange = 0.9`** and **`quality-blue = 0.9`** and observe what is happening. Note that when product quality is very high, habitual behavior emerges, and the clustering effect slows down.  With **`quality-orange = 1.0`** and **`quality-blue = 1.0`**, the clustering completely disappears. Can you explain why? When clusters of agents habitually use the same product (or share the same opinion) based on a shared norm, could you interpret this as an agent-culture?
+
+
+### EXPERIMENT 4: NORMS,TIPPING POINT AND LOCK-IN
+
+Use the following settings in the interface:
+
+- **`num-consumers = 100`**
+- **`avg-social-connections = 5`**
+- **`initial-%-orange-product = 50`**
+- **`norm-influence = 0.0`**
+- **`information-exchange = 0.05`**
+- **`exploration = 0.01`**
+- **`quality-orange = 0.6`**
+- **`quality-blue = 0.5`**
+
+Click on **go** to start the experiment. As you see, the orange product, having a higher quality of .6, is quickly dominating the market. Occasionally, agents explore the blue product, but switch back to orange after experiencing the lower quality of blue.  Repeat this simulation a few times (click setup).
+
+Run again, and wait for the orange product to dominate. Then set **`norm-influence`** at .9. The orange product is still dominating. Now set **`quality-orange`** to .40.  You observe that orange keeps dominating the market for a long time. In this situation the agents prefer the lower quality product because it is the norm. This is a so-called  **social lock-in**.
+
+In this simulation there is also a chance that two or three neighbours explore the blue product at the same moment. This causes their local norm to change, and this can ignite a cascading effect, where the blue product diffuses over the network. Try this experiment a few times to see how this process works.
+
+Can you imagine situations where people remain consuming a certain product for normative reasons, despite the quality went down?
+
+Now increase the quality of the blue product step by step. As a tip: slowing the speed of the simulation (slider on top) makes the process of spreading better visible. At what quality of blue do the agents switch towards the blue product? This point where a change is cascading through the network is called a **tipping-point**. What normative influence do the agents experience when they are connected to both blue and orange using agents? Can you think of real-world situations where such tipping points can be seen?
+
+To read more on how norms affect lock-in and tipping point dynamics we refer to the aticle of Nyborg et al. (2016).
+
+
+### EXPERIMENT 5: THE IMPORTANCE OF EXPLORATION
+
+Use the following settings in the interface:
+
+- **`num-consumers = 100`**
+- **`avg-social-connections = 5`**.
+- **`initial-%-orange-product = 50`**
+- **`norm-influence = 0.0`**
+- **`information-exchange = 0.5`**
+- **`exploration = 0.0`**
+- **`quality-orange = 0.7`**
+- **`quality-blue = 0.5`**
+
+With the initial settings above, after a while the orange product fully dominates the market, and the blue product will eventually disappear completely.
+
+Now increase **`quality-blue`** to .90. You will notice that the agents persist in using orange, despite the blue product offers better quality. Because no agent is using the blue product, no agent is aware that its quality has become better than orange product.
+
+Now decrease the **`quality-orange`** to .40. You will notice that the agents quickly switch towards using the blue product. Whereas in a market where all agents are using orange a change of blue will go unnoticed, changing the quality of orange will obviously be experienced. When the quality of orange drops below the **`quality-blue`** they remember from the past (which was .50), they may switch to the blue product as this is better than the current **`quality-orange`** (.40). And by switching to the blue product, they now also experience that the actual quality is .90 instead of the .50 they remembered.
+
+Repeat the experiment with the same initial settings. Wait for the orange product to fully dominate the market, and the blue product has disappeared completely. Change the quality of blue to .90. Again, nothing happens. Now set **`exploration = 0.01`**. You will observe that the agents try the blue product, and learn immediately about its improved quality, and adopt. Also, when other agents ask about the quality of blue, they learn about its higher quality, and adopt as well, leading to a very rapid diffusion of the blue product.
+
+You can also repeat this experiment with high-quality versus low-quality products. Here you will see that the dynamics of change will be slower the more satisfied the agents are.
+
+This experiment shows that individual exploration is an important mechanism to be capable of spotting improvements of quality in products. Individual exploration is a key process in processes of innovation. Can you think of examples where you switched back to an earlier used product because the current product you were using was lowering in quality? And can you think of examples where you explored, and discovered a new better product? Producers often invite you explore a product to experience quality, such as a test-drive for a car, or limited free access to new software. Can you think of more strategies aimed at exploration?
+
+## EXTENDING THE MODEL
+
+Provide different network structure options during setup.
+
+Increase the number of products. For instance, having agents choose among three products instead of two allows for observing more complex dynamics.
+
+Include additional product attributes. Consider not only the quality but also the price of each product or its environmental outcomes.
+
+Include opinion leaders (influencers) that have many connections and consistently use one product.
+
+Make agents heterogenous in their attribute instead of all agents having the same values. For instance, make the **`norm-influence`**, **`information-exchange`**, and/or **`exploration`** parameters agent-specific (e.g., with a mean value and standard-deviation for the population) and observe if this changes the patterns of the model.
+
+## NETLOGO FEATURES
+
+In this model, the nodes represent turtle agents, while the edges represent link agents. It's worth noting that the average number of edges per node can be adjusted to control the connectivity within the network.
+
+## CREDITS AND REFERENCES
+
+This model and its experiments are part of an open, interactive online course on computational social science, developed under the 'Action for Computational Thinking in Social Sciences - ACTiSS' project. For more details, see the COPYRIGHT AND LICENSE section. Additional materials, such as educational videos and comprehensive descriptions of experiments, are freely available at https://actiss-edu.eu.
+
+
+An extended version of this model incorporates the role of influencers (hubs).
+
+* This version allows you to explore how the presence of individuals in key network positions (hubs) who endorse products impacts the process. It can be accessed here: https://actiss.github.io/netlogomodels/Models/SocialNetworkAnalysis/Model5.html
+
+Both the original model and its extensions are part of the online course on computational social science, specifically in the module 'Social Network Analysis: The Networks Connecting People.' Additional information, educational videos, and detailed exercise descriptions are available on https://actiss-edu.eu.
+
+For models focused on choice behavior, refer to the course module:
+
+* "Decision Making in a Complex World: Using Computer Simulations to Understand Human Behaviour," available at https://actiss-edu.eu.
+
+For an article discussing the role of normative influences in societal change, please refer to:
+
+* Nyborg, K., Anderies, J.M., Dannenberg, A., Lindahl, T., Schill, C., Schlüter, M., Adger, W.N., Arrow, K.J., Barrett, S., Carpenter, S., Chapin III, S.F., Crépin, A.S., Daily, G., Ehrlich, P., Folke, C., Jager, W., Kautblue, N., Levin, S.A., Madsen, O.J., Polablue, S., Scheffer, M., Walker, B., Weber, E.U., Wilen, J., Xepapadeas, A., De Zeeuw, A., (2016). Social norms as solutions: Policies may influence large-scale behavioral tipping. Science, 07 Oct 2016: Vol. 354, Issue 6308, pp. 42-43.
+
+For a review of normative and informative social influences we refer to:
+
+* Cialdini, R. B., and N. J. Goldstein. 2004. Social influence: Compliance and conformity. Annual Review of Psychology 55 (1): 591–621.
+
+## ACKNOWLEDGEMENTS
+
+Thanks to the ACTiSS team, https://actiss-edu.eu, for developing this model as one in a series of 5 on-line introductory modules on social computation. Thanks to Marco A. Janssen for developing the basic model, and Shaoni Wang for developing the current version. Thanks to Jacob Kelter for feedback that helped improving this model.
+
+This model was created as part of the project ACTiSS: Action for Computational Thinking in Social Sciences. ACTiSS was an EU Erasmus project aimed at supporting the teaching of social computation. This project was funded by Erasmus+ KA2: Strategic Partnership in the Field of Education, Training, and Youth – Higher Education.
+Project number: 2018-1-PL01-KA203-050951
+More info: https://actiss-edu.eu
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* ONLY Jager, W.,  Wang, S. and Wilensky, U. (2024).  NetLogo Consumer Choice model.  http://ccl.northwestern.edu/netlogo/models/ConsumerChoice.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2024 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This model is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+NetLogo itself is free software for non-commercial use under the terms of the GNU General Public License ([see full license information here](https://ccl.northwestern.edu/netlogo/docs/copyright.html)).
+
+To inquire about commercial licenses for either NetLogo or specific models from the models library, please contact netlogo-commercial-admin@ccl.northwestern.edu.
+
+<!-- 2024 ONLY Cite: Jager, W., Wang, S. -->
+
+]]></info>
+  <turtleShapes>
+    <shape name="default" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="5"></point>
+        <point x="40" y="250"></point>
+        <point x="150" y="205"></point>
+        <point x="260" y="250"></point>
+      </polygon>
+    </shape>
+    <shape name="airplane" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="135" y="15"></point>
+        <point x="120" y="60"></point>
+        <point x="120" y="105"></point>
+        <point x="15" y="165"></point>
+        <point x="15" y="195"></point>
+        <point x="120" y="180"></point>
+        <point x="135" y="240"></point>
+        <point x="105" y="270"></point>
+        <point x="120" y="285"></point>
+        <point x="150" y="270"></point>
+        <point x="180" y="285"></point>
+        <point x="210" y="270"></point>
+        <point x="165" y="240"></point>
+        <point x="180" y="180"></point>
+        <point x="285" y="195"></point>
+        <point x="285" y="165"></point>
+        <point x="180" y="105"></point>
+        <point x="180" y="60"></point>
+        <point x="165" y="15"></point>
+      </polygon>
+    </shape>
+    <shape name="arrow" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="0"></point>
+        <point x="0" y="150"></point>
+        <point x="105" y="150"></point>
+        <point x="105" y="293"></point>
+        <point x="195" y="293"></point>
+        <point x="195" y="150"></point>
+        <point x="300" y="150"></point>
+      </polygon>
+    </shape>
+    <shape name="box" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="285"></point>
+        <point x="285" y="225"></point>
+        <point x="285" y="75"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="135"></point>
+        <point x="15" y="75"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="75"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="75"></point>
+        <point x="15" y="225"></point>
+        <point x="150" y="285"></point>
+        <point x="150" y="135"></point>
+      </polygon>
+      <line endX="150" startY="285" marked="false" color="255" endY="135" startX="150"></line>
+      <line endX="15" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+      <line endX="285" startY="135" marked="false" color="255" endY="75" startX="150"></line>
+    </shape>
+    <shape name="bug" rotatable="true" editableColorIndex="0">
+      <circle x="96" y="182" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="110" y="127" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <circle x="110" y="75" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <line endX="80" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+      <line endX="220" startY="100" marked="true" color="-1920102913" endY="30" startX="150"></line>
+    </shape>
+    <shape name="butterfly" rotatable="true" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="209" y="199"></point>
+        <point x="225" y="225"></point>
+        <point x="225" y="255"></point>
+        <point x="195" y="270"></point>
+        <point x="165" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="165"></point>
+        <point x="89" y="198"></point>
+        <point x="75" y="225"></point>
+        <point x="75" y="255"></point>
+        <point x="105" y="270"></point>
+        <point x="135" y="255"></point>
+        <point x="150" y="240"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="139" y="148"></point>
+        <point x="100" y="105"></point>
+        <point x="55" y="90"></point>
+        <point x="25" y="90"></point>
+        <point x="10" y="105"></point>
+        <point x="10" y="135"></point>
+        <point x="25" y="180"></point>
+        <point x="40" y="195"></point>
+        <point x="85" y="194"></point>
+        <point x="139" y="163"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="162" y="150"></point>
+        <point x="200" y="105"></point>
+        <point x="245" y="90"></point>
+        <point x="275" y="90"></point>
+        <point x="290" y="105"></point>
+        <point x="290" y="135"></point>
+        <point x="275" y="180"></point>
+        <point x="260" y="195"></point>
+        <point x="215" y="195"></point>
+        <point x="162" y="165"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="135" y="225"></point>
+        <point x="120" y="150"></point>
+        <point x="135" y="120"></point>
+        <point x="150" y="105"></point>
+        <point x="165" y="120"></point>
+        <point x="180" y="150"></point>
+        <point x="165" y="225"></point>
+      </polygon>
+      <circle x="135" y="90" marked="false" color="255" diameter="30" filled="true"></circle>
+      <line endX="195" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+      <line endX="105" startY="105" marked="false" color="255" endY="60" startX="150"></line>
+    </shape>
+    <shape name="car" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="300" y="180"></point>
+        <point x="279" y="164"></point>
+        <point x="261" y="144"></point>
+        <point x="240" y="135"></point>
+        <point x="226" y="132"></point>
+        <point x="213" y="106"></point>
+        <point x="203" y="84"></point>
+        <point x="185" y="63"></point>
+        <point x="159" y="50"></point>
+        <point x="135" y="50"></point>
+        <point x="75" y="60"></point>
+        <point x="0" y="150"></point>
+        <point x="0" y="165"></point>
+        <point x="0" y="225"></point>
+        <point x="300" y="225"></point>
+        <point x="300" y="180"></point>
+      </polygon>
+      <circle x="180" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <circle x="30" y="180" marked="false" color="255" diameter="90" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="162" y="80"></point>
+        <point x="132" y="78"></point>
+        <point x="134" y="135"></point>
+        <point x="209" y="135"></point>
+        <point x="194" y="105"></point>
+        <point x="189" y="96"></point>
+        <point x="180" y="89"></point>
+      </polygon>
+      <circle x="47" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+      <circle x="195" y="195" marked="true" color="-1920102913" diameter="58" filled="true"></circle>
+    </shape>
+    <shape name="circle" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="circle 2" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+    </shape>
+    <shape name="cow" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="200" y="193"></point>
+        <point x="197" y="249"></point>
+        <point x="179" y="249"></point>
+        <point x="177" y="196"></point>
+        <point x="166" y="187"></point>
+        <point x="140" y="189"></point>
+        <point x="93" y="191"></point>
+        <point x="78" y="179"></point>
+        <point x="72" y="211"></point>
+        <point x="49" y="209"></point>
+        <point x="48" y="181"></point>
+        <point x="37" y="149"></point>
+        <point x="25" y="120"></point>
+        <point x="25" y="89"></point>
+        <point x="45" y="72"></point>
+        <point x="103" y="84"></point>
+        <point x="179" y="75"></point>
+        <point x="198" y="76"></point>
+        <point x="252" y="64"></point>
+        <point x="272" y="81"></point>
+        <point x="293" y="103"></point>
+        <point x="285" y="121"></point>
+        <point x="255" y="121"></point>
+        <point x="242" y="118"></point>
+        <point x="224" y="167"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="73" y="210"></point>
+        <point x="86" y="251"></point>
+        <point x="62" y="249"></point>
+        <point x="48" y="208"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="25" y="114"></point>
+        <point x="16" y="195"></point>
+        <point x="9" y="204"></point>
+        <point x="23" y="213"></point>
+        <point x="25" y="200"></point>
+        <point x="39" y="123"></point>
+      </polygon>
+    </shape>
+    <shape name="cylinder" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+    </shape>
+    <shape name="dot" rotatable="false" editableColorIndex="0">
+      <circle x="90" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+    </shape>
+    <shape name="face happy" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="255"></point>
+        <point x="90" y="239"></point>
+        <point x="62" y="213"></point>
+        <point x="47" y="191"></point>
+        <point x="67" y="179"></point>
+        <point x="90" y="203"></point>
+        <point x="109" y="218"></point>
+        <point x="150" y="225"></point>
+        <point x="192" y="218"></point>
+        <point x="210" y="203"></point>
+        <point x="227" y="181"></point>
+        <point x="251" y="194"></point>
+        <point x="236" y="217"></point>
+        <point x="212" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="face neutral" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="7" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <rectangle endX="240" startY="195" marked="false" color="255" endY="225" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="face sad" rotatable="false" editableColorIndex="0">
+      <circle x="8" y="8" marked="true" color="-1920102913" diameter="285" filled="true"></circle>
+      <circle x="60" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <circle x="180" y="75" marked="false" color="255" diameter="60" filled="true"></circle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="150" y="168"></point>
+        <point x="90" y="184"></point>
+        <point x="62" y="210"></point>
+        <point x="47" y="232"></point>
+        <point x="67" y="244"></point>
+        <point x="90" y="220"></point>
+        <point x="109" y="205"></point>
+        <point x="150" y="198"></point>
+        <point x="192" y="205"></point>
+        <point x="210" y="220"></point>
+        <point x="227" y="242"></point>
+        <point x="251" y="229"></point>
+        <point x="236" y="206"></point>
+        <point x="212" y="183"></point>
+      </polygon>
+    </shape>
+    <shape name="fish" rotatable="false" editableColorIndex="0">
+      <polygon color="-1" filled="true" marked="false">
+        <point x="44" y="131"></point>
+        <point x="21" y="87"></point>
+        <point x="15" y="86"></point>
+        <point x="0" y="120"></point>
+        <point x="15" y="150"></point>
+        <point x="0" y="180"></point>
+        <point x="13" y="214"></point>
+        <point x="20" y="212"></point>
+        <point x="45" y="166"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="135" y="195"></point>
+        <point x="119" y="235"></point>
+        <point x="95" y="218"></point>
+        <point x="76" y="210"></point>
+        <point x="46" y="204"></point>
+        <point x="60" y="165"></point>
+      </polygon>
+      <polygon color="-1" filled="true" marked="false">
+        <point x="75" y="45"></point>
+        <point x="83" y="77"></point>
+        <point x="71" y="103"></point>
+        <point x="86" y="114"></point>
+        <point x="166" y="78"></point>
+        <point x="135" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="136"></point>
+        <point x="151" y="77"></point>
+        <point x="226" y="81"></point>
+        <point x="280" y="119"></point>
+        <point x="292" y="146"></point>
+        <point x="292" y="160"></point>
+        <point x="287" y="170"></point>
+        <point x="270" y="195"></point>
+        <point x="195" y="210"></point>
+        <point x="151" y="212"></point>
+        <point x="30" y="166"></point>
+      </polygon>
+      <circle x="215" y="106" marked="false" color="255" diameter="30" filled="true"></circle>
+    </shape>
+    <shape name="flag" rotatable="false" editableColorIndex="0">
+      <rectangle endX="75" startY="15" marked="true" color="-1920102913" endY="300" startX="60" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="90" y="150"></point>
+        <point x="270" y="90"></point>
+        <point x="90" y="30"></point>
+      </polygon>
+      <line endX="90" startY="135" marked="true" color="-1920102913" endY="135" startX="75"></line>
+      <line endX="90" startY="45" marked="true" color="-1920102913" endY="45" startX="75"></line>
+    </shape>
+    <shape name="flower" rotatable="false" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="135" y="120"></point>
+        <point x="165" y="165"></point>
+        <point x="180" y="210"></point>
+        <point x="180" y="240"></point>
+        <point x="150" y="300"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="240"></point>
+        <point x="195" y="195"></point>
+        <point x="165" y="135"></point>
+      </polygon>
+      <circle x="85" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="147" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="192" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="85" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="40" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="177" y="132" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="70" y="85" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="130" y="25" marked="true" color="-1920102913" diameter="38" filled="true"></circle>
+      <circle x="96" y="51" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="113" y="68" marked="false" color="255" diameter="74" filled="true"></circle>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="189" y="233"></point>
+        <point x="219" y="188"></point>
+        <point x="249" y="173"></point>
+        <point x="279" y="188"></point>
+        <point x="234" y="218"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="180" y="255"></point>
+        <point x="150" y="210"></point>
+        <point x="105" y="210"></point>
+        <point x="75" y="240"></point>
+        <point x="135" y="240"></point>
+      </polygon>
+    </shape>
+    <shape name="house" rotatable="false" editableColorIndex="0">
+      <rectangle endX="255" startY="120" marked="true" color="-1920102913" endY="285" startX="45" filled="true"></rectangle>
+      <rectangle endX="180" startY="210" marked="false" color="255" endY="285" startX="120" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="15" y="120"></point>
+        <point x="150" y="15"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+      <line endX="270" startY="120" marked="false" color="255" endY="120" startX="30"></line>
+    </shape>
+    <shape name="leaf" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="210"></point>
+        <point x="135" y="195"></point>
+        <point x="120" y="210"></point>
+        <point x="60" y="210"></point>
+        <point x="30" y="195"></point>
+        <point x="60" y="180"></point>
+        <point x="60" y="165"></point>
+        <point x="15" y="135"></point>
+        <point x="30" y="120"></point>
+        <point x="15" y="105"></point>
+        <point x="40" y="104"></point>
+        <point x="45" y="90"></point>
+        <point x="60" y="90"></point>
+        <point x="90" y="105"></point>
+        <point x="105" y="120"></point>
+        <point x="120" y="120"></point>
+        <point x="105" y="60"></point>
+        <point x="120" y="60"></point>
+        <point x="135" y="30"></point>
+        <point x="150" y="15"></point>
+        <point x="165" y="30"></point>
+        <point x="180" y="60"></point>
+        <point x="195" y="60"></point>
+        <point x="180" y="120"></point>
+        <point x="195" y="120"></point>
+        <point x="210" y="105"></point>
+        <point x="240" y="90"></point>
+        <point x="255" y="90"></point>
+        <point x="263" y="104"></point>
+        <point x="285" y="105"></point>
+        <point x="270" y="120"></point>
+        <point x="285" y="135"></point>
+        <point x="240" y="165"></point>
+        <point x="240" y="180"></point>
+        <point x="270" y="195"></point>
+        <point x="240" y="210"></point>
+        <point x="180" y="210"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="195"></point>
+        <point x="135" y="240"></point>
+        <point x="120" y="255"></point>
+        <point x="105" y="255"></point>
+        <point x="105" y="285"></point>
+        <point x="135" y="285"></point>
+        <point x="165" y="240"></point>
+        <point x="165" y="195"></point>
+      </polygon>
+    </shape>
+    <shape name="line" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="300" startX="150"></line>
+    </shape>
+    <shape name="line half" rotatable="true" editableColorIndex="0">
+      <line endX="150" startY="0" marked="true" color="-1920102913" endY="150" startX="150"></line>
+    </shape>
+    <shape name="pentagon" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="15"></point>
+        <point x="15" y="120"></point>
+        <point x="60" y="285"></point>
+        <point x="240" y="285"></point>
+        <point x="285" y="120"></point>
+      </polygon>
+    </shape>
+    <shape name="person" rotatable="false" editableColorIndex="0">
+      <circle x="110" y="5" marked="true" color="-1920102913" diameter="80" filled="true"></circle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="120" y="195"></point>
+        <point x="90" y="285"></point>
+        <point x="105" y="300"></point>
+        <point x="135" y="300"></point>
+        <point x="150" y="225"></point>
+        <point x="165" y="300"></point>
+        <point x="195" y="300"></point>
+        <point x="210" y="285"></point>
+        <point x="180" y="195"></point>
+        <point x="195" y="90"></point>
+      </polygon>
+      <rectangle endX="172" startY="79" marked="true" color="-1920102913" endY="94" startX="127" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="195" y="90"></point>
+        <point x="240" y="150"></point>
+        <point x="225" y="180"></point>
+        <point x="165" y="105"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="105" y="90"></point>
+        <point x="60" y="150"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="105"></point>
+      </polygon>
+    </shape>
+    <shape name="plant" rotatable="false" editableColorIndex="0">
+      <rectangle endX="165" startY="90" marked="true" color="-1920102913" endY="300" startX="135" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="255"></point>
+        <point x="90" y="210"></point>
+        <point x="45" y="195"></point>
+        <point x="75" y="255"></point>
+        <point x="135" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="255"></point>
+        <point x="210" y="210"></point>
+        <point x="255" y="195"></point>
+        <point x="225" y="255"></point>
+        <point x="165" y="285"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="180"></point>
+        <point x="90" y="135"></point>
+        <point x="45" y="120"></point>
+        <point x="75" y="180"></point>
+        <point x="135" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="180"></point>
+        <point x="165" y="210"></point>
+        <point x="225" y="180"></point>
+        <point x="255" y="120"></point>
+        <point x="210" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="105"></point>
+        <point x="90" y="60"></point>
+        <point x="45" y="45"></point>
+        <point x="75" y="105"></point>
+        <point x="135" y="135"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="165" y="105"></point>
+        <point x="165" y="135"></point>
+        <point x="225" y="105"></point>
+        <point x="255" y="45"></point>
+        <point x="210" y="60"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="135" y="90"></point>
+        <point x="120" y="45"></point>
+        <point x="150" y="15"></point>
+        <point x="180" y="45"></point>
+        <point x="165" y="90"></point>
+      </polygon>
+    </shape>
+    <shape name="square" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+    </shape>
+    <shape name="square 2" rotatable="false" editableColorIndex="0">
+      <rectangle endX="270" startY="30" marked="true" color="-1920102913" endY="270" startX="30" filled="true"></rectangle>
+      <rectangle endX="240" startY="60" marked="false" color="255" endY="240" startX="60" filled="true"></rectangle>
+    </shape>
+    <shape name="star" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="151" y="1"></point>
+        <point x="185" y="108"></point>
+        <point x="298" y="108"></point>
+        <point x="207" y="175"></point>
+        <point x="242" y="282"></point>
+        <point x="151" y="216"></point>
+        <point x="59" y="282"></point>
+        <point x="94" y="175"></point>
+        <point x="3" y="108"></point>
+        <point x="116" y="108"></point>
+      </polygon>
+    </shape>
+    <shape name="target" rotatable="false" editableColorIndex="0">
+      <circle x="0" y="0" marked="true" color="-1920102913" diameter="300" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <circle x="60" y="60" marked="true" color="-1920102913" diameter="180" filled="true"></circle>
+      <circle x="90" y="90" marked="false" color="255" diameter="120" filled="true"></circle>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+    </shape>
+    <shape name="tree" rotatable="false" editableColorIndex="0">
+      <circle x="118" y="3" marked="true" color="-1920102913" diameter="94" filled="true"></circle>
+      <rectangle endX="180" startY="195" marked="false" color="-1653716737" endY="300" startX="120" filled="true"></rectangle>
+      <circle x="65" y="21" marked="true" color="-1920102913" diameter="108" filled="true"></circle>
+      <circle x="116" y="41" marked="true" color="-1920102913" diameter="127" filled="true"></circle>
+      <circle x="45" y="90" marked="true" color="-1920102913" diameter="120" filled="true"></circle>
+      <circle x="104" y="74" marked="true" color="-1920102913" diameter="152" filled="true"></circle>
+    </shape>
+    <shape name="triangle" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+    </shape>
+    <shape name="triangle 2" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="150" y="30"></point>
+        <point x="15" y="255"></point>
+        <point x="285" y="255"></point>
+      </polygon>
+      <polygon color="255" filled="true" marked="false">
+        <point x="151" y="99"></point>
+        <point x="225" y="223"></point>
+        <point x="75" y="224"></point>
+      </polygon>
+    </shape>
+    <shape name="truck" rotatable="false" editableColorIndex="0">
+      <rectangle endX="195" startY="45" marked="true" color="-1920102913" endY="187" startX="4" filled="true"></rectangle>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="296" y="193"></point>
+        <point x="296" y="150"></point>
+        <point x="259" y="134"></point>
+        <point x="244" y="104"></point>
+        <point x="208" y="104"></point>
+        <point x="207" y="194"></point>
+      </polygon>
+      <rectangle endX="195" startY="60" marked="false" color="-1" endY="105" startX="195" filled="true"></rectangle>
+      <polygon color="255" filled="true" marked="false">
+        <point x="238" y="112"></point>
+        <point x="252" y="141"></point>
+        <point x="219" y="141"></point>
+        <point x="218" y="112"></point>
+      </polygon>
+      <circle x="234" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <rectangle endX="214" startY="185" marked="true" color="-1920102913" endY="194" startX="181" filled="true"></rectangle>
+      <circle x="144" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="false" color="255" diameter="42" filled="true"></circle>
+      <circle x="24" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="144" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+      <circle x="234" y="174" marked="true" color="-1920102913" diameter="42" filled="false"></circle>
+    </shape>
+    <shape name="turtle" rotatable="true" editableColorIndex="0">
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="215" y="204"></point>
+        <point x="240" y="233"></point>
+        <point x="246" y="254"></point>
+        <point x="228" y="266"></point>
+        <point x="215" y="252"></point>
+        <point x="193" y="210"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="195" y="90"></point>
+        <point x="225" y="75"></point>
+        <point x="245" y="75"></point>
+        <point x="260" y="89"></point>
+        <point x="269" y="108"></point>
+        <point x="261" y="124"></point>
+        <point x="240" y="105"></point>
+        <point x="225" y="105"></point>
+        <point x="210" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="105" y="90"></point>
+        <point x="75" y="75"></point>
+        <point x="55" y="75"></point>
+        <point x="40" y="89"></point>
+        <point x="31" y="108"></point>
+        <point x="39" y="124"></point>
+        <point x="60" y="105"></point>
+        <point x="75" y="105"></point>
+        <point x="90" y="105"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="132" y="85"></point>
+        <point x="134" y="64"></point>
+        <point x="107" y="51"></point>
+        <point x="108" y="17"></point>
+        <point x="150" y="2"></point>
+        <point x="192" y="18"></point>
+        <point x="192" y="52"></point>
+        <point x="169" y="65"></point>
+        <point x="172" y="87"></point>
+      </polygon>
+      <polygon color="1504722175" filled="true" marked="false">
+        <point x="85" y="204"></point>
+        <point x="60" y="233"></point>
+        <point x="54" y="254"></point>
+        <point x="72" y="266"></point>
+        <point x="85" y="252"></point>
+        <point x="107" y="210"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="119" y="75"></point>
+        <point x="179" y="75"></point>
+        <point x="209" y="101"></point>
+        <point x="224" y="135"></point>
+        <point x="220" y="225"></point>
+        <point x="175" y="261"></point>
+        <point x="128" y="261"></point>
+        <point x="81" y="224"></point>
+        <point x="74" y="135"></point>
+        <point x="88" y="99"></point>
+      </polygon>
+    </shape>
+    <shape name="wheel" rotatable="false" editableColorIndex="0">
+      <circle x="3" y="3" marked="true" color="-1920102913" diameter="294" filled="true"></circle>
+      <circle x="30" y="30" marked="false" color="255" diameter="240" filled="true"></circle>
+      <line endX="150" startY="285" marked="true" color="-1920102913" endY="15" startX="150"></line>
+      <line endX="285" startY="150" marked="true" color="-1920102913" endY="150" startX="15"></line>
+      <circle x="120" y="120" marked="true" color="-1920102913" diameter="60" filled="true"></circle>
+      <line endX="79" startY="40" marked="true" color="-1920102913" endY="269" startX="216"></line>
+      <line endX="269" startY="84" marked="true" color="-1920102913" endY="221" startX="40"></line>
+      <line endX="269" startY="216" marked="true" color="-1920102913" endY="79" startX="40"></line>
+      <line endX="221" startY="40" marked="true" color="-1920102913" endY="269" startX="84"></line>
+    </shape>
+    <shape name="x" rotatable="false" editableColorIndex="0">
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="270" y="75"></point>
+        <point x="225" y="30"></point>
+        <point x="30" y="225"></point>
+        <point x="75" y="270"></point>
+      </polygon>
+      <polygon color="-1920102913" filled="true" marked="true">
+        <point x="30" y="75"></point>
+        <point x="75" y="30"></point>
+        <point x="270" y="225"></point>
+        <point x="225" y="270"></point>
+      </polygon>
+    </shape>
+  </turtleShapes>
+  <linkShapes>
+    <shape name="default" curviness="0.0">
+      <lines>
+        <line x="-0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+        <line x="0.0" visible="true">
+          <dash value="1.0"></dash>
+          <dash value="0.0"></dash>
+        </line>
+        <line x="0.2" visible="false">
+          <dash value="0.0"></dash>
+          <dash value="1.0"></dash>
+        </line>
+      </lines>
+      <indicator>
+        <shape name="link direction" rotatable="true" editableColorIndex="0">
+          <line endX="90" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+          <line endX="210" startY="150" marked="true" color="-1920102913" endY="180" startX="150"></line>
+        </shape>
+      </indicator>
+    </shape>
+  </linkShapes>
+  <previewCommands>setup repeat 75 [ go ]</previewCommands>
+</model>
